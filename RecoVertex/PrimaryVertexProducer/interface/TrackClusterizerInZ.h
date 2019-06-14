@@ -11,22 +11,15 @@
 #include <vector>
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-
-
-
 class TrackClusterizerInZ {
-
-
 public:
-
   TrackClusterizerInZ(){};
   TrackClusterizerInZ(const edm::ParameterSet& conf){};
 
-  virtual std::vector< std::vector<reco::TransientTrack> >
-    clusterize(const std::vector<reco::TransientTrack> & tracks)const =0;
+  virtual std::vector<std::vector<reco::TransientTrack> > clusterize(
+      const std::vector<reco::TransientTrack>& tracks) const = 0;
 
   virtual ~TrackClusterizerInZ(){};
-
 };
 
 #endif

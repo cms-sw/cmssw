@@ -19,11 +19,8 @@ class MagneticField;
 
 class TSOSFromSimHitFactory {
 public:
-
-  TrajectoryStateOnSurface operator()( const PSimHit& hit, const GeomDetUnit& det,
-				       const MagneticField& field) const {
-    return TrajectoryStateOnSurface( FTSFromSimHitFactory()( hit, det, field),
-				     det.surface());
+  TrajectoryStateOnSurface operator()(const PSimHit& hit, const GeomDetUnit& det, const MagneticField& field) const {
+    return TrajectoryStateOnSurface(FTSFromSimHitFactory()(hit, det, field), det.surface());
   }
 };
 

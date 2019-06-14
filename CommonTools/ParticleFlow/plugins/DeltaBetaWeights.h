@@ -1,12 +1,11 @@
 
 // Weight for neutral particles based on distance with charged
-// 
+//
 // Original Author:  Michail Bachtis,40 1-B08,+41227678176,
 //         Created:  Mon Dec  9 13:18:05 CET 2013
 //
 // edited by Pavel Jez
 //
-
 
 // system include files
 #include <memory>
@@ -25,22 +24,18 @@
 //
 
 class DeltaBetaWeights : public edm::EDProducer {
- public:
+public:
   explicit DeltaBetaWeights(const edm::ParameterSet&);
   ~DeltaBetaWeights() override;
 
- private:
-
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   // ----------member data ---------------------------
   edm::InputTag src_;
   edm::InputTag pfCharged_;
   edm::InputTag pfPU_;
-  
+
   edm::EDGetTokenT<edm::View<reco::Candidate> > pfCharged_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > pfPU_token;
   edm::EDGetTokenT<edm::View<reco::Candidate> > src_token;
-
-
-
 };

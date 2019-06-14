@@ -17,4 +17,3 @@
 
 #include <vector>
 #include <utility>
-

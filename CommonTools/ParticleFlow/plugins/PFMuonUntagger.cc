@@ -19,103 +19,101 @@
 #include <iostream>
 
 class PFMuonUntagger : public edm::global::EDProducer<> {
-    public:
-        PFMuonUntagger(const edm::ParameterSet&);
-        ~PFMuonUntagger() override {};
+public:
+  PFMuonUntagger(const edm::ParameterSet &);
+  ~PFMuonUntagger() override{};
 
-  void produce(edm::StreamID iID, edm::Event&, const edm::EventSetup&) const override;
+  void produce(edm::StreamID iID, edm::Event &, const edm::EventSetup &) const override;
 
-    private:
-        edm::EDGetTokenT<std::vector<reco::Muon> > muons_;
-        std::vector<edm::EDGetTokenT<reco::CandidateView>> badmuons_;
+private:
+  edm::EDGetTokenT<std::vector<reco::Muon>> muons_;
+  std::vector<edm::EDGetTokenT<reco::CandidateView>> badmuons_;
 
-        template<typename H1, typename H2>
-        void writeAssociation(edm::Event &out, const H1 &from, const H2 &to, const std::vector<int> indices, const std::string &name) const {
-            typedef edm::Association<std::vector<reco::Muon>> AssoMap;
-            std::unique_ptr<AssoMap> assomap(new AssoMap(to));
-            typename AssoMap::Filler filler(*assomap);
-            filler.insert(from, indices.begin(), indices.end());
-            filler.fill();
-            out.put(std::move(assomap), name);
-        }
+  template <typename H1, typename H2>
+  void writeAssociation(
+      edm::Event &out, const H1 &from, const H2 &to, const std::vector<int> indices, const std::string &name) const {
+    typedef edm::Association<std::vector<reco::Muon>> AssoMap;
+    std::unique_ptr<AssoMap> assomap(new AssoMap(to));
+    typename AssoMap::Filler filler(*assomap);
+    filler.insert(from, indices.begin(), indices.end());
+    filler.fill();
+    out.put(std::move(assomap), name);
+  }
 
-        template<typename H1>
-        void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) const {
-            typedef edm::ValueMap<int> IntMap;
-            std::unique_ptr<IntMap> intmap(new IntMap());
-            typename IntMap::Filler filler(*intmap);
-            filler.insert(from, values.begin(), values.end());
-            filler.fill();
-            out.put(std::move(intmap), name);
-        }
-
+  template <typename H1>
+  void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) const {
+    typedef edm::ValueMap<int> IntMap;
+    std::unique_ptr<IntMap> intmap(new IntMap());
+    typename IntMap::Filler filler(*intmap);
+    filler.insert(from, values.begin(), values.end());
+    filler.fill();
+    out.put(std::move(intmap), name);
+  }
 };
 
-PFMuonUntagger::PFMuonUntagger(const edm::ParameterSet &iConfig) :
-    muons_(consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons")))
-{
-    for (const auto & src : iConfig.getParameter<std::vector<edm::InputTag>>("badmuons")) {
-        badmuons_.push_back(consumes<reco::CandidateView>(src));
-    }
+PFMuonUntagger::PFMuonUntagger(const edm::ParameterSet &iConfig)
+    : muons_(consumes<std::vector<reco::Muon>>(iConfig.getParameter<edm::InputTag>("muons"))) {
+  for (const auto &src : iConfig.getParameter<std::vector<edm::InputTag>>("badmuons")) {
+    badmuons_.push_back(consumes<reco::CandidateView>(src));
+  }
 
-    produces<std::vector<reco::Muon>>();
-    produces<edm::ValueMap<int>>("oldPF");
-    produces<edm::Association<std::vector<reco::Muon>>>("newToOld");
-    produces<edm::Association<std::vector<reco::Muon>>>("oldToNew");
-    produces<std::vector<reco::Muon>>("bad");
-    produces<edm::Association<std::vector<reco::Muon>>>("badToNew");
-    produces<edm::Association<std::vector<reco::Muon>>>("newToBad");
+  produces<std::vector<reco::Muon>>();
+  produces<edm::ValueMap<int>>("oldPF");
+  produces<edm::Association<std::vector<reco::Muon>>>("newToOld");
+  produces<edm::Association<std::vector<reco::Muon>>>("oldToNew");
+  produces<std::vector<reco::Muon>>("bad");
+  produces<edm::Association<std::vector<reco::Muon>>>("badToNew");
+  produces<edm::Association<std::vector<reco::Muon>>>("newToBad");
 }
 
-void PFMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, const edm::EventSetup&) const
-{
-    edm::Handle<std::vector<reco::Muon>> muons;
-    iEvent.getByToken(muons_, muons);
+void PFMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, const edm::EventSetup &) const {
+  edm::Handle<std::vector<reco::Muon>> muons;
+  iEvent.getByToken(muons_, muons);
 
-    unsigned int n = muons->size();
-    std::unique_ptr<std::vector<reco::Muon>> copy(new std::vector<reco::Muon>(*muons));
-    std::vector<int> oldPF(n); 
-    std::vector<int> dummyIndices(n); 
-    for (unsigned int i = 0; i < n; ++i) {
-        oldPF[i] = (*copy)[i].isPFMuon();
-        dummyIndices[i] = i;
+  unsigned int n = muons->size();
+  std::unique_ptr<std::vector<reco::Muon>> copy(new std::vector<reco::Muon>(*muons));
+  std::vector<int> oldPF(n);
+  std::vector<int> dummyIndices(n);
+  for (unsigned int i = 0; i < n; ++i) {
+    oldPF[i] = (*copy)[i].isPFMuon();
+    dummyIndices[i] = i;
+  }
+
+  edm::Handle<reco::CandidateView> badmuons;
+  for (const auto &tag : badmuons_) {
+    iEvent.getByToken(tag, badmuons);
+    for (unsigned int j = 0, nj = badmuons->size(); j < nj; ++j) {
+      reco::CandidatePtr p = badmuons->ptrAt(j);
+      if (p.isNonnull() && p.id() == muons.id()) {
+        reco::Muon &mu = (*copy)[p.key()];
+        mu.setType(mu.type() & ~reco::Muon::PFMuon);
+      }
     }
+  }
 
-    edm::Handle<reco::CandidateView> badmuons;
-    for (const auto & tag : badmuons_) {
-        iEvent.getByToken(tag, badmuons);
-        for (unsigned int j = 0, nj = badmuons->size(); j < nj; ++j) {
-            reco::CandidatePtr p = badmuons->ptrAt(j);
-            if (p.isNonnull() && p.id() == muons.id()) {
-                reco::Muon &mu = (*copy)[p.key()];
-                mu.setType(mu.type() & ~reco::Muon::PFMuon);
-            }
-        }
+  std::unique_ptr<std::vector<reco::Muon>> bad(new std::vector<reco::Muon>());
+  std::vector<int> good2bad(n, -1), bad2good;
+  for (unsigned int i = 0; i < n; ++i) {
+    const reco::Muon &mu = (*copy)[i];
+    if (oldPF[i] != mu.isPFMuon()) {
+      bad->push_back((*muons)[i]);
+      bad2good.push_back(i);
+      good2bad[i] = (bad->size() - 1);
     }
+  }
 
-    std::unique_ptr<std::vector<reco::Muon>> bad(new std::vector<reco::Muon>());
-    std::vector<int> good2bad(n,-1), bad2good;
-    for (unsigned int i = 0; i < n; ++i) {
-        const reco::Muon &mu = (*copy)[i];
-        if (oldPF[i] != mu.isPFMuon()) {
-            bad->push_back((*muons)[i]);
-            bad2good.push_back(i);
-            good2bad[i] = (bad->size()-1);
-        }
-    }
-    
-    // Now we put things in the event
-    edm::OrphanHandle<std::vector<reco::Muon>> newmu = iEvent.put(std::move(copy));
-    edm::OrphanHandle<std::vector<reco::Muon>> badmu = iEvent.put(std::move(bad), "bad");
+  // Now we put things in the event
+  edm::OrphanHandle<std::vector<reco::Muon>> newmu = iEvent.put(std::move(copy));
+  edm::OrphanHandle<std::vector<reco::Muon>> badmu = iEvent.put(std::move(bad), "bad");
 
-    // Now we create the associations
-    writeAssociation(iEvent, newmu, muons, dummyIndices, "newToOld");
-    writeAssociation(iEvent, muons, newmu, dummyIndices, "oldToNew");
-    writeAssociation(iEvent, newmu, badmu, good2bad, "newToBad");
-    writeAssociation(iEvent, badmu, newmu, bad2good, "badToNew");
+  // Now we create the associations
+  writeAssociation(iEvent, newmu, muons, dummyIndices, "newToOld");
+  writeAssociation(iEvent, muons, newmu, dummyIndices, "oldToNew");
+  writeAssociation(iEvent, newmu, badmu, good2bad, "newToBad");
+  writeAssociation(iEvent, badmu, newmu, bad2good, "badToNew");
 
-    // Now we create the valuemap
-    writeValueMap(iEvent, newmu, oldPF, "oldPF");
+  // Now we create the valuemap
+  writeValueMap(iEvent, newmu, oldPF, "oldPF");
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(PFMuonUntagger);

@@ -8,9 +8,8 @@
 
 #include "DataFormats/JetReco/interface/BasicJet.h"
 
-
 namespace reco {
-  /// collection of BasicJet objects 
+  /// collection of BasicJet objects
   typedef std::vector<BasicJet> BasicJetCollection;
   /// edm references
   typedef edm::Ref<BasicJetCollection> BasicJetRef;
@@ -20,5 +19,5 @@ namespace reco {
   typedef std::vector<edm::FwdRef<BasicJetCollection> > BasicJetFwdRefVector;
   typedef std::vector<edm::FwdPtr<BasicJet> > BasicJetFwdPtrVector;
   typedef edm::RefProd<BasicJetCollection> BasicJetRefProd;
-}
+}  // namespace reco
 #endif

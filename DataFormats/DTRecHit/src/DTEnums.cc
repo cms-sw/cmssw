@@ -7,8 +7,8 @@
 
 using namespace std;
 
-ostream& operator<<( ostream& s, DTEnums::DTCellSide p) {
-  switch(p) {
+ostream& operator<<(ostream& s, DTEnums::DTCellSide p) {
+  switch (p) {
     case DTEnums::undefLR:
       return s << "undefined";
     case DTEnums::Right:

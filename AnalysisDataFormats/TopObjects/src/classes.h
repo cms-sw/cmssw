@@ -6,7 +6,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLeptonicEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadronicEvent.h"
 
-
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtHadEvtSolution.h"
@@ -14,4 +13,3 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TString.h"
-

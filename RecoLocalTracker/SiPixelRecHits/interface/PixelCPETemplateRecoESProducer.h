@@ -7,19 +7,15 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include <memory>
 
-class  PixelCPETemplateRecoESProducer: public edm::ESProducer{
- public:
-  PixelCPETemplateRecoESProducer(const edm::ParameterSet & p);
-  ~PixelCPETemplateRecoESProducer() override; 
+class PixelCPETemplateRecoESProducer : public edm::ESProducer {
+public:
+  PixelCPETemplateRecoESProducer(const edm::ParameterSet &p);
+  ~PixelCPETemplateRecoESProducer() override;
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
   bool DoLorentz_;
 };
 
-
 #endif
-
-
-
-

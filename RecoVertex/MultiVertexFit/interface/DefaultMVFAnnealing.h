@@ -4,7 +4,6 @@
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
 
 class DefaultMVFAnnealing : public GeometricAnnealing {
-
 public:
   /**
    *  Default annealing schedule from mvf
@@ -19,8 +18,7 @@ public:
    *  DefaultMVFAnnealing:Tini=1024
    *  DefaultMVFAnnealing:Ratio=0.2
    */
-  DefaultMVFAnnealing( const double cutoff=9., const double T=1024.,
-     const double annealing_ratio=0.2 );
+  DefaultMVFAnnealing(const double cutoff = 9., const double T = 1024., const double annealing_ratio = 0.2);
 };
 
 #endif

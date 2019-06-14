@@ -9,14 +9,13 @@
 #include <vector>
 #include <iostream>
 
-
 /** The trapezoid has the minimal size fully containing all Dets.
  */
 
 #pragma GCC visibility push(hidden)
 class BladeShapeBuilderFromDet {
- public:
-  static BoundDiskSector * build( const std::vector<const GeomDet*>& dets) __attribute__ ((cold));
+public:
+  static BoundDiskSector* build(const std::vector<const GeomDet*>& dets) __attribute__((cold));
 };
 
 #pragma GCC visibility pop

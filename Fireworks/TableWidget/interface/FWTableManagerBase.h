@@ -4,7 +4,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWTableManagerBase
-// 
+//
 /**\class FWTableManagerBase FWTableManagerBase.h Fireworks/TableWidget/interface/FWTableManagerBase.h
 
  Description: Base class for classes that work as interfaces that translate underlying data into a table form
@@ -41,85 +41,81 @@
 // forward declarations
 class FWTableCellRendererBase;
 
-class FWTableManagerBase : public TQObject 
-{
+class FWTableManagerBase : public TQObject {
+public:
+  FWTableManagerBase();
+  ~FWTableManagerBase() override;
 
-   public:
-      FWTableManagerBase();
-      ~FWTableManagerBase() override;
+  // ---------- const member functions ---------------------
+  ///Number of rows in the table
+  virtual int numberOfRows() const = 0;
+  ///Number of columns in the table
+  virtual int numberOfColumns() const = 0;
 
-      // ---------- const member functions ---------------------
-      ///Number of rows in the table
-      virtual  int numberOfRows() const = 0;
-      ///Number of columns in the table
-      virtual  int numberOfColumns() const = 0;
-      
-      ///returns the title names for each column
-      virtual std::vector<std::string> getTitles() const = 0;
-      
-      ///when passed the index to the sorted order of the rows it returns the original row number from the underlying data
-      virtual int unsortedRowNumber(int iSortedRowNumber) const = 0;
-      
-      /** Returns the particular renderer used to handle the requested cell.  Arguments:
+  ///returns the title names for each column
+  virtual std::vector<std::string> getTitles() const = 0;
+
+  ///when passed the index to the sorted order of the rows it returns the original row number from the underlying data
+  virtual int unsortedRowNumber(int iSortedRowNumber) const = 0;
+
+  /** Returns the particular renderer used to handle the requested cell.  Arguments:
       iSortedRowNumber: the row number from the present sort (i.e. the cell number of the view)
       iCol: the column number of the cell.
       The returned value must be used immediately and not held onto since the same Renderer can be used for subsequent calls
       */
-      virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const =0;
-      
-      ///require all cells to be the same height
-      virtual unsigned int cellHeight() const;
-      
-      ///for each column in the table this returns the present maximum width for that column
-      virtual std::vector<unsigned int> maxWidthForColumns() const;
+  virtual FWTableCellRendererBase* cellRenderer(int iSortedRowNumber, int iCol) const = 0;
 
-       virtual bool hasLabelHeaders() const ;
-    
-      ///Returns 'true' if this table has row headers. Defaults return value is false.
-      virtual bool hasRowHeaders() const ;
-      ///Returns the renderer for the row header for the sorted row number iSortedRowNumber
-      virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const ;
-  
-      virtual bool cellDataIsSortable() const { return true ; } 
-  
+  ///require all cells to be the same height
+  virtual unsigned int cellHeight() const;
 
-      ///Called if mouse button pressed in Row Header, defaults is to do nothing
-      virtual void buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
-      virtual void buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
+  ///for each column in the table this returns the present maximum width for that column
+  virtual std::vector<unsigned int> maxWidthForColumns() const;
 
-      // ---------- static member functions --------------------
+  virtual bool hasLabelHeaders() const;
 
-      // ---------- member functions ---------------------------
-      ///Call to have table sorted on values in column iCol with the sort order being descending if iSortOrder is 'true'
-      void sort(int iCol, bool iSortOrder);
+  ///Returns 'true' if this table has row headers. Defaults return value is false.
+  virtual bool hasRowHeaders() const;
+  ///Returns the renderer for the row header for the sorted row number iSortedRowNumber
+  virtual FWTableCellRendererBase* rowHeader(int iSortedRowNumber) const;
 
-      ///Classes which inherit from FWTableManagerBase must call this when their underlying data changes
-      void dataChanged(); //*SIGNAL*
-      
-      ///Classes which inherit from FWTableManagerBase must call this when how the data is shown (e.g. color) changes
-      void visualPropertiesChanged(); //*SIGNAL*
-      
-      ClassDefOverride(FWTableManagerBase,0);
+  virtual bool cellDataIsSortable() const { return true; }
 
-      /// The current sort order for the table.
-      bool sortOrder(void) { return m_sortOrder; }
-      
-      /// The current sort column
-      int sortColumn(void) { return m_sortColumn; }
+  ///Called if mouse button pressed in Row Header, defaults is to do nothing
+  virtual void buttonPressedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
+  virtual void buttonReleasedInRowHeader(Int_t row, Event_t* event, Int_t relX, Int_t relY);
 
-   protected:
-      ///Called by 'sort' method to actually handle the sorting of the rows. Arguments are the same as 'sort'
-      virtual void implSort(int iCol, bool iSortOrder) = 0;
-      
-   private:
-      //FWTableManagerBase(const FWTableManagerBase&); // stop default
+  // ---------- static member functions --------------------
 
-      //const FWTableManagerBase& operator=(const FWTableManagerBase&); // stop default
+  // ---------- member functions ---------------------------
+  ///Call to have table sorted on values in column iCol with the sort order being descending if iSortOrder is 'true'
+  void sort(int iCol, bool iSortOrder);
 
-      // ---------- member data --------------------------------
-      int  m_sortColumn;
-      bool m_sortOrder;
+  ///Classes which inherit from FWTableManagerBase must call this when their underlying data changes
+  void dataChanged();  //*SIGNAL*
+
+  ///Classes which inherit from FWTableManagerBase must call this when how the data is shown (e.g. color) changes
+  void visualPropertiesChanged();  //*SIGNAL*
+
+  ClassDefOverride(FWTableManagerBase, 0);
+
+  /// The current sort order for the table.
+  bool sortOrder(void) { return m_sortOrder; }
+
+  /// The current sort column
+  int sortColumn(void) { return m_sortColumn; }
+
+protected:
+  ///Called by 'sort' method to actually handle the sorting of the rows. Arguments are the same as 'sort'
+  virtual void implSort(int iCol, bool iSortOrder) = 0;
+
+private:
+  //FWTableManagerBase(const FWTableManagerBase&); // stop default
+
+  //const FWTableManagerBase& operator=(const FWTableManagerBase&); // stop default
+
+  // ---------- member data --------------------------------
+  int m_sortColumn;
+  bool m_sortOrder;
 };
-
 
 #endif

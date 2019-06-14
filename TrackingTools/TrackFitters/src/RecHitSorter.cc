@@ -3,13 +3,11 @@
 
 #include <algorithm>
 
-RecHitSorter::RecHitContainer RecHitSorter::sortHits(const RecHitContainer& hits, 
-						     const PropagationDirection& dir) const {
-
+RecHitSorter::RecHitContainer RecHitSorter::sortHits(const RecHitContainer& hits,
+                                                     const PropagationDirection& dir) const {
   RecHitContainer myHits(hits);
 
-  sort( myHits.begin(), myHits.end(), RecHitLessByDet(dir));
+  sort(myHits.begin(), myHits.end(), RecHitLessByDet(dir));
 
   return myHits;
-
 }

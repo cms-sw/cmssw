@@ -38,24 +38,15 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
   fp.saveReference_ = DQMStore::SaveWithReference;
   // Check how we should save the references.
   std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "all");
-  if (refsave == "skip")
-  {
+  if (refsave == "skip") {
     fp.saveReference_ = DQMStore::SaveWithoutReference;
-  }
-  else if (refsave == "all")
-  {
+  } else if (refsave == "all") {
     fp.saveReference_ = DQMStore::SaveWithReference;
-  }
-  else if (refsave == "qtests")
-  {
+  } else if (refsave == "qtests") {
     fp.saveReference_ = DQMStore::SaveWithReferenceForQTest;
-  }
-  else {
+  } else {
     //edm::LogInfo("DQMFileSaverBase")
-    std::cerr
-      << "Invalid 'referenceHandling' parameter '" << refsave
-      << "'.  Expected 'skip', 'all' or 'qtests'.";
-
+    std::cerr << "Invalid 'referenceHandling' parameter '" << refsave << "'.  Expected 'skip', 'all' or 'qtests'.";
   }
 
   // Check minimum required quality test result for which reference is saved.
@@ -67,29 +58,24 @@ DQMFileSaverBase::DQMFileSaverBase(const edm::ParameterSet &ps) {
 
 DQMFileSaverBase::~DQMFileSaverBase() = default;
 
-std::shared_ptr<NoCache> DQMFileSaverBase::globalBeginRun(
-    const edm::Run &r, const edm::EventSetup &) const {
-
-  this->initRun();  
+std::shared_ptr<NoCache> DQMFileSaverBase::globalBeginRun(const edm::Run &r, const edm::EventSetup &) const {
+  this->initRun();
 
   return nullptr;
 }
 
-std::shared_ptr<NoCache> DQMFileSaverBase::globalBeginLuminosityBlock(
-    const edm::LuminosityBlock &l, const edm::EventSetup &) const {
-
+std::shared_ptr<NoCache> DQMFileSaverBase::globalBeginLuminosityBlock(const edm::LuminosityBlock &l,
+                                                                      const edm::EventSetup &) const {
   return nullptr;
 }
 
-void DQMFileSaverBase::analyze(edm::StreamID, const edm::Event &e,
-                               const edm::EventSetup &) const {
+void DQMFileSaverBase::analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &) const {
   // not supported
 }
 
-void DQMFileSaverBase::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS,
-                                                const edm::EventSetup &) const {
-  int ilumi    = iLS.id().luminosityBlock();
-  int irun     = iLS.id().run();
+void DQMFileSaverBase::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS, const edm::EventSetup &) const {
+  int ilumi = iLS.id().luminosityBlock();
+  int irun = iLS.id().run();
 
   std::unique_lock<std::mutex> lck(initial_fp_lock_);
   FileParameters fp = initial_fp_;
@@ -104,9 +90,7 @@ void DQMFileSaverBase::globalEndLuminosityBlock(const edm::LuminosityBlock &iLS,
   store->deleteUnusedLumiHistograms(store->mtEnabled() ? irun : 0, ilumi);
 }
 
-void DQMFileSaverBase::globalEndRun(const edm::Run &iRun,
-                                    const edm::EventSetup &) const {
-
+void DQMFileSaverBase::globalEndRun(const edm::Run &iRun, const edm::EventSetup &) const {
   std::unique_lock<std::mutex> lck(initial_fp_lock_);
   FileParameters fp = initial_fp_;
   lck.unlock();
@@ -117,15 +101,27 @@ void DQMFileSaverBase::globalEndRun(const edm::Run &iRun,
   this->saveRun(fp);
 }
 
-const std::string DQMFileSaverBase::filename(const FileParameters& fp, bool useLumi) {
+const std::string DQMFileSaverBase::filename(const FileParameters &fp, bool useLumi) {
   char buf[256];
   if (useLumi) {
-    snprintf(buf, 256, "%s_V%04d_%s_R%09ld_L%09ld%s", fp.producer_.c_str(),
-             fp.version_, fp.tag_.c_str(), fp.run_, fp.lumi_,
+    snprintf(buf,
+             256,
+             "%s_V%04d_%s_R%09ld_L%09ld%s",
+             fp.producer_.c_str(),
+             fp.version_,
+             fp.tag_.c_str(),
+             fp.run_,
+             fp.lumi_,
              fp.child_.c_str());
   } else {
-    snprintf(buf, 256, "%s_V%04d_%s_R%09ld%s", fp.producer_.c_str(), fp.version_,
-             fp.tag_.c_str(), fp.run_, fp.child_.c_str());
+    snprintf(buf,
+             256,
+             "%s_V%04d_%s_R%09ld%s",
+             fp.producer_.c_str(),
+             fp.version_,
+             fp.tag_.c_str(),
+             fp.run_,
+             fp.child_.c_str());
   }
   buf[255] = 0;
 
@@ -136,39 +132,32 @@ const std::string DQMFileSaverBase::filename(const FileParameters& fp, bool useL
   return (path / file).string();
 }
 
-void DQMFileSaverBase::saveJobReport(const std::string &filename) const
-{
+void DQMFileSaverBase::saveJobReport(const std::string &filename) const {
   // Report the file to job report service.
   edm::Service<edm::JobReport> jr;
-  if (jr.isAvailable())
-  {
+  if (jr.isAvailable()) {
     std::map<std::string, std::string> info;
     info["Source"] = "DQMStore";
     info["FileClass"] = "DQM";
     jr->reportAnalysisFile(filename, info);
   }
-
 }
 
-void DQMFileSaverBase::logFileAction(const std::string& msg, const std::string& fileName) const {
-  edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay()
-                                 << "  " << msg << fileName;
+void DQMFileSaverBase::logFileAction(const std::string &msg, const std::string &fileName) const {
+  edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay() << "  " << msg << fileName;
   edm::FlushMessageLog();
 }
 
-void DQMFileSaverBase::fillDescription(edm::ParameterSetDescription& desc) {
-  desc.addUntracked<std::string>("tag", "UNKNOWN")
-      ->setComment("File tag, DQM_V000_<TAG>*, usually a subsytem name.");
+void DQMFileSaverBase::fillDescription(edm::ParameterSetDescription &desc) {
+  desc.addUntracked<std::string>("tag", "UNKNOWN")->setComment("File tag, DQM_V000_<TAG>*, usually a subsytem name.");
 
   desc.addUntracked<std::string>("producer", "DQM")
       ->setComment("Base prefix for files, <BASE>_V000_**, either 'DQM' or 'Playback'.");
 
-  desc.addUntracked<std::string>("referenceHandling", "all")
-      ->setComment("saveReference_, passed to the DQMStore");
+  desc.addUntracked<std::string>("referenceHandling", "all")->setComment("saveReference_, passed to the DQMStore");
 
   desc.addUntracked<int>("referenceRequireStatus", dqm::qstatus::STATUS_OK)
       ->setComment("saveReference_, passed to the DQMStore");
 
-  desc.addUntracked<std::string>("path", "./")->setComment(
-      "Output path prefix.");
+  desc.addUntracked<std::string>("path", "./")->setComment("Output path prefix.");
 }

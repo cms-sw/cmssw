@@ -25,38 +25,37 @@
 #include <map>
 #include "classNameFinder.h"
 
-template< typename T >
-class TTStubAlgorithm
-{
-  protected:
-    /// Data members
-    const TrackerGeometry* const theTrackerGeom_;
-    const TrackerTopology* const theTrackerTopo_;
-    std::string                  className_;
+template <typename T>
+class TTStubAlgorithm {
+protected:
+  /// Data members
+  const TrackerGeometry *const theTrackerGeom_;
+  const TrackerTopology *const theTrackerTopo_;
+  std::string className_;
 
-  public:
-    /// Constructors
-    TTStubAlgorithm( const TrackerGeometry* const theTrackerGeom, const TrackerTopology* const theTrackerTopo, std::string fName ): 
-         theTrackerGeom_(theTrackerGeom), theTrackerTopo_(theTrackerTopo)
-    {
-      className_ = classNameFinder< T >( fName );
-    }
+public:
+  /// Constructors
+  TTStubAlgorithm(const TrackerGeometry *const theTrackerGeom,
+                  const TrackerTopology *const theTrackerTopo,
+                  std::string fName)
+      : theTrackerGeom_(theTrackerGeom), theTrackerTopo_(theTrackerTopo) {
+    className_ = classNameFinder<T>(fName);
+  }
 
-    /// Destructor
-    virtual ~TTStubAlgorithm(){}
+  /// Destructor
+  virtual ~TTStubAlgorithm() {}
 
-    /// Matching operations
-    virtual void PatternHitCorrelation( bool &aConfirmation,
-                                        int &aDisplacement,
-                                        int &anOffset,
-					float &anROffset,
-					float &anHardBend,
-                                        const TTStub< T > &aTTStub ) const {}
+  /// Matching operations
+  virtual void PatternHitCorrelation(bool &aConfirmation,
+                                     int &aDisplacement,
+                                     int &anOffset,
+                                     float &anROffset,
+                                     float &anHardBend,
+                                     const TTStub<T> &aTTStub) const {}
 
-    /// Algorithm name
-    virtual std::string AlgorithmName() const { return className_; }
+  /// Algorithm name
+  virtual std::string AlgorithmName() const { return className_; }
 
-}; /// Close class
+};  /// Close class
 
 #endif
-

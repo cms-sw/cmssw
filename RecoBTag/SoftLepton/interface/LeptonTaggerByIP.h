@@ -15,27 +15,22 @@
 
 class LeptonTaggerByIP : public JetTagComputer {
 public:
-
-  /// explicit ctor 
-  explicit LeptonTaggerByIP( const edm::ParameterSet & configuration) :
-    m_use3d( configuration.getParameter<bool>("use3d") ),
-    m_selector(configuration)
-  { 
-    uses("slTagInfos"); 
+  /// explicit ctor
+  explicit LeptonTaggerByIP(const edm::ParameterSet& configuration)
+      : m_use3d(configuration.getParameter<bool>("use3d")), m_selector(configuration) {
+    uses("slTagInfos");
   }
 
   /// dtor
-  ~LeptonTaggerByIP() override { }
+  ~LeptonTaggerByIP() override {}
 
   /// b-tag a jet based on track-to-jet parameters in the extened info collection
-  float discriminator(const TagInfoHelper & tagInfo) const override;
+  float discriminator(const TagInfoHelper& tagInfo) const override;
 
 private:
+  bool m_use3d;
 
-  bool                       m_use3d;
-
-  btag::LeptonSelector       m_selector;
-
+  btag::LeptonSelector m_selector;
 };
 
-#endif // RecoBTag_SoftLepton_LeptonTaggerByIP_h
+#endif  // RecoBTag_SoftLepton_LeptonTaggerByIP_h

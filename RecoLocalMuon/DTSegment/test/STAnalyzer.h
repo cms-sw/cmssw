@@ -20,7 +20,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 /* Collaborating Class Declarations */
 #include "DataFormats/Common/interface/Handle.h"
@@ -50,91 +50,91 @@ class TrajectoryStateOnSurface;
 /* Class STAnalyzer Interface */
 
 class STAnalyzer : public edm::EDAnalyzer {
+public:
+  /* Constructor */
+  STAnalyzer(const edm::ParameterSet& pset);
 
-  public:
+  /* Destructor */
+  ~STAnalyzer();
 
-/* Constructor */ 
-    STAnalyzer(const edm::ParameterSet& pset) ;
+  /* Operations */
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-/* Destructor */ 
-    ~STAnalyzer() ;
+  virtual void beginJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
-/* Operations */ 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+private:
+  void analyzeSATrack(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-    virtual void beginJob();
-    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  template <typename T, typename C>
+  void missingHit(const edm::ESHandle<DTGeometry>& dtGeom,
+                  const edm::Handle<C>& segs,
+                  const T* ch,
+                  const TrajectoryStateOnSurface& startTsos,
+                  bool found = false);
 
+  void fillMinDist(const DTRecSegment4DCollection::range segs,
+                   const DTChamber* ch,
+                   const TrajectoryStateOnSurface& extraptsos,
+                   bool found = false);
 
-  private:
-    void analyzeSATrack(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void fillMinDist(const DTRecSegment2DCollection::range segs,
+                   const DTSuperLayer* ch,
+                   const TrajectoryStateOnSurface& extraptsos,
+                   bool found = false);
 
-    template <typename T, typename C> 
-      void missingHit(const edm::ESHandle<DTGeometry>& dtGeom,
-                      const edm::Handle<C>& segs,
-                      const T* ch,
-                      const TrajectoryStateOnSurface& startTsos,
-                      bool found=false) ;
+  void fillMinDist(const DTRecHitCollection::range segs,
+                   const DTLayer* ch,
+                   const TrajectoryStateOnSurface& extraptsos,
+                   bool found = false);
 
-    void fillMinDist(const DTRecSegment4DCollection::range segs,
-               const DTChamber* ch,
-               const TrajectoryStateOnSurface& extraptsos,
-               bool found=false) ;
+  TH1F* histo(const std::string& name) const;
+  TH2F* histo2d(const std::string& name) const;
 
-    void fillMinDist(const DTRecSegment2DCollection::range segs,
-               const DTSuperLayer* ch,
-               const TrajectoryStateOnSurface& extraptsos,
-               bool found=false) ;
+  void createTH1F(const std::string& name,
+                  const std::string& title,
+                  const std::string& suffix,
+                  int nbin,
+                  const double& binMin,
+                  const double& binMax) const;
 
-    void fillMinDist(const DTRecHitCollection::range segs,
-               const DTLayer* ch,
-               const TrajectoryStateOnSurface& extraptsos,
-               bool found=false) ;
+  void createTH2F(const std::string& name,
+                  const std::string& title,
+                  const std::string& suffix,
+                  int nBinX,
+                  const double& binXMin,
+                  const double& binXMax,
+                  int nBinY,
+                  const double& binYMin,
+                  const double& binYMax) const;
 
-    TH1F* histo(const std::string& name) const;
-    TH2F* histo2d(const std::string& name) const;
+  std::string toString(const DTLayerId& id) const;
+  std::string toString(const DTSuperLayerId& id) const;
+  std::string toString(const DTChamberId& id) const;
+  template <class T>
+  std::string hName(const std::string& s, const T& id) const;
 
-    void createTH1F(const std::string& name,
-                    const std::string& title,
-                    const std::string& suffix,
-                    int nbin, const double& binMin, const double& binMax) const;
+private:
+  bool debug;
+  int _ev;
+  std::string theRootFileName;
+  TFile* theFile;
+  //static std::string theAlgoName;
+  std::string theDTLocalTriggerLabel;
+  std::string theRecHits4DLabel;
+  std::string theRecHits2DLabel;
+  std::string theRecHits1DLabel;
+  std::string theSTAMuonLabel;
+  std::string thePropagatorName;
 
-    void createTH2F(const std::string& name,
-                    const std::string& title,
-                    const std::string& suffix,
-                    int nBinX,
-                    const double& binXMin,
-                    const double& binXMax,
-                    int nBinY,
-                    const double& binYMin,
-                    const double& binYMax) const ;
+  mutable Propagator* thePropagator;
 
-    std::string toString(const DTLayerId& id) const;
-    std::string toString(const DTSuperLayerId& id) const;
-    std::string toString(const DTChamberId& id) const;
-    template<class T> std::string hName(const std::string& s, const T& id) const;
-  private:
-    bool debug;
-    int _ev;
-    std::string theRootFileName;
-    TFile* theFile;
-    //static std::string theAlgoName;
-    std::string theDTLocalTriggerLabel;
-    std::string theRecHits4DLabel;
-    std::string theRecHits2DLabel;     
-    std::string theRecHits1DLabel;     
-    std::string theSTAMuonLabel;
-    std::string thePropagatorName;
+  bool doSA;
 
-    mutable Propagator* thePropagator;
+  std::map<DTChamberId, int> hitsPerChamber;
+  std::map<DTSuperLayerId, int> hitsPerSL;
+  std::map<DTLayerId, int> hitsPerLayer;
 
-    bool doSA;
-
-    std::map<DTChamberId, int> hitsPerChamber;
-    std::map<DTSuperLayerId, int> hitsPerSL;
-    std::map<DTLayerId, int> hitsPerLayer;
-  protected:
-
+protected:
 };
-#endif // STANALYZER_H
-
+#endif  // STANALYZER_H

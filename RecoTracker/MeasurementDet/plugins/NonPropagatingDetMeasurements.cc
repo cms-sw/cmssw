@@ -5,12 +5,10 @@
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 
-std::vector<TrajectoryMeasurement> 
-NonPropagatingDetMeasurements::get( const MeasurementDet& det,
-				    const TrajectoryStateOnSurface& stateOnThisDet,
-				    const MeasurementEstimator& est,
-                                    const MeasurementTrackerEvent &data) const
-{
+std::vector<TrajectoryMeasurement> NonPropagatingDetMeasurements::get(const MeasurementDet& det,
+                                                                      const TrajectoryStateOnSurface& stateOnThisDet,
+                                                                      const MeasurementEstimator& est,
+                                                                      const MeasurementTrackerEvent& data) const {
   throw cms::Exception("THIS SHOULD NOT BE CALLED");
   std::vector<TrajectoryMeasurement> result;
   /*

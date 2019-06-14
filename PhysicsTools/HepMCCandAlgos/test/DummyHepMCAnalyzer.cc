@@ -18,36 +18,35 @@ private:
   bool dumpHepMC_;
   bool dumpPDF_;
   bool checkPDG_;
+
 public:
-  explicit DummyHepMCAnalyzer( const ParameterSet & cfg ) :
-    dumpHepMC_( cfg.getUntrackedParameter<bool>( "dumpHepMC", false ) ),
-    dumpPDF_( cfg.getUntrackedParameter<bool>( "dumpPDF", false ) ),
-    checkPDG_( cfg.getUntrackedParameter<bool>( "checkPDG", false ) ),
-    srcToken_( consumes<HepMCProduct>(cfg.getParameter<InputTag>( "src" ) ) )
-  {
-  }
+  explicit DummyHepMCAnalyzer(const ParameterSet& cfg)
+      : dumpHepMC_(cfg.getUntrackedParameter<bool>("dumpHepMC", false)),
+        dumpPDF_(cfg.getUntrackedParameter<bool>("dumpPDF", false)),
+        checkPDG_(cfg.getUntrackedParameter<bool>("checkPDG", false)),
+        srcToken_(consumes<HepMCProduct>(cfg.getParameter<InputTag>("src"))) {}
+
 private:
-  void analyze( const Event & evt, const EventSetup& es ) override {
+  void analyze(const Event& evt, const EventSetup& es) override {
     Handle<HepMCProduct> hepMC;
-    evt.getByToken( srcToken_, hepMC );
-    const GenEvent * mc = hepMC->GetEvent();
-    if( mc == 0 )
-      throw edm::Exception( edm::errors::InvalidReference )
-	<< "HepMC has null pointer to GenEvent" << endl;
+    evt.getByToken(srcToken_, hepMC);
+    const GenEvent* mc = hepMC->GetEvent();
+    if (mc == 0)
+      throw edm::Exception(edm::errors::InvalidReference) << "HepMC has null pointer to GenEvent" << endl;
     const size_t size = mc->particles_size();
     cout << "\n particles #: " << size << endl;
-    if ( dumpPDF_ ) std::cout << "\n PDF info: " << mc->pdf_info() << std::endl;
-    if ( dumpHepMC_ ) mc->print( std::cout );
-    if ( checkPDG_ ) {
-      edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-      es.getData( fPDGTable );
-      for ( HepMC::GenEvent::particle_const_iterator part = mc->particles_begin();
-            part != mc->particles_end(); ++part )
-        {
-          const HepPDT::ParticleData*
-            PData = fPDGTable->particle(HepPDT::ParticleID((*part)->pdg_id())) ;
-          if ( !PData ) std::cout << "Missing entry in particle table for PDG code = " << (*part)->pdg_id() << std::endl;
-        }
+    if (dumpPDF_)
+      std::cout << "\n PDF info: " << mc->pdf_info() << std::endl;
+    if (dumpHepMC_)
+      mc->print(std::cout);
+    if (checkPDG_) {
+      edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+      es.getData(fPDGTable);
+      for (HepMC::GenEvent::particle_const_iterator part = mc->particles_begin(); part != mc->particles_end(); ++part) {
+        const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID((*part)->pdg_id()));
+        if (!PData)
+          std::cout << "Missing entry in particle table for PDG code = " << (*part)->pdg_id() << std::endl;
+      }
     }
   }
   EDGetTokenT<HepMCProduct> srcToken_;
@@ -55,7 +54,4 @@ private:
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( DummyHepMCAnalyzer );
-
-
-
+DEFINE_FWK_MODULE(DummyHepMCAnalyzer);

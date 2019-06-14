@@ -17,10 +17,8 @@
 
 class ME0Geometry;
 
-class ME0TriggerPseudoBuilder
-{
- public:
-
+class ME0TriggerPseudoBuilder {
+public:
   /** Configure the algorithm via constructor.
    *  Receives ParameterSet percolated down from 
    *  EDProducer which owns this Builder.
@@ -33,7 +31,7 @@ class ME0TriggerPseudoBuilder
   void build(const ME0SegmentCollection* me0segments, ME0TriggerDigiCollection& oc_trig);
 
   /** set geometry for the matching needs */
-  void setME0Geometry(const ME0Geometry *g) { me0_g = g; }
+  void setME0Geometry(const ME0Geometry* g) { me0_g = g; }
 
   /* print all ME0 segments in the event */
   void dumpAllME0Segments(const ME0SegmentCollection& segments) const;
@@ -41,10 +39,9 @@ class ME0TriggerPseudoBuilder
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 
    */
-  enum class trig_me0s {MAX_ENDCAPS = 2, MAX_CHAMBERS = 18};
+  enum class trig_me0s { MAX_ENDCAPS = 2, MAX_CHAMBERS = 18 };
 
- private:
-
+private:
   static const int min_endcap;
   static const int max_endcap;
   static const int min_chamber;
@@ -53,15 +50,14 @@ class ME0TriggerPseudoBuilder
   static const int ME0TriggerCentralBX;
 
   const ME0Geometry* me0_g;
-  
+
   int info_;
 
-  double dphiresolution_;//unit: trigger pad
+  double dphiresolution_;  //unit: trigger pad
 
   ME0TriggerDigi segmentConversion(const ME0Segment segment);
-  
-  edm::ParameterSet config_;
 
+  edm::ParameterSet config_;
 };
 
 #endif

@@ -4,7 +4,7 @@
 //
 // Package:    EgammaElectronAlgos
 // Class:      FTSFromVertexToPointFactory
-// 
+//
 /**
  *  Generates a FreeTrajectoryState from a given measured point, vertex
  *  momentum and charge.
@@ -26,9 +26,13 @@
 
 class MagneticField;
 
-class FTSFromVertexToPointFactory{
+class FTSFromVertexToPointFactory {
 public:
-  static FreeTrajectoryState get( MagneticField const & magField, GlobalPoint const & xmeas, GlobalPoint const & xvert, float momentum, TrackCharge charge);
+  static FreeTrajectoryState get(MagneticField const& magField,
+                                 GlobalPoint const& xmeas,
+                                 GlobalPoint const& xvert,
+                                 float momentum,
+                                 TrackCharge charge);
 };
 
 #endif

@@ -77,36 +77,32 @@
 
 class DQMStore;
 
-class FSQDQM : public DQMEDAnalyzer{
+class FSQDQM : public DQMEDAnalyzer {
+public:
+  FSQDQM(const edm::ParameterSet &ps);
+  ~FSQDQM() override;
 
- public:
- FSQDQM(const edm::ParameterSet& ps);
- ~FSQDQM() override;
+protected:
+  void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
 
- protected:
-  void analyze(edm::Event const& e, 
-               edm::EventSetup const& eSetup) override;
- private:
-  void bookHistograms(DQMStore::IBooker & bei, edm::Run const &, edm::EventSetup const &) override;
-  void bookHistos(DQMStore* bei);
-
-
+private:
+  void bookHistograms(DQMStore::IBooker &bei, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistos(DQMStore *bei);
 
   edm::InputTag vertex_;
-  std::string labelBS_, labelTrack_,labelPFJet_,labelCastorJet_;
-  edm::EDGetTokenT<edm::View<reco::Vertex> >                pvs_;
-  edm::EDGetTokenT<reco::TrackCollection>                tok_track_;
+  std::string labelBS_, labelTrack_, labelPFJet_, labelCastorJet_;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
+  edm::EDGetTokenT<reco::TrackCollection> tok_track_;
   edm::EDGetTokenT<reco::PFJetCollection> tok_pfjet_;
   edm::EDGetTokenT<reco::BasicJetCollection> tok_castorjet_;
 
-  std::vector<int>          hltresults;
-  unsigned int runNumber_, eventNumber_ , lumiNumber_, bxNumber_;
+  std::vector<int> hltresults;
+  unsigned int runNumber_, eventNumber_, lumiNumber_, bxNumber_;
 
   //Histograms
   MonitorElement *PFJetpt;
   MonitorElement *PFJeteta;
   MonitorElement *PFJetphi;
-
 
   MonitorElement *CastorJetphi;
   MonitorElement *CastorJetMulti;

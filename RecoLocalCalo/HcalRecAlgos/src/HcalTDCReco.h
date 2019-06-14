@@ -4,11 +4,9 @@
 class HcalUpgradeDataFrame;
 class HBHERecHit;
 
-class HcalTDCReco
-{
+class HcalTDCReco {
 public:
   HcalTDCReco();
-  void reconstruct(const HcalUpgradeDataFrame & digi, HBHERecHit & recHit) const;
+  void reconstruct(const HcalUpgradeDataFrame& digi, HBHERecHit& recHit) const;
 };
 #endif
-

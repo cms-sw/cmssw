@@ -35,86 +35,80 @@
 //____________________________________________________________________________||
 class TCMETAlgo;
 
-namespace cms
-{
+namespace cms {
 
-class MuonTCMETValueMapProducer : public edm::stream::EDProducer<>
-{
+  class MuonTCMETValueMapProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit MuonTCMETValueMapProducer(const edm::ParameterSet&);
+    ~MuonTCMETValueMapProducer() override;
 
-public:
-  explicit MuonTCMETValueMapProducer(const edm::ParameterSet&);
-  ~MuonTCMETValueMapProducer() override;
+  private:
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
+    edm::Handle<reco::MuonCollection> muons_;
+    edm::Handle<reco::BeamSpot> beamSpot_;
+    edm::Handle<reco::VertexCollection> vertexHandle_;
 
-private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
-      
-  edm::Handle<reco::MuonCollection>    muons_;
-  edm::Handle<reco::BeamSpot>          beamSpot_;
-  edm::Handle<reco::VertexCollection>  vertexHandle_;
+    edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+    edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
-  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
-  edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
+    const class MagneticField* bField;
 
-  const class MagneticField* bField;
+    const reco::VertexCollection* vertices_;
 
-  const reco::VertexCollection *vertices_;
+    class TH2D* response_function;
 
-  class TH2D* response_function;
+    bool muonGlobal_;
+    bool muonTracker_;
+    bool useCaloMuons_;
+    bool hasValidVertex;
 
-  bool muonGlobal_;
-  bool muonTracker_;
-  bool useCaloMuons_;
-  bool hasValidVertex;
+    int rfType_;
+    int nLayers_;
+    int nLayersTight_;
+    int vertexNdof_;
+    double vertexZ_;
+    double vertexRho_;
+    double vertexMaxDZ_;
+    double maxpt_eta25_;
+    double maxpt_eta20_;
+    std::vector<reco::TrackBase::TrackAlgorithm> trackAlgos_;
+    double minpt_;
+    double maxpt_;
+    double maxeta_;
+    double maxchi2_;
+    double minhits_;
+    double maxPtErr_;
+    double maxd0cut_;
+    double maxchi2_tight_;
+    double minhits_tight_;
+    double maxPtErr_tight_;
+    double d0cuta_;
+    double d0cutb_;
+    bool usePvtxd0_;
+    std::vector<int> trkQuality_;
+    std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
 
-  int     rfType_;
-  int     nLayers_;
-  int     nLayersTight_;
-  int     vertexNdof_;
-  double  vertexZ_;
-  double  vertexRho_;
-  double  vertexMaxDZ_;
-  double  maxpt_eta25_;
-  double  maxpt_eta20_;
-  std::vector<reco::TrackBase::TrackAlgorithm> trackAlgos_;
-  double  minpt_;
-  double  maxpt_;
-  double  maxeta_;
-  double  maxchi2_;
-  double  minhits_;
-  double  maxPtErr_;
-  double  maxd0cut_;
-  double  maxchi2_tight_;
-  double  minhits_tight_;
-  double  maxPtErr_tight_;
-  double  d0cuta_;
-  double  d0cutb_;
-  bool    usePvtxd0_;
-  std::vector<int> trkQuality_;
-  std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
+    int muonMinValidStaHits_;
+    double muonpt_;
+    double muoneta_;
+    double muonchi2_;
+    double muonhits_;
+    double muond0_;
+    double muonDeltaR_;
+    double muon_dptrel_;
+    TCMETAlgo* tcmetAlgo_;
 
-  int     muonMinValidStaHits_;
-  double  muonpt_;
-  double  muoneta_;
-  double  muonchi2_;
-  double  muonhits_;
-  double  muond0_;
-  double  muonDeltaR_;
-  double  muon_dptrel_;
-  TCMETAlgo *tcmetAlgo_;
+    bool isGoodMuon(const reco::Muon*);
+    bool isGoodCaloMuon(const reco::Muon*, const unsigned int);
+    bool isGoodTrack(const reco::Muon*);
+    class TVector3 propagateTrack(const reco::Muon*);
+    int nLayers(const reco::TrackRef);
+    bool isValidVertex();
+  };
 
-  bool isGoodMuon( const reco::Muon* );
-  bool isGoodCaloMuon( const reco::Muon*, const unsigned int );
-  bool isGoodTrack( const reco::Muon* );
-  class TVector3 propagateTrack( const reco::Muon* );
-  int nLayers(const reco::TrackRef);
-  bool isValidVertex();
-};
-
-}
+}  // namespace cms
 
 //____________________________________________________________________________||
 #endif /* RecoMET_MuonTCMETValueMapProducer_h */
-
-

@@ -5,8 +5,7 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2006.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCAnodeData2007.h"
 
-int main()
-{
+int main() {
   CSCTMBHeader::selfTest();
   CSCALCTHeader::selfTest(2007);
   CSCALCTHeader::selfTest(2006);
@@ -18,4 +17,3 @@ int main()
   CSCAnodeData2006::selfTest();
   CSCAnodeData2007::selfTest();
 }
-

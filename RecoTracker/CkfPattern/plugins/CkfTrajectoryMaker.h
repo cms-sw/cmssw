@@ -16,35 +16,31 @@
 
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
 class TransientInitialStateEstimator;
 
-namespace cms
-{
-  class dso_internal CkfTrajectoryMaker : public edm::stream::EDProducer<>, public CkfTrackCandidateMakerBase
-  {
+namespace cms {
+  class dso_internal CkfTrajectoryMaker : public edm::stream::EDProducer<>, public CkfTrackCandidateMakerBase {
   public:
     typedef std::vector<Trajectory> TrajectoryCollection;
 
-    explicit CkfTrajectoryMaker(const edm::ParameterSet& conf):
-      CkfTrackCandidateMakerBase(conf, consumesCollector())
-    {
-      theTrackCandidateOutput=conf.getParameter<bool>("trackCandidateAlso");
-      theTrajectoryOutput=true;
+    explicit CkfTrajectoryMaker(const edm::ParameterSet& conf) : CkfTrackCandidateMakerBase(conf, consumesCollector()) {
+      theTrackCandidateOutput = conf.getParameter<bool>("trackCandidateAlso");
+      theTrajectoryOutput = true;
       if (theTrackCandidateOutput)
-	produces<TrackCandidateCollection>();
+        produces<TrackCandidateCollection>();
       produces<TrajectoryCollection>();
       produces<std::vector<SeedStopInfo> >();
     }
 
-    ~CkfTrajectoryMaker() override{;}
+    ~CkfTrajectoryMaker() override { ; }
 
-    void beginRun (edm::Run const & run, edm::EventSetup const & es) override {beginRunBase(run,es);}
+    void beginRun(edm::Run const& run, edm::EventSetup const& es) override { beginRunBase(run, es); }
 
-    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
+    void produce(edm::Event& e, const edm::EventSetup& es) override { produceBase(e, es); }
   };
-}
+}  // namespace cms
 
 #endif

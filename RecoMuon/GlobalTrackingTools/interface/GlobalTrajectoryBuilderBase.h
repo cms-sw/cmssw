@@ -40,137 +40,129 @@ class MuonTrackingRegionBuilder;
 class GlobalMuonRefitter;
 
 class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
+public:
+  typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
+  typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
+  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
+  typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
+  typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
+  typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
+  typedef std::vector<Trajectory> TC;
+  typedef TC::const_iterator TI;
 
-  public:
+  /// constructor with Parameter Set and MuonServiceProxy
+  GlobalTrajectoryBuilderBase(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
 
-    typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
-    typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
-    typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
-    typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
-    typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
-    typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
-    typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
-    typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
-    typedef std::vector<Trajectory> TC;
-    typedef TC::const_iterator TI;
+  /// destructor
+  ~GlobalTrajectoryBuilderBase() override;
 
-    /// constructor with Parameter Set and MuonServiceProxy
-    GlobalTrajectoryBuilderBase(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
-          
-    /// destructor
-    ~GlobalTrajectoryBuilderBase() override;
+  /// dummy implementation, unused in this class
+  MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) override {
+    return MuonTrajectoryBuilder::TrajectoryContainer();
+  }
 
-    /// dummy implementation, unused in this class
-    MuonTrajectoryBuilder::TrajectoryContainer trajectories(const TrajectorySeed&) override { return MuonTrajectoryBuilder::TrajectoryContainer(); }
+  /// pass the Event to the algo at each event
+  void setEvent(const edm::Event&) override;
 
-    /// pass the Event to the algo at each event
-    void setEvent(const edm::Event&) override;
+protected:
+  enum RefitDirection { inToOut, outToIn, undetermined };
 
-  protected:
+  /// build combined trajectory from sta Track and tracker RecHits
+  MuonTrajectoryBuilder::CandidateContainer build(const TrackCand&, MuonTrajectoryBuilder::CandidateContainer&) const;
 
-    enum RefitDirection{inToOut,outToIn,undetermined};
+  /// make a TrackCand collection using tracker Track, Trajectory information
+  virtual std::vector<TrackCand> makeTkCandCollection(const TrackCand&) = 0;
 
-    /// build combined trajectory from sta Track and tracker RecHits
-    MuonTrajectoryBuilder::CandidateContainer build(const TrackCand&,
-                                                    MuonTrajectoryBuilder::CandidateContainer&) const;
+  /// choose tracker tracks within region of interest
+  std::vector<TrackCand> chooseRegionalTrackerTracks(const TrackCand&, const std::vector<TrackCand>&);
 
-    /// make a TrackCand collection using tracker Track, Trajectory information
-    virtual std::vector<TrackCand> makeTkCandCollection(const TrackCand&) = 0;
+  /// define region of interest with tracker
+  RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
 
-    /// choose tracker tracks within region of interest
-    std::vector<TrackCand> chooseRegionalTrackerTracks(const TrackCand&, 
-                                                       const std::vector<TrackCand>&);
+  /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
+  void checkMuonHits(const reco::Track&, ConstRecHitContainer&, ConstRecHitContainer&, std::vector<int>&) const;
 
-    /// define region of interest with tracker
-    RectangularEtaPhiTrackingRegion defineRegionOfInterest(const reco::TrackRef&) const;
+  /// select muon hits compatible with trajectory; check hits in chambers with showers
+  ConstRecHitContainer selectMuonHits(const Trajectory&, const std::vector<int>&) const;
 
-    /// check muon RecHits, calculate chamber occupancy and select hits to be used in the final fit
-    void checkMuonHits(const reco::Track&, 
-                       ConstRecHitContainer&, 
-                       ConstRecHitContainer&, 
-                       std::vector<int>&) const;
- 
-    /// select muon hits compatible with trajectory; check hits in chambers with showers
-    ConstRecHitContainer selectMuonHits(const Trajectory&, 
-                                        const std::vector<int>&) const;
+  /// select tracker hits; exclude some tracker hits in the global trajectory
+  ConstRecHitContainer selectTrackerHits(const ConstRecHitContainer&) const;
 
-    /// select tracker hits; exclude some tracker hits in the global trajectory 
-    ConstRecHitContainer selectTrackerHits(const ConstRecHitContainer&) const;
+  /// rescale errors of outermost TEC RecHit
+  void fixTEC(ConstRecHitContainer& all, double scl_x, double scl_y) const;
 
-    /// rescale errors of outermost TEC RecHit
-    void fixTEC(ConstRecHitContainer& all,
-                double scl_x,
-                double scl_y) const;
+  /// choose final trajectory
+  const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&, int) const;
 
-    /// choose final trajectory
-    const Trajectory* chooseTrajectory(const std::vector<Trajectory*>&, int) const;
+  /// calculate chi2 probability (-ln(P))
+  double trackProbability(const Trajectory&) const;
 
-    /// calculate chi2 probability (-ln(P))
-    double trackProbability(const Trajectory&) const;
+  /// print all RecHits of a trajectory
+  void printHits(const ConstRecHitContainer&) const;
 
-    /// print all RecHits of a trajectory
-    void printHits(const ConstRecHitContainer&) const;
+  /// if TrackCand has only a TrackRef, attempt to add Trajectory*
+  void addTraj(TrackCand&) {}  ///This does nothing now
 
-    /// if TrackCand has only a TrackRef, attempt to add Trajectory*
-    void addTraj(TrackCand&){} ///This does nothing now
+  /// check order of RechIts on a trajectory
+  RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
-    /// check order of RechIts on a trajectory
-    RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
+  /// get transient RecHits of a Track
+  TransientTrackingRecHit::ConstRecHitContainer getTransientRecHits(const reco::Track&) const;
 
-    /// get transient RecHits of a Track
-    TransientTrackingRecHit::ConstRecHitContainer
-    getTransientRecHits(const reco::Track&) const;
+  ///
+  GlobalMuonTrackMatcher* trackMatcher() const { return theTrackMatcher; }
 
-    ///
-    GlobalMuonTrackMatcher* trackMatcher() const { return theTrackMatcher; }
+  ///
+  const MuonServiceProxy* service() const { return theService; }
 
-    ///
-    const MuonServiceProxy* service() const { return theService; }
+  struct ComparatorInOut {
+    bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& a,
+                    const TransientTrackingRecHit::ConstRecHitPointer& b) const {
+      bool barrel_a = (a->det()->subDetector() == GeomDetEnumerators::DT ||
+                       a->det()->subDetector() == GeomDetEnumerators::RPCBarrel);
 
-    struct ComparatorInOut {
+      bool barrel_b = (b->det()->subDetector() == GeomDetEnumerators::DT ||
+                       b->det()->subDetector() == GeomDetEnumerators::RPCBarrel);
 
-      bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& a,
-		      const TransientTrackingRecHit::ConstRecHitPointer& b) const{ 
-	bool barrel_a = ( a->det()->subDetector() == GeomDetEnumerators::DT ||
-			  a->det()->subDetector() == GeomDetEnumerators::RPCBarrel );
-	
-	bool barrel_b = ( b->det()->subDetector() == GeomDetEnumerators::DT ||
-			  b->det()->subDetector() == GeomDetEnumerators::RPCBarrel );
-	
-	 if ( barrel_a && barrel_b ) return  a->det()->surface().position().perp() < b->det()->surface().position().perp();
+      if (barrel_a && barrel_b)
+        return a->det()->surface().position().perp() < b->det()->surface().position().perp();
 
-	else if ( !barrel_a && !barrel_b ) return  fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
-	else if ( barrel_a && !barrel_b  ) return true;
-	else if ( !barrel_a && barrel_b  ) return false;
-	 //shouldn't really get here in any case (there's some sense to throw here )
-	 return false;
-      }
-    };
+      else if (!barrel_a && !barrel_b)
+        return fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
+      else if (barrel_a && !barrel_b)
+        return true;
+      else if (!barrel_a && barrel_b)
+        return false;
+      //shouldn't really get here in any case (there's some sense to throw here )
+      return false;
+    }
+  };
 
-    std::string theCategory;
-    float thePtCut;
-    float thePCut;
+  std::string theCategory;
+  float thePtCut;
+  float thePCut;
 
-  private:
-
-    GlobalMuonTrackMatcher* theTrackMatcher;
-    MuonDetLayerMeasurements* theLayerMeasurements;
-    TrackTransformer* theTrackTransformer;
-    MuonTrackingRegionBuilder* theRegionBuilder;
-    const MuonServiceProxy* theService;
-    GlobalMuonRefitter* theGlbRefitter;
-    unsigned long long theCacheId_TRH;
-    bool theRPCInTheFit;
-    bool  theRefitFlag;
-    int   theMuonHitsOption;
-    float theTECxScale;
-    float theTECyScale;
-    std::string theTrackerPropagatorName;
-    const edm::Event* theEvent;
-    std::string theTrackerRecHitBuilderName;
-    edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    std::string theMuonRecHitBuilderName;
-    edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-    const TrackerTopology *theTopo;
+private:
+  GlobalMuonTrackMatcher* theTrackMatcher;
+  MuonDetLayerMeasurements* theLayerMeasurements;
+  TrackTransformer* theTrackTransformer;
+  MuonTrackingRegionBuilder* theRegionBuilder;
+  const MuonServiceProxy* theService;
+  GlobalMuonRefitter* theGlbRefitter;
+  unsigned long long theCacheId_TRH;
+  bool theRPCInTheFit;
+  bool theRefitFlag;
+  int theMuonHitsOption;
+  float theTECxScale;
+  float theTECyScale;
+  std::string theTrackerPropagatorName;
+  const edm::Event* theEvent;
+  std::string theTrackerRecHitBuilderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
+  std::string theMuonRecHitBuilderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
+  const TrackerTopology* theTopo;
 };
 #endif

@@ -19,7 +19,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class DTCombinatorialExtendedPatternReco;
 
@@ -30,23 +30,20 @@ class DTCombinatorialExtendedPatternReco;
 /* Class DTRecSegment2DExtendedProducer Interface */
 
 class DTRecSegment2DExtendedProducer : public edm::EDProducer {
-
- public:
-
+public:
   /// Constructor
-  DTRecSegment2DExtendedProducer(const edm::ParameterSet&) ;
+  DTRecSegment2DExtendedProducer(const edm::ParameterSet&);
 
   /// Destructor
-  ~DTRecSegment2DExtendedProducer() override ;
-    
+  ~DTRecSegment2DExtendedProducer() override;
+
   // Operations
 
   /// The method which produces the 2D-segments
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
 
- protected:
-
- private:
+protected:
+private:
   // Switch on verbosity
   bool debug;
 
@@ -57,5 +54,4 @@ class DTRecSegment2DExtendedProducer : public edm::EDProducer {
   edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   edm::EDGetTokenT<DTRecClusterCollection> recClusToken_;
 };
-#endif // DTRecHit_DTRecSegment2DExtendedProducer_h
-
+#endif  // DTRecHit_DTRecSegment2DExtendedProducer_h

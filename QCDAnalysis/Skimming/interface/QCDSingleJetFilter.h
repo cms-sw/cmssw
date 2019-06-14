@@ -20,15 +20,13 @@
 
 #include <DataFormats/JetReco/interface/CaloJet.h>
 
-
 //RandomGenerator Service taken out
 //namespace CLHEP {
 //  class RandFlat;
 //}
 
 class QCDSingleJetFilter : public edm::EDFilter {
-
- public:
+public:
   // Constructor
   QCDSingleJetFilter(const edm::ParameterSet&);
 
@@ -38,14 +36,11 @@ class QCDSingleJetFilter : public edm::EDFilter {
   /// Get event properties to send to builder to fill seed collection
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
-
-
- private:
-
+private:
   bool debug;
   //CLHEP::RandFlat *theFlatDistrib;
   double theMinPt;
-    //,thePreScale;
+  //,thePreScale;
   edm::EDGetTokenT<reco::CaloJetCollection> theTriggerJetCollectionAToken;
   edm::EDGetTokenT<reco::CaloJetCollection> theTrigCollBToken;
 };

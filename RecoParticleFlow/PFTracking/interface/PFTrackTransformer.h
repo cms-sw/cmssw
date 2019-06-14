@@ -17,8 +17,6 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
-
-
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -32,41 +30,34 @@
  Evaluate the surface corresponding to the maximum shower
 */
 
-
 class Trajectory;
-class PFTrackTransformer{
-
-
-
- public:
+class PFTrackTransformer {
+public:
   PFTrackTransformer(const math::XYZVector&);
   ~PFTrackTransformer();
 
-
   /// Add points to a PFTrack. return false if a TSOS is invalid
-  bool addPoints(reco::PFRecTrack& pftrack, 
-		 const reco::Track& track,
-		 const Trajectory& traj,
-		 bool msgwarning = true) const; 
-  
-  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack, 
-			 const reco::Track& track,
-			 const Trajectory& traj,
-			 const bool& GetMode) const; 
-  
-  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack, 
-			 const reco::GsfTrack& track,
-			 const MultiTrajectoryStateTransform& mtjstate) const; 
+  bool addPoints(reco::PFRecTrack& pftrack,
+                 const reco::Track& track,
+                 const Trajectory& traj,
+                 bool msgwarning = true) const;
 
-  void OnlyProp(){
-    onlyprop_=true;
-  }
-  bool  onlyprop_;
-  
- private:
+  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
+                         const reco::Track& track,
+                         const Trajectory& traj,
+                         const bool& GetMode) const;
+
+  bool addPointsAndBrems(reco::GsfPFRecTrack& pftrack,
+                         const reco::GsfTrack& track,
+                         const MultiTrajectoryStateTransform& mtjstate) const;
+
+  void OnlyProp() { onlyprop_ = true; }
+  bool onlyprop_;
+
+private:
   ///B field
-   math::XYZVector B_;
-   PFGeometry pfGeometry_;
+  math::XYZVector B_;
+  PFGeometry pfGeometry_;
 };
 
 #endif

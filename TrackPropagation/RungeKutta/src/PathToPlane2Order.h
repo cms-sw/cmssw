@@ -20,35 +20,36 @@ class RKLocalFieldProvider;
 
 class dso_internal PathToPlane2Order {
 public:
+  typedef Plane::Scalar Scalar;
+  typedef Basic3DVector<Scalar> Vector3D;
+  typedef GloballyPositioned<Scalar> Frame;
 
-    typedef Plane::Scalar                                Scalar;
-    typedef Basic3DVector<Scalar>                        Vector3D;
-    typedef GloballyPositioned<Scalar>                   Frame;
+  PathToPlane2Order(const RKLocalFieldProvider& fld, const Frame* fieldFrame)
+      : theField(fld), theFieldFrame(fieldFrame) {}
 
-    PathToPlane2Order( const RKLocalFieldProvider& fld, const Frame* fieldFrame) : 
-      theField(fld), theFieldFrame(fieldFrame) {}
+  /// the position and momentum are local in the FieldFrame;
+  /// the plane is in the global frame
+  std::pair<bool, double> operator()(const Plane& plane,
+                                     const Vector3D& position,
+                                     const Vector3D& momentum,
+                                     double charge,
+                                     const PropagationDirection propDir = alongMomentum);
 
-    /// the position and momentum are local in the FieldFrame;
-    /// the plane is in the global frame
-    std::pair<bool,double> operator()( const Plane& plane, 
-				       const Vector3D& position,
-				       const Vector3D& momentum,
-				       double charge,
-				       const PropagationDirection propDir = alongMomentum);
-
-    std::pair<bool,double> operator()( const Plane& plane, 
-				       const GlobalPoint& position,
-				       const GlobalVector& momentum,
-				       double charge,
-				       const PropagationDirection propDir = alongMomentum) {
-	return operator()( plane, theFieldFrame->toLocal(position).basicVector(), 
-			   theFieldFrame->toLocal(momentum).basicVector(), charge, propDir);
-    }
+  std::pair<bool, double> operator()(const Plane& plane,
+                                     const GlobalPoint& position,
+                                     const GlobalVector& momentum,
+                                     double charge,
+                                     const PropagationDirection propDir = alongMomentum) {
+    return operator()(plane,
+                      theFieldFrame->toLocal(position).basicVector(),
+                      theFieldFrame->toLocal(momentum).basicVector(),
+                      charge,
+                      propDir);
+  }
 
 private:
-
-    const RKLocalFieldProvider& theField;
-    const Frame*                theFieldFrame;
+  const RKLocalFieldProvider& theField;
+  const Frame* theFieldFrame;
 };
 
 #endif

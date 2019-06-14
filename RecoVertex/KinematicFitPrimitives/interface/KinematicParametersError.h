@@ -17,38 +17,30 @@
  * Kirill Prokofiev January 2003
  */
 
-
-class KinematicParametersError{
-
+class KinematicParametersError {
 public:
- KinematicParametersError()
- {vl = false;}
+  KinematicParametersError() { vl = false; }
 
- KinematicParametersError(const AlgebraicSymMatrix77& er):
-                             theCovMatrix(er)
- {vl = true;}
- 
+  KinematicParametersError(const AlgebraicSymMatrix77& er) : theCovMatrix(er) { vl = true; }
+
   KinematicParametersError(const CartesianTrajectoryError& err, float merr) {
-    theCovMatrix.Place_at(err.matrix(),0,0);
-    theCovMatrix(6,6) = merr * merr;
+    theCovMatrix.Place_at(err.matrix(), 0, 0);
+    theCovMatrix(6, 6) = merr * merr;
     vl = true;
   }
-  
-/**
- * access methods
- */ 
- 
- AlgebraicSymMatrix77 const & matrix() const {return theCovMatrix;}
 
-  AlgebraicSymMatrix77  & matrix() {return theCovMatrix;}
- 
- 
- bool isValid() const
- {return vl;}
+  /**
+ * access methods
+ */
+
+  AlgebraicSymMatrix77 const& matrix() const { return theCovMatrix; }
+
+  AlgebraicSymMatrix77& matrix() { return theCovMatrix; }
+
+  bool isValid() const { return vl; }
 
 private:
- AlgebraicSymMatrix77 theCovMatrix;
- bool vl;
+  AlgebraicSymMatrix77 theCovMatrix;
+  bool vl;
 };
 #endif
-

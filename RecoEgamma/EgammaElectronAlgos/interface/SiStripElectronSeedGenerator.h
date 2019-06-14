@@ -43,7 +43,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -60,66 +60,81 @@ class MeasurementTrackerEvent;
 class NavigationSchool;
 class SiStripRecHitMatcher;
 
-class SiStripElectronSeedGenerator
-{
+class SiStripElectronSeedGenerator {
 public:
-  
   struct Tokens {
     edm::EDGetTokenT<reco::BeamSpot> token_bs;
     edm::EDGetTokenT<MeasurementTrackerEvent> token_mte;
   };
 
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
-  typedef TransientTrackingRecHit::ConstRecHitPointer  ConstRecHitPointer;
-  typedef TransientTrackingRecHit::RecHitPointer       RecHitPointer;
-  typedef TransientTrackingRecHit::RecHitContainer     RecHitContainer;
+  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
+  typedef TransientTrackingRecHit::RecHitContainer RecHitContainer;
 
-  SiStripElectronSeedGenerator(const edm::ParameterSet&,
-			       const Tokens&);
+  SiStripElectronSeedGenerator(const edm::ParameterSet&, const Tokens&);
 
   ~SiStripElectronSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
-  void run(edm::Event&, const edm::EventSetup& setup,
-	   const edm::Handle<reco::SuperClusterCollection>&,
-	   reco::ElectronSeedCollection&);
+  void run(edm::Event&,
+           const edm::EventSetup& setup,
+           const edm::Handle<reco::SuperClusterCollection>&,
+           reco::ElectronSeedCollection&);
 
 private:
   double normalPhi(double phi) const {
-    while (phi > 2.* M_PI) { phi -= 2.*M_PI; }
-    while (phi < 0) { phi += 2.*M_PI; }
+    while (phi > 2. * M_PI) {
+      phi -= 2. * M_PI;
+    }
+    while (phi < 0) {
+      phi += 2. * M_PI;
+    }
     return phi;
   }
 
-  double phiDiff(double phi1, double phi2){
+  double phiDiff(double phi1, double phi2) {
     double result = normalPhi(phi1) - normalPhi(phi2);
-    if(result > M_PI) result -= 2*M_PI;
-    if(result < -M_PI) result += 2*M_PI;
+    if (result > M_PI)
+      result -= 2 * M_PI;
+    if (result < -M_PI)
+      result += 2 * M_PI;
     return result;
   }
 
   double unwrapPhi(double phi) const {
-    while (phi > M_PI) { phi -= 2.*M_PI; }
-    while (phi < -M_PI) { phi += 2.*M_PI; }
+    while (phi > M_PI) {
+      phi -= 2. * M_PI;
+    }
+    while (phi < -M_PI) {
+      phi += 2. * M_PI;
+    }
     return phi;
   }
 
-  void findSeedsFromCluster(edm::Ref<reco::SuperClusterCollection>, edm::Handle<reco::BeamSpot>,
-                            const MeasurementTrackerEvent &trackerData,
-			    reco::ElectronSeedCollection&);
+  void findSeedsFromCluster(edm::Ref<reco::SuperClusterCollection>,
+                            edm::Handle<reco::BeamSpot>,
+                            const MeasurementTrackerEvent& trackerData,
+                            reco::ElectronSeedCollection&);
 
   int whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit);
 
-  bool preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope, int hitLayer);
+  bool preselection(GlobalPoint position, GlobalPoint superCluster, double phiVsRSlope, int hitLayer);
   //hitLayer: 1 = TIB, 2 = TID, 3 = TEC, 4 = Mono
 
   bool checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
-			std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
-			double scr,double scz,double pT,double scEta);
+                        std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit2,
+                        double scr,
+                        double scz,
+                        double pT,
+                        double scEta);
 
   bool altCheckHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
-			   std::vector<const SiStripRecHit2D*>::const_iterator hit2,
-			   double scr,double scz,double pT,double scEta);
+                           std::vector<const SiStripRecHit2D*>::const_iterator hit2,
+                           double scr,
+                           double scz,
+                           double pT,
+                           double scEta);
 
   const SiStripMatchedRecHit2D* matchedHitConverter(ConstRecHitPointer crhp);
   const SiStripRecHit2D* backupHitConverter(ConstRecHitPointer crhp);
@@ -139,8 +154,8 @@ private:
   std::string theMeasurementTrackerName;
   const MeasurementTracker* theMeasurementTracker;
   edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventTag;
-  const edm::EventSetup *theSetup;
-  
+  const edm::EventSetup* theSetup;
+
   PRecHitContainer recHits_;
   PTrajectoryStateOnDet pts_;
 
@@ -175,9 +190,6 @@ private:
   int tecMaxHits_;
   int monoMaxHits_;
   int maxSeeds_;
-
 };
 
-#endif // SiStripElectronSeedGenerator_H
-
-
+#endif  // SiStripElectronSeedGenerator_H

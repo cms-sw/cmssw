@@ -16,7 +16,7 @@
 //using namespace std;
 //using namespace boost;
 
-int main() { 
+int main() {
   gROOT->SetStyle("Plain");
   typedef funct::BreitWigner PDF;
   typedef std::vector<double> Sample;
@@ -24,23 +24,23 @@ int main() {
   typedef funct::Product<funct::Parameter, PDF>::type PlotFunction;
   try {
     fit::RootMinuitCommands<Likelihood> commands("PhysicsTools/Utilities/test/testZMassFitLikelihood.txt");
-    
-    const char * kYield = "Yield";
-    const char * kMass = "Mass";
-    const char * kGamma = "Gamma";
-    
+
+    const char* kYield = "Yield";
+    const char* kMass = "Mass";
+    const char* kGamma = "Gamma";
+
     funct::Parameter yield(kYield, commands.par(kYield));
     funct::Parameter mass(kMass, commands.par(kMass));
     funct::Parameter gamma(kGamma, commands.par(kGamma));
     funct::BreitWigner bw(mass, gamma);
-    
+
     PDF pdf = bw;
     PlotFunction f = yield * pdf;
     TF1 startFun = root::tf1("startFun", f, 0, 200, yield, mass, gamma);
     TH1D histo("histo", "Z mass (GeV/c)", 200, 0, 200);
     Sample sample;
     sample.reserve(yield);
-    for(unsigned int i = 0; i < yield; ++i) {
+    for (unsigned int i = 0; i < yield; ++i) {
       double m = startFun.GetRandom();
       histo.Fill(m);
       sample.push_back(m);
@@ -54,7 +54,7 @@ int main() {
     canvas.SaveAs("breitWignerHistoFun.eps");
     histo.Draw("e");
     startFun.Draw("same");
-    
+
     Likelihood like(sample, pdf);
     fit::RootMinuit<Likelihood> minuit(like, true);
     commands.add(minuit, mass);
@@ -63,17 +63,17 @@ int main() {
     ROOT::Math::SMatrix<double, 2, 2, ROOT::Math::MatRepSym<double, 2> > err;
     minuit.getErrorMatrix(err);
     std::cout << "error matrix:" << std::endl;
-    for(size_t i = 0; i < 2; ++i) {
-      for(size_t j = 0; j < 2; ++j) {
-	std::cout << err(i, j) << "\t";
+    for (size_t i = 0; i < 2; ++i) {
+      for (size_t j = 0; j < 2; ++j) {
+        std::cout << err(i, j) << "\t";
       }
       std::cout << std::endl;
-    } 
+    }
     root::plot<PlotFunction>("breitWignerHistoFunFit.eps", histo, f, 80, 120, yield, mass, gamma);
-  } catch(std::exception & err){
+  } catch (std::exception& err) {
     std::cerr << "Exception caught:\n" << err.what() << std::endl;
     return 1;
   }
-  
+
   return 0;
 }

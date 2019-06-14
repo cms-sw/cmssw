@@ -21,48 +21,42 @@
 
 //
 
+class Multi5x5ClusterProducer : public edm::stream::EDProducer<> {
+public:
+  Multi5x5ClusterProducer(const edm::ParameterSet& ps);
 
-class Multi5x5ClusterProducer : public edm::stream::EDProducer<> 
-{
-  public:
+  ~Multi5x5ClusterProducer() override;
 
-      Multi5x5ClusterProducer(const edm::ParameterSet& ps);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      ~Multi5x5ClusterProducer() override;
+private:
+  int nMaxPrintout_;  // max # of printouts
+  int nEvt_;          // internal counter of events
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  // cluster which regions
+  bool doBarrel_;
+  bool doEndcap_;
 
-   private:
+  edm::EDGetTokenT<EcalRecHitCollection> barrelHitToken_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapHitToken_;
 
-      int nMaxPrintout_; // max # of printouts
-      int nEvt_;         // internal counter of events
+  std::string barrelClusterCollection_;
+  std::string endcapClusterCollection_;
 
-      // cluster which regions
-      bool doBarrel_;
-      bool doEndcap_;
+  PositionCalc posCalculator_;  // position calculation algorithm
+  Multi5x5ClusterAlgo* island_p;
 
-      edm::EDGetTokenT<EcalRecHitCollection> barrelHitToken_;
-	  edm::EDGetTokenT<EcalRecHitCollection> endcapHitToken_;
+  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 
-      std::string barrelClusterCollection_;
-      std::string endcapClusterCollection_;
+  const EcalRecHitCollection* getCollection(edm::Event& evt, const edm::EDGetTokenT<EcalRecHitCollection>& token);
 
-      PositionCalc posCalculator_; // position calculation algorithm
-      Multi5x5ClusterAlgo * island_p;
+  void clusterizeECALPart(edm::Event& evt,
+                          const edm::EventSetup& es,
+                          const edm::EDGetTokenT<EcalRecHitCollection>& token,
+                          const std::string& clusterCollection,
+                          const reco::CaloID::Detectors detector);
 
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
-
-      const EcalRecHitCollection * getCollection(edm::Event& evt,
-                                                 const edm::EDGetTokenT<EcalRecHitCollection>& token );
-
-
-      void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-                              const edm::EDGetTokenT<EcalRecHitCollection>& token, 
-                              const std::string& clusterCollection,
-                              const reco::CaloID::Detectors detector);
-
-      void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
+  void outputValidationInfo(reco::CaloClusterPtrVector& clusterPtrVector);
 };
-
 
 #endif

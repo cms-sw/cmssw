@@ -8,8 +8,7 @@
 */
 //typedef std::list<EvtDecayBase*> EvtModelList;
 
-class EvtModelUserReg
-{
+class EvtModelUserReg {
 public:
   std::list<EvtDecayBase*> getUserModels();
 };

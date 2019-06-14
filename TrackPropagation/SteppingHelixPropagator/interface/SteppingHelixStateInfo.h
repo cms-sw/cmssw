@@ -1,8 +1,6 @@
 #ifndef SteppingHelixPropagator_SteppingHelixStateInfo_h
 #define SteppingHelixPropagator_SteppingHelixStateInfo_h
 
-
-
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
@@ -17,11 +15,8 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-
 #include "CLHEP/Matrix/SymMatrix.h"
 #include "CLHEP/Vector/ThreeVector.h"
-
-
 
 class MagneticField;
 class MagVolume;
@@ -31,27 +26,29 @@ class FreeTrajectoryState;
 
 class SteppingHelixStateInfo {
   friend class SteppingHelixPropagator;
- public:
+
+public:
   typedef CLHEP::Hep3Vector Vector;
-  typedef CLHEP::Hep3Vector  Point;
-  
-  enum Result {
-    OK=0,
-    FAULT,
-    APPROX,
-    RANGEOUT,
-    INACC,
-    NOT_IMPLEMENTED,
-    WRONG_VOLUME,
-    UNDEFINED,
-    MAX_RESULT
-  };
+  typedef CLHEP::Hep3Vector Point;
+
+  enum Result { OK = 0, FAULT, APPROX, RANGEOUT, INACC, NOT_IMPLEMENTED, WRONG_VOLUME, UNDEFINED, MAX_RESULT };
 
   static const std::string ResultName[MAX_RESULT];
 
-  SteppingHelixStateInfo(): 
-    path_(0), radPath_(0), dir(0), magVol(nullptr), isYokeVol(false), field(nullptr), dEdx(0), dEdXPrime(0), radX0(1e12),
-    isComplete(false), isValid_(false), hasErrorPropagated_(false), status_(UNDEFINED) {}
+  SteppingHelixStateInfo()
+      : path_(0),
+        radPath_(0),
+        dir(0),
+        magVol(nullptr),
+        isYokeVol(false),
+        field(nullptr),
+        dEdx(0),
+        dEdXPrime(0),
+        radX0(1e12),
+        isComplete(false),
+        isValid_(false),
+        hasErrorPropagated_(false),
+        status_(UNDEFINED) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
   TrajectoryStateOnSurface getStateOnSurface(const Surface& surf, bool returnTangentPlane = false) const;
@@ -59,24 +56,23 @@ class SteppingHelixStateInfo {
   ///convert internal structure into the fts
   void getFreeState(FreeTrajectoryState& fts) const;
 
-  GlobalPoint position() const {return GlobalPoint(r3.x(), r3.y(), r3.z());}
-  GlobalVector momentum() const {return GlobalVector(p3.x(), p3.y(), p3.z());}
-  int charge() const {return q;}
-  double path() const {return isValid_ ? path_ : 0;}
-  double radPath() const {return isValid_ ? radPath_ : 0;}
+  GlobalPoint position() const { return GlobalPoint(r3.x(), r3.y(), r3.z()); }
+  GlobalVector momentum() const { return GlobalVector(p3.x(), p3.y(), p3.z()); }
+  int charge() const { return q; }
+  double path() const { return isValid_ ? path_ : 0; }
+  double radPath() const { return isValid_ ? radPath_ : 0; }
 
-  bool isValid() const {return isValid_;}
-  bool hasErrorPropagated() const {return hasErrorPropagated_;}
+  bool isValid() const { return isValid_; }
+  bool hasErrorPropagated() const { return hasErrorPropagated_; }
 
-  Result status() const {return status_;}
+  Result status() const { return status_; }
 
- protected:
+protected:
   struct VolumeBounds {
-    VolumeBounds(): zMin(0), zMax(1e4), rMin(0), rMax(1e4), th1(0), th2(0) {}
-    VolumeBounds(double r0, double r1, double z0, double z1):
-      zMin(z0), zMax(z1), rMin(r0), rMax(r1), th1(0), th2(0) {}
-    VolumeBounds(double r0, double r1, double z0, double z1, double t1, double t2):
-      zMin(z0), zMax(z1), rMin(r0), rMax(r1), th1(t1), th2(t2) {}
+    VolumeBounds() : zMin(0), zMax(1e4), rMin(0), rMax(1e4), th1(0), th2(0) {}
+    VolumeBounds(double r0, double r1, double z0, double z1) : zMin(z0), zMax(z1), rMin(r0), rMax(r1), th1(0), th2(0) {}
+    VolumeBounds(double r0, double r1, double z0, double z1, double t1, double t2)
+        : zMin(z0), zMax(z1), rMin(r0), rMax(r1), th1(t1), th2(t2) {}
     double zMin;
     double zMax;
     double rMin;
@@ -84,7 +80,6 @@ class SteppingHelixStateInfo {
     double th1;
     double th2;
   };
-  
 
   int q;
   Vector p3;
@@ -97,9 +92,9 @@ class SteppingHelixStateInfo {
   Vector bf;
   Vector bfGradLoc;
   const MagVolume* magVol;
-  bool isYokeVol;//will be set (most likely) only for the barrel volumes (850>r>3.8, z<667)
-  const MagneticField* field;  
-  
+  bool isYokeVol;  //will be set (most likely) only for the barrel volumes (850>r>3.8, z<667)
+  const MagneticField* field;
+
   VolumeBounds rzLims;
   double dEdx;
   double dEdXPrime;

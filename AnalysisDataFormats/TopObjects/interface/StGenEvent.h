@@ -14,10 +14,9 @@
    a few additional getters with respect to its base class.
 */
 
-class StGenEvent: public TopGenEvent {
-
- public:
-  /// empty constructor  
+class StGenEvent : public TopGenEvent {
+public:
+  /// empty constructor
   StGenEvent();
   /// default constructor
   StGenEvent(reco::GenParticleRefProd&, reco::GenParticleRefProd&);
@@ -34,7 +33,7 @@ class StGenEvent: public TopGenEvent {
   const reco::GenParticle* singleTop() const;
   /// return decay b
   const reco::GenParticle* decayB() const;
-  /// return associated b 
+  /// return associated b
   const reco::GenParticle* associatedB() const;
 };
 

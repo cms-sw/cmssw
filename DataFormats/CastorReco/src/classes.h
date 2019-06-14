@@ -4,4 +4,3 @@
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
 #include "DataFormats/CastorReco/interface/CastorEgamma.h"
 #include "DataFormats/CastorReco/interface/CastorJet.h"
-

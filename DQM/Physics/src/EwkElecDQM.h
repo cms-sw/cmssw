@@ -17,29 +17,28 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 namespace reco {
-class Jet;
-class MET;
-class BeamSpot;
-}
+  class Jet;
+  class MET;
+  class BeamSpot;
+}  // namespace reco
 
 class DQMStore;
 class MonitorElement;
 class EwkElecDQM : public DQMEDAnalyzer {
- public:
+public:
   EwkElecDQM(const edm::ParameterSet&);
+
 protected:
   //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   double calcDeltaPhi(double phi1, double phi2);
 
- private:
+private:
   //  edm::InputTag muonTag_;
   edm::InputTag metTag_;
   edm::InputTag jetTag_;

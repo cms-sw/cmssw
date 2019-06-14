@@ -16,27 +16,22 @@
 
 class TrajectoryMeasurementGroup {
 public:
-
   TrajectoryMeasurementGroup() {}
-  TrajectoryMeasurementGroup( const std::vector<TrajectoryMeasurement>& meas,
-			      const DetGroup& dg) : measurements_(meas), detGroup_(dg) {}
+  TrajectoryMeasurementGroup(const std::vector<TrajectoryMeasurement>& meas, const DetGroup& dg)
+      : measurements_(meas), detGroup_(dg) {}
 
-  TrajectoryMeasurementGroup(std::vector<TrajectoryMeasurement>&& meas,
-			     const DetGroup& dg) : measurements_(std::move(meas)), detGroup_(dg) {}
-  TrajectoryMeasurementGroup(std::vector<TrajectoryMeasurement>&& meas,
-			     DetGroup&& dg) : measurements_(std::move(meas)), detGroup_(std::move(dg)) {}
+  TrajectoryMeasurementGroup(std::vector<TrajectoryMeasurement>&& meas, const DetGroup& dg)
+      : measurements_(std::move(meas)), detGroup_(dg) {}
+  TrajectoryMeasurementGroup(std::vector<TrajectoryMeasurement>&& meas, DetGroup&& dg)
+      : measurements_(std::move(meas)), detGroup_(std::move(dg)) {}
 
-  const std::vector<TrajectoryMeasurement>& measurements() const {return measurements_;}
-        std::vector<TrajectoryMeasurement>& measurements()       {return measurements_;}
-  const DetGroup& detGroup() const {return detGroup_;}
+  const std::vector<TrajectoryMeasurement>& measurements() const { return measurements_; }
+  std::vector<TrajectoryMeasurement>& measurements() { return measurements_; }
+  const DetGroup& detGroup() const { return detGroup_; }
 
 private:
-
   std::vector<TrajectoryMeasurement> measurements_;
-  DetGroup                           detGroup_;
-
+  DetGroup detGroup_;
 };
-
-
 
 #endif

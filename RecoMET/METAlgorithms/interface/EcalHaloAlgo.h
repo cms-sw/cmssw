@@ -41,73 +41,84 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitDefs.h"
 #include "DataFormats/METReco/interface/HaloClusterCandidateECAL.h"
 
-class EcalHaloAlgo
-{
- public:
+class EcalHaloAlgo {
+public:
   // constructor
   EcalHaloAlgo();
   // destructor
-  ~EcalHaloAlgo(){}
-  
+  ~EcalHaloAlgo() {}
+
   // Run algorithm
-  reco::EcalHaloData Calculate(const CaloGeometry& TheCaloGeometry, edm::Handle<reco::PhotonCollection>& ThePhotons,  edm::Handle<reco::SuperClusterCollection>& TheSuperClusters,edm::Handle<EBRecHitCollection>& TheEBRecHits, edm::Handle<EERecHitCollection>& TheEERecHits, edm::Handle<ESRecHitCollection>& TheESRecHits, edm::Handle<HBHERecHitCollection>& TheHBHERecHits,const edm::EventSetup& TheSetup);
+  reco::EcalHaloData Calculate(const CaloGeometry& TheCaloGeometry,
+                               edm::Handle<reco::PhotonCollection>& ThePhotons,
+                               edm::Handle<reco::SuperClusterCollection>& TheSuperClusters,
+                               edm::Handle<EBRecHitCollection>& TheEBRecHits,
+                               edm::Handle<EERecHitCollection>& TheEERecHits,
+                               edm::Handle<ESRecHitCollection>& TheESRecHits,
+                               edm::Handle<HBHERecHitCollection>& TheHBHERecHits,
+                               const edm::EventSetup& TheSetup);
   // Set Roundness cuts
-  void SetRoundnessCut( float r = 100.){ RoundnessCut=r; }                                       
+  void SetRoundnessCut(float r = 100.) { RoundnessCut = r; }
   // Set Angle cuts
-  void SetAngleCut(float a = 4.){ AngleCut =a;}     
-  
+  void SetAngleCut(float a = 4.) { AngleCut = a; }
+
   // Set RecHit Energy Thresholds
-  void SetRecHitEnergyThresholds( float EB, float EE, float ES){ EBRecHitEnergyThreshold = EB; EERecHitEnergyThreshold = EE ; ESRecHitEnergyThreshold = ES;}
+  void SetRecHitEnergyThresholds(float EB, float EE, float ES) {
+    EBRecHitEnergyThreshold = EB;
+    EERecHitEnergyThreshold = EE;
+    ESRecHitEnergyThreshold = ES;
+  }
   // Set Phi Wedge Thresholds
-  void SetPhiWedgeEnergyThreshold( float SumE ){ SumEnergyThreshold = SumE ;}
-  void SetPhiWedgeNHitsThreshold( int nhits ) { NHitsThreshold = nhits ; }
-  void SetPhiWedgeThresholds(float SumE, int nhits) { SumEnergyThreshold = SumE ; NHitsThreshold = nhits ;}
+  void SetPhiWedgeEnergyThreshold(float SumE) { SumEnergyThreshold = SumE; }
+  void SetPhiWedgeNHitsThreshold(int nhits) { NHitsThreshold = nhits; }
+  void SetPhiWedgeThresholds(float SumE, int nhits) {
+    SumEnergyThreshold = SumE;
+    NHitsThreshold = nhits;
+  }
 
-
-  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEB(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
-  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEE(edm::Handle<EcalRecHitCollection>& ecalrechitcoll, edm::Handle<HBHERecHitCollection>& hbherechitcoll,float et_thresh_seedrh);
+  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEB(
+      edm::Handle<EcalRecHitCollection>& ecalrechitcoll,
+      edm::Handle<HBHERecHitCollection>& hbherechitcoll,
+      float et_thresh_seedrh);
+  std::vector<reco::HaloClusterCandidateECAL> GetHaloClusterCandidateEE(
+      edm::Handle<EcalRecHitCollection>& ecalrechitcoll,
+      edm::Handle<HBHERecHitCollection>& hbherechitcoll,
+      float et_thresh_seedrh);
   bool EBClusterShapeandTimeStudy(reco::HaloClusterCandidateECAL hcand, bool ishlt);
   bool EEClusterShapeandTimeStudy_ITBH(reco::HaloClusterCandidateECAL hcand, bool ishlt);
   bool EEClusterShapeandTimeStudy_OTBH(reco::HaloClusterCandidateECAL hcand, bool ishlt);
 
-
-
   // Get Roundness cut
-  float GetRoundnessCut(){return RoundnessCut ;}
+  float GetRoundnessCut() { return RoundnessCut; }
   // Get Angle cut
-  float GetAngleCut(){return AngleCut ;}
-  
+  float GetAngleCut() { return AngleCut; }
+
   // Get RecHit Energy Threshold
-  float GetEBRecHitEnergyThreshold(){ return EBRecHitEnergyThreshold;}
-  float GetEERecHitEnergyThreshold(){ return EERecHitEnergyThreshold;}
-  float GetESRecHitEnergyThreshold(){ return ESRecHitEnergyThreshold;}
-  
+  float GetEBRecHitEnergyThreshold() { return EBRecHitEnergyThreshold; }
+  float GetEERecHitEnergyThreshold() { return EERecHitEnergyThreshold; }
+  float GetESRecHitEnergyThreshold() { return ESRecHitEnergyThreshold; }
+
   // Get Phi Wedge Threhsolds
-  float GetPhiWedgeEnergyThreshold() { return SumEnergyThreshold;}
-  int GetPhiWedgeNHitsThreshold() { return NHitsThreshold;}
+  float GetPhiWedgeEnergyThreshold() { return SumEnergyThreshold; }
+  int GetPhiWedgeNHitsThreshold() { return NHitsThreshold; }
 
-  
- private:
-
-  // Cut Value for Supercluster "roundness" variable                                                                                         
+private:
+  // Cut Value for Supercluster "roundness" variable
   float RoundnessCut;
-  // Cut Value for Supercluster "angle" variable                                                                                      
+  // Cut Value for Supercluster "angle" variable
   float AngleCut;
-  
+
   // Invidiual RecHit Threhsolds
   float EBRecHitEnergyThreshold;
   float EERecHitEnergyThreshold;
   float ESRecHitEnergyThreshold;
-  
+
   // Phi Wedge Thresholds
   float SumEnergyThreshold;
   int NHitsThreshold;
 
-  const CaloGeometry *geo;
-  math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
-
+  const CaloGeometry* geo;
+  math::XYZPoint getPosition(const DetId& id, reco::Vertex::Point vtx);
 };
-
-
 
 #endif

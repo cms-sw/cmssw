@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWHFTowerSliceSelector
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -25,86 +25,74 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-
 //
 // member functions
 //
 
-void
-FWHFTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell)
-{
-   if (!m_item) return;
+void FWHFTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell) {
+  if (!m_item)
+    return;
 
-   const HFRecHitCollection* hits=nullptr;
-   m_item->get(hits);
-   assert(nullptr!=hits);
+  const HFRecHitCollection* hits = nullptr;
+  m_item->get(hits);
+  assert(nullptr != hits);
 
-   int index = 0;
-   FWChangeSentry sentry(*(m_item->changeManager()));
-   for(HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
-   {
-      HcalDetId id ((*it).detid().rawId());
-      if (findBinFromId(id, iCell.fTower) && 
-          m_item->modelInfo(index).m_displayProperties.isVisible() &&
-          !m_item->modelInfo(index).isSelected()) {
-         // std::cout <<"  doSelect "<<index<<std::endl;
-         m_item->select(index);
-      }
-   }
+  int index = 0;
+  FWChangeSentry sentry(*(m_item->changeManager()));
+  for (HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it, ++index) {
+    HcalDetId id((*it).detid().rawId());
+    if (findBinFromId(id, iCell.fTower) && m_item->modelInfo(index).m_displayProperties.isVisible() &&
+        !m_item->modelInfo(index).isSelected()) {
+      // std::cout <<"  doSelect "<<index<<std::endl;
+      m_item->select(index);
+    }
+  }
 }
 
-void
-FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell)
-{
-   if (!m_item) return;
+void FWHFTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell) {
+  if (!m_item)
+    return;
 
-   const HFRecHitCollection* hits=nullptr;
-   m_item->get(hits);
-   assert(nullptr!=hits);
+  const HFRecHitCollection* hits = nullptr;
+  m_item->get(hits);
+  assert(nullptr != hits);
 
-   int index = 0;
-   FWChangeSentry sentry(*(m_item->changeManager()));
-   for(HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it,++index)
-   {
-      HcalDetId id ((*it).detid().rawId());
-      if (findBinFromId(id, iCell.fTower) && 
-          m_item->modelInfo(index).m_displayProperties.isVisible() &&
-          m_item->modelInfo(index).isSelected()) {
-         // std::cout <<"  doUnselect "<<index<<std::endl;
-         m_item->unselect(index);
-      }
-   }
+  int index = 0;
+  FWChangeSentry sentry(*(m_item->changeManager()));
+  for (HFRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it, ++index) {
+    HcalDetId id((*it).detid().rawId());
+    if (findBinFromId(id, iCell.fTower) && m_item->modelInfo(index).m_displayProperties.isVisible() &&
+        m_item->modelInfo(index).isSelected()) {
+      // std::cout <<"  doUnselect "<<index<<std::endl;
+      m_item->unselect(index);
+    }
+  }
 }
 
-bool
-FWHFTowerSliceSelector::findBinFromId( HcalDetId& detId, int tower) const
-{    
-   TEveCaloData::vCellId_t cellIds;
-   const float* corners = m_item->getGeom()->getCorners( detId.rawId());
-   if( corners == nullptr )
-   {
-     fwLog( fwlog::kInfo ) << "FWHFTowerSliceSelector cannot get geometry for DetId: "<< detId.rawId() << ". Ignored.\n";
-     return false;
-   }
-   std::vector<TEveVector> front( 4 );
-   float eta = 0, phi = 0;
-   int j = 0;
-   for( int i = 0; i < 4; ++i )
-   {
-     front[i] = TEveVector( corners[j], corners[j + 1], corners[j + 2] );
-     j +=3;
+bool FWHFTowerSliceSelector::findBinFromId(HcalDetId& detId, int tower) const {
+  TEveCaloData::vCellId_t cellIds;
+  const float* corners = m_item->getGeom()->getCorners(detId.rawId());
+  if (corners == nullptr) {
+    fwLog(fwlog::kInfo) << "FWHFTowerSliceSelector cannot get geometry for DetId: " << detId.rawId() << ". Ignored.\n";
+    return false;
+  }
+  std::vector<TEveVector> front(4);
+  float eta = 0, phi = 0;
+  int j = 0;
+  for (int i = 0; i < 4; ++i) {
+    front[i] = TEveVector(corners[j], corners[j + 1], corners[j + 2]);
+    j += 3;
 
-     eta += front[i].Eta();
-     phi += front[i].Phi();
-   }
-   eta /= 4;
-   phi /= 4;
+    eta += front[i].Eta();
+    phi += front[i].Phi();
+  }
+  eta /= 4;
+  phi /= 4;
 
-   const TEveCaloData::CellGeom_t &cg = m_vecData->GetCellGeom()[tower] ;
-   if(( eta >= cg.fEtaMin && eta <= cg.fEtaMax) && (phi >= cg.fPhiMin && phi <= cg.fPhiMax))
-   {
-      return true;
-   }
+  const TEveCaloData::CellGeom_t& cg = m_vecData->GetCellGeom()[tower];
+  if ((eta >= cg.fEtaMin && eta <= cg.fEtaMax) && (phi >= cg.fPhiMin && phi <= cg.fPhiMax)) {
+    return true;
+  }
 
-   return false;
+  return false;
 }

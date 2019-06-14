@@ -24,7 +24,6 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h" 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
 #include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
@@ -47,6 +46,7 @@ class PixelFEDChannelCollectionProducer : public edm::ESProducer {
       ReturnType produce(const SiPixelFEDChannelContainerESProducerRcd &);
    private:
       // ----------member data ---------------------------
+  edm::ESGetToken<SiPixelFEDChannelContainer, SiPixelStatusScenariosRcd> qualityToken_;
 };
 
 
@@ -54,7 +54,7 @@ PixelFEDChannelCollectionProducer::PixelFEDChannelCollectionProducer(const edm::
 {
    //the following line is needed to tell the framework what
    // data is being produced
-   setWhatProduced(this);
+   setWhatProduced(this).setConsumes(qualityToken_);
 
    //now do what ever other initialization is needed
 }
@@ -76,24 +76,23 @@ PixelFEDChannelCollectionProducer::~PixelFEDChannelCollectionProducer()
 PixelFEDChannelCollectionProducer::ReturnType
 PixelFEDChannelCollectionProducer::produce(const SiPixelFEDChannelContainerESProducerRcd& iRecord)
 {
-  edm::ESHandle<SiPixelFEDChannelContainer> qualityCollectionHandle;
-  iRecord.getRecord<SiPixelStatusScenariosRcd>().get(qualityCollectionHandle); 
+  const auto& qualityCollection = iRecord.get(qualityToken_);
 
-  PixelFEDChannelCollectionMap out;
+  auto out = std::make_unique<PixelFEDChannelCollectionMap>();
 
-  for(const auto& it : qualityCollectionHandle->getScenarioMap()){
+  for(const auto& it : qualityCollection.getScenarioMap()){
  
-    std::string scenario = it.first;
-    PixelFEDChannelCollection disabled_channelcollection;
-    auto SiPixelBadFedChannels = it.second;
+    const std::string& scenario = it.first;
+    // getScenarioMap() is an unordered_map<string, ...>, so each scenario appears exactly once
+    PixelFEDChannelCollection& disabled_channelcollection = (*out)[scenario];
+
+    const auto& SiPixelBadFedChannels = it.second;
     for(const auto &entry : SiPixelBadFedChannels){
       disabled_channelcollection.insert(entry.first, entry.second.data(), entry.second.size());
     }
-    out.emplace(scenario,disabled_channelcollection);
   }
   
-  auto product = std::make_unique<PixelFEDChannelCollectionMap>(out);
-  return product;
+  return out;
 }
 
 //define this as a plug-in

@@ -15,7 +15,6 @@
 #include <Math/Functor.h>
 
 struct MahiNnlsWorkspace {
-
   unsigned int nPulseTot;
   unsigned int tsSize;
   unsigned int tsOffset;
@@ -25,7 +24,7 @@ struct MahiNnlsWorkspace {
   double dt;
 
   //holds active bunch crossings
-  BXVector bxs;  
+  BXVector bxs;
 
   //holds data samples
   SampleVector amplitudes;
@@ -35,8 +34,8 @@ struct MahiNnlsWorkspace {
 
   //holds flat pedestal uncertainty
   SampleMatrix pedConstraint;
-  
-  //holds full covariance matrix for a pulse shape 
+
+  //holds full covariance matrix for a pulse shape
   //varied in time
   std::array<FullSampleMatrix, MaxPVSize> pulseCovArray;
 
@@ -51,26 +50,24 @@ struct MahiNnlsWorkspace {
   PulseVector ampVec;
 
   SamplePulseMatrix invcovp;
-  PulseMatrix aTaMat; // A-transpose A (matrix)
-  PulseVector aTbVec; // A-transpose b (vector)
+  PulseMatrix aTaMat;  // A-transpose A (matrix)
+  PulseVector aTbVec;  // A-transpose b (vector)
 
   SampleDecompLLT covDecomp;
   PulseDecompLDLT pulseDecomp;
-
 };
 
 struct MahiDebugInfo {
+  int nSamples;
+  int soi;
 
-  int   nSamples;
-  int   soi;
-
-  bool  use3;
+  bool use3;
 
   float inTimeConst;
   float inDarkCurrent;
   float inPedAvg;
   float inGain;
-  
+
   float inNoiseADC[MaxSVSize];
   float inNoiseDC[MaxSVSize];
   float inNoisePhoto[MaxSVSize];
@@ -92,47 +89,53 @@ struct MahiDebugInfo {
   float itPulse[MaxSVSize];
   float pPulse[MaxSVSize];
   float nPulse[MaxSVSize];
-  
 };
 
-class MahiFit
-{
- public:
+class MahiFit {
+public:
   MahiFit();
-  ~MahiFit() { };
+  ~MahiFit(){};
 
-  void setParameters(bool iDynamicPed, double iTS4Thresh, double chiSqSwitch, 
-		     bool iApplyTimeSlew, HcalTimeSlew::BiasSetting slewFlavor,
-		     bool iCalculateArrivalTime, double iMeanTime, double iTimeSigmaHPD, double iTimeSigmaSiPM,
-		     const std::vector <int> &iActiveBXs, int iNMaxItersMin, int iNMaxItersNNLS,
-		     double iDeltaChiSqThresh, double iNnlsThresh);
+  void setParameters(bool iDynamicPed,
+                     double iTS4Thresh,
+                     double chiSqSwitch,
+                     bool iApplyTimeSlew,
+                     HcalTimeSlew::BiasSetting slewFlavor,
+                     bool iCalculateArrivalTime,
+                     double iMeanTime,
+                     double iTimeSigmaHPD,
+                     double iTimeSigmaSiPM,
+                     const std::vector<int>& iActiveBXs,
+                     int iNMaxItersMin,
+                     int iNMaxItersNNLS,
+                     double iDeltaChiSqThresh,
+                     double iNnlsThresh);
 
-  void phase1Apply(const HBHEChannelInfo& channelData, 
-		   float& reconstructedEnergy, 
-		   float& reconstructedTime, 
-		   bool& useTriple,
-		   float& chi2) const;
+  void phase1Apply(const HBHEChannelInfo& channelData,
+                   float& reconstructedEnergy,
+                   float& reconstructedTime,
+                   bool& useTriple,
+                   float& chi2) const;
 
-  void phase1Debug(const HBHEChannelInfo& channelData,
-		   MahiDebugInfo& mdi) const;
+  void phase1Debug(const HBHEChannelInfo& channelData, MahiDebugInfo& mdi) const;
 
-  void doFit(std::array<float,3> &correctedOutput, const int nbx) const;
+  void doFit(std::array<float, 3>& correctedOutput, const int nbx) const;
 
-  void setPulseShapeTemplate  (const HcalPulseShapes::Shape& ps,const HcalTimeSlew * hcalTimeSlewDelay);
+  void setPulseShapeTemplate(const HcalPulseShapes::Shape& ps, const HcalTimeSlew* hcalTimeSlewDelay);
   void resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps);
 
   typedef BXVector::Index Index;
-  const HcalPulseShapes::Shape* currentPulseShape_=nullptr;
-  const HcalTimeSlew* hcalTimeSlewDelay_=nullptr;
+  const HcalPulseShapes::Shape* currentPulseShape_ = nullptr;
+  const HcalTimeSlew* hcalTimeSlewDelay_ = nullptr;
 
- private:
-
+private:
   double minimize() const;
   void onePulseMinimize() const;
   void updateCov() const;
-  void updatePulseShape(double itQ, FullSampleVector &pulseShape, 
-			FullSampleVector &pulseDeriv,
-			FullSampleMatrix &pulseCov) const;
+  void updatePulseShape(double itQ,
+                        FullSampleVector& pulseShape,
+                        FullSampleVector& pulseDeriv,
+                        FullSampleMatrix& pulseCov) const;
 
   float calculateArrivalTime() const;
   double calculateChiSq() const;
@@ -152,31 +155,31 @@ class MahiFit
 
   static constexpr int pedestalBX_ = 100;
 
-  // used to restrict returned time value to a 25 ns window centered 
+  // used to restrict returned time value to a 25 ns window centered
   // on the nominal arrival time
   static constexpr float timeLimit_ = 12.5;
 
   // Python-configurables
   bool dynamicPed_;
-  float ts4Thresh_; 
-  float chiSqSwitch_; 
+  float ts4Thresh_;
+  float chiSqSwitch_;
 
-  bool applyTimeSlew_; 
+  bool applyTimeSlew_;
   HcalTimeSlew::BiasSetting slewFlavor_;
-  float tsDelay1GeV_=0.f;
+  float tsDelay1GeV_ = 0.f;
 
   bool calculateArrivalTime_;
   float meanTime_;
-  float timeSigmaHPD_; 
+  float timeSigmaHPD_;
   float timeSigmaSiPM_;
 
-  std::vector <int> activeBXs_;
+  std::vector<int> activeBXs_;
 
-  int nMaxItersMin_; 
-  int nMaxItersNNLS_; 
+  int nMaxItersMin_;
+  int nMaxItersNNLS_;
 
-  float deltaChiSqThresh_; 
-  float nnlsThresh_; 
+  float deltaChiSqThresh_;
+  float nnlsThresh_;
 
   unsigned int bxSizeConf_;
   int bxOffsetConf_;
@@ -185,6 +188,5 @@ class MahiFit
   int cntsetPulseShape_;
   std::unique_ptr<FitterFuncs::PulseShapeFunctor> psfPtr_;
   std::unique_ptr<ROOT::Math::Functor> pfunctor_;
-
-}; 
+};
 #endif

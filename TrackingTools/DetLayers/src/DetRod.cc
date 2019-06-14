@@ -2,9 +2,7 @@
 
 using namespace std;
 
-DetRod::~DetRod(){}
-
-
+DetRod::~DetRod() {}
 
 //obsolete?
 /*

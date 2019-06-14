@@ -15,12 +15,12 @@
   */
 class HcalZDCDetId : public DetId {
 public:
-  static const int kZDCChannelMask   = 0xF;
-  static const int kZDCSectionMask   = 0x3;
+  static const int kZDCChannelMask = 0xF;
+  static const int kZDCSectionMask = 0x3;
   static const int kZDCSectionOffset = 4;
-  static const int kZDCZsideMask     = 0x40;
-  static const int kZDCRPDMask       = 0x80;
-  enum Section {Unknown=0, EM=1, HAD=2, LUM=3, RPD=4};
+  static const int kZDCZsideMask = 0x40;
+  static const int kZDCRPDMask = 0x80;
+  enum Section { Unknown = 0, EM = 1, HAD = 2, LUM = 3, RPD = 4 };
 
   static const int SubdetectorId = 2;
 
@@ -36,37 +36,36 @@ public:
   HcalZDCDetId& operator=(const DetId& id);
 
   /// get the z-side of the cell (1/-1)
-  int zside() const { return ((id_&kZDCZsideMask) ? (1) : (-1)); }
+  int zside() const { return ((id_ & kZDCZsideMask) ? (1) : (-1)); }
   /// get the section
   Section section() const;
   /// get the depth (1 for EM, channel + 1 for HAD, 2 for RPD, not sure yet for LUM, leave as default)
-  int depth() const; 
-  /// get the channel 
+  int depth() const;
+  /// get the channel
   int channel() const;
 
-  uint32_t denseIndex() const ;
+  uint32_t denseIndex() const;
 
-  static bool validDenseIndex( uint32_t di ) { return ( di < kSizeForDenseIndexing ) ; }
+  static bool validDenseIndex(uint32_t di) { return (di < kSizeForDenseIndexing); }
 
-  static HcalZDCDetId detIdFromDenseIndex( uint32_t di ) ;
+  static HcalZDCDetId detIdFromDenseIndex(uint32_t di);
 
-  static bool validDetId( Section se, int dp ) ;
+  static bool validDetId(Section se, int dp);
 
 private:
-
-  enum { kDepEM  = 5,
-	 kDepHAD = 4,
-	 kDepLUM = 2,
-	 kDepRPD = 16,
-	 kDepRun1= kDepEM + kDepHAD + kDepLUM,
-	 kDepTot = kDepRun1 + kDepRPD};
+  enum {
+    kDepEM = 5,
+    kDepHAD = 4,
+    kDepLUM = 2,
+    kDepRPD = 16,
+    kDepRun1 = kDepEM + kDepHAD + kDepLUM,
+    kDepTot = kDepRun1 + kDepRPD
+  };
 
 public:
-
-  enum { kSizeForDenseIndexing = 2*kDepRun1 } ;
-
+  enum { kSizeForDenseIndexing = 2 * kDepRun1 };
 };
 
-std::ostream& operator<<(std::ostream&,const HcalZDCDetId& id);
+std::ostream& operator<<(std::ostream&, const HcalZDCDetId& id);
 
-#endif // DataFormats_HcalDetId_HcalZDCDetId_h_included
+#endif  // DataFormats_HcalDetId_HcalZDCDetId_h_included

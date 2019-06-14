@@ -14,20 +14,20 @@
 #include "CommonTools/Utils/src/SelectorStack.h"
 
 namespace reco {
-  namespace parser {    
-    template<typename Op>
+  namespace parser {
+    template <typename Op>
     struct LogicalUnaryOperator : public SelectorBase {
-      LogicalUnaryOperator(SelectorStack & selStack) {
-	rhs_ = selStack.back(); selStack.pop_back();
+      LogicalUnaryOperator(SelectorStack& selStack) {
+        rhs_ = selStack.back();
+        selStack.pop_back();
       }
-      bool operator()(const edm::ObjectWithDict& o) const override {
-	return op_((*rhs_)(o));
-      }
-      private:
+      bool operator()(const edm::ObjectWithDict& o) const override { return op_((*rhs_)(o)); }
+
+    private:
       Op op_;
       SelectorPtr rhs_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

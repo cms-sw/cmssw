@@ -5,44 +5,41 @@
 
 #include <array>
 
-GlobalDetRodRangeZPhi::GlobalDetRodRangeZPhi( const Plane& plane) {
+GlobalDetRodRangeZPhi::GlobalDetRodRangeZPhi(const Plane& plane) {
+  float dx = plane.bounds().width() / 2.;
+  float dy = plane.bounds().length() / 2.;
+  float dz = plane.bounds().thickness() / 2.;
 
-  float dx = plane.bounds().width()/2.;
-  float dy = plane.bounds().length()/2.;
-  float dz = plane.bounds().thickness()/2.;
-
-  // rods may be inverted (actually are in every other layer), so have to find out the 
+  // rods may be inverted (actually are in every other layer), so have to find out the
   // orientation of the local frame
-  float deltaZ = (plane.toGlobal( LocalPoint( 0, 0, -dz)).perp() < 
-                  plane.toGlobal( LocalPoint( 0, 0, dz)).perp() ) ? -dz : dz ;
-  
+  float deltaZ =
+      (plane.toGlobal(LocalPoint(0, 0, -dz)).perp() < plane.toGlobal(LocalPoint(0, 0, dz)).perp()) ? -dz : dz;
 
-  const std::array<Surface::GlobalPoint, 4> corners{{
-      plane.toGlobal( LocalPoint( -dx, -dy, deltaZ)),
-      plane.toGlobal( LocalPoint( -dx,  dy, deltaZ)),
-      plane.toGlobal( LocalPoint(  dx, -dy, deltaZ)),
-      plane.toGlobal( LocalPoint(  dx,  dy, deltaZ))}};
+  const std::array<Surface::GlobalPoint, 4> corners{{plane.toGlobal(LocalPoint(-dx, -dy, deltaZ)),
+                                                     plane.toGlobal(LocalPoint(-dx, dy, deltaZ)),
+                                                     plane.toGlobal(LocalPoint(dx, -dy, deltaZ)),
+                                                     plane.toGlobal(LocalPoint(dx, dy, deltaZ))}};
 
   float phimin = corners[0].phi();
   float phimax = phimin;
 
-  float zmin   = corners[0].z();
-  float zmax   = zmin;
+  float zmin = corners[0].z();
+  float zmax = zmin;
 
-  for ( const auto& corner : corners )
-  {
+  for (const auto& corner : corners) {
     float phi = corner.phi();
-    if ( Geom::phiLess( phi, phimin)) phimin = phi;
-    if ( Geom::phiLess( phimax, phi)) phimax = phi;
+    if (Geom::phiLess(phi, phimin))
+      phimin = phi;
+    if (Geom::phiLess(phimax, phi))
+      phimax = phi;
 
     float z = corner.z();
     zmin = std::min(zmin, z);
     zmax = std::max(zmax, z);
   }
 
-  theZRange.first    = zmin;
-  theZRange.second   = zmax;
-  thePhiRange.first  = phimin;
+  theZRange.first = zmin;
+  theZRange.second = zmax;
+  thePhiRange.first = phimin;
   thePhiRange.second = phimax;
-
 }

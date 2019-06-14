@@ -12,16 +12,13 @@
 #include <memory>
 
 class StripByStripTestDriver : public edm::EDProducer {
-  
   typedef edmNew::DetSetVector<SiStripCluster> output_t;
-  
-public:  
 
+public:
   StripByStripTestDriver(const edm::ParameterSet&);
   ~StripByStripTestDriver();
 
 private:
-
   void produce(edm::Event&, const edm::EventSetup&);
 
   const edm::InputTag inputTag;
@@ -29,6 +26,5 @@ private:
 
   //SiStripClusterizerFactory*               hltFactory;
   std::unique_ptr<StripClusterizerAlgorithm> algorithm;
-
 };
 #endif

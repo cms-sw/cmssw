@@ -13,9 +13,7 @@
 
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
-
-class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer
-{
+class PhysicsPerformanceDBWriterFromFile_WPandPayload : public edm::EDAnalyzer {
 public:
   PhysicsPerformanceDBWriterFromFile_WPandPayload(const edm::ParameterSet&);
   void beginJob() override;
@@ -25,19 +23,17 @@ public:
 
 private:
   std::string inputTxtFile;
-  std::string rec1,rec2;
+  std::string rec1, rec2;
 };
 
-PhysicsPerformanceDBWriterFromFile_WPandPayload::PhysicsPerformanceDBWriterFromFile_WPandPayload
-  (const edm::ParameterSet& p)
-{
+PhysicsPerformanceDBWriterFromFile_WPandPayload::PhysicsPerformanceDBWriterFromFile_WPandPayload(
+    const edm::ParameterSet& p) {
   inputTxtFile = p.getUntrackedParameter<std::string>("inputTxtFile");
   rec1 = p.getUntrackedParameter<std::string>("RecordPayload");
   rec2 = p.getUntrackedParameter<std::string>("RecordWP");
 }
 
-void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob()
-{
+void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   //
   // read object from file
   //
@@ -53,24 +49,24 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob()
   //
 
   std::ifstream in;
-  std::cout << "Opening "<< inputTxtFile<<std::endl;
+  std::cout << "Opening " << inputTxtFile << std::endl;
   in.open(inputTxtFile.c_str());
   std::string tagger;
   float cut;
- 
+
   std::string concreteType;
   std::string comment;
   std::vector<float> pl;
   int stride;
 
   in >> tagger;
-  std::cout << "WP Tagger is "<<tagger<<std::endl;
-  
+  std::cout << "WP Tagger is " << tagger << std::endl;
+
   in >> cut;
-  std::cout << "WP Cut is "<<cut<<std::endl;
+  std::cout << "WP Cut is " << cut << std::endl;
 
   in >> concreteType;
-  std::cout << "concrete Type is "<<concreteType<<std::endl;
+  std::cout << "concrete Type is " << concreteType << std::endl;
 
   //  return ;
 
@@ -79,45 +75,44 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob()
   int nres, nbin;
   in >> nres;
   in >> nbin;
-  std::cout <<" Results: " << nres<<" Binning variables: "<<nbin<<std::endl;
+  std::cout << " Results: " << nres << " Binning variables: " << nbin << std::endl;
 
-  stride = nres+nbin*2;
-  if (! stride)
-  {
+  stride = nres + nbin * 2;
+  if (!stride) {
     std::cout << " Malformed input file" << std::endl;
     exit(1);
   }
-  
-  int number=0;
-  
+
+  int number = 0;
+
   std::vector<PerformanceResult::ResultType> res;
   std::vector<BinningVariables::BinningVariablesType> bin;
 
-  while (number<nres && !in.eof()) {
+  while (number < nres && !in.eof()) {
     int tmp;
-    in>> tmp;
+    in >> tmp;
     res.push_back((PerformanceResult::ResultType)(tmp));
     number++;
   }
-  if (number != nres){
-    std::cout <<" Table not well formed"<<std::endl;
+  if (number != nres) {
+    std::cout << " Table not well formed" << std::endl;
   }
-  number=0;
-  while (number<nbin && !in.eof()) {
+  number = 0;
+  while (number < nbin && !in.eof()) {
     int tmp;
-    in>> tmp;
+    in >> tmp;
     bin.push_back((BinningVariables::BinningVariablesType)(tmp));
     number++;
   }
-  if (number != nbin){
-    std::cout <<" Table not well formed"<<std::endl;
+  if (number != nbin) {
+    std::cout << " Table not well formed" << std::endl;
   }
 
-  number=0;
-  while (!in.eof()){
+  number = 0;
+  while (!in.eof()) {
     float temp;
     in >> temp;
-    std::cout <<" Intersing "<<temp<< " in position "<<number<<std::endl;
+    std::cout << " Intersing " << temp << " in position " << number << std::endl;
     number++;
     pl.push_back(temp);
   }
@@ -125,16 +120,15 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob()
   //
   // CHECKS
   //
-  if (stride != nbin*2+nres){
-    std::cout <<" Table not well formed"<<std::endl;
+  if (stride != nbin * 2 + nres) {
+    std::cout << " Table not well formed" << std::endl;
   }
-  if ((number % stride) != 0){
-    std::cout <<" Table not well formed"<<std::endl;
+  if ((number % stride) != 0) {
+    std::cout << " Table not well formed" << std::endl;
   }
 
-  std::cout <<" CLOSING "<<std::endl;
+  std::cout << " CLOSING " << std::endl;
   in.close();
-
 
   /*  for (int k=0;k<(number/stride); k++){
     for (int j=0; j<stride; j++){
@@ -147,61 +141,42 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob()
   // now create pl etc etc
   //
 
-  PerformanceWorkingPoint * wp = new PerformanceWorkingPoint(cut, tagger);
+  PerformanceWorkingPoint* wp = new PerformanceWorkingPoint(cut, tagger);
 
-  PerformancePayloadFromTable * btagpl = nullptr;
+  PerformancePayloadFromTable* btagpl = nullptr;
 
-  if (concreteType == "PerformancePayloadFromTable"){
+  if (concreteType == "PerformancePayloadFromTable") {
     btagpl = new PerformancePayloadFromTable(res, bin, stride, pl);
-  }else{
-    std::cout <<" Non existing request: " <<concreteType<<std::endl;
+  } else {
+    std::cout << " Non existing request: " << concreteType << std::endl;
   }
-  
-  std::cout <<" Created the "<<concreteType <<" object"<<std::endl;
-  
+
+  std::cout << " Created the " << concreteType << " object" << std::endl;
+
   edm::Service<cond::service::PoolDBOutputService> s;
-  if (s.isAvailable())
-    {
-      if (s->isNewTagRequest(rec1))
-	{
-	  s->createNewIOV<PerformancePayload>(btagpl,
-						  s->beginOfTime(),
-						  s->endOfTime(),
-						  rec1);
-	}
-      else
-	{
-	  
-	  s->appendSinceTime<PerformancePayload>(btagpl,
-						     // JUST A STUPID PATCH
-						     111,
-						     rec1);
-	}
+  if (s.isAvailable()) {
+    if (s->isNewTagRequest(rec1)) {
+      s->createNewIOV<PerformancePayload>(btagpl, s->beginOfTime(), s->endOfTime(), rec1);
+    } else {
+      s->appendSinceTime<PerformancePayload>(btagpl,
+                                             // JUST A STUPID PATCH
+                                             111,
+                                             rec1);
     }
+  }
 
   // write also the WP
-  
-  if (s.isAvailable())
-    {
-      if (s->isNewTagRequest(rec2))
-	{
-	  s->createNewIOV<PerformanceWorkingPoint>(wp,
-					    s->beginOfTime(),
-					    s->endOfTime(),
-					    rec2);
-	}
-      else
-	{
-	  
-	  s->appendSinceTime<PerformanceWorkingPoint>(wp,
-					       /// JUST A STUPID PATCH
-					       111,
-					       rec2);
-	}
+
+  if (s.isAvailable()) {
+    if (s->isNewTagRequest(rec2)) {
+      s->createNewIOV<PerformanceWorkingPoint>(wp, s->beginOfTime(), s->endOfTime(), rec2);
+    } else {
+      s->appendSinceTime<PerformanceWorkingPoint>(wp,
+                                                  /// JUST A STUPID PATCH
+                                                  111,
+                                                  rec2);
     }
-  
-  
-  
+  }
 }
 
 DEFINE_FWK_MODULE(PhysicsPerformanceDBWriterFromFile_WPandPayload);

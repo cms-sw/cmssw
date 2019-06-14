@@ -6,9 +6,12 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
-
 #include <vector>
-namespace edm { class ParameterSet; class Event; class EventSetup; }
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonServiceProxy;
 class MuonTrackingRegionBuilder;
@@ -20,24 +23,20 @@ class SimTrack;
 // generate seeds corresponding to L2 muons
 //
 
-class FastTSGFromL2Muon : public edm::stream::EDProducer <> {
-
- public:
-
+class FastTSGFromL2Muon : public edm::stream::EDProducer<> {
+public:
   FastTSGFromL2Muon(const edm::ParameterSet& cfg);
   ~FastTSGFromL2Muon() override;
   void beginRun(edm::Run const& run, edm::EventSetup const& es) override;
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
-  
- private:
 
+private:
   bool clean(reco::TrackRef muRef,
-	     RectangularEtaPhiTrackingRegion* region,
-	     const BasicTrajectorySeed* aSeed, 
-	     const SimTrack& theSimTrack); 
+             RectangularEtaPhiTrackingRegion* region,
+             const BasicTrajectorySeed* aSeed,
+             const SimTrack& theSimTrack);
 
- private:
-
+private:
   edm::ParameterSet theConfig;
   edm::InputTag theSimTrackCollectionLabel;
   edm::InputTag theL2CollectionLabel;
@@ -52,6 +51,5 @@ class FastTSGFromL2Muon : public edm::stream::EDProducer <> {
   // TH1F* h_nSeedPerTrack;
   // TH1F* h_nGoodSeedPerTrack;
   // TH1F* h_nGoodSeedPerEvent;
-
 };
 #endif

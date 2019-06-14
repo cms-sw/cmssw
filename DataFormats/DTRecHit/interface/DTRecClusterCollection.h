@@ -30,5 +30,4 @@
 /* Class DTRecClusterCollection Interface */
 typedef edm::RangeMap<DTSuperLayerId, edm::OwnVector<DTSLRecCluster> > DTRecClusterCollection;
 
-#endif // DTRECHIT_DTRECCLUSTERCOLLECTION_H
-
+#endif  // DTRECHIT_DTRECCLUSTERCOLLECTION_H

@@ -1,5 +1,4 @@
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h" 
-
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"
 

@@ -13,15 +13,16 @@
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include<vector>
-#include<iostream>
+#include <vector>
+#include <iostream>
 
 class CandOneToManyDeltaRMatcher : public edm::global::EDProducer<> {
- public:
-  CandOneToManyDeltaRMatcher( const edm::ParameterSet & );
+public:
+  CandOneToManyDeltaRMatcher(const edm::ParameterSet&);
   ~CandOneToManyDeltaRMatcher() override;
- private:
-  void produce( edm::StreamID, edm::Event&, const edm::EventSetup& ) const override;
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::EDGetTokenT<reco::CandidateCollection> sourceToken_;
   edm::EDGetTokenT<reco::CandidateCollection> matchedToken_;
@@ -42,7 +43,6 @@ class CandOneToManyDeltaRMatcher : public edm::global::EDProducer<> {
 #include "DataFormats/Candidate/interface/CandMatchMapMany.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-
 #include <Math/VectorUtil.h>
 #include <TMath.h>
 
@@ -56,71 +56,64 @@ namespace reco {
     typedef pair<size_t, double> MatchPair;
 
     struct SortBySecond {
-      bool operator()( const MatchPair & p1, const MatchPair & p2 ) const {
-	return p1.second < p2.second;
-      }
+      bool operator()(const MatchPair& p1, const MatchPair& p2) const { return p1.second < p2.second; }
     };
-  }
-}
+  }  // namespace helper
+}  // namespace reco
 
-CandOneToManyDeltaRMatcher::CandOneToManyDeltaRMatcher( const ParameterSet & cfg ) :
-  sourceToken_( consumes<CandidateCollection>( cfg.getParameter<InputTag>( "src" ) ) ),
-  matchedToken_( consumes<CandidateCollection>( cfg.getParameter<InputTag>( "matched" ) ) ),
-  printdebug_( cfg.getUntrackedParameter<bool>("printDebug", false) ) {
+CandOneToManyDeltaRMatcher::CandOneToManyDeltaRMatcher(const ParameterSet& cfg)
+    : sourceToken_(consumes<CandidateCollection>(cfg.getParameter<InputTag>("src"))),
+      matchedToken_(consumes<CandidateCollection>(cfg.getParameter<InputTag>("matched"))),
+      printdebug_(cfg.getUntrackedParameter<bool>("printDebug", false)) {
   produces<CandMatchMapMany>();
 }
 
-CandOneToManyDeltaRMatcher::~CandOneToManyDeltaRMatcher() {
-}
+CandOneToManyDeltaRMatcher::~CandOneToManyDeltaRMatcher() {}
 
-void CandOneToManyDeltaRMatcher::produce( edm::StreamID, Event& evt, const EventSetup& es ) const {
-
+void CandOneToManyDeltaRMatcher::produce(edm::StreamID, Event& evt, const EventSetup& es) const {
   Handle<CandidateCollection> source;
   Handle<CandidateCollection> matched;
-  evt.getByToken( sourceToken_, source ) ;
-  evt.getByToken( matchedToken_, matched ) ;
+  evt.getByToken(sourceToken_, source);
+  evt.getByToken(matchedToken_, matched);
 
   if (printdebug_) {
-    for( CandidateCollection::const_iterator c = source->begin(); c != source->end(); ++c ) {
+    for (CandidateCollection::const_iterator c = source->begin(); c != source->end(); ++c) {
       cout << "[CandOneToManyDeltaRMatcher] Et source  " << c->et() << endl;
     }
-    for( CandidateCollection::const_iterator c = matched->begin(); c != matched->end(); ++c ) {
+    for (CandidateCollection::const_iterator c = matched->begin(); c != matched->end(); ++c) {
       cout << "[CandOneToManyDeltaRMatcher] Et matched " << c->et() << endl;
     }
   }
 
-
-  auto matchMap = std::make_unique<CandMatchMapMany>( CandMatchMapMany::ref_type( CandidateRefProd( source  ),
-                                                                                  CandidateRefProd( matched )
-										  ) );
-  for( size_t c = 0; c != source->size(); ++ c ) {
-    const Candidate & src = (*source)[ c ];
-    if (printdebug_) cout << "[CandOneToManyDeltaRMatcher] source (Et,Eta,Phi) =(" << src.et() << "," <<
-                                                                                      src.eta() << "," <<
-		                                                                      src.phi() << ")" << endl;
+  auto matchMap = std::make_unique<CandMatchMapMany>(
+      CandMatchMapMany::ref_type(CandidateRefProd(source), CandidateRefProd(matched)));
+  for (size_t c = 0; c != source->size(); ++c) {
+    const Candidate& src = (*source)[c];
+    if (printdebug_)
+      cout << "[CandOneToManyDeltaRMatcher] source (Et,Eta,Phi) =(" << src.et() << "," << src.eta() << "," << src.phi()
+           << ")" << endl;
     vector<reco::helper::MatchPair> v;
-    for( size_t m = 0; m != matched->size(); ++ m ) {
-      const Candidate & match = ( * matched )[ m ];
-      double dist = DeltaR( src.p4() , match.p4() );
-      v.push_back( make_pair( m, dist ) );
+    for (size_t m = 0; m != matched->size(); ++m) {
+      const Candidate& match = (*matched)[m];
+      double dist = DeltaR(src.p4(), match.p4());
+      v.push_back(make_pair(m, dist));
     }
-    if ( !v.empty() ) {
-      sort( v.begin(), v.end(), reco::helper::SortBySecond() );
-      for( size_t m = 0; m != v.size(); ++ m ) {
-	if (printdebug_) cout << "[CandOneToManyDeltaRMatcher]       match (Et,Eta,Phi) =(" << ( * matched )[ v[m].first ].et() << "," <<
-                                                                                               ( * matched )[ v[m].first ].eta() << "," <<
-                                                                                               ( * matched )[ v[m].first ].phi() << ") DeltaR=" <<
-			                                                                       v[m].second  << endl;
-	matchMap->insert( CandidateRef( source, c ), make_pair( CandidateRef( matched, v[m].first ), v[m].second  )  );
+    if (!v.empty()) {
+      sort(v.begin(), v.end(), reco::helper::SortBySecond());
+      for (size_t m = 0; m != v.size(); ++m) {
+        if (printdebug_)
+          cout << "[CandOneToManyDeltaRMatcher]       match (Et,Eta,Phi) =(" << (*matched)[v[m].first].et() << ","
+               << (*matched)[v[m].first].eta() << "," << (*matched)[v[m].first].phi() << ") DeltaR=" << v[m].second
+               << endl;
+        matchMap->insert(CandidateRef(source, c), make_pair(CandidateRef(matched, v[m].first), v[m].second));
       }
     }
   }
 
-  evt.put(std::move(matchMap) );
-
+  evt.put(std::move(matchMap));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( CandOneToManyDeltaRMatcher );
+DEFINE_FWK_MODULE(CandOneToManyDeltaRMatcher);

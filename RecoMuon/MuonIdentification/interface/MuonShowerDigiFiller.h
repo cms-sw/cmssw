@@ -5,7 +5,7 @@
 //
 // Package:    MuonShowerDigiFiller
 // Class:      MuonShowerDigiFiller
-// 
+//
 /**\class MuonShowerDigiFiller MuonShowerDigiFiller.h RecoMuon/MuonIdentification/interface/MuonShowerDigiFiller.h
 
  Description: Class filling shower information using DT and CSC digis
@@ -44,32 +44,27 @@
 // class decleration
 //
 
-class MuonShowerDigiFiller 
-{
-
- public:
-
+class MuonShowerDigiFiller {
+public:
   MuonShowerDigiFiller(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
 
-  void getES( const edm::EventSetup& iSetup );
-  void getDigis( edm::Event& iEvent );   
+  void getES(const edm::EventSetup& iSetup);
+  void getDigis(edm::Event& iEvent);
 
-  void fill( reco::MuonChamberMatch & muChMatch ) const;
-  void fillDefault( reco::MuonChamberMatch & muChMatch ) const;
+  void fill(reco::MuonChamberMatch& muChMatch) const;
+  void fillDefault(reco::MuonChamberMatch& muChMatch) const;
 
- private:
-  
+private:
   double m_digiMaxDistanceX;
 
   edm::EDGetTokenT<DTDigiCollection> m_dtDigisToken;
   edm::EDGetTokenT<CSCStripDigiCollection> m_cscDigisToken;
 
-  edm::ESHandle<DTGeometry>  m_dtGeometry;
+  edm::ESHandle<DTGeometry> m_dtGeometry;
   edm::ESHandle<CSCGeometry> m_cscGeometry;
 
   edm::Handle<DTDigiCollection> m_dtDigis;
   edm::Handle<CSCStripDigiCollection> m_cscDigis;
-
 };
 
 #endif

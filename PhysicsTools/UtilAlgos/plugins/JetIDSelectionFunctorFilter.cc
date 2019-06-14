@@ -5,4 +5,3 @@ typedef edm::FilterObjectWrapper<JetIDSelectionFunctor, std::vector<pat::Jet> > 
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(JetIDSelectionFunctorFilter);
-

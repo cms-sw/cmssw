@@ -30,15 +30,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
- 
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
- 
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"  
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"  
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -55,26 +55,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
-template<typename T>
-class JetIdSelector : public edm::EDProducer
-{
+template <typename T>
+class JetIdSelector : public edm::EDProducer {
 public:
   typedef std::vector<T> JetCollection;
   // construction/destruction
   explicit JetIdSelector(const edm::ParameterSet& iConfig);
   ~JetIdSelector() override;
-  
+
   // member functions
-  void produce(edm::Event& iEvent,const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   void endJob() override;
 
-private:  
+private:
   // member data
   edm::InputTag src_;
-  std::string  qualityStr;
+  std::string qualityStr;
   edm::InputTag jetIDMap_;
-  std::string  moduleLabel_;
-
+  std::string moduleLabel_;
 
   unsigned int nJetsTot_;
   unsigned int nJetsPassed_;
@@ -84,193 +82,166 @@ private:
   bool use_pftight;
 };
 
-
 using namespace std;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
 ////////////////////////////////////////////////////////////////////////////////
 //______________________________________________________________________________
-template<typename T>
+template <typename T>
 JetIdSelector<T>::JetIdSelector(const edm::ParameterSet& iConfig)
-  : src_    (iConfig.getParameter<edm::InputTag>         ("src"))
-  , qualityStr  (iConfig.getParameter<string>            ("idLevel"))
-  , jetIDMap_(iConfig.getUntrackedParameter<edm::InputTag> ("jetIDMap", edm::InputTag("ak5JetID")))
-  , moduleLabel_(iConfig.getParameter<string>                ("@module_label"))
-  , nJetsTot_(0)
-  , nJetsPassed_(0)
-{
+    : src_(iConfig.getParameter<edm::InputTag>("src")),
+      qualityStr(iConfig.getParameter<string>("idLevel")),
+      jetIDMap_(iConfig.getUntrackedParameter<edm::InputTag>("jetIDMap", edm::InputTag("ak5JetID"))),
+      moduleLabel_(iConfig.getParameter<string>("@module_label")),
+      nJetsTot_(0),
+      nJetsPassed_(0) {
   produces<JetCollection>();
 
   use_pfloose = false;
   use_pfmedium = false;
   use_pftight = false;
 
-  if ( qualityStr == "MINIMAL" ) {
-    jetIDFunctor 
-      = new JetIDSelectionFunctor( JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::MINIMAL);
+  if (qualityStr == "MINIMAL") {
+    jetIDFunctor = new JetIDSelectionFunctor(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::MINIMAL);
     use_pfloose = true;
-  }
-  else if ( qualityStr == "LOOSE_AOD" ) {
-    jetIDFunctor 
-      = new JetIDSelectionFunctor( JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE_AOD);
+  } else if (qualityStr == "LOOSE_AOD") {
+    jetIDFunctor = new JetIDSelectionFunctor(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE_AOD);
     use_pfloose = true;
-  }
-  else if ( qualityStr == "LOOSE" ) {
-    jetIDFunctor 
-      = new JetIDSelectionFunctor( JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE);   
+  } else if (qualityStr == "LOOSE") {
+    jetIDFunctor = new JetIDSelectionFunctor(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE);
     use_pfloose = true;
-  } 
-  else if ( qualityStr == "MEDIUM" ) {
-    jetIDFunctor 
-      = new JetIDSelectionFunctor( JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE);  
+  } else if (qualityStr == "MEDIUM") {
+    jetIDFunctor = new JetIDSelectionFunctor(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::LOOSE);
     // There is no medium quality for CaloJet !!
     use_pfmedium = true;
-  }
-  else if ( qualityStr == "TIGHT" ) {
-    jetIDFunctor 
-      = new JetIDSelectionFunctor( JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::TIGHT);    
+  } else if (qualityStr == "TIGHT") {
+    jetIDFunctor = new JetIDSelectionFunctor(JetIDSelectionFunctor::PURE09, JetIDSelectionFunctor::TIGHT);
     use_pftight = true;
-  }
-  else   
-    throw cms::Exception("InvalidInput") 
-      << "Expect quality to be one of MINIMAL, LOOSE_AOD, LOOSE, MEDIUM, TIGHT" << std::endl;
+  } else
+    throw cms::Exception("InvalidInput") << "Expect quality to be one of MINIMAL, LOOSE_AOD, LOOSE, MEDIUM, TIGHT"
+                                         << std::endl;
 }
-
 
 //______________________________________________________________________________
-template<typename T>
-JetIdSelector<T>::~JetIdSelector(){
-  if(jetIDFunctor) delete jetIDFunctor;
+template <typename T>
+JetIdSelector<T>::~JetIdSelector() {
+  if (jetIDFunctor)
+    delete jetIDFunctor;
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-template<typename T>
-void JetIdSelector<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
-{
+template <typename T>
+void JetIdSelector<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto selectedJets = std::make_unique<JetCollection>();
   edm::Handle<reco::JetView> hjets;  // uncorrected jets!
-  iEvent.getByLabel(src_,hjets);
+  iEvent.getByLabel(src_, hjets);
   auto const& jets = *hjets;
 
- // handle to the jet ID variables, filled in the loop
-   edm::Handle<reco::JetIDValueMap> hJetIDMap;
-   unsigned int idx=0;
-   bool passed = false;
+  // handle to the jet ID variables, filled in the loop
+  edm::Handle<reco::JetIDValueMap> hJetIDMap;
+  unsigned int idx = 0;
+  bool passed = false;
 
-   for ( edm::View<reco::Jet>::const_iterator ibegin = jets.begin(),
-           iend = jets.end(), iJet = ibegin;
-         iJet != iend; ++iJet ) {
+  for (edm::View<reco::Jet>::const_iterator ibegin = jets.begin(), iend = jets.end(), iJet = ibegin; iJet != iend;
+       ++iJet) {
+    // initialize the boolean flag to false
+    passed = false;
 
-     // initialize the boolean flag to false
-     passed = false;
+    //calculate the Calo jetID
+    auto const& jet = *iJet;
+    const std::type_info& type = typeid(jet);
+    if (type == typeid(reco::CaloJet)) {
+      const reco::CaloJet& calojet = static_cast<const reco::CaloJet&>(jet);
+      edm::RefToBase<reco::Jet> jetRef = jets.refAt(idx);
+      if (not hJetIDMap.isValid()) {
+        iEvent.getByLabel(jetIDMap_, hJetIDMap);
+      }
+      reco::JetID const& jetId = (*hJetIDMap)[jetRef];
+      passed = (*jetIDFunctor)(calojet, jetId);
+    }
 
-     //calculate the Calo jetID
-     auto const& jet = *iJet;
-     const std::type_info & type = typeid(jet);
-     if( type == typeid(reco::CaloJet) ) {
-       const reco::CaloJet& calojet = static_cast<const reco::CaloJet &>(jet);
-       edm::RefToBase<reco::Jet> jetRef = jets.refAt(idx);
-       if(not hJetIDMap.isValid()) {
-         iEvent.getByLabel( jetIDMap_, hJetIDMap );
-       }
-       reco::JetID const & jetId = (*hJetIDMap)[ jetRef ];
-       passed = (*jetIDFunctor)( calojet, jetId);
-     }
+    //calculate the PF jetID
+    if (type == typeid(reco::PFJet)) {
+      const reco::PFJet& pfjet = static_cast<const reco::PFJet&>(jet);
+      bool passingLoose = false;
+      bool passingMedium = false;
+      bool passingTight = false;
+      bool ThisIsClean = true;
+      //apply following only if |eta|<2.4: CHF>0, CEMF<0.99, chargedMultiplicity>0
+      if ((pfjet.chargedHadronEnergy() / pfjet.energy()) <= 0.0 && fabs(pfjet.eta()) < 2.4)
+        ThisIsClean = false;
+      if ((pfjet.chargedEmEnergy() / pfjet.energy()) >= 0.99 && fabs(pfjet.eta()) < 2.4)
+        ThisIsClean = false;
+      if (pfjet.chargedMultiplicity() <= 0 && fabs(pfjet.eta()) < 2.4)
+        ThisIsClean = false;
 
-     //calculate the PF jetID
-     if ( type == typeid(reco::PFJet) ) {
-       const reco::PFJet& pfjet = static_cast<const reco::PFJet &>(jet);
-       bool passingLoose=false;
-       bool passingMedium=false;
-       bool passingTight=false;
-       bool ThisIsClean=true;
-       //apply following only if |eta|<2.4: CHF>0, CEMF<0.99, chargedMultiplicity>0   
-       if(( pfjet.chargedHadronEnergy()/ pfjet.energy())<= 0.0  
-	  && fabs(pfjet.eta())<2.4) ThisIsClean=false; 
-       if( (pfjet.chargedEmEnergy()/pfjet.energy())>= 0.99 
-	   && fabs(pfjet.eta())<2.4 ) ThisIsClean=false;
-       if( pfjet.chargedMultiplicity()<=0 && fabs(pfjet.eta())<2.4 ) 
-	 ThisIsClean=false;
-       
-       // always require #Constituents > 1
-       if( pfjet.nConstituents() <=1 ) ThisIsClean=false;
-       
-       if(ThisIsClean && 
-	  (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.99 
-	  && (pfjet.neutralEmEnergy()/pfjet.energy())<0.99) 
-	 passingLoose=true;
-       
-       if(ThisIsClean && 
-	  (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.95 
-	  && (pfjet.neutralEmEnergy()/pfjet.energy())<0.95) 
-	 passingMedium=true;
-       
-       if(ThisIsClean && 
-	  (pfjet.neutralHadronEnergy()/pfjet.energy())< 0.90 
-	  && (pfjet.neutralEmEnergy()/pfjet.energy())<0.90) 
-	 passingTight=true;
+      // always require #Constituents > 1
+      if (pfjet.nConstituents() <= 1)
+        ThisIsClean = false;
 
+      if (ThisIsClean && (pfjet.neutralHadronEnergy() / pfjet.energy()) < 0.99 &&
+          (pfjet.neutralEmEnergy() / pfjet.energy()) < 0.99)
+        passingLoose = true;
 
-       if ( use_pfloose && passingLoose)  passed = true;
-       if ( use_pfmedium && passingMedium) passed = true;
-       if ( use_pftight && passingTight) passed = true;
-     }
+      if (ThisIsClean && (pfjet.neutralHadronEnergy() / pfjet.energy()) < 0.95 &&
+          (pfjet.neutralEmEnergy() / pfjet.energy()) < 0.95)
+        passingMedium = true;
 
-     if ( type == typeid(reco::GenJet) || type == typeid(reco::JPTJet)) {
-       edm::LogWarning( "JetId" )<< 
-	 "Criteria for jets other than CaloJets and PFJets are not yet implemented";
-       passed = true;
-     } // close GenJet, JPT jet
+      if (ThisIsClean && (pfjet.neutralHadronEnergy() / pfjet.energy()) < 0.90 &&
+          (pfjet.neutralEmEnergy() / pfjet.energy()) < 0.90)
+        passingTight = true;
 
- 
-     const T& goodJet = static_cast<const T&>(jet);
-     if(passed) selectedJets->push_back( goodJet );
+      if (use_pfloose && passingLoose)
+        passed = true;
+      if (use_pfmedium && passingMedium)
+        passed = true;
+      if (use_pftight && passingTight)
+        passed = true;
+    }
 
-     idx++;
-   } // close jet iterator
+    if (type == typeid(reco::GenJet) || type == typeid(reco::JPTJet)) {
+      edm::LogWarning("JetId") << "Criteria for jets other than CaloJets and PFJets are not yet implemented";
+      passed = true;
+    }  // close GenJet, JPT jet
 
+    const T& goodJet = static_cast<const T&>(jet);
+    if (passed)
+      selectedJets->push_back(goodJet);
 
+    idx++;
+  }  // close jet iterator
 
-  nJetsTot_  +=jets.size();
-  nJetsPassed_+=selectedJets->size();  
+  nJetsTot_ += jets.size();
+  nJetsPassed_ += selectedJets->size();
   iEvent.put(std::move(selectedJets));
 }
 
-
-
 //______________________________________________________________________________
-template<typename T>
-void JetIdSelector<T>::endJob()
-{
+template <typename T>
+void JetIdSelector<T>::endJob() {
   stringstream ss;
-  ss<<"nJetsTot="<<nJetsTot_<<" nJetsPassed="<<nJetsPassed_
-    <<" fJetsPassed="<<100.*(nJetsPassed_/(double)nJetsTot_)<<"%\n";
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<"\n"<< moduleLabel_ << "(JetIdSelector) SUMMARY:\n"<<ss.str()
-      <<"++++++++++++++++++++++++++++++++++++++++++++++++++"
-      <<endl;
+  ss << "nJetsTot=" << nJetsTot_ << " nJetsPassed=" << nJetsPassed_
+     << " fJetsPassed=" << 100. * (nJetsPassed_ / (double)nJetsTot_) << "%\n";
+  cout << "++++++++++++++++++++++++++++++++++++++++++++++++++"
+       << "\n"
+       << moduleLabel_ << "(JetIdSelector) SUMMARY:\n"
+       << ss.str() << "++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // plugin definition
 ////////////////////////////////////////////////////////////////////////////////
 typedef JetIdSelector<reco::CaloJet> CaloJetIdSelector;
-typedef JetIdSelector<reco::PFJet>   PFJetIdSelector;
-typedef JetIdSelector<reco::JPTJet>  JPTJetIdSelector;
-typedef JetIdSelector<reco::GenJet>  GenJetIdSelector;
+typedef JetIdSelector<reco::PFJet> PFJetIdSelector;
+typedef JetIdSelector<reco::JPTJet> JPTJetIdSelector;
+typedef JetIdSelector<reco::GenJet> GenJetIdSelector;
 
 DEFINE_FWK_MODULE(CaloJetIdSelector);
 DEFINE_FWK_MODULE(PFJetIdSelector);
 DEFINE_FWK_MODULE(JPTJetIdSelector);
 DEFINE_FWK_MODULE(GenJetIdSelector);
-
-

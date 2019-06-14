@@ -10,17 +10,13 @@
    @brief Simple class that tests SiStripNullKey.
 */
 class testSiStripNullKey : public edm::EDAnalyzer {
-
- public:
-  
-  testSiStripNullKey( const edm::ParameterSet& );
+public:
+  testSiStripNullKey(const edm::ParameterSet&);
   ~testSiStripNullKey();
-  
+
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
-  void endJob() {;}
-  
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob() { ; }
 };
 
-#endif // DataFormats_SiStripCommon_testSiStripNullKey_H
-
+#endif  // DataFormats_SiStripCommon_testSiStripNullKey_H

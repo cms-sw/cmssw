@@ -11,25 +11,25 @@
 #include <map>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-template<class Jet>
-class JetPlotsExample : public edm::EDAnalyzer 
-   {
-     public:
-       JetPlotsExample(edm::ParameterSet const& cfg);
-     private:
-       typedef std::vector<Jet> JetCollection;
-       void FillHist1D(const TString& histName, const Double_t& x);
-       void beginJob() override;
-       void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
-       void endJob() override;
-       std::map<TString, TH1*> m_HistNames1D;  
-       TFile* m_file;
-       /////// Configurable parameters /////////////////////////////////////
-       /////// Jet algorithm: it can be any Calo, Gen or PF algorithm //////
-       std::string JetAlgorithm;
-       /////// Histogram where the plots are stored //////////////////////// 
-       std::string HistoFileName;
-       /////// Number of jets used for the plots /////////////////////////// 
-       int NJets;    
-   };
+template <class Jet>
+class JetPlotsExample : public edm::EDAnalyzer {
+public:
+  JetPlotsExample(edm::ParameterSet const& cfg);
+
+private:
+  typedef std::vector<Jet> JetCollection;
+  void FillHist1D(const TString& histName, const Double_t& x);
+  void beginJob() override;
+  void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
+  void endJob() override;
+  std::map<TString, TH1*> m_HistNames1D;
+  TFile* m_file;
+  /////// Configurable parameters /////////////////////////////////////
+  /////// Jet algorithm: it can be any Calo, Gen or PF algorithm //////
+  std::string JetAlgorithm;
+  /////// Histogram where the plots are stored ////////////////////////
+  std::string HistoFileName;
+  /////// Number of jets used for the plots ///////////////////////////
+  int NJets;
+};
 #endif

@@ -5,115 +5,124 @@
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
-template<class DFr>
+template <class DFr>
 HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
-  bxTime_        = ps.getParameter<double>("bxTime");
-  myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg");
-  doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
-  if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");
-  else                          keV2fC_   = 1.0;
+  bxTime_ = ps.getParameter<double>("bxTime");
+  myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
+  doTimeSamples_ = myCfg_.getParameter<bool>("doTimeSamples");
+  if (myCfg_.exists("keV2fC"))
+    keV2fC_ = myCfg_.getParameter<double>("keV2fC");
+  else
+    keV2fC_ = 1.0;
 
-  if( myCfg_.existsAs<edm::ParameterSet>( "chargeCollectionEfficiencies" ) ) {
-    cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").template getParameter<std::vector<double>>("values");
+  if (myCfg_.existsAs<edm::ParameterSet>("chargeCollectionEfficiencies")) {
+    cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies")
+               .template getParameter<std::vector<double>>("values");
   }
 
-  if(myCfg_.existsAs<double>("noise_fC")) {
+  if (myCfg_.existsAs<double>("noise_fC")) {
     noise_fC_.reserve(1);
     noise_fC_.push_back(myCfg_.getParameter<double>("noise_fC"));
-  } else if ( myCfg_.existsAs<std::vector<double> >("noise_fC") ) {
-    const auto& noises = myCfg_.getParameter<std::vector<double> >("noise_fC");
-    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
-  } else if(myCfg_.existsAs<edm::ParameterSet>("noise_fC")) {
-    const auto& noises = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double> >("values");
-    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
+  } else if (myCfg_.existsAs<std::vector<double>>("noise_fC")) {
+    const auto& noises = myCfg_.getParameter<std::vector<double>>("noise_fC");
+    noise_fC_ = std::vector<float>(noises.begin(), noises.end());
+  } else if (myCfg_.existsAs<edm::ParameterSet>("noise_fC")) {
+    const auto& noises =
+        myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double>>("values");
+    noise_fC_ = std::vector<float>(noises.begin(), noises.end());
   } else {
-    noise_fC_.resize(1,1.f);
+    noise_fC_.resize(1, 1.f);
   }
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
-  myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
+  myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
 }
 
-template<class DFr>
-void HGCDigitizerBase<DFr>::run( std::unique_ptr<HGCDigitizerBase::DColl> &digiColl,
-				 HGCSimHitDataAccumulator &simData,
-				 const CaloSubdetectorGeometry* theGeom,
-				 const std::unordered_set<DetId>& validIds,
-				 uint32_t digitizationType,
-				 CLHEP::HepRandomEngine* engine) {
-  if(digitizationType==0) runSimple(digiColl,simData,theGeom,validIds,engine);
-  else                    runDigitizer(digiColl,simData,theGeom,validIds,digitizationType,engine);
+template <class DFr>
+void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
+                                HGCSimHitDataAccumulator& simData,
+                                const CaloSubdetectorGeometry* theGeom,
+                                const std::unordered_set<DetId>& validIds,
+                                uint32_t digitizationType,
+                                CLHEP::HepRandomEngine* engine) {
+  if (digitizationType == 0)
+    runSimple(digiColl, simData, theGeom, validIds, engine);
+  else
+    runDigitizer(digiColl, simData, theGeom, validIds, digitizationType, engine);
 }
 
-template<class DFr>
-void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &coll,
-				      HGCSimHitDataAccumulator &simData,
-				      const CaloSubdetectorGeometry* theGeom,
-				      const std::unordered_set<DetId>& validIds,
-				      CLHEP::HepRandomEngine* engine) {
-  HGCSimHitData chargeColl,toa;
+template <class DFr>
+void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& coll,
+                                      HGCSimHitDataAccumulator& simData,
+                                      const CaloSubdetectorGeometry* theGeom,
+                                      const std::unordered_set<DetId>& validIds,
+                                      CLHEP::HepRandomEngine* engine) {
+  HGCSimHitData chargeColl, toa;
 
   // this represents a cell with no signal charge
   HGCCellInfo zeroData;
-  zeroData.hit_info[0].fill(0.f); //accumulated energy
-  zeroData.hit_info[1].fill(0.f); //time-of-flight
+  zeroData.hit_info[0].fill(0.f);  //accumulated energy
+  zeroData.hit_info[1].fill(0.f);  //time-of-flight
 
-  for( const auto& id : validIds ) {
+  for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
-    HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
-    addCellMetadata(cell,theGeom,id);
+    HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
+    addCellMetadata(cell, theGeom, id);
 
-    for(size_t i=0; i<cell.hit_info[0].size(); i++) {
+    for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
 
       //time of arrival
-      toa[i]=cell.hit_info[1][i];
-      if(myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge>0)
-        toa[i]=cell.hit_info[1][i]/rawCharge;
+      toa[i] = cell.hit_info[1][i];
+      if (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge > 0)
+        toa[i] = cell.hit_info[1][i] / rawCharge;
 
       //convert total energy in GeV to charge (fC)
       //double totalEn=rawEn*1e6*keV2fC_;
-      float totalCharge=rawCharge;
+      float totalCharge = rawCharge;
 
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
       //also assume that it is related to the charge path only and that noise fluctuation for ToA circuit be handled separately
-      if (noise_fC_[cell.thickness-1] != 0)
-        totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]) , 0.f );
-      if(totalCharge<0.f) totalCharge=0.f;
+      if (noise_fC_[cell.thickness - 1] != 0)
+        totalCharge +=
+            std::max((float)CLHEP::RandGaussQ::shoot(engine, 0.0, cell.size * noise_fC_[cell.thickness - 1]), 0.f);
+      if (totalCharge < 0.f)
+        totalCharge = 0.f;
 
-      chargeColl[i]= totalCharge;
+      chargeColl[i] = totalCharge;
     }
 
     //run the shaper to create a new data frame
-    DFr rawDataFrame( id );
-    if( !cce_.empty() )
-      myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cce_[cell.thickness-1]);
+    DFr rawDataFrame(id);
+    if (!cce_.empty())
+      myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cce_[cell.thickness - 1]);
     else
       myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
 
     //update the output according to the final shape
-    updateOutput(coll,rawDataFrame);
+    updateOutput(coll, rawDataFrame);
   }
 }
 
-template<class DFr>
-void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl> &coll,
-                                          const DFr& rawDataFrame) {
+template <class DFr>
+void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl>& coll, const DFr& rawDataFrame) {
   int itIdx(9);
-  if(rawDataFrame.size()<=itIdx+2) return;
+  if (rawDataFrame.size() <= itIdx + 2)
+    return;
 
-  DFr dataFrame( rawDataFrame.id() );
+  DFr dataFrame(rawDataFrame.id());
   dataFrame.resize(5);
   bool putInEvent(false);
-  for(int it=0;it<5; it++) {
-    dataFrame.setSample(it, rawDataFrame[itIdx-2+it]);
-    if(it==2) putInEvent = rawDataFrame[itIdx-2+it].threshold();
+  for (int it = 0; it < 5; it++) {
+    dataFrame.setSample(it, rawDataFrame[itIdx - 2 + it]);
+    if (it == 2)
+      putInEvent = rawDataFrame[itIdx - 2 + it].threshold();
   }
 
-  if(putInEvent) {
+  if (putInEvent) {
     coll->push_back(dataFrame);
   }
 }

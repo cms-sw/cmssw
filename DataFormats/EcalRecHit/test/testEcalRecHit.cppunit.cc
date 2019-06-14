@@ -8,18 +8,16 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-class testEcalRecHit: public CppUnit::TestFixture
-{
+class testEcalRecHit : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testEcalRecHit);
   CPPUNIT_TEST(testOne);
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp(){}
-  void tearDown(){}
+  void setUp() {}
+  void tearDown() {}
 
   void testOne();
-
 };
 
 ///registration of the test so that the runner can find it
@@ -27,36 +25,36 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEcalRecHit);
 
 void testEcalRecHit::testOne() {
   // test flagbit setter
-  EcalRecHit rh (EBDetId(1,1),0.,0.);
+  EcalRecHit rh(EBDetId(1, 1), 0., 0.);
   rh.setFlag(EcalRecHit::kTPSaturated);
-  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated ) );
+  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated));
 
   rh.setFlag(EcalRecHit::kHasSwitchToGain6);
-  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kHasSwitchToGain6) );
+  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kHasSwitchToGain6));
 
   rh.setFlag(EcalRecHit::kHasSwitchToGain1);
-  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kHasSwitchToGain1) );
+  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kHasSwitchToGain1));
   rh.unsetFlag(EcalRecHit::kHasSwitchToGain1);
-  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kHasSwitchToGain1) );
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kHasSwitchToGain1));
 
-  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kSaturated) );
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kSaturated));
 
-  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kPoorReco) );
-  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kUnknown) );
-  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kGood) );
- 
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kPoorReco));
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kUnknown));
+  CPPUNIT_ASSERT(!rh.checkFlag(EcalRecHit::kGood));
+
   // did we modify some bit by mistake ?
-  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated) );
+  CPPUNIT_ASSERT(rh.checkFlag(EcalRecHit::kTPSaturated));
 
   // check unsetting of flag
-  EcalRecHit rh2(EBDetId(1,1),0.,0.);
+  EcalRecHit rh2(EBDetId(1, 1), 0., 0.);
   rh2.setFlag(EcalRecHit::kOutOfTime);
-  CPPUNIT_ASSERT(rh2.checkFlag(EcalRecHit::kOutOfTime) );
+  CPPUNIT_ASSERT(rh2.checkFlag(EcalRecHit::kOutOfTime));
   rh2.unsetFlag(EcalRecHit::kOutOfTime);
-  CPPUNIT_ASSERT(!rh2.checkFlag(EcalRecHit::kOutOfTime) );
+  CPPUNIT_ASSERT(!rh2.checkFlag(EcalRecHit::kOutOfTime));
 
   rh2.unsetFlag(EcalRecHit::kGood);
-  CPPUNIT_ASSERT(!rh2.checkFlag(EcalRecHit::kGood) );
+  CPPUNIT_ASSERT(!rh2.checkFlag(EcalRecHit::kGood));
 
   // test packing of values
   CPPUNIT_ASSERT_EQUAL((uint32_t)0, EcalRecHit::getMasked(0, 8, 16));
@@ -79,12 +77,12 @@ void testEcalRecHit::testOne() {
   urh.setJitterError(timerr);
   rh.setTimeError(urh.jitterErrorBits());
 
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(timerr*25, rh.timeError(), 0.5);
-  CPPUNIT_ASSERT_DOUBLES_EQUAL(urh.jitterError()*25, rh.timeError(), 0.00001);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(timerr * 25, rh.timeError(), 0.5);
+  CPPUNIT_ASSERT_DOUBLES_EQUAL(urh.jitterError() * 25, rh.timeError(), 0.00001);
 
   // test energyError
-  for (float x=0.0011; x<10.e4; x*=5.){
+  for (float x = 0.0011; x < 10.e4; x *= 5.) {
     rh.setEnergyError(x);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(x, rh.energyError(), 0.01*x);
+    CPPUNIT_ASSERT_DOUBLES_EQUAL(x, rh.energyError(), 0.01 * x);
   }
 }

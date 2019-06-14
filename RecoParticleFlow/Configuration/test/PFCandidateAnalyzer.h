@@ -24,46 +24,32 @@
 \date   february 2008
 */
 
-
-
-
 class PFCandidateAnalyzer : public edm::EDAnalyzer {
- public:
-
+public:
   explicit PFCandidateAnalyzer(const edm::ParameterSet&);
 
   ~PFCandidateAnalyzer();
-  
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-  virtual void beginRun(const edm::Run & r, const edm::EventSetup & c);
+  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
- private:
-  
+private:
+  void printElementsInBlocks(const reco::PFCandidate& cand, std::ostream& out = std::cout) const;
 
-  void printElementsInBlocks(const reco::PFCandidate& cand,
-			     std::ostream& out=std::cout) const;
+  /// PFCandidates in which we'll look for pile up particles
+  edm::InputTag inputTagPFCandidates_;
 
-
-  
-  /// PFCandidates in which we'll look for pile up particles 
-  edm::InputTag   inputTagPFCandidates_;
-  
   /// verbose ?
-  bool   verbose_;
+  bool verbose_;
 
   /// print the blocks associated to a given candidate ?
-  bool   printBlocks_;
+  bool printBlocks_;
 
   /// rank the candidates by Pt
   bool rankByPt_;
 
-  static bool greaterPt( const reco::PFCandidate& a, const reco::PFCandidate& b ) {
-    return (a.pt()>b.pt());
-  }
-
-
-
+  static bool greaterPt(const reco::PFCandidate& a, const reco::PFCandidate& b) { return (a.pt() > b.pt()); }
 };
 
 #endif

@@ -16,19 +16,16 @@ namespace edm {
 // class declaration
 //
 class BunchSpacingProducer : public edm::stream::EDProducer<> {
-
 public:
-
   explicit BunchSpacingProducer(const edm::ParameterSet&);
 
   ~BunchSpacingProducer() override;
 
   void produce(edm::Event&, const edm::EventSetup&) final;
 
-  static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
-  
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
-  
   edm::EDGetTokenT<int> bunchSpacing_;
   unsigned int bunchSpacingOverride_;
   bool overRide_;
@@ -38,54 +35,41 @@ private:
 // constructors and destructor
 //
 
-
-BunchSpacingProducer::
-BunchSpacingProducer::BunchSpacingProducer(const edm::ParameterSet& iConfig)
-{
+BunchSpacingProducer::BunchSpacingProducer::BunchSpacingProducer(const edm::ParameterSet& iConfig) {
   // register your products
   produces<unsigned int>();
-  bunchSpacing_ = consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
-  overRide_=false;
-  if ( iConfig.exists("overrideBunchSpacing") ) {
-    overRide_= iConfig.getParameter<bool>("overrideBunchSpacing");
-    if ( overRide_) {
-      bunchSpacingOverride_=iConfig.getParameter<unsigned int>("bunchSpacingOverride");
+  bunchSpacing_ = consumes<int>(edm::InputTag("addPileupInfo", "bunchSpacing"));
+  overRide_ = false;
+  if (iConfig.exists("overrideBunchSpacing")) {
+    overRide_ = iConfig.getParameter<bool>("overrideBunchSpacing");
+    if (overRide_) {
+      bunchSpacingOverride_ = iConfig.getParameter<unsigned int>("bunchSpacingOverride");
     }
   }
 }
 
-BunchSpacingProducer::~BunchSpacingProducer(){ 
-}
+BunchSpacingProducer::~BunchSpacingProducer() {}
 
 //
 // member functions
 //
-void BunchSpacingProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
-{ 
-  if ( overRide_ ) {
+void BunchSpacingProducer::produce(edm::Event& e, const edm::EventSetup& iSetup) {
+  if (overRide_) {
     e.put(std::make_unique<unsigned int>(bunchSpacingOverride_));
     return;
   }
 
-  unsigned int bunchSpacing=50;
-  unsigned int run=e.run();
+  unsigned int bunchSpacing = 50;
+  unsigned int run = e.run();
 
-  if ( e.isRealData()) {
-    if ( ( run > 252126 && run != 254833 )|| 
-	run == 178003 ||
-	run == 178004 ||
-	run == 209089 ||
-	run == 209106 ||
-	run == 209109 ||
-	run == 209146 ||
-	run == 209148 ||
-	run == 209151) {
+  if (e.isRealData()) {
+    if ((run > 252126 && run != 254833) || run == 178003 || run == 178004 || run == 209089 || run == 209106 ||
+        run == 209109 || run == 209146 || run == 209148 || run == 209151) {
       bunchSpacing = 25;
     }
-  }
-  else{
+  } else {
     edm::Handle<int> bunchSpacingH;
-    e.getByToken(bunchSpacing_,bunchSpacingH);
+    e.getByToken(bunchSpacing_, bunchSpacingH);
     bunchSpacing = *bunchSpacingH;
   }
 
@@ -93,16 +77,13 @@ void BunchSpacingProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   return;
 }
 
-void BunchSpacingProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
-{
-  edm::ParameterSetDescription desc ;
-  desc.add<bool>("overrideBunchSpacing",false); // true for prompt reco
-  desc.add<unsigned int>("bunchSpacingOverride",25); // override value
-  
-  descriptions.add("bunchSpacingProducer",desc) ;
+void BunchSpacingProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("overrideBunchSpacing", false);       // true for prompt reco
+  desc.add<unsigned int>("bunchSpacingOverride", 25);  // override value
+
+  descriptions.add("bunchSpacingProducer", desc);
 }
-
-
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(BunchSpacingProducer);

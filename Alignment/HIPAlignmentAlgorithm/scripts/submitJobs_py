@@ -9,12 +9,15 @@ set odir = `cd $2; pwd`                # get full output path
 set name = `basename $odir`            # for job name
 set iovfile = `basename $3`
 set jobs = `ls -d $odir/job*/ | wc -l` # number of jobs
-set queue = cmscaf1nd                   # pick queue to run on
+set queue = tomorrow                   # pick queue to run on
 set startdir = `pwd`
 
-set collectwaitcondition = ""
-set requeuewaitcondition = ""
-set requeuejob = ""
+set allowed_n_jobs_submitted = 1000
+set allowed_n_jobs_idle = 1000
+set allowed_n_recover = 2
+set allowed_n_rescue = 5
+set allowed_n_resub = 2
+set allowed_n_retry = 2
 
 ## Submit jobs and iterate
 
@@ -31,137 +34,191 @@ end
 
 @ i = `cat $odir/main/IOIteration_$lastrun.root` + 1
 
-while (`bjobs -d -w |& grep $name/requeue$i` != "") # check if job name exists
-  set name = $name/ # make job name unique to avoid name clash
+#echo "-----------------------------------------------------------------------"
+echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs
+echo ""
+
+echo "Writing Condor and DAGMan files..."
+mkdir $odir/DAG/
+#foreach it (`seq 1 1 $itter`)
+#CSH
+echo "#"\!"/bin/tcsh"                                >> $odir/upload.csh
+echo "cd $workdir"                                   >> $odir/upload.csh
+echo "eval "\`"scramv1 runtime -csh"\`               >> $odir/upload.csh
+echo "cd $odir"                                      >> $odir/upload.csh
+echo "cp $odir/main/IOIteration*.root $odir/"        >> $odir/upload.csh
+echo "cp $odir/main/IOAlignedPositions*.root $odir/" >> $odir/upload.csh
+echo "set kk = 0"                                    >> $odir/upload.csh
+echo "foreach line ( "\""`cat $odir/$iovfile`"\"" )" >> $odir/upload.csh
+echo "    @ kk++"                                    >> $odir/upload.csh
+echo "    cmsRun upload_cfg_"\$"kk.py"               >> $odir/upload.csh 
+echo "end"                                           >> $odir/upload.csh
+echo "rm -f $odir/*.root"                            >> $odir/upload.csh
+echo "cd -"                                          >> $odir/upload.csh
+#JDL
+echo "universe = vanilla" >>                           $odir/upload.jdl
+echo "executable = $odir/upload.csh" >>                $odir/upload.jdl
+echo "output = $odir/upload.out" >>                    $odir/upload.jdl
+echo "error  = $odir/upload.out" >>                    $odir/upload.jdl
+echo "log    = $odir/upload.log" >>                    $odir/upload.jdl
+echo "+JobFlavour = "\""espresso"\" >>                 $odir/upload.jdl
+echo "+JobBatchName = "\""upload"\" >>                 $odir/upload.jdl
+echo "queue" >>                                        $odir/upload.jdl
+#CFG
+echo "DAGMAN_MAX_JOBS_SUBMITTED = $allowed_n_jobs_submitted"          >> $odir/DAG/sequence.cfg
+echo "DAGMAN_MAX_JOBS_IDLE = $allowed_n_jobs_idle"                    >> $odir/DAG/sequence.cfg 
+
+chmod +x $odir/upload.csh
+
+# Create the DAG PARENT line
+set parent_line_jb = "PARENT"
+set parent_line_iov = "PARENT"
+set child_line_jb = "CHILD"
+set retry_line_jb = ""
+
+# Job loop
+foreach jb (`seq 1 1 $jobs`)
+    # Create the job specific condor files
+    echo "universe = vanilla" >>                        $odir/job$jb/runScript.jdl
+    echo "executable = $odir/job$jb/runScript.csh" >>   $odir/job$jb/runScript.jdl
+    echo "arguments = $workdir" >>                      $odir/job$jb/runScript.jdl
+    echo "output = $odir/job$jb/align.out" >>           $odir/job$jb/runScript.jdl
+    echo "error  = $odir/job$jb/align.out" >>           $odir/job$jb/runScript.jdl
+    echo "log    = $odir/job$jb/align.log" >>           $odir/job$jb/runScript.jdl
+    echo "+JobFlavour = "\""$queue"\" >>                $odir/job$jb/runScript.jdl
+    echo "+JobBatchName = "\""$name/align_$jb"\" >>     $odir/job$jb/runScript.jdl
+    echo "queue" >>                                     $odir/job$jb/runScript.jdl
+  
+    # Append the job to the DAG file and parent line
+    echo "JOB job$jb $odir/job$jb/runScript.jdl" >>  $odir/DAG/sequence.dag
+    set parent_line_jb = "$parent_line_jb job$jb"
+    # Append the job into the retry option
+    set retry_line_jb = "${retry_line_jb}Retry job$jb $allowed_n_retry\n"     
+
 end
 
-#echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs
-@ MAX_JOB_ARRAY_SIZE = `bparams -a | grep MAX_JOB_ARRAY_SIZE | sed "s/.* = //"`
-@ jobarrays = ( $jobs - 1 ) / $MAX_JOB_ARRAY_SIZE + 1
+# IOV collection loop
+foreach iov (`seq 1 1 $k`)
+    # Create the collection job condor files
+    echo "universe = vanilla" >>                           $odir/main/runScript_$iov.jdl
+    echo "executable = $odir/main/runScript_$iov.csh" >>   $odir/main/runScript_$iov.jdl
+    echo "arguments = $workdir" >>                         $odir/main/runScript_$iov.jdl
+    echo "output = $odir/main/collect_$iov.out" >>         $odir/main/runScript_$iov.jdl
+    echo "error  = $odir/main/collect_$iov.out" >>         $odir/main/runScript_$iov.jdl
+    echo "log    = $odir/main/collect_$iov.log" >>         $odir/main/runScript_$iov.jdl
+    echo "+JobFlavour = "\""espresso"\" >>                 $odir/main/runScript_$iov.jdl
+    echo "+JobBatchName = "\""$name/collect_$iov"\" >>     $odir/main/runScript_$iov.jdl
+    echo "queue" >>                                        $odir/main/runScript_$iov.jdl
+    
+    # Append the job to the DAG file and child line
+    echo "JOB collect$iov $odir/main/runScript_$iov.jdl" >>  $odir/DAG/sequence.dag
+    set child_line_jb = "$child_line_jb collect$iov"
+    set parent_line_iov = "$parent_line_iov collect$iov"
+    set retry_line_jb = "${retry_line_jb}Retry collect$iov $allowed_n_retry\n"     
+end
+# Finish the DAG file
+echo  "JOB upload $odir/upload.jdl" >> $odir/DAG/sequence.dag
+set retry_line_jb = "${retry_line_jb}Retry upload $allowed_n_retry"
 
-echo Starting iteration = $i, final iteration = $iter, number of jobs = $jobs in $jobarrays arrays
+echo "$parent_line_jb $child_line_jb" >>  $odir/DAG/sequence.dag     
+echo "$parent_line_iov CHILD upload \n$retry_line_jb" >>  $odir/DAG/sequence.dag
+echo "CONFIG $odir/DAG/sequence.cfg" >> $odir/DAG/sequence.dag
 
-@ COLLECT_ERROR = 0
 while ($i <= $iter)
 
-  echo Running iteration $i
+    echo "-----------------------------------------------------------------------"
+    echo "                       Starting iteration $i                           "
+    echo "-----------------------------------------------------------------------"
+    #echo Running iteration $i
 
-  set collectwaitcondition = ""
-  set requeuewaitcondition = ""
-  set requeuejob = ""
+    echo "Submitting DAGMan file..."
+    condor_submit_dag $odir/DAG/sequence.dag
 
+    set n_recover = 0
+    set n_rescue = 0
+    set n_resub = 0
+    set iteration_done = 0
+    while (!($iteration_done) && ($n_recover<$allowed_n_recover) && ($n_rescue<$allowed_n_rescue) && ($n_resub<$allowed_n_resub))
 
-  if ($jobs > 0) then
-#    @ j = 0 # job index
-    echo "submit parallel jobs..."
-#	bsub -q $queue -C 0 -J $name/align$i\[1-$jobs\] \
-    @ minjob = 1
-    foreach j (`seq 1 $jobarrays`)
-        @ maxjob = $minjob + $MAX_JOB_ARRAY_SIZE - 1
-        if ( $maxjob > $jobs ) then
-            @ maxjob = $jobs
+        # metrics file should only be created at the end
+        if ( -f "$odir/DAG/sequence.dag.metrics" ) then
+            echo "DAGMAN submission has finished unexpectedly. Restarting submission..."
+            rm $odir/DAG/sequence.dag.metrics
+            @ n_resub++
+            condor_submit_dag $odir/DAG/sequence.dag
+            continue
         endif
-	bsub -q $queue -C 0 -J $name/align"$i"_$j\[$minjob-$maxjob\] \
-         -oo $odir/job%I/align$i.out $odir/job\$LSB_JOBINDEX/runScript.csh $workdir
-        @ minjob = $minjob + $MAX_JOB_ARRAY_SIZE
-    end
-    sleep 15
-  #  set id = `bjobs -J $name/align$i | tail -n1 | awk '{print $1}'`
-  #  echo "ID=$id"
-	#	set idold = $id
-    foreach j (`seq 1 $jobarrays`)
-        set id = `bjobs -J $name/align"$i"_$j | tail -n1 | awk '{print $1}'`
-        echo "ID=$id"
-        if ( "$collectwaitcondition" == "" ) then
-            set collectwaitcondition = "done($id)"
-            set requeuewaitcondition = "numexit($id, > 0)"
-            set requeuejob = "brequeue -e $id"
+
+        echo "Submission was succesful."
+        echo "Wait untill jobs stop running..."
+        sleep 30
+        condor_wait $odir/DAG/sequence.dag.dagman.log
+        if ( $? != 0 ) then
+            echo "condor_wait finished unexpectedly, returning $?. Terminating..."
+            exit 1
+        endif
+
+        @ found_rescue = 1
+        if (`ls | grep rescue | wc -l` < `expr $n_rescue + 1`) then 
+            @ found_rescue = 0
         else
-            set collectwaitcondition = "$collectwaitcondition && done($id)"
-            set requeuewaitcondition = "$requeuewaitcondition || numexit($id, > 0)"
-            set requeuejob = "$requeuejob || brequeue -e $id"    #this is a bit ugly, it will only requeue one array at a time
-                                                                 #it's needed to maintain the exit status of 0
+            @ n_rescue++
         endif
+       
+        @ log_done = 0
+        if ( -f $odir/DAG/sequence.dag.dagman.out && "`tail $odir/DAG/sequence.dag.dagman.out |grep "\""EXITING WITH STATUS"\""`" != "") then
+            @ log_done = 1
+        endif
+
+        # User has manualy removed jobs from condor (condor_rm)
+        if ( `cat $odir/DAG/sequence.dag.dagman.log | grep "Job was aborted by the user" | wc -l` > 0 ) then
+                echo "USER interruption detected. Terminating..."
+                exit 1  
+        endif 
+        
+        if ( !($found_rescue) && $log_done) then
+            echo "Iteration $i finished."
+            @ iteration_done = 1
+        else if (!($found_rescue) && !($log_done)) then
+            @ n_recover++
+            echo "Sumbit recovery attempt $n_recover"
+            condor_submit_dag -DoRecovery $odir/DAG/sequence.dag 
+        else if ($found_rescue) then
+            echo "Submit rescue attempt $n_rescue"
+            condor_submit_dag $odir/DAG/sequence.dag
+        endif 
     end
-    echo "submit collect..."
-    #bsub -q $queue -C 0 -J $name/collect$i\[1-$k\] -w "done($id)" \
-    bsub -q $queue -C 0 -J $name/collect$i\[1-$k\] -w "$collectwaitcondition" \
-    	   -oo $odir/main/collect$i"_"%I.out $odir/main/runScript_\$LSB_JOBINDEX.csh $workdir
-#    foreach line ( "`cat $odir/$iovfile`" )
-#  		echo $line
-#    	bsub -q $queue -C 0 -J $name/collect_$i"_$line" -w "done($id)" \
-#      	   -oo $odir/main/collect_$line"_$i.out" $odir/main/runScript_$line.csh $workdir
-#      set id = `bjobs -J $name/collect_$line"_$i" | tail -n1 | awk '{print $1}'`
-#			set lastcollect = $name/collect_$line"_$i"
-#		end
+    if !($iteration_done) then
+        exit 1
+    endif
+    cd $startdir
 
-   set collectid = `bjobs -J $name/collect$i | tail -n1 | awk '{print $1}'`
-	 echo "submit stoprequeue"
-    #bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($name/collect$i)" \
-    #bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($lastcollect)" \
-    bsub -q $queue -C 0 -J $name/stopreq$i -w "ended($collectid)" \
-         -o /dev/null bkill -J $name/requeue$i
+    # Clean up
+    mv $odir/alignments.db $odir/alignments_iter${i}.db
 
-    #new
-	 echo "Submit runcontrol"
-	bsub -q $queue -C 0 -oo $odir/main/runControl$i.txt $odir/main/runControl.csh $odir $i
-## When <collect> job ends, <requeue> job is killed and gets an EXIT status.
-## And we can stop requeuing failed <align> jobs.
 
-    while (`bjobs -d -J $name/requeue$i |& grep EXIT` == "")
-    echo "Submitting requeue"
-#      bsub -q cmsinter -C 0 -J $name/requeue$i -w "numexit($idold, > 0)" \
-#           -I brequeue -e $idold
-      bsub -q cmsinter -C 0 -J $name/requeue$i -w "$requeuewaitcondition" \
-           -I "$requeuejob"
-      sleep 60
+    rm -rf $odir/job*/IOUserVariables.root
+    #rm -rf $odir/job*/DONE1
+    #rm -rf $odir/main/runControl*.txt
+    foreach jb (`seq 1 1 $jobs`)
+        mv $odir/job$jb/align.out $odir/job$jb/align$i.out
+        mv $odir/job$jb/align.log $odir/job$jb/align$i.log
+        gzip -f  $odir/job$jb/align$i.out 
+        gzip -f  $odir/job$jb/align$i.log 
     end
-
-  else
-    bsub -q $queue -C 0 -J $name/collect$i -K \
-         -oo $odir/main/collect$i.out $odir/main/runScript.csh $workdir
-  endif
-
-  sleep 5
-#  foreach line ( "`cat $odir/$iovfile`" )
-   if (`bjobs -d -J $name/collect_$i | tail -n1 | grep EXIT` != "") exit 1
-#	end
-#check if something went wrong, in case warn the owner of the job
-#create a db every 10 iters as a backup
-  cd $odir/main/
-    ./checkError.sh $USER
-    @ errstatus = $?
-    if ($errstatus == 0) then
-    @ mod =  $i % 1 
-   # echo "Modulus is $mod"
-	if ( $mod == 0 && $COLLECT_ERROR == 0 )	then
-	cd ${CMSSW_BASE}/src/
-	eval `scramv1 runtime -csh`
-	cd $odir
-	cp $odir/main/IOIteration*.root $odir/
-	cp $odir/main/IOAlignedPositions*.root $odir/
-#	cmsRun upload_cfg.py > upload_iter${i}.out
-	set kk = 0
-  foreach line ( "`cat $odir/$iovfile`" )
-	  @ kk++
-    cmsRun upload_cfg_$kk".py" > upload_$line"_$i.out"
-  end
-	mv alignments.db alignments_iter${i}.db
-	rm -f $odir/*.root
-	cd -
-    endif 
- else
-   @ COLLECT_ERROR++
- endif
- cd $startdir
-
-## Clean up after collector has finished successfully.
-
-  rm -rf $odir/job*/IOUserVariables.root
-  rm -rf $odir/job*/DONE1
-  rm -rf $odir/main/runControl*.txt
-  gzip -f $odir/job*/*.out
-  gzip -f $odir/main/*.out
+    foreach iov (`seq 1 1 $k`)
+        mv $odir/main/collect_$iov.out $odir/main/collect_"$iov"_it$i.out
+        mv $odir/main/collect_$iov.log $odir/main/collect_"$iov"_it$i.log
+        gzip -f $odir/main/collect_"$iov"_it$i.out 
+        gzip -f $odir/main/collect_"$iov"_it$i.log 
+    end
+    mv $odir/upload.out $odir/upload$i.out
+    mv $odir/upload.log $odir/upload$i.log
+    gzip -f $odir/upload$i.out
+    gzip -f $odir/upload$i.log
+    mv $odir/DAG/sequence.dag.dagman.out $odir/DAG/sequence$i.dag.dagman.out
+    rm -rf $odir/DAG/sequence.dag.*
 
   @ i++
 end
+

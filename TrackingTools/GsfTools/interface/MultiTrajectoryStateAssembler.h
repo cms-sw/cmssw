@@ -11,7 +11,6 @@
  */
 
 class MultiTrajectoryStateAssembler {
-
 private:
   typedef TrajectoryStateOnSurface TSOS;
   typedef std::vector<TrajectoryStateOnSurface> MultiTSOS;
@@ -20,34 +19,32 @@ public:
   //
   // constructors
   //
-  MultiTrajectoryStateAssembler ();
-  
+  MultiTrajectoryStateAssembler();
+
   /** Adds a new TrajectoryStateOnSurface to the list 
    *  of components
    */
-  void addState (const TrajectoryStateOnSurface);
+  void addState(const TrajectoryStateOnSurface);
 
   /// Adds (the weight of an) invalid state to the list
-  void addInvalidState (const double);
+  void addInvalidState(const double);
 
   /** Returns the resulting MultiTrajectoryState 
    *  with weight = sum of all valid components.
    */
-  TrajectoryStateOnSurface combinedState ();
+  TrajectoryStateOnSurface combinedState();
   /** Returns the resulting MultiTrajectoryState 
    *  renormalised to specified weight.
    */
-  TrajectoryStateOnSurface combinedState (const float weight);
-
+  TrajectoryStateOnSurface combinedState(const float weight);
 
 private:
   /** Adds a vector of trajectory states
    *  to the list of components
    */
-  void addStateVector (const MultiTSOS&);
+  void addStateVector(const MultiTSOS&);
   /// Checks status of combined state
-  inline bool invalidCombinedState () const
-  {
+  inline bool invalidCombinedState() const {
     //
     // Protect against empty combination (no valid input state)
     //
@@ -58,13 +55,13 @@ private:
   /** Returns the resulting MultiTrajectoryState
    *  with user-supplied total weight.
    */
-  TrajectoryStateOnSurface reweightedCombinedState (const double) const;
+  TrajectoryStateOnSurface reweightedCombinedState(const double) const;
   /** Removes states with negligible weight (no renormalisation
    * of total weight!).
    */
-  void removeSmallWeights ();
+  void removeSmallWeights();
   /// Removes states with local p_z != average p_z
-  void removeWrongPz ();
+  void removeWrongPz();
 
 private:
   bool sortStates;
@@ -78,9 +75,8 @@ private:
   double theInvalidWeightSum;
   MultiTSOS theStates;
 
-//   static TimingReport::Item * theTimerAdd;
-//   static TimingReport::Item * theTimerComb;
-
+  //   static TimingReport::Item * theTimerAdd;
+  //   static TimingReport::Item * theTimerComb;
 };
 
 #endif

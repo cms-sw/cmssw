@@ -42,55 +42,50 @@ class DTSegmentUpdator;
 
 /* Class DTRecSegment2D Interface */
 
-class DTRecSegment2D : public RecSegment{
-
- public:
-
+class DTRecSegment2D : public RecSegment {
+public:
   /// Constructor
   /// empty c'tor needed by POOL (I guess)
-  DTRecSegment2D(): theChi2(0.0), theT0(0.), theVdrift(0.) {}
-  
+  DTRecSegment2D() : theChi2(0.0), theT0(0.), theVdrift(0.) {}
+
   /// c'tor from hits
-  DTRecSegment2D(DetId id, const std::vector<DTRecHit1D>& hits) ;
-  
+  DTRecSegment2D(DetId id, const std::vector<DTRecHit1D>& hits);
+
   /// complete constructor
-  DTRecSegment2D(DetId id, 
-		 LocalPoint &position, LocalVector &direction,
-		 AlgebraicSymMatrix & covMatrix, double chi2, 
-		 std::vector<DTRecHit1D> &hits1D);
+  DTRecSegment2D(DetId id,
+                 LocalPoint& position,
+                 LocalVector& direction,
+                 AlgebraicSymMatrix& covMatrix,
+                 double chi2,
+                 std::vector<DTRecHit1D>& hits1D);
 
   /// Destructor
   ~DTRecSegment2D() override;
 
-  /* Operations */ 
+  /* Operations */
 
-  DTRecSegment2D* clone() const override { return new DTRecSegment2D(*this);}
-
+  DTRecSegment2D* clone() const override { return new DTRecSegment2D(*this); }
 
   /// the vector of parameters (dx/dz,x)
-  AlgebraicVector parameters() const override {
-    return param( localPosition(), localDirection());
-  }
+  AlgebraicVector parameters() const override { return param(localPosition(), localDirection()); }
 
-  // The parameter error matrix 
+  // The parameter error matrix
   AlgebraicSymMatrix parametersError() const override;
 
   /** return the projection matrix, which must project a parameter vector,
    * whose components are (q/p, dx/dz, dy/dz, x, y), into the vector returned
    * by parameters() */
-  AlgebraicMatrix projectionMatrix() const override {
-    return theProjectionMatrix;
-  }
-    
+  AlgebraicMatrix projectionMatrix() const override { return theProjectionMatrix; }
+
   /// return 2. The dimension of the matrix
-  int dimension() const override { return 2;}
-    
+  int dimension() const override { return 2; }
+
   /// local position in SL frame
-  LocalPoint localPosition() const override {return thePosition; }
-  
+  LocalPoint localPosition() const override { return thePosition; }
+
   /// local position error in SL frame
-  LocalError localPositionError() const override ;
-  
+  LocalError localPositionError() const override;
+
   /// the local direction in SL frame
   LocalVector localDirection() const override { return theDirection; }
 
@@ -99,67 +94,63 @@ class DTRecSegment2D : public RecSegment{
 
   /// the chi2 of the fit
   double chi2() const override { return theChi2; }
-    
-  /// return the DOF of the segment 
-  int degreesOfFreedom() const override ;
+
+  /// return the DOF of the segment
+  int degreesOfFreedom() const override;
 
   // Access to component RecHits (if any)
-  std::vector<const TrackingRecHit*> recHits() const override ;
+  std::vector<const TrackingRecHit*> recHits() const override;
 
   // Non-const access to component RecHits (if any)
-  std::vector<TrackingRecHit*> recHits() override ;
+  std::vector<TrackingRecHit*> recHits() override;
 
   /// Access to specific components
-  std::vector<DTRecHit1D> specificRecHits() const ;
-  
-  /// the Covariance Matrix 
-  AlgebraicSymMatrix covMatrix() const {return theCovMatrix;}
+  std::vector<DTRecHit1D> specificRecHits() const;
+
+  /// the Covariance Matrix
+  AlgebraicSymMatrix covMatrix() const { return theCovMatrix; }
 
   /// Get the segment t0 (if recomputed, 0 is returned otherwise)
-  double t0() const {return theT0;}
-  bool ist0Valid() const {return (theT0 > -998.) ? true : false;}
+  double t0() const { return theT0; }
+  bool ist0Valid() const { return (theT0 > -998.) ? true : false; }
 
   /// Get the vDirft as computed by the algo for the computation of the segment t0
   /// (if recomputed, 0 is returned otherwise)
-  double vDrift() const {return theVdrift;}
+  double vDrift() const { return theVdrift; }
 
- protected:
+protected:
   friend class DTSegmentUpdator;
   void setPosition(const LocalPoint& pos);
   void setDirection(const LocalVector& dir);
   void setCovMatrix(const AlgebraicSymMatrix& cov);
   void setChi2(const double& chi2);
-  void update(std::vector<DTRecHit1D> & updatedRecHits);
+  void update(std::vector<DTRecHit1D>& updatedRecHits);
   void setT0(const double& t0);
   void setVdrift(const double& vdrift);
 
-  LocalPoint  thePosition;  // in SL frame
-  LocalVector theDirection; // in SL frame
-  
+  LocalPoint thePosition;    // in SL frame
+  LocalVector theDirection;  // in SL frame
+
   /// mat[0][0]=sigma (dx/dz)
   /// mat[1][1]=sigma (x)
   /// mat[0][1]=cov(dx/dz,x)
-  AlgebraicSymMatrix theCovMatrix; // the covariance matrix
+  AlgebraicSymMatrix theCovMatrix;  // the covariance matrix
 
-  double theChi2;           // chi2 of the fit
-  double theT0;             // T0 as coming from the fit
-  double theVdrift;             // vDrift as coming from the fit
+  double theChi2;    // chi2 of the fit
+  double theT0;      // T0 as coming from the fit
+  double theVdrift;  // vDrift as coming from the fit
 
-  std::vector<DTRecHit1D> theHits; // the hits with defined R/L
-  
+  std::vector<DTRecHit1D> theHits;  // the hits with defined R/L
 
- private:
-
+private:
   static const AlgebraicMatrix theProjectionMatrix;
-  
-  AlgebraicVector param( const LocalPoint& lp, const LocalVector& lv) const {
+
+  AlgebraicVector param(const LocalPoint& lp, const LocalVector& lv) const {
     AlgebraicVector result(2);
-    result[1]=lp.x();
-    result[0]=lv.x()/lv.z();
+    result[1] = lp.x();
+    result[0] = lv.x() / lv.z();
     return result;
   }
-
 };
 std::ostream& operator<<(std::ostream& os, const DTRecSegment2D& seg);
-#endif // TrackingRecHit_DTRecSegment2D_h
-
+#endif  // TrackingRecHit_DTRecSegment2D_h

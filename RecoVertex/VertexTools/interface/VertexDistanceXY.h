@@ -9,10 +9,8 @@
  */
 
 class VertexDistanceXY : public VertexDistance {
-
 public:
-
-  VertexDistanceXY()  {}
+  VertexDistanceXY() {}
 
   /**
    * The signed distance is computed using a vector
@@ -22,36 +20,27 @@ public:
    * the vector connecting the vertices and the reference vector:
    * if the scalar product is greater than zero, the sign is +1, else -1
    */
-  Measurement1D signedDistance(const reco::Vertex &primVtx , 
-				 const reco::Vertex &secVtx,
-				 const GlobalVector & momentum) const override;
+  Measurement1D signedDistance(const reco::Vertex &primVtx,
+                               const reco::Vertex &secVtx,
+                               const GlobalVector &momentum) const override;
 
-  VertexDistanceXY * clone() const override
-  {
-    return new VertexDistanceXY(*this);
-  }
+  VertexDistanceXY *clone() const override { return new VertexDistanceXY(*this); }
 
-
-  using VertexDistance::distance;
   using VertexDistance::compatibility;
+  using VertexDistance::distance;
 
 private:
-
   AlgebraicSymMatrix22 theNullMatrix;
 
-  Measurement1D distance(const GlobalPoint & vtx1Position, 
-				 const GlobalError & vtx1PositionError, 
-				 const GlobalPoint & vtx2Position, 
-				 const GlobalError & vtx2PositionError) const override;
+  Measurement1D distance(const GlobalPoint &vtx1Position,
+                         const GlobalError &vtx1PositionError,
+                         const GlobalPoint &vtx2Position,
+                         const GlobalError &vtx2PositionError) const override;
 
-  float compatibility(const GlobalPoint & vtx1Position, 
-			      const GlobalError & vtx1PositionError, 
-			      const GlobalPoint & vtx2Position, 
-			      const GlobalError & vtx2PositionError) const override;
+  float compatibility(const GlobalPoint &vtx1Position,
+                      const GlobalError &vtx1PositionError,
+                      const GlobalPoint &vtx2Position,
+                      const GlobalError &vtx2PositionError) const override;
 };
 
-
 #endif
-
-
-

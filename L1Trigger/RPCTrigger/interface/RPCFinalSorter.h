@@ -12,8 +12,7 @@
 
 class RPCFinalSorter {
 public:
-  
-  RPCFinalSorter(RPCTriggerConfiguration* triggerConfig);
+  RPCFinalSorter(RPCTriggerConfiguration *triggerConfig);
 
   L1RpcTBMuonsVec2 runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2);
 
@@ -29,7 +28,7 @@ public:
 private:
   L1RpcTBMuonsVec2 m_GBOutputMuons;
 
-  RPCTriggerConfiguration* m_TrigCnfg;
+  RPCTriggerConfiguration *m_TrigCnfg;
   //m_GBOutputMuons[be][iMU] , be = 0 = barrel; be = 1 = endcap
 };
 #endif

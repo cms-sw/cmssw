@@ -7,26 +7,21 @@
 #include <vector>
 
 namespace reco {
-  typedef edm::AssociationVector<CaloTauRefProd,std::vector<int> > CaloTauDiscriminatorByIsolationBase;
-  
+  typedef edm::AssociationVector<CaloTauRefProd, std::vector<int> > CaloTauDiscriminatorByIsolationBase;
+
   class CaloTauDiscriminatorByIsolation : public CaloTauDiscriminatorByIsolationBase {
   public:
-    CaloTauDiscriminatorByIsolation() :
-      CaloTauDiscriminatorByIsolationBase()
-      { }
-    
-    CaloTauDiscriminatorByIsolation(const reco::CaloTauRefProd & ref) :
-      CaloTauDiscriminatorByIsolationBase(ref)
-      { }
-    
-    CaloTauDiscriminatorByIsolation(const CaloTauDiscriminatorByIsolationBase &v) :
-      CaloTauDiscriminatorByIsolationBase(v)
-      { }
+    CaloTauDiscriminatorByIsolation() : CaloTauDiscriminatorByIsolationBase() {}
+
+    CaloTauDiscriminatorByIsolation(const reco::CaloTauRefProd &ref) : CaloTauDiscriminatorByIsolationBase(ref) {}
+
+    CaloTauDiscriminatorByIsolation(const CaloTauDiscriminatorByIsolationBase &v)
+        : CaloTauDiscriminatorByIsolationBase(v) {}
   };
-  
-  typedef CaloTauDiscriminatorByIsolation::value_type CaloTauDiscriminatorByIsolationVT;  
-  typedef edm::Ref<CaloTauDiscriminatorByIsolation> CaloTauDiscriminatorByIsolationRef;  
-  typedef edm::RefProd<CaloTauDiscriminatorByIsolation> CaloTauDiscriminatorByIsolationRefProd;  
-  typedef edm::RefVector<CaloTauDiscriminatorByIsolation> CaloTauDiscriminatorByIsolationRefVector; 
-}
+
+  typedef CaloTauDiscriminatorByIsolation::value_type CaloTauDiscriminatorByIsolationVT;
+  typedef edm::Ref<CaloTauDiscriminatorByIsolation> CaloTauDiscriminatorByIsolationRef;
+  typedef edm::RefProd<CaloTauDiscriminatorByIsolation> CaloTauDiscriminatorByIsolationRefProd;
+  typedef edm::RefVector<CaloTauDiscriminatorByIsolation> CaloTauDiscriminatorByIsolationRefVector;
+}  // namespace reco
 #endif

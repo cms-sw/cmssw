@@ -23,31 +23,28 @@ together by the criterion which is by default the minimal approach distance.
 */
 
 class PFDisplacedVertexProducer : public edm::stream::EDProducer<> {
- public:
-
+public:
   explicit PFDisplacedVertexProducer(const edm::ParameterSet&);
 
   ~PFDisplacedVertexProducer() override;
-  
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   /// Collection of DisplacedVertex Candidates used as input for
   /// the Displaced VertexFinder.
-  edm::EDGetTokenT<reco::PFDisplacedVertexCandidateCollection>   inputTagVertexCandidates_;
+  edm::EDGetTokenT<reco::PFDisplacedVertexCandidateCollection> inputTagVertexCandidates_;
 
   /// Input tag for main vertex to cut of dxy of secondary tracks
 
-  edm::EDGetTokenT<reco::VertexCollection>   inputTagMainVertex_; 
-  edm::EDGetTokenT<reco::BeamSpot>   inputTagBeamSpot_;
-  
+  edm::EDGetTokenT<reco::VertexCollection> inputTagMainVertex_;
+  edm::EDGetTokenT<reco::BeamSpot> inputTagBeamSpot_;
+
   /// verbose ?
-  bool   verbose_;
+  bool verbose_;
 
   /// Displaced Vertices finder
-  PFDisplacedVertexFinder            pfDisplacedVertexFinder_;
-
+  PFDisplacedVertexFinder pfDisplacedVertexFinder_;
 };
 
 #endif

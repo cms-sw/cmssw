@@ -16,7 +16,6 @@
 //         Created:  Sun Nov 16 16:14:09 CET 2008
 //
 
-
 // system include files
 #include <memory>
 
@@ -44,27 +43,27 @@
  *    \____|_|\__,_|___/___/  \__,_|\___|\___|_|\__,_|_|  \__,_|\__|_|\___/|_| |_|
  */
 namespace pat {
-    template<typename T>
-    class MatcherByPulls : public edm::EDProducer {
-        public:
-            explicit MatcherByPulls(const edm::ParameterSet&);
-            ~MatcherByPulls() override;
+  template <typename T>
+  class MatcherByPulls : public edm::EDProducer {
+  public:
+    explicit MatcherByPulls(const edm::ParameterSet&);
+    ~MatcherByPulls() override;
 
-        private:
-            void produce(edm::Event&, const edm::EventSetup&) override;
+  private:
+    void produce(edm::Event&, const edm::EventSetup&) override;
 
-            /// The RECO objects
-            edm::EDGetTokenT<edm::View<T> > srcToken_;
+    /// The RECO objects
+    edm::EDGetTokenT<edm::View<T> > srcToken_;
 
-            /// The MC objects to match against
-            edm::EDGetTokenT<std::vector<reco::GenParticle> > matchedToken_;
+    /// The MC objects to match against
+    edm::EDGetTokenT<std::vector<reco::GenParticle> > matchedToken_;
 
-            /// Preselection cut on MC objects
-            StringCutObjectSelector<reco::GenParticle>  mcSel_;
+    /// Preselection cut on MC objects
+    StringCutObjectSelector<reco::GenParticle> mcSel_;
 
-            MatcherByPullsAlgorithm algo_;
-    };
-}
+    MatcherByPullsAlgorithm algo_;
+  };
+}  // namespace pat
 
 /*     ____                _                   _
  *    / ___|___  _ __  ___| |_ _ __ _   _  ___| |_ ___  _ __
@@ -73,21 +72,18 @@ namespace pat {
  *    \____\___/|_| |_|___/\__|_|   \__,_|\___|\__\___/|_|
  *
  */
-template<typename T>
-pat::MatcherByPulls<T>::MatcherByPulls(const edm::ParameterSet &iConfig) :
-    srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-    matchedToken_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("matched"))),
-    mcSel_(iConfig.getParameter<std::string>("matchedSelector")),
-    algo_(iConfig)
-{
-    produces<edm::Association<std::vector<reco::GenParticle> > >();
-    produces<edm::ValueMap<float> >("pulls");
+template <typename T>
+pat::MatcherByPulls<T>::MatcherByPulls(const edm::ParameterSet& iConfig)
+    : srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
+      matchedToken_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("matched"))),
+      mcSel_(iConfig.getParameter<std::string>("matchedSelector")),
+      algo_(iConfig) {
+  produces<edm::Association<std::vector<reco::GenParticle> > >();
+  produces<edm::ValueMap<float> >("pulls");
 }
 
-template<typename T>
-pat::MatcherByPulls<T>::~MatcherByPulls()
-{
-}
+template <typename T>
+pat::MatcherByPulls<T>::~MatcherByPulls() {}
 
 /*    ____                _
  *   |  _ \ _ __ ___   __| |_   _  ___ ___
@@ -97,45 +93,43 @@ pat::MatcherByPulls<T>::~MatcherByPulls()
  *
  */
 
-template<typename T>
-void
-pat::MatcherByPulls<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-    typedef std::vector<reco::GenParticle> MCColl;
-    edm::Handle<edm::View<T> > src;
-    edm::Handle<MCColl> cands;
-    iEvent.getByToken(srcToken_,     src);
-    iEvent.getByToken(matchedToken_, cands);
+template <typename T>
+void pat::MatcherByPulls<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  typedef std::vector<reco::GenParticle> MCColl;
+  edm::Handle<edm::View<T> > src;
+  edm::Handle<MCColl> cands;
+  iEvent.getByToken(srcToken_, src);
+  iEvent.getByToken(matchedToken_, cands);
 
-    std::vector<uint8_t> candGood(cands->size(),1);
-    std::transform(cands->begin(), cands->end(), candGood.begin(), mcSel_);
+  std::vector<uint8_t> candGood(cands->size(), 1);
+  std::transform(cands->begin(), cands->end(), candGood.begin(), mcSel_);
 
-    std::vector<int>   matches(src->size(),-1);
-    std::vector<float> pulls(src->size(),  1e39);
-    for (size_t i = 0, n = src->size(); i < n; ++i) {
-        const T &tk = (*src)[i];
-        std::pair<int,float> m = algo_.match(tk, *cands, candGood);
-        matches[i] = m.first;
-        pulls[i]   = m.second;
-    }
+  std::vector<int> matches(src->size(), -1);
+  std::vector<float> pulls(src->size(), 1e39);
+  for (size_t i = 0, n = src->size(); i < n; ++i) {
+    const T& tk = (*src)[i];
+    std::pair<int, float> m = algo_.match(tk, *cands, candGood);
+    matches[i] = m.first;
+    pulls[i] = m.second;
+  }
 
-    typedef edm::Association<MCColl> MCAsso;
-    std::unique_ptr<MCAsso> matchesMap(new MCAsso(edm::RefProd<MCColl>(cands)));
-    MCAsso::Filler matchesFiller(*matchesMap);
-    matchesFiller.insert(src, matches.begin(), matches.end());
-    matchesFiller.fill();
-    iEvent.put(std::move(matchesMap));
+  typedef edm::Association<MCColl> MCAsso;
+  std::unique_ptr<MCAsso> matchesMap(new MCAsso(edm::RefProd<MCColl>(cands)));
+  MCAsso::Filler matchesFiller(*matchesMap);
+  matchesFiller.insert(src, matches.begin(), matches.end());
+  matchesFiller.fill();
+  iEvent.put(std::move(matchesMap));
 
-    std::unique_ptr<edm::ValueMap<float> > pullsMap(new edm::ValueMap<float>());
-    edm::ValueMap<float>::Filler pullsFiller(*pullsMap);
-    pullsFiller.insert(src, pulls.begin(), pulls.end());
-    pullsFiller.fill();
-    iEvent.put(std::move(pullsMap), "pulls");
+  std::unique_ptr<edm::ValueMap<float> > pullsMap(new edm::ValueMap<float>());
+  edm::ValueMap<float>::Filler pullsFiller(*pullsMap);
+  pullsFiller.insert(src, pulls.begin(), pulls.end());
+  pullsFiller.fill();
+  iEvent.put(std::move(pullsMap), "pulls");
 }
 
 //define this as a plug-in
 
 typedef pat::MatcherByPulls<reco::RecoCandidate> MatcherByPulls;
-typedef pat::MatcherByPulls<reco::Track>         TrackMatcherByPulls;
+typedef pat::MatcherByPulls<reco::Track> TrackMatcherByPulls;
 DEFINE_FWK_MODULE(MatcherByPulls);
 DEFINE_FWK_MODULE(TrackMatcherByPulls);

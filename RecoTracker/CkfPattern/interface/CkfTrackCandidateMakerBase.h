@@ -30,16 +30,14 @@
 
 class TransientInitialStateEstimator;
 
-namespace cms
-{
-  class CkfTrackCandidateMakerBase  {
+namespace cms {
+  class CkfTrackCandidateMakerBase {
   public:
-
-    explicit CkfTrackCandidateMakerBase(const edm::ParameterSet& conf, edm::ConsumesCollector && iC);
+    explicit CkfTrackCandidateMakerBase(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
 
     virtual ~CkfTrackCandidateMakerBase() noexcept(false);
 
-    virtual void beginRunBase (edm::Run const & , edm::EventSetup const & es);
+    virtual void beginRunBase(edm::Run const&, edm::EventSetup const& es);
 
     virtual void produceBase(edm::Event& e, const edm::EventSetup& es);
 
@@ -57,23 +55,23 @@ namespace cms
     std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder;
 
     std::string theTrajectoryCleanerName;
-    const TrajectoryCleaner*               theTrajectoryCleaner;
+    const TrajectoryCleaner* theTrajectoryCleaner;
 
     std::unique_ptr<TransientInitialStateEstimator> theInitialState;
-    
+
     const std::string theMagFieldName;
-    edm::ESHandle<MagneticField>                theMagField;
-    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
+    edm::ESHandle<MagneticField> theMagField;
+    edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
 
     std::string theNavigationSchoolName;
-    const NavigationSchool*       theNavigationSchool;
-    
-    std::unique_ptr<RedundantSeedCleaner>  theSeedCleaner;
+    const NavigationSchool* theNavigationSchool;
+
+    std::unique_ptr<RedundantSeedCleaner> theSeedCleaner;
 
     unsigned int maxSeedsBeforeCleaning_;
-    
-    edm::EDGetTokenT<edm::View<TrajectorySeed> >  theSeedLabel;
-    edm::EDGetTokenT<MeasurementTrackerEvent>     theMTELabel;
+
+    edm::EDGetTokenT<edm::View<TrajectorySeed> > theSeedLabel;
+    edm::EDGetTokenT<MeasurementTrackerEvent> theMTELabel;
 
     bool skipClusters_;
     bool phase2skipClusters_;
@@ -85,14 +83,17 @@ namespace cms
     edm::EDGetTokenT<Phase2OTClusterMask> maskPhase2OTs_;
 
     // methods for debugging
-    virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}
-    virtual void printHitsDebugger(edm::Event& e){;}
-    virtual void countSeedsDebugger(){;}
-    virtual void deleteAssocDebugger(){;}
+    virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl) {
+      return theSeedColl.end();
+    }
+    virtual void printHitsDebugger(edm::Event& e) { ; }
+    virtual void countSeedsDebugger() { ; }
+    virtual void deleteAssocDebugger() { ; }
+
   private:
     /// Initialize EventSetup objects at each event
-    void setEventSetup( const edm::EventSetup& es ) ; 
+    void setEventSetup(const edm::EventSetup& es);
   };
-}
+}  // namespace cms
 
 #endif

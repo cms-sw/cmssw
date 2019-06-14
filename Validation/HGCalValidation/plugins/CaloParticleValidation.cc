@@ -36,8 +36,9 @@ struct Histogram_CaloParticleSingle {
   ConcurrentMonitorElement energy_;
   ConcurrentMonitorElement nSimClusters_;
   ConcurrentMonitorElement nHitInSimClusters_;
-  ConcurrentMonitorElement selfEnergy_; // this is the sum of the energy associated to all recHits linked to all SimClusters
-  ConcurrentMonitorElement energyDifference_; // This contains (energy-selfEnergy)/energy
+  ConcurrentMonitorElement
+      selfEnergy_;  // this is the sum of the energy associated to all recHits linked to all SimClusters
+  ConcurrentMonitorElement energyDifference_;  // This contains (energy-selfEnergy)/energy
   ConcurrentMonitorElement eta_Zorigin_map_;
   ConcurrentMonitorElement simPFSuperClusterSize_;
   ConcurrentMonitorElement simPFSuperClusterEnergy_;
@@ -47,41 +48,37 @@ struct Histogram_CaloParticleSingle {
   ConcurrentMonitorElement pfcandidateEta_;
   ConcurrentMonitorElement pfcandidatePhi_;
   ConcurrentMonitorElement pfcandidateElementsInBlocks_;
-  ConcurrentMonitorElement pfcandidate_vect_sum_pt_; // This is indeed a cumulative istogram
+  ConcurrentMonitorElement pfcandidate_vect_sum_pt_;  // This is indeed a cumulative istogram
 };
-
 
 using Histograms_CaloParticleValidation = std::unordered_map<int, Histogram_CaloParticleSingle>;
 
 class CaloParticleValidation : public DQMGlobalEDAnalyzer<Histograms_CaloParticleValidation> {
-   public:
-      explicit CaloParticleValidation(const edm::ParameterSet&);
-      ~CaloParticleValidation() override;
+public:
+  explicit CaloParticleValidation(const edm::ParameterSet&);
+  ~CaloParticleValidation() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+private:
+  void bookHistograms(DQMStore::ConcurrentBooker&,
+                      edm::Run const&,
+                      edm::EventSetup const&,
+                      Histograms_CaloParticleValidation&) const override;
 
-   private:
-      void bookHistograms(DQMStore::ConcurrentBooker &,
-                                  edm::Run const&,
-                                  edm::EventSetup const&,
-                                  Histograms_CaloParticleValidation&) const override;
+  void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms_CaloParticleValidation const&) const override;
 
-      void dqmAnalyze(edm::Event const&,
-                              edm::EventSetup const&,
-                              Histograms_CaloParticleValidation const&) const override;
+  // ----------member data ---------------------------
+  std::string folder_;
+  std::vector<int> particles_to_monitor_;
 
-      // ----------member data ---------------------------
-      std::string folder_;
-      std::vector<int> particles_to_monitor_;
-
-      edm::EDGetTokenT<std::vector<SimVertex> > simVertices_;
-      edm::EDGetTokenT<std::vector<CaloParticle> > caloParticles_;
-      edm::EDGetTokenT<std::vector<reco::SuperCluster>> simPFClusters_;
-      edm::EDGetTokenT<reco::PFCandidateCollection> simPFCandidates_;
-      edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
-      edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
-      edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
+  edm::EDGetTokenT<std::vector<SimVertex>> simVertices_;
+  edm::EDGetTokenT<std::vector<CaloParticle>> caloParticles_;
+  edm::EDGetTokenT<std::vector<reco::SuperCluster>> simPFClusters_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> simPFCandidates_;
+  edm::EDGetTokenT<HGCRecHitCollection> recHitsEE_;
+  edm::EDGetTokenT<HGCRecHitCollection> recHitsFH_;
+  edm::EDGetTokenT<HGCRecHitCollection> recHitsBH_;
 };
 
 //
@@ -96,26 +93,22 @@ class CaloParticleValidation : public DQMGlobalEDAnalyzer<Histograms_CaloParticl
 // constructors and destructor
 //
 CaloParticleValidation::CaloParticleValidation(const edm::ParameterSet& iConfig)
-  : folder_(iConfig.getParameter<std::string>("folder")),
-  particles_to_monitor_(iConfig.getParameter<std::vector<int> >("particles_to_monitor")),
-  simVertices_(consumes<std::vector<SimVertex>>(iConfig.getParameter<edm::InputTag>("simVertices"))),
-  caloParticles_(consumes<std::vector<CaloParticle> >(iConfig.getParameter<edm::InputTag>("caloParticles"))),
-  simPFClusters_(consumes<std::vector<reco::SuperCluster>>(iConfig.getParameter<edm::InputTag>("simPFClusters"))),
-  simPFCandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("simPFCandidates"))),
-  recHitsEE_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE"))),
-  recHitsFH_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsFH"))),
-  recHitsBH_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsBH")))
-{
-   //now do what ever initialization is needed
+    : folder_(iConfig.getParameter<std::string>("folder")),
+      particles_to_monitor_(iConfig.getParameter<std::vector<int>>("particles_to_monitor")),
+      simVertices_(consumes<std::vector<SimVertex>>(iConfig.getParameter<edm::InputTag>("simVertices"))),
+      caloParticles_(consumes<std::vector<CaloParticle>>(iConfig.getParameter<edm::InputTag>("caloParticles"))),
+      simPFClusters_(consumes<std::vector<reco::SuperCluster>>(iConfig.getParameter<edm::InputTag>("simPFClusters"))),
+      simPFCandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("simPFCandidates"))),
+      recHitsEE_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsEE"))),
+      recHitsFH_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsFH"))),
+      recHitsBH_(consumes<HGCRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsBH"))) {
+  //now do what ever initialization is needed
 }
 
-
-CaloParticleValidation::~CaloParticleValidation()
-{
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+CaloParticleValidation::~CaloParticleValidation() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
@@ -123,10 +116,9 @@ CaloParticleValidation::~CaloParticleValidation()
 
 // ------------ method called for each event  ------------
 
-void
-CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup const& iSetup,
-                      Histograms_CaloParticleValidation const & histos) const
-{
+void CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent,
+                                        edm::EventSetup const& iSetup,
+                                        Histograms_CaloParticleValidation const& histos) const {
   using namespace edm;
 
   Handle<HGCRecHitCollection> recHitHandleEE;
@@ -153,37 +145,39 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
 
   Handle<std::vector<SimVertex>> simVerticesHandle;
   iEvent.getByToken(simVertices_, simVerticesHandle);
-  std::vector<SimVertex> const & simVertices = *simVerticesHandle;
+  std::vector<SimVertex> const& simVertices = *simVerticesHandle;
 
-  Handle<std::vector<CaloParticle> > caloParticleHandle;
+  Handle<std::vector<CaloParticle>> caloParticleHandle;
   iEvent.getByToken(caloParticles_, caloParticleHandle);
-  std::vector<CaloParticle> const & caloParticles = *caloParticleHandle;
+  std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
   Handle<std::vector<reco::SuperCluster>> simPFClustersHandle;
   iEvent.getByToken(simPFClusters_, simPFClustersHandle);
-  std::vector<reco::SuperCluster> const & simPFClusters = *simPFClustersHandle;
+  std::vector<reco::SuperCluster> const& simPFClusters = *simPFClustersHandle;
 
   Handle<reco::PFCandidateCollection> simPFCandidatesHandle;
   iEvent.getByToken(simPFCandidates_, simPFCandidatesHandle);
-  reco::PFCandidateCollection const & simPFCandidates = *simPFCandidatesHandle;
+  reco::PFCandidateCollection const& simPFCandidates = *simPFCandidatesHandle;
 
   for (auto const caloParticle : caloParticles) {
-    if (caloParticle.g4Tracks()[0].eventId().event() != 0 or caloParticle.g4Tracks()[0].eventId().bunchCrossing() != 0) {
+    if (caloParticle.g4Tracks()[0].eventId().event() != 0 or
+        caloParticle.g4Tracks()[0].eventId().bunchCrossing() != 0) {
       LogDebug("CaloParticleValidation") << "Excluding CaloParticles from event: "
-        << caloParticle.g4Tracks()[0].eventId().event()
-        << " with BX: " << caloParticle.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
+                                         << caloParticle.g4Tracks()[0].eventId().event()
+                                         << " with BX: " << caloParticle.g4Tracks()[0].eventId().bunchCrossing()
+                                         << std::endl;
       continue;
     }
     int id = caloParticle.pdgId();
     if (histos.count(id)) {
-      auto & histo = histos.at(id);
+      auto& histo = histos.at(id);
       histo.eta_.fill(caloParticle.eta());
       histo.pt_.fill(caloParticle.pt());
       histo.energy_.fill(caloParticle.energy());
       histo.nSimClusters_.fill(caloParticle.simClusters().size());
       // Find the corresponding vertex.
-      histo.eta_Zorigin_map_.fill(
-          simVertices.at(caloParticle.g4Tracks()[0].vertIndex()).position().z(), caloParticle.eta());
+      histo.eta_Zorigin_map_.fill(simVertices.at(caloParticle.g4Tracks()[0].vertIndex()).position().z(),
+                                  caloParticle.eta());
       int simHits = 0;
       float energy = 0.;
       for (auto const sc : caloParticle.simClusters()) {
@@ -195,7 +189,7 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
       }
       histo.nHitInSimClusters_.fill((float)simHits);
       histo.selfEnergy_.fill(energy);
-      histo.energyDifference_.fill(1.- energy/caloParticle.energy());
+      histo.energyDifference_.fill(1. - energy / caloParticle.energy());
     }
   }
 
@@ -214,27 +208,24 @@ CaloParticleValidation::dqmAnalyze(edm::Event const& iEvent, edm::EventSetup con
     ptx_tot += pfc.px();
     pty_tot += pfc.py();
     histos.at(offset).pfcandidateType_.fill(type - offset);
-    auto & histo = histos.at(type);
+    auto& histo = histos.at(type);
     histo.pfcandidateEnergy_.fill(pfc.energy());
     histo.pfcandidatePt_.fill(pfc.pt());
     histo.pfcandidateEta_.fill(pfc.eta());
     histo.pfcandidatePhi_.fill(pfc.phi());
     histo.pfcandidateElementsInBlocks_.fill(pfc.elementsInBlocks().size());
   }
-  auto & histo = histos.at(offset);
-  histo.pfcandidate_vect_sum_pt_.fill(std::sqrt(ptx_tot*ptx_tot+pty_tot*pty_tot));
+  auto& histo = histos.at(offset);
+  histo.pfcandidate_vect_sum_pt_.fill(std::sqrt(ptx_tot * ptx_tot + pty_tot * pty_tot));
 }
 
-
-void
-CaloParticleValidation::bookHistograms(DQMStore::ConcurrentBooker & ibook,
-                          edm::Run const & run,
-                          edm::EventSetup const & iSetup,
-                          Histograms_CaloParticleValidation & histos) const
-{
+void CaloParticleValidation::bookHistograms(DQMStore::ConcurrentBooker& ibook,
+                                            edm::Run const& run,
+                                            edm::EventSetup const& iSetup,
+                                            Histograms_CaloParticleValidation& histos) const {
   for (auto const particle : particles_to_monitor_) {
     ibook.setCurrentFolder(folder_ + "CaloParticles/" + std::to_string(particle));
-    auto & histo = histos[particle];
+    auto& histo = histos[particle];
     histo.eta_ = ibook.book1D("Eta", "Eta", 80, -4., 4.);
     histo.energy_ = ibook.book1D("Energy", "Energy", 250, 0., 500.);
     histo.pt_ = ibook.book1D("Pt", "Pt", 100, 0., 100.);
@@ -250,7 +241,7 @@ CaloParticleValidation::bookHistograms(DQMStore::ConcurrentBooker & ibook,
   histos[offset].pfcandidate_vect_sum_pt_ = ibook.book1D("PFCandidatePtVectSum", "PFCandidatePtVectSum", 200, 0., 200.);
   for (size_t type = reco::PFCandidate::h; type <= reco::PFCandidate::egamma_HF; type++) {
     ibook.setCurrentFolder(folder_ + "PFCandidates/" + std::to_string(type));
-    auto & histo = histos[offset + type];
+    auto& histo = histos[offset + type];
     histo.pfcandidateEnergy_ = ibook.book1D("PFCandidateEnergy", "PFCandidateEnergy", 250, 0., 250.);
     histo.pfcandidatePt_ = ibook.book1D("PFCandidatePt", "PFCandidatePt", 250, 0., 250.);
     histo.pfcandidateEta_ = ibook.book1D("PFCandidateEta", "PFCandidateEta", 100, -5., 5.);
@@ -260,24 +251,24 @@ CaloParticleValidation::bookHistograms(DQMStore::ConcurrentBooker & ibook,
   // Folder '0' is meant to be cumulative, with no connection to pdgId
   ibook.setCurrentFolder(folder_ + std::to_string(0));
   histos[0].simPFSuperClusterSize_ = ibook.book1D("SimPFSuperClusterSize", "SimPFSuperClusterSize", 40, 0., 40.);
-  histos[0].simPFSuperClusterEnergy_ = ibook.book1D("SimPFSuperClusterEnergy", "SimPFSuperClusterEnergy", 250, 0., 500.);
+  histos[0].simPFSuperClusterEnergy_ =
+      ibook.book1D("SimPFSuperClusterEnergy", "SimPFSuperClusterEnergy", 250, 0., 500.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-CaloParticleValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void CaloParticleValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("folder", "HGCAL/"); // Please keep the trailing '/'
-  desc.add<std::vector<int> > ("particles_to_monitor", {11, -11, 13, -13, 22, 111, 211, -211, 321, -321});
+  desc.add<std::string>("folder", "HGCAL/");  // Please keep the trailing '/'
+  desc.add<std::vector<int>>("particles_to_monitor", {11, -11, 13, -13, 22, 111, 211, -211, 321, -321});
   desc.add<edm::InputTag>("simVertices", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("caloParticles", edm::InputTag("mix", "MergedCaloTruth"));
   desc.add<edm::InputTag>("simPFClusters", edm::InputTag("simPFProducer", "perfect"));
   desc.add<edm::InputTag>("simPFCandidates", edm::InputTag("simPFProducer"));
-  desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit","HGCEERecHits"));
-  desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit","HGCHEFRecHits"));
-  desc.add<edm::InputTag>("recHitsBH", edm::InputTag("HGCalRecHit","HGCHEBRecHits"));
+  desc.add<edm::InputTag>("recHitsEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
+  desc.add<edm::InputTag>("recHitsFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
+  desc.add<edm::InputTag>("recHitsBH", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
   descriptions.add("caloparticlevalidationDefault", desc);
 }
 

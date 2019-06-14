@@ -3,8 +3,10 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 namespace {
-  struct L1GtTriggerMenuInitializer { void operator()(L1GtTriggerMenu & _) { _.buildGtConditionMap(); } };
-}
+  struct L1GtTriggerMenuInitializer {
+    void operator()(L1GtTriggerMenu& _) { _.buildGtConditionMap(); }
+  };
+}  // namespace
 REGISTER_PLUGIN_INIT(L1GtTriggerMenuRcd, L1GtTriggerMenu, L1GtTriggerMenuInitializer);
 
 #include "CondFormats/L1TObjects/interface/L1GtPsbSetup.h"
@@ -16,4 +18,3 @@ REGISTER_PLUGIN(L1GtPsbSetupRcd, L1GtPsbSetup);
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
 REGISTER_PLUGIN(L1CaloGeometryRecord, L1CaloGeometry);
-

@@ -11,6 +11,5 @@
 class HcalTTPUnpacker {
 public:
   bool unpack(const HcalHTRData& data, HcalTTPDigi& digi);
-
 };
 #endif

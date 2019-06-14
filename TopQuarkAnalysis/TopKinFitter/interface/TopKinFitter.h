@@ -15,21 +15,22 @@
 **/
 
 class TopKinFitter {
-  
- public:
-  
+public:
   /// supported parameterizations
-  enum Param{ kEMom, kEtEtaPhi, kEtThetaPhi };
+  enum Param { kEMom, kEtEtaPhi, kEtThetaPhi };
 
- public:
+public:
   /// default constructor
-  explicit TopKinFitter(const int maxNrIter=200, const double maxDeltaS=5e-5, const double maxF=1e-4,
-			const double mW=80.4, const double mTop=173.);
+  explicit TopKinFitter(const int maxNrIter = 200,
+                        const double maxDeltaS = 5e-5,
+                        const double maxF = 1e-4,
+                        const double mW = 80.4,
+                        const double mTop = 173.);
   /// default destructor
   ~TopKinFitter();
 
   /// return chi2 of fit (not normalized to degrees of freedom)
-  double fitS()  const { return fitter_->getS(); };
+  double fitS() const { return fitter_->getS(); };
   /// return number of used iterations
   int fitNrIter() const { return fitter_->getNbIter(); };
   /// return fit probability
@@ -37,11 +38,11 @@ class TopKinFitter {
   /// allows to change the verbosity of the TKinFitter
   void setVerbosity(const int verbosityLevel) { fitter_->setVerbosity(verbosityLevel); };
 
- protected:
+protected:
   /// convert Param to human readable form
   std::string param(const Param& param) const;
-  
- protected:
+
+protected:
   /// kinematic fitter
   TKinFitter* fitter_;
   /// maximal allowed number of iterations to be used for the fit

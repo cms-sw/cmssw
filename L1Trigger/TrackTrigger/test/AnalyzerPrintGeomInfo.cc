@@ -28,62 +28,59 @@
 //                          //
 //////////////////////////////
 
-class AnalyzerPrintGeomInfo : public edm::EDAnalyzer
-{
+class AnalyzerPrintGeomInfo : public edm::EDAnalyzer {
   /// Public methods
-  public:
-    /// Constructor/destructor
-    explicit AnalyzerPrintGeomInfo(const edm::ParameterSet& iConfig);
-    virtual ~AnalyzerPrintGeomInfo();
-    // Typical methods used on Loops over events
-    virtual void beginJob();
-    virtual void endJob();
-    virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+public:
+  /// Constructor/destructor
+  explicit AnalyzerPrintGeomInfo(const edm::ParameterSet& iConfig);
+  virtual ~AnalyzerPrintGeomInfo();
+  // Typical methods used on Loops over events
+  virtual void beginJob();
+  virtual void endJob();
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
   /// Private methods and variables
-  private:
+private:
+  std::string TextOutput;
+  bool DebugMode;
 
-    std::string TextOutput;
-    bool DebugMode;
- 
-    bool testedGeometry;
-    bool debugPrintouts;
+  bool testedGeometry;
+  bool debugPrintouts;
 
-    /// Output file
-    std::ofstream outputFile;
+  /// Output file
+  std::ofstream outputFile;
 
-    /// Containers of parameters passed by python
-    /// configuration file
-    edm::ParameterSet config;    
+  /// Containers of parameters passed by python
+  /// configuration file
+  edm::ParameterSet config;
 
-    /// Histograms
-    TH2D* hPXB_Lay_R;
-    std::map< unsigned int, TH2D* > mapPXB2Lay_hPXB_Lad_Mod;
-    std::map< unsigned int, TH2D* > mapPXB2Lay_hPXB_Lad_Phi;
-    std::map< unsigned int, TH2D* > mapPXB2Lay_hPXB_Mod_Z;
-    std::map< unsigned int, TH2D* > mapPXB2Lay_hPXB_Lad_R;
-    std::map< unsigned int, TH2D* > mapPXB2Lay_hPXB_Mod_R;
-    std::map< unsigned int, TH1D* > mapPXB2Lay_hPXB_R;
+  /// Histograms
+  TH2D* hPXB_Lay_R;
+  std::map<unsigned int, TH2D*> mapPXB2Lay_hPXB_Lad_Mod;
+  std::map<unsigned int, TH2D*> mapPXB2Lay_hPXB_Lad_Phi;
+  std::map<unsigned int, TH2D*> mapPXB2Lay_hPXB_Mod_Z;
+  std::map<unsigned int, TH2D*> mapPXB2Lay_hPXB_Lad_R;
+  std::map<unsigned int, TH2D*> mapPXB2Lay_hPXB_Mod_R;
+  std::map<unsigned int, TH1D*> mapPXB2Lay_hPXB_R;
 
-    TH2D* hPXF_Disk00_Disk;
-    TH2D* hPXF_Disk00_Side;
-    TH2D* hPXF_Disk00_Z;
-    TH2D* hPXF_Disk00_R;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Pan_Mod;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Bla_Mod;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Bla_Pan;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Pan_R;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Mod_R;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Bla_R;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Disk_R;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Pan_Phi;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Mod_Phi;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Bla_Phi;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Pan_Z;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Mod_Z;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Bla_Z;
-    std::map< unsigned int, TH2D* > mapPXF2Disk00_hPXF_Disk_Z;
-
+  TH2D* hPXF_Disk00_Disk;
+  TH2D* hPXF_Disk00_Side;
+  TH2D* hPXF_Disk00_Z;
+  TH2D* hPXF_Disk00_R;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Pan_Mod;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Bla_Mod;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Bla_Pan;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Pan_R;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Mod_R;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Bla_R;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Disk_R;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Pan_Phi;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Mod_Phi;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Bla_Phi;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Pan_Z;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Mod_Z;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Bla_Z;
+  std::map<unsigned int, TH2D*> mapPXF2Disk00_hPXF_Disk_Z;
 };
 
 //////////////////////////////////
@@ -94,12 +91,10 @@ class AnalyzerPrintGeomInfo : public edm::EDAnalyzer
 
 //////////////
 // CONSTRUCTOR
-AnalyzerPrintGeomInfo::AnalyzerPrintGeomInfo(edm::ParameterSet const& iConfig) : 
-  config(iConfig)
-{
+AnalyzerPrintGeomInfo::AnalyzerPrintGeomInfo(edm::ParameterSet const& iConfig) : config(iConfig) {
   /// Insert here what you need to initialize
-  TextOutput = iConfig.getParameter< std::string >("TextOutput");
-  DebugMode = iConfig.getParameter< bool >("DebugMode");
+  TextOutput = iConfig.getParameter<std::string>("TextOutput");
+  DebugMode = iConfig.getParameter<bool>("DebugMode");
 
   /// Open the output file
   outputFile.open(TextOutput, std::ios::out);
@@ -107,15 +102,14 @@ AnalyzerPrintGeomInfo::AnalyzerPrintGeomInfo(edm::ParameterSet const& iConfig) :
 
 /////////////
 // DESTRUCTOR
-AnalyzerPrintGeomInfo::~AnalyzerPrintGeomInfo()
-{
+AnalyzerPrintGeomInfo::~AnalyzerPrintGeomInfo() {
   /// Insert here what you need to delete
   /// when you close the class instance
-}  
+}
 
 //////////
 // END JOB
-void AnalyzerPrintGeomInfo::endJob()//edm::Run& run, const edm::EventSetup& iSetup
+void AnalyzerPrintGeomInfo::endJob()  //edm::Run& run, const edm::EventSetup& iSetup
 {
   /// Things to be done at the exit of the event Loop
   outputFile.close();
@@ -126,8 +120,7 @@ void AnalyzerPrintGeomInfo::endJob()//edm::Run& run, const edm::EventSetup& iSet
 
 ////////////
 // BEGIN JOB
-void AnalyzerPrintGeomInfo::beginJob()
-{
+void AnalyzerPrintGeomInfo::beginJob() {
   std::ostringstream histoName;
   std::ostringstream histoTitle;
 
@@ -136,142 +129,179 @@ void AnalyzerPrintGeomInfo::beginJob()
 
   edm::Service<TFileService> fs;
 
-  hPXB_Lay_R = fs->make<TH2D>( "hPXB_Lay_R", "PXB Layer vs R (cm)", 250, 0, 125, 18, -0.5, 17.5 );
+  hPXB_Lay_R = fs->make<TH2D>("hPXB_Lay_R", "PXB Layer vs R (cm)", 250, 0, 125, 18, -0.5, 17.5);
   hPXB_Lay_R->Sumw2();
 
-  for ( unsigned int layer = 0; layer < 18; layer++ )
-  {
-    histoName.str("");  histoName << "hPXB_Lad_Mod_" << layer;
-    histoTitle.str(""); histoTitle << "PXB Ladder vs Module, Layer " << layer;
-    mapPXB2Lay_hPXB_Lad_Mod[ layer ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       201, -0.5, 200.5, 201, -0.5, 200.5 );
-    mapPXB2Lay_hPXB_Lad_Mod[ layer ]->Sumw2();
+  for (unsigned int layer = 0; layer < 18; layer++) {
+    histoName.str("");
+    histoName << "hPXB_Lad_Mod_" << layer;
+    histoTitle.str("");
+    histoTitle << "PXB Ladder vs Module, Layer " << layer;
+    mapPXB2Lay_hPXB_Lad_Mod[layer] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 201, -0.5, 200.5, 201, -0.5, 200.5);
+    mapPXB2Lay_hPXB_Lad_Mod[layer]->Sumw2();
 
-    histoName.str("");  histoName << "hPXB_Lad_Phi_" << layer;
-    histoTitle.str(""); histoTitle << "PXB Ladder vs #phi, Layer " << layer;
-    mapPXB2Lay_hPXB_Lad_Phi[ layer ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       180, -M_PI, M_PI, 201, -0.5, 200.5 );
-    mapPXB2Lay_hPXB_Lad_Phi[ layer ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXB_Lad_Phi_" << layer;
+    histoTitle.str("");
+    histoTitle << "PXB Ladder vs #phi, Layer " << layer;
+    mapPXB2Lay_hPXB_Lad_Phi[layer] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 201, -0.5, 200.5);
+    mapPXB2Lay_hPXB_Lad_Phi[layer]->Sumw2();
 
-    histoName.str("");  histoName << "hPXB_Mod_Z_" << layer;
-    histoTitle.str(""); histoTitle << "PXB Module vs z (cm), Layer " << layer;
-    mapPXB2Lay_hPXB_Mod_Z[ layer ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                     600, -300, 300, 201, -0.5, 200.5 );
-    mapPXB2Lay_hPXB_Mod_Z[ layer ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXB_Mod_Z_" << layer;
+    histoTitle.str("");
+    histoTitle << "PXB Module vs z (cm), Layer " << layer;
+    mapPXB2Lay_hPXB_Mod_Z[layer] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 600, -300, 300, 201, -0.5, 200.5);
+    mapPXB2Lay_hPXB_Mod_Z[layer]->Sumw2();
 
-    histoName.str("");  histoName << "hPXB_Lad_R_" << layer;
-    histoTitle.str(""); histoTitle << "PXB Ladder vs R (cm), Layer " << layer;
-    mapPXB2Lay_hPXB_Lad_R[ layer ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       250, 0, 125, 201, -0.5, 200.5 );
-    mapPXB2Lay_hPXB_Lad_R[ layer ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXB_Lad_R_" << layer;
+    histoTitle.str("");
+    histoTitle << "PXB Ladder vs R (cm), Layer " << layer;
+    mapPXB2Lay_hPXB_Lad_R[layer] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 250, 0, 125, 201, -0.5, 200.5);
+    mapPXB2Lay_hPXB_Lad_R[layer]->Sumw2();
 
-    histoName.str("");  histoName << "hPXB_Mod_R_" << layer;
-    histoTitle.str(""); histoTitle << "PXB Module vs R (cm), Layer " << layer;
-    mapPXB2Lay_hPXB_Mod_R[ layer ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                     250, 0, 125, 201, -0.5, 200.5 );
-    mapPXB2Lay_hPXB_Mod_R[ layer ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXB_Mod_R_" << layer;
+    histoTitle.str("");
+    histoTitle << "PXB Module vs R (cm), Layer " << layer;
+    mapPXB2Lay_hPXB_Mod_R[layer] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 250, 0, 125, 201, -0.5, 200.5);
+    mapPXB2Lay_hPXB_Mod_R[layer]->Sumw2();
 
-    histoName.str("");  histoName << "hPXB_R_" << layer;
-    histoTitle.str(""); histoTitle << "PXB R (cm), Layer " << layer;
-    mapPXB2Lay_hPXB_R[ layer ] = fs->make<TH1D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                 250, 0, 125 );
-    mapPXB2Lay_hPXB_R[ layer ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXB_R_" << layer;
+    histoTitle.str("");
+    histoTitle << "PXB R (cm), Layer " << layer;
+    mapPXB2Lay_hPXB_R[layer] = fs->make<TH1D>(histoName.str().c_str(), histoTitle.str().c_str(), 250, 0, 125);
+    mapPXB2Lay_hPXB_R[layer]->Sumw2();
   }
 
-  hPXF_Disk00_Disk = fs->make<TH2D>( "hPXF_Disk00_Disk", "PXF Disk00 vs Disk", 18, -0.5, 17.5, 58, -0.5, 57.5 );
+  hPXF_Disk00_Disk = fs->make<TH2D>("hPXF_Disk00_Disk", "PXF Disk00 vs Disk", 18, -0.5, 17.5, 58, -0.5, 57.5);
   hPXF_Disk00_Disk->Sumw2();
-  hPXF_Disk00_Side = fs->make<TH2D>( "hPXF_Disk00_Side", "PXF Disk00 vs Side", 7, -3.5, 3.5, 58, -0.5, 57.5 );
+  hPXF_Disk00_Side = fs->make<TH2D>("hPXF_Disk00_Side", "PXF Disk00 vs Side", 7, -3.5, 3.5, 58, -0.5, 57.5);
   hPXF_Disk00_Side->Sumw2();
-  hPXF_Disk00_Z = fs->make<TH2D>( "hPXF_Disk00_Z", "PXF Disk00 vs z (cm)", 600, -300, 300, 58, -0.5, 57.5 );
+  hPXF_Disk00_Z = fs->make<TH2D>("hPXF_Disk00_Z", "PXF Disk00 vs z (cm)", 600, -300, 300, 58, -0.5, 57.5);
   hPXF_Disk00_Z->Sumw2();
-  hPXF_Disk00_R = fs->make<TH2D>( "hPXF_Disk00_R", "PXF Disk00 vs R (cm)", 250, 0, 125, 58, -0.5, 57.5 );
+  hPXF_Disk00_R = fs->make<TH2D>("hPXF_Disk00_R", "PXF Disk00 vs R (cm)", 250, 0, 125, 58, -0.5, 57.5);
   hPXF_Disk00_R->Sumw2();
 
-  for ( unsigned int disc = 0; disc < 58; disc++ )
-  {
-    histoName.str("");  histoName << "hPXF_Pan_Mod_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Panel vs Module, Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Pan_Mod[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                         201, -0.5, 200.5, 11, -0.5, 10.5 );
-    mapPXF2Disk00_hPXF_Pan_Mod[ disc ]->Sumw2();
+  for (unsigned int disc = 0; disc < 58; disc++) {
+    histoName.str("");
+    histoName << "hPXF_Pan_Mod_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Panel vs Module, Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Pan_Mod[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 201, -0.5, 200.5, 11, -0.5, 10.5);
+    mapPXF2Disk00_hPXF_Pan_Mod[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Bla_Mod_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Blade vs Module, Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Bla_Mod[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                         201, -0.5, 200.5, 85, -0.5, 84.5 );
-    mapPXF2Disk00_hPXF_Bla_Mod[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Bla_Mod_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Blade vs Module, Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Bla_Mod[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 201, -0.5, 200.5, 85, -0.5, 84.5);
+    mapPXF2Disk00_hPXF_Bla_Mod[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Bla_Pan_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Blade vs Panel, Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Bla_Pan[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                         11, -0.5, 10.5, 85, -0.5, 84.5 );
-    mapPXF2Disk00_hPXF_Bla_Pan[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Bla_Pan_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Blade vs Panel, Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Bla_Pan[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 11, -0.5, 10.5, 85, -0.5, 84.5);
+    mapPXF2Disk00_hPXF_Bla_Pan[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Pan_R_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Panel vs R (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Pan_R[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       250, 0, 125, 11, -0.5, 10.5 );
-    mapPXF2Disk00_hPXF_Pan_R[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Pan_R_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Panel vs R (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Pan_R[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 250, 0, 125, 11, -0.5, 10.5);
+    mapPXF2Disk00_hPXF_Pan_R[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Mod_R_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Module vs R (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Mod_R[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       250, 0, 125, 201, -0.5, 200.5);
-    mapPXF2Disk00_hPXF_Mod_R[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Mod_R_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Module vs R (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Mod_R[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 250, 0, 125, 201, -0.5, 200.5);
+    mapPXF2Disk00_hPXF_Mod_R[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Bla_R_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Blade vs R (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Bla_R[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       250, 0, 125, 85, -0.5, 84.5 );
-    mapPXF2Disk00_hPXF_Bla_R[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Bla_R_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Blade vs R (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Bla_R[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 250, 0, 125, 85, -0.5, 84.5);
+    mapPXF2Disk00_hPXF_Bla_R[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Pan_Z_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Panel vs z (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Pan_Z[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       600, -300, 300, 11, -0.5, 10.5 );
-    mapPXF2Disk00_hPXF_Pan_Z[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Pan_Z_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Panel vs z (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Pan_Z[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 600, -300, 300, 11, -0.5, 10.5);
+    mapPXF2Disk00_hPXF_Pan_Z[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Mod_Z_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Module vs z (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Mod_Z[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       600, -300, 300, 201, -0.5, 200.5);
-    mapPXF2Disk00_hPXF_Mod_Z[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Mod_Z_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Module vs z (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Mod_Z[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 600, -300, 300, 201, -0.5, 200.5);
+    mapPXF2Disk00_hPXF_Mod_Z[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Bla_Z_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Blade vs z (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Bla_Z[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                       600, -300, 300, 85, -0.5, 84.5 );
-    mapPXF2Disk00_hPXF_Bla_Z[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Bla_Z_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Blade vs z (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Bla_Z[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 600, -300, 300, 85, -0.5, 84.5);
+    mapPXF2Disk00_hPXF_Bla_Z[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Pan_Phi_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Panel vs #phi, Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Pan_Phi[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                         180, -M_PI, M_PI, 11, -0.5, 10.5 );
-    mapPXF2Disk00_hPXF_Pan_Phi[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Pan_Phi_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Panel vs #phi, Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Pan_Phi[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 11, -0.5, 10.5);
+    mapPXF2Disk00_hPXF_Pan_Phi[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Mod_Phi_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Module vs #phi, Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Mod_Phi[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                         180, -M_PI, M_PI, 201, -0.5, 200.5);
-    mapPXF2Disk00_hPXF_Mod_Phi[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Mod_Phi_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Module vs #phi, Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Mod_Phi[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 201, -0.5, 200.5);
+    mapPXF2Disk00_hPXF_Mod_Phi[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Bla_Phi_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Blade vs #phi, Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Bla_Phi[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                         180, -M_PI, M_PI, 85, -0.5, 84.5 );
-    mapPXF2Disk00_hPXF_Bla_Phi[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Bla_Phi_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Blade vs #phi, Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Bla_Phi[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 180, -M_PI, M_PI, 85, -0.5, 84.5);
+    mapPXF2Disk00_hPXF_Bla_Phi[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Disk_R_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Disk vs R (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Disk_R[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        250, 0, 125, 58, -0.5, 57.5 );
-    mapPXF2Disk00_hPXF_Disk_R[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Disk_R_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Disk vs R (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Disk_R[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 250, 0, 125, 58, -0.5, 57.5);
+    mapPXF2Disk00_hPXF_Disk_R[disc]->Sumw2();
 
-    histoName.str("");  histoName << "hPXF_Disk_Z_" << disc;
-    histoTitle.str(""); histoTitle << "PXF Disk vs z (cm), Disk00 " << disc;
-    mapPXF2Disk00_hPXF_Disk_Z[ disc ] = fs->make<TH2D>( histoName.str().c_str(),  histoTitle.str().c_str(),
-                                                        600, -300, 300, 58, -0.5, 57.5 );
-    mapPXF2Disk00_hPXF_Disk_Z[ disc ]->Sumw2();
+    histoName.str("");
+    histoName << "hPXF_Disk_Z_" << disc;
+    histoTitle.str("");
+    histoTitle << "PXF Disk vs z (cm), Disk00 " << disc;
+    mapPXF2Disk00_hPXF_Disk_Z[disc] =
+        fs->make<TH2D>(histoName.str().c_str(), histoTitle.str().c_str(), 600, -300, 300, 58, -0.5, 57.5);
+    mapPXF2Disk00_hPXF_Disk_Z[disc]->Sumw2();
   }
 
   /// End of things to be done before entering the event Loop
@@ -279,9 +309,8 @@ void AnalyzerPrintGeomInfo::beginJob()
 
 //////////
 // ANALYZE
-void AnalyzerPrintGeomInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-/*
+void AnalyzerPrintGeomInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  /*
   /// Geometry handles etc
   edm::ESHandle<TrackerGeometry>                               geometryHandle;
   const TrackerGeometry*                                       theGeometry;
@@ -1365,9 +1394,8 @@ void AnalyzerPrintGeomInfo::analyze(const edm::Event& iEvent, const edm::EventSe
     }
   }
   */
-} /// End of analyze()
+}  /// End of analyze()
 
 ///////////////////////////
 // DEFINE THIS AS A PLUG-IN
 DEFINE_FWK_MODULE(AnalyzerPrintGeomInfo);
-

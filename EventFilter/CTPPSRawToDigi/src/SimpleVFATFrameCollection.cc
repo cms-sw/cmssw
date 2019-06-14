@@ -6,28 +6,21 @@
 *    
 ****************************************************************************/
 
-
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 
 //----------------------------------------------------------------------------------------------------
 
 using namespace std;
 
-SimpleVFATFrameCollection::SimpleVFATFrameCollection()
-{
-}
+SimpleVFATFrameCollection::SimpleVFATFrameCollection() {}
 
 //----------------------------------------------------------------------------------------------------
 
-SimpleVFATFrameCollection::~SimpleVFATFrameCollection()
-{
-  data.clear();
-}
+SimpleVFATFrameCollection::~SimpleVFATFrameCollection() { data.clear(); }
 
 //----------------------------------------------------------------------------------------------------
 
-const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const
-{
+const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const {
   // first convert ID to 12bit form
   ID = ID & 0xFFF;
 
@@ -41,8 +34,7 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByID(unsigned int ID) const
 
 //----------------------------------------------------------------------------------------------------
 
-const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition index) const
-{
+const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition index) const {
   MapType::const_iterator it = data.find(index);
   if (it != data.end())
     return &(it->second);
@@ -52,16 +44,14 @@ const VFATFrame* SimpleVFATFrameCollection::GetFrameByIndex(TotemFramePosition i
 
 //----------------------------------------------------------------------------------------------------
 
-VFATFrameCollection::value_type SimpleVFATFrameCollection::BeginIterator() const
-{
+VFATFrameCollection::value_type SimpleVFATFrameCollection::BeginIterator() const {
   MapType::const_iterator it = data.begin();
   return (it == data.end()) ? value_type(TotemFramePosition(), nullptr) : value_type(it->first, &it->second);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-VFATFrameCollection::value_type SimpleVFATFrameCollection::NextIterator(const value_type &value) const
-{
+VFATFrameCollection::value_type SimpleVFATFrameCollection::NextIterator(const value_type& value) const {
   if (!value.second)
     return value;
 
@@ -73,7 +63,4 @@ VFATFrameCollection::value_type SimpleVFATFrameCollection::NextIterator(const va
 
 //----------------------------------------------------------------------------------------------------
 
-bool SimpleVFATFrameCollection::IsEndIterator(const value_type &value) const
-{
-  return (value.second == nullptr);
-}
+bool SimpleVFATFrameCollection::IsEndIterator(const value_type& value) const { return (value.second == nullptr); }

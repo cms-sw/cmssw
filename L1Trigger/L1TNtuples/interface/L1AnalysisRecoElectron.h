@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------------
 // Created 05/03/2010 - A.C. Le Bihan
-// 
+//
 //
 // Original code : L1Trigger/L1TNtuples/L1RecoJetNtupleProducer - Jim Brooke
 //-------------------------------------------------------------------------------
@@ -18,25 +18,21 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
-
-namespace L1Analysis
-{
-  class L1AnalysisRecoElectron
-  {
+namespace L1Analysis {
+  class L1AnalysisRecoElectron {
   public:
     L1AnalysisRecoElectron();
     ~L1AnalysisRecoElectron();
-    
+
     //void Print(std::ostream &os = std::cout) const;
     void SetElectron(const edm::Event& event,
-		     const edm::EventSetup& setup,
-		     //const edm::Handle<edm::View<reco::GsfElectron>>& electrons,
-		     const edm::Handle<reco::GsfElectronCollection> electrons,
-		     const std::vector<edm::Handle<edm::ValueMap<bool> > > eleVIDDecisionHandles,
-		     const unsigned& maxElectron);
+                     const edm::EventSetup& setup,
+                     //const edm::Handle<edm::View<reco::GsfElectron>>& electrons,
+                     const edm::Handle<reco::GsfElectronCollection> electrons,
+                     const std::vector<edm::Handle<edm::ValueMap<bool> > > eleVIDDecisionHandles,
+                     const unsigned& maxElectron);
 
-      /*(const edm::Event& event,
+    /*(const edm::Event& event,
 		     const edm::EventSetup& setup,
 		     const edm::Handle<reco::GsfElectronCollection> electrons,
 		     const edm::Handle<reco::VertexCollection> vertices,
@@ -44,13 +40,11 @@ namespace L1Analysis
 		     double Rho,
 		     unsigned maxElectron);*/
 
-    L1AnalysisRecoElectronDataFormat * getData() {return &recoElectron_;}
-    void Reset() {recoElectron_.Reset();}
+    L1AnalysisRecoElectronDataFormat* getData() { return &recoElectron_; }
+    void Reset() { recoElectron_.Reset(); }
 
-  private :
+  private:
     L1AnalysisRecoElectronDataFormat recoElectron_;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-
-

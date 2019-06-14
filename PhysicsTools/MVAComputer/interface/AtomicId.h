@@ -16,7 +16,7 @@
 
 namespace PhysicsTools {
 
-/** \class AtomicId
+  /** \class AtomicId
  *
  * \short Cheap generic unique keyword identifier class.
  *
@@ -28,50 +28,51 @@ namespace PhysicsTools {
  * therefore suited for direct inlining.
  *
  ************************************************************/
-class AtomicId {
-    public:
-	inline AtomicId() throw() : string(nullptr) {}
-	inline AtomicId(const AtomicId &orig) throw() : string(orig.string) {}
-	/// constructs an AtomicId from a C string
-	inline AtomicId(const char *arg) throw() : string(lookup(arg)) {}
-	/// constructs an AtomicId from a STL string
-	inline AtomicId(const std::string &arg) throw() :
-		string(lookup(arg.c_str())) {}
-	inline ~AtomicId() throw() {}
+  class AtomicId {
+  public:
+    inline AtomicId() throw() : string(nullptr) {}
+    inline AtomicId(const AtomicId &orig) throw() : string(orig.string) {}
+    /// constructs an AtomicId from a C string
+    inline AtomicId(const char *arg) throw() : string(lookup(arg)) {}
+    /// constructs an AtomicId from a STL string
+    inline AtomicId(const std::string &arg) throw() : string(lookup(arg.c_str())) {}
+    inline ~AtomicId() throw() {}
 
-	inline AtomicId &operator = (const AtomicId &orig) throw()
-	{ string = orig.string; return *this; }
+    inline AtomicId &operator=(const AtomicId &orig) throw() {
+      string = orig.string;
+      return *this;
+    }
 
-	/// implicit cast to a C string
-	inline operator const char *() const throw()
-	{ return string; }
+    /// implicit cast to a C string
+    inline operator const char *() const throw() { return string; }
 
-	/// null value check operator
-	inline operator bool() const throw()
-	{ return string != nullptr; }
+    /// null value check operator
+    inline operator bool() const throw() { return string != nullptr; }
 
-	/// implicit cast to a STL string
-	inline operator std::string() const throw()
-	{ return std::string(string); }
+    /// implicit cast to a STL string
+    inline operator std::string() const throw() { return std::string(string); }
 
-	inline bool operator == (const AtomicId &second) const throw() { return string == second.string; }
-	inline bool operator != (const AtomicId &second) const throw() { return string != second.string; }
-	inline bool operator <  (const AtomicId &second) const throw() { return string <  second.string; }
-	inline bool operator <= (const AtomicId &second) const throw() { return string <= second.string; }
-	inline bool operator >  (const AtomicId &second) const throw() { return string >  second.string; }
-	inline bool operator >= (const AtomicId &second) const throw() { return string >= second.string; }
+    inline bool operator==(const AtomicId &second) const throw() { return string == second.string; }
+    inline bool operator!=(const AtomicId &second) const throw() { return string != second.string; }
+    inline bool operator<(const AtomicId &second) const throw() { return string < second.string; }
+    inline bool operator<=(const AtomicId &second) const throw() { return string <= second.string; }
+    inline bool operator>(const AtomicId &second) const throw() { return string > second.string; }
+    inline bool operator>=(const AtomicId &second) const throw() { return string >= second.string; }
 
-    private:
-	static AtomicId build(const char *arg) throw() { AtomicId q; q.string = arg; return q; }
-	static const char *lookup(const char *arg) throw();
+  private:
+    static AtomicId build(const char *arg) throw() {
+      AtomicId q;
+      q.string = arg;
+      return q;
+    }
+    static const char *lookup(const char *arg) throw();
 
-	const char	*string;
-};
+    const char *string;
+  };
 
-/// STL streaming operator
-inline std::ostream &operator << (std::ostream &os, const PhysicsTools::AtomicId &id)
-{ return os << (const char*)id; }
+  /// STL streaming operator
+  inline std::ostream &operator<<(std::ostream &os, const PhysicsTools::AtomicId &id) { return os << (const char *)id; }
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVAComputer_AtomicId_h
+#endif  // PhysicsTools_MVAComputer_AtomicId_h

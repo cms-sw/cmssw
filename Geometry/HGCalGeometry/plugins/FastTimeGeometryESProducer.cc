@@ -2,7 +2,7 @@
 //
 // Package:    HGCalGeometry
 // Class:      FastTimeGeometryESProducer
-// 
+//
 /**\class FastTimeGeometryESProducer FastTimeGeometryESProducer.h 
 
  Description: <one line class summary>
@@ -14,7 +14,6 @@
 // Original Author:  Sunanda Banerjee
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,10 +34,9 @@
 //
 
 class FastTimeGeometryESProducer : public edm::ESProducer {
-
 public:
-  FastTimeGeometryESProducer( const edm::ParameterSet& iP );
-  ~FastTimeGeometryESProducer() override ;
+  FastTimeGeometryESProducer(const edm::ParameterSet& iP);
+  ~FastTimeGeometryESProducer() override;
 
   using ReturnType = std::unique_ptr<FastTimeGeometry>;
 
@@ -49,31 +47,24 @@ private:
   edm::ESGetToken<FastTimeTopology, IdealGeometryRecord> topologyToken_;
 };
 
-
 FastTimeGeometryESProducer::FastTimeGeometryESProducer(const edm::ParameterSet& iConfig) {
-
-  auto name     = iConfig.getUntrackedParameter<std::string>("Name");
+  auto name = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
-  auto type     = iConfig.getUntrackedParameter<int>("Type");
-  std::cout <<"constructing FastTimeGeometry for " << name << " Type "
-	    << type << std::endl;
+  auto type = iConfig.getUntrackedParameter<int>("Type");
+  std::cout << "constructing FastTimeGeometry for " << name << " Type " << type << std::endl;
 #endif
   auto cc = setWhatProduced(this, name);
   topologyToken_ = cc.consumes<FastTimeTopology>(edm::ESInputTag{"", name});
 }
 
-
-FastTimeGeometryESProducer::~FastTimeGeometryESProducer() { }
-
+FastTimeGeometryESProducer::~FastTimeGeometryESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-FastTimeGeometryESProducer::ReturnType
-FastTimeGeometryESProducer::produce(const IdealGeometryRecord& iRecord ) {
-
+FastTimeGeometryESProducer::ReturnType FastTimeGeometryESProducer::produce(const IdealGeometryRecord& iRecord) {
   const auto& topo = iRecord.get(topologyToken_);
 
   FastTimeGeometryLoader builder;

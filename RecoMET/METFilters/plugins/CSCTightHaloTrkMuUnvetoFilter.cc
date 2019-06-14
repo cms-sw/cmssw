@@ -5,32 +5,26 @@
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 
 class CSCTightHaloTrkMuUnvetoFilter : public edm::global::EDFilter<> {
+public:
+  explicit CSCTightHaloTrkMuUnvetoFilter(const edm::ParameterSet& iConfig);
+  ~CSCTightHaloTrkMuUnvetoFilter() override {}
 
-  public:
+private:
+  bool filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
-    explicit CSCTightHaloTrkMuUnvetoFilter(const edm::ParameterSet & iConfig);
-    ~CSCTightHaloTrkMuUnvetoFilter() override {}
-
-  private:
-
-  bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
-
-    const bool taggingMode_;
-    edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;
+  const bool taggingMode_;
+  edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;
 };
 
-CSCTightHaloTrkMuUnvetoFilter::CSCTightHaloTrkMuUnvetoFilter(const edm::ParameterSet & iConfig)
-  : taggingMode_     (iConfig.getParameter<bool> ("taggingMode"))
-  , beamHaloSummaryToken_(consumes<reco::BeamHaloSummary>(edm::InputTag("BeamHaloSummary")))
-{
-
+CSCTightHaloTrkMuUnvetoFilter::CSCTightHaloTrkMuUnvetoFilter(const edm::ParameterSet& iConfig)
+    : taggingMode_(iConfig.getParameter<bool>("taggingMode")),
+      beamHaloSummaryToken_(consumes<reco::BeamHaloSummary>(edm::InputTag("BeamHaloSummary"))) {
   produces<bool>();
 }
 
-bool CSCTightHaloTrkMuUnvetoFilter::filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
-
+bool CSCTightHaloTrkMuUnvetoFilter::filter(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<reco::BeamHaloSummary> beamHaloSummary;
-  iEvent.getByToken(beamHaloSummaryToken_ , beamHaloSummary);
+  iEvent.getByToken(beamHaloSummaryToken_, beamHaloSummary);
 
   const bool pass = !beamHaloSummary->CSCTightHaloIdTrkMuUnveto();
 

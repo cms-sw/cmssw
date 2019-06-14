@@ -8,25 +8,26 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 namespace edm {
-        class ParameterSet;
-        class EventSetup;
-        class Event;
-	class ParameterSetDescription;
-}
+  class ParameterSet;
+  class EventSetup;
+  class Event;
+  class ParameterSetDescription;
+}  // namespace edm
 
 class EcalUncalibRecHitWorkerMaxSample : public EcalUncalibRecHitWorkerRunOneDigiBase {
+public:
+  EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps, edm::ConsumesCollector& c);
+  EcalUncalibRecHitWorkerMaxSample(){};
+  ~EcalUncalibRecHitWorkerMaxSample() override{};
 
- public:
-  EcalUncalibRecHitWorkerMaxSample(const edm::ParameterSet& ps,edm::ConsumesCollector& c);
-  EcalUncalibRecHitWorkerMaxSample() {};
-  ~EcalUncalibRecHitWorkerMaxSample() override {};
-  
   void set(const edm::EventSetup& es) override;
-  bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result) override;
-  
+  bool run(const edm::Event& evt,
+           const EcalDigiCollection::const_iterator& digi,
+           EcalUncalibratedRecHitCollection& result) override;
+
   edm::ParameterSetDescription getAlgoDescription() override;
- private:
-  
+
+private:
   EcalUncalibRecHitMaxSampleAlgo<EBDataFrame> ebAlgo_;
   EcalUncalibRecHitMaxSampleAlgo<EEDataFrame> eeAlgo_;
 };

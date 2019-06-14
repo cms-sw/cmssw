@@ -19,5 +19,3 @@ typedef std::vector<EmulatedME0Segment> EmulatedME0SegmentCollection;
 typedef edm::Ref<EmulatedME0SegmentCollection> EmulatedME0SegmentRef;
 
 #endif
-
-

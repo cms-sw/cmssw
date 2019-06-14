@@ -14,10 +14,9 @@
 
 //class Event;
 class MuonTrajectoryCleaner {
- public:
+public:
   typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
   typedef MuonCandidate::CandidateContainer CandidateContainer;
-  
 
   /// Constructor
   MuonTrajectoryCleaner() : reportGhosts_(false) {}
@@ -26,21 +25,20 @@ class MuonTrajectoryCleaner {
   MuonTrajectoryCleaner(bool reportGhosts) : reportGhosts_(reportGhosts) {}
 
   /// Destructor
-  virtual ~MuonTrajectoryCleaner() {};
+  virtual ~MuonTrajectoryCleaner(){};
 
   // Operations
 
   /// Clean the trajectories container, erasing the (worst) clone trajectory
-  void clean(TrajectoryContainer &muonTrajectories, edm::Event& evt, const edm::Handle<edm::View<TrajectorySeed> >& seeds); //used by reference...
+  void clean(TrajectoryContainer& muonTrajectories,
+             edm::Event& evt,
+             const edm::Handle<edm::View<TrajectorySeed> >& seeds);  //used by reference...
 
   /// Clean the candidates container, erasing the (worst) clone trajectory
-  void clean(CandidateContainer &muonTrajectories); //used by reference...
+  void clean(CandidateContainer& muonTrajectories);  //used by reference...
 
 protected:
-
 private:
   bool reportGhosts_;
-
 };
 #endif
-

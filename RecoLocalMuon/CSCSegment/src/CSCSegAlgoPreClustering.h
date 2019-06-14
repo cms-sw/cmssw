@@ -18,9 +18,7 @@
 class CSCChamber;
 
 class CSCSegAlgoPreClustering {
-
- public:
-
+public:
   typedef std::vector<const CSCRecHit2D*> ChamberHitContainer;
 
   /// constructor
@@ -30,15 +28,15 @@ class CSCSegAlgoPreClustering {
   ~CSCSegAlgoPreClustering();
 
   /// clusterize
-  std::vector< std::vector<const CSCRecHit2D*> > clusterHits( const CSCChamber* aChamber, const ChamberHitContainer& rechits);
- private:
+  std::vector<std::vector<const CSCRecHit2D*> > clusterHits(const CSCChamber* aChamber,
+                                                            const ChamberHitContainer& rechits);
 
-  bool    debug;
-  double  dXclusBoxMax;
-  double  dYclusBoxMax;
+private:
+  bool debug;
+  double dXclusBoxMax;
+  double dYclusBoxMax;
 
   float mean_x, mean_y, err_x, err_y;
   const CSCChamber* theChamber;
-
 };
 #endif

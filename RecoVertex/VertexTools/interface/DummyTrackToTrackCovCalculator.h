@@ -10,12 +10,9 @@
 
 template <unsigned int N>
 class DummyTrackToTrackCovCalculator : public TrackToTrackCovCalculator<N> {
-
 public:
-
-  typename CachingVertex<N>::TrackToTrackMap operator() (const CachingVertex<N> &) const override;
-  DummyTrackToTrackCovCalculator * clone() const override;
-
+  typename CachingVertex<N>::TrackToTrackMap operator()(const CachingVertex<N> &) const override;
+  DummyTrackToTrackCovCalculator *clone() const override;
 };
 
 #endif

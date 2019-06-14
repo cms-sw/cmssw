@@ -4,7 +4,7 @@
 //
 // Package:     TableWidget
 // Class  :     SortOrder
-// 
+//
 /**\class SortOrder SortOrder.h Fireworks/TableWidget/src/SortOrder.h
 
  Description: Enumeration used to describe the sort ordering of a table
@@ -24,10 +24,10 @@
 
 // forward declarations
 
-namespace fireworks{
-   namespace table {
-      enum SortOrder { kNotSorted, kAscendingSort, kDescendingSort};      
-   }
-}
+namespace fireworks {
+  namespace table {
+    enum SortOrder { kNotSorted, kAscendingSort, kDescendingSort };
+  }
+}  // namespace fireworks
 
 #endif

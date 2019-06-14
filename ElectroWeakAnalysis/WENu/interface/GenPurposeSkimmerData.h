@@ -68,18 +68,16 @@
 //
 
 class GenPurposeSkimmerData : public edm::EDAnalyzer {
-   public:
-      explicit GenPurposeSkimmerData(const edm::ParameterSet&);
-      ~GenPurposeSkimmerData() override;
+public:
+  explicit GenPurposeSkimmerData(const edm::ParameterSet&);
+  ~GenPurposeSkimmerData() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-
-      // ----------member data ---------------------------
-
+  // ----------member data ---------------------------
 
   std::string outputFile_;
   int tree_fills_;
@@ -111,10 +109,9 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::BeamSpot> offlineBeamSpotToken_;
   edm::EDGetTokenT<pat::MuonCollection> pMuonsToken_;
 
-  TTree * probe_tree;
-  TFile * histofile;
+  TTree* probe_tree;
+  TFile* histofile;
   //
-
 
   //probe SC variables
   double probe_sc_eta_for_tree[4];
@@ -180,7 +177,7 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   double probe_mc_matched_denergy[4];
   int probe_mc_matched_mother[4];
 
- //event variables
+  //event variables
   int numberOfHLTFilterObjects[25];
 
   int event_HLTPath[25];
@@ -199,13 +196,13 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   int elec_number_in_event;
   int elec_1_duplicate_removal;
 
-  double    event_MET, event_MET_sig;
+  double event_MET, event_MET_sig;
   //  double    event_MET_eta;
-  double    event_MET_phi;
-  double    event_tcMET, event_tcMET_sig, event_tcMET_phi;
-  double    event_pfMET, event_pfMET_sig;
+  double event_MET_phi;
+  double event_tcMET, event_tcMET_sig, event_tcMET_phi;
+  double event_pfMET, event_pfMET_sig;
   //  double    event_pfMET_eta;
-  double    event_pfMET_phi;
+  double event_pfMET_phi;
   //double    event_genMET, event_genMET_sig;
   //  double    event_genMET_eta;
   //double    event_genMET_phi;
@@ -220,13 +217,11 @@ class GenPurposeSkimmerData : public edm::EDAnalyzer {
   //
   double ctf_track_pt[20], ctf_track_eta[20], ctf_track_phi[20];
   double ctf_track_vx[20], ctf_track_vy[20], ctf_track_vz[20];
-  double ctf_track_tip[20],  ctf_track_tip_bs[20];
+  double ctf_track_tip[20], ctf_track_tip_bs[20];
   //
   double muon_pt[4], muon_eta[4], muon_phi[4];
   double muon_vx[4], muon_vy[4], muon_vz[4];
-  double muon_tip[4],  muon_tip_bs[4];
+  double muon_tip[4], muon_tip_bs[4];
 };
 
-
 #endif
-

@@ -7,17 +7,17 @@
 class SeedGeneratorFromRegionHits;
 class TrackingRegion;
 
-
 class TSGSmart : public TrackerSeedGenerator {
-
 public:
-  TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector& iC);
+  TSGSmart(const edm::ParameterSet &pset, edm::ConsumesCollector &iC);
 
   ~TSGSmart() override;
 
 private:
-  void run(TrajectorySeedCollection &seeds, 
-      const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region) override;
+  void run(TrajectorySeedCollection &seeds,
+           const edm::Event &ev,
+           const edm::EventSetup &es,
+           const TrackingRegion &region) override;
 
 private:
   edm::ParameterSet theConfig;
@@ -28,5 +28,4 @@ private:
   double theEtaBound;
 };
 
-
-#endif 
+#endif

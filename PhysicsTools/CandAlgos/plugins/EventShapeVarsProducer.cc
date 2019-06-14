@@ -7,9 +7,8 @@
 #include <vector>
 #include <memory>
 
-EventShapeVarsProducer::EventShapeVarsProducer(const edm::ParameterSet& cfg)
-{
-  srcToken_ = consumes<edm::View<reco::Candidate> >(cfg.getParameter<edm::InputTag>("src"));
+EventShapeVarsProducer::EventShapeVarsProducer(const edm::ParameterSet& cfg) {
+  srcToken_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("src"));
   r_ = cfg.exists("r") ? cfg.getParameter<double>("r") : 2.;
   fwmax_ = cfg.exists("fwmax") ? cfg.getParameter<unsigned>("fwmax") : 0;
 
@@ -21,18 +20,16 @@ EventShapeVarsProducer::EventShapeVarsProducer(const edm::ParameterSet& cfg)
   produces<double>("aplanarity");
   produces<double>("C");
   produces<double>("D");
-  if(fwmax_ > 0) produces<std::vector<double>>("FWmoments");
+  if (fwmax_ > 0)
+    produces<std::vector<double>>("FWmoments");
 }
 
-void put(edm::Event& evt, double value, const char* instanceName)
-{
+void put(edm::Event& evt, double value, const char* instanceName) {
   evt.put(std::make_unique<double>(value), instanceName);
 }
 
-void EventShapeVarsProducer::produce(edm::Event& evt, const edm::EventSetup&)
-{
-
-  edm::Handle<edm::View<reco::Candidate> > objects;
+void EventShapeVarsProducer::produce(edm::Event& evt, const edm::EventSetup&) {
+  edm::Handle<edm::View<reco::Candidate>> objects;
   evt.getByToken(srcToken_, objects);
 
   Thrust thrustAlgo(objects->begin(), objects->end());
@@ -47,10 +44,10 @@ void EventShapeVarsProducer::produce(edm::Event& evt, const edm::EventSetup&)
   put(evt, eventShapeVarsAlgo.aplanarity(), "aplanarity");
   put(evt, eventShapeVarsAlgo.C(), "C");
   put(evt, eventShapeVarsAlgo.D(), "D");
-  if(fwmax_ > 0){
+  if (fwmax_ > 0) {
     eventShapeVarsAlgo.setFWmax(fwmax_);
     auto vfw = std::make_unique<std::vector<double>>(eventShapeVarsAlgo.getFWmoments());
-    evt.put(std::move(vfw),"FWmoments");
+    evt.put(std::move(vfw), "FWmoments");
   }
 }
 

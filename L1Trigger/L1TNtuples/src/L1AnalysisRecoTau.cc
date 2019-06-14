@@ -5,33 +5,34 @@
 
 using namespace std;
 
-L1Analysis::L1AnalysisRecoTau::L1AnalysisRecoTau()
-{
-}
+L1Analysis::L1AnalysisRecoTau::L1AnalysisRecoTau() {}
 
-
-L1Analysis::L1AnalysisRecoTau::~L1AnalysisRecoTau()
-{
-}
-
+L1Analysis::L1AnalysisRecoTau::~L1AnalysisRecoTau() {}
 
 void L1Analysis::L1AnalysisRecoTau::SetTau(const edm::Event& event,
-					   const edm::EventSetup& setup,
-					   edm::Handle<reco::PFTauCollection> taus, edm::Handle<reco::PFTauDiscriminator> DMFindingOldTaus, edm::Handle<reco::PFTauDiscriminator> DMFindingTaus, edm::Handle<reco::PFTauDiscriminator> TightIsoTaus, edm::Handle<reco::PFTauDiscriminator> TightRawIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseIsoTaus, edm::Handle<reco::PFTauDiscriminator> LooseAntiMuon, edm::Handle<reco::PFTauDiscriminator> TightAntiMuon, edm::Handle<reco::PFTauDiscriminator> VLooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> LooseAntiElectron, edm::Handle<reco::PFTauDiscriminator> TightAntiElectron, unsigned maxTau)
-{
-  recoTau_.nTaus=0;
+                                           const edm::EventSetup& setup,
+                                           edm::Handle<reco::PFTauCollection> taus,
+                                           edm::Handle<reco::PFTauDiscriminator> DMFindingOldTaus,
+                                           edm::Handle<reco::PFTauDiscriminator> DMFindingTaus,
+                                           edm::Handle<reco::PFTauDiscriminator> TightIsoTaus,
+                                           edm::Handle<reco::PFTauDiscriminator> TightRawIsoTaus,
+                                           edm::Handle<reco::PFTauDiscriminator> LooseIsoTaus,
+                                           edm::Handle<reco::PFTauDiscriminator> LooseAntiMuon,
+                                           edm::Handle<reco::PFTauDiscriminator> TightAntiMuon,
+                                           edm::Handle<reco::PFTauDiscriminator> VLooseAntiElectron,
+                                           edm::Handle<reco::PFTauDiscriminator> LooseAntiElectron,
+                                           edm::Handle<reco::PFTauDiscriminator> TightAntiElectron,
+                                           unsigned maxTau) {
+  recoTau_.nTaus = 0;
 
-  for(reco::PFTauCollection::const_iterator it=taus->begin();
-      it!=taus->end() && recoTau_.nTaus < maxTau;
-      ++it) {
-
-    recoTau_.e.push_back(it->energy());    
-    recoTau_.pt.push_back(it->pt());    
-    recoTau_.et.push_back(it->et());    
+  for (reco::PFTauCollection::const_iterator it = taus->begin(); it != taus->end() && recoTau_.nTaus < maxTau; ++it) {
+    recoTau_.e.push_back(it->energy());
+    recoTau_.pt.push_back(it->pt());
+    recoTau_.et.push_back(it->et());
     recoTau_.eta.push_back(it->eta());
     recoTau_.phi.push_back(it->phi());
 
-    edm::Ref<reco::PFTauCollection> tauEdmRef(taus,recoTau_.nTaus);
+    edm::Ref<reco::PFTauCollection> tauEdmRef(taus, recoTau_.nTaus);
     recoTau_.TightIsoFlag.push_back((*TightIsoTaus)[tauEdmRef]);
     recoTau_.RawIso.push_back((*TightRawIsoTaus)[tauEdmRef]);
     recoTau_.LooseIsoFlag.push_back((*LooseIsoTaus)[tauEdmRef]);
@@ -45,10 +46,8 @@ void L1Analysis::L1AnalysisRecoTau::SetTau(const edm::Event& event,
     recoTau_.charge.push_back(it->charge());
 
     recoTau_.nTaus++;
-
   }
 }
-
 
 // void L1Analysis::L1AnalysisRecoTau::SetPFJet(const edm::Event& event,
 //                  const edm::EventSetup& setup,

@@ -13,21 +13,17 @@
 
 namespace tauImpactParameter {
 
-class  Chi2VertexFitter : public TrackHelixVertexFitter {
- public:
-  Chi2VertexFitter(const std::vector<TrackParticle>& particles, const TVector3& vguess, double nsigma=4.0)
-    : TrackHelixVertexFitter(particles,vguess),
-      nsigma_(nsigma)
-  {};
-  ~Chi2VertexFitter() override{};
+  class Chi2VertexFitter : public TrackHelixVertexFitter {
+  public:
+    Chi2VertexFitter(const std::vector<TrackParticle>& particles, const TVector3& vguess, double nsigma = 4.0)
+        : TrackHelixVertexFitter(particles, vguess), nsigma_(nsigma){};
+    ~Chi2VertexFitter() override{};
 
-  bool fit() override;
+    bool fit() override;
 
- private:   
-  double nsigma_;
-};
+  private:
+    double nsigma_;
+  };
 
-}
+}  // namespace tauImpactParameter
 #endif
-
-

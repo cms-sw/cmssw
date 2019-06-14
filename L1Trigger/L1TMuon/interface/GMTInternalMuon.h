@@ -7,13 +7,13 @@
 #include <utility>
 
 namespace l1t {
-class GMTInternalMuon {
+  class GMTInternalMuon {
   public:
     explicit GMTInternalMuon(const RegionalMuonCand&, int, int);
     GMTInternalMuon(const GMTInternalMuon&);
     // GMTInternalMuon() {};
 
-    virtual ~GMTInternalMuon() {};
+    virtual ~GMTInternalMuon(){};
 
     void setHwCancelBit(int bit) { m_hwCancelBit = bit; };
     void setHwRank(int bits) { m_hwRank = bits; };
@@ -54,7 +54,6 @@ class GMTInternalMuon {
     inline const int link() const { return m_regional.link(); }
 
   private:
-
     const RegionalMuonCand& m_regional;
     int m_hwRank;
     int m_hwCancelBit;
@@ -67,8 +66,8 @@ class GMTInternalMuon {
     int m_hwGlobalPhi;
     int m_tfMuonIndex;
     std::pair<int, int> m_hwCaloIndex;
-};
+  };
 
-} // namespace l1t
+}  // namespace l1t
 
 #endif /* define __l1t_gmt_internal_muon_h__ */

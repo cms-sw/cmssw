@@ -3,20 +3,11 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
-
 class SingleHitTrack {
 public:
-  void configure(
-      int verbose, int endcap, int sector, int bx,
-      int maxTracks,
-      bool useSingleHits
-  );
+  void configure(int verbose, int endcap, int sector, int bx, int maxTracks, bool useSingleHits);
 
-  void process(
-      const EMTFHitCollection& conv_hits,
-      EMTFTrackCollection& best_tracks
-  ) const;
-
+  void process(const EMTFHitCollection& conv_hits, EMTFTrackCollection& best_tracks) const;
 
 private:
   int verbose_, endcap_, sector_, bx_;

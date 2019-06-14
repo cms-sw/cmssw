@@ -8,37 +8,34 @@
 #include "EventFilter/RPCRawToDigi/interface/RPCAMC13Record.h"
 
 namespace edm {
-class Event;
-class EventSetup;
-class ParameterSet;
-class ParameterSetDescription;
-class Run;
-namespace stream {
-class EDProducerBase;
-} // namespace stream
-} // namespace edm
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+  class ParameterSetDescription;
+  class Run;
+  namespace stream {
+    class EDProducerBase;
+  }  // namespace stream
+}  // namespace edm
 
-class RPCAMCUnpacker
-{
+class RPCAMCUnpacker {
 public:
-    RPCAMCUnpacker(edm::stream::EDProducerBase & producer, edm::ParameterSet const & config);
-    virtual ~RPCAMCUnpacker();
+  RPCAMCUnpacker(edm::stream::EDProducerBase& producer, edm::ParameterSet const& config);
+  virtual ~RPCAMCUnpacker();
 
-    static void fillDescription(edm::ParameterSetDescription & desc);
+  static void fillDescription(edm::ParameterSetDescription& desc);
 
-    virtual void beginRun(edm::Run const & run, edm::EventSetup const & setup);
-    virtual void produce(edm::Event & event, edm::EventSetup const & setup
-                         , std::map<RPCAMCLink, rpcamc13::AMCPayload> const & amc_payload);
+  virtual void beginRun(edm::Run const& run, edm::EventSetup const& setup);
+  virtual void produce(edm::Event& event,
+                       edm::EventSetup const& setup,
+                       std::map<RPCAMCLink, rpcamc13::AMCPayload> const& amc_payload);
 
-    std::vector<int> const & getFeds() const;
+  std::vector<int> const& getFeds() const;
 
 protected:
-    std::vector<int> feds_;
+  std::vector<int> feds_;
 };
 
-inline std::vector<int> const & RPCAMCUnpacker::getFeds() const
-{
-    return feds_;
-}
+inline std::vector<int> const& RPCAMCUnpacker::getFeds() const { return feds_; }
 
-#endif // EventFilter_RPCRawToDigi_RPCAMCUnpacker_h
+#endif  // EventFilter_RPCRawToDigi_RPCAMCUnpacker_h

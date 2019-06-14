@@ -1,6 +1,6 @@
 #ifndef DataFormats_Luminosity_LumiSummaryRunHeader_h
 #define DataFormats_Luminosity_LumiSummaryRunHeader_h
- 
+
 /** \class LumiSummaryRunHeader
  *
  * LumiSummaryRunHeader contains LumiSummary data which remains valid
@@ -18,8 +18,7 @@
 #include <vector>
 #include <string>
 
-class LumiSummaryRunHeader
-{
+class LumiSummaryRunHeader {
 public:
   typedef std::vector<std::string> vstring_t;
 
@@ -75,8 +74,8 @@ public:
   //----------------------------------------------------------------
 
 private:
-  vstring_t m_l1Names;  // L1 trigger-name vector.
-  vstring_t m_hltNames; // HLT path-name vector.
+  vstring_t m_l1Names;   // L1 trigger-name vector.
+  vstring_t m_hltNames;  // HLT path-name vector.
 };
 
 #endif

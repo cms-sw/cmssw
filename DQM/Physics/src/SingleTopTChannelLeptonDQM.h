@@ -52,202 +52,182 @@
 
 namespace SingleTopTChannelLepton {
 
-class MonitorEnsemble {
- public:
-  /// different verbosity levels
-  enum Level {
-    STANDARD,
-    VERBOSE,
-    DEBUG
+  class MonitorEnsemble {
+  public:
+    /// different verbosity levels
+    enum Level { STANDARD, VERBOSE, DEBUG };
+
+  public:
+    /// default contructor
+    MonitorEnsemble(const char* label,
+                    const edm::ParameterSet& cfg,
+                    const edm::VParameterSet& vcfg,
+                    edm::ConsumesCollector&& iC);
+    /// default destructor
+    ~MonitorEnsemble() {}
+
+    /// book histograms in subdirectory _directory_
+    void book(DQMStore::IBooker& ibooker);
+    /// fill monitor histograms with electronId and jetCorrections
+    void fill(const edm::Event& event, const edm::EventSetup& setup);
+
+  private:
+    /// deduce monitorPath from label, the label is expected
+    /// to be of type 'selectionPath:monitorPath'
+    std::string monitorPath(const std::string& label) const { return label.substr(label.find(':') + 1); };
+    /// deduce selectionPath from label, the label is
+    /// expected to be of type 'selectionPath:monitorPath'
+    std::string selectionPath(const std::string& label) const { return label.substr(0, label.find(':')); };
+
+    /// set configurable labels for trigger monitoring histograms
+    void triggerBinLabels(std::string channel, const std::vector<std::string> labels);
+    /// fill trigger monitoring histograms
+    void fill(const edm::Event& event,
+              const edm::TriggerResults& triggerTable,
+              std::string channel,
+              const std::vector<std::string> labels) const;
+
+    /// check if histogram was booked
+    bool booked(const std::string histName) const { return hists_.find(histName) != hists_.end(); };
+    /// fill histogram if it had been booked before
+    void fill(const std::string histName, double value) const {
+      if (booked(histName))
+        hists_.find(histName)->second->Fill(value);
+    };
+    /// fill histogram if it had been booked before (2-dim version)
+    void fill(const std::string histName, double xValue, double yValue) const {
+      if (booked(histName))
+        hists_.find(histName)->second->Fill(xValue, yValue);
+    };
+    /// fill histogram if it had been booked before (2-dim version)
+    void fill(const std::string histName, double xValue, double yValue, double zValue) const {
+      if (booked(histName))
+        hists_.find(histName)->second->Fill(xValue, yValue, zValue);
+    };
+
+  private:
+    /// verbosity level for booking
+    Level verbosity_;
+    /// instance label
+    std::string label_;
+    /// considers a vector of METs
+    std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
+    //    std::vector<edm::InputTag> mets_;
+    /// input sources for monitoring
+    edm::EDGetTokenT<edm::View<reco::Jet> > jets_;
+    edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
+    edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecs_gsf_;
+    edm::EDGetTokenT<edm::View<reco::PFCandidate> > elecs_;
+    edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
+
+    //    edm::InputTag elecs_, elecs_gsf_, muons_, muons_reco_, jets_, pvs_;
+
+    /// trigger table
+    //    edm::InputTag triggerTable_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
+
+    /// trigger paths for monitoring, expected
+    /// to be of form signalPath:MonitorPath
+    std::vector<std::string> triggerPaths_;
+
+    /// electronId label
+    //    edm::InputTag electronId_;
+    edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
+    // Jet corrector
+    edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
+    /// electronId pattern we expect the following pattern:
+    ///  0: fails
+    ///  1: passes electron ID only
+    ///  2: passes electron Isolation only
+    ///  3: passes electron ID and Isolation only
+    ///  4: passes conversion rejection
+    ///  5: passes conversion rejection and ID
+    ///  6: passes conversion rejection and Isolation
+    ///  7: passes the whole selection
+    /// As described on
+    /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
+    // int eidPattern_;
+    // the cut for the MVA Id
+    double eidCutValue_;
+    /// extra isolation criterion on electron
+    std::string elecIso_;
+    /// extra selection on electrons
+    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecSelect_;
+    edm::InputTag rhoTag;
+
+    /// extra selection on primary vertices; meant to investigate the pile-up
+    /// effect
+    std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
+
+    /// extra isolation criterion on muon
+    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonIso_;
+
+    /// extra selection on muons
+    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
+    /// jetCorrector
+    std::string jetCorrector_;
+    /// jetID as an extra selection type
+    edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
+
+    /// extra jetID selection on calo jets
+    std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
+    std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetlooseSelection_;
+    std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelection_;
+    /// extra selection on jets (here given as std::string as it depends
+    /// on the the jet type, which selections are valid and which not)
+    std::string jetSelect_;
+    /// include btag information or not
+    /// to be determined from the cfg
+    bool includeBTag_;
+    /// btag discriminator labels
+    //    edm::InputTag btagEff_, btagPur_, btagVtx_, btagCombVtx_;
+    edm::EDGetTokenT<reco::JetTagCollection> btagEff_, btagPur_, btagVtx_, btagCSV_, btagCombVtx_;
+
+    /// btag working points
+    double btagEffWP_, btagPurWP_, btagVtxWP_, btagCSVWP_, btagCombVtxWP_;
+    /// mass window upper and lower edge
+    double lowerEdge_, upperEdge_;
+
+    /// number of logged interesting events
+    int logged_;
+    /// storage manager
+    /// histogram container
+    std::map<std::string, MonitorElement*> hists_;
+    edm::EDConsumerBase tmpConsumerBase;
+
+    std::string directory_;
+
+    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonSelect;
+    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonIso;
+
+    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecSelect;
+    std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecIso;
   };
 
- public:
-  /// default contructor
-  MonitorEnsemble(const char* label, const edm::ParameterSet& cfg,
-                  const edm::VParameterSet& vcfg, edm::ConsumesCollector&& iC);
-  /// default destructor
-  ~MonitorEnsemble() {}
-
-  /// book histograms in subdirectory _directory_
-  void book(DQMStore::IBooker & ibooker);
-  /// fill monitor histograms with electronId and jetCorrections
-  void fill(const edm::Event& event, const edm::EventSetup& setup);
-
- private:
-  /// deduce monitorPath from label, the label is expected
-  /// to be of type 'selectionPath:monitorPath'
-  std::string monitorPath(const std::string& label) const {
-    return label.substr(label.find(':') + 1);
-  };
-  /// deduce selectionPath from label, the label is
-  /// expected to be of type 'selectionPath:monitorPath'
-  std::string selectionPath(const std::string& label) const {
-    return label.substr(0, label.find(':'));
-  };
-
-  /// set configurable labels for trigger monitoring histograms
-  void triggerBinLabels(std::string channel,
-                        const std::vector<std::string> labels);
-  /// fill trigger monitoring histograms
-  void fill(const edm::Event& event, const edm::TriggerResults& triggerTable,
-            std::string channel, const std::vector<std::string> labels) const;
-
-  /// check if histogram was booked
-  bool booked(const std::string histName) const {
-    return hists_.find(histName) != hists_.end();
-  };
-  /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const {
-    if (booked(histName))
-      hists_.find(histName)->second->Fill(value);
-  };
-  /// fill histogram if it had been booked before (2-dim version)
-  void fill(const std::string histName, double xValue, double yValue) const {
-    if (booked(histName))
-      hists_.find(histName)->second->Fill(xValue, yValue);
-  };
-  /// fill histogram if it had been booked before (2-dim version)
-  void fill(const std::string histName, double xValue, double yValue,
-            double zValue) const {
-    if (booked(histName))
-      hists_.find(histName)->second->Fill(xValue, yValue, zValue);
-  };
-
- private:
-  /// verbosity level for booking
-  Level verbosity_;
-  /// instance label
-  std::string label_;
-  /// considers a vector of METs
-  std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
-  //    std::vector<edm::InputTag> mets_;
-  /// input sources for monitoring
-  edm::EDGetTokenT<edm::View<reco::Jet> > jets_;
-  edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
-  edm::EDGetTokenT<edm::View<reco::GsfElectron> > elecs_gsf_;
-  edm::EDGetTokenT<edm::View<reco::PFCandidate> > elecs_;
-  edm::EDGetTokenT<edm::View<reco::Vertex> > pvs_;
-
-  //    edm::InputTag elecs_, elecs_gsf_, muons_, muons_reco_, jets_, pvs_;
-
-  /// trigger table
-  //    edm::InputTag triggerTable_;
-  edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
-
-  /// trigger paths for monitoring, expected
-  /// to be of form signalPath:MonitorPath
-  std::vector<std::string> triggerPaths_;
-
-  /// electronId label
-  //    edm::InputTag electronId_;
-  edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
-	// Jet corrector
-  edm::EDGetTokenT<reco::JetCorrector> mJetCorrector;
-  /// electronId pattern we expect the following pattern:
-  ///  0: fails
-  ///  1: passes electron ID only
-  ///  2: passes electron Isolation only
-  ///  3: passes electron ID and Isolation only
-  ///  4: passes conversion rejection
-  ///  5: passes conversion rejection and ID
-  ///  6: passes conversion rejection and Isolation
-  ///  7: passes the whole selection
-  /// As described on
-  /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-  // int eidPattern_;
-  // the cut for the MVA Id
-  double eidCutValue_;
-  /// extra isolation criterion on electron
-  std::string elecIso_;
-  /// extra selection on electrons
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > elecSelect_;
-	edm::InputTag rhoTag;
-
-  /// extra selection on primary vertices; meant to investigate the pile-up
-  /// effect
-  std::unique_ptr<StringCutObjectSelector<reco::Vertex> > pvSelect_;
-
-  /// extra isolation criterion on muon
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonIso_;
-
-  /// extra selection on muons
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate> > muonSelect_;
-  /// jetCorrector
-  std::string jetCorrector_;
-  /// jetID as an extra selection type
-  edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
-
-  /// extra jetID selection on calo jets
-  std::unique_ptr<StringCutObjectSelector<reco::JetID> > jetIDSelect_;
-	std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetlooseSelection_;
-  std::unique_ptr<StringCutObjectSelector<reco::PFJet> > jetSelection_;
-  /// extra selection on jets (here given as std::string as it depends
-  /// on the the jet type, which selections are valid and which not)
-  std::string jetSelect_;
-  /// include btag information or not
-  /// to be determined from the cfg
-  bool includeBTag_;
-  /// btag discriminator labels
-  //    edm::InputTag btagEff_, btagPur_, btagVtx_, btagCombVtx_;
-  edm::EDGetTokenT<reco::JetTagCollection> btagEff_, btagPur_, btagVtx_, btagCSV_,
-      btagCombVtx_;
-
-  /// btag working points
-  double btagEffWP_, btagPurWP_, btagVtxWP_, btagCSVWP_, btagCombVtxWP_;
-  /// mass window upper and lower edge
-  double lowerEdge_, upperEdge_;
-
-  /// number of logged interesting events
-  int logged_;
-  /// storage manager
-  /// histogram container
-  std::map<std::string, MonitorElement*> hists_;
-  edm::EDConsumerBase tmpConsumerBase;
-
-  std::string directory_;
-
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonSelect;
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > muonIso;
-  
-  
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecSelect;
-  std::unique_ptr<StringCutObjectSelector<reco::PFCandidate, true> > elecIso;
-
-
-};
-
-inline void MonitorEnsemble::triggerBinLabels(
-    std::string channel, const std::vector<std::string> labels) {
-  for (unsigned int idx = 0; idx < labels.size(); ++idx) {
-    hists_[channel + "Mon_"]
-        ->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
-    hists_[channel + "Eff_"]
-        ->setBinLabel(idx + 1, "[" + selectionPath(labels[idx]) + "]|[" +
-                                   monitorPath(labels[idx]) + "]",
-                      1);
-  }
-}
-
-inline void MonitorEnsemble::fill(const edm::Event& event,
-                                  const edm::TriggerResults& triggerTable,
-                                  std::string channel,
-                                  const std::vector<std::string> labels) const {
-  for (unsigned int idx = 0; idx < labels.size(); ++idx) {
-    if (accept(event, triggerTable, monitorPath(labels[idx]))) {
-      fill(channel + "Mon_", idx + 0.5);
-      // take care to fill triggerMon_ before evts is being called
-      int evts = hists_.find(channel + "Mon_")
-                     ->second->getBinContent(idx + 1);
-      double value = hists_.find(channel + "Eff_")
-                         ->second->getBinContent(idx + 1);
-      fill(
-          channel + "Eff_", idx + 0.5,
-          1. / evts * (accept(event, triggerTable, selectionPath(labels[idx])) -
-                       value));
+  inline void MonitorEnsemble::triggerBinLabels(std::string channel, const std::vector<std::string> labels) {
+    for (unsigned int idx = 0; idx < labels.size(); ++idx) {
+      hists_[channel + "Mon_"]->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
+      hists_[channel + "Eff_"]->setBinLabel(
+          idx + 1, "[" + selectionPath(labels[idx]) + "]|[" + monitorPath(labels[idx]) + "]", 1);
     }
   }
-}
-}
+
+  inline void MonitorEnsemble::fill(const edm::Event& event,
+                                    const edm::TriggerResults& triggerTable,
+                                    std::string channel,
+                                    const std::vector<std::string> labels) const {
+    for (unsigned int idx = 0; idx < labels.size(); ++idx) {
+      if (accept(event, triggerTable, monitorPath(labels[idx]))) {
+        fill(channel + "Mon_", idx + 0.5);
+        // take care to fill triggerMon_ before evts is being called
+        int evts = hists_.find(channel + "Mon_")->second->getBinContent(idx + 1);
+        double value = hists_.find(channel + "Eff_")->second->getBinContent(idx + 1);
+        fill(
+            channel + "Eff_", idx + 0.5, 1. / evts * (accept(event, triggerTable, selectionPath(labels[idx])) - value));
+      }
+    }
+  }
+}  // namespace SingleTopTChannelLepton
 
 #include <utility>
 
@@ -297,33 +277,28 @@ inline void MonitorEnsemble::fill(const edm::Event& event,
 // using SingleTopTChannelLepton::MonitorEnsemble;
 
 class SingleTopTChannelLeptonDQM : public DQMEDAnalyzer {
- public:
+public:
   /// default constructor
   SingleTopTChannelLeptonDQM(const edm::ParameterSet& cfg);
   /// default destructor
-  ~SingleTopTChannelLeptonDQM() override {};
+  ~SingleTopTChannelLeptonDQM() override{};
 
   /// do this during the event loop
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
- 
- protected:
-  //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
 
- private:
+protected:
+  //Book histograms
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
+private:
   /// deduce object type from ParameterSet label, the label
   /// is expected to be of type 'objectType:selectionStep'
-  std::string objectType(const std::string& label) {
-    return label.substr(0, label.find(':'));
-  };
+  std::string objectType(const std::string& label) { return label.substr(0, label.find(':')); };
   /// deduce selection step from ParameterSet label, the
   /// label is expected to be of type 'objectType:selectionStep'
-  std::string selectionStep(const std::string& label) {
-    return label.substr(label.find(':') + 1);
-  };
+  std::string selectionStep(const std::string& label) { return label.substr(label.find(':') + 1); };
 
- private:
+private:
   /// trigger table
   edm::EDGetTokenT<edm::TriggerResults> triggerTable__;
 
@@ -349,10 +324,7 @@ class SingleTopTChannelLeptonDQM : public DQMEDAnalyzer {
   /// the configuration of the selection for the SelectionStep class,
   /// MonitoringEnsemble keeps an instance of the MonitorEnsemble class to
   /// be filled _after_ each selection step
-  std::map<
-      std::string,
-      std::pair<edm::ParameterSet,
-                std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble> > >
+  std::map<std::string, std::pair<edm::ParameterSet, std::unique_ptr<SingleTopTChannelLepton::MonitorEnsemble> > >
       selection_;
 
   std::unique_ptr<SelectionStep<reco::Muon> > MuonStep;

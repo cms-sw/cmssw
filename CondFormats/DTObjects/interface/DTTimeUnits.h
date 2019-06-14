@@ -15,48 +15,33 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTTimeUnits {
-
- public:
-
+public:
   enum type { counts, ns };
 
   /** Destructor
    */
   virtual ~DTTimeUnits();
 
- private:
+private:
   /** Constructor
    */
   DTTimeUnits();
   /** Operations
    */
-  /// 
-
-
-
+  ///
 };
 
-
-#endif // DTTimeUnits_H
-
-
-
-
-
-
+#endif  // DTTimeUnits_H

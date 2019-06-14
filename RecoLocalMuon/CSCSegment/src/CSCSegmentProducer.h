@@ -14,21 +14,21 @@
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 
-class CSCSegmentBuilder; 
+class CSCSegmentBuilder;
 
 class CSCSegmentProducer : public edm::stream::EDProducer<> {
 public:
-    /// Constructor
-    explicit CSCSegmentProducer(const edm::ParameterSet&);
-    /// Destructor
-    ~CSCSegmentProducer() override;
-    /// Produce the CSCSegment collection
-    void produce(edm::Event&, const edm::EventSetup&) override;
+  /// Constructor
+  explicit CSCSegmentProducer(const edm::ParameterSet&);
+  /// Destructor
+  ~CSCSegmentProducer() override;
+  /// Produce the CSCSegment collection
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-    int iev; // events through
-    CSCSegmentBuilder* segmentBuilder_;
-    edm::EDGetTokenT<CSCRecHit2DCollection> m_token;
+  int iev;  // events through
+  CSCSegmentBuilder* segmentBuilder_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> m_token;
 };
 
 #endif

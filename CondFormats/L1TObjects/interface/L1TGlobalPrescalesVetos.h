@@ -11,14 +11,17 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 class L1TGlobalPrescalesVetos {
- public:
-  L1TGlobalPrescalesVetos(){ version_ = 0; bxmask_default_=0; }
+public:
+  L1TGlobalPrescalesVetos() {
+    version_ = 0;
+    bxmask_default_ = 0;
+  }
 
   unsigned int version_;
   std::vector<std::vector<int> > prescale_table_;
   int bxmask_default_;
   std::map<int, std::vector<int> > bxmask_map_;
-  std::vector<int>  veto_;
+  std::vector<int> veto_;
   std::vector<int> exp_ints_;
   std::vector<double> exp_doubles_;
 

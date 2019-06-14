@@ -15,31 +15,26 @@
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet& iConfig) :
-  mergeTimePeaks_  (iConfig.getParameter<bool>  ("mergeTimePeaks")),
-  baselinePoints_  (iConfig.getParameter<int>   ("baselinePoints")),
-  saturationLimit_ (iConfig.getParameter<double>("saturationLimit")),
-  cfdFraction_     (iConfig.getParameter<double>("cfdFraction")),
-  smoothingPoints_ (iConfig.getParameter<int>   ("smoothingPoints")),
-  lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
-  hysteresis_      (iConfig.getParameter<double>("hysteresis"))
-{}
+TotemTimingRecHitProducerAlgorithm::TotemTimingRecHitProducerAlgorithm(const edm::ParameterSet& iConfig)
+    : mergeTimePeaks_(iConfig.getParameter<bool>("mergeTimePeaks")),
+      baselinePoints_(iConfig.getParameter<int>("baselinePoints")),
+      saturationLimit_(iConfig.getParameter<double>("saturationLimit")),
+      cfdFraction_(iConfig.getParameter<double>("cfdFraction")),
+      smoothingPoints_(iConfig.getParameter<int>("smoothingPoints")),
+      lowPassFrequency_(iConfig.getParameter<double>("lowPassFrequency")),
+      hysteresis_(iConfig.getParameter<double>("hysteresis")) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void
-TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib)
-{
+void TotemTimingRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib) {
   sampicConversions_.reset(new TotemTimingConversions(mergeTimePeaks_, calib));
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
-                                          const edm::DetSetVector<TotemTimingDigi>& input,
-                                          edm::DetSetVector<TotemTimingRecHit>& output)
-{
+void TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
+                                               const edm::DetSetVector<TotemTimingDigi>& input,
+                                               edm::DetSetVector<TotemTimingRecHit>& output) {
   for (const auto& vec : input) {
     const TotemTimingDetId detid(vec.detId());
 
@@ -52,13 +47,11 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     if (det) {
       x_pos = det->translation().x();
       y_pos = det->translation().y();
-      z_pos = det->parentZPosition(); // retrieve the plane position;
+      z_pos = det->parentZPosition();  // retrieve the plane position;
 
-      x_width = 2.0 * det->params()[0], // parameters stand for half the size
-      y_width = 2.0 * det->params()[1],
-      z_width = 2.0 * det->params()[2];
-    }
-    else
+      x_width = 2.0 * det->params()[0],  // parameters stand for half the size
+          y_width = 2.0 * det->params()[1], z_width = 2.0 * det->params()[2];
+    } else
       throw cms::Exception("TotemTimingRecHitProducerAlgorithm") << "Failed to retrieve a sensor for " << detid;
 
     if (!sampicConversions_)
@@ -74,15 +67,13 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       auto max_it = std::max_element(data.begin(), data.end());
 
-      RegressionResults baselineRegression =
-        simplifiedLinearRegression(time, data, 0, baselinePoints_);
+      RegressionResults baselineRegression = simplifiedLinearRegression(time, data, 0, baselinePoints_);
 
       // remove baseline
       std::vector<float> dataCorrected(data.size());
       for (unsigned int i = 0; i < data.size(); ++i)
         dataCorrected[i] = data[i] - (baselineRegression.q + baselineRegression.m * time[i]);
-      auto max_corrected_it =
-        std::max_element(dataCorrected.begin(), dataCorrected.end());
+      auto max_corrected_it = std::max_element(dataCorrected.begin(), dataCorrected.end());
 
       float t = TotemTimingRecHit::NO_T_AVAILABLE;
       if (*max_it < saturationLimit_)
@@ -90,20 +81,29 @@ TotemTimingRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
       mode_ = TotemTimingRecHit::CFD;
 
-      rec_hits.push_back(TotemTimingRecHit(
-        x_pos, x_width, y_pos, y_width, z_pos, z_width, // spatial information
-        t, triggerCellTimeInstant, timePrecision, *max_corrected_it,
-        baselineRegression.rms, mode_));
+      rec_hits.push_back(TotemTimingRecHit(x_pos,
+                                           x_width,
+                                           y_pos,
+                                           y_width,
+                                           z_pos,
+                                           z_width,  // spatial information
+                                           t,
+                                           triggerCellTimeInstant,
+                                           timePrecision,
+                                           *max_corrected_it,
+                                           baselineRegression.rms,
+                                           mode_));
     }
   }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-TotemTimingRecHitProducerAlgorithm::RegressionResults
-TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(const std::vector<float>& time, const std::vector<float>& data,
-                                                               const unsigned int start_at, const unsigned int points) const
-{
+TotemTimingRecHitProducerAlgorithm::RegressionResults TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(
+    const std::vector<float>& time,
+    const std::vector<float>& data,
+    const unsigned int start_at,
+    const unsigned int points) const {
   RegressionResults results;
   if (time.size() != data.size())
     return results;
@@ -117,12 +117,12 @@ TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(const std::vector
   auto d_end = std::next(data.begin(), stop_at);
 
   const float sx = std::accumulate(t_begin, t_end, 0.);
-  const float sxx = std::inner_product(t_begin, t_end, t_begin, 0.); // sum(t**2)
+  const float sxx = std::inner_product(t_begin, t_end, t_begin, 0.);  // sum(t**2)
   const float sy = std::accumulate(d_begin, d_end, 0.);
 
   float sxy = 0.;
   for (unsigned int i = 0; i < realPoints; ++i)
-    sxy += time[i]*data[i];
+    sxy += time[i] * data[i];
 
   // y = mx + q
   results.m = (sxy * realPoints - sx * sy) / (sxx * realPoints - sx * sx);
@@ -138,9 +138,7 @@ TotemTimingRecHitProducerAlgorithm::simplifiedLinearRegression(const std::vector
 
 //----------------------------------------------------------------------------------------------------
 
-int
-TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& data, float threshold) const
-{
+int TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& data, float threshold) const {
   int threholdCrossingIndex = -1;
   bool above = false;
   bool lockForHysteresis = false;
@@ -152,8 +150,8 @@ TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& 
       above = true;
       lockForHysteresis = true;
     }
-    if (above && lockForHysteresis) // NOTE: not else if!, "above" can be set in
-                                    // the previous if
+    if (above && lockForHysteresis)  // NOTE: not else if!, "above" can be set in
+                                     // the previous if
     {
       // Lock until above threshold_+hysteresis
       if (lockForHysteresis && data[i] > threshold + hysteresis_)
@@ -162,7 +160,7 @@ TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& 
       if (lockForHysteresis && data[i] < threshold) {
         above = false;
         lockForHysteresis = false;
-        threholdCrossingIndex = -1; // assigned because of noise
+        threholdCrossingIndex = -1;  // assigned because of noise
       }
     }
   }
@@ -170,14 +168,13 @@ TotemTimingRecHitProducerAlgorithm::fastDiscriminator(const std::vector<float>& 
   return threholdCrossingIndex;
 }
 
-float
-TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(const std::vector<float>& time, const std::vector<float>& data)
-{
+float TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(const std::vector<float>& time,
+                                                                        const std::vector<float>& data) {
   std::vector<float> dataProcessed(data);
-  if (lowPassFrequency_ != 0) // Smoothing
+  if (lowPassFrequency_ != 0)  // Smoothing
     for (unsigned short i = 0; i < data.size(); ++i)
-      for (unsigned short j = -smoothingPoints_/2; j <= +smoothingPoints_/2; ++j)
-        if ((i+j) >= 0 && (i+j) < data.size() && j != 0) {
+      for (unsigned short j = -smoothingPoints_ / 2; j <= +smoothingPoints_ / 2; ++j)
+        if ((i + j) >= 0 && (i + j) < data.size() && j != 0) {
           float x = SINC_COEFFICIENT * lowPassFrequency_ * j;
           dataProcessed[i] += data[i + j] * std::sin(x) / x;
         }
@@ -188,12 +185,11 @@ TotemTimingRecHitProducerAlgorithm::constantFractionDiscriminator(const std::vec
   int indexOfThresholdCrossing = fastDiscriminator(dataProcessed, threshold);
 
   //--- necessary sanity checks before proceeding with the extrapolation
-  return (indexOfThresholdCrossing >= 1
-       && indexOfThresholdCrossing >= baselinePoints_
-       && indexOfThresholdCrossing < (int)time.size())
-    ? (time[indexOfThresholdCrossing-1]-time[indexOfThresholdCrossing])
-      / (dataProcessed[indexOfThresholdCrossing-1] -dataProcessed[indexOfThresholdCrossing]) * (threshold-dataProcessed[indexOfThresholdCrossing])
-      + time[indexOfThresholdCrossing]
-    : TotemTimingRecHit::NO_T_AVAILABLE;
+  return (indexOfThresholdCrossing >= 1 && indexOfThresholdCrossing >= baselinePoints_ &&
+          indexOfThresholdCrossing < (int)time.size())
+             ? (time[indexOfThresholdCrossing - 1] - time[indexOfThresholdCrossing]) /
+                       (dataProcessed[indexOfThresholdCrossing - 1] - dataProcessed[indexOfThresholdCrossing]) *
+                       (threshold - dataProcessed[indexOfThresholdCrossing]) +
+                   time[indexOfThresholdCrossing]
+             : TotemTimingRecHit::NO_T_AVAILABLE;
 }
-

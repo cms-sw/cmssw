@@ -18,34 +18,31 @@
 
 class RandomEngineAndDistribution;
 
-class GammaFunctionGenerator
-{
- public:
-
+class GammaFunctionGenerator {
+public:
   /// Constructor
   GammaFunctionGenerator();
 
   /// Destructor
   virtual ~GammaFunctionGenerator();
-  
-  /// shoot along a gamma distribution with shape parameter alpha and scale beta 
+
+  /// shoot along a gamma distribution with shape parameter alpha and scale beta
   /// values > xmin
   double shoot(RandomEngineAndDistribution const*) const;
-  
-  /// The parameters must be set before shooting
-    void setParameters(double a,double b, double xm);
 
- private:
+  /// The parameters must be set before shooting
+  void setParameters(double a, double b, double xm);
+
+private:
   /// values 0<a<1.
   double gammaFrac(RandomEngineAndDistribution const*) const;
   /// integer values
   double gammaInt(RandomEngineAndDistribution const*) const;
 
- private:
-
+private:
   // The integer numerical functions
   std::vector<GammaNumericalGenerator> theGammas;
-  
+
   // The gamma distribution core coefficients
   std::vector<double> coreCoeff;
 
@@ -54,21 +51,21 @@ class GammaFunctionGenerator
 
   // possibility to store different limits
   std::vector<double> approxLimit;
-  
+
   // boundaries
   double xmin;
   double xmax;
-  
+
   // closest lower integer
   unsigned na;
   // alpha-na
   double frac;
-  // alpha function parameters 
-  double alpha,beta;
+  // alpha function parameters
+  double alpha, beta;
   //  Incomlete Gamma = Int(0,x)[t^(alpha-1)exp(-t)dt]/Gamma(alpha);
   Genfun::IncompleteGamma myIncompleteGamma;
 
-  // some useful integrals 
+  // some useful integrals
   std::vector<double> integralToApproxLimit;
 
   // if xmin>xmax

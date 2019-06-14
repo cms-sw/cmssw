@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of reference to EcalIsolatedParticleCandidate objects
   typedef EcalIsolatedParticleCandidateRefVector::iterator EcalIsolatedParticleCandidateIterator;
-}
+}  // namespace reco
 
 #endif

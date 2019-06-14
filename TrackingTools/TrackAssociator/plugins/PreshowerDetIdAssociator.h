@@ -22,9 +22,9 @@
 
 class PreshowerDetIdAssociator: public CaloDetIdAssociator{
  public:
-   PreshowerDetIdAssociator():CaloDetIdAssociator(30,60,0.1){};
+   PreshowerDetIdAssociator():CaloDetIdAssociator(30,60,0.1,nullptr){};
 
-   PreshowerDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
+   using CaloDetIdAssociator::CaloDetIdAssociator; 
      
    const char* name() const override { return "Preshower"; }
  protected:

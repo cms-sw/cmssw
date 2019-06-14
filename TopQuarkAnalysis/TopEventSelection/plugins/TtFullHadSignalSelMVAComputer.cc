@@ -10,34 +10,26 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/PatCandidates/interface/Flags.h"
 
-
-TtFullHadSignalSelMVAComputer::TtFullHadSignalSelMVAComputer(const edm::ParameterSet& cfg):
-  jetsToken_    (consumes< std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets")))
-{
-  produces< double >("DiscSel");
+TtFullHadSignalSelMVAComputer::TtFullHadSignalSelMVAComputer(const edm::ParameterSet& cfg)
+    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))) {
+  produces<double>("DiscSel");
 }
 
+TtFullHadSignalSelMVAComputer::~TtFullHadSignalSelMVAComputer() {}
 
-
-TtFullHadSignalSelMVAComputer::~TtFullHadSignalSelMVAComputer()
-{
-}
-
-void
-TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup)
-{
-  std::unique_ptr< double > pOutDisc (new double);
+void TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& setup) {
+  std::unique_ptr<double> pOutDisc(new double);
 
   mvaComputer.update<TtFullHadSignalSelMVARcd>(setup, "ttFullHadSignalSelMVA");
 
   // read name of the last processor in the MVA calibration
   // (to be used as meta information)
   edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer> calibContainer;
-  setup.get<TtFullHadSignalSelMVARcd>().get( calibContainer );
-  std::vector<PhysicsTools::Calibration::VarProcessor*> processors
-    = (calibContainer->find("ttFullHadSignalSelMVA")).getProcessors();
+  setup.get<TtFullHadSignalSelMVARcd>().get(calibContainer);
+  std::vector<PhysicsTools::Calibration::VarProcessor*> processors =
+      (calibContainer->find("ttFullHadSignalSelMVA")).getProcessors();
 
-  edm::Handle< std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet> > jets;
   evt.getByToken(jetsToken_, jets);
 
   //calculation of InputVariables
@@ -56,15 +48,9 @@ TtFullHadSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
   DiscSel = discrim;
 }
 
-void
-TtFullHadSignalSelMVAComputer::beginJob()
-{
-}
+void TtFullHadSignalSelMVAComputer::beginJob() {}
 
-void
-TtFullHadSignalSelMVAComputer::endJob()
-{
-}
+void TtFullHadSignalSelMVAComputer::endJob() {}
 
 // implement the plugins for the computer container
 // -> register TtFullHadSignalSelMVARcd

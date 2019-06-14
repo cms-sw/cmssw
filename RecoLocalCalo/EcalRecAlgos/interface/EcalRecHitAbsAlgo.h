@@ -11,20 +11,20 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 
-class EcalRecHitAbsAlgo
-{
- public:
-
+class EcalRecHitAbsAlgo {
+public:
   /// Constructor
   //EcalRecHitAbsAlgo() { };
 
   /// Destructor
-  virtual ~EcalRecHitAbsAlgo() { };
+  virtual ~EcalRecHitAbsAlgo(){};
 
   /// make rechits from dataframes
 
   virtual void setADCToGeVConstant(const float& value) = 0;
-  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH, const float& intercalib, const float& timecalib, const uint32_t &flags) const = 0;
-
+  virtual EcalRecHit makeRecHit(const EcalUncalibratedRecHit& uncalibRH,
+                                const float& intercalib,
+                                const float& timecalib,
+                                const uint32_t& flags) const = 0;
 };
 #endif

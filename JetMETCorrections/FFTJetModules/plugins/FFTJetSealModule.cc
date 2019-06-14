@@ -7,25 +7,25 @@
 
 #include "CondFormats/External/interface/FFTJet.h"
 
-REGISTER_PLUGIN(FFTBasicJetCorrectorSequenceRcd, FFTBasicJetCorrectorSequence);  
-REGISTER_PLUGIN(FFTGenJetCorrectorSequenceRcd,   FFTGenJetCorrectorSequence);
-REGISTER_PLUGIN(FFTCaloJetCorrectorSequenceRcd,  FFTCaloJetCorrectorSequence); 
-REGISTER_PLUGIN(FFTPFJetCorrectorSequenceRcd,    FFTPFJetCorrectorSequence);   
+REGISTER_PLUGIN(FFTBasicJetCorrectorSequenceRcd, FFTBasicJetCorrectorSequence);
+REGISTER_PLUGIN(FFTGenJetCorrectorSequenceRcd, FFTGenJetCorrectorSequence);
+REGISTER_PLUGIN(FFTCaloJetCorrectorSequenceRcd, FFTCaloJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFJetCorrectorSequenceRcd, FFTPFJetCorrectorSequence);
 REGISTER_PLUGIN(FFTTrackJetCorrectorSequenceRcd, FFTTrackJetCorrectorSequence);
-REGISTER_PLUGIN(FFTJPTJetCorrectorSequenceRcd,   FFTJPTJetCorrectorSequence);  
-REGISTER_PLUGIN(FFTPFCHS0CorrectorSequenceRcd,   FFTPFJetCorrectorSequence);   
-REGISTER_PLUGIN(FFTPFCHS1CorrectorSequenceRcd,   FFTPFJetCorrectorSequence);   
-REGISTER_PLUGIN(FFTPFCHS2CorrectorSequenceRcd,   FFTPFJetCorrectorSequence);   
+REGISTER_PLUGIN(FFTJPTJetCorrectorSequenceRcd, FFTJPTJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFCHS0CorrectorSequenceRcd, FFTPFJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFCHS1CorrectorSequenceRcd, FFTPFJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFCHS2CorrectorSequenceRcd, FFTPFJetCorrectorSequence);
 
 REGISTER_PLUGIN(FFTBasicJetSysCorrectorSequenceRcd, FFTBasicJetCorrectorSequence);
-REGISTER_PLUGIN(FFTGenJetSysCorrectorSequenceRcd,   FFTGenJetCorrectorSequence);  
-REGISTER_PLUGIN(FFTCaloJetSysCorrectorSequenceRcd,  FFTCaloJetCorrectorSequence); 
-REGISTER_PLUGIN(FFTPFJetSysCorrectorSequenceRcd,    FFTPFJetCorrectorSequence);   
+REGISTER_PLUGIN(FFTGenJetSysCorrectorSequenceRcd, FFTGenJetCorrectorSequence);
+REGISTER_PLUGIN(FFTCaloJetSysCorrectorSequenceRcd, FFTCaloJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFJetSysCorrectorSequenceRcd, FFTPFJetCorrectorSequence);
 REGISTER_PLUGIN(FFTTrackJetSysCorrectorSequenceRcd, FFTTrackJetCorrectorSequence);
-REGISTER_PLUGIN(FFTJPTJetSysCorrectorSequenceRcd,   FFTJPTJetCorrectorSequence);  
-REGISTER_PLUGIN(FFTPFCHS0SysCorrectorSequenceRcd,   FFTPFJetCorrectorSequence);   
-REGISTER_PLUGIN(FFTPFCHS1SysCorrectorSequenceRcd,   FFTPFJetCorrectorSequence);   
-REGISTER_PLUGIN(FFTPFCHS2SysCorrectorSequenceRcd,   FFTPFJetCorrectorSequence);   
+REGISTER_PLUGIN(FFTJPTJetSysCorrectorSequenceRcd, FFTJPTJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFCHS0SysCorrectorSequenceRcd, FFTPFJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFCHS1SysCorrectorSequenceRcd, FFTPFJetCorrectorSequence);
+REGISTER_PLUGIN(FFTPFCHS2SysCorrectorSequenceRcd, FFTPFJetCorrectorSequence);
 
 REGISTER_PLUGIN(FFTGen0CorrectorSequenceRcd, FFTGenJetCorrectorSequence);
 REGISTER_PLUGIN(FFTGen1CorrectorSequenceRcd, FFTGenJetCorrectorSequence);

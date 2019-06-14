@@ -31,31 +31,26 @@
  *
  */
 
-
 /// \class L1AcceptBunchCrossings.h
 /// \brief Persistable copy of Scalers L1Accept bunch crossing info
 
-class L1AcceptBunchCrossing
-{
- public:
-
+class L1AcceptBunchCrossing {
+public:
   L1AcceptBunchCrossing();
   L1AcceptBunchCrossing(const int l1AcceptOffset__,
-			const unsigned int orbitNumber__,
-			const unsigned int bunchCrossing__,
-			const unsigned int eventType__);
-  L1AcceptBunchCrossing(const int index,
-			const unsigned long long data);
+                        const unsigned int orbitNumber__,
+                        const unsigned int bunchCrossing__,
+                        const unsigned int eventType__);
+  L1AcceptBunchCrossing(const int index, const unsigned long long data);
   virtual ~L1AcceptBunchCrossing();
 
-  enum
-  {
-    ORBIT_NUMBER_SHIFT   = 32ULL,
-    ORBIT_NUMBER_MASK    = 0xFFFFFFFFULL,
+  enum {
+    ORBIT_NUMBER_SHIFT = 32ULL,
+    ORBIT_NUMBER_MASK = 0xFFFFFFFFULL,
     BUNCH_CROSSING_SHIFT = 4ULL,
-    BUNCH_CROSSING_MASK  = 0xFFFULL,
-    EVENT_TYPE_SHIFT     = 0,
-    EVENT_TYPE_MASK      = 0xFULL
+    BUNCH_CROSSING_MASK = 0xFFFULL,
+    EVENT_TYPE_SHIFT = 0,
+    EVENT_TYPE_MASK = 0xFULL
   };
 
   /// name method
@@ -64,10 +59,10 @@ class L1AcceptBunchCrossing
   /// empty method (= false)
   bool empty() const { return false; }
 
-  int l1AcceptOffset() const         { return(l1AcceptOffset_);}
-  unsigned int orbitNumber() const   { return(orbitNumber_);}
-  unsigned int bunchCrossing() const { return(bunchCrossing_);}
-  unsigned int eventType() const     { return(eventType_);}
+  int l1AcceptOffset() const { return (l1AcceptOffset_); }
+  unsigned int orbitNumber() const { return (orbitNumber_); }
+  unsigned int bunchCrossing() const { return (bunchCrossing_); }
+  unsigned int eventType() const { return (eventType_); }
 
   /// equality operator
   int operator==(const L1AcceptBunchCrossing& e) const { return false; }
@@ -76,12 +71,10 @@ class L1AcceptBunchCrossing
   int operator!=(const L1AcceptBunchCrossing& e) const { return false; }
 
 protected:
-
-  int          l1AcceptOffset_;
+  int l1AcceptOffset_;
   unsigned int orbitNumber_;
   unsigned int bunchCrossing_;
   unsigned int eventType_;
-
 };
 
 /// Pretty-print operator for L1AcceptBunchCrossings

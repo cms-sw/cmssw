@@ -32,7 +32,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Resolution.h
 
@@ -57,16 +56,13 @@
 #ifndef HITFIT_RESOLUTION_H
 #define HITFIT_RESOLUTION_H
 
-
 #include <string>
 #include <iosfwd>
 #include "CLHEP/Random/Random.h"
 
-
 namespace hitfit {
 
-
-/**
+  /**
     @class Resolution
 
     @brief Calculate and represent resolution for a physical quantity.
@@ -99,22 +95,22 @@ namespace hitfit {
     is present, the inverse flag is turned on.  Omitted parameters are set
     to 0.
 */
-class Resolution
-//
-// Purpose: Calculate resolutions for a quantity.
-//
-{
-public:
-  // Initialize from a string S.  The format is as described above.
-  /**
+  class Resolution
+  //
+  // Purpose: Calculate resolutions for a quantity.
+  //
+  {
+  public:
+    // Initialize from a string S.  The format is as described above.
+    /**
      @brief Constructor, initialize from a string.
 
      @param s A string encoding the resolution parameters, as described in
      the class description.
    */
-  Resolution (std::string s = "");
+    Resolution(std::string s = "");
 
-  /**
+    /**
      @brief Constructor to initialize with four values for C, R, m, N,
      and the boolean for inverse
 
@@ -128,62 +124,58 @@ public:
 
      @param inverse The inverse flag.
    */
-  Resolution (double C,
-              double R,
-              double m,
-              double N,
-              bool inverse = false);
+    Resolution(double C, double R, double m, double N, bool inverse = false);
 
-  // Initialize to a constant resolution RES.  I.e., sigma() will
-  // always return RES.  If INVERSE is true, set the inverse flag.
-  /**
+    // Initialize to a constant resolution RES.  I.e., sigma() will
+    // always return RES.  If INVERSE is true, set the inverse flag.
+    /**
      @brief Constructor to initialize a constant resolution.
 
      @param res The resolution value.
 
      @param inverse The inverse flag.
    */
-  Resolution (double res, bool inverse = false);
+    Resolution(double res, bool inverse = false);
 
-  // Return the setting of the inverse flag.
-  /**
+    // Return the setting of the inverse flag.
+    /**
      @brief Return the setting of the inverse flag.
    */
-  bool inverse () const;
+    bool inverse() const;
 
-  /**
+    /**
      @brief Return the C term (constant term)
    */
-  double C() const;
+    double C() const;
 
-  /**
+    /**
      @brief Return the R term (resolution term)
    */
-  double R() const;
+    double R() const;
 
-  /**
+    /**
      @brief Return the exponent factor in the resolution term.
    */
-  double m() const;
+    double m() const;
 
-  /**
+    /**
      @brief Return the N term (noise term)
    */
-  double N() const;
+    double N() const;
 
-  // Return the uncertainty for a momentum P.
-  /**
+    // Return the uncertainty for a momentum P.
+    /**
      @brief Return the uncertainty for a variable with magnitude
      <i>p</i>.
 
      @param p The momentum.
    */
-  double sigma (double p) const;
+    double sigma(double p) const;
 
-  // Given a value X, measured for an object with momentum P,
-  // pick a new value from a Gaussian distribution
-  // described by this resolution --- with mean X and width sigma(P).
-  /**
+    // Given a value X, measured for an object with momentum P,
+    // pick a new value from a Gaussian distribution
+    // described by this resolution --- with mean X and width sigma(P).
+    /**
      @brief Generate random value from a Gaussian distribution
      described by this resolution.  Given a value \f$x\f$, measured
      for an object with momentum \f$p\f$, pick a new value
@@ -196,43 +188,40 @@ public:
 
      @param engine The underlying random number generator.
    */
-  double pick (double x, double p, CLHEP::HepRandomEngine& engine) const;
+    double pick(double x, double p, CLHEP::HepRandomEngine& engine) const;
 
-  // Dump, for debugging.
-  friend std::ostream& operator<< (std::ostream& s, const Resolution& r);
+    // Dump, for debugging.
+    friend std::ostream& operator<<(std::ostream& s, const Resolution& r);
 
+  private:
+    // The resolution parameters.
 
-private:
-  // The resolution parameters.
-
-  /**
+    /**
      The constant term.
    */
-  double _constant_sigma;
+    double _constant_sigma;
 
-  /**
+    /**
      The resolution term.
    */
-  double _resolution_sigma;
+    double _resolution_sigma;
 
-  /**
+    /**
      The m exponential factor in the resolution term.
    */
-  double _resolution_exponent;
+    double _resolution_exponent;
 
-  /**
+    /**
      The noise term.
    */
-  double _noise_sigma;
+    double _noise_sigma;
 
-  /**
+    /**
      The inverse flag.
    */
-  bool _inverse;
-};
+    bool _inverse;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_RESOLUTION_H
+#endif  // not HITFIT_RESOLUTION_H

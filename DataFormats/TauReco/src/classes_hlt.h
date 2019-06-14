@@ -31,8 +31,6 @@
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
 #include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
 
-
 #include <vector>
 #include <map>
 #include "TLorentzVector.h"
-

@@ -22,11 +22,9 @@ public:
 
   /// Destructor
   ~bSlab();
- 
+
   /// Distance from center along sector normal.
-  const float RN() const {
-    return volumes.front()->RN();
-  }
+  const float RN() const { return volumes.front()->RN(); }
 
   /// Boundary in phi.
   // FIXME: use volumeHandle [max|min]Phi, which returns phi at median of
@@ -34,13 +32,13 @@ public:
   Geom::Phi<float> minPhi() const;
 
   /// Boundary in phi.
-  Geom::Phi<float> maxPhi() const;  
+  Geom::Phi<float> maxPhi() const;
 
   /// Construct the MagBSlab upon request.
   MagBSlab* buildMagBSlab() const;
 
 private:
-  handles volumes; // pointers to all volumes in the slab
+  handles volumes;  // pointers to all volumes in the slab
   mutable MagBSlab* mslab;
 };
 

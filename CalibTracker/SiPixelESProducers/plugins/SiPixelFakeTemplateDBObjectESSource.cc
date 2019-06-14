@@ -49,16 +49,24 @@ std::unique_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::pr
 			char title_char[80], c;
 			SiPixelTemplateDBObject::char2float temp;
 			float tempstore;
-			int iter,j;
+			unsigned int iter;
 			
 			// Templates contain a header char - we must be clever about storing this
-			for (iter = 0; (c=in_file.get()) != '\n'; ++iter) {
-				if(iter < 79) {title_char[iter] = c;}
+			for (iter = 0; (c=in_file.get()) != '\n' && iter<79; ++iter) {
+			  title_char[iter] = c;
 			}
-			if(iter > 78) {iter=78;}
-			title_char[iter+1] ='\n';
+			if(iter == 79) {
+			  title_char[iter] ='\n';
+			} else  {
+			  unsigned int ilast =  3-(iter%4);
+			  for (unsigned int it=0; it!=ilast; it++) {
+			    title_char[iter] =' ';
+			    iter++;
+			  }
+			  title_char[iter] ='\n';
+			}
 			
-			for(j=0; j<80; j+=4) {
+			for(unsigned int j=0; j<=iter; j+=4) {
 				temp.c[0] = title_char[j];
 				temp.c[1] = title_char[j+1];
 				temp.c[2] = title_char[j+2];

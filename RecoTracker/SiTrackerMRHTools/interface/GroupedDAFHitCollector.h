@@ -19,39 +19,40 @@ class MeasurementEstimator;
 class MeasurementTracker;
 class SiTrackerMultiRecHitUpdator;
 
-class GroupedDAFHitCollector :public MultiRecHitCollector {
-
+class GroupedDAFHitCollector : public MultiRecHitCollector {
 public:
-	explicit GroupedDAFHitCollector(const MeasurementTracker* measurementTracker,
-				 const SiTrackerMultiRecHitUpdator* updator,
-			         const MeasurementEstimator* est,
-				 const Propagator* propagator,
-				 const Propagator* reversePropagator, bool debug):
-		MultiRecHitCollector(measurementTracker), theUpdator(updator), 
-		theEstimator(est), thePropagator(propagator), theReversePropagator(reversePropagator), debug_(debug){}
-			
+  explicit GroupedDAFHitCollector(const MeasurementTracker* measurementTracker,
+                                  const SiTrackerMultiRecHitUpdator* updator,
+                                  const MeasurementEstimator* est,
+                                  const Propagator* propagator,
+                                  const Propagator* reversePropagator,
+                                  bool debug)
+      : MultiRecHitCollector(measurementTracker),
+        theUpdator(updator),
+        theEstimator(est),
+        thePropagator(propagator),
+        theReversePropagator(reversePropagator),
+        debug_(debug) {}
 
-	~GroupedDAFHitCollector() override{}
+  ~GroupedDAFHitCollector() override {}
 
-	std::vector<TrajectoryMeasurement> recHits(const Trajectory&, 
-							   const MeasurementTrackerEvent *theMT) const override;
+  std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent* theMT) const override;
 
-	const SiTrackerMultiRecHitUpdator* getUpdator() const {return theUpdator;}
-	const MeasurementEstimator* getEstimator() const {return theEstimator;}
-        const Propagator* getPropagator() const {return thePropagator;}
-        const Propagator* getReversePropagator() const {return theReversePropagator;}
+  const SiTrackerMultiRecHitUpdator* getUpdator() const { return theUpdator; }
+  const MeasurementEstimator* getEstimator() const { return theEstimator; }
+  const Propagator* getPropagator() const { return thePropagator; }
+  const Propagator* getReversePropagator() const { return theReversePropagator; }
 
 private:
-	void buildMultiRecHits(const std::vector<TrajectoryMeasurementGroup>& measgroup, 
-			       std::vector<TrajectoryMeasurement>& result,
-			       const MeasurementTrackerEvent*& theMTE) const;
-	
-	const SiTrackerMultiRecHitUpdator* theUpdator;
-	const MeasurementEstimator* theEstimator;
-	const Propagator* thePropagator;
-	const Propagator* theReversePropagator;
-	const bool debug_;
+  void buildMultiRecHits(const std::vector<TrajectoryMeasurementGroup>& measgroup,
+                         std::vector<TrajectoryMeasurement>& result,
+                         const MeasurementTrackerEvent*& theMTE) const;
+
+  const SiTrackerMultiRecHitUpdator* theUpdator;
+  const MeasurementEstimator* theEstimator;
+  const Propagator* thePropagator;
+  const Propagator* theReversePropagator;
+  const bool debug_;
 };
 
-
-#endif 
+#endif

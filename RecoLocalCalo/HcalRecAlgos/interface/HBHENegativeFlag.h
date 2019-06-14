@@ -11,17 +11,19 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
 
-class HBHENegativeFlagSetter
-{
+class HBHENegativeFlagSetter {
 public:
-    inline HBHENegativeFlagSetter() : filter_(nullptr) {}
+  inline HBHENegativeFlagSetter() : filter_(nullptr) {}
 
-    inline void configFilter(const HBHENegativeEFilter* f) {filter_ = f;}
+  inline void configFilter(const HBHENegativeEFilter* f) { filter_ = f; }
 
-    void setPulseShapeFlags(HBHERecHit& hbhe, const HBHEDataFrame &digi,
-                            const HcalCoder &coder, const HcalCalibrations &calib);
+  void setPulseShapeFlags(HBHERecHit& hbhe,
+                          const HBHEDataFrame& digi,
+                          const HcalCoder& coder,
+                          const HcalCalibrations& calib);
+
 private:
-    const HBHENegativeEFilter* filter_;
+  const HBHENegativeEFilter* filter_;
 };
 
 #endif

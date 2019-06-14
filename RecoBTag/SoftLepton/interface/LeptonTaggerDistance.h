@@ -13,26 +13,23 @@
 
 class LeptonTaggerDistance : public JetTagComputer {
 public:
-
   /// default ctor
   LeptonTaggerDistance(void) : m_maxDistance(0.5) { uses("slTagInfos"); }
 
   /// explicit ctor
-  explicit LeptonTaggerDistance(const edm::ParameterSet & configuration) {
+  explicit LeptonTaggerDistance(const edm::ParameterSet& configuration) {
     m_maxDistance = configuration.getParameter<double>("distance");
     uses("slTagInfos");
   }
 
   /// dtor
-  ~LeptonTaggerDistance() override { }
+  ~LeptonTaggerDistance() override {}
 
   /// b-tag a jet based on track-to-jet pseudo-angular distance
-  float discriminator(const TagInfoHelper & tagInfo) const override;
+  float discriminator(const TagInfoHelper& tagInfo) const override;
 
 private:
-  
   float m_maxDistance;
-
 };
 
-#endif // RecoBTag_SoftLepton_LeptonTaggerDistance_h
+#endif  // RecoBTag_SoftLepton_LeptonTaggerDistance_h

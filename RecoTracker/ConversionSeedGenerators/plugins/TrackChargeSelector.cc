@@ -6,9 +6,8 @@
 
 namespace reco {
   namespace modules {
-    typedef SingleObjectSelector<TrackCollection,::TrackChargeSelector> 
-    TrackChargeSelector;
+    typedef SingleObjectSelector<TrackCollection, ::TrackChargeSelector> TrackChargeSelector;
 
-    DEFINE_FWK_MODULE( TrackChargeSelector );
-  }
-}
+    DEFINE_FWK_MODULE(TrackChargeSelector);
+  }  // namespace modules
+}  // namespace reco

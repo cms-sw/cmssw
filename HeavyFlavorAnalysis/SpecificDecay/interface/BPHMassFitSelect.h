@@ -31,107 +31,114 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
-
- public:
-
+class BPHMassFitSelect : public BPHFitSelect, public BPHMassCuts {
+public:
   /** Constructor
    */
-  BPHMassFitSelect( double minMass, double maxMass ):
-   BPHMassCuts( minMass, maxMass ) { setFitConstraint(); }
+  BPHMassFitSelect(double minMass, double maxMass) : BPHMassCuts(minMass, maxMass) { setFitConstraint(); }
 
-  BPHMassFitSelect( const std::string& name, double mass, double sigma,
-                    double minMass, double maxMass ):
-   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, mass, sigma ); }
+  BPHMassFitSelect(const std::string& name, double mass, double sigma, double minMass, double maxMass)
+      : BPHMassCuts(minMass, maxMass) {
+    setFitConstraint(name, mass, sigma);
+  }
 
-  BPHMassFitSelect( const std::string& name, double mass,
-                    double minMass, double maxMass ):
-   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, mass ); }
+  BPHMassFitSelect(const std::string& name, double mass, double minMass, double maxMass)
+      : BPHMassCuts(minMass, maxMass) {
+    setFitConstraint(name, mass);
+  }
 
-  BPHMassFitSelect( const std::string& name, KinematicConstraint* c,
-                    double minMass, double maxMass ):
-   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, c ); }
+  BPHMassFitSelect(const std::string& name, KinematicConstraint* c, double minMass, double maxMass)
+      : BPHMassCuts(minMass, maxMass) {
+    setFitConstraint(name, c);
+  }
 
-  BPHMassFitSelect( const std::string& name, MultiTrackKinematicConstraint* c,
-                    double minMass, double maxMass ):
-   BPHMassCuts( minMass, maxMass ) { setFitConstraint( name, c ); }
+  BPHMassFitSelect(const std::string& name, MultiTrackKinematicConstraint* c, double minMass, double maxMass)
+      : BPHMassCuts(minMass, maxMass) {
+    setFitConstraint(name, c);
+  }
 
   /** Destructor
    */
-  ~BPHMassFitSelect() override {
-  }
+  ~BPHMassFitSelect() override {}
 
   /** Operations
    */
   /// select particle
-  bool accept( const BPHKinematicFit& cand ) const override {
-    switch ( type ) {
-    default:
-    case none: break;
-    case mcss: cand.kinematicTree( cName, cMass, cSigma ); break;
-    case mcst: cand.kinematicTree( cName, cMass )        ; break;
-    case   kf: cand.kinematicTree( cName,   kc          ); break;
-    case mtkf: cand.kinematicTree( cName, mtkc          ); break;
+  bool accept(const BPHKinematicFit& cand) const override {
+    switch (type) {
+      default:
+      case none:
+        break;
+      case mcss:
+        cand.kinematicTree(cName, cMass, cSigma);
+        break;
+      case mcst:
+        cand.kinematicTree(cName, cMass);
+        break;
+      case kf:
+        cand.kinematicTree(cName, kc);
+        break;
+      case mtkf:
+        cand.kinematicTree(cName, mtkc);
+        break;
     }
     double mass = cand.p4().mass();
-    return ( ( mass > mMin ) && ( mass < mMax ) );
+    return ((mass > mMin) && (mass < mMax));
   }
 
   /// set fit constraint
   void setFitConstraint() {
     type = none;
-    cName  = ""  ;
-    cMass  = -1.0;
+    cName = "";
+    cMass = -1.0;
     cSigma = -1.0;
-      kc   =  nullptr  ;
-    mtkc   =  nullptr  ;
+    kc = nullptr;
+    mtkc = nullptr;
   }
-  void setFitConstraint( const std::string& name, double mass ) {
+  void setFitConstraint(const std::string& name, double mass) {
     type = mcst;
-    cName  = name ;
-    cMass  = mass ;
-    cSigma = -1.0 ;
-      kc   =  nullptr   ;
-    mtkc   =  nullptr   ;
+    cName = name;
+    cMass = mass;
+    cSigma = -1.0;
+    kc = nullptr;
+    mtkc = nullptr;
   }
-  void setFitConstraint( const std::string& name, double mass, double sigma ) {
+  void setFitConstraint(const std::string& name, double mass, double sigma) {
     type = mcss;
-    cName  = name ;
-    cMass  = mass ;
+    cName = name;
+    cMass = mass;
     cSigma = sigma;
-      kc   =  nullptr   ;
-    mtkc   =  nullptr   ;
+    kc = nullptr;
+    mtkc = nullptr;
   }
-  void setFitConstraint( const std::string& name, KinematicConstraint* c ) {
+  void setFitConstraint(const std::string& name, KinematicConstraint* c) {
     type = kf;
-    cName  = name ;
-    cMass  = -1.0 ;
-    cSigma = -1.0 ;
-      kc   =  c   ;
-    mtkc   =  nullptr   ;
+    cName = name;
+    cMass = -1.0;
+    cSigma = -1.0;
+    kc = c;
+    mtkc = nullptr;
   }
-  void setFitConstraint( const std::string& name, 
-                                        MultiTrackKinematicConstraint* c ) {
+  void setFitConstraint(const std::string& name, MultiTrackKinematicConstraint* c) {
     type = mtkf;
-    cName  = name ;
-    cMass  = -1.0 ;
-    cSigma = -1.0 ;
-      kc   =  nullptr   ;
-    mtkc   =  c   ;
+    cName = name;
+    cMass = -1.0;
+    cSigma = -1.0;
+    kc = nullptr;
+    mtkc = c;
   }
 
   /// get fit constraint
   const std::string& getConstrainedName() const { return cName; }
-  double getMass () const { return cMass;  }
+  double getMass() const { return cMass; }
   double getSigma() const { return cSigma; }
-            KinematicConstraint* getKC          () const { return   kc; }
+  KinematicConstraint* getKC() const { return kc; }
   MultiTrackKinematicConstraint* getMultiTrackKC() const { return mtkc; }
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHMassFitSelect           ( const BPHMassFitSelect& x ) = delete;
-  BPHMassFitSelect& operator=( const BPHMassFitSelect& x ) = delete;
+  BPHMassFitSelect(const BPHMassFitSelect& x) = delete;
+  BPHMassFitSelect& operator=(const BPHMassFitSelect& x) = delete;
 
   enum fit_type { none, mcss, mcst, kf, mtkf };
 
@@ -139,11 +146,8 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
   std::string cName;
   double cMass;
   double cSigma;
-            KinematicConstraint*   kc;
+  KinematicConstraint* kc;
   MultiTrackKinematicConstraint* mtkc;
-
 };
 
-
 #endif
-

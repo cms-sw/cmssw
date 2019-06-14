@@ -13,17 +13,17 @@
 #include "DataFormats/JetReco/interface/FFTAnyJet.h"
 
 namespace reco {
-    typedef FFTAnyJet<CaloJet> FFTCaloJet;
-    /// collection of FFTCaloJet objects 
-    typedef std::vector<FFTCaloJet> FFTCaloJetCollection;
-    /// edm references
-    typedef edm::Ref<FFTCaloJetCollection> FFTCaloJetRef;
-    typedef edm::FwdRef<FFTCaloJetCollection> FFTCaloJetFwdRef;
-    typedef edm::FwdPtr<FFTCaloJet> FFTCaloJetFwdPtr;
-    typedef edm::RefVector<FFTCaloJetCollection> FFTCaloJetRefVector;
-    typedef edm::RefProd<FFTCaloJetCollection> FFTCaloJetRefProd;
-    typedef std::vector<edm::FwdRef<FFTCaloJetCollection> > FFTCaloJetFwdRefVector;
-    typedef std::vector<edm::FwdPtr<FFTCaloJet> > FFTCaloJetFwdPtrVector;
-}
+  typedef FFTAnyJet<CaloJet> FFTCaloJet;
+  /// collection of FFTCaloJet objects
+  typedef std::vector<FFTCaloJet> FFTCaloJetCollection;
+  /// edm references
+  typedef edm::Ref<FFTCaloJetCollection> FFTCaloJetRef;
+  typedef edm::FwdRef<FFTCaloJetCollection> FFTCaloJetFwdRef;
+  typedef edm::FwdPtr<FFTCaloJet> FFTCaloJetFwdPtr;
+  typedef edm::RefVector<FFTCaloJetCollection> FFTCaloJetRefVector;
+  typedef edm::RefProd<FFTCaloJetCollection> FFTCaloJetRefProd;
+  typedef std::vector<edm::FwdRef<FFTCaloJetCollection> > FFTCaloJetFwdRefVector;
+  typedef std::vector<edm::FwdPtr<FFTCaloJet> > FFTCaloJetFwdPtrVector;
+}  // namespace reco
 
 #endif

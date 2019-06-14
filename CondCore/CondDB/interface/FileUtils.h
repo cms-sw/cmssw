@@ -5,32 +5,23 @@
 namespace cond {
 
   class FileReader {
-
-    public:
-
+  public:
     FileReader();
 
-    virtual ~FileReader(){}
+    virtual ~FileReader() {}
 
     bool read(const std::string& fileName);
 
     const std::string& content() const;
 
-    private:
-
+  private:
     std::string m_content;
   };
-  
-}
 
-inline
-cond::FileReader::FileReader():m_content(""){
-}
+}  // namespace cond
 
-inline
-const std::string& cond::FileReader::content() const {
-  return m_content;
-}
+inline cond::FileReader::FileReader() : m_content("") {}
 
-#endif // CondCore_CondDB_FileUtils_h
+inline const std::string& cond::FileReader::content() const { return m_content; }
 
+#endif  // CondCore_CondDB_FileUtils_h

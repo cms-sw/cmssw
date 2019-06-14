@@ -17,35 +17,38 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 namespace reco {
- 
+
   class CaloMuon {
   public:
     CaloMuon();
-    virtual ~CaloMuon(){}     
-    
+    virtual ~CaloMuon() {}
+
     /// reference to Track reconstructed in the tracker only
     virtual TrackRef innerTrack() const { return innerTrack_; }
     virtual TrackRef track() const { return innerTrack(); }
     /// set reference to Track
-    virtual void setInnerTrack( const TrackRef & t ) { innerTrack_ = t; }
-    virtual void setTrack( const TrackRef & t ) { setInnerTrack(t); }
+    virtual void setInnerTrack(const TrackRef& t) { innerTrack_ = t; }
+    virtual void setTrack(const TrackRef& t) { setInnerTrack(t); }
     /// energy deposition
     bool isEnergyValid() const { return energyValid_; }
     /// get energy deposition information
     MuonEnergy calEnergy() const { return calEnergy_; }
     /// set energy deposition information
-    void setCalEnergy( const MuonEnergy& calEnergy ) { calEnergy_ = calEnergy; energyValid_ = true; }
-     
+    void setCalEnergy(const MuonEnergy& calEnergy) {
+      calEnergy_ = calEnergy;
+      energyValid_ = true;
+    }
+
     /// Muon hypothesis compatibility block
     /// Relative likelihood based on ECAL, HCAL, HO energy defined as
     /// L_muon/(L_muon+L_not_muon)
     float caloCompatibility() const { return caloCompatibility_; }
-    void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
-    bool  isCaloCompatibilityValid() const { return caloCompatibility_>=0; } 
-     
+    void setCaloCompatibility(float input) { caloCompatibility_ = input; }
+    bool isCaloCompatibilityValid() const { return caloCompatibility_ >= 0; }
+
     /// a bunch of useful accessors
     int charge() const { return innerTrack_.get()->charge(); }
-    /// polar angle  
+    /// polar angle
     double theta() const { return innerTrack_.get()->theta(); }
     /// momentum vector magnitude
     double p() const { return innerTrack_.get()->p(); }
@@ -61,18 +64,17 @@ namespace reco {
     double phi() const { return innerTrack_.get()->phi(); }
     /// pseudorapidity of momentum vector
     double eta() const { return innerTrack_.get()->eta(); }
-     
+
   private:
     /// reference to Track reconstructed in the tracker only
     TrackRef innerTrack_;
-    /// energy deposition 
+    /// energy deposition
     MuonEnergy calEnergy_;
     bool energyValid_;
     /// muon hypothesis compatibility with observer calorimeter energy
     float caloCompatibility_;
   };
 
-}
-
+}  // namespace reco
 
 #endif

@@ -4,23 +4,19 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h" 
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 
 /** Provides a GSF smoother algorithm */
 
-class  GsfTrajectorySmootherESProducer: public edm::ESProducer{
- public:
-  GsfTrajectorySmootherESProducer(const edm::ParameterSet & p);
-  ~GsfTrajectorySmootherESProducer() override; 
+class GsfTrajectorySmootherESProducer : public edm::ESProducer {
+public:
+  GsfTrajectorySmootherESProducer(const edm::ParameterSet &p);
+  ~GsfTrajectorySmootherESProducer() override;
   std::unique_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord &);
- private:
+
+private:
   edm::ParameterSet pset_;
 };
 
-
 #endif
-
-
-
-

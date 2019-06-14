@@ -11,18 +11,15 @@
  *
  ************************************************************/
 
-
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-class CastorCollections 
-{
+class CastorCollections {
 public:
-
-   CastorCollections();
-   ~CastorCollections();
-    const CastorDigiCollection* castorCont;
-    const HcalCalibDigiCollection* calibCont;
-    const HcalTrigPrimDigiCollection* tpCont;
+  CastorCollections();
+  ~CastorCollections();
+  const CastorDigiCollection* castorCont;
+  const HcalCalibDigiCollection* calibCont;
+  const HcalTrigPrimDigiCollection* tpCont;
 };
 
 #endif

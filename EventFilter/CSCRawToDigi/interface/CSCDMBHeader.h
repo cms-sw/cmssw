@@ -3,7 +3,7 @@
 
 #include <cassert>
 #include <iosfwd>
-#include <cstring> // bzero
+#include <cstring>  // bzero
 #include <memory>
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
@@ -12,21 +12,16 @@
 struct CSCDMBHeader2005;
 struct CSCDMBHeader2013;
 
-class CSCDMBHeader  {
+class CSCDMBHeader {
 public:
-  
   CSCDMBHeader(uint16_t firmware_version = 2005);
-  
-  CSCDMBHeader(const uint16_t * buf, uint16_t firmware_version = 2005);
 
+  CSCDMBHeader(const uint16_t* buf, uint16_t firmware_version = 2005);
 
-
-  bool cfebAvailable(unsigned icfeb) { 
-	return (theHeaderFormat->cfebAvailable() >> icfeb) & 1;
-    }
+  bool cfebAvailable(unsigned icfeb) { return (theHeaderFormat->cfebAvailable() >> icfeb) & 1; }
 
   void addCFEB(int icfeb) { theHeaderFormat->addCFEB(icfeb); }
-  void addNCLCT() { theHeaderFormat->addNCLCT();};  
+  void addNCLCT() { theHeaderFormat->addNCLCT(); };
 
   void addNALCT() { theHeaderFormat->addNALCT(); };
   void setBXN(int bxn) { theHeaderFormat->setBXN(bxn); };
@@ -36,7 +31,7 @@ public:
   void setdmbID(int newDMBID) { theHeaderFormat->setdmbID(newDMBID); };
   void setdmbVersion(unsigned int version) { theHeaderFormat->setdmbVersion(version); };
 
-  unsigned cfebActive() const { return theHeaderFormat->cfebActive(); }; 
+  unsigned cfebActive() const { return theHeaderFormat->cfebActive(); };
   unsigned crateID() const { return theHeaderFormat->crateID(); };
   unsigned dmbID() const { return theHeaderFormat->dmbID(); };
   unsigned bxn() const { return theHeaderFormat->bxn(); };
@@ -52,27 +47,21 @@ public:
 
   unsigned sizeInWords() const { return theHeaderFormat->sizeInWords(); };
   unsigned format_version() const { return theHeaderFormat->format_version(); };
- 
+
   bool check() const { return theHeaderFormat->check(); };
 
-  unsigned short * data() {return theHeaderFormat->data(); };
-  unsigned short * data() const {return theHeaderFormat->data(); };
-
+  unsigned short* data() { return theHeaderFormat->data(); };
+  unsigned short* data() const { return theHeaderFormat->data(); };
 
   //ostream & operator<<(ostream &, const CSCDMBHeader &);
-  
+
   /// will throw if the cast fails
-  CSCDMBHeader2005 dmbHeader2005()   const;
-  CSCDMBHeader2013 dmbHeader2013()   const;
+  CSCDMBHeader2005 dmbHeader2005() const;
+  CSCDMBHeader2013 dmbHeader2013() const;
 
-
- private:
-
+private:
   std::shared_ptr<CSCVDMBHeaderFormat> theHeaderFormat;
   int theFirmwareVersion;
-
-
 };
 
 #endif
-

@@ -19,7 +19,7 @@ DEFINE_FWK_MODULE(PFJetFwdPtrProducer);
 DEFINE_FWK_MODULE(PFTauFwdPtrProducer);
 DEFINE_FWK_MODULE(PFCandidateFromFwdPtrProducer);
 
-typedef edm::ProductFromFwdPtrProducer< reco::PFJet >  PFJetFromFwdPtrProducer;
+typedef edm::ProductFromFwdPtrProducer<reco::PFJet> PFJetFromFwdPtrProducer;
 DEFINE_FWK_MODULE(PFJetFromFwdPtrProducer);
 
 DEFINE_FWK_MODULE(DeltaBetaWeights);

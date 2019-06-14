@@ -2,7 +2,7 @@
 //
 // Package:    RecoLocalCalo/HcalRecAlgos
 // Class:      MahiDebugger
-// 
+//
 /**\class MahiDebugger MahiDebugger.cc RecoLocalCalo/HcalRecAlgos/plugins/MahiDebugger.cc
 
  Description: Tool to extract and store debugging information from the HBHE Reconstruction algorithm Mahi
@@ -15,7 +15,6 @@
 //         Created:  Sat, 10 Feb 2018 10:02:38 GMT
 //
 //
-
 
 // system include files
 #include <utility>
@@ -72,44 +71,43 @@
 // class declaration
 //
 
-class MahiDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
-   public:
-      explicit MahiDebugger(const edm::ParameterSet&);
-      ~MahiDebugger() override;
+class MahiDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit MahiDebugger(const edm::ParameterSet&);
+  ~MahiDebugger() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void beginJob() override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      // Special HB- correction
-  float hbminusCorrectionFactor(const HcalDetId& cell, int runnum,
-				    float energy, bool isRealData) const;
-      void endJob() override;
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  // Special HB- correction
+  float hbminusCorrectionFactor(const HcalDetId& cell, int runnum, float energy, bool isRealData) const;
+  void endJob() override;
 
   // ----------member data ---------------------------
 
   // Python-configurables
   bool dynamicPed_;
-  float ts4Thresh_; 
-  float chiSqSwitch_; 
+  float ts4Thresh_;
+  float chiSqSwitch_;
 
-  bool applyTimeSlew_; 
+  bool applyTimeSlew_;
   HcalTimeSlew::BiasSetting slewFlavor_;
-  double tsDelay1GeV_=0;
+  double tsDelay1GeV_ = 0;
 
   bool calculateArrivalTime_;
   float meanTime_;
-  float timeSigmaHPD_; 
+  float timeSigmaHPD_;
   float timeSigmaSiPM_;
 
-  std::vector <int> activeBXs_;
+  std::vector<int> activeBXs_;
 
-  int nMaxItersMin_; 
-  int nMaxItersNNLS_; 
+  int nMaxItersMin_;
+  int nMaxItersNNLS_;
 
-  float deltaChiSqThresh_; 
-  float nnlsThresh_; 
+  float deltaChiSqThresh_;
+  float nnlsThresh_;
 
   unsigned int bxSizeConf_;
   int bxOffsetConf_;
@@ -124,12 +122,10 @@ class MahiDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
   edm::EDGetTokenT<HBHEChannelInfoCollection> token_ChannelInfo_;
 
-
-
   const HcalTimeSlew* hcalTimeSlewDelay;
-  
+
   edm::Service<TFileService> FileService;
-  TTree *outTree;
+  TTree* outTree;
 
   int run;
   int evt;
@@ -141,10 +137,10 @@ class MahiDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   int iphi;
   int depth;
 
-  int   nSamples;
-  int   soi;
+  int nSamples;
+  int soi;
 
-  bool  use3;
+  bool use3;
 
   float inTimeConst;
   float inDarkCurrent;
@@ -158,241 +154,224 @@ class MahiDebugger : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
   float totalUCNoise[10];
 
-  float mahiEnergy;//SOI charge
+  float mahiEnergy;  //SOI charge
   float chiSq;
   float arrivalTime;
 
-  float pEnergy; //SOI-1 charge
-  float nEnergy; //SOI+1 charge
-  float pedEnergy; //pedestal charge
+  float pEnergy;    //SOI-1 charge
+  float nEnergy;    //SOI+1 charge
+  float pedEnergy;  //pedestal charge
 
-  float count[10]; //TS value 0-9
-  float inputTS[10];//input TS samples
-  int inputTDC[10];//input TS samples
-  float itPulse[10];//SOI pulse shape
-  float pPulse[10];//SOI-1 pulse shape
-  float nPulse[10];//SOI+1 pulse shape
-
-
+  float count[10];    //TS value 0-9
+  float inputTS[10];  //input TS samples
+  int inputTDC[10];   //input TS samples
+  float itPulse[10];  //SOI pulse shape
+  float pPulse[10];   //SOI-1 pulse shape
+  float nPulse[10];   //SOI+1 pulse shape
 };
 
 MahiDebugger::MahiDebugger(const edm::ParameterSet& iConfig)
-  : dynamicPed_(iConfig.getParameter<bool>("dynamicPed")),
-    ts4Thresh_(iConfig.getParameter<double> ("ts4Thresh")), 
-    chiSqSwitch_(iConfig.getParameter<double> ("chiSqSwitch")),
-    applyTimeSlew_(iConfig.getParameter<bool> ("applyTimeSlew")),
-    calculateArrivalTime_(iConfig.getParameter<bool> ("calculateArrivalTime")),
-    meanTime_(iConfig.getParameter<double> ("meanTime")),
-    timeSigmaHPD_(iConfig.getParameter<double> ("timeSigmaHPD")),
-    timeSigmaSiPM_(iConfig.getParameter<double> ("timeSigmaSiPM")),
-    activeBXs_(iConfig.getParameter<std::vector<int>> ("activeBXs")), 
-    nMaxItersMin_(iConfig.getParameter<int> ("nMaxItersMin")),
-    nMaxItersNNLS_(iConfig.getParameter<int> ("nMaxItersNNLS")),
-    deltaChiSqThresh_(iConfig.getParameter<double> ("deltaChiSqThresh")), 
-    nnlsThresh_(iConfig.getParameter<double> ("nnlsThresh"))
-{
-
+    : dynamicPed_(iConfig.getParameter<bool>("dynamicPed")),
+      ts4Thresh_(iConfig.getParameter<double>("ts4Thresh")),
+      chiSqSwitch_(iConfig.getParameter<double>("chiSqSwitch")),
+      applyTimeSlew_(iConfig.getParameter<bool>("applyTimeSlew")),
+      calculateArrivalTime_(iConfig.getParameter<bool>("calculateArrivalTime")),
+      meanTime_(iConfig.getParameter<double>("meanTime")),
+      timeSigmaHPD_(iConfig.getParameter<double>("timeSigmaHPD")),
+      timeSigmaSiPM_(iConfig.getParameter<double>("timeSigmaSiPM")),
+      activeBXs_(iConfig.getParameter<std::vector<int>>("activeBXs")),
+      nMaxItersMin_(iConfig.getParameter<int>("nMaxItersMin")),
+      nMaxItersNNLS_(iConfig.getParameter<int>("nMaxItersNNLS")),
+      deltaChiSqThresh_(iConfig.getParameter<double>("deltaChiSqThresh")),
+      nnlsThresh_(iConfig.getParameter<double>("nnlsThresh")) {
   usesResource("TFileService");
 
   mahi_ = std::make_unique<MahiFit>();
 
-  mahi_ -> setParameters(dynamicPed_, ts4Thresh_, chiSqSwitch_, applyTimeSlew_, HcalTimeSlew::Medium,
-			 calculateArrivalTime_, meanTime_, timeSigmaHPD_, timeSigmaSiPM_,
-			 activeBXs_, nMaxItersMin_, nMaxItersNNLS_,
-			 deltaChiSqThresh_, nnlsThresh_);
+  mahi_->setParameters(dynamicPed_,
+                       ts4Thresh_,
+                       chiSqSwitch_,
+                       applyTimeSlew_,
+                       HcalTimeSlew::Medium,
+                       calculateArrivalTime_,
+                       meanTime_,
+                       timeSigmaHPD_,
+                       timeSigmaSiPM_,
+                       activeBXs_,
+                       nMaxItersMin_,
+                       nMaxItersNNLS_,
+                       deltaChiSqThresh_,
+                       nnlsThresh_);
 
-  token_ChannelInfo_ = consumes<HBHEChannelInfoCollection>(edm::InputTag("hbheprereco",""));
+  token_ChannelInfo_ = consumes<HBHEChannelInfoCollection>(edm::InputTag("hbheprereco", ""));
 }
 
-
-MahiDebugger::~MahiDebugger()
-{
-}
-
+MahiDebugger::~MahiDebugger() {}
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void MahiDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   edm::ESHandle<HcalTimeSlew> delay;
-   iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
-   hcalTimeSlewDelay = &*delay;
+  edm::ESHandle<HcalTimeSlew> delay;
+  iSetup.get<HcalTimeSlewRecord>().get("HBHE", delay);
+  hcalTimeSlewDelay = &*delay;
 
+  run = iEvent.id().run();
+  evt = iEvent.id().event();
+  ls = iEvent.id().luminosityBlock();
 
-   run = iEvent.id().run();
-   evt = iEvent.id().event();
-   ls = iEvent.id().luminosityBlock();
+  edm::EventBase const& eventbase = iEvent;
+  nBxTrain = int(eventbase.bunchCrossing());
 
-   edm::EventBase const & eventbase = iEvent;
-   nBxTrain = int(eventbase.bunchCrossing());
+  Handle<HBHEChannelInfoCollection> hChannelInfo;
+  iEvent.getByToken(token_ChannelInfo_, hChannelInfo);
 
-   Handle<HBHEChannelInfoCollection> hChannelInfo;
-   iEvent.getByToken(token_ChannelInfo_, hChannelInfo);
+  for (HBHEChannelInfoCollection::const_iterator iter = hChannelInfo->begin(); iter != hChannelInfo->end(); iter++) {
+    const HBHEChannelInfo& hci(*iter);
+    const HcalDetId detid = hci.id();
 
-   for (HBHEChannelInfoCollection::const_iterator iter = hChannelInfo->begin(); 
-	iter != hChannelInfo->end(); iter++) {
+    ieta = detid.ieta();
+    iphi = detid.iphi();
+    depth = detid.depth();
 
-     const HBHEChannelInfo& hci(*iter);
-     const HcalDetId detid=hci.id();
+    const bool isRealData = true;
 
-     ieta  = detid.ieta();
-     iphi  = detid.iphi();
-     depth = detid.depth();
+    const MahiFit* mahi = mahi_.get();
+    mahi_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(hci.recoShape()), hcalTimeSlewDelay);
+    MahiDebugInfo mdi;
+    mahi->phase1Debug(hci, mdi);
 
-     const bool isRealData = true;
+    nSamples = mdi.nSamples;
+    soi = mdi.soi;
 
-     const MahiFit* mahi = mahi_.get();
-     mahi_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(hci.recoShape()),hcalTimeSlewDelay);
-     MahiDebugInfo mdi;
-     mahi->phase1Debug(hci, mdi);
+    inTimeConst = mdi.inTimeConst;
+    inDarkCurrent = mdi.inDarkCurrent;
+    inPedAvg = mdi.inPedAvg;
+    inGain = mdi.inGain;
 
-     nSamples = mdi.nSamples;
-     soi = mdi.soi;
-     
-     inTimeConst = mdi.inTimeConst;
-     inDarkCurrent = mdi.inDarkCurrent;
-     inPedAvg = mdi.inPedAvg;
-     inGain = mdi.inGain;
-     
-     use3 = mdi.use3;
-     mahiEnergy = mdi.mahiEnergy;
-     chiSq = mdi.chiSq;
-     arrivalTime = mdi.arrivalTime;
-     pEnergy=mdi.pEnergy;
-     nEnergy=mdi.nEnergy;
-     pedEnergy=mdi.pedEnergy;
+    use3 = mdi.use3;
+    mahiEnergy = mdi.mahiEnergy;
+    chiSq = mdi.chiSq;
+    arrivalTime = mdi.arrivalTime;
+    pEnergy = mdi.pEnergy;
+    nEnergy = mdi.nEnergy;
+    pedEnergy = mdi.pedEnergy;
 
-     mahiEnergy *= hbminusCorrectionFactor(detid, run, mahiEnergy, isRealData);
-     pEnergy    *= hbminusCorrectionFactor(detid, run, pEnergy, isRealData);
-     nEnergy    *= hbminusCorrectionFactor(detid, run, nEnergy, isRealData);
-     pedEnergy  *= hbminusCorrectionFactor(detid, run, pedEnergy, isRealData);
+    mahiEnergy *= hbminusCorrectionFactor(detid, run, mahiEnergy, isRealData);
+    pEnergy *= hbminusCorrectionFactor(detid, run, pEnergy, isRealData);
+    nEnergy *= hbminusCorrectionFactor(detid, run, nEnergy, isRealData);
+    pedEnergy *= hbminusCorrectionFactor(detid, run, pedEnergy, isRealData);
 
-     for (int i=0; i<nSamples; i++) {
-       count[i]=mdi.count[i];
-       inputTS[i]=mdi.inputTS[i];
-       inputTDC[i]=mdi.inputTDC[i];
-       itPulse[i]=mdi.itPulse[i];
-       pPulse[i]=mdi.pPulse[i];
-       nPulse[i]=mdi.nPulse[i];
-       
-       inNoiseADC[i]=mdi.inNoiseADC[i];
-       inNoiseDC[i]=mdi.inNoiseDC[i];
-       inNoisePhoto[i]=mdi.inNoisePhoto[i];
-       inPedestal[i]=mdi.inPedestal[i];
-       totalUCNoise[i]=mdi.totalUCNoise[i];
-       
-     }
-     if (nSamples==8) {
-       count[8]=8;
-       count[9]=9;
-     }
-     
-     if (chiSq>-1) outTree->Fill();
-   }
-   
+    for (int i = 0; i < nSamples; i++) {
+      count[i] = mdi.count[i];
+      inputTS[i] = mdi.inputTS[i];
+      inputTDC[i] = mdi.inputTDC[i];
+      itPulse[i] = mdi.itPulse[i];
+      pPulse[i] = mdi.pPulse[i];
+      nPulse[i] = mdi.nPulse[i];
+
+      inNoiseADC[i] = mdi.inNoiseADC[i];
+      inNoiseDC[i] = mdi.inNoiseDC[i];
+      inNoisePhoto[i] = mdi.inNoisePhoto[i];
+      inPedestal[i] = mdi.inPedestal[i];
+      totalUCNoise[i] = mdi.totalUCNoise[i];
+    }
+    if (nSamples == 8) {
+      count[8] = 8;
+      count[9] = 9;
+    }
+
+    if (chiSq > -1)
+      outTree->Fill();
+  }
 }
 
 float MahiDebugger::hbminusCorrectionFactor(const HcalDetId& cell,
-							  int runnum,
-							  const float energy,
-							  const bool isRealData) const
-{
+                                            int runnum,
+                                            const float energy,
+                                            const bool isRealData) const {
   float corr = 1.f;
   if (isRealData && runnum > 0)
-    if (cell.subdet() == HcalBarrel)
-      {
-	const int ieta = cell.ieta();
-	const int iphi = cell.iphi();
-	corr = hbminus_special_ecorr(ieta, iphi, energy, runnum);
-      }
+    if (cell.subdet() == HcalBarrel) {
+      const int ieta = cell.ieta();
+      const int iphi = cell.iphi();
+      corr = hbminus_special_ecorr(ieta, iphi, energy, runnum);
+    }
   return corr;
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
-void 
-MahiDebugger::beginJob()
-{
+void MahiDebugger::beginJob() {
+  outTree = FileService->make<TTree>("HcalTree", "HcalTree");
 
-  outTree = FileService->make<TTree>("HcalTree","HcalTree");
-  
-  outTree->Branch("run",  &run,  "run/I");
-  outTree->Branch("evt",  &evt,  "evt/I");
-  outTree->Branch("ls",  &ls,  "ls/I");
-  outTree->Branch("nBxTrain",  &nBxTrain, "nBxTrain/I");
+  outTree->Branch("run", &run, "run/I");
+  outTree->Branch("evt", &evt, "evt/I");
+  outTree->Branch("ls", &ls, "ls/I");
+  outTree->Branch("nBxTrain", &nBxTrain, "nBxTrain/I");
 
-  outTree->Branch("ieta",  &ieta,  "ieta/I");
-  outTree->Branch("iphi",  &iphi,  "iphi/I");
+  outTree->Branch("ieta", &ieta, "ieta/I");
+  outTree->Branch("iphi", &iphi, "iphi/I");
   outTree->Branch("depth", &depth, "depth/I");
-  outTree->Branch("nSamples",   &nSamples,   "nSamples/I");
-  outTree->Branch("soi",   &soi,   "soi/I");
+  outTree->Branch("nSamples", &nSamples, "nSamples/I");
+  outTree->Branch("soi", &soi, "soi/I");
 
-  outTree->Branch("inTimeConst",   &inTimeConst,   "inTimeConst/F");
-  outTree->Branch("inDarkCurrent",   &inDarkCurrent,   "inDarkCurrent/F");
-  outTree->Branch("inPedAvg",   &inPedAvg,   "inPedAvg/F");
-  outTree->Branch("inGain",   &inGain,   "inGain/F");
+  outTree->Branch("inTimeConst", &inTimeConst, "inTimeConst/F");
+  outTree->Branch("inDarkCurrent", &inDarkCurrent, "inDarkCurrent/F");
+  outTree->Branch("inPedAvg", &inPedAvg, "inPedAvg/F");
+  outTree->Branch("inGain", &inGain, "inGain/F");
 
-  outTree->Branch("mahiEnergy",   &mahiEnergy,   "mahiEnergy/F");
-  outTree->Branch("chiSq",   &chiSq,   "chiSq/F");
-  outTree->Branch("arrivalTime",   &arrivalTime,   "arrivalTime/F");
-  outTree->Branch("pEnergy",   &pEnergy,   "pEnergy/F");
-  outTree->Branch("nEnergy",   &nEnergy,   "nEnergy/F");
-  outTree->Branch("pedEnergy",   &pedEnergy,   "pedEnergy/F");
-  outTree->Branch("count",   &count,   "count[10]/F");
-  outTree->Branch("inputTS",   &inputTS,   "inputTS[10]/F");
-  outTree->Branch("inputTDC",   &inputTDC,   "inputTDC[10]/I");
-  outTree->Branch("itPulse",   &itPulse,   "itPulse[10]/F");
-  outTree->Branch("pPulse",   &pPulse,   "pPulse[10]/F");
-  outTree->Branch("nPulse",   &nPulse,   "nPulse[10]/F");
+  outTree->Branch("mahiEnergy", &mahiEnergy, "mahiEnergy/F");
+  outTree->Branch("chiSq", &chiSq, "chiSq/F");
+  outTree->Branch("arrivalTime", &arrivalTime, "arrivalTime/F");
+  outTree->Branch("pEnergy", &pEnergy, "pEnergy/F");
+  outTree->Branch("nEnergy", &nEnergy, "nEnergy/F");
+  outTree->Branch("pedEnergy", &pedEnergy, "pedEnergy/F");
+  outTree->Branch("count", &count, "count[10]/F");
+  outTree->Branch("inputTS", &inputTS, "inputTS[10]/F");
+  outTree->Branch("inputTDC", &inputTDC, "inputTDC[10]/I");
+  outTree->Branch("itPulse", &itPulse, "itPulse[10]/F");
+  outTree->Branch("pPulse", &pPulse, "pPulse[10]/F");
+  outTree->Branch("nPulse", &nPulse, "nPulse[10]/F");
 
-  outTree->Branch("inNoiseADC",   &inNoiseADC,   "inNoiseADC[10]/F");
-  outTree->Branch("inNoiseDC",   &inNoiseDC,   "inNoiseDC[10]/F");
-  outTree->Branch("inNoisePhoto",   &inNoisePhoto,   "inNoisePhoto[10]/F");
-  outTree->Branch("inPedestal",   &inPedestal,   "inPedestal[10]/F");
-  outTree->Branch("totalUCNoise",   &totalUCNoise,   "totalUCNoise[10]/F");
-
+  outTree->Branch("inNoiseADC", &inNoiseADC, "inNoiseADC[10]/F");
+  outTree->Branch("inNoiseDC", &inNoiseDC, "inNoiseDC[10]/F");
+  outTree->Branch("inNoisePhoto", &inNoisePhoto, "inNoisePhoto[10]/F");
+  outTree->Branch("inPedestal", &inPedestal, "inPedestal[10]/F");
+  outTree->Branch("totalUCNoise", &totalUCNoise, "totalUCNoise[10]/F");
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-MahiDebugger::endJob() 
-{
-}
+void MahiDebugger::endJob() {}
 
-#define add_param_set(name)	     \
+#define add_param_set(name)          \
   edm::ParameterSetDescription name; \
   name.setAllowAnything();           \
   desc.add<edm::ParameterSetDescription>(#name, name)
 
-
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MahiDebugger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
-  desc.add<bool>  ("dynamicPed");
+  desc.add<bool>("dynamicPed");
   desc.add<double>("ts4Thresh");
   desc.add<double>("chiSqSwitch");
-  desc.add<bool>  ("applyTimeSlew");
+  desc.add<bool>("applyTimeSlew");
   desc.add<double>("meanTime");
   desc.add<double>("timeSigmaHPD");
   desc.add<double>("timeSigmaSiPM");
   desc.add<std::vector<int>>("activeBXs");
-  desc.add<int>   ("nMaxItersMin");
-  desc.add<int>   ("nMaxItersNNLS");
+  desc.add<int>("nMaxItersMin");
+  desc.add<int>("nMaxItersNNLS");
   desc.add<double>("deltaChiSqThresh");
   desc.add<double>("nnlsThresh");
-  
 
   //desc.add<std::string>("algoConfigClass");
   //add_param_set(algorithm);
   descriptions.addDefault(desc);
-
 }
 
 //define this as a plug-in

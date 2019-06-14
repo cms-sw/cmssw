@@ -10,10 +10,7 @@
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-typedef SingleObjectSelector<
-          reco::GenParticleCollection,
-          StringCutObjectSelector<reco::GenParticle>
-        > GenParticleSelector;
+typedef SingleObjectSelector<reco::GenParticleCollection, StringCutObjectSelector<reco::GenParticle> >
+    GenParticleSelector;
 
 DEFINE_FWK_MODULE(GenParticleSelector);
-

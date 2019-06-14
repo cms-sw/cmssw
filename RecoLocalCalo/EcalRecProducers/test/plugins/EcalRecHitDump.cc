@@ -12,29 +12,25 @@
 #include <iostream>
 
 class EcalRecHitDump : public edm::EDAnalyzer {
- public:
+public:
   explicit EcalRecHitDump(const edm::ParameterSet&);
 
- private:
+private:
   virtual void beginJob() {}
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() {}
 
- private:
+private:
   edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;
   edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
 };
 
 EcalRecHitDump::EcalRecHitDump(const edm::ParameterSet& iConfig) {
-  EBRecHitCollectionT_ =
-	consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"));
-  EERecHitCollectionT_ =
-	consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"));
+  EBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"));
+  EERecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"));
 }
 
-void EcalRecHitDump::analyze(const edm::Event& ev,
-                                    const edm::EventSetup&) {
-
+void EcalRecHitDump::analyze(const edm::Event& ev, const edm::EventSetup&) {
   edm::Handle<EcalRecHitCollection> EBRecHits_;
   edm::Handle<EcalRecHitCollection> EERecHits_;
 

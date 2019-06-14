@@ -10,24 +10,24 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class Trajectory;
-namespace edm {class EventSetup;}
+namespace edm {
+  class EventSetup;
+}
 
 class TrackTransformerBase {
 public:
   /// Constructor
-  TrackTransformerBase(){}
+  TrackTransformerBase() {}
 
   /// Destructor
-  virtual ~TrackTransformerBase(){}
+  virtual ~TrackTransformerBase() {}
 
   // Operations
 
   /// Convert a reco::Track into Trajectory
-  virtual  std::vector<Trajectory> transform(const reco::Track&) const =0;
+  virtual std::vector<Trajectory> transform(const reco::Track&) const = 0;
 
   /// set the services needed by the TrackTransformers
   virtual void setServices(const edm::EventSetup&) = 0;
-
 };
 #endif
-

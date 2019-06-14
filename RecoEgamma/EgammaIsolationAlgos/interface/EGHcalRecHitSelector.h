@@ -17,20 +17,21 @@
 class EGHcalRecHitSelector {
 public:
   explicit EGHcalRecHitSelector(const edm::ParameterSet& config);
-  ~EGHcalRecHitSelector(){}
-  
-  template<typename CollType>
-  void addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHits,
-		 CollType& detIdsToStore)const;
+  ~EGHcalRecHitSelector() {}
 
-  void setup(const edm::EventSetup& iSetup){iSetup.get<CaloGeometryRecord>().get(towerMap_);}
+  template <typename CollType>
+  void addDetIds(const reco::SuperCluster& superClus,
+                 const HBHERecHitCollection& recHits,
+                 CollType& detIdsToStore) const;
+
+  void setup(const edm::EventSetup& iSetup) { iSetup.get<CaloGeometryRecord>().get(towerMap_); }
 
   static edm::ParameterSetDescription makePSetDescription();
 
 private:
-  static int calDIPhi(int iPhi1,int iPhi2);
-  static int calDIEta(int iEta1,int iEta2);
-  float getMinEnergyHCAL_(HcalDetId id)const;
+  static int calDIPhi(int iPhi1, int iPhi2);
+  static int calDIEta(int iEta1, int iEta2);
+  float getMinEnergyHCAL_(HcalDetId id) const;
 
   int maxDIEta_;
   int maxDIPhi_;
@@ -39,34 +40,34 @@ private:
   float minEnergyHEDefault_;
 
   edm::ESHandle<CaloTowerConstituentsMap> towerMap_;
-
 };
 
 template <typename CollType>
-void EGHcalRecHitSelector::
-addDetIds(const reco::SuperCluster& superClus,const HBHERecHitCollection& recHits,
-	  CollType& detIdsToStore)const
-{
+void EGHcalRecHitSelector::addDetIds(const reco::SuperCluster& superClus,
+                                     const HBHERecHitCollection& recHits,
+                                     CollType& detIdsToStore) const {
   DetId seedId = superClus.seed()->seed();
-  if(seedId.det() != DetId::Ecal && seedId.det() != DetId::Forward) {
-    edm::LogError("EgammaIsoHcalDetIdCollectionProducerError") << "Somehow the supercluster has a seed which is not ECAL, something is badly wrong";
+  if (seedId.det() != DetId::Ecal && seedId.det() != DetId::Forward) {
+    edm::LogError("EgammaIsoHcalDetIdCollectionProducerError")
+        << "Somehow the supercluster has a seed which is not ECAL, something is badly wrong";
     return;
   }
   //so we are using CaloTowers to get the iEta/iPhi of the HCAL rec hit behind the seed cluster, this might go funny on tower 28 but shouldnt matter there
- 
-  if( seedId.det() == DetId::Forward ) return;
 
-  CaloTowerDetId towerId(towerMap_->towerOf(seedId)); 
+  if (seedId.det() == DetId::Forward)
+    return;
+
+  CaloTowerDetId towerId(towerMap_->towerOf(seedId));
   int seedHcalIEta = towerId.ieta();
   int seedHcalIPhi = towerId.iphi();
 
-  for(auto& recHit : recHits){
-    int dIEtaAbs = std::abs(calDIEta(seedHcalIEta,recHit.id().ieta()));
-    int dIPhiAbs = std::abs(calDIPhi(seedHcalIPhi,recHit.id().iphi()));
-  
-    if(dIEtaAbs<=maxDIEta_ && dIPhiAbs<=maxDIPhi_ && recHit.energy()>getMinEnergyHCAL_(recHit.id())) detIdsToStore.insert(detIdsToStore.end(),recHit.id().rawId());
+  for (auto& recHit : recHits) {
+    int dIEtaAbs = std::abs(calDIEta(seedHcalIEta, recHit.id().ieta()));
+    int dIPhiAbs = std::abs(calDIPhi(seedHcalIPhi, recHit.id().iphi()));
+
+    if (dIEtaAbs <= maxDIEta_ && dIPhiAbs <= maxDIPhi_ && recHit.energy() > getMinEnergyHCAL_(recHit.id()))
+      detIdsToStore.insert(detIdsToStore.end(), recHit.id().rawId());
   }
 }
-
 
 #endif

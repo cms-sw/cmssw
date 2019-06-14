@@ -13,28 +13,25 @@
  * Kirill Prokofiev, December 2002
  */
 
-class ChildUpdator
-{
+class ChildUpdator {
 public:
- 
-  ChildUpdator(){}
-  
-  virtual ~ChildUpdator(){}
-/**
+  ChildUpdator() {}
+
+  virtual ~ChildUpdator() {}
+  /**
  * Method updating particles
  * and vertices inside the tree
  * below the constrained particle
  * The tree pointer should be set on
  * particle just updated by ParentParticleFitter
  * Class to be used by KinematicParticleFitter only.
- */  
-  virtual RefCountedKinematicTree  update(RefCountedKinematicTree tree) const=0;
-  
-  virtual std::vector<RefCountedKinematicTree>  update(const std::vector<RefCountedKinematicTree> &trees) const=0;
-  
-  virtual ChildUpdator * clone() const = 0;
+ */
+  virtual RefCountedKinematicTree update(RefCountedKinematicTree tree) const = 0;
 
-private:  
+  virtual std::vector<RefCountedKinematicTree> update(const std::vector<RefCountedKinematicTree> &trees) const = 0;
 
+  virtual ChildUpdator *clone() const = 0;
+
+private:
 };
 #endif

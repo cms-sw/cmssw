@@ -20,8 +20,10 @@ calibratedEgammaPatSettings = calibratedEgammaSettings.clone(
 
 ecalTrkCombinationRegression = cms.PSet(
     ecalTrkRegressionConfig = cms.PSet(
-        rangeMin = cms.double(-1.),
-        rangeMax = cms.double(3.0),
+        rangeMinLowEt = cms.double(-1.),
+        rangeMaxLowEt = cms.double(3.0),
+        rangeMinHighEt = cms.double(-1.),
+        rangeMaxHighEt = cms.double(3.0),
         lowEtHighEtBoundary = cms.double(50.),
         forceHighEnergyTrainingIfSaturated = cms.bool(False),
         ebLowEtForestName = cms.string('electron_eb_ECALTRK_lowpt'),
@@ -30,8 +32,10 @@ ecalTrkCombinationRegression = cms.PSet(
         eeHighEtForestName = cms.string('electron_ee_ECALTRK')
         ),
     ecalTrkRegressionUncertConfig = cms.PSet(
-        rangeMin = cms.double(0.0002),
-        rangeMax = cms.double(0.5),
+        rangeMinLowEt = cms.double(0.0002),
+        rangeMaxLowEt = cms.double(0.5),
+        rangeMinHighEt = cms.double(0.0002),
+        rangeMaxHighEt = cms.double(0.5),
         lowEtHighEtBoundary = cms.double(50.),  
         forceHighEnergyTrainingIfSaturated = cms.bool(False),
         ebLowEtForestName = cms.string('electron_eb_ECALTRK_lowpt_var'),

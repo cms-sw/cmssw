@@ -22,38 +22,27 @@
  *
  */
 
-
 /// \class Level1TriggerRates.h
 /// \brief Persistable copy of Level1 Trigger Rates
 
 class Level1TriggerScalers;
 
-class Level1TriggerRates
-{
- public:
-
+class Level1TriggerRates {
+public:
 #define BX_SPACING (double)25E-9
 
   Level1TriggerRates();
   Level1TriggerRates(Level1TriggerScalers const& s);
-  Level1TriggerRates(Level1TriggerScalers const& s,
-		     int runNumber);
-  Level1TriggerRates(Level1TriggerScalers const& s1, 
-		     Level1TriggerScalers const& s2);
-  Level1TriggerRates(Level1TriggerScalers const& s1, 
-		     Level1TriggerScalers const& s2,
-		     int runNumber);
+  Level1TriggerRates(Level1TriggerScalers const& s, int runNumber);
+  Level1TriggerRates(Level1TriggerScalers const& s1, Level1TriggerScalers const& s2);
+  Level1TriggerRates(Level1TriggerScalers const& s1, Level1TriggerScalers const& s2, int runNumber);
   virtual ~Level1TriggerRates();
 
   void computeRates(Level1TriggerScalers const& t1);
-  void computeRates(Level1TriggerScalers const& t1, 
-		    int runNumber);
+  void computeRates(Level1TriggerScalers const& t1, int runNumber);
 
-  void computeRates(Level1TriggerScalers const& t1,
-		    Level1TriggerScalers const& t2);
-  void computeRates(Level1TriggerScalers const& t1,
-		    Level1TriggerScalers const& t2,
-		    int runNumber);
+  void computeRates(Level1TriggerScalers const& t1, Level1TriggerScalers const& t2);
+  void computeRates(Level1TriggerScalers const& t1, Level1TriggerScalers const& t2, int runNumber);
 
   /// name method
   std::string name() const { return "Level1TriggerRates"; }
@@ -63,69 +52,56 @@ class Level1TriggerRates
 
   /// get the data
 
-  int version() const { return(version_);}
-  timespec collectionTime() { return(collectionTime_.get_timespec());}
+  int version() const { return (version_); }
+  timespec collectionTime() { return (collectionTime_.get_timespec()); }
 
-  unsigned long long deltaNS()  const { return(deltaNS_);}
-  double deltaT()               const { return(deltaT_);}
+  unsigned long long deltaNS() const { return (deltaNS_); }
+  double deltaT() const { return (deltaT_); }
 
-  double gtTriggersRate() const 
-  { return(gtTriggersRate_);}
+  double gtTriggersRate() const { return (gtTriggersRate_); }
 
-  double gtEventsRate() const 
-  { return(gtEventsRate_);}
+  double gtEventsRate() const { return (gtEventsRate_); }
 
-  timespec collectionTimeLumiSeg() 
-  { return(collectionTimeLumiSeg_.get_timespec());}
+  timespec collectionTimeLumiSeg() { return (collectionTimeLumiSeg_.get_timespec()); }
 
-  double triggersPhysicsGeneratedFDLRate() const 
-  { return(triggersPhysicsGeneratedFDLRate_);}
+  double triggersPhysicsGeneratedFDLRate() const { return (triggersPhysicsGeneratedFDLRate_); }
 
-  double triggersPhysicsLostRate() const 
-  { return(triggersPhysicsLostRate_);}
+  double triggersPhysicsLostRate() const { return (triggersPhysicsLostRate_); }
 
-  double triggersPhysicsLostBeamActiveRate() const 
-  { return(triggersPhysicsLostBeamActiveRate_);}
+  double triggersPhysicsLostBeamActiveRate() const { return (triggersPhysicsLostBeamActiveRate_); }
 
-  double triggersPhysicsLostBeamInactiveRate() const 
-  { return(triggersPhysicsLostBeamInactiveRate_);}
+  double triggersPhysicsLostBeamInactiveRate() const { return (triggersPhysicsLostBeamInactiveRate_); }
 
-  double l1AsPhysicsRate() const     { return(l1AsPhysicsRate_);}
+  double l1AsPhysicsRate() const { return (l1AsPhysicsRate_); }
 
-  double l1AsRandomRate() const      { return(l1AsRandomRate_);}
+  double l1AsRandomRate() const { return (l1AsRandomRate_); }
 
-  double l1AsTestRate() const        { return(l1AsTestRate_);}
+  double l1AsTestRate() const { return (l1AsTestRate_); }
 
-  double l1AsCalibrationRate() const { return(l1AsCalibrationRate_);}
+  double l1AsCalibrationRate() const { return (l1AsCalibrationRate_); }
 
-  double deadtimePercent() const     { return(deadtimePercent_);}
+  double deadtimePercent() const { return (deadtimePercent_); }
 
-  double deadtimeBeamActivePercent() const 
-  { return(deadtimeBeamActivePercent_);}
+  double deadtimeBeamActivePercent() const { return (deadtimeBeamActivePercent_); }
 
-  double deadtimeBeamActiveTriggerRulesPercent() const 
-  { return(deadtimeBeamActiveTriggerRulesPercent_);}
+  double deadtimeBeamActiveTriggerRulesPercent() const { return (deadtimeBeamActiveTriggerRulesPercent_); }
 
-  double deadtimeBeamActiveCalibrationPercent() const 
-  { return(deadtimeBeamActiveCalibrationPercent_);}
+  double deadtimeBeamActiveCalibrationPercent() const { return (deadtimeBeamActiveCalibrationPercent_); }
 
-  double deadtimeBeamActivePrivateOrbitPercent() const 
-  { return(deadtimeBeamActivePrivateOrbitPercent_);}
+  double deadtimeBeamActivePrivateOrbitPercent() const { return (deadtimeBeamActivePrivateOrbitPercent_); }
 
-  double deadtimeBeamActivePartitionControllerPercent() const 
-  { return(deadtimeBeamActivePartitionControllerPercent_);}
+  double deadtimeBeamActivePartitionControllerPercent() const {
+    return (deadtimeBeamActivePartitionControllerPercent_);
+  }
 
-  double deadtimeBeamActiveTimeSlotPercent() const 
-  { return(deadtimeBeamActiveTimeSlotPercent_);}
+  double deadtimeBeamActiveTimeSlotPercent() const { return (deadtimeBeamActiveTimeSlotPercent_); }
 
-  timespec collectionTime() const 
-  { return(collectionTime_.get_timespec());}
+  timespec collectionTime() const { return (collectionTime_.get_timespec()); }
 
-  timespec collectionTimeLumiSeg() const 
-  { return(collectionTimeLumiSeg_.get_timespec());}
+  timespec collectionTimeLumiSeg() const { return (collectionTimeLumiSeg_.get_timespec()); }
 
-  std::vector<double> gtAlgoCountsRate() const { return(gtAlgoCountsRate_);}
-  std::vector<double> gtTechCountsRate() const { return(gtTechCountsRate_);}
+  std::vector<double> gtAlgoCountsRate() const { return (gtAlgoCountsRate_); }
+  std::vector<double> gtTechCountsRate() const { return (gtTechCountsRate_); }
 
   /// equality operator
   int operator==(const Level1TriggerRates& e) const { return false; }
@@ -134,7 +110,6 @@ class Level1TriggerRates
   int operator!=(const Level1TriggerRates& e) const { return false; }
 
 protected:
-
   int version_;
 
   TimeSpec collectionTime_;
@@ -163,7 +138,6 @@ protected:
   std::vector<double> gtAlgoCountsRate_;
   std::vector<double> gtTechCountsRate_;
 };
-
 
 /// Pretty-print operator for Level1TriggerRates
 std::ostream& operator<<(std::ostream& s, const Level1TriggerRates& c);

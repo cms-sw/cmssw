@@ -10,35 +10,28 @@
 
 // Match by deltaR and deltaPt, ranking by deltaR (default)
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  reco::GenParticleCollection,
-  reco::MCMatchSelector<reco::CandidateView::value_type,
-			reco::GenParticleCollection::value_type>,
-  reco::MatchByDRDPt<reco::CandidateView::value_type,
-		     reco::GenParticleCollection::value_type>
-> MCMatcher;
+    reco::CandidateView,
+    reco::GenParticleCollection,
+    reco::MCMatchSelector<reco::CandidateView::value_type, reco::GenParticleCollection::value_type>,
+    reco::MatchByDRDPt<reco::CandidateView::value_type, reco::GenParticleCollection::value_type> >
+    MCMatcher;
 
 // Alternative: match by deltaR and deltaPt, ranking by deltaPt
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  reco::GenParticleCollection,
-  reco::MCMatchSelector<reco::CandidateView::value_type,
-			reco::GenParticleCollection::value_type>,
-  reco::MatchByDRDPt<reco::CandidateView::value_type,
-		     reco::GenParticleCollection::value_type>,
-  reco::MatchLessByDPt<reco::CandidateView,
-			 reco::GenParticleCollection>
-> MCMatcherByPt;
+    reco::CandidateView,
+    reco::GenParticleCollection,
+    reco::MCMatchSelector<reco::CandidateView::value_type, reco::GenParticleCollection::value_type>,
+    reco::MatchByDRDPt<reco::CandidateView::value_type, reco::GenParticleCollection::value_type>,
+    reco::MatchLessByDPt<reco::CandidateView, reco::GenParticleCollection> >
+    MCMatcherByPt;
 
 // JET Match by deltaR, ranking by deltaR (default)
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  reco::GenJetCollection,
-  reco::MCMatchSelector<reco::CandidateView::value_type,
-			reco::GenJetCollection::value_type>,
-  reco::MatchByDR<reco::CandidateView::value_type,
-		  reco::CandidateView::value_type>
-> GenJetMatcher;
+    reco::CandidateView,
+    reco::GenJetCollection,
+    reco::MCMatchSelector<reco::CandidateView::value_type, reco::GenJetCollection::value_type>,
+    reco::MatchByDR<reco::CandidateView::value_type, reco::CandidateView::value_type> >
+    GenJetMatcher;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(MCMatcher);

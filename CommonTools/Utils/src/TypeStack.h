@@ -16,6 +16,6 @@ namespace reco {
   namespace parser {
     typedef std::vector<edm::TypeWithDict> TypeStack;
   }
-}
+}  // namespace reco
 
 #endif

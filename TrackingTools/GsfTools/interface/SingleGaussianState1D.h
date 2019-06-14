@@ -8,34 +8,31 @@
  */
 
 class SingleGaussianState1D {
-// private:
-//   typedef SingleGaussianState<1> SingleState;
-  
+  // private:
+  //   typedef SingleGaussianState<1> SingleState;
+
 public:
-  
-  SingleGaussianState1D () :
-    theWeight(0.), theMean(0.), theVariance(0.), theStandardDeviation(-1.) {}
-  
-  SingleGaussianState1D (double aMean,
-			 double aVariance, 
-			 double aWeight = 1.) : 
-    theWeight(aWeight), theMean(aMean), theVariance(aVariance), theStandardDeviation(-1.) {}
-  
-  ~SingleGaussianState1D () {}
-  
+  SingleGaussianState1D() : theWeight(0.), theMean(0.), theVariance(0.), theStandardDeviation(-1.) {}
+
+  SingleGaussianState1D(double aMean, double aVariance, double aWeight = 1.)
+      : theWeight(aWeight), theMean(aMean), theVariance(aVariance), theStandardDeviation(-1.) {}
+
+  ~SingleGaussianState1D() {}
+
   /// weight
-  inline double weight() const {return theWeight;}
+  inline double weight() const { return theWeight; }
   /// parameter vector
-  inline double mean() const {return theMean;}
+  inline double mean() const { return theMean; }
   /// variance
-  inline double variance() const {return theVariance;}
+  inline double variance() const { return theVariance; }
   /// standardDeviation
   double standardDeviation() const {
-    if ( theStandardDeviation<0. )  theStandardDeviation = sqrt(theVariance);
+    if (theStandardDeviation < 0.)
+      theStandardDeviation = sqrt(theVariance);
     return theStandardDeviation;
   }
-//   /// state
-//   std::shared_ptr<SingleState> state() {return theState;}
+  //   /// state
+  //   std::shared_ptr<SingleState> state() {return theState;}
 
 private:
   double theWeight;

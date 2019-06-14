@@ -4,9 +4,8 @@ using namespace edm;
 using namespace reco;
 using namespace susybsm;
 
-
-BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC){
-/*
+BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
+  /*
   m_dedxEstimator1Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator1"));
   m_dedxEstimator2Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator2"));
   m_dedxEstimator3Token     = consumes<DeDxDataValueMap>(iConfig.getParameter<edm::InputTag>("dedxEstimator3"));
@@ -22,12 +21,10 @@ BetaCalculatorTK::BetaCalculatorTK(const edm::ParameterSet& iConfig, edm::Consum
 */
 }
 
-
-void BetaCalculatorTK::addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   //Do nothing since all dE/dx object are external and get be accessed via reference
-   return;
-/*
+void BetaCalculatorTK::addInfoToCandidate(HSCParticle& candidate, edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //Do nothing since all dE/dx object are external and get be accessed via reference
+  return;
+  /*
    if(!candidate.hasTrackRef())return;
 
    edm::Handle<DeDxDataValueMap> Estimator1H;
@@ -93,4 +90,3 @@ void BetaCalculatorTK::addInfoToCandidate(HSCParticle& candidate, edm::Event& iE
    candidate.setDedxDiscriminator6(Discriminator6[track]);
 */
 }
-

@@ -1,4 +1,4 @@
-#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h" 
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateClosestToBeamLineBuilder.h"
 
 #include "FWCore/Utilities/interface/typelookup.h"

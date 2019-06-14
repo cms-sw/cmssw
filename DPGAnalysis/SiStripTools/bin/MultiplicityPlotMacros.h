@@ -7,4 +7,4 @@ class TH1D;
 void PlotPixelMultVtxPos(TFile* ff, const char* module);
 TH1D* AverageRunMultiplicity(TFile& ff, const char* module, const bool excludeLastBins, const char* histo);
 
-#endif // DPGAnalysis_SiStripTools_MultiplicityPlotMacros_h
+#endif  // DPGAnalysis_SiStripTools_MultiplicityPlotMacros_h

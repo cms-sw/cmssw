@@ -34,7 +34,7 @@ struct HGCalValidatorHistograms {
 };
 
 class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
- public:
+public:
   using Histograms = HGCalValidatorHistograms;
 
   /// Constructor
@@ -43,17 +43,17 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   /// Destructor
   ~HGCalValidator() override;
 
-
   /// Method called once per event
-  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms& ) const override;
+  void dqmAnalyze(const edm::Event&, const edm::EventSetup&, const Histograms&) const override;
   /// Method called to book the DQM histograms
   void bookHistograms(DQMStore::ConcurrentBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
 
-  void cpParametersAndSelection(const Histograms& histograms, std::vector<CaloParticle> const & cPeff, std::vector<SimVertex> const & simVertices, std::vector<size_t>& selected_cPeff) const;
+  void cpParametersAndSelection(const Histograms& histograms,
+                                std::vector<CaloParticle> const& cPeff,
+                                std::vector<SimVertex> const& simVertices,
+                                std::vector<size_t>& selected_cPeff) const;
 
-
- protected:
-
+protected:
   std::vector<edm::InputTag> label;
   const bool SaveGeneralInfo_;
   const bool doCaloParticlePlots_;
@@ -70,14 +70,11 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   edm::EDGetTokenT<Density> density_;
   std::unique_ptr<HGVHistoProducerAlgo> histoProducerAlgo_;
 
-
-
- private:
-
-  void fillHitMap(std::map<DetId, const HGCRecHit * > &,
-      const HGCRecHitCollection &,
-      const HGCRecHitCollection &,
-      const HGCRecHitCollection &) const;
+private:
+  void fillHitMap(std::map<DetId, const HGCRecHit*>&,
+                  const HGCRecHitCollection&,
+                  const HGCRecHitCollection&,
+                  const HGCRecHitCollection&) const;
   CaloParticleSelector cpSelector;
   std::shared_ptr<hgcal::RecHitTools> tools_;
   std::map<double, double> cummatbudg;
@@ -86,6 +83,5 @@ class HGCalValidator : public DQMGlobalEDAnalyzer<HGCalValidatorHistograms> {
   std::vector<int> thicknesses_to_monitor_;
   std::string dirName_;
 };
-
 
 #endif

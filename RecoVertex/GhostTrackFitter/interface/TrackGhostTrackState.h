@@ -14,42 +14,37 @@
 
 namespace reco {
 
-class GhostTrackPrediction;
+  class GhostTrackPrediction;
 
-class TrackGhostTrackState : public BasicGhostTrackState {
-    public:
-	TrackGhostTrackState(const TransientTrack &track) : track_(track) {}
+  class TrackGhostTrackState : public BasicGhostTrackState {
+  public:
+    TrackGhostTrackState(const TransientTrack &track) : track_(track) {}
 
-	const TransientTrack &track() const { return track_; }
-	const TrajectoryStateOnSurface &tsos() const { return tsos_; }
+    const TransientTrack &track() const { return track_; }
+    const TrajectoryStateOnSurface &tsos() const { return tsos_; }
 
-	bool isValid() const override { return tsos_.isValid(); }
+    bool isValid() const override { return tsos_.isValid(); }
 
-	GlobalPoint globalPosition() const override
-	{ return tsos_.globalPosition(); }
-	GlobalError cartesianError() const override
-	{ return tsos_.cartesianError().position(); }
-	CovarianceMatrix cartesianCovariance() const override
-	{ return tsos_.cartesianError().matrix().Sub<CovarianceMatrix>(0, 0); }
+    GlobalPoint globalPosition() const override { return tsos_.globalPosition(); }
+    GlobalError cartesianError() const override { return tsos_.cartesianError().position(); }
+    CovarianceMatrix cartesianCovariance() const override {
+      return tsos_.cartesianError().matrix().Sub<CovarianceMatrix>(0, 0);
+    }
 
-	void reset() override { tsos_ = TrajectoryStateOnSurface(); }
-	bool linearize(const GhostTrackPrediction &pred,
-	               bool initial, double lambda) override;
-	bool linearize(const GhostTrackPrediction &pred, double lambda) override;
+    void reset() override { tsos_ = TrajectoryStateOnSurface(); }
+    bool linearize(const GhostTrackPrediction &pred, bool initial, double lambda) override;
+    bool linearize(const GhostTrackPrediction &pred, double lambda) override;
 
-	Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred,
-	                               bool withMeasurementError) const override;
-	Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred,
-	                                bool withGhostTrackError) const override;
+    Vertex vertexStateOnGhostTrack(const GhostTrackPrediction &pred, bool withMeasurementError) const override;
+    Vertex vertexStateOnMeasurement(const GhostTrackPrediction &pred, bool withGhostTrackError) const override;
 
-    private:
-	pointer clone() const override
-	{ return build<TrackGhostTrackState>(*this); }
+  private:
+    pointer clone() const override { return build<TrackGhostTrackState>(*this); }
 
-	TrajectoryStateOnSurface	tsos_;
-	TransientTrack			track_;
-};
+    TrajectoryStateOnSurface tsos_;
+    TransientTrack track_;
+  };
 
-}
+}  // namespace reco
 
-#endif // RecoBTag_TrackGhostTrackState_h
+#endif  // RecoBTag_TrackGhostTrackState_h

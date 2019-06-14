@@ -16,31 +16,31 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 namespace reco {
-class Muon;
-class Jet;
-class MET;
-class Vertex;
-class Photon;
-class BeamSpot;
-}
+  class Muon;
+  class Jet;
+  class MET;
+  class Vertex;
+  class Photon;
+  class BeamSpot;
+}  // namespace reco
 
 class DQMStore;
 class MonitorElement;
 
 class EwkMuDQM : public DQMEDAnalyzer {
- public:
-   EwkMuDQM(const edm::ParameterSet&);
+public:
+  EwkMuDQM(const edm::ParameterSet&);
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
 protected:
   //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
-   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-   void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
   void init_histograms();
 
- private:
+private:
   edm::InputTag metTag_;
   edm::InputTag jetTag_;
   edm::EDGetTokenT<edm::TriggerResults> trigTag_;

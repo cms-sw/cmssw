@@ -9,38 +9,28 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 class ForwardDetRing : public GeometricSearchDet {
- public:
-
+public:
   using GeometricSearchDet::GeometricSearchDet;
-
 
   ~ForwardDetRing() override;
 
-  
-  void
-  compatibleDetsV( const TrajectoryStateOnSurface& startingState,
-		   const Propagator& prop, 
-		   const MeasurementEstimator& est,
-		   std::vector<DetWithState>& result) const override;
-  
-  const BoundSurface& surface() const final {return *theDisk;}
+  void compatibleDetsV(const TrajectoryStateOnSurface& startingState,
+                       const Propagator& prop,
+                       const MeasurementEstimator& est,
+                       std::vector<DetWithState>& result) const override;
 
-  
+  const BoundSurface& surface() const final { return *theDisk; }
+
   //--- Extension of the interface
 
   /// Return the ring surface as a BoundDisk
-  const BoundDisk& specificSurface() const {return *theDisk;}
-
+  const BoundDisk& specificSurface() const { return *theDisk; }
 
 protected:
-
   /// Set the rod's disk
-  void setDisk( BoundDisk* disk) { theDisk = disk;}
+  void setDisk(BoundDisk* disk) { theDisk = disk; }
 
-  
- private:
-  ReferenceCountingPointer<BoundDisk>  theDisk;
-
+private:
+  ReferenceCountingPointer<BoundDisk> theDisk;
 };
 #endif
-

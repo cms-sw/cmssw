@@ -19,7 +19,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 /* Collaborating Class Declarations */
 #include "DataFormats/Common/interface/Handle.h"
@@ -42,76 +42,70 @@ class DTTTrigBaseSync;
 /* Class DTEffAnalyzer Interface */
 
 class DTEffAnalyzer : public edm::EDAnalyzer {
+public:
+  /* Constructor */
+  DTEffAnalyzer(const edm::ParameterSet& pset);
 
-  public:
+  /* Destructor */
+  ~DTEffAnalyzer();
 
-/* Constructor */ 
-    DTEffAnalyzer(const edm::ParameterSet& pset) ;
+  /* Operations */
 
-/* Destructor */ 
-    ~DTEffAnalyzer() ;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void beginJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
-/* Operations */ 
+private:
+  TH1F* histo(const std::string& name) const;
+  TH2F* histo2d(const std::string& name) const;
 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
-    void beginJob();
-    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void effSegments(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-  private:
+  const DTRecSegment4D& getBestSegment(const DTRecSegment4DCollection::range& segs) const;
+  const DTRecSegment4D* getBestSegment(const DTRecSegment4D* s1, const DTRecSegment4D* s2) const;
+  bool isGoodSegment(const DTRecSegment4D& seg) const;
+  LocalPoint interpolate(const DTRecSegment4D& seg1, const DTRecSegment4D& seg3, const DTChamberId& MB2) const;
 
-    TH1F* histo(const std::string& name) const;
-    TH2F* histo2d(const std::string& name) const;
+  void evaluateEff(const DTChamberId& MidId, int bottom, int top) const;
 
-    void effSegments(const edm::Event & event,
-                     const edm::EventSetup& eventSetup);
-    
-    const DTRecSegment4D& getBestSegment(const DTRecSegment4DCollection::range& segs) const;
-    const DTRecSegment4D* getBestSegment(const DTRecSegment4D* s1,
-                                         const DTRecSegment4D* s2) const;
-    bool isGoodSegment(const DTRecSegment4D& seg) const;
-    LocalPoint interpolate(const DTRecSegment4D& seg1,
-                           const DTRecSegment4D& seg3,
-                           const DTChamberId& MB2) const;
+  void createTH1F(const std::string& name,
+                  const std::string& title,
+                  const std::string& suffix,
+                  int nbin,
+                  const double& binMin,
+                  const double& binMax) const;
 
-    void evaluateEff(const DTChamberId& MidId,
-                     int bottom,
-                     int top) const ;
+  void createTH2F(const std::string& name,
+                  const std::string& title,
+                  const std::string& suffix,
+                  int nBinX,
+                  const double& binXMin,
+                  const double& binXMax,
+                  int nBinY,
+                  const double& binYMin,
+                  const double& binYMax) const;
 
-    void createTH1F(const std::string& name,
-                    const std::string& title,
-                    const std::string& suffix,
-                    int nbin, const double& binMin, const double& binMax) const;
+  std::string toString(const DTChamberId& id) const;
+  template <class T>
+  std::string hName(const std::string& s, const T& id) const;
 
-    void createTH2F(const std::string& name,
-                    const std::string& title,
-                    const std::string& suffix,
-                    int nBinX,
-                    const double& binXMin,
-                    const double& binXMax,
-                    int nBinY,
-                    const double& binYMin,
-                    const double& binYMax) const ;
+private:
+  bool debug;
+  std::string theRootFileName;
+  TFile* theFile;
+  //static std::string theAlgoName;
+  std::string theDTLocalTriggerLabel;
+  std::string theRecHits4DLabel;
+  std::string theRecHits2DLabel;
+  std::string theRecHits1DLabel;
+  std::string theSTAMuonLabel;
+  unsigned int theMinHitsSegment;
+  double theMinChi2NormSegment;
+  double theMinCloseDist;
 
-    std::string toString(const DTChamberId& id) const;
-    template<class T> std::string hName(const std::string& s, const T& id) const;
-  private:
-    bool debug;
-    std::string theRootFileName;
-    TFile* theFile;
-    //static std::string theAlgoName;
-    std::string theDTLocalTriggerLabel;
-    std::string theRecHits4DLabel;
-    std::string theRecHits2DLabel;     
-    std::string theRecHits1DLabel;     
-    std::string theSTAMuonLabel;
-    unsigned int theMinHitsSegment;
-    double theMinChi2NormSegment;
-    double theMinCloseDist;
+  edm::ESHandle<DTGeometry> dtGeom;
+  edm::Handle<DTRecSegment4DCollection> segs;
 
-    edm::ESHandle<DTGeometry> dtGeom;
-    edm::Handle<DTRecSegment4DCollection> segs;
-  protected:
-
+protected:
 };
-#endif // DTANALYZER_H
-
+#endif  // DTANALYZER_H

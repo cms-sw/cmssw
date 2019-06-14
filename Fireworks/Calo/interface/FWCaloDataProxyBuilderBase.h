@@ -4,7 +4,7 @@
 //
 // Package:     Calo
 // Class  :     FWCaloDataProxyBuilderBase
-// 
+//
 /**\class FWCaloDataProxyBuilderBase FWCaloDataProxyBuilderBase.h Fireworks/Calo/interface/FWCaloDataProxyBuilderBase.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Mon May 31 15:09:19 CEST 2010
 //
 
@@ -31,45 +31,41 @@
 // forward declarations
 class TEveCaloData;
 
-class FWCaloDataProxyBuilderBase : public FWProxyBuilderBase
-{
+class FWCaloDataProxyBuilderBase : public FWProxyBuilderBase {
 public:
-   FWCaloDataProxyBuilderBase();
-   ~FWCaloDataProxyBuilderBase() override;
+  FWCaloDataProxyBuilderBase();
+  ~FWCaloDataProxyBuilderBase() override;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   bool willHandleInteraction() const override { return true; }
+  bool willHandleInteraction() const override { return true; }
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
 protected:
-   void build(const FWEventItem* iItem,
-                      TEveElementList* product, const FWViewContext*) override;
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
-   virtual void setCaloData(const fireworks::Context&) = 0;
-   virtual void fillCaloData() = 0; 
-   virtual bool assertCaloDataSlice() = 0;
+  virtual void setCaloData(const fireworks::Context&) = 0;
+  virtual void fillCaloData() = 0;
+  virtual bool assertCaloDataSlice() = 0;
 
-   // ---------- member data --------------------------------
-   TEveCaloData* m_caloData;
-   Int_t m_sliceIndex;
-   void itemBeingDestroyed(const FWEventItem*) override;
+  // ---------- member data --------------------------------
+  TEveCaloData* m_caloData;
+  Int_t m_sliceIndex;
+  void itemBeingDestroyed(const FWEventItem*) override;
 
 private:
-   FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&) = delete; // stop default
+  FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&) = delete;  // stop default
 
-   const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&) = delete; // stop default
+  const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
+  // ---------- member data --------------------------------
 
+  void modelChanges(const FWModelIds&, Product*) override;
 
-   void modelChanges(const FWModelIds&, Product*) override;
-
-   void clearCaloDataSelection();
+  void clearCaloDataSelection();
 };
-
 
 #endif

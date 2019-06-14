@@ -10,32 +10,29 @@
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisRecoElectronDataFormat
-  {
-    L1AnalysisRecoElectronDataFormat(){Reset();};
-    ~L1AnalysisRecoElectronDataFormat(){Reset();};
+namespace L1Analysis {
+  struct L1AnalysisRecoElectronDataFormat {
+    L1AnalysisRecoElectronDataFormat() { Reset(); };
+    ~L1AnalysisRecoElectronDataFormat() { Reset(); };
 
-    void Reset()
-    {
-    nElectrons=0;
+    void Reset() {
+      nElectrons = 0;
 
-    e.clear();
-    et.clear();
-    e_ECAL.clear();
-    e_SC.clear();
-    pt.clear();
-    eta.clear();
-    eta_SC.clear();
-    phi_SC.clear();
-    phi.clear();
-    iso.clear();
-    isVetoElectron.clear();
-    isLooseElectron.clear();
-    isMediumElectron.clear();
-    isTightElectron.clear();
-    charge.clear();
+      e.clear();
+      et.clear();
+      e_ECAL.clear();
+      e_SC.clear();
+      pt.clear();
+      eta.clear();
+      eta_SC.clear();
+      phi_SC.clear();
+      phi.clear();
+      iso.clear();
+      isVetoElectron.clear();
+      isLooseElectron.clear();
+      isMediumElectron.clear();
+      isTightElectron.clear();
+      charge.clear();
     }
 
     unsigned nElectrons;
@@ -54,9 +51,6 @@ namespace L1Analysis
     std::vector<short> isMediumElectron;
     std::vector<short> isTightElectron;
     std::vector<int> charge;
-
   };
-}
+}  // namespace L1Analysis
 #endif
-
-

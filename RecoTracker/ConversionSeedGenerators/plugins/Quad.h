@@ -10,4 +10,4 @@ struct Quad {
   double cot;
 };
 
-#endif 
+#endif

@@ -6,68 +6,64 @@
 
 namespace heppy {
 
-EGammaMvaEleEstimatorFWLite::EGammaMvaEleEstimatorFWLite() :
-    estimator_(nullptr),
-    estimatorCSA14_(nullptr)
-{
-}
+  EGammaMvaEleEstimatorFWLite::EGammaMvaEleEstimatorFWLite() : estimator_(nullptr), estimatorCSA14_(nullptr) {}
 
-EGammaMvaEleEstimatorFWLite::~EGammaMvaEleEstimatorFWLite()
-{
+  EGammaMvaEleEstimatorFWLite::~EGammaMvaEleEstimatorFWLite() {
     delete estimator_;
     delete estimatorCSA14_;
-}
+  }
 
-void EGammaMvaEleEstimatorFWLite::initialize( std::string methodName,
-        MVAType type,
-        bool useBinnedVersion,
-        std::vector<std::string> weightsfiles ) 
-{
-    delete estimator_; estimator_ = nullptr;
-    delete estimatorCSA14_; estimatorCSA14_ = nullptr;
+  void EGammaMvaEleEstimatorFWLite::initialize(std::string methodName,
+                                               MVAType type,
+                                               bool useBinnedVersion,
+                                               std::vector<std::string> weightsfiles) {
+    delete estimator_;
+    estimator_ = nullptr;
+    delete estimatorCSA14_;
+    estimatorCSA14_ = nullptr;
     std::vector<std::string> weightspaths;
-    for (const std::string &s : weightsfiles) {
-        weightspaths.push_back( edm::FileInPath(s).fullPath() );
+    for (const std::string& s : weightsfiles) {
+      weightspaths.push_back(edm::FileInPath(s).fullPath());
     }
-    switch(type) {
-        case EGammaMvaEleEstimatorFWLite::kTrig: 
-            estimator_ = new EGammaMvaEleEstimator();
-            estimator_->initialize(methodName, EGammaMvaEleEstimator::kTrig, useBinnedVersion, weightspaths);
-            break;
-        case EGammaMvaEleEstimatorFWLite::kTrigNoIP:
-            estimator_ = new EGammaMvaEleEstimator();
-            estimator_->initialize(methodName, EGammaMvaEleEstimator::kTrigNoIP, useBinnedVersion, weightspaths);
-            break;
-        case EGammaMvaEleEstimatorFWLite::kNonTrig:
-            estimator_ = new EGammaMvaEleEstimator();
-            estimator_->initialize(methodName, EGammaMvaEleEstimator::kNonTrig, useBinnedVersion, weightspaths);
-            break;
-        case EGammaMvaEleEstimatorFWLite::kTrigCSA14:
-            estimatorCSA14_ = new EGammaMvaEleEstimatorCSA14();
-            estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kTrig, useBinnedVersion, weightspaths);
-            break;
-        case EGammaMvaEleEstimatorFWLite::kNonTrigCSA14:
-            estimatorCSA14_ = new EGammaMvaEleEstimatorCSA14();
-            estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kNonTrig, useBinnedVersion, weightspaths);
-            break;
-        case EGammaMvaEleEstimatorFWLite::kNonTrigPhys14:
-            estimatorCSA14_ = new EGammaMvaEleEstimatorCSA14();
-            estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kNonTrigPhys14, useBinnedVersion, weightspaths);
-            break;
-        default:
-            return;
+    switch (type) {
+      case EGammaMvaEleEstimatorFWLite::kTrig:
+        estimator_ = new EGammaMvaEleEstimator();
+        estimator_->initialize(methodName, EGammaMvaEleEstimator::kTrig, useBinnedVersion, weightspaths);
+        break;
+      case EGammaMvaEleEstimatorFWLite::kTrigNoIP:
+        estimator_ = new EGammaMvaEleEstimator();
+        estimator_->initialize(methodName, EGammaMvaEleEstimator::kTrigNoIP, useBinnedVersion, weightspaths);
+        break;
+      case EGammaMvaEleEstimatorFWLite::kNonTrig:
+        estimator_ = new EGammaMvaEleEstimator();
+        estimator_->initialize(methodName, EGammaMvaEleEstimator::kNonTrig, useBinnedVersion, weightspaths);
+        break;
+      case EGammaMvaEleEstimatorFWLite::kTrigCSA14:
+        estimatorCSA14_ = new EGammaMvaEleEstimatorCSA14();
+        estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kTrig, useBinnedVersion, weightspaths);
+        break;
+      case EGammaMvaEleEstimatorFWLite::kNonTrigCSA14:
+        estimatorCSA14_ = new EGammaMvaEleEstimatorCSA14();
+        estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kNonTrig, useBinnedVersion, weightspaths);
+        break;
+      case EGammaMvaEleEstimatorFWLite::kNonTrigPhys14:
+        estimatorCSA14_ = new EGammaMvaEleEstimatorCSA14();
+        estimatorCSA14_->initialize(
+            methodName, EGammaMvaEleEstimatorCSA14::kNonTrigPhys14, useBinnedVersion, weightspaths);
+        break;
+      default:
+        return;
     }
-}
+  }
 
-float EGammaMvaEleEstimatorFWLite::mvaValue(const pat::Electron& ele,
-                const reco::Vertex& vertex,
-                double rho,
-                bool full5x5,
-                bool printDebug)
-{
-    if (estimator_) return estimator_->mvaValue(ele,vertex,rho,full5x5,printDebug);
-    else if (estimatorCSA14_) return estimatorCSA14_->mvaValue(ele,printDebug);
-    else throw cms::Exception("LogicError", "You must call unitialize before mvaValue\n");
-}
+  float EGammaMvaEleEstimatorFWLite::mvaValue(
+      const pat::Electron& ele, const reco::Vertex& vertex, double rho, bool full5x5, bool printDebug) {
+    if (estimator_)
+      return estimator_->mvaValue(ele, vertex, rho, full5x5, printDebug);
+    else if (estimatorCSA14_)
+      return estimatorCSA14_->mvaValue(ele, printDebug);
+    else
+      throw cms::Exception("LogicError", "You must call unitialize before mvaValue\n");
+  }
 
-}
+}  // namespace heppy

@@ -3,21 +3,18 @@
 
 //-------------------------------------------------------------------------------
 // Created 20/04/2010 - E. Conte, A.C. Le Bihan
-// 
-// 
+//
+//
 // Original code : L1Trigger/L1TNtuples/L1NtupleProducer
 //-------------------------------------------------------------------------------
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisL1CaloTowerDataFormat
-  {
-    L1AnalysisL1CaloTowerDataFormat(){Reset();};
+namespace L1Analysis {
+  struct L1AnalysisL1CaloTowerDataFormat {
+    L1AnalysisL1CaloTowerDataFormat() { Reset(); };
     ~L1AnalysisL1CaloTowerDataFormat(){};
-    
-    
+
     void Reset() {
       nTower = 0;
       ieta.clear();
@@ -31,11 +28,8 @@ namespace L1Analysis
       eta.clear();
       phi.clear();
     }
-    
-    void Init() {
 
-    }
-    
+    void Init() {}
 
     short nTower;
     std::vector<short> ieta;
@@ -48,8 +42,6 @@ namespace L1Analysis
     std::vector<float> et;
     std::vector<float> eta;
     std::vector<float> phi;
-    
-  }; 
-} 
+  };
+}  // namespace L1Analysis
 #endif
-

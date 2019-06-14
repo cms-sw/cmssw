@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Author: Sébastien Brochet 
+// Author: Sébastien Brochet
 //
 
 // system include files
@@ -26,103 +26,88 @@
 //
 
 class JetResolutionDBReader : public edm::EDAnalyzer {
-    public:
-        explicit JetResolutionDBReader(const edm::ParameterSet&);
-        ~JetResolutionDBReader() override;
+public:
+  explicit JetResolutionDBReader(const edm::ParameterSet&);
+  ~JetResolutionDBReader() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-    private:
-        void beginJob() override ;
-        void analyze(const edm::Event&, const edm::EventSetup&) override;
-        void endJob() override ;
+  std::string m_era;
+  std::string m_label;
 
-        std::string m_era;
-        std::string m_label;
-
-        bool m_save_file;
-        bool m_print;
+  bool m_save_file;
+  bool m_print;
 };
 
 class JetResolutionScaleFactorDBReader : public edm::EDAnalyzer {
-    public:
-        explicit JetResolutionScaleFactorDBReader(const edm::ParameterSet&);
+public:
+  explicit JetResolutionScaleFactorDBReader(const edm::ParameterSet&);
 
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    private:
-        void analyze(const edm::Event&, const edm::EventSetup&) override;
+  std::string m_era;
+  std::string m_label;
 
-        std::string m_era;
-        std::string m_label;
-
-        bool m_save_file;
-        bool m_print;
+  bool m_save_file;
+  bool m_print;
 };
 
-
-JetResolutionDBReader::JetResolutionDBReader(const edm::ParameterSet& iConfig)
-{
-    m_era           = iConfig.getUntrackedParameter<std::string>("era");
-    m_label         = iConfig.getUntrackedParameter<std::string>("label");
-    m_print         = iConfig.getUntrackedParameter<bool>("dump", true);
-    m_save_file     = iConfig.getUntrackedParameter<bool>("saveFile", false);
+JetResolutionDBReader::JetResolutionDBReader(const edm::ParameterSet& iConfig) {
+  m_era = iConfig.getUntrackedParameter<std::string>("era");
+  m_label = iConfig.getUntrackedParameter<std::string>("label");
+  m_print = iConfig.getUntrackedParameter<bool>("dump", true);
+  m_save_file = iConfig.getUntrackedParameter<bool>("saveFile", false);
 }
 
+JetResolutionDBReader::~JetResolutionDBReader() {}
 
-JetResolutionDBReader::~JetResolutionDBReader()
-{
+void JetResolutionDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
+  std::cout << "Inspecting JER payload for label: " << m_label << std::endl;
 
+  iSetup.get<JetResolutionRcd>().get(m_label, jerObjectHandle);
+
+  if (m_print) {
+    jerObjectHandle->dump();
+  }
+
+  if (m_save_file) {
+    std::string f = m_era + "_" + m_label + ".txt";
+    jerObjectHandle->saveToFile(f);
+    std::cout << "JER payload saved as " << f << std::endl;
+  }
 }
 
-void JetResolutionDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-    edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
-    std::cout << "Inspecting JER payload for label: "<< m_label << std::endl;
+void JetResolutionDBReader::beginJob() {}
 
-    iSetup.get<JetResolutionRcd>().get(m_label, jerObjectHandle);
+void JetResolutionDBReader::endJob() {}
 
-    if (m_print) {
-        jerObjectHandle->dump();
-    }
-
-    if (m_save_file) {
-        std::string f = m_era + "_" + m_label + ".txt";
-        jerObjectHandle->saveToFile(f);
-        std::cout << "JER payload saved as " << f << std::endl;
-    }
+JetResolutionScaleFactorDBReader::JetResolutionScaleFactorDBReader(const edm::ParameterSet& iConfig) {
+  m_era = iConfig.getUntrackedParameter<std::string>("era");
+  m_label = iConfig.getUntrackedParameter<std::string>("label");
+  m_print = iConfig.getUntrackedParameter<bool>("dump", true);
+  m_save_file = iConfig.getUntrackedParameter<bool>("saveFile", false);
 }
 
-void JetResolutionDBReader::beginJob()
-{
-}
+void JetResolutionScaleFactorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
+  std::cout << "Inspecting JER SF payload for label: " << m_label << std::endl;
 
-void JetResolutionDBReader::endJob() 
-{
-}
+  iSetup.get<JetResolutionScaleFactorRcd>().get(m_label, jerObjectHandle);
 
-JetResolutionScaleFactorDBReader::JetResolutionScaleFactorDBReader(const edm::ParameterSet& iConfig)
-{
-    m_era           = iConfig.getUntrackedParameter<std::string>("era");
-    m_label         = iConfig.getUntrackedParameter<std::string>("label");
-    m_print         = iConfig.getUntrackedParameter<bool>("dump", true);
-    m_save_file     = iConfig.getUntrackedParameter<bool>("saveFile", false);
-}
+  if (m_print) {
+    jerObjectHandle->dump();
+  }
 
-void JetResolutionScaleFactorDBReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-    edm::ESHandle<JME::JetResolutionObject> jerObjectHandle;
-    std::cout << "Inspecting JER SF payload for label: "<< m_label << std::endl;
-
-    iSetup.get<JetResolutionScaleFactorRcd>().get(m_label, jerObjectHandle);
-
-    if (m_print) {
-        jerObjectHandle->dump();
-    }
-
-    if (m_save_file) {
-        std::string f = m_era + "_" + m_label + ".txt";
-        jerObjectHandle->saveToFile(f);
-        std::cout << "JER SF payload saved as " << f << std::endl;
-    }
+  if (m_save_file) {
+    std::string f = m_era + "_" + m_label + ".txt";
+    jerObjectHandle->saveToFile(f);
+    std::cout << "JER SF payload saved as " << f << std::endl;
+  }
 }
 
 //define this as a plug-in

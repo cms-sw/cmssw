@@ -1,98 +1,132 @@
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessor.h"
 
+SectorProcessor::SectorProcessor() {}
 
-SectorProcessor::SectorProcessor() {
+SectorProcessor::~SectorProcessor() {}
 
-}
+void SectorProcessor::configure(const GeometryTranslator* tp_geom,
+                                const ConditionHelper* cond,
+                                const SectorProcessorLUT* lut,
+                                PtAssignmentEngine* pt_assign_engine,
+                                int verbose,
+                                int endcap,
+                                int sector,
+                                int minBX,
+                                int maxBX,
+                                int bxWindow,
+                                int bxShiftCSC,
+                                int bxShiftRPC,
+                                int bxShiftGEM,
+                                std::string era,
+                                const std::vector<int>& zoneBoundaries,
+                                int zoneOverlap,
+                                bool includeNeighbor,
+                                bool duplicateTheta,
+                                bool fixZonePhi,
+                                bool useNewZones,
+                                bool fixME11Edges,
+                                const std::vector<std::string>& pattDefinitions,
+                                const std::vector<std::string>& symPattDefinitions,
+                                bool useSymPatterns,
+                                int thetaWindow,
+                                int thetaWindowZone0,
+                                bool useRPC,
+                                bool useSingleHits,
+                                bool bugSt2PhDiff,
+                                bool bugME11Dupes,
+                                bool bugAmbigThetaWin,
+                                bool twoStationSameBX,
+                                int maxRoadsPerZone,
+                                int maxTracks,
+                                bool useSecondEarliest,
+                                bool bugSameSectorPt0,
+                                bool readPtLUTFile,
+                                bool fixMode15HighPt,
+                                bool bug9BitDPhi,
+                                bool bugMode7CLCT,
+                                bool bugNegPt,
+                                bool bugGMTPhi,
+                                bool promoteMode7,
+                                int modeQualVer) {
+  if (not(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP)) {
+    edm::LogError("L1T") << "emtf::MIN_ENDCAP = " << emtf::MIN_ENDCAP << ", emtf::MAX_ENDCAP = " << emtf::MAX_ENDCAP
+                         << ", endcap = " << endcap;
+    return;
+  }
+  if (not(emtf::MIN_TRIGSECTOR <= sector && sector <= emtf::MAX_TRIGSECTOR)) {
+    edm::LogError("L1T") << "emtf::MIN_TRIGSECTOR = " << emtf::MIN_TRIGSECTOR
+                         << ", emtf::MAX_TRIGSECTOR = " << emtf::MAX_TRIGSECTOR << ", endcap = " << sector;
+    return;
+  }
+  if (not(tp_geom != nullptr)) {
+    edm::LogError("L1T") << "tp_geom = nullptr";
+    return;
+  }
+  if (not(cond != nullptr)) {
+    edm::LogError("L1T") << "cond = nullptr";
+    return;
+  }
+  if (not(lut != nullptr)) {
+    edm::LogError("L1T") << "lut = nullptr";
+    return;
+  }
+  if (not(pt_assign_engine != nullptr)) {
+    edm::LogError("L1T") << "pt_assign_engine = nullptr";
+    return;
+  }
 
-SectorProcessor::~SectorProcessor() {
-
-}
-
-void SectorProcessor::configure(
-    const GeometryTranslator* tp_geom,
-    const ConditionHelper* cond,
-    const SectorProcessorLUT* lut,
-    PtAssignmentEngine* pt_assign_engine,
-    int verbose, int endcap, int sector,
-    int minBX, int maxBX, int bxWindow, int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
-    std::string era,
-    const std::vector<int>& zoneBoundaries, int zoneOverlap,
-    bool includeNeighbor, bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
-    const std::vector<std::string>& pattDefinitions, const std::vector<std::string>& symPattDefinitions, bool useSymPatterns,
-    int thetaWindow, int thetaWindowZone0, bool useRPC, bool useSingleHits, bool bugSt2PhDiff, bool bugME11Dupes, bool bugAmbigThetaWin, bool twoStationSameBX,
-    int maxRoadsPerZone, int maxTracks, bool useSecondEarliest, bool bugSameSectorPt0,
-    bool readPtLUTFile, bool fixMode15HighPt, bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt, bool bugGMTPhi, bool promoteMode7, int modeQualVer
-) {
-  if (not(emtf::MIN_ENDCAP <= endcap && endcap <= emtf::MAX_ENDCAP))
-    { edm::LogError("L1T") << "emtf::MIN_ENDCAP = " << emtf::MIN_ENDCAP 
-			   << ", emtf::MAX_ENDCAP = " << emtf::MAX_ENDCAP
-			   << ", endcap = " << endcap; return; }
-  if (not(emtf::MIN_TRIGSECTOR <= sector && sector <= emtf::MAX_TRIGSECTOR))
-    { edm::LogError("L1T") << "emtf::MIN_TRIGSECTOR = " << emtf::MIN_TRIGSECTOR 
-			   << ", emtf::MAX_TRIGSECTOR = " << emtf::MAX_TRIGSECTOR
-			   << ", endcap = " << sector; return; }
-  if (not(tp_geom != nullptr))
-    { edm::LogError("L1T") << "tp_geom = nullptr"; return; }
-  if (not(cond != nullptr))
-    { edm::LogError("L1T") << "cond = nullptr"; return; }
-  if (not(lut != nullptr))
-    { edm::LogError("L1T") << "lut = nullptr"; return; }
-  if (not(pt_assign_engine != nullptr))
-    { edm::LogError("L1T") << "pt_assign_engine = nullptr"; return; }
-
-  tp_geom_          = tp_geom;
-  cond_             = cond;
-  lut_              = lut;
+  tp_geom_ = tp_geom;
+  cond_ = cond;
+  lut_ = lut;
   pt_assign_engine_ = pt_assign_engine;
 
-  verbose_  = verbose;
-  endcap_   = endcap;
-  sector_   = sector;
+  verbose_ = verbose;
+  endcap_ = endcap;
+  sector_ = sector;
 
-  minBX_       = minBX;
-  maxBX_       = maxBX;
-  bxWindow_    = bxWindow;
-  bxShiftCSC_  = bxShiftCSC;
-  bxShiftRPC_  = bxShiftRPC;
-  bxShiftGEM_  = bxShiftGEM;
+  minBX_ = minBX;
+  maxBX_ = maxBX;
+  bxWindow_ = bxWindow;
+  bxShiftCSC_ = bxShiftCSC;
+  bxShiftRPC_ = bxShiftRPC;
+  bxShiftGEM_ = bxShiftGEM;
 
   era_ = era;
 
-  zoneBoundaries_     = zoneBoundaries;
-  zoneOverlap_        = zoneOverlap;
-  includeNeighbor_    = includeNeighbor;
-  duplicateTheta_     = duplicateTheta;
-  fixZonePhi_         = fixZonePhi;
-  useNewZones_        = useNewZones;
-  fixME11Edges_       = fixME11Edges;
+  zoneBoundaries_ = zoneBoundaries;
+  zoneOverlap_ = zoneOverlap;
+  includeNeighbor_ = includeNeighbor;
+  duplicateTheta_ = duplicateTheta;
+  fixZonePhi_ = fixZonePhi;
+  useNewZones_ = useNewZones;
+  fixME11Edges_ = fixME11Edges;
 
-  pattDefinitions_    = pattDefinitions;
+  pattDefinitions_ = pattDefinitions;
   symPattDefinitions_ = symPattDefinitions;
-  useSymPatterns_     = useSymPatterns;
+  useSymPatterns_ = useSymPatterns;
 
-  thetaWindow_        = thetaWindow;
-  thetaWindowZone0_   = thetaWindowZone0;
-  useRPC_             = useRPC;
-  useSingleHits_      = useSingleHits;
-  bugSt2PhDiff_       = bugSt2PhDiff;
-  bugME11Dupes_       = bugME11Dupes;
-  bugAmbigThetaWin_   = bugAmbigThetaWin;
-  twoStationSameBX_   = twoStationSameBX;
+  thetaWindow_ = thetaWindow;
+  thetaWindowZone0_ = thetaWindowZone0;
+  useRPC_ = useRPC;
+  useSingleHits_ = useSingleHits;
+  bugSt2PhDiff_ = bugSt2PhDiff;
+  bugME11Dupes_ = bugME11Dupes;
+  bugAmbigThetaWin_ = bugAmbigThetaWin;
+  twoStationSameBX_ = twoStationSameBX;
 
-  maxRoadsPerZone_    = maxRoadsPerZone;
-  maxTracks_          = maxTracks;
-  useSecondEarliest_  = useSecondEarliest;
-  bugSameSectorPt0_   = bugSameSectorPt0;
+  maxRoadsPerZone_ = maxRoadsPerZone;
+  maxTracks_ = maxTracks;
+  useSecondEarliest_ = useSecondEarliest;
+  bugSameSectorPt0_ = bugSameSectorPt0;
 
-  readPtLUTFile_      = readPtLUTFile;
-  fixMode15HighPt_    = fixMode15HighPt;
-  bug9BitDPhi_        = bug9BitDPhi;
-  bugMode7CLCT_       = bugMode7CLCT;
-  bugNegPt_           = bugNegPt;
-  bugGMTPhi_          = bugGMTPhi;
-  promoteMode7_       = promoteMode7;
-  modeQualVer_        = modeQualVer;
+  readPtLUTFile_ = readPtLUTFile;
+  fixMode15HighPt_ = fixMode15HighPt;
+  bug9BitDPhi_ = bug9BitDPhi;
+  bugMode7CLCT_ = bugMode7CLCT;
+  bugNegPt_ = bugNegPt;
+  bugGMTPhi_ = bugGMTPhi;
+  promoteMode7_ = promoteMode7;
+  modeQualVer_ = modeQualVer;
 }
 
 // Refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
@@ -100,7 +134,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
   if (verbose_ > 0) {
     std::cout << "Configure SectorProcessor with fw_version: " << fw_version << std::endl;
   }
-  
+
   if (fw_version == 0 || fw_version == 123456)  // fw_version '123456' is from the fake conditions
     return;
 
@@ -120,8 +154,8 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Global parameters
     // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
     // --------------------------------------------------------------------------------------------------------
-    era_      = "Run2_2018";  // Era for CMSSW customization
-    bxWindow_ = 2;            // Number of BX whose primitives can be included in the same track
+    era_ = "Run2_2018";  // Era for CMSSW customization
+    bxWindow_ = 2;       // Number of BX whose primitives can be included in the same track
 
     // spTBParams16 : Sector processor track-building parameters
     // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
@@ -136,10 +170,10 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
     //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
     // ----------------------------------------------------------------------------------
-    thetaWindow_      = 8;     // Maximum dTheta between primitives in the same track
-    thetaWindowZone0_ = 4;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
-    bugAmbigThetaWin_ = false; // Can allow dThetas outside window when there are 2 LCTs in the same chamber
-    twoStationSameBX_ = true;  // Requires the hits in two-station tracks to have the same BX
+    thetaWindow_ = 8;           // Maximum dTheta between primitives in the same track
+    thetaWindowZone0_ = 4;      // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+    bugAmbigThetaWin_ = false;  // Can allow dThetas outside window when there are 2 LCTs in the same chamber
+    twoStationSameBX_ = true;   // Requires the hits in two-station tracks to have the same BX
 
     // spGCParams16 : Sector processor ghost-cancellation parameters
     // Defaults : MaxRoadsPerZone(3), MaxTracks(3), UseSecondEarliest(T), BugSameSectorPt0(F)
@@ -149,9 +183,8 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Defaults : ReadPtLUTFile(F), FixMode15HighPt(T), Bug9BitDPhi(F), BugMode7CLCT(F),
     //            BugNegPt(F), BugGMTPhi(F), PromoteMode7(F), ModeQualVer(2)
     // ---------------------------------------------------------------------------------
-    modeQualVer_ = 2;      // Version 2 contains modified mode-quality mapping for 2018
-    promoteMode7_ = false; // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
-
+    modeQualVer_ = 2;       // Version 2 contains modified mode-quality mapping for 2018
+    promoteMode7_ = false;  // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
 
     // ___________________________________________________________________________
     // Versions in 2018 - no external documentation
@@ -160,10 +193,10 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     //   updates occured in February and March of 2018.  May need to re-write history in the database. - AWB 30.06.18
 
     if (fw_version < 1529520380) {  // June 20, 2018
-      thetaWindowZone0_ = 8;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
-      twoStationSameBX_ = false; // Requires the hits in two-station tracks to have the same BX
-      modeQualVer_ = 1;          // Version 2 contains modified mode-quality mapping for 2018
-      promoteMode7_ = true;      // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
+      thetaWindowZone0_ = 8;        // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+      twoStationSameBX_ = false;    // Requires the hits in two-station tracks to have the same BX
+      modeQualVer_ = 1;             // Version 2 contains modified mode-quality mapping for 2018
+      promoteMode7_ = true;         // Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
     }
 
     return;
@@ -173,14 +206,13 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
   ///  Settings for 2017 (by default just use settings in simEmtfDigis_cfi.py)  ///
   /////////////////////////////////////////////////////////////////////////////////
   else if (fw_version >= 50000) {
-
     // Settings for all of 2017 (following order in simEmtfDigis_cfi.py)
 
     // Global parameters
     // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
     // --------------------------------------------------------------------------------------------------------
-    era_      = "Run2_2017";  // Era for CMSSW customization
-    bxWindow_ = 3;            // Number of BX whose primitives can be included in the same track
+    era_ = "Run2_2017";  // Era for CMSSW customization
+    bxWindow_ = 3;       // Number of BX whose primitives can be included in the same track
 
     // spTBParams16 : Sector processor track-building parameters
     // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
@@ -195,10 +227,10 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
     //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
     // ----------------------------------------------------------------------------------
-    thetaWindow_      = 8;     // Maximum dTheta between primitives in the same track
-    thetaWindowZone0_ = 8;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
-    bugAmbigThetaWin_ = true;  // Can allow dThetas outside window when there are 2 LCTs in the same chamber
-    twoStationSameBX_ = false; // Requires the hits in two-station tracks to have the same BX
+    thetaWindow_ = 8;           // Maximum dTheta between primitives in the same track
+    thetaWindowZone0_ = 8;      // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+    bugAmbigThetaWin_ = true;   // Can allow dThetas outside window when there are 2 LCTs in the same chamber
+    twoStationSameBX_ = false;  // Requires the hits in two-station tracks to have the same BX
 
     // spGCParams16 : Sector processor ghost-cancellation parameters
     // Defaults : MaxRoadsPerZone(3), MaxTracks(3), UseSecondEarliest(T), BugSameSectorPt0(F)
@@ -208,7 +240,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Defaults : ReadPtLUTFile(F), FixMode15HighPt(T), Bug9BitDPhi(F), BugMode7CLCT(F),
     //            BugNegPt(F), BugGMTPhi(F), PromoteMode7(F)
     // ---------------------------------------------------------------------------------
-    modeQualVer_ = 1; // Version 2 contains modified mode-quality mapping for 2018
+    modeQualVer_ = 1;  // Version 2 contains modified mode-quality mapping for 2018
 
     // ___________________________________________________________________________
     // Versions in 2017 - no full documentation, can refer to https://twiki.cern.ch/twiki/bin/viewauth/CMS/L1KnownIssues
@@ -232,14 +264,13 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
   ///  Settings for all of 2016 (following order in simEmtfDigis_cfi.py)  ///
   ///////////////////////////////////////////////////////////////////////////
   else {
-
     // Global parameters
     // Defaults : CSCEnable(T), RPCEnable(T), GEMEnable(F), Era("Run2_2018"), MinBX(-3), MaxBX(+3), BXWindow(2)
     // --------------------------------------------------------------------------------------------------------
-    useRPC_   = false;        // Use clustered RPC hits from CPPF in track-building
-    era_      = "Run2_2016";  // Era for CMSSW customization
+    useRPC_ = false;     // Use clustered RPC hits from CPPF in track-building
+    era_ = "Run2_2016";  // Era for CMSSW customization
     // maxBX_                 // Depends on FW version, see below
-    bxWindow_ = 3;            // Number of BX whose primitives can be included in the same track
+    bxWindow_ = 3;  // Number of BX whose primitives can be included in the same track
 
     // spTBParams16 : Sector processor track-building parameters
     // Defaults : PrimConvLUT(1), ZoneBoundaries(0,41,49,87,127), ZoneOverlap(2), IncludeNeighbor(T),
@@ -258,12 +289,12 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // Defaults : ThetaWindow(8), ThetaWindowZone0(4), UseSingleHits(F), BugSt2PhDiff(F),
     //            BugME11Dupes(F), BugAmbigThetaWin(F), TwoStationSameBX(T)
     // ----------------------------------------------------------------------------------
-    thetaWindow_      = 4;     // Maximum dTheta between primitives in the same track
-    thetaWindowZone0_ = 4;     // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
+    thetaWindow_ = 4;       // Maximum dTheta between primitives in the same track
+    thetaWindowZone0_ = 4;  // Maximum dTheta between primitives in the same track in Zone 0 (ring 1)
     // bugSt2PhDiff_           // Depends on FW version, see below
     // bugME11Dupes_           // Depends on FW version, see below
-    bugAmbigThetaWin_ = true;  // Can allow dThetas outside window when there are 2 LCTs in the same chamber
-    twoStationSameBX_ = false; // Requires the hits in two-station tracks to have the same BX
+    bugAmbigThetaWin_ = true;   // Can allow dThetas outside window when there are 2 LCTs in the same chamber
+    twoStationSameBX_ = false;  // Requires the hits in two-station tracks to have the same BX
 
     // spGCParams16 : Sector processor ghost-cancellation parameters
     // Defaults : MaxRoadsPerZone(3), MaxTracks(3), UseSecondEarliest(T), BugSameSectorPt0(F)
@@ -279,11 +310,10 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
     // bug9BitDPhi_       // Depends on FW version, see below
     // bugMode7CLCT_      // Depends on FW version, see below
     // bugNegPt_          // Depends on FW version, see below
-    bugGMTPhi_   = true;  // Some drift in uGMT phi conversion, off by up to a few degrees
-    modeQualVer_ = 1;     // Version 2 contains modified mode-quality mapping for 2018
+    bugGMTPhi_ = true;  // Some drift in uGMT phi conversion, off by up to a few degrees
+    modeQualVer_ = 1;   // Version 2 contains modified mode-quality mapping for 2018
 
-  } // End default settings for 2016
-
+  }  // End default settings for 2016
 
   // ___________________________________________________________________________
   // Versions in 2016 - refer to docs/EMTF_FW_LUT_versions_2016_draft2.xlsx
@@ -291,19 +321,19 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
   // 1st_LCT_BX / 2nd_LCT_BX  (should also make unpacker configurable - AWB 21.07.17)
   // FW: Before: Earliest LCT used to assign BX, tracks only cancel within same BX
   //     After:  Second-earliest LCT used to assign BX, tracks cancel over 3 BX, improved LCT recovery
-  useSecondEarliest_  = (fw_version < 46773) ? false : true;  // Changed Sept. 5
+  useSecondEarliest_ = (fw_version < 46773) ? false : true;  // Changed Sept. 5
 
   // 8_BX_readout / 7_BX_readout
   // SW: DAQ readout changed from to [-3, +4] BX to [-3, +3] BX
-  maxBX_              = (fw_version < 47109) ? +4 : +3;       // Changed Sept. 28
+  maxBX_ = (fw_version < 47109) ? +4 : +3;  // Changed Sept. 28
 
   // Asymm_patterns / Symm_patterns
   // FW: Changed from 9 asymmetric patterns to 5 symmetric patterns for track building
-  useSymPatterns_     = (fw_version < 47214) ? false : true;  // Changed Oct. 6
+  useSymPatterns_ = (fw_version < 47214) ? false : true;  // Changed Oct. 6
 
   // HiPt_outlier
   // LUT: High-pT fix puts outlier LCTs in mode 15 tracks back in a straight line
-  fixMode15HighPt_    = (fw_version < 46650) ? false : true;  // Changed July 25
+  fixMode15HighPt_ = (fw_version < 46650) ? false : true;  // Changed July 25
 
   // Link_monitor (unpacker only)
   // FW: Added MPC link monitoring
@@ -324,7 +354,7 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
   // Sector_pT_0
   // FW: Only highest-quality track in a sector assigned pT; others assigned pT = 0
-  bugSameSectorPt0_   = (fw_version < 46650) ? true : false;  // Fixed July 22
+  bugSameSectorPt0_ = (fw_version < 46650) ? true : false;  // Fixed July 22
 
   // Sector_bad_pT
   // FW: Tracks sometimes assigned pT of track in previous BX
@@ -338,7 +368,6 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
   // ## This macro is used like this:
   // if (`sb(0,2) || `sb(1,2)) {disable PT readout for track 2}
 
-
   // DAQ_BX_3_LCT (unpacker only)
   // SW: LCTs in BX -3 only reported if there was a track in the sector
   // - not applicable
@@ -349,36 +378,31 @@ void SectorProcessor::configure_by_fw_version(unsigned fw_version) {
 
   // pT_dPhi_bits
   // FW: dPhi wrap-around in modes 3, 5, 6, 9, 10, 12
-  bug9BitDPhi_        = (fw_version < 47214) ? true : false;  // Fixed Oct. 6
+  bug9BitDPhi_ = (fw_version < 47214) ? true : false;  // Fixed Oct. 6
 
   // Pattern_phi / ME1_neigh_phi
   // FW: Pattern phi slightly offset from true LCT phi; also ME3/4 pattern width off
   //     Pattern phi of neighbor hits in ME1 miscalculated
-  fixZonePhi_         = (fw_version < 47214) ? false : true;  // Fixed Oct. 6
+  fixZonePhi_ = (fw_version < 47214) ? false : true;  // Fixed Oct. 6
 
   // LCT_station_2
   // FW: Reduced LCT matching window in station 2, resulting in demoted tracks and inefficiency
-  bugSt2PhDiff_       = (47109 <= fw_version && fw_version < 47249) ? true : false;  // Bug introduced Oct. 6, fixed Oct. 19
+  bugSt2PhDiff_ = (47109 <= fw_version && fw_version < 47249) ? true : false;  // Bug introduced Oct. 6, fixed Oct. 19
 
   // LCT_theta_dup
   // FW: LCTs matched to track may take theta value from other LCT in the same chamber
-  bugME11Dupes_       = (fw_version < 47423) ? true : false;  // Fixed Nov. 1
+  bugME11Dupes_ = (fw_version < 47423) ? true : false;  // Fixed Nov. 1
 
   // LCT_7_10_neg_pT (E)
   // LUT: Written with incorrect values for mode 7 CLCT, mode 10 random offset, all modes negative (1/pT) set to 3 instead of 511
-  bugMode7CLCT_       = (fw_version < 47864) ? true : false;  // Fixed sometime after Nov. 1
-  bugNegPt_           = (fw_version < 47864) ? true : false;  // Fixed sometime after Nov. 1
-
-
+  bugMode7CLCT_ = (fw_version < 47864) ? true : false;  // Fixed sometime after Nov. 1
+  bugNegPt_ = (fw_version < 47864) ? true : false;      // Fixed sometime after Nov. 1
 }
 
-void SectorProcessor::process(
-    EventNumber_t ievent,
-    const TriggerPrimitiveCollection& muon_primitives,
-    EMTFHitCollection& out_hits,
-    EMTFTrackCollection& out_tracks
-) const {
-
+void SectorProcessor::process(EventNumber_t ievent,
+                              const TriggerPrimitiveCollection& muon_primitives,
+                              EMTFHitCollection& out_hits,
+                              EMTFTrackCollection& out_tracks) const {
   // if (endcap_ == 1 && sector_ == 1) {
   //   std::cout << "\nConfigured with era " << era_ << ", thetaWindowZone0 = " << thetaWindowZone0_ << ", bugAmbigThetaWin = "
   // 	      << bugAmbigThetaWin_ << ", twoStationSameBX = " << twoStationSameBX_ << ", promoteMode7_ = " << promoteMode7_ << std::endl;
@@ -401,108 +425,114 @@ void SectorProcessor::process(
 
   for (int bx = minBX_; bx <= maxBX_ + delayBX; ++bx) {
     if (verbose_ > 0) {  // debug
-      std::cout << "Endcap: " << endcap_ << " Sector: " << sector_ << " Event: " << ievent << " BX: " << bx << std::endl;
+      std::cout << "Endcap: " << endcap_ << " Sector: " << sector_ << " Event: " << ievent << " BX: " << bx
+                << std::endl;
     }
 
     process_single_bx(
-        bx,
-        muon_primitives,
-        out_hits,
-        out_tracks,
-        extended_conv_hits,
-        extended_best_track_cands,
-        patt_lifetime_map
-    );
+        bx, muon_primitives, out_hits, out_tracks, extended_conv_hits, extended_best_track_cands, patt_lifetime_map);
 
     // Drop earliest BX outside of BX window
     if (bx >= minBX_ + delayBX) {
       extended_conv_hits.pop_front();
 
       int n = emtf::zone_array<int>().size();
-      extended_best_track_cands.erase(extended_best_track_cands.end()-n, extended_best_track_cands.end());  // pop_back
+      extended_best_track_cands.erase(extended_best_track_cands.end() - n,
+                                      extended_best_track_cands.end());  // pop_back
     }
   }  // end loop over bx
 
   return;
 }
 
-void SectorProcessor::process_single_bx(
-    int bx,
-    const TriggerPrimitiveCollection& muon_primitives,
-    EMTFHitCollection& out_hits,
-    EMTFTrackCollection& out_tracks,
-    std::deque<EMTFHitCollection>& extended_conv_hits,
-    std::deque<EMTFTrackCollection>& extended_best_track_cands,
-    std::map<pattern_ref_t, int>& patt_lifetime_map
-) const {
-
+void SectorProcessor::process_single_bx(int bx,
+                                        const TriggerPrimitiveCollection& muon_primitives,
+                                        EMTFHitCollection& out_hits,
+                                        EMTFTrackCollection& out_tracks,
+                                        std::deque<EMTFHitCollection>& extended_conv_hits,
+                                        std::deque<EMTFTrackCollection>& extended_best_track_cands,
+                                        std::map<pattern_ref_t, int>& patt_lifetime_map) const {
   // ___________________________________________________________________________
   // Configure
 
   PrimitiveSelection prim_sel;
-  prim_sel.configure(
-      verbose_, endcap_, sector_, bx,
-      bxShiftCSC_, bxShiftRPC_, bxShiftGEM_,
-      includeNeighbor_, duplicateTheta_,
-      bugME11Dupes_
-  );
+  prim_sel.configure(verbose_,
+                     endcap_,
+                     sector_,
+                     bx,
+                     bxShiftCSC_,
+                     bxShiftRPC_,
+                     bxShiftGEM_,
+                     includeNeighbor_,
+                     duplicateTheta_,
+                     bugME11Dupes_);
 
   PrimitiveConversion prim_conv;
-  prim_conv.configure(
-      tp_geom_, lut_,
-      verbose_, endcap_, sector_, bx,
-      bxShiftCSC_, bxShiftRPC_, bxShiftGEM_,
-      zoneBoundaries_, zoneOverlap_,
-      duplicateTheta_, fixZonePhi_, useNewZones_, fixME11Edges_,
-      bugME11Dupes_
-  );
+  prim_conv.configure(tp_geom_,
+                      lut_,
+                      verbose_,
+                      endcap_,
+                      sector_,
+                      bx,
+                      bxShiftCSC_,
+                      bxShiftRPC_,
+                      bxShiftGEM_,
+                      zoneBoundaries_,
+                      zoneOverlap_,
+                      duplicateTheta_,
+                      fixZonePhi_,
+                      useNewZones_,
+                      fixME11Edges_,
+                      bugME11Dupes_);
 
   PatternRecognition patt_recog;
-  patt_recog.configure(
-      verbose_, endcap_, sector_, bx,
-      bxWindow_,
-      pattDefinitions_, symPattDefinitions_, useSymPatterns_,
-      maxRoadsPerZone_, useSecondEarliest_
-  );
+  patt_recog.configure(verbose_,
+                       endcap_,
+                       sector_,
+                       bx,
+                       bxWindow_,
+                       pattDefinitions_,
+                       symPattDefinitions_,
+                       useSymPatterns_,
+                       maxRoadsPerZone_,
+                       useSecondEarliest_);
 
   PrimitiveMatching prim_match;
-  prim_match.configure(
-      verbose_, endcap_, sector_, bx,
-      fixZonePhi_, useNewZones_,
-      bugSt2PhDiff_, bugME11Dupes_
-  );
+  prim_match.configure(verbose_, endcap_, sector_, bx, fixZonePhi_, useNewZones_, bugSt2PhDiff_, bugME11Dupes_);
 
   AngleCalculation angle_calc;
-  angle_calc.configure(
-      verbose_, endcap_, sector_, bx,
-      bxWindow_,
-      thetaWindow_, thetaWindowZone0_,
-      bugME11Dupes_, bugAmbigThetaWin_, twoStationSameBX_
-  );
+  angle_calc.configure(verbose_,
+                       endcap_,
+                       sector_,
+                       bx,
+                       bxWindow_,
+                       thetaWindow_,
+                       thetaWindowZone0_,
+                       bugME11Dupes_,
+                       bugAmbigThetaWin_,
+                       twoStationSameBX_);
 
   BestTrackSelection btrack_sel;
   btrack_sel.configure(
-      verbose_, endcap_, sector_, bx,
-      bxWindow_,
-      maxRoadsPerZone_, maxTracks_, useSecondEarliest_,
-      bugSameSectorPt0_
-  );
+      verbose_, endcap_, sector_, bx, bxWindow_, maxRoadsPerZone_, maxTracks_, useSecondEarliest_, bugSameSectorPt0_);
 
   SingleHitTrack single_hit;
-  single_hit.configure(
-      verbose_, endcap_, sector_, bx,
-      maxTracks_,
-      useSingleHits_
-  );
+  single_hit.configure(verbose_, endcap_, sector_, bx, maxTracks_, useSingleHits_);
 
   PtAssignment pt_assign;
-  pt_assign.configure(
-      pt_assign_engine_,
-      verbose_, endcap_, sector_, bx,
-      readPtLUTFile_, fixMode15HighPt_,
-      bug9BitDPhi_, bugMode7CLCT_, bugNegPt_,
-      bugGMTPhi_, promoteMode7_, modeQualVer_
-  );
+  pt_assign.configure(pt_assign_engine_,
+                      verbose_,
+                      endcap_,
+                      sector_,
+                      bx,
+                      readPtLUTFile_,
+                      fixMode15HighPt_,
+                      bug9BitDPhi_,
+                      bugMode7CLCT_,
+                      bugNegPt_,
+                      bugGMTPhi_,
+                      promoteMode7_,
+                      modeQualVer_);
 
   std::map<int, TriggerPrimitiveCollection> selected_csc_map;
   std::map<int, TriggerPrimitiveCollection> selected_rpc_map;
@@ -562,7 +592,8 @@ void SectorProcessor::process_single_bx(
   // Calculate deflection angles for each track and fill track variables
   // From src/AngleCalculation.cc
   angle_calc.process(zone_tracks);
-  extended_best_track_cands.insert(extended_best_track_cands.begin(), zone_tracks.begin(), zone_tracks.end());  // push_front
+  extended_best_track_cands.insert(
+      extended_best_track_cands.begin(), zone_tracks.begin(), zone_tracks.end());  // push_front
 
   // Select 3 "best" tracks from all the zones
   // From src/BestTrackSelection.cc

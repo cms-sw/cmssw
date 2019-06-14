@@ -30,6 +30,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 class SiStripLorentzAngleFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:

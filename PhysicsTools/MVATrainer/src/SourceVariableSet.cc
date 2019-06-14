@@ -9,69 +9,56 @@
 
 namespace PhysicsTools {
 
-bool SourceVariableSet::append(SourceVariable *var, Magic magic, int offset)
-{
-	std::vector<PosVar>::iterator pos =
-			std::lower_bound(vars.begin(), vars.end(),
-			                 var->getName(), PosVar::VarNameLess);
+  bool SourceVariableSet::append(SourceVariable *var, Magic magic, int offset) {
+    std::vector<PosVar>::iterator pos = std::lower_bound(vars.begin(), vars.end(), var->getName(), PosVar::VarNameLess);
 
-	if (pos != vars.end() && (pos->var == var ||
-	                          (pos->var->getSource() == var->getSource() &&
-	                           pos->var->getName() == var->getName())))
-		return true;
+    if (pos != vars.end() &&
+        (pos->var == var || (pos->var->getSource() == var->getSource() && pos->var->getName() == var->getName())))
+      return true;
 
-	PosVar item;
-	item.pos = offset < 0 ? vars.size() : offset;
-	item.var = var;
-	item.magic = magic;
+    PosVar item;
+    item.pos = offset < 0 ? vars.size() : offset;
+    item.var = var;
+    item.magic = magic;
 
-	vars.insert(pos, 1, item);
+    vars.insert(pos, 1, item);
 
-	return false;
-}
+    return false;
+  }
 
-SourceVariable *SourceVariableSet::find(AtomicId name) const
-{
-	std::vector<PosVar>::const_iterator pos =
-			std::lower_bound(vars.begin(), vars.end(),
-			                 name, PosVar::VarNameLess);
+  SourceVariable *SourceVariableSet::find(AtomicId name) const {
+    std::vector<PosVar>::const_iterator pos = std::lower_bound(vars.begin(), vars.end(), name, PosVar::VarNameLess);
 
-	if (pos == vars.end() || pos->var->getName() != name)
-		return nullptr;
+    if (pos == vars.end() || pos->var->getName() != name)
+      return nullptr;
 
-	return pos->var;
-}
+    return pos->var;
+  }
 
-SourceVariable *SourceVariableSet::find(Magic magic) const
-{
-	for(std::vector<PosVar>::const_iterator pos = vars.begin();
-	    pos != vars.end(); ++pos)
-		if (pos->magic == magic)
-			return pos->var;
+  SourceVariable *SourceVariableSet::find(Magic magic) const {
+    for (std::vector<PosVar>::const_iterator pos = vars.begin(); pos != vars.end(); ++pos)
+      if (pos->magic == magic)
+        return pos->var;
 
-	return nullptr;
-}
+    return nullptr;
+  }
 
-std::vector<SourceVariable*> SourceVariableSet::get(bool withMagic) const
-{
-	std::vector<SourceVariable*> result(vars.size());
+  std::vector<SourceVariable *> SourceVariableSet::get(bool withMagic) const {
+    std::vector<SourceVariable *> result(vars.size());
 
-	for(std::vector<PosVar>::const_iterator iter = vars.begin();
-	    iter != vars.end(); iter++)
-		result[iter->pos] = iter->var;
+    for (std::vector<PosVar>::const_iterator iter = vars.begin(); iter != vars.end(); iter++)
+      result[iter->pos] = iter->var;
 
-	if (!withMagic) {
-		unsigned int pos = vars.size();
-		for(std::vector<PosVar>::const_iterator iter = vars.begin();
-		    iter != vars.end(); iter++)
-			if (iter->magic != kRegular) {
-				result.erase(result.begin() +
-				             (iter->pos - (iter->pos >= pos)));
-				pos = iter->pos;
-			}
-	}
+    if (!withMagic) {
+      unsigned int pos = vars.size();
+      for (std::vector<PosVar>::const_iterator iter = vars.begin(); iter != vars.end(); iter++)
+        if (iter->magic != kRegular) {
+          result.erase(result.begin() + (iter->pos - (iter->pos >= pos)));
+          pos = iter->pos;
+        }
+    }
 
-	return result;
-}
+    return result;
+  }
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools

@@ -19,54 +19,40 @@
  */
 
 class EcalSeverityLevelESProducer : public edm::ESProducer {
-  
 public:
   EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig);
-  
+
   typedef std::shared_ptr<EcalSeverityLevelAlgo> ReturnType;
-  
+
   ReturnType produce(const EcalSeverityLevelAlgoRcd& iRecord);
 
 private:
+  void setupChannelStatus(const EcalChannelStatusRcd&, EcalSeverityLevelAlgo*);
 
-  void setupChannelStatus(const EcalChannelStatusRcd&,
-                          EcalSeverityLevelAlgo*);
-
-  using HostType = edm::ESProductHost<EcalSeverityLevelAlgo,
-                                      EcalChannelStatusRcd>;
+  using HostType = edm::ESProductHost<EcalSeverityLevelAlgo, EcalChannelStatusRcd>;
 
   edm::ReusableObjectHolder<HostType> holder_;
   edm::ParameterSet pset_;
 };
 
-EcalSeverityLevelESProducer::EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig) :
-  pset_(iConfig) {
-
+EcalSeverityLevelESProducer::EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig) : pset_(iConfig) {
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
 }
 
-EcalSeverityLevelESProducer::ReturnType
-EcalSeverityLevelESProducer::produce(const EcalSeverityLevelAlgoRcd& iRecord){
-
-  auto host = holder_.makeOrGet([this]() {
-    return new HostType(pset_);
-  });
+EcalSeverityLevelESProducer::ReturnType EcalSeverityLevelESProducer::produce(const EcalSeverityLevelAlgoRcd& iRecord) {
+  auto host = holder_.makeOrGet([this]() { return new HostType(pset_); });
 
   host->ifRecordChanges<EcalChannelStatusRcd>(iRecord,
-                                              [this,h=host.get()](auto const& rec) {
-    setupChannelStatus(rec, h);
-  });
+                                              [this, h = host.get()](auto const& rec) { setupChannelStatus(rec, h); });
 
   return host;
 }
 
-void 
-EcalSeverityLevelESProducer::setupChannelStatus(const EcalChannelStatusRcd& chs,
-                                                EcalSeverityLevelAlgo* algo){
-  edm::ESHandle <EcalChannelStatus> h;
-  chs.get (h);
+void EcalSeverityLevelESProducer::setupChannelStatus(const EcalChannelStatusRcd& chs, EcalSeverityLevelAlgo* algo) {
+  edm::ESHandle<EcalChannelStatus> h;
+  chs.get(h);
   algo->setChannelStatus(*h.product());
 }
 

@@ -3,38 +3,35 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
-
 class PrimitiveSelection {
 public:
-  void configure(
-      int verbose, int endcap, int sector, int bx,
-      int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
-      bool includeNeighbor, bool duplicateTheta,
-      bool bugME11Dupes
-  );
+  void configure(int verbose,
+                 int endcap,
+                 int sector,
+                 int bx,
+                 int bxShiftCSC,
+                 int bxShiftRPC,
+                 int bxShiftGEM,
+                 bool includeNeighbor,
+                 bool duplicateTheta,
+                 bool bugME11Dupes);
 
-  template<typename T>
-  void process(
-      T tag,
-      const TriggerPrimitiveCollection& muon_primitives,
-      std::map<int, TriggerPrimitiveCollection>& selected_prim_map
-  ) const;
+  template <typename T>
+  void process(T tag,
+               const TriggerPrimitiveCollection& muon_primitives,
+               std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const;
 
   // Put the hits from CSC, RPC, GEM together in one collection
-  void merge(
-      const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
-      const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
-      const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
-      std::map<int, TriggerPrimitiveCollection>& selected_prim_map
-  ) const;
+  void merge(const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+             const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
+             const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+             std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const;
 
   // Like merge(), but keep all the hits
-  void merge_no_truncate(
-      const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
-      const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
-      const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
-      std::map<int, TriggerPrimitiveCollection>& selected_prim_map
-  ) const;
+  void merge_no_truncate(const std::map<int, TriggerPrimitiveCollection>& selected_csc_map,
+                         const std::map<int, TriggerPrimitiveCollection>& selected_rpc_map,
+                         const std::map<int, TriggerPrimitiveCollection>& selected_gem_map,
+                         std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const;
 
   // CSC functions
   // If selected, return an index 0-53, else return -1
@@ -72,7 +69,6 @@ public:
   bool is_in_bx_gem(int tp_bx) const;
 
   int get_index_gem(int tp_subsector, int tp_station, int tp_csc_ID, bool is_neighbor) const;
-
 
 private:
   int verbose_, endcap_, sector_, bx_;

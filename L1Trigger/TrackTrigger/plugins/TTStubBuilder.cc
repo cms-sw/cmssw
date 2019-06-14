@@ -12,444 +12,404 @@
 #include "L1Trigger/TrackTrigger/plugins/TTStubBuilder.h"
 
 /// Implement the producer
-template< >
-void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
-  //Retrieve tracker topology from geometry                                                                                                              
+template <>
+void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
-  edm::ESHandle< TrackerGeometry > tGeomHandle;
-  iSetup.get< TrackerDigiGeometryRecord >().get( tGeomHandle );
+  edm::ESHandle<TrackerGeometry> tGeomHandle;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
-	
+
   /// Prepare output
-  auto ttClusterDSVForOutput      = std::make_unique<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>();
-  auto ttStubDSVForOutputTemp     = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
+  auto ttClusterDSVForOutput = std::make_unique<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>>();
+  auto ttStubDSVForOutputTemp = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
   auto ttStubDSVForOutputAccepted = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
   auto ttStubDSVForOutputRejected = std::make_unique<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>>();
 
   /// Get the Clusters already stored away
-  edm::Handle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > clusterHandle;
-  iEvent.getByToken( clustersToken, clusterHandle );
+  edm::Handle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> clusterHandle;
+  iEvent.getByToken(clustersToken, clusterHandle);
 
-  int nmod=-1;
+  int nmod = -1;
 
   // Loop over all the tracker elements
 
   //  for (auto gd=theTrackerGeom->dets().begin(); gd != theTrackerGeom->dets().end(); gd++)
-  for (const auto& gd : theTrackerGeom->dets())
-  {
+  for (const auto& gd : theTrackerGeom->dets()) {
     DetId detid = (*gd).geographicalId();
-    if(detid.subdetId()!=StripSubdetector::TOB && detid.subdetId()!=StripSubdetector::TID ) continue; // only run on OT
-    if(!tTopo->isLower(detid) ) continue; // loop on the stacks: choose the lower arbitrarily
+    if (detid.subdetId() != StripSubdetector::TOB && detid.subdetId() != StripSubdetector::TID)
+      continue;  // only run on OT
+    if (!tTopo->isLower(detid))
+      continue;  // loop on the stacks: choose the lower arbitrarily
     DetId lowerDetid = detid;
     DetId upperDetid = tTopo->partnerDetId(detid);
     DetId stackDetid = tTopo->stack(detid);
-    bool isPS        = (theTrackerGeom->getDetectorType(stackDetid)==TrackerGeometry::ModuleType::Ph2PSP);
+    bool isPS = (theTrackerGeom->getDetectorType(stackDetid) == TrackerGeometry::ModuleType::Ph2PSP);
 
     bool is10G_PS = false;
-    
+
     // Determine if this module is a 10G transmission scheme module
     //
     // sviret comment (221217): this info should be made available in conddb at some point
-    // not in TrackerTopology as some modules may switch between 10G and 5G transmission  
+    // not in TrackerTopology as some modules may switch between 10G and 5G transmission
     // schemes during running period
 
-    if (detid.subdetId()==StripSubdetector::TOB)
-    {
-      if (tTopo->layer(detid)==1) is10G_PS = true;
+    if (detid.subdetId() == StripSubdetector::TOB) {
+      if (tTopo->layer(detid) == 1)
+        is10G_PS = true;
+    } else if (detid.subdetId() == StripSubdetector::TID) {
+      if (tTopo->tidRing(detid) <= high_rate_max_ring[tTopo->tidWheel(detid) - 1])
+        is10G_PS = true;
     }
-    else if (detid.subdetId()==StripSubdetector::TID)
-    {
-      if (tTopo->tidRing(detid)<=high_rate_max_ring[tTopo->tidWheel(detid)-1]) is10G_PS = true;
-    }
-
 
     ++nmod;
 
     unsigned int maxStubs;
-    std::vector< std::pair< unsigned int, double > > bendMap;
+    std::vector<std::pair<unsigned int, double>> bendMap;
 
     /// Go on only if both detectors have Clusters
-    if ( clusterHandle->find( lowerDetid ) == clusterHandle->end() ||
-         clusterHandle->find( upperDetid ) == clusterHandle->end() )
+    if (clusterHandle->find(lowerDetid) == clusterHandle->end() ||
+        clusterHandle->find(upperDetid) == clusterHandle->end())
       continue;
 
     /// Get the DetSets of the Clusters
-    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > lowerClusters = (*clusterHandle)[ lowerDetid ];
-    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > upperClusters = (*clusterHandle)[ upperDetid ];
+    edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>> lowerClusters = (*clusterHandle)[lowerDetid];
+    edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>> upperClusters = (*clusterHandle)[upperDetid];
 
     /// If there are Clusters in both sensors
     /// you can try and make a Stub
     /// This is ~redundant
-    if ( lowerClusters.empty() || upperClusters.empty() )
+    if (lowerClusters.empty() || upperClusters.empty())
       continue;
 
     /// Create the vectors of objects to be passed to the FastFillers
-    std::vector< TTCluster< Ref_Phase2TrackerDigi_ > > tempInner; 
-    std::vector< TTCluster< Ref_Phase2TrackerDigi_ > > tempOuter; 
-    std::vector< TTStub< Ref_Phase2TrackerDigi_ > >   tempAccepted; 
+    std::vector<TTCluster<Ref_Phase2TrackerDigi_>> tempInner;
+    std::vector<TTCluster<Ref_Phase2TrackerDigi_>> tempOuter;
+    std::vector<TTStub<Ref_Phase2TrackerDigi_>> tempAccepted;
     tempInner.clear();
     tempOuter.clear();
     tempAccepted.clear();
 
     /// Get chip size information
-    int chipSize = 127; /// SV 21/11/17: tracker topology method should be updated, currently provide wrong nums
-    if (isPS) chipSize = 120;
+    int chipSize = 127;  /// SV 21/11/17: tracker topology method should be updated, currently provide wrong nums
+    if (isPS)
+      chipSize = 120;
 
     /// Loop over pairs of Clusters
-    for ( auto lowerClusterIter = lowerClusters.begin();
-               lowerClusterIter != lowerClusters.end();
-               ++lowerClusterIter ) {
-
+    for (auto lowerClusterIter = lowerClusters.begin(); lowerClusterIter != lowerClusters.end(); ++lowerClusterIter) {
       /// Temporary storage to allow only one stub per inner cluster
       /// if requested in cfi
-      std::vector< TTStub< Ref_Phase2TrackerDigi_ > > tempOutput;
+      std::vector<TTStub<Ref_Phase2TrackerDigi_>> tempOutput;
 
-      for ( auto upperClusterIter = upperClusters.begin();
-                 upperClusterIter != upperClusters.end();
-                 ++upperClusterIter ) {
-
+      for (auto upperClusterIter = upperClusters.begin(); upperClusterIter != upperClusters.end(); ++upperClusterIter) {
         /// Build a temporary Stub
-        TTStub< Ref_Phase2TrackerDigi_ > tempTTStub( stackDetid );
-        tempTTStub.addClusterRef( edmNew::makeRefTo( clusterHandle, lowerClusterIter ) );
-        tempTTStub.addClusterRef( edmNew::makeRefTo( clusterHandle, upperClusterIter ) );
+        TTStub<Ref_Phase2TrackerDigi_> tempTTStub(stackDetid);
+        tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, lowerClusterIter));
+        tempTTStub.addClusterRef(edmNew::makeRefTo(clusterHandle, upperClusterIter));
 
         /// Check for compatibility
         bool thisConfirmation = false;
         int thisDisplacement = 999999;
         int thisOffset = 0;
-	float thisROffset = 0;
-	float thisHardBend = 0;
+        float thisROffset = 0;
+        float thisHardBend = 0;
 
-        theStubFindingAlgoHandle->PatternHitCorrelation( thisConfirmation, thisDisplacement, thisOffset, thisROffset, thisHardBend, tempTTStub );
+        theStubFindingAlgoHandle->PatternHitCorrelation(
+            thisConfirmation, thisDisplacement, thisOffset, thisROffset, thisHardBend, tempTTStub);
 
         /// If the Stub is above threshold
-        if ( thisConfirmation )
-        {
-          tempTTStub.setTriggerDisplacement( thisDisplacement );
-          tempTTStub.setTriggerOffset( thisOffset );
-	  tempTTStub.setRealTriggerOffset( thisROffset );
-	  tempTTStub.setHardwareBend( thisHardBend );
-	  tempOutput.push_back( tempTTStub );
-        } /// Stub accepted
-      } /// End of loop over outer clusters
+        if (thisConfirmation) {
+          tempTTStub.setTriggerDisplacement(thisDisplacement);
+          tempTTStub.setTriggerOffset(thisOffset);
+          tempTTStub.setRealTriggerOffset(thisROffset);
+          tempTTStub.setHardwareBend(thisHardBend);
+          tempOutput.push_back(tempTTStub);
+        }  /// Stub accepted
+      }    /// End of loop over outer clusters
 
       /// Here tempOutput stores all the stubs from this inner cluster
       /// Check if there is need to store only one (if only one already, skip this step)
-      if ( ForbidMultipleStubs && tempOutput.size() > 1 )
-      {
+      if (ForbidMultipleStubs && tempOutput.size() > 1) {
         /// If so, sort the stubs by bend and keep only the first one (smallest bend)
-        std::sort( tempOutput.begin(), tempOutput.end(), TTStubBuilder< Ref_Phase2TrackerDigi_ >::SortStubsBend );
+        std::sort(tempOutput.begin(), tempOutput.end(), TTStubBuilder<Ref_Phase2TrackerDigi_>::SortStubsBend);
 
         /// Get to the second element (the switch above ensures there are min 2)
-        typename std::vector< TTStub< Ref_Phase2TrackerDigi_ > >::iterator tempIter = tempOutput.begin();
+        typename std::vector<TTStub<Ref_Phase2TrackerDigi_>>::iterator tempIter = tempOutput.begin();
         ++tempIter;
 
         /// tempIter points now to the second element
 
         /// Delete all-but-the first one from tempOutput
-        tempOutput.erase( tempIter, tempOutput.end() );
+        tempOutput.erase(tempIter, tempOutput.end());
       }
 
       /// Here, tempOutput is either of size 1 (if entering the switch)
       /// either of size N with all the valid combinations ...
 
       /// Now loop over the accepted stubs (1 or N) for this inner cluster
-      for ( unsigned int iTempStub = 0; iTempStub < tempOutput.size(); ++iTempStub )
-      {
+      for (unsigned int iTempStub = 0; iTempStub < tempOutput.size(); ++iTempStub) {
         /// Get the stub
-        const TTStub< Ref_Phase2TrackerDigi_ >& tempTTStub = tempOutput[iTempStub];
+        const TTStub<Ref_Phase2TrackerDigi_>& tempTTStub = tempOutput[iTempStub];
 
-	// A temporary stub, for FE problems
-	TTStub< Ref_Phase2TrackerDigi_ > tempTTStub2( tempTTStub.getDetId() );
-	
-	tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(0)) );
-	tempTTStub2.addClusterRef( (tempTTStub.getClusterRef(1)) );
-	tempTTStub2.setTriggerDisplacement( 2.*tempTTStub.getTriggerDisplacement() ); 
-	tempTTStub2.setTriggerOffset( 2.*tempTTStub.getTriggerOffset() ); 
-	tempTTStub2.setRealTriggerOffset( 2.*tempTTStub.getRealTriggerOffset() );
-	tempTTStub2.setHardwareBend( tempTTStub.getHardwareBend() );
+        // A temporary stub, for FE problems
+        TTStub<Ref_Phase2TrackerDigi_> tempTTStub2(tempTTStub.getDetId());
 
+        tempTTStub2.addClusterRef((tempTTStub.getClusterRef(0)));
+        tempTTStub2.addClusterRef((tempTTStub.getClusterRef(1)));
+        tempTTStub2.setTriggerDisplacement(2. * tempTTStub.getTriggerDisplacement());
+        tempTTStub2.setTriggerOffset(2. * tempTTStub.getTriggerOffset());
+        tempTTStub2.setRealTriggerOffset(2. * tempTTStub.getRealTriggerOffset());
+        tempTTStub2.setHardwareBend(tempTTStub.getHardwareBend());
 
         /// Put in the output
-        if ( !applyFE ) // No dynamic inefficiencies (DEFAULT)
+        if (!applyFE)  // No dynamic inefficiencies (DEFAULT)
         {
           /// This means that ALL stubs go into the output
-          tempInner.push_back( *(tempTTStub.getClusterRef(0)) );
-          tempOuter.push_back( *(tempTTStub.getClusterRef(1)) );
-          tempAccepted.push_back( tempTTStub );
-        }
-        else
-        {
-	  bool FEreject = false;
+          tempInner.push_back(*(tempTTStub.getClusterRef(0)));
+          tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+          tempAccepted.push_back(tempTTStub);
+        } else {
+          bool FEreject = false;
           /// This means that only some of them do
-	  /// Put in the temporary output
-	  MeasurementPoint mp0 = tempTTStub.getClusterRef(0)->findAverageLocalCoordinates();
-	  int seg       = static_cast<int>(mp0.y());
-	  if (isPS) seg = seg/16;
-	  int chip      = 1000*nmod+10*int(tempTTStub.getTriggerPosition()/chipSize)+seg; /// Find out which MPA/CBC ASIC
-          int CIC_chip  = 10*nmod+seg; /// Find out which CIC ASIC
+          /// Put in the temporary output
+          MeasurementPoint mp0 = tempTTStub.getClusterRef(0)->findAverageLocalCoordinates();
+          int seg = static_cast<int>(mp0.y());
+          if (isPS)
+            seg = seg / 16;
+          /// Find out which MPA/CBC ASIC
+          int chip = 1000 * nmod + 10 * int(tempTTStub.getTriggerPosition() / chipSize) + seg;
+          int CIC_chip = 10 * nmod + seg;  /// Find out which CIC ASIC
 
-	  // First look is the stub is passing trough the very front end (CBC/MPA)
-	  (isPS)
-	    ? maxStubs = maxStubs_PS
-	    : maxStubs = maxStubs_2S;
+          // First look is the stub is passing trough the very front end (CBC/MPA)
+          (isPS) ? maxStubs = maxStubs_PS : maxStubs = maxStubs_2S;
 
-	  if (isPS) // MPA
-	  {
-	    if ( moduleStubs_MPA.find( chip ) == moduleStubs_MPA.end() ) /// Already a stub for this ASIC?
-	    {
-	      /// No, so new entry
-	      moduleStubs_MPA.emplace(chip,1);
-	    }
-	    else
-	    {
-	      if ( moduleStubs_MPA[chip] < int(maxStubs) )
-	      {
-		++moduleStubs_MPA[chip];
-	      }
-	      else
-	      {
-		FEreject = true;
-	      }
-	    }
-	  }
-	  else // CBC
-	  {
-	    if ( moduleStubs_CBC.find( chip ) == moduleStubs_CBC.end() ) /// Already a stub for this ASIC?
-	    {
-	      /// No, so new entry
-	      moduleStubs_CBC.emplace(chip,1);
-	    }
-	    else
-	    {
-	      if ( moduleStubs_CBC[chip] < int(maxStubs) )
-	      {
-		++moduleStubs_CBC[chip];
-	      }
-	      else
-	      {
-		FEreject = true;
-	      }
-	    }
-	  }
-       
-	  // End of the MPA/CBC loop
-
-	  // If the stub has been already thrown out, there is no reason to include it into the CIC stream
-	  // We keep is in the stub final container tough, but flagged as reject by FE
-
-	  if (FEreject) 
-	  {
-	    tempTTStub2.setTriggerDisplacement( 500+2.*tempTTStub.getTriggerDisplacement() ); 
-	    tempTTStub2.setTriggerOffset( 500+2.*tempTTStub.getTriggerOffset() ); 
-	    tempTTStub2.setRealTriggerOffset( 500+2.*tempTTStub.getRealTriggerOffset() );
-	    
-	    tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
-	    tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
-	    tempAccepted.push_back( tempTTStub2 );
-	    continue;	  
-	  }
-
-	  (isPS)
-	    ? maxStubs = maxStubs_PS_CIC_5
-	    : maxStubs = maxStubs_2S_CIC_5;
-
-	  if (is10G_PS) maxStubs = maxStubs_PS_CIC_10;
-
-	  if ( moduleStubs_CIC.find( CIC_chip ) == moduleStubs_CIC.end() ) /// Already a stub for this ASIC?
+          if (isPS)  // MPA
           {
-	    /// No, so new entry
-	    std::vector< TTStub< Ref_Phase2TrackerDigi_ > > tempStubs(1,tempTTStub);
-	    moduleStubs_CIC.emplace(CIC_chip,tempStubs);
-	    tempInner.push_back( *(tempTTStub.getClusterRef(0)) );
-	    tempOuter.push_back( *(tempTTStub.getClusterRef(1)) );
-	    tempAccepted.push_back( tempTTStub ); // The stub is added
-          }
-          else
+            if (moduleStubs_MPA.find(chip) == moduleStubs_MPA.end())  /// Already a stub for this ASIC?
+            {
+              /// No, so new entry
+              moduleStubs_MPA.emplace(chip, 1);
+            } else {
+              if (moduleStubs_MPA[chip] < int(maxStubs)) {
+                ++moduleStubs_MPA[chip];
+              } else {
+                FEreject = true;
+              }
+            }
+          } else  // CBC
           {
-	    bool CIC_reject=true;
-
-	    if ( moduleStubs_CIC[CIC_chip].size() < maxStubs )
-	    {
-	      moduleStubs_CIC[CIC_chip].push_back( tempTTStub ); //We add the new stub
-	      tempInner.push_back( *(tempTTStub.getClusterRef(0)) );
-	      tempOuter.push_back( *(tempTTStub.getClusterRef(1)) );
-	      tempAccepted.push_back( tempTTStub ); // The stub is added
-	    }
-	    else
-	    {
-	      moduleStubs_CIC[CIC_chip].push_back( tempTTStub ); //We add the new stub
-
-	      /// Sort them by |bend| and pick up only the first N.
-	      bendMap.clear();
-	      bendMap.reserve(moduleStubs_CIC[CIC_chip].size());
-	    
-	      for ( unsigned int i = 0; i < moduleStubs_CIC[CIC_chip].size(); ++i )
-	      {
-		bendMap.emplace_back(i,moduleStubs_CIC[CIC_chip].at(i).getTriggerBend());
-	      }
-
-	      std::sort( bendMap.begin(), bendMap.end(), TTStubBuilder< Ref_Phase2TrackerDigi_ >::SortStubBendPairs );
-	      
-	      // bendMap contains link over all the stubs included in moduleStubs_CIC[CIC_chip]
-	      
-	      for ( unsigned int i = 0; i < maxStubs; ++i ) 
-	      {
-		// The stub we have added is among the first ones, add it
-		if (bendMap[i].first==moduleStubs_CIC[CIC_chip].size()-1)
-		{
-		  CIC_reject=false;
-		}
-	      }
-
-	      if (CIC_reject) // The stub added does not pass the cut
-	      {	      
-		tempTTStub2.setTriggerDisplacement( 1000+2.*tempTTStub.getTriggerDisplacement() ); 
-		tempTTStub2.setTriggerOffset( 1000+2.*tempTTStub.getTriggerOffset() ); 
-	     	tempTTStub2.setRealTriggerOffset( 1000+2.*tempTTStub.getRealTriggerOffset() );
-	
-		tempInner.push_back( *(tempTTStub2.getClusterRef(0)) );
-		tempOuter.push_back( *(tempTTStub2.getClusterRef(1)) );
-		tempAccepted.push_back( tempTTStub2 );
-	      }
-	      else
-	      {
-		tempInner.push_back( *(tempTTStub.getClusterRef(0)) );
-		tempOuter.push_back( *(tempTTStub.getClusterRef(1)) );
-		tempAccepted.push_back( tempTTStub ); // The stub is added
-	      }
-	    }
+            if (moduleStubs_CBC.find(chip) == moduleStubs_CBC.end())  /// Already a stub for this ASIC?
+            {
+              /// No, so new entry
+              moduleStubs_CBC.emplace(chip, 1);
+            } else {
+              if (moduleStubs_CBC[chip] < int(maxStubs)) {
+                ++moduleStubs_CBC[chip];
+              } else {
+                FEreject = true;
+              }
+            }
           }
-	} /// End of check on max number of stubs per module
-      } /// End of nested loop
-    } /// End of loop over pairs of Clusters
+
+          // End of the MPA/CBC loop
+
+          // If the stub has been already thrown out, there is no reason to include it into the CIC stream
+          // We keep is in the stub final container tough, but flagged as reject by FE
+
+          if (FEreject) {
+            tempTTStub2.setTriggerDisplacement(500 + 2. * tempTTStub.getTriggerDisplacement());
+            tempTTStub2.setTriggerOffset(500 + 2. * tempTTStub.getTriggerOffset());
+            tempTTStub2.setRealTriggerOffset(500 + 2. * tempTTStub.getRealTriggerOffset());
+
+            tempInner.push_back(*(tempTTStub2.getClusterRef(0)));
+            tempOuter.push_back(*(tempTTStub2.getClusterRef(1)));
+            tempAccepted.push_back(tempTTStub2);
+            continue;
+          }
+
+          (isPS) ? maxStubs = maxStubs_PS_CIC_5 : maxStubs = maxStubs_2S_CIC_5;
+
+          if (is10G_PS)
+            maxStubs = maxStubs_PS_CIC_10;
+
+          if (moduleStubs_CIC.find(CIC_chip) == moduleStubs_CIC.end())  /// Already a stub for this ASIC?
+          {
+            /// No, so new entry
+            std::vector<TTStub<Ref_Phase2TrackerDigi_>> tempStubs(1, tempTTStub);
+            moduleStubs_CIC.emplace(CIC_chip, tempStubs);
+            tempInner.push_back(*(tempTTStub.getClusterRef(0)));
+            tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+            tempAccepted.push_back(tempTTStub);  // The stub is added
+          } else {
+            bool CIC_reject = true;
+
+            if (moduleStubs_CIC[CIC_chip].size() < maxStubs) {
+              moduleStubs_CIC[CIC_chip].push_back(tempTTStub);  //We add the new stub
+              tempInner.push_back(*(tempTTStub.getClusterRef(0)));
+              tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+              tempAccepted.push_back(tempTTStub);  // The stub is added
+            } else {
+              moduleStubs_CIC[CIC_chip].push_back(tempTTStub);  //We add the new stub
+
+              /// Sort them by |bend| and pick up only the first N.
+              bendMap.clear();
+              bendMap.reserve(moduleStubs_CIC[CIC_chip].size());
+
+              for (unsigned int i = 0; i < moduleStubs_CIC[CIC_chip].size(); ++i) {
+                bendMap.emplace_back(i, moduleStubs_CIC[CIC_chip].at(i).getTriggerBend());
+              }
+
+              std::sort(bendMap.begin(), bendMap.end(), TTStubBuilder<Ref_Phase2TrackerDigi_>::SortStubBendPairs);
+
+              // bendMap contains link over all the stubs included in moduleStubs_CIC[CIC_chip]
+
+              for (unsigned int i = 0; i < maxStubs; ++i) {
+                // The stub we have added is among the first ones, add it
+                if (bendMap[i].first == moduleStubs_CIC[CIC_chip].size() - 1) {
+                  CIC_reject = false;
+                }
+              }
+
+              if (CIC_reject)  // The stub added does not pass the cut
+              {
+                tempTTStub2.setTriggerDisplacement(1000 + 2. * tempTTStub.getTriggerDisplacement());
+                tempTTStub2.setTriggerOffset(1000 + 2. * tempTTStub.getTriggerOffset());
+                tempTTStub2.setRealTriggerOffset(1000 + 2. * tempTTStub.getRealTriggerOffset());
+
+                tempInner.push_back(*(tempTTStub2.getClusterRef(0)));
+                tempOuter.push_back(*(tempTTStub2.getClusterRef(1)));
+                tempAccepted.push_back(tempTTStub2);
+              } else {
+                tempInner.push_back(*(tempTTStub.getClusterRef(0)));
+                tempOuter.push_back(*(tempTTStub.getClusterRef(1)));
+                tempAccepted.push_back(tempTTStub);  // The stub is added
+              }
+            }
+          }
+        }  /// End of check on max number of stubs per module
+      }    /// End of nested loop
+    }      /// End of loop over pairs of Clusters
 
     /// Create the FastFillers
-    if ( !tempInner.empty() )
-    {
-      typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *ttClusterDSVForOutput, lowerDetid );
-      for ( unsigned int m = 0; m < tempInner.size(); m++ )
-      {
-        lowerOutputFiller.push_back( tempInner.at(m) );
+    if (!tempInner.empty()) {
+      typename edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>::FastFiller lowerOutputFiller(
+          *ttClusterDSVForOutput, lowerDetid);
+      for (unsigned int m = 0; m < tempInner.size(); m++) {
+        lowerOutputFiller.push_back(tempInner.at(m));
       }
-      if ( lowerOutputFiller.empty() )
+      if (lowerOutputFiller.empty())
         lowerOutputFiller.abort();
     }
 
-    if ( !tempOuter.empty() )
-    {
-      typename edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *ttClusterDSVForOutput, upperDetid );
-      for ( unsigned int m = 0; m < tempOuter.size(); m++ )
-      {
-        upperOutputFiller.push_back( tempOuter.at(m) );
+    if (!tempOuter.empty()) {
+      typename edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>::FastFiller upperOutputFiller(
+          *ttClusterDSVForOutput, upperDetid);
+      for (unsigned int m = 0; m < tempOuter.size(); m++) {
+        upperOutputFiller.push_back(tempOuter.at(m));
       }
-      if ( upperOutputFiller.empty() )
+      if (upperOutputFiller.empty())
         upperOutputFiller.abort();
     }
 
-    if ( !tempAccepted.empty() )
-    {
-      typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller tempAcceptedFiller( *ttStubDSVForOutputTemp, stackDetid);
-      for ( unsigned int m = 0; m < tempAccepted.size(); m++ )
-      {
-        tempAcceptedFiller.push_back( tempAccepted.at(m) );
+    if (!tempAccepted.empty()) {
+      typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::FastFiller tempAcceptedFiller(
+          *ttStubDSVForOutputTemp, stackDetid);
+      for (unsigned int m = 0; m < tempAccepted.size(); m++) {
+        tempAcceptedFiller.push_back(tempAccepted.at(m));
       }
-      if ( tempAcceptedFiller.empty() )
+      if (tempAcceptedFiller.empty())
         tempAcceptedFiller.abort();
     }
 
-  } /// End of loop over detector elements
+  }  /// End of loop over detector elements
 
   /// Put output in the event (1)
   /// Get also the OrphanHandle of the accepted clusters
-  edm::OrphanHandle< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > > > ttClusterAcceptedHandle = iEvent.put( std::move(ttClusterDSVForOutput), "ClusterAccepted" );
+  edm::OrphanHandle<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>> ttClusterAcceptedHandle =
+      iEvent.put(std::move(ttClusterDSVForOutput), "ClusterAccepted");
 
   /// Now, correctly reset the output
-  typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::const_iterator stubDetIter;
+  typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::const_iterator stubDetIter;
 
-  for ( stubDetIter = ttStubDSVForOutputTemp->begin();
-        stubDetIter != ttStubDSVForOutputTemp->end();
-        ++stubDetIter ) {
+  for (stubDetIter = ttStubDSVForOutputTemp->begin(); stubDetIter != ttStubDSVForOutputTemp->end(); ++stubDetIter) {
     /// Get the DetId and prepare the FastFiller
     DetId thisStackedDetId = stubDetIter->id();
-    typename edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >::FastFiller acceptedOutputFiller( *ttStubDSVForOutputAccepted, thisStackedDetId );
+    typename edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>::FastFiller acceptedOutputFiller(
+        *ttStubDSVForOutputAccepted, thisStackedDetId);
 
-    /// detid of the two components. 
+    /// detid of the two components.
     ///This should be done via a TrackerTopology method that is not yet available.
-    DetId lowerDetid = thisStackedDetId+1;
-    DetId upperDetid = thisStackedDetId+2;
+    DetId lowerDetid = thisStackedDetId + 1;
+    DetId upperDetid = thisStackedDetId + 2;
 
     /// Get the DetSets of the clusters
-    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > lowerClusters = (*ttClusterAcceptedHandle)[ lowerDetid ];
-    edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > > upperClusters = (*ttClusterAcceptedHandle)[ upperDetid ];
+    edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>> lowerClusters = (*ttClusterAcceptedHandle)[lowerDetid];
+    edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>> upperClusters = (*ttClusterAcceptedHandle)[upperDetid];
 
     /// Get the DetSet of the stubs
-    edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > > theseStubs = (*ttStubDSVForOutputTemp)[ thisStackedDetId ];
+    edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>> theseStubs = (*ttStubDSVForOutputTemp)[thisStackedDetId];
 
     /// Prepare the new DetSet to replace the current one
     /// Loop over the stubs
-    typename edmNew::DetSet< TTCluster< Ref_Phase2TrackerDigi_ > >::iterator clusterIter;
-    typename edmNew::DetSet< TTStub< Ref_Phase2TrackerDigi_ > >::iterator stubIter;
-    for ( stubIter = theseStubs.begin();
-          stubIter != theseStubs.end();
-          ++stubIter ) {
+    typename edmNew::DetSet<TTCluster<Ref_Phase2TrackerDigi_>>::iterator clusterIter;
+    typename edmNew::DetSet<TTStub<Ref_Phase2TrackerDigi_>>::iterator stubIter;
+    for (stubIter = theseStubs.begin(); stubIter != theseStubs.end(); ++stubIter) {
       /// Create a temporary stub
-      TTStub< Ref_Phase2TrackerDigi_ > tempTTStub( stubIter->getDetId() );
+      TTStub<Ref_Phase2TrackerDigi_> tempTTStub(stubIter->getDetId());
 
       /// Compare the clusters stored in the stub with the ones of this module
-      const edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >& lowerClusterToBeReplaced = stubIter->getClusterRef(0);
-      const edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >& upperClusterToBeReplaced = stubIter->getClusterRef(1);
+      const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
+          lowerClusterToBeReplaced = stubIter->getClusterRef(0);
+      const edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>&
+          upperClusterToBeReplaced = stubIter->getClusterRef(1);
 
       bool lowerOK = false;
       bool upperOK = false;
 
-      for ( clusterIter = lowerClusters.begin();
-            clusterIter != lowerClusters.end() && !lowerOK;
-            ++clusterIter ) {
-        if ( clusterIter->getHits() == lowerClusterToBeReplaced->getHits() ) {
-          tempTTStub.addClusterRef( edmNew::makeRefTo( ttClusterAcceptedHandle, clusterIter ) );
+      for (clusterIter = lowerClusters.begin(); clusterIter != lowerClusters.end() && !lowerOK; ++clusterIter) {
+        if (clusterIter->getHits() == lowerClusterToBeReplaced->getHits()) {
+          tempTTStub.addClusterRef(edmNew::makeRefTo(ttClusterAcceptedHandle, clusterIter));
           lowerOK = true;
         }
       }
 
-      for ( clusterIter = upperClusters.begin();
-            clusterIter != upperClusters.end() && !upperOK;
-            ++clusterIter ) {
-        if ( clusterIter->getHits() == upperClusterToBeReplaced->getHits() ) {
-          tempTTStub.addClusterRef( edmNew::makeRefTo( ttClusterAcceptedHandle, clusterIter ) );
+      for (clusterIter = upperClusters.begin(); clusterIter != upperClusters.end() && !upperOK; ++clusterIter) {
+        if (clusterIter->getHits() == upperClusterToBeReplaced->getHits()) {
+          tempTTStub.addClusterRef(edmNew::makeRefTo(ttClusterAcceptedHandle, clusterIter));
           upperOK = true;
         }
       }
 
       /// If no compatible clusters were found, skip to the next one
-      if ( !lowerOK || !upperOK ) continue;
+      if (!lowerOK || !upperOK)
+        continue;
 
-      tempTTStub.setTriggerDisplacement( 2.*stubIter->getTriggerDisplacement() ); /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setTriggerOffset( 2.*stubIter->getTriggerOffset() );             /// getter is in FULL-strip units, setter is in HALF-strip units
-      tempTTStub.setRealTriggerOffset( 2.*stubIter->getRealTriggerOffset() );
-      tempTTStub.setHardwareBend( stubIter->getHardwareBend() );
+      /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setTriggerDisplacement(2. * stubIter->getTriggerDisplacement());
+      /// getter is in FULL-strip units, setter is in HALF-strip units
+      tempTTStub.setTriggerOffset(2. * stubIter->getTriggerOffset());
+      tempTTStub.setRealTriggerOffset(2. * stubIter->getRealTriggerOffset());
+      tempTTStub.setHardwareBend(stubIter->getHardwareBend());
 
-      acceptedOutputFiller.push_back( tempTTStub );
+      acceptedOutputFiller.push_back(tempTTStub);
 
-    } /// End of loop over stubs of this module
+    }  /// End of loop over stubs of this module
 
-    if ( acceptedOutputFiller.empty() )
+    if (acceptedOutputFiller.empty())
       acceptedOutputFiller.abort();
 
-  } /// End of loop over stub DetSetVector
-    
+  }  /// End of loop over stub DetSetVector
+
   /// Put output in the event (2)
-  iEvent.put( std::move(ttStubDSVForOutputAccepted), "StubAccepted" );
-  iEvent.put( std::move(ttStubDSVForOutputRejected), "StubRejected" );
+  iEvent.put(std::move(ttStubDSVForOutputAccepted), "StubAccepted");
+  iEvent.put(std::move(ttStubDSVForOutputRejected), "StubRejected");
 
   ++ievt;
-  if (ievt%8==0)    moduleStubs_CIC.clear(); // Everything is cleared up after 8BX
-  if (ievt%2==0)    moduleStubs_MPA.clear(); // Everything is cleared up after 2BX
-  moduleStubs_CBC.clear(); // Everything is cleared up after everyBX
-
+  if (ievt % 8 == 0)
+    moduleStubs_CIC.clear();  // Everything is cleared up after 8BX
+  if (ievt % 2 == 0)
+    moduleStubs_MPA.clear();  // Everything is cleared up after 2BX
+  moduleStubs_CBC.clear();    // Everything is cleared up after everyBX
 }
-
-

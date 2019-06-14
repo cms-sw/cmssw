@@ -21,46 +21,40 @@
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 
 class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
-        public:
-                EcalRecHitWorkerSimple(const edm::ParameterSet&, edm::ConsumesCollector& c);
-				EcalRecHitWorkerSimple(const edm::ParameterSet&);
-                ~EcalRecHitWorkerSimple() override;                       
-        
-                void set(const edm::EventSetup& es) override;
-                bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection & result) override;
+public:
+  EcalRecHitWorkerSimple(const edm::ParameterSet&, edm::ConsumesCollector& c);
+  EcalRecHitWorkerSimple(const edm::ParameterSet&);
+  ~EcalRecHitWorkerSimple() override;
 
+  void set(const edm::EventSetup& es) override;
+  bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection& result) override;
 
+protected:
+  double EBLaserMIN_;
+  double EELaserMIN_;
+  double EBLaserMAX_;
+  double EELaserMAX_;
 
-        protected:
+  edm::ESHandle<EcalIntercalibConstants> ical;
+  edm::ESHandle<EcalTimeCalibConstants> itime;
+  edm::ESHandle<EcalTimeOffsetConstant> offtime;
+  edm::ESHandle<EcalADCToGeVConstant> agc;
+  edm::ESHandle<EcalChannelStatus> chStatus;
+  std::vector<int> v_chstatus_;
+  edm::ESHandle<EcalLaserDbService> laser;
 
-		double EBLaserMIN_;
-		double EELaserMIN_;
-		double EBLaserMAX_;
-		double EELaserMAX_;
+  // Associate reco flagbit ( outer vector) to many db status flags (inner vector)
+  std::vector<std::vector<uint32_t> > v_DB_reco_flags_;
 
+  uint32_t setFlagBits(const std::vector<std::vector<uint32_t> >& map, const uint32_t& status);
 
-        edm::ESHandle<EcalIntercalibConstants> ical;
-        edm::ESHandle<EcalTimeCalibConstants> itime;
-        edm::ESHandle<EcalTimeOffsetConstant> offtime;
-        edm::ESHandle<EcalADCToGeVConstant> agc;
-        edm::ESHandle<EcalChannelStatus> chStatus;
-        std::vector<int> v_chstatus_;
-        edm::ESHandle<EcalLaserDbService> laser;
+  uint32_t flagmask_;  // do not propagate channels with these flags on
 
-		// Associate reco flagbit ( outer vector) to many db status flags (inner vector)
-		std::vector<std::vector<uint32_t> > v_DB_reco_flags_;
+  bool killDeadChannels_;
+  bool laserCorrection_;
+  bool skipTimeCalib_;
 
-		uint32_t setFlagBits(const std::vector<std::vector<uint32_t> >& map, 
-				     const uint32_t& status  );
-
-        uint32_t flagmask_; // do not propagate channels with these flags on
-
-        bool killDeadChannels_;
-        bool laserCorrection_;
-        bool skipTimeCalib_;
-
-        EcalRecHitSimpleAlgo * rechitMaker_;
-
+  EcalRecHitSimpleAlgo* rechitMaker_;
 };
 
 #endif

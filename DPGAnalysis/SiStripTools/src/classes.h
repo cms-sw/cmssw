@@ -19,7 +19,7 @@ namespace DPGAnalysis_SiStripTools {
     ClusterSummaryMultiplicityPair dummy6;
 
     edm::Wrapper<TinyEventCollection> dummywrappedcoll;
-    edm::Wrapper<EventWithHistory>  dummywrappedEWH;
+    edm::Wrapper<EventWithHistory> dummywrappedEWH;
     edm::Wrapper<APVCyclePhaseCollection> dummywrappedAPVC;
 
     /*
@@ -29,6 +29,6 @@ namespace DPGAnalysis_SiStripTools {
     edm::Wrapper<SiPixelClusterSiStripClusterMultiplicityPair> dummywrapped4;
     */
   };
-}
+}  // namespace DPGAnalysis_SiStripTools
 
-#endif // DPGAnalysis_SiStripTools_classes_H
+#endif  // DPGAnalysis_SiStripTools_classes_H

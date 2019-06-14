@@ -18,18 +18,17 @@ namespace edm {
 
     static DigiAccumulatorMixModFactory const* get();
 
-    std::unique_ptr<DigiAccumulatorMixMod>
-      makeDigiAccumulator(ParameterSet const&, ProducerBase&, ConsumesCollector&) const;
+    std::unique_ptr<DigiAccumulatorMixMod> makeDigiAccumulator(ParameterSet const&,
+                                                               ProducerBase&,
+                                                               ConsumesCollector&) const;
 
   private:
     DigiAccumulatorMixModFactory();
     static DigiAccumulatorMixModFactory const singleInstance_;
   };
-}
+}  // namespace edm
 
-#define DEFINE_DIGI_ACCUMULATOR(type) \
-  DEFINE_EDM_PLUGIN (edm::DigiAccumulatorMixModPluginFactory,type,#type)
-  //DEFINE_EDM_PLUGIN (edm::DigiAccumulatorMixModPluginFactory,type,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
+#define DEFINE_DIGI_ACCUMULATOR(type) DEFINE_EDM_PLUGIN(edm::DigiAccumulatorMixModPluginFactory, type, #type)
+//DEFINE_EDM_PLUGIN (edm::DigiAccumulatorMixModPluginFactory,type,#type); DEFINE_FWK_PSET_DESC_FILLER(type)
 
 #endif
-

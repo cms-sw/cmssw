@@ -31,9 +31,7 @@
 #include <map>
 //#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-
-class CastorRawToDigi : public edm::stream::EDProducer<>
-{
+class CastorRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit CastorRawToDigi(const edm::ParameterSet& ps);
   ~CastorRawToDigi() override;

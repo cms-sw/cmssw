@@ -1,5 +1,11 @@
-#include "RecoParticleFlow/PFProducer/plugins/PFEGammaProducer.h"
+/**\class PFEGammaProducer
+\brief Producer for particle flow reconstructed particles (PFCandidates)
 
+This producer makes use of PFAlgo, the particle flow algorithm.
+
+\author Colin Bernet
+\date   July 2006
+*/
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,16 +22,80 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-
 #include "CondFormats/DataRecord/interface/ESEEIntercalibConstantsRcd.h"
 #include "CondFormats/DataRecord/interface/ESChannelStatusRcd.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h"
-
 #include "DataFormats/Common/interface/RefToPtr.h"
-#include <sstream>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateEGammaExtraFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaAlgo.h"
 
-//#define PFLOW_DEBUG
+#include <sstream>
+#include <string>
+#include <memory>
+
+class PFEGammaProducer : public edm::stream::EDProducer<edm::GlobalCache<PFEGammaAlgo::GBRForests> > {
+
+ public:
+  explicit PFEGammaProducer(const edm::ParameterSet&, const PFEGammaAlgo::GBRForests* );
+
+  static std::unique_ptr<PFEGammaAlgo::GBRForests>
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<PFEGammaAlgo::GBRForests>(new PFEGammaAlgo::GBRForests(conf));
+   }
+
+  static void globalEndJob(PFEGammaAlgo::GBRForests const* ) {}
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override {}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+ private:
+
+  void setPFVertexParameters(reco::VertexCollection const&  primaryVertices);
+
+  void createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,
+                                  reco::ConversionCollection &oneLegConversions,
+                                  const edm::RefProd<reco::ConversionCollection> &convProd);
+
+
+  const edm::EDGetTokenT<reco::PFBlockCollection>            inputTagBlocks_;
+  const edm::EDGetTokenT<reco::PFCluster::EEtoPSAssociation> eetopsSrc_;
+  const edm::EDGetTokenT<reco::VertexCollection>             vertices_;
+
+  // Use vertices for Neutral particles ?
+  const bool useVerticesForNeutral_;
+
+  /// Variables for PFEGamma
+
+  reco::Vertex primaryVertex_;
+
+  /// particle flow algorithm
+  std::unique_ptr<PFEGammaAlgo> pfeg_;
+
+  const std::string ebeeClustersCollection_;
+  const std::string esClustersCollection_;
+
+};
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFEGammaProducer);
 
 #ifdef PFLOW_DEBUG
 #define LOGDRESSED(x)  edm::LogInfo(x)
@@ -34,7 +104,7 @@
 #endif
 
 PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
-                                   const pfEGHelpers::HeavyObjectCache*)
+                                   const PFEGammaAlgo::GBRForests* gbrForests)
   : inputTagBlocks_        (consumes<reco::PFBlockCollection>(iConfig.getParameter<edm::InputTag>("blocks")))
   , eetopsSrc_             (consumes<reco::PFCluster::EEtoPSAssociation>(
                             iConfig.getParameter<edm::InputTag>("EEtoPS_source")))
@@ -71,7 +141,17 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
   algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
   //PFEGamma
-  setPFEGParameters(algo_config);  
+  //for MVA pass PV if there is one in the collection otherwise pass a dummy  
+  if(!useVerticesForNeutral_) { // create a dummy PV  
+    reco::Vertex::Error e;  
+    e(0, 0) = 0.0015 * 0.0015;  
+    e(1, 1) = 0.0015 * 0.0015;  
+    e(2, 2) = 15. * 15.;  
+    reco::Vertex::Point p(0, 0, 0);  
+    primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
+  }  
+  pfeg_ = std::make_unique<PFEGammaAlgo>(algo_config, *gbrForests);
+  pfeg_->setPrimaryVertex(primaryVertex_ );
 
 }
 
@@ -187,39 +267,27 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     // make a copy of the link data, which will be edited.
     //PFBlock::LinkData linkData =  block.linkData();
     
-    pfeg_->buildAndRefineEGObjects(globalCache(),blockref);
+    auto output = (*pfeg_)(blockref);
 
-    if( !pfeg_->getCandidates().empty() ) {
+    if( !output.candidates.empty() ) {
       LOGDRESSED("PFEGammaProducer")
       << "Block with " << elements.size() 
       << " elements produced " 
-      << pfeg_->getCandidates().size() 
+      << output.candidates.size() 
       << " e-g candidates!" << std::endl;      
     }
 
     const size_t egsize = egCandidates_->size();
-    egCandidates_->resize(egsize + pfeg_->getCandidates().size());
-    reco::PFCandidateCollection::iterator eginsertfrom = 
-      egCandidates_->begin() + egsize;
-    std::move(pfeg_->getCandidates().begin(),
-	      pfeg_->getCandidates().end(),
-	      eginsertfrom);
+    egCandidates_->resize(egsize + output.candidates.size());
+    std::move(output.candidates.begin(), output.candidates.end(), egCandidates_->begin() + egsize);
     
     const size_t egxsize = egExtra_->size();
-    egExtra_->resize(egxsize + pfeg_->getEGExtra().size());
-    reco::PFCandidateEGammaExtraCollection::iterator egxinsertfrom = 
-      egExtra_->begin() + egxsize;
-    std::move(pfeg_->getEGExtra().begin(),
-	      pfeg_->getEGExtra().end(),
-	      egxinsertfrom);
+    egExtra_->resize(egxsize + output.candidateExtras.size());
+    std::move(output.candidateExtras.begin(), output.candidateExtras.end(), egExtra_->begin() + egxsize);
 
     const size_t rscsize = sClusters_->size();
-    sClusters_->resize(rscsize + pfeg_->getRefinedSCs().size());
-    reco::SuperClusterCollection::iterator rscinsertfrom = 
-      sClusters_->begin() + rscsize;
-    std::move(pfeg_->getRefinedSCs().begin(),
-	      pfeg_->getRefinedSCs().end(),
-	      rscinsertfrom);    
+    sClusters_->resize(rscsize + output.refinedSuperClusters.size());
+    std::move(output.refinedSuperClusters.begin(), output.refinedSuperClusters.end(), sClusters_->begin() + rscsize);
   }
 
   LOGDRESSED("PFEGammaProducer")
@@ -316,22 +384,6 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   iEvent.put(std::move(egCandidates_));
 }
 
-//PFEGammaAlgo: a new method added to set the parameters for electron and photon reconstruction. 
-void 
-PFEGammaProducer::setPFEGParameters(PFEGammaAlgo::PFEGConfigInfo& cfg) {  
-  
-  //for MVA pass PV if there is one in the collection otherwise pass a dummy  
-  if(!useVerticesForNeutral_) { // create a dummy PV  
-    reco::Vertex::Error e;  
-    e(0, 0) = 0.0015 * 0.0015;  
-    e(1, 1) = 0.0015 * 0.0015;  
-    e(2, 2) = 15. * 15.;  
-    reco::Vertex::Point p(0, 0, 0);  
-    primaryVertex_ = reco::Vertex(p, e, 0, 0, 0);  
-  }  
-  cfg.primaryVtx = &primaryVertex_;  
-  pfeg_.reset(new PFEGammaAlgo(cfg));
-}
 
 void
 PFEGammaProducer::setPFVertexParameters(reco::VertexCollection const&  primaryVertices)
@@ -344,7 +396,7 @@ PFEGammaProducer::setPFVertexParameters(reco::VertexCollection const&  primaryVe
         }
     }
 
-    pfeg_->setPhotonPrimaryVtx(primaryVertex_ );
+    pfeg_->setPrimaryVertex(primaryVertex_ );
 }
 
 void PFEGammaProducer::createSingleLegConversions(reco::PFCandidateEGammaExtraCollection &extras,

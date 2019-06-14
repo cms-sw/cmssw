@@ -15,48 +15,33 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
-
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTVelocityUnits {
-
- public:
-
+public:
   enum type { cm_per_count, cm_per_ns };
 
   /** Destructor
    */
   virtual ~DTVelocityUnits();
 
- private:
+private:
   /** Constructor
    */
   DTVelocityUnits();
   /** Operations
    */
-  /// 
-
-
-
+  ///
 };
 
-
-#endif // DTVelocityUnits_H
-
-
-
-
-
-
+#endif  // DTVelocityUnits_H

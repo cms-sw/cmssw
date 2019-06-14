@@ -6,6 +6,3 @@
 #include "DataFormats/HeavyIonEvent/interface/VoronoiBackground.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
-
-
-

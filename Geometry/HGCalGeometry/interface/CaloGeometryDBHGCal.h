@@ -22,6 +22,6 @@ namespace calogeometryDBEPimpl {
     }
     edm::ESGetToken<HGCalTopology, IdealGeometryRecord> topology;
   };
-}
+}  // namespace calogeometryDBEPimpl
 
 #endif

@@ -26,53 +26,42 @@
 
 /* Class DTSegmentExtendedCand Interface */
 
-class DTSegmentExtendedCand  : public DTSegmentCand {
+class DTSegmentExtendedCand : public DTSegmentCand {
+public:
+  struct DTSLRecClusterForFit;
 
+  /* Constructor */
+  DTSegmentExtendedCand(DTSegmentCand* cand) : DTSegmentCand(*cand), theClus(std::vector<DTSLRecClusterForFit>()) {}
+
+  /* Destructor */
+  ~DTSegmentExtendedCand() override {}
+
+  /* Operations */
+  void addClus(const DTSegmentExtendedCand::DTSLRecClusterForFit& clus) { theClus.push_back(clus); }
+
+  std::vector<DTSegmentExtendedCand::DTSLRecClusterForFit> clusters() const { return theClus; }
+
+  //DTSegmentCand* cand() const { return theCand; }
+
+  bool isCompatible(const DTSegmentExtendedCand::DTSLRecClusterForFit& clus);
+
+  unsigned int nHits() const override;
+
+  bool good() const override;
+
+  struct DTSLRecClusterForFit {
   public:
-    struct DTSLRecClusterForFit ;
+    DTSLRecClusterForFit(const DTSLRecCluster& c, const LocalPoint& p, const LocalError& e) : clus(c), pos(p), err(e) {}
+    DTSLRecCluster clus;
+    LocalPoint pos;
+    LocalError err;
+  };
 
-/* Constructor */ 
-    DTSegmentExtendedCand(DTSegmentCand* cand ): DTSegmentCand(*cand),
-                                                  theClus(std::vector<DTSLRecClusterForFit>()) {
-                                                  }
+private:
+  //DTSegmentCand* theCand;
+  std::vector<DTSLRecClusterForFit> theClus;
+  //double theChi2;
 
-/* Destructor */ 
-    ~DTSegmentExtendedCand() override {}
-
-/* Operations */ 
-    void addClus(const DTSegmentExtendedCand::DTSLRecClusterForFit& clus) {
-      theClus.push_back(clus);
-    }
-
-    std::vector<DTSegmentExtendedCand::DTSLRecClusterForFit> clusters() const {
-      return theClus;
-    }
-
-    //DTSegmentCand* cand() const { return theCand; }
-
-    bool isCompatible(const DTSegmentExtendedCand::DTSLRecClusterForFit& clus) ;
-
-    unsigned int nHits() const override ;
-
-    bool good() const override ;
-
-    struct DTSLRecClusterForFit {
-      public: 
-        DTSLRecClusterForFit(const DTSLRecCluster& c,
-                             const LocalPoint& p,
-                             const LocalError& e) : clus(c), pos(p), err(e) {}
-        DTSLRecCluster clus;
-        LocalPoint pos;
-        LocalError err;
-    };
-
-  private:
-    //DTSegmentCand* theCand;
-    std::vector<DTSLRecClusterForFit> theClus;
-    //double theChi2;
-
-  protected:
-
+protected:
 };
-#endif // DTSEGMENTEXTENDEDCAND_H
-
+#endif  // DTSEGMENTEXTENDEDCAND_H

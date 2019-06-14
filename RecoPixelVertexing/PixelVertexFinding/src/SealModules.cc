@@ -3,5 +3,4 @@
 
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PixelVertexProducer.h"
 
-
 DEFINE_FWK_MODULE(PixelVertexProducer);

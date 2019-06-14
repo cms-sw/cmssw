@@ -21,67 +21,55 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-class ProcClassed : public TrainProcessor {
-    public:
-	typedef TrainProcessor::Registry<ProcClassed>::Type Registry;
+  class ProcClassed : public TrainProcessor {
+  public:
+    typedef TrainProcessor::Registry<ProcClassed>::Type Registry;
 
-	ProcClassed(const char *name, const AtomicId *id, MVATrainer *trainer);
-	~ProcClassed() override;
+    ProcClassed(const char *name, const AtomicId *id, MVATrainer *trainer);
+    ~ProcClassed() override;
 
-	void configure(DOMElement *elem) override;
-	Calibration::VarProcessor *getCalibration() const override;
+    void configure(DOMElement *elem) override;
+    Calibration::VarProcessor *getCalibration() const override;
 
-    private:
-	unsigned int	count;
-};
+  private:
+    unsigned int count;
+  };
 
-ProcClassed::Registry registry("ProcClassed");
+  ProcClassed::Registry registry("ProcClassed");
 
-ProcClassed::ProcClassed(const char *name, const AtomicId *id,
-                         MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer)
-{
-}
+  ProcClassed::ProcClassed(const char *name, const AtomicId *id, MVATrainer *trainer)
+      : TrainProcessor(name, id, trainer) {}
 
-ProcClassed::~ProcClassed()
-{
-}
+  ProcClassed::~ProcClassed() {}
 
-void ProcClassed::configure(DOMElement *elem)
-{
-	DOMNode *node = elem->getFirstChild();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+  void ProcClassed::configure(DOMElement *elem) {
+    DOMNode *node = elem->getFirstChild();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (!node ||
-	    std::strcmp(XMLSimpleStr(node->getNodeName()), "classes") != 0)
-		throw cms::Exception("ProcClassed")
-			<< "Expected classes tag in config section."
-			<< std::endl;
+    if (!node || std::strcmp(XMLSimpleStr(node->getNodeName()), "classes") != 0)
+      throw cms::Exception("ProcClassed") << "Expected classes tag in config section." << std::endl;
 
-	elem = static_cast<DOMElement*>(node);
+    elem = static_cast<DOMElement *>(node);
 
-	count = XMLDocument::readAttribute<unsigned int>(elem, "count");
+    count = XMLDocument::readAttribute<unsigned int>(elem, "count");
 
-	node = node->getNextSibling();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+    node = node->getNextSibling();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (node)
-		throw cms::Exception("ProcClassed")
-			<< "Superfluous tags in config section."
-			<< std::endl;
+    if (node)
+      throw cms::Exception("ProcClassed") << "Superfluous tags in config section." << std::endl;
 
-	trained = true;
-}
+    trained = true;
+  }
 
-Calibration::VarProcessor *ProcClassed::getCalibration() const
-{
-	Calibration::ProcClassed *calib = new Calibration::ProcClassed;
-	calib->nClasses = count;
-	return calib;
-}
+  Calibration::VarProcessor *ProcClassed::getCalibration() const {
+    Calibration::ProcClassed *calib = new Calibration::ProcClassed;
+    calib->nClasses = count;
+    return calib;
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

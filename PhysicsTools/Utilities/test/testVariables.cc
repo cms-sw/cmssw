@@ -10,7 +10,7 @@ class testVariables : public CppUnit::TestFixture {
 public:
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
 };
 
 DEFINE_VARIABLE(W, "w");
@@ -37,20 +37,20 @@ void testVariables::checkAll() {
   CPPUNIT_ASSERT(w() == v);
 
   funct::Y y;
-  
+
   x = value;
   y = value1;
   double z;
   z = x + y;
-  CPPUNIT_ASSERT(z = value + value1); 
+  CPPUNIT_ASSERT(z = value + value1);
   z = x - y;
-  CPPUNIT_ASSERT(z = value - value1); 
+  CPPUNIT_ASSERT(z = value - value1);
   z = x * y;
-  CPPUNIT_ASSERT(z = value * value1); 
+  CPPUNIT_ASSERT(z = value * value1);
   z = x / y;
   CPPUNIT_ASSERT(z = value / value1);
   z = x ^ y;
-  CPPUNIT_ASSERT(z = pow(value, value1)); 
-  z = - x;
-  CPPUNIT_ASSERT(z = - value); 
+  CPPUNIT_ASSERT(z = pow(value, value1));
+  z = -x;
+  CPPUNIT_ASSERT(z = -value);
 }

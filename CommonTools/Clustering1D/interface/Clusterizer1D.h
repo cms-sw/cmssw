@@ -12,17 +12,14 @@
  *  Cluster1D<T>.
  */
 
-template < class T >
-class Clusterizer1D
-{
+template <class T>
+class Clusterizer1D {
 public:
-    virtual ~Clusterizer1D()
-    {}
-    ;
-    virtual std::pair< std::vector< Cluster1D<T> >, std::vector< const T * > > operator ()
-        ( const std::vector< Cluster1D<T> > & ) const = 0;
+  virtual ~Clusterizer1D(){};
+  virtual std::pair<std::vector<Cluster1D<T> >, std::vector<const T*> > operator()(
+      const std::vector<Cluster1D<T> >&) const = 0;
 
-    virtual Clusterizer1D * clone() const = 0;
+  virtual Clusterizer1D* clone() const = 0;
 };
 
 #endif

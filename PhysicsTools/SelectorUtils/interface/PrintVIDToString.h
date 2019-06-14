@@ -7,8 +7,8 @@
 #include <sstream>
 #include <string>
 
-template<typename T>
-struct PrintVIDToString{  
+template <typename T>
+struct PrintVIDToString {
   std::string operator()(const VersionedSelector<edm::Ptr<T> >& select) {
     std::stringstream out;
     select.print(out);

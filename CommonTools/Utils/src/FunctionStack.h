@@ -13,9 +13,9 @@
 #include <vector>
 
 namespace reco {
-  namespace parser {    
+  namespace parser {
     typedef std::vector<Function> FunctionStack;
   }
-}
+}  // namespace reco
 
 #endif

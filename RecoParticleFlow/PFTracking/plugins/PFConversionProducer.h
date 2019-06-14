@@ -13,24 +13,22 @@
 class PFTrackTransformer;
 class PFConversionProducer : public edm::stream::EDProducer<> {
 public:
-  
   ///Constructor
-  explicit PFConversionProducer(const edm::ParameterSet&);
-  
+  explicit PFConversionProducer(const edm::ParameterSet &);
+
   ///Destructor
   ~PFConversionProducer() override;
-  
+
 private:
-  void beginRun(const edm::Run&,const edm::EventSetup&) override;
-  void endRun(const edm::Run&,const edm::EventSetup&) override;
-  
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+
   ///Produce the PFRecTrack collection
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
   ///PFTrackTransformer
-  PFTrackTransformer *pfTransformer_; 
+  PFTrackTransformer *pfTransformer_;
   edm::EDGetTokenT<reco::ConversionCollection> pfConversionContainer_;
   edm::EDGetTokenT<reco::VertexCollection> vtx_h;
-  
 };
 #endif

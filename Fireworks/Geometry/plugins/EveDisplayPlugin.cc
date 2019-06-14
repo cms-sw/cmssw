@@ -2,7 +2,7 @@
 //
 // Package:    EveDisplayPlugin
 // Class:      EveDisplayPlugin
-// 
+//
 /**\class EveDisplayPlugin EveDisplayPlugin.cc Reve/EveDisplayPlugin/src/EveDisplayPlugin.cc
 
  Description: <one line class summary>
@@ -46,15 +46,12 @@
 //
 
 class EveDisplayPlugin : public fireworks::geometry::DisplayPlugin {
+public:
+  explicit EveDisplayPlugin();
+  ~EveDisplayPlugin() override;
 
-   public:
-      explicit EveDisplayPlugin();
-      ~EveDisplayPlugin() override;
-
-
-   private:
-      void run(const edm::EventSetup&) override;
-
+private:
+  void run(const edm::EventSetup&) override;
 };
 
 //
@@ -68,43 +65,32 @@ class EveDisplayPlugin : public fireworks::geometry::DisplayPlugin {
 //
 // constructors and destructor
 //
-EveDisplayPlugin::EveDisplayPlugin()
-{
-   //now do what ever initialization is needed
-
+EveDisplayPlugin::EveDisplayPlugin() {
+  //now do what ever initialization is needed
 }
 
-
-EveDisplayPlugin::~EveDisplayPlugin()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+EveDisplayPlugin::~EveDisplayPlugin() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 // ------------ method called to for each event  ------------
-void
-EveDisplayPlugin::run(const edm::EventSetup& iSetup)
-{
+void EveDisplayPlugin::run(const edm::EventSetup& iSetup) {
   std::cout << "In the EveDisplayPlugin::analyze method..." << std::endl;
-   using namespace edm;
+  using namespace edm;
 
-   ESHandle<TGeoManager> geom;
-   iSetup.get<DisplayGeomRecord>().get(geom);
+  ESHandle<TGeoManager> geom;
+  iSetup.get<DisplayGeomRecord>().get(geom);
 
-   TEveManager::Create();
+  TEveManager::Create();
 
-   TEveGeoTopNode* trk = new TEveGeoTopNode(const_cast<TGeoManager*>(geom.product()),
-					    geom->GetTopNode());
-   trk->SetVisLevel(2);
-   gEve->AddGlobalElement(trk);
+  TEveGeoTopNode* trk = new TEveGeoTopNode(const_cast<TGeoManager*>(geom.product()), geom->GetTopNode());
+  trk->SetVisLevel(2);
+  gEve->AddGlobalElement(trk);
 }
-
 
 //define this as a plug-in
 DEFINE_FIREWORKS_GEOM_DISPLAY(EveDisplayPlugin);

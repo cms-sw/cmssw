@@ -17,43 +17,37 @@
 
 using namespace edm;
 
-GsfMaterialEffectsESProducer::GsfMaterialEffectsESProducer(const edm::ParameterSet & p) 
-{
+GsfMaterialEffectsESProducer::GsfMaterialEffectsESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 GsfMaterialEffectsESProducer::~GsfMaterialEffectsESProducer() {}
 
-std::unique_ptr<GsfMaterialEffectsUpdator> 
-GsfMaterialEffectsESProducer::produce(const TrackingComponentsRecord & iRecord){ 
+std::unique_ptr<GsfMaterialEffectsUpdator> GsfMaterialEffectsESProducer::produce(
+    const TrackingComponentsRecord& iRecord) {
   double mass = pset_.getParameter<double>("Mass");
   std::string msName = pset_.getParameter<std::string>("MultipleScatteringUpdator");
   std::string elName = pset_.getParameter<std::string>("EnergyLossUpdator");
 
   std::unique_ptr<GsfMaterialEffectsUpdator> msUpdator;
-  if ( msName == "GsfMultipleScatteringUpdator" ) {
+  if (msName == "GsfMultipleScatteringUpdator") {
     msUpdator.reset(new GsfMultipleScatteringUpdator(mass));
-  }
-  else {
+  } else {
     msUpdator.reset(new GsfMaterialEffectsAdapter(MultipleScatteringUpdator(mass)));
   }
-  
+
   std::unique_ptr<GsfMaterialEffectsUpdator> elUpdator;
-  if ( elName == "GsfBetheHeitlerUpdator" ) {
+  if (elName == "GsfBetheHeitlerUpdator") {
     std::string fileName = pset_.getParameter<std::string>("BetheHeitlerParametrization");
     int correction = pset_.getParameter<int>("BetheHeitlerCorrection");
-    elUpdator.reset(new GsfBetheHeitlerUpdator(fileName,correction));
-  }
-  else {
+    elUpdator.reset(new GsfBetheHeitlerUpdator(fileName, correction));
+  } else {
     elUpdator.reset(new GsfMaterialEffectsAdapter(EnergyLossUpdator(mass)));
   }
 
-  auto updator =
-    std::make_unique<GsfCombinedMaterialEffectsUpdator>(*msUpdator, *elUpdator);
+  auto updator = std::make_unique<GsfCombinedMaterialEffectsUpdator>(*msUpdator, *elUpdator);
 
   return updator;
 }
-
-

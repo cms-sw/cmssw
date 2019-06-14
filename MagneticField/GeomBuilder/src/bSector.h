@@ -26,19 +26,17 @@ public:
   ~bSector();
 
   /// Distance  from center along normal of sectors.
-  const float RN() const {
-    return volumes.front()->RN();
-  }
+  const float RN() const { return volumes.front()->RN(); }
 
   /// Return all volumes in this sector
-  const handles & getVolumes() const {return volumes;}
+  const handles& getVolumes() const { return volumes; }
 
   /// Construct the MagBSector upon request.
   MagBSector* buildMagBSector() const;
 
 private:
-  std::vector<bRod> rods; // the rods in this layer
-  handles volumes;   // pointers to all volumes in the sector
+  std::vector<bRod> rods;  // the rods in this layer
+  handles volumes;         // pointers to all volumes in the sector
   mutable MagBSector* msector;
 };
 #endif

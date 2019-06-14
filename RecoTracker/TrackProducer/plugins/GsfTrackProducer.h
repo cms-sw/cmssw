@@ -13,7 +13,6 @@
 
 class GsfTrackProducer : public GsfTrackProducerBase, public edm::stream::EDProducer<> {
 public:
-
   explicit GsfTrackProducer(const edm::ParameterSet& iConfig);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -21,7 +20,6 @@ public:
 
 private:
   TrackProducerAlgorithm<reco::GsfTrack> theAlgo;
-
 };
 
 #endif

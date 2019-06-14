@@ -12,4 +12,3 @@ DEFINE_FWK_MODULE(TtFullHadSignalSelMVATrainer);
 
 DEFINE_FWK_MODULE(TtSemiLepSignalSelMVAComputer);
 DEFINE_FWK_MODULE(TtSemiLepSignalSelMVATrainer);
-

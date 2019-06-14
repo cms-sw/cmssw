@@ -12,7 +12,6 @@
 
 template <unsigned int N>
 class MultiGaussianStateAssembler {
-
 private:
   typedef SingleGaussianState<N> SingleState;
   typedef MultiGaussianState<N> MultiState;
@@ -24,28 +23,27 @@ public:
   // constructors
   //
   MultiGaussianStateAssembler() = default;
-  
+
   /** Adds a new MultiGaussianState to the list 
    *  of components
    */
-  void addState (const MultiState& state);
-  void addState (const SingleStatePtr& state);
+  void addState(const MultiState& state);
+  void addState(const SingleStatePtr& state);
 
   /** Returns the resulting MultiGaussianState 
    *  with weight = sum of all valid components.
    */
-  MultiState combinedState ();
+  MultiState combinedState();
   /** Returns the resulting MultiGaussianState 
    *  renormalised to specified weight.
    */
-  MultiState combinedState (const float weight);
-
+  MultiState combinedState(const float weight);
 
 private:
   /** Adds a vector of gaussian states
    *  to the list of components
    */
-  void addStateVector (const SingleStateContainer&);
+  void addStateVector(const SingleStateContainer&);
 
   /**
    * Preparation of combined state (cleaning & sorting)
@@ -56,21 +54,20 @@ private:
    *  with user-supplied total weight.
    */
 
-  MultiState reweightedCombinedState (const double) const;
+  MultiState reweightedCombinedState(const double) const;
 
   /** Removes states with negligible weight (no renormalisation
    * of total weight!).
    */
-  void removeSmallWeights ();
+  void removeSmallWeights();
 
 private:
   double minFractionalWeight = 1.e-16;
 
-  bool combinationDone=false;
+  bool combinationDone = false;
 
-  double theValidWeightSum=0;
+  double theValidWeightSum = 0;
   SingleStateContainer theStates;
-  
 };
 
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateAssembler.icc"

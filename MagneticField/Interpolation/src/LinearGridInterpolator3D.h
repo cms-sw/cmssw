@@ -14,7 +14,6 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
-
 #ifdef DEBUG_LinearGridInterpolator3D
 #include <iostream>
 #include "InterpolationDebug.h"
@@ -22,17 +21,15 @@
 
 class dso_internal LinearGridInterpolator3D {
 public:
-
   typedef Grid3D::ValueType ValueType;
   typedef Grid3D::Scalar Scalar;
-  typedef ValueType ReturnType; 
+  typedef ValueType ReturnType;
 
-  LinearGridInterpolator3D( const Grid3D& g) :
-    grid(g), grida(g.grida()), gridb(g.gridb()), gridc(g.gridc()) {}
+  LinearGridInterpolator3D(const Grid3D& g) : grid(g), grida(g.grida()), gridb(g.gridb()), gridc(g.gridc()) {}
 
   void throwGridInterpolator3DException(void);
-  
-  ReturnType interpolate( Scalar a, Scalar b, Scalar c); 
+
+  ReturnType interpolate(Scalar a, Scalar b, Scalar c);
   //  Value operator()( Scalar a, Scalar b, Scalar c) {return interpolate(a,b,c);}
 
 private:
@@ -40,7 +37,6 @@ private:
   const Grid1D& grida;
   const Grid1D& gridb;
   const Grid1D& gridc;
-
 };
 
 #endif

@@ -21,8 +21,8 @@
 #include "boost/mpl/vector.hpp"
 
 class TTStubAlgorithmRecord
-  : public edm::eventsetup::DependentRecordImplementation< TTStubAlgorithmRecord, boost::mpl::vector< TrackerDigiGeometryRecord, TrackerTopologyRcd, IdealMagneticFieldRecord > >{};
+    : public edm::eventsetup::DependentRecordImplementation<
+          TTStubAlgorithmRecord,
+          boost::mpl::vector<TrackerDigiGeometryRecord, TrackerTopologyRcd, IdealMagneticFieldRecord> > {};
 
 #endif
-
-

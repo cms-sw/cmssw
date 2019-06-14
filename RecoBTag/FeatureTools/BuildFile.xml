@@ -3,6 +3,7 @@
 <use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="TrackingTools/IPTools"/>
+<use name="RecoBTag/TrackProbability"/>
 <export>
   <lib name="1"/>
 </export>

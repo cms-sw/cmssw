@@ -14,12 +14,11 @@
 #include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-class FWPhase2TrackerCluster1DDetProxyBuilder : public FWProxyBuilderBase
-{
+class FWPhase2TrackerCluster1DDetProxyBuilder : public FWProxyBuilderBase {
 public:
   FWPhase2TrackerCluster1DDetProxyBuilder() {}
   ~FWPhase2TrackerCluster1DDetProxyBuilder() override {}
-  
+
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
@@ -29,30 +28,32 @@ private:
   const FWPhase2TrackerCluster1DDetProxyBuilder& operator=(const FWPhase2TrackerCluster1DDetProxyBuilder&) = delete;
 };
 
-void FWPhase2TrackerCluster1DDetProxyBuilder::build( const FWEventItem* iItem, TEveElementList* product , const FWViewContext*)
-{
+void FWPhase2TrackerCluster1DDetProxyBuilder::build(const FWEventItem* iItem,
+                                                    TEveElementList* product,
+                                                    const FWViewContext*) {
   const Phase2TrackerCluster1DCollectionNew* pixels = nullptr;
-  
+
   iItem->get(pixels);
-  
-  if( ! pixels ) 
+
+  if (!pixels)
     return;
-  
+
   const FWGeometry* geom = iItem->getGeom();
-  
-  for( Phase2TrackerCluster1DCollectionNew::const_iterator set = pixels->begin(), setEnd = pixels->end();
-       set != setEnd; ++set) {
+
+  for (Phase2TrackerCluster1DCollectionNew::const_iterator set = pixels->begin(), setEnd = pixels->end(); set != setEnd;
+       ++set) {
     unsigned int id = set->detId();
     DetId detid(id);
-    
-    if( geom->contains( detid )) {
-      const edmNew::DetSet<Phase2TrackerCluster1D> & clusters = *set;
-	
-      for( edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator itc = clusters.begin(), edc = clusters.end(); 
-           itc != edc; ++itc ) {
+
+    if (geom->contains(detid)) {
+      const edmNew::DetSet<Phase2TrackerCluster1D>& clusters = *set;
+
+      for (edmNew::DetSet<Phase2TrackerCluster1D>::const_iterator itc = clusters.begin(), edc = clusters.end();
+           itc != edc;
+           ++itc) {
         TEveGeoShape* shape = geom->getEveShape(detid);
-	
-        if ( shape ) {
+
+        if (shape) {
           shape->SetMainTransparency(50);
           setupAddElement(shape, product);
         }
@@ -61,4 +62,7 @@ void FWPhase2TrackerCluster1DDetProxyBuilder::build( const FWEventItem* iItem, T
   }
 }
 
-REGISTER_FWPROXYBUILDER( FWPhase2TrackerCluster1DDetProxyBuilder, Phase2TrackerCluster1DCollectionNew, "Phase2TrackerCluster1DDets", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPhase2TrackerCluster1DDetProxyBuilder,
+                        Phase2TrackerCluster1DCollectionNew,
+                        "Phase2TrackerCluster1DDets",
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

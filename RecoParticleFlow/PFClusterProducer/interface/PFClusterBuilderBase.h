@@ -16,18 +16,19 @@ namespace edm {
 }
 
 class PFClusterBuilderBase {
-  typedef PFClusterBuilderBase PFCBB;  
- public:
+  typedef PFClusterBuilderBase PFCBB;
+
+public:
   typedef PFCPositionCalculatorBase PosCalc;
-  PFClusterBuilderBase(const edm::ParameterSet& conf):
-    _nSeeds(0), _nClustersFound(0),    
-    _minFractionToKeep(conf.getParameter<double>("minFractionToKeep")),
-    _algoName(conf.getParameter<std::string>("algoName")) {
-    if( conf.exists("positionCalc") ) {
+  PFClusterBuilderBase(const edm::ParameterSet& conf)
+      : _nSeeds(0),
+        _nClustersFound(0),
+        _minFractionToKeep(conf.getParameter<double>("minFractionToKeep")),
+        _algoName(conf.getParameter<std::string>("algoName")) {
+    if (conf.exists("positionCalc")) {
       const edm::ParameterSet& pcConf = conf.getParameterSet("positionCalc");
       const std::string& algo = pcConf.getParameter<std::string>("algoName");
-      _positionCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(algo,
-                                                                                           pcConf)};
+      _positionCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(algo, pcConf)};
     }
   }
   virtual ~PFClusterBuilderBase() = default;
@@ -35,36 +36,33 @@ class PFClusterBuilderBase {
   PFClusterBuilderBase(const PFCBB&) = delete;
   PFCBB& operator=(const PFCBB&) = delete;
 
-  virtual void update(const edm::EventSetup&) { }
+  virtual void update(const edm::EventSetup&) {}
 
   virtual void buildClusters(const reco::PFClusterCollection& topos,
-			     const std::vector<bool>& seedable,
-			     reco::PFClusterCollection& outclus) = 0;
+                             const std::vector<bool>& seedable,
+                             reco::PFClusterCollection& outclus) = 0;
 
   std::ostream& operator<<(std::ostream& o) const {
-    o << "PFClusterBuilder with algo \"" << _algoName 
-      << "\" located " << _nSeeds << " seeds and built " 
+    o << "PFClusterBuilder with algo \"" << _algoName << "\" located " << _nSeeds << " seeds and built "
       << _nClustersFound << " PFClusters from those seeds"
-      << " using position calculation: " << _positionCalc->name()
-      << "." << std::endl;
+      << " using position calculation: " << _positionCalc->name() << "." << std::endl;
     return o;
   }
 
   void reset() { _nSeeds = _nClustersFound = 0; }
 
- protected:
-  unsigned _nSeeds, _nClustersFound; // basic performance information
-  const float _minFractionToKeep; // min fraction value to keep in clusters
+protected:
+  unsigned _nSeeds, _nClustersFound;  // basic performance information
+  const float _minFractionToKeep;     // min fraction value to keep in clusters
   std::unique_ptr<PosCalc> _positionCalc;
 
- private:
+private:
   std::string _algoName;
-  
 };
 
 std::ostream& operator<<(std::ostream& o, const PFClusterBuilderBase& a);
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< PFClusterBuilderBase* (const edm::ParameterSet&) > PFClusterBuilderFactory;
+typedef edmplugin::PluginFactory<PFClusterBuilderBase*(const edm::ParameterSet&)> PFClusterBuilderFactory;
 
 #endif

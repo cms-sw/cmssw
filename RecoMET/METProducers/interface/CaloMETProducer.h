@@ -31,34 +31,29 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 //____________________________________________________________________________||
-namespace metsig
-{
+namespace metsig {
   class SignAlgoResolutions;
 }
 
 //____________________________________________________________________________||
-namespace cms
-{
-  class CaloMETProducer: public edm::stream::EDProducer<>
-    {
-    public:
-      explicit CaloMETProducer(const edm::ParameterSet&);
-      ~CaloMETProducer() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
+namespace cms {
+  class CaloMETProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit CaloMETProducer(const edm::ParameterSet &);
+    ~CaloMETProducer() override;
+    void produce(edm::Event &, const edm::EventSetup &) override;
 
-    private:
+  private:
+    edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
 
-      edm::EDGetTokenT<edm::View<reco::Candidate> > inputToken_;
+    bool calculateSignificance_;
+    metsig::SignAlgoResolutions *resolutions_;
 
-      bool calculateSignificance_;
-      metsig::SignAlgoResolutions *resolutions_;
+    bool noHF_;
 
-      bool noHF_;
-
-      double globalThreshold_;
-
-    };
-}
+    double globalThreshold_;
+  };
+}  // namespace cms
 
 //____________________________________________________________________________||
-#endif // CaloMETProducer_h
+#endif  // CaloMETProducer_h

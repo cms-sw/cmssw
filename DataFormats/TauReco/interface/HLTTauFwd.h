@@ -17,6 +17,6 @@ namespace reco {
   typedef edm::RefVector<HLTTauCollection> HLTTauRefVector;
   /// iterator over a vector of references to HLTTau objects all in the same collection
   typedef HLTTauRefVector::iterator hlttau_iterator;
-}
+}  // namespace reco
 
 #endif

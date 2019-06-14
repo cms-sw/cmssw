@@ -5,8 +5,8 @@
 //! \class SiPixelPedestals
 //! \brief Event Setup object which holds DB information for all pixels.
 //!
-//! \description Event Setup object which holds DB information for all pixels. 
-//! DB info for a single pixel is held in SiPixelDbItem, which contains 
+//! \description Event Setup object which holds DB information for all pixels.
+//! DB info for a single pixel is held in SiPixelDbItem, which contains
 //! pedestal, noise, gain and status bits packed into an 32-bit wide unsigned
 //! int.  The bit allocation is the following:
 //! bits [31:24] - status   (0 if good, bits TBD set if not good)
@@ -19,30 +19,28 @@
 
 #include <boost/cstdint.hpp>
 
-class SiPixelDbItem 
-{
+class SiPixelDbItem {
   typedef uint32_t PackedPixDbType;
 
- public:
+public:
   SiPixelDbItem() : packedVal_(0) { set(2, 0, 1.0, 0); }  // TO DO: is noise==2 in shifted rep or not???
   ~SiPixelDbItem() {}
-  inline short  noise()     { return (packedVal_ >> packing_.noise_shift    ) & packing_.noise_mask   ; }
-  inline short  pedestal()  { return (packedVal_ >> packing_.pedestal_shift ) & packing_.pedestal_mask; }
-  inline float  gain()      { return (packedVal_ >> packing_.gain_shift     ) & packing_.gain_mask    ; }
-  inline char   status()    { return (packedVal_ >> packing_.status_shift   ) & packing_.status_mask  ; }
+  inline short noise() { return (packedVal_ >> packing_.noise_shift) & packing_.noise_mask; }
+  inline short pedestal() { return (packedVal_ >> packing_.pedestal_shift) & packing_.pedestal_mask; }
+  inline float gain() { return (packedVal_ >> packing_.gain_shift) & packing_.gain_mask; }
+  inline char status() { return (packedVal_ >> packing_.status_shift) & packing_.status_mask; }
   inline PackedPixDbType packedValue() { return packedVal_; }
 
-  inline void   setPackedVal( PackedPixDbType p ) { packedVal_ = p; }
+  inline void setPackedVal(PackedPixDbType p) { packedVal_ = p; }
 
   // The following setters are not inline since they are more complicated:
-  void   setNoise   (short n);
-  void   setPedestal(short p);
-  void   setGain    (float g);
-  void   setStatus  (char  s);
-  void   set( short noise, short pedestal, float gain, char status);
+  void setNoise(short n);
+  void setPedestal(short p);
+  void setGain(float g);
+  void setStatus(char s);
+  void set(short noise, short pedestal, float gain, char status);
 
-
- private:
+private:
   PackedPixDbType packedVal_;
 
   //! Pack the pixel information to use less memory
@@ -67,8 +65,7 @@ class SiPixelDbItem
   };
   static Packing packing_;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

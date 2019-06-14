@@ -9,22 +9,20 @@ date: 10/27/08
 */
 
 // Note : Data members refer to transverse quantities as is indicated by the accessors .
-//        Eventually, we will change them accordingly when backward compatibility is not required 
+//        Eventually, we will change them accordingly when backward compatibility is not required
 // Date : 10/14/09
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/SpecificPFMETData.h"
-namespace reco
-{
-  class PFMET:  public MET {
+namespace reco {
+  class PFMET : public MET {
   public:
-    PFMET() ;
-    PFMET( const SpecificPFMETData& pf_data_, double sumet_,
-	   const LorentzVector& fP4, const Point& fVertex )
-      : MET( sumet_, fP4, fVertex ), pf_data( pf_data_ ) {}
+    PFMET();
+    PFMET(const SpecificPFMETData& pf_data_, double sumet_, const LorentzVector& fP4, const Point& fVertex)
+        : MET(sumet_, fP4, fVertex), pf_data(pf_data_) {}
 
     ~PFMET() override {}
-    
+
     //getters
     double photonEtFraction() const { return pf_data.NeutralEMFraction; }
     double photonEt() const { return pf_data.NeutralEMFraction * sumEt(); }
@@ -40,7 +38,7 @@ namespace reco
 
     double muonEtFraction() const { return pf_data.MuonFraction; }
     double muonEt() const { return pf_data.MuonFraction * sumEt(); }
-    
+
     double HFHadronEtFraction() const { return pf_data.Type6Fraction; }
     double HFHadronEt() const { return pf_data.Type6Fraction * sumEt(); }
 
@@ -69,11 +67,10 @@ namespace reco
     double MuonFraction() const { return pf_data.MuonFraction; }
 
     // block accessors
-    SpecificPFMETData getSpecific() const {return pf_data;}
-   
+    SpecificPFMETData getSpecific() const { return pf_data; }
 
   private:
     SpecificPFMETData pf_data;
   };
-}
+}  // namespace reco
 #endif

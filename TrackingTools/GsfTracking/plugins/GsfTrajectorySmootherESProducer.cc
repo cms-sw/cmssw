@@ -18,38 +18,36 @@
 #include <string>
 #include <memory>
 
-GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::ParameterSet & p) 
-{
+GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 GsfTrajectorySmootherESProducer::~GsfTrajectorySmootherESProducer() {}
 
-std::unique_ptr<TrajectorySmoother> 
-GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord){ 
+std::unique_ptr<TrajectorySmoother> GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord& iRecord) {
   //
   // material effects
   //
   std::string matName = pset_.getParameter<std::string>("MaterialEffectsUpdator");
   edm::ESHandle<GsfMaterialEffectsUpdator> matProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(matName,matProducer);
+  iRecord.getRecord<TrackingComponentsRecord>().get(matName, matProducer);
   //
   // propagator
   //
   std::string geomName = pset_.getParameter<std::string>("GeometricalPropagator");
   edm::ESHandle<Propagator> geomProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(geomName,geomProducer);
-  GsfPropagatorWithMaterial propagator(*geomProducer.product(),*matProducer.product());
+  iRecord.getRecord<TrackingComponentsRecord>().get(geomName, geomProducer);
+  GsfPropagatorWithMaterial propagator(*geomProducer.product(), *matProducer.product());
   //
   // merger
   //
   std::string mergerName = pset_.getParameter<std::string>("Merger");
-//   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
-//   iRecord.get(mergerName,mergerProducer);
-  edm::ESHandle< MultiGaussianStateMerger<5> > mergerProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(mergerName,mergerProducer);
+  //   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
+  //   iRecord.get(mergerName,mergerProducer);
+  edm::ESHandle<MultiGaussianStateMerger<5> > mergerProducer;
+  iRecord.getRecord<TrackingComponentsRecord>().get(mergerName, mergerProducer);
   MultiTrajectoryStateMerger merger(*mergerProducer.product());
   //
   // estimator
@@ -61,16 +59,18 @@ GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord & iRecord)
   // geometry
   std::string gname = pset_.getParameter<std::string>("RecoGeometry");
   edm::ESHandle<DetLayerGeometry> geo;
-  iRecord.getRecord<RecoGeometryRecord>().get(gname,geo);
+  iRecord.getRecord<RecoGeometryRecord>().get(gname, geo);
   // create algorithm
   //
   //   bool matBefUpd = pset_.getParameter<bool>("MaterialBeforeUpdate");
   double scale = pset_.getParameter<double>("ErrorRescaling");
-  return                         std::make_unique<GsfTrajectorySmoother>(propagator,
-									 GsfMultiStateUpdator(), 
-									 estimator,merger,
-// 									 matBefUpd,
-									 scale,
-									 true,//BM should this be taken from parameterSet?
-									 geo.product());
+  return std::make_unique<GsfTrajectorySmoother>(
+      propagator,
+      GsfMultiStateUpdator(),
+      estimator,
+      merger,
+      // 									 matBefUpd,
+      scale,
+      true,  //BM should this be taken from parameterSet?
+      geo.product());
 }

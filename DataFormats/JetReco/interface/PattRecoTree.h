@@ -16,37 +16,37 @@
 #include <vector>
 
 namespace reco {
-    template<typename ScaleType, class Cluster>
-    class PattRecoTree
-    {
-    public:
-        typedef PattRecoNode<Cluster> Node;
+  template <typename ScaleType, class Cluster>
+  class PattRecoTree {
+  public:
+    typedef PattRecoNode<Cluster> Node;
 
-        inline PattRecoTree() : sparse_(false) {}
+    inline PattRecoTree() : sparse_(false) {}
 
-        // Inspectors
-        inline bool isSparse() const {return sparse_;}
-        inline const std::vector<Node>& getNodes() const {return nodes_;}
-        inline const std::vector<ScaleType>& getScales() const
-        {return scales_;}
+    // Inspectors
+    inline bool isSparse() const { return sparse_; }
+    inline const std::vector<Node>& getNodes() const { return nodes_; }
+    inline const std::vector<ScaleType>& getScales() const { return scales_; }
 
-        // Modifiers
-        inline void setSparse(const bool b) {sparse_ = b;}
+    // Modifiers
+    inline void setSparse(const bool b) { sparse_ = b; }
 
-        inline void clear()
-        {nodes_.clear(); scales_.clear(); sparse_ = false;}
+    inline void clear() {
+      nodes_.clear();
+      scales_.clear();
+      sparse_ = false;
+    }
 
-        inline void reserveNodes(const unsigned n) {nodes_.reserve(n);}
-        inline void reserveScales(const unsigned n) {scales_.reserve(n);}
-        inline void addNode(const Node& node) {nodes_.push_back(node);}
-        inline void addScale(const double s)
-        {scales_.push_back(static_cast<ScaleType>(s));}
+    inline void reserveNodes(const unsigned n) { nodes_.reserve(n); }
+    inline void reserveScales(const unsigned n) { scales_.reserve(n); }
+    inline void addNode(const Node& node) { nodes_.push_back(node); }
+    inline void addScale(const double s) { scales_.push_back(static_cast<ScaleType>(s)); }
 
-    private:
-        std::vector<Node> nodes_;
-        std::vector<ScaleType> scales_;
-        bool sparse_;
-    };
-}
+  private:
+    std::vector<Node> nodes_;
+    std::vector<ScaleType> scales_;
+    bool sparse_;
+  };
+}  // namespace reco
 
-#endif // JetReco_PattRecoTree_h
+#endif  // JetReco_PattRecoTree_h

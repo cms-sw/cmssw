@@ -16,8 +16,7 @@
 
 #include <vector>
 
-namespace reco
-{
+namespace reco {
   class ForwardProton;
   /// Collection of ForwardProton objects
   typedef std::vector<ForwardProton> ForwardProtonCollection;
@@ -27,7 +26,6 @@ namespace reco
   typedef edm::RefProd<ForwardProtonCollection> ForwardProtonRefProd;
   /// Vector of references to ForwardProton in the same collection
   typedef edm::RefVector<ForwardProtonCollection> ForwardProtonRefVector;
-}
+}  // namespace reco
 
 #endif
-

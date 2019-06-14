@@ -11,22 +11,22 @@
 //! Consequently, the input is a edm::DetSetVector<SiPixelCluster> and the output is
 //! SiPixelRecHitCollection.
 //!
-//! SiPixelRecHitConverter invokes one of descendents from 
+//! SiPixelRecHitConverter invokes one of descendents from
 //! ClusterParameterEstimator (templated on SiPixelCluster), e.g.
-//! CPEFromDetPosition (which is the only available option 
+//! CPEFromDetPosition (which is the only available option
 //! right now).  SiPixelRecHitConverter loads the SiPixelClusterCollection,
 //! and then iterates over DetIds, invoking the chosen CPE's methods
 //! localPosition() and localError() to perform the correction (some of which
 //! may be rather involved).  A RecHit is made on the spot, and appended
 //! to the output collection.
 //!
-//! The calibrations are not loaded at the moment, 
+//! The calibrations are not loaded at the moment,
 //! although that is being planned for the near future.
 //!
 //! \author Porting from ORCA by Petar Maksimovic (JHU). Implementation of the
 //!         DetSetVector by V.Chiochia (Zurich University).
 //!
-//! \version v2, May 30, 2006  
+//! \version v2, May 30, 2006
 //! change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 //!
 //---------------------------------------------------------------------------
@@ -57,10 +57,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class MagneticField;
-namespace cms
-{
-  class SiPixelRecHitConverter : public edm::stream::EDProducer<>
-  {
+namespace cms {
+  class SiPixelRecHitConverter : public edm::stream::EDProducer<> {
   public:
     //--- Constructor, virtual destructor (just in case)
     explicit SiPixelRecHitConverter(const edm::ParameterSet& conf);
@@ -68,7 +66,7 @@ namespace cms
 
     //--- Factory method to make CPE's depending on the ParameterSet
     //--- Not sure if we need to make more than one CPE to run concurrently
-    //--- on different parts of the detector (e.g., one for the barrel and the 
+    //--- on different parts of the detector (e.g., one for the barrel and the
     //--- one for the forward).  The way the CPE's are written now, it's
     //--- likely we can use one (and they will switch internally), or
     //--- make two of the same but configure them differently.  We need a more
@@ -80,24 +78,23 @@ namespace cms
     //--- Execute the position estimator algorithm(s).
     //--- New interface with DetSetVector
     void run(const edmNew::DetSetVector<SiPixelCluster>& input,
-	     SiPixelRecHitCollectionNew & output,
-	     edm::ESHandle<TrackerGeometry> & geom);
+             SiPixelRecHitCollectionNew& output,
+             edm::ESHandle<TrackerGeometry>& geom);
 
-    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster> >  inputhandle,
-	     SiPixelRecHitCollectionNew & output,
-	     edm::ESHandle<TrackerGeometry> & geom);
+    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+             SiPixelRecHitCollectionNew& output,
+             edm::ESHandle<TrackerGeometry>& geom);
 
   private:
     edm::ParameterSet conf_;
     // TO DO: maybe allow a map of pointers?
-    std::string cpeName_="None";                   // what the user said s/he wanted
+    std::string cpeName_ = "None";  // what the user said s/he wanted
     /// const PixelClusterParameterEstimator * cpe_;  // what we got (for now, one ptr to base class)
-    PixelCPEBase const * cpe_=nullptr;                    // What we got (for now, one ptr to base class)
+    PixelCPEBase const* cpe_ = nullptr;  // What we got (for now, one ptr to base class)
     edm::InputTag src_;
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> tPixelCluster;
-    bool m_newCont; // save also in emdNew::DetSetVector
+    bool m_newCont;  // save also in emdNew::DetSetVector
   };
-}
-
+}  // namespace cms
 
 #endif

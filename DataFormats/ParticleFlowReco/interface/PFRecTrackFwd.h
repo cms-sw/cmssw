@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of references to PFRecTrack objects
   typedef PFRecTrackRefVector::iterator pfRecTrack_iterator;
-}
+}  // namespace reco
 
 #endif

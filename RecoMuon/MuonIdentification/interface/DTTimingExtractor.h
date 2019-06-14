@@ -47,44 +47,49 @@ namespace edm {
   class ParameterSet;
   class EventSetup;
   class InputTag;
-}
+}  // namespace edm
 
 class MuonServiceProxy;
 
 class DTTimingExtractor {
-
 public:
-  
   /// Constructor
-  DTTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher *segMatcher);
-  
+  DTTimingExtractor(const edm::ParameterSet&, MuonSegmentMatcher* segMatcher);
+
   /// Destructor
   ~DTTimingExtractor();
 
- class TimeMeasurement
-  {
-   public:
-     bool isLeft;
-     bool isPhi;
-     float posInLayer;
-     float distIP;
-     float timeCorr;
-     int station;
-     DetId driftCell;
+  class TimeMeasurement {
+  public:
+    bool isLeft;
+    bool isPhi;
+    float posInLayer;
+    float distIP;
+    float timeCorr;
+    int station;
+    DetId driftCell;
   };
 
- void fillTiming(TimeMeasurementSequence &tmSequence, 
-		 const std::vector<const DTRecSegment4D*> &segments,
-		 reco::TrackRef muonTrack,
-		 const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillTiming(TimeMeasurementSequence& tmSequence,
+                  const std::vector<const DTRecSegment4D*>& segments,
+                  reco::TrackRef muonTrack,
+                  const edm::Event& iEvent,
+                  const edm::EventSetup& iSetup);
 
- void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
-		 const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void fillTiming(TimeMeasurementSequence& tmSequence,
+                  reco::TrackRef muonTrack,
+                  const edm::Event& iEvent,
+                  const edm::EventSetup& iSetup);
 
 private:
-  double fitT0(double &a, double &b, const std::vector<double>& xl, const std::vector<double>& yl, const std::vector<double>& xr, const std::vector<double>& yr );
+  double fitT0(double& a,
+               double& b,
+               const std::vector<double>& xl,
+               const std::vector<double>& yl,
+               const std::vector<double>& xr,
+               const std::vector<double>& yr);
 
-  edm::InputTag DTSegmentTags_; 
+  edm::InputTag DTSegmentTags_;
   unsigned int theHitsMin_;
   double thePruneCut_;
   double theTimeOffset_;
@@ -94,10 +99,9 @@ private:
   bool dropTheta_;
   bool requireBothProjections_;
   bool debug;
-  
-  std::unique_ptr<MuonServiceProxy> theService;
-  MuonSegmentMatcher *theMatcher;
 
+  std::unique_ptr<MuonServiceProxy> theService;
+  MuonSegmentMatcher* theMatcher;
 };
 
 #endif

@@ -36,156 +36,154 @@
 #include <vector>
 
 class MBUEandQCDValidation : public DQMEDAnalyzer {
-    public:
-	explicit MBUEandQCDValidation(const edm::ParameterSet&);
-	~MBUEandQCDValidation() override;
+public:
+  explicit MBUEandQCDValidation(const edm::ParameterSet&);
+  ~MBUEandQCDValidation() override;
 
-        void analyze(const edm::Event&, const edm::EventSetup&) override;
-        void bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &) override;
-        void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-    private:
-	WeightManager wmanager_;
-    edm::InputTag hepmcCollection_;
-    edm::InputTag genchjetCollection_;
-    edm::InputTag genjetCollection_;
+private:
+  WeightManager wmanager_;
+  edm::InputTag hepmcCollection_;
+  edm::InputTag genchjetCollection_;
+  edm::InputTag genjetCollection_;
 
-    unsigned int verbosity_;
+  unsigned int verbosity_;
 
-	/// PDT table
-	edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
+  /// PDT table
+  edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable;
 
-    ///  status 1 GenParticle collection
-    std::vector<const HepMC::GenParticle*> hepmcGPCollection;
-    std::vector<double> hepmcCharge;
+  ///  status 1 GenParticle collection
+  std::vector<const HepMC::GenParticle*> hepmcGPCollection;
+  std::vector<double> hepmcCharge;
 
-    /// manager of calorimetric cell structure
-    CaloCellManager* theCalo;
+  /// manager of calorimetric cell structure
+  CaloCellManager* theCalo;
 
-    unsigned int getHFbin(double eta);
+  unsigned int getHFbin(double eta);
 
-    bool isCharged(unsigned int i);
-    bool isNeutral(unsigned int i);
-    bool isNeutrino(unsigned int i);
+  bool isCharged(unsigned int i);
+  bool isNeutral(unsigned int i);
+  bool isNeutrino(unsigned int i);
 
-    std::vector<double> eneInCell;
+  std::vector<double> eneInCell;
 
-    MonitorElement* nEvt;
+  MonitorElement* nEvt;
 
-    MonitorElement* nNoFwdTrig;
-    MonitorElement* nSaFwdTrig;
+  MonitorElement* nNoFwdTrig;
+  MonitorElement* nSaFwdTrig;
 
-    MonitorElement* nbquark;
-    MonitorElement* ncandbquark;
-    MonitorElement* ncnobquark;
+  MonitorElement* nbquark;
+  MonitorElement* ncandbquark;
+  MonitorElement* ncnobquark;
 
-    ///QCD-09-010 analysis
-    MonitorElement* nEvt1;
-    MonitorElement* dNchdpt1;
-    MonitorElement* dNchdeta1;
+  ///QCD-09-010 analysis
+  MonitorElement* nEvt1;
+  MonitorElement* dNchdpt1;
+  MonitorElement* dNchdeta1;
 
-    //QCD-10-001 analysis
-    MonitorElement* nEvt2;
-    MonitorElement* leadTrackpt;
-    MonitorElement* leadTracketa;
-    MonitorElement* dNchdeta2;
-    MonitorElement* dNchdpt2;
-    MonitorElement* nCha;
-    MonitorElement* dNchdSpt;
-    MonitorElement* dNchdphi;
-    MonitorElement* dSptdphi;
-    MonitorElement* nChaDenLpt;
-    MonitorElement* sptDenLpt;
+  //QCD-10-001 analysis
+  MonitorElement* nEvt2;
+  MonitorElement* leadTrackpt;
+  MonitorElement* leadTracketa;
+  MonitorElement* dNchdeta2;
+  MonitorElement* dNchdpt2;
+  MonitorElement* nCha;
+  MonitorElement* dNchdSpt;
+  MonitorElement* dNchdphi;
+  MonitorElement* dSptdphi;
+  MonitorElement* nChaDenLpt;
+  MonitorElement* sptDenLpt;
 
-    //Charged jets
-    MonitorElement* nChj;
-    MonitorElement* dNchjdeta;
-    MonitorElement* dNchjdpt;
-    MonitorElement* leadChjpt;
-    MonitorElement* leadChjeta;
-    MonitorElement* pt1pt2optotch;
+  //Charged jets
+  MonitorElement* nChj;
+  MonitorElement* dNchjdeta;
+  MonitorElement* dNchjdpt;
+  MonitorElement* leadChjpt;
+  MonitorElement* leadChjeta;
+  MonitorElement* pt1pt2optotch;
 
-    //Identified particles multiplicities
-    MonitorElement* nPPbar;
-    MonitorElement* nKpm;
-    MonitorElement* nK0s;
-    MonitorElement* nL0;
-    MonitorElement* nNNbar;
-    MonitorElement* nGamma;
-    MonitorElement* nXim;
-    MonitorElement* nOmega;
+  //Identified particles multiplicities
+  MonitorElement* nPPbar;
+  MonitorElement* nKpm;
+  MonitorElement* nK0s;
+  MonitorElement* nL0;
+  MonitorElement* nNNbar;
+  MonitorElement* nGamma;
+  MonitorElement* nXim;
+  MonitorElement* nOmega;
 
-    //Identified particles momentum specturm
-    MonitorElement* pPPbar;
-    MonitorElement* pKpm;
-    MonitorElement* pK0s;
-    MonitorElement* pL0;
-    MonitorElement* pNNbar;
-    MonitorElement* pGamma;
-    MonitorElement* pXim;
-    MonitorElement* pOmega;
+  //Identified particles momentum specturm
+  MonitorElement* pPPbar;
+  MonitorElement* pKpm;
+  MonitorElement* pK0s;
+  MonitorElement* pL0;
+  MonitorElement* pNNbar;
+  MonitorElement* pGamma;
+  MonitorElement* pXim;
+  MonitorElement* pOmega;
 
-    MonitorElement* elePt;
-    MonitorElement* muoPt;
+  MonitorElement* elePt;
+  MonitorElement* muoPt;
 
-    //Jets no neutrino
-    MonitorElement* nDijet;
-    MonitorElement* nj;
-    MonitorElement* dNjdeta;
-    MonitorElement* dNjdpt;
-    MonitorElement* pt1pt2optot;
-    MonitorElement* pt1pt2balance;
-    MonitorElement* pt1pt2Dphi;
-    MonitorElement* pt1pt2InvM;
-    MonitorElement* pt3Frac;
-    MonitorElement* sumJEt;
-    MonitorElement* missEtosumJEt;
-    MonitorElement* sumPt;
-    MonitorElement* sumChPt;
+  //Jets no neutrino
+  MonitorElement* nDijet;
+  MonitorElement* nj;
+  MonitorElement* dNjdeta;
+  MonitorElement* dNjdpt;
+  MonitorElement* pt1pt2optot;
+  MonitorElement* pt1pt2balance;
+  MonitorElement* pt1pt2Dphi;
+  MonitorElement* pt1pt2InvM;
+  MonitorElement* pt3Frac;
+  MonitorElement* sumJEt;
+  MonitorElement* missEtosumJEt;
+  MonitorElement* sumPt;
+  MonitorElement* sumChPt;
 
-    //Forward energy flow
-    MonitorElement* nHFflow;
-    MonitorElement* dEdetaHFmb;
-    MonitorElement* dEdetaHFdj;
+  //Forward energy flow
+  MonitorElement* nHFflow;
+  MonitorElement* dEdetaHFmb;
+  MonitorElement* dEdetaHFdj;
 
-    MonitorElement* nHFSD;
-    MonitorElement* EmpzHFm;
-    MonitorElement* ntHFm;
-    MonitorElement* eneHFmSel;
+  MonitorElement* nHFSD;
+  MonitorElement* EmpzHFm;
+  MonitorElement* ntHFm;
+  MonitorElement* eneHFmSel;
 
-    // Jet Multiplicity Analysis
-    MonitorElement*    _JM25njets ;
-    MonitorElement*    _JM25ht    ;
-    MonitorElement*    _JM25pt1   ;
-    MonitorElement*    _JM25pt2   ;
-    MonitorElement*    _JM25pt3   ;
-    MonitorElement*    _JM25pt4   ;
-    MonitorElement*    _JM80njets ;
-    MonitorElement*    _JM80ht    ;
-    MonitorElement*    _JM80pt1   ;
-    MonitorElement*    _JM80pt2   ;
-    MonitorElement*    _JM80pt3   ;
-    MonitorElement*    _JM80pt4   ;
+  // Jet Multiplicity Analysis
+  MonitorElement* _JM25njets;
+  MonitorElement* _JM25ht;
+  MonitorElement* _JM25pt1;
+  MonitorElement* _JM25pt2;
+  MonitorElement* _JM25pt3;
+  MonitorElement* _JM25pt4;
+  MonitorElement* _JM80njets;
+  MonitorElement* _JM80ht;
+  MonitorElement* _JM80pt1;
+  MonitorElement* _JM80pt2;
+  MonitorElement* _JM80pt3;
+  MonitorElement* _JM80pt4;
 
-    //differential jet rates
-    MonitorElement *djr10, *djr21, *djr32, *djr43;
+  //differential jet rates
+  MonitorElement *djr10, *djr21, *djr32, *djr43;
 
-    // SumET hiostograms
-    MonitorElement *_sumEt ;
-    MonitorElement *_sumEt1;
-    MonitorElement *_sumEt2;
-    MonitorElement *_sumEt3;
-    MonitorElement *_sumEt4;
-    MonitorElement *_sumEt5;
+  // SumET hiostograms
+  MonitorElement* _sumEt;
+  MonitorElement* _sumEt1;
+  MonitorElement* _sumEt2;
+  MonitorElement* _sumEt3;
+  MonitorElement* _sumEt4;
+  MonitorElement* _sumEt5;
 
+  const static unsigned int nphiBin;
+  const static unsigned int initSize;
 
-    const static unsigned int nphiBin;
-    const static unsigned int initSize;
-
-    edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
-    edm::EDGetTokenT<reco::GenJetCollection> genchjetCollectionToken_;
-    edm::EDGetTokenT<reco::GenJetCollection> genjetCollectionToken_;
-
+  edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
+  edm::EDGetTokenT<reco::GenJetCollection> genchjetCollectionToken_;
+  edm::EDGetTokenT<reco::GenJetCollection> genjetCollectionToken_;
 };
 
 #endif

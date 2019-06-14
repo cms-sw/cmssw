@@ -16,63 +16,62 @@
 using namespace std;
 using namespace edm;
 
-ParametrizedMagneticFieldFactory::ParametrizedMagneticFieldFactory(){}
+ParametrizedMagneticFieldFactory::ParametrizedMagneticFieldFactory() {}
 
 // Legacy interface, deprecated
-std::unique_ptr<MagneticField>
-ParametrizedMagneticFieldFactory::get(string version, const ParameterSet& parameters) {
-
-  if (version=="OAE_1103l_071212") {
+std::unique_ptr<MagneticField> ParametrizedMagneticFieldFactory::get(string version, const ParameterSet& parameters) {
+  if (version == "OAE_1103l_071212") {
     // V. Karimaki's off-axis expansion fitted to v1103l TOSCA computation
-    std::unique_ptr<MagneticField> result( new OAEParametrizedMagneticField(parameters));
+    std::unique_ptr<MagneticField> result(new OAEParametrizedMagneticField(parameters));
     return result;
-  } else if (version=="PolyFit2D") {
+  } else if (version == "PolyFit2D") {
     // V. Maroussov polynomial fit to mapping data
-    std::unique_ptr<MagneticField> result( new PolyFit2DParametrizedMagneticField(parameters));
+    std::unique_ptr<MagneticField> result(new PolyFit2DParametrizedMagneticField(parameters));
     return result;
-  } else if (version=="PolyFit3D") {
+  } else if (version == "PolyFit3D") {
     // V. Maroussov polynomial fit to mapping data
-    throw cms::Exception("InvalidParameter")<<"PolyFit3D is not supported anymore";
-  } else if (version=="Parabolic"){
+    throw cms::Exception("InvalidParameter") << "PolyFit3D is not supported anymore";
+  } else if (version == "Parabolic") {
     // FIXME implement configurable parameters to be passed to ctor
-//   vector<double> params =  parameters.getParameter<vdouble>("parameters");
-//   std::unique_ptr<MagneticField> result( new ParabolicParametrizedMagneticField(params));
-    std::unique_ptr<MagneticField> result( new ParabolicParametrizedMagneticField());
+    //   vector<double> params =  parameters.getParameter<vdouble>("parameters");
+    //   std::unique_ptr<MagneticField> result( new ParabolicParametrizedMagneticField(params));
+    std::unique_ptr<MagneticField> result(new ParabolicParametrizedMagneticField());
     return result;
-  }  else {
-    throw cms::Exception("InvalidParameter")<<"Invalid parametrization version " << version;
+  } else {
+    throw cms::Exception("InvalidParameter") << "Invalid parametrization version " << version;
   }
-  return std::unique_ptr<MagneticField>(nullptr); //make compiler happy
+  return std::unique_ptr<MagneticField>(nullptr);  //make compiler happy
 }
 
-
 // New interface
-std::unique_ptr<MagneticField>
-ParametrizedMagneticFieldFactory::get(string version, vector<double> parameters) {
-
-  if (version=="Uniform") {
-    if (parameters.size()!=1) throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size()<< ")`for " << version ;
-     std::unique_ptr<MagneticField> result(new UniformMagneticField(parameters[0]));
+std::unique_ptr<MagneticField> ParametrizedMagneticFieldFactory::get(string version, vector<double> parameters) {
+  if (version == "Uniform") {
+    if (parameters.size() != 1)
+      throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size() << ")`for " << version;
+    std::unique_ptr<MagneticField> result(new UniformMagneticField(parameters[0]));
     return result;
-  } else if (version=="OAE_1103l_071212") {
+  } else if (version == "OAE_1103l_071212") {
     // V. Karimaki's off-axis expansion fitted to v1103l TOSCA computation
-    if (parameters.size()!=1) throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size()<< ")`for " << version ;
-    std::unique_ptr<MagneticField> result( new OAEParametrizedMagneticField(parameters[0]));
+    if (parameters.size() != 1)
+      throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size() << ")`for " << version;
+    std::unique_ptr<MagneticField> result(new OAEParametrizedMagneticField(parameters[0]));
     return result;
-  } else if (version=="PolyFit2D") {
+  } else if (version == "PolyFit2D") {
     // V. Maroussov polynomial fit to mapping data
-    if (parameters.size()!=1) throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size()<< ")`for " << version ;
-    std::unique_ptr<MagneticField> result( new PolyFit2DParametrizedMagneticField(parameters[0]));
+    if (parameters.size() != 1)
+      throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size() << ")`for " << version;
+    std::unique_ptr<MagneticField> result(new PolyFit2DParametrizedMagneticField(parameters[0]));
     return result;
-  } else if (version=="PolyFit3D") {
+  } else if (version == "PolyFit3D") {
     // V. Maroussov polynomial fit to mapping data
-    throw cms::Exception("InvalidParameter")<<"PolyFit3D is not supported anymore";
-  } else if (version=="Parabolic"){
-    if (parameters.size()!=4) throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size()<< ")`for " << version ;
-    std::unique_ptr<MagneticField> result( new ParabolicParametrizedMagneticField(parameters));
+    throw cms::Exception("InvalidParameter") << "PolyFit3D is not supported anymore";
+  } else if (version == "Parabolic") {
+    if (parameters.size() != 4)
+      throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size() << ")`for " << version;
+    std::unique_ptr<MagneticField> result(new ParabolicParametrizedMagneticField(parameters));
     return result;
-  }  else {
-    throw cms::Exception("InvalidParameter")<<"Invalid parametrization version " << version;
+  } else {
+    throw cms::Exception("InvalidParameter") << "Invalid parametrization version " << version;
   }
-  return std::unique_ptr<MagneticField>(nullptr); //make compiler happy
+  return std::unique_ptr<MagneticField>(nullptr);  //make compiler happy
 }

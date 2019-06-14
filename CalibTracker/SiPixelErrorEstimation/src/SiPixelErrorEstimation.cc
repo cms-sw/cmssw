@@ -583,19 +583,19 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
 
       //enum ModuleGeometry {UNKNOWNGEOMETRY, IB1, IB2, OB1, OB2, W1A, W2A, W3A, W1B, W2B, W3B, W4, W5, W6, W7};
 
-      if (si_strip_det_id.moduleGeometry() == 1) {
+      if (si_strip_det_id.moduleGeometry() == SiStripModuleGeometry::IB1) {
         detector_type = 1;
         //cout << "si_strip_det_id.moduleGeometry() = IB1" << endl;
         //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;
-      } else if (si_strip_det_id.moduleGeometry() == 2) {
+      } else if (si_strip_det_id.moduleGeometry() == SiStripModuleGeometry::IB2) {
         detector_type = 2;
         //cout << "si_strip_det_id.moduleGeometry() = IB2" << endl;
         //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;
-      } else if (si_strip_det_id.moduleGeometry() == 3) {
+      } else if (si_strip_det_id.moduleGeometry() == SiStripModuleGeometry::OB1) {
         detector_type = 3;
         //cout << "si_strip_det_id.moduleGeometry() = OB1" << endl;
         //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;
-      } else if (si_strip_det_id.moduleGeometry() == 4) {
+      } else if (si_strip_det_id.moduleGeometry() == SiStripModuleGeometry::OB2) {
         detector_type = 4;
         //cout << "si_strip_det_id.moduleGeometry() = OB2" << endl;
         //cout << "si_strip_det_id.moduleGeometry() = " << si_strip_det_id.moduleGeometry() << endl;

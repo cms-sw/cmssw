@@ -1,10 +1,10 @@
 #ifndef JetObjects4_classes_h
 #define JetObjects4_classes_h
 
-#include "DataFormats/JetReco/interface/BasicJet.h" 
-#include "Rtypes.h" 
+#include "DataFormats/JetReco/interface/BasicJet.h"
+#include "Rtypes.h"
 
-#include "DataFormats/JetReco/interface/CaloJetCollection.h" 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/JPTJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -23,12 +23,12 @@
 #include "DataFormats/JetReco/interface/PattRecoNode.h"
 #include "DataFormats/JetReco/interface/PattRecoTree.h"
 #include "DataFormats/JetReco/interface/FFTJetProducerSummary.h"
-#include "DataFormats/JetReco/interface/FFTCaloJetCollection.h" 
+#include "DataFormats/JetReco/interface/FFTCaloJetCollection.h"
 #include "DataFormats/JetReco/interface/FFTGenJetCollection.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/FwdRef.h" 
-#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/FwdRef.h"
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/RefHolder.h"
 #include "DataFormats/Common/interface/Holder.h"
@@ -36,7 +36,5 @@
 
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
-
-
 
 #endif

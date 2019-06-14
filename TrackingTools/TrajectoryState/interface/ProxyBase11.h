@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/Likely.h"
 
 #ifdef TR_DEBUG
-#include<iostream>
+#include <iostream>
 #endif
 
 #include "ChurnAllocator.h"
@@ -19,69 +19,72 @@
  *  part of the interface of the reference counted class that it whiches to expose.
  */
 
-
-template <class T> 
+template <class T>
 class ProxyBase11 {
 public:
-  
   using pointer = std::shared_ptr<T>;
 
   // protected:
-  
+
   ProxyBase11() {}
-  
-  explicit ProxyBase11( T* p) : theData(p) {}
-  template<typename U>
-  ProxyBase11(std::shared_ptr<U> p) : theData(std::move(p)){}
-  template<typename U>
-  ProxyBase11& operator=(std::shared_ptr<U> p) { theData =std::move(p); return *this;}
 
-  ~ProxyBase11()  noexcept {
-    destroy();
-  }
-  
-  void swap(ProxyBase11& other)  noexcept {
-    std::swap(theData,other.theData);
+  explicit ProxyBase11(T* p) : theData(p) {}
+  template <typename U>
+  ProxyBase11(std::shared_ptr<U> p) : theData(std::move(p)) {}
+  template <typename U>
+  ProxyBase11& operator=(std::shared_ptr<U> p) {
+    theData = std::move(p);
+    return *this;
   }
 
-  ProxyBase11(ProxyBase11&& other)  noexcept = default;
-  ProxyBase11& operator=(ProxyBase11&& other)  noexcept = default; 
-  ProxyBase11(ProxyBase11 const & other) = default;
-  ProxyBase11& operator=( const ProxyBase11& other) = default;
+  ~ProxyBase11() noexcept { destroy(); }
 
-  void reset() { theData.reset();}
+  void swap(ProxyBase11& other) noexcept { std::swap(theData, other.theData); }
 
-  const T& data() const { check(); return *theData;}
+  ProxyBase11(ProxyBase11&& other) noexcept = default;
+  ProxyBase11& operator=(ProxyBase11&& other) noexcept = default;
+  ProxyBase11(ProxyBase11 const& other) = default;
+  ProxyBase11& operator=(const ProxyBase11& other) = default;
+
+  void reset() { theData.reset(); }
+
+  const T& data() const {
+    check();
+    return *theData;
+  }
 
   T& unsharedData() {
-    check(); 
-    if ( references() > 1) {
+    check();
+    if (references() > 1) {
       theData = theData->clone();
     }
     return *theData;
   }
 
-  T& sharedData() { check(); return *theData;}
+  T& sharedData() {
+    check();
+    return *theData;
+  }
 
-  bool isValid() const { return bool(theData);}
+  bool isValid() const { return bool(theData); }
 
   void check() const {
 #ifdef TR_DEBUG
-    if  UNLIKELY(!theData) std::cout << "dead proxyBase11 " << references() << std::endl;
+    if
+      UNLIKELY(!theData) std::cout << "dead proxyBase11 " << references() << std::endl;
 #endif
   }
 
-  void destroy()  noexcept {}
-  int  references() const {return theData.use_count();}
+  void destroy() noexcept {}
+  int references() const { return theData.use_count(); }
 
 private:
   std::shared_ptr<T> theData;
 };
 
-template <class T >
-inline
-void swap(ProxyBase11<T>& lh, ProxyBase11<T>& rh)  noexcept {
+template <class T>
+inline void swap(ProxyBase11<T>& lh, ProxyBase11<T>& rh) noexcept {
   lh.swap(rh);
 }
 
-#endif // Tracker_ProxyBase11_H
+#endif  // Tracker_ProxyBase11_H

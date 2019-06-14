@@ -16,24 +16,17 @@
 #include "JetMETCorrections/InterpolationTables/interface/DualAxis.h"
 
 namespace npstat {
-    typedef StorableInterpolationFunctor<double,DualAxis>
-        DoubleInterpolationFunctor;
+  typedef StorableInterpolationFunctor<double, DualAxis> DoubleInterpolationFunctor;
 
-    typedef StorableInterpolationFunctor<double,UniformAxis>
-        DoubleUAInterpolationFunctor;
+  typedef StorableInterpolationFunctor<double, UniformAxis> DoubleUAInterpolationFunctor;
 
-    typedef StorableInterpolationFunctor<double,GridAxis>
-        DoubleNUInterpolationFunctor;
+  typedef StorableInterpolationFunctor<double, GridAxis> DoubleNUInterpolationFunctor;
 
-    typedef StorableInterpolationFunctor<float,DualAxis>
-        FloatInterpolationFunctor;
+  typedef StorableInterpolationFunctor<float, DualAxis> FloatInterpolationFunctor;
 
-    typedef StorableInterpolationFunctor<float,UniformAxis>
-        FloatUAInterpolationFunctor;
+  typedef StorableInterpolationFunctor<float, UniformAxis> FloatUAInterpolationFunctor;
 
-    typedef StorableInterpolationFunctor<float,GridAxis>
-        FloatNUInterpolationFunctor;
-}
+  typedef StorableInterpolationFunctor<float, GridAxis> FloatNUInterpolationFunctor;
+}  // namespace npstat
 
-#endif // NPSTAT_INTERPOLATIONFUNCTORINSTANCES_HH_
-
+#endif  // NPSTAT_INTERPOLATIONFUNCTORINSTANCES_HH_

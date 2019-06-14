@@ -18,31 +18,26 @@
  *
  * \author Patrick Janot
  * $Date: 8-Jan-2004
- */ 
+ */
 
 class ParticlePropagator;
 class RandomEngineAndDistribution;
 
-class MultipleScatteringSimulator : public MaterialEffectsSimulator
-{
- public:
-
+class MultipleScatteringSimulator : public MaterialEffectsSimulator {
+public:
   /// Default Constructor
   MultipleScatteringSimulator(double A, double Z, double density, double radLen);
 
   /// Default Destructor
-  ~MultipleScatteringSimulator() override {} ;
+  ~MultipleScatteringSimulator() override{};
 
- private:
-
+private:
   /// The real dE/dx generation and particle update
-  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*) override;
+  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const *) override;
 
- private: 
-  
+private:
   /// Save (a tiny bit of) time
   double sqr12;
-
 };
 
 #endif

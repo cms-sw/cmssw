@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <fstream>
@@ -43,29 +42,28 @@
 using namespace l1t;
 
 class L1TBMTFConverter : public edm::stream::EDProducer<> {
-   public:
-      explicit L1TBMTFConverter(const edm::ParameterSet&);
-      ~L1TBMTFConverter() override;
+public:
+  explicit L1TBMTFConverter(const edm::ParameterSet&);
+  ~L1TBMTFConverter() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override ;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-      void endRun(const edm::Run&, edm::EventSetup const&) override ;
-      void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-      void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<RegionalMuonCandBxCollection> m_barrelTfInputToken;
-      edm::InputTag m_barrelTfInputTag;
-      std::map<int, int> ptMap_;
+  void beginRun(const edm::Run&, edm::EventSetup const&) override;
+  void endRun(const edm::Run&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<RegionalMuonCandBxCollection> m_barrelTfInputToken;
+  edm::InputTag m_barrelTfInputTag;
+  std::map<int, int> ptMap_;
 };
 
 //
 // constants, enums and typedefs
 //
-
 
 //
 // static data member definitions
@@ -74,8 +72,7 @@ class L1TBMTFConverter : public edm::stream::EDProducer<> {
 //
 // constructors and destructor
 //
-L1TBMTFConverter::L1TBMTFConverter(const edm::ParameterSet& iConfig)
-{
+L1TBMTFConverter::L1TBMTFConverter(const edm::ParameterSet& iConfig) {
   m_barrelTfInputTag = iConfig.getParameter<edm::InputTag>("barrelTFInput");
   m_barrelTfInputToken = consumes<RegionalMuonCandBxCollection>(m_barrelTfInputTag);
   //register your products
@@ -114,26 +111,20 @@ L1TBMTFConverter::L1TBMTFConverter(const edm::ParameterSet& iConfig)
   ptMap_[31] = 280;
 }
 
-
-L1TBMTFConverter::~L1TBMTFConverter()
-{
+L1TBMTFConverter::~L1TBMTFConverter() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
-void
-L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<RegionalMuonCandBxCollection> convMuons (new RegionalMuonCandBxCollection());
+  std::unique_ptr<RegionalMuonCandBxCollection> convMuons(new RegionalMuonCandBxCollection());
 
   Handle<RegionalMuonCandBxCollection> bmtfMuons;
   iEvent.getByToken(m_barrelTfInputToken, bmtfMuons);
@@ -142,7 +133,7 @@ L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // int convPt = ptMap_.at(mu->hwPt());
     // int convPhi = (mu->hwPhi() * 4) - (mu->processor() * 48);
     // int convEta = getSigned(mu->hwEta())*3.54;
-    int convEta = (mu->hwEta() - 32)*3.54;
+    int convEta = (mu->hwEta() - 32) * 3.54;
     // convMu.setHwPt(convPt);
     // convMu.setHwPhi(convPhi);
     convMu.setHwEta(convEta);
@@ -154,32 +145,19 @@ L1TBMTFConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called when starting to processes a run  ------------
-void
-L1TBMTFConverter::beginRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TBMTFConverter::beginRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a run  ------------
-void
-L1TBMTFConverter::endRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TBMTFConverter::endRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void
-L1TBMTFConverter::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TBMTFConverter::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void
-L1TBMTFConverter::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TBMTFConverter::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-L1TBMTFConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TBMTFConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

@@ -1,4 +1,4 @@
-#ifndef Validation_EventGenerator_CaloCellId 
+#ifndef Validation_EventGenerator_CaloCellId
 #define Validation_EventGenerator_CaloCellId
 
 /* class CaloCellId
@@ -11,16 +11,14 @@
 
 #include <iostream>
 
-class CaloCellId{
+class CaloCellId {
+public:
+  enum System { Barrel = 1, Endcap = 2, Forward = 3 };
 
- public:
-
-  enum System { Barrel=1,Endcap=2,Forward=3 };
-  
-  CaloCellId( double theEtaMin, double theEtaMax, double thePhiMin, double thePhiMax, System theSubSys );
-  CaloCellId( const CaloCellId& );
+  CaloCellId(double theEtaMin, double theEtaMax, double thePhiMin, double thePhiMax, System theSubSys);
+  CaloCellId(const CaloCellId&);
   virtual ~CaloCellId();
-  
+
   double getEtaMin() const { return etaMin; }
   double getEtaMax() const { return etaMax; }
   double getPhiMin() const { return phiMin; }
@@ -33,16 +31,13 @@ class CaloCellId{
 
   double getThetaCell();
 
- private:
-
+private:
   double etaMin;
   double etaMax;
   double phiMin;
   double phiMax;
   System subSys;
-
 };
 
 std::ostream& operator<<(std::ostream&, const CaloCellId&);
 #endif
-

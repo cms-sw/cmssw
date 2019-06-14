@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 

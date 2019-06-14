@@ -36,15 +36,12 @@
 
 #include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
 
-class EventShapeVarsProducer : public edm::EDProducer
-{
- public:
-
+class EventShapeVarsProducer : public edm::EDProducer {
+public:
   explicit EventShapeVarsProducer(const edm::ParameterSet&);
   ~EventShapeVarsProducer() override {}
 
- private:
-
+private:
   edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
   double r_;
   unsigned fwmax_;
@@ -52,9 +49,6 @@ class EventShapeVarsProducer : public edm::EDProducer
   void beginJob() override {}
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override {}
-
 };
 
 #endif
-
-

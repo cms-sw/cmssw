@@ -15,13 +15,12 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-class DTSegment4DT0Corrector: public edm::stream::EDProducer<> {
-
- public:
+class DTSegment4DT0Corrector : public edm::stream::EDProducer<> {
+public:
   /// Constructor
-  DTSegment4DT0Corrector(const edm::ParameterSet&) ;
+  DTSegment4DT0Corrector(const edm::ParameterSet&);
 
   /// Destructor
   ~DTSegment4DT0Corrector() override;
@@ -30,21 +29,15 @@ class DTSegment4DT0Corrector: public edm::stream::EDProducer<> {
 
   /// The method which produces the 4D rec segments corrected for t0 offset
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
-  
 
- protected:
-
- private:
-
+protected:
+private:
   // Switch on verbosity
   bool debug;
 
   edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // the updator
-  DTSegmentUpdator *theUpdator;
-
+  DTSegmentUpdator* theUpdator;
 };
 #endif
-
-

@@ -7,20 +7,18 @@
 class MaterialBudgetData;
 
 class MaterialBudgetFormat {
-
- public:
-  MaterialBudgetFormat( std::shared_ptr<MaterialBudgetData> data );
+public:
+  MaterialBudgetFormat(std::shared_ptr<MaterialBudgetData> data);
   virtual ~MaterialBudgetFormat() {}
 
   virtual void fillStartTrack() {}
   virtual void fillPerStep() {}
   virtual void fillEndTrack() {}
   virtual void endOfRun() {}
-  
- protected:
+
+protected:
   std::shared_ptr<MaterialBudgetData> theData;
   std::string theFileName;
-
 };
 
 #endif

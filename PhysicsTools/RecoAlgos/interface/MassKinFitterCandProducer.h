@@ -13,11 +13,12 @@
 
 class MassKinFitterCandProducer : public edm::EDProducer {
 public:
-  explicit MassKinFitterCandProducer(const edm::ParameterSet&, CandMassKinFitter * = nullptr);
+  explicit MassKinFitterCandProducer(const edm::ParameterSet &, CandMassKinFitter * = nullptr);
+
 private:
   edm::EDGetTokenT<reco::CandidateCollection> srcToken_;
   std::unique_ptr<CandMassKinFitter> fitter_;
-  void produce( edm::Event &, const edm::EventSetup & ) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 };
 
 #endif

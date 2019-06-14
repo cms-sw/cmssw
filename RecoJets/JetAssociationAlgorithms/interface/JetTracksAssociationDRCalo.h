@@ -12,21 +12,22 @@ class MagneticField;
 class Propagator;
 
 class JetTracksAssociationDRCalo {
- public:
-  JetTracksAssociationDRCalo (double fDr);
-  ~JetTracksAssociationDRCalo () {}
+public:
+  JetTracksAssociationDRCalo(double fDr);
+  ~JetTracksAssociationDRCalo() {}
 
-  void produce (reco::JetTracksAssociation::Container* fAssociation, 
-		const std::vector <edm::RefToBase<reco::Jet> >& fJets,
-		const std::vector <reco::TrackRef>& fTracks,
-		const MagneticField& fField,
-		const Propagator& fPropagator) const;
+  void produce(reco::JetTracksAssociation::Container* fAssociation,
+               const std::vector<edm::RefToBase<reco::Jet> >& fJets,
+               const std::vector<reco::TrackRef>& fTracks,
+               const MagneticField& fField,
+               const Propagator& fPropagator) const;
 
   /// propagating the track to the Calorimeter
-  static math::XYZPoint propagateTrackToCalorimeter (const reco::Track& fTrack,
-						     const MagneticField& fField,
-						     const Propagator& fPropagator);
- private:
+  static math::XYZPoint propagateTrackToCalorimeter(const reco::Track& fTrack,
+                                                    const MagneticField& fField,
+                                                    const Propagator& fPropagator);
+
+private:
   /// fidutial dR between track in the vertex and jet's reference direction
   double mDeltaR2Threshold;
 };

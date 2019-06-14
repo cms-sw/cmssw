@@ -10,50 +10,51 @@
 #include <algorithm>
 #include <cmath>
 
-
 class ClusterProducerFP420 {
 public:
+  typedef std::vector<HDigiFP420>::const_iterator HDigiFP420Iter;
 
-  typedef std::vector<HDigiFP420>::const_iterator           HDigiFP420Iter;
+  ClusterProducerFP420(float electrode_thr, float seed_thr, float clust_thr, int max_voids)
+      : theChannelThreshold(electrode_thr),
+        theSeedThreshold(seed_thr),
+        theClusterThreshold(clust_thr),
+        max_voids_(max_voids){};
 
-  ClusterProducerFP420(float electrode_thr, float seed_thr,float clust_thr, int max_voids) :
-    theChannelThreshold(electrode_thr), 
-    theSeedThreshold(seed_thr),
-    theClusterThreshold(clust_thr),
-    max_voids_(max_voids){};  
+  std::vector<ClusterFP420> clusterizeDetUnit(HDigiFP420Iter begin,
+                                              HDigiFP420Iter end,
+                                              unsigned int detid,
+                                              const ElectrodNoiseVector& vnoise);
+  std::vector<ClusterFP420> clusterizeDetUnitPixels(HDigiFP420Iter begin,
+                                                    HDigiFP420Iter end,
+                                                    unsigned int detid,
+                                                    const ElectrodNoiseVector& vnoise,
+                                                    unsigned int xytype,
+                                                    int verb);
 
+  int difNarr(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel);
+  int difWide(unsigned int xytype, HDigiFP420Iter ichannel, HDigiFP420Iter jchannel);
 
-  std::vector<ClusterFP420> clusterizeDetUnit(HDigiFP420Iter begin, HDigiFP420Iter end,
-						unsigned int detid, const ElectrodNoiseVector& vnoise);
-  std::vector<ClusterFP420> clusterizeDetUnitPixels(HDigiFP420Iter begin, HDigiFP420Iter end,
-						    unsigned int detid, const ElectrodNoiseVector& vnoise, unsigned int xytype, int verb);
-  
-  int difNarr(unsigned int xytype, HDigiFP420Iter ichannel,
-				  HDigiFP420Iter jchannel);
-  int difWide(unsigned int xytype, HDigiFP420Iter ichannel,
-				  HDigiFP420Iter jchannel);
-
-  float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
-  float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}
-  float clusterThresholdInNoiseSigma() const { return theClusterThreshold;}
+  float channelThresholdInNoiseSigma() const { return theChannelThreshold; }
+  float seedThresholdInNoiseSigma() const { return theSeedThreshold; }
+  float clusterThresholdInNoiseSigma() const { return theClusterThreshold; }
 
 private:
-
   float theChannelThreshold;
   float theSeedThreshold;
   float theClusterThreshold;
   int max_voids_;
 
-  bool badChannel( int channel, const std::vector<short>& badChannels) const;
-
+  bool badChannel(int channel, const std::vector<short>& badChannels) const;
 };
 
 class AboveSeed {
- public:
-  AboveSeed(float aseed,const ElectrodNoiseVector& vnoise) : verb(0), seed(aseed), vnoise_(vnoise) {};
+public:
+  AboveSeed(float aseed, const ElectrodNoiseVector& vnoise) : verb(0), seed(aseed), vnoise_(vnoise){};
 
-  bool operator()(const HDigiFP420& digi) { return ( !vnoise_[digi.channel()].getDisable() && 
-                                               digi.adc() >= seed * vnoise_[digi.channel()].getNoise()) ;}
+  bool operator()(const HDigiFP420& digi) {
+    return (!vnoise_[digi.channel()].getDisable() && digi.adc() >= seed * vnoise_[digi.channel()].getNoise());
+  }
+
 private:
   int verb;
   float seed;

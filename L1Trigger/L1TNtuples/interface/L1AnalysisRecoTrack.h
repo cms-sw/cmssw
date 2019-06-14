@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------------
 // Created 15/04/2010 - A.C. Le Bihan
-// 
+//
 //
 // Original code : L1Trigger/L1TNtuples/L1TrackVertexRecoTreeProducer - Jim Brooke
 //-------------------------------------------------------------------------------
@@ -12,23 +12,18 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "L1AnalysisRecoTrackDataFormat.h"
 
-
-namespace L1Analysis
-{
-  class L1AnalysisRecoTrack 
-  {
+namespace L1Analysis {
+  class L1AnalysisRecoTrack {
   public:
-    L1AnalysisRecoTrack(){Reset();};
+    L1AnalysisRecoTrack() { Reset(); };
     ~L1AnalysisRecoTrack(){};
-    
+
     void SetTracks(const reco::TrackCollection& trackColl, unsigned maxTrack);
-    L1Analysis::L1AnalysisRecoTrackDataFormat * getData(){return (&track_);}
-    void Reset() {track_.Reset();}
+    L1Analysis::L1AnalysisRecoTrackDataFormat* getData() { return (&track_); }
+    void Reset() { track_.Reset(); }
 
-  private :            
+  private:
     L1Analysis::L1AnalysisRecoTrackDataFormat track_;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-
-

@@ -23,11 +23,12 @@ public:
   /// Helper class enforcing correct way of filling the doublets of a region
   class RegionFiller {
   public:
-    RegionFiller(): obj_(nullptr) {}
-    explicit RegionFiller(RegionsSeedingHitSets* obj): obj_(obj) {}
+    RegionFiller() : obj_(nullptr) {}
+    explicit RegionFiller(RegionsSeedingHitSets* obj) : obj_(obj) {}
 
     ~RegionFiller() {
-      if(obj_) obj_->regions_.back().setLayerSetsEnd(obj_->hitSets_.size());
+      if (obj_)
+        obj_->regions_.back().setLayerSetsEnd(obj_->hitSets_.size());
     }
 
     bool valid() const { return obj_ != nullptr; }
@@ -36,8 +37,9 @@ public:
     void emplace_back(Args&&... args) {
       obj_->hitSets_.emplace_back(std::forward<Args>(args)...);
     }
+
   private:
-    RegionsSeedingHitSets *obj_;
+    RegionsSeedingHitSets* obj_;
   };
 
   // allows declaring local variables with auto
@@ -61,7 +63,7 @@ public:
     hitSets_.shrink_to_fit();
   }
 
-  RegionFiller beginRegion(const TrackingRegion *region) {
+  RegionFiller beginRegion(const TrackingRegion* region) {
     regions_.emplace_back(region, hitSets_.size());
     return RegionFiller(this);
   }

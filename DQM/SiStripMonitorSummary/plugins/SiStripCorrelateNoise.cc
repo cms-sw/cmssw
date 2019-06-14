@@ -3,6 +3,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "TCanvas.h"
 
 SiStripCorrelateNoise::SiStripCorrelateNoise(const edm::ParameterSet &iConfig)

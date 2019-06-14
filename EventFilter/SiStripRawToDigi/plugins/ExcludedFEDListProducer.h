@@ -22,24 +22,23 @@
 
 namespace sistrip {
 
-  class ExcludedFEDListProducer : public edm::stream::EDProducer<>
-  {
+  class ExcludedFEDListProducer : public edm::stream::EDProducer<> {
   public:
     /// constructor
-    ExcludedFEDListProducer( const edm::ParameterSet& pset );
+    ExcludedFEDListProducer(const edm::ParameterSet& pset);
     /// default constructor
     ~ExcludedFEDListProducer() override;
-    void beginRun( const edm::Run & run, const edm::EventSetup & es) override;
+    void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    void produce( edm::Event& event, const edm::EventSetup& es ) override;
-    
+    void produce(edm::Event& event, const edm::EventSetup& es) override;
+
   private:
     unsigned int runNumber_;
     uint32_t cacheId_;
-    const SiStripFedCabling * cabling_;
+    const SiStripFedCabling* cabling_;
     const edm::EDGetTokenT<FEDRawDataCollection> token_;
 
     DetIdCollection detids_;
   };
-}
-#endif // EventFilter_SiStripRawToDigi_ExcludedFEDListProducer_H
+}  // namespace sistrip
+#endif  // EventFilter_SiStripRawToDigi_ExcludedFEDListProducer_H

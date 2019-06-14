@@ -10,30 +10,21 @@
 //#include "ElectronPhoton/EgammaAnalysis/interface/EgammaCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
+class ElectronClassification {
+public:
+  ElectronClassification() {}
 
-class ElectronClassification
-{
- public:
+  void classify(reco::GsfElectron&);
+  void refineWithPflow(reco::GsfElectron&);
 
-  ElectronClassification(){}
+private:
+  //  void classify(const reco::GsfElectron &);
 
-  void classify( reco::GsfElectron & ) ;
-  void refineWithPflow( reco::GsfElectron & ) ;
+  //  bool isInCrack(float eta) const;
+  //  bool isInEtaGaps(float eta) const;
+  //  bool isInPhiGaps(float phi) const;
 
- private:
-
-//  void classify(const reco::GsfElectron &);
-
-//  bool isInCrack(float eta) const;
-//  bool isInEtaGaps(float eta) const;
-//  bool isInPhiGaps(float phi) const;
-
-//  reco::GsfElectron::Classification electronClass_;
-
+  //  reco::GsfElectron::Classification electronClass_;
 };
 
 #endif
-
-
-
-

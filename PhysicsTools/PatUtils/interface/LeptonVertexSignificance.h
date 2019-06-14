@@ -14,7 +14,6 @@
   \author   Steven Lowette
 */
 
-
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -28,7 +27,7 @@ namespace reco {
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 namespace pat {
   class Electron;
@@ -37,19 +36,18 @@ namespace pat {
   class LeptonVertexSignificance {
   public:
     LeptonVertexSignificance();
-    LeptonVertexSignificance(const edm::EventSetup & iSetup, edm::ConsumesCollector && iC);
+    LeptonVertexSignificance(const edm::EventSetup& iSetup, edm::ConsumesCollector&& iC);
     ~LeptonVertexSignificance();
 
-    float calculate(const Electron & anElectron, const edm::Event & iEvent);
-    float calculate(const Muon & aMuon, const edm::Event & iEvent);
+    float calculate(const Electron& anElectron, const edm::Event& iEvent);
+    float calculate(const Muon& aMuon, const edm::Event& iEvent);
 
   private:
-    float calculate(const reco::Track & track, const edm::Event & iEvent);
-    TransientTrackBuilder * theTrackBuilder_;
+    float calculate(const reco::Track& track, const edm::Event& iEvent);
+    TransientTrackBuilder* theTrackBuilder_;
     edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
   };
 
-}
+}  // namespace pat
 
 #endif
-

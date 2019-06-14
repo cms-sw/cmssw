@@ -14,13 +14,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class CandidateChargeBTagComputer : public JetTagComputer {
- public:
+public:
   CandidateChargeBTagComputer(const edm::ParameterSet &parameters);
   ~CandidateChargeBTagComputer() override;
-  void initialize(const JetTagComputerRecord & record) override;
-  float discriminator(const TagInfoHelper & tagInfo) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
- private:
+  void initialize(const JetTagComputerRecord &record) override;
+  float discriminator(const TagInfoHelper &tagInfo) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
   const bool useCondDB_;
   const std::string gbrForestLabel_;
   const edm::FileInPath weightFile_;
@@ -30,4 +31,4 @@ class CandidateChargeBTagComputer : public JetTagComputer {
   const double svChargeExp_;
 };
 
-#endif // RecoBTag_Combined_CandidateChargeBTagComputer_h
+#endif  // RecoBTag_Combined_CandidateChargeBTagComputer_h

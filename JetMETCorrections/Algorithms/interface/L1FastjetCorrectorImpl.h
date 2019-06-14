@@ -18,29 +18,29 @@ namespace edm {
   class EventSetup;
   class ConsumesCollector;
   class ConfigurationDescriptions;
-}
+}  // namespace edm
 
 class L1FastjetCorrectorImplMaker : public JetCorrectorImplMakerBase {
- public:
+public:
   L1FastjetCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);
- private:
+
+private:
   edm::EDGetTokenT<double> rhoToken_;
 };
 
-class L1FastjetCorrectorImpl : public reco::JetCorrectorImpl
-{
+class L1FastjetCorrectorImpl : public reco::JetCorrectorImpl {
 public:
   typedef L1FastjetCorrectorImplMaker Maker;
 
   // construction / destruction
-  L1FastjetCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector, double rho):
-  rho_(rho),corrector_(corrector) {}
-  
+  L1FastjetCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector, double rho)
+      : rho_(rho), corrector_(corrector) {}
+
   //member functions
-  
+
   /// apply correction using Jet information only
   double correction(const LorentzVector& fJet) const override;
   /// apply correction using Jet information only

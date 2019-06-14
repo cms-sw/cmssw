@@ -28,110 +28,61 @@
 
 #include <vector>
 
-
 namespace pat {
 
-
-  typedef SingleObjectSelector<
-              std::vector<Electron>,
-              StringCutObjectSelector<Electron>
-          > PATElectronSelector;
-  typedef SingleObjectSelector<
-              std::vector<Muon>,
-              StringCutObjectSelector<Muon>
-          > PATMuonSelector;
-  typedef SingleObjectSelector<
-              std::vector<Tau>,
-              StringCutObjectSelector<Tau>
-          > PATTauSelector;
-  typedef SingleObjectSelector<
-              std::vector<Photon>,
-              StringCutObjectSelector<Photon>
-          > PATPhotonSelector;
+  typedef SingleObjectSelector<std::vector<Electron>, StringCutObjectSelector<Electron> > PATElectronSelector;
+  typedef SingleObjectSelector<std::vector<Muon>, StringCutObjectSelector<Muon> > PATMuonSelector;
+  typedef SingleObjectSelector<std::vector<Tau>, StringCutObjectSelector<Tau> > PATTauSelector;
+  typedef SingleObjectSelector<std::vector<Photon>, StringCutObjectSelector<Photon> > PATPhotonSelector;
   /* typedef SingleObjectSelector< */
   /*             std::vector<Jet>, */
   /*             StringCutObjectSelector<Jet> */
   /*         > PATJetSelector; */
+  typedef SingleObjectSelector<std::vector<MET>, StringCutObjectSelector<MET> > PATMETSelector;
+  typedef SingleObjectSelector<std::vector<PFParticle>, StringCutObjectSelector<PFParticle> > PATPFParticleSelector;
   typedef SingleObjectSelector<
-              std::vector<MET>,
-              StringCutObjectSelector<MET>
-          > PATMETSelector;
-  typedef SingleObjectSelector<
-              std::vector<PFParticle>,
-              StringCutObjectSelector<PFParticle>
-          > PATPFParticleSelector;
-  typedef SingleObjectSelector<
-              std::vector<CompositeCandidate>,
-              StringCutObjectSelector<CompositeCandidate, true> // true => lazy parsing => get all methods of daughters
-          > PATCompositeCandidateSelector;
-  typedef SingleObjectSelector<
-              std::vector<TriggerObjectStandAlone>,
-              StringCutObjectSelector<TriggerObjectStandAlone>
-          > PATTriggerObjectStandAloneSelector;
-  typedef SingleObjectSelector<
-              std::vector<GenericParticle>,
-              StringCutObjectSelector<GenericParticle>
-          > PATGenericParticleSelector;
+      std::vector<CompositeCandidate>,
+      StringCutObjectSelector<CompositeCandidate, true>  // true => lazy parsing => get all methods of daughters
+      >
+      PATCompositeCandidateSelector;
+  typedef SingleObjectSelector<std::vector<TriggerObjectStandAlone>, StringCutObjectSelector<TriggerObjectStandAlone> >
+      PATTriggerObjectStandAloneSelector;
+  typedef SingleObjectSelector<std::vector<GenericParticle>, StringCutObjectSelector<GenericParticle> >
+      PATGenericParticleSelector;
 
+  typedef SingleObjectSelector<std::vector<Electron>,
+                               StringCutObjectSelector<Electron>,
+                               edm::RefVector<std::vector<Electron> > >
+      PATElectronRefSelector;
+  typedef SingleObjectSelector<std::vector<Muon>, StringCutObjectSelector<Muon>, edm::RefVector<std::vector<Muon> > >
+      PATMuonRefSelector;
+  typedef SingleObjectSelector<std::vector<Tau>, StringCutObjectSelector<Tau>, edm::RefVector<std::vector<Tau> > >
+      PATTauRefSelector;
+  typedef SingleObjectSelector<std::vector<Photon>, StringCutObjectSelector<Photon>, edm::RefVector<std::vector<Photon> > >
+      PATPhotonRefSelector;
+  typedef SingleObjectSelector<std::vector<Jet>, StringCutObjectSelector<Jet>, edm::RefVector<std::vector<Jet> > >
+      PATJetRefSelector;
+  typedef SingleObjectSelector<std::vector<MET>, StringCutObjectSelector<MET>, edm::RefVector<std::vector<MET> > >
+      PATMETRefSelector;
+  typedef SingleObjectSelector<std::vector<PFParticle>,
+                               StringCutObjectSelector<PFParticle>,
+                               edm::RefVector<std::vector<PFParticle> > >
+      PATPFParticleRefSelector;
+  typedef SingleObjectSelector<std::vector<GenericParticle>,
+                               StringCutObjectSelector<GenericParticle>,
+                               edm::RefVector<std::vector<GenericParticle> > >
+      PATGenericParticleRefSelector;
   typedef SingleObjectSelector<
-              std::vector<Electron>,
-              StringCutObjectSelector<Electron>,
-              edm::RefVector<std::vector<Electron> >
-          > PATElectronRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<Muon>,
-              StringCutObjectSelector<Muon>,
-              edm::RefVector<std::vector<Muon> >
-          > PATMuonRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<Tau>,
-              StringCutObjectSelector<Tau>,
-              edm::RefVector<std::vector<Tau> >
-          > PATTauRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<Photon>,
-              StringCutObjectSelector<Photon>,
-              edm::RefVector<std::vector<Photon> >
-          > PATPhotonRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<Jet>,
-              StringCutObjectSelector<Jet>,
-              edm::RefVector<std::vector<Jet> >
-          > PATJetRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<MET>,
-              StringCutObjectSelector<MET>,
-              edm::RefVector<std::vector<MET> >
-          > PATMETRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<PFParticle>,
-              StringCutObjectSelector<PFParticle>,
-              edm::RefVector<std::vector<PFParticle> >
-          > PATPFParticleRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<GenericParticle>,
-              StringCutObjectSelector<GenericParticle>,
-              edm::RefVector<std::vector<GenericParticle> >
-          > PATGenericParticleRefSelector;
-  typedef SingleObjectSelector<
-              std::vector<CompositeCandidate>,
-              StringCutObjectSelector<CompositeCandidate, true>, // true => lazy parsing => get all methods of daughters
-              edm::RefVector<std::vector<CompositeCandidate> >
-          > PATCompositeCandidateRefSelector;
+      std::vector<CompositeCandidate>,
+      StringCutObjectSelector<CompositeCandidate, true>,  // true => lazy parsing => get all methods of daughters
+      edm::RefVector<std::vector<CompositeCandidate> > >
+      PATCompositeCandidateRefSelector;
 
-  typedef SingleObjectSelector<
-              pat::IsolatedTrackCollection, 
-              StringCutObjectSelector<pat::IsolatedTrack> 
-          > IsoTrackSelector;
+  typedef SingleObjectSelector<pat::IsolatedTrackCollection, StringCutObjectSelector<pat::IsolatedTrack> >
+      IsoTrackSelector;
 
-  typedef ObjectCountFilter<
-              pat::MuonCollection, 
-              StringCutObjectSelector<pat::Muon>
-	  >::type MuonRefPatCount;
+  typedef ObjectCountFilter<pat::MuonCollection, StringCutObjectSelector<pat::Muon> >::type MuonRefPatCount;
 
-
-
-
-}
+}  // namespace pat
 
 #endif

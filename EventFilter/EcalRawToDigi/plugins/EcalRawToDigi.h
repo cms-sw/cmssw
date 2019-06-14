@@ -1,5 +1,5 @@
-#ifndef _ECALRAWTODIGIDEV_H_ 
-#define _ECALRAWTODIGIDEV_H_ 
+#ifndef _ECALRAWTODIGIDEV_H_
+#define _ECALRAWTODIGIDEV_H_
 
 /*
  *\ Class EcalRawToDigi
@@ -14,7 +14,7 @@
  *
 */
 
-#include <iostream>                                 
+#include <iostream>
 
 #include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
 
@@ -38,9 +38,8 @@ class EcalElectronicsMapper;
 class EcalElectronicsMapping;
 class DCCDataUnpacker;
 
-class EcalRawToDigi : public edm::stream::EDProducer<>{
-
- public:
+class EcalRawToDigi : public edm::stream::EDProducer<> {
+public:
   /**
    * Class constructor
    */
@@ -54,27 +53,24 @@ class EcalRawToDigi : public edm::stream::EDProducer<>{
 
   // function called at start of each run
   void beginRun(const edm::Run& run, const edm::EventSetup& es) override;
-  
+
   /**
    * Class destructor
    */
   ~EcalRawToDigi() override;
 
- 
   edm::ESWatcher<EcalMappingRcd> watcher_;
 
-  
- private:
-
+private:
   //list of FEDs to unpack
   std::vector<int> fedUnpackList_;
 
   std::vector<int> orderedFedUnpackList_;
   std::vector<int> orderedDCCIdList_;
-  
+
   unsigned int numbXtalTSamples_;
   unsigned int numbTriggerTSamples_;
-  
+
   bool headerUnpacking_;
   bool srpUnpacking_;
   bool tccUnpacking_;
@@ -86,22 +82,20 @@ class EcalRawToDigi : public edm::stream::EDProducer<>{
   bool first_;
   bool put_;
 
-  
   edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
-  edm::EDGetTokenT<EcalListOfFEDS> fedsToken_;  
+  edm::EDGetTokenT<EcalListOfFEDS> fedsToken_;
 
   // -- For regional unacking :
-  bool REGIONAL_ ;
-    
+  bool REGIONAL_;
 
-  //an electronics mapper class 
-  EcalElectronicsMapper * myMap_;
-  
+  //an electronics mapper class
+  EcalElectronicsMapper* myMap_;
+
   //Ecal unpacker
-  DCCDataUnpacker * theUnpacker_;
-  
-  unsigned int nevts_; // NA: for testing
-  double  RUNNING_TIME_, SETUP_TIME_;
+  DCCDataUnpacker* theUnpacker_;
+
+  unsigned int nevts_;  // NA: for testing
+  double RUNNING_TIME_, SETUP_TIME_;
 };
 
 #endif

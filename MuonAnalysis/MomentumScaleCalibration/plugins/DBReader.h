@@ -21,21 +21,18 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundFunction.h"
 
-class DBReader : public edm::EDAnalyzer
-{
- public:
-  explicit DBReader( const edm::ParameterSet& );
+class DBReader : public edm::EDAnalyzer {
+public:
+  explicit DBReader(const edm::ParameterSet&);
   ~DBReader() override;
 
-  void initialize( const edm::EventSetup& iSetup );
+  void initialize(const edm::EventSetup& iSetup);
 
-  void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   template <typename T>
-  void printParameters(const T & functionPtr)
-  {
+  void printParameters(const T& functionPtr) {
     // Looping directly on it does not work, because it is returned by value
     // and the iterator gets invalidated on the next line. Save it to a temporary object
     // and iterate on it.
@@ -45,11 +42,11 @@ class DBReader : public edm::EDAnalyzer
     std::vector<int>::const_iterator id = functionId.begin();
     std::cout << "total number of parameters read from database = parVecVec.size() = " << parVecVec.size() << std::endl;
     int iFunc = 0;
-    for( ; id != functionId.end(); ++id, ++iFunc ) {
+    for (; id != functionId.end(); ++id, ++iFunc) {
       int parNum = functionPtr->function(iFunc)->parNum();
-      std::cout << "For function id = " << *id << ", with "<<parNum<< " parameters: " << std::endl;
-      for( int par=0; par<parNum; ++par ) {
-	std::cout << "par["<<par<<"] = " << *parVec << std::endl;
+      std::cout << "For function id = " << *id << ", with " << parNum << " parameters: " << std::endl;
+      for (int par = 0; par < parNum; ++par) {
+        std::cout << "par[" << par << "] = " << *parVec << std::endl;
         ++parVec;
       }
     }

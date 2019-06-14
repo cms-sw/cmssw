@@ -18,22 +18,19 @@ ________________________________________________________________**/
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+class BeamSpotProducer : public edm::stream::EDProducer<> {
+public:
+  typedef std::vector<edm::ParameterSet> Parameters;
 
-class BeamSpotProducer: public edm::stream::EDProducer<> {
+  /// constructor
+  explicit BeamSpotProducer(const edm::ParameterSet& iConf);
+  /// destructor
+  ~BeamSpotProducer() override;
 
-  public:
-	typedef std::vector<edm::ParameterSet> Parameters;
+  /// produce a beam spot class
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-	/// constructor
-	explicit BeamSpotProducer(const edm::ParameterSet& iConf);
-	/// destructor
-	~BeamSpotProducer() override;
-	
-	/// produce a beam spot class
-	void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-
-  private:
-	
+private:
 };
 
 #endif

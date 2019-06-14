@@ -15,22 +15,19 @@ class PMTDParameters;
 
 class MTDGeomBuilderFromGeometricTimingDet {
 public:
-
-  MTDGeometry* build(const GeometricTimingDet* gd, 
-		     const PMTDParameters & ptp, 
-		     const MTDTopology* tTopo);
+  MTDGeometry* build(const GeometricTimingDet* gd, const PMTDParameters& ptp, const MTDTopology* tTopo);
 
 private:
+  void buildPixel(std::vector<const GeometricTimingDet*> const&,
+                  MTDGeometry*,
+                  GeomDetType::SubDetector det,
+                  const PMTDParameters& ptp);
+  void buildGeomDet(MTDGeometry*);
 
-  void buildPixel(std::vector<const GeometricTimingDet*> const &,
-		  MTDGeometry*,GeomDetType::SubDetector det,
-		  const PMTDParameters& ptp );  
-  void buildGeomDet(MTDGeometry* );
+  PlaneBuilderFromGeometricTimingDet::ResultType buildPlaneWithMaterial(const GeometricTimingDet* gd,
+                                                                        double scaleFactor = 1.) const;
 
-  PlaneBuilderFromGeometricTimingDet::ResultType
-  buildPlaneWithMaterial(const GeometricTimingDet* gd,double scaleFactor=1.) const;
-
-  std::map<std::string,const MTDGeomDetType*> theMTDDetTypeMap;
+  std::map<std::string, const MTDGeomDetType*> theMTDDetTypeMap;
   const MTDTopology* theTopo;
 };
 

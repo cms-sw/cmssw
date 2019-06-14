@@ -21,21 +21,20 @@
 
 class RBorderFinder {
 public:
-  
-  typedef ForwardDetRing Det; //FIXME!!!
-  typedef geomsort::ExtractR<Det,float> DetR;
+  typedef ForwardDetRing Det;  //FIXME!!!
+  typedef geomsort::ExtractR<Det, float> DetR;
 
   RBorderFinder(const std::vector<const Det*>& utheDets);
-  
+
   virtual ~RBorderFinder(){};
 
   /// Returns true if the Dets are periodic in R.
   inline bool isRPeriodic() const { return isRPeriodic_; }
-  
+
   /// Returns true if any 2 of the Det overlap in R.
   inline bool isROverlapping() const { return isROverlapping_; }
 
-  /// The borders, defined for each det as the middle between its lower 
+  /// The borders, defined for each det as the middle between its lower
   /// edge and the previous Det's upper edge.
   inline std::vector<double> RBorders() const { return theRBorders; }
 
@@ -45,7 +44,6 @@ public:
   //  inline std::vector<double> etaBorders() {}
   //  inline std::vector<double> zBorders() {}
 
-
 private:
   int theNbins;
   bool isRPeriodic_;
@@ -53,9 +51,6 @@ private:
   std::vector<double> theRBorders;
   std::vector<double> theRBins;
 
-  inline int binIndex( int i) const {
-    return std::min( std::max( i, 0), theNbins-1);
-  }
+  inline int binIndex(int i) const { return std::min(std::max(i, 0), theNbins - 1); }
 };
 #endif
-

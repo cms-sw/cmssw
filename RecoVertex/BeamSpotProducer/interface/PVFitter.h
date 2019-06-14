@@ -26,7 +26,6 @@
 
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
 // ROOT
 #include "TFile.h"
 #include "TTree.h"
@@ -34,23 +33,25 @@
 
 #include <fstream>
 
-namespace edm {class ConsumesCollector;}
+namespace edm {
+  class ConsumesCollector;
+}
 
 namespace reco {
   class Vertex;
 }
 
 class PVFitter {
- public:
+public:
   PVFitter() {}
-  PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iColl);
-  PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl);
+  PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iColl);
+  PVFitter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iColl);
   virtual ~PVFitter();
 
-  void initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iColl);
+  void initialize(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iColl);
   void readEvent(const edm::Event& iEvent);
   void setTree(TTree* tree);
-  
+
   double getWidthX() { return fwidthX; }
   double getWidthY() { return fwidthY; }
   double getWidthZ() { return fwidthZ; }
@@ -58,23 +59,22 @@ class PVFitter {
   double getWidthYerr() { return fwidthYerr; }
   double getWidthZerr() { return fwidthZerr; }
   //ssc
-  std::vector<BeamSpotFitPVData> getpvStore() { return pvStore_; } 
- 
+  std::vector<BeamSpotFitPVData> getpvStore() { return pvStore_; }
+
   void FitPerBunchCrossing() { fFitPerBunchCrossing = true; }
   bool runBXFitter();
-  bool runFitter(); 
-  void resetLSRange() { fbeginLumiOfFit=fendLumiOfFit=-1; }
+  bool runFitter();
+  void resetLSRange() { fbeginLumiOfFit = fendLumiOfFit = -1; }
   void resetRefTime() { freftime[0] = freftime[1] = 0; }
   //ssc
-   void setRefTime(std::time_t t0,std::time_t t1) {
+  void setRefTime(std::time_t t0, std::time_t t1) {
     freftime[0] = t0;
     freftime[1] = t1;
   }
-   void setFitLSRange(int ls0,int ls1) {
+  void setFitLSRange(int ls0, int ls1) {
     fbeginLumiOfFit = ls0;
     fendLumiOfFit = ls1;
   }
-
 
   void dumpTxtFile();
   void resetAll() {
@@ -92,51 +92,45 @@ class PVFitter {
   std::map<int, reco::BeamSpot> getBeamSpotMap() { return fbspotMap; }
   bool IsFitPerBunchCrossing() { return fFitPerBunchCrossing; }
   int* getFitLSRange() {
-    int *tmp=new int[2];
+    int* tmp = new int[2];
     tmp[0] = fbeginLumiOfFit;
     tmp[1] = fendLumiOfFit;
     return tmp;
   }
- //ssc
- time_t* getRefTime(){
-   time_t *tmptime=new time_t[2];
-   tmptime[0]=freftime[0];
-   tmptime[1]=freftime[1];
-   return tmptime;
+  //ssc
+  time_t* getRefTime() {
+    time_t* tmptime = new time_t[2];
+    tmptime[0] = freftime[0];
+    tmptime[1] = freftime[1];
+    return tmptime;
   }
 
-//ssc
- void resizepvStore(unsigned int rmSize ){
-  pvStore_.erase(pvStore_.begin(), pvStore_.begin()+rmSize);
-  }
+  //ssc
+  void resizepvStore(unsigned int rmSize) { pvStore_.erase(pvStore_.begin(), pvStore_.begin() + rmSize); }
 
- 
   /// reduce size of primary vertex cache by increasing quality limit
-  void compressStore ();
+  void compressStore();
   /// vertex quality measure
-  double pvQuality (const reco::Vertex& pv) const;
+  double pvQuality(const reco::Vertex& pv) const;
   /// vertex quality measure
-  double pvQuality (const BeamSpotFitPVData& pv) const;
+  double pvQuality(const BeamSpotFitPVData& pv) const;
   int getNPVs() { return pvStore_.size(); }
-  
-  const std::map<int, int> &getNPVsperBX() {
-    
+
+  const std::map<int, int>& getNPVsperBX() {
     npvsmap_.clear();
 
-    for ( std::map<int,std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); 
-	  pvStore!=bxMap_.end(); ++pvStore) {
-
-      npvsmap_[ pvStore->first ] = (pvStore->second).size();
-
+    for (std::map<int, std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin();
+         pvStore != bxMap_.end();
+         ++pvStore) {
+      npvsmap_[pvStore->first] = (pvStore->second).size();
     }
     return npvsmap_;
   }
 
- private:
-
+private:
   std::map<int, int> npvsmap_;
   reco::BeamSpot fbeamspot;
-  std::map<int,reco::BeamSpot> fbspotMap;
+  std::map<int, reco::BeamSpot> fbspotMap;
   bool fFitPerBunchCrossing;
   bool useOnlyFirstPV_;
 
@@ -156,12 +150,13 @@ class PVFitter {
   double maxVtxR_;
   double maxVtxZ_;
   double errorScale_;
-  double sigmaCut_;         
-  double minSumPt_;         
-	
+  double sigmaCut_;
+  double minSumPt_;
+
   std::time_t freftime[2];
 
-  TH2F* hPVx; TH2F* hPVy; 
+  TH2F* hPVx;
+  TH2F* hPVy;
 
   TTree* ftree_;
 
@@ -175,10 +170,10 @@ class PVFitter {
   double fwidthYerr;
   double fwidthZerr;
 
-  std::vector<BeamSpotFitPVData> pvStore_; //< cache for PV data
-  std::map< int, std::vector<BeamSpotFitPVData> > bxMap_; // store PV data as a function of bunch crossings
-  double dynamicQualityCut_;               //< quality cut for vertices (dynamic adjustment)
-  std::vector<double> pvQualities_;        //< working space for PV store adjustement
+  std::vector<BeamSpotFitPVData> pvStore_;                //< cache for PV data
+  std::map<int, std::vector<BeamSpotFitPVData> > bxMap_;  // store PV data as a function of bunch crossings
+  double dynamicQualityCut_;                              //< quality cut for vertices (dynamic adjustment)
+  std::vector<double> pvQualities_;                       //< working space for PV store adjustement
 
   BeamSpotTreeData theBeamSpotTreeData_;
 };

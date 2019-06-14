@@ -12,8 +12,7 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-class ResolutionFunction : public BaseFunction
-{
+class ResolutionFunction : public BaseFunction {
 public:
   /**
    * The constructor takes a string identifying the parameters to read. It
@@ -21,15 +20,15 @@ public:
    * correction function and saves the corresponding pointer. It then fills the
    * vector of parameters.
    */
-  ResolutionFunction( TString identifier )
-  {
+  ResolutionFunction(TString identifier) {
     identifier.Prepend("MuonAnalysis/MomentumScaleCalibration/data/");
     identifier.Append(".txt");
     edm::FileInPath fileWithFullPath(identifier.Data());
-    readParameters( fileWithFullPath.fullPath() );
+    readParameters(fileWithFullPath.fullPath());
 
     std::vector<int>::const_iterator idIt = functionId_.begin();
-    for( ; idIt != functionId_.end(); ++idIt ) std::cout << "idIt = " << *idIt << std::endl;
+    for (; idIt != functionId_.end(); ++idIt)
+      std::cout << "idIt = " << *idIt << std::endl;
   }
   /**
    * This constructor is used when reading parameters from the db.
@@ -37,19 +36,18 @@ public:
    * the parameters and the functions identifiers.
    * The object is the same for all the functions.
    */
-  ResolutionFunction( const MuScleFitDBobject * dbObject ) : BaseFunction( dbObject )
-  {
+  ResolutionFunction(const MuScleFitDBobject* dbObject) : BaseFunction(dbObject) {
     std::vector<int>::const_iterator id = functionId_.begin();
-    for( ; id != functionId_.end(); ++id ) {
-      resolutionFunctionVec_.push_back( resolutionFunctionService( *id ) );
+    for (; id != functionId_.end(); ++id) {
+      resolutionFunctionVec_.push_back(resolutionFunctionService(*id));
     }
     // Fill the arrays that will be used when calling the correction function.
     convertToArrays(resolutionFunction_, resolutionFunctionVec_);
   }
 
   ~ResolutionFunction() {
-    if( parArray_ != nullptr ) {
-      for( unsigned int i=0; i<functionId_.size(); ++i ) {
+    if (parArray_ != nullptr) {
+      for (unsigned int i = 0; i < functionId_.size(); ++i) {
         delete[] parArray_[i];
         delete resolutionFunction_[i];
       }
@@ -61,47 +59,51 @@ public:
   // EM+SC: 2013.01.11
   // lorentzVector have both capital and lower case methods for pt(), eta() and phi
   // if a lorentzVector is passed use, parArray form iteration i=0
- 
+
   /// The second, optional, parameter is the iteration number
   template <class U>
-  double sigmaPt(const U & track, const int i=0) const {
-    if( i > iterationNum_ || i < 0 ) {
-      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
+  double sigmaPt(const U& track, const int i = 0) const {
+    if (i > iterationNum_ || i < 0) {
+      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0"
+                << std::endl;
       exit(1);
     }
     return resolutionFunction_[i]->sigmaPt(track.pt(), track.eta(), parArray_[i]);
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
-  double sigmaCotgTh(const U & track, const int i=0) const {
-    if( i > iterationNum_ || i < 0 ) {
-      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
+  double sigmaCotgTh(const U& track, const int i = 0) const {
+    if (i > iterationNum_ || i < 0) {
+      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0"
+                << std::endl;
       exit(1);
     }
     return resolutionFunction_[i]->sigmaCotgTh(track.pt(), track.eta(), parArray_[i]);
   }
   /// The second, optional, parameter is the iteration number
   template <class U>
-  double sigmaPhi(const U & track, const int i=0) const {
-    if( i > iterationNum_ || i < 0 ) {
-      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0" << std::endl;
+  double sigmaPhi(const U& track, const int i = 0) const {
+    if (i > iterationNum_ || i < 0) {
+      std::cout << "Error: wrong iteration number, there are " << iterationNum_ << "iterations, ther first one is 0"
+                << std::endl;
       exit(1);
     }
     return resolutionFunction_[i]->sigmaPhi(track.pt(), track.eta(), parArray_[i]);
   }
   /// Get the ith resolution function
-  resolutionFunctionBase<double * > * function( const unsigned int i )
-  {
-    if( resolutionFunctionVec_.size() > i ) return resolutionFunction_[i];
-    else return nullptr;
+  resolutionFunctionBase<double*>* function(const unsigned int i) {
+    if (resolutionFunctionVec_.size() > i)
+      return resolutionFunction_[i];
+    else
+      return nullptr;
   }
 
 protected:
   /// Parser of the parameters file
-  void readParameters( TString fileName );
+  void readParameters(TString fileName);
 
-  resolutionFunctionBase<double * > ** resolutionFunction_;
-  std::vector<resolutionFunctionBase<double * > * > resolutionFunctionVec_;
+  resolutionFunctionBase<double*>** resolutionFunction_;
+  std::vector<resolutionFunctionBase<double*>*> resolutionFunctionVec_;
 };
 
-#endif // ResolutionFunction_h
+#endif  // ResolutionFunction_h

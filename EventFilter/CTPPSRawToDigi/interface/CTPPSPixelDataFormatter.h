@@ -32,9 +32,9 @@
  */
 //
 
-#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h" 
-#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h" 
-#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h" 
+#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDigi.h"
+#include "DataFormats/CTPPSDigi/interface/CTPPSPixelDataError.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 #include "EventFilter/CTPPSRawToDigi/interface/RPixErrorChecker.h"
@@ -47,9 +47,7 @@ class FEDRawData;
 class RPixErrorChecker;
 
 class CTPPSPixelDataFormatter {
-
 public:
-
   typedef edm::DetSetVector<CTPPSPixelDigi> Collection;
 
   typedef std::map<int, FEDRawData> RawData;
@@ -61,19 +59,15 @@ public:
   typedef uint32_t Word32;
   typedef uint64_t Word64;
 
-  CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const &mapping);
+  CTPPSPixelDataFormatter(std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> const& mapping);
 
   void setErrorStatus(bool theErrorStatus);
 
   int nWords() const { return m_WordCounter; }
 
-  void interpretRawData( bool& errorsInEvent, int fedId,  const FEDRawData & data, Collection & digis, Errors & errors);
-
-
+  void interpretRawData(bool& errorsInEvent, int fedId, const FEDRawData& data, Collection& digis, Errors& errors);
 
 private:
-
-
   mutable int m_WordCounter;
 
   bool m_IncludeErrors;
@@ -81,14 +75,12 @@ private:
 
   int m_ADC_shift, m_PXID_shift, m_DCOL_shift, m_ROC_shift, m_LINK_shift;
   Word32 m_LINK_mask, m_ROC_mask, m_DCOL_mask, m_PXID_mask, m_ADC_mask;
-  
 
   int checkError(const Word32& data) const;
 
   std::string print(const Word64& word) const;
 
-  const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo> &m_Mapping;
-
+  const std::map<CTPPSPixelFramePosition, CTPPSPixelROCInfo>& m_Mapping;
 };
 
 #endif

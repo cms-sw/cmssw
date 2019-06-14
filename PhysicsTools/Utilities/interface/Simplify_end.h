@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_Utilities_Simplify_end_h
 #define PhysicsTools_Utilities_Simplify_end_h
 #undef PhysicsTools_Utilities_Simplify_begin_h
-#undef TYP0    
+#undef TYP0
 #undef TYPT1
 #undef TYPT2
 #undef TYPT3

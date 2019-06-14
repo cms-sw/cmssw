@@ -2,7 +2,7 @@
 //
 // Package:    BTagPerformaceRootProducerFromSQLITE
 // Class:      BTagPerformaceRootProducerFromSQLITE
-// 
+//
 /**\class BTagPerformaceRootProducerFromSQLITE BTagPerformaceRootProducerFromSQLITE.cc junk/BTagPerformaceRootProducerFromSQLITE/src/BTagPerformaceRootProducerFromSQLITE.cc
 
  Description: This writes out a ROOT file with a BtagPerformance object taken from an sqlite file. 
@@ -15,7 +15,6 @@
 //         Created:  Thu Feb 11 14:21:59 CST 2010
 //
 //
-
 
 // system include files
 #include <iostream>
@@ -44,25 +43,22 @@
 
 #include "CondFormats/PhysicsToolsObjects/interface/BinningPointByMap.h"
 
-
-
 //
 // class declaration
 //
 
 class BTagPerformaceRootProducerFromSQLITE : public edm::EDAnalyzer {
-   public:
-      explicit BTagPerformaceRootProducerFromSQLITE(const edm::ParameterSet&);
-      ~BTagPerformaceRootProducerFromSQLITE() override;
+public:
+  explicit BTagPerformaceRootProducerFromSQLITE(const edm::ParameterSet&);
+  ~BTagPerformaceRootProducerFromSQLITE() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-
-      // ----------member data ---------------------------
-  std::vector<std::string>  names_;
+  // ----------member data ---------------------------
+  std::vector<std::string> names_;
   edm::ESWatcher<BTagPerformanceRecord> recWatcher_;
   std::unique_ptr<fwlite::RecordWriter> writer_;
   edm::IOVSyncValue lastValue_;
@@ -79,62 +75,46 @@ class BTagPerformaceRootProducerFromSQLITE : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-BTagPerformaceRootProducerFromSQLITE::BTagPerformaceRootProducerFromSQLITE(const edm::ParameterSet& iConfig) :
-  names_(iConfig.getParameter< std::vector<std::string> >("names"))
-{
-}
+BTagPerformaceRootProducerFromSQLITE::BTagPerformaceRootProducerFromSQLITE(const edm::ParameterSet& iConfig)
+    : names_(iConfig.getParameter<std::vector<std::string> >("names")) {}
 
-
-BTagPerformaceRootProducerFromSQLITE::~BTagPerformaceRootProducerFromSQLITE()
-{
-}
-
+BTagPerformaceRootProducerFromSQLITE::~BTagPerformaceRootProducerFromSQLITE() {}
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-
+void BTagPerformaceRootProducerFromSQLITE::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << "Hello from BTagPerformaceRootProducerFromSQLITE!" << std::endl;
-  if(recWatcher_.check(iSetup)) {
+  if (recWatcher_.check(iSetup)) {
     const BTagPerformanceRecord& r = iSetup.get<BTagPerformanceRecord>();
 
-    if(! writer_.get()) {
-      edm::Service<TFileService> fs ;
-      TFile * f = &(fs->file());
-      writer_ = std::unique_ptr<fwlite::RecordWriter>(new fwlite::RecordWriter(r.key().name(), f ));
+    if (!writer_.get()) {
+      edm::Service<TFileService> fs;
+      TFile* f = &(fs->file());
+      writer_ = std::unique_ptr<fwlite::RecordWriter>(new fwlite::RecordWriter(r.key().name(), f));
     }
     lastValue_ = r.validityInterval().last();
 
-    for( size_t i=0;  i<names_.size(); i++ )
-    {
-       edm::ESHandle<BtagPerformance> perfH;
-       std::cout <<" Studying performance with label " << names_.at(i) <<std::endl;
-       r.get( names_.at(i), perfH );
-       const BtagPerformance & perf = *(perfH.product());
+    for (size_t i = 0; i < names_.size(); i++) {
+      edm::ESHandle<BtagPerformance> perfH;
+      std::cout << " Studying performance with label " << names_.at(i) << std::endl;
+      r.get(names_.at(i), perfH);
+      const BtagPerformance& perf = *(perfH.product());
 
-       writer_->update(&(perf.payload()), typeid(PerformancePayload),names_.at(i).c_str());
-       writer_->update(&(perf.workingPoint()), typeid(PerformanceWorkingPoint),names_.at(i).c_str());
+      writer_->update(&(perf.payload()), typeid(PerformancePayload), names_.at(i).c_str());
+      writer_->update(&(perf.workingPoint()), typeid(PerformanceWorkingPoint), names_.at(i).c_str());
     }
-    writer_->fill(edm::ESRecordAuxiliary(r.validityInterval().first().eventID(),
-                                      r.validityInterval().first().time()));
+    writer_->fill(edm::ESRecordAuxiliary(r.validityInterval().first().eventID(), r.validityInterval().first().time()));
   }
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
-void 
-BTagPerformaceRootProducerFromSQLITE::beginJob()
-{
-}
+void BTagPerformaceRootProducerFromSQLITE::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-BTagPerformaceRootProducerFromSQLITE::endJob() {
+void BTagPerformaceRootProducerFromSQLITE::endJob() {
   /*if(writer_.get()) {
     writer_->fill(edm::ESRecordAuxiliary(lastValue_.eventID(),
                                          lastValue_.time()));

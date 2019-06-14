@@ -18,7 +18,6 @@ Original Author: John Paul Chou (Brown University)
                  Thursday, September 2, 2010
 */
 
-
 // system include files
 #include <memory>
 #include <string>
@@ -57,9 +56,8 @@ class EcalSeverityLevelAlgo;
 // hit/track validation algorithms.
 //////////////////////////////////////////////////////////////////////////////
 
-class ObjectValidatorAbs
-{
- public:
+class ObjectValidatorAbs {
+public:
   ObjectValidatorAbs() {}
   virtual ~ObjectValidatorAbs() {}
 
@@ -68,67 +66,73 @@ class ObjectValidatorAbs
   virtual bool validTrack(const reco::Track&) const = 0;
 };
 
-class ObjectValidator : public ObjectValidatorAbs
-{
- public:
+class ObjectValidator : public ObjectValidatorAbs {
+public:
   explicit ObjectValidator(const edm::ParameterSet&);
-  ObjectValidator(double HBThreshold, double HESThreshold, double HEDThreshold, double EBThreshold, double EEThreshold,
-		  uint32_t HcalAcceptSeverityLevel, uint32_t EcalAcceptSeverityLevel, bool UseHcalRecoveredHits, bool UseEcalRecoveredHits,
-		  double MinValidTrackPt, double MinValidTrackPtBarrel, int MinValidTrackNHits) :
-    HBThreshold_(HBThreshold),
-    HESThreshold_(HESThreshold),
-    HEDThreshold_(HEDThreshold),
-    EBThreshold_(EBThreshold),
-    EEThreshold_(EEThreshold),
-    HcalAcceptSeverityLevel_(HcalAcceptSeverityLevel),
-    EcalAcceptSeverityLevel_(EcalAcceptSeverityLevel),
-    UseHcalRecoveredHits_(UseHcalRecoveredHits),
-    UseEcalRecoveredHits_(UseEcalRecoveredHits),
-    MinValidTrackPt_(MinValidTrackPt),
-    MinValidTrackPtBarrel_(MinValidTrackPtBarrel),
-    MinValidTrackNHits_(MinValidTrackNHits),
-    theHcalChStatus_(nullptr),
-    theEcalChStatus_(nullptr),
-    theHcalSevLvlComputer_(nullptr),
-    theEcalSevLvlAlgo_(nullptr),
-    theEBRecHitCollection_(nullptr),
-    theEERecHitCollection_(nullptr) {}
+  ObjectValidator(double HBThreshold,
+                  double HESThreshold,
+                  double HEDThreshold,
+                  double EBThreshold,
+                  double EEThreshold,
+                  uint32_t HcalAcceptSeverityLevel,
+                  uint32_t EcalAcceptSeverityLevel,
+                  bool UseHcalRecoveredHits,
+                  bool UseEcalRecoveredHits,
+                  double MinValidTrackPt,
+                  double MinValidTrackPtBarrel,
+                  int MinValidTrackNHits)
+      : HBThreshold_(HBThreshold),
+        HESThreshold_(HESThreshold),
+        HEDThreshold_(HEDThreshold),
+        EBThreshold_(EBThreshold),
+        EEThreshold_(EEThreshold),
+        HcalAcceptSeverityLevel_(HcalAcceptSeverityLevel),
+        EcalAcceptSeverityLevel_(EcalAcceptSeverityLevel),
+        UseHcalRecoveredHits_(UseHcalRecoveredHits),
+        UseEcalRecoveredHits_(UseEcalRecoveredHits),
+        MinValidTrackPt_(MinValidTrackPt),
+        MinValidTrackPtBarrel_(MinValidTrackPtBarrel),
+        MinValidTrackNHits_(MinValidTrackNHits),
+        theHcalChStatus_(nullptr),
+        theEcalChStatus_(nullptr),
+        theHcalSevLvlComputer_(nullptr),
+        theEcalSevLvlAlgo_(nullptr),
+        theEBRecHitCollection_(nullptr),
+        theEERecHitCollection_(nullptr) {}
   ~ObjectValidator() override;
-  
-  inline void setHcalChannelQuality(const HcalChannelQuality* q) { theHcalChStatus_=q; }
-  inline void setEcalChannelStatus(const EcalChannelStatus* q) { theEcalChStatus_=q; }
-  inline void setHcalSeverityLevelComputer(const HcalSeverityLevelComputer* q) { theHcalSevLvlComputer_=q; }
-  inline void setEcalSeverityLevelAlgo(const EcalSeverityLevelAlgo* q) { theEcalSevLvlAlgo_=q; }
-  inline void setEBRecHitCollection(const EcalRecHitCollection* q) { theEBRecHitCollection_=q; }
-  inline void setEERecHitCollection(const EcalRecHitCollection* q) { theEERecHitCollection_=q; }
 
+  inline void setHcalChannelQuality(const HcalChannelQuality* q) { theHcalChStatus_ = q; }
+  inline void setEcalChannelStatus(const EcalChannelStatus* q) { theEcalChStatus_ = q; }
+  inline void setHcalSeverityLevelComputer(const HcalSeverityLevelComputer* q) { theHcalSevLvlComputer_ = q; }
+  inline void setEcalSeverityLevelAlgo(const EcalSeverityLevelAlgo* q) { theEcalSevLvlAlgo_ = q; }
+  inline void setEBRecHitCollection(const EcalRecHitCollection* q) { theEBRecHitCollection_ = q; }
+  inline void setEERecHitCollection(const EcalRecHitCollection* q) { theEERecHitCollection_ = q; }
 
   bool validHit(const HBHERecHit&) const override;
   bool validHit(const EcalRecHit&) const override;
   bool validTrack(const reco::Track&) const override;
 
- private:
+private:
+  double HBThreshold_;   // energy threshold for HB hits
+  double HESThreshold_;  // energy threshold for 5-degree (phi) HE hits
+  double HEDThreshold_;  // energy threshold for 10-degree (phi) HE hits
+  double EBThreshold_;   // energy threshold for EB hits
+  double EEThreshold_;   // energy threshold for EE hits
 
-  double HBThreshold_;  // energy threshold for HB hits
-  double HESThreshold_; // energy threshold for 5-degree (phi) HE hits
-  double HEDThreshold_; // energy threshold for 10-degree (phi) HE hits
-  double EBThreshold_;  // energy threshold for EB hits
-  double EEThreshold_;  // energy threshold for EE hits
+  uint32_t HcalAcceptSeverityLevel_;  // severity level to accept HCAL hits
+  uint32_t EcalAcceptSeverityLevel_;  // severity level to accept ECAL hits
+  bool UseHcalRecoveredHits_;         // whether or not to use recovered HCAL hits
+  bool UseEcalRecoveredHits_;         // whether or not to use recovered HCAL hits
+  bool UseAllCombinedRechits_;        // whether to use all "Plan 1" combined rechits
 
-  uint32_t HcalAcceptSeverityLevel_; // severity level to accept HCAL hits
-  uint32_t EcalAcceptSeverityLevel_; // severity level to accept ECAL hits
-  bool UseHcalRecoveredHits_;  // whether or not to use recovered HCAL hits
-  bool UseEcalRecoveredHits_;  // whether or not to use recovered HCAL hits
-  bool UseAllCombinedRechits_; // whether to use all "Plan 1" combined rechits
+  double MinValidTrackPt_;        // minimum valid track pT
+  double MinValidTrackPtBarrel_;  // minimum valid track pT in the Barrel
+  int MinValidTrackNHits_;        // minimum number of hits needed for a valid track
 
-  double MinValidTrackPt_; // minimum valid track pT
-  double MinValidTrackPtBarrel_; // minimum valid track pT in the Barrel
-  int MinValidTrackNHits_; // minimum number of hits needed for a valid track
-  
-  // for checking the status of ECAL and HCAL channels stored in the DB 
+  // for checking the status of ECAL and HCAL channels stored in the DB
   const HcalChannelQuality* theHcalChStatus_;
   const EcalChannelStatus* theEcalChStatus_;
-  
+
   // calculator of severety level for ECAL and HCAL
   const HcalSeverityLevelComputer* theHcalSevLvlComputer_;
   const EcalSeverityLevelAlgo* theEcalSevLvlAlgo_;
@@ -137,7 +141,6 @@ class ObjectValidator : public ObjectValidatorAbs
   const EcalRecHitCollection* theEBRecHitCollection_;
   const EcalRecHitCollection* theEERecHitCollection_;
 };
-
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -165,35 +168,33 @@ struct PhysicsTower {
 //////////////////////////////////////////////////////////////////////////////
 
 class PhysicsTowerOrganizer {
- public:
+public:
   struct towercmp {
-    bool operator() (const PhysicsTower& lhs, const PhysicsTower& rhs) const {
-      return (lhs.id < rhs.id);
-    }
+    bool operator()(const PhysicsTower& lhs, const PhysicsTower& rhs) const { return (lhs.id < rhs.id); }
   };
 
   PhysicsTowerOrganizer(const edm::Event& iEvent,
-			const edm::EventSetup& evSetup,
-			const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
-			const edm::Handle<EcalRecHitCollection>& ebhitcoll_h,
-			const edm::Handle<EcalRecHitCollection>& eehitcoll_h,
-			const edm::Handle<std::vector<reco::TrackExtrapolation> >& trackextrapcoll_h,
-			const ObjectValidatorAbs& objectvalidator,
-			const CaloTowerConstituentsMap& ctcm);
+                        const edm::EventSetup& evSetup,
+                        const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
+                        const edm::Handle<EcalRecHitCollection>& ebhitcoll_h,
+                        const edm::Handle<EcalRecHitCollection>& eehitcoll_h,
+                        const edm::Handle<std::vector<reco::TrackExtrapolation> >& trackextrapcoll_h,
+                        const ObjectValidatorAbs& objectvalidator,
+                        const CaloTowerConstituentsMap& ctcm);
 
   virtual ~PhysicsTowerOrganizer() {}
 
   // find a PhysicsTower by some coordinate
   inline const PhysicsTower* findTower(const CaloTowerDetId& id) const;
   inline const PhysicsTower* findTower(int ieta, int iphi) const;
-  
+
   // get the neighbors +/- 1 in eta-space or +/- 1 in phi-space
   // (accounts for change in phi-segmentation starting with eta=21)
   void findNeighbors(const CaloTowerDetId& id, std::set<const PhysicsTower*>& neighbors) const;
   void findNeighbors(const PhysicsTower* twr, std::set<const PhysicsTower*>& neighbors) const;
-  void findNeighbors(int ieta, int iphi, std::set<const PhysicsTower*>& neighbors) const;  
+  void findNeighbors(int ieta, int iphi, std::set<const PhysicsTower*>& neighbors) const;
 
- private:
+private:
   // the non-const, private version of findTower()
   PhysicsTower* findTower(const CaloTowerDetId& id);
   PhysicsTower* findTower(int ieta, int iphi);
@@ -203,7 +204,6 @@ class PhysicsTowerOrganizer {
   void insert_(CaloTowerDetId& id, const reco::Track* hit);
 
   std::set<PhysicsTower, towercmp> towers_;
-  
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -219,11 +219,8 @@ class PhysicsTowerOrganizer {
 // used with care.
 //////////////////////////////////////////////////////////////////////////////
 
-
 class HBHEHitMap {
-
- public:
-
+public:
   typedef std::map<const HBHERecHit*, const PhysicsTower*>::const_iterator hitmap_const_iterator;
   typedef std::set<const PhysicsTower*>::const_iterator neighbor_const_iterator;
 
@@ -289,7 +286,7 @@ class HBHEHitMap {
   inline neighbor_const_iterator beginNeighbors(void) const { return neighbors_.begin(); }
   inline neighbor_const_iterator endNeighbors(void) const { return neighbors_.end(); }
 
- private:
+private:
   std::map<const HBHERecHit*, const PhysicsTower*> hits_;
   std::set<const PhysicsTower*> neighbors_;
 
@@ -321,7 +318,6 @@ class HBHEHitMap {
   void calcTracksNeighborTowers_(void) const;
   mutable double trackEnergyNeighborTowers_;
   mutable int nTracksNeighborTowers_;
-
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -331,13 +327,12 @@ class HBHEHitMap {
 // Organizers the HBHEHitMaps into RBXs, HPDs, dihits, and monohits
 //////////////////////////////////////////////////////////////////////////////
 
-class HBHEHitMapOrganizer
-{
- public:
+class HBHEHitMapOrganizer {
+public:
   HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>& hbhehitcoll_h,
-		      const ObjectValidatorAbs& objvalidator,
-		      const PhysicsTowerOrganizer& pto,
-		      const HcalFrontEndMap* hfemap);
+                      const ObjectValidatorAbs& objvalidator,
+                      const PhysicsTowerOrganizer& pto,
+                      const HcalFrontEndMap* hfemap);
 
   virtual ~HBHEHitMapOrganizer() {}
 
@@ -346,17 +341,16 @@ class HBHEHitMapOrganizer
   void getDiHits(std::vector<HBHEHitMap>& v, double energy) const;
   void getMonoHits(std::vector<HBHEHitMap>& v, double energy) const;
 
- private:
-  
-  const HcalFrontEndMap*    hfemap_;
+private:
+  const HcalFrontEndMap* hfemap_;
   std::map<int, HBHEHitMap> rbxs_, hpds_;
   std::vector<HBHEHitMap> dihits_, monohits_;
 
   // helper functions
   // finds all of the hits which are neighbors and in the same HPD as the reference hit
-  void getHPDNeighbors(const HBHERecHit* hit, std::vector<const HBHERecHit*>& neighbors, const PhysicsTowerOrganizer& pto);
-
+  void getHPDNeighbors(const HBHERecHit* hit,
+                       std::vector<const HBHERecHit*>& neighbors,
+                       const PhysicsTowerOrganizer& pto);
 };
-
 
 #endif

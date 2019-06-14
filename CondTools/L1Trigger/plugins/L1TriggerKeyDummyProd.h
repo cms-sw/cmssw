@@ -4,7 +4,7 @@
 //
 // Package:     L1Trigger
 // Class  :     L1TriggerKeyDummyProd
-// 
+//
 /**\class L1TriggerKeyDummyProd L1TriggerKeyDummyProd.h CondTools/L1Trigger/interface/L1TriggerKeyDummyProd.h
 
  Description: <one line class summary>
@@ -34,17 +34,17 @@
 // forward declarations
 
 class L1TriggerKeyDummyProd : public edm::ESProducer {
-   public:
-      L1TriggerKeyDummyProd(const edm::ParameterSet&);
-      ~L1TriggerKeyDummyProd() override;
+public:
+  L1TriggerKeyDummyProd(const edm::ParameterSet&);
+  ~L1TriggerKeyDummyProd() override;
 
-      typedef std::unique_ptr<L1TriggerKey> ReturnType;
+  typedef std::unique_ptr<L1TriggerKey> ReturnType;
 
-      ReturnType produce(const L1TriggerKeyRcd&);
-   private:
-      // ----------member data ---------------------------
-      L1TriggerKey m_key ;
+  ReturnType produce(const L1TriggerKeyRcd&);
+
+private:
+  // ----------member data ---------------------------
+  L1TriggerKey m_key;
 };
-
 
 #endif

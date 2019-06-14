@@ -25,7 +25,7 @@
 */
 
 class SiStripDigiValidator : public edm::EDAnalyzer {
- public:
+public:
   SiStripDigiValidator(const edm::ParameterSet& config);
   ~SiStripDigiValidator();
 
@@ -37,11 +37,10 @@ class SiStripDigiValidator : public edm::EDAnalyzer {
   void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
   void validate(const edm::DetSetVector<SiStripRawDigi>&, const edm::DetSetVector<SiStripDigi>&);
   void validate(const edm::DetSetVector<SiStripRawDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
-  
- private:
 
+private:
   inline const std::string& header() { return header_; }
-  
+
   //Input collections
   edm::InputTag tag1_;
   edm::InputTag tag2_;
@@ -51,7 +50,6 @@ class SiStripDigiValidator : public edm::EDAnalyzer {
   bool errors_;
 
   std::string header_;
-
 };
 
-#endif //  EventFilter_SiStripRawToDigi_SiStripDigiValidator_H
+#endif  //  EventFilter_SiStripRawToDigi_SiStripDigiValidator_H

@@ -2,7 +2,7 @@
 //
 // Package:     RPCObjects
 // Class  :     L1RPCConfig
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -16,7 +16,6 @@
 // user include files
 #include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -28,16 +27,9 @@
 //
 // constructors and destructor
 //
-L1RPCConfig::L1RPCConfig()
-{
- m_ppt = -1;
-}
+L1RPCConfig::L1RPCConfig() { m_ppt = -1; }
 
-
-L1RPCConfig::~L1RPCConfig()
-{
-}
-
+L1RPCConfig::~L1RPCConfig() {}
 
 //void L1RPCConfig::setDataDir(const std::string &dir){
 

@@ -25,7 +25,6 @@
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/Serialization/interface/eos/portable_iarchive.hpp"
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionBuffer.h"
@@ -35,19 +34,21 @@ class BufferedBoostIOESProducer : public edm::ESProducer {
 public:
   typedef std::unique_ptr<DataType> ReturnType;
 
-  inline BufferedBoostIOESProducer(const edm::ParameterSet&) { setWhatProduced(this); }
+  inline BufferedBoostIOESProducer(const edm::ParameterSet&) { setWhatProduced(this).setConsumes(token_); }
 
   inline ~BufferedBoostIOESProducer() override {}
 
   ReturnType produce(const MyRecord&);
+
+private:
+  edm::ESGetToken<OOTPileupCorrectionBuffer, MyRecord> token_;
 };
 
 template <class DataType, class MyRecord>
 typename BufferedBoostIOESProducer<DataType, MyRecord>::ReturnType
 BufferedBoostIOESProducer<DataType, MyRecord>::produce(const MyRecord& iRecord) {
-  edm::ESHandle<OOTPileupCorrectionBuffer> handle;
-  iRecord.get(handle);
-  std::istringstream is(handle->str());
+  const auto& buffer = iRecord.get(token_);
+  std::istringstream is(buffer.str());
   eos::portable_iarchive ar(is);
   auto ret = std::make_unique<DataType>();
   ar&* ret;

@@ -12,24 +12,16 @@
  */
 
 class GsfMultipleScatteringUpdator final : public GsfMaterialEffectsUpdator {
-
 public:
-
   /// constructor with explicit mass
-  GsfMultipleScatteringUpdator(float mass) :
-    GsfMaterialEffectsUpdator(mass,2) {}
-  
-  GsfMultipleScatteringUpdator* clone() const override
-  {
-    return new GsfMultipleScatteringUpdator(*this);
-  }
-  
+  GsfMultipleScatteringUpdator(float mass) : GsfMaterialEffectsUpdator(mass, 2) {}
+
+  GsfMultipleScatteringUpdator* clone() const override { return new GsfMultipleScatteringUpdator(*this); }
+
   /// Computation: generates vectors of weights, means and standard deviations
-  void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
+  void compute(const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const override;
 
-  virtual size_t size() const { return 2;}
-  
-
+  virtual size_t size() const { return 2; }
 };
 
 #endif

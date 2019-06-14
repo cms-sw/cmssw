@@ -15,28 +15,34 @@
 
 #include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
 
-class FWL1EtMissParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>
-{
+class FWL1EtMissParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle> {
 public:
-   FWL1EtMissParticleProxyBuilder( void ) {}
-   ~FWL1EtMissParticleProxyBuilder( void ) override {}
+  FWL1EtMissParticleProxyBuilder(void) {}
+  ~FWL1EtMissParticleProxyBuilder(void) override {}
 
-   REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWL1EtMissParticleProxyBuilder( const FWL1EtMissParticleProxyBuilder& ) = delete;    // stop default
-   const FWL1EtMissParticleProxyBuilder& operator=( const FWL1EtMissParticleProxyBuilder& ) = delete;    // stop default
-  
-   using FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>::build;
-   void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
+  FWL1EtMissParticleProxyBuilder(const FWL1EtMissParticleProxyBuilder&) = delete;                   // stop default
+  const FWL1EtMissParticleProxyBuilder& operator=(const FWL1EtMissParticleProxyBuilder&) = delete;  // stop default
+
+  using FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>::build;
+  void build(const l1extra::L1EtMissParticle& iData,
+             unsigned int iIndex,
+             TEveElement& oItemHolder,
+             const FWViewContext*) override;
 };
 
-void
-FWL1EtMissParticleProxyBuilder::build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* ) 
-{
-   double scale = 10;
+void FWL1EtMissParticleProxyBuilder::build(const l1extra::L1EtMissParticle& iData,
+                                           unsigned int iIndex,
+                                           TEveElement& oItemHolder,
+                                           const FWViewContext*) {
+  double scale = 10;
 
-   fireworks::addDashedLine( iData.phi(), iData.theta(), iData.pt() * scale, &oItemHolder, this );
+  fireworks::addDashedLine(iData.phi(), iData.theta(), iData.pt() * scale, &oItemHolder, this);
 }
 
-REGISTER_FWPROXYBUILDER( FWL1EtMissParticleProxyBuilder, l1extra::L1EtMissParticle, "L1EtMissParticle", FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWL1EtMissParticleProxyBuilder,
+                        l1extra::L1EtMissParticle,
+                        "L1EtMissParticle",
+                        FWViewType::kAllRPZBits);

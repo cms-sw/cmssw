@@ -10,7 +10,6 @@
 #include "RecoLocalTracker/SiStripClusterizer/test/ClusterizerUnitTesterESProducer.h"
 #include "RecoLocalTracker/SiStripClusterizer/test/ClusterRefinerTagMCmerged.h"
 
-
 DEFINE_FWK_MODULE(CompareClusters);
 DEFINE_FWK_MODULE(ClusterizerUnitTester);
 DEFINE_FWK_MODULE(StripByStripTestDriver);

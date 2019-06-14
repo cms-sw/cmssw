@@ -41,33 +41,31 @@
 #include "RecoMuon/GlobalTrackingTools/interface/ThrParameters.h"
 #include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"
 
-namespace dyt_utils{
-  enum class etaRegion {eta0p8, eta1p2, eta2p0, eta2p2, eta2p4};
+namespace dyt_utils {
+  enum class etaRegion { eta0p8, eta1p2, eta2p0, eta2p2, eta2p4 };
 };
 
 class DynamicTruncation {
-  
- public:
-
+public:
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DynamicTruncation(const edm::Event&, const MuonServiceProxy&);
+  DynamicTruncation(const edm::Event &, const MuonServiceProxy &);
 
   ~DynamicTruncation();
 
-  void setProd(const edm::Handle<DTRecSegment4DCollection>& DTSegProd, 
-	       const edm::Handle<CSCSegmentCollection>& CSCSegProd) {
+  void setProd(const edm::Handle<DTRecSegment4DCollection> &DTSegProd,
+               const edm::Handle<CSCSegmentCollection> &CSCSegProd) {
     getSegs->initCSU(DTSegProd, CSCSegProd);
   }
 
   void setSelector(int);
-  void setThr(const std::vector<int>&);
+  void setThr(const std::vector<int> &);
   void setUpdateState(bool);
   void setUseAPE(bool);
   /*---- DyT v2-----*/
-  void setThrsMap(const edm::ParameterSet&);
-  void setParThrsMode(bool dytParThrsMode) { useParametrizedThr = dytParThrsMode;}
+  void setThrsMap(const edm::ParameterSet &);
+  void setParThrsMode(bool dytParThrsMode) { useParametrizedThr = dytParThrsMode; }
   void setRecoP(double p) { p_reco = p; }
   void setRecoEta(double eta) {
     eta_reco = eta;
@@ -75,9 +73,9 @@ class DynamicTruncation {
   }
 
   // Return the vector with the tracker plus the selected muon hits
-  TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&);
+  TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory &);
 
-  // Return the DYTInfo object 
+  // Return the DYTInfo object
   reco::DYTInfo getDYTInfo() {
     dytInfo.setNStUsed(nStationsUsed);
     dytInfo.setDYTEstimators(estimatorMap);
@@ -86,27 +84,42 @@ class DynamicTruncation {
     return dytInfo;
   }
 
- private:
-
-  void                 compatibleDets(TrajectoryStateOnSurface&, std::map<int, std::vector<DetId> >&);
-  void                 filteringAlgo();
-  void                 fillSegmentMaps(std::map<int, std::vector<DetId> >&, std::map<int, std::vector<DTRecSegment4D> >&, std::map<int, std::vector<CSCSegment> >&);
-  void                 preliminaryFit(std::map<int, std::vector<DetId> >, std::map<int, std::vector<DTRecSegment4D> >, std::map<int, std::vector<CSCSegment> >);
-  bool                 chooseLayers(int&, double const &, DTRecSegment4D const &, TrajectoryStateOnSurface const &, double const &, CSCSegment const &, TrajectoryStateOnSurface const &);
-  void                 fillDYTInfos(int const&, bool const&, int&, double const&, double const&, DTRecSegment4D const&, CSCSegment const&);
-  int                  stationfromDet(DetId const&);
-  void                 update(TrajectoryStateOnSurface&, ConstRecHitPointer);
-  void                 updateWithDThits(TrajectoryStateOnSurface&, DTRecSegment4D const &);
-  void                 updateWithCSChits(TrajectoryStateOnSurface&, CSCSegment const &);
-  void                 getThresholdFromDB(double&, DetId const&);
-  void                 correctThrByPAndEta(double&);
-  void                 getThresholdFromCFG(double&, DetId const&);
-  void                 testDTstation(TrajectoryStateOnSurface&, std::vector<DTRecSegment4D> const &, double&, DTRecSegment4D&, TrajectoryStateOnSurface&);
-  void                 testCSCstation(TrajectoryStateOnSurface&, std::vector<CSCSegment> const &, double&, CSCSegment&, TrajectoryStateOnSurface&);
-  void                 useSegment(DTRecSegment4D const &, TrajectoryStateOnSurface const &);
-  void                 useSegment(CSCSegment const &, TrajectoryStateOnSurface const &);
-  void                 sort(ConstRecHitContainer&);
-  void                 setEtaRegion();
+private:
+  void compatibleDets(TrajectoryStateOnSurface &, std::map<int, std::vector<DetId>> &);
+  void filteringAlgo();
+  void fillSegmentMaps(std::map<int, std::vector<DetId>> &,
+                       std::map<int, std::vector<DTRecSegment4D>> &,
+                       std::map<int, std::vector<CSCSegment>> &);
+  void preliminaryFit(std::map<int, std::vector<DetId>>,
+                      std::map<int, std::vector<DTRecSegment4D>>,
+                      std::map<int, std::vector<CSCSegment>>);
+  bool chooseLayers(int &,
+                    double const &,
+                    DTRecSegment4D const &,
+                    TrajectoryStateOnSurface const &,
+                    double const &,
+                    CSCSegment const &,
+                    TrajectoryStateOnSurface const &);
+  void fillDYTInfos(
+      int const &, bool const &, int &, double const &, double const &, DTRecSegment4D const &, CSCSegment const &);
+  int stationfromDet(DetId const &);
+  void update(TrajectoryStateOnSurface &, ConstRecHitPointer);
+  void updateWithDThits(TrajectoryStateOnSurface &, DTRecSegment4D const &);
+  void updateWithCSChits(TrajectoryStateOnSurface &, CSCSegment const &);
+  void getThresholdFromDB(double &, DetId const &);
+  void correctThrByPAndEta(double &);
+  void getThresholdFromCFG(double &, DetId const &);
+  void testDTstation(TrajectoryStateOnSurface &,
+                     std::vector<DTRecSegment4D> const &,
+                     double &,
+                     DTRecSegment4D &,
+                     TrajectoryStateOnSurface &);
+  void testCSCstation(
+      TrajectoryStateOnSurface &, std::vector<CSCSegment> const &, double &, CSCSegment &, TrajectoryStateOnSurface &);
+  void useSegment(DTRecSegment4D const &, TrajectoryStateOnSurface const &);
+  void useSegment(CSCSegment const &, TrajectoryStateOnSurface const &);
+  void sort(ConstRecHitContainer &);
+  void setEtaRegion();
 
   ConstRecHitContainer result, prelFitMeas;
   bool useAPE;
@@ -132,9 +145,9 @@ class DynamicTruncation {
   std::map<DTChamberId, GlobalError> dtApeMap;
   std::map<CSCDetId, GlobalError> cscApeMap;
   double muonPTest, muonETAest;
-  const DYTThrObject* dytThresholds;
-  ChamberSegmentUtility* getSegs;
-  ThrParameters* thrManager;
+  const DYTThrObject *dytThresholds;
+  ChamberSegmentUtility *getSegs;
+  ThrParameters *thrManager;
   bool useDBforThr;
   bool doUpdateOfKFStates;
   /* Variables for v2 */

@@ -4,7 +4,7 @@
 //
 // Package:     JetMETCorrections/JetCorrector
 // Class  :     JetCorrectorImpl
-// 
+//
 /**\class reco::JetCorrectorImpl JetCorrectorImpl.h "JetMETCorrections/JetCorrector/interface/JetCorrectorImpl.h"
 
  Description: [one line class summary]
@@ -28,49 +28,45 @@
 
 namespace reco {
 
-  class JetCorrectorImpl
-  {
-    
+  class JetCorrectorImpl {
   public:
     JetCorrectorImpl();
     virtual ~JetCorrectorImpl();
-    
+
     typedef reco::Particle::LorentzVector LorentzVector;
 
     // ---------- const member functions ---------------------
     /// get correction using Jet information only
-    virtual double correction (const LorentzVector& fJet) const = 0;
+    virtual double correction(const LorentzVector& fJet) const = 0;
 
     /// apply correction using Jet information only
-    virtual double correction (const reco::Jet& fJet) const = 0;
+    virtual double correction(const reco::Jet& fJet) const = 0;
 
     /// apply correction using Ref
-    virtual double correction (const reco::Jet& fJet,
-			       const edm::RefToBase<reco::Jet>& fJetRef) const ;
+    virtual double correction(const reco::Jet& fJet, const edm::RefToBase<reco::Jet>& fJetRef) const;
 
     /// Apply vectorial correction
-    virtual double correction ( const reco::Jet& fJet, 
-				const edm::RefToBase<reco::Jet>& fJetRef,
-				LorentzVector& corrected ) const ;
-    
+    virtual double correction(const reco::Jet& fJet,
+                              const edm::RefToBase<reco::Jet>& fJetRef,
+                              LorentzVector& corrected) const;
+
     /// if correction needs the jet reference
-    virtual bool refRequired () const = 0;
-  
+    virtual bool refRequired() const = 0;
+
     /// if vectorial correction is provided
-    virtual bool vectorialCorrection () const ;
-    
+    virtual bool vectorialCorrection() const;
+
     // ---------- static member functions --------------------
-    
+
     // ---------- member functions ---------------------------
-    
+
   private:
     JetCorrectorImpl(const JetCorrectorImpl&) = delete;
-    
+
     const JetCorrectorImpl& operator=(const JetCorrectorImpl&) = delete;
-    
+
     // ---------- member data --------------------------------
-    
   };
-}
+}  // namespace reco
 
 #endif

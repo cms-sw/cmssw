@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -30,33 +29,28 @@
 #include <vector>
 #include <utility>
 
-template <class Key, class Content> class DTBufferTree;
+template <class Key, class Content>
+class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTPerformanceId {
-
- public:
-
+public:
   DTPerformanceId();
   ~DTPerformanceId();
 
-  int   wheelId;
+  int wheelId;
   int stationId;
-  int  sectorId;
-  int      slId;
+  int sectorId;
+  int slId;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTPerformanceData {
-
- public:
-
+public:
   DTPerformanceData();
   ~DTPerformanceData();
 
@@ -68,19 +62,15 @@ class DTPerformanceData {
   float meanResolution;
   float meanEfficiency;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTPerformance {
-
- public:
-
+public:
   /** Constructor
    */
   DTPerformance();
-  DTPerformance( const std::string& version );
+  DTPerformance(const std::string& version);
 
   /** Destructor
    */
@@ -89,139 +79,152 @@ class DTPerformance {
   /** Operations
    */
   /// get content
-  int slPerformance( int   wheelId,
-                     int stationId,
-                     int  sectorId,
-                     int      slId,
-                     float& meanT0,
-                     float& meanTtrig,
-                     float& meanMtime,
-                     float& meanNoise,
-                     float& meanAfterPulse,
-                     float& meanResolution,
-                     float& meanEfficiency,
-                     DTTimeUnits::type unit ) const
-      { return get( wheelId, stationId, sectorId, slId,
-                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse, 
-                    meanResolution, meanEfficiency, unit ); };
-  int slPerformance( const DTSuperLayerId& id,
-                     float& meanT0,
-                     float& meanTtrig,
-                     float& meanMtime,
-                     float& meanNoise,
-                     float& meanAfterPulse,
-                     float& meanResolution,
-                     float& meanEfficiency,
-                     DTTimeUnits::type unit ) const
-      { return get( id,
-                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse,
-                    meanResolution, meanEfficiency, unit ); };
-  int get( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           float& meanT0,
-           float& meanTtrig,
-           float& meanMtime,
-           float& meanNoise,
-           float& meanAfterPulse,
-           float& meanResolution,
-           float& meanEfficiency,
-           DTTimeUnits::type unit ) const;
-  int get( const DTSuperLayerId& id,
-           float& meanT0,
-           float& meanTtrig,
-           float& meanMtime,
-           float& meanNoise,
-           float& meanAfterPulse,
-           float& meanResolution,
-           float& meanEfficiency,
-           DTTimeUnits::type unit ) const;
+  int slPerformance(int wheelId,
+                    int stationId,
+                    int sectorId,
+                    int slId,
+                    float& meanT0,
+                    float& meanTtrig,
+                    float& meanMtime,
+                    float& meanNoise,
+                    float& meanAfterPulse,
+                    float& meanResolution,
+                    float& meanEfficiency,
+                    DTTimeUnits::type unit) const {
+    return get(wheelId,
+               stationId,
+               sectorId,
+               slId,
+               meanT0,
+               meanTtrig,
+               meanMtime,
+               meanNoise,
+               meanAfterPulse,
+               meanResolution,
+               meanEfficiency,
+               unit);
+  };
+  int slPerformance(const DTSuperLayerId& id,
+                    float& meanT0,
+                    float& meanTtrig,
+                    float& meanMtime,
+                    float& meanNoise,
+                    float& meanAfterPulse,
+                    float& meanResolution,
+                    float& meanEfficiency,
+                    DTTimeUnits::type unit) const {
+    return get(id, meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse, meanResolution, meanEfficiency, unit);
+  };
+  int get(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          float& meanT0,
+          float& meanTtrig,
+          float& meanMtime,
+          float& meanNoise,
+          float& meanAfterPulse,
+          float& meanResolution,
+          float& meanEfficiency,
+          DTTimeUnits::type unit) const;
+  int get(const DTSuperLayerId& id,
+          float& meanT0,
+          float& meanTtrig,
+          float& meanMtime,
+          float& meanNoise,
+          float& meanAfterPulse,
+          float& meanResolution,
+          float& meanEfficiency,
+          DTTimeUnits::type unit) const;
   float unit() const;
 
   /// access version
-  const
-  std::string& version() const;
+  const std::string& version() const;
   std::string& version();
 
   /// reset content
   void clear();
 
-  int setSLPerformance( int   wheelId,
-                        int stationId,
-                        int  sectorId,
-                        int      slId,
-                        float meanT0,
-                        float meanTtrig,
-                        float meanMtime,
-                        float meanNoise,
-                        float meanAfterPulse,
-                        float meanResolution,
-                        float meanEfficiency,
-                        DTTimeUnits::type unit )
-      { return set( wheelId, stationId, sectorId, slId,
-                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse,
-                    meanResolution, meanEfficiency, unit ); };
-  int setSLPerformance( const DTSuperLayerId& id,
-                        float meanT0,
-                        float meanTtrig,
-                        float meanMtime,
-                        float meanNoise,
-                        float meanAfterPulse,
-                        float meanResolution,
-                        float meanEfficiency,
-                        DTTimeUnits::type unit )
-      { return set( id,
-                    meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse,
-                    meanResolution, meanEfficiency, unit ); };
-  int set( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           float meanT0,
-           float meanTtrig,
-           float meanMtime,
-           float meanNoise,
-           float meanAfterPulse,
-           float meanResolution,
-           float meanEfficiency,
-           DTTimeUnits::type unit );
-  int set( const DTSuperLayerId& id,
-           float meanT0,
-           float meanTtrig,
-           float meanMtime,
-           float meanNoise,
-           float meanAfterPulse,
-           float meanResolution,
-           float meanEfficiency,
-           DTTimeUnits::type unit );
-  void setUnit( float unit );
+  int setSLPerformance(int wheelId,
+                       int stationId,
+                       int sectorId,
+                       int slId,
+                       float meanT0,
+                       float meanTtrig,
+                       float meanMtime,
+                       float meanNoise,
+                       float meanAfterPulse,
+                       float meanResolution,
+                       float meanEfficiency,
+                       DTTimeUnits::type unit) {
+    return set(wheelId,
+               stationId,
+               sectorId,
+               slId,
+               meanT0,
+               meanTtrig,
+               meanMtime,
+               meanNoise,
+               meanAfterPulse,
+               meanResolution,
+               meanEfficiency,
+               unit);
+  };
+  int setSLPerformance(const DTSuperLayerId& id,
+                       float meanT0,
+                       float meanTtrig,
+                       float meanMtime,
+                       float meanNoise,
+                       float meanAfterPulse,
+                       float meanResolution,
+                       float meanEfficiency,
+                       DTTimeUnits::type unit) {
+    return set(id, meanT0, meanTtrig, meanMtime, meanNoise, meanAfterPulse, meanResolution, meanEfficiency, unit);
+  };
+  int set(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          float meanT0,
+          float meanTtrig,
+          float meanMtime,
+          float meanNoise,
+          float meanAfterPulse,
+          float meanResolution,
+          float meanEfficiency,
+          DTTimeUnits::type unit);
+  int set(const DTSuperLayerId& id,
+          float meanT0,
+          float meanTtrig,
+          float meanMtime,
+          float meanNoise,
+          float meanAfterPulse,
+          float meanResolution,
+          float meanEfficiency,
+          DTTimeUnits::type unit);
+  void setUnit(float unit);
 
   /// Access methods to data
-  typedef std::vector< std::pair<DTPerformanceId,
-                                 DTPerformanceData> >::const_iterator
-                                                       const_iterator;
+  typedef std::vector<std::pair<DTPerformanceId, DTPerformanceData> >::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
   void initialize();
 
- private:
-
+private:
   DTPerformance(DTPerformance const&) = delete;
   DTPerformance& operator=(DTPerformance const&) = delete;
 
   std::string dataVersion;
   float nsPerCount;
 
-  std::vector< std::pair<DTPerformanceId,DTPerformanceData> > dataList;
+  std::vector<std::pair<DTPerformanceId, DTPerformanceData> > dataList;
 
-  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
+  DTBufferTree<int, int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif // DTPerformance_H
+#endif  // DTPerformance_H

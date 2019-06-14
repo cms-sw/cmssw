@@ -9,19 +9,16 @@
 #include "TTree.h"
 
 class SiStripModuleTimer : public edm::EDAnalyzer {
-
-  public:
-
+public:
   SiStripModuleTimer(const edm::ParameterSet&);
   ~SiStripModuleTimer();
 
   void beginJob();
-  void analyze( const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup&);
   void endJob();
 
- private:
-
-  std::vector< std::string > moduleLabels_;
+private:
+  std::vector<std::string> moduleLabels_;
   std::vector<double> times_;
   TFile* file_;
   TTree* tree_;

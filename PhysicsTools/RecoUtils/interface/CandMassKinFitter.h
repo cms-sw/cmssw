@@ -4,8 +4,9 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 struct CandMassKinFitter {
-  explicit CandMassKinFitter( double m ) : mass_( m ) { }
-  reco::FitQuality set( reco::Candidate & ) const;
+  explicit CandMassKinFitter(double m) : mass_(m) {}
+  reco::FitQuality set(reco::Candidate&) const;
+
 private:
   double mass_;
 };

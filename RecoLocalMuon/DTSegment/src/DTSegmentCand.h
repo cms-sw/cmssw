@@ -27,136 +27,131 @@
 /* Class DTSegmentCand Interface */
 
 class DTSLRecSegment2D;
-class DTChamberRecSegment2D; 
+class DTChamberRecSegment2D;
 class DTChamber;
 class DTSuperLayer;
 
+class DTSegmentCand {
+public:
+  struct AssPointLessZ;
+  typedef std::pair<std::shared_ptr<DTHitPairForFit>, DTEnums::DTCellSide> AssPoint;
+  typedef std::set<AssPoint, AssPointLessZ> AssPointCont;
 
-class DTSegmentCand{
+  /// Constructor
+  DTSegmentCand(AssPointCont& hits, const DTSuperLayer* sl);
 
-  public:
-    struct AssPointLessZ ;
-    typedef std::pair<std::shared_ptr<DTHitPairForFit>, DTEnums::DTCellSide> AssPoint;
-    typedef std::set<AssPoint, AssPointLessZ> AssPointCont;
+  DTSegmentCand(const AssPointCont& hits,
+                LocalPoint& position,
+                LocalVector& direction,
+                double chi2,
+                const AlgebraicSymMatrix& covMat,
+                const DTSuperLayer* sl);
 
-/// Constructor
-    DTSegmentCand(AssPointCont& hits,
-                  const DTSuperLayer* sl) ;
+  /// Destructor
+  virtual ~DTSegmentCand();
 
-    DTSegmentCand(const AssPointCont& hits,
-                  LocalPoint& position,
-                  LocalVector& direction,
-                  double chi2,
-                  const AlgebraicSymMatrix& covMat,
-                  const DTSuperLayer* sl);
+  /* Operations */
+  virtual bool good() const;
 
-/// Destructor
-    virtual ~DTSegmentCand() ;
+  virtual bool hitsShareLayer() const;
 
-/* Operations */ 
-    virtual bool good() const ;
+  virtual unsigned int nHits() const { return theHits.size(); }
 
-    virtual bool hitsShareLayer() const;
+  /// the chi2 (NOT chi2/NDOF) of the fit
+  virtual double chi2() const { return theChi2; }
 
-    virtual unsigned int nHits() const { return theHits.size(); }
+  /// the chi2/NDOF of the fit
+  virtual double chi2ndof() const { return theChi2 / (nHits() - 2.); }
 
-    /// the chi2 (NOT chi2/NDOF) of the fit
-    virtual double chi2() const { return theChi2; }
+  /// the t0 of the segment
+  virtual double t0() const { return thet0; }
 
-    /// the chi2/NDOF of the fit
-    virtual double chi2ndof() const { return theChi2/(nHits()-2.); }
+  /// equality operator based on position, direction, chi2 and nHits
+  virtual bool operator==(const DTSegmentCand& seg);
 
-    /// the t0 of the segment
-    virtual double t0() const { return thet0; }
+  /// less operator based on nHits and chi2
+  virtual bool operator<(const DTSegmentCand& seg);
 
-    /// equality operator based on position, direction, chi2 and nHits
-    virtual bool operator==(const DTSegmentCand& seg);
+  /// the super layer on which relies
+  const DTSuperLayer* superLayer() const { return theSL; }
 
-    /// less operator based on nHits and chi2
-    virtual bool operator<(const DTSegmentCand& seg);
+  // in SL frame
+  virtual LocalPoint position() const { return thePosition; }
 
-    /// the super layer on which relies 
-    const DTSuperLayer* superLayer() const {return theSL;}
+  // in SL frame
+  virtual LocalVector direction() const { return theDirection; }
 
-    // in SL frame
-    virtual LocalPoint  position() const { return thePosition; }
+  /// the covariance matrix
+  virtual AlgebraicSymMatrix covMatrix() const { return theCovMatrix; }
 
-    // in SL frame
-    virtual LocalVector direction() const { return theDirection;}
+  virtual unsigned int NDOF() const { return nHits() - 2; }
 
-    /// the covariance matrix
-    virtual AlgebraicSymMatrix covMatrix() const {return theCovMatrix; }
+  ///set position
+  virtual void setPosition(LocalPoint& pos) { thePosition = pos; }
 
-    virtual unsigned int NDOF() const { return nHits()-2; }
+  /// set direction
+  virtual void setDirection(LocalVector& dir) { theDirection = dir; }
 
-    ///set position
-    virtual void setPosition(LocalPoint& pos) { thePosition=pos; }
+  /// add hits to the hit list.
+  virtual void add(AssPoint newHit);
+  virtual void add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code);
 
-    /// set direction
-    virtual void setDirection(LocalVector& dir) { theDirection = dir; }
+  /// remove hit from the candidate
+  virtual void removeHit(AssPoint hit);
 
-    /// add hits to the hit list.
-    virtual void add(AssPoint newHit) ;
-    virtual void add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) ;
+  /// set chi2
+  virtual void setChi2(double& chi2) { theChi2 = chi2; }
 
-    /// remove hit from the candidate
-    virtual void removeHit(AssPoint hit) ;
+  /// set t0
+  virtual void sett0(double& t0) { thet0 = t0; }
 
-    /// set chi2
-    virtual void setChi2(double& chi2) { theChi2 = chi2; }
+  /// number of shared hit pair with other segment candidate
+  virtual int nSharedHitPairs(const DTSegmentCand& seg) const;
 
-    /// set t0
-    virtual void sett0(double& t0) { thet0 = t0; }
-
-    /// number of shared hit pair with other segment candidate
-    virtual int nSharedHitPairs(const DTSegmentCand& seg) const;
-
-    /** return the hits shared with other segment and with confliction L/R
+  /** return the hits shared with other segment and with confliction L/R
      * assignment */
-    virtual AssPointCont conflictingHitPairs(const DTSegmentCand& seg) const;
+  virtual AssPointCont conflictingHitPairs(const DTSegmentCand& seg) const;
 
-    /// set the cov matrix
-    virtual void setCovMatrix(AlgebraicSymMatrix& cov) { theCovMatrix = cov; }
+  /// set the cov matrix
+  virtual void setCovMatrix(AlgebraicSymMatrix& cov) { theCovMatrix = cov; }
 
-    /// number of different layers with hits
-    virtual int nLayers() const ;
+  /// number of different layers with hits
+  virtual int nLayers() const;
 
-    /// the used hits
-    virtual const AssPointCont& hits() const { return theHits;}
+  /// the used hits
+  virtual const AssPointCont& hits() const { return theHits; }
 
-    /// convert this DTSegmentCand into a DTRecSegment2D
-    //  DTSLRecSegment2D* convert() const;
-    operator DTSLRecSegment2D*() const;
+  /// convert this DTSegmentCand into a DTRecSegment2D
+  //  DTSLRecSegment2D* convert() const;
+  operator DTSLRecSegment2D*() const;
 
+  /// convert this DTSegmentCand into a DTChamberRecSegment2D
+  operator DTChamberRecSegment2D*() const;
 
-    /// convert this DTSegmentCand into a DTChamberRecSegment2D
-    operator DTChamberRecSegment2D*() const;
+  struct AssPointLessZ {
+  public:
+    bool operator()(const AssPoint& pt1, const AssPoint& pt2) const;
+  };
 
-    struct AssPointLessZ {
-        public:
-          bool operator()(const AssPoint& pt1, 
-                          const AssPoint& pt2) const ; 
-      };
+private:
+  const DTSuperLayer* theSL;  // the SL
+  LocalPoint thePosition;     // in SL frame
+  LocalVector theDirection;   // in SL frame
+  double theChi2;             // chi2 of the fit
+  double thet0;               // the t0 offset
 
-  private:
-    const DTSuperLayer* theSL; // the SL
-    LocalPoint  thePosition;  // in SL frame
-    LocalVector theDirection; // in SL frame
-    double theChi2;           // chi2 of the fit
-    double thet0;             // the t0 offset
+  /// mat[1][1]=sigma (dx/dz)
+  /// mat[2][2]=sigma (x)
+  /// mat[1][2]=cov(dx/dz,x)
+  AlgebraicSymMatrix theCovMatrix;  // the covariance matrix
 
-    /// mat[1][1]=sigma (dx/dz)
-    /// mat[2][2]=sigma (x)
-    /// mat[1][2]=cov(dx/dz,x)
-    AlgebraicSymMatrix theCovMatrix; // the covariance matrix
+  AssPointCont theHits;  // the used hits
 
-    AssPointCont theHits; // the used hits
-
-  protected:
-    static const double chi2max; // to be tuned!!
-    static const unsigned int nHitsMin; // to be tuned!!
+protected:
+  static const double chi2max;         // to be tuned!!
+  static const unsigned int nHitsMin;  // to be tuned!!
 };
 
-std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) ;
-std::ostream& operator<<(std::ostream& out, const DTSegmentCand::AssPoint& hit) ;
-#endif // DTSegment_DTSegmentCand_h
+std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg);
+std::ostream& operator<<(std::ostream& out, const DTSegmentCand::AssPoint& hit);
+#endif  // DTSegment_DTSegmentCand_h

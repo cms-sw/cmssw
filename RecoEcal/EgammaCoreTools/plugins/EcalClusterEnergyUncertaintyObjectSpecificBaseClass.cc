@@ -5,22 +5,16 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-EcalClusterEnergyUncertaintyObjectSpecificBaseClass::EcalClusterEnergyUncertaintyObjectSpecificBaseClass()
-{}
+EcalClusterEnergyUncertaintyObjectSpecificBaseClass::EcalClusterEnergyUncertaintyObjectSpecificBaseClass() {}
 
-EcalClusterEnergyUncertaintyObjectSpecificBaseClass::~EcalClusterEnergyUncertaintyObjectSpecificBaseClass()
-{}
+EcalClusterEnergyUncertaintyObjectSpecificBaseClass::~EcalClusterEnergyUncertaintyObjectSpecificBaseClass() {}
 
-void
-EcalClusterEnergyUncertaintyObjectSpecificBaseClass::init( const edm::EventSetup& es )
-{
+void EcalClusterEnergyUncertaintyObjectSpecificBaseClass::init(const edm::EventSetup& es) {
   //es.get<EcalClusterEnergyUncertaintyParametersRcd>().get( esParams_ );
   //params_ = esParams_.product();
 }
 
-void
-EcalClusterEnergyUncertaintyObjectSpecificBaseClass::checkInit() const
-{
+void EcalClusterEnergyUncertaintyObjectSpecificBaseClass::checkInit() const {
   /*
         if ( ! params_ ) {
                 // non-initialized function parameters: throw exception

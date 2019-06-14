@@ -20,22 +20,19 @@
 
 // Useful function to convert 4-vector coordinates
 // -----------------------------------------------
-lorentzVector fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE )
-{
+lorentzVector fromPtEtaPhiToPxPyPz(const double* ptEtaPhiE) {
   double muMass = 0.105658;
-  double px = ptEtaPhiE[0]*cos(ptEtaPhiE[2]);
-  double py = ptEtaPhiE[0]*sin(ptEtaPhiE[2]);
-  double tmp = 2*atan(exp(-ptEtaPhiE[1]));
-  double pz = ptEtaPhiE[0]*cos(tmp)/sin(tmp);
-  double E  = sqrt(px*px+py*py+pz*pz+muMass*muMass);
+  double px = ptEtaPhiE[0] * cos(ptEtaPhiE[2]);
+  double py = ptEtaPhiE[0] * sin(ptEtaPhiE[2]);
+  double tmp = 2 * atan(exp(-ptEtaPhiE[1]));
+  double pz = ptEtaPhiE[0] * cos(tmp) / sin(tmp);
+  double E = sqrt(px * px + py * py + pz * pz + muMass * muMass);
 
-  return lorentzVector(px,py,pz,E);
+  return lorentzVector(px, py, pz, E);
 }
 
-int main(int argc, char* argv[]) 
-{
-
-  if( argc != 3 ) {
+int main(int argc, char* argv[]) {
+  if (argc != 3) {
     std::cout << "Please provide the name of the file and if there is generator information (0 is false)" << std::endl;
     exit(1);
   }
@@ -47,9 +44,9 @@ int main(int argc, char* argv[])
   std::cout << "Reading tree dump with genInfo = " << genInfo << std::endl;
 
   // load framework libraries
-  gSystem->Load( "libFWCoreFWLite" );
+  gSystem->Load("libFWCoreFWLite");
   FWLiteEnabler::enable();
-  
+
   // MuonPairVector pairVector;
   std::vector<MuonPair> pairVector;
   std::vector<GenMuonPair> genPairVector;
@@ -64,36 +61,36 @@ int main(int argc, char* argv[])
   double value[6];
   double genValue[6];
   // Read the information from a txt file
-  while( !inputFile.eof() ) {
+  while (!inputFile.eof()) {
     getline(inputFile, line);
-    if( line != "" ) {
+    if (!line.empty()) {
       // std::cout << "line = " << line << std::endl;
       std::stringstream ss(line);
-      for( int i=0; i<6; ++i ) {
-	ss >> value[i];
-	// std::cout << "value["<<i<<"] = " << value[i] << std::endl;
+      for (int i = 0; i < 6; ++i) {
+        ss >> value[i];
+        // std::cout << "value["<<i<<"] = " << value[i] << std::endl;
       }
-      pairVector.push_back(MuonPair(fromPtEtaPhiToPxPyPz(value), fromPtEtaPhiToPxPyPz(&(value[3])), MuScleFitEvent(0,0,0,0,0,0)) );
-      if( genInfo ) {
-	for( int i=0; i<6; ++i ) {
-	  ss >> genValue[i];
-	  // std::cout << "genValue["<<i<<"] = " << genValue[i] << std::endl;
-	}
-	genPairVector.push_back(GenMuonPair(fromPtEtaPhiToPxPyPz(genValue), fromPtEtaPhiToPxPyPz(&(genValue[3])), 0));
+      pairVector.push_back(
+          MuonPair(fromPtEtaPhiToPxPyPz(value), fromPtEtaPhiToPxPyPz(&(value[3])), MuScleFitEvent(0, 0, 0, 0, 0, 0)));
+      if (genInfo) {
+        for (int i = 0; i < 6; ++i) {
+          ss >> genValue[i];
+          // std::cout << "genValue["<<i<<"] = " << genValue[i] << std::endl;
+        }
+        genPairVector.push_back(GenMuonPair(fromPtEtaPhiToPxPyPz(genValue), fromPtEtaPhiToPxPyPz(&(genValue[3])), 0));
       }
     }
   }
   inputFile.close();
-  
-  if( (pairVector.size() != genPairVector.size()) && genInfo ) {
+
+  if ((pairVector.size() != genPairVector.size()) && genInfo) {
     std::cout << "Error: the size of pairVector and genPairVector is different" << std::endl;
   }
 
-  if( genInfo ) {
+  if (genInfo) {
     treeHandler.writeTree("TreeFromDump.root", &pairVector, 0, &genPairVector);
     std::cout << "Filling tree with genInfo" << std::endl;
-  }
-  else {
+  } else {
     treeHandler.writeTree("TreeFromDump.root", &pairVector);
     std::cout << "Filling tree" << std::endl;
   }

@@ -38,6 +38,19 @@ class PFSCEnergyCalibration;
 class PFEnergyCalibrationHF;
 class PFMuonAlgo;
 
+class ElementIndices {
+public:
+  std::vector<unsigned> hcalIs;
+  std::vector<unsigned> hoIs;
+  std::vector<unsigned> ecalIs;
+  std::vector<unsigned> trackIs;
+  std::vector<unsigned> ps1Is;
+  std::vector<unsigned> ps2Is;
+
+  std::vector<unsigned> hfEmIs;
+  std::vector<unsigned> hfHadIs;
+};
+
 class PFAlgo {
 
  public:
@@ -46,7 +59,6 @@ class PFAlgo {
   PFAlgo(bool debug);
 
   void setHOTag(bool ho) { useHO_ = ho;}
-  void setPFMuonAlgo(PFMuonAlgo* algo) {pfmu_ =algo;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
 
   void setParameters(double nSigmaECAL,
@@ -103,18 +115,18 @@ class PFAlgo {
   void setEGElectronCollection(const reco::GsfElectronCollection & egelectrons);
 
   /// reconstruct particles 
-  void reconstructParticles( const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma );
+  void reconstructParticles(const reco::PFBlockHandle& blockHandle, PFEGammaFilters const* pfegamma);
 
   /// Check HF Cleaning
   void checkCleaning( const reco::PFRecHitCollection& cleanedHF );
 
   /// \return collection of cleaned HF candidates
-  std::unique_ptr<reco::PFCandidateCollection> transferCleanedCandidates() {
-    return std::move(pfCleanedCandidates_);
+  reco::PFCandidateCollection& getCleanedCandidates() {
+    return pfCleanedCandidates_;
   }
-  
+
   /// \return the collection of candidates
-  reco::PFCandidateCollection transferCandidates() {
+  reco::PFCandidateCollection makeConnectedCandidates() {
     return connector_.connect(*pfCandidates_);
   }
   
@@ -126,6 +138,21 @@ class PFAlgo {
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
   
  private:
+
+  void egammaFilters(const reco::PFBlockRef &blockref, std::vector<bool>& active, PFEGammaFilters const* pfegamma);
+  void conversionAlgo(const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active);
+  void elementLoop(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea);
+  int decideType(const edm::OwnVector<reco::PFBlockElement> &elements, const reco::PFBlockElement::Type type, std::vector<bool>& active, ElementIndices& inds, std::vector<bool> &deadArea, unsigned int iEle);
+  bool recoTracksNotHCAL(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, const reco::PFBlockRef &blockref, std::vector<bool>& active, bool goodTrackDeadHcal, bool hasDeadHcal, unsigned int iTrack, std::multimap<double, unsigned>& ecalElems, reco::TrackRef& trackRef);
+
+
+  //Looks for a HF-associated element in the block and produces a PFCandidate from it with HF_EM and/or HF_HAD calibrations
+  void createCandidateHF(const reco::PFBlock &block, const reco::PFBlockRef &blockref, const edm::OwnVector<reco::PFBlockElement> &elements, ElementIndices& inds);
+
+  void createCandidatesHCAL(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea);
+  void createCandidatesHCALUnlinked(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea);
+
+void createCandidatesECAL(const reco::PFBlock &block, reco::PFBlock::LinkData& linkData, const edm::OwnVector<reco::PFBlockElement> &elements, std::vector<bool>& active, const reco::PFBlockRef &blockref, ElementIndices& inds, std::vector<bool> &deadArea);
 
   /// process one block. can be reimplemented in more sophisticated 
   /// algorithms
@@ -163,7 +190,7 @@ class PFAlgo {
 
   std::unique_ptr<reco::PFCandidateCollection>    pfCandidates_;
   // the post-HF-cleaned candidates
-  std::unique_ptr<reco::PFCandidateCollection>    pfCleanedCandidates_;
+  reco::PFCandidateCollection pfCleanedCandidates_;
 
   /// Associate PS clusters to a given ECAL cluster, and return their energy
   void associatePSClusters(unsigned iEcal,
@@ -180,14 +207,6 @@ class PFAlgo {
   // Post HF Cleaning
   void postCleaning();
 
-  /// create a reference to a block, transient or persistent 
-  /// depending on the needs
-  reco::PFBlockRef createBlockRef( const reco::PFBlockCollection& blocks, 
-				   unsigned bi );
-    
-  /// input block handle (full framework case)
-  reco::PFBlockHandle    blockHandle_;
-
   /// number of sigma to judge energy excess in ECAL
   double             nSigmaECAL_;
   
@@ -201,7 +220,7 @@ class PFAlgo {
   bool               useHO_;
   const bool         debug_;
 
-  PFMuonAlgo *pfmu_;
+  std::unique_ptr<PFMuonAlgo> pfmu_;
 
 
   /// Variables for NEW EGAMMA selection

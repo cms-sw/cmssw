@@ -9,9 +9,8 @@
 
 #include "boost/mpl/vector.hpp"
 
-class  MultiRecHitRecord: public edm::eventsetup::DependentRecordImplementation<MultiRecHitRecord,
-  boost::mpl::vector<TrackerDigiGeometryRecord,
-		     TransientRecHitRecord, 
-	             CkfComponentsRecord> >{};
-#endif 
-
+class MultiRecHitRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          MultiRecHitRecord,
+          boost::mpl::vector<TrackerDigiGeometryRecord, TransientRecHitRecord, CkfComponentsRecord> > {};
+#endif

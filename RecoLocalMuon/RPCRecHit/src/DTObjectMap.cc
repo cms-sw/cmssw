@@ -10,38 +10,37 @@
 #include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
 #include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
 
-DTObjectMap::DTObjectMap(MuonGeometryRecord const& record)
-{
+DTObjectMap::DTObjectMap(MuonGeometryRecord const& record) {
   edm::ESHandle<RPCGeometry> rpcGeo;
   record.get(rpcGeo);
 
   edm::ESHandle<DTGeometry> dtGeo;
   record.get(dtGeo);
-  
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast<const RPCChamber* >( *it ) != nullptr ){
-      auto ch = dynamic_cast<const RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	int region=rpcId.region();
-	if(region==0){
-	  int wheel=rpcId.ring();
-	  int sector=rpcId.sector();
-	  int station=rpcId.station();
-	  DTStationIndex ind(region,wheel,sector,station);
-	  std::set<RPCDetId> myrolls;
-	  if (rollstore.find(ind)!=rollstore.end()) myrolls=rollstore[ind];
-	  myrolls.insert(rpcId);
-	  rollstore[ind]=myrolls;
-	}
+
+  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
+    if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
+      auto ch = dynamic_cast<const RPCChamber*>(*it);
+      std::vector<const RPCRoll*> roles = (ch->rolls());
+      for (std::vector<const RPCRoll*>::const_iterator r = roles.begin(); r != roles.end(); ++r) {
+        RPCDetId rpcId = (*r)->id();
+        int region = rpcId.region();
+        if (region == 0) {
+          int wheel = rpcId.ring();
+          int sector = rpcId.sector();
+          int station = rpcId.station();
+          DTStationIndex ind(region, wheel, sector, station);
+          std::set<RPCDetId> myrolls;
+          if (rollstore.find(ind) != rollstore.end())
+            myrolls = rollstore[ind];
+          myrolls.insert(rpcId);
+          rollstore[ind] = myrolls;
+        }
       }
     }
   }
 }
 
-std::set<RPCDetId> const& DTObjectMap::getRolls(DTStationIndex index) const
-{
+std::set<RPCDetId> const& DTObjectMap::getRolls(DTStationIndex index) const {
   // FIXME
   // the present inplementation allows for NOT finding the given index in the map;
   // a muon expert should check that this is the intended behaviour.

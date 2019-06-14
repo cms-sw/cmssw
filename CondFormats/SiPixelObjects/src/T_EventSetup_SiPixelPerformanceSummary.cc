@@ -2,5 +2,4 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelPerformanceSummary.h"
 
-
 TYPELOOKUP_DATA_REG(SiPixelPerformanceSummary);

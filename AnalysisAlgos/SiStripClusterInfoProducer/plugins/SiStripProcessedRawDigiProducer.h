@@ -20,30 +20,25 @@ class SiStripGain;
 class SiStripProcessedRawDigi;
 
 class SiStripProcessedRawDigiProducer : public edm::EDProducer {
-
- public:
-
+public:
   explicit SiStripProcessedRawDigiProducer(edm::ParameterSet const&);
 
- private:
-
+private:
   void produce(edm::Event& e, const edm::EventSetup& es) override;
-  template<class T> std::string findInput(edm::Handle<T>& handle, const std::vector<edm::EDGetTokenT<T> >& tokens, const edm::Event& e);
+  template <class T>
+  std::string findInput(edm::Handle<T>& handle, const std::vector<edm::EDGetTokenT<T> >& tokens, const edm::Event& e);
 
   void vr_process(const edm::DetSetVector<SiStripRawDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
   void pr_process(const edm::DetSetVector<SiStripRawDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
-  void zs_process(const edm::DetSetVector<SiStripDigi>&,    edm::DetSetVector<SiStripProcessedRawDigi>&);
-  void common_process( const uint32_t, std::vector<float>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
-
+  void zs_process(const edm::DetSetVector<SiStripDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
+  void common_process(const uint32_t, std::vector<float>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
 
   std::vector<edm::InputTag> inputTags;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > inputTokensDigi;
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > > inputTokensRawDigi;
   edm::ESHandle<SiStripGain> gainHandle;
 
-  std::unique_ptr<SiStripPedestalsSubtractor>       subtractorPed;
+  std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed;
   std::unique_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
-
 };
 #endif
-

@@ -5,5 +5,4 @@
 
 using cms::CkfDebugTrackCandidateMaker;
 
-
 //DEFINE_FWK_MODULE(CkfDebugTrackCandidateMaker);

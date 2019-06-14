@@ -2,7 +2,7 @@
 //
 // Package:    HcalTPGCoderULUT
 // Class:      HcalTPGCoderULUT
-// 
+//
 /**\class HcalTPGCoderULUT HcalTPGCoderULUT.h src/HcalTPGCoderULUT/interface/HcalTPGCoderULUT.h
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Fri Sep 15 11:49:44 CDT 2006
 //
 //
-
 
 // system include files
 #include <memory>
@@ -43,26 +42,26 @@ class HcalTPGCoderULUT : public edm::ESProducer {
 public:
   HcalTPGCoderULUT(const edm::ParameterSet&);
   ~HcalTPGCoderULUT() override;
-     
+
   typedef std::shared_ptr<HcalTPGCoder> ReturnType;
 
   ReturnType produce(const HcalTPGRecord&);
 
 private:
+  using HostType = edm::ESProductHost<HcaluLUTTPGCoder, HcalDbRecord>;
 
-  using HostType = edm::ESProductHost<HcaluLUTTPGCoder,
-                                      HcalDbRecord>;
-
-  void setupDBRecord(const HcalDbRecord&, HcaluLUTTPGCoder*);
-  void buildCoder(const HcalTopology*, const edm::ESHandle<HcalTimeSlew>&, HcaluLUTTPGCoder*);
+  void buildCoder(const HcalTopology*, const HcalTimeSlew*, HcaluLUTTPGCoder*);
 
   // ----------member data ---------------------------
   edm::ReusableObjectHolder<HostType> holder_;
-  bool read_FGLut_, read_Ascii_,read_XML_,LUTGenerationMode_,linearLUTs_;
+  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> topoToken_;
+  edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> delayToken_;
+  edm::ESGetToken<HcalDbService, HcalDbRecord> serviceToken_;
+  bool read_FGLut_, read_Ascii_, read_XML_, LUTGenerationMode_, linearLUTs_;
   double linearLSB_QIE8_, linearLSB_QIE11Overlap_, linearLSB_QIE11_;
   int maskBit_;
   std::vector<uint32_t> FG_HF_thresholds_;
-  edm::FileInPath fgfile_,ifilename_;
+  edm::FileInPath fgfile_, ifilename_;
 };
 
 //
@@ -76,14 +75,17 @@ private:
 //
 // constructors and destructor
 //
-HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) 
-{
+HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig) {
   read_Ascii_ = iConfig.getParameter<bool>("read_Ascii_LUTs");
   read_XML_ = iConfig.getParameter<bool>("read_XML_LUTs");
-  read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs"); 
+  read_FGLut_ = iConfig.getParameter<bool>("read_FG_LUTs");
   fgfile_ = iConfig.getParameter<edm::FileInPath>("FGLUTs");
+
   //the following line is needed to tell the framework what
   // data is being produced
+  auto cc = setWhatProduced(this);
+  cc.setConsumes(topoToken_).setConsumes(delayToken_, edm::ESInputTag{"", "HBHE"});
+
   if (!(read_Ascii_ || read_XML_)) {
     LUTGenerationMode_ = iConfig.getParameter<bool>("LUTGenerationMode");
     linearLUTs_ = iConfig.getParameter<bool>("linearLUTs");
@@ -93,16 +95,16 @@ HcalTPGCoderULUT::HcalTPGCoderULUT(const edm::ParameterSet& iConfig)
     linearLSB_QIE11Overlap_ = scales.getParameter<double>("LSBQIE11Overlap");
     maskBit_ = iConfig.getParameter<int>("MaskBit");
     FG_HF_thresholds_ = iConfig.getParameter<std::vector<uint32_t> >("FG_HF_thresholds");
+    cc.setConsumes(serviceToken_);
   } else {
-    ifilename_=iConfig.getParameter<edm::FileInPath>("inputLUTs");
+    ifilename_ = iConfig.getParameter<edm::FileInPath>("inputLUTs");
   }
-  setWhatProduced(this);
 }
-  
-void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<HcalTimeSlew>& delay, HcaluLUTTPGCoder* theCoder) {
+
+void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const HcalTimeSlew* delay, HcaluLUTTPGCoder* theCoder) {
   using namespace edm::es;
-  theCoder->init(topo, delay.product());
-  if (read_Ascii_ || read_XML_){
+  theCoder->init(topo, delay);
+  if (read_Ascii_ || read_XML_) {
     edm::LogInfo("HCAL") << "Using ASCII/XML LUTs" << ifilename_.fullPath() << " for HcalTPGCoderULUT initialization";
     if (read_Ascii_) {
       theCoder->update(ifilename_.fullPath().c_str());
@@ -122,60 +124,33 @@ void HcalTPGCoderULUT::buildCoder(const HcalTopology* topo, const edm::ESHandle<
 }
 
 HcalTPGCoderULUT::~HcalTPGCoderULUT() {
-  
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-HcalTPGCoderULUT::ReturnType
-HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
-{
-  auto host = holder_.makeOrGet([]() {
-    return new HostType;
-  });
+HcalTPGCoderULUT::ReturnType HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord) {
+  auto host = holder_.makeOrGet([]() { return new HostType; });
 
+  const auto& topo = iRecord.get(topoToken_);
+  const auto& delay = iRecord.getRecord<HcalDbRecord>().get(delayToken_);
   if (read_Ascii_ || read_XML_) {
-    edm::ESHandle<HcalTopology> htopo;
-    iRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
-    const HcalTopology* topo=&(*htopo);
-
-    edm::ESHandle<HcalTimeSlew> delay;
-    iRecord.getRecord<HcalDbRecord>().getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
-
-    buildCoder(topo, delay, host.get());
+    buildCoder(&topo, &delay, host.get());
   } else {
-    host->ifRecordChanges<HcalDbRecord>(iRecord,
-                                        [this,h=host.get()](auto const& rec) {
-      setupDBRecord(rec, h);
+    host->ifRecordChanges<HcalDbRecord>(iRecord, [this, &topo, &delay, h = host.get()](auto const& rec) {
+      buildCoder(&topo, &delay, h);
+      h->update(rec.get(serviceToken_));
+      // Temporary update for FG Lut
+      // Will be moved to DB
+      if (read_FGLut_)
+        h->update(fgfile_.fullPath().c_str(), true);
     });
   }
   return host;
-}
-
-void HcalTPGCoderULUT::setupDBRecord(const HcalDbRecord& theRec,
-                                     HcaluLUTTPGCoder* theCoder) {
-  edm::ESHandle<HcalDbService> conditions;
-  theRec.get(conditions);
-  edm::ESHandle<HcalTopology> htopo;
-  theRec.getRecord<HcalRecNumberingRecord>().get(htopo);
-  const HcalTopology* topo=&(*htopo);
-
-  edm::ESHandle<HcalTimeSlew> delay;
-  theRec.getRecord<HcalTimeSlewRecord>().get("HBHE", delay);
-
-  buildCoder(topo, delay, theCoder);
-
-  theCoder->update(*conditions);
-
-  // Temporary update for FG Lut
-  // Will be moved to DB
-  if (read_FGLut_) theCoder->update(fgfile_.fullPath().c_str(),true);
 }
 
 //define this as a plug-in

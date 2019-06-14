@@ -10,38 +10,35 @@
 
 #include <vector>
 
-namespace L1Analysis
-{
-  struct L1AnalysisRecoMuon2DataFormat
-  {
-    L1AnalysisRecoMuon2DataFormat(){Reset();};
-    ~L1AnalysisRecoMuon2DataFormat(){Reset();};
+namespace L1Analysis {
+  struct L1AnalysisRecoMuon2DataFormat {
+    L1AnalysisRecoMuon2DataFormat() { Reset(); };
+    ~L1AnalysisRecoMuon2DataFormat() { Reset(); };
 
-    void Reset()
-    {
-    nMuons=0;
+    void Reset() {
+      nMuons = 0;
 
-    e.clear();
-    et.clear();
-    pt.clear();
-    eta.clear();
-    phi.clear();
-    isLooseMuon.clear();
-    isMediumMuon.clear();
-    isTightMuon.clear();
-    iso.clear();
-    hlt_isomu.clear();
-    hlt_mu.clear();
-    hlt_isoDeltaR.clear();
-    hlt_deltaR.clear();
-    passesSingleMuon.clear();
-    charge.clear();
-    mt.clear();
-    met.clear();
-    etaSt1.clear();
-    phiSt1.clear();
-    etaSt2.clear();
-    phiSt2.clear();
+      e.clear();
+      et.clear();
+      pt.clear();
+      eta.clear();
+      phi.clear();
+      isLooseMuon.clear();
+      isMediumMuon.clear();
+      isTightMuon.clear();
+      iso.clear();
+      hlt_isomu.clear();
+      hlt_mu.clear();
+      hlt_isoDeltaR.clear();
+      hlt_deltaR.clear();
+      passesSingleMuon.clear();
+      charge.clear();
+      mt.clear();
+      met.clear();
+      etaSt1.clear();
+      phiSt1.clear();
+      etaSt2.clear();
+      phiSt2.clear();
     }
 
     unsigned short nMuons;
@@ -67,8 +64,5 @@ namespace L1Analysis
     std::vector<float> etaSt2;
     std::vector<float> phiSt2;
   };
-}
+}  // namespace L1Analysis
 #endif
-
-
-

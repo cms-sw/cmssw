@@ -4,7 +4,7 @@
 //
 // Package:     CommonTools/BaseParticlePropagator
 // Class  :     makeMuon
-// 
+//
 /**\class makeMuon makeMuon.h "CommonTools/BaseParticlePropagator/interface/makeMuon.h"
 
  Description: Creates a RawParticle of type muon
@@ -30,8 +30,7 @@ namespace rawparticle {
   ///Create a particle with momentum 'p' at space-time point xStart
   /// The particle will be a muon if iParticle==true, else it will
   /// be an anti-muon.
-  RawParticle makeMuon(bool isParticle, const math::XYZTLorentzVector& p, 
-                       const math::XYZTLorentzVector& xStart);
-}
+  RawParticle makeMuon(bool isParticle, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart);
+}  // namespace rawparticle
 
 #endif

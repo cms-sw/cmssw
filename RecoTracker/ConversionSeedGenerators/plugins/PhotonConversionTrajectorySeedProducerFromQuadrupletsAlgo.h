@@ -1,5 +1,5 @@
-#ifndef  PhotonConversionFinderFromTracks_H
-#define  PhotonConversionFinderFromTracks_H
+#ifndef PhotonConversionFinderFromTracks_H
+#define PhotonConversionFinderFromTracks_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -10,7 +10,6 @@
 
 #include "SeedForPhotonConversionFromQuadruplets.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
-
 
 #include "PrintRecoObjects.h"
 
@@ -26,22 +25,19 @@
 
 #include <sstream>
 
-class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
-
- public:
-  PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet &,
-	edm::ConsumesCollector && iC);
+class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo {
+public:
+  PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
   ~PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo();
 
-  void analyze(const edm::Event & event, const edm::EventSetup & setup);
-  TrajectorySeedCollection* getTrajectorySeedCollection(){return seedCollection;}
+  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  TrajectorySeedCollection* getTrajectorySeedCollection() { return seedCollection; }
 
- private:
-
+private:
   void loop();
-  bool inspect(const TrackingRegion & region);
+  bool inspect(const TrackingRegion& region);
 
-/*  
+  /*  
   :_conf(conf),seedCollection(0),
    hitsfactoryPSet(conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet")),   
    creatorPSet(conf.getParameter<edm::ParameterSet>("SeedCreatorPSet")),
@@ -54,7 +50,7 @@ class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
   //Data Members
   const edm::ParameterSet _conf;
 
-  TrajectorySeedCollection *seedCollection;
+  TrajectorySeedCollection* seedCollection;
   ClusterChecker theClusterCheck;
   edm::ParameterSet QuadCutPSet;
   bool theSilentOnClusterCheck;
@@ -63,15 +59,14 @@ class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
   std::unique_ptr<SeedForPhotonConversionFromQuadruplets> theSeedCreator;
   std::unique_ptr<GlobalTrackingRegionProducerFromBeamSpot> theRegionProducer;
 
-
   typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   typedef Regions::const_iterator IR;
-  Regions regions; 
+  Regions regions;
 
   edm::Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
   reco::Vertex primaryVertex;
-  edm::EDGetTokenT<reco::VertexCollection> 	 token_vertex;
+  edm::EDGetTokenT<reco::VertexCollection> token_vertex;
 
   const edm::EventSetup* myEsetup;
   const edm::Event* myEvent;
@@ -79,6 +74,5 @@ class PhotonConversionTrajectorySeedProducerFromQuadrupletsAlgo{
   PrintRecoObjects po;
 
   std::stringstream ss;
- 
 };
 #endif

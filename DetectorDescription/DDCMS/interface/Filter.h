@@ -5,7 +5,7 @@
 //
 // Package:    DetectorDescription/Filter
 // Class:      Filter
-// 
+//
 /**\class Filter
 
  Description: Filter list
@@ -22,7 +22,7 @@
 #include <vector>
 
 namespace cms {
-  
+
   struct Filter {
     std::vector<std::string_view> keys;
     std::unique_ptr<Filter> next;
@@ -36,7 +36,7 @@ namespace cms {
     bool compareEqual(std::string_view, std::string_view);
     std::string_view realTopName(std::string_view input);
     std::vector<std::string_view> split(std::string_view, const char*);
-  }
-}
+  }  // namespace dd
+}  // namespace cms
 
 #endif

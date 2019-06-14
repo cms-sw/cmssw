@@ -20,12 +20,10 @@ namespace cond {
   };
 
   template <typename T>
-  struct CoralServiceWrapper: public CoralServiceWrapperBase {
+  struct CoralServiceWrapper : public CoralServiceWrapperBase {
     ~CoralServiceWrapper() override = default;
-    coral::Service* create(const std::string& componentname) const override {
-      return new T{componentname};
-    }
+    coral::Service* create(const std::string& componentname) const override { return new T{componentname}; }
   };
-}
+}  // namespace cond
 
 #endif

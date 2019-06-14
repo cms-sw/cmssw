@@ -7,11 +7,11 @@
 #include "DataFormats/Common/interface/FwdRef.h"
 #include "DataFormats/Common/interface/RefVector.h"
 
-#include "DataFormats/JetReco/interface/GenericJet.h" //INCLUDECHECKER:SKIP
+#include "DataFormats/JetReco/interface/GenericJet.h"  //INCLUDECHECKER:SKIP
 
 namespace reco {
   class GenericJet;
-  /// collection of GenericJet objects 
+  /// collection of GenericJet objects
   typedef std::vector<GenericJet> GenericJetCollection;
   /// edm references
   typedef edm::Ref<GenericJetCollection> GenericJetRef;
@@ -19,5 +19,5 @@ namespace reco {
   typedef edm::RefVector<GenericJetCollection> GenericJetRefVector;
   typedef std::vector<edm::FwdRef<GenericJetCollection> > GenericJetFwdRefVector;
   typedef edm::RefProd<GenericJetCollection> GenericJetRefProd;
-}
+}  // namespace reco
 #endif

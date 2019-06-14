@@ -16,7 +16,7 @@
 namespace edm {
   class ParameterSet;
   class EventSetup;
-}
+}  // namespace edm
 class Trajectory;
 class TrajectorySeed;
 class TrajectoryStateOnSurface;
@@ -43,7 +43,6 @@ public:
   TrajectoryStateOnSurface seedTransientState(const TrajectorySeed&) const;
 
 protected:
-
 private:
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMagneticField;
@@ -53,7 +52,7 @@ private:
 
   std::string theFitterName;
   std::string theMuonRecHitBuilderName;
-  std::string thePropagatorName ;
+  std::string thePropagatorName;
 
   /// Minimum number of RecHits required to perform the fit
   unsigned int nMinRecHits;
@@ -62,7 +61,5 @@ private:
   double errorRescale;
 
   bool useSubRecHits;
-
 };
 #endif
-

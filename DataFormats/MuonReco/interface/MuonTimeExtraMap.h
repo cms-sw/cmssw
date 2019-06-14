@@ -9,7 +9,7 @@
 
 namespace reco {
 
-typedef edm::ValueMap<reco::MuonTimeExtra> MuonTimeExtraMap;
+  typedef edm::ValueMap<reco::MuonTimeExtra> MuonTimeExtraMap;
 
 }
 

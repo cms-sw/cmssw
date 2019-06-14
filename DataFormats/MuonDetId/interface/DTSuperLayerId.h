@@ -9,14 +9,11 @@
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 
-
 class DTSuperLayerId : public DTChamberId {
 public:
-
   /// Default constructor. It fills the common part in the base
   /// and leaves 0 in all other fields
   DTSuperLayerId();
-
 
   /// Construct from a packed id.
   /// It is required that the packed id represents a valid DT DetId
@@ -25,48 +22,31 @@ public:
   /// this, no check is done on the vaildity of the values.
   explicit DTSuperLayerId(uint32_t id);
 
-
   /// Construct from indexes.
   /// Input values are required to be within legal ranges, otherwise an
   /// exception is thrown.
-  DTSuperLayerId(int wheel, 
-		 int station, 
-		 int sector,
-		 int superlayer);
-
+  DTSuperLayerId(int wheel, int station, int sector, int superlayer);
 
   /// Copy Constructor.
   /// Any bits outside the DTChamberId fields are zeroed; apart for
   /// this, no check is done on the vaildity of the values.
   DTSuperLayerId(const DTSuperLayerId& slId);
 
-
   /// Constructor from a DTChamberId and SL number.
   DTSuperLayerId(const DTChamberId& chId, int superlayer);
 
-
   /// Return the superlayer number
-  int superLayer() const {
-    return ((id_>>slayerStartBit_)&slMask_);
-  }
-
+  int superLayer() const { return ((id_ >> slayerStartBit_) & slMask_); }
 
   /// Return the superlayer number (deprecated method name)
-  int superlayer() const {
-    return superLayer();
-  }
-
+  int superlayer() const { return superLayer(); }
 
   /// Return the corresponding ChamberId
-  DTChamberId chamberId() const {
-    return DTChamberId(id_ & chamberIdMask_);
-  }
+  DTChamberId chamberId() const { return DTChamberId(id_ & chamberIdMask_); }
 
- private:
-
+private:
 };
 
-std::ostream& operator<<( std::ostream& os, const DTSuperLayerId& id );
+std::ostream& operator<<(std::ostream& os, const DTSuperLayerId& id);
 
 #endif
-

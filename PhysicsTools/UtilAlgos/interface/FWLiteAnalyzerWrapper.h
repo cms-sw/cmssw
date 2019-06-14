@@ -96,24 +96,22 @@
    beginning and just to stay within FWLite.
 */
 
-
 namespace fwlite {
 
-  template<class T> 
+  template <class T>
   class AnalyzerWrapper {
-
   public:
     /// default constructor
-    AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory="");
+    AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory = "");
     /// default destructor
     virtual ~AnalyzerWrapper(){};
-    /// everything which has to be done before the event loop 
-    virtual void beginJob() {  analyzer_->beginJob(); }
+    /// everything which has to be done before the event loop
+    virtual void beginJob() { analyzer_->beginJob(); }
     /// everything which has to be done during the event loop. NOTE: the event will be looped inside this function
     virtual void analyze();
     /// everything which has to be done after the event loop
-    virtual void endJob() {  analyzer_->endJob(); }
-    
+    virtual void endJob() { analyzer_->endJob(); }
+
   protected:
     /// helper class  for input parameter handling
     fwlite::InputSource inputHandler_;
@@ -130,41 +128,43 @@ namespace fwlite {
   };
 
   /// default contructor
-  template<class T>
-  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory): 
-  inputHandler_( cfg ), outputHandler_( cfg ), maxEvents_(inputHandler_.maxEvents()), 
-  reportAfter_(inputHandler_.reportAfter()), fileService_( outputHandler_.file() ) 
-  {
+  template <class T>
+  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory)
+      : inputHandler_(cfg),
+        outputHandler_(cfg),
+        maxEvents_(inputHandler_.maxEvents()),
+        reportAfter_(inputHandler_.reportAfter()),
+        fileService_(outputHandler_.file()) {
     // analysis specific parameters
     const edm::ParameterSet& ana = cfg.getParameter<edm::ParameterSet>(analyzerName.c_str());
-    if(directory.empty()){
+    if (directory.empty()) {
       // create analysis class of type BasicAnalyzer
-      analyzer_ = boost::shared_ptr<T>( new T( ana, fileService_) );  
-    }
-    else{
+      analyzer_ = boost::shared_ptr<T>(new T(ana, fileService_));
+    } else {
       // create a directory in the file if directory string is non empty
       TFileDirectory dir = fileService_.mkdir(directory);
-      analyzer_ = boost::shared_ptr<T>( new T( ana, dir ) );  
+      analyzer_ = boost::shared_ptr<T>(new T(ana, dir));
     }
   }
-    
-  /// everything which has to be done during the event loop. NOTE: the event will be looped inside this function    
-  template<class T> 
-  void AnalyzerWrapper<T>::analyze(){
-    int ievt=0;  
-    std::vector<std::string> const & inputFiles = inputHandler_.files();
+
+  /// everything which has to be done during the event loop. NOTE: the event will be looped inside this function
+  template <class T>
+  void AnalyzerWrapper<T>::analyze() {
+    int ievt = 0;
+    std::vector<std::string> const& inputFiles = inputHandler_.files();
     // loop the vector of input files
-    fwlite::ChainEvent event( inputFiles );
-    for(event.toBegin(); !event.atEnd(); ++event, ++ievt){
-      // break loop if maximal number of events is reached 
-      if(maxEvents_>0 ? ievt+1>maxEvents_ : false) break;
+    fwlite::ChainEvent event(inputFiles);
+    for (event.toBegin(); !event.atEnd(); ++event, ++ievt) {
+      // break loop if maximal number of events is reached
+      if (maxEvents_ > 0 ? ievt + 1 > maxEvents_ : false)
+        break;
       // simple event counter
-      if(reportAfter_!=0 ? (ievt>0 && ievt%reportAfter_==0) : false) 
-	std::cout << "  processing event: " << ievt << std::endl;
+      if (reportAfter_ != 0 ? (ievt > 0 && ievt % reportAfter_ == 0) : false)
+        std::cout << "  processing event: " << ievt << std::endl;
       // analyze event
       analyzer_->analyze(event);
     }
   }
-}
+}  // namespace fwlite
 
 #endif

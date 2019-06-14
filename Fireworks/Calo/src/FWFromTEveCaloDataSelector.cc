@@ -2,7 +2,7 @@
 //
 // Package:     Calo
 // Class  :     FWFromTEveCaloDataSelector
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -20,7 +20,6 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
-
 //
 // static data member definitions
 //
@@ -28,13 +27,10 @@
 //
 // constructors and destructor
 //
-FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData):
-m_data(iData),
-m_changeManager(nullptr)
-{                       
-   // reserve 3 , first slice is background
-   m_sliceSelectors.reserve(3);
-   m_sliceSelectors.push_back(new FWFromSliceSelector(nullptr));
+FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(TEveCaloData* iData) : m_data(iData), m_changeManager(nullptr) {
+  // reserve 3 , first slice is background
+  m_sliceSelectors.reserve(3);
+  m_sliceSelectors.push_back(new FWFromSliceSelector(nullptr));
 }
 
 // FWFromTEveCaloDataSelector::FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector& rhs)
@@ -42,13 +38,11 @@ m_changeManager(nullptr)
 //    // do actual copying here;
 // }
 
-FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector()
-{
-   for (std::vector<FWFromSliceSelector*>::iterator i = m_sliceSelectors.begin(); i != m_sliceSelectors.end(); ++i)
-   {
-      delete *i;
-   }
-   m_sliceSelectors.clear();
+FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector() {
+  for (std::vector<FWFromSliceSelector*>::iterator i = m_sliceSelectors.begin(); i != m_sliceSelectors.end(); ++i) {
+    delete *i;
+  }
+  m_sliceSelectors.clear();
 }
 
 //
@@ -66,61 +60,45 @@ FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector()
 //
 // member functions
 //
-void 
-FWFromTEveCaloDataSelector::doSelect()
-{
-   assert(m_changeManager);
-   FWChangeSentry sentry(*m_changeManager);
-   std::for_each(m_sliceSelectors.begin(),
-                 m_sliceSelectors.end(),
-                 boost::bind(&FWFromSliceSelector::clear,_1));
-   const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
-   for(TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(),itEnd=cellIds.end();
-       it != itEnd;
-       ++it) {
-      assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[it->fSlice]->doSelect(*it);
-   }
+void FWFromTEveCaloDataSelector::doSelect() {
+  assert(m_changeManager);
+  FWChangeSentry sentry(*m_changeManager);
+  std::for_each(m_sliceSelectors.begin(), m_sliceSelectors.end(), boost::bind(&FWFromSliceSelector::clear, _1));
+  const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
+  for (TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(), itEnd = cellIds.end(); it != itEnd; ++it) {
+    assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
+    m_sliceSelectors[it->fSlice]->doSelect(*it);
+  }
 }
 
-void 
-FWFromTEveCaloDataSelector::doUnselect()
-{
-   assert(m_changeManager);
-   //std::cout <<"FWFromTEveCaloDataSelector::doUnselect()"<<std::endl;
-   
-   FWChangeSentry sentry(*m_changeManager);
-   const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
-   for(TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(),itEnd=cellIds.end();
-       it != itEnd;
-       ++it) {
-      assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[it->fSlice]->doUnselect(*it);
-   }
+void FWFromTEveCaloDataSelector::doUnselect() {
+  assert(m_changeManager);
+  //std::cout <<"FWFromTEveCaloDataSelector::doUnselect()"<<std::endl;
+
+  FWChangeSentry sentry(*m_changeManager);
+  const TEveCaloData::vCellId_t& cellIds = m_data->GetCellsSelected();
+  for (TEveCaloData::vCellId_t::const_iterator it = cellIds.begin(), itEnd = cellIds.end(); it != itEnd; ++it) {
+    assert(it->fSlice < static_cast<int>(m_sliceSelectors.size()));
+    m_sliceSelectors[it->fSlice]->doUnselect(*it);
+  }
 }
 
-void 
-FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, FWFromSliceSelector* iSelector)
-{
-   assert(iSlice>0 && (iSlice <= static_cast<int>(m_sliceSelectors.size())));
+void FWFromTEveCaloDataSelector::addSliceSelector(int iSlice, FWFromSliceSelector* iSelector) {
+  assert(iSlice > 0 && (iSlice <= static_cast<int>(m_sliceSelectors.size())));
 
-   if(nullptr==m_changeManager) {
-      m_changeManager = iSelector->changeManager();
-   }
+  if (nullptr == m_changeManager) {
+    m_changeManager = iSelector->changeManager();
+  }
 
-   if(iSlice ==static_cast<int>(m_sliceSelectors.size())) {
-      m_sliceSelectors.push_back(iSelector);
-   } else {
-      assert(iSlice<static_cast<int>(m_sliceSelectors.size()));
-      m_sliceSelectors[iSlice]=iSelector;
-   }
+  if (iSlice == static_cast<int>(m_sliceSelectors.size())) {
+    m_sliceSelectors.push_back(iSelector);
+  } else {
+    assert(iSlice < static_cast<int>(m_sliceSelectors.size()));
+    m_sliceSelectors[iSlice] = iSelector;
+  }
 }
 
-void 
-FWFromTEveCaloDataSelector::resetSliceSelector(int iSlice)
-{
-   m_sliceSelectors[iSlice]->reset();
-}
+void FWFromTEveCaloDataSelector::resetSliceSelector(int iSlice) { m_sliceSelectors[iSlice]->reset(); }
 //
 // const member functions
 //

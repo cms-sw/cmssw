@@ -12,12 +12,9 @@
 
 class DTObjectMapESProducer : public edm::ESProducer {
 public:
-  DTObjectMapESProducer(const edm::ParameterSet&) {
-    setWhatProduced(this);
-  }
+  DTObjectMapESProducer(const edm::ParameterSet&) { setWhatProduced(this); }
 
-  ~DTObjectMapESProducer() override {
-  }
+  ~DTObjectMapESProducer() override {}
 
   std::unique_ptr<DTObjectMap> produce(MuonGeometryRecord const& record) {
     return std::make_unique<DTObjectMap>(record);
@@ -27,7 +24,6 @@ public:
     edm::ParameterSetDescription desc;
     descriptions.add("dtObjectMapESProducer", desc);
   }
-
 };
 
 //define this as a plug-in

@@ -16,32 +16,32 @@
 #include "DataFormats/TauReco/interface/CaloTauTagInfoFwd.h"
 #include "DataFormats/JetReco/interface/JetCollection.h"
 
-namespace reco{ 
+namespace reco {
   class CaloTauTagInfo : public BaseTauTagInfo {
   public:
-    CaloTauTagInfo(){}
+    CaloTauTagInfo() {}
     ~CaloTauTagInfo() override{};
-    virtual CaloTauTagInfo* clone()const;
-    
+    virtual CaloTauTagInfo* clone() const;
+
     //the reference to the CaloJet
-    const CaloJetRef& calojetRef()const;
+    const CaloJetRef& calojetRef() const;
     void setcalojetRef(const CaloJetRef);
 
-    const JetBaseRef jetRef()const;
+    const JetBaseRef jetRef() const;
     void setJetRef(const JetBaseRef);
 
-    const std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits()const;
-    void setpositionAndEnergyECALRecHits(const std::vector<std::pair<math::XYZPoint,float> >&);
+    const std::vector<std::pair<math::XYZPoint, float> > positionAndEnergyECALRecHits() const;
+    void setpositionAndEnergyECALRecHits(const std::vector<std::pair<math::XYZPoint, float> >&);
 
-    const std::vector<BasicClusterRef> neutralECALBasicClusters()const;
+    const std::vector<BasicClusterRef> neutralECALBasicClusters() const;
     void setneutralECALBasicClusters(const std::vector<BasicClusterRef>&);
+
   private:
     CaloJetRef CaloJetRef_;
-    std::vector<std::pair<math::XYZPoint,float> > positionAndEnergyECALRecHits_;
+    std::vector<std::pair<math::XYZPoint, float> > positionAndEnergyECALRecHits_;
     std::vector<BasicClusterRef> neutralECALBasicClusters_;
     JetBaseRef JetRef_;
   };
-}
+}  // namespace reco
 
 #endif
-

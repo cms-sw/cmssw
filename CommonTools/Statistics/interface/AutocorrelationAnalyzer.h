@@ -12,8 +12,7 @@
  *  \Author Rick Wilkinson, Fedor Ratnikov              
  */
 
-class AutocorrelationAnalyzer
-{
+class AutocorrelationAnalyzer {
 public:
   explicit AutocorrelationAnalyzer(int size);
 
@@ -22,9 +21,8 @@ public:
   double covariance(int i, int j);
   double correlation(int i, int j);
 
-  template<class T>
-  void analyze(const T & t)
-  {
+  template <class T>
+  void analyze(const T& t) {
     for (int ii = 0; ii < theSize; ii++) {
       theMeans[ii] += t[ii];
       for (int ij = ii; ij < theSize; ij++) {
@@ -33,8 +31,8 @@ public:
     }
     ++theNTotal;
   }
- 
-  friend std::ostream & operator<<(std::ostream & os, AutocorrelationAnalyzer & aa);
+
+  friend std::ostream& operator<<(std::ostream& os, AutocorrelationAnalyzer& aa);
 
 private:
   void calculate();
@@ -48,4 +46,3 @@ private:
 };
 
 #endif
-

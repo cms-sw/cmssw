@@ -15,17 +15,16 @@
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodSystematicsRcd.h"
 
+class QGLikelihoodSystematicsESProducer : public edm::ESProducer {
+public:
+  QGLikelihoodSystematicsESProducer(const edm::ParameterSet &);
+  ~QGLikelihoodSystematicsESProducer() override{};
 
-class QGLikelihoodSystematicsESProducer : public edm::ESProducer{
-   public:
-      QGLikelihoodSystematicsESProducer(const edm::ParameterSet&);
-      ~QGLikelihoodSystematicsESProducer() override{};
+  std::unique_ptr<QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd &);
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
 
-      std::unique_ptr<QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd&);
-      void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
-   private:
-      std::string mAlgo;
+private:
+  std::string mAlgo;
 };
 
-#endif 
-
+#endif

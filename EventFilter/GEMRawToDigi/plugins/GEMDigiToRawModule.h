@@ -25,25 +25,22 @@ namespace edm {
 }
 
 class GEMDigiToRawModule : public edm::global::EDProducer<edm::RunCache<GEMROMapping> > {
- public:
+public:
   /// Constructor
-  GEMDigiToRawModule(const edm::ParameterSet & pset);
+  GEMDigiToRawModule(const edm::ParameterSet& pset);
 
   // global::EDProducer
-  std::shared_ptr<GEMROMapping> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;  
+  std::shared_ptr<GEMROMapping> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
 
   // Fill parameters descriptions
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-
+private:
   int event_type_;
   edm::EDGetTokenT<GEMDigiCollection> digi_token;
   bool useDBEMap_;
 };
 DEFINE_FWK_MODULE(GEMDigiToRawModule);
 #endif
-
-

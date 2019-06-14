@@ -7,17 +7,16 @@
  *
  */
 
-
-#if (defined (STANDALONE) or defined (__CINT__) )
+#if (defined(STANDALONE) or defined(__CINT__))
 #include "TNamed.h"
 #endif
 
 // A class to implement the calculation of intervals for the binomial
 // parameter rho. The bulk of the work is done by derived classes that
 // implement calculate() appropriately.
-class BinomialInterval 
-#if (defined (STANDALONE) or defined (__CINT__) )
-: public TNamed
+class BinomialInterval
+#if (defined(STANDALONE) or defined(__CINT__))
+    : public TNamed
 #endif
 {
 public:
@@ -28,7 +27,7 @@ public:
 
   // Set alpha, type, and the cached values of kappa (the normal
   // quantile).
-  void init(const double alpha, const tail_type t=equal_tailed);
+  void init(const double alpha, const tail_type t = equal_tailed);
 
   virtual ~BinomialInterval() = default;
   // Methods which derived classes must implement.
@@ -44,7 +43,7 @@ public:
   // A simple test (depending on the tail type) whether a certain
   // value of the binomial parameter rho is in the interval or not.
   bool contains(double rho);
-  
+
   // Calculate and return the coverage probability given the true
   // binomial parameter rho and the number of trials.
   double coverage_prob(const double rho, const int trials);
@@ -67,7 +66,7 @@ public:
   // Construct nrho acceptance sets in rho = [0,1] given ntot trials
   // and put the results in x_l and x_r. The arrays must be allocated
   // as double[nrho].
-  virtual bool neyman(const int ntot, const int nrho, double* rho, double* x_l, double* x_r) { return false; } 
+  virtual bool neyman(const int ntot, const int nrho, double* rho, double* x_l, double* x_r) { return false; }
 
   // Dump a table of intervals from trials_min to trials_max, with
   // successes = 0 to trials for each. The table is produced in a file
@@ -81,21 +80,23 @@ public:
   double length() const { return upper_ - lower_; }
 
 protected:
-  double    alpha_;
+  double alpha_;
   tail_type type_;
-  double    alpha_min_;
-  double    kappa_;
-  double    kappa2_;
+  double alpha_min_;
+  double kappa_;
+  double kappa2_;
 
   double lower_;
   double upper_;
 
-  void set(double l, double u) { lower_ = l; upper_ = u; }
+  void set(double l, double u) {
+    lower_ = l;
+    upper_ = u;
+  }
 
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(BinomialInterval,1)
+#if (defined(STANDALONE) or defined(__CINT__))
+  ClassDef(BinomialInterval, 1)
 #endif
 };
 
 #endif
-

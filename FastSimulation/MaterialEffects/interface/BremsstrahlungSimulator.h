@@ -17,25 +17,20 @@
  *
  * \author Patrick Janot
  * $Date: 25-Dec-2003
- */ 
-
+ */
 
 class ParticlePropagator;
 class RandomEngineAndDistribution;
 
-class BremsstrahlungSimulator : public MaterialEffectsSimulator
-{
- public:
-
+class BremsstrahlungSimulator : public MaterialEffectsSimulator {
+public:
   /// Constructor
-  BremsstrahlungSimulator(double photonEnergyCut, 
-			  double photonFractECut);
+  BremsstrahlungSimulator(double photonEnergyCut, double photonFractECut);
 
   /// Default destructor
   ~BremsstrahlungSimulator() override {}
 
- private:
-  
+private:
   /// The minimum photon energy to be radiated, in GeV
   double photonEnergy;
 
@@ -49,16 +44,12 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
   unsigned int poisson(double ymu, RandomEngineAndDistribution const*);
 
   /// Generate Bremsstrahlung photons
-  void compute(ParticlePropagator &Particle, RandomEngineAndDistribution const*) override;
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
 
   /// Compute Brem photon energy and angles, if any.
   XYZTLorentzVector brem(ParticlePropagator& p, RandomEngineAndDistribution const*) const;
 
   /// A universal angular distribution - still from GEANT.
-  double gbteth(const double ener,
-		const double partm,
-		const double efrac,
-                RandomEngineAndDistribution const*) const;
-
+  double gbteth(const double ener, const double partm, const double efrac, RandomEngineAndDistribution const*) const;
 };
 #endif

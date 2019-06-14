@@ -14,55 +14,45 @@
 using namespace SurfaceOrientation;
 using namespace std;
 
-MagGeoBuilderFromDDD::bSlab::~bSlab(){}
+MagGeoBuilderFromDDD::bSlab::~bSlab() {}
 
-MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end) :
-  volumes(begin, end),
-  mslab(nullptr)
-{
+MagGeoBuilderFromDDD::bSlab::bSlab(handles::const_iterator begin, handles::const_iterator end)
+    : volumes(begin, end), mslab(nullptr) {
   if (volumes.size() > 1) {
     // Sort volumes by dphi i.e. phi(j)-phi(i) > 0 if j>1.
-    precomputed_value_sort(volumes.begin(), volumes.end(),
-			   ExtractPhiMax(), LessDPhi());
+    precomputed_value_sort(volumes.begin(), volumes.end(), ExtractPhiMax(), LessDPhi());
 
-  if (MagGeoBuilderFromDDD::debug) cout << "        Slab has " << volumes.size()
-		  << " volumes" << endl;
+    if (MagGeoBuilderFromDDD::debug)
+      cout << "        Slab has " << volumes.size() << " volumes" << endl;
 
     // Check that all volumes have the same dZ
     handles::const_iterator i = volumes.begin();
     float Zmax = (*i)->surface(zplus).position().z();
-    float Zmin= (*i)->surface(zminus).position().z();
-    for (++i; i != volumes.end(); ++i){
-      const float epsilon = 0.001;      
+    float Zmin = (*i)->surface(zminus).position().z();
+    for (++i; i != volumes.end(); ++i) {
+      const float epsilon = 0.001;
       if (fabs(Zmax - (*i)->surface(zplus).position().z()) > epsilon ||
-	  fabs(Zmin - (*i)->surface(zminus).position().z()) > epsilon) {
-	if (MagGeoBuilderFromDDD::debug) cout << "*** WARNING: slabs Z coords not matching: D_Zmax = "
-			<< fabs(Zmax - (*i)->surface(zplus).position().z())
-			<< " D_Zmin = " 
-			<< fabs(Zmin - (*i)->surface(zminus).position().z())
-			<< endl;
+          fabs(Zmin - (*i)->surface(zminus).position().z()) > epsilon) {
+        if (MagGeoBuilderFromDDD::debug)
+          cout << "*** WARNING: slabs Z coords not matching: D_Zmax = "
+               << fabs(Zmax - (*i)->surface(zplus).position().z())
+               << " D_Zmin = " << fabs(Zmin - (*i)->surface(zminus).position().z()) << endl;
       }
     }
   }
 }
 
-Geom::Phi<float> MagGeoBuilderFromDDD::bSlab::minPhi() const {
-  return volumes.front()->minPhi();
-}
+Geom::Phi<float> MagGeoBuilderFromDDD::bSlab::minPhi() const { return volumes.front()->minPhi(); }
 
-Geom::Phi<float>  MagGeoBuilderFromDDD::bSlab::maxPhi() const {
-  return volumes.back()->maxPhi();
-}
+Geom::Phi<float> MagGeoBuilderFromDDD::bSlab::maxPhi() const { return volumes.back()->maxPhi(); }
 
-
-MagBSlab * MagGeoBuilderFromDDD::bSlab::buildMagBSlab() const {
-  if (mslab==nullptr) {
+MagBSlab* MagGeoBuilderFromDDD::bSlab::buildMagBSlab() const {
+  if (mslab == nullptr) {
     vector<MagVolume*> mVols;
-    for (handles::const_iterator vol = volumes.begin();
-	 vol!=volumes.end(); ++vol) {
+    for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {
       mVols.push_back((*vol)->magVolume);
     }
-    mslab = new MagBSlab(mVols, volumes.front()->surface(zminus).position().z()); //FIXME
+    mslab = new MagBSlab(mVols, volumes.front()->surface(zminus).position().z());  //FIXME
   }
   return mslab;
 }

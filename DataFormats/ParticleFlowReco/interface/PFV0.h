@@ -13,43 +13,34 @@ class Conversion;
 
 namespace reco {
 
-
   class PFV0 {
   public:
+    /// Default constructor
+    PFV0() {}
 
-
- /// Default constructor
-    PFV0(){}
-    
     PFV0(const reco::VertexCompositeCandidateRef V0,
-	 const std::vector<reco::PFRecTrackRef>&  pftr,
-	 const std::vector<reco::TrackRef>&  tr):
-      originalV0_(V0),pfTracks_(pftr),tracks_(tr)
-      { }
-
-   
-
+         const std::vector<reco::PFRecTrackRef>& pftr,
+         const std::vector<reco::TrackRef>& tr)
+        : originalV0_(V0), pfTracks_(pftr), tracks_(tr) {}
 
     /// destructor
     ~PFV0(){};
 
     /// Ref to the original V0
-    const reco::VertexCompositeCandidateRef& originalV0() const   {return originalV0_;} 
-    
+    const reco::VertexCompositeCandidateRef& originalV0() const { return originalV0_; }
+
     /// Vector of a Refs of PFRecTrack
-    const std::vector<reco::PFRecTrackRef>& pfTracks() const {return pfTracks_ ;} 
+    const std::vector<reco::PFRecTrackRef>& pfTracks() const { return pfTracks_; }
 
     /// Vector of a Refs of Track
-    const std::vector<reco::TrackRef>& Tracks() const {return tracks_;} 
+    const std::vector<reco::TrackRef>& Tracks() const { return tracks_; }
 
   private:
-    
     reco::VertexCompositeCandidateRef originalV0_;
-    std::vector<reco::PFRecTrackRef>  pfTracks_;
-    std::vector<reco::TrackRef>  tracks_;
-
+    std::vector<reco::PFRecTrackRef> pfTracks_;
+    std::vector<reco::TrackRef> tracks_;
   };
 
-}
+}  // namespace reco
 
 #endif

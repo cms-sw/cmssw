@@ -14,14 +14,16 @@
 
 namespace tauImpactParameter {
 
-class  ErrorMatrixPropagator {
- public:
-  ErrorMatrixPropagator(){};
-  virtual ~ErrorMatrixPropagator(){};
-  static TMatrixTSym<double> propagateError(std::function<TVectorT<double>(const TVectorT<double>&)> f, const TVectorT<double>& inPar, TMatrixTSym<double>& inCov, double epsilon=0.001, double errorEpsilonRatio=1000);
-};
+  class ErrorMatrixPropagator {
+  public:
+    ErrorMatrixPropagator(){};
+    virtual ~ErrorMatrixPropagator(){};
+    static TMatrixTSym<double> propagateError(std::function<TVectorT<double>(const TVectorT<double>&)> f,
+                                              const TVectorT<double>& inPar,
+                                              TMatrixTSym<double>& inCov,
+                                              double epsilon = 0.001,
+                                              double errorEpsilonRatio = 1000);
+  };
 
-}
+}  // namespace tauImpactParameter
 #endif
-
-

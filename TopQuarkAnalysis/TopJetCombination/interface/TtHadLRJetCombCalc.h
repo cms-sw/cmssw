@@ -16,17 +16,15 @@
 #include "TString.h"
 
 class TtHadLRJetCombCalc {
-
- public:
-  
+public:
   TtHadLRJetCombCalc();
-  TtHadLRJetCombCalc(const TString&,const std::vector<int>&);
-  ~TtHadLRJetCombCalc();	
-  
-  void  operator()(TtHadEvtSolution&);
-  
- private:
-  LRHelpFunctions * myLR;
+  TtHadLRJetCombCalc(const TString&, const std::vector<int>&);
+  ~TtHadLRJetCombCalc();
+
+  void operator()(TtHadEvtSolution&);
+
+private:
+  LRHelpFunctions* myLR;
   bool addPurity;
 };
 

@@ -8,12 +8,10 @@
 #include "DataFormats/Common/interface/OwnVector.h"
 #include <vector>
 
-typedef  edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D> > SiStripMatchedRecHit2DCollectionOld;
-
+typedef edm::RangeMap<DetId, edm::OwnVector<SiStripMatchedRecHit2D> > SiStripMatchedRecHit2DCollectionOld;
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 typedef edmNew::DetSetVector<SiStripMatchedRecHit2D> SiStripMatchedRecHit2DCollection;
 typedef SiStripMatchedRecHit2DCollection SiStripMatchedRecHit2DCollectionNew;
-
 
 #endif

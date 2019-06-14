@@ -132,7 +132,7 @@ double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) c
 
 bool ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaeta, double & sigmaphiphi, double & sigmaetaetal, double & sigmaphiphil ) const {
 
-  if (getLayer(clus.hitsAndFractions()[0].first) > lastLayerEE) return false;
+  if (getLayer(clus.hitsAndFractions()[0].first) > (int) rhtools_.lastLayerEE()) return false;
   const math::XYZPoint & position(clus.position());
   unsigned nhit=clus.hitsAndFractions().size();
 

@@ -15,6 +15,7 @@
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/PrintGeomInfo"/>
 <use name="SimRomanPot/SimFP420"/>
+<use name="SimG4Core/DD4hepGeometry"/>
 <use name="Validation/HcalHits"/>
 <use name="Validation/EcalHits"/>
 <use name="SimDataFormats/ValidationFormats"/>

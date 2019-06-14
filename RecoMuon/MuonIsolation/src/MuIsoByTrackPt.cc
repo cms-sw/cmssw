@@ -13,44 +13,38 @@
 #include <vector>
 #include <iostream>
 
-using std::vector;
-using std::string;
 using reco::IsoDeposit;
+using std::string;
+using std::vector;
 using namespace muonisolation;
 
-
-MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector && iC)
-{
+MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC) {
   edm::ParameterSet extractorPSet = conf.getParameter<edm::ParameterSet>("ExtractorPSet");
   string extractorName = extractorPSet.getParameter<string>("ComponentName");
-  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>(IsoDepositExtractorFactoryFromHelper::get()->create(extractorName, extractorPSet, iC));
+  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>(
+      IsoDepositExtractorFactoryFromHelper::get()->create(extractorName, extractorPSet, iC));
 
   theCut = conf.getUntrackedParameter<double>("Threshold", 0.);
-  float coneSize =  conf.getUntrackedParameter<double>("ConeSize", 0.);
-  vector<double> weights(1,1.);
+  float coneSize = conf.getUntrackedParameter<double>("ConeSize", 0.);
+  vector<double> weights(1, 1.);
   theIsolator = std::make_unique<IsolatorByDeposit>(coneSize, weights);
 }
 
 MuIsoByTrackPt::~MuIsoByTrackPt() = default;
 
-void MuIsoByTrackPt::setConeSize(float dr)
-{
-  theIsolator->setConeSize(dr);
-}
+void MuIsoByTrackPt::setConeSize(float dr) { theIsolator->setConeSize(dr); }
 
-float MuIsoByTrackPt::isolation(const edm::Event& ev, const edm::EventSetup& es, const reco::Track & muon)
-{
-  IsoDeposit dep = extractor()->deposit(ev,es,muon);
+float MuIsoByTrackPt::isolation(const edm::Event& ev, const edm::EventSetup& es, const reco::Track& muon) {
+  IsoDeposit dep = extractor()->deposit(ev, es, muon);
   MuIsoBaseIsolator::DepositContainer deposits;
   deposits.push_back(&dep);
-  if (isolator()->resultType() == MuIsoBaseIsolator::ISOL_FLOAT_TYPE){
+  if (isolator()->resultType() == MuIsoBaseIsolator::ISOL_FLOAT_TYPE) {
     return isolator()->result(deposits).valFloat;
   }
 
   return -999.;
 }
 
-bool MuIsoByTrackPt::isIsolated(const edm::Event& ev, const edm::EventSetup& es, const reco::Track& muon)
-{
-  return (isolation(ev,es,muon) > theCut);
+bool MuIsoByTrackPt::isIsolated(const edm::Event& ev, const edm::EventSetup& es, const reco::Track& muon) {
+  return (isolation(ev, es, muon) > theCut);
 }

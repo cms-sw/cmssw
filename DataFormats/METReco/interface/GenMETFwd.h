@@ -7,11 +7,11 @@
 
 namespace reco {
   class GenMET;
-  /// collection of GenMET objects 
+  /// collection of GenMET objects
   typedef std::vector<GenMET> GenMETCollection;
   /// edm references
   typedef edm::Ref<GenMETCollection> GenMETRef;
   typedef edm::RefVector<GenMETCollection> GenMETRefVector;
   typedef edm::RefProd<GenMETCollection> GenMETRefProd;
-}
+}  // namespace reco
 #endif

@@ -21,13 +21,39 @@
 #include <algorithm>
 #include <cmath>
 
-
 class TrackProducerFP420 {
 public:
+  typedef std::vector<ClusterFP420>::const_iterator ClusterFP420Iter;
 
-  typedef std::vector<ClusterFP420>::const_iterator           ClusterFP420Iter;
-
-  TrackProducerFP420(int, int, int, int, double, double, double, double, double, double, double, double, double, double, double, double, double, bool, bool, bool, bool, double, double, float, float, double, int, double, double);
+  TrackProducerFP420(int,
+                     int,
+                     int,
+                     int,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     double,
+                     bool,
+                     bool,
+                     bool,
+                     bool,
+                     double,
+                     double,
+                     float,
+                     float,
+                     double,
+                     int,
+                     double,
+                     double);
 
   //  std::vector<TrackFP420> trackFinderMaxAmplitude(ClusterCollectionFP420 input);
   //  std::vector<TrackFP420> trackFinderMaxAmplitude2(ClusterCollectionFP420 input);
@@ -35,61 +61,58 @@ public:
   //  // std::vector<TrackFP420> trackFinderVar1(ClusterCollectionFP420 input);
   //  //std::vector<TrackFP420> trackFinderVar2(ClusterCollectionFP420 input);
 
-    //    std::vector<TrackFP420> trackFinderSophisticated(ClusterCollectionFP420 input);
-    std::vector<TrackFP420> trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input, int det);
+  //    std::vector<TrackFP420> trackFinderSophisticated(ClusterCollectionFP420 input);
+  std::vector<TrackFP420> trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input, int det);
 
   //  std::vector<TrackFP420> trackFinder3D(ClusterCollectionFP420 input);
 
 private:
   ClusterCollectionFP420 soutput;
 
-  std::vector<TrackFP420> rhits; 
+  std::vector<TrackFP420> rhits;
 
- // Number of Stations:
- int sn0;
- // Number of superplanes:
- int pn0;
- // Number of sensors
- int rn0;
- // Number of planes:
- int xytype;
+  // Number of Stations:
+  int sn0;
+  // Number of superplanes:
+  int pn0;
+  // Number of sensors
+  int rn0;
+  // Number of planes:
+  int xytype;
 
- // shift of planes:
-	bool UseHalfPitchShiftInX;
-	bool UseHalfPitchShiftInY;
-	bool UseHalfPitchShiftInXW;
-	bool UseHalfPitchShiftInYW;
+  // shift of planes:
+  bool UseHalfPitchShiftInX;
+  bool UseHalfPitchShiftInY;
+  bool UseHalfPitchShiftInXW;
+  bool UseHalfPitchShiftInYW;
 
-	//double zUnit; 
-	double z420; 
-	double zD2; 
-	double zD3; 
-	double pitchX;
-	double pitchY;
-	double pitchXW;
-	double pitchYW;
-        double ZGapLDet;
-	//double ZBoundDet;
-	double ZSiStep;
-	double ZSiPlane;
-	double ZSiDet ;
-	double zBlade;
-	double gapBlade;
+  //double zUnit;
+  double z420;
+  double zD2;
+  double zD3;
+  double pitchX;
+  double pitchY;
+  double pitchXW;
+  double pitchYW;
+  double ZGapLDet;
+  //double ZBoundDet;
+  double ZSiStep;
+  double ZSiPlane;
+  double ZSiDet;
+  double zBlade;
+  double gapBlade;
 
-	double dXX;
-	double dYY;
-	float chiCutX;
-	float chiCutY;
+  double dXX;
+  double dYY;
+  float chiCutX;
+  float chiCutY;
 
-	double zinibeg;
+  double zinibeg;
 
-	int verbos;
+  int verbos;
 
-	double XsensorSize;
-	double YsensorSize;
-
+  double XsensorSize;
+  double YsensorSize;
 };
-
-
 
 #endif

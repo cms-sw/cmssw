@@ -26,7 +26,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
 /**
     @file Constraint_Intermed.h
 
@@ -68,51 +67,45 @@
     With consent from the original author (Scott Snyder).
  */
 
-
 #ifndef HITFIT_CONSTRAINT_INTERMED_H
 #define HITFIT_CONSTRAINT_INTERMED_H
-
 
 #include <iosfwd>
 #include <vector>
 #include <string>
 #include <memory>
 
-
 namespace hitfit {
 
+  class Fourvec_Event;
 
-class Fourvec_Event;
+  //************************************************************************
 
-
-//************************************************************************
-
-
-/**
+  /**
    @class Constraint_Intermed.
 
    @brief Abstract base classes for describing one side of a mass constraint.
  */
-class Constraint_Intermed
-//
-// Purpose: Abstract base class for describing one side of a mass constraint.
-//
-{
-public:
-  // Constructor, destructor.
+  class Constraint_Intermed
+  //
+  // Purpose: Abstract base class for describing one side of a mass constraint.
+  //
+  {
+  public:
+    // Constructor, destructor.
 
-  /**
+    /**
      Constructor.
    */
-  Constraint_Intermed () {}
+    Constraint_Intermed() {}
 
-  /**
+    /**
      Destructor.
    */
-  virtual ~Constraint_Intermed () {}
+    virtual ~Constraint_Intermed() {}
 
-  // Return true if this guy references both labels ILABEL and JLABEL.
-  /**
+    // Return true if this guy references both labels ILABEL and JLABEL.
+    /**
 
      Check the instance for reference of <i>ilabel</i> and <i>jlabel</i>.
 
@@ -125,11 +118,11 @@ public:
      <b>false</b> if this instance doesn't reference both labels.
 
    */
-  virtual bool has_labels (int ilabel, int jlabel) const = 0;
+    virtual bool has_labels(int ilabel, int jlabel) const = 0;
 
-  // Evaluate this half of the mass constraint, using the data in EV.
-  // Return m^2/2.
-  /**
+    // Evaluate this half of the mass constraint, using the data in EV.
+    // Return m^2/2.
+    /**
      Evaluate this half of the mass constraint, using the data in <i>ev</i>.
 
      @param ev The event for which the mass constraint is to be evaluated.
@@ -137,62 +130,59 @@ public:
      @par Return:
      \f$\frac{m^{2}}{2}\f$.
    */
-  virtual double sum_mass_terms (const Fourvec_Event& ev) const = 0;
+    virtual double sum_mass_terms(const Fourvec_Event& ev) const = 0;
 
-  // Print out this object.
-  /**
+    // Print out this object.
+    /**
      Print out the instance to the output stream.
 
      @param s The output stream to which the instance is printed.
    */
-  virtual void print (std::ostream& s) const = 0;
+    virtual void print(std::ostream& s) const = 0;
 
-  // Copy this object.
-  /**
+    // Copy this object.
+    /**
      Clone function to copy the instance.
    */
-  virtual std::unique_ptr<Constraint_Intermed> clone () const = 0;
-};
+    virtual std::unique_ptr<Constraint_Intermed> clone() const = 0;
+  };
 
+  //************************************************************************
 
-//************************************************************************
-
-
-/**
+  /**
    @class Constraint_Intermed_Constant
    @brief Concrete class for one side of mass constraint
    equation of the type:<br>
    \f$(1 + 2) = C\f$.
  */
-class Constraint_Intermed_Constant
-  : public Constraint_Intermed
-//
-// Purpose: Concrete base class for a constant mass constraint half.
-//
-{
-public:
-  // Constructor, destructor.
-  /**
+  class Constraint_Intermed_Constant : public Constraint_Intermed
+  //
+  // Purpose: Concrete base class for a constant mass constraint half.
+  //
+  {
+  public:
+    // Constructor, destructor.
+    /**
      Constructor.
 
      @param constant The mass constraint of the constraint equation.
    */
-  Constraint_Intermed_Constant (double constant);
+    Constraint_Intermed_Constant(double constant);
 
-  /**
+    /**
      Destructor.
    */
-  ~Constraint_Intermed_Constant () override {};
+    ~Constraint_Intermed_Constant() override{};
 
-  // Copy constructor.
-  /**
+    // Copy constructor.
+    /**
      Copy constructor.
      @param c The instance to be copied.
    */
-  Constraint_Intermed_Constant (const Constraint_Intermed_Constant& c);
+    Constraint_Intermed_Constant(const Constraint_Intermed_Constant& c);
 
-  // Return true if this guy references both labels ILABEL and JLABEL.
-  /**
+    // Return true if this guy references both labels ILABEL and JLABEL.
+    /**
 
      Check the instance for reference of <i>ilabel</i> and <i>jlabel</i>.
 
@@ -205,11 +195,11 @@ public:
      <b>false</b> if this instance doesn't reference both labels.
 
    */
-  bool has_labels (int ilabel, int jlabel) const override;
+    bool has_labels(int ilabel, int jlabel) const override;
 
-  // Evaluate this half of the mass constraint, using the data in EV.
-  // Return m^2/2.
-  /**
+    // Evaluate this half of the mass constraint, using the data in EV.
+    // Return m^2/2.
+    /**
      Evaluate this half of the mass constraint, using the data in <i>ev</i>.
 
      @param ev The event for which the mass constraint is to be evaluated.
@@ -217,35 +207,33 @@ public:
      @par Return:
      \f$\frac{m^{2}}{2}\f$.
    */
-  double sum_mass_terms (const Fourvec_Event& ev) const override;
+    double sum_mass_terms(const Fourvec_Event& ev) const override;
 
-  // Print out this object.
-  /**
+    // Print out this object.
+    /**
      Print out the instance to the output stream.
 
      @param s The output stream to which the instance is printed.
    */
-  void print (std::ostream& s) const override;
+    void print(std::ostream& s) const override;
 
-  // Copy this object.
-  /**
+    // Copy this object.
+    /**
      Clone function to copy the instance.
    */
-  std::unique_ptr<Constraint_Intermed> clone () const override;
+    std::unique_ptr<Constraint_Intermed> clone() const override;
 
-private:
-  // Store c^2 / 2.
-  /**
+  private:
+    // Store c^2 / 2.
+    /**
      The mass constraint value.
    */
-  double _c2;
-};
+    double _c2;
+  };
 
+  //************************************************************************
 
-//************************************************************************
-
-
-/**
+  /**
 
    @class Constraint_Intermed_Labels
 
@@ -254,29 +242,26 @@ private:
    \f$(1 + 2) =  (3 + 4)\f$.
 
  */
-class Constraint_Intermed_Labels
-  : public Constraint_Intermed
-{
-public:
-
-  /**
+  class Constraint_Intermed_Labels : public Constraint_Intermed {
+  public:
+    /**
      Constructor.
      @param labels The labels used by this side of mass constraint.
    */
-  Constraint_Intermed_Labels (const std::vector<int>& labels);
+    Constraint_Intermed_Labels(const std::vector<int>& labels);
 
-  /**
+    /**
      Copy constructor.
      @param c The instance of Constraint_Intermed_Labels to be copied.
    */
-  Constraint_Intermed_Labels (const Constraint_Intermed_Labels& c);
-  /**
+    Constraint_Intermed_Labels(const Constraint_Intermed_Labels& c);
+    /**
      Destructor.
    */
-  ~Constraint_Intermed_Labels () override {};
+    ~Constraint_Intermed_Labels() override{};
 
-  // Return true if this guy references both labels ILABEL and JLABEL.
-  /**
+    // Return true if this guy references both labels ILABEL and JLABEL.
+    /**
 
      Check the instance for reference of <i>ilabel</i> and <i>jlabel</i>.
 
@@ -289,11 +274,11 @@ public:
      <b>false</b> if this instance doesn't reference both labels.
 
    */
-  bool has_labels (int ilabel, int jlabel) const override;
+    bool has_labels(int ilabel, int jlabel) const override;
 
-  // Evaluate this half of the mass constraint, using the data in EV.
-  // Return m^2/2.
-  /**
+    // Evaluate this half of the mass constraint, using the data in EV.
+    // Return m^2/2.
+    /**
      Evaluate this half of the mass constraint, using the data in <i>ev</i>.
 
      @param ev The event for which the mass constraint is to be evaluated.
@@ -301,59 +286,55 @@ public:
      @par Return:
      \f$\frac{m^{2}}{2}\f$.
    */
-  double sum_mass_terms (const Fourvec_Event& ev) const override;
+    double sum_mass_terms(const Fourvec_Event& ev) const override;
 
-  // Print out this object.
-  /**
+    // Print out this object.
+    /**
      Print out the instance to the output stream.
 
      @param s The output stream to which the instance is printed.
    */
-  void print (std::ostream& s) const override;
+    void print(std::ostream& s) const override;
 
-  // Copy this object.
-  /**
+    // Copy this object.
+    /**
      Clone function to copy the instance.
    */
-  std::unique_ptr<Constraint_Intermed> clone () const override;
+    std::unique_ptr<Constraint_Intermed> clone() const override;
 
-private:
-  // Test to see if LABEL is used by this constraint half.
-  /**
+  private:
+    // Test to see if LABEL is used by this constraint half.
+    /**
      Test to see if <i>label</i> is used by this side of the mass constraint.
      @param label The label for which to search.
      @par Return:
      <b>true</b> is this constraint use the label.
      <b>false</b> if this constraint doesn't use the label.
    */
-  bool has_label (int label) const;
+    bool has_label(int label) const;
 
-  // List of the labels for this constraint half, kept in sorted order.
-  /**
+    // List of the labels for this constraint half, kept in sorted order.
+    /**
      List of the labels for this side of mass constraint, kept in sorted
      order.
    */
-  std::vector<int> _labels;
+    std::vector<int> _labels;
 
-  // Disallow assignment
-  /**
+    // Disallow assignment
+    /**
      Disallow assignment by NOT defining the assignment operation.
    */
-  Constraint_Intermed& operator= (const Constraint_Intermed&);
-};
+    Constraint_Intermed& operator=(const Constraint_Intermed&);
+  };
 
+  //************************************************************************
 
+  // Print out a Constraint_Intermed object.
+  std::ostream& operator<<(std::ostream& s, const Constraint_Intermed& ci);
 
-//************************************************************************
-
-
-// Print out a Constraint_Intermed object.
-std::ostream& operator<< (std::ostream& s, const Constraint_Intermed& ci);
-
-
-// Parse the string S and construct the appropriate Constraint_Intermed
-// instance.
-/**
+  // Parse the string S and construct the appropriate Constraint_Intermed
+  // instance.
+  /**
    Helper function to parse input string <i>s</i> and construct the
    appropriate Constraint_Intermed instance.  Returns null if the input
    string cannot be interpreted as a mass constraint.
@@ -378,10 +359,8 @@ std::ostream& operator<< (std::ostream& s, const Constraint_Intermed& ci);
    <b>NULL pointer</b> if the input string cannot be interpreted as
    a mass constraint.
  */
-std::unique_ptr<Constraint_Intermed> make_constraint_intermed (std::string s);
+  std::unique_ptr<Constraint_Intermed> make_constraint_intermed(std::string s);
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_CONSTRAINT_INTERMED_H
+#endif  // not HITFIT_CONSTRAINT_INTERMED_H

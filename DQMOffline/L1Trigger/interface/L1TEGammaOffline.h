@@ -36,25 +36,18 @@
 // stage2 collections:
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
-class L1TEGammaOffline: public DQMEDAnalyzer {
-
+class L1TEGammaOffline : public DQMEDAnalyzer {
 public:
-
   L1TEGammaOffline(const edm::ParameterSet& ps);
   ~L1TEGammaOffline() override;
 
-  enum PlotConfig {
-    nVertex,
-    ETvsET,
-    PHIvsPHI
-  };
+  enum PlotConfig { nVertex, ETvsET, PHIvsPHI };
 
   static const std::map<std::string, unsigned int> PlotConfigNames;
 
 protected:
-
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void endJob() override;
@@ -62,12 +55,12 @@ protected:
 private:
   bool passesLooseEleId(reco::GsfElectron const& electron) const;
   bool passesMediumEleId(reco::GsfElectron const& electron) const;
-  void bookElectronHistos(DQMStore::IBooker &);
-  void bookPhotonHistos(DQMStore::IBooker &);
+  void bookElectronHistos(DQMStore::IBooker&);
+  void bookPhotonHistos(DQMStore::IBooker&);
 
   //other functions
-  double Distance(const reco::Candidate & c1, const reco::Candidate & c2);
-  double DistancePhi(const reco::Candidate & c1, const reco::Candidate & c2);
+  double Distance(const reco::Candidate& c1, const reco::Candidate& c2);
+  double DistancePhi(const reco::Candidate& c1, const reco::Candidate& c2);
   double calcDeltaPhi(double phi1, double phi2);
 
   void fillElectrons(edm::Event const& e, const unsigned int nVertex);
@@ -96,7 +89,7 @@ private:
   std::vector<double> electronEfficiencyThresholds_;
   std::vector<double> electronEfficiencyBins_;
   double probeToL1Offset_;
-  std::vector<double>deepInspectionElectronThresholds_;
+  std::vector<double> deepInspectionElectronThresholds_;
 
   std::vector<double> photonEfficiencyThresholds_;
   std::vector<double> photonEfficiencyBins_;
@@ -195,7 +188,6 @@ private:
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_total_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EE_total_;
   std::map<double, MonitorElement*> h_efficiencyPhotonET_EB_EE_total_;
-
 };
 
 #endif

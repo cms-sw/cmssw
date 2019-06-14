@@ -17,17 +17,15 @@ class SiPixelFedCablingMap;
 
 class SiPixelFrameReverter {
 public:
-
   SiPixelFrameReverter(const edm::EventSetup&, const SiPixelFedCabling* map);
 
   void buildStructure(edm::EventSetup const&);
 
   // Function to test if detId exists
-  bool hasDetUnit(uint32_t detId) const { return (DetToFedMap.find(detId)!=DetToFedMap.end()); }
+  bool hasDetUnit(uint32_t detId) const { return (DetToFedMap.find(detId) != DetToFedMap.end()); }
 
   // Function to convert offline addressing to online
-  int toCabling( sipixelobjects::ElectronicIndex & cabling, 
-                 const sipixelobjects::DetectorIndex & detector) const;
+  int toCabling(sipixelobjects::ElectronicIndex& cabling, const sipixelobjects::DetectorIndex& detector) const;
 
   // Function to find FedId given detId
   int findFedId(uint32_t detId);
@@ -48,12 +46,8 @@ public:
   sipixelobjects::LocalPixel findPixelInRoc(uint32_t detId, sipixelobjects::GlobalPixel global);
 
 private:
+  const SiPixelFedCabling* map_;
 
-  const SiPixelFedCabling * map_;
-
-  std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > DetToFedMap;
-
+  std::map<uint32_t, std::vector<sipixelobjects::CablingPathToDetUnit> > DetToFedMap;
 };
 #endif
-
-

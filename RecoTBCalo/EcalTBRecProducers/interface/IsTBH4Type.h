@@ -2,7 +2,7 @@
 //
 // Package:    IsTBH4Type
 // Class:      IsTBH4Type
-// 
+//
 /**\class IsTBH4Type IsTBH4Type.cc RecoTBCalo/IsTBH4Type/src/IsTBH4Type.cc
 
  Description: tag a given type of run
@@ -15,7 +15,6 @@
 //         Created:  Thu Aug 10 16:21:22 CEST 2006
 //
 //
-
 
 // system include files
 #include <memory>
@@ -34,24 +33,21 @@
 //
 
 class IsTBH4Type : public edm::EDFilter {
-   public:
-      explicit IsTBH4Type(const edm::ParameterSet&);
-      ~IsTBH4Type() override;
+public:
+  explicit IsTBH4Type(const edm::ParameterSet&);
+  ~IsTBH4Type() override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   private:
+private:
+  // ----------member data ---------------------------
 
-      // ----------member data ---------------------------
-      
-   //! collection of the event header
-   std::string eventHeaderCollection_ ;
-   //! producer of the event header
-   std::string eventHeaderProducer_ ;
-   //! type of run to flag
-   std::string typeToFlag_ ;
-   //! what to return in case no header is found
-   bool notFound_ ;
-
+  //! collection of the event header
+  std::string eventHeaderCollection_;
+  //! producer of the event header
+  std::string eventHeaderProducer_;
+  //! type of run to flag
+  std::string typeToFlag_;
+  //! what to return in case no header is found
+  bool notFound_;
 };
-

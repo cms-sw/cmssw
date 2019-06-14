@@ -3,4 +3,4 @@
 
 typedef StringCutEventSelector<reco::Candidate> CandidateEventSelector;
 typedef StringCutsEventSelector<reco::Candidate> CandidateSEventSelector;
-typedef StringCutsEventSelector<reco::Candidate,false> CandidateSEventVetoSelector;
+typedef StringCutsEventSelector<reco::Candidate, false> CandidateSEventVetoSelector;

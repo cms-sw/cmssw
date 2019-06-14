@@ -21,30 +21,24 @@
 #include <limits>
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-
 /*-----------------------------------------------------------------*
  * constants
  *-----------------------------------------------------------------*/
 /* nope */
 
-
-
 /**
  *  This class implements data structure for CutValue
  */
-struct L1TUtmCutValue
-{
+struct L1TUtmCutValue {
   // ctor
   L1TUtmCutValue()
-    : value(std::numeric_limits<double>::max()),
-      index(std::numeric_limits<unsigned int>::max()),
-      version(0) { };
+      : value(std::numeric_limits<double>::max()), index(std::numeric_limits<unsigned int>::max()), version(0){};
 
-  double value;               /**< cut value */
-  unsigned int index;         /**< HW index for the cut value */
+  double value;       /**< cut value */
+  unsigned int index; /**< HW index for the cut value */
   unsigned int version;
   COND_SERIALIZABLE;
 };
 
-#endif // tmEventSetup_L1TUtmCutValue_hh
+#endif  // tmEventSetup_L1TUtmCutValue_hh
 /* eof */

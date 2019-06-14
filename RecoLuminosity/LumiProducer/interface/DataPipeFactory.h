@@ -3,7 +3,7 @@
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include <string>
-namespace lumi{
-  typedef edmplugin::PluginFactory< lumi:: DataPipe*( const std::string& ) > DataPipeFactory;
+namespace lumi {
+  typedef edmplugin::PluginFactory<lumi::DataPipe*(const std::string&)> DataPipeFactory;
 }
 #endif

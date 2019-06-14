@@ -13,8 +13,6 @@
 //                                                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,15 +28,12 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/METReco/interface/MET.h"
 
-
 class WMuNuProducer : public edm::EDProducer {
 public:
   WMuNuProducer(const edm::ParameterSet&);
   ~WMuNuProducer() override;
 
-
 private:
-
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
   void endJob() override;
@@ -47,17 +42,15 @@ private:
   edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
 
   struct ComparePt {
-            bool operator()(reco::WMuNuCandidate w1, reco::WMuNuCandidate w2 ) const {
-                  double pt1 = w1.getMuon().pt();
-                  double pt2 = w2.getMuon().pt();
-                  return (pt1> pt2);
-            }
-   };
+    bool operator()(reco::WMuNuCandidate w1, reco::WMuNuCandidate w2) const {
+      double pt1 = w1.getMuon().pt();
+      double pt2 = w2.getMuon().pt();
+      return (pt1 > pt2);
+    }
+  };
   ComparePt ptComparator;
 
   unsigned int nall;
-
-
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -78,86 +71,76 @@ private:
 
 #include "DataFormats/Common/interface/View.h"
 
-
-
-
 using namespace edm;
 using namespace std;
 using namespace reco;
 
-WMuNuProducer::WMuNuProducer( const ParameterSet & cfg ) :
-      // Input collections
-      muonToken_(consumes<View<Muon> >(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons")))),
-      metToken_(consumes<View<MET> >(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))))
-{
-  produces< WMuNuCandidateCollection >();
+WMuNuProducer::WMuNuProducer(const ParameterSet& cfg)
+    :  // Input collections
+      muonToken_(consumes<View<Muon> >(cfg.getUntrackedParameter<edm::InputTag>("MuonTag", edm::InputTag("muons")))),
+      metToken_(consumes<View<MET> >(cfg.getUntrackedParameter<edm::InputTag>("METTag", edm::InputTag("met")))) {
+  produces<WMuNuCandidateCollection>();
 }
 
-void WMuNuProducer::beginJob() {
+void WMuNuProducer::beginJob() {}
+
+void WMuNuProducer::endJob() { LogTrace("") << "WMuNuCandidateCollection Stored in the Event"; }
+
+WMuNuProducer::~WMuNuProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
-void WMuNuProducer::endJob() {
-   LogTrace("")<<"WMuNuCandidateCollection Stored in the Event";
-}
+void WMuNuProducer::produce(Event& ev, const EventSetup&) {
+  // Muon collection
+  Handle<View<Muon> > muonCollection;
+  if (!ev.getByToken(muonToken_, muonCollection)) {
+    LogError("") << ">>> Muon collection does not exist !!!";
+    return;
+  }
+  int muonCollectionSize = muonCollection->size();
 
+  // MET
+  Handle<View<MET> > metCollection;
+  if (!ev.getByToken(metToken_, metCollection)) {
+    LogError("") << ">>> MET collection does not exist !!!";
+    return;
+  }
+  //const MET& Met = metCollection->at(0);
+  edm::Ptr<reco::MET> met(metCollection, 0);
 
-WMuNuProducer::~WMuNuProducer()
-{
+  if (muonCollectionSize < 1)
+    return;
 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+  unique_ptr<WMuNuCandidateCollection> WMuNuCandidates(new WMuNuCandidateCollection);
 
-}
+  // Fill Collection with n muons --> n W Candidates ordered by pt
 
+  for (int indx = 0; indx < muonCollectionSize; indx++) {
+    edm::Ptr<reco::Muon> muon(muonCollection, indx);
+    if (!muon->isGlobalMuon())
+      continue;
+    if (muon->globalTrack().isNull())
+      continue;
+    if (muon->innerTrack().isNull())
+      continue;
 
-void WMuNuProducer::produce (Event & ev, const EventSetup &) {
+    // Build WMuNuCandidate
+    LogTrace("") << "Building WMuNu Candidate!";
+    WMuNuCandidate* WCand = new WMuNuCandidate(muon, met);
+    LogTrace("") << "\t... W mass, W_et: " << WCand->massT() << ", " << WCand->eT() << "[GeV]";
+    LogTrace("") << "\t... W_px, W_py: " << WCand->px() << ", " << WCand->py() << "[GeV]";
+    LogTrace("") << "\t... acop:  " << WCand->acop();
+    LogTrace("") << "\t... Muon pt, px, py, pz: " << WCand->getMuon().pt() << ", " << WCand->getMuon().px() << ", "
+                 << WCand->getMuon().py() << ", " << WCand->getMuon().pz() << " [GeV]";
+    LogTrace("") << "\t... Met  met_et, met_px, met_py : " << WCand->getNeutrino().pt() << ", "
+                 << WCand->getNeutrino().px() << ", " << WCand->getNeutrino().py() << " [GeV]";
+    WMuNuCandidates->push_back(*WCand);
+  }
 
-      // Muon collection
-      Handle<View<Muon> > muonCollection;
-      if (!ev.getByToken(muonToken_, muonCollection)) {
-            LogError("") << ">>> Muon collection does not exist !!!";
-            return;
-      }
-      int muonCollectionSize = muonCollection->size();
+  std::sort(WMuNuCandidates->begin(), WMuNuCandidates->end(), ptComparator);
 
-      // MET
-      Handle<View<MET> > metCollection;
-      if (!ev.getByToken(metToken_, metCollection)) {
-            LogError("") << ">>> MET collection does not exist !!!";
-            return;
-      }
-      //const MET& Met = metCollection->at(0);
-      edm::Ptr<reco::MET> met(metCollection,0);
-
-
-      if (muonCollectionSize<1) return;
-
-      unique_ptr< WMuNuCandidateCollection > WMuNuCandidates(new WMuNuCandidateCollection );
-
-
-     // Fill Collection with n muons --> n W Candidates ordered by pt
-
-     for (int indx=0; indx<muonCollectionSize; indx++){
-            edm::Ptr<reco::Muon> muon(muonCollection,indx);
-            if (!muon->isGlobalMuon()) continue;
-            if (muon->globalTrack().isNull()) continue;
-            if (muon->innerTrack().isNull()) continue;
-
-      // Build WMuNuCandidate
-      LogTrace("")<<"Building WMuNu Candidate!";
-      WMuNuCandidate* WCand = new WMuNuCandidate(muon,met);
-      LogTrace("") << "\t... W mass, W_et: "<<WCand->massT()<<", "<<WCand->eT()<<"[GeV]";
-      LogTrace("") << "\t... W_px, W_py: "<<WCand->px()<<", "<< WCand->py() <<"[GeV]";
-      LogTrace("") << "\t... acop:  " << WCand->acop();
-      LogTrace("") << "\t... Muon pt, px, py, pz: "<<WCand->getMuon().pt()<<", "<<WCand->getMuon().px()<<", "<<WCand->getMuon().py()<<", "<< WCand->getMuon().pz()<<" [GeV]";
-      LogTrace("") << "\t... Met  met_et, met_px, met_py : "<<WCand->getNeutrino().pt()<<", "<<WCand->getNeutrino().px()<<", "<<WCand->getNeutrino().py()<<" [GeV]";
-  	WMuNuCandidates->push_back(*WCand);
-       }
-
-      std::sort(WMuNuCandidates->begin(),WMuNuCandidates->end(),ptComparator);
-
-      ev.put(std::move(WMuNuCandidates));
-
+  ev.put(std::move(WMuNuCandidates));
 }
 
 DEFINE_FWK_MODULE(WMuNuProducer);

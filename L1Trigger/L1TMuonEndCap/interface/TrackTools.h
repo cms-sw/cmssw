@@ -19,40 +19,48 @@ namespace emtf {
   // ___________________________________________________________________________
   // coordinate ranges: phi[-180, 180] or [-pi, pi], theta[0, 90] or [0, pi/2]
   inline double range_phi_deg(double deg) {
-    while (deg <  -180.) deg += 360.;
-    while (deg >= +180.) deg -= 360.;
+    while (deg < -180.)
+      deg += 360.;
+    while (deg >= +180.)
+      deg -= 360.;
     return deg;
   }
 
   inline double range_phi_rad(double rad) {
-    while (rad <  -M_PI) rad += 2.*M_PI;
-    while (rad >= +M_PI) rad -= 2.*M_PI;
+    while (rad < -M_PI)
+      rad += 2. * M_PI;
+    while (rad >= +M_PI)
+      rad -= 2. * M_PI;
     return rad;
   }
 
   inline double range_theta_deg(double deg) {
     deg = fabs(deg);
-    while (deg >= 180.)    deg -= 180.;
-    if    (deg >= 180./2.) deg  = 180. - deg;
+    while (deg >= 180.)
+      deg -= 180.;
+    if (deg >= 180. / 2.)
+      deg = 180. - deg;
     return deg;
   }
 
   inline double range_theta_rad(double rad) {
     rad = fabs(rad);
-    while (rad >= M_PI)    rad -= M_PI;
-    if    (rad >= M_PI/2.) rad  = M_PI - rad;
+    while (rad >= M_PI)
+      rad -= M_PI;
+    if (rad >= M_PI / 2.)
+      rad = M_PI - rad;
     return rad;
   }
 
   // ___________________________________________________________________________
   // radians, degrees
   inline double deg_to_rad(double deg) {
-    constexpr double factor = M_PI/180.;
+    constexpr double factor = M_PI / 180.;
     return deg * factor;
   }
 
   inline double rad_to_deg(double rad) {
-    constexpr double factor = 180./M_PI;
+    constexpr double factor = 180. / M_PI;
     return rad * factor;
   }
 
@@ -64,7 +72,7 @@ namespace emtf {
     return pt;
   }
 
-  inline int    calc_pt_GMT(double val) {
+  inline int calc_pt_GMT(double val) {
     val = (val * 2) + 1;
     int gmt_pt = static_cast<int>(std::round(val));
     gmt_pt = (gmt_pt > 511) ? 511 : gmt_pt;
@@ -87,18 +95,18 @@ namespace emtf {
   //}
 
   inline double calc_eta_from_theta_rad(double theta_rad) {
-    double eta = -1. * std::log(std::tan(theta_rad/2.));
+    double eta = -1. * std::log(std::tan(theta_rad / 2.));
     return eta;
   }
 
   inline double calc_eta_from_theta_deg(double theta_deg, int endcap) {  // endcap [-1,+1]
-    double theta_rad = deg_to_rad(range_theta_deg(theta_deg));  // put theta in [0, 90] range
+    double theta_rad = deg_to_rad(range_theta_deg(theta_deg));           // put theta in [0, 90] range
     double eta = calc_eta_from_theta_rad(theta_rad);
     eta = (endcap == -1) ? -eta : eta;
     return eta;
   }
 
-  inline int    calc_eta_GMT(double val) {
+  inline int calc_eta_GMT(double val) {
     val /= 0.010875;
     int gmt_eta = static_cast<int>(std::round(val));
     return gmt_eta;
@@ -108,33 +116,29 @@ namespace emtf {
   // theta
   inline double calc_theta_deg_from_int(int theta_int) {
     double theta = static_cast<double>(theta_int);
-    theta = theta * (45.0-8.5)/128. + 8.5;
+    theta = theta * (45.0 - 8.5) / 128. + 8.5;
     return theta;
   }
 
-  inline double calc_theta_rad_from_int(int theta_int) {
-    return deg_to_rad(calc_theta_deg_from_int(theta_int));
-  }
+  inline double calc_theta_rad_from_int(int theta_int) { return deg_to_rad(calc_theta_deg_from_int(theta_int)); }
 
   inline double calc_theta_rad(double eta) {
-    double theta_rad = 2. * std::atan(std::exp(-1.*eta));
+    double theta_rad = 2. * std::atan(std::exp(-1. * eta));
     return theta_rad;
   }
 
-  inline double calc_theta_deg(double eta) {
-    return rad_to_deg(calc_theta_rad(eta));
-  }
+  inline double calc_theta_deg(double eta) { return rad_to_deg(calc_theta_rad(eta)); }
 
-  inline int    calc_theta_int(double theta, int endcap) {  // theta in deg, endcap [-1,+1]
+  inline int calc_theta_int(double theta, int endcap) {  // theta in deg, endcap [-1,+1]
     theta = (endcap == -1) ? (180. - theta) : theta;
-    theta = (theta - 8.5) * 128./(45.0-8.5);
+    theta = (theta - 8.5) * 128. / (45.0 - 8.5);
     int theta_int = static_cast<int>(std::round(theta));
     return theta_int;
   }
 
-  inline int    calc_theta_int_rpc(double theta, int endcap) {  // theta in deg, endcap [-1,+1]
+  inline int calc_theta_int_rpc(double theta, int endcap) {  // theta in deg, endcap [-1,+1]
     theta = (endcap == -1) ? (180. - theta) : theta;
-    theta = (theta - 8.5) * (128./4.)/(45.0-8.5);  // 4x coarser resolution
+    theta = (theta - 8.5) * (128. / 4.) / (45.0 - 8.5);  // 4x coarser resolution
     int theta_int = static_cast<int>(std::round(theta));
     return theta_int;
   }
@@ -144,14 +148,12 @@ namespace emtf {
     return theta;
   }
 
-  inline double calc_theta_deg_from_eta(double eta) {
-    return rad_to_deg(calc_theta_rad_from_eta(eta));
-  }
+  inline double calc_theta_deg_from_eta(double eta) { return rad_to_deg(calc_theta_rad_from_eta(eta)); }
 
   // ___________________________________________________________________________
   // phi
   inline double calc_phi_glob_deg(double loc, int sector) {  // loc in deg, sector [1-6]
-    double glob = loc + 15. + (60. * (sector-1));
+    double glob = loc + 15. + (60. * (sector - 1));
     glob = (glob < 180.) ? glob : glob - 360.;
     return glob;
   }
@@ -162,13 +164,11 @@ namespace emtf {
 
   inline double calc_phi_loc_deg(int bits) {
     double loc = static_cast<double>(bits);
-    loc = (loc/60.) - 22.;
+    loc = (loc / 60.) - 22.;
     return loc;
   }
 
-  inline double calc_phi_loc_rad(int bits) {
-    return deg_to_rad(calc_phi_loc_deg(bits));
-  }
+  inline double calc_phi_loc_rad(int bits) { return deg_to_rad(calc_phi_loc_deg(bits)); }
 
   //inline double calc_phi_loc_deg_corr(int bits, int endcap) {  // endcap [-1,+1]
   //  double loc = static_cast<double>(bits);
@@ -182,12 +182,12 @@ namespace emtf {
   //}
 
   inline double calc_phi_loc_deg_from_glob(double glob, int sector) {  // glob in deg, sector [1-6]
-    glob = range_phi_deg(glob);  // put phi in [-180,180] range
-    double loc = glob - 15. - (60. * (sector-1));
+    glob = range_phi_deg(glob);                                        // put phi in [-180,180] range
+    double loc = glob - 15. - (60. * (sector - 1));
     return loc;
   }
 
-  inline int    calc_phi_loc_int(double glob, int sector) {  // glob in deg, sector [1-6]
+  inline int calc_phi_loc_int(double glob, int sector) {  // glob in deg, sector [1-6]
     double loc = calc_phi_loc_deg_from_glob(glob, sector);
     loc = ((loc + 22.) < 0.) ? loc + 360. : loc;
     loc = (loc + 22.) * 60.;
@@ -195,17 +195,17 @@ namespace emtf {
     return phi_int;
   }
 
-  inline int    calc_phi_loc_int_rpc(double glob, int sector) {  // glob in deg, sector [1-6]
+  inline int calc_phi_loc_int_rpc(double glob, int sector) {  // glob in deg, sector [1-6]
     double loc = calc_phi_loc_deg_from_glob(glob, sector);
     loc = ((loc + 22.) < 0.) ? loc + 360. : loc;
-    loc = (loc + 22.) * 60./4.;  // 4x coarser resolution
+    loc = (loc + 22.) * 60. / 4.;  // 4x coarser resolution
     int phi_int = static_cast<int>(std::round(loc));
     return phi_int;
   }
 
   inline double calc_phi_GMT_deg(int bits) {
     double phi = static_cast<double>(bits);
-    phi = (phi * 360./576.) + (180./576.);
+    phi = (phi * 360. / 576.) + (180. / 576.);
     return phi;
   }
 
@@ -213,13 +213,11 @@ namespace emtf {
   //  return (bits * 0.625 * 1.0208) + 0.3125 * 1.0208 + 0.552;
   //}
 
-  inline double calc_phi_GMT_rad(int bits) {
-    return deg_to_rad(calc_phi_GMT_deg(bits));
-  }
+  inline double calc_phi_GMT_rad(int bits) { return deg_to_rad(calc_phi_GMT_deg(bits)); }
 
-  inline int    calc_phi_GMT_int(double val) {  // phi in deg
-    val = range_phi_deg(val);  // put phi in [-180,180] range
-    val = (val - 180./576.) / (360./576.);
+  inline int calc_phi_GMT_int(double val) {  // phi in deg
+    val = range_phi_deg(val);                // put phi in [-180,180] range
+    val = (val - 180. / 576.) / (360. / 576.);
     int gmt_phi = static_cast<int>(std::round(val));
     return gmt_phi;
   }

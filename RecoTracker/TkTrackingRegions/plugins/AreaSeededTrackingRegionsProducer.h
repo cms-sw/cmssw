@@ -1,7 +1,6 @@
 #ifndef RecoTracker_TkTrackingRegions_AreaSeededTrackingRegionsProducer_h
 #define RecoTracker_TkTrackingRegions_AreaSeededTrackingRegionsProducer_h
 
-
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -48,15 +47,13 @@
  */
 class AreaSeededTrackingRegionsProducer {
 public:
+  typedef enum { BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
 
-  typedef enum {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
-
-  AreaSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC):
-    m_origins(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC),
-    m_builder(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC)
-  {
+  AreaSeededTrackingRegionsProducer(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+      : m_origins(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC),
+        m_builder(conf.getParameter<edm::ParameterSet>("RegionPSet"), iC) {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
-    for(const auto& area: regPSet.getParameter<std::vector<edm::ParameterSet> >("areas")) {
+    for (const auto& area : regPSet.getParameter<std::vector<edm::ParameterSet> >("areas")) {
       m_areas.emplace_back(area.getParameter<double>("rmin"),
                            area.getParameter<double>("rmax"),
                            area.getParameter<double>("phimin"),
@@ -64,10 +61,10 @@ public:
                            area.getParameter<double>("zmin"),
                            area.getParameter<double>("zmax"));
     }
-    if(m_areas.empty())
+    if (m_areas.empty())
       throw cms::Exception("Configuration") << "Empty 'areas' parameter.";
   }
-  
+
   ~AreaSeededTrackingRegionsProducer() = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -93,13 +90,12 @@ public:
     descriptions.add("areaSeededTrackingRegion", descRegion);
   }
 
-  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const
-  {
+  std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const {
     auto origins = m_origins.origins(e);
     auto builder = m_builder.beginEvent(e);
     return builder.regions(origins, m_areas);
   }
-  
+
 private:
   VertexBeamspotOrigins m_origins;
   AreaSeededTrackingRegionsBuilder m_builder;

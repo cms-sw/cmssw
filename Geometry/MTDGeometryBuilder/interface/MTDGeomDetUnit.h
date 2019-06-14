@@ -14,8 +14,7 @@ class SurfaceDeformation;
 
 class MTDGeomDetUnit final : public MTDGeomDet {
 public:
-
-  MTDGeomDetUnit(BoundPlane* sp, MTDGeomDetType const * type, DetId id);
+  MTDGeomDetUnit(BoundPlane* sp, MTDGeomDetType const* type, DetId id);
 
   // DetUnit interface
 
@@ -26,7 +25,7 @@ public:
   /// corrections for the surface deformations, and once via the GeomDetType
   /// (through type().topology() and the like).
   const GeomDetType& type() const override;
-  
+
   /// Returns a reference to the pixel proxy topology
   const Topology& topology() const override;
 
@@ -42,18 +41,15 @@ public:
   virtual const PixelTopology& specificTopology() const;
 
   /// Return pointer to surface deformation.
-  const SurfaceDeformation * surfaceDeformation() const override { 
-    return theTopology->surfaceDeformation();
-  }
+  const SurfaceDeformation* surfaceDeformation() const override { return theTopology->surfaceDeformation(); }
 
-  bool isLeaf()	const override	{ return true;}
+  bool isLeaf() const override { return true; }
 
 private:
-
   /// set the SurfaceDeformation for this StripGeomDetUnit to proxy topology.
-  void setSurfaceDeformation(const SurfaceDeformation * deformation) override;
+  void setSurfaceDeformation(const SurfaceDeformation* deformation) override;
 
   std::unique_ptr<ProxyMTDTopology> theTopology;
 };
 
-#endif // MTD_MTDGeomDetUnit_H
+#endif  // MTD_MTDGeomDetUnit_H

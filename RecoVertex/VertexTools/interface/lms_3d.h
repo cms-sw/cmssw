@@ -6,6 +6,6 @@
 
 /// least median of squares in three dimensions,
 /// doing every dimension separately
-GlobalPoint lms_3d ( std::vector<GlobalPoint> values );
+GlobalPoint lms_3d(std::vector<GlobalPoint> values);
 
 #endif

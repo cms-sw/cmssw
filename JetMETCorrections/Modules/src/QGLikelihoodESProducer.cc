@@ -11,23 +11,25 @@
 
 #include "JetMETCorrections/Modules/interface/QGLikelihoodESProducer.h"
 
-QGLikelihoodESProducer::QGLikelihoodESProducer(const edm::ParameterSet& iConfig){
-   //the following line is needed to tell the framework what
-   // data is being produced
-   std::string label	= iConfig.getParameter<std::string>("@module_label");
-   mAlgo 		= iConfig.getParameter<std::string>("algo");
-   setWhatProduced(this, label);
+QGLikelihoodESProducer::QGLikelihoodESProducer(const edm::ParameterSet& iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  std::string label = iConfig.getParameter<std::string>("@module_label");
+  mAlgo = iConfig.getParameter<std::string>("algo");
+  setWhatProduced(this, label);
 }
 
 // The same PDF's are valid for any time
-void QGLikelihoodESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval& oInterval){
+void QGLikelihoodESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                            const edm::IOVSyncValue&,
+                                            edm::ValidityInterval& oInterval) {
   oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 // Produce the data
-std::unique_ptr<QGLikelihoodObject> QGLikelihoodESProducer::produce(const QGLikelihoodRcd& iRecord){
-   edm::ESHandle<QGLikelihoodObject> qglObj;
-   iRecord.get(mAlgo, qglObj);
+std::unique_ptr<QGLikelihoodObject> QGLikelihoodESProducer::produce(const QGLikelihoodRcd& iRecord) {
+  edm::ESHandle<QGLikelihoodObject> qglObj;
+  iRecord.get(mAlgo, qglObj);
 
-   return std::make_unique<QGLikelihoodObject>(*qglObj);
+  return std::make_unique<QGLikelihoodObject>(*qglObj);
 }

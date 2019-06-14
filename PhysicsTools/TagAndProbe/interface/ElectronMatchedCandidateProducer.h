@@ -12,19 +12,17 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-
 // forward declarations
 
-class ElectronMatchedCandidateProducer : public edm::EDProducer
-{
- public:
+class ElectronMatchedCandidateProducer : public edm::EDProducer {
+public:
   explicit ElectronMatchedCandidateProducer(const edm::ParameterSet&);
   ~ElectronMatchedCandidateProducer() override;
 
- private:
-  void beginJob() override ;
+private:
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob()  override;
+  void endJob() override;
 
   // ----------member data ---------------------------
 

@@ -21,8 +21,8 @@ namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer : public edm::ESProducer {
   public:
     VolumeBasedMagneticFieldESProducer(const edm::ParameterSet& iConfig);
-  
-    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord & iRecord);
+
+    std::unique_ptr<MagneticField> produce(const IdealMagneticFieldRecord& iRecord);
 
   private:
     // forbid copy ctor and assignment op.
@@ -31,7 +31,6 @@ namespace magneticfield {
 
     edm::ParameterSet pset;
   };
-}
-
+}  // namespace magneticfield
 
 #endif

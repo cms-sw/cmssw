@@ -27,69 +27,58 @@
 #include <vector>
 
 namespace dqmoffline {
-namespace l1t {
+  namespace l1t {
 
-//
-// Efficiency helper class declaration
-//
+    //
+    // Efficiency helper class declaration
+    //
 
-class L1TEfficiencyPlotHandler {
+    class L1TEfficiencyPlotHandler {
+    public:
+      L1TEfficiencyPlotHandler(const edm::ParameterSet &ps, std::string plotName);
 
-public:
+      L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
 
-  L1TEfficiencyPlotHandler(const edm::ParameterSet & ps, std::string plotName);
+      ~L1TEfficiencyPlotHandler(){};
 
-  L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);
+      // book efficiency histo
+      void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
-  ~L1TEfficiencyPlotHandler()
-  {
-  }
-  ;
+      // compute efficiency
+      void computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
 
-  // book efficiency histo
-  void book(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+    private:
+      std::string numeratorDir_;
+      std::string denominatorDir_;
+      std::string outputDir_;
+      std::string plotName_;
+      std::string numeratorSuffix_;
+      std::string denominatorSuffix_;
 
-  // compute efficiency
-  void computeEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
+      MonitorElement *h_efficiency_;
+    };
 
-private:
+    typedef std::vector<L1TEfficiencyPlotHandler> L1TEfficiencyPlotHandlerCollection;
 
-  std::string numeratorDir_;
-  std::string denominatorDir_;
-  std::string outputDir_;
-  std::string plotName_;
-  std::string numeratorSuffix_;
-  std::string denominatorSuffix_;
+    //
+    // DQM class declaration
+    //
 
-  MonitorElement* h_efficiency_;
-};
+    class L1TEfficiencyHarvesting : public DQMEDHarvester {
+    public:
+      L1TEfficiencyHarvesting(const edm::ParameterSet &ps);  // Constructor
+      ~L1TEfficiencyHarvesting() override;                   // Destructor
 
-typedef std::vector<L1TEfficiencyPlotHandler> L1TEfficiencyPlotHandlerCollection;
+    protected:
+      void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
 
-//
-// DQM class declaration
-//
+    private:
+      bool verbose_;
 
-class L1TEfficiencyHarvesting: public DQMEDHarvester {
+      L1TEfficiencyPlotHandlerCollection plotHandlers_;
+    };
 
-public:
-
-  L1TEfficiencyHarvesting(const edm::ParameterSet& ps);   // Constructor
-  ~L1TEfficiencyHarvesting() override;                     // Destructor
-
-protected:
-
-  void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) override;
-
-private:
-
-  bool verbose_;
-
-  L1TEfficiencyPlotHandlerCollection plotHandlers_;
-
-};
-
-} //l1t
-} // dqmoffline
+  }  // namespace l1t
+}  // namespace dqmoffline
 
 #endif

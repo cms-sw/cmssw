@@ -19,16 +19,14 @@
 #include <iomanip>
 #include <iostream>
 
-ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet& ps) :
-        ESRecHitWorkerBaseClass( ps )
-{
+ESRecHitWorker::ESRecHitWorker(const edm::ParameterSet &ps) : ESRecHitWorkerBaseClass(ps) {
   recoAlgo_ = ps.getParameter<int>("ESRecoAlgo");
 
   if (recoAlgo_ == 0)
     algoW_ = new ESRecHitSimAlgo();
-  else if (recoAlgo_ == 1) 
+  else if (recoAlgo_ == 1)
     algoF_ = new ESRecHitFitAlgo();
-  else 
+  else
     algoA_ = new ESRecHitAnalyticAlgo();
 }
 
@@ -37,12 +35,11 @@ ESRecHitWorker::~ESRecHitWorker() {
     delete algoW_;
   else if (recoAlgo_ == 1)
     delete algoF_;
-  else 
+  else
     delete algoA_;
 }
 
-void ESRecHitWorker::set(const edm::EventSetup& es) {
-
+void ESRecHitWorker::set(const edm::EventSetup &es) {
   es.get<ESGainRcd>().get(esgain_);
   const ESGain *gain = esgain_.product();
 
@@ -50,7 +47,7 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   const ESMIPToGeVConstant *mipToGeV = esMIPToGeV_.product();
 
   double ESGain = gain->getESGain();
-  double ESMIPToGeV = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh(); 
+  double ESMIPToGeV = (ESGain == 1) ? mipToGeV->getESValueLow() : mipToGeV->getESValueHigh();
 
   es.get<ESTimeSampleWeightsRcd>().get(esWeights_);
   const ESTimeSampleWeights *wgts = esWeights_.product();
@@ -72,7 +69,7 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   const ESChannelStatus *channelStatus = esChannelStatus_.product();
 
   es.get<ESRecHitRatioCutsRcd>().get(esRatioCuts_);
-  const ESRecHitRatioCuts *ratioCuts = esRatioCuts_.product(); 
+  const ESRecHitRatioCuts *ratioCuts = esRatioCuts_.product();
 
   if (recoAlgo_ == 0) {
     algoW_->setESGain(ESGain);
@@ -104,19 +101,16 @@ void ESRecHitWorker::set(const edm::EventSetup& es) {
   }
 }
 
-bool
-ESRecHitWorker::run( const ESDigiCollection::const_iterator & itdg,
-                     ESRecHitCollection & result )
-{
+bool ESRecHitWorker::run(const ESDigiCollection::const_iterator &itdg, ESRecHitCollection &result) {
   if (recoAlgo_ == 0)
-    result.push_back( algoW_->reconstruct(*itdg) );
+    result.push_back(algoW_->reconstruct(*itdg));
   else if (recoAlgo_ == 1)
-    result.push_back( algoF_->reconstruct(*itdg) );
-  else 
-    result.push_back( algoA_->reconstruct(*itdg) );
+    result.push_back(algoF_->reconstruct(*itdg));
+  else
+    result.push_back(algoA_->reconstruct(*itdg));
   return true;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/EcalRecProducers/interface/ESRecHitWorkerFactory.h"
-DEFINE_EDM_PLUGIN( ESRecHitWorkerFactory, ESRecHitWorker, "ESRecHitWorker" );
+DEFINE_EDM_PLUGIN(ESRecHitWorkerFactory, ESRecHitWorker, "ESRecHitWorker");

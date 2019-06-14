@@ -8,38 +8,36 @@
 
 namespace PhysicsTools {
 
-class MVATrainer;
+  class MVATrainer;
 
-class Source {
-    public:
-	Source(AtomicId name, bool trained = false) :
-		trained(trained), name(name) {}
-	virtual ~Source() {}
+  class Source {
+  public:
+    Source(AtomicId name, bool trained = false) : trained(trained), name(name) {}
+    virtual ~Source() {}
 
-	inline AtomicId getName() const { return name; }
+    inline AtomicId getName() const { return name; }
 
-	inline SourceVariable *getOutput(AtomicId name) const
-	{ return outputs.find(name); }
+    inline SourceVariable *getOutput(AtomicId name) const { return outputs.find(name); }
 
-	inline bool isTrained() const { return trained; }
+    inline bool isTrained() const { return trained; }
 
-	inline const SourceVariableSet &getInputs() const { return inputs; }
-	inline const SourceVariableSet &getOutputs() const { return outputs; }
+    inline const SourceVariableSet &getInputs() const { return inputs; }
+    inline const SourceVariableSet &getOutputs() const { return outputs; }
 
-    protected:
-	friend class MVATrainer;
+  protected:
+    friend class MVATrainer;
 
-	inline SourceVariableSet &getInputs() { return inputs; }
-	inline SourceVariableSet &getOutputs() { return outputs; }
+    inline SourceVariableSet &getInputs() { return inputs; }
+    inline SourceVariableSet &getOutputs() { return outputs; }
 
-	bool			trained;
+    bool trained;
 
-    private:
-	AtomicId		name;
-	SourceVariableSet	inputs;
-	SourceVariableSet	outputs;
-};
+  private:
+    AtomicId name;
+    SourceVariableSet inputs;
+    SourceVariableSet outputs;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_Source_h
+#endif  // PhysicsTools_MVATrainer_Source_h

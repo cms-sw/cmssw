@@ -1,7 +1,6 @@
 #ifndef HCALADCSATURATIONFLAG_GUARD_H
 #define HCALADCSATURATIONFLAG_GUARD_H
 
-
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
@@ -20,22 +19,20 @@
        
     \author J. Temple -- University of Maryland
 */
-   
 
 class HcalADCSaturationFlag {
- public:
+public:
   HcalADCSaturationFlag();
   HcalADCSaturationFlag(int level);
   ~HcalADCSaturationFlag();
-  
+
   void setSaturationFlag(HBHERecHit& rechit, const HBHEDataFrame& digi);
-  void setSaturationFlag(HORecHit&   rechit, const HODataFrame&   digi);
-  void setSaturationFlag(HFRecHit&   rechit, const HFDataFrame&   digi);
-  void setSaturationFlag(ZDCRecHit&   rechit, const ZDCDataFrame&   digi);
+  void setSaturationFlag(HORecHit& rechit, const HODataFrame& digi);
+  void setSaturationFlag(HFRecHit& rechit, const HFDataFrame& digi);
+  void setSaturationFlag(ZDCRecHit& rechit, const ZDCDataFrame& digi);
 
- private:
+private:
   int SaturationLevel_;
-
 };
 
 #endif

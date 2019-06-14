@@ -17,7 +17,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -55,15 +54,14 @@
 
 template <class T>
 class BigEventsDebugger : public edm::EDAnalyzer {
-   public:
-      explicit BigEventsDebugger(const edm::ParameterSet&);
-      ~BigEventsDebugger() override;
+public:
+  explicit BigEventsDebugger(const edm::ParameterSet&);
+  ~BigEventsDebugger() override;
 
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
   DigiCollectionProfiler<T> m_digiprofiler;
   edm::EDGetTokenT<T> m_collectionToken;
@@ -77,7 +75,6 @@ class BigEventsDebugger : public edm::EDAnalyzer {
   std::vector<TH1F*> m_hist;
   std::vector<TProfile*> m_hprof;
   std::vector<TH2F*> m_hist2d;
-
 };
 
 //
@@ -92,67 +89,63 @@ class BigEventsDebugger : public edm::EDAnalyzer {
 // constructors and destructor
 //
 template <class T>
-BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig):
-  m_digiprofiler(iConfig),
-  m_collectionToken(consumes<T>(iConfig.getParameter<edm::InputTag>("collection"))),
-  m_singleevents(iConfig.getParameter<bool>("singleEvents")),
-  m_folded(iConfig.getUntrackedParameter<bool>("foldedStrips",false)),
-  m_want1dHisto(iConfig.getUntrackedParameter<bool>("want1dHisto",true)),
-  m_wantProfile(iConfig.getUntrackedParameter<bool>("wantProfile",true)),
-  m_want2dHisto(iConfig.getUntrackedParameter<bool>("want2dHisto",false))
+BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig)
+    : m_digiprofiler(iConfig),
+      m_collectionToken(consumes<T>(iConfig.getParameter<edm::InputTag>("collection"))),
+      m_singleevents(iConfig.getParameter<bool>("singleEvents")),
+      m_folded(iConfig.getUntrackedParameter<bool>("foldedStrips", false)),
+      m_want1dHisto(iConfig.getUntrackedParameter<bool>("want1dHisto", true)),
+      m_wantProfile(iConfig.getUntrackedParameter<bool>("wantProfile", true)),
+      m_want2dHisto(iConfig.getUntrackedParameter<bool>("want2dHisto", false))
 
 {
-   //now do what ever initialization is needed
+  //now do what ever initialization is needed
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 
-  for(std::vector<edm::ParameterSet>::const_iterator selconfig=selconfigs.begin();selconfig!=selconfigs.end();++selconfig) {
+  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
+       ++selconfig) {
     m_labels.push_back(selconfig->getParameter<std::string>("label"));
   }
 
-
   edm::Service<TFileService> tfserv;
 
-  if(!m_singleevents) {
+  if (!m_singleevents) {
     char dirname[500];
-    sprintf(dirname,"Summary");
+    sprintf(dirname, "Summary");
     TFileDirectory subd = tfserv->mkdir(dirname);
 
     //book histos
 
-    unsigned int nbins =768;
-    if(m_folded) nbins=256;
+    unsigned int nbins = 768;
+    if (m_folded)
+      nbins = 256;
 
-    for(std::vector<std::string>::const_iterator label=m_labels.begin(); label!=m_labels.end(); ++label) {
-      if(m_want1dHisto) {
-	std::string hname = *label + "hist";
-	std::string htitle = *label + " occupancy";
-	m_hist.push_back(subd.make<TH1F>(hname.c_str(),htitle.c_str(),nbins,-0.5,nbins-0.5));
+    for (std::vector<std::string>::const_iterator label = m_labels.begin(); label != m_labels.end(); ++label) {
+      if (m_want1dHisto) {
+        std::string hname = *label + "hist";
+        std::string htitle = *label + " occupancy";
+        m_hist.push_back(subd.make<TH1F>(hname.c_str(), htitle.c_str(), nbins, -0.5, nbins - 0.5));
       }
-      if(m_wantProfile) {
-	std::string hname = *label + "prof";
-	std::string htitle = *label + " charge profile";
-	m_hprof.push_back(subd.make<TProfile>(hname.c_str(),htitle.c_str(),nbins,-0.5,nbins-0.5));
+      if (m_wantProfile) {
+        std::string hname = *label + "prof";
+        std::string htitle = *label + " charge profile";
+        m_hprof.push_back(subd.make<TProfile>(hname.c_str(), htitle.c_str(), nbins, -0.5, nbins - 0.5));
       }
-      if(m_want2dHisto) {
-	std::string hname = *label + "hist2d";
-	std::string htitle = *label + " charge distribution";
-	m_hist2d.push_back(subd.make<TH2F>(hname.c_str(),htitle.c_str(),nbins,-0.5,nbins-0.5,257,-0.5,256.5));
+      if (m_want2dHisto) {
+        std::string hname = *label + "hist2d";
+        std::string htitle = *label + " charge distribution";
+        m_hist2d.push_back(subd.make<TH2F>(hname.c_str(), htitle.c_str(), nbins, -0.5, nbins - 0.5, 257, -0.5, 256.5));
       }
     }
   }
 }
 
 template <class T>
-BigEventsDebugger<T>::~BigEventsDebugger()
-{
-
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+BigEventsDebugger<T>::~BigEventsDebugger() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
@@ -160,56 +153,53 @@ BigEventsDebugger<T>::~BigEventsDebugger()
 
 // ------------ method called to for each event  ------------
 template <class T>
-void
-BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   edm::Service<TFileService> tfserv;
+  edm::Service<TFileService> tfserv;
 
-   // create a folder for each event
+  // create a folder for each event
 
-   if(m_singleevents) {
+  if (m_singleevents) {
+    m_hist.clear();
+    m_hprof.clear();
+    m_hist2d.clear();
 
-     m_hist.clear();     m_hprof.clear();     m_hist2d.clear();
+    char dirname[500];
+    sprintf(dirname, "event_%u_%llu", iEvent.run(), iEvent.id().event());
+    TFileDirectory subd = tfserv->mkdir(dirname);
 
-     char dirname[500];
-     sprintf(dirname,"event_%u_%llu",iEvent.run(),iEvent.id().event());
-     TFileDirectory subd = tfserv->mkdir(dirname);
+    //book histos
 
-     //book histos
+    unsigned int nbins = 768;
+    if (m_folded)
+      nbins = 256;
 
-     unsigned int nbins =768;
-     if(m_folded) nbins=256;
+    for (std::vector<std::string>::const_iterator label = m_labels.begin(); label != m_labels.end(); ++label) {
+      if (m_want1dHisto) {
+        std::string hname = *label + "hist";
+        std::string htitle = *label + " occupancy";
+        m_hist.push_back(subd.make<TH1F>(hname.c_str(), htitle.c_str(), nbins, -0.5, nbins - 0.5));
+      }
+      if (m_wantProfile) {
+        std::string hname = *label + "prof";
+        std::string htitle = *label + " charge profile";
+        m_hprof.push_back(subd.make<TProfile>(hname.c_str(), htitle.c_str(), nbins, -0.5, nbins - 0.5));
+      }
+      if (m_want2dHisto) {
+        std::string hname = *label + "hist2d";
+        std::string htitle = *label + " charge distribution";
+        m_hist2d.push_back(subd.make<TH2F>(hname.c_str(), htitle.c_str(), nbins, -0.5, nbins - 0.5, 257, -0.5, 256.5));
+      }
+    }
+  }
 
-     for(std::vector<std::string>::const_iterator label=m_labels.begin(); label!=m_labels.end(); ++label) {
-       if(m_want1dHisto) {
-	 std::string hname = *label + "hist";
-	 std::string htitle = *label + " occupancy";
-	 m_hist.push_back(subd.make<TH1F>(hname.c_str(),htitle.c_str(),nbins,-0.5,nbins-0.5));
-       }
-       if(m_wantProfile) {
-	 std::string hname = *label + "prof";
-	 std::string htitle = *label + " charge profile";
-	 m_hprof.push_back(subd.make<TProfile>(hname.c_str(),htitle.c_str(),nbins,-0.5,nbins-0.5));
-       }
-       if(m_want2dHisto) {
-	 std::string hname = *label + "hist2d";
-	 std::string htitle = *label + " charge distribution";
-	 m_hist2d.push_back(subd.make<TH2F>(hname.c_str(),htitle.c_str(),nbins,-0.5,nbins-0.5,257,-0.5,256.5));
-       }
-     }
+  //analyze event
 
-   }
-
-   //analyze event
-
-   Handle<T> digis;
-   iEvent.getByToken(m_collectionToken,digis);
-   m_digiprofiler.fill(digis,m_hist,m_hprof,m_hist2d);
-
+  Handle<T> digis;
+  iEvent.getByToken(m_collectionToken, digis);
+  m_digiprofiler.fill(digis, m_hist, m_hprof, m_hist2d);
 }
-
 
 typedef BigEventsDebugger<edmNew::DetSetVector<SiStripCluster> > ClusterBigEventsDebugger;
 typedef BigEventsDebugger<edm::DetSetVector<SiStripDigi> > DigiBigEventsDebugger;

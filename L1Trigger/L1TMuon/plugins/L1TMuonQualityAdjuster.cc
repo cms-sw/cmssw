@@ -35,15 +35,15 @@ class L1TMuonQualityAdjuster : public edm::stream::EDProducer<> {
 public:
   explicit L1TMuonQualityAdjuster(const edm::ParameterSet&);
   ~L1TMuonQualityAdjuster() override;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override ;
-  void beginRun(const edm::Run&, edm::EventSetup const&) override ;
-  void endRun(const edm::Run&, edm::EventSetup const&) override ;
-  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
-  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override ;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, edm::EventSetup const&) override;
+  void endRun(const edm::Run&, edm::EventSetup const&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
+  void endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) override;
   // ----------member data ---------------------------
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_barrelTfInputToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> m_overlapTfInputToken;
@@ -52,14 +52,13 @@ private:
   edm::InputTag m_barrelTfInputTag;
   edm::InputTag m_overlapTfInputTag;
   edm::InputTag m_endCapTfInputTag;
-  int m_bmtfBxOffset; // Hack while sorting our source of -3 BX offset when re-Emulating...
+  int m_bmtfBxOffset;  // Hack while sorting our source of -3 BX offset when re-Emulating...
 };
-  
+
 //
 // constants, enums and typedefs
 //
-  
-  
+
 //
 // static data member definitions
 //
@@ -67,43 +66,36 @@ private:
 //
 // constructors and destructor
 //
-L1TMuonQualityAdjuster::L1TMuonQualityAdjuster(const edm::ParameterSet& iConfig)
-{
-  m_barrelTfInputTag  = iConfig.getParameter<edm::InputTag>("bmtfInput");
+L1TMuonQualityAdjuster::L1TMuonQualityAdjuster(const edm::ParameterSet& iConfig) {
+  m_barrelTfInputTag = iConfig.getParameter<edm::InputTag>("bmtfInput");
   m_overlapTfInputTag = iConfig.getParameter<edm::InputTag>("omtfInput");
-  m_endCapTfInputTag  = iConfig.getParameter<edm::InputTag>("emtfInput");
-  m_bmtfBxOffset      = iConfig.getParameter<int>("bmtfBxOffset");
-  m_barrelTfInputToken  = consumes<l1t::RegionalMuonCandBxCollection>(m_barrelTfInputTag);
+  m_endCapTfInputTag = iConfig.getParameter<edm::InputTag>("emtfInput");
+  m_bmtfBxOffset = iConfig.getParameter<int>("bmtfBxOffset");
+  m_barrelTfInputToken = consumes<l1t::RegionalMuonCandBxCollection>(m_barrelTfInputTag);
   m_overlapTfInputToken = consumes<l1t::RegionalMuonCandBxCollection>(m_overlapTfInputTag);
-  m_endCapTfInputToken  = consumes<l1t::RegionalMuonCandBxCollection>(m_endCapTfInputTag);
+  m_endCapTfInputToken = consumes<l1t::RegionalMuonCandBxCollection>(m_endCapTfInputTag);
   //register your products
   produces<RegionalMuonCandBxCollection>("BMTF");
   produces<RegionalMuonCandBxCollection>("OMTF");
   produces<RegionalMuonCandBxCollection>("EMTF");
 }
 
-
-L1TMuonQualityAdjuster::~L1TMuonQualityAdjuster()
-{
+L1TMuonQualityAdjuster::~L1TMuonQualityAdjuster() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
-void
-L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredBMTFMuons (new l1t::RegionalMuonCandBxCollection());
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredOMTFMuons (new l1t::RegionalMuonCandBxCollection());
-  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredEMTFMuons (new l1t::RegionalMuonCandBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredBMTFMuons(new l1t::RegionalMuonCandBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredOMTFMuons(new l1t::RegionalMuonCandBxCollection());
+  std::unique_ptr<l1t::RegionalMuonCandBxCollection> filteredEMTFMuons(new l1t::RegionalMuonCandBxCollection());
 
   Handle<l1t::RegionalMuonCandBxCollection> bmtfMuons;
   Handle<l1t::RegionalMuonCandBxCollection> omtfMuons;
@@ -113,47 +105,48 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(m_overlapTfInputToken, omtfMuons);
   iEvent.getByToken(m_endCapTfInputToken, emtfMuons);
 
-  
-  if (bmtfMuons.isValid()){
+  if (bmtfMuons.isValid()) {
     filteredBMTFMuons->setBXRange(bmtfMuons->getFirstBX(), bmtfMuons->getLastBX());
     for (int bx = bmtfMuons->getFirstBX(); bx <= bmtfMuons->getLastBX(); ++bx) {
       for (auto mu = bmtfMuons->begin(bx); mu != bmtfMuons->end(bx); ++mu) {
-	int newqual = 12;
-	l1t::RegionalMuonCand newMu((*mu));      
-	newMu.setHwQual(newqual);
-	filteredBMTFMuons->push_back(bx+m_bmtfBxOffset, newMu);      
+        int newqual = 12;
+        l1t::RegionalMuonCand newMu((*mu));
+        newMu.setHwQual(newqual);
+        filteredBMTFMuons->push_back(bx + m_bmtfBxOffset, newMu);
       }
     }
   } else {
     //cout << "ERROR:  did not find BMTF muons in event with label:  " << m_barrelTfInputTag << "\n";
   }
 
-  if (emtfMuons.isValid()){
+  if (emtfMuons.isValid()) {
     filteredEMTFMuons->setBXRange(emtfMuons->getFirstBX(), emtfMuons->getLastBX());
     for (int bx = emtfMuons->getFirstBX(); bx <= emtfMuons->getLastBX(); ++bx) {
       for (auto mu = emtfMuons->begin(bx); mu != emtfMuons->end(bx); ++mu) {
-	int newqual = 0;
-	if (mu->hwQual() == 11 || mu->hwQual() > 12) newqual=12;
-	l1t::RegionalMuonCand newMu((*mu));
-	newMu.setHwQual(newqual);
-	filteredEMTFMuons->push_back(bx, newMu);
-      }    
+        int newqual = 0;
+        if (mu->hwQual() == 11 || mu->hwQual() > 12)
+          newqual = 12;
+        l1t::RegionalMuonCand newMu((*mu));
+        newMu.setHwQual(newqual);
+        filteredEMTFMuons->push_back(bx, newMu);
+      }
     }
   } else {
     //cout << "ERROR:  did not find EMTF muons in event with label:  " << m_endCapTfInputTag << "\n";
   }
 
-  if (omtfMuons.isValid()){
+  if (omtfMuons.isValid()) {
     filteredOMTFMuons->setBXRange(omtfMuons->getFirstBX(), omtfMuons->getLastBX());
     for (int bx = omtfMuons->getFirstBX(); bx <= omtfMuons->getLastBX(); ++bx) {
       for (auto mu = omtfMuons->begin(bx); mu != omtfMuons->end(bx); ++mu) {
-	int newqual = 0;
-	if (mu->hwQual() > 0) newqual = 12;
-	l1t::RegionalMuonCand newMu((*mu));
-	newMu.setHwQual(newqual);
-	filteredOMTFMuons->push_back(bx, newMu);
+        int newqual = 0;
+        if (mu->hwQual() > 0)
+          newqual = 12;
+        l1t::RegionalMuonCand newMu((*mu));
+        newMu.setHwQual(newqual);
+        filteredOMTFMuons->push_back(bx, newMu);
       }
-    } 
+    }
   } else {
     //cout << "ERROR:  did not find OMTF muons in event with label:  " << m_overlapTfInputTag << "\n";
   }
@@ -169,40 +162,25 @@ L1TMuonQualityAdjuster::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 // ------------ method called when starting to processes a run  ------------
-void
-L1TMuonQualityAdjuster::beginRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TMuonQualityAdjuster::beginRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a run  ------------
-void
-L1TMuonQualityAdjuster::endRun(const edm::Run&, edm::EventSetup const&)
-{
-}
+void L1TMuonQualityAdjuster::endRun(const edm::Run&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void
-L1TMuonQualityAdjuster::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TMuonQualityAdjuster::beginLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method called when ending the processing of a luminosity block  ------------
-void
-L1TMuonQualityAdjuster::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
+void L1TMuonQualityAdjuster::endLuminosityBlock(const edm::LuminosityBlock&, edm::EventSetup const&) {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-L1TMuonQualityAdjuster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void L1TMuonQualityAdjuster::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TMuonQualityAdjuster);

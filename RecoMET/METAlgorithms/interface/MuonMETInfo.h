@@ -4,7 +4,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 struct MuonMETInfo {
-
   float ecalE;
   float hcalE;
   float hoE;
@@ -16,20 +15,16 @@ struct MuonMETInfo {
   bool useTkAssociatorPositions;
   bool useHO;
 
-  MuonMETInfo():
-  ecalE(0), hcalE(0), hoE(0),
-  ecalPos(0,0,0),hcalPos(0,0,0), hoPos(0,0,0),
-  useAverage(false), useTkAssociatorPositions(false),useHO(false){ }
-
+  MuonMETInfo()
+      : ecalE(0),
+        hcalE(0),
+        hoE(0),
+        ecalPos(0, 0, 0),
+        hcalPos(0, 0, 0),
+        hoPos(0, 0, 0),
+        useAverage(false),
+        useTkAssociatorPositions(false),
+        useHO(false) {}
 };
-  
 
 #endif
-
-
-
-
-
-
-
-

@@ -11,11 +11,11 @@ namespace reco {
   typedef std::vector<TrackInfo> TrackInfoCollection;
 
   typedef edm::Ref<TrackInfoCollection> TrackInfoRef;
-  
+
   typedef edm::RefProd<TrackInfoCollection> TrackInfoRefProd;
-  
+
   typedef edm::RefVector<TrackInfoCollection> TrackInfoRefVector;
 
-}
+}  // namespace reco
 
 #endif

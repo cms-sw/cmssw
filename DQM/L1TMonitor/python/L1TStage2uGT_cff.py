@@ -28,7 +28,7 @@ l1tStage2uGMTOutVsuGTIn = DQMEDAnalyzer(
 # sequences
 l1tStage2uGTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGT +
-    l1tStage2uGTTiming +
+    # l1tStage2uGTTiming +
     l1tStage2uGTCaloLayer2Comp +
     l1tStage2uGMTOutVsuGTIn
 )

@@ -25,6 +25,7 @@ public:
       The line must be formated as described in the class description.
   */
   std::string parse(const std::string& line);
+
 private:
   HcalTopology& target_;
 };

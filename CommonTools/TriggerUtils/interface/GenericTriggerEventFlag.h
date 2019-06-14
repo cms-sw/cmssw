@@ -1,7 +1,6 @@
 #ifndef GenericTriggerEventFlag_H
 #define GenericTriggerEventFlag_H
 
-
 // -*- C++ -*-
 //
 // Package:    CommonTools/TriggerUtils
@@ -18,7 +17,6 @@
   \author   Volker Adler
   \version  $Id: GenericTriggerEventFlag.h,v 1.5 2012/01/19 20:17:34 vadler Exp $
 */
-
 
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,136 +35,136 @@
 #include <memory>
 #include <string>
 
-
 class GenericTriggerEventFlag {
+  // Utility classes
+  std::unique_ptr<edm::ESWatcher<AlCaRecoTriggerBitsRcd> > watchDB_;
+  std::unique_ptr<L1GtUtils> l1Gt_;
+  std::unique_ptr<l1t::L1TGlobalUtil> l1uGt_;
+  HLTConfigProvider hltConfig_;
+  bool hltConfigInit_;
+  // Configuration parameters
+  bool andOr_;
+  std::string dbLabel_;
+  unsigned verbose_;
+  bool andOrDcs_;
+  edm::InputTag dcsInputTag_;
+  edm::EDGetTokenT<DcsStatusCollection> dcsInputToken_;
+  std::vector<int> dcsPartitions_;
+  bool errorReplyDcs_;
+  bool andOrGt_;
+  edm::InputTag gtInputTag_;
+  edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtInputToken_;
+  edm::InputTag gtEvmInputTag_;
+  edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> gtEvmInputToken_;
+  std::string gtDBKey_;
+  std::vector<std::string> gtLogicalExpressions_;
+  bool errorReplyGt_;
+  bool andOrL1_;
+  bool stage2_;
+  bool l1BeforeMask_;
+  std::string l1DBKey_;
+  std::vector<std::string> l1LogicalExpressionsCache_;
+  std::vector<std::string> l1LogicalExpressions_;
+  bool errorReplyL1_;
+  bool andOrHlt_;
+  edm::InputTag hltInputTag_;
+  edm::EDGetTokenT<edm::TriggerResults> hltInputToken_;
+  std::string hltDBKey_;
+  std::vector<std::string> hltLogicalExpressionsCache_;
+  std::vector<std::string> hltLogicalExpressions_;
+  bool errorReplyHlt_;
+  // Switches
+  bool on_;
+  bool onDcs_;
+  bool onGt_;
+  bool onL1_;
+  bool onHlt_;
+  // Member constants
+  const std::string configError_;
+  const std::string emptyKeyError_;
 
-    // Utility classes
-    std::unique_ptr<edm::ESWatcher< AlCaRecoTriggerBitsRcd > > watchDB_;
-    std::unique_ptr<L1GtUtils>                 l1Gt_;
-    std::unique_ptr<l1t::L1TGlobalUtil>        l1uGt_;
-    HLTConfigProvider                          hltConfig_;
-    bool                                       hltConfigInit_;
-    // Configuration parameters
-    bool        andOr_;
-    std::string dbLabel_;
-    unsigned    verbose_;
-    bool               andOrDcs_;
-    edm::InputTag      dcsInputTag_;
-    edm::EDGetTokenT< DcsStatusCollection > dcsInputToken_;
-    std::vector< int > dcsPartitions_;
-    bool               errorReplyDcs_;
-    bool                       andOrGt_;
-    edm::InputTag              gtInputTag_;
-    edm::EDGetTokenT< L1GlobalTriggerReadoutRecord > gtInputToken_;
-    edm::InputTag              gtEvmInputTag_;
-    edm::EDGetTokenT< L1GlobalTriggerEvmReadoutRecord > gtEvmInputToken_;
-    std::string                gtDBKey_;
-    std::vector< std::string > gtLogicalExpressions_;
-    bool                       errorReplyGt_;
-    bool                       andOrL1_;
-    bool                       stage2_;
-    bool                       l1BeforeMask_;
-    std::string                l1DBKey_;
-    std::vector< std::string > l1LogicalExpressionsCache_;
-    std::vector< std::string > l1LogicalExpressions_;
-    bool                       errorReplyL1_;
-    bool                       andOrHlt_;
-    edm::InputTag              hltInputTag_;
-    edm::EDGetTokenT< edm::TriggerResults > hltInputToken_;
-    std::string                hltDBKey_;
-    std::vector< std::string > hltLogicalExpressionsCache_;
-    std::vector< std::string > hltLogicalExpressions_;
-    bool                       errorReplyHlt_;
-    // Switches
-    bool on_;
-    bool onDcs_;
-    bool onGt_;
-    bool onL1_;
-    bool onHlt_;
-    // Member constants
-    const std::string configError_;
-    const std::string emptyKeyError_;
+public:
+  //so passing in the owning EDProducer is a pain for me (S. Harper)
+  //and its only needed for legacy/stage1 L1 info which is mostly obsolete now
+  //defined a new constructor which doesnt allow for the use of legacy/stage 1 L1, only stage2
+  //so you no longer have to pass in the EDProducer
+  //however I set things up such that its an error to try and configure the stage-1 L1 here
+  //hence the extra private constructor
+  //tldr: use these constructors, not the other two if unsure, if you get it wrong, there'll be an error
+  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector&& iC)
+      : GenericTriggerEventFlag(config, iC) {}
+  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC);
 
-  public:
-    //so passing in the owning EDProducer is a pain for me (S. Harper)
-    //and its only needed for legacy/stage1 L1 info which is mostly obsolete now
-    //defined a new constructor which doesnt allow for the use of legacy/stage 1 L1, only stage2
-    //so you no longer have to pass in the EDProducer
-    //however I set things up such that its an error to try and configure the stage-1 L1 here
-    //hence the extra private constructor 
-    //tldr: use these constructors, not the other two if unsure, if you get it wrong, there'll be an error
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC):
-      GenericTriggerEventFlag(config,iC){}
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC);
+  // Constructors must be called from the ED module's c'tor
+  template <typename T>
+  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector&& iC, T& module);
 
-    // Constructors must be called from the ED module's c'tor
-    template <typename T>
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC, T& module );
+  template <typename T>
+  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, T& module);
 
-    template <typename T>
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC, T& module );
+  // Public methods
+  bool on() { return on_; }
+  bool off() { return (!on_); }
+  void initRun(const edm::Run& run, const edm::EventSetup& setup);     // To be called from beginRun() methods
+  bool accept(const edm::Event& event, const edm::EventSetup& setup);  // To be called from analyze/filter() methods
 
+private:
+  GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, bool stage1Valid);
+  // Private methods
 
-    // Public methods
-    bool on()  { return     on_  ; }
-    bool off() { return ( ! on_ ); }
-    void initRun( const edm::Run & run, const edm::EventSetup & setup );    // To be called from beginRun() methods
-    bool accept( const edm::Event & event, const edm::EventSetup & setup ); // To be called from analyze/filter() methods
+  // DCS
+  bool acceptDcs(const edm::Event& event);
+  bool acceptDcsPartition(const edm::Handle<DcsStatusCollection>& dcsStatus, int dcsPartition) const;
 
-  private:
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC, bool stage1Valid );
-    // Private methods
+  // GT status bits
+  bool acceptGt(const edm::Event& event);
+  bool acceptGtLogicalExpression(const edm::Event& event, std::string gtLogicalExpression);
 
-    // DCS
-    bool acceptDcs( const edm::Event & event );
-    bool acceptDcsPartition( const edm::Handle< DcsStatusCollection > & dcsStatus, int dcsPartition ) const;
+  // L1
+  bool acceptL1(const edm::Event& event, const edm::EventSetup& setup);
+  bool acceptL1LogicalExpression(const edm::Event& event,
+                                 const edm::EventSetup& setup,
+                                 std::string l1LogicalExpression);
 
-    // GT status bits
-    bool acceptGt( const edm::Event & event );
-    bool acceptGtLogicalExpression( const edm::Event & event, std::string gtLogicalExpression );
+  // HLT
+  bool acceptHlt(const edm::Event& event);
+  bool acceptHltLogicalExpression(const edm::Handle<edm::TriggerResults>& hltTriggerResults,
+                                  std::string hltLogicalExpression) const;
 
-    // L1
-    bool acceptL1( const edm::Event & event, const edm::EventSetup & setup );
-    bool acceptL1LogicalExpression( const edm::Event & event, const edm::EventSetup & setup, std::string l1LogicalExpression );
+  // Algos
+  std::string expandLogicalExpression(const std::vector<std::string>& target,
+                                      const std::string& expr,
+                                      bool useAnd = false) const;
+  bool negate(std::string& word) const;
 
-    // HLT
-    bool acceptHlt( const edm::Event & event );
-    bool acceptHltLogicalExpression( const edm::Handle< edm::TriggerResults > & hltTriggerResults, std::string hltLogicalExpression ) const;
+public:
+  // Methods for expert analysis
 
-    // Algos
-    std::string expandLogicalExpression( const std::vector< std::string > & target, const std::string & expr, bool useAnd = false ) const;
-    bool negate( std::string & word ) const;
+  std::string gtDBKey() { return gtDBKey_; }    // can be empty
+  std::string l1DBKey() { return l1DBKey_; }    // can be empty
+  std::string hltDBKey() { return hltDBKey_; }  // can be empty
 
-  public:
-
-    // Methods for expert analysis
-
-    std::string gtDBKey()  { return gtDBKey_ ; } // can be empty
-    std::string l1DBKey()  { return l1DBKey_ ; } // can be empty
-    std::string hltDBKey() { return hltDBKey_; } // can be empty
-
-    std::vector< std::string > expressionsFromDB( const std::string & key, const edm::EventSetup & setup );
-
+  std::vector<std::string> expressionsFromDB(const std::string& key, const edm::EventSetup& setup);
 };
 
 template <typename T>
-GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC, T& module ) :
-  GenericTriggerEventFlag(config, iC, module) {
-}
+GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config,
+                                                 edm::ConsumesCollector&& iC,
+                                                 T& module)
+    : GenericTriggerEventFlag(config, iC, module) {}
 
 template <typename T>
-GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC, T& module ) :
-  GenericTriggerEventFlag(config, iC,true) {
-  if ( config.exists( "andOrL1" ) ) {
-    if (stage2_){
+GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, T& module)
+    : GenericTriggerEventFlag(config, iC, true) {
+  if (config.exists("andOrL1")) {
+    if (stage2_) {
       l1uGt_ = std::make_unique<l1t::L1TGlobalUtil>(config, iC);
-    }else{
+    } else {
       l1Gt_ = std::make_unique<L1GtUtils>(config, iC, false, module);
     }
   }
-  //these pointers are already null so no need to reset them to a nullptr 
+  //these pointers are already null so no need to reset them to a nullptr
   //if andOrL1 doesnt exist
 }
-  
 
 #endif

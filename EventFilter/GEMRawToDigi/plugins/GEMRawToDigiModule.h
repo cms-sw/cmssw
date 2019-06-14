@@ -27,28 +27,26 @@
 #include "EventFilter/GEMRawToDigi/interface/VFATdata.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class GEMRawToDigiModule : public edm::global::EDProducer<edm::RunCache<GEMROMapping> > {
- public:
+public:
   /// Constructor
-  GEMRawToDigiModule(const edm::ParameterSet & pset);
+  GEMRawToDigiModule(const edm::ParameterSet& pset);
 
   // global::EDProducer
-  std::shared_ptr<GEMROMapping> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;  
+  std::shared_ptr<GEMROMapping> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override {};
-  
-  // Fill parameters descriptions
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
 
- private:
-  
+  // Fill parameters descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   bool useDBEMap_;
   bool unPackStatusDigis_;
-
 };
 DEFINE_FWK_MODULE(GEMRawToDigiModule);
 #endif

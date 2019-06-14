@@ -32,11 +32,15 @@ public:
 
   geom_set getNeighborsFromTriggerCell(const unsigned) const final;
 
+  unsigned getLinksInModule(const unsigned module_id) const final;
+  unsigned getModuleSize(const unsigned module_id) const final;
+
   GlobalPoint getTriggerCellPosition(const unsigned) const final;
   GlobalPoint getModulePosition(const unsigned) const final;
 
   bool validTriggerCell(const unsigned) const final;
   bool disconnectedModule(const unsigned) const final;
+  unsigned lastTriggerLayer() const final;
   unsigned triggerLayer(const unsigned) const final;
 
 private:
@@ -486,6 +490,10 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexImp2::getNeighborsFrom
   return neighbor_detids;
 }
 
+unsigned HGCalTriggerGeometryHexImp2::getLinksInModule(const unsigned module_id) const { return 1; }
+
+unsigned HGCalTriggerGeometryHexImp2::getModuleSize(const unsigned module_id) const { return 1; }
+
 GlobalPoint HGCalTriggerGeometryHexImp2::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
   // Position: barycenter of the trigger cell.
   Basic3DVector<float> triggerCellVector(0., 0., 0.);
@@ -742,6 +750,8 @@ bool HGCalTriggerGeometryHexImp2::validTriggerCell(const unsigned trigger_cell_i
 }
 
 bool HGCalTriggerGeometryHexImp2::disconnectedModule(const unsigned module_id) const { return false; }
+
+unsigned HGCalTriggerGeometryHexImp2::lastTriggerLayer() const { return eeTopology().dddConstants().layers(true); }
 
 unsigned HGCalTriggerGeometryHexImp2::triggerLayer(const unsigned id) const { return HGCalDetId(id).layer(); }
 

@@ -46,26 +46,18 @@ using namespace std;
 //----------------
 
 L1MuDTEtaPatternLut::L1MuDTEtaPatternLut() {
-
   //  if ( load() != 0 ) {
   //    cout << "Can not open files to load eta track finder look-up tables for DTTrackFinder!" << endl;
   //  }
 
   //  if ( L1MuDTTFConfig::Debug(6) ) print();
-
 }
-
 
 //--------------
 // Destructor --
 //--------------
 
-L1MuDTEtaPatternLut::~L1MuDTEtaPatternLut() {
-
-  m_lut.clear();
-
-}
-
+L1MuDTEtaPatternLut::~L1MuDTEtaPatternLut() { m_lut.clear(); }
 
 //--------------
 // Operations --
@@ -74,18 +66,12 @@ L1MuDTEtaPatternLut::~L1MuDTEtaPatternLut() {
 //
 // reset look-up table
 //
-void L1MuDTEtaPatternLut::reset() {
-
-  m_lut.clear();
-
-}
-
+void L1MuDTEtaPatternLut::reset() { m_lut.clear(); }
 
 //
 // load pattern look-up table for ETF
 //
 int L1MuDTEtaPatternLut::load() {
-
   // get directory name
   string defaultPath = "L1TriggerConfig/DTTrackFinder/parameters/";
   string eau_dir = "L1TriggerData/DTTrackFinder/Eau/";
@@ -96,74 +82,73 @@ int L1MuDTEtaPatternLut::load() {
 
   // open file
   L1TriggerLutFile file(etf_file);
-  if ( file.open() != 0 ) return -1;
-  //  if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : " 
-  //                                       << file.getName() << endl; 
+  if (file.open() != 0)
+    return -1;
+  //  if ( L1MuDTTFConfig::Debug(1) ) cout << "Reading file : "
+  //                                       << file.getName() << endl;
 
-  // ignore comment lines 
+  // ignore comment lines
   file.ignoreLines(16);
- 
-  // read patterns
-  while ( file.good() ) {
 
-    int id     = file.readInteger();
-    if ( !file.good() ) break;
+  // read patterns
+  while (file.good()) {
+    int id = file.readInteger();
+    if (!file.good())
+      break;
     string pat = file.readString();
-    if ( !file.good() ) break;
-    int qual   = file.readInteger();
-    if ( !file.good() ) break;
-    int eta    = file.readInteger();
-    if ( !file.good() ) break;
-    L1MuDTEtaPattern pattern(id,pat,eta,qual);
-      
+    if (!file.good())
+      break;
+    int qual = file.readInteger();
+    if (!file.good())
+      break;
+    int eta = file.readInteger();
+    if (!file.good())
+      break;
+    L1MuDTEtaPattern pattern(id, pat, eta, qual);
+
     m_lut[pattern.id()] = pattern;
 
-    if ( !file.good() ) { file.close(); break; }
-    
+    if (!file.good()) {
+      file.close();
+      break;
+    }
   }
 
   file.close();
-    
+
   return 0;
-
 }
-
 
 //
 // print pattern look-up table for ETF
 //
 void L1MuDTEtaPatternLut::print() const {
-
   cout << endl;
   cout << "L1 barrel Track Finder ETA Pattern look-up table :" << endl;
   cout << "==================================================" << endl;
   cout << endl;
 
-  cout << "ETF Patterns : " <<  m_lut.size() << endl;
+  cout << "ETF Patterns : " << m_lut.size() << endl;
   cout << "======================" << endl;
   cout << endl;
 
   LUT::const_iterator iter = m_lut.begin();
-  while ( iter != m_lut.end() ) {
+  while (iter != m_lut.end()) {
     cout << (*iter).second << endl;
     iter++;
   }
 
   cout << endl;
-
 }
-
 
 //
 // get pattern with a given ID
 //
 L1MuDTEtaPattern L1MuDTEtaPatternLut::getPattern(int id) const {
-
   LUT::const_iterator it = m_lut.find(id);
-  if ( it == m_lut.end() ) {
+  if (it == m_lut.end()) {
     cerr << "Error: L1MuDTEtaPatternLut: pattern not found : " << id << endl;
     //    return 0;
   }
-  return (*it).second;  
-
+  return (*it).second;
 }

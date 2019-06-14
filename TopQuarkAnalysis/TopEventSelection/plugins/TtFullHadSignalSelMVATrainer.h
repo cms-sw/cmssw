@@ -23,18 +23,15 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtFullHadSignalSelMVA);  // defines TtFullHadSigna
 #endif
 
 class TtFullHadSignalSelMVATrainer : public edm::EDAnalyzer {
-
- public:
-
+public:
   explicit TtFullHadSignalSelMVATrainer(const edm::ParameterSet&);
   ~TtFullHadSignalSelMVATrainer() override;
 
- private:
-
+private:
   void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
   void beginJob() override;
 
-  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 
   int whatData_;
@@ -43,7 +40,6 @@ class TtFullHadSignalSelMVATrainer : public edm::EDAnalyzer {
   double weight_;
 
   PhysicsTools::MVAComputerCache mvaComputer;
-
 };
 
 #endif

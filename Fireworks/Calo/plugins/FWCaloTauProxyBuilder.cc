@@ -30,80 +30,84 @@
 
 class FWViewContext;
 
-class FWCaloTauProxyBuilder : public FWTauProxyBuilderBase
-{
+class FWCaloTauProxyBuilder : public FWTauProxyBuilderBase {
 public:
-   FWCaloTauProxyBuilder() {}
-   ~FWCaloTauProxyBuilder() override {}
-  
-   REGISTER_PROXYBUILDER_METHODS();
+  FWCaloTauProxyBuilder() {}
+  ~FWCaloTauProxyBuilder() override {}
+
+  REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCaloTauProxyBuilder(const FWCaloTauProxyBuilder&) = delete;    // stop default
-   const FWCaloTauProxyBuilder& operator=(const FWCaloTauProxyBuilder&) = delete;    // stop default
+  FWCaloTauProxyBuilder(const FWCaloTauProxyBuilder&) = delete;                   // stop default
+  const FWCaloTauProxyBuilder& operator=(const FWCaloTauProxyBuilder&) = delete;  // stop default
 
-   using FWTauProxyBuilderBase::buildViewType;
-   void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc) override;
-
+  using FWTauProxyBuilderBase::buildViewType;
+  void buildViewType(const FWEventItem* iItem,
+                     TEveElementList* product,
+                     FWViewType::EType viewType,
+                     const FWViewContext* vc) override;
 };
 
-void
-FWCaloTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc)
-{
-   reco::CaloTauCollection const * caloTaus = nullptr;
-   iItem->get( caloTaus );
-   if( caloTaus == nullptr ) return;
+void FWCaloTauProxyBuilder::buildViewType(const FWEventItem* iItem,
+                                          TEveElementList* product,
+                                          FWViewType::EType viewType,
+                                          const FWViewContext* vc) {
+  reco::CaloTauCollection const* caloTaus = nullptr;
+  iItem->get(caloTaus);
+  if (caloTaus == nullptr)
+    return;
 
-      
-   Int_t idx = 0;
-   for( reco::CaloTauCollection::const_iterator it = caloTaus->begin(), itEnd = caloTaus->end(); it != itEnd; ++it, ++idx)
-   {  
-      TEveCompound* comp = createCompound();
+  Int_t idx = 0;
+  for (reco::CaloTauCollection::const_iterator it = caloTaus->begin(), itEnd = caloTaus->end(); it != itEnd;
+       ++it, ++idx) {
+    TEveCompound* comp = createCompound();
 
-      if (viewType == FWViewType::kLego)
-      {
-         fireworks::addCircle( (*it).eta(), (*it).phi(), 0.5, 20, comp, this );
+    if (viewType == FWViewType::kLego) {
+      fireworks::addCircle((*it).eta(), (*it).phi(), 0.5, 20, comp, this);
+    } else {
+      try {
+        const reco::CaloTauTagInfo* tauTagInfo =
+            dynamic_cast<const reco::CaloTauTagInfo*>(((*it).caloTauTagInfoRef().get()));
+        const reco::CaloJet* jet = dynamic_cast<const reco::CaloJet*>((tauTagInfo->calojetRef().get()));
+
+        int min = 100;
+        int max = -100;
+        std::vector<double> phis;
+        std::vector<CaloTowerPtr> towers = jet->getCaloConstituents();
+        for (std::vector<CaloTowerPtr>::const_iterator tower = towers.begin(), towerEnd = towers.end();
+             tower != towerEnd;
+             ++tower) {
+          unsigned int ieta = 41 + (*tower)->id().ieta();
+          if (ieta > 40)
+            --ieta;
+          assert(ieta <= 82);
+
+          if (int(ieta) > max)
+            max = ieta;
+          if (int(ieta) < min)
+            min = ieta;
+          m_phis.push_back((*tower)->phi());
+        }
+        if (min > max) {
+          min = 0;
+          max = 0;
+        }
+        const std::vector<std::pair<double, double> > thetaBins = fireworks::thetaBins();
+        m_minTheta = thetaBins[min].first;
+        m_maxTheta = thetaBins[max].second;
+
+        buildBaseTau(*it, jet, comp, viewType, vc);
+        m_phis.clear();
+      } catch (std::exception& e) {
+        fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
+        buildBaseTau(*it, nullptr, comp, viewType, vc);
       }
-      else
-      {
-         try {
-            const reco::CaloTauTagInfo *tauTagInfo = dynamic_cast<const reco::CaloTauTagInfo*>(((*it).caloTauTagInfoRef().get()));
-            const reco::CaloJet *jet = dynamic_cast<const reco::CaloJet*>((tauTagInfo->calojetRef().get()));
-
-            int min =  100;
-            int max = -100;
-            std::vector<double> phis;
-            std::vector<CaloTowerPtr> towers = jet->getCaloConstituents();
-            for( std::vector<CaloTowerPtr>::const_iterator tower = towers.begin(), towerEnd = towers.end();
-                 tower != towerEnd; ++tower )
-            {
-               unsigned int ieta = 41 + (*tower)->id().ieta();
-               if( ieta > 40 ) --ieta;
-               assert( ieta <= 82 );
-	 
-               if( int(ieta) > max ) max = ieta;
-               if( int(ieta) < min ) min = ieta;
-               m_phis.push_back( (*tower)->phi() );
-            }
-            if( min > max ) {	
-               min = 0; max = 0;
-            }
-            const std::vector<std::pair<double, double> > thetaBins = fireworks::thetaBins();
-            m_minTheta = thetaBins[min].first;
-            m_maxTheta = thetaBins[max].second;
-
-            buildBaseTau(*it, jet, comp, viewType, vc);
-            m_phis.clear();
-         }  
-         catch (std::exception&  e)
-         { 
-            fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
-            buildBaseTau(*it, nullptr, comp, viewType, vc);
-         }
-      }
-      setupAddElement( comp, product );
-   }
+    }
+    setupAddElement(comp, product);
+  }
 }
 
-
-REGISTER_FWPROXYBUILDER(FWCaloTauProxyBuilder, reco::CaloTauCollection, "CaloTau", FWViewType::kAll3DBits | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER(FWCaloTauProxyBuilder,
+                        reco::CaloTauCollection,
+                        "CaloTau",
+                        FWViewType::kAll3DBits | FWViewType::kAllRPZBits);

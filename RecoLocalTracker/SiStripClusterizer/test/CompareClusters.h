@@ -16,23 +16,20 @@ class SiStripDigi;
 #include <sstream>
 
 class CompareClusters : public edm::EDAnalyzer {
-  
   typedef edmNew::DetSetVector<SiStripCluster> input_t;
-  
- public:
-  
+
+public:
   CompareClusters(const edm::ParameterSet& conf);
 
- private:
-  
+private:
   void analyze(const edm::Event&, const edm::EventSetup&);
 
-  void show( uint32_t);
+  void show(uint32_t);
   std::string printDigis(uint32_t);
   static std::string printCluster(const SiStripCluster&);
-  static bool identicalDSV(const input_t&,const input_t&);
-  static bool identicalDetSet(const edmNew::DetSet<SiStripCluster>&,const edmNew::DetSet<SiStripCluster>&);
-  static bool identicalClusters(const SiStripCluster&,const SiStripCluster&);
+  static bool identicalDSV(const input_t&, const input_t&);
+  static bool identicalDetSet(const edmNew::DetSet<SiStripCluster>&, const edmNew::DetSet<SiStripCluster>&);
+  static bool identicalClusters(const SiStripCluster&, const SiStripCluster&);
 
   std::stringstream message;
   edm::InputTag clusters1, clusters2, digis;

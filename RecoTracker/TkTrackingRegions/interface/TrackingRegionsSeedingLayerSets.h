@@ -9,20 +9,21 @@
 
 class TrackingRegionsSeedingLayerSets {
   class Element;
+
 public:
   class RegionLayers {
   public:
     using SeedingLayerSet = SeedingLayerSetsHits::SeedingLayerSet;
 
-    RegionLayers(const Element *elem, const SeedingLayerSetsHits *seedingLayerSetsHits):
-      elem_(elem), seedingLayerSetsHits_(seedingLayerSetsHits) {}
+    RegionLayers(const Element* elem, const SeedingLayerSetsHits* seedingLayerSetsHits)
+        : elem_(elem), seedingLayerSetsHits_(seedingLayerSetsHits) {}
 
     const TrackingRegion& region() const;
     std::vector<SeedingLayerSet> layerPairs() const;
 
   private:
-    const Element *elem_;
-    const SeedingLayerSetsHits *seedingLayerSetsHits_;
+    const Element* elem_;
+    const SeedingLayerSetsHits* seedingLayerSetsHits_;
   };
 
   class const_iterator {
@@ -31,11 +32,14 @@ public:
     using value_type = RegionLayers;
     using difference_type = internal_iterator_type::difference_type;
 
-    const_iterator(internal_iterator_type iter, const SeedingLayerSetsHits *seedingLayerSetsHits):
-      iter_(iter), seedingLayerSetsHits_(seedingLayerSetsHits) {}
+    const_iterator(internal_iterator_type iter, const SeedingLayerSetsHits* seedingLayerSetsHits)
+        : iter_(iter), seedingLayerSetsHits_(seedingLayerSetsHits) {}
 
     value_type operator*() const { return RegionLayers(&(*iter_), seedingLayerSetsHits_); }
-    const_iterator& operator++() { ++iter_; return *this; }
+    const_iterator& operator++() {
+      ++iter_;
+      return *this;
+    }
     const_iterator operator++(int) {
       const_iterator clone(*this);
       ++(*this);
@@ -44,20 +48,20 @@ public:
 
     bool operator==(const const_iterator& other) const { return iter_ == other.iter_; }
     bool operator!=(const const_iterator& other) const { return !operator==(other); }
+
   private:
     internal_iterator_type iter_;
-    const SeedingLayerSetsHits *seedingLayerSetsHits_;
+    const SeedingLayerSetsHits* seedingLayerSetsHits_;
   };
 
   TrackingRegionsSeedingLayerSets() = default;
-  explicit TrackingRegionsSeedingLayerSets(const SeedingLayerSetsHits *seedingLayerSetsHits):
-    seedingLayerSetsHits_(seedingLayerSetsHits)
-  {}
+  explicit TrackingRegionsSeedingLayerSets(const SeedingLayerSetsHits* seedingLayerSetsHits)
+      : seedingLayerSetsHits_(seedingLayerSetsHits) {}
   ~TrackingRegionsSeedingLayerSets() = default;
-  TrackingRegionsSeedingLayerSets(TrackingRegionsSeedingLayerSets const&)=delete;
-  TrackingRegionsSeedingLayerSets& operator=(TrackingRegionsSeedingLayerSets const&)=delete;
-  TrackingRegionsSeedingLayerSets(TrackingRegionsSeedingLayerSets &&)=default;
-  TrackingRegionsSeedingLayerSets& operator=(TrackingRegionsSeedingLayerSets &&)=default;
+  TrackingRegionsSeedingLayerSets(TrackingRegionsSeedingLayerSets const&) = delete;
+  TrackingRegionsSeedingLayerSets& operator=(TrackingRegionsSeedingLayerSets const&) = delete;
+  TrackingRegionsSeedingLayerSets(TrackingRegionsSeedingLayerSets&&) = default;
+  TrackingRegionsSeedingLayerSets& operator=(TrackingRegionsSeedingLayerSets&&) = default;
 
   void reserve(size_t s) { regionLayers_.reserve(s); }
 
@@ -83,13 +87,13 @@ public:
 private:
   class Element {
   public:
-    Element(std::unique_ptr<TrackingRegion>&& region, std::vector<SeedingLayerSetsHits::LayerSetIndex>&& layerSets):
-      region_(std::move(region)), layerSets_(std::move(layerSets)) {}
+    Element(std::unique_ptr<TrackingRegion>&& region, std::vector<SeedingLayerSetsHits::LayerSetIndex>&& layerSets)
+        : region_(std::move(region)), layerSets_(std::move(layerSets)) {}
     ~Element() = default;
-    Element(Element const&)=delete;
-    Element& operator=(Element const&)=delete;
-    Element(Element &&)=default;
-    Element& operator=(Element &&)=default;
+    Element(Element const&) = delete;
+    Element& operator=(Element const&) = delete;
+    Element(Element&&) = default;
+    Element& operator=(Element&&) = default;
 
     const TrackingRegion& region() const { return *region_; }
     const std::vector<SeedingLayerSetsHits::LayerSetIndex>& layerSets() const { return layerSets_; }
@@ -99,22 +103,19 @@ private:
     std::vector<SeedingLayerSetsHits::LayerSetIndex> layerSets_;
   };
 
-  const SeedingLayerSetsHits *seedingLayerSetsHits_ = nullptr;
+  const SeedingLayerSetsHits* seedingLayerSetsHits_ = nullptr;
   std::vector<Element> regionLayers_;
 };
 
-inline
-const TrackingRegion& TrackingRegionsSeedingLayerSets::RegionLayers::region() const {
-  return elem_->region();
-}
+inline const TrackingRegion& TrackingRegionsSeedingLayerSets::RegionLayers::region() const { return elem_->region(); }
 
-inline
-std::vector<TrackingRegionsSeedingLayerSets::RegionLayers::SeedingLayerSet> TrackingRegionsSeedingLayerSets::RegionLayers::layerPairs() const {
-  std::vector<SeedingLayerSet> ret; // TODO: get rid of the vector with more boilerplate code (sigh)
+inline std::vector<TrackingRegionsSeedingLayerSets::RegionLayers::SeedingLayerSet>
+TrackingRegionsSeedingLayerSets::RegionLayers::layerPairs() const {
+  std::vector<SeedingLayerSet> ret;  // TODO: get rid of the vector with more boilerplate code (sigh)
 
   const auto& layerSets = elem_->layerSets();
   ret.reserve(layerSets.size());
-  for(const auto& ind: layerSets) {
+  for (const auto& ind : layerSets) {
     ret.push_back((*seedingLayerSetsHits_)[ind]);
   }
   return ret;

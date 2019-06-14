@@ -2,6 +2,7 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 SiStripPlotGain::SiStripPlotGain(const edm::ParameterSet &iConfig) : cacheID(0xFFFFFFFF) {
   // now do what ever initialization is needed

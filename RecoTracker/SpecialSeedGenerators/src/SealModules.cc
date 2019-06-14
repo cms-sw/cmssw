@@ -19,11 +19,11 @@ DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, GenericTripletGenerator, "Generic
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, GenericPairGenerator, "GenericPairGenerator");
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, BeamHaloPairGenerator, "BeamHaloPairGenerator");
 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h" 	 
-#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h" 	
-#include "RecoTracker/SpecialSeedGenerators/interface/CosmicRegionalSeedGenerator.h" 
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/CosmicRegionalSeedGenerator.h"
 
-DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, CosmicRegionalSeedGenerator, "CosmicRegionalSeedGenerator"); 
+DEFINE_EDM_PLUGIN(TrackingRegionProducerFactory, CosmicRegionalSeedGenerator, "CosmicRegionalSeedGenerator");
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedCreator.h"

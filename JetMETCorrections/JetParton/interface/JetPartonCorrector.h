@@ -14,29 +14,26 @@ namespace edm {
 }
 
 namespace JetPartonNamespace {
-class ParametrizationJetParton;
-class UserPartonMixture;
-}
+  class ParametrizationJetParton;
+  class UserPartonMixture;
+}  // namespace JetPartonNamespace
 
-class JetPartonCorrector : public JetCorrector
-{
-public:  
-  JetPartonCorrector(const edm::ParameterSet& fConfig); 
+class JetPartonCorrector : public JetCorrector {
+public:
+  JetPartonCorrector(const edm::ParameterSet& fConfig);
   ~JetPartonCorrector() override;
-  
-  double   correction (const LorentzVector& fJet) const override;
-   
+
+  double correction(const LorentzVector& fJet) const override;
+
   void setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture);
 
   /// if correction needs event information
-  bool eventRequired () const override {return false;}
-  
-private:
+  bool eventRequired() const override { return false; }
 
-  typedef std::map<double,JetPartonNamespace::ParametrizationJetParton *> ParametersMap;
+private:
+  typedef std::map<double, JetPartonNamespace::ParametrizationJetParton*> ParametersMap;
   ParametersMap parametrization;
   int thePartonMixture;
   double theJetFinderRadius;
-
 };
 #endif

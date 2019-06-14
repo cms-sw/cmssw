@@ -15,16 +15,16 @@
 class TrackerTopology;
 
 class SeparatingTSG : public CompositeTSG {
- public:
-  SeparatingTSG(const edm::ParameterSet &pset,edm::ConsumesCollector& IC );
+public:
+  SeparatingTSG(const edm::ParameterSet &pset, edm::ConsumesCollector &IC);
   ~SeparatingTSG() override;
 
-  void trackerSeeds(const TrackCand&, const TrackingRegion&, const TrackerTopology *, BTSeedCollection &) override;
+  void trackerSeeds(const TrackCand &, const TrackingRegion &, const TrackerTopology *, BTSeedCollection &) override;
 
-  virtual unsigned int selectTSG(const TrackCand&, const TrackingRegion&) =0;
- private:
+  virtual unsigned int selectTSG(const TrackCand &, const TrackingRegion &) = 0;
+
+private:
   std::string theCategory;
-
 };
 
 #endif

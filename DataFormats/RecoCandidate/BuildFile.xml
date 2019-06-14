@@ -4,8 +4,10 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/HcalRecHit"/>
 <use   name="clhep"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="SimDataFormats/TrackingAnalysis"/>
 
 <export>
   <lib   name="1"/>

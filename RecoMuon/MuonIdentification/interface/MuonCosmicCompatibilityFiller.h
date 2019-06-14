@@ -30,25 +30,24 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 class GlobalMuonRefitter;
 class MuonServiceProxy;
 
-
 class MuonCosmicCompatibilityFiller {
-	
-  public:
-   
-  MuonCosmicCompatibilityFiller(const edm::ParameterSet&,edm::ConsumesCollector&);
+public:
+  MuonCosmicCompatibilityFiller(const edm::ParameterSet&, edm::ConsumesCollector&);
   ~MuonCosmicCompatibilityFiller();
-  
-  /// fill cosmic compatibility variables  
-  reco::MuonCosmicCompatibility fillCompatibility( const reco::Muon& muon,edm::Event&, const edm::EventSetup&);
 
- private:
+  /// fill cosmic compatibility variables
+  reco::MuonCosmicCompatibility fillCompatibility(const reco::Muon& muon, edm::Event&, const edm::EventSetup&);
 
-  /// check muon time (DT and CSC) information: 0 == prompt-like 
+private:
+  /// check muon time (DT and CSC) information: 0 == prompt-like
   float muonTiming(const edm::Event& iEvent, const reco::Muon& muon, bool isLoose) const;
 
   ///return cosmic-likeness based on presence of a track in opp side: 0 == no matching opp tracks
@@ -59,7 +58,7 @@ class MuonCosmicCompatibilityFiller {
 
   /// returns cosmic-likeness based on overlap with traversing cosmic muon (only muon/STA hits are used)
   bool isOverlappingMuon(const edm::Event&, const edm::EventSetup& iSetup, const reco::Muon&) const;
-  
+
   /// get number of muons in the vent
   unsigned int nMuons(const edm::Event&) const;
 
@@ -67,16 +66,16 @@ class MuonCosmicCompatibilityFiller {
   unsigned int eventActivity(const edm::Event&, const reco::Muon&) const;
 
   /// combined cosmic-likeness: 0 == not cosmic-like
-  float combinedCosmicID(const edm::Event&, const edm::EventSetup& iSetup, const reco::Muon&, bool CheckMuonID, bool checkVertex) const;
+  float combinedCosmicID(
+      const edm::Event&, const edm::EventSetup& iSetup, const reco::Muon&, bool CheckMuonID, bool checkVertex) const;
 
   /// tag a muon as cosmic based on the muonID information
-  bool checkMuonID( const reco::Muon& ) const;
+  bool checkMuonID(const reco::Muon&) const;
 
   /// tag a muon as cosmic based on segment compatibility and the number of segment matches
   bool checkMuonSegments(const reco::Muon& muon) const;
 
- private:
- 
+private:
   std::vector<edm::InputTag> inputMuonCollections_;
   std::vector<edm::InputTag> inputTrackCollections_;
   edm::InputTag inputCosmicMuonCollection_;
@@ -87,10 +86,8 @@ class MuonCosmicCompatibilityFiller {
   edm::EDGetTokenT<reco::MuonCollection> cosmicToken_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
 
-
-
   MuonServiceProxy* service_;
-  
+
   double maxdxyLoose_;
   double maxdzLoose_;
   double maxdxyTight_;
@@ -119,11 +116,10 @@ class MuonCosmicCompatibilityFiller {
   double corrTimeNeg_;
   double deltaPt_;
   double angleThreshold_;
-  int sharedHits_;  
+  int sharedHits_;
   double sharedFrac_;
   double ipThreshold_;
   int nChamberMatches_;
   double segmentComp_;
-  
 };
 #endif

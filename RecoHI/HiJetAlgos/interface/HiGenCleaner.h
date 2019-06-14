@@ -4,7 +4,7 @@
 //
 // Package:    HiGenCleaner
 // Class:      HiGenCleaner
-// 
+//
 /**\class HiGenCleaner HiGenCleaner.cc yetkin/HiGenCleaner/src/HiGenCleaner.cc
 
  Description: <one line class summary>
@@ -41,20 +41,18 @@ template <class T2>
 class HiGenCleaner : public edm::EDProducer {
 public:
   typedef std::vector<T2> T2Collection;
-      explicit HiGenCleaner(const edm::ParameterSet&);
-      ~HiGenCleaner() override;
+  explicit HiGenCleaner(const edm::ParameterSet&);
+  ~HiGenCleaner() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      // ----------member data ---------------------------
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  // ----------member data ---------------------------
 
-   edm::EDGetTokenT<edm::View<T2> > jetSrc_;
-   double deltaR_;
-   double ptCut_;
-   bool makeNew_;
-   bool fillDummy_;
-
+  edm::EDGetTokenT<edm::View<T2> > jetSrc_;
+  double deltaR_;
+  double ptCut_;
+  bool makeNew_;
+  bool fillDummy_;
 };
-
 
 #endif

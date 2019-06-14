@@ -61,6 +61,7 @@ ntuple_triggercells = cms.PSet(
     fhSimHits = cms.InputTag('g4SimHits:HGCHitsHEfront'),
     bhSimHits = cms.InputTag('g4SimHits:HcalHits'),
     FillSimEnergy = cms.bool(False),
+    FillTruthMap = cms.bool(False),
     fcPerMip = fcPerMip,
     keV2fC = keV2fC,
     layerWeights = layerWeights,
@@ -79,7 +80,8 @@ from L1Trigger.L1THGCal.egammaIdentification import egamma_identification_histom
 ntuple_multiclusters = cms.PSet(
     NtupleName = cms.string('HGCalTriggerNtupleHGCMulticlusters'),
     Multiclusters = cms.InputTag('hgcalBackEndLayer2Producer:HGCalBackendLayer2Processor3DClustering'),
-    EGIdentification = egamma_identification_histomax.clone()
+    EGIdentification = egamma_identification_histomax.clone(),
+    FillLayerInfo = cms.bool(False)
 )
 
 ntuple_panels = cms.PSet(

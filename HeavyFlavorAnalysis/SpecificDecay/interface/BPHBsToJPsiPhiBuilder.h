@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -38,14 +37,12 @@ class BPHMassFitSelect;
 //              ---------------------
 
 class BPHBsToJPsiPhiBuilder {
-
- public:
-
+public:
   /** Constructor
    */
-  BPHBsToJPsiPhiBuilder( const edm::EventSetup& es,
-      const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
-      const std::vector<BPHPlusMinusConstCandPtr>&  phiCollection );
+  BPHBsToJPsiPhiBuilder(const edm::EventSetup& es,
+                        const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
+                        const std::vector<BPHPlusMinusConstCandPtr>& phiCollection);
 
   /** Destructor
    */
@@ -57,47 +54,46 @@ class BPHBsToJPsiPhiBuilder {
   std::vector<BPHRecoConstCandPtr> build();
 
   /// set cuts
-  void setJPsiMassMin( double m  );
-  void setJPsiMassMax( double m  );
-  void setPhiMassMin ( double m  );
-  void setPhiMassMax ( double m  );
-  void setMassMin    ( double m  );
-  void setMassMax    ( double m  );
-  void setProbMin    ( double p  );
-  void setMassFitMin ( double m  );
-  void setMassFitMax ( double m  );
-  void setConstr     ( bool flag );
+  void setJPsiMassMin(double m);
+  void setJPsiMassMax(double m);
+  void setPhiMassMin(double m);
+  void setPhiMassMax(double m);
+  void setMassMin(double m);
+  void setMassMax(double m);
+  void setProbMin(double p);
+  void setMassFitMin(double m);
+  void setMassFitMax(double m);
+  void setConstr(bool flag);
 
   /// get current cuts
   double getJPsiMassMin() const;
   double getJPsiMassMax() const;
-  double getPhiMassMin () const;
-  double getPhiMassMax () const;
-  double getMassMin    () const;
-  double getMassMax    () const;
-  double getProbMin    () const;
-  double getMassFitMin () const;
-  double getMassFitMax () const;
-  bool   getConstr     () const;
+  double getPhiMassMin() const;
+  double getPhiMassMax() const;
+  double getMassMin() const;
+  double getMassMax() const;
+  double getProbMin() const;
+  double getMassFitMin() const;
+  double getMassFitMax() const;
+  bool getConstr() const;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHBsToJPsiPhiBuilder           ( const BPHBsToJPsiPhiBuilder& x ) = delete;
-  BPHBsToJPsiPhiBuilder& operator=( const BPHBsToJPsiPhiBuilder& x ) = delete;
+  BPHBsToJPsiPhiBuilder(const BPHBsToJPsiPhiBuilder& x) = delete;
+  BPHBsToJPsiPhiBuilder& operator=(const BPHBsToJPsiPhiBuilder& x) = delete;
 
   std::string jPsiName;
-  std::string  phiName;
+  std::string phiName;
 
   const edm::EventSetup* evSetup;
   const std::vector<BPHPlusMinusConstCandPtr>* jCollection;
   const std::vector<BPHPlusMinusConstCandPtr>* pCollection;
 
-  BPHMassSelect   * jpsiSel;
-  BPHMassSelect   * mphiSel;
+  BPHMassSelect* jpsiSel;
+  BPHMassSelect* mphiSel;
 
-  BPHMassSelect   * massSel;
-  BPHChi2Select   * chi2Sel;
+  BPHMassSelect* massSel;
+  BPHChi2Select* chi2Sel;
   BPHMassFitSelect* mFitSel;
 
   bool massConstr;
@@ -105,9 +101,6 @@ class BPHBsToJPsiPhiBuilder {
   bool updated;
 
   std::vector<BPHRecoConstCandPtr> bsList;
-
 };
 
-
 #endif
-

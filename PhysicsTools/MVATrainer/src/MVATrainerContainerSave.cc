@@ -23,64 +23,53 @@
 
 namespace PhysicsTools {
 
-MVATrainerContainerSave::MVATrainerContainerSave(
-					const edm::ParameterSet &params) :
-	toPut(params.getParameter<std::vector<std::string> >("toPut")),
-	toCopy(params.getParameter<std::vector<std::string> >("toCopy")),
-	saved(false)
-{
-}
+  MVATrainerContainerSave::MVATrainerContainerSave(const edm::ParameterSet &params)
+      : toPut(params.getParameter<std::vector<std::string> >("toPut")),
+        toCopy(params.getParameter<std::vector<std::string> >("toCopy")),
+        saved(false) {}
 
-void MVATrainerContainerSave::analyze(const edm::Event& event,
-                                      const edm::EventSetup& es)
-{
-	if (calib.get() || saved)
-		return;
+  void MVATrainerContainerSave::analyze(const edm::Event &event, const edm::EventSetup &es) {
+    if (calib.get() || saved)
+      return;
 
-	const Calibration::MVAComputerContainer *toPutCalib = nullptr;
-	if (!toPut.empty()) {
-		toPutCalib = getToPut(es);
-		if (MVATrainerLooper::isUntrained(toPutCalib))
-			return;
-	}
+    const Calibration::MVAComputerContainer *toPutCalib = nullptr;
+    if (!toPut.empty()) {
+      toPutCalib = getToPut(es);
+      if (MVATrainerLooper::isUntrained(toPutCalib))
+        return;
+    }
 
-	const Calibration::MVAComputerContainer *toCopyCalib = nullptr;
-	if (!toCopy.empty())
-		toCopyCalib = getToCopy(es);
+    const Calibration::MVAComputerContainer *toCopyCalib = nullptr;
+    if (!toCopy.empty())
+      toCopyCalib = getToCopy(es);
 
-	edm::LogInfo("MVATrainerSave") << "Got the trained calibration data";
+    edm::LogInfo("MVATrainerSave") << "Got the trained calibration data";
 
-	std::unique_ptr<Calibration::MVAComputerContainer> calib(
-					new Calibration::MVAComputerContainer);
+    std::unique_ptr<Calibration::MVAComputerContainer> calib(new Calibration::MVAComputerContainer);
 
-	for(std::vector<std::string>::const_iterator iter = toCopy.begin();
-	    iter != toCopy.end(); iter++)
-		calib->add(*iter) = toCopyCalib->find(*iter);
+    for (std::vector<std::string>::const_iterator iter = toCopy.begin(); iter != toCopy.end(); iter++)
+      calib->add(*iter) = toCopyCalib->find(*iter);
 
-	for(std::vector<std::string>::const_iterator iter = toPut.begin();
-	    iter != toPut.end(); iter++)
-		calib->add(*iter) = toPutCalib->find(*iter);
+    for (std::vector<std::string>::const_iterator iter = toPut.begin(); iter != toPut.end(); iter++)
+      calib->add(*iter) = toPutCalib->find(*iter);
 
-	this->calib = std::move(calib);
-}
+    this->calib = std::move(calib);
+  }
 
-void MVATrainerContainerSave::endJob()
-{
-	if (!calib.get() || saved)
-		return;
+  void MVATrainerContainerSave::endJob() {
+    if (!calib.get() || saved)
+      return;
 
-	edm::LogInfo("MVATrainerSave") << "Saving calibration data in CondDB.";
+    edm::LogInfo("MVATrainerSave") << "Saving calibration data in CondDB.";
 
-	edm::Service<cond::service::PoolDBOutputService> dbService;
-	if (!dbService.isAvailable())
-		throw cms::Exception("MVATrainerContainerSave")
-			<< "DBService unavailable" << std::endl;
+    edm::Service<cond::service::PoolDBOutputService> dbService;
+    if (!dbService.isAvailable())
+      throw cms::Exception("MVATrainerContainerSave") << "DBService unavailable" << std::endl;
 
-	dbService->createNewIOV<Calibration::MVAComputerContainer>(
-		calib.release(), dbService->beginOfTime(),
-		dbService->endOfTime(), getRecordName());
+    dbService->createNewIOV<Calibration::MVAComputerContainer>(
+        calib.release(), dbService->beginOfTime(), dbService->endOfTime(), getRecordName());
 
-	saved = true;
-}
+    saved = true;
+  }
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools

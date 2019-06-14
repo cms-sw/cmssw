@@ -5,5 +5,4 @@
 
 #include "AnalysisAlgos/SiStripClusterInfoProducer/plugins/SiStripProcessedRawDigiProducer.h"
 
-
 DEFINE_FWK_MODULE(SiStripProcessedRawDigiProducer);

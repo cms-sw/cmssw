@@ -15,15 +15,12 @@
  *  R. Fruhwirth, Computer Physics Communications 100 (1997), 1.
  */
 class BasicMultiTrajectoryState final : public BasicTrajectoryState {
+  typedef TrajectoryStateOnSurface TSOS;
 
-  typedef TrajectoryStateOnSurface        TSOS;  
-  
 public:
-
-  explicit BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec); 
+  explicit BasicMultiTrajectoryState(const std::vector<TSOS>& tsvec);
 
   BasicMultiTrajectoryState() {}
-
 
   /** Rescaling the error of the mixture with a given factor. Please note that
    *  this rescaling is imposed on each of the components of the mixture and does
@@ -33,35 +30,29 @@ public:
 
   void rescaleError(double factor);
 
-  pointer clone() const override {
-    return build<BasicMultiTrajectoryState>(*this);
-  }
+  pointer clone() const override { return build<BasicMultiTrajectoryState>(*this); }
 
-  using	Components = BasicTrajectoryState::Components;
-  Components const & components() const override {
-    return theStates;
-  }
-  bool singleState() const override { return false;}
-
+  using Components = BasicTrajectoryState::Components;
+  Components const& components() const override { return theStates; }
+  bool singleState() const override { return false; }
 
   bool canUpdateLocalParameters() const override { return false; }
-  void update( const LocalTrajectoryParameters& p,
-                       const Surface& aSurface,
-                       const MagneticField* field,
-                       const SurfaceSide side ) override;
+  void update(const LocalTrajectoryParameters& p,
+              const Surface& aSurface,
+              const MagneticField* field,
+              const SurfaceSide side) override;
 
   void update(double weight,
-                       const LocalTrajectoryParameters& p,
-                       const LocalTrajectoryError& err,
-                       const Surface& aSurface,
-                       const MagneticField* field,
-                       const SurfaceSide side) override;
-private:
+              const LocalTrajectoryParameters& p,
+              const LocalTrajectoryError& err,
+              const Surface& aSurface,
+              const MagneticField* field,
+              const SurfaceSide side) override;
 
+private:
   Components theStates;
 
   void combine() dso_internal;
-
 };
 
 #endif

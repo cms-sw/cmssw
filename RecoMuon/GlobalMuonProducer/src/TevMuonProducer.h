@@ -31,49 +31,47 @@
 
 typedef edm::ValueMap<reco::DYTInfo> DYTestimators;
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonTrackFinder;
 class MuonServiceProxy;
 
 class TevMuonProducer : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// constructor with config
   TevMuonProducer(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~TevMuonProducer() override; 
-  
+  ~TevMuonProducer() override;
+
   /// reconstruct muons
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
-    
+
+private:
   /// STA Label
   edm::InputTag theGLBCollectionLabel;
   edm::EDGetTokenT<reco::TrackCollection> glbMuonsToken;
   edm::EDGetTokenT<std::vector<Trajectory> > glbMuonsTrajToken;
-  
-
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;
-  
+
   GlobalMuonRefitter* theRefitter;
 
   MuonTrackLoader* theTrackLoader;
-  
+
   std::string theAlias;
   std::vector<std::string> theRefits;
   std::vector<int> theRefitIndex;
 
-  void setAlias( std::string alias ){
-    alias.erase( alias.size() - 1, alias.size() );
-    theAlias=alias;
+  void setAlias(std::string alias) {
+    alias.erase(alias.size() - 1, alias.size());
+    theAlias = alias;
   }
-  
 };
 
 #endif

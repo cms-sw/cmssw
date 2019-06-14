@@ -24,55 +24,46 @@ class FreeTrajectoryState;
 //              ---------------------
 
 class DirectTrackerNavigation {
+public:
+  /// constructor
+  DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>&, bool outOnly = true);
 
-  public:
+  /// find compatible layers for a given trajectory state
+  std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+                                                PropagationDirection timeDirection) const;
 
-    /// constructor
-    DirectTrackerNavigation(const edm::ESHandle<GeometricSearchTracker>&, 
-                            bool outOnly = true);
+private:
+  void inOutTOB(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
+  void inOutTIB(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
+  void inOutPx(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    /// find compatible layers for a given trajectory state
-    std::vector<const DetLayer*> 
-      compatibleLayers(const FreeTrajectoryState& fts, 
-                       PropagationDirection timeDirection) const;
+  void inOutFTEC(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-  private:
+  void inOutFTID(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    void inOutTOB(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  void inOutFPx(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    void inOutTIB(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  void inOutBTEC(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    void inOutPx(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  void inOutBTID(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    void inOutFTEC(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  void inOutBPx(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    void inOutFTID(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  bool checkCompatible(const FreeTrajectoryState&, const BarrelDetLayer*) const;
 
-    void inOutFPx(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  bool checkCompatible(const FreeTrajectoryState&, const ForwardDetLayer*) const;
 
-    void inOutBTEC(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  bool outward(const FreeTrajectoryState&) const;
 
-    void inOutBTID(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  float calculateEta(float r, float z) const;
 
-    void inOutBPx(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+private:
+  edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
 
-    bool checkCompatible(const FreeTrajectoryState&, const BarrelDetLayer*) const;
+  bool theOutLayerOnlyFlag;
 
-    bool checkCompatible(const FreeTrajectoryState&, const ForwardDetLayer*) const;
-
-    bool outward(const FreeTrajectoryState&) const;
-
-    float calculateEta(float r, float z) const;
-
-  private:
-
-    edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
-
-    bool theOutLayerOnlyFlag;
-
-    float theEpsilon;
-
+  float theEpsilon;
 };
 #endif

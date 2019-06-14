@@ -11,26 +11,19 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
 class KFStrip1DUpdator final : public TrajectoryStateUpdator {
-
 private:
-  
   typedef TrajectoryStateOnSurface TSOS;
   typedef LocalTrajectoryParameters LTP;
   typedef LocalTrajectoryError LTE;
-  
-public:
 
+public:
   KFStrip1DUpdator() {}
 
   ~KFStrip1DUpdator() override {}
 
   TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const override;
 
-  KFStrip1DUpdator * clone() const override 
-  {
-    return new KFStrip1DUpdator(*this);
-  }
-
+  KFStrip1DUpdator* clone() const override { return new KFStrip1DUpdator(*this); }
 };
 
-#endif// CD_KFStrip1DUpdator_H_
+#endif  // CD_KFStrip1DUpdator_H_

@@ -9,7 +9,6 @@
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-
 class DetLayer;
 class FreeTrajectoryState;
 class NavigationSchool;
@@ -22,42 +21,37 @@ class NavigationSchool;
  *  forwarded to the navigable layer.
  */
 
-class NavigableLayer  {
+class NavigableLayer {
 public:
-
   virtual ~NavigableLayer() {}
 
-  virtual std::vector<const DetLayer*> 
-  nextLayers( NavigationDirection direction) const = 0;
+  virtual std::vector<const DetLayer*> nextLayers(NavigationDirection direction) const = 0;
 
-  virtual std::vector<const DetLayer*> 
-  nextLayers( const FreeTrajectoryState& fts, 
-	      PropagationDirection timeDirection) const = 0;
+  virtual std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts,
+                                                  PropagationDirection timeDirection) const = 0;
 
-  virtual std::vector<const DetLayer*> 
-  compatibleLayers( NavigationDirection direction) const = 0;
+  virtual std::vector<const DetLayer*> compatibleLayers(NavigationDirection direction) const = 0;
 
-  virtual std::vector<const DetLayer*> 
-  compatibleLayers( const FreeTrajectoryState& fts, 
-		    PropagationDirection timeDirection) const {int counter =0; return compatibleLayers(fts,timeDirection,counter);};
+  virtual std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+                                                        PropagationDirection timeDirection) const {
+    int counter = 0;
+    return compatibleLayers(fts, timeDirection, counter);
+  };
 
-  virtual std::vector<const DetLayer*> 
-  compatibleLayers( const FreeTrajectoryState& fts, 
-		    PropagationDirection timeDirection,
-		    int& counter)const {
+  virtual std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+                                                        PropagationDirection timeDirection,
+                                                        int& counter) const {
     edm::LogWarning("DetLayers") << "compatibleLayers(fts,dir,counter) not implemented. returning empty vector";
-    return  std::vector<const DetLayer*>() ;
+    return std::vector<const DetLayer*>();
   }
 
   virtual DetLayer const* detLayer() const = 0;
-  virtual void   setDetLayer( DetLayer const* dl) = 0;
+  virtual void setDetLayer(DetLayer const* dl) = 0;
 
-  void setSchool(NavigationSchool const * sh) {school = sh;}
+  void setSchool(NavigationSchool const* sh) { school = sh; }
 
-protected :
-
-  NavigationSchool const * school=nullptr;
-  
+protected:
+  NavigationSchool const* school = nullptr;
 };
 
-#endif 
+#endif

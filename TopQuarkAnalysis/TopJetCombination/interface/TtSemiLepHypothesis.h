@@ -29,14 +29,13 @@
 **/
 
 class TtSemiLepHypothesis : public edm::EDProducer {
-
- public:
+public:
   /// default constructor
   explicit TtSemiLepHypothesis(const edm::ParameterSet&);
   /// default destructor
   ~TtSemiLepHypothesis() override;
 
- protected:
+protected:
   /// produce the event hypothesis as CompositeCandidate and Key
   void produce(edm::Event&, const edm::EventSetup&) override;
   /// reset candidate pointers before hypo build process
@@ -48,20 +47,28 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   template <typename C>
   void setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone);
   /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
-  void setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone, const std::string& correctionLevel);
+  void setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
+                    const int& idx,
+                    reco::ShallowClonePtrCandidate*& clone,
+                    const std::string& correctionLevel);
   /// set neutrino, using mW = 80.4 to calculate the neutrino pz
-  void setNeutrino(const edm::Handle<std::vector<pat::MET> >& met, const edm::Handle<edm::View<reco::RecoCandidate> >& leps, const int& idx, const int& type);
+  void setNeutrino(const edm::Handle<std::vector<pat::MET> >& met,
+                   const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
+                   const int& idx,
+                   const int& type);
   /// return key
   /// minimalistic build function for simple hypotheses
   void buildHypo(const edm::Handle<edm::View<reco::RecoCandidate> >& leps,
-		 const edm::Handle<std::vector<pat::MET> >& mets,
-		 const edm::Handle<std::vector<pat::Jet> >& jets,
-		 std::vector<int>& jetPartonAssociation);
+                 const edm::Handle<std::vector<pat::MET> >& mets,
+                 const edm::Handle<std::vector<pat::Jet> >& jets,
+                 std::vector<int>& jetPartonAssociation);
   int key() const { return key_; };
   /// return event hypothesis
   reco::CompositeCandidate hypo();
   /// check if index is in valid range of selected jets
-  bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
+  bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets) {
+    return (0 <= idx && idx < (int)jets->size());
+  };
   /// determine lepton type of reco candidate and return a corresponding WDecay::LeptonType; the type is kNone if it is whether a muon nor an electron
   WDecay::LeptonType leptonType(const reco::RecoCandidate* cand);
 
@@ -74,13 +81,13 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   virtual void buildKey() = 0;
   /// build event hypothesis from the reco objects of a semi-leptonic event
   virtual void buildHypo(edm::Event& event,
-			 const edm::Handle<edm::View<reco::RecoCandidate> >& lepton,
-			 const edm::Handle<std::vector<pat::MET> >& neutrino,
-			 const edm::Handle<std::vector<pat::Jet> >& jets,
-			 std::vector<int>& jetPartonAssociation,
-			 const unsigned int iComb) = 0;
+                         const edm::Handle<edm::View<reco::RecoCandidate> >& lepton,
+                         const edm::Handle<std::vector<pat::MET> >& neutrino,
+                         const edm::Handle<std::vector<pat::Jet> >& jets,
+                         std::vector<int>& jetPartonAssociation,
+                         const unsigned int iComb) = 0;
 
- protected:
+protected:
   /// internal check whether the match information exists or not,
   /// if false a blind dummy match vector will be used internally
   bool getMatch_;
@@ -102,22 +109,23 @@ class TtSemiLepHypothesis : public edm::EDProducer {
   int numberOfRealNeutrinoSolutions_;
   /// candidates for internal use for the creation of the hypothesis
   /// candidate
-  reco::ShallowClonePtrCandidate *lightQ_;
-  reco::ShallowClonePtrCandidate *lightQBar_;
-  reco::ShallowClonePtrCandidate *hadronicB_;
-  reco::ShallowClonePtrCandidate *leptonicB_;
-  reco::ShallowClonePtrCandidate *neutrino_;
-  reco::ShallowClonePtrCandidate *lepton_;
+  reco::ShallowClonePtrCandidate* lightQ_;
+  reco::ShallowClonePtrCandidate* lightQBar_;
+  reco::ShallowClonePtrCandidate* hadronicB_;
+  reco::ShallowClonePtrCandidate* leptonicB_;
+  reco::ShallowClonePtrCandidate* neutrino_;
+  reco::ShallowClonePtrCandidate* lepton_;
 };
 
 // has to be placed in the header since otherwise the function template
 // would cause unresolved references in classes derived from this base class
-template<typename C>
-void
-TtSemiLepHypothesis::setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate* &clone) {
+template <typename C>
+void TtSemiLepHypothesis::setCandidate(const edm::Handle<C>& handle,
+                                       const int& idx,
+                                       reco::ShallowClonePtrCandidate*& clone) {
   typedef typename C::value_type O;
   edm::Ptr<O> ptr = edm::Ptr<O>(handle, idx);
-  clone = new reco::ShallowClonePtrCandidate( ptr, ptr->charge(), ptr->p4(), ptr->vertex() );
+  clone = new reco::ShallowClonePtrCandidate(ptr, ptr->charge(), ptr->p4(), ptr->vertex());
 }
 
 #endif

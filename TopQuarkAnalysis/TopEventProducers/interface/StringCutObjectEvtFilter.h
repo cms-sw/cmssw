@@ -19,21 +19,17 @@
 
 template <typename T>
 class StringCutObjectEvtFilter : public edm::EDFilter {
-
- public:
-
+public:
   /// default constructor
   explicit StringCutObjectEvtFilter(const edm::ParameterSet&);
   /// default destructor
   ~StringCutObjectEvtFilter() override{};
 
- private:
-
+private:
   /// filter function
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   /// input object
   edm::EDGetTokenT<T> srcToken_;
   /// cut string for event selection
@@ -41,15 +37,11 @@ class StringCutObjectEvtFilter : public edm::EDFilter {
 };
 
 template <typename T>
-StringCutObjectEvtFilter<T>::StringCutObjectEvtFilter(const edm::ParameterSet& cfg):
-  srcToken_(consumes<T>(cfg.getParameter<edm::InputTag>("src"))),
-  cut_(cfg.getParameter<std::string>  ("cut"))
-{}
+StringCutObjectEvtFilter<T>::StringCutObjectEvtFilter(const edm::ParameterSet& cfg)
+    : srcToken_(consumes<T>(cfg.getParameter<edm::InputTag>("src"))), cut_(cfg.getParameter<std::string>("cut")) {}
 
 template <typename T>
-bool
-StringCutObjectEvtFilter<T>::filter(edm::Event& evt, const edm::EventSetup& setup)
-{
+bool StringCutObjectEvtFilter<T>::filter(edm::Event& evt, const edm::EventSetup& setup) {
   edm::Handle<T> src;
   evt.getByToken(srcToken_, src);
   return cut_(*src);

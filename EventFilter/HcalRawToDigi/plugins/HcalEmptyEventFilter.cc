@@ -2,7 +2,7 @@
 //
 // Package:    HcalEmptyEventFilter
 // Class:      HcalEmptyEventFilter
-// 
+//
 /**\class HcalEmptyEventFilter HcalEmptyEventFilter.cc filter/HcalEmptyEventFilter/src/HcalEmptyEventFilter.cc
 
 Description: <one line class summary>
@@ -15,7 +15,6 @@ Implementation:
 //         Created:  Tue Jun 4 CET 2012
 //
 //
-
 
 // system include files
 #include <memory>
@@ -46,73 +45,66 @@ class HcalEmptyEventFilter : public edm::EDFilter {
 public:
   explicit HcalEmptyEventFilter(const edm::ParameterSet&);
   ~HcalEmptyEventFilter() override;
-  
+
 private:
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  
+
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<FEDRawDataCollection> tok_data_;  
-
+  edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
 };
-
 
 //
 // constructors and destructor
 //
-HcalEmptyEventFilter::HcalEmptyEventFilter(const edm::ParameterSet& iConfig)
-{
+HcalEmptyEventFilter::HcalEmptyEventFilter(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
 
-  tok_data_  = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel") );
+  tok_data_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"));
 }
 
-
-HcalEmptyEventFilter::~HcalEmptyEventFilter()
-{
- 
+HcalEmptyEventFilter::~HcalEmptyEventFilter() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool
-HcalEmptyEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool HcalEmptyEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  
-  edm::Handle<FEDRawDataCollection> rawdata;  
-  iEvent.getByToken(tok_data_,rawdata);
 
-  bool haveEmpty=false;
-  
-  for (int i=FEDNumbering::MINHCALFEDID; !haveEmpty &&
-       i<=FEDNumbering::MAXHCALFEDID; i++) {
-      const FEDRawData& fedData = rawdata->FEDData(i) ; 
+  edm::Handle<FEDRawDataCollection> rawdata;
+  iEvent.getByToken(tok_data_, rawdata);
 
-      if (fedData.size()<16) continue;
+  bool haveEmpty = false;
 
-      // get the DCC header
-      const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fedData.data());
-  
-      // walk through the HTR data...
-      HcalHTRData htr;
+  for (int i = FEDNumbering::MINHCALFEDID; !haveEmpty && i <= FEDNumbering::MAXHCALFEDID; i++) {
+    const FEDRawData& fedData = rawdata->FEDData(i);
 
-      for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT && !haveEmpty; spigot++) {
-	if (!dccHeader->getSpigotPresent(spigot)) continue;
-	
-	int retval=dccHeader->getSpigotData(spigot,htr,fedData.size());
+    if (fedData.size() < 16)
+      continue;
 
-	if (retval!=0) continue; // format error is not empty event
+    // get the DCC header
+    const HcalDCCHeader* dccHeader = (const HcalDCCHeader*)(fedData.data());
 
-	if (htr.isEmptyEvent()) haveEmpty=true;
-      }
+    // walk through the HTR data...
+    HcalHTRData htr;
+
+    for (int spigot = 0; spigot < HcalDCCHeader::SPIGOT_COUNT && !haveEmpty; spigot++) {
+      if (!dccHeader->getSpigotPresent(spigot))
+        continue;
+
+      int retval = dccHeader->getSpigotData(spigot, htr, fedData.size());
+
+      if (retval != 0)
+        continue;  // format error is not empty event
+
+      if (htr.isEmptyEvent())
+        haveEmpty = true;
+    }
   }
   return haveEmpty;
 }

@@ -12,59 +12,55 @@ This class provides the base for all the statistical Plots.
 #ifndef __StatisticalPlot__
 #define __StatisticalPlot__
 
-
 #include "TNamed.h"
 #include "TCanvas.h"
 
 #include "TFile.h"
 
 class StatisticalPlot : public TNamed {
+public:
+  /// Constructor
+  StatisticalPlot(const char* name, const char* title, bool verbosity = true);
 
-  public:
+  /// Destructor
+  ~StatisticalPlot() override;
 
-    /// Constructor
-    StatisticalPlot(const char* name,const  char* title,bool verbosity=true);
+  /// Set the verbosity
+  void setVerbosity(bool verbosity);
 
-    /// Destructor
-    ~StatisticalPlot() override;
+  /// get the verbosity
+  bool is_verbose();
 
-    /// Set the verbosity
-    void setVerbosity(bool verbosity);
+  /// Get the canvas
+  TCanvas* getCanvas() { return m_canvas; }
 
-    /// get the verbosity
-    bool is_verbose();
+  /// Set the canvas
+  void setCanvas(TCanvas* new_canvas) { m_canvas = new_canvas; }
 
-    /// Get the canvas
-    TCanvas* getCanvas(){return m_canvas;}
+  /// Write an image on disk
+  void dumpToImage(const char* filename) { m_canvas->Print(filename); }
 
-    /// Set the canvas
-    void setCanvas(TCanvas* new_canvas){m_canvas=new_canvas;}
+  /// Draw on canvas
+  virtual void draw(const char* options = "") = 0;
 
-    /// Write an image on disk
-    void dumpToImage (const char* filename){m_canvas->Print(filename);}
+  /// Print the relevant information
+  virtual void print(const char* options = "") = 0;
 
-    /// Draw on canvas
-    virtual void draw (const char* options="") = 0;
+  /// All the objects are written to rootfile
+  virtual void dumpToFile(const char* RootFileName, const char* options = "") = 0;
 
-    /// Print the relevant information
-    virtual void print (const char* options="") = 0;
+private:
+  /// Verbosity flag
+  bool m_verbose;
 
-    /// All the objects are written to rootfile
-    virtual void dumpToFile (const char* RootFileName, const char* options="") = 0;
-
-  private:
-
-    /// Verbosity flag
-    bool m_verbose;
-
-    /// Canvas
-    TCanvas* m_canvas; 
+  /// Canvas
+  TCanvas* m_canvas;
 
 //For Cint
-#if (defined (STANDALONE) or defined (__CINT__) )
-ClassDef(StatisticalPlot,1)
+#if (defined(STANDALONE) or defined(__CINT__))
+  ClassDef(StatisticalPlot, 1)
 #endif
- };
+};
 
 #endif
 // Automatically converted from the standalone version Wed Apr 15 11:36:34 2009

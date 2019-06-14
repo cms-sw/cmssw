@@ -18,5 +18,4 @@ typedef std::vector<reco::ME0Muon> ME0MuonCollection;
 /// persistent reference to a ME0Muon
 typedef edm::Ref<ME0MuonCollection> ME0MuonRef;
 
-	
 #endif

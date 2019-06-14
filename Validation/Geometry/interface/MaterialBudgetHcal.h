@@ -15,32 +15,29 @@ class BeginOfTrack;
 class G4Step;
 class EndOfTrack;
 
-class MaterialBudgetHcal : public SimWatcher, 
+class MaterialBudgetHcal : public SimWatcher,
                            public Observer<const BeginOfJob*>,
-			   public Observer<const BeginOfTrack*>,
-			   public Observer<const G4Step*>,
+                           public Observer<const BeginOfTrack*>,
+                           public Observer<const G4Step*>,
                            public Observer<const EndOfTrack*> {
-
 public:
-
   MaterialBudgetHcal(const edm::ParameterSet&);
+  MaterialBudgetHcal(const MaterialBudgetHcal&) = delete;  // stop default
   ~MaterialBudgetHcal() override;
-  
-private:
 
-  MaterialBudgetHcal(const MaterialBudgetHcal&) = delete; // stop default
-  const MaterialBudgetHcal& operator=(const MaterialBudgetHcal&) = delete; // stop default
-  
+  const MaterialBudgetHcal& operator=(const MaterialBudgetHcal&) = delete;  // stop default
+
+private:
   void update(const BeginOfJob*) override;
   void update(const BeginOfTrack*) override;
   void update(const G4Step*) override;
   void update(const EndOfTrack*) override;
 
   bool stopAfter(const G4Step*);
-  
-  MaterialBudgetHcalHistos*   theHistoHcal;
+
+  MaterialBudgetHcalHistos* theHistoHcal;
   MaterialBudgetCastorHistos* theHistoCastor;
-  double                      rMax, zMax;
+  double rMax, zMax;
 };
 
 #endif

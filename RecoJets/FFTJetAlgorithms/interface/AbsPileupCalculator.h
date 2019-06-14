@@ -13,16 +13,13 @@
 #include "DataFormats/JetReco/interface/FFTJetPileupSummary.h"
 
 namespace fftjetcms {
-    struct AbsPileupCalculator
-    {
-        virtual ~AbsPileupCalculator() {}
+  struct AbsPileupCalculator {
+    virtual ~AbsPileupCalculator() {}
 
-        virtual double operator()(
-            double eta, double phi,
-            const reco::FFTJetPileupSummary& summary) const = 0;
+    virtual double operator()(double eta, double phi, const reco::FFTJetPileupSummary& summary) const = 0;
 
-        virtual bool isPhiDependent() const = 0;
-    };
-}
+    virtual bool isPhiDependent() const = 0;
+  };
+}  // namespace fftjetcms
 
-#endif // RecoJets_FFTJetAlgorithms_AbsPileupCalculator_h
+#endif  // RecoJets_FFTJetAlgorithms_AbsPileupCalculator_h

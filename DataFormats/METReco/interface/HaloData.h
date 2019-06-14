@@ -8,13 +8,12 @@
 */
 
 namespace reco {
-  
-  namespace HaloData { 
-    
-    enum Endcap{plus,minus,both}; 
+
+  namespace HaloData {
+
+    enum Endcap { plus, minus, both };
   }
-  
-}
-  
+
+}  // namespace reco
 
 #endif

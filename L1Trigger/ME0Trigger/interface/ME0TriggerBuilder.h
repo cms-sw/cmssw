@@ -16,10 +16,8 @@
 class ME0Motherboard;
 class ME0Geometry;
 
-class ME0TriggerBuilder
-{
- public:
-
+class ME0TriggerBuilder {
+public:
   /** Configure the algorithm via constructor.
    *  Receives ParameterSet percolated down from 
    *  EDProducer which owns this Builder.
@@ -32,22 +30,21 @@ class ME0TriggerBuilder
   void build(const ME0PadDigiClusterCollection* me0Pads, ME0TriggerDigiCollection& oc_trig);
 
   /** set geometry for the matching needs */
-  void setME0Geometry(const ME0Geometry *g) { me0_g = g; }
+  void setME0Geometry(const ME0Geometry* g) { me0_g = g; }
 
   /** Max values of trigger labels for all ME0s; 
    *  used to construct TMB processors. 
    */
-  enum trig_me0s {MAX_ENDCAPS = 2, MAX_CHAMBERS = 18};
+  enum trig_me0s { MAX_ENDCAPS = 2, MAX_CHAMBERS = 18 };
 
- private:
-
+private:
   static const int min_endcap;
   static const int max_endcap;
   static const int min_chamber;
   static const int max_chamber;
 
   const ME0Geometry* me0_g;
-  
+
   edm::ParameterSet config_;
 
   /** Pointers to TMB processors for all possible chambers. */

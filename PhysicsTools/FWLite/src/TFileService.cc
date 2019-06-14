@@ -4,25 +4,18 @@
 
 namespace fwlite {
 
-TFileService::TFileService(const std::string& fileName) :
-  TFileDirectory("", "", TFile::Open(fileName.c_str() , "RECREATE"), ""),
-  file_(TFileDirectory::file_),
-  fileName_(fileName)
-{
-}
+  TFileService::TFileService(const std::string& fileName)
+      : TFileDirectory("", "", TFile::Open(fileName.c_str(), "RECREATE"), ""),
+        file_(TFileDirectory::file_),
+        fileName_(fileName) {}
 
+  TFileService::TFileService(TFile* aFile)
+      : TFileDirectory("", "", aFile, ""), file_(TFileDirectory::file_), fileName_(aFile->GetName()) {}
 
-TFileService::TFileService(TFile * aFile) :
-  TFileDirectory("", "", aFile, ""),
-  file_(TFileDirectory::file_),
-  fileName_(aFile->GetName())
-{
-}
+  TFileService::~TFileService() {
+    file_->Write();
+    file_->Close();
+    delete file_;
+  }
 
-TFileService::~TFileService() {
-  file_->Write();
-  file_->Close();
-  delete file_;
-}
-
-}
+}  // namespace fwlite

@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      DetIdSelectorTest
-// 
+//
 /**\class DetIdSelectorTest DetIdSelectorTest.cc DPGAnalysis/SiStripTools/plugins/DetIdSelectorTest.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Tue Jul 19 11:56:00 CEST 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -47,7 +46,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 //******** Single include for the TkMap *************
-#include "DQM/SiStripCommon/interface/TkHistoMap.h" 
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 //***************************************************
 
@@ -60,20 +59,16 @@ public:
   explicit DetIdSelectorTest(const edm::ParameterSet&);
   ~DetIdSelectorTest() override;
 
-
 private:
-  void beginJob() override ;
+  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+  void endJob() override;
 
-      // ----------member data ---------------------------
-
+  // ----------member data ---------------------------
 
   std::vector<DetIdSelector> detidsels_;
   std::unique_ptr<TkHistoMap> tkhisto_;
   TrackerMap tkmap_;
-
-  
 };
 
 //
@@ -87,99 +82,87 @@ private:
 //
 // constructors and destructor
 //
-DetIdSelectorTest::DetIdSelectorTest(const edm::ParameterSet& iConfig):
-  detidsels_(), tkhisto_(nullptr), tkmap_()
-{
-   //now do what ever initialization is needed
+DetIdSelectorTest::DetIdSelectorTest(const edm::ParameterSet& iConfig) : detidsels_(), tkhisto_(nullptr), tkmap_() {
+  //now do what ever initialization is needed
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 
-  for(std::vector<edm::ParameterSet>::const_iterator selconfig=selconfigs.begin();selconfig!=selconfigs.end();++selconfig) {
+  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
+       ++selconfig) {
     DetIdSelector selection(*selconfig);
     detidsels_.push_back(selection);
   }
 
   tkmap_.setPalette(1);
   tkmap_.addPixel(true);
-
 }
 
-
-DetIdSelectorTest::~DetIdSelectorTest()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+DetIdSelectorTest::~DetIdSelectorTest() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
+void DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-   if ( ! tkhisto_ ) {
-     edm::ESHandle<TkDetMap> tkDetMapHandle;
-     iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-     tkhisto_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SelectorTest","SelectorTest",-1);
-   }
-   
-   {
-     SiStripDetInfoFileReader * reader=edm::Service<SiStripDetInfoFileReader>().operator->();
-     
-     //   SiStripDetInfoFileReader reader(edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
-     //   SiStripDetInfoFileReader reader;
-     
-     const std::vector<uint32_t>& detids = reader->getAllDetIds();
-     
-     for(std::vector<uint32_t>::const_iterator detid=detids.begin();detid!=detids.end();++detid) {
-       
-       LogDebug("DetID") << *detid;
-       int index=0;
-       for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
-	 if(detidsel->isSelected(*detid)) {
-	   LogDebug("selected") << "Selected by selection " << index;
-	   unsigned int det = *detid;
-	   tkhisto_->add(det,index);
-	   tkmap_.fill_current_val(det,index);
-	 }
-	 ++index;
-       }
-       
-     }
-   }
+  if (!tkhisto_) {
+    edm::ESHandle<TkDetMap> tkDetMapHandle;
+    iSetup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
+    tkhisto_ = std::make_unique<TkHistoMap>(tkDetMapHandle.product(), "SelectorTest", "SelectorTest", -1);
+  }
 
-   {
-     edm::FileInPath fp("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt");
-     
-     SiPixelDetInfoFileReader pxlreader(fp.fullPath());
-     const std::vector<uint32_t>& detids = pxlreader.getAllDetIds();
-     
-     for(std::vector<uint32_t>::const_iterator detid=detids.begin();detid!=detids.end();++detid) {
-       
-       LogDebug("DetID") << *detid;
-       int index=0;
-       for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
-	 if(detidsel->isSelected(*detid)) {
-	   LogDebug("selected") << "Selected by selection " << index;
-	   unsigned int det = *detid;
-	   //	   tkhisto_->add(det,index);
-	   tkmap_.fill_current_val(det,index);
-	 }
-	 ++index;
-       }
-       
-     }
-   }
-    
- 
-   /*
+  {
+    SiStripDetInfoFileReader* reader = edm::Service<SiStripDetInfoFileReader>().operator->();
+
+    //   SiStripDetInfoFileReader reader(edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
+    //   SiStripDetInfoFileReader reader;
+
+    const std::vector<uint32_t>& detids = reader->getAllDetIds();
+
+    for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
+      LogDebug("DetID") << *detid;
+      int index = 0;
+      for (std::vector<DetIdSelector>::const_iterator detidsel = detidsels_.begin(); detidsel != detidsels_.end();
+           ++detidsel) {
+        if (detidsel->isSelected(*detid)) {
+          LogDebug("selected") << "Selected by selection " << index;
+          unsigned int det = *detid;
+          tkhisto_->add(det, index);
+          tkmap_.fill_current_val(det, index);
+        }
+        ++index;
+      }
+    }
+  }
+
+  {
+    edm::FileInPath fp("CalibTracker/SiPixelESProducers/data/PixelSkimmedGeometry.txt");
+
+    SiPixelDetInfoFileReader pxlreader(fp.fullPath());
+    const std::vector<uint32_t>& detids = pxlreader.getAllDetIds();
+
+    for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
+      LogDebug("DetID") << *detid;
+      int index = 0;
+      for (std::vector<DetIdSelector>::const_iterator detidsel = detidsels_.begin(); detidsel != detidsels_.end();
+           ++detidsel) {
+        if (detidsel->isSelected(*detid)) {
+          LogDebug("selected") << "Selected by selection " << index;
+          unsigned int det = *detid;
+          //	   tkhisto_->add(det,index);
+          tkmap_.fill_current_val(det, index);
+        }
+        ++index;
+      }
+    }
+  }
+
+  /*
      edm::ESHandle<TrackerGeometry> pDD;
      iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
      
@@ -201,29 +184,21 @@ DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      }
      
      }
-   */   
+   */
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-DetIdSelectorTest::beginJob()
-{
-
-}
+void DetIdSelectorTest::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-DetIdSelectorTest::endJob() {
-
-
+void DetIdSelectorTest::endJob() {
   //  tkhisto_->dumpInTkMap(&tkmap);
   std::string mapname = "SelectorTest.png";
-  tkmap_.save(true,0,0,mapname,5700,2400);
+  tkmap_.save(true, 0, 0, mapname, 5700, 2400);
 
   std::string rootmapname = "TKMap_Selectortest.root";
   tkhisto_->save(rootmapname);
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DetIdSelectorTest);

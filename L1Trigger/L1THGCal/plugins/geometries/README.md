@@ -3,14 +3,14 @@ Trigger geometries provide the following interfaces:
 * Navigation between trigger cells
 
 The available HGCAL trigger geometries are the following:
-* `HGCalTriggerGeometryHexLayerBasedImp1` (DEFAULT)
+* `HGCalTriggerGeometryHexLayerBasedImp1` (DEFAULT for V8 geometry)
   - The trigger cell mapping is defined over a full layer and is not constrained by wafer boundaries
   - Compatible with the V8 HGCAL geometry
 * `HGCalTriggerGeometryV9Imp2`
   - Implementation without trigger cell external mappings. Makes use of the `HGCSiliconDetId`, `HGCScintillatorDetId`, and `HGCalTriggerDetId`
   - Compatible with the V9 HGCAL geometry
   - The trigger cell neighbors are not defined (no navigation)
-* `HGCalTriggerGeometryV9Imp1`
+* `HGCalTriggerGeometryV9Imp1` (DEFAULT for V9 geometry)
   - Similar implementation as `HGCalTriggerGeometryHexLayerBasedImp1`, but for the V9 geometry
   - Compatible with the V9 HGCAL geometry
 * `HGCalTriggerGeometryHexImp2` (DEPRECATED)

@@ -8,13 +8,10 @@
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthPairSelector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-typedef reco::modulesNew::CandMatcher<
-          helpers::MCTruthPairSelector<reco::Candidate>,
-          reco::CandidateView,
-          reco::GenParticleCollection
-        > MCTruthDeltaRMatcherNew;
+typedef reco::modulesNew::
+    CandMatcher<helpers::MCTruthPairSelector<reco::Candidate>, reco::CandidateView, reco::GenParticleCollection>
+        MCTruthDeltaRMatcherNew;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( MCTruthDeltaRMatcherNew );
-
+DEFINE_FWK_MODULE(MCTruthDeltaRMatcherNew);

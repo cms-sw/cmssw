@@ -1,7 +1,6 @@
 #ifndef TkDetLayers_PixelForwardLayerBuilder_h
 #define TkDetLayers_PixelForwardLayerBuilder_h
 
-
 #include "PixelForwardLayer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -12,26 +11,23 @@
 #include "PixelForwardLayer.h"
 #include "PixelBladeBuilder.h"
 
-
 /** A concrete builder for PixelForwardLayer 
  */
 
 #pragma GCC visibility push(hidden)
 
 template <class T1, class T2>
-class PixelForwardLayerBuilder {  
- public:
+class PixelForwardLayerBuilder {
+public:
   PixelForwardLayerBuilder(){};
-  ForwardDetLayer* build(const GeometricDet* aPixelForwardLayer,
-			 const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
-
-  
+  ForwardDetLayer* build(const GeometricDet* aPixelForwardLayer, const TrackerGeometry* theGeomDetGeometry)
+      __attribute__((cold));
 };
 
 template <class T1, class T2>
-ForwardDetLayer* PixelForwardLayerBuilder<T1,T2>::build(const GeometricDet* aPixelForwardLayer,
-							  const TrackerGeometry* theGeomDetGeometry) {
-  std::vector<const GeometricDet*>  theGeometricPanels = aPixelForwardLayer->components();
+ForwardDetLayer* PixelForwardLayerBuilder<T1, T2>::build(const GeometricDet* aPixelForwardLayer,
+                                                         const TrackerGeometry* theGeomDetGeometry) {
+  std::vector<const GeometricDet*> theGeometricPanels = aPixelForwardLayer->components();
   int panelsSize = theGeometricPanels.size();
 
   /*
@@ -55,14 +51,13 @@ ForwardDetLayer* PixelForwardLayerBuilder<T1,T2>::build(const GeometricDet* aPix
   std::vector<const T1*> theBlades;
   PixelBladeBuilder<T1> myBladeBuilder;
 
-  for(int i=0; i< (panelsSize/2); i++) {
-    theBlades.push_back( myBladeBuilder.build( theGeometricPanels[i],
-					       theGeometricPanels[i+(panelsSize/2)],
-					       theGeomDetGeometry ) );
+  for (int i = 0; i < (panelsSize / 2); i++) {
+    theBlades.push_back(
+        myBladeBuilder.build(theGeometricPanels[i], theGeometricPanels[i + (panelsSize / 2)], theGeomDetGeometry));
   }
 
   return new T2(theBlades);
 }
 
 #pragma GCC visibility pop
-#endif 
+#endif

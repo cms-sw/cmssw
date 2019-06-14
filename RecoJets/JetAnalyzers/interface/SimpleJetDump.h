@@ -12,11 +12,11 @@
 
 class SimpleJetDump : public edm::EDAnalyzer {
 public:
-  SimpleJetDump( const edm::ParameterSet & );
+  SimpleJetDump(const edm::ParameterSet&);
 
 private:
   void beginJob() override;
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
   std::string CaloJetAlg, GenJetAlg;
   //Internal parameters

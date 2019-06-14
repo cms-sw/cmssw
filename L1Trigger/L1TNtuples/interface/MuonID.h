@@ -16,41 +16,32 @@
 //local  data formats
 #include "L1Trigger/L1TNtuples/interface/L1AnalysisRecoVertexDataFormat.h"
 
-
-bool isLooseMuonCustom(const reco::Muon & recoMu)
-{
-  bool flag = false ;
-  if(recoMu.isPFMuon() && (recoMu.isGlobalMuon() || recoMu.isTrackerMuon())) flag = true;
+bool isLooseMuonCustom(const reco::Muon& recoMu) {
+  bool flag = false;
+  if (recoMu.isPFMuon() && (recoMu.isGlobalMuon() || recoMu.isTrackerMuon()))
+    flag = true;
 
   return flag;
 }
 
-bool isMediumMuonCustom(const reco::Muon & recoMu) 
-   {
-      bool goodGlob = recoMu.isGlobalMuon() && 
-                      recoMu.globalTrack()->normalizedChi2() < 3 && 
-                      recoMu.combinedQuality().chi2LocalPosition < 12 && 
-                      recoMu.combinedQuality().trkKink < 20; 
-      bool isMedium = isLooseMuonCustom(recoMu) && 
-                      recoMu.innerTrack()->validFraction() > 0.49 && 
-                      muon::segmentCompatibility(recoMu) > (goodGlob ? 0.303 : 0.451);
-     
-      return isMedium; 
-   }
+bool isMediumMuonCustom(const reco::Muon& recoMu) {
+  bool goodGlob = recoMu.isGlobalMuon() && recoMu.globalTrack()->normalizedChi2() < 3 &&
+                  recoMu.combinedQuality().chi2LocalPosition < 12 && recoMu.combinedQuality().trkKink < 20;
+  bool isMedium = isLooseMuonCustom(recoMu) && recoMu.innerTrack()->validFraction() > 0.49 &&
+                  muon::segmentCompatibility(recoMu) > (goodGlob ? 0.303 : 0.451);
 
+  return isMedium;
+}
 
-bool isTightMuonCustom(const reco::Muon & recoMu, const reco::Vertex recoVtx) 
-   {
+bool isTightMuonCustom(const reco::Muon& recoMu, const reco::Vertex recoVtx) {
+  //bp
+  bool isTight = recoMu.isGlobalMuon() && recoMu.isPFMuon() && recoMu.globalTrack()->normalizedChi2() < 10. &&
+                 recoMu.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 &&
+                 recoMu.numberOfMatchedStations() > 1 && fabs(recoMu.muonBestTrack()->dxy(recoVtx.position())) < 0.2 &&
+                 fabs(recoMu.muonBestTrack()->dz(recoVtx.position())) < 0.5 &&
+                 recoMu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
+                 recoMu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+                 recoMu.globalTrack()->normalizedChi2() < 1;
 
-     //bp
-      bool isTight  = recoMu.isGlobalMuon() && recoMu.isPFMuon() && recoMu.globalTrack()->normalizedChi2() < 10. &&
-        recoMu.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 &&
-        recoMu.numberOfMatchedStations() > 1 &&
-        fabs(recoMu.muonBestTrack()->dxy(recoVtx.position())) < 0.2  &&
-        fabs(recoMu.muonBestTrack()->dz(recoVtx.position())) < 0.5 &&
-        recoMu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0&&
-        recoMu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-        recoMu.globalTrack()->normalizedChi2() < 1;
-      
-      return isTight; 
-   }
+  return isTight;
+}

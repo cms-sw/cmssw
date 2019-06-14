@@ -29,17 +29,14 @@
 
 #include <vector>
 
-class METCorrectionAlgorithm 
-{
- public:
-
-  explicit METCorrectionAlgorithm(const edm::ParameterSet&, edm::ConsumesCollector && iConsumesCollector);
+class METCorrectionAlgorithm {
+public:
+  explicit METCorrectionAlgorithm(const edm::ParameterSet&, edm::ConsumesCollector&& iConsumesCollector);
   ~METCorrectionAlgorithm();
 
   CorrMETData compMETCorrection(edm::Event&, const edm::EventSetup&);
 
- private:
-
+private:
   typedef std::vector<edm::InputTag> vInputTag;
 
   std::vector<edm::EDGetTokenT<CorrMETData> > chsSumTokens_;
@@ -51,49 +48,49 @@ class METCorrectionAlgorithm
 
   double type0Rsoft_;
   double type0Cuncl_;
-  
+
   typedef std::vector<std::string> vstring;
-  struct type2BinningEntryType
-  {
-    type2BinningEntryType(const std::string& binCorrformula, const edm::ParameterSet& binCorrParameter, const vInputTag& srcUnclEnergySums, edm::ConsumesCollector & iConsumesCollector)
-      : binLabel_(""),
-        binCorrFormula_(nullptr)
-    {
-      for (vInputTag::const_iterator inputTag = srcUnclEnergySums.begin(); inputTag != srcUnclEnergySums.end(); ++inputTag)
-	{
-	  corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(*inputTag));
-	}
+  struct type2BinningEntryType {
+    type2BinningEntryType(const std::string& binCorrformula,
+                          const edm::ParameterSet& binCorrParameter,
+                          const vInputTag& srcUnclEnergySums,
+                          edm::ConsumesCollector& iConsumesCollector)
+        : binLabel_(""), binCorrFormula_(nullptr) {
+      for (vInputTag::const_iterator inputTag = srcUnclEnergySums.begin(); inputTag != srcUnclEnergySums.end();
+           ++inputTag) {
+        corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(*inputTag));
+      }
 
       initialize(binCorrformula, binCorrParameter);
     }
-    type2BinningEntryType(const edm::ParameterSet& cfg, const vInputTag& srcUnclEnergySums, edm::ConsumesCollector & iConsumesCollector)
-      : binLabel_(cfg.getParameter<std::string>("binLabel")),
-        binCorrFormula_(nullptr)
-    {
-      for ( vInputTag::const_iterator srcUnclEnergySum = srcUnclEnergySums.begin();
-	    srcUnclEnergySum != srcUnclEnergySums.end(); ++srcUnclEnergySum )
-	{
-	  std::string instanceLabel = srcUnclEnergySum->instance();
-	  if ( instanceLabel != "" && binLabel_ != "" ) instanceLabel.append("#");
-	  instanceLabel.append(binLabel_);
-	  edm::InputTag inputTag(srcUnclEnergySum->label(), instanceLabel);
-	  corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(inputTag));
-	}
-      
+    type2BinningEntryType(const edm::ParameterSet& cfg,
+                          const vInputTag& srcUnclEnergySums,
+                          edm::ConsumesCollector& iConsumesCollector)
+        : binLabel_(cfg.getParameter<std::string>("binLabel")), binCorrFormula_(nullptr) {
+      for (vInputTag::const_iterator srcUnclEnergySum = srcUnclEnergySums.begin();
+           srcUnclEnergySum != srcUnclEnergySums.end();
+           ++srcUnclEnergySum) {
+        std::string instanceLabel = srcUnclEnergySum->instance();
+        if (!instanceLabel.empty() && !binLabel_.empty())
+          instanceLabel.append("#");
+        instanceLabel.append(binLabel_);
+        edm::InputTag inputTag(srcUnclEnergySum->label(), instanceLabel);
+        corrTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(inputTag));
+      }
+
       std::string binCorrFormula = cfg.getParameter<std::string>("binCorrFormula");
-    
+
       edm::ParameterSet binCorrParameter = cfg.getParameter<edm::ParameterSet>("binCorrParameter");
 
       initialize(binCorrFormula, binCorrParameter);
     }
-    void initialize(const std::string& binCorrFormula, const edm::ParameterSet& binCorrParameter)
-    {
+    void initialize(const std::string& binCorrFormula, const edm::ParameterSet& binCorrParameter) {
       TString formula = binCorrFormula;
-    
+
       vstring parNames = binCorrParameter.getParameterNamesForType<double>();
       int numParameter = parNames.size();
-      binCorrParameter_.resize(numParameter);    
-      for ( int parIndex = 0; parIndex < numParameter; ++parIndex ) {
+      binCorrParameter_.resize(numParameter);
+      for (int parIndex = 0; parIndex < numParameter; ++parIndex) {
         const std::string& parName = parNames[parIndex];
 
         double parValue = binCorrParameter.getParameter<double>(parName);
@@ -103,24 +100,21 @@ class METCorrectionAlgorithm
         formula = formula.ReplaceAll(parName.data(), parName_internal);
       }
 
-      std::string binCorrFormulaName = std::string("binCorrFormula").append("_").append(binLabel_); 
+      std::string binCorrFormulaName = std::string("binCorrFormula").append("_").append(binLabel_);
       binCorrFormula_ = new TFormula(binCorrFormulaName.data(), formula);
 
-//--- check that syntax of formula string is valid 
-//   (i.e. that TFormula "compiled" without errors)
-      if ( !(binCorrFormula_->GetNdim() <= 1 && binCorrFormula_->GetNpar() == numParameter) ) 
-	throw cms::Exception("METCorrectionAlgorithm") 
-	  << "Formula for Type 2 correction has invalid syntax = " << formula << " !!\n";
+      //--- check that syntax of formula string is valid
+      //   (i.e. that TFormula "compiled" without errors)
+      if (!(binCorrFormula_->GetNdim() <= 1 && binCorrFormula_->GetNpar() == numParameter))
+        throw cms::Exception("METCorrectionAlgorithm")
+            << "Formula for Type 2 correction has invalid syntax = " << formula << " !!\n";
 
-      for ( int parIndex = 0; parIndex < numParameter; ++parIndex ) {
-	binCorrFormula_->SetParameter(parIndex, binCorrParameter_[parIndex]);
-	binCorrFormula_->SetParName(parIndex, parNames[parIndex].data());
+      for (int parIndex = 0; parIndex < numParameter; ++parIndex) {
+        binCorrFormula_->SetParameter(parIndex, binCorrParameter_[parIndex]);
+        binCorrFormula_->SetParName(parIndex, parNames[parIndex].data());
       }
     }
-    ~type2BinningEntryType() 
-    {
-      delete binCorrFormula_;
-    }
+    ~type2BinningEntryType() { delete binCorrFormula_; }
     std::string binLabel_;
     std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens_;
     TFormula* binCorrFormula_;
@@ -130,7 +124,3 @@ class METCorrectionAlgorithm
 };
 
 #endif
-
-
- 
-

@@ -2,7 +2,7 @@
 //
 // Package:     CMSSW/CondFormats/Alignment
 // Class  :     T_EventSetup_OpticalAlignments.cc
-// 
+//
 // Implementation:
 //     create all the 'infrastructure' needed to get into the Context
 //
@@ -20,7 +20,7 @@
 #include "CondFormats/OptAlignObjects/interface/MBAChBenchCalPlate.h"
 #include "CondFormats/OptAlignObjects/interface/MBAChBenchSurveyPlate.h"
 #include "CondFormats/OptAlignObjects/interface/Inclinometers.h"
- #include "CondFormats/OptAlignObjects/interface/PXsensors.h"
+#include "CondFormats/OptAlignObjects/interface/PXsensors.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 
 //using Alignments;

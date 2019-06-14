@@ -42,107 +42,96 @@
 #define TrajectoryBuilder_CompareHitY
 
 class CompareHitY {
- public:
-   CompareHitY(const TrackerGeometry& tracker):_tracker(tracker){}
-   bool operator()( const TrackingRecHit *rh1,
-		    const TrackingRecHit *rh2)
-   {
-     GlobalPoint gp1=_tracker.idToDet(rh1->geographicalId())->surface().toGlobal(rh1->localPosition());
-     GlobalPoint gp2=_tracker.idToDet(rh2->geographicalId())->surface().toGlobal(rh2->localPosition());
-     return gp1.y()<gp2.y();};
- private:
-   //   edm::ESHandle<TrackerGeometry> _tracker;
-   const TrackerGeometry& _tracker;
+public:
+  CompareHitY(const TrackerGeometry &tracker) : _tracker(tracker) {}
+  bool operator()(const TrackingRecHit *rh1, const TrackingRecHit *rh2) {
+    GlobalPoint gp1 = _tracker.idToDet(rh1->geographicalId())->surface().toGlobal(rh1->localPosition());
+    GlobalPoint gp2 = _tracker.idToDet(rh2->geographicalId())->surface().toGlobal(rh2->localPosition());
+    return gp1.y() < gp2.y();
+  };
+
+private:
+  //   edm::ESHandle<TrackerGeometry> _tracker;
+  const TrackerGeometry &_tracker;
 };
- 
+
 class CompareHitY_plus {
- public:
-   CompareHitY_plus(const TrackerGeometry& tracker):_tracker(tracker){}
-   bool operator()( const TrackingRecHit *rh1,
-		    const TrackingRecHit *rh2)
-   {
-     GlobalPoint gp1=_tracker.idToDet(rh1->geographicalId())->surface().toGlobal(rh1->localPosition());
-     GlobalPoint gp2=_tracker.idToDet(rh2->geographicalId())->surface().toGlobal(rh2->localPosition());
-     return gp1.y()>gp2.y();};
- private:
-   //   edm::ESHandle<TrackerGeometry> _tracker;
-   const TrackerGeometry& _tracker;
+public:
+  CompareHitY_plus(const TrackerGeometry &tracker) : _tracker(tracker) {}
+  bool operator()(const TrackingRecHit *rh1, const TrackingRecHit *rh2) {
+    GlobalPoint gp1 = _tracker.idToDet(rh1->geographicalId())->surface().toGlobal(rh1->localPosition());
+    GlobalPoint gp2 = _tracker.idToDet(rh2->geographicalId())->surface().toGlobal(rh2->localPosition());
+    return gp1.y() > gp2.y();
+  };
+
+private:
+  //   edm::ESHandle<TrackerGeometry> _tracker;
+  const TrackerGeometry &_tracker;
 };
- 
+
 #endif
 
-class CosmicTrajectoryBuilder 
-{
+class CosmicTrajectoryBuilder {
+  typedef TrajectoryStateOnSurface TSOS;
+  typedef TrajectoryMeasurement TM;
 
-  typedef TrajectoryStateOnSurface     TSOS;
-  typedef TrajectoryMeasurement        TM;
-
- public:
-  
-  CosmicTrajectoryBuilder(const edm::ParameterSet& conf);
+public:
+  CosmicTrajectoryBuilder(const edm::ParameterSet &conf);
   ~CosmicTrajectoryBuilder();
 
   /// Runs the algorithm
-    
-    void run(const TrajectorySeedCollection &collseed,
-	     const SiStripRecHit2DCollection &collstereo,
-	     const SiStripRecHit2DCollection &collrphi ,
-	     const SiStripMatchedRecHit2DCollection &collmatched,
-	     const SiPixelRecHitCollection &collpixel,
-	     const edm::EventSetup& es,
-	     edm::Event& e,
-	     std::vector<Trajectory> &trajoutput);
 
-    void init(const edm::EventSetup& es,bool);
-    Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+  void run(const TrajectorySeedCollection &collseed,
+           const SiStripRecHit2DCollection &collstereo,
+           const SiStripRecHit2DCollection &collrphi,
+           const SiStripMatchedRecHit2DCollection &collmatched,
+           const SiPixelRecHitCollection &collpixel,
+           const edm::EventSetup &es,
+           edm::Event &e,
+           std::vector<Trajectory> &trajoutput);
 
-    const TransientTrackingRecHitBuilder * hitBuilder() const {return RHBuilder;}
+  void init(const edm::EventSetup &es, bool);
+  Trajectory createStartingTrajectory(const TrajectorySeed &seed) const;
 
+  const TransientTrackingRecHitBuilder *hitBuilder() const { return RHBuilder; }
 
- private:
-    std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
- 
- 
-    std::vector<const TrackingRecHit*> SortHits(const SiStripRecHit2DCollection &collstereo,
-					   const SiStripRecHit2DCollection &collrphi ,
-					   const SiStripMatchedRecHit2DCollection &collmatched,
-					   const SiPixelRecHitCollection &collpixel,
-					   const TrajectorySeed &seed);
+private:
+  std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed &seed) const;
 
-    TSOS startingTSOS(const TrajectorySeed& seed)const;
-    void updateTrajectory( Trajectory& traj,
-			   const TM& tm,
-			   const TransientTrackingRecHit& hit) const;
-    
-    void AddHit(Trajectory &traj,
-		const std::vector<const TrackingRecHit*>&Hits);
-    //		edm::OwnVector<TransientTrackingRecHit> hits);
-    bool qualityFilter(const Trajectory& traj);
+  std::vector<const TrackingRecHit *> SortHits(const SiStripRecHit2DCollection &collstereo,
+                                               const SiStripRecHit2DCollection &collrphi,
+                                               const SiStripMatchedRecHit2DCollection &collmatched,
+                                               const SiPixelRecHitCollection &collpixel,
+                                               const TrajectorySeed &seed);
 
+  TSOS startingTSOS(const TrajectorySeed &seed) const;
+  void updateTrajectory(Trajectory &traj, const TM &tm, const TransientTrackingRecHit &hit) const;
 
- private:
-   edm::ESHandle<MagneticField> magfield;
-   edm::ESHandle<TrackerGeometry> tracker;
-   
-   PropagatorWithMaterial  *thePropagator;
-   PropagatorWithMaterial  *thePropagatorOp;
-   KFUpdator *theUpdator;
-   Chi2MeasurementEstimator *theEstimator;
-   const TransientTrackingRecHitBuilder *RHBuilder;
-   TkClonerImpl hitCloner;
-   KFTrajectorySmoother * theSmoother;
-   KFTrajectoryFitter * theFitter;
- 
- 
+  void AddHit(Trajectory &traj, const std::vector<const TrackingRecHit *> &Hits);
+  //		edm::OwnVector<TransientTrackingRecHit> hits);
+  bool qualityFilter(const Trajectory &traj);
 
-   int theMinHits;
-   double chi2cut;
-   std::vector<Trajectory> trajFit;
-   //RC edm::OwnVector<const TransientTrackingRecHit> hits;
-   TransientTrackingRecHit::RecHitContainer  hits;
-   bool seed_plus;
-   std::string geometry;
-   std::string theBuilderName;
+private:
+  edm::ESHandle<MagneticField> magfield;
+  edm::ESHandle<TrackerGeometry> tracker;
+
+  PropagatorWithMaterial *thePropagator;
+  PropagatorWithMaterial *thePropagatorOp;
+  KFUpdator *theUpdator;
+  Chi2MeasurementEstimator *theEstimator;
+  const TransientTrackingRecHitBuilder *RHBuilder;
+  TkClonerImpl hitCloner;
+  KFTrajectorySmoother *theSmoother;
+  KFTrajectoryFitter *theFitter;
+
+  int theMinHits;
+  double chi2cut;
+  std::vector<Trajectory> trajFit;
+  //RC edm::OwnVector<const TransientTrackingRecHit> hits;
+  TransientTrackingRecHit::RecHitContainer hits;
+  bool seed_plus;
+  std::string geometry;
+  std::string theBuilderName;
 };
 
 #endif

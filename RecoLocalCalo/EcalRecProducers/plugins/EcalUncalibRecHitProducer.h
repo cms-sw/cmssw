@@ -11,26 +11,23 @@
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 
-
 class EBDigiCollection;
 class EEDigiCollection;
 
 class EcalUncalibRecHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EcalUncalibRecHitProducer(const edm::ParameterSet& ps);
+  ~EcalUncalibRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-        public:
-                explicit EcalUncalibRecHitProducer(const edm::ParameterSet& ps);
-                ~EcalUncalibRecHitProducer() override;
-                void produce(edm::Event& evt, const edm::EventSetup& es) override;
-		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+private:
+  edm::EDGetTokenT<EBDigiCollection> ebDigiCollectionToken_;
+  edm::EDGetTokenT<EEDigiCollection> eeDigiCollectionToken_;
 
-        private:
+  std::string ebHitCollection_;
+  std::string eeHitCollection_;
 
-		edm::EDGetTokenT<EBDigiCollection>  ebDigiCollectionToken_; 
-                edm::EDGetTokenT<EEDigiCollection>  eeDigiCollectionToken_; 
-
-                std::string ebHitCollection_; 
-                std::string eeHitCollection_; 
-		
-                std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> worker_;
+  std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> worker_;
 };
 #endif

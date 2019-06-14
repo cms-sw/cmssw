@@ -2,7 +2,9 @@
 #define RecoMuon_TrackerSeedGenerator_TrackerSeedGeneratorFactory_H
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+}
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -15,6 +17,6 @@ namespace edm {class ParameterSet;}
 //  static TrackerSeedGeneratorFactory * get();
 //};
 
-typedef edmplugin::PluginFactory< TrackerSeedGenerator* (const edm::ParameterSet&,edm::ConsumesCollector& iC) > TrackerSeedGeneratorFactory;
+typedef edmplugin::PluginFactory<TrackerSeedGenerator*(const edm::ParameterSet&, edm::ConsumesCollector& iC)>
+    TrackerSeedGeneratorFactory;
 #endif
-

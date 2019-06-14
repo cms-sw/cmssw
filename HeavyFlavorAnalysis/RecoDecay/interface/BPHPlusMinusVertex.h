@@ -31,10 +31,8 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHPlusMinusVertex: public virtual BPHDecayVertex {
-
- public:
-
+class BPHPlusMinusVertex : public virtual BPHDecayVertex {
+public:
   /** Constructor is protected
    *  this object can exist only as part of a derived class
    */
@@ -48,55 +46,44 @@ class BPHPlusMinusVertex: public virtual BPHDecayVertex {
   /// compute distance of closest approach
   virtual const ClosestApproachInRPhi& cAppInRPhi() const;
 
- protected:
-
-  BPHPlusMinusVertex( const edm::EventSetup* es );
+protected:
+  BPHPlusMinusVertex(const edm::EventSetup* es);
 
   // utility functions to check/enforce the number of decay particles
   // at 2
-  template<class T> static
-  bool chkName( const T& cont,
-                const std::string& name,
-                const std::string& msg );
-  template<class T> static
-  bool chkSize( const T& cont,
-                const std::string& msg );
-  bool chkSize( const std::string& msg ) const;
+  template <class T>
+  static bool chkName(const T& cont, const std::string& name, const std::string& msg);
+  template <class T>
+  static bool chkSize(const T& cont, const std::string& msg);
+  bool chkSize(const std::string& msg) const;
 
   // utility function used to cash reconstruction results
   void setNotUpdated() const override;
 
- private:
-
+private:
   // reconstruction results cache
   mutable bool oldA;
   mutable ClosestApproachInRPhi* inRPhi;
 
   // compute closest approach distance and cache it
   virtual void computeApp() const;
-
 };
 
-
-template<class T>
-bool BPHPlusMinusVertex::chkName( const T& cont,
-                                  const std::string& name,
-                                  const std::string& msg ) {
-  if ( cont.find( name ) != cont.end() ) return true;
-  edm::LogPrint( "ParticleNotFound" ) << msg << ", " << name << " not found";
+template <class T>
+bool BPHPlusMinusVertex::chkName(const T& cont, const std::string& name, const std::string& msg) {
+  if (cont.find(name) != cont.end())
+    return true;
+  edm::LogPrint("ParticleNotFound") << msg << ", " << name << " not found";
   return false;
 }
 
-
-template<class T>
-bool BPHPlusMinusVertex::chkSize( const T& cont,
-                                  const std::string& msg ) {
+template <class T>
+bool BPHPlusMinusVertex::chkSize(const T& cont, const std::string& msg) {
   int n = cont.size();
-  if ( n == 2 ) return true;
-  edm::LogPrint( "WrongDataSize" ) << msg << ", size = " << n;
+  if (n == 2)
+    return true;
+  edm::LogPrint("WrongDataSize") << msg << ", size = " << n;
   return false;
 }
-
 
 #endif
-

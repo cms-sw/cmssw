@@ -16,10 +16,9 @@
 /**
  *\brief Contains data on masked channels of a ROC
  */
-class CTPPSPixelROCAnalysisMask
-{
+class CTPPSPixelROCAnalysisMask {
 public:
-CTPPSPixelROCAnalysisMask() : fullMask(false) {}
+  CTPPSPixelROCAnalysisMask() : fullMask(false) {}
 
   /// whether all channels of the ROC shall be masked
   bool fullMask;
@@ -28,21 +27,18 @@ CTPPSPixelROCAnalysisMask() : fullMask(false) {}
   std::set<std::pair<unsigned char, unsigned char> > maskedPixels;
 
   COND_SERIALIZABLE;
-
 };
 
 /**
  *\brief Channel-mask mapping.
  **/
-class CTPPSPixelAnalysisMask
-{
+class CTPPSPixelAnalysisMask {
 public:
   std::map<uint32_t, CTPPSPixelROCAnalysisMask> analysisMask;
 
   void insert(const uint32_t &sid, const CTPPSPixelROCAnalysisMask &am);
 
   COND_SERIALIZABLE;
-
 };
 
 #endif

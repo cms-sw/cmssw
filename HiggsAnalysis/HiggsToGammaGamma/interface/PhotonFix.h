@@ -47,23 +47,23 @@
 #include <string>
 
 class PhotonFix {
- public:
+public:
   PhotonFix(double e, double eta, double phi, double r9);
 
   // Must be called before instantiating any PhotonFix objects
-  static bool initialise(const std::string &s="Nominal");
-  static bool initialised() ;
+  static bool initialise(const std::string &s = "Nominal");
+  static bool initialised();
 
   // Used by above; do not call directly
   static bool initialiseParameters(const std::string &s);
   static bool initialiseGeometry(const std::string &s);
 
   void setup();
-  
+
   // Corrected energy and sigma
   double fixedEnergy() const;
   double sigmaEnergy() const;
-  
+
   // Input values
   double rawEnergy() const;
   double eta() const;
@@ -94,11 +94,11 @@ class PhotonFix {
   static void barrelCGap(unsigned i, unsigned j, unsigned k, double c);
   static void barrelSGap(unsigned i, unsigned j, unsigned k, double c);
   static void barrelMGap(unsigned i, unsigned j, unsigned k, double c);
-  static void endcapCrystal(unsigned i, unsigned j, bool c); 
+  static void endcapCrystal(unsigned i, unsigned j, bool c);
   static void endcapCGap(unsigned i, unsigned j, unsigned k, double c);
   static void endcapSGap(unsigned i, unsigned j, unsigned k, double c);
   static void endcapMGap(unsigned i, unsigned j, unsigned k, double c);
-  
+
   void print() const;
 
   // Input and output the fit parameters
@@ -110,11 +110,10 @@ class PhotonFix {
 
   // Utility functions
   static double GetaPhi(double f0, double f1);
-  static double asinh(double s);  
+  static double asinh(double s);
   static void dumpGaps(std::ostream &o);
-  
- private:
 
+private:
   // Utility functions
   static double dPhi(double f0, double f1);
   static double aPhi(double f0, double f1);
@@ -123,17 +122,17 @@ class PhotonFix {
   static double gausCorrection(double a, const double *p);
 
   // Actual data for each instantiated object
-  unsigned _be,_hl;
-  double _e,_eta,_phi,_r9;
-  double _aC,_aS,_aM,_bC,_bS,_bM;
-  
+  unsigned _be, _hl;
+  double _e, _eta, _phi, _r9;
+  double _aC, _aS, _aM, _bC, _bS, _bM;
+
   // Constants
   static const double _onePi;
   static const double _twoPi;
-  
+
   // Initialisation flag
   static bool _initialised;
-  
+
   // Parameters for fixes
   static double _meanScale[2][2][4];
   static double _meanAT[2][2][4];
@@ -145,7 +144,7 @@ class PhotonFix {
   static double _meanBS[2][2][4];
   static double _meanBM[2][2][4];
   static double _meanR9[2][2][4];
-  
+
   // Parameters for resolution
   static double _sigmaScale[2][2][4];
   static double _sigmaAT[2][2][4];
@@ -157,18 +156,17 @@ class PhotonFix {
   static double _sigmaBS[2][2][4];
   static double _sigmaBM[2][2][4];
   static double _sigmaR9[2][2][4];
-  
+
   // EB gap positions
   static double _barrelCGap[169][360][2];
   static double _barrelSGap[33][180][2];
   static double _barrelMGap[7][18][2];
-  
+
   // EE crystal existence and gap positions
-  static bool   _endcapCrystal[100][100];
+  static bool _endcapCrystal[100][100];
   static double _endcapCGap[2][7080][2];
   static double _endcapSGap[2][264][2];
   static double _endcapMGap[2][1][2];
-
 };
 
 #endif

@@ -21,6 +21,7 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 #include <iostream>
 #include <iomanip>

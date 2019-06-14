@@ -4,18 +4,18 @@
 #include "RecoLuminosity/LumiProducer/interface/DataPipeFactory.h"
 #include <sstream>
 #include <iostream>
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
   unsigned int runnumber;
   std::string lumifile;
-  if(argc>2){
+  if (argc > 2) {
     std::istringstream iss(argv[1]);
-    iss>>runnumber;
-    lumifile=std::string(argv[2]);
-  }else{
-    std::cout<<"must specify a run and lumi file path"<<std::endl;
+    iss >> runnumber;
+    lumifile = std::string(argv[2]);
+  } else {
+    std::cout << "must specify a run and lumi file path" << std::endl;
     return 0;
   }
-  
+
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
   //const std::string con("sqlite_file:pippo.db");
@@ -66,15 +66,15 @@ int main(int argc, char** argv){
   }
   **/
   //fill trg data
-  try{
-    std::cout<<"fill out trg data"<<std::endl;
-    std::unique_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB",con));
+  try {
+    std::cout << "fill out trg data" << std::endl;
+    std::unique_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create("TRG2DB", con));
     trgptr->setAuthPath(authpath);
     //trgptr->setSource("oracle://cms_omds_lb/CMS_GT_MON");
     trgptr->setSource("oracle://cms_orcoff_prod/CMS_GT_MON");
     trgptr->retrieveData(runnumber);
-  }catch(...){
-    std::cout<<"problem in loading run "<<runnumber<<" skip "<<std::endl;
+  } catch (...) {
+    std::cout << "problem in loading run " << runnumber << " skip " << std::endl;
     throw;
   }
   //fill hlt scaler data

@@ -24,4 +24,3 @@ DEFINE_FWK_MODULE(PFDisplacedTrackerVertexProducer);
 DEFINE_FWK_MODULE(PFDisplacedVertexSelector);
 DEFINE_FWK_MODULE(SimVertexSelector);
 DEFINE_FWK_MODULE(PFTrackProducer);
-

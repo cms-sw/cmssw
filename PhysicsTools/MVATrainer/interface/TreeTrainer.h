@@ -15,33 +15,33 @@
 
 namespace PhysicsTools {
 
-class TreeTrainer {
-    public:
-	TreeTrainer();
-	TreeTrainer(TTree *tree, double weight = -1.0);
-	TreeTrainer(TTree *signal, TTree *background, double weight = -1.0);
-	~TreeTrainer();
+  class TreeTrainer {
+  public:
+    TreeTrainer();
+    TreeTrainer(TTree *tree, double weight = -1.0);
+    TreeTrainer(TTree *signal, TTree *background, double weight = -1.0);
+    ~TreeTrainer();
 
-	Calibration::MVAComputer *train(const std::string &trainDescription,
-	                                double crossValidation = 0.0,
-	                                bool useXSLT = false);
+    Calibration::MVAComputer *train(const std::string &trainDescription,
+                                    double crossValidation = 0.0,
+                                    bool useXSLT = false);
 
-	// more precise control
+    // more precise control
 
-	void reset();
+    void reset();
 
-	void addTree(TTree *tree, int target = -1, double weight = -1.0);
-	void addReader(const TreeReader &reader);
+    void addTree(TTree *tree, int target = -1, double weight = -1.0);
+    void addReader(const TreeReader &reader);
 
-	bool iteration(MVATrainer *trainer);
-	void train(MVATrainer *trainer);
+    bool iteration(MVATrainer *trainer);
+    void train(MVATrainer *trainer);
 
-    private:
-	std::vector<TreeReader>	readers;
+  private:
+    std::vector<TreeReader> readers;
 
-	std::vector<double*>	weights;
-};
+    std::vector<double *> weights;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_TreeTrainer_h
+#endif  // PhysicsTools_MVATrainer_TreeTrainer_h

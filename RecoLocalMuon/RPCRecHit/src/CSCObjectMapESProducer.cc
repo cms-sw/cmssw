@@ -12,12 +12,9 @@
 
 class CSCObjectMapESProducer : public edm::ESProducer {
 public:
-  CSCObjectMapESProducer(const edm::ParameterSet&) {
-    setWhatProduced(this);
-  }
+  CSCObjectMapESProducer(const edm::ParameterSet&) { setWhatProduced(this); }
 
-  ~CSCObjectMapESProducer() override {
-  }
+  ~CSCObjectMapESProducer() override {}
 
   std::unique_ptr<CSCObjectMap> produce(MuonGeometryRecord const& record) {
     return std::make_unique<CSCObjectMap>(record);
@@ -27,7 +24,6 @@ public:
     edm::ParameterSetDescription desc;
     descriptions.add("cscObjectMapESProducer", desc);
   }
-
 };
 
 //define this as a plug-in

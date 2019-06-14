@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------------
 // Created 21/11/2012 - C. Battilana
-// 
+//
 //
 // Original code : L1Trigger/L1TNtuples/L1RecoMuonProducer - Luigi Guiducci
 //-------------------------------------------------------------------------------
@@ -11,24 +11,19 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "L1AnalysisRecoRpcHitDataFormat.h"
 
-namespace L1Analysis
-{
-  class L1AnalysisRecoRpcHit
-  {
+namespace L1Analysis {
+  class L1AnalysisRecoRpcHit {
   public:
     L1AnalysisRecoRpcHit();
     ~L1AnalysisRecoRpcHit();
-    
-    void Reset() {recoRpcHit_.Reset();}
+
+    void Reset() { recoRpcHit_.Reset(); }
     //void Print(std::ostream &os = std::cout) const;
     void Set();
-    L1AnalysisRecoRpcHitDataFormat * getData() {return &recoRpcHit_;}
+    L1AnalysisRecoRpcHitDataFormat* getData() { return &recoRpcHit_; }
 
-  private :
+  private:
     L1AnalysisRecoRpcHitDataFormat recoRpcHit_;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-
-
-

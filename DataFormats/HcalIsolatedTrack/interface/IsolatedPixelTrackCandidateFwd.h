@@ -24,7 +24,6 @@ namespace reco {
   typedef IsolatedPixelTrackCandidateRefVector::iterator IsolatedPixelTrackCandidateIterator;
 
   typedef std::vector<reco::IsolatedPixelTrackCandidateRef> IsolatedPixelTrackCandidateSimpleRefVector;
-}
+}  // namespace reco
 
 #endif
-

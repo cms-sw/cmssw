@@ -50,7 +50,6 @@ namespace reco {
       double sigmaz_;
       int nTowers_;
 
-      static int sanity_checks_left_;
     };
   }
 }

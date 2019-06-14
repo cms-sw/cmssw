@@ -10,10 +10,8 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
-std::ostream& operator << (std::ostream& s, const TotemSymbID &sid)
-{
+std::ostream& operator<<(std::ostream& s, const TotemSymbID& sid) {
   s << "DetId=" << sid.symbolicID << " (" << CTPPSDetId(sid.symbolicID) << ")";
 
   return s;
 }
-

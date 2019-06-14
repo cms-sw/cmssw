@@ -1,13 +1,12 @@
 #ifndef RecoMuon_MuonIsolation_MuPFIsoHelper_H
 #define RecoMuon_MuonIsolation_MuPFIsoHelper_H
 
-//MuPFIsoHelper 
-//Class to embed PF2PAT style Isodeposits  
-//To reco::Muon 
+//MuPFIsoHelper
+//Class to embed PF2PAT style Isodeposits
+//To reco::Muon
 //
 //Author: Michalis Bachtis(U.Wisconsin)
 //bachtis@cern.ch
-
 
 // system include files
 #include <memory>
@@ -23,34 +22,28 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-
-
-
 class MuPFIsoHelper {
-   public:
+public:
   typedef edm::ValueMap<double> CandDoubleMap;
-  
-  MuPFIsoHelper(const std::map<std::string,edm::ParameterSet>&,edm::ConsumesCollector&&);
+
+  MuPFIsoHelper(const std::map<std::string, edm::ParameterSet>&, edm::ConsumesCollector&&);
 
   void beginEvent(const edm::Event& iEvent);
 
-  int  embedPFIsolation(reco::Muon&,reco::MuonRef& );
-  reco::MuonPFIsolation makeIsoDeposit(reco::MuonRef&, 
-				       const edm::Handle<CandDoubleMap>&,
-				       const edm::Handle<CandDoubleMap>&,
-				       const edm::Handle<CandDoubleMap>&,
-				       const edm::Handle<CandDoubleMap>&,
-				       const edm::Handle<CandDoubleMap>&,
-				       const edm::Handle<CandDoubleMap>&,
-				       const edm::Handle<CandDoubleMap>&);
+  int embedPFIsolation(reco::Muon&, reco::MuonRef&);
+  reco::MuonPFIsolation makeIsoDeposit(reco::MuonRef&,
+                                       const edm::Handle<CandDoubleMap>&,
+                                       const edm::Handle<CandDoubleMap>&,
+                                       const edm::Handle<CandDoubleMap>&,
+                                       const edm::Handle<CandDoubleMap>&,
+                                       const edm::Handle<CandDoubleMap>&,
+                                       const edm::Handle<CandDoubleMap>&,
+                                       const edm::Handle<CandDoubleMap>&);
 
+  ~MuPFIsoHelper();
 
-  ~MuPFIsoHelper(); 
-
-
-   private:
-
-  std::map<std::string,edm::ParameterSet> labelMap_;
+private:
+  std::map<std::string, edm::ParameterSet> labelMap_;
 
   std::vector<edm::Handle<CandDoubleMap> > chargedParticle_;
   std::vector<edm::Handle<CandDoubleMap> > chargedHadron_;
@@ -67,6 +60,5 @@ class MuPFIsoHelper {
   std::vector<edm::EDGetTokenT<CandDoubleMap> > photonToken_;
   std::vector<edm::EDGetTokenT<CandDoubleMap> > photonHighThresholdToken_;
   std::vector<edm::EDGetTokenT<CandDoubleMap> > puToken_;
-
 };
 #endif

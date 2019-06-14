@@ -12,16 +12,15 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 
 namespace reco {
-class PFNuclearInteraction {
+  class PFNuclearInteraction {
+  public:
+    typedef NuclearInteraction::trackRef_iterator trackRef_iterator;
+    typedef PFRecTrackRefVector::const_iterator pfTrackref_iterator;
 
-  public :
-   typedef NuclearInteraction::trackRef_iterator trackRef_iterator;
-   typedef PFRecTrackRefVector::const_iterator   pfTrackref_iterator;
-
-  public :
-  
+  public:
     PFNuclearInteraction() {}
-    PFNuclearInteraction( const NuclearInteractionRef& nuclref, const PFRecTrackRefVector& pfSeconds) : nuclInterRef_(nuclref), pfSecTracks_(pfSeconds) {}
+    PFNuclearInteraction(const NuclearInteractionRef& nuclref, const PFRecTrackRefVector& pfSeconds)
+        : nuclInterRef_(nuclref), pfSecTracks_(pfSeconds) {}
 
     /// \return the base reference to the primary track
     const edm::RefToBase<reco::Track>& primaryTrack() const { return nuclInterRef_->primaryTrack(); }
@@ -37,22 +36,22 @@ class PFNuclearInteraction {
 
     /// \return last iterator over secondary PFRecTracks
     pfTrackref_iterator secPFRecTracks_end() const { return pfSecTracks_.end(); }
-     
+
     /// \return the likelihood
     double likelihood() const { return nuclInterRef_->likelihood(); }
 
     /// \return the initial nuclear interaction
     const NuclearInteractionRef& nuclInterRef() const { return nuclInterRef_; }
-    
+
     int secondaryTracksSize() const { return nuclInterRef_->secondaryTracksSize(); }
-  private :
+
+  private:
     // Reference to the initial NuclearInteraction
     NuclearInteractionRef nuclInterRef_;
-    
+
     // Collection of the secondary PFRecTracks
     PFRecTrackRefVector pfSecTracks_;
-
- };
+  };
 
   /// collection of NuclearInteractions
   typedef std::vector<PFNuclearInteraction> PFNuclearInteractionCollection;
@@ -60,5 +59,5 @@ class PFNuclearInteraction {
   typedef edm::Ref<PFNuclearInteractionCollection> PFNuclearInteractionRef;
   /// vector of reference to Track in the same collection
   typedef edm::RefVector<PFNuclearInteractionCollection> PFNuclearInteractionRefVector;
-}
+}  // namespace reco
 #endif

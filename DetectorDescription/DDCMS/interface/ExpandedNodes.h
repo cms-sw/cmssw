@@ -5,7 +5,7 @@
 //
 // Package:    DetectorDescription/ExpandedNodes
 // Class:      ExpandedNodes
-// 
+//
 /**\class ExpandedNodes
 
  Description: ExpandedNodes extra attributes: tags, offsets
@@ -22,12 +22,12 @@
 #include <vector>
 
 namespace cms {
-  
+
   struct ExpandedNodes {
     std::vector<double> tags;
     std::vector<double> offsets;
     std::vector<int> copyNos;
   };
-}
+}  // namespace cms
 
 #endif

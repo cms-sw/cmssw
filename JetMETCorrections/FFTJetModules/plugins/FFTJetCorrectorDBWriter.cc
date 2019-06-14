@@ -2,7 +2,7 @@
 //
 // Package:    JetMETCorrections/FFTJetModules
 // Class:      FFTJetCorrectorDBWriter
-// 
+//
 /**\class FFTJetCorrectorDBWriter FFTJetCorrectorDBWriter.cc JetMETCorrections/FFTJetModules/plugins/FFTJetCorrectorDBWriter.cc
 
  Description: writes a blob from a file into a database
@@ -34,70 +34,58 @@
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-#define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
+#define init_param(type, varname) varname(ps.getParameter<type>(#varname))
 
 //
 // class declaration
 //
-class FFTJetCorrectorDBWriter : public edm::EDAnalyzer
-{
+class FFTJetCorrectorDBWriter : public edm::EDAnalyzer {
 public:
-    explicit FFTJetCorrectorDBWriter(const edm::ParameterSet&);
-    ~FFTJetCorrectorDBWriter() override {}
+  explicit FFTJetCorrectorDBWriter(const edm::ParameterSet&);
+  ~FFTJetCorrectorDBWriter() override {}
 
 private:
-    FFTJetCorrectorDBWriter() = delete;
-    FFTJetCorrectorDBWriter(const FFTJetCorrectorDBWriter&) = delete;
-    FFTJetCorrectorDBWriter& operator=(const FFTJetCorrectorDBWriter&) = delete;
+  FFTJetCorrectorDBWriter() = delete;
+  FFTJetCorrectorDBWriter(const FFTJetCorrectorDBWriter&) = delete;
+  FFTJetCorrectorDBWriter& operator=(const FFTJetCorrectorDBWriter&) = delete;
 
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    std::string inputFile;
-    std::string record;
+  std::string inputFile;
+  std::string record;
 };
 
 FFTJetCorrectorDBWriter::FFTJetCorrectorDBWriter(const edm::ParameterSet& ps)
-    : init_param(std::string, inputFile),
-      init_param(std::string, record)
-{
-}
+    : init_param(std::string, inputFile), init_param(std::string, record) {}
 
-void FFTJetCorrectorDBWriter::analyze(const edm::Event& iEvent,
-                                      const edm::EventSetup& iSetup)
-{
-    std::unique_ptr<FFTJetCorrectorParameters> fcp;
+void FFTJetCorrectorDBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::unique_ptr<FFTJetCorrectorParameters> fcp;
 
-    {
-        std::ifstream input(inputFile.c_str(), std::ios_base::binary);
-        if (!input.is_open())
-            throw cms::Exception("InvalidArgument")
-                << "Failed to open file \"" << inputFile << '"' << std::endl;
+  {
+    std::ifstream input(inputFile.c_str(), std::ios_base::binary);
+    if (!input.is_open())
+      throw cms::Exception("InvalidArgument") << "Failed to open file \"" << inputFile << '"' << std::endl;
 
-        struct stat st;
-        if (stat(inputFile.c_str(), &st))
-            throw cms::Exception("SystemError")
-                << "Failed to stat file \"" << inputFile << '"' << std::endl;
+    struct stat st;
+    if (stat(inputFile.c_str(), &st))
+      throw cms::Exception("SystemError") << "Failed to stat file \"" << inputFile << '"' << std::endl;
 
-        const std::size_t len = st.st_size;
-        fcp = std::make_unique<FFTJetCorrectorParameters>(len);
-        assert(fcp->length() == len);
-        if (len)
-            input.read(fcp->getBuffer(), len);
-        if (input.fail())
-            throw cms::Exception("SystemError")
-                << "Input stream failure while reading file \""
-                << inputFile << '"' << std::endl;
-    }
+    const std::size_t len = st.st_size;
+    fcp = std::make_unique<FFTJetCorrectorParameters>(len);
+    assert(fcp->length() == len);
+    if (len)
+      input.read(fcp->getBuffer(), len);
+    if (input.fail())
+      throw cms::Exception("SystemError")
+          << "Input stream failure while reading file \"" << inputFile << '"' << std::endl;
+  }
 
-    edm::Service<cond::service::PoolDBOutputService> poolDbService;
-    if (poolDbService.isAvailable())
-        poolDbService->writeOne(fcp.release(),
-                                poolDbService->currentTime(),
-                                record);
-    else
-        throw cms::Exception("ConfigurationError")
-            << "PoolDBOutputService is not available, "
-            << "please configure it properly" << std::endl;
+  edm::Service<cond::service::PoolDBOutputService> poolDbService;
+  if (poolDbService.isAvailable())
+    poolDbService->writeOne(fcp.release(), poolDbService->currentTime(), record);
+  else
+    throw cms::Exception("ConfigurationError") << "PoolDBOutputService is not available, "
+                                               << "please configure it properly" << std::endl;
 }
 
 DEFINE_FWK_MODULE(FFTJetCorrectorDBWriter);

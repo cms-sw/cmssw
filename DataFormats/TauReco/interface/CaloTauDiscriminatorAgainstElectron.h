@@ -7,26 +7,22 @@
 #include <vector>
 
 namespace reco {
-  typedef edm::AssociationVector<CaloTauRefProd,std::vector<int> > CaloTauDiscriminatorAgainstElectronBase;
-  
+  typedef edm::AssociationVector<CaloTauRefProd, std::vector<int> > CaloTauDiscriminatorAgainstElectronBase;
+
   class CaloTauDiscriminatorAgainstElectron : public CaloTauDiscriminatorAgainstElectronBase {
   public:
-    CaloTauDiscriminatorAgainstElectron() :
-      CaloTauDiscriminatorAgainstElectronBase()
-      { }
-    
-    CaloTauDiscriminatorAgainstElectron(const reco::CaloTauRefProd & ref) :
-      CaloTauDiscriminatorAgainstElectronBase(ref)
-      { }
-    
-    CaloTauDiscriminatorAgainstElectron(const CaloTauDiscriminatorAgainstElectronBase &v) :
-      CaloTauDiscriminatorAgainstElectronBase(v)
-      { }
+    CaloTauDiscriminatorAgainstElectron() : CaloTauDiscriminatorAgainstElectronBase() {}
+
+    CaloTauDiscriminatorAgainstElectron(const reco::CaloTauRefProd &ref)
+        : CaloTauDiscriminatorAgainstElectronBase(ref) {}
+
+    CaloTauDiscriminatorAgainstElectron(const CaloTauDiscriminatorAgainstElectronBase &v)
+        : CaloTauDiscriminatorAgainstElectronBase(v) {}
   };
-  
-  typedef CaloTauDiscriminatorAgainstElectron::value_type CaloTauDiscriminatorAgainstElectronVT;  
-  typedef edm::Ref<CaloTauDiscriminatorAgainstElectron> CaloTauDiscriminatorAgainstElectronRef;  
-  typedef edm::RefProd<CaloTauDiscriminatorAgainstElectron> CaloTauDiscriminatorAgainstElectronRefProd;  
-  typedef edm::RefVector<CaloTauDiscriminatorAgainstElectron> CaloTauDiscriminatorAgainstElectronRefVector; 
-}
+
+  typedef CaloTauDiscriminatorAgainstElectron::value_type CaloTauDiscriminatorAgainstElectronVT;
+  typedef edm::Ref<CaloTauDiscriminatorAgainstElectron> CaloTauDiscriminatorAgainstElectronRef;
+  typedef edm::RefProd<CaloTauDiscriminatorAgainstElectron> CaloTauDiscriminatorAgainstElectronRefProd;
+  typedef edm::RefVector<CaloTauDiscriminatorAgainstElectron> CaloTauDiscriminatorAgainstElectronRefVector;
+}  // namespace reco
 #endif

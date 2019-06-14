@@ -4,7 +4,7 @@
 //
 // Package:    TrackingMonitor
 // Class:      TrackingMonitor
-// 
+//
 /**\class TrackingMonitor TrackingMonitor.cc DQM/TrackerMonitorTrack/src/TrackingMonitor.cc
 Monitoring source for general quantities related to tracks.
 */
@@ -30,8 +30,8 @@ Monitoring source for general quantities related to tracks.
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h" 
-#include "DataFormats/TrackCandidate/interface/TrackCandidate.h" 
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 
 #include "DataFormats/TrackReco/interface/SeedStopInfo.h"
 
@@ -57,174 +57,170 @@ class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>
-{
-    public:
-        using MVACollection = std::vector<float>;
-        using QualityMaskCollection = std::vector<unsigned char>;
+class TrackingMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+public:
+  using MVACollection = std::vector<float>;
+  using QualityMaskCollection = std::vector<unsigned char>;
 
-        explicit TrackingMonitor(const edm::ParameterSet&);
-        ~TrackingMonitor() override;
+  explicit TrackingMonitor(const edm::ParameterSet&);
+  ~TrackingMonitor() override;
 
-	virtual void setMaxMinBin(std::vector<double> & ,std::vector<double> &  ,std::vector<int> &  ,double, double, int, double, double, int);
-	virtual void setNclus(const edm::Event&, std::vector<int> & );
+  virtual void setMaxMinBin(
+      std::vector<double>&, std::vector<double>&, std::vector<int>&, double, double, int, double, double, int);
+  virtual void setNclus(const edm::Event&, std::vector<int>&);
 
-        void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) override;
-        void analyze(const edm::Event&, const edm::EventSetup&) override;
-	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-	//        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-        void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  //        virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
-    private:
-        void doProfileX(TH2 * th2, MonitorElement* me);
-        void doProfileX(MonitorElement * th2m, MonitorElement* me);
+private:
+  void doProfileX(TH2* th2, MonitorElement* me);
+  void doProfileX(MonitorElement* th2m, MonitorElement* me);
 
+  // ----------member data ---------------------------
 
-        // ----------member data ---------------------------
+  std::string MEFolderName;
+  std::string histname;  //for naming the histograms according to algorithm used
 
-        std::string MEFolderName;
-        std::string histname;  //for naming the histograms according to algorithm used
+  //        DQMStore * dqmStore_;
 
-	//        DQMStore * dqmStore_;
+  edm::ParameterSetID confID_;
 
-        edm::ParameterSetID confID_;
+  // the track analyzer
+  edm::InputTag bsSrc_;
+  edm::InputTag pvSrc_;
+  edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
+  edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
 
-        // the track analyzer
-        edm::InputTag bsSrc_;
-	edm::InputTag pvSrc_;
-	edm::EDGetTokenT<reco::BeamSpot> bsSrcToken_;
-	edm::EDGetTokenT<reco::VertexCollection> pvSrcToken_;
+  edm::EDGetTokenT<edm::View<reco::Track> > allTrackToken_;
+  edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
+  edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
+  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
+  edm::EDGetTokenT<std::vector<SeedStopInfo> > seedStopInfoToken_;
+  edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
+  edm::EDGetTokenT<TrackingRegionsSeedingLayerSets> regionLayerSetsToken_;
+  edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
 
-	edm::EDGetTokenT<edm::View<reco::Track> > allTrackToken_;
-	edm::EDGetTokenT<edm::View<reco::Track> > trackToken_;
-	edm::EDGetTokenT<TrackCandidateCollection> trackCandidateToken_;
-	edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken_;
-	edm::EDGetTokenT<std::vector<SeedStopInfo> > seedStopInfoToken_;
-	edm::EDGetTokenT<edm::OwnVector<TrackingRegion> > regionToken_;
-	edm::EDGetTokenT<TrackingRegionsSeedingLayerSets> regionLayerSetsToken_;
-	edm::EDGetTokenT<reco::CandidateView> regionCandidateToken_;
+  edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
 
-	edm::EDGetTokenT<LumiScalersCollection>  lumiscalersToken_;	
+  edm::InputTag stripClusterInputTag_;
+  edm::InputTag pixelClusterInputTag_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
 
-	edm::InputTag stripClusterInputTag_;
-	edm::InputTag pixelClusterInputTag_;
-	edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > stripClustersToken_;
-	edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
+  std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
+  edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
 
-	std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection> > > mvaQualityTokens_;
-	edm::EDGetTokenT<edm::View<reco::Track> > mvaTrackToken_;
+  std::string Quality_;
+  std::string AlgoName_;
 
-	std::string Quality_;
-	std::string AlgoName_;
+  dqm::TrackAnalyzer* theTrackAnalyzer;
+  TrackBuildingAnalyzer* theTrackBuildingAnalyzer;
+  std::vector<VertexMonitor*> theVertexMonitor;
+  GetLumi* theLumiDetails_;
 
+  // Tracks
+  MonitorElement* NumberOfTracks;
+  MonitorElement* NumberOfMeanRecHitsPerTrack;
+  MonitorElement* NumberOfMeanLayersPerTrack;
 
-        dqm::TrackAnalyzer * theTrackAnalyzer;
-        TrackBuildingAnalyzer  * theTrackBuildingAnalyzer;
-	std::vector<VertexMonitor*> theVertexMonitor;
-	GetLumi*                    theLumiDetails_;
+  // Good Tracks
+  MonitorElement* FractionOfGoodTracks;
 
-        // Tracks 
-        MonitorElement * NumberOfTracks;
-        MonitorElement * NumberOfMeanRecHitsPerTrack;
-        MonitorElement * NumberOfMeanLayersPerTrack;  
+  // Tracking regions
+  MonitorElement* NumberOfTrackingRegions;
 
-	// Good Tracks 
-        MonitorElement * FractionOfGoodTracks;
+  // Track Seeds
+  MonitorElement* NumberOfSeeds;
+  MonitorElement* NumberOfSeeds_lumiFlag;
+  std::vector<MonitorElement*> SeedsVsClusters;
+  std::vector<std::string> ClusterLabels;
 
-	// Tracking regions
-	MonitorElement * NumberOfTrackingRegions;
+  // Track Candidates
+  MonitorElement* NumberOfTrackCandidates;
+  MonitorElement* FractionCandidatesOverSeeds;
 
-        // Track Seeds 
-        MonitorElement * NumberOfSeeds;
-        MonitorElement * NumberOfSeeds_lumiFlag;
-	std::vector<MonitorElement *> SeedsVsClusters;
-	std::vector<std::string> ClusterLabels;
+  // Cluster Properties
+  std::vector<MonitorElement*> NumberOfTrkVsClusters;
+  MonitorElement* NumberOfTrkVsClus;
+  MonitorElement* NumberOfTrkVsStripClus;
+  MonitorElement* NumberOfTrkVsPixelClus;
 
+  // Monitoring vs LS
+  MonitorElement* NumberEventsOfVsLS;
+  MonitorElement* NumberOfTracksVsLS;
+  MonitorElement* GoodTracksFractionVsLS;
+  MonitorElement* NumberOfRecHitsPerTrackVsLS;
+  MonitorElement* NumberOfGoodPVtxVsLS;
+  MonitorElement* NumberOfGoodPVtxWO0VsLS;
 
-        // Track Candidates
-        MonitorElement * NumberOfTrackCandidates;
-        MonitorElement * FractionCandidatesOverSeeds;
+  // Monitoring vs BX
+  MonitorElement* NumberEventsOfVsBX;
+  MonitorElement* NumberOfTracksVsBX;
+  MonitorElement* GoodTracksFractionVsBX;
+  MonitorElement* NumberOfRecHitsPerTrackVsBX;
+  MonitorElement* NumberOfGoodPVtxVsBX;
+  MonitorElement* NumberOfGoodPVtxWO0VsBX;
 
-        // Cluster Properties
-	std::vector<MonitorElement*> NumberOfTrkVsClusters;
-        MonitorElement* NumberOfTrkVsClus;
-        MonitorElement* NumberOfTrkVsStripClus;
-        MonitorElement* NumberOfTrkVsPixelClus;
+  MonitorElement* NumberOfTracksVsBXlumi;
 
-	// Monitoring vs LS
-	MonitorElement* NumberEventsOfVsLS;
-	MonitorElement* NumberOfTracksVsLS;
-	MonitorElement* GoodTracksFractionVsLS;
-	MonitorElement* NumberOfRecHitsPerTrackVsLS;
-	MonitorElement* NumberOfGoodPVtxVsLS;
-	MonitorElement* NumberOfGoodPVtxWO0VsLS;
+  // Monitoring PU
+  MonitorElement* NumberOfTracksVsGoodPVtx;
+  MonitorElement* NumberOfTracksVsPUPVtx;
+  MonitorElement* NumberEventsOfVsGoodPVtx;
+  MonitorElement* GoodTracksFractionVsGoodPVtx;
+  MonitorElement* NumberOfRecHitsPerTrackVsGoodPVtx;
+  MonitorElement* NumberOfPVtxVsGoodPVtx;
+  MonitorElement* NumberOfPixelClustersVsGoodPVtx;
+  MonitorElement* NumberOfStripClustersVsGoodPVtx;
 
-	// Monitoring vs BX
-	MonitorElement* NumberEventsOfVsBX;
-	MonitorElement* NumberOfTracksVsBX;
-	MonitorElement* GoodTracksFractionVsBX;
-	MonitorElement* NumberOfRecHitsPerTrackVsBX;
-	MonitorElement* NumberOfGoodPVtxVsBX;
-	MonitorElement* NumberOfGoodPVtxWO0VsBX;
+  // Monitoring vs lumi
+  MonitorElement* NumberEventsOfVsLUMI;
+  MonitorElement* NumberOfTracksVsLUMI;
+  MonitorElement* GoodTracksFractionVsLUMI;
+  MonitorElement* NumberOfRecHitsPerTrackVsLUMI;
+  MonitorElement* NumberOfGoodPVtxVsLUMI;
+  MonitorElement* NumberOfGoodPVtxWO0VsLUMI;
+  MonitorElement* NumberOfPixelClustersVsLUMI;
+  MonitorElement* NumberOfStripClustersVsLUMI;
 
-	MonitorElement* NumberOfTracksVsBXlumi;
+  // add in order to deal with LS transitions
+  MonitorElement* NumberOfTracks_lumiFlag;
 
-	// Monitoring PU
-	MonitorElement *NumberOfTracksVsGoodPVtx;
-	MonitorElement* NumberOfTracksVsPUPVtx;
-	MonitorElement* NumberEventsOfVsGoodPVtx;
-	MonitorElement* GoodTracksFractionVsGoodPVtx;
-	MonitorElement* NumberOfRecHitsPerTrackVsGoodPVtx;
-	MonitorElement* NumberOfPVtxVsGoodPVtx;
-	MonitorElement* NumberOfPixelClustersVsGoodPVtx;
-	MonitorElement* NumberOfStripClustersVsGoodPVtx;
+  std::string builderName;
+  edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
 
-	// Monitoring vs lumi
-	MonitorElement* NumberEventsOfVsLUMI;
-	MonitorElement* NumberOfTracksVsLUMI;
-	MonitorElement* GoodTracksFractionVsLUMI;
-	MonitorElement* NumberOfRecHitsPerTrackVsLUMI;
-	MonitorElement* NumberOfGoodPVtxVsLUMI;
-	MonitorElement* NumberOfGoodPVtxWO0VsLUMI;
-	MonitorElement* NumberOfPixelClustersVsLUMI;
-	MonitorElement* NumberOfStripClustersVsLUMI;
+  bool doTrackerSpecific_;
+  bool doLumiAnalysis;
+  bool doProfilesVsLS_;
+  bool doAllSeedPlots;
+  bool doAllPlots;
+  bool doDCAPlots_;
+  bool doGeneralPropertiesPlots_;
+  bool doHitPropertiesPlots_;
+  bool doTkCandPlots;
+  bool doMVAPlots;
+  bool doRegionPlots;
+  bool doRegionCandidatePlots;
+  bool doSeedNumberPlot;
+  bool doSeedLumiAnalysis_;
+  bool doSeedVsClusterPlot;
+  bool runTrackBuildingAnalyzerForSeed;
+  // ADD by Mia in order to have GoodTrack plots only for collision
+  bool doPUmonitoring_;
+  bool doPlotsVsBXlumi_;
+  bool doPlotsVsGoodPVtx_;
+  bool doPlotsVsLUMI_;
+  bool doPlotsVsBX_;
+  bool doFractionPlot_;
 
-	// add in order to deal with LS transitions
-        MonitorElement * NumberOfTracks_lumiFlag;
+  GenericTriggerEventFlag* genTriggerEventFlag_;
 
-        std::string builderName;
-        edm::ESHandle<TransientTrackingRecHitBuilder> theTTRHBuilder;
- 
-        bool doTrackerSpecific_; 
-        bool doLumiAnalysis;
-	bool doProfilesVsLS_;
-	bool doAllSeedPlots;
-	bool doAllPlots;
-	bool doDCAPlots_;
-	bool doGeneralPropertiesPlots_;
-	bool doHitPropertiesPlots_;
-	bool doTkCandPlots;
-	bool doMVAPlots;
-	bool doRegionPlots;
-	bool doRegionCandidatePlots;
-	bool doSeedNumberPlot;
-	bool doSeedLumiAnalysis_;
-	bool doSeedVsClusterPlot;
-	bool runTrackBuildingAnalyzerForSeed;
-	// ADD by Mia in order to have GoodTrack plots only for collision
-	bool doPUmonitoring_;
-	bool doPlotsVsBXlumi_;
-	bool doPlotsVsGoodPVtx_;
-	bool doPlotsVsLUMI_;
-	bool doPlotsVsBX_;
-	bool doFractionPlot_;
-
-        GenericTriggerEventFlag* genTriggerEventFlag_;
-
-	StringCutObjectSelector<reco::Track,true> numSelection_;
-	StringCutObjectSelector<reco::Track,true> denSelection_;
-	int pvNDOF_;
-
+  StringCutObjectSelector<reco::Track, true> numSelection_;
+  StringCutObjectSelector<reco::Track, true> denSelection_;
+  int pvNDOF_;
 };
 
-#endif //define TrackingMonitor_H
+#endif  //define TrackingMonitor_H

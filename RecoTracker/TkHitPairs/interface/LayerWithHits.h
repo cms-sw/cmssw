@@ -9,39 +9,33 @@
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 
-class LayerWithHits
-{
- public:
-  LayerWithHits(const DetLayer *dl,const std::vector<const TrackingRecHit*>& theInputHits):
-    theDetLayer(dl),theHits(theInputHits){}
-  
-  /// Usage: 
+class LayerWithHits {
+public:
+  LayerWithHits(const DetLayer* dl, const std::vector<const TrackingRecHit*>& theInputHits)
+      : theDetLayer(dl), theHits(theInputHits) {}
+
+  /// Usage:
   ///  edm::ESHandle<TrackerTopology> httopo;
   ///  iSetup.get<TrackerTopologyRcd>().get(httopo);
   ///  const TrackerTopology& ttopo = *httopo;
   ///  LayerWithHits( theLayer, collrphi, ttopo.tibDetIdLayerComparator(1) );
   template <typename DSTV, typename SEL>
-  LayerWithHits(const DetLayer *dl,
-                DSTV const & allhits,    
-                SEL  const & sel) 
-  {
+  LayerWithHits(const DetLayer* dl, DSTV const& allhits, SEL const& sel) {
     theDetLayer = dl;
-    edmNew::copyDetSetRange(allhits,theHits,sel);
-  } 
-
+    edmNew::copyDetSetRange(allhits, theHits, sel);
+  }
 
   //destructor
-  ~LayerWithHits(){}
-  
+  ~LayerWithHits() {}
+
   /// return the recHits of the Layer
-  const std::vector<const TrackingRecHit*>& recHits() const {return theHits;}
+  const std::vector<const TrackingRecHit*>& recHits() const { return theHits; }
 
   //detlayer
-  const  DetLayer* layer()  const {return theDetLayer;}
-  
- private:
+  const DetLayer* layer() const { return theDetLayer; }
+
+private:
   const DetLayer* theDetLayer;
   std::vector<const TrackingRecHit*> theHits;
 };
 #endif
-

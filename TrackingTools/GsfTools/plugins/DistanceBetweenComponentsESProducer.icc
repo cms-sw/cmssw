@@ -12,29 +12,25 @@
 #include <memory>
 
 template <unsigned int N>
-DistanceBetweenComponentsESProducer<N>::DistanceBetweenComponentsESProducer(const edm::ParameterSet & p) 
-{
+DistanceBetweenComponentsESProducer<N>::DistanceBetweenComponentsESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 template <unsigned int N>
 DistanceBetweenComponentsESProducer<N>::~DistanceBetweenComponentsESProducer() {}
 
 template <unsigned int N>
-typename std::unique_ptr< DistanceBetweenComponents<N> > 
-DistanceBetweenComponentsESProducer<N>::produce(const TrackingComponentsRecord & iRecord){ 
-
+typename std::unique_ptr<DistanceBetweenComponents<N> > DistanceBetweenComponentsESProducer<N>::produce(
+    const TrackingComponentsRecord& iRecord) {
   std::string distName = pset_.getParameter<std::string>("DistanceMeasure");
-  
-  std::unique_ptr< DistanceBetweenComponents<N> > distance;
-  if ( distName == "KullbackLeibler" )
-    distance = std::unique_ptr< DistanceBetweenComponents<N> >(new KullbackLeiblerDistance<N>());
-// //   else if ( distName == "Mahalanobis" )
-// //     distance = std::unique_ptr<DistanceBetweenComponents>(new MahalanobisDistance());
-  
+
+  std::unique_ptr<DistanceBetweenComponents<N> > distance;
+  if (distName == "KullbackLeibler")
+    distance = std::unique_ptr<DistanceBetweenComponents<N> >(new KullbackLeiblerDistance<N>());
+  // //   else if ( distName == "Mahalanobis" )
+  // //     distance = std::unique_ptr<DistanceBetweenComponents>(new MahalanobisDistance());
+
   return distance;
 }
-
-

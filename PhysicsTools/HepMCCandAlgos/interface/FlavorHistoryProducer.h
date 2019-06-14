@@ -9,7 +9,6 @@
  *
  */
 
-
 // -------------------------------------------------------------
 // Identify the ancestry of the Quark
 //
@@ -53,38 +52,34 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <fstream>
 
-
 class FlavorHistoryProducer : public edm::EDProducer {
- public:
+public:
   /// constructor
-  FlavorHistoryProducer( const edm::ParameterSet & );
+  FlavorHistoryProducer(const edm::ParameterSet &);
   /// destructor
   ~FlavorHistoryProducer() override;
 
- private:
+private:
   /// process one event
-  void produce( edm::Event& e, const edm::EventSetup&) override;
+  void produce(edm::Event &e, const edm::EventSetup &) override;
 
-  void getAncestors(const reco::Candidate &c,
-		    std::vector<reco::Candidate const * > & moms );
+  void getAncestors(const reco::Candidate &c, std::vector<reco::Candidate const *> &moms);
 
-  reco::Candidate const * getSister(const reco::Candidate &c);
+  reco::Candidate const *getSister(const reco::Candidate &c);
 
+  reco::CandidateView::const_iterator getClosestJet(edm::Handle<reco::CandidateView> const &pJets,
+                                                    reco::Candidate const &parton) const;
 
-  reco::CandidateView::const_iterator
-    getClosestJet( edm::Handle<reco::CandidateView> const & pJets,
-		   reco::Candidate const & parton ) const ;
-
-  edm::EDGetTokenT<reco::CandidateView> srcToken_;               // GenParticles source collection name
-  edm::EDGetTokenT<reco::CandidateView> matchedSrcToken_;        // matched particles source collection name
-  double matchDR_;                  // delta r to match matched particles
-  int    pdgIdToSelect_;            // pdg of hf partons to select
-  double ptMinParticle_;            // minimum pt of the partons
-  double ptMinShower_;              // minimum pt of the shower
-  double etaMaxParticle_;           // max eta of the parton
-  double etaMaxShower_;             // max eta of the shower
-  std::string flavorHistoryName_;   // name to give flavor history
-  bool verbose_;                    // verbose flag
+  edm::EDGetTokenT<reco::CandidateView> srcToken_;         // GenParticles source collection name
+  edm::EDGetTokenT<reco::CandidateView> matchedSrcToken_;  // matched particles source collection name
+  double matchDR_;                                         // delta r to match matched particles
+  int pdgIdToSelect_;                                      // pdg of hf partons to select
+  double ptMinParticle_;                                   // minimum pt of the partons
+  double ptMinShower_;                                     // minimum pt of the shower
+  double etaMaxParticle_;                                  // max eta of the parton
+  double etaMaxShower_;                                    // max eta of the shower
+  std::string flavorHistoryName_;                          // name to give flavor history
+  bool verbose_;                                           // verbose flag
 };
 
 #endif

@@ -14,23 +14,16 @@
 /**
  *\brief Symbolic ID describing an entity of a TOTEM subdetector.
  **/
-class TotemSymbID
-{
-  public:
-    /// chip ID, raw integer representation of DetId class
-    unsigned int symbolicID;
+class TotemSymbID {
+public:
+  /// chip ID, raw integer representation of DetId class
+  unsigned int symbolicID;
 
-    bool operator < (const TotemSymbID &sid) const
-    {
-	  return (symbolicID < sid.symbolicID);
-    }
+  bool operator<(const TotemSymbID &sid) const { return (symbolicID < sid.symbolicID); }
 
-    bool operator == (const TotemSymbID &sid) const
-    {
-      return (symbolicID == sid.symbolicID);
-    }
-    
-    friend std::ostream& operator << (std::ostream& s, const TotemSymbID &sid);
+  bool operator==(const TotemSymbID &sid) const { return (symbolicID == sid.symbolicID); }
+
+  friend std::ostream &operator<<(std::ostream &s, const TotemSymbID &sid);
 };
 
 #endif

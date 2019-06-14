@@ -1,24 +1,45 @@
 // -*- C++ -*-
-// Package:    SiPixelESProducers
+//
+// Package:    SiPixelTemplateDBObjectESProducer
 // Class:      SiPixelTemplateDBObjectESProducer
+// 
+/**\class SiPixelTemplateDBObjectESProducer SiPixelTemplateDBObjectESProducer.cc CalibTracker/SiPixelESProducers/plugin/SiPixelTemplateDBObjectESProducer.cc
+
+ Description: ESProducer for magnetic-field-dependent local reco templates
+
+ Implementation: Used inside the RecoLocalTracker/Records/TkPixelRecord to select the correct db for given magnetic field
+*/
+//
 // Original Author:  D.Fehling
 //         Created:  Tue Sep 29 14:49:31 CET 2009
 //
-
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelTemplateDBObjectESProducer.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/do_nothing_deleter.h"
+//
 
 #include <memory>
-#include "boost/mpl/vector.hpp"
+
+
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/do_nothing_deleter.h"
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
+#include "CalibTracker/Records/interface/SiPixelTemplateDBObjectESProducerRcd.h"
+
 using namespace edm;
+
+class SiPixelTemplateDBObjectESProducer : public edm::ESProducer  {
+
+public:
+
+  SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
+  ~SiPixelTemplateDBObjectESProducer() override;
+  std::shared_ptr<const SiPixelTemplateDBObject> produce(const SiPixelTemplateDBObjectESProducerRcd &);
+};
+
 
 SiPixelTemplateDBObjectESProducer::SiPixelTemplateDBObjectESProducer(const edm::ParameterSet& iConfig) {
 	setWhatProduced(this);

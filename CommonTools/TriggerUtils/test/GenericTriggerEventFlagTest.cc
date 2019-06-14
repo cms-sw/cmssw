@@ -15,60 +15,38 @@
   \version  $Id: GenericTriggerEventFlagTest.cc,v 1.2 2012/01/19 20:17:34 vadler Exp $
 */
 
-
 #include "FWCore/Framework/interface/EDFilter.h"
 
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
-
 class GenericTriggerEventFlagTest : public edm::EDFilter {
+  GenericTriggerEventFlag* genericTriggerEventFlag_;
 
-    GenericTriggerEventFlag * genericTriggerEventFlag_;
+public:
+  explicit GenericTriggerEventFlagTest(const edm::ParameterSet& iConfig);
+  virtual ~GenericTriggerEventFlagTest();
 
-  public:
-
-    explicit GenericTriggerEventFlagTest( const edm::ParameterSet & iConfig );
-    virtual ~GenericTriggerEventFlagTest();
-
-  private:
-
-    virtual void beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup) override;
-    virtual bool filter( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-
+private:
+  virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
+  virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 };
 
+GenericTriggerEventFlagTest::GenericTriggerEventFlagTest(const edm::ParameterSet& iConfig)
+    : genericTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector(), *this)) {}
 
-GenericTriggerEventFlagTest::GenericTriggerEventFlagTest( const edm::ParameterSet & iConfig )
-  : genericTriggerEventFlag_( new GenericTriggerEventFlag( iConfig, consumesCollector(), *this ) )
-{
+GenericTriggerEventFlagTest::~GenericTriggerEventFlagTest() { delete genericTriggerEventFlag_; }
+
+void GenericTriggerEventFlagTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  if (genericTriggerEventFlag_->on())
+    genericTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
-
-GenericTriggerEventFlagTest::~GenericTriggerEventFlagTest()
-{
-
-  delete genericTriggerEventFlag_;
-
-}
-
-
-void GenericTriggerEventFlagTest::beginRun(const edm::Run & iRun, const edm::EventSetup& iSetup)
-{
-
-  if ( genericTriggerEventFlag_->on() ) genericTriggerEventFlag_->initRun( iRun, iSetup );
-
-}
-
-
-bool GenericTriggerEventFlagTest::filter( edm::Event & iEvent, const edm::EventSetup& iSetup)
-{
-
-  if ( genericTriggerEventFlag_->on() && ! genericTriggerEventFlag_->accept( iEvent, iSetup ) ) return false;
+bool GenericTriggerEventFlagTest::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  if (genericTriggerEventFlag_->on() && !genericTriggerEventFlag_->accept(iEvent, iSetup))
+    return false;
 
   return true;
-
 }
 
-
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE( GenericTriggerEventFlagTest );
+DEFINE_FWK_MODULE(GenericTriggerEventFlagTest);

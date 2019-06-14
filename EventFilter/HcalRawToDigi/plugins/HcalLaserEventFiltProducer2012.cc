@@ -10,9 +10,7 @@ HcalLaserEventFiltProducer2012::HcalLaserEventFiltProducer2012(const edm::Parame
   produces<bool>();
 }
 
-void HcalLaserEventFiltProducer2012::endJob() {
-  hcalLaserEventFilter2012->endJob();
-}
+void HcalLaserEventFiltProducer2012::endJob() { hcalLaserEventFilter2012->endJob(); }
 
 void HcalLaserEventFiltProducer2012::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.put(std::make_unique<bool>(hcalLaserEventFilter2012->filter(iEvent, iSetup)));

@@ -18,3 +18,6 @@
 <library   file="RPCDetIdAnalyzer.cc" name="RPCDetIdAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="GEMDetIdAnalyzer.cc" name="GEMDetIdAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>

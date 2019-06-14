@@ -21,7 +21,7 @@ class DTTTrigBaseSync;
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
 /* C++ Headers */
@@ -32,46 +32,40 @@ namespace edm {
 
 /* Class DTMeanTimer Interface */
 
-class DTMeanTimer{
+class DTMeanTimer {
+public:
+  /// Constructor: it takes a list of hits of a SL and a reference to the SL id
+  DTMeanTimer(const DTSuperLayer* sl,
+              edm::Handle<DTRecHitCollection>& hits,
+              const edm::EventSetup& eventSetup,
+              DTTTrigBaseSync* sync);
 
-  public:
+  /// Constructor: alternative way to pass a list of hits
+  DTMeanTimer(const DTSuperLayer* sl,
+              std::vector<DTRecHit1D>& hits,
+              const edm::EventSetup& eventSetup,
+              DTTTrigBaseSync* sync);
 
-/// Constructor: it takes a list of hits of a SL and a reference to the SL id
-    DTMeanTimer(const DTSuperLayer* sl,
-                edm::Handle<DTRecHitCollection>& hits,
-                const edm::EventSetup& eventSetup,
-                DTTTrigBaseSync* sync) ;
+  /* Destructor */
+  ~DTMeanTimer();
 
-/// Constructor: alternative way to pass a list of hits 
-    DTMeanTimer(const DTSuperLayer* sl,
-                std::vector<DTRecHit1D>& hits,
-                const edm::EventSetup& eventSetup,
-                DTTTrigBaseSync* sync) ;
-
-/* Destructor */ 
-    ~DTMeanTimer() ;
-
-/* Operations */ 
-/** return a vector of meanTimers calculated from the hits. For 4 hits in 4
+  /* Operations */
+  /** return a vector of meanTimers calculated from the hits. For 4 hits in 4
  * different layers, eg, 2 MT are computed , one for the first 3 layers and one
  * for the last 3 layers. No selection on hits is done. */
-    std::vector<double> run() const ;
+  std::vector<double> run() const;
 
-  private:
-    typedef std::map<int, double> hitColl ; // map between wire number and time
+private:
+  typedef std::map<int, double> hitColl;  // map between wire number and time
 
-    std::vector<double> computeMT(hitColl hits1,
-                                  hitColl hits2,
-                                  hitColl hits3) const ;
-    double tMax(const double& t1, const double& t2, const double& t3) const ;
+  std::vector<double> computeMT(hitColl hits1, hitColl hits2, hitColl hits3) const;
+  double tMax(const double& t1, const double& t2, const double& t3) const;
 
-  private:
-    int theNumWires; // max number of wires in this SL
+private:
+  int theNumWires;  // max number of wires in this SL
 
-    hitColl hitsLay[4]; // four hits containers for the 4 layers
+  hitColl hitsLay[4];  // four hits containers for the 4 layers
 
-  protected:
-
+protected:
 };
-#endif // DTMEANTIMER_H
-
+#endif  // DTMEANTIMER_H

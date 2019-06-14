@@ -7,8 +7,7 @@
 
 #include <unordered_map>
 
-class LHCInterpolatedOpticalFunctionsSetCollection : public std::unordered_map<unsigned int, LHCInterpolatedOpticalFunctionsSet>
-{
-};
+class LHCInterpolatedOpticalFunctionsSetCollection
+    : public std::unordered_map<unsigned int, LHCInterpolatedOpticalFunctionsSet> {};
 
 #endif

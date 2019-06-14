@@ -32,42 +32,34 @@
 
 using namespace pixeltrackfitting;
 
-PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : 
-  theRegionProducer(nullptr)
-{  
-
+PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : theRegionProducer(nullptr) {
   produces<reco::TrackCollection>();
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
 
   const edm::ParameterSet& regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,
-                                                                                                           regfactoryPSet, consumesCollector())};
-  
+  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{
+      TrackingRegionProducerFactory::get()->create(regfactoryName, regfactoryPSet, consumesCollector())};
+
   fitterToken = consumes<PixelFitter>(conf.getParameter<edm::InputTag>("Fitter"));
   filterToken = consumes<PixelTrackFilter>(conf.getParameter<edm::InputTag>("Filter"));
-  
+
   // The name of the seed producer
   auto seedProducer = conf.getParameter<edm::InputTag>("SeedProducer");
   seedProducerToken = consumes<TrajectorySeedCollection>(seedProducer);
-
 }
 
-  
 // Virtual destructor needed.
 PixelTracksProducer::~PixelTracksProducer() = default;
- 
 
 // Functions that gets called by framework every event
-void 
-PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
-  
-  std::unique_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);    
+void PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+  std::unique_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
   std::unique_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
   std::unique_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
-  typedef std::vector<const TrackingRecHit *> RecHits;
-  
+  typedef std::vector<const TrackingRecHit*> RecHits;
+
   TracksWithRecHits pixeltracks;
   TracksWithRecHits cleanedTracks;
 
@@ -82,104 +74,96 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<PixelTrackFilter> hfilter;
   e.getByToken(filterToken, hfilter);
   const PixelTrackFilter& theFilter = *hfilter;
-  
+
   edm::Handle<TrajectorySeedCollection> theSeeds;
-  e.getByToken(seedProducerToken,theSeeds);
+  e.getByToken(seedProducerToken, theSeeds);
 
   // No seed -> output an empty track collection
-  if(theSeeds->empty()) {
+  if (theSeeds->empty()) {
     e.put(std::move(tracks));
     e.put(std::move(recHits));
     e.put(std::move(trackExtras));
     return;
   }
-  
+
   //only one region Global, but it is called at every event...
   //maybe there is a smarter way to set it only once
   //NEED TO FIX
   typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   typedef Regions::const_iterator IR;
-  Regions regions = theRegionProducer->regions(e,es);
-  for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) {
-    const TrackingRegion & region = **ir;
-    
+  Regions regions = theRegionProducer->regions(e, es);
+  for (IR ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
+    const TrackingRegion& region = **ir;
+
     // Loop over the seeds
     TrajectorySeedCollection::const_iterator aSeed = theSeeds->begin();
     TrajectorySeedCollection::const_iterator lastSeed = theSeeds->end();
-    for ( ; aSeed!=lastSeed; ++aSeed ) { 
-      
+    for (; aSeed != lastSeed; ++aSeed) {
       // Find the first hit and last hit of the Seed
       TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
       edm::OwnVector<TrackingRecHit>::const_iterator aSeedingRecHit = theSeedingRecHitRange.first;
       edm::OwnVector<TrackingRecHit>::const_iterator theLastSeedingRecHit = theSeedingRecHitRange.second;
 
       // Loop over the rechits
-      std::vector<const TrackingRecHit*> TripletHits(3,static_cast<const TrackingRecHit*>(nullptr));
-      for ( unsigned i=0; aSeedingRecHit!=theLastSeedingRecHit; ++i,++aSeedingRecHit )  
-	TripletHits[i] = &(*aSeedingRecHit);
-      
+      std::vector<const TrackingRecHit*> TripletHits(3, static_cast<const TrackingRecHit*>(nullptr));
+      for (unsigned i = 0; aSeedingRecHit != theLastSeedingRecHit; ++i, ++aSeedingRecHit)
+        TripletHits[i] = &(*aSeedingRecHit);
+
       // fitting the triplet
       std::unique_ptr<reco::Track> track = fitter.run(TripletHits, region, es);
-      
-      // decide if track should be skipped according to filter 
-      if ( ! theFilter(track.get(), TripletHits) ) {
-	continue; 
+
+      // decide if track should be skipped according to filter
+      if (!theFilter(track.get(), TripletHits)) {
+        continue;
       }
-      
-      // add tracks 
+
+      // add tracks
       pixeltracks.push_back(TrackWithRecHits(track.release(), TripletHits));
-      
     }
   }
-  
-  int cc=0;
+
+  int cc = 0;
   int nTracks = pixeltracks.size();
   for (int i = 0; i < nTracks; ++i) {
+    reco::Track* track = pixeltracks.at(i).first;
+    const RecHits& hits = pixeltracks.at(i).second;
 
-    reco::Track* track   =  pixeltracks.at(i).first;
-    const RecHits & hits = pixeltracks.at(i).second;
-    
     for (unsigned int k = 0; k < hits.size(); k++) {
-      TrackingRecHit *hit = (hits.at(k))->clone();
+      TrackingRecHit* hit = (hits.at(k))->clone();
       track->appendHitPattern(*hit, ttopo);
       recHits->push_back(hit);
     }
 
     tracks->push_back(*track);
     delete track;
-    
   }
-  
-  edm::OrphanHandle <TrackingRecHitCollection> ohRH = e.put(std::move(recHits ));
+
+  edm::OrphanHandle<TrackingRecHitCollection> ohRH = e.put(std::move(recHits));
   edm::RefProd<TrackingRecHitCollection> ohRHProd(ohRH);
 
   for (int k = 0; k < nTracks; ++k) {
-
     // reco::TrackExtra* theTrackExtra = new reco::TrackExtra();
     reco::TrackExtra theTrackExtra;
-    
+
     //fill the TrackExtra with TrackingRecHitRef
     // unsigned int nHits = tracks->at(k).numberOfValidHits();
-    const unsigned nHits = 3; // We are dealing with triplets!
-    theTrackExtra.setHits( ohRHProd, cc, nHits);
+    const unsigned nHits = 3;  // We are dealing with triplets!
+    theTrackExtra.setHits(ohRHProd, cc, nHits);
     cc += nHits;
-    
+
     trackExtras->push_back(theTrackExtra);
     //trackExtras->push_back(*theTrackExtra);
     //delete theTrackExtra;
   }
-  
+
   edm::OrphanHandle<reco::TrackExtraCollection> ohTE = e.put(std::move(trackExtras));
-  
+
   for (int k = 0; k < nTracks; k++) {
-
-    const reco::TrackExtraRef theTrackExtraRef(ohTE,k);
+    const reco::TrackExtraRef theTrackExtraRef(ohTE, k);
     (tracks->at(k)).setExtra(theTrackExtraRef);
-
   }
-  
-  e.put(std::move(tracks));
 
+  e.put(std::move(tracks));
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

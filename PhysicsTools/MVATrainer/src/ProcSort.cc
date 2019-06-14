@@ -21,86 +21,72 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
-namespace { // anonymous
+namespace {  // anonymous
 
-struct Range {
-	bool	hasMin, hasMax;
-	double	min, max;
-};
+  struct Range {
+    bool hasMin, hasMax;
+    double min, max;
+  };
 
-struct Box {
-	std::vector<Range>	ranges;
-	int			group;
-};
+  struct Box {
+    std::vector<Range> ranges;
+    int group;
+  };
 
-class ProcSort : public TrainProcessor {
-    public:
-	typedef TrainProcessor::Registry<ProcSort>::Type Registry;
+  class ProcSort : public TrainProcessor {
+  public:
+    typedef TrainProcessor::Registry<ProcSort>::Type Registry;
 
-	ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer);
-	~ProcSort() override;
+    ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer);
+    ~ProcSort() override;
 
-	void configure(DOMElement *elem) override;
-	Calibration::VarProcessor *getCalibration() const override;
+    void configure(DOMElement *elem) override;
+    Calibration::VarProcessor *getCalibration() const override;
 
-    private:
-	unsigned int	sortByIndex;
-	bool		descending;
-};
+  private:
+    unsigned int sortByIndex;
+    bool descending;
+  };
 
-ProcSort::Registry registry("ProcSort");
+  ProcSort::Registry registry("ProcSort");
 
-ProcSort::ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer) :
-	TrainProcessor(name, id, trainer)
-{
-}
+  ProcSort::ProcSort(const char *name, const AtomicId *id, MVATrainer *trainer) : TrainProcessor(name, id, trainer) {}
 
-ProcSort::~ProcSort()
-{
-}
+  ProcSort::~ProcSort() {}
 
-void ProcSort::configure(DOMElement *elem)
-{
-	DOMNode *node = elem->getFirstChild();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+  void ProcSort::configure(DOMElement *elem) {
+    DOMNode *node = elem->getFirstChild();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (!node ||
-	    std::strcmp(XMLSimpleStr(node->getNodeName()), "key") != 0)
-		throw cms::Exception("ProcSort")
-			<< "Expected key tag in config section."
-			<< std::endl;
+    if (!node || std::strcmp(XMLSimpleStr(node->getNodeName()), "key") != 0)
+      throw cms::Exception("ProcSort") << "Expected key tag in config section." << std::endl;
 
-	elem = static_cast<DOMElement*>(node);
+    elem = static_cast<DOMElement *>(node);
 
-	sortByIndex = XMLDocument::readAttribute<unsigned int>(elem, "index");
-	descending = XMLDocument::readAttribute<bool>(elem, "descending",
-	                                              false);
+    sortByIndex = XMLDocument::readAttribute<unsigned int>(elem, "index");
+    descending = XMLDocument::readAttribute<bool>(elem, "descending", false);
 
-	if (sortByIndex >= getInputs().size())
-		throw cms::Exception("ProcSort")
-			<< "Key index out of bounds." << std::endl;
+    if (sortByIndex >= getInputs().size())
+      throw cms::Exception("ProcSort") << "Key index out of bounds." << std::endl;
 
-	node = node->getNextSibling();
-	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
-		node = node->getNextSibling();
+    node = node->getNextSibling();
+    while (node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+      node = node->getNextSibling();
 
-	if (node)
-		throw cms::Exception("ProcSort")
-			<< "Superfluous tags in config section."
-			<< std::endl;
+    if (node)
+      throw cms::Exception("ProcSort") << "Superfluous tags in config section." << std::endl;
 
-	trained = true;
-}
+    trained = true;
+  }
 
-Calibration::VarProcessor *ProcSort::getCalibration() const
-{
-	Calibration::ProcSort *calib = new Calibration::ProcSort;
+  Calibration::VarProcessor *ProcSort::getCalibration() const {
+    Calibration::ProcSort *calib = new Calibration::ProcSort;
 
-	calib->sortByIndex = sortByIndex;
-	calib->descending = descending;
+    calib->sortByIndex = sortByIndex;
+    calib->descending = descending;
 
-	return calib;
-}
+    return calib;
+  }
 
-} // anonymous namespace
+}  // anonymous namespace

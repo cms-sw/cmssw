@@ -8,17 +8,30 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+// Pixel quality harvester
 #include "CalibTracker/SiPixelQuality/interface/SiPixelStatusManager.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-
 // PixelDQM Framework
 #include "DQM/SiPixelPhase1Common/interface/SiPixelPhase1Base.h"
+// PixelPhase1 HelperClass
+#include "DQM/SiPixelPhase1Common/interface/SiPixelCoordinates.h"
 
-class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>,
-                               private HistogramManagerHolder {
-  enum { BADROC, PERMANENTBADROC, FEDERRORROC, STUCKTBMROC, OTHERBADROC, PROMPTBADROC };
+// Threshold testing
+#include "TH1.h"
+#include "TFile.h"
 
-public:
+class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>, private HistogramManagerHolder {
+    enum {
+      BADROC,
+      PERMANENTBADROC,
+      FEDERRORROC,
+      STUCKTBMROC,
+      OTHERBADROC,
+      PROMPTBADROC
+    };
+
+ public:
+
   // Constructor
   SiPixelStatusHarvester(const edm::ParameterSet&);
 
@@ -37,6 +50,7 @@ public:
 
 private:
   // Parameters
+  double thresholdL1_, thresholdL2_, thresholdL3_, thresholdL4_, thresholdRNG1_, thresholdRNG2_;
   std::string outputBase_;
   int aveDigiOcc_;
   int nLumi_;
@@ -61,10 +75,15 @@ private:
   const SiPixelFedCabling* cablingMap_ = nullptr;
   std::map<int, unsigned int> sensorSize_;
 
+  SiPixelCoordinates coord_;
+
   // pixel online to offline pixel row/column
   std::map<int, std::map<int, std::pair<int, int> > > pixelO2O_;
 
   //Helper functions
+  std::vector<std::string> substructures;
+  double perLayerRingAverage(int detid, SiPixelDetectorStatus tmpSiPixelStatus);
+  std::string substructure(int detid);
 
   // "step function" for IOV
   edm::LuminosityBlockNumber_t stepIOV(edm::LuminosityBlockNumber_t pin,
@@ -78,6 +97,7 @@ private:
                     edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                     std::string tagName,
                     edm::Run& iRun);
+
 };
 
 #endif

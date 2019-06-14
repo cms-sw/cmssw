@@ -16,14 +16,14 @@
 /* std::ostream & operator<<(std::ostream &, const CSCZSensors &); */
 
 class CSCZSensorData {
- public:
-  std::string sensorType_; 	 
-  int sensorNo_;	   
-  std::string meLayer_;	   
-  std::string logicalAlignmentName_;	  
-  std::string cernDesignator_;	  
-  std::string cernBarcode_; 	 
-  float absSlope_;	  
+public:
+  std::string sensorType_;
+  int sensorNo_;
+  std::string meLayer_;
+  std::string logicalAlignmentName_;
+  std::string cernDesignator_;
+  std::string cernBarcode_;
+  float absSlope_;
   float absSlopeError_;
   float normSlope_;
   float normSlopeError_;
@@ -33,19 +33,19 @@ class CSCZSensorData {
   float normInterceptError_;
   float shifts_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 /**
    Description: Class for CSCZSensors for use as calibration.
 **/
 class CSCZSensors {
- public:
+public:
   CSCZSensors() {}
   virtual ~CSCZSensors() {}
   std::vector<CSCZSensorData> cscZSens_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-#endif // CSCZSensors_H
+#endif  // CSCZSensors_H

@@ -25,23 +25,17 @@
 class MagneticField;
 class TrajectoryCleanerBySharedHits;
 
-
 class InOutConversionTrackFinder : public ConversionTrackFinder {
- public :
-   
-  InOutConversionTrackFinder( const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder *trajectoryBuilder );
+public:
+  InOutConversionTrackFinder(const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder* trajectoryBuilder);
 
- 
- ~InOutConversionTrackFinder() override;
- std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds, TrackCandidateCollection &candidate ) const override ;
+  ~InOutConversionTrackFinder() override;
+  std::vector<Trajectory> tracks(const TrajectorySeedCollection& seeds,
+                                 TrackCandidateCollection& candidate) const override;
 
- 
- private:
- 
- TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
- RedundantSeedCleaner*  theSeedCleaner_;
-
-
+private:
+  TrajectoryCleanerBySharedHits* theTrajectoryCleaner_;
+  RedundantSeedCleaner* theSeedCleaner_;
 };
 
 #endif

@@ -35,8 +35,13 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-namespace edm {class ParameterSet; class EventSetup;}
-namespace reco {class TransientTrack;}
+namespace edm {
+  class ParameterSet;
+  class EventSetup;
+}  // namespace edm
+namespace reco {
+  class TransientTrack;
+}
 
 class TrajectoryFitter;
 class TrajectorySmoother;
@@ -44,26 +49,24 @@ class Propagator;
 class TransientTrackingRecHitBuilder;
 class Trajectory;
 
-class TrackTransformerForCosmicMuons: public TrackTransformerBase{
-
+class TrackTransformerForCosmicMuons : public TrackTransformerBase {
 public:
-
   /// Constructor
   TrackTransformerForCosmicMuons(const edm::ParameterSet&);
 
   /// Destructor
   ~TrackTransformerForCosmicMuons() override;
-  
+
   // Operations
 
   /// Convert a reco::Track into Trajectory
   std::vector<Trajectory> transform(const reco::Track&) const override;
 
   /// the magnetic field
-  const MagneticField* magneticField() const {return &*theMGField;}
-  
+  const MagneticField* magneticField() const { return &*theMGField; }
+
   /// the tracking geometry
-  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const {return theTrackingGeometry;}
+  edm::ESHandle<GlobalTrackingGeometry> trackingGeometry() const { return theTrackingGeometry; }
 
   /// set the services needed by the TrackTransformer
   void setServices(const edm::EventSetup&) override;
@@ -74,17 +77,14 @@ public:
 
   /// the refitter used to refit the reco::Track
   edm::ESHandle<TrajectoryFitter> fitter(bool, int, float) const;
-  
+
   /// the smoother used to smooth the trajectory which came from the refitting step
   edm::ESHandle<TrajectorySmoother> smoother(bool, int, float) const;
 
-  TransientTrackingRecHit::ConstRecHitContainer
-    getTransientRecHits(const reco::TransientTrack& track) const;
-  
- protected:
-  
- private:
+  TransientTrackingRecHit::ConstRecHitContainer getTransientRecHits(const reco::TransientTrack& track) const;
 
+protected:
+private:
   edm::ESHandle<Propagator> thePropagatorIO;
   edm::ESHandle<Propagator> thePropagatorOI;
 
@@ -94,24 +94,22 @@ public:
   unsigned long long theCacheId_GTG;
   unsigned long long theCacheId_MG;
   unsigned long long theCacheId_TRH;
-  
+
   bool theRPCInTheFit;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   edm::ESHandle<MagneticField> theMGField;
-  
+
   edm::ESHandle<TrajectoryFitter> theFitterIO;
   edm::ESHandle<TrajectoryFitter> theFitterOI;
-  
+
   edm::ESHandle<TrajectorySmoother> theSmootherIO;
   edm::ESHandle<TrajectorySmoother> theSmootherOI;
- 
+
   std::string theTrackerRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-  
+
   std::string theMuonRecHitBuilderName;
   edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-  
 };
 #endif
-

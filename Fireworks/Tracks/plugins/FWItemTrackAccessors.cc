@@ -28,15 +28,25 @@
 
 class BeamSpotSingleAccessor : public FWItemSingleAccessor {
 public:
-   BeamSpotSingleAccessor(const TClass* x): FWItemSingleAccessor(x){}
-   ~BeamSpotSingleAccessor() override {};
-   REGISTER_FWITEMACCESSOR_METHODS();
+  BeamSpotSingleAccessor(const TClass* x) : FWItemSingleAccessor(x) {}
+  ~BeamSpotSingleAccessor() override{};
+  REGISTER_FWITEMACCESSOR_METHODS();
 };
 
-REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<SiStripDigi> >,edm::DetSetVector<SiStripDigi>, "SiStripDigiCollectionAccessor" );
-REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<PixelDigi> >, edm::DetSetVector<PixelDigi>, "SiPixelDigiCollectionAccessor" );
-REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiStripCluster> >, edmNew::DetSetVector<SiStripCluster>, "SiStripClusterCollectionNewAccessor" );
-REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiPixelCluster> >, edmNew::DetSetVector<SiPixelCluster>, "SiPixelClusterCollectionNewAccessor" );
-REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<Phase2TrackerCluster1D> >, edmNew::DetSetVector<Phase2TrackerCluster1D>, "Phase2TrackerCluster1DCollectionNewAccessor" );
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemDetSetAccessor<edm::DetSetVector<SiStripDigi> >,
+                                 edm::DetSetVector<SiStripDigi>,
+                                 "SiStripDigiCollectionAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemDetSetAccessor<edm::DetSetVector<PixelDigi> >,
+                                 edm::DetSetVector<PixelDigi>,
+                                 "SiPixelDigiCollectionAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemNewDetSetAccessor<edmNew::DetSetVector<SiStripCluster> >,
+                                 edmNew::DetSetVector<SiStripCluster>,
+                                 "SiStripClusterCollectionNewAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemNewDetSetAccessor<edmNew::DetSetVector<SiPixelCluster> >,
+                                 edmNew::DetSetVector<SiPixelCluster>,
+                                 "SiPixelClusterCollectionNewAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemNewDetSetAccessor<edmNew::DetSetVector<Phase2TrackerCluster1D> >,
+                                 edmNew::DetSetVector<Phase2TrackerCluster1D>,
+                                 "Phase2TrackerCluster1DCollectionNewAccessor");
 
 REGISTER_FWITEMACCESSOR(BeamSpotSingleAccessor, reco::BeamSpot, "BeamSpotAccessor");

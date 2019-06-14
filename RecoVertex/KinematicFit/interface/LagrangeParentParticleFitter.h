@@ -15,40 +15,35 @@
  * equations values at given point
  */
 
-class LagrangeParentParticleFitter:public ParentParticleFitter
-{
-
+class LagrangeParentParticleFitter : public ParentParticleFitter {
 public:
+  LagrangeParentParticleFitter();
 
- LagrangeParentParticleFitter();
-
- ~LagrangeParentParticleFitter() override{}
+  ~LagrangeParentParticleFitter() override {}
 
   /**
    * Configuration through PSet: number of iterations(maxDistance) and
    * stopping condition (maxNbrOfIterations)
    */
 
- void setParameters(const edm::ParameterSet& pSet);
+  void setParameters(const edm::ParameterSet& pSet);
 
-/**
+  /**
  * Refit method taking KinematicConstraint and vector
  * of trees as imput. Only top particles of corresponding trees are
  * refitted, vertex is not created. Number of trees should be one
  * (single track refit) or greater (multiple track refit). Some
  * constraints may not work with single tracks (back to back for ex.)
  */
- std::vector<RefCountedKinematicTree>  fit(const std::vector<RefCountedKinematicTree> & trees,
-                                             KinematicConstraint * cs)const override;
+  std::vector<RefCountedKinematicTree> fit(const std::vector<RefCountedKinematicTree>& trees,
+                                           KinematicConstraint* cs) const override;
 
- LagrangeParentParticleFitter * clone() const override
- {return new LagrangeParentParticleFitter(*this);}
+  LagrangeParentParticleFitter* clone() const override { return new LagrangeParentParticleFitter(*this); }
 
 private:
+  void defaultParameters();
 
- void defaultParameters();
-
- float theMaxDiff;
- int theMaxStep;
+  float theMaxDiff;
+  int theMaxStep;
 };
 #endif

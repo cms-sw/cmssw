@@ -2,7 +2,7 @@
 //
 // Package:    EcalBasicClusterLocalContCorrectionsESProducer
 // Class:      EcalBasicClusterLocalContCorrectionsESProducer
-// 
+//
 /**\class EcalBasicClusterLocalContCorrectionsESProducer EcalBasicClusterLocalContCorrectionsESProducer.h User/EcalBasicClusterLocalContCorrectionsESProducer/interface/EcalBasicClusterLocalContCorrectionsESProducer.h
 
  Description: Trivial ESProducer to provide EventSetup with (hard coded)
@@ -18,16 +18,13 @@
 #include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 
 class EcalBasicClusterLocalContCorrectionsESProducer : public edm::ESProducer {
-
-   public:
-      EcalBasicClusterLocalContCorrectionsESProducer(const edm::ParameterSet&);
-     ~EcalBasicClusterLocalContCorrectionsESProducer() override;
+public:
+  EcalBasicClusterLocalContCorrectionsESProducer(const edm::ParameterSet&);
+  ~EcalBasicClusterLocalContCorrectionsESProducer() override;
 
   typedef std::unique_ptr<EcalClusterLocalContCorrParameters> ReturnType;
-  
+
   ReturnType produce(const EcalClusterLocalContCorrParametersRcd&);
 
-   private:
-  
-
+private:
 };

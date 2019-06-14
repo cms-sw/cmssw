@@ -22,4 +22,3 @@
 
 #include "CondFormats/External/interface/DetID.h"
 #include "CondFormats/External/interface/PixelFEDChannel.h"
-

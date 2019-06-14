@@ -23,12 +23,10 @@ public:
   ~bLayer();
 
   /// Distance  from center along normal of sectors.
-  const float RN() const {
-    return theVolumes.front()->RN();
-  }
+  const float RN() const { return theVolumes.front()->RN(); }
 
   /// Return the list of all volumes.
-  const handles & volumes() const {return theVolumes;}
+  const handles& volumes() const { return theVolumes; }
 
   /// Return sector at i (handling periodicity)
   //   const bSector & sector(int i) const;
@@ -41,18 +39,17 @@ public:
   // double maxR() const;
 
   /// Construct the MagBLayer upon request.
-  MagBLayer * buildMagBLayer() const;
+  MagBLayer* buildMagBLayer() const;
 
 private:
-  int size; //< the number of volumes
+  int size;  //< the number of volumes
 
   // Check periodicity;
   int bin(int i) const;
 
-  std::vector<bSector> sectors; // the sectors in this layer
-  handles theVolumes;  // pointer to all volumes in this layer
+  std::vector<bSector> sectors;  // the sectors in this layer
+  handles theVolumes;            // pointer to all volumes in this layer
 
-  mutable MagBLayer * mlayer;
+  mutable MagBLayer* mlayer;
 };
 #endif
-

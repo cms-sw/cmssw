@@ -12,39 +12,37 @@
 
 class MinHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
+  explicit MinHitsTrajectoryFilter(int minHits = 5, int seedPairPenalty = 0)
+      : theMinHits(minHits), theSeedPairPenalty(seedPairPenalty) {}
 
-  explicit MinHitsTrajectoryFilter( int minHits=5, int seedPairPenalty=0):theMinHits( minHits), theSeedPairPenalty(seedPairPenalty) {}
+  MinHitsTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
+      : theMinHits(pset.getParameter<int>("minimumNumberOfHits")),
+        theSeedPairPenalty(pset.getParameter<int>("seedPairPenalty")) {}
 
-  MinHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC)
-    : theMinHits        ( pset.getParameter<int>("minimumNumberOfHits") )
-    , theSeedPairPenalty( pset.getParameter<int>("seedPairPenalty")     )
- {}
-    
-  bool qualityFilter( const Trajectory& traj) const override { return QF<Trajectory>(traj);}
-  bool qualityFilter( const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj);}
+  bool qualityFilter(const Trajectory& traj) const override { return QF<Trajectory>(traj); }
+  bool qualityFilter(const TempTrajectory& traj) const override { return QF<TempTrajectory>(traj); }
 
-  bool toBeContinued( TempTrajectory&) const override { return TrajectoryFilter::toBeContinuedIfNotContributing ;}
-  bool toBeContinued( Trajectory&) const override { return TrajectoryFilter::toBeContinuedIfNotContributing ;}
+  bool toBeContinued(TempTrajectory&) const override { return TrajectoryFilter::toBeContinuedIfNotContributing; }
+  bool toBeContinued(Trajectory&) const override { return TrajectoryFilter::toBeContinuedIfNotContributing; }
 
-  std::string name() const override {return "MinHitsTrajectoryFilter";}
+  std::string name() const override { return "MinHitsTrajectoryFilter"; }
 
   inline edm::ParameterSetDescription getFilledConfigurationDescription() {
     edm::ParameterSetDescription desc;
-    desc.add<int>("minimumNumberOfHits",5);
-    desc.add<int>("seedPairPenalty",    0);
+    desc.add<int>("minimumNumberOfHits", 5);
+    desc.add<int>("seedPairPenalty", 0);
     return desc;
   }
 
 protected:
-
-  template<class T> bool QF(const T & traj) const{
-    int seedPenalty = (2==traj.seedNHits()) ? theSeedPairPenalty: 0;  // increase by one if seed-doublet...
+  template <class T>
+  bool QF(const T& traj) const {
+    int seedPenalty = (2 == traj.seedNHits()) ? theSeedPairPenalty : 0;  // increase by one if seed-doublet...
     return (traj.foundHits() >= theMinHits + seedPenalty);
   }
 
   int theMinHits;
   int theSeedPairPenalty;
-
 };
 
 #endif

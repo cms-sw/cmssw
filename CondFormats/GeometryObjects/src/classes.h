@@ -9,4 +9,3 @@
 #include "CondFormats/GeometryObjects/interface/PMTDParameters.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
-

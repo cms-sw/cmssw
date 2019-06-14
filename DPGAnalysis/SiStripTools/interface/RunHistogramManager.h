@@ -15,232 +15,233 @@
 class TH1F;
 class TProfile;
 
- class BaseHistoParams{
+class BaseHistoParams {
+public:
+  BaseHistoParams();
+  virtual ~BaseHistoParams();
 
- public:
-   BaseHistoParams();
-   virtual ~BaseHistoParams();
-
-   //   virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun);
-   virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) = 0;
-
- };
+  //   virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun);
+  virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) = 0;
+};
 
 template <class T>
-  class HistoParams: public BaseHistoParams
-{
+class HistoParams : public BaseHistoParams {
+public:
+  HistoParams(T** pointer,
+              const std::string type,
+              const std::string name,
+              const std::string title,
+              const unsigned int nbinx = -1,
+              const double xmin = -1.,
+              const double xmax = -1.,
+              const unsigned int nbiny = -1,
+              const double ymin = -1.,
+              const double ymax = -1.)
+      : BaseHistoParams(),
+        _pointer(pointer),
+        _type(type),
+        _name(name),
+        _title(title),
+        _nbinx(nbinx),
+        _xmin(xmin),
+        _xmax(xmax),
+        _nbiny(nbiny),
+        _ymin(ymin),
+        _ymax(ymax),
+        _runpointers() {}
 
- public:
-  HistoParams(T** pointer, const std::string type, const std::string name, const std::string title,
-	      const unsigned int nbinx=-1, const double xmin = -1., const double xmax = -1.,
-	      const unsigned int nbiny=-1, const double ymin = -1., const double ymax = -1.):
-    BaseHistoParams(),
-    _pointer(pointer),
-    _type(type), _name(name), _title(title), _nbinx(nbinx), _xmin(xmin), _xmax(xmax),
-    _nbiny(nbiny), _ymin(ymin), _ymax(ymax), _runpointers() { }
+  ~HistoParams() override {
+    delete _pointer;
+    LogDebug("Destructor") << "Destroy " << _name;
+  }
 
-    ~HistoParams() override {
+  void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
+    if (_runpointers.find(irun) != _runpointers.end()) {
+      *_pointer = _runpointers[irun];
+      LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
 
-      delete _pointer;
-      LogDebug("Destructor") << "Destroy " << _name;
+    } else {
+      char title[400];
+      sprintf(title, "%s %s %d", _title.c_str(), fillrun, irun);
 
+      _runpointers[irun] = subrun.make<T>(_name.c_str(), title, _nbinx, _xmin, _xmax);
+
+      *_pointer = _runpointers[irun];
+      LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
     }
+  }
 
-    void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
-
-      if(_runpointers.find(irun)!=_runpointers.end()) {
-	*_pointer = _runpointers[irun];
-	LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
-
-      }
-      else {
-
-	char title[400];
-	sprintf(title,"%s %s %d",_title.c_str(),fillrun,irun);
-
-	_runpointers[irun] = subrun.make<T>(_name.c_str(),
-						  title,
-						  _nbinx,
-						  _xmin,
-						  _xmax);
-
-	*_pointer = _runpointers[irun];
-	LogDebug("TH1Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
-      }
-
-    }
-
- private:
-    T** _pointer;
-    std::string _type;
-    std::string _name;
-    std::string _title;
-    unsigned int _nbinx;
-    double _xmin;
-    double _xmax;
-    unsigned int _nbiny;
-    double _ymin;
-    double _ymax;
-    std::map<unsigned int, T*> _runpointers;
-
- };
+private:
+  T** _pointer;
+  std::string _type;
+  std::string _name;
+  std::string _title;
+  unsigned int _nbinx;
+  double _xmin;
+  double _xmax;
+  unsigned int _nbiny;
+  double _ymin;
+  double _ymax;
+  std::map<unsigned int, T*> _runpointers;
+};
 
 template <>
-  class HistoParams<TH2F>: public BaseHistoParams
-{
+class HistoParams<TH2F> : public BaseHistoParams {
+public:
+  HistoParams(TH2F** pointer,
+              const std::string type,
+              const std::string name,
+              const std::string title,
+              const unsigned int nbinx = -1,
+              const double xmin = -1.,
+              const double xmax = -1.,
+              const unsigned int nbiny = -1,
+              const double ymin = -1.,
+              const double ymax = -1.)
+      : BaseHistoParams(),
+        _pointer(pointer),
+        _type(type),
+        _name(name),
+        _title(title),
+        _nbinx(nbinx),
+        _xmin(xmin),
+        _xmax(xmax),
+        _nbiny(nbiny),
+        _ymin(ymin),
+        _ymax(ymax),
+        _runpointers() {}
 
- public:
-  HistoParams(TH2F** pointer, const std::string type, const std::string name, const std::string title,
-	      const unsigned int nbinx=-1, const double xmin = -1., const double xmax = -1.,
-	      const unsigned int nbiny=-1, const double ymin = -1., const double ymax = -1.):
-    BaseHistoParams(),
-    _pointer(pointer),
-    _type(type), _name(name), _title(title), _nbinx(nbinx), _xmin(xmin), _xmax(xmax),
-    _nbiny(nbiny), _ymin(ymin), _ymax(ymax), _runpointers() { }
+  ~HistoParams() override {
+    delete _pointer;
+    LogDebug("TH2FDestructor") << "Destroy " << _name;
+  }
 
+  void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
+    if (_runpointers.find(irun) != _runpointers.end()) {
+      *_pointer = _runpointers[irun];
+      LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
 
-    ~HistoParams() override {
+    } else {
+      char title[400];
+      sprintf(title, "%s %s %d", _title.c_str(), fillrun, irun);
 
-      delete _pointer;
-      LogDebug("TH2FDestructor") << "Destroy " << _name;
+      _runpointers[irun] = subrun.make<TH2F>(_name.c_str(), title, _nbinx, _xmin, _xmax, _nbiny, _ymin, _ymax);
 
+      *_pointer = _runpointers[irun];
+      LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
     }
+  }
 
-    void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
-
-      if(_runpointers.find(irun)!=_runpointers.end()) {
-	*_pointer = _runpointers[irun];
-	LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
-
-      }
-      else {
-
-	char title[400];
-	sprintf(title,"%s %s %d",_title.c_str(),fillrun,irun);
-
-	_runpointers[irun] = subrun.make<TH2F>(_name.c_str(),
-						  title,
-						  _nbinx,
-						  _xmin,
-						  _xmax,
-						  _nbiny,
-						  _ymin,
-						  _ymax);
-
-	*_pointer = _runpointers[irun];
-	LogDebug("TH2Fbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
-      }
-
-
-    }
-
- private:
-    TH2F** _pointer;
-    std::string _type;
-    std::string _name;
-    std::string _title;
-    unsigned int _nbinx;
-    double _xmin;
-    double _xmax;
-    unsigned int _nbiny;
-    double _ymin;
-    double _ymax;
-    std::map<unsigned int, TH2F*> _runpointers;
-
- };
+private:
+  TH2F** _pointer;
+  std::string _type;
+  std::string _name;
+  std::string _title;
+  unsigned int _nbinx;
+  double _xmin;
+  double _xmax;
+  unsigned int _nbiny;
+  double _ymin;
+  double _ymax;
+  std::map<unsigned int, TH2F*> _runpointers;
+};
 
 template <>
-  class HistoParams<TProfile2D>: public BaseHistoParams
-{
+class HistoParams<TProfile2D> : public BaseHistoParams {
+public:
+  HistoParams(TProfile2D** pointer,
+              const std::string type,
+              const std::string name,
+              const std::string title,
+              const unsigned int nbinx = -1,
+              const double xmin = -1.,
+              const double xmax = -1.,
+              const unsigned int nbiny = -1,
+              const double ymin = -1.,
+              const double ymax = -1.)
+      : BaseHistoParams(),
+        _pointer(pointer),
+        _type(type),
+        _name(name),
+        _title(title),
+        _nbinx(nbinx),
+        _xmin(xmin),
+        _xmax(xmax),
+        _nbiny(nbiny),
+        _ymin(ymin),
+        _ymax(ymax),
+        _runpointers() {}
 
- public:
-  HistoParams(TProfile2D** pointer, const std::string type, const std::string name, const std::string title,
-	      const unsigned int nbinx=-1, const double xmin = -1., const double xmax = -1.,
-	      const unsigned int nbiny=-1, const double ymin = -1., const double ymax = -1.):
-    BaseHistoParams(),
-    _pointer(pointer),
-    _type(type), _name(name), _title(title), _nbinx(nbinx), _xmin(xmin), _xmax(xmax),
-    _nbiny(nbiny), _ymin(ymin), _ymax(ymax), _runpointers() { }
+  ~HistoParams() override {
+    delete _pointer;
+    LogDebug("TProfile2DDestructor") << "Destroy " << _name;
+  }
 
+  void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
+    if (_runpointers.find(irun) != _runpointers.end()) {
+      *_pointer = _runpointers[irun];
+      LogDebug("TProfile2Dbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
 
-    ~HistoParams() override {
+    } else {
+      char title[400];
+      sprintf(title, "%s %s %d", _title.c_str(), fillrun, irun);
 
-      delete _pointer;
-      LogDebug("TProfile2DDestructor") << "Destroy " << _name;
+      _runpointers[irun] = subrun.make<TProfile2D>(_name.c_str(), title, _nbinx, _xmin, _xmax, _nbiny, _ymin, _ymax);
 
+      *_pointer = _runpointers[irun];
+      LogDebug("TProfile2Dbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
     }
+  }
 
-    void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) override {
-
-      if(_runpointers.find(irun)!=_runpointers.end()) {
-	*_pointer = _runpointers[irun];
-	LogDebug("TProfile2Dbooked") << "Histogram " << _name.c_str() << " already exists " << _runpointers[irun];
-
-      }
-      else {
-
-	char title[400];
-	sprintf(title,"%s %s %d",_title.c_str(),fillrun,irun);
-
-	_runpointers[irun] = subrun.make<TProfile2D>(_name.c_str(),
-						  title,
-						  _nbinx,
-						  _xmin,
-						  _xmax,
-						  _nbiny,
-						  _ymin,
-						  _ymax);
-
-	*_pointer = _runpointers[irun];
-	LogDebug("TProfile2Dbooked") << "Histogram " << _name.c_str() << " booked " << _runpointers[irun];
-      }
-
-
-    }
-
- private:
-    TProfile2D** _pointer;
-    std::string _type;
-    std::string _name;
-    std::string _title;
-    unsigned int _nbinx;
-    double _xmin;
-    double _xmax;
-    unsigned int _nbiny;
-    double _ymin;
-    double _ymax;
-    std::map<unsigned int, TProfile2D*> _runpointers;
-
- };
-
+private:
+  TProfile2D** _pointer;
+  std::string _type;
+  std::string _name;
+  std::string _title;
+  unsigned int _nbinx;
+  double _xmin;
+  double _xmax;
+  unsigned int _nbiny;
+  double _ymin;
+  double _ymax;
+  std::map<unsigned int, TProfile2D*> _runpointers;
+};
 
 class RunHistogramManager {
-
- public:
-
-  RunHistogramManager(edm::ConsumesCollector&& iC, const bool fillHistograms=false);
-  RunHistogramManager(edm::ConsumesCollector& iC, const bool fillHistograms=false);
+public:
+  RunHistogramManager(edm::ConsumesCollector&& iC, const bool fillHistograms = false);
+  RunHistogramManager(edm::ConsumesCollector& iC, const bool fillHistograms = false);
   ~RunHistogramManager();
 
-  TH1F**  makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
-  TProfile**  makeTProfile(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
-  TH2F**  makeTH2F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax);
-  TProfile2D**  makeTProfile2D(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax);
+  TH1F** makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
+  TProfile** makeTProfile(
+      const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
+  TH2F** makeTH2F(const char* name,
+                  const char* title,
+                  const unsigned int nbinx,
+                  const double xmin,
+                  const double xmax,
+                  const unsigned int nbiny,
+                  const double ymin,
+                  const double ymax);
+  TProfile2D** makeTProfile2D(const char* name,
+                              const char* title,
+                              const unsigned int nbinx,
+                              const double xmin,
+                              const double xmax,
+                              const unsigned int nbiny,
+                              const double ymin,
+                              const double ymax);
 
-  void  beginRun(const edm::Run& iRun);
-  void  beginRun(const edm::Run& iRun, TFileDirectory& subdir);
-  void  beginRun(const unsigned int irun);
-  void  beginRun(const unsigned int irun, TFileDirectory& subdir);
+  void beginRun(const edm::Run& iRun);
+  void beginRun(const edm::Run& iRun, TFileDirectory& subdir);
+  void beginRun(const unsigned int irun);
+  void beginRun(const unsigned int irun, TFileDirectory& subdir);
 
-
- private:
-
+private:
   bool _fillHistograms;
   std::vector<BaseHistoParams*> _histograms;
   edm::EDGetTokenT<edm::ConditionsInRunBlock> _conditionsInRunToken;
-
 };
 
-
-
-#endif // DPGAnalysis_SiStripTools_RunHistogramManager_H
+#endif  // DPGAnalysis_SiStripTools_RunHistogramManager_H

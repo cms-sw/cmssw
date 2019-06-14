@@ -27,8 +27,7 @@
 // forward declarations
 
 namespace fireworks {
-   std::vector<std::pair<double,double> > thetaBins();
+  std::vector<std::pair<double, double> > thetaBins();
 }
-
 
 #endif

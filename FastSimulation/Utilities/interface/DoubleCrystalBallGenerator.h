@@ -9,16 +9,15 @@
 
 class RandomEngineAndDistribution;
 
-class DoubleCrystalBallGenerator
-{
-	public:
-		//constructor
-		DoubleCrystalBallGenerator() { }
-		//destructor
-		virtual ~DoubleCrystalBallGenerator() {}
+class DoubleCrystalBallGenerator {
+public:
+  //constructor
+  DoubleCrystalBallGenerator() {}
+  //destructor
+  virtual ~DoubleCrystalBallGenerator() {}
 
-		//functions
-		double shoot(double mu, double sigma, double aL, double nL, double aR, double nR,
-                             RandomEngineAndDistribution const* random);
+  //functions
+  double shoot(
+      double mu, double sigma, double aL, double nL, double aR, double nR, RandomEngineAndDistribution const* random);
 };
 #endif

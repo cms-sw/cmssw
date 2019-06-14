@@ -1,7 +1,6 @@
 #ifndef ParticleMass_H
 #define ParticleMass_H
 
-  
-typedef  double ParticleMass;  
-  
+typedef double ParticleMass;
+
 #endif

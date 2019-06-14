@@ -12,20 +12,18 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
 #include "Geometry/VeryForwardGeometry/interface/CTPPSPixelSimTopology.h"
 
-class RPixClusterToHit{
-
+class RPixClusterToHit {
 public:
+  RPixClusterToHit(edm::ParameterSet const &conf);
 
-  RPixClusterToHit(edm::ParameterSet const& conf);
-
-  void buildHits(unsigned int detId, const std::vector<CTPPSPixelCluster> &clusters, std::vector<CTPPSPixelRecHit> &hits);
-  void make_hit(CTPPSPixelCluster aCluster,  std::vector<CTPPSPixelRecHit> &hits );
+  void buildHits(unsigned int detId,
+                 const std::vector<CTPPSPixelCluster> &clusters,
+                 std::vector<CTPPSPixelRecHit> &hits);
+  void make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits);
   ~RPixClusterToHit();
 
 private:
-
   int verbosity_;
-
 };
 
 #endif

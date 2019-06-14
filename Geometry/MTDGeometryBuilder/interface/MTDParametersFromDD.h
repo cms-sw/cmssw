@@ -9,14 +9,14 @@ class DDCompactView;
 class PMTDParameters;
 
 class MTDParametersFromDD {
- public:
+public:
   MTDParametersFromDD() {}
   virtual ~MTDParametersFromDD() {}
 
-  bool build( const DDCompactView*,
-	      PMTDParameters& );
- private:
-  void putOne( int, std::vector<int> &, PMTDParameters& );
+  bool build(const DDCompactView*, PMTDParameters&);
+
+private:
+  void putOne(int, std::vector<int>&, PMTDParameters&);
 };
 
 #endif

@@ -104,10 +104,10 @@ def downloadfile(url):
 	print("Skipping " + url)
 	print("Please check the name of the file in the repository: "+GetGuiRepository(new_userparams.NewParams))
         sys.exit('Exiting...');
-	# return False
+	return False
 
 def GetSamplePath(params, sample):
-    return params['Release']+'/'+GetTag(params)+'/'+sample
+    return params['Release']+'/'+GetTag(params)+'/'+sample+'_'+params['Energy']
 
 def GetLocalSampleName(params, sample):
     return GetSamplePath(params, sample) + '/val.' + sample + '.root'
@@ -150,13 +150,13 @@ def getSampleFiles(params, sample):
     elif (new_userparams.NewParams['GetFilesFrom']=='GUI'):
         theGuiSample = sample
         
-        guiFileName='DQM_V0001_R000000001__'+theGuiSample+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
+        guiFileName='DQM_V0001_R000000001__'+theGuiSample+'_'+params['Energy']+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
         guiFullURL=GetGuiRepository(params)+guiFileName
         print(">> Downloading file from the GUI: " + guiFullURL)
 
         if (downloadfile(guiFullURL)==True):
-		print('   + Moving ' + guiFileName + ' to ' + localsample)
-        	shutil.move(guiFileName,localsample)
+            print('   + Moving ' + guiFileName + ' to ' + localsample)
+            shutil.move(guiFileName,localsample)
 
     elif ((params['GetFilesFrom']=='WEB') & (os.path.isfile(sampleOnWeb))) :
         print("NOTE: New file found at: "+newSample+' -> Copy that one')
@@ -164,7 +164,7 @@ def getSampleFiles(params, sample):
 
     elif ((params['GetFilesFrom']=='EOS')) :
         print("creating a symbolic link to a file from eos: ")
-        eosFileName='DQM_V0001_R000000001__'+sample+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
+        eosFileName='DQM_V0001_R000000001__'+sample+'_'+params['Energy']+'__'+params['Release']+'-'+GetLabel(params)+'__'+params['Format']+'.root'
         eosRepository=GetEosRepository(params)
         sampleOnEOS=eosRepository+eosFileName
 
@@ -187,8 +187,8 @@ def getReplaceMap(newparams, refparams, sample, datatype, cfgkey, cfgfile):
     replace_map = { 'DATATYPE': datatype,
                     'NEW_FILE':newLocalSample,
                     'REF_FILE':refLocalSample,
-                    'REF_LABEL':sample,
-                    'NEW_LABEL': sample,
+                    'REF_LABEL':sample+'_'+refparams['Energy'],
+                    'NEW_LABEL': sample+'_'+newparams['Energy'],
                     'REF_RELEASE':refparams['Release'],
                     'NEW_RELEASE':newparams['Release'],
                     'REFSELECTION':GetTag(refparams),
@@ -232,7 +232,6 @@ if (new_userparams.NewParams['HeavyIons']|new_userparams.RefParams['HeavyIons'])
     new_userparams.ValidateHLT=False
     new_userparams.ValidateRECO=False
     new_userparams.ValidateISO=False
-
 
 # Iterate over new_userparams.samples
 print('>> Selected samples:')

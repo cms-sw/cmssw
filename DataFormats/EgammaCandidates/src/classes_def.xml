@@ -107,12 +107,6 @@
   <class name="edm::reftobase::BaseVectorHolder<reco::Photon>" />
   <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > > >"/>
   <class name="edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >"/>
-  <!--
-  <class name="std::pair<reco::PFCandidateRef,bool>"/>
-  <class name="std::vector<std::pair<reco::PFCandidateRef,bool> >"/>
-  <class name="edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >"/>
-  <class name="edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > >"/>
-   -->
 
 
   <class name="std::vector<reco::Electron>"/>

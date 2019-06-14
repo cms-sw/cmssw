@@ -14,28 +14,23 @@
 
 class HitEtaCheck final : public HitRZCompatibility {
 public:
-
   static constexpr Algo me = etaAlgo;
 
-  HitEtaCheck(bool inbarrel, 
-      const HitRZConstraint::Point & point, 
-      float cotLeftLine, float cotRightLine) 
-    :  HitRZCompatibility(me), 
-    isBarrel(inbarrel), 
-    theRZ(HitRZConstraint(point, cotLeftLine, point, cotRightLine)) { }
+  HitEtaCheck(bool inbarrel, const HitRZConstraint::Point& point, float cotLeftLine, float cotRightLine)
+      : HitRZCompatibility(me), isBarrel(inbarrel), theRZ(HitRZConstraint(point, cotLeftLine, point, cotRightLine)) {}
 
-  bool operator() (const float & r, const float & z) const override {
-    const auto & lineLeft = theRZ.lineLeft();
-    const auto & lineRight = theRZ.lineRight();
-    float cotHit = (lineLeft.origin().z()-z)/(lineLeft.origin().r()-r);
+  bool operator()(const float& r, const float& z) const override {
+    const auto& lineLeft = theRZ.lineLeft();
+    const auto& lineRight = theRZ.lineRight();
+    float cotHit = (lineLeft.origin().z() - z) / (lineLeft.origin().r() - r);
     return lineRight.cotLine() < cotHit && cotHit < lineLeft.cotLine();
   }
 
-  Range range(const float & rORz) const override {
-    return (isBarrel) ? 
-        HitZCheck(theRZ).range(rORz) : HitRCheck(theRZ).range(rORz);
+  Range range(const float& rORz) const override {
+    return (isBarrel) ? HitZCheck(theRZ).range(rORz) : HitRCheck(theRZ).range(rORz);
   }
   HitEtaCheck* clone() const override { return new HitEtaCheck(*this); }
+
 private:
   bool isBarrel;
   HitRZConstraint theRZ;

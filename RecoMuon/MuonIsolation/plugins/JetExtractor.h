@@ -31,42 +31,40 @@ class MuonServiceProxy;
 
 namespace muonisolation {
 
-class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
+  class JetExtractor : public reco::isodeposit::IsoDepositExtractor {
+  public:
+    JetExtractor(){};
+    JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector&& iC);
 
-public:
+    ~JetExtractor() override;
 
-  JetExtractor(){};
-  JetExtractor(const edm::ParameterSet& par, edm::ConsumesCollector && iC);
+    void fillVetos(const edm::Event& ev, const edm::EventSetup& evSetup, const reco::TrackCollection& tracks) override;
+    reco::IsoDeposit deposit(const edm::Event& ev,
+                             const edm::EventSetup& evSetup,
+                             const reco::Track& track) const override;
 
-  ~JetExtractor() override;
+  private:
+    edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
 
-  void fillVetos (const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackCollection & tracks) override;
-  reco::IsoDeposit
-    deposit(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::Track & track) const override;
+    std::string thePropagatorName;
 
-private:
-  edm::EDGetTokenT<reco::CaloJetCollection> theJetCollectionToken;
+    // Cone cuts and thresholds
+    double theThreshold;
+    double theDR_Veto;
+    double theDR_Max;
 
-  std::string thePropagatorName;
+    //excludes sumEt of towers that are inside muon veto cone
+    bool theExcludeMuonVeto;
 
-  // Cone cuts and thresholds
-  double theThreshold;
-  double theDR_Veto;
-  double theDR_Max;
+    //! the event setup proxy, it takes care the services update
+    MuonServiceProxy* theService;
 
-  //excludes sumEt of towers that are inside muon veto cone
-  bool theExcludeMuonVeto;
+    TrackAssociatorParameters* theAssociatorParameters;
+    TrackDetectorAssociator* theAssociator;
 
-  //! the event setup proxy, it takes care the services update
-  MuonServiceProxy* theService;
+    bool thePrintTimeReport;
+  };
 
-  TrackAssociatorParameters* theAssociatorParameters;
-  TrackDetectorAssociator* theAssociator;
-
-  bool thePrintTimeReport;
-
-};
-
-}
+}  // namespace muonisolation
 
 #endif

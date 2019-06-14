@@ -14,15 +14,13 @@ using namespace muonisolation;
 
 #include "CandViewExtractor.icc"
 
-CandViewExtractor::CandViewExtractor( const ParameterSet& par, edm::ConsumesCollector && iC ) :
-  theCandViewToken(iC.consumes< View<Candidate> >(par.getParameter<edm::InputTag>("inputCandView"))),
-  theDepositLabel(par.getUntrackedParameter<std::string>("DepositLabel")),
-  theDiff_r(par.getParameter<double>("Diff_r")),
-  theDiff_z(par.getParameter<double>("Diff_z")),
-  theDR_Max(par.getParameter<double>("DR_Max")),
-  theDR_Veto(par.getParameter<double>("DR_Veto"))
-{
-}
+CandViewExtractor::CandViewExtractor(const ParameterSet& par, edm::ConsumesCollector&& iC)
+    : theCandViewToken(iC.consumes<View<Candidate> >(par.getParameter<edm::InputTag>("inputCandView"))),
+      theDepositLabel(par.getUntrackedParameter<std::string>("DepositLabel")),
+      theDiff_r(par.getParameter<double>("Diff_r")),
+      theDiff_z(par.getParameter<double>("Diff_z")),
+      theDR_Max(par.getParameter<double>("DR_Max")),
+      theDR_Veto(par.getParameter<double>("DR_Veto")) {}
 /*
 reco::IsoDeposit::Vetos CandViewExtractor::vetos(const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Candidate & cand) const
@@ -32,22 +30,20 @@ reco::IsoDeposit::Vetos CandViewExtractor::vetos(const edm::Event & ev,
 }
 */
 
-reco::IsoDeposit::Veto CandViewExtractor::veto(const reco::IsoDeposit::Direction & dir) const
-{
+reco::IsoDeposit::Veto CandViewExtractor::veto(const reco::IsoDeposit::Direction& dir) const {
   reco::IsoDeposit::Veto result;
   result.vetoDir = dir;
   result.dR = theDR_Veto;
   return result;
 }
 
-void CandViewExtractor::initEvent(const edm::Event & ev, const edm::EventSetup & evSetup){
+void CandViewExtractor::initEvent(const edm::Event& ev, const edm::EventSetup& evSetup) {
   ev.getByToken(theCandViewToken, theCandViewH);
   theCacheID = ev.cacheIdentifier();
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractorFactory.h"

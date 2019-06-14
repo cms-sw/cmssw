@@ -4,9 +4,8 @@
 #include "RecoLocalCalo/CaloTowersCreator/src/CaloTowersReCreator.h"
 #include "RecoLocalCalo/CaloTowersCreator/src/CaloTowerCandidateCreator.h"
 
-
-DEFINE_FWK_MODULE( CaloTowersCreator );
-DEFINE_FWK_MODULE( CaloTowersReCreator );
+DEFINE_FWK_MODULE(CaloTowersCreator);
+DEFINE_FWK_MODULE(CaloTowersReCreator);
 // remove following line after Jet/Met move to using
 // exclusively CaloTowers
-DEFINE_FWK_MODULE( CaloTowerCandidateCreator );
+DEFINE_FWK_MODULE(CaloTowerCandidateCreator);

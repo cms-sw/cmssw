@@ -8,7 +8,6 @@
 // Original Author : Scott Stuart Snyder <snyder@bnl.gov> for D0
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 
-
 /**
     @file Constrained_Top.h
 
@@ -31,40 +30,36 @@
     With consent from the original author (Scott Snyder).
  */
 
-
 #ifndef HITFIT_CONSTRAINED_TOP_H
 #define HITFIT_CONSTRAINED_TOP_H
-
 
 #include "TopQuarkAnalysis/TopHitFit/interface/Fourvec_Constrainer.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/matutil.h"
 #include <iosfwd>
 
-
 namespace hitfit {
 
+  class Defaults;
+  class Lepjets_Event;
 
-class Defaults;
-class Lepjets_Event;
-
-/**
+  /**
 
     @class Constrained_Top_Args
 
     @brief Hold on to parameters for the Constrained_Top class.
 
  */
-class Constrained_Top_Args
-//
-// Purpose: Hold on to parameters for the Constrained_Top class.
-//
-// Parameters controlling the operation of the fitter:
-//   float bmass        - The mass to which b jets should be fixed.
-//
-{
-public:
-  // Constructor.  Initialize from a Defaults object.
-  /**
+  class Constrained_Top_Args
+  //
+  // Purpose: Hold on to parameters for the Constrained_Top class.
+  //
+  // Parameters controlling the operation of the fitter:
+  //   float bmass        - The mass to which b jets should be fixed.
+  //
+  {
+  public:
+    // Constructor.  Initialize from a Defaults object.
+    /**
      Constructor.
 
      @param defs An instance of defaults objects.  The instance must contain
@@ -74,68 +69,65 @@ public:
      - bool <i>equal_side</i>.
 
    */
-  Constrained_Top_Args (const Defaults& defs);
+    Constrained_Top_Args(const Defaults& defs);
 
-  // Retrieve parameter values.
-  /**
+    // Retrieve parameter values.
+    /**
      Return the <i>_bmass</i> parameter.
    */
-  double bmass () const;
+    double bmass() const;
 
-  // Arguments for subobjects.
-  /**
+    // Arguments for subobjects.
+    /**
      Return the <i>_fourvec_constrainer_args</i> parameter.
    */
-  const Fourvec_Constrainer_Args& fourvec_constrainer_args () const;
+    const Fourvec_Constrainer_Args& fourvec_constrainer_args() const;
 
-  // Retrieve requirement for equal mass on both sides
-  /**
+    // Retrieve requirement for equal mass on both sides
+    /**
      Return the <i>_equal_side</i> parameter.
    */
-  bool equal_side() const;
+    bool equal_side() const;
 
-private:
-  // Hold on to parameter values.
+  private:
+    // Hold on to parameter values.
 
-  /**
+    /**
      The mass to which \f$b\f$-quark jets should be fixed.
    */
-  double _bmass;
+    double _bmass;
 
-  /**
+    /**
      Arguments for the subobjects, constraints among the four vectors
      in the event.
    */
-  Fourvec_Constrainer_Args _fourvec_constrainer_args;
+    Fourvec_Constrainer_Args _fourvec_constrainer_args;
 
-  /**
+    /**
      If true, requires that the leptonic side and hadronic side of
      \f$t\bar{t}\to\ell + \rm{jets}\f$ event to have equal mass.
    */
-  bool _equal_side;
+    bool _equal_side;
+  };
 
-};
+  //*************************************************************************
 
-
-//*************************************************************************
-
-
-/**
+  /**
     @class Constrained_Top
     @brief Do a constrained kinematic fitting for a
     \f$t\bar{t}\to\ell + \rm{jets}\f$ event.
  */
-class Constrained_Top
-//
-// Purpose: Do kinematic fitting for a ttbar -> ljets event.
-//
-{
-public:
-  // Constructor.
-  // LEPW_MASS, HADW_MASS, and TOP_MASS are the masses to which
-  // those objects should be constrained.  To remove a constraint,
-  // set the mass to 0.
-  /**
+  class Constrained_Top
+  //
+  // Purpose: Do kinematic fitting for a ttbar -> ljets event.
+  //
+  {
+  public:
+    // Constructor.
+    // LEPW_MASS, HADW_MASS, and TOP_MASS are the masses to which
+    // those objects should be constrained.  To remove a constraint,
+    // set the mass to 0.
+    /**
      @brief Constructor, create an instance of the Constrained_Top object
      from the arguments object and the mass constraints.
 
@@ -151,13 +143,10 @@ public:
      If this parameter is set to 0, the constraints is skied.
 
    */
-  Constrained_Top (const Constrained_Top_Args& args,
-                   double lepw_mass,
-                   double hadw_mass,
-                   double top_mass);
+    Constrained_Top(const Constrained_Top_Args& args, double lepw_mass, double hadw_mass, double top_mass);
 
-  // Do a constrained fit.
-  /**
+    // Do a constrained fit.
+    /**
      @brief Do a constrained fit of \f$t\bar{t}\to\ell + \rm{jets}\f$ events.
      Returns the
      top mass and its error in <i>mt</i> and <i>sigmt</i>, and the pull
@@ -190,32 +179,25 @@ public:
      didn't converge.
 
    */
-  double constrain (Lepjets_Event& ev,
-                    double& mt,
-                    double& sigmt,
-                    Column_Vector& pullx,
-                    Column_Vector& pully);
+    double constrain(Lepjets_Event& ev, double& mt, double& sigmt, Column_Vector& pullx, Column_Vector& pully);
 
-  // Dump out our state.
-  friend std::ostream& operator<< (std::ostream& s, const Constrained_Top& ct);
+    // Dump out our state.
+    friend std::ostream& operator<<(std::ostream& s, const Constrained_Top& ct);
 
-
-private:
-  // Parameter settings.
-  /**
+  private:
+    // Parameter settings.
+    /**
      Parameter settings for the \f$\chi^{2}\f$ constrainer.
    */
-  const Constrained_Top_Args _args;
+    const Constrained_Top_Args _args;
 
-  // The guy that actually does the work.
-  /**
+    // The guy that actually does the work.
+    /**
      The guy that actually does the work.
    */
-  Fourvec_Constrainer _constrainer;
-};
+    Fourvec_Constrainer _constrainer;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_CONSTRAINED_TOP_H
+#endif  // not HITFIT_CONSTRAINED_TOP_H

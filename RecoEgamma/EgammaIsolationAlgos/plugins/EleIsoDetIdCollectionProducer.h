@@ -5,7 +5,7 @@
 //
 // Package:    EleIsoDetIdCollectionProducer
 // Class:      EleIsoDetIdCollectionProducer
-// 
+//
 /**\class EleIsoDetIdCollectionProducer 
 Original author: Matthew LeBourgeois PH/CMG
 Modified from :
@@ -15,8 +15,6 @@ by Paolo Meridiani PH/CMG
 Implementation:
  <Notes on implementation>
 */
-
-
 
 // system include files
 #include <memory>
@@ -32,31 +30,31 @@ Implementation:
 class CaloTopology;
 
 class EleIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
-   public:
-      //! ctor
-      explicit EleIsoDetIdCollectionProducer(const edm::ParameterSet&);
-      ~EleIsoDetIdCollectionProducer() override;
-      void beginJob ();
-      //! producer
-      void produce(edm::Event &, const edm::EventSetup&) override;
+public:
+  //! ctor
+  explicit EleIsoDetIdCollectionProducer(const edm::ParameterSet &);
+  ~EleIsoDetIdCollectionProducer() override;
+  void beginJob();
+  //! producer
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
-   private:
-      // ----------member data ---------------------------
-      edm::EDGetToken recHitsToken_;
-      edm::EDGetToken emObjectToken_; 
-      edm::InputTag recHitsLabel_;
-      edm::InputTag emObjectLabel_;
-      double energyCut_;
-      double etCut_;
-      double etCandCut_;
-      double outerRadius_;
-      double innerRadius_;
-      std::string interestingDetIdCollection_;
+private:
+  // ----------member data ---------------------------
+  edm::EDGetToken recHitsToken_;
+  edm::EDGetToken emObjectToken_;
+  edm::InputTag recHitsLabel_;
+  edm::InputTag emObjectLabel_;
+  double energyCut_;
+  double etCut_;
+  double etCandCut_;
+  double outerRadius_;
+  double innerRadius_;
+  std::string interestingDetIdCollection_;
 
-      std::vector<int> severitiesexclEB_;
-      std::vector<int> severitiesexclEE_;
-      std::vector<int> flagsexclEB_;
-      std::vector<int> flagsexclEE_;
+  std::vector<int> severitiesexclEB_;
+  std::vector<int> severitiesexclEE_;
+  std::vector<int> flagsexclEB_;
+  std::vector<int> flagsexclEE_;
 };
 
 #endif

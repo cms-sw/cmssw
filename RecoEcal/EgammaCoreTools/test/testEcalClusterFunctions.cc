@@ -2,7 +2,7 @@
 //
 // Package:    testEcalClusterFunctions
 // Class:      testEcalClusterFunctions
-// 
+//
 /**\class testEcalClusterFunctions testEcalClusterFunctions.cc
 
 Description: <one line class summary>
@@ -15,7 +15,6 @@ Implementation:
 //         Created:  Mon Apr  7 14:11:00 CEST 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,36 +36,29 @@ Implementation:
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h"
 
 class testEcalClusterFunctions : public edm::EDAnalyzer {
-        public:
-                explicit testEcalClusterFunctions(const edm::ParameterSet&);
-                ~testEcalClusterFunctions() override = default;
+public:
+  explicit testEcalClusterFunctions(const edm::ParameterSet&);
+  ~testEcalClusterFunctions() override = default;
 
-        private:
-                void analyze(const edm::Event&, const edm::EventSetup&) override;
-                std::unique_ptr<EcalClusterFunctionBaseClass> ff_;
-
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  std::unique_ptr<EcalClusterFunctionBaseClass> ff_;
 };
 
-
-
-testEcalClusterFunctions::testEcalClusterFunctions(const edm::ParameterSet& ps)
-{
-        std::string functionName = ps.getParameter<std::string>("functionName");
-        ff_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create( functionName, ps )};
-        std::cout << "got " << functionName << " function at: " << ff_.get() << "\n";
+testEcalClusterFunctions::testEcalClusterFunctions(const edm::ParameterSet& ps) {
+  std::string functionName = ps.getParameter<std::string>("functionName");
+  ff_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(functionName, ps)};
+  std::cout << "got " << functionName << " function at: " << ff_.get() << "\n";
 }
 
-
-
-void testEcalClusterFunctions::analyze(const edm::Event& ev, const edm::EventSetup& es)
-{
-        // init function parameters
-        ff_->init( es );
-        // basic test with empty collections
-        reco::BasicCluster bc;
-        EcalRecHitCollection rhColl;
-        float corr = ff_->getValue( bc, rhColl );
-        std::cout << "correction: " << corr << "\n";
+void testEcalClusterFunctions::analyze(const edm::Event& ev, const edm::EventSetup& es) {
+  // init function parameters
+  ff_->init(es);
+  // basic test with empty collections
+  reco::BasicCluster bc;
+  EcalRecHitCollection rhColl;
+  float corr = ff_->getValue(bc, rhColl);
+  std::cout << "correction: " << corr << "\n";
 }
 
 //define this as a plug-in

@@ -31,16 +31,15 @@ public:
     declareDynArray(float, n, r);
     declareDynArray(float, n, z);
     declareDynArray(float, n, errZ2);
-    for(size_t i=0; i<n; ++i) {
+    for (size_t i = 0; i < n; ++i) {
       const GlobalPoint& p = points[i];
       r[i] = p.perp();
       z[i] = p.z();
     }
 
-    float simpleCot2 = sqr( (z[n-1]-z[0])/ (r[n-1]-r[0]) );
-    for (size_t i=0; i<n; ++i) {
-      errZ2[i] = (isBarrel[i]) ? errors[i].czz() :
-        errors[i].rerr(points[i])  * simpleCot2;
+    float simpleCot2 = sqr((z[n - 1] - z[0]) / (r[n - 1] - r[0]));
+    for (size_t i = 0; i < n; ++i) {
+      errZ2[i] = (isBarrel[i]) ? errors[i].czz() : errors[i].rerr(points[i]) * simpleCot2;
     }
 
     calculate(r, z, errZ2);
@@ -49,12 +48,11 @@ public:
   /**
    * Constructor for std::vector of r, z, and z standard deviation
    */
-  RZLine(const std::vector<float> & r,
-         const std::vector<float> & z,
-         const std::vector<float> & errZ) {
+  RZLine(const std::vector<float>& r, const std::vector<float>& z, const std::vector<float>& errZ) {
     const size_t n = errZ.size();
     declareDynArray(float, n, errZ2);
-    for(size_t i=0; i<n; ++i) errZ2[i] = sqr(errZ[i]);
+    for (size_t i = 0; i < n; ++i)
+      errZ2[i] = sqr(errZ[i]);
     calculate(r, z, errZ2);
   }
 
@@ -62,11 +60,10 @@ public:
    * Constructor for std::array of r, z, and z standard deviation
    */
   template <size_t N>
-  RZLine(const std::array<float, N>& r,
-         const std::array<float, N>& z,
-         const std::array<float, N>& errZ) {
+  RZLine(const std::array<float, N>& r, const std::array<float, N>& z, const std::array<float, N>& errZ) {
     std::array<float, N> errZ2;
-    for(size_t i=0; i<N; ++i) errZ2[i] = sqr(errZ[i]);
+    for (size_t i = 0; i < N; ++i)
+      errZ2[i] = sqr(errZ[i]);
     calculate(r, z, errZ2);
   }
 
@@ -84,7 +81,7 @@ public:
    * to avoid making a square of a square root.
    */
   template <typename T>
-  RZLine (const T& r, const T& z, const T& errZ2, ErrZ2_tag) {
+  RZLine(const T& r, const T& z, const T& errZ2, ErrZ2_tag) {
     calculate(r, z, errZ2);
   }
 
@@ -102,13 +99,15 @@ private:
     const size_t n = r.size();
     linearFit(r.data(), z.data(), n, errZ2.data(), cotTheta_, intercept_, covss_, covii_, covsi_);
     chi2_ = 0.f;
-    for(size_t i=0; i<n; ++i) {
-      chi2_ += sqr( ((z[i]-intercept_) - cotTheta_*r[i]) ) / errZ2[i];
+    for (size_t i = 0; i < n; ++i) {
+      chi2_ += sqr(((z[i] - intercept_) - cotTheta_ * r[i])) / errZ2[i];
     }
   }
 
   template <typename T>
-  T sqr(T t) { return t*t; }
+  T sqr(T t) {
+    return t * t;
+  }
 
   float cotTheta_;
   float intercept_;

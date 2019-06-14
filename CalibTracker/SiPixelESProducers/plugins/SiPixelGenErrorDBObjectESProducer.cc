@@ -1,24 +1,45 @@
 // -*- C++ -*-
-// Package:    SiPixelESProducers
+//
+// Package:    SiPixelGenErrorDBObjectESProducer
 // Class:      SiPixelGenErrorDBObjectESProducer
+// 
+/**\class SiPixelGenErrorDBObjectESProducer SiPixelGenErrorDBObjectESProducer.cc CalibTracker/SiPixelESProducers/plugin/SiPixelGenErrorDBObjectESProducer.cc
+
+ Description: ESProducer for magnetic-field-dependent local reco GenErrors
+
+ Implementation: Used inside the RecoLocalTracker/Records/TkPixelRecord to select the correct db for given magnetic field
+*/
+//
 // Original Author:  D.Fehling
 //         Created:  Tue Sep 29 14:49:31 CET 2009
 //
+//
 
-#include "CalibTracker/SiPixelESProducers/interface/SiPixelGenErrorDBObjectESProducer.h"
-
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
-
-#include <memory>
-#include "boost/mpl/vector.hpp"
-
 #include "FWCore/Framework/interface/ModuleFactory.h"
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
+#include "CalibTracker/Records/interface/SiPixelGenErrorDBObjectESProducerRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
+#include <memory>
+
+
 using namespace edm;
+
+class SiPixelGenErrorDBObjectESProducer : public edm::ESProducer  {
+
+public:
+
+  SiPixelGenErrorDBObjectESProducer(const edm::ParameterSet& iConfig);
+  ~SiPixelGenErrorDBObjectESProducer() override;
+  std::shared_ptr<const SiPixelGenErrorDBObject> produce(const SiPixelGenErrorDBObjectESProducerRcd &);
+};
+
 
 SiPixelGenErrorDBObjectESProducer::SiPixelGenErrorDBObjectESProducer(const edm::ParameterSet& iConfig) {
 	setWhatProduced(this);

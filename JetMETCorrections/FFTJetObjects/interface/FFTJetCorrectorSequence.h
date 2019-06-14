@@ -28,69 +28,56 @@
 //  will be the type of variable returned by the "correct"
 //  method of the FFTJetCorrectorSequence class.
 //
-template
-<
-    class Jet,
-    template<class> class InitialConverter,
-    template<class> class FinalConverter
->
-class FFTJetCorrectorSequence
-{
+template <class Jet, template <class> class InitialConverter, template <class> class FinalConverter>
+class FFTJetCorrectorSequence {
 public:
-    typedef Jet jet_type;
-    typedef typename InitialConverter<Jet>::result_type adjustable_type;
-    typedef typename FinalConverter<Jet>::result_type result_type;
-    typedef FFTJetCorrector<jet_type, adjustable_type> Corrector;
+  typedef Jet jet_type;
+  typedef typename InitialConverter<Jet>::result_type adjustable_type;
+  typedef typename FinalConverter<Jet>::result_type result_type;
+  typedef FFTJetCorrector<jet_type, adjustable_type> Corrector;
 
-    inline FFTJetCorrectorSequence() {}
+  inline FFTJetCorrectorSequence() {}
 
-    inline FFTJetCorrectorSequence(const std::vector<Corrector>& s)
-        : sequence_(s) {}
+  inline FFTJetCorrectorSequence(const std::vector<Corrector>& s) : sequence_(s) {}
 
-    inline FFTJetCorrectorSequence(const std::vector<Corrector>& s,
-                                   const InitialConverter<Jet>& i,
-                                   const FinalConverter<Jet>& f)
-        : sequence_(s), cinit_(i), cfinal_(f) {}
+  inline FFTJetCorrectorSequence(const std::vector<Corrector>& s,
+                                 const InitialConverter<Jet>& i,
+                                 const FinalConverter<Jet>& f)
+      : sequence_(s), cinit_(i), cfinal_(f) {}
 
-    inline FFTJetCorrectorSequence(const InitialConverter<Jet>& i,
-                                   const FinalConverter<Jet>& f)
-        : cinit_(i), cfinal_(f) {}
+  inline FFTJetCorrectorSequence(const InitialConverter<Jet>& i, const FinalConverter<Jet>& f)
+      : cinit_(i), cfinal_(f) {}
 
-    void clear() { sequence_.clear(); }
+  void clear() { sequence_.clear(); }
 
-    inline void addCorrector(const Corrector& c)
-        {sequence_.push_back(c);}
+  inline void addCorrector(const Corrector& c) { sequence_.push_back(c); }
 
-    inline unsigned nLevels() const {return sequence_.size();}
+  inline unsigned nLevels() const { return sequence_.size(); }
 
-    inline const std::vector<Corrector>& getCorrectors() const
-        {return sequence_;}
+  inline const std::vector<Corrector>& getCorrectors() const { return sequence_; }
 
-    result_type correct(const Jet& jet, const bool isMC) const
-    {
-        adjustable_type a1(cinit_(jet));
-        adjustable_type a2(a1);
-        adjustable_type* first = &a1;
-        adjustable_type* second = &a2;
+  result_type correct(const Jet& jet, const bool isMC) const {
+    adjustable_type a1(cinit_(jet));
+    adjustable_type a2(a1);
+    adjustable_type* first = &a1;
+    adjustable_type* second = &a2;
 
-        const unsigned nLevels = sequence_.size();
-        for (unsigned level=0; level<nLevels; ++level)
-        {
-            first = level % 2 ? &a2 : &a1;
-            second = level % 2 ? &a1 : &a2;
-            sequence_[level].correct(jet, isMC, *first, second);
-        }
-
-        return cfinal_(jet, *second);
+    const unsigned nLevels = sequence_.size();
+    for (unsigned level = 0; level < nLevels; ++level) {
+      first = level % 2 ? &a2 : &a1;
+      second = level % 2 ? &a1 : &a2;
+      sequence_[level].correct(jet, isMC, *first, second);
     }
 
-    const Corrector& operator[](const unsigned i) const
-        {return sequence_.at(i);}
+    return cfinal_(jet, *second);
+  }
+
+  const Corrector& operator[](const unsigned i) const { return sequence_.at(i); }
 
 private:
-    std::vector<Corrector> sequence_;
-    InitialConverter<Jet> cinit_;
-    FinalConverter<Jet> cfinal_;
+  std::vector<Corrector> sequence_;
+  InitialConverter<Jet> cinit_;
+  FinalConverter<Jet> cfinal_;
 };
 
-#endif // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequence_h
+#endif  // JetMETCorrections_FFTJetObjects_FFTJetCorrectorSequence_h

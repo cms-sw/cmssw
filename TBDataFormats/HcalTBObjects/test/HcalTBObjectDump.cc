@@ -24,6 +24,7 @@ namespace cms {
   public:
     explicit HcalTBObjectDump(edm::ParameterSet const& conf);
     virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+
   private:
     edm::EDGetTokenT<HcalTBTriggerData> tok_tb_;
     edm::EDGetTokenT<HcalTBRunData> tok_run_;
@@ -31,25 +32,22 @@ namespace cms {
     edm::EDGetTokenT<HcalTBTiming> tok_timing_;
   };
 
-
-  HcalTBObjectDump::HcalTBObjectDump(edm::ParameterSet const& conf) 
- {
+  HcalTBObjectDump::HcalTBObjectDump(edm::ParameterSet const& conf) {
     tok_tb_ = consumes<HcalTBTriggerData>(conf.getParameter<edm::InputTag>("hcalTBTriggerDataTag"));
     tok_run_ = consumes<HcalTBRunData>(conf.getParameter<edm::InputTag>("hcalTBRunDataTag"));
     tok_pos_ = consumes<HcalTBEventPosition>(conf.getParameter<edm::InputTag>("hcalTBEventPositionTag"));
     tok_timing_ = consumes<HcalTBTiming>(conf.getParameter<edm::InputTag>("hcalTBTimingTag"));
   }
-  
+
   void HcalTBObjectDump::analyze(edm::Event const& e, edm::EventSetup const& c) {
-    
     try {
       edm::Handle<HcalTBTriggerData> td;
 
       e.getByToken(tok_tb_, td);
-      const HcalTBTriggerData& info=*(td);
+      const HcalTBTriggerData& info = *(td);
 
       cout << "TRIGGER DATA: ";
-      cout << info;    
+      cout << info;
     } catch (...) {
       cout << "No HcalTBTriggerData." << endl;
     }
@@ -58,10 +56,10 @@ namespace cms {
       edm::Handle<HcalTBRunData> td;
 
       e.getByToken(tok_run_, td);
-      const HcalTBRunData& info=*(td);
+      const HcalTBRunData& info = *(td);
 
       cout << "RUN DATA: ";
-      cout << info;      
+      cout << info;
     } catch (...) {
       cout << "No HcalTBRunData." << endl;
     }
@@ -70,37 +68,34 @@ namespace cms {
       edm::Handle<HcalTBEventPosition> td;
 
       e.getByToken(tok_pos_, td);
-      const HcalTBEventPosition& info=*td;
+      const HcalTBEventPosition& info = *td;
 
       cout << "Event position info: ";
-      cout << info;      
+      cout << info;
     } catch (...) {
       cout << "No HcalTBEventPosition." << endl;
     }
 
     try {
-      
-      edm::Handle<HcalTBTiming>td;
+      edm::Handle<HcalTBTiming> td;
 
       e.getByToken(tok_timing_, td);
-      const HcalTBTiming& info=*(td);
+      const HcalTBTiming& info = *(td);
 
       cout << "Timing: ";
       cout << info;
-      
+
     } catch (...) {
       cout << "No HcalTBTiming." << endl;
     }
 
-    cout << endl;    
+    cout << endl;
   }
-}
+}  // namespace cms
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace cms;
 
-
 DEFINE_FWK_MODULE(HcalTBObjectDump);
-

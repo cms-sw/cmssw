@@ -11,7 +11,7 @@
 class SiStripKey;
 
 /** Debug info for SiStripKey class. */
-std::ostream& operator<< ( std::ostream&, const SiStripKey& );
+std::ostream& operator<<(std::ostream&, const SiStripKey&);
 
 /**
    @class SiStripKey
@@ -21,31 +21,29 @@ std::ostream& operator<< ( std::ostream&, const SiStripKey& );
    logical structure of the strip tracker.
 */
 class SiStripKey {
-  
- public:
-  
+public:
   // ---------- Constructors ----------
-  
+
   /** Constructor using 32-bit "key". */
-  SiStripKey( const uint32_t& key );
-  
+  SiStripKey(const uint32_t& key);
+
   /** Constructor using directory path. */
-  SiStripKey( const std::string& directory_path );
-  
+  SiStripKey(const std::string& directory_path);
+
   /** Copy constructor. */
-  SiStripKey( const SiStripKey& );
+  SiStripKey(const SiStripKey&);
 
   /** Assignment. */
-  const SiStripKey& operator=( const SiStripKey& );
-  
+  const SiStripKey& operator=(const SiStripKey&);
+
   /** Default constructor. */
   SiStripKey();
 
   /** Virtual destructor. */
-  virtual ~SiStripKey() {;}
-  
+  virtual ~SiStripKey() { ; }
+
   // ---------- Public interface to member data ----------
-  
+
   /** Returns 32-bit key. */
   inline const uint32_t& key() const;
 
@@ -58,56 +56,54 @@ class SiStripKey {
   /** Returns channel for key granularity. */
   inline const uint16_t& channel() const;
 
-  // ---------- Virtual utility methods ---------- 
-  
+  // ---------- Virtual utility methods ----------
+
   /** Identifies key objects with identical member data. */
-  virtual bool isEqual( const SiStripKey& ) const;
-  
+  virtual bool isEqual(const SiStripKey&) const;
+
   /** "Consistent" means identical and/or null (ie, "all") data. */
-  virtual bool isConsistent( const SiStripKey& ) const;
+  virtual bool isConsistent(const SiStripKey&) const;
 
   /** Identifies all member data as being "valid" or null ("all"). */
   virtual bool isValid() const;
-  
+
   /** All member data to level of "Granularity" are valid. If
       sistrip::Granularity is "undefined", returns false. */
-  virtual bool isValid( const sistrip::Granularity& ) const;
-  
+  virtual bool isValid(const sistrip::Granularity&) const;
+
   /** Identifies all member data as being invalid. */
   virtual bool isInvalid() const;
 
   /** All member data to level of "Granularity" are invalid. If
       sistrip::Granularity is "undefined", returns true.  */
-  virtual bool isInvalid( const sistrip::Granularity& ) const;
+  virtual bool isInvalid(const sistrip::Granularity&) const;
 
   // ---------- Print methods ----------
 
   /** Print member data of the key  */
-  virtual void print( std::stringstream& ss ) const;
-  
-  /** A terse summary of the key  */
-  virtual void terse( std::stringstream& ss ) const {;}
-  
- protected: 
+  virtual void print(std::stringstream& ss) const;
 
+  /** A terse summary of the key  */
+  virtual void terse(std::stringstream& ss) const { ; }
+
+protected:
   // ---------- Protected methods ----------
 
-  virtual void initFromValue() {;}
-  virtual void initFromKey() {;}
-  virtual void initFromPath() {;}
-  virtual void initGranularity() {;}
-  
-  inline void key( const uint32_t& );
-  inline void path( const std::string& );
-  inline void granularity( const sistrip::Granularity& );
-  inline void channel( const uint16_t& );
+  virtual void initFromValue() { ; }
+  virtual void initFromKey() { ; }
+  virtual void initFromPath() { ; }
+  virtual void initGranularity() { ; }
 
- private: 
-  
+  inline void key(const uint32_t&);
+  inline void path(const std::string&);
+  inline void granularity(const sistrip::Granularity&);
+  inline void channel(const uint16_t&);
+
+private:
   // ---------- Private member data ----------
-  
+
   /** 32-bit key. */
-  uint32_t key_; 
+  uint32_t key_;
 
   /** Directory path. */
   std::string path_;
@@ -117,7 +113,6 @@ class SiStripKey {
 
   /** Channel of key granularity. */
   uint16_t channel_;
-  
 };
 
 // ---------- Inline methods ----------
@@ -127,11 +122,9 @@ const std::string& SiStripKey::path() const { return path_; }
 const sistrip::Granularity& SiStripKey::granularity() const { return granularity_; }
 const uint16_t& SiStripKey::channel() const { return channel_; }
 
-void SiStripKey::key( const uint32_t& key ) { key_ = key; }
-void SiStripKey::path( const std::string& path ) { path_ = path; }
-void SiStripKey::granularity( const sistrip::Granularity& gran ) { granularity_ = gran; }
-void SiStripKey::channel( const uint16_t& chan ) { channel_ = chan; }
+void SiStripKey::key(const uint32_t& key) { key_ = key; }
+void SiStripKey::path(const std::string& path) { path_ = path; }
+void SiStripKey::granularity(const sistrip::Granularity& gran) { granularity_ = gran; }
+void SiStripKey::channel(const uint16_t& chan) { channel_ = chan; }
 
-#endif // DataFormats_SiStripCommon_SiStripKey_H
-
-
+#endif  // DataFormats_SiStripCommon_SiStripKey_H

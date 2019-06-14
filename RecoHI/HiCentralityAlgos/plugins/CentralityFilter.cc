@@ -4,7 +4,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <vector>
@@ -23,65 +22,52 @@
 //
 
 class CentralityFilter : public edm::EDFilter {
-   public:
-      explicit CentralityFilter(const edm::ParameterSet&);
-      ~CentralityFilter() override;
+public:
+  explicit CentralityFilter(const edm::ParameterSet&);
+  ~CentralityFilter() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
 
   std::vector<int> selectedBins_;
   edm::Handle<int> cbin_;
   edm::EDGetTokenT<int> tag_;
-
-
 };
 
-CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig):
-  selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins"))
-{
+CentralityFilter::CentralityFilter(const edm::ParameterSet& iConfig)
+    : selectedBins_(iConfig.getParameter<std::vector<int> >("selectedBins")) {
   using namespace edm;
   tag_ = consumes<int>(iConfig.getParameter<edm::InputTag>("BinLabel"));
-
 }
 
-
-CentralityFilter::~CentralityFilter()
-{
-}
+CentralityFilter::~CentralityFilter() {}
 
 // ------------ method called on each new Event  ------------
-bool
-CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+bool CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool result = false;
 
-   using namespace edm;
-   iEvent.getByToken(tag_,cbin_);
+  using namespace edm;
+  iEvent.getByToken(tag_, cbin_);
 
-   int bin = *cbin_;
+  int bin = *cbin_;
 
-   for(unsigned int i = 0; i < selectedBins_.size(); ++i){
-     if(bin == selectedBins_[i]) result = true;
-   }
+  for (unsigned int i = 0; i < selectedBins_.size(); ++i) {
+    if (bin == selectedBins_[i])
+      result = true;
+  }
 
-   return result;
+  return result;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-CentralityFilter::beginJob()
-{
-}
+void CentralityFilter::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-CentralityFilter::endJob() {
-}
+void CentralityFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(CentralityFilter);

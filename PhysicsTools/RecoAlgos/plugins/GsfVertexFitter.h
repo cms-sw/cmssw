@@ -5,15 +5,13 @@
 
 namespace reco {
   namespace modules {
-    
-    template<>
+
+    template <>
     struct ParameterAdapter<GsfVertexFitter> {
-      static  GsfVertexFitter make( const edm::ParameterSet & cfg ) {
-        return GsfVertexFitter( cfg );
-      }
+      static GsfVertexFitter make(const edm::ParameterSet& cfg) { return GsfVertexFitter(cfg); }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif

@@ -11,28 +11,21 @@
 
 class dso_internal OuterHitPhiPrediction {
 public:
+  using Range = PixelRecoRange<float>;
 
-  using Range= PixelRecoRange<float>;
+  OuterHitPhiPrediction(const Range& phiAtVertex, const Range& curvature, float originRBound)
+      : thePhiAtVertex(phiAtVertex), theCurvature(curvature), theOriginRBound(originRBound) {
+    //       assert(theCurvature.max()>0);
+    assert(theCurvature.max() == -theCurvature.min());
+  }
 
-  OuterHitPhiPrediction( 
-      const Range & phiAtVertex, 
-      const Range & curvature, 
-      float originRBound) 
-    : thePhiAtVertex(phiAtVertex), theCurvature(curvature),
-      theOriginRBound (originRBound) {
-	//       assert(theCurvature.max()>0);
-       assert(theCurvature.max() == -theCurvature.min()); 
-      } 
+  void setTolerance(float tolerance) { theTolerance = tolerance; }
 
-  void  setTolerance(float tolerance) { theTolerance = tolerance; }
-
-  Range operator()(float radius) const { return sym(radius);}
+  Range operator()(float radius) const { return sym(radius); }
 
 private:
-
   Range sym(float radius) const;
-  Range	asym(float radius) const;
-
+  Range asym(float radius) const;
 
   Range thePhiAtVertex;
   Range theCurvature;

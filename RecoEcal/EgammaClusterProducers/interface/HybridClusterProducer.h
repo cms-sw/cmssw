@@ -15,34 +15,24 @@
 
 //
 
+class HybridClusterProducer : public edm::stream::EDProducer<> {
+public:
+  HybridClusterProducer(const edm::ParameterSet& ps);
 
-class HybridClusterProducer : public edm::stream::EDProducer<>
-{
-  
-  public:
+  ~HybridClusterProducer() override;
 
-      HybridClusterProducer(const edm::ParameterSet& ps);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      ~HybridClusterProducer() override;
+private:
+  int nEvt_;  // internal counter of events
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  std::string basicclusterCollection_;
+  std::string superclusterCollection_;
 
-   private:
-      int nEvt_;         // internal counter of events
- 
-      std::string basicclusterCollection_;
-      std::string superclusterCollection_;
-      
-      edm::EDGetTokenT<EcalRecHitCollection> hitsToken_;
- 
+  edm::EDGetTokenT<EcalRecHitCollection> hitsToken_;
 
-      HybridClusterAlgo * hybrid_p; // clustering algorithm
-      PositionCalc posCalculator_; // position calculation algorithm
-
-
+  HybridClusterAlgo* hybrid_p;  // clustering algorithm
+  PositionCalc posCalculator_;  // position calculation algorithm
 };
 
-
 #endif
-
-

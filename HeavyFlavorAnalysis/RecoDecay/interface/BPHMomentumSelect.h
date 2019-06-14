@@ -13,7 +13,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -23,15 +22,12 @@ class BPHDecayMomentum;
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class BPHMomentumSelect {
-
- public:
-
+public:
   /** Constructor
    */
   BPHMomentumSelect();
@@ -44,16 +40,12 @@ class BPHMomentumSelect {
   /** Operations
    */
   /// accept function
-  virtual bool accept( const BPHDecayMomentum& cand ) const = 0;
+  virtual bool accept(const BPHDecayMomentum& cand) const = 0;
 
- private:
-
+private:
   // private copy and assigment constructors
-  BPHMomentumSelect           ( const BPHMomentumSelect& x ) = delete;
-  BPHMomentumSelect& operator=( const BPHMomentumSelect& x ) = delete;
-
+  BPHMomentumSelect(const BPHMomentumSelect& x) = delete;
+  BPHMomentumSelect& operator=(const BPHMomentumSelect& x) = delete;
 };
 
-
 #endif
-

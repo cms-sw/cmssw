@@ -2,23 +2,18 @@
 #define MagVolumeOutsideValidity_H
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
-#include <exception> 
+#include <exception>
 
 class MagVolumeOutsideValidity : public std::exception {
 public:
+  MagVolumeOutsideValidity(MagVolume::LocalPoint l, MagVolume::LocalPoint u) throw();
 
-  MagVolumeOutsideValidity( MagVolume::LocalPoint l,
-			    MagVolume::LocalPoint u) throw();
-
-  MagVolume::LocalPoint lower() const  throw() {return lower_;} 
-  MagVolume::LocalPoint upper() const  throw() {return upper_;} 
+  MagVolume::LocalPoint lower() const throw() { return lower_; }
+  MagVolume::LocalPoint upper() const throw() { return upper_; }
 
   ~MagVolumeOutsideValidity() throw() override {}
 
-  const char* what() const throw() override { 
-    return m_message.c_str();
-  }
-
+  const char* what() const throw() override { return m_message.c_str(); }
 
 private:
   std::string m_message;

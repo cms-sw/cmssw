@@ -57,19 +57,19 @@ public:
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {};
-  template<typename T>
-  std::vector<reco::LeafCandidate> fillMuonCollection (const std::vector<T>& tracks) {
+  void endJob() override{};
+  template <typename T>
+  std::vector<reco::LeafCandidate> fillMuonCollection(const std::vector<T>& tracks) {
     std::vector<reco::LeafCandidate> muons;
     typename std::vector<T>::const_iterator track;
-    for (track = tracks.begin(); track != tracks.end(); ++track){
+    for (track = tracks.begin(); track != tracks.end(); ++track) {
       // Where 0.011163612 is the squared muon mass.
-      reco::Particle::LorentzVector mu(track->px(),track->py(),track->pz(),
-				       sqrt(track->p()*track->p() + 0.011163612));
-      reco::LeafCandidate muon(track->charge(),mu);
+      reco::Particle::LorentzVector mu(
+          track->px(), track->py(), track->pz(), sqrt(track->p() * track->p() + 0.011163612));
+      reco::LeafCandidate muon(track->charge(), mu);
       // Store muon
       // ----------
-      muons.push_back (muon);
+      muons.push_back(muon);
     }
     return muons;
   }
@@ -85,13 +85,13 @@ private:
 
   int theMuonType_;
   std::string theRootFileName_;
-  TFile * outputFile_;
+  TFile* outputFile_;
 
-  TProfile * sigmaPt_;
+  TProfile* sigmaPt_;
 
   int eventCounter_;
 
   std::unique_ptr<ResolutionFunction> resolutionFunction_;
 };
 
-#endif // TESTRESOLUTION_HH
+#endif  // TESTRESOLUTION_HH

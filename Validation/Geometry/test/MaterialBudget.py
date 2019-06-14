@@ -1032,6 +1032,11 @@ if __name__ == '__main__':
                         help='Compare simulation and reco materials',
                         action='store_true',
                         default=False)
+    parser.add_argument('-sw','--subdetector-wise',
+                        help="Subdetector-wise categorization. Individual ROOT " \
+                        "files for each subdetector are required.",
+                        action="store_true",
+                        default=False)
     parser.add_argument('-s', '--single',
                         help='Material budget for single detector from simulation',
                         action='store_true',
@@ -1050,13 +1055,14 @@ if __name__ == '__main__':
 
 
     if args.geometry is None:
-        print("Error, missing geometry")
+        print("Error, missing geometry. -g is Required")
         raise RuntimeError
 
     if args.geometry_comparison and args.geometry is None:
-        print("Error, geometry comparison requires two geometries")
+        print("Error, geometry comparison requires two geometries.")
+        print("use -gc option")
         raise RuntimeError
-    
+
     if args.geometry_comparison and args.geometry:
 
         # For the definition of the properties of these graphs
@@ -1084,7 +1090,7 @@ if __name__ == '__main__':
 
     if args.compare:
         if args.reco is None:
-            print("Error, missing inpur reco file")
+            print("Error, missing input reco file")
             raise RuntimeError
         if args.label is None:
             print("Error, missing label")
@@ -1107,3 +1113,10 @@ if __name__ == '__main__':
             createCompoundPlots(args.detector, p, args.geometry)
         for p in required_ratio_plots:
             createRatioPlots(args.detector, p, args.geometry)
+
+    if args.subdetector_wise and args.geometry:
+        required_plots = ["x_vs_eta","l_vs_eta"]
+
+        for p in required_plots:
+            createPlots_(p, args.geometry)
+

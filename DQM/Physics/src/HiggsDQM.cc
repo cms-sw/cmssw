@@ -93,25 +93,20 @@ using namespace std;
 using namespace reco;
 
 struct SortCandByDecreasingPt {
-  bool operator()(const Candidate& c1, const Candidate& c2) const {
-    return c1.pt() > c2.pt();
-  }
+  bool operator()(const Candidate& c1, const Candidate& c2) const { return c1.pt() > c2.pt(); }
 };
 
-double HiggsDQM::Distance(const reco::Candidate& c1,
-                          const reco::Candidate& c2) {
-  return deltaR(c1, c2);
-}
+double HiggsDQM::Distance(const reco::Candidate& c1, const reco::Candidate& c2) { return deltaR(c1, c2); }
 
-double HiggsDQM::DistancePhi(const reco::Candidate& c1,
-                             const reco::Candidate& c2) {
+double HiggsDQM::DistancePhi(const reco::Candidate& c1, const reco::Candidate& c2) {
   return deltaPhi(c1.p4().phi(), c2.p4().phi());
 }
 
 // This always returns only a positive deltaPhi
 double HiggsDQM::calcDeltaPhi(double phi1, double phi2) {
   double deltaPhi = phi1 - phi2;
-  if (deltaPhi < 0) deltaPhi = -deltaPhi;
+  if (deltaPhi < 0)
+    deltaPhi = -deltaPhi;
   if (deltaPhi > 3.1415926) {
     deltaPhi = 2 * 3.1415926 - deltaPhi;
   }
@@ -131,24 +126,16 @@ HiggsDQM::HiggsDQM(const edm::ParameterSet& ps) {
   // Get parameters from configuration file
   theElecTriggerPathToPass = ps.getParameter<string>("elecTriggerPathToPass");
   theMuonTriggerPathToPass = ps.getParameter<string>("muonTriggerPathToPass");
-  theTriggerResultsCollectionTag_ =
-      ps.getParameter<InputTag>("triggerResultsCollection");
+  theTriggerResultsCollectionTag_ = ps.getParameter<InputTag>("triggerResultsCollection");
   theCaloJetCollectionLabel_ = ps.getParameter<InputTag>("caloJetCollection");
-  theTriggerResultsCollection_ =
-      consumes<edm::TriggerResults>(theTriggerResultsCollectionTag_);
-  theMuonCollectionToken_ = consumes<reco::MuonCollection>(
-      ps.getParameter<InputTag>("muonCollection"));
-  theElectronCollectionToken_ = consumes<reco::GsfElectronCollection>(
-      ps.getParameter<InputTag>("electronCollection"));
-  theCaloJetCollectionToken_ =
-      consumes<reco::CaloJetCollection>(theCaloJetCollectionLabel_);
-  theCaloMETCollectionToken_ = consumes<reco::CaloMETCollection>(
-      ps.getParameter<InputTag>("caloMETCollection"));
-  thePfMETCollectionToken_ = consumes<reco::PFMETCollection>(
-      ps.getParameter<InputTag>("pfMETCollection"));
-  vertexToken_ =
-      consumes<reco::VertexCollection>(ps.getUntrackedParameter<InputTag>(
-          "vertexCollection", InputTag("offlinePrimaryVertices")));
+  theTriggerResultsCollection_ = consumes<edm::TriggerResults>(theTriggerResultsCollectionTag_);
+  theMuonCollectionToken_ = consumes<reco::MuonCollection>(ps.getParameter<InputTag>("muonCollection"));
+  theElectronCollectionToken_ = consumes<reco::GsfElectronCollection>(ps.getParameter<InputTag>("electronCollection"));
+  theCaloJetCollectionToken_ = consumes<reco::CaloJetCollection>(theCaloJetCollectionLabel_);
+  theCaloMETCollectionToken_ = consumes<reco::CaloMETCollection>(ps.getParameter<InputTag>("caloMETCollection"));
+  thePfMETCollectionToken_ = consumes<reco::PFMETCollection>(ps.getParameter<InputTag>("pfMETCollection"));
+  vertexToken_ = consumes<reco::VertexCollection>(
+      ps.getUntrackedParameter<InputTag>("vertexCollection", InputTag("offlinePrimaryVertices")));
 
   // cuts:
   ptThrMu1_ = ps.getUntrackedParameter<double>("PtThrMu1");
@@ -173,52 +160,46 @@ HiggsDQM::~HiggsDQM() {
 //
 //  -- Book histograms
 //
-void HiggsDQM::bookHistograms(DQMStore::IBooker & ibooker,
-  edm::Run const &, edm::EventSetup const & ){
+void HiggsDQM::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   ibooker.setCurrentFolder("Physics/Higgs");
 
-  h_vertex_number = ibooker.book1D("h_vertex_number",
-      "Number of event vertices in collection", 10, -0.5, 9.5);
-  h_vertex_chi2 = ibooker.book1D("h_vertex_chi2",
-      "Event Vertex #chi^{2}/n.d.o.f.", 100, 0.0, 2.0);
-  h_vertex_numTrks = ibooker.book1D("h_vertex_numTrks",
-      "Event Vertex, number of tracks", 100, -0.5, 99.5);
-  h_vertex_sumTrks = ibooker.book1D("h_vertex_sumTrks",
-      "Event Vertex, sum of track pt", 100, 0.0, 100.0);
+  h_vertex_number = ibooker.book1D("h_vertex_number", "Number of event vertices in collection", 10, -0.5, 9.5);
+  h_vertex_chi2 = ibooker.book1D("h_vertex_chi2", "Event Vertex #chi^{2}/n.d.o.f.", 100, 0.0, 2.0);
+  h_vertex_numTrks = ibooker.book1D("h_vertex_numTrks", "Event Vertex, number of tracks", 100, -0.5, 99.5);
+  h_vertex_sumTrks = ibooker.book1D("h_vertex_sumTrks", "Event Vertex, sum of track pt", 100, 0.0, 100.0);
   h_vertex_d0 = ibooker.book1D("h_vertex_d0", "Event Vertex d0", 100, -10.0, 10.0);
-  h_jet_et = ibooker.book1D("h_jet_et",
-      "Jet with highest E_{T} (from " + theCaloJetCollectionLabel_.label() +
-      ");E_{T}(1^{st} jet) (GeV)", 20, 0., 200.0);
-  h_jet2_et = ibooker.book1D("h_jet2_et",
-      "Jet with 2^{nd} highest E_{T} (from " + theCaloJetCollectionLabel_.label() +
-      ");E_{T}(2^{nd} jet) (GeV)", 20, 0., 200.0);
+  h_jet_et =
+      ibooker.book1D("h_jet_et",
+                     "Jet with highest E_{T} (from " + theCaloJetCollectionLabel_.label() + ");E_{T}(1^{st} jet) (GeV)",
+                     20,
+                     0.,
+                     200.0);
+  h_jet2_et = ibooker.book1D(
+      "h_jet2_et",
+      "Jet with 2^{nd} highest E_{T} (from " + theCaloJetCollectionLabel_.label() + ");E_{T}(2^{nd} jet) (GeV)",
+      20,
+      0.,
+      200.0);
   h_jet_count = ibooker.book1D("h_jet_count",
-      "Number of " + theCaloJetCollectionLabel_.label() +
-      " (E_{T} > 15 GeV);Number of Jets", 8, -0.5, 7.5);
+                               "Number of " + theCaloJetCollectionLabel_.label() + " (E_{T} > 15 GeV);Number of Jets",
+                               8,
+                               -0.5,
+                               7.5);
   h_caloMet = ibooker.book1D("h_caloMet", "Calo Missing E_{T}; GeV", 20, 0.0, 100);
-  h_caloMet_phi = ibooker.book1D("h_caloMet_phi",
-      "Calo Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5);
+  h_caloMet_phi = ibooker.book1D("h_caloMet_phi", "Calo Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5);
   h_pfMet = ibooker.book1D("h_pfMet", "Pf Missing E_{T}; GeV", 20, 0.0, 100);
-  h_pfMet_phi = ibooker.book1D("h_pfMet_phi", "Pf Missing E_{T} #phi;#phi(MET)",
-      35, -3.5, 3.5);
-  h_eMultiplicity = ibooker.book1D("NElectrons",
-      "# of electrons per event", 10, 0., 10.);
+  h_pfMet_phi = ibooker.book1D("h_pfMet_phi", "Pf Missing E_{T} #phi;#phi(MET)", 35, -3.5, 3.5);
+  h_eMultiplicity = ibooker.book1D("NElectrons", "# of electrons per event", 10, 0., 10.);
   h_mMultiplicity = ibooker.book1D("NMuons", "# of muons per event", 10, 0., 10.);
   h_ePt = ibooker.book1D("ElePt", "Pt of electrons", 50, 0., 100.);
   h_eEta = ibooker.book1D("EleEta", "Eta of electrons", 100, -5., 5.);
   h_ePhi = ibooker.book1D("ElePhi", "Phi of electrons", 100, -3.5, 3.5);
-  h_mPt_GMTM = ibooker.book1D("MuonPt_GMTM",
-      "Pt of global+tracker muons", 50, 0., 100.);
-  h_mEta_GMTM = ibooker.book1D("MuonEta_GMTM",
-      "Eta of global+tracker muons", 60, -3., 3.);
-  h_mPhi_GMTM = ibooker.book1D("MuonPhi_GMTM",
-      "Phi of global+tracker muons", 70, -3.5, 3.5);
-  h_mPt_GMPT = ibooker.book1D("MuonPt_GMPT",
-      "Pt of global prompt-tight muons", 50, 0., 100.);
-  h_mEta_GMPT = ibooker.book1D("MuonEta_GMPT",
-      "Eta of global prompt-tight muons", 60, -3., 3.);
-  h_mPhi_GMPT = ibooker.book1D("MuonPhi_GMPT",
-      "Phi of global prompt-tight muons", 70, -3.5, 3.5);
+  h_mPt_GMTM = ibooker.book1D("MuonPt_GMTM", "Pt of global+tracker muons", 50, 0., 100.);
+  h_mEta_GMTM = ibooker.book1D("MuonEta_GMTM", "Eta of global+tracker muons", 60, -3., 3.);
+  h_mPhi_GMTM = ibooker.book1D("MuonPhi_GMTM", "Phi of global+tracker muons", 70, -3.5, 3.5);
+  h_mPt_GMPT = ibooker.book1D("MuonPt_GMPT", "Pt of global prompt-tight muons", 50, 0., 100.);
+  h_mEta_GMPT = ibooker.book1D("MuonEta_GMPT", "Eta of global prompt-tight muons", 60, -3., 3.);
+  h_mPhi_GMPT = ibooker.book1D("MuonPhi_GMPT", "Phi of global prompt-tight muons", 70, -3.5, 3.5);
   h_mPt_GM = ibooker.book1D("MuonPt_GM", "Pt of global muons", 50, 0., 100.);
   h_mEta_GM = ibooker.book1D("MuonEta_GM", "Eta of global muons", 60, -3., 3.);
   h_mPhi_GM = ibooker.book1D("MuonPhi_GM", "Phi of global muons", 70, -3.5, 3.5);
@@ -230,16 +211,11 @@ void HiggsDQM::bookHistograms(DQMStore::IBooker & ibooker,
   h_mPhi_STAM = ibooker.book1D("MuonPhi_STAM", "Phi of STA muons", 70, -3.5, 3.5);
   h_eCombIso = ibooker.book1D("EleCombIso", "CombIso of electrons", 100, 0., 10.);
   h_mCombIso = ibooker.book1D("MuonCombIso", "CombIso of muons", 100, 0., 10.);
-  h_dimumass_GMGM = ibooker.book1D("DimuMass_GMGM", "Invariant mass of GMGM pairs",
-      100, 0., 200.);
-  h_dimumass_GMTM = ibooker.book1D("DimuMass_GMTM",
-      "Invariant mass of GMTM pairs", 100, 0., 200.);
-  h_dimumass_TMTM = ibooker.book1D("DimuMass_TMTM",
-      "Invariant mass of TMTM pairs", 100, 0., 200.);
-  h_dielemass = ibooker.book1D("DieleMass",
-      "Invariant mass of EE pairs", 100, 0., 200.);
-  h_lepcounts = ibooker.book1D("LeptonCounts",
-      "LeptonCounts for multi lepton events", 49, 0., 49.);
+  h_dimumass_GMGM = ibooker.book1D("DimuMass_GMGM", "Invariant mass of GMGM pairs", 100, 0., 200.);
+  h_dimumass_GMTM = ibooker.book1D("DimuMass_GMTM", "Invariant mass of GMTM pairs", 100, 0., 200.);
+  h_dimumass_TMTM = ibooker.book1D("DimuMass_TMTM", "Invariant mass of TMTM pairs", 100, 0., 200.);
+  h_dielemass = ibooker.book1D("DieleMass", "Invariant mass of EE pairs", 100, 0., 200.);
+  h_lepcounts = ibooker.book1D("LeptonCounts", "LeptonCounts for multi lepton events", 49, 0., 49.);
 
   ibooker.cd();
 }
@@ -270,8 +246,8 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     // double vertex_ndof    = v->ndof();cout << "ndof="<<vertex_ndof<<endl;
     double vertex_numTrks = v->tracksSize();
     double vertex_sumTrks = 0.0;
-    for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin();
-         vertex_curTrack != v->tracks_end(); vertex_curTrack++) {
+    for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack != v->tracks_end();
+         vertex_curTrack++) {
       vertex_sumTrks += (*vertex_curTrack)->pt();
     }
     h_vertex_number->Fill(vertex_number);
@@ -292,9 +268,9 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     // If it passed electron HLT and the collection was found, find electrons
     // near Z mass
     if (passed_electron_HLT) {
-      for (reco::GsfElectronCollection::const_iterator recoElectron =
-               electronCollection->begin();
-           recoElectron != electronCollection->end(); recoElectron++) {
+      for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
+           recoElectron != electronCollection->end();
+           recoElectron++) {
         //      cout << "Electron with pt= " <<  recoElectron->pt() << " and
         // eta" << recoElectron->eta() << " p=" <<  recoElectron->p() << endl;
         h_ePt->Fill(recoElectron->pt());
@@ -315,7 +291,8 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
       }  // end of loop over electrons
     }    // end if passed HLT
     nEle = posEle + negEle;
-    if (nEle > 9.) nEle = 9.;
+    if (nEle > 9.)
+      nEle = 9.;
     h_eMultiplicity->Fill(nEle);
 
     // Z->ee:
@@ -329,8 +306,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
           double pt2 = ele2.pt();
           if (pt2 > ptThrMu2_) {
             const math::XYZTLorentzVector ZRecoEE(
-                ele.px() + ele2.px(), ele.py() + ele2.py(),
-                ele.pz() + ele2.pz(), ele.p() + ele2.p());
+                ele.px() + ele2.px(), ele.py() + ele2.py(), ele.pz() + ele2.pz(), ele.p() + ele2.p());
             h_dielemass->Fill(ZRecoEE.mass());
           }
         }
@@ -349,18 +325,15 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     int posMu = 0, negMu = 0;
     TLorentzVector m1, m2;
     if (passed_muon_HLT) {
-      for (reco::MuonCollection::const_iterator recoMuon =
-               muonCollection->begin();
-           recoMuon != muonCollection->end(); recoMuon++) {
+      for (reco::MuonCollection::const_iterator recoMuon = muonCollection->begin(); recoMuon != muonCollection->end();
+           recoMuon++) {
         // cout << "Muon with pt= " <<  muIter->pt() << " and eta" <<
         // muIter->eta() << " p=" <<  muIter->p() << endl;
         if (recoMuon->isGlobalMuon() && recoMuon->isTrackerMuon()) {
           h_mPt_GMTM->Fill(recoMuon->pt());
           h_mEta_GMTM->Fill(recoMuon->eta());
           h_mPhi_GMTM->Fill(recoMuon->phi());
-        } else if (recoMuon->isGlobalMuon() &&
-                   (muon::isGoodMuon((*recoMuon),
-                                     muon::GlobalMuonPromptTight))) {
+        } else if (recoMuon->isGlobalMuon() && (muon::isGoodMuon((*recoMuon), muon::GlobalMuonPromptTight))) {
           h_mPt_GMPT->Fill(recoMuon->pt());
           h_mEta_GMPT->Fill(recoMuon->eta());
           h_mPhi_GMPT->Fill(recoMuon->phi());
@@ -369,8 +342,7 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
           h_mEta_GM->Fill(recoMuon->eta());
           h_mPhi_GM->Fill(recoMuon->phi());
         } else if (recoMuon->isTrackerMuon() &&
-                   (muon::segmentCompatibility(
-                       (*recoMuon), reco::Muon::SegmentAndTrackArbitration))) {
+                   (muon::segmentCompatibility((*recoMuon), reco::Muon::SegmentAndTrackArbitration))) {
           h_mPt_TM->Fill(recoMuon->pt());
           h_mEta_TM->Fill(recoMuon->eta());
           h_mPhi_TM->Fill(recoMuon->phi());
@@ -386,7 +358,8 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
         }
       }
       nMu = posMu + negMu;
-      if (nMu > 9.) nMu = 9.;
+      if (nMu > 9.)
+        nMu = 9.;
       h_mMultiplicity->Fill(nMu);
     }
 
@@ -404,22 +377,19 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
             // Glb + Glb
             if (mu.isGlobalMuon() && mu2.isGlobalMuon()) {
               const math::XYZTLorentzVector ZRecoGMGM(
-                  mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(),
-                  mu.p() + mu2.p());
+                  mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(), mu.p() + mu2.p());
               h_dimumass_GMGM->Fill(ZRecoGMGM.mass());
             }
             // Glb + TM
             else if (mu.isGlobalMuon() && mu2.isTrackerMuon()) {
               const math::XYZTLorentzVector ZRecoGMTM(
-                  mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(),
-                  mu.p() + mu2.p());
+                  mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(), mu.p() + mu2.p());
               h_dimumass_GMTM->Fill(ZRecoGMTM.mass());
             }
             // TM + TM
             else if (mu.isTrackerMuon() && mu2.isTrackerMuon()) {
               const math::XYZTLorentzVector ZRecoTMTM(
-                  mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(),
-                  mu.p() + mu2.p());
+                  mu.px() + mu2.px(), mu.py() + mu2.py(), mu.pz() + mu2.pz(), mu.p() + mu2.p());
               h_dimumass_TMTM->Fill(ZRecoTMTM.mass());
             }
           }
@@ -441,9 +411,9 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
     float jet2_et = -9.0;
     //    float jet2_eta  = -9.0; // UNUSED
     //    float jet2_phi  = -9.0; // UNUSED
-    for (CaloJetCollection::const_iterator i_calojet =
-             caloJetCollection->begin();
-         i_calojet != caloJetCollection->end(); i_calojet++) {
+    for (CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
+         i_calojet != caloJetCollection->end();
+         i_calojet++) {
       float jet_current_et = i_calojet->et();
       // if it overlaps with electron, it is not a jet
       // if ( electron_et>0.0 && fabs(i_calojet->eta()-electron_eta ) < 0.2 &&
@@ -451,12 +421,13 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
       // if ( electron2_et>0.0&& fabs(i_calojet->eta()-electron2_eta) < 0.2 &&
       // calcDeltaPhi(i_calojet->phi(), electron2_phi) < 0.2) continue;
       // if it has too low Et, throw away
-      if (jet_current_et < 15) continue;
+      if (jet_current_et < 15)
+        continue;
       jet_count++;
       if (jet_current_et > jet_et) {
-        jet2_et = jet_et;  // 2nd highest jet get's et from current highest
-                           //        jet2_eta = jet_eta; // UNUSED
-                           //        jet2_phi = jet_phi; // UNUSED
+        jet2_et = jet_et;          // 2nd highest jet get's et from current highest
+                                   //        jet2_eta = jet_eta; // UNUSED
+                                   //        jet2_phi = jet_phi; // UNUSED
         jet_et = i_calojet->et();  // current highest jet gets et from the new
                                    // highest
         //        jet_eta  = i_calojet->eta(); // UNUSED
@@ -497,59 +468,107 @@ void HiggsDQM::analyze(const edm::Event& e, const edm::EventSetup& eSetup) {
   //--- Events with more than 2 leptons:
   //-------------------------------------
   if (nMu + nEle > 2 && nMu + nEle < 10) {
-    if (nMu == 0 && nEle == 3) h_lepcounts->Fill(0);
-    if (nMu == 0 && nEle == 4) h_lepcounts->Fill(1);
-    if (nMu == 0 && nEle == 5) h_lepcounts->Fill(2);
-    if (nMu == 0 && nEle == 6) h_lepcounts->Fill(3);
-    if (nMu == 0 && nEle == 7) h_lepcounts->Fill(4);
-    if (nMu == 0 && nEle == 8) h_lepcounts->Fill(5);
-    if (nMu == 0 && nEle == 9) h_lepcounts->Fill(6);
-    if (nMu == 1 && nEle == 2) h_lepcounts->Fill(7);
-    if (nMu == 1 && nEle == 3) h_lepcounts->Fill(8);
-    if (nMu == 1 && nEle == 4) h_lepcounts->Fill(9);
-    if (nMu == 1 && nEle == 5) h_lepcounts->Fill(10);
-    if (nMu == 1 && nEle == 6) h_lepcounts->Fill(11);
-    if (nMu == 1 && nEle == 7) h_lepcounts->Fill(12);
-    if (nMu == 1 && nEle == 8) h_lepcounts->Fill(13);
-    if (nMu == 2 && nEle == 1) h_lepcounts->Fill(14);
-    if (nMu == 2 && nEle == 2) h_lepcounts->Fill(15);
-    if (nMu == 2 && nEle == 3) h_lepcounts->Fill(16);
-    if (nMu == 2 && nEle == 4) h_lepcounts->Fill(17);
-    if (nMu == 2 && nEle == 5) h_lepcounts->Fill(18);
-    if (nMu == 2 && nEle == 6) h_lepcounts->Fill(19);
-    if (nMu == 2 && nEle == 7) h_lepcounts->Fill(20);
-    if (nMu == 3 && nEle == 0) h_lepcounts->Fill(21);
-    if (nMu == 3 && nEle == 1) h_lepcounts->Fill(22);
-    if (nMu == 3 && nEle == 2) h_lepcounts->Fill(23);
-    if (nMu == 3 && nEle == 3) h_lepcounts->Fill(24);
-    if (nMu == 3 && nEle == 4) h_lepcounts->Fill(25);
-    if (nMu == 3 && nEle == 5) h_lepcounts->Fill(26);
-    if (nMu == 3 && nEle == 6) h_lepcounts->Fill(27);
-    if (nMu == 4 && nEle == 0) h_lepcounts->Fill(28);
-    if (nMu == 4 && nEle == 1) h_lepcounts->Fill(29);
-    if (nMu == 4 && nEle == 2) h_lepcounts->Fill(30);
-    if (nMu == 4 && nEle == 3) h_lepcounts->Fill(31);
-    if (nMu == 4 && nEle == 4) h_lepcounts->Fill(32);
-    if (nMu == 4 && nEle == 5) h_lepcounts->Fill(33);
-    if (nMu == 5 && nEle == 0) h_lepcounts->Fill(34);
-    if (nMu == 5 && nEle == 1) h_lepcounts->Fill(35);
-    if (nMu == 5 && nEle == 2) h_lepcounts->Fill(36);
-    if (nMu == 5 && nEle == 3) h_lepcounts->Fill(37);
-    if (nMu == 5 && nEle == 4) h_lepcounts->Fill(38);
-    if (nMu == 6 && nEle == 0) h_lepcounts->Fill(39);
-    if (nMu == 6 && nEle == 1) h_lepcounts->Fill(40);
-    if (nMu == 6 && nEle == 2) h_lepcounts->Fill(41);
-    if (nMu == 6 && nEle == 3) h_lepcounts->Fill(42);
-    if (nMu == 7 && nEle == 0) h_lepcounts->Fill(43);
-    if (nMu == 7 && nEle == 1) h_lepcounts->Fill(44);
-    if (nMu == 7 && nEle == 2) h_lepcounts->Fill(45);
-    if (nMu == 8 && nEle == 0) h_lepcounts->Fill(46);
-    if (nMu == 8 && nEle == 1) h_lepcounts->Fill(47);
-    if (nMu == 9 && nEle == 0) h_lepcounts->Fill(48);
+    if (nMu == 0 && nEle == 3)
+      h_lepcounts->Fill(0);
+    if (nMu == 0 && nEle == 4)
+      h_lepcounts->Fill(1);
+    if (nMu == 0 && nEle == 5)
+      h_lepcounts->Fill(2);
+    if (nMu == 0 && nEle == 6)
+      h_lepcounts->Fill(3);
+    if (nMu == 0 && nEle == 7)
+      h_lepcounts->Fill(4);
+    if (nMu == 0 && nEle == 8)
+      h_lepcounts->Fill(5);
+    if (nMu == 0 && nEle == 9)
+      h_lepcounts->Fill(6);
+    if (nMu == 1 && nEle == 2)
+      h_lepcounts->Fill(7);
+    if (nMu == 1 && nEle == 3)
+      h_lepcounts->Fill(8);
+    if (nMu == 1 && nEle == 4)
+      h_lepcounts->Fill(9);
+    if (nMu == 1 && nEle == 5)
+      h_lepcounts->Fill(10);
+    if (nMu == 1 && nEle == 6)
+      h_lepcounts->Fill(11);
+    if (nMu == 1 && nEle == 7)
+      h_lepcounts->Fill(12);
+    if (nMu == 1 && nEle == 8)
+      h_lepcounts->Fill(13);
+    if (nMu == 2 && nEle == 1)
+      h_lepcounts->Fill(14);
+    if (nMu == 2 && nEle == 2)
+      h_lepcounts->Fill(15);
+    if (nMu == 2 && nEle == 3)
+      h_lepcounts->Fill(16);
+    if (nMu == 2 && nEle == 4)
+      h_lepcounts->Fill(17);
+    if (nMu == 2 && nEle == 5)
+      h_lepcounts->Fill(18);
+    if (nMu == 2 && nEle == 6)
+      h_lepcounts->Fill(19);
+    if (nMu == 2 && nEle == 7)
+      h_lepcounts->Fill(20);
+    if (nMu == 3 && nEle == 0)
+      h_lepcounts->Fill(21);
+    if (nMu == 3 && nEle == 1)
+      h_lepcounts->Fill(22);
+    if (nMu == 3 && nEle == 2)
+      h_lepcounts->Fill(23);
+    if (nMu == 3 && nEle == 3)
+      h_lepcounts->Fill(24);
+    if (nMu == 3 && nEle == 4)
+      h_lepcounts->Fill(25);
+    if (nMu == 3 && nEle == 5)
+      h_lepcounts->Fill(26);
+    if (nMu == 3 && nEle == 6)
+      h_lepcounts->Fill(27);
+    if (nMu == 4 && nEle == 0)
+      h_lepcounts->Fill(28);
+    if (nMu == 4 && nEle == 1)
+      h_lepcounts->Fill(29);
+    if (nMu == 4 && nEle == 2)
+      h_lepcounts->Fill(30);
+    if (nMu == 4 && nEle == 3)
+      h_lepcounts->Fill(31);
+    if (nMu == 4 && nEle == 4)
+      h_lepcounts->Fill(32);
+    if (nMu == 4 && nEle == 5)
+      h_lepcounts->Fill(33);
+    if (nMu == 5 && nEle == 0)
+      h_lepcounts->Fill(34);
+    if (nMu == 5 && nEle == 1)
+      h_lepcounts->Fill(35);
+    if (nMu == 5 && nEle == 2)
+      h_lepcounts->Fill(36);
+    if (nMu == 5 && nEle == 3)
+      h_lepcounts->Fill(37);
+    if (nMu == 5 && nEle == 4)
+      h_lepcounts->Fill(38);
+    if (nMu == 6 && nEle == 0)
+      h_lepcounts->Fill(39);
+    if (nMu == 6 && nEle == 1)
+      h_lepcounts->Fill(40);
+    if (nMu == 6 && nEle == 2)
+      h_lepcounts->Fill(41);
+    if (nMu == 6 && nEle == 3)
+      h_lepcounts->Fill(42);
+    if (nMu == 7 && nEle == 0)
+      h_lepcounts->Fill(43);
+    if (nMu == 7 && nEle == 1)
+      h_lepcounts->Fill(44);
+    if (nMu == 7 && nEle == 2)
+      h_lepcounts->Fill(45);
+    if (nMu == 8 && nEle == 0)
+      h_lepcounts->Fill(46);
+    if (nMu == 8 && nEle == 1)
+      h_lepcounts->Fill(47);
+    if (nMu == 9 && nEle == 0)
+      h_lepcounts->Fill(48);
   }
   if ((nMu + nEle) >= 10)
-    LogDebug("HiggsDQM") << "WARNING: " << nMu + nEle
-                         << " leptons in this event: run=" << e.id().run()
+    LogDebug("HiggsDQM") << "WARNING: " << nMu + nEle << " leptons in this event: run=" << e.id().run()
                          << ", event=" << e.id().event() << "\n";
 }
 //

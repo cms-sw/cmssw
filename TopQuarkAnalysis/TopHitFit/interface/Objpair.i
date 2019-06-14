@@ -9,8 +9,6 @@
 // Imported to CMSSW by Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
 //
 
-
-
 /**
     @file Objpair.i
 
@@ -32,54 +30,45 @@
 
  */
 
-
 #include <cassert>
-
 
 namespace hitfit {
 
+  inline int Objpair::i() const
+  //
+  // Purpose: Return the first object index for this pair.
+  //
+  // Returns:
+  //   The first object index for this pair.
+  //
+  {
+    return _i;
+  }
 
-inline
-int Objpair::i () const
-//
-// Purpose: Return the first object index for this pair.
-//
-// Returns:
-//   The first object index for this pair.
-//
-{
-  return _i;
-}
+  inline int Objpair::j() const
+  //
+  // Purpose: Return the second object index for this pair.
+  //
+  // Returns:
+  //   The second object index for this pair.
+  //
+  {
+    return _j;
+  }
 
+  inline int Objpair::for_constraint(std::vector<signed char>::size_type k) const
+  //
+  // Purpose: Retrieve the value set for constraint K.
+  //
+  // Inputs:
+  //   k -           The constraint number (0-based).
+  //
+  // Returns:
+  //   The value for constraint K.
+  //
+  {
+    assert(k < _for_constraint.size());
+    return _for_constraint[k];
+  }
 
-inline
-int Objpair::j () const
-//
-// Purpose: Return the second object index for this pair.
-//
-// Returns:
-//   The second object index for this pair.
-//
-{
-  return _j;
-}
-
-
-inline
-int Objpair::for_constraint (std::vector<signed char>::size_type k) const
-//
-// Purpose: Retrieve the value set for constraint K.
-//
-// Inputs:
-//   k -           The constraint number (0-based).
-//
-// Returns:
-//   The value for constraint K.
-//
-{
-  assert (k < _for_constraint.size());
-  return _for_constraint[k];
-}
-
-
-} // namespace hitfit
+}  // namespace hitfit

@@ -13,18 +13,14 @@
  */
 template <class TR>
 struct TrajCandLess {
+  TrajCandLess(float p = 5) : penalty(p) {}
 
-  TrajCandLess( float p=5) : penalty(p) {}
-
-  bool operator()( const TR& a, const TR& b) const {
-    return a.chiSquared() + a.lostHits()*penalty <
-      b.chiSquared() + b.lostHits()*penalty;
+  bool operator()(const TR& a, const TR& b) const {
+    return a.chiSquared() + a.lostHits() * penalty < b.chiSquared() + b.lostHits() * penalty;
   }
 
 private:
-
   float penalty;
-
 };
 
 #endif

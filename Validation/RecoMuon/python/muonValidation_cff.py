@@ -227,7 +227,7 @@ recoCosmicMuonValidation = cms.Sequence(
 # sequences for muon upgrades
 #
 _run3_muonValidation = muonValidation_seq.copy() #For full validation
-_run3_muonValidation = muonValidation_reduced_seq.copy()
+#_run3_muonValidation = muonValidation_reduced_seq.copy()
 _run3_muonValidation += gemMuonValidation
 
 _phase2_muonValidation = _run3_muonValidation.copy()

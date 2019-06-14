@@ -14,24 +14,23 @@
 
 class JetToDigiDump : public edm::EDAnalyzer {
 public:
-  JetToDigiDump( const edm::ParameterSet & );
+  JetToDigiDump(const edm::ParameterSet&);
 
 private:
   //Framwework stuff
-  void beginJob( ) override;
-  void analyze( const edm::Event& , const edm::EventSetup& ) override;
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
   // Parameters passed via the config file
   std::string DumpLevel;   //How deep into calorimeter reco to dump
   std::string CaloJetAlg;  //Jet Algorithm to dump
   int DebugLevel;          //0 = no debug prints
-  bool ShowECal;           //if true, ECAL hits are ignored 
-    
+  bool ShowECal;           //if true, ECAL hits are ignored
+
   //Internal parameters
   int Dump;
   int evtCount;
-
 };
 
 #endif

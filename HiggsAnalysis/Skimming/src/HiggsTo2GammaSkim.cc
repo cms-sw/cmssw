@@ -7,7 +7,6 @@
  *
  */
 
-
 // system include files
 #include <HiggsAnalysis/Skimming/interface/HiggsTo2GammaSkim.h>
 
@@ -28,58 +27,47 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-
 // Constructor
 HiggsTo2GammaSkim::HiggsTo2GammaSkim(const edm::ParameterSet& pset) {
-
   // Local Debug flag
-  debug              = pset.getParameter<bool>("DebugHiggsTo2GammaSkim");
+  debug = pset.getParameter<bool>("DebugHiggsTo2GammaSkim");
 
   // Reconstructed objects
-  thePhotonToken     = consumes<reco::PhotonCollection>(pset.getParameter<edm::InputTag>("PhotonCollectionLabel"));
+  thePhotonToken = consumes<reco::PhotonCollection>(pset.getParameter<edm::InputTag>("PhotonCollectionLabel"));
 
   // Minimum Pt for photons for skimming
-  photon1MinPt       = pset.getParameter<double>("photon1MinimumPt");
-  nPhotonMin         = pset.getParameter<int>("nPhotonMinimum");
+  photon1MinPt = pset.getParameter<double>("photon1MinimumPt");
+  nPhotonMin = pset.getParameter<int>("nPhotonMinimum");
 
-
-  nEvents         = 0;
+  nEvents = 0;
   nSelectedEvents = 0;
-
 }
-
 
 // Destructor
 HiggsTo2GammaSkim::~HiggsTo2GammaSkim() {
-
-  edm::LogVerbatim("HiggsTo2GammaSkim")
-  << " Number_events_read " << nEvents
-  << " Number_events_kept " << nSelectedEvents
-  << " Efficiency         " << ((double)nSelectedEvents)/((double) nEvents + 0.01) << std::endl;
+  edm::LogVerbatim("HiggsTo2GammaSkim") << " Number_events_read " << nEvents << " Number_events_kept "
+                                        << nSelectedEvents << " Efficiency         "
+                                        << ((double)nSelectedEvents) / ((double)nEvents + 0.01) << std::endl;
 }
 
-
-
 // Filter event
-bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup ) {
-
+bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup) {
   nEvents++;
 
   using reco::PhotonCollection;
 
-  bool keepEvent    = false;
-  int  nPhotons     = 0;
+  bool keepEvent = false;
+  int nPhotons = 0;
 
   // Look at photons:
 
   // Get the photon collection from the event
   edm::Handle<reco::PhotonCollection> photonHandle;
 
-  event.getByToken(thePhotonToken,photonHandle);
+  event.getByToken(thePhotonToken, photonHandle);
 
-  if ( photonHandle.isValid() ) {
-
-  const reco::PhotonCollection* phoCollection = photonHandle.product();
+  if (photonHandle.isValid()) {
+    const reco::PhotonCollection* phoCollection = photonHandle.product();
 
     reco::PhotonCollection::const_iterator photons;
 
@@ -88,18 +76,19 @@ bool HiggsTo2GammaSkim::filter(edm::Event& event, const edm::EventSetup& setup )
 
     // Question: do we need to take the reconstructed primary vertex at this point?
     // Here, I assume that the et is taken with respect to the nominal vertex (0,0,0).
-    for ( photons = phoCollection->begin(); photons != phoCollection->end(); ++photons ) {
+    for (photons = phoCollection->begin(); photons != phoCollection->end(); ++photons) {
       float et_p = photons->et();
-      if ( et_p > photon1MinPt) nPhotons++;
+      if (et_p > photon1MinPt)
+        nPhotons++;
     }
   }
 
   // Make decision:
-  if ( nPhotons >= nPhotonMin ) keepEvent = true;
+  if (nPhotons >= nPhotonMin)
+    keepEvent = true;
 
-  if (keepEvent) nSelectedEvents++;
+  if (keepEvent)
+    nSelectedEvents++;
 
   return keepEvent;
 }
-
-

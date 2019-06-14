@@ -14,48 +14,45 @@
 
 using namespace edm;
 
-PropagatorWithMaterialESProducer::PropagatorWithMaterialESProducer(const edm::ParameterSet & p) 
-{
+PropagatorWithMaterialESProducer::PropagatorWithMaterialESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 PropagatorWithMaterialESProducer::~PropagatorWithMaterialESProducer() {}
 
-std::unique_ptr<Propagator> 
-PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord & iRecord){ 
-//   if (_propagator){
-//     delete _propagator;
-//     _propagator = 0;
-//   }
+std::unique_ptr<Propagator> PropagatorWithMaterialESProducer::produce(const TrackingComponentsRecord& iRecord) {
+  //   if (_propagator){
+  //     delete _propagator;
+  //     _propagator = 0;
+  //   }
 
   std::string pdir = pset_.getParameter<std::string>("PropagationDirection");
-  double mass      = pset_.getParameter<double>("Mass");
-  double maxDPhi   = pset_.getParameter<double>("MaxDPhi");
-  bool useRK       = pset_.getParameter<bool>("useRungeKutta");
-  bool useOldAnalPropLogic = pset_.existsAs<bool>("useOldAnalPropLogic") ? 
-    pset_.getParameter<bool>("useOldAnalPropLogic") : true;
-  double ptMin     = pset_.existsAs<double>("ptMin") ? pset_.getParameter<double>("ptMin") : -1.0;
+  double mass = pset_.getParameter<double>("Mass");
+  double maxDPhi = pset_.getParameter<double>("MaxDPhi");
+  bool useRK = pset_.getParameter<bool>("useRungeKutta");
+  bool useOldAnalPropLogic =
+      pset_.existsAs<bool>("useOldAnalPropLogic") ? pset_.getParameter<bool>("useOldAnalPropLogic") : true;
+  double ptMin = pset_.existsAs<double>("ptMin") ? pset_.getParameter<double>("ptMin") : -1.0;
 
   ESHandle<MagneticField> magfield;
   std::string mfName = "";
   if (pset_.exists("SimpleMagneticField"))
     mfName = pset_.getParameter<std::string>("SimpleMagneticField");
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName,magfield);
+  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfName, magfield);
   //  edm::ESInputTag mfESInputTag(mfName);
   //  iRecord.getRecord<IdealMagneticFieldRecord>().get(mfESInputTag,magfield);
-  //fixme check that useRK is false when using SimpleMagneticField 
+  //fixme check that useRK is false when using SimpleMagneticField
 
   PropagationDirection dir = alongMomentum;
-  
-  if (pdir == "oppositeToMomentum") dir = oppositeToMomentum;
-  if (pdir == "alongMomentum") dir = alongMomentum;
-  if (pdir == "anyDirection") dir = anyDirection;
-  
-  return std::make_unique<PropagatorWithMaterial>(dir, mass, &(*magfield),
-						maxDPhi,useRK,ptMin,
-						useOldAnalPropLogic);
+
+  if (pdir == "oppositeToMomentum")
+    dir = oppositeToMomentum;
+  if (pdir == "alongMomentum")
+    dir = alongMomentum;
+  if (pdir == "anyDirection")
+    dir = anyDirection;
+
+  return std::make_unique<PropagatorWithMaterial>(dir, mass, &(*magfield), maxDPhi, useRK, ptMin, useOldAnalPropLogic);
 }
-
-

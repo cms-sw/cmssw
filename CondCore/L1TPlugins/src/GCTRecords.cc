@@ -8,4 +8,3 @@ REGISTER_PLUGIN(L1GctChannelMaskRcd, L1GctChannelMask);
 #include "CondFormats/DataRecord/interface/L1GctJetFinderParamsRcd.h"
 
 REGISTER_PLUGIN(L1GctJetFinderParamsRcd, L1GctJetFinderParams);
-

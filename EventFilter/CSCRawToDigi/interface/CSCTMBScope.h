@@ -1,7 +1,7 @@
 //_______________________________________
 //
-//  Class for TMB Logic Analyzer Data  
-//  CSCTMBScope 9/11/03  B.Mohr           
+//  Class for TMB Logic Analyzer Data
+//  CSCTMBScope 9/11/03  B.Mohr
 //_______________________________________
 //
 
@@ -13,30 +13,25 @@
 #endif
 
 class CSCTMBScope {
-
 public:
+  CSCTMBScope() { size_ = 0; }  //default constructor
+  CSCTMBScope(const uint16_t *buf, int b05Line, int e05Line);
+  static unsigned short sizeInWords() { return 1538; }
+  static void setDebug(const bool value) { debug = value; };
 
-  CSCTMBScope() {size_ = 0;}  //default constructor
-  CSCTMBScope(const uint16_t *buf,int b05Line,int e05Line);
-  static unsigned short sizeInWords() {return 1538;}
-  static void setDebug(const bool value) {debug = value;};
-
-  unsigned int data[52];            //scope data for ntuple
-                                    //public for now -- better way?
+  unsigned int data[52];  //scope data for ntuple
+                          //public for now -- better way?
 private:
-
-  int UnpackScope(const uint16_t *buf,int b05Line,int e05Line);
+  int UnpackScope(const uint16_t *buf, int b05Line, int e05Line);
   int GetPretrig(int ich);
 
-  unsigned int scope_ram[256][6];   //stores all scope data
+  unsigned int scope_ram[256][6];  //stores all scope data
   unsigned short size_;
 #ifdef LOCAL_UNPACK
   static bool debug;
 #else
   static std::atomic<bool> debug;
 #endif
-
 };
 
 #endif
-

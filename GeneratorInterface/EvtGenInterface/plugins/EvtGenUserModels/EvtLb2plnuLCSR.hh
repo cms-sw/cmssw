@@ -12,7 +12,7 @@
 //
 // Description:Implementation of the Lb2plnuLCSR model
 // Class to handle semileptonic Lb -> p l nu decays using the using form factor predictions from Light Cone Sum Rules.
-// 
+//
 //
 // Modification history:
 //
@@ -29,15 +29,13 @@
 
 class EvtParticle;
 
-class EvtLb2plnuLCSR:public  EvtDecayAmp  {
-
+class EvtLb2plnuLCSR : public EvtDecayAmp {
 public:
-
   EvtLb2plnuLCSR();
   ~EvtLb2plnuLCSR() override;
 
   std::string getName() override;
-  EvtDecayBase* clone() override;
+  EvtDecayBase *clone() override;
 
   void decay(EvtParticle *p) override;
   void initProbMax() override;
@@ -49,4 +47,3 @@ private:
 };
 
 #endif
-

@@ -17,7 +17,11 @@
 
 #include <vector>
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 class TrackerTopology;
 
 class MuonTrajectoryBuilder;
@@ -25,55 +29,48 @@ class MuonTrajectoryCleaner;
 class MuonTrackLoader;
 
 class MuonTrackFinder {
+public:
+  typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
+  typedef MuonCandidate::CandidateContainer CandidateContainer;
+  typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;
 
-  public:
+public:
+  /// Constructor, with default cleaner. For the STA reconstruction the trackLoader must have the propagator.
+  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder, MuonTrackLoader* trackLoader);
 
-    typedef MuonCandidate::TrajectoryContainer TrajectoryContainer;
-    typedef MuonCandidate::CandidateContainer CandidateContainer;
-    typedef std::pair<const Trajectory*, reco::TrackRef> TrackCand;  
+  /// Constructor, with user-defined cleaner. For the STA reconstruction the trackLoader must have the propagator.
+  MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
+                  MuonTrackLoader* trackLoader,
+                  MuonTrajectoryCleaner* cleaner);
 
-  public:
-  
-    /// Constructor, with default cleaner. For the STA reconstruction the trackLoader must have the propagator.
-    MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
-		    MuonTrackLoader *trackLoader);
+  /// destructor
+  virtual ~MuonTrackFinder();
 
-    /// Constructor, with user-defined cleaner. For the STA reconstruction the trackLoader must have the propagator.
-    MuonTrackFinder(MuonTrajectoryBuilder* ConcreteMuonTrajectoryBuilder,
-		    MuonTrackLoader *trackLoader,
-		    MuonTrajectoryCleaner* cleaner);
-    
-    /// destructor
-    virtual ~MuonTrackFinder();
-  
-    /// reconstruct standalone tracks starting from a collection of seeds
-    edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<edm::View<TrajectorySeed> >&,
-                                                         edm::Event&,
-                                                         const edm::EventSetup&);
+  /// reconstruct standalone tracks starting from a collection of seeds
+  edm::OrphanHandle<reco::TrackCollection> reconstruct(const edm::Handle<edm::View<TrajectorySeed> >&,
+                                                       edm::Event&,
+                                                       const edm::EventSetup&);
 
-    /// reconstruct global tracks starting from a collection of
-    /// standalone tracks and one of trakectories. If the latter
-    /// is invalid, trajectories are refitted.
-    void reconstruct(const std::vector<TrackCand>&, edm::Event&, const edm::EventSetup&);
-    
- private:
-    
-    /// percolate the Event Setup
-    void setEvent(const edm::Event&);
+  /// reconstruct global tracks starting from a collection of
+  /// standalone tracks and one of trakectories. If the latter
+  /// is invalid, trajectories are refitted.
+  void reconstruct(const std::vector<TrackCand>&, edm::Event&, const edm::EventSetup&);
 
-    /// convert the trajectories into tracks and load them in to the event
-    edm::OrphanHandle<reco::TrackCollection> load(const TrajectoryContainer&, edm::Event&, const TrackerTopology &ttopo);
+private:
+  /// percolate the Event Setup
+  void setEvent(const edm::Event&);
 
-    /// convert the trajectories into tracks and load them in to the event
-    void load(const CandidateContainer&, edm::Event&, const TrackerTopology &ttopo);
+  /// convert the trajectories into tracks and load them in to the event
+  edm::OrphanHandle<reco::TrackCollection> load(const TrajectoryContainer&, edm::Event&, const TrackerTopology& ttopo);
 
-  private:
+  /// convert the trajectories into tracks and load them in to the event
+  void load(const CandidateContainer&, edm::Event&, const TrackerTopology& ttopo);
 
-    MuonTrajectoryBuilder* theTrajBuilder;
+private:
+  MuonTrajectoryBuilder* theTrajBuilder;
 
-    MuonTrajectoryCleaner* theTrajCleaner;
+  MuonTrajectoryCleaner* theTrajCleaner;
 
-    MuonTrackLoader* theTrackLoader;
-  
+  MuonTrackLoader* theTrackLoader;
 };
-#endif 
+#endif

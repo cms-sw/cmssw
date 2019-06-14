@@ -18,21 +18,19 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 namespace edm {
-        class Event;
-        class EventSetup;
-        class ParameterSet;
-}
-
+  class Event;
+  class EventSetup;
+  class ParameterSet;
+}  // namespace edm
 
 class EcalClusterFunctionBaseClass {
-        public:
-                virtual ~EcalClusterFunctionBaseClass() {};
-                virtual void  init( const edm::EventSetup& es ) = 0;
-                virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
-	        //this one is needed for EcalClusterCrackCorrection:
-	        virtual float getValue( const reco::CaloCluster &) const {return 0;};
-
+public:
+  virtual ~EcalClusterFunctionBaseClass(){};
+  virtual void init(const edm::EventSetup &es) = 0;
+  virtual float getValue(const reco::BasicCluster &, const EcalRecHitCollection &) const = 0;
+  virtual float getValue(const reco::SuperCluster &, const int mode) const = 0;
+  //this one is needed for EcalClusterCrackCorrection:
+  virtual float getValue(const reco::CaloCluster &) const { return 0; };
 };
 
 #endif

@@ -7,17 +7,13 @@ class ParameterSet;
 class Event;
 class EventSetup;
 
-class HepMCCopy : public edm::EDProducer
-{
-
- public:
-
-  explicit HepMCCopy(edm::ParameterSet const & p);
+class HepMCCopy : public edm::EDProducer {
+public:
+  explicit HepMCCopy(edm::ParameterSet const& p);
   ~HepMCCopy() override {}
-  void produce(edm::Event & e, const edm::EventSetup & c) override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
 };
 
 #endif

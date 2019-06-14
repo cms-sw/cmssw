@@ -14,7 +14,7 @@
 
 class OpticalAlignments;
 
-std::ostream & operator<<(std::ostream &, const OpticalAlignments &);
+std::ostream &operator<<(std::ostream &, const OpticalAlignments &);
 
 /**
    Description: Class for OpticalAlignments for use by COCOA.
@@ -24,15 +24,15 @@ public:
   OpticalAlignments() {}
   virtual ~OpticalAlignments() {}
 
-  std::vector<OpticalAlignInfo> opticalAlignments() const { return  opticalAlignments_; }
+  std::vector<OpticalAlignInfo> opticalAlignments() const { return opticalAlignments_; }
 
- public:
+public:
   std::vector<OpticalAlignInfo> opticalAlignments_;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 /* typedef std::vector<int>  OptAlignIDs; */
 /* typedef std::vector<int>::const_iterator OptAlignIDIterator; */
 
-#endif // OpticalAlignments_H
+#endif  // OpticalAlignments_H

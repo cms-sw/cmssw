@@ -5,19 +5,15 @@
 #include <xercesc/util/XMLUni.hpp>
 
 class XMLUniStr {
-    public:
-	XMLUniStr(const char *str) :
-		unicode(XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(str))
-	{}
+public:
+  XMLUniStr(const char *str) : unicode(XERCES_CPP_NAMESPACE_QUALIFIER XMLString::transcode(str)) {}
 
-	~XMLUniStr()
-	{ XERCES_CPP_NAMESPACE_QUALIFIER XMLString::release(&unicode); }
+  ~XMLUniStr() { XERCES_CPP_NAMESPACE_QUALIFIER XMLString::release(&unicode); }
 
-	operator const XMLCh *() const
-	{ return unicode; }
+  operator const XMLCh *() const { return unicode; }
 
-    private:
-	XMLCh	*unicode;
+private:
+  XMLCh *unicode;
 };
 
-#endif // PhysicsTools_MVATrainer_XMLUniStr_h
+#endif  // PhysicsTools_MVATrainer_XMLUniStr_h

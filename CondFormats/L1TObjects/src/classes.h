@@ -70,37 +70,35 @@
 
 namespace CondFormats_L1TObjects {
   struct dictionary {
-    
     std::vector<l1t::CaloParams::Node> dummy1a;
     l1t::CaloParams dummy1b;
     l1t::LUT dummy1c;
 
     l1t::CaloConfig dummy2;
 
-    std::vector<L1MuDTExtLut::LUT> dummy3 ;
-    std::vector<L1GtMuonTemplate> dummy4 ;
-    std::vector<L1GtCaloTemplate> dummy5 ;
-    std::vector<L1GtEnergySumTemplate> dummy6 ;
-    std::vector<L1GtJetCountsTemplate> dummy7 ;
-    std::vector<L1GtCorrelationTemplate> dummy8 ;
-    std::vector<L1GtCastorTemplate> dummy8a ;
-    std::vector<L1GtHfBitCountsTemplate> dummy8b ;
-    std::vector<L1GtHfRingEtSumsTemplate> dummy8c ;
-    std::vector<L1GtBptxTemplate> dummy8d ;
-    std::vector<L1GtExternalTemplate> dummy8e ;
-    std::map< std::string, L1GtAlgorithm > dummy9 ;
-    std::pair< std::string, L1GtAlgorithm > dummy9a ;
-    std::pair<short,L1MuDTEtaPattern> dummy11 ;
-    std::pair<int, std::vector<L1GtObject> > dummy13 ;
-//    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
-//    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
-//    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
+    std::vector<L1MuDTExtLut::LUT> dummy3;
+    std::vector<L1GtMuonTemplate> dummy4;
+    std::vector<L1GtCaloTemplate> dummy5;
+    std::vector<L1GtEnergySumTemplate> dummy6;
+    std::vector<L1GtJetCountsTemplate> dummy7;
+    std::vector<L1GtCorrelationTemplate> dummy8;
+    std::vector<L1GtCastorTemplate> dummy8a;
+    std::vector<L1GtHfBitCountsTemplate> dummy8b;
+    std::vector<L1GtHfRingEtSumsTemplate> dummy8c;
+    std::vector<L1GtBptxTemplate> dummy8d;
+    std::vector<L1GtExternalTemplate> dummy8e;
+    std::map<std::string, L1GtAlgorithm> dummy9;
+    std::pair<std::string, L1GtAlgorithm> dummy9a;
+    std::pair<short, L1MuDTEtaPattern> dummy11;
+    std::pair<int, std::vector<L1GtObject> > dummy13;
+    //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
+    //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
+    //    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
     L1TMuonGlobalParams dummy16;
     std::vector<L1TMuonGlobalParams::Node> dummy16a;
 
-
     L1TMuonOverlapParams dummy17;
-    std::vector< L1TMuonOverlapParams::Node> dummy17a;
+    std::vector<L1TMuonOverlapParams::Node> dummy17a;
 
     L1TMuonBarrelParams dummy18;
     std::vector<L1TMuonBarrelParams::Node> dummy18a;
@@ -125,6 +123,5 @@ namespace CondFormats_L1TObjects {
     L1TGlobalPrescalesVetos dummy22;
 
     L1TGlobalParameters dummy23;
-
   };
-}
+}  // namespace CondFormats_L1TObjects

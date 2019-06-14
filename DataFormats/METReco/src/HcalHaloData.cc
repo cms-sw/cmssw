@@ -6,8 +6,4 @@
   [date]: October 15, 2009
 */
 using namespace reco;
-HcalHaloData::HcalHaloData()
-{
-
-
-}
+HcalHaloData::HcalHaloData() {}

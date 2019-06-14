@@ -9,80 +9,79 @@
 
 namespace emtf {
 
-class Node
-{
-    public:
-        Node();
-        Node(std::string cName);
-        ~Node();
+  class Node {
+  public:
+    Node();
+    Node(std::string cName);
+    ~Node();
 
-        Node(Node &&) = default;
+    Node(Node &&) = default;
 
-        std::string getName();
-        void setName(std::string sName);
+    std::string getName();
+    void setName(std::string sName);
 
-        double getErrorReduction();
-        void setErrorReduction(double sErrorReduction);
+    double getErrorReduction();
+    void setErrorReduction(double sErrorReduction);
 
-        Node * getLeftDaughter();
-        void setLeftDaughter(Node *sLeftDaughter);
+    Node *getLeftDaughter();
+    void setLeftDaughter(Node *sLeftDaughter);
 
-        Node * getRightDaughter();
-        void setRightDaughter(Node *sLeftDaughter);
+    Node *getRightDaughter();
+    void setRightDaughter(Node *sLeftDaughter);
 
-        Node * getParent();
-        void setParent(Node *sParent);
+    Node *getParent();
+    void setParent(Node *sParent);
 
-        double getSplitValue();
-        void setSplitValue(double sSplitValue);
+    double getSplitValue();
+    void setSplitValue(double sSplitValue);
 
-        int getSplitVariable();
-        void setSplitVariable(int sSplitVar);
+    int getSplitVariable();
+    void setSplitVariable(int sSplitVar);
 
-        double getFitValue();
-        void setFitValue(double sFitValue);
+    double getFitValue();
+    void setFitValue(double sFitValue);
 
-        double getTotalError();
-        void setTotalError(double sTotalError);
+    double getTotalError();
+    void setTotalError(double sTotalError);
 
-        double getAvgError();
-        void setAvgError(double sAvgError);
+    double getAvgError();
+    void setAvgError(double sAvgError);
 
-        int getNumEvents();
-        void setNumEvents(int sNumEvents);
+    int getNumEvents();
+    void setNumEvents(int sNumEvents);
 
-        std::vector< std::vector<Event*> >& getEvents();
-        void setEvents(std::vector< std::vector<Event*> >& sEvents);
+    std::vector<std::vector<Event *> > &getEvents();
+    void setEvents(std::vector<std::vector<Event *> > &sEvents);
 
-        void calcOptimumSplit();
-        void filterEventsToDaughters();
-        Node* filterEventToDaughter(Event* e);
-        void listEvents();
-        void theMiracleOfChildBirth();
+    void calcOptimumSplit();
+    void filterEventsToDaughters();
+    Node *filterEventToDaughter(Event *e);
+    void listEvents();
+    void theMiracleOfChildBirth();
 
-    private:
-        Node(const Node &) = delete;
-        Node& operator=(const Node &) = delete;
+  private:
+    Node(const Node &) = delete;
+    Node &operator=(const Node &) = delete;
 
-        std::string name;
+    std::string name;
 
-        Node *leftDaughter;
-        Node *rightDaughter;
-        Node *parent;
+    Node *leftDaughter;
+    Node *rightDaughter;
+    Node *parent;
 
-        double splitValue;
-        int splitVariable;
+    double splitValue;
+    int splitVariable;
 
-        double errorReduction;
-        double totalError;
-        double avgError;
+    double errorReduction;
+    double totalError;
+    double avgError;
 
-        double fitValue;
-        int numEvents;
+    double fitValue;
+    int numEvents;
 
-        std::vector< std::vector<Event*> > events;
-};
+    std::vector<std::vector<Event *> > events;
+  };
 
-} // end of emtf namespace
+}  // namespace emtf
 
 #endif

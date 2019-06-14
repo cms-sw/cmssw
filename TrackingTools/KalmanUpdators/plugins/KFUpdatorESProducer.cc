@@ -12,22 +12,18 @@
 
 using namespace edm;
 
-KFUpdatorESProducer::KFUpdatorESProducer(const edm::ParameterSet & p) 
-{
+KFUpdatorESProducer::KFUpdatorESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   pset_ = p;
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname);
 }
 
 KFUpdatorESProducer::~KFUpdatorESProducer() {}
 
-std::unique_ptr<TrajectoryStateUpdator> 
-KFUpdatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
-//   if (_updator){
-//     delete _updator;
-//     _updator = 0;
-//   }
+std::unique_ptr<TrajectoryStateUpdator> KFUpdatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
+  //   if (_updator){
+  //     delete _updator;
+  //     _updator = 0;
+  //   }
   return std::make_unique<KFUpdator>();
 }
-
-

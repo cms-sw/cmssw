@@ -8,13 +8,11 @@
 
 using namespace std;
 
-ForwardDetRing::~ForwardDetRing(){}
+ForwardDetRing::~ForwardDetRing() {}
 
-void
-ForwardDetRing::compatibleDetsV( const TrajectoryStateOnSurface&,
-				 const Propagator&, 
-				 const MeasurementEstimator&,
-				 std::vector<DetWithState>&) const{
-  edm::LogError("DetLayers") << "At the moment not a real implementation" ;  
+void ForwardDetRing::compatibleDetsV(const TrajectoryStateOnSurface&,
+                                     const Propagator&,
+                                     const MeasurementEstimator&,
+                                     std::vector<DetWithState>&) const {
+  edm::LogError("DetLayers") << "At the moment not a real implementation";
 }
-

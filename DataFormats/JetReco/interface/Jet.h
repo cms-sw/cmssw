@@ -1,7 +1,7 @@
 #ifndef JetReco_Jet_h
 #define JetReco_Jet_h
 
- /** \class reco::Jet
+/** \class reco::Jet
  *
  * \short Base class for all types of Jets
  *
@@ -20,7 +20,7 @@ namespace reco {
   class Jet : public CompositePtrCandidate {
   public:
     typedef edm::Ptr<Candidate> Constituent;
-    typedef std::vector<Constituent>  Constituents;
+    typedef std::vector<Constituent> Constituents;
 
     /// record to store eta-phi first and second moments
     class EtaPhiMoments {
@@ -33,53 +33,54 @@ namespace reco {
     };
 
     /// Default constructor
-    Jet () : mJetArea (0), mPileupEnergy (0), mPassNumber (0) {}
+    Jet() : mJetArea(0), mPileupEnergy(0), mPassNumber(0) {}
     /// Initiator
-    Jet (const LorentzVector& fP4, const Point& fVertex);
-    Jet (const LorentzVector& fP4, const Point& fVertex, const Constituents& fConstituents);
+    Jet(const LorentzVector& fP4, const Point& fVertex);
+    Jet(const LorentzVector& fP4, const Point& fVertex, const Constituents& fConstituents);
     /// Destructor
-    ~Jet () override {}
+    ~Jet() override {}
 
     /// eta-phi statistics, ET weighted
-    EtaPhiMoments etaPhiStatistics () const;
+    EtaPhiMoments etaPhiStatistics() const;
 
     /// eta-eta second moment, ET weighted
-    float etaetaMoment () const;
+    float etaetaMoment() const;
 
     /// phi-phi second moment, ET weighted
-    float phiphiMoment () const;
+    float phiphiMoment() const;
 
     /// eta-phi second moment, ET weighted
-    float etaphiMoment () const;
+    float etaphiMoment() const;
 
     /// ET in annulus between rmin and rmax around jet direction
-    float etInAnnulus (float fRmin, float fRmax) const;
+    float etInAnnulus(float fRmin, float fRmax) const;
 
     /// return # of constituent carrying fraction of energy
-    int nCarrying (float fFraction) const;
- 
+    int nCarrying(float fFraction) const;
+
     /// maximum distance from jet to constituent
-    float maxDistance () const;
- 
+    float maxDistance() const;
+
     /// # of constituents
-    virtual int nConstituents () const {return numberOfDaughters();}
+    virtual int nConstituents() const { return numberOfDaughters(); }
 
     /// static function to convert detector eta to physics eta
-    static float physicsEta (float fZVertex, float fDetectorEta);
+    static float physicsEta(float fZVertex, float fDetectorEta);
 
     /// static function to convert physics eta to detector eta
-    static float detectorEta (float fZVertex, float fPhysicsEta);
+    static float detectorEta(float fZVertex, float fPhysicsEta);
 
-    static Candidate::LorentzVector physicsP4 (const Candidate::Point &newVertex, const Candidate &inParticle,const Candidate::Point &oldVertex=Candidate::Point(0,0,0));
+    static Candidate::LorentzVector physicsP4(const Candidate::Point& newVertex,
+                                              const Candidate& inParticle,
+                                              const Candidate::Point& oldVertex = Candidate::Point(0, 0, 0));
 
-    static Candidate::LorentzVector detectorP4 (const Candidate::Point &vertex, const Candidate &inParticle);
+    static Candidate::LorentzVector detectorP4(const Candidate::Point& vertex, const Candidate& inParticle);
 
     /// list of constituents
-    virtual Constituents getJetConstituents () const;
+    virtual Constituents getJetConstituents() const;
 
     /// quick list of constituents
-    virtual std::vector<const reco::Candidate*> getJetConstituentsQuick () const;
-
+    virtual std::vector<const reco::Candidate*> getJetConstituentsQuick() const;
 
     // jet structure variables:
     // constituentPtDistribution is the pT distribution among the jet constituents
@@ -90,36 +91,33 @@ namespace reco {
     // rmsCand is the rms of the eta-phi spread of the jet's constituents wrt the jet axis:
     float constituentEtaPhiSpread() const;
 
-
-
-
     /// Print object
-    virtual std::string print () const;
+    virtual std::string print() const;
 
     /// scale energy of the jet
-    virtual void scaleEnergy (double fScale);
-    
+    virtual void scaleEnergy(double fScale);
+
     /// set jet area
-    virtual void setJetArea (float fArea) {mJetArea = fArea;}
+    virtual void setJetArea(float fArea) { mJetArea = fArea; }
     /// get jet area
-    virtual float jetArea () const {return mJetArea;}
+    virtual float jetArea() const { return mJetArea; }
 
     ///  Set pileup energy contribution as calculated by algorithm
-    virtual void setPileup (float fEnergy) {mPileupEnergy = fEnergy;}
+    virtual void setPileup(float fEnergy) { mPileupEnergy = fEnergy; }
     ///  pileup energy contribution as calculated by algorithm
-    virtual float pileup () const {return mPileupEnergy;}
-    
+    virtual float pileup() const { return mPileupEnergy; }
+
     ///  Set number of passes taken by algorithm
-    virtual void setNPasses (int fPasses) {mPassNumber = fPasses;}
+    virtual void setNPasses(int fPasses) { mPassNumber = fPasses; }
     ///  number of passes taken by algorithm
-    virtual int nPasses () const {return mPassNumber;}
+    virtual int nPasses() const { return mPassNumber; }
 
     bool isJet() const override;
-    
+
   private:
     float mJetArea;
     float mPileupEnergy;
     int mPassNumber;
   };
-}
+}  // namespace reco
 #endif

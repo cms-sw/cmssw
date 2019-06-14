@@ -13,28 +13,30 @@
 // ROOT includes
 #include <TH1.h>
 
-namespace edm { class Run; class Event; class EventSetup; }
+namespace edm {
+  class Run;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class TrackerGeometry;
 
-class HIPixelClusterVtxAnalyzer : public edm::EDAnalyzer
-{
+class HIPixelClusterVtxAnalyzer : public edm::EDAnalyzer {
 public:
   explicit HIPixelClusterVtxAnalyzer(const edm::ParameterSet& ps);
   ~HIPixelClusterVtxAnalyzer();
- 
+
 private:
-  struct VertexHit
-  {
+  struct VertexHit {
     float z;
     float r;
     float w;
   };
 
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es);
-  int getContainedHits(const std::vector<VertexHit> &hits, double z0, double &chi);
+  int getContainedHits(const std::vector<VertexHit>& hits, double z0, double& chi);
 
-  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_; //pixel rec hits
+  edm::EDGetTokenT<SiPixelRecHitCollection> srcPixels_;  //pixel rec hits
 
   double minZ_;
   double maxZ_;
@@ -43,6 +45,5 @@ private:
   edm::Service<TFileService> fs;
   int maxHists_;
   int counter;
-
 };
 #endif

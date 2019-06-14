@@ -4,7 +4,7 @@
 //
 // Package:     CalibCalorimetry/HcalTPGAlgos
 // Class  :     HcalEmap
-// 
+//
 // Implementation:
 //     structure and functionality for HCAL electronic map
 //     NOTE!
@@ -23,63 +23,58 @@
 //
 
 // system include files
-#include<vector>
+#include <vector>
 #include <cstring>
 #include <fstream>
 #include <boost/shared_ptr.hpp>
 
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+class HcalEmap {
+public:
+  HcalEmap() {}
+  HcalEmap(std::string filename) { read_map(filename); }
+  ~HcalEmap() {}
 
-class HcalEmap
-{
- public:
-  HcalEmap(){}
-  HcalEmap( std::string filename ){ read_map(filename); }
-  ~HcalEmap(){}
-
-  class HcalEmapRow
-  {
+  class HcalEmapRow {
   public:
-    int rawId,crate,slot,dcc,spigot,fiber,fiberchan,ieta,iphi,idepth;
-    std::string topbottom,subdet;
-    
-    HcalEmapRow(){
-      rawId=0;
-      crate=0;
-      slot=0;
-      dcc=0;
-      spigot=0;
-      fiber=0;
-      fiberchan=0;
-      ieta=0;
-      iphi=0;
-      idepth=0;
-      topbottom="";
-      subdet="";
+    int rawId, crate, slot, dcc, spigot, fiber, fiberchan, ieta, iphi, idepth;
+    std::string topbottom, subdet;
+
+    HcalEmapRow() {
+      rawId = 0;
+      crate = 0;
+      slot = 0;
+      dcc = 0;
+      spigot = 0;
+      fiber = 0;
+      fiberchan = 0;
+      ieta = 0;
+      iphi = 0;
+      idepth = 0;
+      topbottom = "";
+      subdet = "";
     }
-    ~HcalEmapRow(){};  
+    ~HcalEmapRow(){};
 
-    bool operator<( const HcalEmapRow & other) const;
-    
-  }; // end of class HcalEmapRow
+    bool operator<(const HcalEmapRow& other) const;
 
-  int read_map( std::string filename );
+  };  // end of class HcalEmapRow
 
-  std::vector<HcalEmap::HcalEmapRow> & get_map( void );
+  int read_map(std::string filename);
 
- protected:
+  std::vector<HcalEmap::HcalEmapRow>& get_map(void);
+
+protected:
   std::vector<HcalEmapRow> map;
-}; // end of class HcalEmap
-
-
+};  // end of class HcalEmap
 
 class HcalEmap_test {
 public:
-  HcalEmap_test(){}
-  ~HcalEmap_test(){}
+  HcalEmap_test() {}
+  ~HcalEmap_test() {}
 
-  int test_read_map( std::string filename );
-}; // end of class HcalEmap_test
+  int test_read_map(std::string filename);
+};  // end of class HcalEmap_test
 
 #endif

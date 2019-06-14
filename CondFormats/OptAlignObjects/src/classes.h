@@ -1,6 +1,5 @@
 #include "CondFormats/OptAlignObjects/src/headers.h"
 
-
 //template std::vector<OpticalAlignInfo>::iterator;
 //template std::vector<MBAForkData>::iterator;
 //template std::vector<MBAChBenchCalPlateData>::iterator;
@@ -25,10 +24,10 @@ namespace CondFormats_OptAlignObjects {
     std::vector<CSCZSensorData> zsensorvec;
     std::vector<CSCRSensorData> rsensorvec;
     std::vector<OpticalAlignParam> OpticalAlignParamvec;
-    std::vector< Inclinometers::Item > incvec;
-    std::vector< PXsensors::Item > pxvec;
+    std::vector<Inclinometers::Item> incvec;
+    std::vector<PXsensors::Item> pxvec;
 
     edm::Wrapper<OpticalAlignments> tw;
     edm::Wrapper<OpticalAlignMeasurements> tw2;
   };
-}
+}  // namespace CondFormats_OptAlignObjects

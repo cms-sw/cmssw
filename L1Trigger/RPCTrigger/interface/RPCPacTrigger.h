@@ -28,22 +28,21 @@ public:
     * Then runs and RPCFinalSorter::run().
     * @return m_GBFinalMuons[be][iMU] be = 0 = barrel; be = 1 = endcaps,
     * 4 muons from barrel and 4 muons from endcaps, (some can be empty)*/
-  L1RpcTBMuonsVec2 runEvent(const L1RpcLogConesVec& logConesVec, edm::ESHandle<L1RPCHsbConfig> hsbConf );
-
+  L1RpcTBMuonsVec2 runEvent(const L1RpcLogConesVec& logConesVec, edm::ESHandle<L1RPCHsbConfig> hsbConf);
 
   /** Returns vector of not empty muons.
     * Can be called only after runEvent() */
   L1RpcTBMuonsVec getNotEmptyMuons();
 
 private:
-//-------------hardware------------------
+  //-------------hardware------------------
   std::vector<RPCTriggerCrate> m_TriggerCratesVec;
 
   RPCTriggerConfiguration* m_TrigCnfg;
 
   RPCFinalSorter m_FinalSorter;
   RPCHalfSorter m_HalfSorters;
-  
+
   //---------------------------------------
 
   /** Muons found in each event. m_GBFinalMuons[be][iMU] be = 0 = barrel; be = 1 = endcaps,

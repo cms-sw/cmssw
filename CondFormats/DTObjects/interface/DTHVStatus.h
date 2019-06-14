@@ -14,7 +14,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -32,35 +31,30 @@ class DTChamberId;
 #include <vector>
 #include <utility>
 
-template <class Key, class Content> class DTBufferTree;
+template <class Key, class Content>
+class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTHVStatusId {
-
- public:
-
+public:
   DTHVStatusId();
   ~DTHVStatusId();
 
-  int   wheelId;
+  int wheelId;
   int stationId;
-  int  sectorId;
-  int      slId;
-  int   layerId;
-  int    partId;
+  int sectorId;
+  int slId;
+  int layerId;
+  int partId;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTHVStatusData {
-
- public:
-
+public:
   DTHVStatusData();
   ~DTHVStatusData();
 
@@ -70,19 +64,15 @@ class DTHVStatusData {
   int flagC;
   int flagS;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTHVStatus {
-
- public:
-
+public:
   /** Constructor
    */
   DTHVStatus();
-  DTHVStatus( const std::string& version );
+  DTHVStatus(const std::string& version);
 
   /** Destructor
    */
@@ -91,113 +81,69 @@ class DTHVStatus {
   /** Operations
    */
   /// get content
-  int get( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int   layerId,
-           int    partId,
-           int&    fCell,
-           int&    lCell,
-           int&    flagA,
-           int&    flagC,
-           int&    flagS ) const;
-  int get( const DTLayerId& id,
-           int    partId,
-           int&    fCell,
-           int&    lCell,
-           int&    flagA,
-           int&    flagC,
-           int&    flagS ) const;
-  int get( const DTWireId& id,
-           int&         flagA,
-           int&         flagC,
-           int&         flagS ) const;
-  int offChannelsNumber() const; 
-  int offChannelsNumber( const DTChamberId& id ) const; 
-  int badChannelsNumber() const; 
-  int badChannelsNumber( const DTChamberId& id ) const; 
+  int get(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          int layerId,
+          int partId,
+          int& fCell,
+          int& lCell,
+          int& flagA,
+          int& flagC,
+          int& flagS) const;
+  int get(const DTLayerId& id, int partId, int& fCell, int& lCell, int& flagA, int& flagC, int& flagS) const;
+  int get(const DTWireId& id, int& flagA, int& flagC, int& flagS) const;
+  int offChannelsNumber() const;
+  int offChannelsNumber(const DTChamberId& id) const;
+  int badChannelsNumber() const;
+  int badChannelsNumber(const DTChamberId& id) const;
   /// access version
-  const
-  std::string& version() const;
+  const std::string& version() const;
   std::string& version();
 
   /// reset content
   void clear();
 
-  int set( int   wheelId,
-           int stationId,
-           int  sectorId,
-           int      slId,
-           int   layerId,
-           int    partId,
-           int     fCell,
-           int     lCell,
-           int     flagA,
-           int     flagC,
-           int     flagS );
-  int set( const DTLayerId& id,
-           int    partId,
-           int     fCell,
-           int     lCell,
-           int     flagA,
-           int     flagC,
-           int     flagS );
-  int setFlagA( int   wheelId,
-                int stationId,
-                int  sectorId,
-                int      slId,
-                int   layerId,
-                int    partId,
-                int      flag );
-  int setFlagA( const DTLayerId& id,
-                int    partId,
-                int      flag );
-  int setFlagC( int   wheelId,
-                int stationId,
-                int  sectorId,
-                int      slId,
-                int   layerId,
-                int    partId,
-                int      flag );
-  int setFlagC( const DTLayerId& id,
-                int    partId,
-                int      flag );
-  int setFlagS( int   wheelId,
-                int stationId,
-                int  sectorId,
-                int      slId,
-                int   layerId,
-                int    partId,
-                int      flag );
-  int setFlagS( const DTLayerId& id,
-                int    partId,
-                int      flag );
+  int set(int wheelId,
+          int stationId,
+          int sectorId,
+          int slId,
+          int layerId,
+          int partId,
+          int fCell,
+          int lCell,
+          int flagA,
+          int flagC,
+          int flagS);
+  int set(const DTLayerId& id, int partId, int fCell, int lCell, int flagA, int flagC, int flagS);
+  int setFlagA(int wheelId, int stationId, int sectorId, int slId, int layerId, int partId, int flag);
+  int setFlagA(const DTLayerId& id, int partId, int flag);
+  int setFlagC(int wheelId, int stationId, int sectorId, int slId, int layerId, int partId, int flag);
+  int setFlagC(const DTLayerId& id, int partId, int flag);
+  int setFlagS(int wheelId, int stationId, int sectorId, int slId, int layerId, int partId, int flag);
+  int setFlagS(const DTLayerId& id, int partId, int flag);
 
   /// Access methods to data
-  typedef std::vector< std::pair<DTHVStatusId,
-                                 DTHVStatusData> >::const_iterator
-                                                    const_iterator;
+  typedef std::vector<std::pair<DTHVStatusId, DTHVStatusData> >::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
 
   void initialize();
 
- private:
-
+private:
   DTHVStatus(DTHVStatus const&) = delete;
   DTHVStatus& operator=(DTHVStatus const&) = delete;
 
   std::string dataVersion;
 
-  std::vector< std::pair<DTHVStatusId,DTHVStatusData> > dataList;
+  std::vector<std::pair<DTHVStatusId, DTHVStatusData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int, int> > dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif // DTHVStatus_H
+#endif  // DTHVStatus_H

@@ -19,10 +19,8 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-
 class Tsos4D {
- public:
-
+public:
   Tsos4D(TrajectoryStateOnSurface const &);
 
   // Returns the 4d vector
@@ -31,16 +29,13 @@ class Tsos4D {
   // Returns the 4x4 covariance matrix
   AlgebraicSymMatrix44 errorMatrix() const;
 
- private:
+private:
   AlgebraicVector4 tsos_4d;
   AlgebraicSymMatrix44 tsosErr_44;
-
 };
 
-
-
 class Tsos2DPhi {
- public:
+public:
   // Constructor of the class
   Tsos2DPhi(TrajectoryStateOnSurface const &);
 
@@ -50,16 +45,13 @@ class Tsos2DPhi {
   // Returns the 2x2 covariance matrix
   AlgebraicSymMatrix22 errorMatrix() const;
 
- private:
+private:
   AlgebraicVector2 tsos_2d_phi;
   AlgebraicSymMatrix22 tsosErr_22_phi;
 };
 
-
-
 class Tsos2DZed {
- public:
-
+public:
   Tsos2DZed(TrajectoryStateOnSurface const &);
 
   // Returns the 2d vector
@@ -68,28 +60,23 @@ class Tsos2DZed {
   // Returns the 2x2 covariance matrix
   AlgebraicSymMatrix22 errorMatrix() const;
 
- private:
+private:
   AlgebraicVector2 tsos_2d_zed;
   AlgebraicSymMatrix22 tsosErr_22_zed;
 };
 
-
-
 class StateSegmentMatcher {
-
- public:
-  
+public:
   // Perform the matching between a track state and a CSC segment
   StateSegmentMatcher(TrajectoryStateOnSurface const &, CSCSegment const &, LocalError const &);
 
   // Perform the matching between a track state and a DT segment
-  StateSegmentMatcher(TrajectoryStateOnSurface const &, DTRecSegment4D  const &, LocalError const &);
+  StateSegmentMatcher(TrajectoryStateOnSurface const &, DTRecSegment4D const &, LocalError const &);
 
-  // Returns the estimator value 
+  // Returns the estimator value
   double value();
 
- private:
-  
+private:
   AlgebraicVector4 v1, v2;
   AlgebraicSymMatrix44 m1, m2, ape;
   AlgebraicVector2 v1_2d, v2_2d;
@@ -98,22 +85,19 @@ class StateSegmentMatcher {
   double estValue;
 
   void setAPE4d(LocalError const &apeLoc) {
-    ape[0][0] = 0; //sigma (dx/dz) 
-    ape[1][1] = 0; //sigma (dy/dz)
-    ape[2][2] = apeLoc.xx(); //sigma (x)  
-    ape[3][3] = apeLoc.yy(); //sigma (y)
-    ape[0][2] = 0; //cov(dx/dz,x) 
-    ape[1][3] = 0; //cov(dy/dz,y)
+    ape[0][0] = 0;            //sigma (dx/dz)
+    ape[1][1] = 0;            //sigma (dy/dz)
+    ape[2][2] = apeLoc.xx();  //sigma (x)
+    ape[3][3] = apeLoc.yy();  //sigma (y)
+    ape[0][2] = 0;            //cov(dx/dz,x)
+    ape[1][3] = 0;            //cov(dy/dz,y)
   };
 
   void setAPE2d(LocalError const &apeLoc) {
-    ape_2d[0][0] = 0; //sigma (dx/dz)
-    ape_2d[1][1] = apeLoc.xx(); //sigma (x)
-    ape_2d[0][1] = 0; //cov(dx/dz,x) 
+    ape_2d[0][0] = 0;            //sigma (dx/dz)
+    ape_2d[1][1] = apeLoc.xx();  //sigma (x)
+    ape_2d[0][1] = 0;            //cov(dx/dz,x)
   };
 };
 
-
 #endif
-
-

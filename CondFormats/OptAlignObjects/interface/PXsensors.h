@@ -2,11 +2,11 @@
 #define PXSENSORS_H
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-#include<vector>
-#include<string>
+#include <vector>
+#include <string>
 class PXsensors {
 public:
-  struct Item{
+  struct Item {
     std::string Sensor_type;
     int Sensor_number;
     std::string ME_layer;
@@ -22,12 +22,12 @@ public:
     float Norm_Intercept;
     float Norm_Intercept_Error;
     float Shifts_due_to_shims_etc;
-  
-  COND_SERIALIZABLE;
-};
+
+    COND_SERIALIZABLE;
+  };
   PXsensors();
   virtual ~PXsensors();
-  std::vector<Item>  m_PXsensors;
+  std::vector<Item> m_PXsensors;
 
   COND_SERIALIZABLE;
 };

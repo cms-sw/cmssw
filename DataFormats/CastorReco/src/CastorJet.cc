@@ -5,6 +5,4 @@ reco::CastorJet::CastorJet(const double energycal, const reco::CastorClusterRef&
   usedCluster_ = usedCluster;
 }
 
-reco::CastorJet::~CastorJet() {
-
-}
+reco::CastorJet::~CastorJet() {}

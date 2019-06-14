@@ -24,12 +24,12 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-class HcalHistogramRawToDigi : public edm::EDProducer
-{
+class HcalHistogramRawToDigi : public edm::EDProducer {
 public:
   explicit HcalHistogramRawToDigi(const edm::ParameterSet& ps);
   ~HcalHistogramRawToDigi() override;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
+
 private:
   edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
   HcalUnpacker unpacker_;

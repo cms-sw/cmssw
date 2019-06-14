@@ -34,52 +34,48 @@ class MuonServiceProxy;
 
 #include <string>
 
-namespace edm {class ParameterSet; class Event;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+}  // namespace edm
 
 class MuonUpdatorAtVertex {
 public:
   /// Constructor
-  MuonUpdatorAtVertex(const edm::ParameterSet& pset, const MuonServiceProxy *service);
+  MuonUpdatorAtVertex(const edm::ParameterSet &pset, const MuonServiceProxy *service);
 
   /// Destructor
   virtual ~MuonUpdatorAtVertex();
 
   // Operations
-  
+
   /// Propagate the state to the 2D-PCA
-  std::pair<bool,FreeTrajectoryState>
-    propagate(const TrajectoryStateOnSurface &tsos, const reco::BeamSpot & beamSpot) const;
+  std::pair<bool, FreeTrajectoryState> propagate(const TrajectoryStateOnSurface &tsos,
+                                                 const reco::BeamSpot &beamSpot) const;
 
   /// Applies the vertex constraint
-  std::pair<bool,FreeTrajectoryState> 
-    update(const reco::TransientTrack &track, const reco::BeamSpot & beamSpot) const;
-  
+  std::pair<bool, FreeTrajectoryState> update(const reco::TransientTrack &track, const reco::BeamSpot &beamSpot) const;
+
   /// Applies the vertex constraint
-  std::pair<bool,FreeTrajectoryState>
-    update(const FreeTrajectoryState& ftsAtVtx, const reco::BeamSpot & beamSpot) const;
+  std::pair<bool, FreeTrajectoryState> update(const FreeTrajectoryState &ftsAtVtx,
+                                              const reco::BeamSpot &beamSpot) const;
 
   /// Propagate to the 2D-PCA and apply the vertex constraint
-  std::pair<bool,FreeTrajectoryState>
-    propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
-			const reco::BeamSpot & beamSpot) const;
+  std::pair<bool, FreeTrajectoryState> propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
+                                                           const reco::BeamSpot &beamSpot) const;
 
   /// Propagate the state to the 2D-PCA (nominal CMS axis)
-  std::pair<bool,FreeTrajectoryState>
-    propagateToNominalLine(const TrajectoryStateOnSurface &tsos) const;
+  std::pair<bool, FreeTrajectoryState> propagateToNominalLine(const TrajectoryStateOnSurface &tsos) const;
 
   /// Propagate the state to the 2D-PCA (nominal CMS axis) - DEPRECATED -
-  std::pair<bool,FreeTrajectoryState>
-    propagate(const TrajectoryStateOnSurface &tsos) const __attribute__((deprecated));
-
-  
+  std::pair<bool, FreeTrajectoryState> propagate(const TrajectoryStateOnSurface &tsos) const
+      __attribute__((deprecated));
 
 protected:
-
 private:
-
   const MuonServiceProxy *theService;
   std::string thePropagatorName;
- 
+
   TransientTrackFromFTSFactory theTransientTrackFactory;
   SingleTrackVertexConstraint theConstrictor;
   double theChi2Cut;
@@ -87,4 +83,3 @@ private:
   GlobalError thePositionErrors;
 };
 #endif
-

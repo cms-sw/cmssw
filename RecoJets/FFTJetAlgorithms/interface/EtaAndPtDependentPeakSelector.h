@@ -8,46 +8,40 @@
 #include "RecoJets/FFTJetAlgorithms/interface/LookupTable2d.h"
 
 namespace fftjetcms {
-    //
-    // Interpolation is linear in eta, log(scale), and log(magnitude).
-    // It is assumed that the first variable in the table is eta and
-    // the second is log(scale). It is assumed that the table value
-    // is log(magnitude).
-    //
-    class EtaAndPtDependentPeakSelector :
-        public fftjet::Functor1<bool,fftjet::Peak>
-    {
-    public:
-        explicit EtaAndPtDependentPeakSelector(std::istream& in);
-        ~EtaAndPtDependentPeakSelector() override;
+  //
+  // Interpolation is linear in eta, log(scale), and log(magnitude).
+  // It is assumed that the first variable in the table is eta and
+  // the second is log(scale). It is assumed that the table value
+  // is log(magnitude).
+  //
+  class EtaAndPtDependentPeakSelector : public fftjet::Functor1<bool, fftjet::Peak> {
+  public:
+    explicit EtaAndPtDependentPeakSelector(std::istream& in);
+    ~EtaAndPtDependentPeakSelector() override;
 
-        bool operator()(const fftjet::Peak& peak) const override;
-        inline bool isValid() const {return ip_;}
+    bool operator()(const fftjet::Peak& peak) const override;
+    inline bool isValid() const { return ip_; }
 
-    private:
-        EtaAndPtDependentPeakSelector() = delete;
-        EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&) = delete;
-        EtaAndPtDependentPeakSelector& operator=(
-            const EtaAndPtDependentPeakSelector&) = delete;
+  private:
+    EtaAndPtDependentPeakSelector() = delete;
+    EtaAndPtDependentPeakSelector(const EtaAndPtDependentPeakSelector&) = delete;
+    EtaAndPtDependentPeakSelector& operator=(const EtaAndPtDependentPeakSelector&) = delete;
 
-        fftjet::LinearInterpolator2d* ip_;
-    };
+    fftjet::LinearInterpolator2d* ip_;
+  };
 
-    // Similar class which does not perform linear interpolation but
-    // simply looks up in a histogram-like table
-    class EtaAndPtLookupPeakSelector :
-        public fftjet::Functor1<bool,fftjet::Peak>
-    {
-    public:
-        EtaAndPtLookupPeakSelector(unsigned nx, double xmin, double xmax,
-                                   unsigned ny, double ymin, double ymax,
-                                   const std::vector<double>& data);
+  // Similar class which does not perform linear interpolation but
+  // simply looks up in a histogram-like table
+  class EtaAndPtLookupPeakSelector : public fftjet::Functor1<bool, fftjet::Peak> {
+  public:
+    EtaAndPtLookupPeakSelector(
+        unsigned nx, double xmin, double xmax, unsigned ny, double ymin, double ymax, const std::vector<double>& data);
 
-        bool operator()(const fftjet::Peak& peak) const override;
+    bool operator()(const fftjet::Peak& peak) const override;
 
-    private:
-        LookupTable2d lookupTable_;
-    };
-}
+  private:
+    LookupTable2d lookupTable_;
+  };
+}  // namespace fftjetcms
 
-#endif // RecoJets_FFTJetAlgorithm_EtaAndPtDependentPeakSelector_h
+#endif  // RecoJets_FFTJetAlgorithm_EtaAndPtDependentPeakSelector_h

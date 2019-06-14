@@ -16,7 +16,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -33,45 +32,39 @@
 #include <string>
 
 class DTReadOutMappingCache;
-template <class Key, class Content> class DTBufferTree;
+template <class Key, class Content>
+class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class DTReadOutGeometryLink {
-
- public:
-
+public:
   DTReadOutGeometryLink();
   ~DTReadOutGeometryLink();
 
-  int     dduId;
-  int     rosId;
-  int     robId;
-  int     tdcId;
+  int dduId;
+  int rosId;
+  int robId;
+  int tdcId;
   int channelId;
-  int   wheelId;
+  int wheelId;
   int stationId;
-  int  sectorId;
-  int      slId;
-  int   layerId;
-  int    cellId;
+  int sectorId;
+  int slId;
+  int layerId;
+  int cellId;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-
 class DTReadOutMapping {
-
- public:
-
+public:
   /** Constructor
    */
   DTReadOutMapping();
-  DTReadOutMapping( const std::string& cell_map_version,
-                    const std::string&  rob_map_version );
+  DTReadOutMapping(const std::string& cell_map_version, const std::string& rob_map_version);
 
   /** Destructor
    */
@@ -82,68 +75,56 @@ class DTReadOutMapping {
   /** Operations
    */
   /// transform identifiers
-  int readOutToGeometry( int      dduId,
-                         int      rosId,
-                         int      robId,
-                         int      tdcId,
-                         int  channelId,
-                         DTWireId& wireId ) const;
+  int readOutToGeometry(int dduId, int rosId, int robId, int tdcId, int channelId, DTWireId& wireId) const;
 
-  int readOutToGeometry( int      dduId,
-                         int      rosId,
-                         int      robId,
-                         int      tdcId,
-                         int  channelId,
-                         int&   wheelId,
-                         int& stationId,
-                         int&  sectorId,
-                         int&      slId,
-                         int&   layerId,
-                         int&    cellId ) const;
+  int readOutToGeometry(int dduId,
+                        int rosId,
+                        int robId,
+                        int tdcId,
+                        int channelId,
+                        int& wheelId,
+                        int& stationId,
+                        int& sectorId,
+                        int& slId,
+                        int& layerId,
+                        int& cellId) const;
 
-  int geometryToReadOut( int    wheelId,
-                         int  stationId,
-                         int   sectorId,
-                         int       slId,
-                         int    layerId,
-                         int     cellId,
-                         int&     dduId,
-                         int&     rosId,
-                         int&     robId,
-                         int&     tdcId,
-                         int& channelId ) const;
-  int geometryToReadOut( const DTWireId& wireId,
-                         int&     dduId,
-                         int&     rosId,
-                         int&     robId,
-                         int&     tdcId,
-                         int& channelId ) const;
+  int geometryToReadOut(int wheelId,
+                        int stationId,
+                        int sectorId,
+                        int slId,
+                        int layerId,
+                        int cellId,
+                        int& dduId,
+                        int& rosId,
+                        int& robId,
+                        int& tdcId,
+                        int& channelId) const;
+  int geometryToReadOut(const DTWireId& wireId, int& dduId, int& rosId, int& robId, int& tdcId, int& channelId) const;
 
   type mapType() const;
 
   /// access parent maps identifiers
-  const
-  std::string& mapCellTdc() const;
+  const std::string& mapCellTdc() const;
   std::string& mapCellTdc();
-  const
-  std::string& mapRobRos() const;
+  const std::string& mapRobRos() const;
   std::string& mapRobRos();
 
   /// clear map
   void clear();
 
   /// insert connection
-  int insertReadOutGeometryLink( int     dduId,
-                                 int     rosId,
-                                 int     robId,
-                                 int     tdcId,
-                                 int channelId,
-                                 int   wheelId,
-                                 int stationId,
-                                 int  sectorId,
-                                 int      slId,
-                                 int   layerId,
-                                 int    cellId );
+  int insertReadOutGeometryLink(int dduId,
+                                int rosId,
+                                int robId,
+                                int tdcId,
+                                int channelId,
+                                int wheelId,
+                                int stationId,
+                                int sectorId,
+                                int slId,
+                                int layerId,
+                                int cellId);
 
   /// Access methods to the connections
   typedef std::vector<DTReadOutGeometryLink>::const_iterator const_iterator;
@@ -153,24 +134,23 @@ class DTReadOutMapping {
   /// Expand to full map
   const DTReadOutMapping* fullMap() const;
 
- private:
-
+private:
   DTReadOutMapping(DTReadOutMapping const&) = delete;
   DTReadOutMapping& operator=(DTReadOutMapping const&) = delete;
 
   edm::AtomicPtrCache<DTReadOutMappingCache> const& atomicCache() const { return atomicCache_; }
-  edm::AtomicPtrCache<DTReadOutMappingCache> & atomicCache() { return atomicCache_; }
+  edm::AtomicPtrCache<DTReadOutMappingCache>& atomicCache() { return atomicCache_; }
 
-  static DTReadOutMapping* expandMap( const DTReadOutMapping& compMap );
+  static DTReadOutMapping* expandMap(const DTReadOutMapping& compMap);
 
   std::string cellMapVersion;
-  std::string  robMapVersion;
+  std::string robMapVersion;
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
 
   edm::AtomicPtrCache<DTReadOutMappingCache> atomicCache_ COND_TRANSIENT;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgBuf   COND_TRANSIENT;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > grBuf   COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int, int> > rgBuf COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int, int> > grBuf COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
@@ -178,7 +158,6 @@ class DTReadOutMapping {
   std::string mapNameRG() const;
   std::string mapNameGR() const;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
-#endif // DTReadOutMapping_H
+#endif  // DTReadOutMapping_H

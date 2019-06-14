@@ -4,7 +4,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWAdapterHeaderTableManager
-// 
+//
 /**\class FWAdapterHeaderTableManager FWAdapterHeaderTableManager.h Fireworks/TableWidget/interface/FWAdapterHeaderTableManager.h
 
  Description: a TableManager used to pass the header info of another table as the body of this table
@@ -29,37 +29,33 @@
 // forward declarations
 class FWColumnLabelCellRenderer;
 
-class FWAdapterHeaderTableManager : public FWTableManagerBase 
-{
+class FWAdapterHeaderTableManager : public FWTableManagerBase {
+public:
+  FWAdapterHeaderTableManager(const FWTableManagerBase*);
+  ~FWAdapterHeaderTableManager() override;
 
-   public:
-      FWAdapterHeaderTableManager(const FWTableManagerBase*);
-      ~FWAdapterHeaderTableManager() override;
+  // ---------- const member functions ---------------------
+  int numberOfRows() const override;
+  int numberOfColumns() const override;
+  std::vector<std::string> getTitles() const override;
+  FWTableCellRendererBase* cellRenderer(int iRow, int iCol) const override;
+  int unsortedRowNumber(int) const override;
 
-      // ---------- const member functions ---------------------
-       int numberOfRows() const override ;
-       int numberOfColumns() const override ;
-      std::vector<std::string> getTitles() const override;
-      FWTableCellRendererBase* cellRenderer(int iRow, int iCol) const override;
-      int unsortedRowNumber(int) const override;
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
+  void implSort(int col, bool sortOrder) override;
 
-      // ---------- member functions ---------------------------
-      void implSort(int col, bool sortOrder) override ;
+private:
+  FWAdapterHeaderTableManager(const FWAdapterHeaderTableManager&) = delete;  // stop default
 
-   private:
-      FWAdapterHeaderTableManager(const FWAdapterHeaderTableManager&) = delete; // stop default
+  const FWAdapterHeaderTableManager& operator=(const FWAdapterHeaderTableManager&) = delete;  // stop default
 
-      const FWAdapterHeaderTableManager& operator=(const FWAdapterHeaderTableManager&) = delete; // stop default
-
-      // ---------- member data --------------------------------
-      const FWTableManagerBase* m_table;
-      FWColumnLabelCellRenderer* m_renderer;
-      int m_sortedColumn;
-      bool m_descendingSort;
-
+  // ---------- member data --------------------------------
+  const FWTableManagerBase* m_table;
+  FWColumnLabelCellRenderer* m_renderer;
+  int m_sortedColumn;
+  bool m_descendingSort;
 };
-
 
 #endif

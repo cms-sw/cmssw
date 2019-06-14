@@ -24,14 +24,16 @@
 #include <iostream>
 #include <limits>
 
-namespace reco { namespace tau {
-  class RecoTauConstructor;
-  class PFRecoTauEnergyAlgorithmPlugin;
-}} 
+namespace reco {
+  namespace tau {
+    class RecoTauConstructor;
+    class PFRecoTauEnergyAlgorithmPlugin;
+  }  // namespace tau
+}  // namespace reco
 
 namespace reco {
 
-class PFTau : public BaseTau {
+  class PFTau : public BaseTau {
   public:
     enum hadronicDecayMode {
       kNull = -1,
@@ -54,8 +56,8 @@ class PFTau : public BaseTau {
     };
 
     PFTau();
-    PFTau(Charge q,const LorentzVector &,const Point & = Point( 0, 0, 0 ) );
-    ~PFTau() override {};
+    PFTau(Charge q, const LorentzVector&, const Point& = Point(0, 0, 0));
+    ~PFTau() override{};
     PFTau* clone() const override;
 
     const JetBaseRef& jetRef() const;
@@ -170,18 +172,19 @@ class PFTau : public BaseTau {
 
     /// Size of signal cone
     double signalConeSize() const { return signalConeSize_; }
-    void setSignalConeSize(double signalConeSize) { signalConeSize_ = signalConeSize; }  
+    void setSignalConeSize(double signalConeSize) { signalConeSize_ = signalConeSize; }
 
     //Electron rejection
-    float emFraction() const; // Ecal/Hcal Cluster Energy
-    float hcalTotOverPLead() const; // total Hcal Cluster E / leadPFChargedHadron P
-    float hcalMaxOverPLead() const; // max. Hcal Cluster E / leadPFChargedHadron P
-    float hcal3x3OverPLead() const; // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
-    float ecalStripSumEOverPLead() const; // Simple BremsRecovery Sum E / leadPFChargedHadron P
-    float bremsRecoveryEOverPLead() const; // BremsRecovery Sum E / leadPFChargedHadron P
-    reco::TrackRef electronPreIDTrack() const; // Ref to KF track from Electron PreID
-    float electronPreIDOutput() const; // BDT output from Electron PreID
-    bool electronPreIDDecision() const; // Decision from Electron PreID
+    float emFraction() const;        // Ecal/Hcal Cluster Energy
+    float hcalTotOverPLead() const;  // total Hcal Cluster E / leadPFChargedHadron P
+    float hcalMaxOverPLead() const;  // max. Hcal Cluster E / leadPFChargedHadron P
+    // Hcal Cluster E in R<0.184 around Ecal impact point of leading track / leadPFChargedHadron P
+    float hcal3x3OverPLead() const;
+    float ecalStripSumEOverPLead() const;       // Simple BremsRecovery Sum E / leadPFChargedHadron P
+    float bremsRecoveryEOverPLead() const;      // BremsRecovery Sum E / leadPFChargedHadron P
+    reco::TrackRef electronPreIDTrack() const;  // Ref to KF track from Electron PreID
+    float electronPreIDOutput() const;          // BDT output from Electron PreID
+    bool electronPreIDDecision() const;         // Decision from Electron PreID
 
     void setemFraction(const float&);
     void sethcalTotOverPLead(const float&);
@@ -194,7 +197,7 @@ class PFTau : public BaseTau {
     void setelectronPreIDDecision(const bool&);
 
     // For Muon Rejection
-    bool hasMuonReference() const; // check if muon ref exists
+    bool hasMuonReference() const;  // check if muon ref exists
     float caloComp() const;
     float segComp() const;
     bool muonDecision() const;
@@ -206,11 +209,11 @@ class PFTau : public BaseTau {
     /// ( the candidates used to construct this Candidate)
     /// in the case of taus, there is only one source candidate,
     /// which is the corresponding PFJet
-    size_type numberOfSourceCandidatePtrs() const override {return 1;}
+    size_type numberOfSourceCandidatePtrs() const override { return 1; }
 
     /// return a RefToBase to the source Candidates
     /// ( the candidates used to construct this Candidate)
-    CandidatePtr sourceCandidatePtr( size_type i ) const override;
+    CandidatePtr sourceCandidatePtr(size_type i) const override;
 
     /// prints information on this PFTau
     void dump(std::ostream& out = std::cout) const;
@@ -255,7 +258,7 @@ class PFTau : public BaseTau {
 
     float bendCorrMass_;
 
-    float signalConeSize_; 
+    float signalConeSize_;
 
     reco::JetBaseRef jetRef_;
     PFTauTagInfoRef PFTauTagInfoRef_;
@@ -280,16 +283,16 @@ class PFTau : public BaseTau {
     edm::AtomicPtrCache<reco::PFCandidatePtr> leadPFChargedHadrCand_;
     edm::AtomicPtrCache<reco::PFCandidatePtr> leadPFNeutralCand_;
     edm::AtomicPtrCache<reco::PFCandidatePtr> leadPFCand_;
-    
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientSignalPFCands_;
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientSignalPFChargedHadrCands_;
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientSignalPFNeutrHadrCands_;
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientSignalPFGammaCands_;
 
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientIsolationPFCands_;
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientIsolationPFChargedHadrCands_;
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientIsolationPFNeutrHadrCands_;
-    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr> > selectedTransientIsolationPFGammaCands_;
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientSignalPFCands_;
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientSignalPFChargedHadrCands_;
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientSignalPFNeutrHadrCands_;
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientSignalPFGammaCands_;
+
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientIsolationPFCands_;
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientIsolationPFChargedHadrCands_;
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientIsolationPFNeutrHadrCands_;
+    edm::AtomicPtrCache<std::vector<reco::PFCandidatePtr>> selectedTransientIsolationPFGammaCands_;
 
     RecoTauPiZeroRefVector signalPiZeroCandidatesRefs_;
     RecoTauPiZeroRefVector isolationPiZeroCandidatesRefs_;
@@ -304,10 +307,10 @@ class PFTau : public BaseTau {
     // Association of PF candidates into PFRecoTauChargedHadrons (transient)
     edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron>> signalTauChargedHadronCandidates_;
     edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron>> isolationTauChargedHadronCandidates_;
-};
+  };
 
-std::ostream & operator<<(std::ostream& out, const PFTau& c);
+  std::ostream& operator<<(std::ostream& out, const PFTau& c);
 
-} // end namespace reco
+}  // end namespace reco
 
 #endif

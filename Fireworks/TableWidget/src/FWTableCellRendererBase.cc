@@ -2,7 +2,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWTableCellRendererBase
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "Fireworks/TableWidget/interface/FWTableCellRendererBase.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,18 +26,14 @@
 //
 // constructors and destructor
 //
-FWTableCellRendererBase::FWTableCellRendererBase()
-{
-}
+FWTableCellRendererBase::FWTableCellRendererBase() {}
 
 // FWTableCellRendererBase::FWTableCellRendererBase(const FWTableCellRendererBase& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWTableCellRendererBase::~FWTableCellRendererBase()
-{
-}
+FWTableCellRendererBase::~FWTableCellRendererBase() {}
 
 //
 // assignment operators
@@ -55,9 +50,7 @@ FWTableCellRendererBase::~FWTableCellRendererBase()
 //
 // member functions
 //
-void 
-FWTableCellRendererBase::buttonEvent(Event_t* /*iClickEvent*/, int /*iRelClickX*/, int /*iRelClickY*/)
-{}
+void FWTableCellRendererBase::buttonEvent(Event_t* /*iClickEvent*/, int /*iRelClickX*/, int /*iRelClickY*/) {}
 
 //
 // const member functions

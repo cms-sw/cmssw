@@ -5,22 +5,24 @@
 
 namespace funct {
 
-  template<typename T>
+  template <typename T>
   struct SinStruct {
-    SinStruct(const T& t) : _(t) { }
+    SinStruct(const T& t) : _(t) {}
     inline double operator()() const { return ::sin(_()); }
-    T _; 
+    T _;
   };
 
-  template<typename T>
+  template <typename T>
   struct Sin {
     typedef SinStruct<T> type;
     inline static type compose(const T& t) { return type(t); }
   };
 
-  template<typename T>
-  inline typename Sin<T>::type sin(const T & t) { return Sin<T>::compose(t); }
+  template <typename T>
+  inline typename Sin<T>::type sin(const T& t) {
+    return Sin<T>::compose(t);
+  }
 
-}
+}  // namespace funct
 
 #endif

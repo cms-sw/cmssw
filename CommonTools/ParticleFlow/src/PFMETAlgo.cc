@@ -8,7 +8,6 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -16,35 +15,25 @@ using namespace math;
 using namespace pf2pat;
 
 PFMETAlgo::PFMETAlgo(const edm::ParameterSet& iConfig) {
-  
+  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
-  verbose_ = 
-    iConfig.getUntrackedParameter<bool>("verbose",false);
-
-  hfCalibFactor_ = 
-    iConfig.getParameter<double>("hfCalibFactor");
-
+  hfCalibFactor_ = iConfig.getParameter<double>("hfCalibFactor");
 }
 
+PFMETAlgo::~PFMETAlgo() {}
 
-
-PFMETAlgo::~PFMETAlgo() { }
-
-reco::MET  PFMETAlgo::produce( const reco::PFCandidateCollection& pfCandidates) {
-  
+reco::MET PFMETAlgo::produce(const reco::PFCandidateCollection& pfCandidates) {
   double sumEx = 0;
   double sumEy = 0;
   double sumEt = 0;
 
-  for( unsigned i=0; i<pfCandidates.size(); i++ ) {
-
+  for (unsigned i = 0; i < pfCandidates.size(); i++) {
     const reco::PFCandidate& cand = pfCandidates[i];
-    
+
     double E = cand.energy();
 
     /// HF calibration factor (in 31X applied by PFProducer)
-    if( cand.particleId()==PFCandidate::h_HF || 
-	cand.particleId()==PFCandidate::egamma_HF ) 
+    if (cand.particleId() == PFCandidate::h_HF || cand.particleId() == PFCandidate::egamma_HF)
       E *= hfCalibFactor_;
 
     double phi = cand.phi();
@@ -53,30 +42,23 @@ reco::MET  PFMETAlgo::produce( const reco::PFCandidateCollection& pfCandidates) 
 
     double theta = cand.theta();
     double sintheta = sin(theta);
-    
-    double et = E*sintheta;
-    double ex = et*cosphi;
-    double ey = et*sinphi;
-    
+
+    double et = E * sintheta;
+    double ex = et * cosphi;
+    double ey = et * sinphi;
+
     sumEx += ex;
     sumEy += ey;
     sumEt += et;
   }
-  
-  double Et = sqrt( sumEx*sumEx + sumEy*sumEy);
-  XYZTLorentzVector missingEt( -sumEx, -sumEy, 0, Et);
-  
-  if(verbose_) {
-    cout<<"PFMETAlgo: mEx, mEy, mEt = "
-	<< missingEt.X() <<", "
-	<< missingEt.Y() <<", "
-	<< missingEt.T() <<endl;
+
+  double Et = sqrt(sumEx * sumEx + sumEy * sumEy);
+  XYZTLorentzVector missingEt(-sumEx, -sumEy, 0, Et);
+
+  if (verbose_) {
+    cout << "PFMETAlgo: mEx, mEy, mEt = " << missingEt.X() << ", " << missingEt.Y() << ", " << missingEt.T() << endl;
   }
 
-  XYZPoint vertex; // dummy vertex
+  XYZPoint vertex;  // dummy vertex
   return MET(sumEt, missingEt, vertex);
-
- 
 }
-
-

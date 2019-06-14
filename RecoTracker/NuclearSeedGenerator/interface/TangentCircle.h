@@ -4,71 +4,78 @@
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-class TangentCircle
-{
-//   TODO : for speed-up :
-//   typedef Point2DBase< float, GlobalTag>     Global2DPoint;
-//   typedef Vector2DBase< float, GlobalTag>    Global2DVector;
+class TangentCircle {
+  //   TODO : for speed-up :
+  //   typedef Point2DBase< float, GlobalTag>     Global2DPoint;
+  //   typedef Vector2DBase< float, GlobalTag>    Global2DVector;
 
- public :
-     TangentCircle() :
-        theInnerPoint(), theOuterPoint(), theVertexPoint(), theDirectionAtVertex(),
-        theX0(0), theY0(0), theRho(0), theVertexError(0), 
-        valid(false), theCharge(0) {}
+public:
+  TangentCircle()
+      : theInnerPoint(),
+        theOuterPoint(),
+        theVertexPoint(),
+        theDirectionAtVertex(),
+        theX0(0),
+        theY0(0),
+        theRho(0),
+        theVertexError(0),
+        valid(false),
+        theCharge(0) {}
 
-     /// Calculate the circle from 2 points on the circle (the vertex=innerPoint and the outerPoint)
-     /// and the tangent direction at the inner point
-     TangentCircle(const GlobalVector& direction, const GlobalPoint& innerPoint, const GlobalPoint& outerPoint); 
+  /// Calculate the circle from 2 points on the circle (the vertex=innerPoint and the outerPoint)
+  /// and the tangent direction at the inner point
+  TangentCircle(const GlobalVector& direction, const GlobalPoint& innerPoint, const GlobalPoint& outerPoint);
 
-     /// Copy of FastCircle
-     TangentCircle(const GlobalPoint& outerPoint, const GlobalPoint& innerPoint, const GlobalPoint& vertexPoint); 
+  /// Copy of FastCircle
+  TangentCircle(const GlobalPoint& outerPoint, const GlobalPoint& innerPoint, const GlobalPoint& vertexPoint);
 
-     /// Calculate the parameters of a circle which pass by 2 points (innerPoint and outerPoint) and which is tangent to primCircle 
-     TangentCircle(const TangentCircle& primCircle, const GlobalPoint& outerPoint, const GlobalPoint& innerPoint);
+  /// Calculate the parameters of a circle which pass by 2 points (innerPoint and outerPoint) and which is tangent to primCircle
+  TangentCircle(const TangentCircle& primCircle, const GlobalPoint& outerPoint, const GlobalPoint& innerPoint);
 
-     /// Return the direction at the vertex
-     GlobalVector directionAtVertex();
+  /// Return the direction at the vertex
+  GlobalVector directionAtVertex();
 
-     double x0() const {return theX0;}
-   
-     double y0() const {return theY0;}
- 
-     double rho() const {return theRho;}
+  double x0() const { return theX0; }
 
-     GlobalPoint outerPoint() const { return theOuterPoint; }
+  double y0() const { return theY0; }
 
-     GlobalPoint innerPoint() const { return theInnerPoint; }
+  double rho() const { return theRho; }
 
-     GlobalPoint vertexPoint() const { return theVertexPoint; }
+  GlobalPoint outerPoint() const { return theOuterPoint; }
 
-     double vertexError() const { return theVertexError; }
+  GlobalPoint innerPoint() const { return theInnerPoint; }
 
-     double curvatureError();
+  GlobalPoint vertexPoint() const { return theVertexPoint; }
 
-     int charge(float magz);
+  double vertexError() const { return theVertexError; }
 
+  double curvatureError();
 
- private :
-     GlobalPoint theInnerPoint;
-     GlobalPoint theOuterPoint;
-     GlobalPoint theVertexPoint;
+  int charge(float magz);
 
-     GlobalVector theDirectionAtVertex;
-     
-     double theX0;  /**< x center of the circle             */
-     double theY0;  /**< y center of the circle             */
-     double theRho; /**< Signed radius of the circle (=q*R) */
+private:
+  GlobalPoint theInnerPoint;
+  GlobalPoint theOuterPoint;
+  GlobalPoint theVertexPoint;
 
-     double theVertexError;  /**< the error on the vertex position along the direction of the circle at this point */
+  GlobalVector theDirectionAtVertex;
 
-     bool valid;
-     int theCharge;
+  double theX0;  /**< x center of the circle             */
+  double theY0;  /**< y center of the circle             */
+  double theRho; /**< Signed radius of the circle (=q*R) */
 
-     double isTangent(const TangentCircle& primCircle, const TangentCircle& secCircle) const;
-     GlobalPoint getPosition(const TangentCircle& circle, const GlobalPoint& initalPosition, double theta, int direction) const;
-     int chargeLocally(float magz, GlobalVector v) const;
-     GlobalVector direction(const GlobalPoint& point) const;
+  double theVertexError; /**< the error on the vertex position along the direction of the circle at this point */
 
+  bool valid;
+  int theCharge;
+
+  double isTangent(const TangentCircle& primCircle, const TangentCircle& secCircle) const;
+  GlobalPoint getPosition(const TangentCircle& circle,
+                          const GlobalPoint& initalPosition,
+                          double theta,
+                          int direction) const;
+  int chargeLocally(float magz, GlobalVector v) const;
+  GlobalVector direction(const GlobalPoint& point) const;
 };
 
 #endif

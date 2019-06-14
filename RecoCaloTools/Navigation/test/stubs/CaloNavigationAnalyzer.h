@@ -27,15 +27,13 @@
 
 #include <iostream>
 
-
-class CaloNavigationAnalyzer : public edm::EDAnalyzer 
-{
+class CaloNavigationAnalyzer : public edm::EDAnalyzer {
 public:
-  explicit CaloNavigationAnalyzer( const edm::ParameterSet& );
+  explicit CaloNavigationAnalyzer(const edm::ParameterSet&);
   ~CaloNavigationAnalyzer();
-  
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
 private:
   int pass_;
 };

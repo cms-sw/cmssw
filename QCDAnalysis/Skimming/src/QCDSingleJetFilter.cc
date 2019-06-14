@@ -17,7 +17,6 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -38,16 +37,16 @@ using namespace edm;
 //using namespace reco;
 
 //detruktor
-QCDSingleJetFilter::~QCDSingleJetFilter(){
+QCDSingleJetFilter::~QCDSingleJetFilter() {
   //delete theFlatDistrib;
 }
 
 // Constructor
 //QCDSingleJetFilter::QCDSingleJetFilter(const edm::ParameterSet& pset):theFlatDistrib(0),theTriggerJetCollectionA(pset.getParameter<edm::InputTag>("TriggerJetCollectionA")),theTrigCollB(pset.getParameter<edm::InputTag>("TriggerJetCollectionB")){
-QCDSingleJetFilter::QCDSingleJetFilter(const edm::ParameterSet& pset):
-  theTriggerJetCollectionAToken(consumes<reco::CaloJetCollection>(pset.getParameter<edm::InputTag>("TriggerJetCollectionA"))),
-  theTrigCollBToken(consumes<reco::CaloJetCollection>(pset.getParameter<edm::InputTag>("TriggerJetCollectionB"))){
-
+QCDSingleJetFilter::QCDSingleJetFilter(const edm::ParameterSet& pset)
+    : theTriggerJetCollectionAToken(
+          consumes<reco::CaloJetCollection>(pset.getParameter<edm::InputTag>("TriggerJetCollectionA"))),
+      theTrigCollBToken(consumes<reco::CaloJetCollection>(pset.getParameter<edm::InputTag>("TriggerJetCollectionB"))) {
   // Local Debug flag
   //debug              = pset.getParameter<bool>("DebugHiggsToZZ4LeptonsSkim");
 
@@ -70,43 +69,40 @@ QCDSingleJetFilter::QCDSingleJetFilter(const edm::ParameterSet& pset):
   //theFlatDistrib = new CLHEP::RandFlat(engine,0.0,1.0);
 }
 
-
-
-
 // Filter event
 bool QCDSingleJetFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
-    bool keepEvent = false;
-    using namespace edm;
-    using namespace std;
+  bool keepEvent = false;
+  using namespace edm;
+  using namespace std;
 
-    //now get right Jet-Collection:
-    edm::Handle<reco::CaloJetCollection>  theTriggerCollectionJetsA;
-    edm::Handle<reco::CaloJetCollection>  theTrigCollJetsB;
+  //now get right Jet-Collection:
+  edm::Handle<reco::CaloJetCollection> theTriggerCollectionJetsA;
+  edm::Handle<reco::CaloJetCollection> theTrigCollJetsB;
 
-    event.getByToken(theTriggerJetCollectionAToken,theTriggerCollectionJetsA);
-    event.getByToken(theTrigCollBToken,theTrigCollJetsB);
+  event.getByToken(theTriggerJetCollectionAToken, theTriggerCollectionJetsA);
+  event.getByToken(theTrigCollBToken, theTrigCollJetsB);
 
-    for (reco::CaloJetCollection::const_iterator iter=theTriggerCollectionJetsA->begin();iter!=theTriggerCollectionJetsA->end();++iter){
-      if ((*iter).pt()>=theMinPt) {
-	keepEvent=true;
-	break;
-      }
+  for (reco::CaloJetCollection::const_iterator iter = theTriggerCollectionJetsA->begin();
+       iter != theTriggerCollectionJetsA->end();
+       ++iter) {
+    if ((*iter).pt() >= theMinPt) {
+      keepEvent = true;
+      break;
     }
+  }
 
-    for (reco::CaloJetCollection::const_iterator iter=theTrigCollJetsB->begin();iter!=theTrigCollJetsB->end();++iter){
-      if ((*iter).pt()>=theMinPt) {
-	keepEvent=true;
-	break;
-      }
+  for (reco::CaloJetCollection::const_iterator iter = theTrigCollJetsB->begin(); iter != theTrigCollJetsB->end();
+       ++iter) {
+    if ((*iter).pt() >= theMinPt) {
+      keepEvent = true;
+      break;
     }
+  }
 
+  //double randval = theFlatDistrib->fire();
+  //if (thePreScale<1) keepEvent=false;
+  //else if ((randval>(1.0/thePreScale))&&keepEvent) keepEvent=false;
+  //   cout<<"KeepEvent?: "<<keepEvent<<endl;
 
-    //double randval = theFlatDistrib->fire();
-    //if (thePreScale<1) keepEvent=false;
-    //else if ((randval>(1.0/thePreScale))&&keepEvent) keepEvent=false;
-//   cout<<"KeepEvent?: "<<keepEvent<<endl;
-
-    return keepEvent;
-
+  return keepEvent;
 }
-

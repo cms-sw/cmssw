@@ -2,12 +2,12 @@
 //
 //   Class: DTChambThSegm.cpp
 //
-//   Description: Muon Chamber Trigger Theta candidate 
+//   Description: Muon Chamber Trigger Theta candidate
 //
 //
 //   Author List:
 //   C. Grandi
-//   Modifications: 
+//   Modifications:
 //
 //
 //--------------------------------------------------
@@ -31,20 +31,16 @@
 //----------------
 // Constructors --
 //----------------
-DTChambThSegm::DTChambThSegm(DTChamberId chamberid, int step, 
-				     int* pos, int* qual)
-  : m_chamberid(chamberid),  m_step(step) {
-
-  for(int i=0;i<7;i++) {
+DTChambThSegm::DTChambThSegm(DTChamberId chamberid, int step, int* pos, int* qual)
+    : m_chamberid(chamberid), m_step(step) {
+  for (int i = 0; i < 7; i++) {
     m_outPos[i] = pos[i];
     m_outQual[i] = qual[i];
   }
 }
 
-DTChambThSegm::DTChambThSegm(const DTChambThSegm& seg) : 
-  m_chamberid(seg.m_chamberid), m_step(seg.m_step)  {
-
-  for(int i=0;i<7;i++) {
+DTChambThSegm::DTChambThSegm(const DTChambThSegm& seg) : m_chamberid(seg.m_chamberid), m_step(seg.m_step) {
+  for (int i = 0; i < 7; i++) {
     m_outPos[i] = seg.m_outPos[i];
     m_outQual[i] = seg.m_outQual[i];
   }
@@ -53,19 +49,17 @@ DTChambThSegm::DTChambThSegm(const DTChambThSegm& seg) :
 //--------------
 // Destructor --
 //--------------
-DTChambThSegm::~DTChambThSegm(){
-}
+DTChambThSegm::~DTChambThSegm() {}
 
 //--------------
 // Operations --
 //--------------
 
-DTChambThSegm&
-DTChambThSegm::operator=(const DTChambThSegm& seg){
-  if(this != &seg){
+DTChambThSegm& DTChambThSegm::operator=(const DTChambThSegm& seg) {
+  if (this != &seg) {
     m_chamberid = seg.m_chamberid;
     m_step = seg.m_step;
-    for(int i=0;i<7;i++) {
+    for (int i = 0; i < 7; i++) {
       m_outPos[i] = seg.m_outPos[i];
       m_outQual[i] = seg.m_outQual[i];
     }
@@ -73,19 +67,17 @@ DTChambThSegm::operator=(const DTChambThSegm& seg){
   return *this;
 }
 
-int 
-DTChambThSegm::code(const int i) const {
-  if(i<0||i>=7){
+int DTChambThSegm::code(const int i) const {
+  if (i < 0 || i >= 7) {
     std::cout << "DTChambThSegm::code : index out of range: " << i;
     std::cout << "0 returned!" << std::endl;
     return 0;
   }
-  return (int)(m_outPos[i]+m_outQual[i]);
+  return (int)(m_outPos[i] + m_outQual[i]);
 }
 
-int 
-DTChambThSegm::position(const int i) const {
-  if(i<0||i>=7){
+int DTChambThSegm::position(const int i) const {
+  if (i < 0 || i >= 7) {
     std::cout << "DTChambThSegm::position : index out of range: " << i;
     std::cout << "0 returned!" << std::endl;
     return 0;
@@ -93,9 +85,8 @@ DTChambThSegm::position(const int i) const {
   return (int)m_outPos[i];
 }
 
-int 
-DTChambThSegm::quality(const int i) const {
-  if(i<0||i>=7){
+int DTChambThSegm::quality(const int i) const {
+  if (i < 0 || i >= 7) {
     std::cout << "DTChambThSegm::quality : index out of range: " << i;
     std::cout << "0 returned!" << std::endl;
     return 0;
@@ -103,16 +94,14 @@ DTChambThSegm::quality(const int i) const {
   return (int)m_outQual[i];
 }
 
-void
-DTChambThSegm::print() const {
+void DTChambThSegm::print() const {
   std::cout << "TP at step " << step() << ", in wheel " << wheel();
   std::cout << ", station " << station() << ", sector " << sector();
   std::cout << " : " << std::endl;
   std::cout << "  output codes : ";
-  int i=0;
-  for(i=0;i<7;i++){
-    std::cout << (int)(m_outPos[i]+m_outQual[i]) << " ";
+  int i = 0;
+  for (i = 0; i < 7; i++) {
+    std::cout << (int)(m_outPos[i] + m_outQual[i]) << " ";
   }
   std::cout << "\n";
-  
 }

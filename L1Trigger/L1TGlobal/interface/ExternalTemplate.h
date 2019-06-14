@@ -29,62 +29,47 @@
 // forward declarations
 
 // class declaration
-class ExternalTemplate : public GlobalCondition
-{
+class ExternalTemplate : public GlobalCondition {
+public:
+  // constructor
+  ExternalTemplate();
+
+  // constructor
+  ExternalTemplate(const std::string&);
+
+  // constructor
+  ExternalTemplate(const std::string&, const l1t::GtConditionType&);
+
+  // copy constructor
+  ExternalTemplate(const ExternalTemplate&);
+
+  // destructor
+  ~ExternalTemplate() override;
+
+  // assign operator
+  ExternalTemplate& operator=(const ExternalTemplate&);
 
 public:
-
-    // constructor
-    ExternalTemplate();
-
-    // constructor
-    ExternalTemplate(const std::string&);
-
-    // constructor
-    ExternalTemplate(const std::string&, const l1t::GtConditionType&);
-
-    // copy constructor
-    ExternalTemplate(const ExternalTemplate&);
-
-    // destructor
-    ~ExternalTemplate() override;
-
-    // assign operator
-    ExternalTemplate& operator=(const ExternalTemplate&);
-
 public:
+  /// get external channel number
+  inline const unsigned int& extChannel() const { return m_extChannel; }
 
+  /// set functions
+  inline void setExternalChannel(unsigned int extCh) { m_extChannel = extCh; }
 
+  /// print the condition
+  void print(std::ostream& myCout) const override;
 
-
-public:
-
-    /// get external channel number
-    inline const unsigned int& extChannel() const
-    {
-        return m_extChannel;
-    }
-
-    /// set functions
-    inline void setExternalChannel(unsigned int extCh) { m_extChannel = extCh; }
-
-    /// print the condition
-    void print(std::ostream& myCout) const override;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const ExternalTemplate&);
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const ExternalTemplate&);
 
 private:
-
-    /// copy function for copy constructor and operator=
-    void copy(const ExternalTemplate& cp);
+  /// copy function for copy constructor and operator=
+  void copy(const ExternalTemplate& cp);
 
 private:
-
-    //Channel for this signal
-    unsigned int m_extChannel;
-    
-
+  //Channel for this signal
+  unsigned int m_extChannel;
 };
 
 #endif

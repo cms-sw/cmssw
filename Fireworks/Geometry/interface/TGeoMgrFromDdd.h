@@ -4,7 +4,7 @@
 //
 // Package:     Geometry
 // Class  :     TGeoMgrFromDdd
-// 
+//
 /**\class TGeoMgrFromDdd TGeoMgrFromDdd.h Fireworks/Geometry/interface/TGeoMgrFromDdd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Fri Jul  2 16:11:33 CEST 2010
 //
 
@@ -29,9 +29,8 @@
 
 // forward declarations
 
-namespace edm
-{
-   class ParameterSet;
+namespace edm {
+  class ParameterSet;
 }
 
 class DDSolid;
@@ -44,47 +43,42 @@ class TGeoVolume;
 class TGeoMaterial;
 class TGeoMedium;
 
-class TGeoMgrFromDdd : public edm::ESProducer
-{
+class TGeoMgrFromDdd : public edm::ESProducer {
 public:
-   TGeoMgrFromDdd(const edm::ParameterSet&);
-   ~TGeoMgrFromDdd() override;
+  TGeoMgrFromDdd(const edm::ParameterSet&);
+  ~TGeoMgrFromDdd() override;
 
-   using ReturnType = std::unique_ptr<TGeoManager>;
+  using ReturnType = std::unique_ptr<TGeoManager>;
 
-   // ---------- const member functions ---------------------
+  // ---------- const member functions ---------------------
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   ReturnType produce(const DisplayGeomRecord&);
+  ReturnType produce(const DisplayGeomRecord&);
 
 private:
-   TGeoMgrFromDdd(const TGeoMgrFromDdd&);                  // stop default
-   const TGeoMgrFromDdd& operator=(const TGeoMgrFromDdd&); // stop default
+  TGeoMgrFromDdd(const TGeoMgrFromDdd&);                   // stop default
+  const TGeoMgrFromDdd& operator=(const TGeoMgrFromDdd&);  // stop default
 
+  TGeoManager* createManager(int level);
 
-   TGeoManager*  createManager(int level);
+  TGeoShape* createShape(const std::string& iName, const DDSolid& iSolid);
+  TGeoVolume* createVolume(const std::string& iName, const DDSolid& iSolid, const DDMaterial& iMaterial);
+  TGeoMaterial* createMaterial(const DDMaterial& iMaterial);
 
-   TGeoShape*    createShape(const std::string& iName,
-                             const DDSolid& iSolid);
-   TGeoVolume*   createVolume(const std::string& iName,
-                              const DDSolid& iSolid,
-                              const DDMaterial& iMaterial);
-   TGeoMaterial* createMaterial(const DDMaterial& iMaterial);
+  // ---------- member data --------------------------------
 
-   // ---------- member data --------------------------------
+  int m_level;
+  bool m_verbose;
+  std::string m_TGeoName;
+  std::string m_TGeoTitle;
 
-   int                      m_level;
-   bool                     m_verbose;
-   std::string              m_TGeoName;
-   std::string              m_TGeoTitle;
-
-   std::map<std::string, TGeoShape*>    nameToShape_;
-   std::map<std::string, TGeoVolume*>   nameToVolume_;
-   std::map<std::string, TGeoMaterial*> nameToMaterial_;
-   std::map<std::string, TGeoMedium*>   nameToMedium_;
+  std::map<std::string, TGeoShape*> nameToShape_;
+  std::map<std::string, TGeoVolume*> nameToVolume_;
+  std::map<std::string, TGeoMaterial*> nameToMaterial_;
+  std::map<std::string, TGeoMedium*> nameToMedium_;
 };
 
 #endif

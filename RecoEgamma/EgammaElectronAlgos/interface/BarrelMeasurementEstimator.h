@@ -27,41 +27,39 @@
 
 #include <utility>
 
+class BarrelMeasurementEstimator : public MeasurementEstimator {
+public:
+  BarrelMeasurementEstimator() {}
+  BarrelMeasurementEstimator(float phiMin, float phiMax, float zMin, float zMax)
+      : thePhiMin(phiMin), thePhiMax(phiMax), theZMin(zMin), theZMax(zMax) {}
 
-class BarrelMeasurementEstimator : public MeasurementEstimator
- {
-  public:
+  void setPhiRange(float dummyphiMin, float dummyphiMax) {
+    thePhiMin = dummyphiMin;
+    thePhiMax = dummyphiMax;
+  }
+  void setZRange(float zmin, float zmax) {
+    theZMin = zmin;
+    theZMax = zmax;
+  }
 
-    BarrelMeasurementEstimator()
-     {}
-    BarrelMeasurementEstimator(float phiMin, float phiMax, float zMin, float zMax )
-     : thePhiMin(phiMin), thePhiMax(phiMax), theZMin(zMin), theZMax(zMax)
-     {}
+  // zero value indicates incompatible ts - hit pair
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const TrackingRecHit& hit) const override;
+  virtual std::pair<bool, double> estimate(const TrajectoryStateOnSurface& ts, const GlobalPoint& gp) const;
+  virtual std::pair<bool, double> estimate(const GlobalPoint& vprim,
+                                           const TrajectoryStateOnSurface& ts,
+                                           const GlobalPoint& gp) const;
+  bool estimate(const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const override;
 
-    void setPhiRange( float dummyphiMin , float dummyphiMax )
-     { thePhiMin = dummyphiMin ; thePhiMax = dummyphiMax ; }
-    void setZRange( float zmin, float zmax )
-     { theZMin=zmin ; theZMax=zmax ; }
+  BarrelMeasurementEstimator* clone() const override { return new BarrelMeasurementEstimator(*this); }
 
-    // zero value indicates incompatible ts - hit pair
-    std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const TrackingRecHit & hit ) const override ;
-    virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
-    virtual std::pair<bool,double> estimate( const GlobalPoint & vprim, const TrajectoryStateOnSurface & ts, const GlobalPoint & gp ) const ;
-    bool estimate( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const override ;
+  MeasurementEstimator::Local2DVector maximalLocalDisplacement(const TrajectoryStateOnSurface& ts,
+                                                               const BoundPlane& plane) const override;
 
-    BarrelMeasurementEstimator* clone() const override
-     { return new BarrelMeasurementEstimator(*this) ; }
+private:
+  float thePhiMin;
+  float thePhiMax;
+  float theZMin;
+  float theZMax;
+};
 
-    MeasurementEstimator::Local2DVector
-    maximalLocalDisplacement( const TrajectoryStateOnSurface & ts, const BoundPlane & plane) const override ;
-
-  private:
-
-    float thePhiMin ;
-    float thePhiMax ;
-    float theZMin ;
-    float theZMax ;
-
- } ;
-
-#endif // BarrelMeasurementEstimator_H
+#endif  // BarrelMeasurementEstimator_H

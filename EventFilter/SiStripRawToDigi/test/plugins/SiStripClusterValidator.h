@@ -13,7 +13,7 @@
 #include <sstream>
 
 class SiStripClusterValidator : public edm::EDAnalyzer {
- public:
+public:
   SiStripClusterValidator(const edm::ParameterSet& config);
   ~SiStripClusterValidator();
   virtual void beginJob();
@@ -22,8 +22,7 @@ class SiStripClusterValidator : public edm::EDAnalyzer {
   void validate(const edm::DetSetVector<SiStripCluster>&, const edm::DetSetVector<SiStripCluster>&);
   void validate(const edmNew::DetSetVector<SiStripCluster>&, const edmNew::DetSetVector<SiStripCluster>&);
 
- private:
-
+private:
   inline const std::string& header() { return header_; }
 
   /// Input collections
@@ -34,10 +33,9 @@ class SiStripClusterValidator : public edm::EDAnalyzer {
   bool errors_;
 
   std::string header_;
-
 };
 
 std::ostream& operator<<(std::ostream&, const edmNew::DetSetVector<SiStripCluster>&);
 std::ostream& operator<<(std::ostream&, const edm::DetSetVector<SiStripCluster>&);
 
-#endif /// RecoLocalTracker_SiStripClusterizer_SiStripClusterValidator_H
+#endif  /// RecoLocalTracker_SiStripClusterizer_SiStripClusterValidator_H

@@ -3,21 +3,13 @@
 #include <cstring>
 
 // ------------------------------------------------------------------------------------------
-StoredPileupJetIdentifier::StoredPileupJetIdentifier() 
-{
-}
+StoredPileupJetIdentifier::StoredPileupJetIdentifier() {}
 
 // ------------------------------------------------------------------------------------------
-StoredPileupJetIdentifier::~StoredPileupJetIdentifier() 
-{
-}
+StoredPileupJetIdentifier::~StoredPileupJetIdentifier() {}
 
 // ------------------------------------------------------------------------------------------
-PileupJetIdentifier::PileupJetIdentifier() 
-{
-}
+PileupJetIdentifier::PileupJetIdentifier() {}
 
 // ------------------------------------------------------------------------------------------
-PileupJetIdentifier::~PileupJetIdentifier() 
-{
-}
+PileupJetIdentifier::~PileupJetIdentifier() {}

@@ -20,20 +20,12 @@
  *
  */
 
-
 /// \class Level1TriggerScalers.h
 /// \brief Persistable copy of Level1 Trigger Scalers
 
-class Level1TriggerScalers
-{
- public:
-
-  enum 
-  {
-    nLevel1Triggers          = 128,
-    nLevel1TestTriggers      = 64,
-    firstShortLSRun          = 125574
-  };
+class Level1TriggerScalers {
+public:
+  enum { nLevel1Triggers = 128, nLevel1TestTriggers = 64, firstShortLSRun = 125574 };
 
   static const unsigned long long N_BX = 3564ULL;
   static const unsigned long long N_BX_ACTIVE = 2808ULL;
@@ -41,7 +33,7 @@ class Level1TriggerScalers
   static const unsigned long long N_BX_LUMI_SECTION = N_ORBITS_LUMI_SECTION * N_BX;
 
   Level1TriggerScalers();
-  Level1TriggerScalers(const unsigned char * rawData);
+  Level1TriggerScalers(const unsigned char* rawData);
   virtual ~Level1TriggerScalers();
 
   /// name method
@@ -51,75 +43,61 @@ class Level1TriggerScalers
   bool empty() const { return false; }
 
   // Data accessor methods
-  int version() const { return(version_);}
+  int version() const { return (version_); }
 
-  unsigned int trigType() const            { return(trigType_);}
-  unsigned int eventID() const             { return(eventID_);}
-  unsigned int sourceID() const            { return(sourceID_);}
-  unsigned int bunchNumber() const         { return(bunchNumber_);}
+  unsigned int trigType() const { return (trigType_); }
+  unsigned int eventID() const { return (eventID_); }
+  unsigned int sourceID() const { return (sourceID_); }
+  unsigned int bunchNumber() const { return (bunchNumber_); }
 
-  struct timespec collectionTime() const
-  { return(collectionTime_.get_timespec());}
+  struct timespec collectionTime() const {
+    return (collectionTime_.get_timespec());
+  }
 
-  unsigned int lumiSegmentNr() const        { return(lumiSegmentNr_);}
-  unsigned int lumiSegmentOrbits() const    { return(lumiSegmentOrbits_);}
-  unsigned int orbitNr() const              { return(orbitNr_);}
+  unsigned int lumiSegmentNr() const { return (lumiSegmentNr_); }
+  unsigned int lumiSegmentOrbits() const { return (lumiSegmentOrbits_); }
+  unsigned int orbitNr() const { return (orbitNr_); }
 
-  unsigned int gtResets() const             { return(gtResets_);}
-  unsigned int bunchCrossingErrors() const  { return(bunchCrossingErrors_);}
-  unsigned long long gtTriggers() const     { return(gtTriggers_);}
-  unsigned long long gtEvents() const       { return(gtEvents_);}
-  float gtTriggersRate() const              { return(gtTriggersRate_);}
-  float gtEventsRate() const                { return(gtEventsRate_);}
-  int prescaleIndexAlgo() const             { return(prescaleIndexAlgo_);}
-  int prescaleIndexTech() const             { return(prescaleIndexTech_);}
+  unsigned int gtResets() const { return (gtResets_); }
+  unsigned int bunchCrossingErrors() const { return (bunchCrossingErrors_); }
+  unsigned long long gtTriggers() const { return (gtTriggers_); }
+  unsigned long long gtEvents() const { return (gtEvents_); }
+  float gtTriggersRate() const { return (gtTriggersRate_); }
+  float gtEventsRate() const { return (gtEventsRate_); }
+  int prescaleIndexAlgo() const { return (prescaleIndexAlgo_); }
+  int prescaleIndexTech() const { return (prescaleIndexTech_); }
 
-  struct timespec collectionTimeLumiSeg() const
-  { return(collectionTimeLumiSeg_.get_timespec());}
+  struct timespec collectionTimeLumiSeg() const {
+    return (collectionTimeLumiSeg_.get_timespec());
+  }
 
-  unsigned int lumiSegmentNrLumiSeg() const      
-  { return(lumiSegmentNrLumiSeg_);}
+  unsigned int lumiSegmentNrLumiSeg() const { return (lumiSegmentNrLumiSeg_); }
 
-  unsigned long long triggersPhysicsGeneratedFDL() const 
-  { return(triggersPhysicsGeneratedFDL_);}
-  unsigned long long triggersPhysicsLost() const 
-  { return(triggersPhysicsLost_);}
-  unsigned long long triggersPhysicsLostBeamActive() const 
-  { return(triggersPhysicsLostBeamActive_);}
-  unsigned long long triggersPhysicsLostBeamInactive() const 
-  { return(triggersPhysicsLostBeamInactive_);}
-  unsigned long long l1AsPhysics() const 
-  { return(l1AsPhysics_);}
-  unsigned long long l1AsRandom() const 
-  { return(l1AsRandom_);}
-  unsigned long long l1AsTest() const 
-  { return(l1AsTest_);}
-  unsigned long long l1AsCalibration() const 
-  { return(l1AsCalibration_);}
-  unsigned long long deadtime() const 
-  { return(deadtime_);}
-  unsigned long long deadtimeBeamActive() const 
-  { return(deadtimeBeamActive_);}
-  unsigned long long deadtimeBeamActiveTriggerRules() const 
-  { return(deadtimeBeamActiveTriggerRules_);}
-  unsigned long long deadtimeBeamActiveCalibration() const 
-  { return(deadtimeBeamActiveCalibration_);}
-  unsigned long long deadtimeBeamActivePrivateOrbit() const 
-  { return(deadtimeBeamActivePrivateOrbit_);}
-  unsigned long long deadtimeBeamActivePartitionController() const 
-  { return(deadtimeBeamActivePartitionController_);}
-  unsigned long long deadtimeBeamActiveTimeSlot() const 
-  { return(deadtimeBeamActiveTimeSlot_);}
+  unsigned long long triggersPhysicsGeneratedFDL() const { return (triggersPhysicsGeneratedFDL_); }
+  unsigned long long triggersPhysicsLost() const { return (triggersPhysicsLost_); }
+  unsigned long long triggersPhysicsLostBeamActive() const { return (triggersPhysicsLostBeamActive_); }
+  unsigned long long triggersPhysicsLostBeamInactive() const { return (triggersPhysicsLostBeamInactive_); }
+  unsigned long long l1AsPhysics() const { return (l1AsPhysics_); }
+  unsigned long long l1AsRandom() const { return (l1AsRandom_); }
+  unsigned long long l1AsTest() const { return (l1AsTest_); }
+  unsigned long long l1AsCalibration() const { return (l1AsCalibration_); }
+  unsigned long long deadtime() const { return (deadtime_); }
+  unsigned long long deadtimeBeamActive() const { return (deadtimeBeamActive_); }
+  unsigned long long deadtimeBeamActiveTriggerRules() const { return (deadtimeBeamActiveTriggerRules_); }
+  unsigned long long deadtimeBeamActiveCalibration() const { return (deadtimeBeamActiveCalibration_); }
+  unsigned long long deadtimeBeamActivePrivateOrbit() const { return (deadtimeBeamActivePrivateOrbit_); }
+  unsigned long long deadtimeBeamActivePartitionController() const { return (deadtimeBeamActivePartitionController_); }
+  unsigned long long deadtimeBeamActiveTimeSlot() const { return (deadtimeBeamActiveTimeSlot_); }
 
-  unsigned int lastOrbitCounter0() const { return(lastOrbitCounter0_);}
-  unsigned int lastTestEnable() const    { return(lastTestEnable_);}
-  unsigned int lastResync() const        { return(lastResync_);}
-  unsigned int lastStart() const         { return(lastStart_);}
-  unsigned int lastEventCounter0() const { return(lastEventCounter0_);}
-  unsigned int lastHardReset() const     { return(lastHardReset_);}
-  unsigned long long spare0() const      { return(spare0_);}
-  unsigned long long spare1() const      { return(spare1_);}
-  unsigned long long spare2() const      { return(spare2_);}
+  unsigned int lastOrbitCounter0() const { return (lastOrbitCounter0_); }
+  unsigned int lastTestEnable() const { return (lastTestEnable_); }
+  unsigned int lastResync() const { return (lastResync_); }
+  unsigned int lastStart() const { return (lastStart_); }
+  unsigned int lastEventCounter0() const { return (lastEventCounter0_); }
+  unsigned int lastHardReset() const { return (lastHardReset_); }
+  unsigned long long spare0() const { return (spare0_); }
+  unsigned long long spare1() const { return (spare1_); }
+  unsigned long long spare2() const { return (spare2_); }
 
   static double rateLS(unsigned long long counts);
   static double rateLS(unsigned int counts);
@@ -131,11 +109,9 @@ class Level1TriggerScalers
   static double percentLS(unsigned long long counts, int runNumber);
   static double percentLSActive(unsigned long long counts, int runNumber);
 
-  std::vector<unsigned int> gtAlgoCounts() const 
-  { return(gtAlgoCounts_);}
+  std::vector<unsigned int> gtAlgoCounts() const { return (gtAlgoCounts_); }
 
-  std::vector<unsigned int> gtTechCounts() const
-  { return(gtTechCounts_);}
+  std::vector<unsigned int> gtTechCounts() const { return (gtTechCounts_); }
 
   /// equality operator
   int operator==(const Level1TriggerScalers& e) const { return false; }
@@ -151,7 +127,7 @@ protected:
   unsigned int sourceID_;
   unsigned int bunchNumber_;
 
-  TimeSpec    collectionTime_;
+  TimeSpec collectionTime_;
   unsigned int lumiSegmentNr_;
   unsigned int lumiSegmentOrbits_;
   unsigned int orbitNr_;
@@ -164,7 +140,7 @@ protected:
   int prescaleIndexAlgo_;
   int prescaleIndexTech_;
 
-  TimeSpec    collectionTimeLumiSeg_;
+  TimeSpec collectionTimeLumiSeg_;
   unsigned int lumiSegmentNrLumiSeg_;
   unsigned long long triggersPhysicsGeneratedFDL_;
   unsigned long long triggersPhysicsLost_;
@@ -185,8 +161,8 @@ protected:
   std::vector<unsigned int> gtAlgoCounts_;
   std::vector<unsigned int> gtTechCounts_;
 
-  // Orbit counter markers indicating when the last BGO 
-  // command of a particular type was received, relative 
+  // Orbit counter markers indicating when the last BGO
+  // command of a particular type was received, relative
   // to the last OrbitCounter0 (OC0), for this L1 accept
   unsigned int lastOrbitCounter0_;
   unsigned int lastTestEnable_;
@@ -200,7 +176,6 @@ protected:
   unsigned long long spare1_;
   unsigned long long spare2_;
 };
-
 
 /// Pretty-print operator for Level1TriggerScalers
 std::ostream& operator<<(std::ostream& s, const Level1TriggerScalers& c);

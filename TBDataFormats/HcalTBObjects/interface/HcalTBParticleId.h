@@ -6,20 +6,18 @@
 #include <vector>
 #include "boost/cstdint.hpp"
 
-  class HcalTBParticleId {
-  public:
-    HcalTBParticleId();
+class HcalTBParticleId {
+public:
+  HcalTBParticleId();
 
-    // Getter methods
+  // Getter methods
 
-    double TOF()     const { return TOF_;     }
+  double TOF() const { return TOF_; }
 
-  private:
-	double    TOF_ ; 
+private:
+  double TOF_;
+};
 
-
-  };
-
-  std::ostream& operator<<(std::ostream& s, const HcalTBParticleId& htbpid);
+std::ostream& operator<<(std::ostream& s, const HcalTBParticleId& htbpid);
 
 #endif

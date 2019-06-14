@@ -15,18 +15,17 @@
 
 namespace reco {
   struct PFCandidateFwdPtrFactory {
-    edm::FwdPtr<reco::PFCandidate> operator() (edm::View<reco::PFCandidate> const & view, unsigned int i)  const  { 
+    edm::FwdPtr<reco::PFCandidate> operator()(edm::View<reco::PFCandidate> const& view, unsigned int i) const {
       edm::Ptr<reco::PFCandidate> ptr = view.ptrAt(i);
       edm::Ptr<reco::PFCandidate> backPtr = ptr;
-      if ( ptr.isNonnull() && ptr.isAvailable() && ptr->numberOfSourceCandidatePtrs() > 0 ) {
+      if (ptr.isNonnull() && ptr.isAvailable() && ptr->numberOfSourceCandidatePtrs() > 0) {
         edm::Ptr<reco::Candidate> basePtr = ptr->sourceCandidatePtr(0);
         if (basePtr.isNonnull() && basePtr.isAvailable())
-          backPtr = edm::Ptr<reco::PFCandidate>( basePtr );//this cast works only for available stuff
+          backPtr = edm::Ptr<reco::PFCandidate>(basePtr);  //this cast works only for available stuff
       }
-      return edm::FwdPtr<reco::PFCandidate>(ptr,backPtr); 
+      return edm::FwdPtr<reco::PFCandidate>(ptr, backPtr);
     }
-
   };
-}
+}  // namespace reco
 
 #endif

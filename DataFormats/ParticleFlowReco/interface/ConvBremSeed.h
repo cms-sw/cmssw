@@ -21,40 +21,30 @@
 
 namespace reco {
 
-
-class ConvBremSeed: public TrajectorySeed
- {
-  public :
-        
+  class ConvBremSeed : public TrajectorySeed {
+  public:
     typedef edm::OwnVector<TrackingRecHit> recHitContainer;
 
-
-    ConvBremSeed(){} 
+    ConvBremSeed() {}
     ~ConvBremSeed() override {}
-   
 
     /// Constructor from TrajectorySeed
-    ConvBremSeed( const TrajectorySeed & seed,edm::Ref<GsfPFRecTrackCollection> & pfgsf):
-      TrajectorySeed(seed), pfGsf_ (pfgsf){}
+    ConvBremSeed(const TrajectorySeed& seed, edm::Ref<GsfPFRecTrackCollection>& pfgsf)
+        : TrajectorySeed(seed), pfGsf_(pfgsf) {}
 
     /// reference to the GSDPFRecTrack
- 
-    GsfPFRecTrackRef GsfPFTrack() const {return pfGsf_;}
-    
 
+    GsfPFRecTrackRef GsfPFTrack() const { return pfGsf_; }
 
-    ConvBremSeed * clone() const override {return new ConvBremSeed( * this); }
+    ConvBremSeed* clone() const override { return new ConvBremSeed(*this); }
 
- private:
-    
+  private:
     //! Pointer to the electromagnetic super cluster.
-    GsfPFRecTrackRef  pfGsf_;
+    GsfPFRecTrackRef pfGsf_;
+  };
 
-  } ;
+  // Class ConvBremSeed
 
-
-// Class ConvBremSeed
-
-}// namespace reco
+}  // namespace reco
 
 #endif

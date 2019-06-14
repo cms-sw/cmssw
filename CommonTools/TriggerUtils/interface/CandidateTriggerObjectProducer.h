@@ -21,26 +21,25 @@
 // class declaration
 //
 class CandidateTriggerObjectProducer : public edm::EDProducer {
-
- public:
+public:
   explicit CandidateTriggerObjectProducer(const edm::ParameterSet&);
   ~CandidateTriggerObjectProducer() override;
 
- private:
+private:
   void beginRun(const edm::Run& iRun, edm::EventSetup const& iSetup) override;
-  void beginJob() override {} ;
+  void beginJob() override{};
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override {} ;
+  void endJob() override{};
 
   /// module config parameters
   edm::InputTag triggerResultsTag_;
-  edm::EDGetTokenT<edm::TriggerResults>   triggerResultsToken_;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   edm::InputTag triggerEventTag_;
   edm::EDGetTokenT<trigger::TriggerEvent> triggerEventToken_;
-  std::string   triggerName_;
+  std::string triggerName_;
 
   /// additional class data memebers
-  edm::Handle<edm::TriggerResults>   triggerResultsHandle_;
+  edm::Handle<edm::TriggerResults> triggerResultsHandle_;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle_;
   HLTPrescaleProvider hltPrescaleProvider_;
 };

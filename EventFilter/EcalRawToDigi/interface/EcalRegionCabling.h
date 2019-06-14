@@ -11,60 +11,66 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class EcalRegionCabling {
- public:
-  EcalRegionCabling(edm::ParameterSet & conf, const EcalElectronicsMapping * m)
-  : mapping_(m)
-  {
+public:
+  EcalRegionCabling(edm::ParameterSet& conf, const EcalElectronicsMapping* m) : mapping_(m) {
     const edm::ParameterSet esMap = conf.getParameter<edm::ParameterSet>("esMapping");
     es_mapping_ = new ESElectronicsMapper(esMap);
   }
-  
-  ~EcalRegionCabling(){
+
+  ~EcalRegionCabling() {
     // this pointer is own by this object.
     delete es_mapping_;
   }
-  const EcalElectronicsMapping * mapping() const  { return mapping_;}
-  const ESElectronicsMapper * es_mapping() const { return es_mapping_;}
+  const EcalElectronicsMapping* mapping() const { return mapping_; }
+  const ESElectronicsMapper* es_mapping() const { return es_mapping_; }
 
-  static uint32_t maxElementIndex() {return (FEDNumbering::MAXECALFEDID - FEDNumbering::MINECALFEDID +1);}
-  static uint32_t maxESElementIndex() { return (FEDNumbering::MAXPreShowerFEDID - FEDNumbering::MINPreShowerFEDID +1);}
+  static uint32_t maxElementIndex() { return (FEDNumbering::MAXECALFEDID - FEDNumbering::MINECALFEDID + 1); }
+  static uint32_t maxESElementIndex() {
+    return (FEDNumbering::MAXPreShowerFEDID - FEDNumbering::MINPreShowerFEDID + 1);
+  }
 
   static uint32_t elementIndex(const int FEDindex) {
     //do a test for the time being
     if (FEDindex > FEDNumbering::MAXECALFEDID || FEDindex < FEDNumbering::MINECALFEDID) {
-      edm::LogError("IncorrectMapping")<<"FEDindex: "<< FEDindex
-					<<" is not between: "<<(int) FEDNumbering::MINECALFEDID
-					<<" and "<<(int)FEDNumbering::MAXECALFEDID;
-      return 0;}
+      edm::LogError("IncorrectMapping") << "FEDindex: " << FEDindex
+                                        << " is not between: " << (int)FEDNumbering::MINECALFEDID << " and "
+                                        << (int)FEDNumbering::MAXECALFEDID;
+      return 0;
+    }
     uint32_t eI = FEDindex - FEDNumbering::MINECALFEDID;
-    return eI; }
+    return eI;
+  }
 
   static uint32_t esElementIndex(const int FEDindex) {
     //do a test for the time being
     if (FEDindex > FEDNumbering::MAXPreShowerFEDID || FEDindex < FEDNumbering::MINPreShowerFEDID) {
-      edm::LogError("IncorrectMapping")<<"FEDindex: "<< FEDindex
-					<<" is not between: "<<(int) FEDNumbering::MINPreShowerFEDID
-					<<" and "<<(int)FEDNumbering::MAXPreShowerFEDID;
-      return 0;}
+      edm::LogError("IncorrectMapping") << "FEDindex: " << FEDindex
+                                        << " is not between: " << (int)FEDNumbering::MINPreShowerFEDID << " and "
+                                        << (int)FEDNumbering::MAXPreShowerFEDID;
+      return 0;
+    }
     uint32_t eI = FEDindex - FEDNumbering::MINPreShowerFEDID;
-    return eI; }
+    return eI;
+  }
 
-  static int fedIndex(const uint32_t index){ 
-    int fI = index+FEDNumbering::MINECALFEDID; 
-    return fI;}
-    
-  static int esFedIndex(const uint32_t index){ 
-    int fI = index+FEDNumbering::MINPreShowerFEDID; 
-    return fI;}
+  static int fedIndex(const uint32_t index) {
+    int fI = index + FEDNumbering::MINECALFEDID;
+    return fI;
+  }
 
-    
-  uint32_t elementIndex(const double eta, const double phi) const{
-    int FEDindex = mapping()->GetFED(eta,phi);
-    return elementIndex(FEDindex); }
+  static int esFedIndex(const uint32_t index) {
+    int fI = index + FEDNumbering::MINPreShowerFEDID;
+    return fI;
+  }
 
- private:
-  const EcalElectronicsMapping * mapping_;
-  const ESElectronicsMapper * es_mapping_;
+  uint32_t elementIndex(const double eta, const double phi) const {
+    int FEDindex = mapping()->GetFED(eta, phi);
+    return elementIndex(FEDindex);
+  }
+
+private:
+  const EcalElectronicsMapping* mapping_;
+  const ESElectronicsMapper* es_mapping_;
 };
 
 #endif

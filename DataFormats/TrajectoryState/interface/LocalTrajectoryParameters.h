@@ -24,7 +24,7 @@
 
 class LocalTrajectoryParameters {
 public:
-// construct
+  // construct
 
   LocalTrajectoryParameters() {}
 
@@ -36,18 +36,17 @@ public:
    *  in which case the charge of the first element will be neglected.
    */
   LocalTrajectoryParameters(const AlgebraicVector5& v, float aPzSign, bool charged = true) {
-    theQbp  = v[0];
+    theQbp = v[0];
     theDxdz = v[1];
     theDydz = v[2];
-    theX    = v[3];
-    theY    = v[4];
+    theX = v[3];
+    theY = v[4];
     thePzSign = aPzSign;
-    if ( charged )
-      theCharge = theQbp>0 ? 1 : -1;
+    if (charged)
+      theCharge = theQbp > 0 ? 1 : -1;
     else
       theCharge = 0;
   }
-
 
   /** Constructor from individual parameters.
    *
@@ -56,66 +55,62 @@ public:
    *  the first argument. For neutral particles the last argument should be false, 
    *  in which case the charge of the first argument will be neglected.
    */
-  LocalTrajectoryParameters(float aQbp, float aDxdz, float aDydz,
-                            float aX, float aY, float aPzSign, bool charged = true) :
-    theDxdz(aDxdz), theDydz(aDydz),
-    theX(aX), theY(aY), thePzSign(aPzSign>0 ? 1 : -1) {
-    if ( charged ) {
+  LocalTrajectoryParameters(float aQbp, float aDxdz, float aDydz, float aX, float aY, float aPzSign, bool charged = true)
+      : theDxdz(aDxdz), theDydz(aDydz), theX(aX), theY(aY), thePzSign(aPzSign > 0 ? 1 : -1) {
+    if (charged) {
       theQbp = aQbp;
-      theCharge = theQbp>0 ? 1 : -1;
-    }
-    else {
+      theCharge = theQbp > 0 ? 1 : -1;
+    } else {
       theQbp = aQbp;
       theCharge = 0;
     }
   }
 
   /// Constructor from local position, momentum and charge.
-  LocalTrajectoryParameters( const LocalPoint& pos, const LocalVector& p,
-			     TrackCharge charge) :
-    theQbp( charge/p.mag()), theDxdz( p.x()/p.z()), theDydz( p.y()/p.z()), 
-    theX( pos.x()), theY(pos.y()), thePzSign( p.z()>0. ? 1:-1), theCharge(charge) {
-    if ( charge==0 )  theQbp = 1.f/p.mag();
+  LocalTrajectoryParameters(const LocalPoint& pos, const LocalVector& p, TrackCharge charge)
+      : theQbp(charge / p.mag()),
+        theDxdz(p.x() / p.z()),
+        theDydz(p.y() / p.z()),
+        theX(pos.x()),
+        theY(pos.y()),
+        thePzSign(p.z() > 0. ? 1 : -1),
+        theCharge(charge) {
+    if (charge == 0)
+      theQbp = 1.f / p.mag();
   }
 
-// access
+  // access
 
   /// Local x and y position coordinates.
-  LocalPoint position() const {
-    return LocalPoint(theX, theY);
-  }
+  LocalPoint position() const { return LocalPoint(theX, theY); }
 
-  /// Momentum vector in the local frame. 
+  /// Momentum vector in the local frame.
   LocalVector momentum() const {
     float op = std::abs(theQbp);
-    if ( op<1.e-9f )  op = 1.e-9f;
-    float pz = float(thePzSign)/(op*std::sqrt(1.f + theDxdz*theDxdz + theDydz*theDydz));
-    float px = pz*theDxdz;
-    float py = pz*theDydz;
+    if (op < 1.e-9f)
+      op = 1.e-9f;
+    float pz = float(thePzSign) / (op * std::sqrt(1.f + theDxdz * theDxdz + theDydz * theDydz));
+    float px = pz * theDxdz;
+    float py = pz * theDydz;
     return LocalVector(px, py, pz);
   }
 
-  /// Momentum vector unit in the local frame. 
+  /// Momentum vector unit in the local frame.
   LocalVector direction() const {
-    float dz = float(thePzSign)/std::sqrt(1.f + theDxdz*theDxdz + theDydz*theDydz);
-    float dx = dz*theDxdz;
-    float dy = dz*theDydz;
+    float dz = float(thePzSign) / std::sqrt(1.f + theDxdz * theDxdz + theDydz * theDydz);
+    float dx = dz * theDxdz;
+    float dy = dz * theDydz;
     return LocalVector(dx, dy, dz);
   }
 
   /// Momentum vector unit in the local frame.
-  LocalVector directionNotNormalized() const {
-    return LocalVector(theDxdz, theDydz, 1.f);
-  }
-
+  LocalVector directionNotNormalized() const { return LocalVector(theDxdz, theDydz, 1.f); }
 
   /// Charge (-1, 0 or 1)
-  TrackCharge charge() const {return theCharge;}
+  TrackCharge charge() const { return theCharge; }
 
   /// Signed inverse momentum q/p (zero for neutrals).
-  float signedInverseMomentum() const {
-    return charge()==0 ? 0.f : theQbp;
-  }
+  float signedInverseMomentum() const { return charge() == 0 ? 0.f : theQbp; }
 
   /** Vector of parameters with signed inverse momentum.
    *
@@ -139,7 +134,7 @@ public:
    */
   AlgebraicVector5 mixedFormatVector() const {
     AlgebraicVector5 v;
-    v[0] = theQbp;    // signed in case of charged particles, 1/p for neutrals
+    v[0] = theQbp;  // signed in case of charged particles, 1/p for neutrals
     v[1] = theDxdz;
     v[2] = theDydz;
     v[3] = theX;
@@ -148,37 +143,33 @@ public:
   }
 
   /// Sign of the z-component of the momentum in the local frame.
-  float pzSign() const {
-    return thePzSign;
-  }
+  float pzSign() const { return thePzSign; }
 
   /// Update of momentum by a scalar dP.
   bool updateP(float dP) {
-    float p = 1.f/std::abs(theQbp);
-    if ((p += dP) <= 0.f) return false;
-    float newQbp = theQbp > 0. ? 1.f/p : -1.f/p;
+    float p = 1.f / std::abs(theQbp);
+    if ((p += dP) <= 0.f)
+      return false;
+    float newQbp = theQbp > 0. ? 1.f / p : -1.f / p;
     theQbp = newQbp;
     return true;
   }
 
-
-  float qbp() const { return theQbp;}
-  float dxdz() const { return theDxdz;}
-  float dydz() const { return theDydz;}
-  float absdz() const { return 1.f/std::sqrt(1.f + theDxdz*theDxdz + theDydz*theDydz); }
-
+  float qbp() const { return theQbp; }
+  float dxdz() const { return theDxdz; }
+  float dydz() const { return theDydz; }
+  float absdz() const { return 1.f / std::sqrt(1.f + theDxdz * theDxdz + theDydz * theDydz); }
 
 private:
-  float theQbp;    ///< q/p (charged) or 1/p (neutral)
-  float theDxdz;   ///< tangent of direction in local x vs. z
-  float theDydz;   ///< tangent of direction in local y vs. z
-  float theX;      ///< local x position
-  float theY;      ///< local y position
+  float theQbp;   ///< q/p (charged) or 1/p (neutral)
+  float theDxdz;  ///< tangent of direction in local x vs. z
+  float theDydz;  ///< tangent of direction in local y vs. z
+  float theX;     ///< local x position
+  float theY;     ///< local y position
 
-  short thePzSign; ///< sign of local pz
+  short thePzSign;  ///< sign of local pz
 
-  short theCharge; ///< charge
-
+  short theCharge;  ///< charge
 };
 
 #endif

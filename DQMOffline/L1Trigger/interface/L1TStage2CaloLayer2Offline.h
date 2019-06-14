@@ -55,11 +55,8 @@
 
 #include "DQMOffline/L1Trigger/interface/HistDefinition.h"
 
-
-class L1TStage2CaloLayer2Offline: public DQMEDAnalyzer {
-
+class L1TStage2CaloLayer2Offline : public DQMEDAnalyzer {
 public:
-
   L1TStage2CaloLayer2Offline(const edm::ParameterSet& ps);
   ~L1TStage2CaloLayer2Offline() override;
 
@@ -82,33 +79,28 @@ public:
 
   typedef std::map<L1TStage2CaloLayer2Offline::ControlPlots, MonitorElement*> ControlPlotMap;
 
-  enum PlotConfig {
-    nVertex,
-    ETvsET,
-    PHIvsPHI
-  };
+  enum PlotConfig { nVertex, ETvsET, PHIvsPHI };
 
   static const std::map<std::string, unsigned int> PlotConfigNames;
 
 protected:
-
-  void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override;
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void endJob() override;
 
 private:
   //histos booking function
-  void bookHistos(DQMStore::IBooker &);
-  void bookEnergySumHistos(DQMStore::IBooker &);
-  void bookJetHistos(DQMStore::IBooker &);
+  void bookHistos(DQMStore::IBooker&);
+  void bookEnergySumHistos(DQMStore::IBooker&);
+  void bookJetHistos(DQMStore::IBooker&);
 
   void fillEnergySums(edm::Event const& e, const unsigned int nVertex);
   void fillJets(edm::Event const& e, const unsigned int nVertex);
-  void fillJetEfficiencies(const double & recoEt, const double & l1Et, const double & recoEta);
+  void fillJetEfficiencies(const double& recoEt, const double& l1Et, const double& recoEta);
 
-  bool doesNotOverlapWithHLTObjects(const l1t::Jet & jet) const;
+  bool doesNotOverlapWithHLTObjects(const l1t::Jet& jet) const;
 
   void normalise2DHistogramsToBinArea();
 
@@ -202,7 +194,6 @@ private:
   std::map<double, MonitorElement*> h_efficiencyETT_total_;
   std::map<double, MonitorElement*> h_efficiencyHTT_total_;
 
-
   // jet reco vs L1
   MonitorElement* h_L1JetETvsPFJetET_HB_;
   MonitorElement* h_L1JetETvsPFJetET_HE_;
@@ -241,7 +232,6 @@ private:
   std::map<double, MonitorElement*> h_efficiencyJetEt_HE_total_;
   std::map<double, MonitorElement*> h_efficiencyJetEt_HF_total_;
   std::map<double, MonitorElement*> h_efficiencyJetEt_HB_HE_total_;
-
 };
 
 #endif

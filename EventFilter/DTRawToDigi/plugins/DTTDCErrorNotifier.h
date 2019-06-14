@@ -10,24 +10,20 @@
 //class DTTDCErrorWord;
 
 class DTTDCErrorNotifier {
-
 public:
-  
   /// Constructor
-  DTTDCErrorNotifier(DTTDCErrorWord error ); 
+  DTTDCErrorNotifier(DTTDCErrorWord error);
 
   /// Destructor
-  virtual ~DTTDCErrorNotifier(); 
+  virtual ~DTTDCErrorNotifier();
 
   /// Print out the error information >>> FIXME: to be implemented
-  void print(); 
+  void print();
 
   // >>> FIXME: Other methods to notify? to whom?
 
 private:
-
   DTTDCErrorWord error_;
-
 };
 
 #endif

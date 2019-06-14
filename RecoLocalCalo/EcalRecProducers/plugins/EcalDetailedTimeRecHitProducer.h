@@ -19,41 +19,39 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitAbsAlgo.h"
 
-
 // forward declaration
 
 class CaloGeometry;
 
-class  EcalDetailedTimeRecHitProducer : public edm::stream::EDProducer<> {
+class EcalDetailedTimeRecHitProducer : public edm::stream::EDProducer<> {
+public:
+  explicit EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps);
+  ~EcalDetailedTimeRecHitProducer() override;
+  void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
-        public:
-                explicit  EcalDetailedTimeRecHitProducer(const edm::ParameterSet& ps);
-                ~ EcalDetailedTimeRecHitProducer() override;
-                void produce(edm::Event& evt, const edm::EventSetup& es) override;
+private:
+  //Functions to correct the TOF from the EcalDigi which is not corrected for the vertex position
+  double deltaTimeOfFlight(GlobalPoint& vertex, const DetId& detId, int layer) const;
 
-        private:
+  const CaloGeometry* m_geometry;
 
-		//Functions to correct the TOF from the EcalDigi which is not corrected for the vertex position
-		double deltaTimeOfFlight( GlobalPoint& vertex, const DetId& detId , int layer) const ;
+  edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollection_;  // secondary name given to collection of EBrechits
+  edm::EDGetTokenT<EERecHitCollection> EERecHitCollection_;  // secondary name given to collection of EErechits
 
-		const CaloGeometry* m_geometry;
+  edm::EDGetTokenT<reco::VertexCollection> recoVertex_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertex_;
+  bool correctForVertexZPosition_;
+  bool useMCTruthVertex_;
 
-		edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollection_; // secondary name given to collection of EBrechits
-                edm::EDGetTokenT<EERecHitCollection> EERecHitCollection_; // secondary name given to collection of EErechits
+  int ebTimeLayer_;
+  int eeTimeLayer_;
 
-		edm::EDGetTokenT<reco::VertexCollection> recoVertex_; 
-		edm::EDGetTokenT<edm::SimVertexContainer> simVertex_; 
-		bool correctForVertexZPosition_;
-		bool useMCTruthVertex_;
+  edm::EDGetTokenT<EcalTimeDigiCollection>
+      ebTimeDigiCollection_;  // secondary name given to collection of EB uncalib rechits
+  edm::EDGetTokenT<EcalTimeDigiCollection>
+      eeTimeDigiCollection_;  // secondary name given to collection of EE uncalib rechits
 
-		int ebTimeLayer_;
-		int eeTimeLayer_;
-
-		edm::EDGetTokenT<EcalTimeDigiCollection> ebTimeDigiCollection_; // secondary name given to collection of EB uncalib rechits
-                edm::EDGetTokenT<EcalTimeDigiCollection> eeTimeDigiCollection_; // secondary name given to collection of EE uncalib rechits
-
-                std::string EBDetailedTimeRecHitCollection_; // secondary name to be given to EB collection of hits
-                std::string EEDetailedTimeRecHitCollection_; // secondary name to be given to EE collection of hits
-
+  std::string EBDetailedTimeRecHitCollection_;  // secondary name to be given to EB collection of hits
+  std::string EEDetailedTimeRecHitCollection_;  // secondary name to be given to EE collection of hits
 };
 #endif

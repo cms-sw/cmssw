@@ -4,7 +4,7 @@
 //
 // Package:     CommonTools/Utils
 // Class  :     formulaUnaryMinusEvaluator
-// 
+//
 /**\class reco::formula::UnaryMinusEvaluator formulaUnaryMinusEvaluator.h "formulaUnaryMinusEvaluator.h"
 
  Description: [one line class summary]
@@ -29,33 +29,30 @@
 
 namespace reco {
   namespace formula {
-    class UnaryMinusEvaluator : public EvaluatorBase
-    {
-      
+    class UnaryMinusEvaluator : public EvaluatorBase {
     public:
-      explicit UnaryMinusEvaluator(std::shared_ptr<EvaluatorBase> iArg):
-      EvaluatorBase(Precedence::kUnaryMinusOperator ),
-      m_arg(std::move(iArg)) {}
-       
+      explicit UnaryMinusEvaluator(std::shared_ptr<EvaluatorBase> iArg)
+          : EvaluatorBase(Precedence::kUnaryMinusOperator), m_arg(std::move(iArg)) {}
+
       // ---------- const member functions ---------------------
       double evaluate(double const* iVariables, double const* iParameters) const final {
-        return -1. * m_arg->evaluate(iVariables,iParameters) ;
+        return -1. * m_arg->evaluate(iVariables, iParameters);
       }
       std::vector<std::string> abstractSyntaxTree() const final {
         auto ret = shiftAST(m_arg->abstractSyntaxTree());
         ret.emplace(ret.begin(), "unary minus");
         return ret;
       }
+
     private:
       UnaryMinusEvaluator(const UnaryMinusEvaluator&) = delete;
-      
+
       const UnaryMinusEvaluator& operator=(const UnaryMinusEvaluator&) = delete;
-      
+
       // ---------- member data --------------------------------
       std::shared_ptr<EvaluatorBase> m_arg;
     };
-  }
-}
-
+  }  // namespace formula
+}  // namespace reco
 
 #endif

@@ -6,151 +6,141 @@
 using namespace reco;
 
 // To be kept in synch with the enumerator definitions in TrackBase.h file
-std::string const TrackBase::algoNames[] = {
-    "undefAlgorithm",
-    "ctf",
-    "duplicateMerge",
-    "cosmics",
-    "initialStep",
-    "lowPtTripletStep",
-    "pixelPairStep",
-    "detachedTripletStep",
-    "mixedTripletStep",
-    "pixelLessStep",
-    "tobTecStep",
-    "jetCoreRegionalStep",
-    "conversionStep",
-    "muonSeededStepInOut",
-    "muonSeededStepOutIn",
-    "outInEcalSeededConv",
-    "inOutEcalSeededConv",
-    "nuclInter",
-    "standAloneMuon",
-    "globalMuon",
-    "cosmicStandAloneMuon",
-    "cosmicGlobalMuon",
-    "highPtTripletStep",
-    "lowPtQuadStep",
-    "detachedQuadStep",
-    "reservedForUpgrades1",
-    "reservedForUpgrades2",
-    "bTagGhostTracks",
-    "beamhalo" ,
-    "gsf",
-    "hltPixel",
-    "hltIter0",
-    "hltIter1",
-    "hltIter2",
-    "hltIter3",
-    "hltIter4",
-    "hltIterX",
-    "hiRegitMuInitialStep",
-    "hiRegitMuLowPtTripletStep",
-    "hiRegitMuPixelPairStep",
-    "hiRegitMuDetachedTripletStep",
-    "hiRegitMuMixedTripletStep",
-    "hiRegitMuPixelLessStep",
-    "hiRegitMuTobTecStep",
-    "hiRegitMuMuonSeededStepInOut",
-    "hiRegitMuMuonSeededStepOutIn"
-};
+std::string const TrackBase::algoNames[] = {"undefAlgorithm",
+                                            "ctf",
+                                            "duplicateMerge",
+                                            "cosmics",
+                                            "initialStep",
+                                            "lowPtTripletStep",
+                                            "pixelPairStep",
+                                            "detachedTripletStep",
+                                            "mixedTripletStep",
+                                            "pixelLessStep",
+                                            "tobTecStep",
+                                            "jetCoreRegionalStep",
+                                            "conversionStep",
+                                            "muonSeededStepInOut",
+                                            "muonSeededStepOutIn",
+                                            "outInEcalSeededConv",
+                                            "inOutEcalSeededConv",
+                                            "nuclInter",
+                                            "standAloneMuon",
+                                            "globalMuon",
+                                            "cosmicStandAloneMuon",
+                                            "cosmicGlobalMuon",
+                                            "highPtTripletStep",
+                                            "lowPtQuadStep",
+                                            "detachedQuadStep",
+                                            "reservedForUpgrades1",
+                                            "reservedForUpgrades2",
+                                            "bTagGhostTracks",
+                                            "beamhalo",
+                                            "gsf",
+                                            "hltPixel",
+                                            "hltIter0",
+                                            "hltIter1",
+                                            "hltIter2",
+                                            "hltIter3",
+                                            "hltIter4",
+                                            "hltIterX",
+                                            "hiRegitMuInitialStep",
+                                            "hiRegitMuLowPtTripletStep",
+                                            "hiRegitMuPixelPairStep",
+                                            "hiRegitMuDetachedTripletStep",
+                                            "hiRegitMuMixedTripletStep",
+                                            "hiRegitMuPixelLessStep",
+                                            "hiRegitMuTobTecStep",
+                                            "hiRegitMuMuonSeededStepInOut",
+                                            "hiRegitMuMuonSeededStepOutIn"};
 
 std::string const TrackBase::qualityNames[] = {
-    "loose",
-    "tight",
-    "highPurity",
-    "confirmed",
-    "goodIterative",
-    "looseSetWithPV",
-    "highPuritySetWithPV",
-    "discarded"
-};
+    "loose", "tight", "highPurity", "confirmed", "goodIterative", "looseSetWithPV", "highPuritySetWithPV", "discarded"};
 
-TrackBase::TrackBase() :
-    covt0t0_(-1.f),
-    covbetabeta_(-1.f),
-    chi2_(0),
-    vertex_(0, 0, 0),
-    t0_(0),
-    momentum_(0, 0, 0),
-    beta_(0),
-    ndof_(0),
-    charge_(0),
-    algorithm_(undefAlgorithm),
-    originalAlgorithm_(undefAlgorithm),
-    quality_(0),
-    nLoops_(0),
-    stopReason_(0)
-{
-    algoMask_.set(algorithm_);
-    index idx = 0;
-    for (index i = 0; i < dimension; ++i) {
-        for (index j = 0; j <= i; ++j) {
-            covariance_[idx++] = 0;
-        }
+TrackBase::TrackBase()
+    : covt0t0_(-1.f),
+      covbetabeta_(-1.f),
+      chi2_(0),
+      vertex_(0, 0, 0),
+      t0_(0),
+      momentum_(0, 0, 0),
+      beta_(0),
+      ndof_(0),
+      charge_(0),
+      algorithm_(undefAlgorithm),
+      originalAlgorithm_(undefAlgorithm),
+      quality_(0),
+      nLoops_(0),
+      stopReason_(0) {
+  algoMask_.set(algorithm_);
+  index idx = 0;
+  for (index i = 0; i < dimension; ++i) {
+    for (index j = 0; j <= i; ++j) {
+      covariance_[idx++] = 0;
     }
+  }
 }
 
-TrackBase::TrackBase(double chi2, double ndof, const Point &vertex, const Vector &momentum,
-                     int charge, const CovarianceMatrix &cov, TrackAlgorithm algorithm,
-                     TrackQuality quality, signed char nloops, uint8_t stopReason,
-		     float t0, float beta, float covt0t0, float covbetabeta):
-    covt0t0_(covt0t0),
-    covbetabeta_(covbetabeta),
-    chi2_(chi2),
-    vertex_(vertex),
-    t0_(t0),
-    momentum_(momentum),
-    beta_(beta),
-    ndof_(ndof),
-    charge_(charge),
-    algorithm_(algorithm),
-    originalAlgorithm_(algorithm),
-    quality_(0),
-    nLoops_(nloops),
-    stopReason_(stopReason)
-{
-    algoMask_.set(algorithm_);
+TrackBase::TrackBase(double chi2,
+                     double ndof,
+                     const Point &vertex,
+                     const Vector &momentum,
+                     int charge,
+                     const CovarianceMatrix &cov,
+                     TrackAlgorithm algorithm,
+                     TrackQuality quality,
+                     signed char nloops,
+                     uint8_t stopReason,
+                     float t0,
+                     float beta,
+                     float covt0t0,
+                     float covbetabeta)
+    : covt0t0_(covt0t0),
+      covbetabeta_(covbetabeta),
+      chi2_(chi2),
+      vertex_(vertex),
+      t0_(t0),
+      momentum_(momentum),
+      beta_(beta),
+      ndof_(ndof),
+      charge_(charge),
+      algorithm_(algorithm),
+      originalAlgorithm_(algorithm),
+      quality_(0),
+      nLoops_(nloops),
+      stopReason_(stopReason) {
+  algoMask_.set(algorithm_);
 
-    index idx = 0;
-    for (index i = 0; i < dimension; ++i) {
-        for (index j = 0; j <= i; ++j) {
-            covariance_[idx++] = cov(i, j);
-        }
+  index idx = 0;
+  for (index i = 0; i < dimension; ++i) {
+    for (index j = 0; j <= i; ++j) {
+      covariance_[idx++] = cov(i, j);
     }
-    setQuality(quality);
+  }
+  setQuality(quality);
 }
 
-TrackBase::~TrackBase()
-{
-    ;
+TrackBase::~TrackBase() { ; }
+
+TrackBase::CovarianceMatrix &TrackBase::fill(CovarianceMatrix &v) const { return fillCovariance(v, covariance_); }
+
+TrackBase::TrackQuality TrackBase::qualityByName(const std::string &name) {
+  TrackQuality size = qualitySize;
+  int index = std::find(qualityNames, qualityNames + size, name) - qualityNames;
+  if (index == size) {
+    return undefQuality;  // better this or throw() ?
+  }
+
+  // cast
+  return TrackQuality(index);
 }
 
-TrackBase::CovarianceMatrix & TrackBase::fill(CovarianceMatrix &v) const
-{
-    return fillCovariance(v, covariance_);
-}
+TrackBase::TrackAlgorithm TrackBase::algoByName(const std::string &name) {
+  TrackAlgorithm size = algoSize;
+  int index = std::find(algoNames, algoNames + size, name) - algoNames;
+  if (index == size) {
+    return undefAlgorithm;  // better this or throw() ?
+  }
 
-TrackBase::TrackQuality TrackBase::qualityByName(const std::string &name)
-{
-    TrackQuality size = qualitySize;
-    int index = std::find(qualityNames, qualityNames + size, name) - qualityNames;
-    if (index == size) {
-        return undefQuality; // better this or throw() ?
-    }
-
-    // cast
-    return TrackQuality(index);
-}
-
-TrackBase::TrackAlgorithm TrackBase::algoByName(const std::string &name)
-{
-    TrackAlgorithm size = algoSize;
-    int index = std::find(algoNames, algoNames + size, name) - algoNames;
-    if (index == size) {
-        return undefAlgorithm; // better this or throw() ?
-    }
-
-    // cast
-    return TrackAlgorithm(index);
+  // cast
+  return TrackAlgorithm(index);
 }

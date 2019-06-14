@@ -5,7 +5,7 @@
 //
 // Package:    ExtraFromSeeds
 // Class:      ExtraFromSeeds
-// 
+//
 /**\class ExtraFromSeeds ExtraFromSeeds.cc RecoTracker/ExtraFromSeeds/src/ExtraFromSeeds.cc
 
  Description: [one line class summary]
@@ -18,7 +18,6 @@
 //         Created:  Fri Feb 17 12:03:11 CET 2012
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,25 +36,24 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-
 //
 // class declaration
 //
 
 class ExtraFromSeeds : public edm::global::EDProducer<> {
-   public:
-      explicit ExtraFromSeeds(const edm::ParameterSet&);
-      ~ExtraFromSeeds() override;
+public:
+  explicit ExtraFromSeeds(const edm::ParameterSet&);
+  ~ExtraFromSeeds() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   edm::EDGetTokenT<reco::TrackCollection> tracks_;
   typedef std::vector<unsigned int> ExtremeLight;
 
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };
 
 #endif

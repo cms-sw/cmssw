@@ -21,27 +21,26 @@
 
 // Useful function to convert 4-vector coordinates
 // -----------------------------------------------
-lorentzVector fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE )
-{
+lorentzVector fromPtEtaPhiToPxPyPz(const double* ptEtaPhiE) {
   double muMass = 0.105658;
-  double px = ptEtaPhiE[0]*cos(ptEtaPhiE[2]);
-  double py = ptEtaPhiE[0]*sin(ptEtaPhiE[2]);
-  double tmp = 2*atan(exp(-ptEtaPhiE[1]));
-  double pz = ptEtaPhiE[0]*cos(tmp)/sin(tmp);
-  double E  = sqrt(px*px+py*py+pz*pz+muMass*muMass);
+  double px = ptEtaPhiE[0] * cos(ptEtaPhiE[2]);
+  double py = ptEtaPhiE[0] * sin(ptEtaPhiE[2]);
+  double tmp = 2 * atan(exp(-ptEtaPhiE[1]));
+  double pz = ptEtaPhiE[0] * cos(tmp) / sin(tmp);
+  double E = sqrt(px * px + py * py + pz * pz + muMass * muMass);
 
-  return lorentzVector(px,py,pz,E);
+  return lorentzVector(px, py, pz, E);
 }
 
-int main(int argc, char* argv[])
-{
-
-  if( argc != 3 ) {
-    std::cout << "Please provide the name of the file (with file: or rfio: as needed) and if there is generator information (0 is false)" << std::endl;
+int main(int argc, char* argv[]) {
+  if (argc != 3) {
+    std::cout << "Please provide the name of the file (with file: or rfio: as needed) and if there is generator "
+                 "information (0 is false)"
+              << std::endl;
     exit(1);
   }
   std::string fileName(argv[1]);
-  if( fileName.find("file:") != 0 && fileName.find("rfio:") != 0 ) {
+  if (fileName.find("file:") != 0 && fileName.find("rfio:") != 0) {
     std::cout << "Please provide the name of the file with file: or rfio: as needed" << std::endl;
     exit(1);
   }
@@ -52,7 +51,7 @@ int main(int argc, char* argv[])
   std::cout << "Dumping tree with genInfo = " << genInfo << std::endl;
 
   // load framework libraries
-  gSystem->Load( "libFWCoreFWLite" );
+  gSystem->Load("libFWCoreFWLite");
   FWLiteEnabler::enable();
 
   // open input file (can be located on castor)
@@ -68,7 +67,7 @@ int main(int argc, char* argv[])
   std::vector<std::pair<unsigned int, unsigned long long> > evtRun;
   treeHandler.readTree(-1, fileName, &pairVector, -20, &evtRun, &genPairVector);
 
-  if( (pairVector.size() != genPairVector.size()) && genInfo ) {
+  if ((pairVector.size() != genPairVector.size()) && genInfo) {
     std::cout << "Error: the size of pairVector and genPairVector is different" << std::endl;
   }
 
@@ -78,13 +77,13 @@ int main(int argc, char* argv[])
   MuonPairVector::const_iterator it = pairVector.begin();
   MuonPairVector::const_iterator genIt = genPairVector.begin();
   std::vector<std::pair<unsigned int, unsigned long long> >::iterator evtRunIt = evtRun.begin();
-  for( ; it != pairVector.end(); ++it, ++genIt, ++evtRunIt ) {
+  for (; it != pairVector.end(); ++it, ++genIt, ++evtRunIt) {
     // Write the information to a txt file
-    outputFile << it->first.pt()  << " " << it->first.eta()  << " " << it->first.phi()  << " "
-               << it->second.pt() << " " << it->second.eta() << " " << it->second.phi() << " ";
-    if( genInfo ) {
-      outputFile << genIt->first.pt()  << " " << genIt->first.eta()  << " " << genIt->first.phi()  << " "
-		 << genIt->second.pt() << " " << genIt->second.eta() << " " << genIt->second.phi() << " ";
+    outputFile << it->first.pt() << " " << it->first.eta() << " " << it->first.phi() << " " << it->second.pt() << " "
+               << it->second.eta() << " " << it->second.phi() << " ";
+    if (genInfo) {
+      outputFile << genIt->first.pt() << " " << genIt->first.eta() << " " << genIt->first.phi() << " "
+                 << genIt->second.pt() << " " << genIt->second.eta() << " " << genIt->second.phi() << " ";
     }
     outputFile << " " << evtRunIt->first << " " << evtRunIt->second;
     outputFile << std::endl;

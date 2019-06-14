@@ -10,7 +10,7 @@
 //
 // Package:    METAlgorithms
 // Class:      SignAlgoResolutions
-// 
+//
 /**\class METSignificance SignAlgoResolutions.cc RecoMET/METAlgorithms/src/SignAlgoResolutions.cc
 
  Description: <one line class summary>
@@ -24,41 +24,40 @@
 //
 //
 
-metsig::significanceAlgo::significanceAlgo():
-  //  eventVec_(0),
-  set_worker_(0),
-  xmet_(0),
-  ymet_(0)
+metsig::significanceAlgo::significanceAlgo()
+    :  //  eventVec_(0),
+      set_worker_(0),
+      xmet_(0),
+      ymet_(0)
 
 {
   //  std::cout << "in constructor ! " << std::endl;
-  signifmatrix_(0,0)=signifmatrix_(1,0)=signifmatrix_(0,1)=signifmatrix_(1,1)=0;
+  signifmatrix_(0, 0) = signifmatrix_(1, 0) = signifmatrix_(0, 1) = signifmatrix_(1, 1) = 0;
 }
 
-
 //******* Add an existing significance matrix to the algo, so that the vector sum can be continued. Only makes sense if matrix is empty or you want to purposefully increase uncertainties (for example in systematic studies)!
-const void
-metsig::significanceAlgo::addSignifMatrix(const reco::METCovMatrix& input){
-  signifmatrix_+=input;
+const void metsig::significanceAlgo::addSignifMatrix(const reco::METCovMatrix &input) {
+  signifmatrix_ += input;
   return;
 }
 ////////////////////////
 /// reset the signficance matrix (this is the most likely case), so that the vector sum can be continued
 
-const void
-metsig::significanceAlgo::setSignifMatrix(const reco::METCovMatrix &input,const double &met_r, const double &met_phi, const double &met_set){
-  signifmatrix_=input;
-  set_worker_=met_set;
-  xmet_=met_r*cos(met_phi);
-  ymet_=met_r*sin(met_phi);
-  
+const void metsig::significanceAlgo::setSignifMatrix(const reco::METCovMatrix &input,
+                                                     const double &met_r,
+                                                     const double &met_phi,
+                                                     const double &met_set) {
+  signifmatrix_ = input;
+  set_worker_ = met_set;
+  xmet_ = met_r * cos(met_phi);
+  ymet_ = met_r * sin(met_phi);
+
   return;
 }
 
 // ********destructor ********
 
-metsig::significanceAlgo::~significanceAlgo(){
-}
+metsig::significanceAlgo::~significanceAlgo() {}
 
 // //*** rotate a 2D matrix by angle theta **********************//
 
@@ -77,116 +76,101 @@ metsig::significanceAlgo::~significanceAlgo(){
 // }
 //************************************************************//
 
-
-const void 
-metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj>& eventVec)
-{ 
+const void metsig::significanceAlgo::subtractObjects(const std::vector<metsig::SigInputObj> &eventVec) {
   reco::METCovMatrix v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
-  for(std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj!= eventVec.end(); ++obj){
-    double et_tmp     = obj->get_energy();
-    double phi_tmp    = obj->get_phi();
-    double sigma_et   = obj->get_sigma_e();
-    double sigma_tan  = obj->get_sigma_tan();
+  for (std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj != eventVec.end(); ++obj) {
+    double et_tmp = obj->get_energy();
+    double phi_tmp = obj->get_phi();
+    double sigma_et = obj->get_sigma_e();
+    double sigma_tan = obj->get_sigma_tan();
 
-    double cosphi=cos(phi_tmp);
-    double sinphi=sin(phi_tmp);
+    double cosphi = cos(phi_tmp);
+    double sinphi = sin(phi_tmp);
     double xval = et_tmp * cosphi;
     double yval = et_tmp * sinphi;
     xmet_ += xval;
     ymet_ += yval;
     set_worker_ -= et_tmp;
 
-    double sigma0_2=sigma_et*sigma_et;
-    double sigma1_2=sigma_tan*sigma_tan;
+    double sigma0_2 = sigma_et * sigma_et;
+    double sigma1_2 = sigma_tan * sigma_tan;
 
-    v_tot(0,0)-= sigma0_2*cosphi*cosphi + sigma1_2*sinphi*sinphi;
-    v_tot(0,1)-= cosphi*sinphi*(sigma0_2 - sigma1_2);
-    v_tot(1,0)-= cosphi*sinphi*(sigma0_2 - sigma1_2);
-    v_tot(1,1)-= sigma1_2*cosphi*cosphi + sigma0_2*sinphi*sinphi;
-    
+    v_tot(0, 0) -= sigma0_2 * cosphi * cosphi + sigma1_2 * sinphi * sinphi;
+    v_tot(0, 1) -= cosphi * sinphi * (sigma0_2 - sigma1_2);
+    v_tot(1, 0) -= cosphi * sinphi * (sigma0_2 - sigma1_2);
+    v_tot(1, 1) -= sigma1_2 * cosphi * cosphi + sigma0_2 * sinphi * sinphi;
   }
-  signifmatrix_=v_tot;
+  signifmatrix_ = v_tot;
 }
 //************************************************************//
 
-
-const void 
-metsig::significanceAlgo::addObjects(const std::vector<metsig::SigInputObj>& eventVec)
-{ 
+const void metsig::significanceAlgo::addObjects(const std::vector<metsig::SigInputObj> &eventVec) {
   reco::METCovMatrix v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
-  for(std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj!= eventVec.end(); ++obj){
-    double et_tmp     = obj->get_energy();
-    double phi_tmp    = obj->get_phi();
-    double sigma_et   = obj->get_sigma_e();
-    double sigma_tan  = obj->get_sigma_tan();
+  for (std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj != eventVec.end(); ++obj) {
+    double et_tmp = obj->get_energy();
+    double phi_tmp = obj->get_phi();
+    double sigma_et = obj->get_sigma_e();
+    double sigma_tan = obj->get_sigma_tan();
 
-    double cosphi=cos(phi_tmp);
-    double sinphi=sin(phi_tmp);
+    double cosphi = cos(phi_tmp);
+    double sinphi = sin(phi_tmp);
     double xval = et_tmp * cosphi;
     double yval = et_tmp * sinphi;
     xmet_ -= xval;
     ymet_ -= yval;
     set_worker_ += et_tmp;
 
-    double sigma0_2=sigma_et*sigma_et;
-    double sigma1_2=sigma_tan*sigma_tan;
+    double sigma0_2 = sigma_et * sigma_et;
+    double sigma1_2 = sigma_tan * sigma_tan;
 
-    v_tot(0,0)+= sigma0_2*cosphi*cosphi + sigma1_2*sinphi*sinphi;
-    v_tot(0,1)+= cosphi*sinphi*(sigma0_2 - sigma1_2);
-    v_tot(1,0)+= cosphi*sinphi*(sigma0_2 - sigma1_2);
-    v_tot(1,1)+= sigma1_2*cosphi*cosphi + sigma0_2*sinphi*sinphi;
-    
+    v_tot(0, 0) += sigma0_2 * cosphi * cosphi + sigma1_2 * sinphi * sinphi;
+    v_tot(0, 1) += cosphi * sinphi * (sigma0_2 - sigma1_2);
+    v_tot(1, 0) += cosphi * sinphi * (sigma0_2 - sigma1_2);
+    v_tot(1, 1) += sigma1_2 * cosphi * cosphi + sigma0_2 * sinphi * sinphi;
   }
-  signifmatrix_=v_tot;
+  signifmatrix_ = v_tot;
 }
 
 //************************************************************//
-const double 
-metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &met_set) 
-{
-  
-  if(signifmatrix_(0,0)==0 && signifmatrix_(1,1)==0 && signifmatrix_(1,0)==0 && signifmatrix_(0,1)==0){
+const double metsig::significanceAlgo::significance(double &met_r, double &met_phi, double &met_set) {
+  if (signifmatrix_(0, 0) == 0 && signifmatrix_(1, 1) == 0 && signifmatrix_(1, 0) == 0 && signifmatrix_(0, 1) == 0) {
     //edm::LogWarning("SignCaloSpecificAlgo") << "Event Vector is empty!  Return significance -1";
-    return(-1);
-  } 
+    return (-1);
+  }
 
   //--- Temporary variables ---//
- 
+
   reco::METCovMatrix v_tot;
   ROOT::Math::SVector<double, 2> metvec;
 
- //--- Initialize sum of rotated covariance matrices ---//  
-  v_tot=signifmatrix_;
+  //--- Initialize sum of rotated covariance matrices ---//
+  v_tot = signifmatrix_;
   //  std::cout << "INPUT:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
 
-
-
   //--- Calculate magnitude and angle of MET, store in returned variables ---//
-  met_r = sqrt(xmet_*xmet_ + ymet_*ymet_);
+  met_r = sqrt(xmet_ * xmet_ + ymet_ * ymet_);
   met_set = set_worker_;
-  met_phi= TMath::ATan2(ymet_, xmet_);
+  met_phi = TMath::ATan2(ymet_, xmet_);
 
   // one other option: if particles cancel there could be small numbers.
   // this check fixes this, added by F.Blekman
-  double det=0;
+  double det = 0;
   v_tot.Det(det);
-  if(fabs(det)<0.000001)
+  if (fabs(det) < 0.000001)
     return -1;
-
 
   // save matrix into object:
   //  std::cout << "SAVED:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
   v_tot.Invert();
   //  std::cout << "INVERTED:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;
-  
 
-
-  metvec(0) = xmet_; metvec(1) = ymet_;
-  double lnSignificance = ROOT::Math::Dot(metvec, (v_tot * metvec) );
+  metvec(0) = xmet_;
+  metvec(1) = ymet_;
+  double lnSignificance = ROOT::Math::Dot(metvec, (v_tot * metvec));
 
   //  v_tot.Invert();
   //  std::cout << "INVERTED AGAIN:\n"<< v_tot(0,0) << "," << v_tot(0,1) << "\n" << v_tot(1,0) << "," << v_tot(1,1) << std::endl;

@@ -14,10 +14,9 @@
  ************************************************************/
 
 #include <vector>
-#include "DataFormats/METReco/interface/GenMETFwd.h" 
+#include "DataFormats/METReco/interface/GenMETFwd.h"
 
-namespace reco
-{
+namespace reco {
   typedef std::vector<reco::GenMET> GenMETCollection;
-}  
-#endif // METRECO_GenMETCOLLECTION_H
+}
+#endif  // METRECO_GenMETCOLLECTION_H

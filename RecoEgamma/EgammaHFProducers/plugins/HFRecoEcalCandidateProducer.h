@@ -1,9 +1,9 @@
 #ifndef RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCER_H
-#define RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCER_H 1// -*- C++ -*-
+#define RECOLOCALCALO_HFCLUSTERPRODUCER_HFRECOECALCANDIDATEPRODUCER_H 1  // -*- C++ -*-
 //
 // Package:    EgammaHFProducers
 // Class:      HFRecoEcalCandidateProducers
-// 
+//
 /**\class HFRecoEcalCandidateProducers.h HFRecoEcalCandidateProducers.cc  
 */
 //
@@ -22,15 +22,16 @@
 #include "HFValueStruct.h"
 
 class HFRecoEcalCandidateProducer : public edm::stream::EDProducer<> {
- public:
+public:
   explicit HFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   void produce(edm::Event& e, edm::EventSetup const& iSetup) override;
- private:
-  std::vector<double> defaultDB_; 
-  edm::EDGetToken hfclustersSC_,hfclustersHFEM_,vertices_;
+
+private:
+  std::vector<double> defaultDB_;
+  edm::EDGetToken hfclustersSC_, hfclustersHFEM_, vertices_;
   int HFDBversion_;
   std::vector<double> HFDBvector_;
-  bool doPU_; 
+  bool doPU_;
   double Cut2D_;
   double defaultSlope2D_;
   reco::HFValueStruct hfvars_;

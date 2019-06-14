@@ -19,7 +19,7 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 /* Collaborating Class Declarations */
 #include "DataFormats/Common/interface/Handle.h"
@@ -40,58 +40,59 @@ class DTTTrigBaseSync;
 /* Class DTAnalyzerDetailed Interface */
 
 class DTAnalyzerDetailed : public edm::EDAnalyzer {
+public:
+  /* Constructor */
+  DTAnalyzerDetailed(const edm::ParameterSet& pset);
 
-  public:
+  /* Destructor */
+  ~DTAnalyzerDetailed();
 
-/* Constructor */ 
-    DTAnalyzerDetailed(const edm::ParameterSet& pset) ;
+  /* Operations */
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-/* Destructor */ 
-    ~DTAnalyzerDetailed() ;
+private:
+  void analyzeDTHits(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyzeDTSegments(const edm::Event& event, const edm::EventSetup& eventSetup);
 
-/* Operations */ 
-    void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  TH1F* histo(const std::string& name) const;
+  TH2F* histo2d(const std::string& name) const;
 
-  private:
-    void analyzeDTHits(const edm::Event & event, const edm::EventSetup& eventSetup);
-    void analyzeDTSegments(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void createTH1F(const std::string& name,
+                  const std::string& title,
+                  const std::string& suffix,
+                  int nbin,
+                  const double& binMin,
+                  const double& binMax) const;
 
-    TH1F* histo(const std::string& name) const;
-    TH2F* histo2d(const std::string& name) const;
+  void createTH2F(const std::string& name,
+                  const std::string& title,
+                  const std::string& suffix,
+                  int nBinX,
+                  const double& binXMin,
+                  const double& binXMax,
+                  int nBinY,
+                  const double& binYMin,
+                  const double& binYMax) const;
 
-    void createTH1F(const std::string& name,
-                    const std::string& title,
-                    const std::string& suffix,
-                    int nbin, const double& binMin, const double& binMax) const;
+  std::string toString(const DTLayerId& id) const;
+  std::string toString(const DTSuperLayerId& id) const;
+  std::string toString(const DTChamberId& id) const;
+  template <class T>
+  std::string hName(const std::string& s, const T& id) const;
 
-    void createTH2F(const std::string& name,
-                    const std::string& title,
-                    const std::string& suffix,
-                    int nBinX,
-                    const double& binXMin,
-                    const double& binXMax,
-                    int nBinY,
-                    const double& binYMin,
-                    const double& binYMax) const ;
+private:
+  bool debug;
+  int _ev;
+  std::string theRootFileName;
+  TFile* theFile;
+  //static std::string theAlgoName;
+  std::string theRecHits4DLabel;
+  std::string theRecHits2DLabel;
+  std::string theRecHits1DLabel;
 
-    std::string toString(const DTLayerId& id) const;
-    std::string toString(const DTSuperLayerId& id) const;
-    std::string toString(const DTChamberId& id) const;
-    template<class T> std::string hName(const std::string& s, const T& id) const;
-  private:
-    bool debug;
-    int _ev;
-    std::string theRootFileName;
-    TFile* theFile;
-    //static std::string theAlgoName;
-    std::string theRecHits4DLabel;
-    std::string theRecHits2DLabel;     
-    std::string theRecHits1DLabel;     
+  bool doHits;
+  bool doSegs;
 
-    bool doHits;
-    bool doSegs;
-
-    std::unique_ptr<DTTTrigBaseSync> theSync;
+  std::unique_ptr<DTTTrigBaseSync> theSync;
 };
-#endif // DTANALYZER_H
-
+#endif  // DTANALYZER_H

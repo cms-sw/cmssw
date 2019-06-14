@@ -16,42 +16,31 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
- 
+class ImpactParameterAlgorithm {
+public:
+  ImpactParameterAlgorithm(const edm::ParameterSet& parameters);
+  ImpactParameterAlgorithm();
 
+  // For out of framework usage we may need a different constructor
+  // so we keep datamember as builtin types (instead of ParameterSet)
+  //ImpactParameterAlgorithm (int,float,....);
 
+  ~ImpactParameterAlgorithm() {}
 
-class  ImpactParameterAlgorithm  {
+  void setPrimaryVertex(reco::Vertex* pv) { primaryVertex = pv; }
 
-    public:
- 
-	ImpactParameterAlgorithm(const edm::ParameterSet  & parameters );
-	ImpactParameterAlgorithm(); 
+  std::pair<float, reco::TauImpactParameterInfo> tag(const reco::IsolatedTauTagInfoRef&, const reco::Vertex&);
 
-	// For out of framework usage we may need a different constructor
-	// so we keep datamember as builtin types (instead of ParameterSet) 
-	//ImpactParameterAlgorithm (int,float,....);
-   
-	~ImpactParameterAlgorithm() {}
+  void setTransientTrackBuilder(const TransientTrackBuilder*);
 
-	void setPrimaryVertex(reco::Vertex * pv) {primaryVertex = pv;}
-  
-	std::pair<float,reco::TauImpactParameterInfo> tag(const reco::IsolatedTauTagInfoRef&, const reco::Vertex&); 
+private:
+  reco::Vertex* primaryVertex;
 
-	void setTransientTrackBuilder(const TransientTrackBuilder*);
+  //algorithm parameters
+  double ip_min, ip_max, sip_min;
+  bool use3D, use_sign;
 
-
-    private:
-	reco::Vertex* primaryVertex;
-
-	//algorithm parameters
-	double  ip_min,
-		ip_max,
-		sip_min;
-	bool	use3D,
-		use_sign;
-
-	const TransientTrackBuilder * transientTrackBuilder;
+  const TransientTrackBuilder* transientTrackBuilder;
 };
 
-#endif 
-
+#endif

@@ -2,7 +2,7 @@
 //
 // Package:     Discriminator
 // Class  :     Interceptor
-// 
+//
 
 // Implementation:
 //     Pseudo variable processor that just intercepts all the incoming
@@ -22,72 +22,60 @@
 
 namespace PhysicsTools {
 
-class Interceptor : public VarProcessor {
-    public:
-	typedef VarProcessor::Registry::Registry<Interceptor,
-					Calibration::Interceptor> Registry;
+  class Interceptor : public VarProcessor {
+  public:
+    typedef VarProcessor::Registry::Registry<Interceptor, Calibration::Interceptor> Registry;
 
-	Interceptor(const char *name,
-	            const Calibration::Interceptor *calib,
-	            const MVAComputer *computer);
-	~Interceptor() override;
+    Interceptor(const char *name, const Calibration::Interceptor *calib, const MVAComputer *computer);
+    ~Interceptor() override;
 
-	void configure(ConfIterator iter, unsigned int n) override;
-	void eval(ValueIterator iter, unsigned int n) const override;
+    void configure(ConfIterator iter, unsigned int n) override;
+    void eval(ValueIterator iter, unsigned int n) const override;
 
-    private:
-	Calibration::Interceptor	*interceptor;
-	std::vector<double>		*values;
-};
+  private:
+    Calibration::Interceptor *interceptor;
+    std::vector<double> *values;
+  };
 
-static Interceptor::Registry registry("Interceptor");
+  static Interceptor::Registry registry("Interceptor");
 
-Interceptor::Interceptor(const char *name,
-                         const Calibration::Interceptor *calib,
-                         const MVAComputer *computer) :
-	VarProcessor(name, calib, computer),
-	interceptor(const_cast<Calibration::Interceptor*>(calib)),
-	values(nullptr)
-{
-}
+  Interceptor::Interceptor(const char *name, const Calibration::Interceptor *calib, const MVAComputer *computer)
+      : VarProcessor(name, calib, computer),
+        interceptor(const_cast<Calibration::Interceptor *>(calib)),
+        values(nullptr) {}
 
-Interceptor::~Interceptor()
-{
-	delete[] values;
-}
+  Interceptor::~Interceptor() { delete[] values; }
 
-void Interceptor::configure(ConfIterator iter, unsigned int n)
-{
-	std::vector<Variable::Flags> flags;
-	for(ConfIterator iter2 = iter; iter2; iter2++)
-		flags.push_back(*iter2);
+  void Interceptor::configure(ConfIterator iter, unsigned int n) {
+    std::vector<Variable::Flags> flags;
+    for (ConfIterator iter2 = iter; iter2; iter2++)
+      flags.push_back(*iter2);
 
-	flags = interceptor->configure(computer, n, flags);
-	if (flags.size() != n)
-		return;
+    flags = interceptor->configure(computer, n, flags);
+    if (flags.size() != n)
+      return;
 
-	for(unsigned int i = 0; i < n; i++)
-		iter++(flags[i]);
+    for (unsigned int i = 0; i < n; i++)
+      iter++(flags[i]);
 
-	iter << Variable::FLAG_NONE;
+    iter << Variable::FLAG_NONE;
 
-	values = new std::vector<double>[n];
-}
+    values = new std::vector<double>[n];
+  }
 
-void Interceptor::eval(ValueIterator iter, unsigned int n) const
-{
-	std::vector<double> *var = values;
+  void Interceptor::eval(ValueIterator iter, unsigned int n) const {
+    std::vector<double> *var = values;
 
-	for(unsigned int i = 0; i < n; i++) {
-		var->resize(iter.size());
-		std::copy(iter.begin(), iter.end(), var->begin());
-		iter++;
-		var++;
-	}
+    for (unsigned int i = 0; i < n; i++) {
+      var->resize(iter.size());
+      std::copy(iter.begin(), iter.end(), var->begin());
+      iter++;
+      var++;
+    }
 
-	interceptor->intercept(values);
+    interceptor->intercept(values);
 
-	iter(0.0);
-}
+    iter(0.0);
+  }
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools

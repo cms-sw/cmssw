@@ -22,4 +22,3 @@ REGISTER_PLUGIN(L1TUtmCutValueRcd, L1TUtmCutValue);
 #include "CondFormats/L1TObjects/interface/L1TUtmObject.h"
 #include "CondFormats/DataRecord/interface/L1TUtmObjectRcd.h"
 REGISTER_PLUGIN(L1TUtmObjectRcd, L1TUtmObject);
-

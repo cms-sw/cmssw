@@ -7,7 +7,7 @@
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceLineLine.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixLine.h"
 
-  /**
+/**
    * General interface to calculate the PCA of two tracks. 
    * According to the charge of the tracks, the correct algorithm is used:<ul>
    * <li> charged-charged: TwoTrackMinimumDistanceHelixHelix
@@ -17,24 +17,22 @@
    */
 
 class TwoTrackMinimumDistance final : public ClosestApproachOnHelices {
-
 public:
+  enum Mode { FastMode = 0, SlowMode = 1 };
 
-  enum Mode { FastMode=0, SlowMode=1 };
+  TwoTrackMinimumDistance(const Mode m = FastMode) {
+    theModus = m;
+    status_ = false;
+  };
+  ~TwoTrackMinimumDistance() override {}
 
-  TwoTrackMinimumDistance( const Mode m=FastMode ) { theModus=m; status_ = false;};
-  ~TwoTrackMinimumDistance() override{}
+  bool calculate(const TrajectoryStateOnSurface& sta, const TrajectoryStateOnSurface& stb) override;
 
-  bool calculate(const TrajectoryStateOnSurface & sta, 
-	 const TrajectoryStateOnSurface & stb) override;
+  bool calculate(const FreeTrajectoryState& sta, const FreeTrajectoryState& stb) override;
 
-  bool calculate(const FreeTrajectoryState & sta,
-	const FreeTrajectoryState & stb) override;
+  virtual bool calculate(const GlobalTrajectoryParameters& sta, const GlobalTrajectoryParameters& stb);
 
-  virtual bool calculate(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb);
-
-  bool status() const override {return status_;}
+  bool status() const override { return status_; }
 
   /**
    * Returns the two PCA on the trajectories.
@@ -48,17 +46,14 @@ public:
   /** distance between the two points of closest approach in 3D */
   float distance() const override;
 
-
   /**
    *  Clone method
    */
-  TwoTrackMinimumDistance * clone() const override {
-    return new TwoTrackMinimumDistance(* this);
-  }
+  TwoTrackMinimumDistance* clone() const override { return new TwoTrackMinimumDistance(*this); }
 
   double firstAngle() const;
   double secondAngle() const;
-  std::pair <double, double> pathLength() const;
+  std::pair<double, double> pathLength() const;
 
 private:
   enum Charge { hh, hl, ll };
@@ -71,12 +66,9 @@ private:
   bool status_;
   std::pair<GlobalPoint, GlobalPoint> points_;
 
-  bool pointsLineLine(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb)  dso_internal;
-  bool pointsHelixLine(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb)  dso_internal;
-  bool pointsHelixHelix(const GlobalTrajectoryParameters & sta,
-	const GlobalTrajectoryParameters & stb)  dso_internal;
+  bool pointsLineLine(const GlobalTrajectoryParameters& sta, const GlobalTrajectoryParameters& stb) dso_internal;
+  bool pointsHelixLine(const GlobalTrajectoryParameters& sta, const GlobalTrajectoryParameters& stb) dso_internal;
+  bool pointsHelixHelix(const GlobalTrajectoryParameters& sta, const GlobalTrajectoryParameters& stb) dso_internal;
 };
 
 #endif

@@ -31,36 +31,32 @@
 #include "TH2F.h"
 
 class CSCSegmentVisualise : public edm::EDAnalyzer {
- public:
-
+public:
   /// Constructor
-  explicit CSCSegmentVisualise(const edm::ParameterSet& pset);
+  explicit CSCSegmentVisualise(const edm::ParameterSet &pset);
 
   /// Destructor
   virtual ~CSCSegmentVisualise();
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup);
 
+private:
+  std::string filename;
+  TH2F *hxvsz[100];
+  TH2F *hyvsz[100];
+  TH2F *hxvszE[100];
+  TH2F *hyvszE[100];
+  TH2F *hxvszSeg[100];
+  TH2F *hyvszSeg[100];
+  TH2F *hxvszSegP[100];
+  TH2F *hyvszSegP[100];
 
-private: 
-
-    std::string filename;
-    TH2F *hxvsz[100];
-    TH2F *hyvsz[100];
-    TH2F *hxvszE[100];
-    TH2F *hyvszE[100];
-    TH2F *hxvszSeg[100];
-    TH2F *hyvszSeg[100];
-    TH2F *hxvszSegP[100];
-    TH2F *hyvszSegP[100];
-    
-    TFile* file;  
-    int idxHisto;
-    int minRechitChamber;
-    int maxRechitChamber;
-    //    double maxPhi, maxTheta;
-    int ievt;
+  TFile *file;
+  int idxHisto;
+  int minRechitChamber;
+  int maxRechitChamber;
+  //    double maxPhi, maxTheta;
+  int ievt;
 };
 
 #endif
-

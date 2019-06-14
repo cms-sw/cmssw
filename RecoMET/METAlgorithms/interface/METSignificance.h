@@ -2,7 +2,7 @@
 //
 // Package:    METAlgorithms
 // Class:      METSignificance
-// 
+//
 /**\class METSignificance METSignificance.cc RecoMET/METAlgorithms/src/METSignificance.cc
 Description: [one line class summary]
 Implementation:
@@ -32,35 +32,33 @@ Implementation:
 //____________________________________________________________________________||
 namespace metsig {
 
-   class METSignificance {
-      public:
-         METSignificance(const edm::ParameterSet& iConfig);
-         ~METSignificance();
+  class METSignificance {
+  public:
+    METSignificance(const edm::ParameterSet& iConfig);
+    ~METSignificance();
 
-         reco::METCovMatrix getCovariance(const edm::View<reco::Jet>& jets,
-					  const std::vector< edm::Handle<reco::CandidateView> >& leptons,
-					  const edm::Handle<edm::View<reco::Candidate> >& pfCandidates,
-					  double rho,
-					  JME::JetResolution & resPtObj,
-					  JME::JetResolution & resPhiObj,
-					  JME::JetResolutionScaleFactor & resSFObj,
-					  bool isRealData);
+    reco::METCovMatrix getCovariance(const edm::View<reco::Jet>& jets,
+                                     const std::vector<edm::Handle<reco::CandidateView> >& leptons,
+                                     const edm::Handle<edm::View<reco::Candidate> >& pfCandidates,
+                                     double rho,
+                                     JME::JetResolution& resPtObj,
+                                     JME::JetResolution& resPhiObj,
+                                     JME::JetResolutionScaleFactor& resSFObj,
+                                     bool isRealData);
 
-     static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met );
+    static double getSignificance(const reco::METCovMatrix& cov, const reco::MET& met);
 
-      private:
-         bool cleanJet(const reco::Jet& jet, 
-         const std::vector< edm::Handle<reco::CandidateView> >& leptons );
+  private:
+    bool cleanJet(const reco::Jet& jet, const std::vector<edm::Handle<reco::CandidateView> >& leptons);
 
-         double jetThreshold_;
-         double dR2match_;
-         std::vector<double> jetEtas_;
-         std::vector<double> jetParams_;
-         std::vector<double> pjetParams_;
+    double jetThreshold_;
+    double dR2match_;
+    std::vector<double> jetEtas_;
+    std::vector<double> jetParams_;
+    std::vector<double> pjetParams_;
+  };
 
-   };
-
-}
+}  // namespace metsig
 
 //____________________________________________________________________________||
-#endif // METAlgorithms_METSignificance_h
+#endif  // METAlgorithms_METSignificance_h

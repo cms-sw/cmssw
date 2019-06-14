@@ -14,43 +14,39 @@
 namespace reco {
 
   class MuonTrackLinks {
-
   public:
-
     /// Default Constructor
-    MuonTrackLinks(){}
-    
+    MuonTrackLinks() {}
+
     /// Constructor
-    MuonTrackLinks(reco::TrackRef tk, reco::TrackRef sta, reco::TrackRef glb):
-      theTkTrack(tk),theStaTrack(sta),theGlbTrack(glb){}
+    MuonTrackLinks(reco::TrackRef tk, reco::TrackRef sta, reco::TrackRef glb)
+        : theTkTrack(tk), theStaTrack(sta), theGlbTrack(glb) {}
 
     /// Destructor
     virtual ~MuonTrackLinks(){};
 
     // Operations
-  
+
     /// get the tracker's track which match with the stand alone muon tracks
-    inline reco::TrackRef trackerTrack() const {return theTkTrack;}
+    inline reco::TrackRef trackerTrack() const { return theTkTrack; }
 
     /// get the track built with the muon spectrometer alone
-    inline reco::TrackRef standAloneTrack() const {return theStaTrack;}
+    inline reco::TrackRef standAloneTrack() const { return theStaTrack; }
 
     /// get the combined track
-    inline reco::TrackRef globalTrack() const {return theGlbTrack;}
+    inline reco::TrackRef globalTrack() const { return theGlbTrack; }
 
     /// set the ref to tracker's track
-    inline void setTrackerTrack(reco::TrackRef tk) {theTkTrack = tk;}
+    inline void setTrackerTrack(reco::TrackRef tk) { theTkTrack = tk; }
 
     /// set the ref to stand alone track
-    inline void setStandAloneTrack(reco::TrackRef sta) {theStaTrack = sta;}
+    inline void setStandAloneTrack(reco::TrackRef sta) { theStaTrack = sta; }
 
     /// set the ref to combined track
-    inline void setGlobalTrack(reco::TrackRef glb) {theGlbTrack = glb;}
-  
-  protected:
+    inline void setGlobalTrack(reco::TrackRef glb) { theGlbTrack = glb; }
 
+  protected:
   private:
-    
     /// ref to tracker's track which match with the stand alone muon tracks
     reco::TrackRef theTkTrack;
 
@@ -60,6 +56,5 @@ namespace reco {
     /// ref to the combined track
     reco::TrackRef theGlbTrack;
   };
-}
+}  // namespace reco
 #endif
-

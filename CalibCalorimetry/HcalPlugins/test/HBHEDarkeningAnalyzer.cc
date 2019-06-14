@@ -29,7 +29,7 @@
 // class declaration
 //
 
-class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<> {
+class HBHEDarkeningAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit HBHEDarkeningAnalyzer(const edm::ParameterSet&);
   ~HBHEDarkeningAnalyzer();
@@ -38,9 +38,9 @@ public:
 
 private:
   void beginJob() override;
-  void doBeginRun_(const edm::Run&, const edm::EventSetup&) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void doEndRun_(const edm::Run&, const edm::EventSetup&) override {}
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void endJob() override {}
   void print(int ieta_min,
              int ieta_max,
@@ -76,7 +76,7 @@ HBHEDarkeningAnalyzer::~HBHEDarkeningAnalyzer() {}
 
 void HBHEDarkeningAnalyzer::beginJob() {}
 
-void HBHEDarkeningAnalyzer::doBeginRun_(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+void HBHEDarkeningAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   edm::ESHandle<HcalTopology> htopo;
   iSetup.get<HcalRecNumberingRecord>().get(htopo);
   theTopology = &*htopo;
@@ -91,11 +91,15 @@ void HBHEDarkeningAnalyzer::doBeginRun_(const edm::Run& iRun, const edm::EventSe
 
   //initialize recalibration classes
   std::vector<std::vector<int>> m_segmentation;
-  int maxEta = theTopology->lastHERing();
+  int maxEta = theTopology->lastHBHERing();
   m_segmentation.resize(maxEta);
   for (int i = 0; i < maxEta; i++) {
     theTopology->getDepthSegmentation(i + 1, m_segmentation[i]);
   }
+  std::cout << "HB: Eta " << theTopology->firstHBRing() 
+	    << ":" << theTopology->lastHBRing() << " HE: Eta "
+	    << theTopology->firstHERing() << ":" << theTopology->lastHERing()
+	    << std::endl;
   hb_recalibration.setup(m_segmentation, hb_darkening);
   he_recalibration.setup(m_segmentation, he_darkening);
 }
@@ -105,8 +109,8 @@ void HBHEDarkeningAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   std::cout << std::setprecision(2);
 
   //HB tests
-  int hb_ieta_min = 1;
-  int hb_ieta_max = 16;
+  int hb_ieta_min = theTopology->firstHBRing();
+  int hb_ieta_max = theTopology->lastHBRing();
   int hb_lay_min = 1;
   int hb_lay_max = 17;
   std::cout << "HB" << std::endl;
@@ -115,8 +119,8 @@ void HBHEDarkeningAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   std::cout << std::endl;
 
   //HE tests
-  int he_ieta_min = 16;
-  int he_ieta_max = 29;
+  int he_ieta_min = theTopology->firstHERing();
+  int he_ieta_max = theTopology->lastHERing();
   int he_lay_min = 1;
   int he_lay_max = 19;
   std::cout << "HE" << std::endl;
@@ -129,7 +133,8 @@ void HBHEDarkeningAnalyzer::print(int ieta_min,
                                   int lay_max,
                                   const HBHEDarkening* darkening,
                                   const HBHERecalibration& recalibration) {
-  std::cout << "Darkening" << std::endl;
+  std::cout << "Darkening: ieta " << ieta_min << ":" << ieta_max << " layer "
+	    << lay_min << ":" << lay_max << std::endl;
   for (int ieta = ieta_min; ieta <= ieta_max; ++ieta) {
     std::cout << "Tower " << ieta << ": ";
     for (int lay = lay_min; lay <= lay_max; ++lay) {
@@ -138,7 +143,8 @@ void HBHEDarkeningAnalyzer::print(int ieta_min,
     std::cout << std::endl;
   }
 
-  std::cout << "Recalibration" << std::endl;
+  std::cout << "Recalibration: ieta " << ieta_min << ":" << ieta_max 
+	    << " layer " << lay_min << ":" << lay_max << std::endl;
   for (int ieta = ieta_min; ieta <= ieta_max; ++ieta) {
     std::cout << "Tower " << ieta << ": ";
     for (int depth = 1; depth <= recalibration.maxDepth(); ++depth) {

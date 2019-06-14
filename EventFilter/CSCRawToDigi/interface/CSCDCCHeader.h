@@ -7,36 +7,33 @@
 
 #include <cstdint>
 #include <cstring>
-#include <string> //for bzero
+#include <string>  //for bzero
 #include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 
 class CSCDCCHeader {
-
- public:
-  CSCDCCHeader(int bx, int l1a, int sourceId, int version=0);
+public:
+  CSCDCCHeader(int bx, int l1a, int sourceId, int version = 0);
   CSCDCCHeader();
-  CSCDCCHeader(const CSCDCCStatusDigi & digi);
+  CSCDCCHeader(const CSCDCCStatusDigi& digi);
 
-  void setFromBuffer(uint16_t const* buf) {
-    memcpy(this, buf, sizeInWords()*2);
-  }
+  void setFromBuffer(uint16_t const* buf) { memcpy(this, buf, sizeInWords() * 2); }
 
-  int getCDFEventNumber() const; 
-  int getCDFSourceId() const; 
+  int getCDFEventNumber() const;
+  int getCDFSourceId() const;
   int getCDFFOV() const;
   int getCDFEventType() const;
-  int getCDFBunchCounter() const; 
+  int getCDFBunchCounter() const;
   void setDAV(int dduSlot);
-  bool check() const { return true/*dcc_code1==0xD9 && dcc_code2==0x97*/;}
-  unsigned short * data() {return (short unsigned *)word;}
-  static unsigned sizeInWords() {return 8;}
+  bool check() const { return true /*dcc_code1==0xD9 && dcc_code2==0x97*/; }
+  unsigned short* data() { return (short unsigned*)word; }
+  static unsigned sizeInWords() { return 8; }
 
   // gets some data filled by the event data
   friend class CSCDDUEventData;
 
- private:
+private:
   unsigned long long word[2];
-  
+
   /*
   //first line of DCC header definded by CDF (common data format)
   ///http://cmsdoc.cern.ch/cms/TRIDAS/horizontal/
@@ -58,6 +55,5 @@ class CSCDCCHeader {
   unsigned dcc_code2     : 8;
   
   */
-
 };
 #endif

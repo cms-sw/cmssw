@@ -13,7 +13,3 @@
 
 typedef edmplugin::PluginFactory<DTRecHitBaseAlgo *(const edm::ParameterSet &)> DTRecHitAlgoFactory;
 #endif
-
-
-
-

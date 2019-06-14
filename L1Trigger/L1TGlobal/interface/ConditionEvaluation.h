@@ -36,113 +36,103 @@
 
 namespace l1t {
 
-// class interface
-class ConditionEvaluation
-{
-
-public:
-
+  // class interface
+  class ConditionEvaluation {
+  public:
     /// constructor
-    ConditionEvaluation()  :
-    m_condMaxNumberObjects(0),
-    m_condLastResult(false),
-    m_verbosity(0) {}
-
+    ConditionEvaluation() : m_condMaxNumberObjects(0), m_condLastResult(false), m_verbosity(0) {}
 
     /// destructor
-    virtual ~ConditionEvaluation(){}
+    virtual ~ConditionEvaluation() {}
 
-public:
-
+  public:
     /// get / set the maximum number of objects received for the
     /// evaluation of the condition
-    inline int condMaxNumberObjects() const {
-        return m_condMaxNumberObjects;
-    }
+    inline int condMaxNumberObjects() const { return m_condMaxNumberObjects; }
 
     inline void setCondMaxNumberObjects(int condMaxNumberObjectsValue) {
-        m_condMaxNumberObjects = condMaxNumberObjectsValue;
+      m_condMaxNumberObjects = condMaxNumberObjectsValue;
     }
 
     /// get the latest result for the condition
-    inline bool condLastResult() const {
-        return m_condLastResult;
-    }
+    inline bool condLastResult() const { return m_condLastResult; }
 
     /// call evaluateCondition and save last result
-    inline void evaluateConditionStoreResult(const int bxEval) {
-        m_condLastResult = evaluateCondition(bxEval);
-    }
+    inline void evaluateConditionStoreResult(const int bxEval) { m_condLastResult = evaluateCondition(bxEval); }
 
     /// the core function to check if the condition matches
     virtual const bool evaluateCondition(const int bxEval) const = 0;
 
     /// get numeric expression
     virtual std::string getNumericExpression() const {
-        if (m_condLastResult) {
-            return "1";
-        }
-        else {
-            return "0";
-        }
+      if (m_condLastResult) {
+        return "1";
+      } else {
+        return "0";
+      }
     }
 
     /// get all the object combinations evaluated to true in the condition
-    inline CombinationsInCond const & getCombinationsInCond() const {
-        return m_combinationsInCond;
-    }
-
+    inline CombinationsInCond const& getCombinationsInCond() const { return m_combinationsInCond; }
 
     /// print condition
     virtual void print(std::ostream& myCout) const;
 
-    inline void setVerbosity(const int verbosity) {
-        m_verbosity = verbosity;
-    }
+    inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
 
-protected:
-
+  protected:
     /// get all the object combinations (to fill it...)
-    inline CombinationsInCond& combinationsInCond() const {
-        return m_combinationsInCond;
-    }
+    inline CombinationsInCond& combinationsInCond() const { return m_combinationsInCond; }
 
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
-    template<class Type1, class Type2> const bool checkThreshold(const Type1& thresholdL, const Type1& thresholdH,
-        const Type2& value, bool condGEqValue) const;
+    template <class Type1, class Type2>
+    const bool checkThreshold(const Type1& thresholdL,
+                              const Type1& thresholdH,
+                              const Type2& value,
+                              bool condGEqValue) const;
 
-    /// check if a index is in a given range 
-    template<class Type1> const bool checkIndex( const Type1& indexLo, const Type1& indexHi,
-							const unsigned int index ) const;
+    /// check if a index is in a given range
+    template <class Type1>
+    const bool checkIndex(const Type1& indexLo, const Type1& indexHi, const unsigned int index) const;
 
     /// check if a bit with a given number is set in a mask
-    template<class Type1> const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
+    template <class Type1>
+    const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
 
     /// check if a value is in a given range and outside of a veto range
-    template<class Type1> const bool checkRangeEta(const unsigned int bitNumber, 
-						   const Type1& W1beginR, const Type1& W1endR, 
-						   const Type1& W2beginR, const Type1& W2endR,
-						   const unsigned int nEtaBits ) const;
+    template <class Type1>
+    const bool checkRangeEta(const unsigned int bitNumber,
+                             const Type1& W1beginR,
+                             const Type1& W1endR,
+                             const Type1& W2beginR,
+                             const Type1& W2endR,
+                             const unsigned int nEtaBits) const;
 
     /// check if a value is in a given range and outside of a veto range
-    template<class Type1> const bool checkRangePhi(const unsigned int bitNumber, 
-						   const Type1& W1beginR, const Type1& W1endR, 
-						   const Type1& W2beginR, const Type1& W2endR ) const;
+    template <class Type1>
+    const bool checkRangePhi(const unsigned int bitNumber,
+                             const Type1& W1beginR,
+                             const Type1& W1endR,
+                             const Type1& W2beginR,
+                             const Type1& W2endR) const;
 
+    /// check if a value is in a given range
+    template <class Type1>
+    const bool checkRangeDeltaEta(const unsigned int obj1Eta,
+                                  const unsigned int obj2Eta,
+                                  const Type1& lowerR,
+                                  const Type1& upperR,
+                                  const unsigned int nEtaBits) const;
 
-    /// check if a value is in a given range 
-    template<class Type1> const bool checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
-							const Type1& lowerR, const Type1& upperR,
-							const unsigned int nEtaBits ) const;
+    /// check if a value is in a given range
+    template <class Type1>
+    const bool checkRangeDeltaPhi(const unsigned int obj1Phi,
+                                  const unsigned int obj2Phi,
+                                  const Type1& lowerR,
+                                  const Type1& upperR) const;
 
-    /// check if a value is in a given range 
-    template<class Type1> const bool checkRangeDeltaPhi(const unsigned int obj1Phi, const unsigned int obj2Phi,
-							const Type1& lowerR, const Type1& upperR ) const;
-
-
-protected:
-
+  protected:
     /// maximum number of objects received for the evaluation of the condition
     /// usually retrieved from event setup
     int m_condMaxNumberObjects;
@@ -155,90 +145,79 @@ protected:
 
     /// verbosity level
     int m_verbosity;
+  };
 
-};
+  // define templated methods
 
-// define templated methods
-
-// check if a value is greater than a threshold or
-// greater-or-equal depending on the value of the condGEqValue flag
-template<class Type1, class Type2> const bool ConditionEvaluation::checkThreshold(
-    const Type1& thresholdL, const Type1& thresholdH, const Type2& value, const bool condGEqValue) const {
-
+  // check if a value is greater than a threshold or
+  // greater-or-equal depending on the value of the condGEqValue flag
+  template <class Type1, class Type2>
+  const bool ConditionEvaluation::checkThreshold(const Type1& thresholdL,
+                                                 const Type1& thresholdH,
+                                                 const Type2& value,
+                                                 const bool condGEqValue) const {
     if (value > 0) {
-        LogTrace("L1GlobalTrigger") 
-	    << "  checkThreshold check for condGEqValue = "
-            << condGEqValue << "\n    hex: " << std::hex << "threshold = " << thresholdL << " - " << thresholdH
-            << " value = " << value << "\n    dec: " << std::dec << "threshold = " << thresholdL << " - " << thresholdH
-            << " value = " << value << std::endl;
+      LogTrace("L1GlobalTrigger") << "  checkThreshold check for condGEqValue = " << condGEqValue
+                                  << "\n    hex: " << std::hex << "threshold = " << thresholdL << " - " << thresholdH
+                                  << " value = " << value << "\n    dec: " << std::dec << "threshold = " << thresholdL
+                                  << " - " << thresholdH << " value = " << value << std::endl;
     }
 
     if (condGEqValue) {
-        if (value >= (Type2) thresholdL && (Type1) value < thresholdH) {
+      if (value >= (Type2)thresholdL && (Type1)value < thresholdH) {
+        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
+        //    << std::endl;
 
-            //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
-            //    << std::endl;
-	    
-            return true;
-        }
+        return true;
+      }
 
-        return false;
+      return false;
 
+    } else {
+      if (value == (Type2)thresholdL) {
+        //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
+        //    << std::endl;
+
+        return true;
+      }
+
+      return false;
     }
-    else {
+  }
 
-        if (value == (Type2) thresholdL ) {
+  // check if a index in a given range
+  template <class Type1>
+  const bool ConditionEvaluation::checkIndex(const Type1& indexLo,
+                                             const Type1& indexHi,
+                                             const unsigned int index) const {
+    LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
+                           << "\n\t indexLo = " << indexLo << "\n\t indexHi = " << indexHi << "\n\t index = " << index
+                           << std::endl;
 
-            //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
-            //    << std::endl;
-
-            return true;
-        }
-
-        return false;
+    // set condtion to false if indexLo > indexHi
+    if (indexLo > indexHi) {
+      return false;
     }
-}
+    if (index >= indexLo && index <= indexHi) {
+      return true;
+    }
 
-// check if a index in a given range
-template<class Type1> const bool ConditionEvaluation::checkIndex(const Type1& indexLo, const Type1& indexHi,
-    const unsigned int index) const {
-
-  LogDebug("l1t|Global")
-    << "\n l1t::ConditionEvaluation"
-    << "\n\t indexLo = " << indexLo
-    << "\n\t indexHi = " << indexHi
-    << "\n\t index = " << index
-    << std::endl;
-
-  // set condtion to false if indexLo > indexHi
-  if( indexLo > indexHi ) {
     return false;
   }
-  if (index >= indexLo && index <= indexHi) {
-    return true;
-  }
 
-  return false;
-}
-
-
-// check if a bit with a given number is set in a mask
-template<class Type1> const bool ConditionEvaluation::checkBit(const Type1& mask,
-    const unsigned int bitNumber) const {
-
+  // check if a bit with a given number is set in a mask
+  template <class Type1>
+  const bool ConditionEvaluation::checkBit(const Type1& mask, const unsigned int bitNumber) const {
     boost::uint64_t oneBit = 1ULL;
 
-    if (bitNumber >= (sizeof(oneBit)*8)) {
+    if (bitNumber >= (sizeof(oneBit) * 8)) {
+      if (m_verbosity) {
+        LogTrace("L1GlobalTrigger") << "    checkBit "
+                                    << "\n     Bit number = " << bitNumber << " larger than maximum allowed "
+                                    << sizeof(oneBit) * 8 << std::endl;
+      }
 
-        if (m_verbosity) {
-
-            LogTrace("L1GlobalTrigger")
-                << "    checkBit " << "\n     Bit number = "
-                << bitNumber << " larger than maximum allowed " << sizeof ( oneBit ) * 8
-                << std::endl;
-        }
-
-        return false;
+      return false;
     }
 
     oneBit <<= bitNumber;
@@ -250,276 +229,237 @@ template<class Type1> const bool ConditionEvaluation::checkBit(const Type1& mask
     //    << "\n     mask & oneBit result = " << bool ( mask & oneBit ) << std::endl;
 
     return (mask & oneBit);
-}
-
-
-/// check if a value is in a given range and outside of a veto range
- template<class Type1> const bool ConditionEvaluation::checkRangeEta(const unsigned int bitNumber, 
-								     const Type1& W1beginR, const Type1& W1endR, 
-								     const Type1& W2beginR, const Type1& W2endR,
-								     const unsigned int nEtaBits) const {
-
-  // set condtion to true if beginR==endR = default -1
-  if( W1beginR==W1endR && W1beginR==(Type1)-1 ){
-    return true;
   }
 
-  unsigned int W1diff1 = W1endR - W1beginR;
-  unsigned int W1diff2 = bitNumber - W1beginR;
-  unsigned int W1diff3 = W1endR - bitNumber;
+  /// check if a value is in a given range and outside of a veto range
+  template <class Type1>
+  const bool ConditionEvaluation::checkRangeEta(const unsigned int bitNumber,
+                                                const Type1& W1beginR,
+                                                const Type1& W1endR,
+                                                const Type1& W2beginR,
+                                                const Type1& W2endR,
+                                                const unsigned int nEtaBits) const {
+    // set condtion to true if beginR==endR = default -1
+    if (W1beginR == W1endR && W1beginR == (Type1)-1) {
+      return true;
+    }
 
-  bool W1cond1 = ( (W1diff1>>nEtaBits) & 1 ) ? false : true;
-  bool W1cond2 = ( (W1diff2>>nEtaBits) & 1 ) ? false : true;
-  bool W1cond3 = ( (W1diff3>>nEtaBits) & 1 ) ? false : true;
+    unsigned int W1diff1 = W1endR - W1beginR;
+    unsigned int W1diff2 = bitNumber - W1beginR;
+    unsigned int W1diff3 = W1endR - bitNumber;
 
-  // check if value is in range
-  // for begin <= end takes [begin, end]
-  // for begin >= end takes [begin, end] over zero angle!
-  bool passWindow1 = false;
-  if( W1cond1 && (W1cond2 && W1cond3 ) )      passWindow1=true;
-  else if( !W1cond1 && (W1cond2 || W1cond3) ) passWindow1=true;
-  else{
-    passWindow1 = false;
+    bool W1cond1 = ((W1diff1 >> nEtaBits) & 1) ? false : true;
+    bool W1cond2 = ((W1diff2 >> nEtaBits) & 1) ? false : true;
+    bool W1cond3 = ((W1diff3 >> nEtaBits) & 1) ? false : true;
+
+    // check if value is in range
+    // for begin <= end takes [begin, end]
+    // for begin >= end takes [begin, end] over zero angle!
+    bool passWindow1 = false;
+    if (W1cond1 && (W1cond2 && W1cond3))
+      passWindow1 = true;
+    else if (!W1cond1 && (W1cond2 || W1cond3))
+      passWindow1 = true;
+    else {
+      passWindow1 = false;
+    }
+
+    LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
+                           << "\n\t bitNumber = " << bitNumber << "\n\t W1beginR = " << W1beginR
+                           << "\n\t W1endR   = " << W1endR << "\n\t W1diff1 = " << W1diff1
+                           << "\n\t W1cond1 = " << W1cond1 << "\n\t W1diff2 = " << W1diff2
+                           << "\n\t W1cond2 = " << W1cond2 << "\n\t W1diff3 = " << W1diff3
+                           << "\n\t W1cond3 = " << W1cond3 << "\n\t passWindow1 = " << passWindow1 << std::endl;
+
+    if (W2beginR == W2endR && W2beginR == (Type1)-1) {
+      return passWindow1;
+    }
+
+    unsigned int W2diff1 = W2endR - W2beginR;
+    unsigned int W2diff2 = bitNumber - W2beginR;
+    unsigned int W2diff3 = W2endR - bitNumber;
+
+    bool W2cond1 = ((W2diff1 >> nEtaBits) & 1) ? false : true;
+    bool W2cond2 = ((W2diff2 >> nEtaBits) & 1) ? false : true;
+    bool W2cond3 = ((W2diff3 >> nEtaBits) & 1) ? false : true;
+
+    bool passWindow2 = false;
+    if (W2cond1 && (W2cond2 && W2cond3))
+      passWindow2 = true;
+    else if (!W2cond1 && (W2cond2 || W2cond3))
+      passWindow2 = true;
+    else {
+      passWindow2 = false;
+    }
+
+    LogDebug("l1t|Global") << "\n\t W2beginR = " << W2beginR << "\n\t W2endR   = " << W2endR
+                           << "\n\t W2diff1 = " << W2diff1 << "\n\t W2cond1 = " << W2cond1
+                           << "\n\t W2diff2 = " << W2diff2 << "\n\t W2cond2 = " << W2cond2
+                           << "\n\t W2diff3 = " << W2diff3 << "\n\t W2cond3 = " << W2cond3
+                           << "\n\t passWindow2 = " << passWindow2
+                           << "\n\t pass W1 || W2 = " << (passWindow1 || passWindow2) << std::endl;
+
+    if (passWindow1 || passWindow2) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
+  /// check if a value is in a given range and outside of a veto range
+  template <class Type1>
+  const bool ConditionEvaluation::checkRangePhi(const unsigned int bitNumber,
+                                                const Type1& W1beginR,
+                                                const Type1& W1endR,
+                                                const Type1& W2beginR,
+                                                const Type1& W2endR) const {
+    // set condtion to true if beginR==endR = default -1
+    if (W1beginR == W1endR && W1beginR == (Type1)-1) {
+      return true;
+    }
 
+    int W1diff1 = W1endR - W1beginR;
+    int W1diff2 = bitNumber - W1beginR;
+    int W1diff3 = W1endR - bitNumber;
 
-  LogDebug("l1t|Global")
-    << "\n l1t::ConditionEvaluation"
-    << "\n\t bitNumber = " << bitNumber
-    << "\n\t W1beginR = " << W1beginR
-    << "\n\t W1endR   = " << W1endR
-    << "\n\t W1diff1 = " << W1diff1
-    << "\n\t W1cond1 = " << W1cond1
-    << "\n\t W1diff2 = " << W1diff2
-    << "\n\t W1cond2 = " << W1cond2
-    << "\n\t W1diff3 = " << W1diff3
-    << "\n\t W1cond3 = " << W1cond3
-    << "\n\t passWindow1 = " << passWindow1
-    << std::endl;
+    bool W1cond1 = (W1diff1 < 0) ? false : true;
+    bool W1cond2 = (W1diff2 < 0) ? false : true;
+    bool W1cond3 = (W1diff3 < 0) ? false : true;
 
+    // check if value is in range
+    // for begin <= end takes [begin, end]
+    // for begin >= end takes [begin, end] over zero angle!
+    bool passWindow1 = false;
+    if (W1cond1 && (W1cond2 && W1cond3))
+      passWindow1 = true;
+    else if (!W1cond1 && (W1cond2 || W1cond3))
+      passWindow1 = true;
+    else {
+      passWindow1 = false;
+    }
 
-  if( W2beginR==W2endR && W2beginR==(Type1)-1 ){
-    return passWindow1;
+    LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
+                           << "\n\t bitNumber = " << bitNumber << "\n\t W1beginR = " << W1beginR
+                           << "\n\t W1endR   = " << W1endR << "\n\t W1diff1 = " << W1diff1
+                           << "\n\t W1cond1 = " << W1cond1 << "\n\t W1diff2 = " << W1diff2
+                           << "\n\t W1cond2 = " << W1cond2 << "\n\t W1diff3 = " << W1diff3
+                           << "\n\t W1cond3 = " << W1cond3 << std::endl;
+
+    if (W2beginR == W2endR && W2beginR == (Type1)-1) {
+      return passWindow1;
+    }
+
+    int W2diff1 = W2endR - W2beginR;
+    int W2diff2 = bitNumber - W2beginR;
+    int W2diff3 = W2endR - bitNumber;
+
+    bool W2cond1 = (W2diff1 < 0) ? false : true;
+    bool W2cond2 = (W2diff2 < 0) ? false : true;
+    bool W2cond3 = (W2diff3 < 0) ? false : true;
+
+    // check if value is in range
+    // for begin <= end takes [begin, end]
+    // for begin >= end takes [begin, end] over zero angle!
+    bool passWindow2 = false;
+    if (W2cond1 && (W2cond2 && W2cond3))
+      passWindow2 = true;
+    else if (!W2cond1 && (W2cond2 || W2cond3))
+      passWindow2 = true;
+    else {
+      passWindow2 = false;
+    }
+
+    if (passWindow1 || passWindow2) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
+  template <class Type1>
+  const bool ConditionEvaluation::checkRangeDeltaEta(const unsigned int obj1Eta,
+                                                     const unsigned int obj2Eta,
+                                                     const Type1& lowerR,
+                                                     const Type1& upperR,
+                                                     const unsigned int nEtaBits) const {
+    /*   // set condtion to true if beginR==endR = default -1 */
+    /*   if( beginR==endR && beginR==-1 ){ */
+    /*     return true; */
+    /*   } */
 
-  unsigned int W2diff1 = W2endR - W2beginR;
-  unsigned int W2diff2 = bitNumber - W2beginR;
-  unsigned int W2diff3 = W2endR - bitNumber;
+    unsigned int compare = obj1Eta - obj2Eta;
+    bool cond = ((compare >> nEtaBits) & 1) ? false : true;
 
-  bool W2cond1 = ( (W2diff1>>nEtaBits) & 1 ) ? false : true;
-  bool W2cond2 = ( (W2diff2>>nEtaBits) & 1 ) ? false : true;
-  bool W2cond3 = ( (W2diff3>>nEtaBits) & 1 ) ? false : true;
+    unsigned int larger, smaller;
+    if (cond) {
+      larger = obj1Eta;
+      smaller = obj2Eta;
+    } else {
+      larger = obj2Eta;
+      smaller = obj1Eta;
+    }
 
-  bool passWindow2 = false;
-  if( W2cond1 && (W2cond2 && W2cond3 ) )      passWindow2=true;
-  else if( !W2cond1 && (W2cond2 || W2cond3) ) passWindow2=true;
-  else{
-    passWindow2 = false;
+    unsigned int diff = ((larger + ((~smaller + 1) & 255)) & 255);
+
+    unsigned int diff1 = upperR - lowerR;
+    unsigned int diff2 = diff - lowerR;
+    unsigned int diff3 = upperR - diff;
+
+    bool cond1 = ((diff1 >> nEtaBits) & 1) ? false : true;
+    bool cond2 = ((diff2 >> nEtaBits) & 1) ? false : true;
+    bool cond3 = ((diff3 >> nEtaBits) & 1) ? false : true;
+
+    LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
+                           << "\n\t obj1Eta = " << obj1Eta << "\n\t obj2Eta = " << obj2Eta << "\n\t lowerR = " << lowerR
+                           << "\n\t upperR = " << upperR << "\n\t compare = " << compare << "\n\t cond = " << cond
+                           << "\n\t diff = " << diff << "\n\t diff1 = " << diff1 << "\n\t cond1 = " << cond1
+                           << "\n\t diff2 = " << diff2 << "\n\t cond2 = " << cond2 << "\n\t diff3 = " << diff3
+                           << "\n\t cond3 = " << cond3 << std::endl;
+
+    if (cond1 && (cond2 && cond3))
+      return true;
+    else if (!cond1 && (cond2 || cond3))
+      return true;
+    else {
+      return false;
+    }
   }
 
+  template <class Type1>
+  const bool ConditionEvaluation::checkRangeDeltaPhi(const unsigned int obj1Phi,
+                                                     const unsigned int obj2Phi,
+                                                     const Type1& lowerR,
+                                                     const Type1& upperR) const {
+    int deltaPhi = abs(int(obj1Phi) - int(obj2Phi));
+    if (deltaPhi > 71)
+      deltaPhi = 143 - deltaPhi + 1;  // Add +1 if the calculation is over 0
 
-  LogDebug("l1t|Global")
-    << "\n\t W2beginR = " << W2beginR
-    << "\n\t W2endR   = " << W2endR
-    << "\n\t W2diff1 = " << W2diff1
-    << "\n\t W2cond1 = " << W2cond1
-    << "\n\t W2diff2 = " << W2diff2
-    << "\n\t W2cond2 = " << W2cond2
-    << "\n\t W2diff3 = " << W2diff3
-    << "\n\t W2cond3 = " << W2cond3
-    << "\n\t passWindow2 = " << passWindow2
-    << "\n\t pass W1 || W2 = " << (passWindow1 || passWindow2)
-    << std::endl;
+    int diff1 = upperR - lowerR;
+    int diff2 = deltaPhi - lowerR;
+    int diff3 = upperR - deltaPhi;
 
-  if( passWindow1 || passWindow2 ){
-    return true;
-  }
-  else{
-    return false;
-  }
+    bool cond1 = (diff1 < 0) ? false : true;
+    bool cond2 = (diff2 < 0) ? false : true;
+    bool cond3 = (diff3 < 0) ? false : true;
 
- }
+    LogDebug("l1t|Global") << "\n l1t::ConditionEvaluation"
+                           << "\n\t obj1Phi = " << obj1Phi << "\n\t obj2Phi = " << obj2Phi
+                           << "\n\t deltaPhi = " << deltaPhi << "\n\t lowerR = " << lowerR << "\n\t upperR = " << upperR
+                           << "\n\t diff1 = " << diff1 << "\n\t cond1 = " << cond1 << "\n\t diff2 = " << diff2
+                           << "\n\t cond2 = " << cond2 << "\n\t diff3 = " << diff3 << "\n\t cond3 = " << cond3
+                           << std::endl;
 
-
-
-/// check if a value is in a given range and outside of a veto range
-template<class Type1> const bool ConditionEvaluation::checkRangePhi(const unsigned int bitNumber, 
-								    const Type1& W1beginR, const Type1& W1endR, 
-								    const Type1& W2beginR, const Type1& W2endR ) const {
-
-  // set condtion to true if beginR==endR = default -1
-  if( W1beginR==W1endR && W1beginR==(Type1)-1 ){
-    return true;
-  }
-
-  int W1diff1 = W1endR - W1beginR;
-  int W1diff2 = bitNumber - W1beginR;
-  int W1diff3 = W1endR - bitNumber;
-
-  bool W1cond1 = ( W1diff1<0 ) ? false : true;
-  bool W1cond2 = ( W1diff2<0 ) ? false : true;
-  bool W1cond3 = ( W1diff3<0 ) ? false : true;
-
-  // check if value is in range
-  // for begin <= end takes [begin, end]
-  // for begin >= end takes [begin, end] over zero angle!
-  bool passWindow1 = false;
-  if( W1cond1 && (W1cond2 && W1cond3 ) )      passWindow1=true;
-  else if( !W1cond1 && (W1cond2 || W1cond3) ) passWindow1=true;
-  else{
-    passWindow1 = false;
+    // check if value is in range
+    // for begin <= end takes [begin, end]
+    // for begin >= end takes [begin, end] over zero angle!
+    if (cond1 && (cond2 && cond3))
+      return true;
+    else if (!cond1 && (cond2 || cond3))
+      return true;
+    else {
+      return false;
+    }
   }
 
-  LogDebug("l1t|Global")
-    << "\n l1t::ConditionEvaluation"
-    << "\n\t bitNumber = " << bitNumber
-    << "\n\t W1beginR = " << W1beginR
-    << "\n\t W1endR   = " << W1endR
-    << "\n\t W1diff1 = " << W1diff1
-    << "\n\t W1cond1 = " << W1cond1
-    << "\n\t W1diff2 = " << W1diff2
-    << "\n\t W1cond2 = " << W1cond2
-    << "\n\t W1diff3 = " << W1diff3
-    << "\n\t W1cond3 = " << W1cond3
-    << std::endl;
-
-
-
-  if( W2beginR==W2endR && W2beginR==(Type1)-1 ){
-    return passWindow1;
-  }
-
-
-  int W2diff1 = W2endR - W2beginR;
-  int W2diff2 = bitNumber - W2beginR;
-  int W2diff3 = W2endR - bitNumber;
-
-  bool W2cond1 = ( W2diff1<0 ) ? false : true;
-  bool W2cond2 = ( W2diff2<0 ) ? false : true;
-  bool W2cond3 = ( W2diff3<0 ) ? false : true;
-
-  // check if value is in range
-  // for begin <= end takes [begin, end]
-  // for begin >= end takes [begin, end] over zero angle!
-  bool passWindow2 = false;
-  if( W2cond1 && (W2cond2 && W2cond3 ) )      passWindow2=true;
-  else if( !W2cond1 && (W2cond2 || W2cond3) ) passWindow2=true;
-  else{
-    passWindow2 = false;
-  }
-
-
-  if( passWindow1 || passWindow2 ){
-    return true;
-  }
-  else{
-    return false;
-  }
-
-
- }
-
- template<class Type1> const bool ConditionEvaluation::checkRangeDeltaEta(const unsigned int obj1Eta, const unsigned int obj2Eta, 
-									  const Type1& lowerR, const Type1& upperR,
-									  const unsigned int nEtaBits )  const {
-
-/*   // set condtion to true if beginR==endR = default -1 */
-/*   if( beginR==endR && beginR==-1 ){ */
-/*     return true; */
-/*   } */
-
-  unsigned int compare = obj1Eta - obj2Eta;
-  bool cond = ( (compare>>nEtaBits) & 1 ) ? false : true;
-
-  unsigned int larger, smaller;
-  if( cond ){
-    larger = obj1Eta;
-    smaller= obj2Eta;
-  }
-  else{
-    larger = obj2Eta;
-    smaller= obj1Eta;
-  }
-
-  unsigned int diff = ( ( larger + ((~smaller + 1) & 255) ) & 255);
-
-  unsigned int diff1 = upperR - lowerR;
-  unsigned int diff2 = diff - lowerR;
-  unsigned int diff3 = upperR - diff;
-
-  bool cond1 = ( (diff1>>nEtaBits) & 1 ) ? false : true;
-  bool cond2 = ( (diff2>>nEtaBits) & 1 ) ? false : true;
-  bool cond3 = ( (diff3>>nEtaBits) & 1 ) ? false : true;
-
-  LogDebug("l1t|Global")
-    << "\n l1t::ConditionEvaluation"
-    << "\n\t obj1Eta = " << obj1Eta
-    << "\n\t obj2Eta = " << obj2Eta
-    << "\n\t lowerR = " << lowerR
-    << "\n\t upperR = " << upperR
-    << "\n\t compare = " << compare
-    << "\n\t cond = " << cond
-    << "\n\t diff = " << diff
-    << "\n\t diff1 = " << diff1
-    << "\n\t cond1 = " << cond1
-    << "\n\t diff2 = " << diff2
-    << "\n\t cond2 = " << cond2
-    << "\n\t diff3 = " << diff3
-    << "\n\t cond3 = " << cond3
-    << std::endl;
-
-  if( cond1 && (cond2 && cond3 ) )      return true;
-  else if( !cond1 && (cond2 || cond3) ) return true;
-  else{
-    return false;
-  }
-
- }
-
-
-
-template<class Type1> const bool ConditionEvaluation::checkRangeDeltaPhi(const unsigned int obj1Phi, const unsigned int obj2Phi, 
-									      const Type1& lowerR, const Type1& upperR )  const {
-
-  int deltaPhi = abs(int(obj1Phi)-int(obj2Phi));
-  if( deltaPhi>71 ) deltaPhi = 143 - deltaPhi + 1; // Add +1 if the calculation is over 0
-
-  int diff1 = upperR - lowerR;
-  int diff2 = deltaPhi - lowerR;
-  int diff3 = upperR - deltaPhi;
-
-  bool cond1 = ( diff1<0 ) ? false : true;
-  bool cond2 = ( diff2<0 ) ? false : true;
-  bool cond3 = ( diff3<0 ) ? false : true;
-
-  LogDebug("l1t|Global")
-    << "\n l1t::ConditionEvaluation"
-    << "\n\t obj1Phi = " << obj1Phi
-    << "\n\t obj2Phi = " << obj2Phi
-    << "\n\t deltaPhi = " << deltaPhi
-    << "\n\t lowerR = " << lowerR
-    << "\n\t upperR = " << upperR
-    << "\n\t diff1 = " << diff1
-    << "\n\t cond1 = " << cond1
-    << "\n\t diff2 = " << diff2
-    << "\n\t cond2 = " << cond2
-    << "\n\t diff3 = " << diff3
-    << "\n\t cond3 = " << cond3
-    << std::endl;
-
-  // check if value is in range
-  // for begin <= end takes [begin, end]
-  // for begin >= end takes [begin, end] over zero angle!
-  if( cond1 && (cond2 && cond3 ) )      return true;
-  else if( !cond1 && (cond2 || cond3) ) return true;
-  else{
-    return false;
-  }
-
- }
-
-
-}
+}  // namespace l1t
 #endif

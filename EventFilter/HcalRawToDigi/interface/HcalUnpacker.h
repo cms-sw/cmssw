@@ -20,7 +20,6 @@
 
 class HcalUnpacker {
 public:
-
   struct Collections {
     Collections();
     std::vector<HBHEDataFrame>* hbheCont;
@@ -39,32 +38,57 @@ public:
     std::unordered_map<int, QIE10DigiCollection*> qie10Addtl;
     std::unordered_map<int, QIE11DigiCollection*> qie11Addtl;
     HcalUMNioDigi* umnio;
-
   };
 
   /// for normal data
-  HcalUnpacker(int sourceIdOffset, int beg, int end) : sourceIdOffset_(sourceIdOffset), startSample_(beg), endSample_(end), expectedOrbitMessageTime_(-1), mode_(0), nPrinted_ (0){ }
+  HcalUnpacker(int sourceIdOffset, int beg, int end)
+      : sourceIdOffset_(sourceIdOffset),
+        startSample_(beg),
+        endSample_(end),
+        expectedOrbitMessageTime_(-1),
+        mode_(0),
+        nPrinted_(0) {}
   /// For histograms, no begin and end
-  HcalUnpacker(int sourceIdOffset) : sourceIdOffset_(sourceIdOffset), startSample_(-1), endSample_(-1),  expectedOrbitMessageTime_(-1), mode_(0), nPrinted_ (0){ }
-  void setExpectedOrbitMessageTime(int time) { expectedOrbitMessageTime_=time; }
+  HcalUnpacker(int sourceIdOffset)
+      : sourceIdOffset_(sourceIdOffset),
+        startSample_(-1),
+        endSample_(-1),
+        expectedOrbitMessageTime_(-1),
+        mode_(0),
+        nPrinted_(0) {}
+  void setExpectedOrbitMessageTime(int time) { expectedOrbitMessageTime_ = time; }
   void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis);
-  void unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
-  void setMode(int mode) { mode_=mode; }
+  void unpack(const FEDRawData& raw,
+              const HcalElectronicsMap& emap,
+              Collections& conts,
+              HcalUnpackerReport& report,
+              bool silent = false);
+  void setMode(int mode) { mode_ = mode; }
+
 private:
-  void unpackVME(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
-  void unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& emap, Collections& conts, HcalUnpackerReport& report, bool silent=false);
+  void unpackVME(const FEDRawData& raw,
+                 const HcalElectronicsMap& emap,
+                 Collections& conts,
+                 HcalUnpackerReport& report,
+                 bool silent = false);
+  void unpackUTCA(const FEDRawData& raw,
+                  const HcalElectronicsMap& emap,
+                  Collections& conts,
+                  HcalUnpackerReport& report,
+                  bool silent = false);
   void unpackUMNio(const FEDRawData& raw, int slot, Collections& colls);
 
-  void printInvalidDataMessage( const std::string &coll_type, int default_ns, int conflict_ns, bool extended=false );
+  void printInvalidDataMessage(const std::string& coll_type, int default_ns, int conflict_ns, bool extended = false);
 
-  int sourceIdOffset_; ///< number to subtract from the source id to get the dcc id
-  int startSample_; ///< first sample from fed raw data to copy 
-  int endSample_; ///< last sample from fed raw data to copy (if present)
-  int expectedOrbitMessageTime_; ///< Expected orbit bunch time (needed to evaluate time differences)
+  int sourceIdOffset_;            ///< number to subtract from the source id to get the dcc id
+  int startSample_;               ///< first sample from fed raw data to copy
+  int endSample_;                 ///< last sample from fed raw data to copy (if present)
+  int expectedOrbitMessageTime_;  ///< Expected orbit bunch time (needed to evaluate time differences)
   int mode_;
-  std::set<HcalElectronicsId> unknownIds_,unknownIdsTrig_; ///< Recorded to limit number of times a log message is generated
+  std::set<HcalElectronicsId> unknownIds_,
+      unknownIdsTrig_;  ///< Recorded to limit number of times a log message is generated
 
   int nPrinted_;
 };
 
-#endif // HcalUnpacker_h_included
+#endif  // HcalUnpacker_h_included

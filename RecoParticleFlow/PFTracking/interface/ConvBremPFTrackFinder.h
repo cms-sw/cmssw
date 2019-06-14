@@ -33,60 +33,62 @@
 class PFEnergyCalibration;
 
 class ConvBremPFTrackFinder {
-  
- public:
+public:
   ConvBremPFTrackFinder(const TransientTrackBuilder& builder,
-			double mvaBremConvCutBarrelLowPt,
-			double mvaBremConvCutBarrelHighPt,
-			double mvaBremConvCutEndcapsLowPt,	     
-			double mvaBremConvCutEndcapsHighPt);
+                        double mvaBremConvCutBarrelLowPt,
+                        double mvaBremConvCutBarrelHighPt,
+                        double mvaBremConvCutEndcapsLowPt,
+                        double mvaBremConvCutEndcapsHighPt);
   ~ConvBremPFTrackFinder();
-  
+
   bool foundConvBremPFRecTrack(const edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCol,
-			       const edm::Handle<reco::VertexCollection>& primaryVertex,
-			       const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
-			       const edm::Handle<reco::PFConversionCollection >& pfConversions,
-			       const edm::Handle<reco::PFV0Collection >& pfV0,
+                               const edm::Handle<reco::VertexCollection>& primaryVertex,
+                               const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
+                               const edm::Handle<reco::PFConversionCollection>& pfConversions,
+                               const edm::Handle<reco::PFV0Collection>& pfV0,
                                const convbremhelpers::HeavyObjectCache* cache,
-			       bool useNuclear,
-			       bool useConversions,
-			       bool useV0,
-			       const reco::PFClusterCollection & theEClus,
-			       const reco::GsfPFRecTrack& gsfpfrectk)
-  {
+                               bool useNuclear,
+                               bool useConversions,
+                               bool useV0,
+                               const reco::PFClusterCollection& theEClus,
+                               const reco::GsfPFRecTrack& gsfpfrectk) {
     found_ = false;
-    runConvBremFinder(thePfRecTrackCol,primaryVertex,
-		      pfNuclears,pfConversions,
-		      pfV0,cache,useNuclear,
-		      useConversions,useV0,
-		      theEClus,gsfpfrectk);
-    return found_;};
-  
-  
-  const std::vector<reco::PFRecTrackRef>& getConvBremPFRecTracks() {return  pfRecTrRef_vec_;};
+    runConvBremFinder(thePfRecTrackCol,
+                      primaryVertex,
+                      pfNuclears,
+                      pfConversions,
+                      pfV0,
+                      cache,
+                      useNuclear,
+                      useConversions,
+                      useV0,
+                      theEClus,
+                      gsfpfrectk);
+    return found_;
+  };
 
- private:
+  const std::vector<reco::PFRecTrackRef>& getConvBremPFRecTracks() { return pfRecTrRef_vec_; };
+
+private:
   void runConvBremFinder(const edm::Handle<reco::PFRecTrackCollection>& thePfRecTrackCol,
-			 const edm::Handle<reco::VertexCollection>& primaryVertex,
-			 const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
-			 const edm::Handle<reco::PFConversionCollection >& pfConversions,
-			 const edm::Handle<reco::PFV0Collection >& pfV0,
+                         const edm::Handle<reco::VertexCollection>& primaryVertex,
+                         const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
+                         const edm::Handle<reco::PFConversionCollection>& pfConversions,
+                         const edm::Handle<reco::PFV0Collection>& pfV0,
                          const convbremhelpers::HeavyObjectCache* cache,
-			 bool useNuclear,
-			 bool useConversions,
-			 bool useV0,
-			 const reco::PFClusterCollection & theEClus,
-			 const reco::GsfPFRecTrack& gsfpfrectk);
-  
-
+                         bool useNuclear,
+                         bool useConversions,
+                         bool useV0,
+                         const reco::PFClusterCollection& theEClus,
+                         const reco::GsfPFRecTrack& gsfpfrectk);
 
   bool found_;
   TransientTrackBuilder builder_;
-  double mvaBremConvCutBarrelLowPt_,mvaBremConvCutBarrelHighPt_,mvaBremConvCutEndcapsLowPt_,mvaBremConvCutEndcapsHighPt_;
-  
+  double mvaBremConvCutBarrelLowPt_, mvaBremConvCutBarrelHighPt_, mvaBremConvCutEndcapsLowPt_,
+      mvaBremConvCutEndcapsHighPt_;
+
   std::vector<reco::PFRecTrackRef> pfRecTrRef_vec_;
-  float secR,secPout,ptRatioGsfKF,sTIP,Epout,detaBremKF,secPin;
+  float secR, secPout, ptRatioGsfKF, sTIP, Epout, detaBremKF, secPin;
   //int nHITS1;
   float nHITS1;
-
 };

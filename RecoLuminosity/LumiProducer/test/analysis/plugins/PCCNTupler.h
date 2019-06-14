@@ -40,101 +40,97 @@ class TTree;
 class TH1D;
 class TFile;
 class RectangularPixelTopology;
-class DetId; 
-
+class DetId;
 
 class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::one::WatchLuminosityBlocks> {
-  public:
-    PCCNTupler(const edm::ParameterSet&);
-    virtual ~PCCNTupler();
-    virtual void beginJob() override;
-    virtual void endJob() override;
-    virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+public:
+  PCCNTupler(const edm::ParameterSet&);
+  virtual ~PCCNTupler();
+  virtual void beginJob() override;
+  virtual void endJob() override;
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
+protected:
+  void Reset();
+  void SaveAndReset();
+  void ComputeMeanAndMeanError();
 
-  protected:
-    void Reset();
-    void SaveAndReset();
-    void ComputeMeanAndMeanError();
+private:
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelToken;
+  edm::EDGetTokenT<reco::VertexCollection> recoVtxToken;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileUpToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> hltjetsToken_;
+  float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
+  int nhjetcal;
 
-  private:
-    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >  pixelToken;
-    edm::EDGetTokenT<reco::VertexCollection> recoVtxToken;
-    edm::EDGetTokenT<std::vector< PileupSummaryInfo> > pileUpToken;
-    edm::EDGetTokenT<reco::CaloJetCollection>  hltjetsToken_;
-    float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
-    int nhjetcal;
+  edm::InputTag fPrimaryVertexCollectionLabel;
+  edm::InputTag fPixelClusterLabel;
+  edm::InputTag fPileUpInfoLabel;
 
-    edm::InputTag   fPrimaryVertexCollectionLabel;
-    edm::InputTag   fPixelClusterLabel;
-    edm::InputTag   fPileUpInfoLabel;
-  
-    static const int MAX_VERTICES=300;
+  static const int MAX_VERTICES = 300;
 
-    // saving events per LS, LN or event
-    std::string saveType = "LumiSect"; // LumiSect or LumiNib or Event
-    std::string sampleType="MC"; // MC or DATA
-    bool saveAndReset;
-    bool sameEvent;
-    bool sameLumiNib;
-    bool sameLumiSect;
-    bool firstEvent;
+  // saving events per LS, LN or event
+  std::string saveType = "LumiSect";  // LumiSect or LumiNib or Event
+  std::string sampleType = "MC";      // MC or DATA
+  bool saveAndReset;
+  bool sameEvent;
+  bool sameLumiNib;
+  bool sameLumiSect;
+  bool firstEvent;
 
-     // Lumi stuff
-    TTree * tree;
-    int run;
-    int LS=-99;    // set to indicate first pass of analyze method
-    int LN=-99;    // set to indicate first pass of analyze method
-    int event=-99; // set to indicate first pass of analyze method
-    int bunchCrossing=-99;    // local variable only
-    int orbit=-99;
-    
-    std::pair<int,int> bxModKey;    // local variable only
-   
-    int eventCounter=0;
-    int totalEvents;
-    
-    bool includeVertexInformation;
-    bool includePixels;
-    bool includeJets;
-    bool splitByBX;
-    bool pixelPhase2Geometry;
+  // Lumi stuff
+  TTree* tree;
+  int run;
+  int LS = -99;             // set to indicate first pass of analyze method
+  int LN = -99;             // set to indicate first pass of analyze method
+  int event = -99;          // set to indicate first pass of analyze method
+  int bunchCrossing = -99;  // local variable only
+  int orbit = -99;
 
-    int nPU;
-    int nVtx;
-    int vtx_nTrk[MAX_VERTICES];
-    int vtx_ndof[MAX_VERTICES];
-    float vtx_x[MAX_VERTICES];
-    float vtx_y[MAX_VERTICES];
-    float vtx_z[MAX_VERTICES];
-    float vtx_xError[MAX_VERTICES];
-    float vtx_yError[MAX_VERTICES];
-    float vtx_zError[MAX_VERTICES];
-    float vtx_chi2[MAX_VERTICES];
-    float vtx_normchi2[MAX_VERTICES];
-    bool vtx_isValid[MAX_VERTICES];
-    bool vtx_isFake[MAX_VERTICES];
-    bool vtx_isGood[MAX_VERTICES];
+  std::pair<int, int> bxModKey;  // local variable only
 
-    std::map<int,int> nGoodVtx;
-    std::map<int,int> nValidVtx;
-    std::map<std::pair<int,int>,int> nPixelClusters;
-    std::map<std::pair<int,int>,int> nClusters;
-    std::map<int,int> layers;
+  int eventCounter = 0;
+  int totalEvents;
 
-    std::map<std::pair<int,int>,float> meanPixelClusters;
-    std::map<std::pair<int,int>,float> meanPixelClustersError;
-    
-    TH1F* pileup;
+  bool includeVertexInformation;
+  bool includePixels;
+  bool includeJets;
+  bool splitByBX;
+  bool pixelPhase2Geometry;
 
-    UInt_t timeStamp_begin;
-    UInt_t timeStamp_local;
-    UInt_t timeStamp_end;
-    std::map<int,int> BXNo;
+  int nPU;
+  int nVtx;
+  int vtx_nTrk[MAX_VERTICES];
+  int vtx_ndof[MAX_VERTICES];
+  float vtx_x[MAX_VERTICES];
+  float vtx_y[MAX_VERTICES];
+  float vtx_z[MAX_VERTICES];
+  float vtx_xError[MAX_VERTICES];
+  float vtx_yError[MAX_VERTICES];
+  float vtx_zError[MAX_VERTICES];
+  float vtx_chi2[MAX_VERTICES];
+  float vtx_normchi2[MAX_VERTICES];
+  bool vtx_isValid[MAX_VERTICES];
+  bool vtx_isFake[MAX_VERTICES];
+  bool vtx_isGood[MAX_VERTICES];
 
+  std::map<int, int> nGoodVtx;
+  std::map<int, int> nValidVtx;
+  std::map<std::pair<int, int>, int> nPixelClusters;
+  std::map<std::pair<int, int>, int> nClusters;
+  std::map<int, int> layers;
+
+  std::map<std::pair<int, int>, float> meanPixelClusters;
+  std::map<std::pair<int, int>, float> meanPixelClustersError;
+
+  TH1F* pileup;
+
+  UInt_t timeStamp_begin;
+  UInt_t timeStamp_local;
+  UInt_t timeStamp_end;
+  std::map<int, int> BXNo;
 };
-
 
 #endif

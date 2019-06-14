@@ -18,14 +18,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class EgammaPhotonTkNumIsolationProducer : public edm::global::EDProducer<> {
- public:
+public:
   explicit EgammaPhotonTkNumIsolationProducer(const edm::ParameterSet&);
   ~EgammaPhotonTkNumIsolationProducer() override;
-  
+
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
 
- private:
-
+private:
   const edm::InputTag photonProducer_;
   const edm::InputTag trackProducer_;
   const edm::InputTag beamspotProducer_;
@@ -38,8 +37,6 @@ class EgammaPhotonTkNumIsolationProducer : public edm::global::EDProducer<> {
   const double extRadius_;
   const double maxVtxDist_;
   const double drb_;
-
 };
-
 
 #endif

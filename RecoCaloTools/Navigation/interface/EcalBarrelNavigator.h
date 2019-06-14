@@ -5,8 +5,8 @@
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelHardcodedTopology.h"
 
-using EcalBarrelNavigator = CaloNavigator<EBDetId>; 
+using EcalBarrelNavigator = CaloNavigator<EBDetId>;
 
-using EcalBarrelNavigatorHT = CaloNavigator<EBDetId, EcalBarrelHardcodedTopology>; 
+using EcalBarrelNavigatorHT = CaloNavigator<EBDetId, EcalBarrelHardcodedTopology>;
 
 #endif

@@ -4,54 +4,49 @@
 #include <iostream>
 #include <iterator>
 
-struct DetIdAndApvs
-{
+struct DetIdAndApvs {
   uint32_t detId;
   std::vector<uint16_t> apvs;
 };
 
-void test( const std::vector<DetIdAndApvs> & detIdAndApvs,
-           const std::vector<int> & latencyIndexes, std::vector<uint16_t> & latencies,
-           const std::vector<int> & modeIndexes, std::vector<uint16_t> & modes,
-           SiStripLatency & latency )
-{
+void test(const std::vector<DetIdAndApvs>& detIdAndApvs,
+          const std::vector<int>& latencyIndexes,
+          std::vector<uint16_t>& latencies,
+          const std::vector<int>& modeIndexes,
+          std::vector<uint16_t>& modes,
+          SiStripLatency& latency) {
   int i = 0;
   int flip = 0;
   int modeFlip = 0;
   std::vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
-  for( ; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv ) {
+  for (; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv) {
     std::vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
-    for( ; apv != detIdAndApv->apvs.end(); ++apv, ++i ) {
-
+    for (; apv != detIdAndApv->apvs.end(); ++apv, ++i) {
       // std::cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << compactValue << std::endl;
 
-      if( find(latencyIndexes.begin(), latencyIndexes.end(), i) != latencyIndexes.end() ){
-        if( flip == 0 ) {
+      if (find(latencyIndexes.begin(), latencyIndexes.end(), i) != latencyIndexes.end()) {
+        if (flip == 0) {
           flip = 1;
-        }
-        else {
+        } else {
           flip = 0;
         }
       }
 
-
-      if( find(modeIndexes.begin(), modeIndexes.end(), i) != modeIndexes.end() ){
-        if( modeFlip == 10 ) {
+      if (find(modeIndexes.begin(), modeIndexes.end(), i) != modeIndexes.end()) {
+        if (modeFlip == 10) {
           modeFlip = 0;
-        }
-        else {
+        } else {
           modeFlip = 10;
         }
       }
 
-
       // std::cout << "For i = " << i << " flip = " << flip << std::endl;
-      latency.put(detIdAndApv->detId, *apv, 14+flip, 37+modeFlip);
+      latency.put(detIdAndApv->detId, *apv, 14 + flip, 37 + modeFlip);
 
-//       std::cout << "latency stored is = " << latency.latency(detIdAndApv->detId, *apv) << std::endl;
+      //       std::cout << "latency stored is = " << latency.latency(detIdAndApv->detId, *apv) << std::endl;
       latencies.push_back(latency.latency(detIdAndApv->detId, *apv));
       modes.push_back(latency.mode(detIdAndApv->detId, *apv));
-//       std::cout << std::endl;
+      //       std::cout << std::endl;
     }
   }
   // Finished filling, now compress the ranges
@@ -62,10 +57,13 @@ void test( const std::vector<DetIdAndApvs> & detIdAndApvs,
   std::cout << "Ranges after compression = " << latenciesAfterCompression.size() << std::endl;
 }
 
-void check( const std::vector<uint16_t> & latencies, const std::vector<uint16_t> & modes, const std::vector<DetIdAndApvs> & detIdAndApvs, SiStripLatency & latency )
-{
-  if( latencies.size() != modes.size() ) {
-    std::cout << "Error: different size for latencies = " << latencies.size() << " and modes = " << modes.size() << std::endl;
+void check(const std::vector<uint16_t>& latencies,
+           const std::vector<uint16_t>& modes,
+           const std::vector<DetIdAndApvs>& detIdAndApvs,
+           SiStripLatency& latency) {
+  if (latencies.size() != modes.size()) {
+    std::cout << "Error: different size for latencies = " << latencies.size() << " and modes = " << modes.size()
+              << std::endl;
     exit(1);
   }
   std::vector<DetIdAndApvs>::const_iterator detIdAndApv = detIdAndApvs.begin();
@@ -74,19 +72,22 @@ void check( const std::vector<uint16_t> & latencies, const std::vector<uint16_t>
   detIdAndApv = detIdAndApvs.begin();
   int latencyErrorCount = 0;
   int modeErrorCount = 0;
-  for( ; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv ) {
+  for (; detIdAndApv != detIdAndApvs.end(); ++detIdAndApv) {
     std::vector<uint16_t>::const_iterator apv = detIdAndApv->apvs.begin();
-    for( ; apv != detIdAndApv->apvs.end(); ++apv, ++it, ++modeIt ) {
+    for (; apv != detIdAndApv->apvs.end(); ++apv, ++it, ++modeIt) {
       uint32_t detId = detIdAndApv->detId;
-      uint32_t detIdAndApvValue = (detId<<2)|(*apv);
-      std::cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << detIdAndApvValue << std::endl;
-      std::cout << "latency passed = " << *it << ", latency saved = " << latency.latency(detIdAndApv->detId, *apv) << std::endl;
-      std::cout << "mode passed = " << *modeIt << ", mode saved = " << latency.mode(detIdAndApv->detId, *apv) << std::endl;
-      if( *it != latency.latency(detIdAndApv->detId, *apv) ) {
+      uint32_t detIdAndApvValue = (detId << 2) | (*apv);
+      std::cout << "detId = " << detIdAndApv->detId << ", apv = " << *apv << ", detIdAndApv = " << detIdAndApvValue
+                << std::endl;
+      std::cout << "latency passed = " << *it << ", latency saved = " << latency.latency(detIdAndApv->detId, *apv)
+                << std::endl;
+      std::cout << "mode passed = " << *modeIt << ", mode saved = " << latency.mode(detIdAndApv->detId, *apv)
+                << std::endl;
+      if (*it != latency.latency(detIdAndApv->detId, *apv)) {
         std::cout << "ERROR: the latency values are different" << std::endl;
         ++latencyErrorCount;
       }
-      if( *modeIt != latency.mode(detIdAndApv->detId, *apv) ) {
+      if (*modeIt != latency.mode(detIdAndApv->detId, *apv)) {
         std::cout << "ERROR: the mode values are different" << std::endl;
         ++modeErrorCount;
       }
@@ -96,18 +97,18 @@ void check( const std::vector<uint16_t> & latencies, const std::vector<uint16_t>
   std::cout << "Single latency value = " << latency.singleLatency() << std::endl;
   std::cout << "Single mode value = " << latency.singleMode() << std::endl;
 
-  std::ostream_iterator<uint16_t> output( std::cout, ", " );
+  std::ostream_iterator<uint16_t> output(std::cout, ", ");
   // Print all latencies
   std::vector<uint16_t> allLatenciesVector;
   latency.allLatencies(allLatenciesVector);
   std::cout << "All latencies in the Tracker = " << allLatenciesVector.size() << ", and are:" << std::endl;
-  copy( allLatenciesVector.begin(), allLatenciesVector.end(), output );
+  copy(allLatenciesVector.begin(), allLatenciesVector.end(), output);
   std::cout << std::endl;
   // Print all modes
   std::vector<uint16_t> allModesVector;
   latency.allModes(allModesVector);
   std::cout << "All modes in the Tracker = " << allModesVector.size() << ", and are:" << std::endl;
-  copy( allModesVector.begin(), allModesVector.end(), output );
+  copy(allModesVector.begin(), allModesVector.end(), output);
   std::cout << std::endl;
 
   std::cout << std::endl;
@@ -118,8 +119,7 @@ void check( const std::vector<uint16_t> & latencies, const std::vector<uint16_t>
   std::cout << std::endl;
 }
 
-int main()
-{
+int main() {
   std::vector<DetIdAndApvs> detIdAndApvs;
   DetIdAndApvs element1;
   element1.detId = 100000;
@@ -213,21 +213,14 @@ int main()
   std::vector<SiStripLatency::Latency> uniqueLatenciesAndModes(latency3.allUniqueLatencyAndModes());
   std::vector<SiStripLatency::Latency>::const_iterator it = uniqueLatenciesAndModes.begin();
   std::cout << "Reading back what is returned by the allUniqueLatencyAndModes method" << std::endl;
-  for( ; it != uniqueLatenciesAndModes.end(); ++it ) {
+  for (; it != uniqueLatenciesAndModes.end(); ++it) {
     std::cout << "latency = " << int(it->latency) << ", mode = " << int(it->mode) << std::endl;
   }
-  if( uniqueLatenciesAndModes.size() == 3 ) {
+  if (uniqueLatenciesAndModes.size() == 3) {
     std::cout << "Test passed" << std::endl;
-  }
-  else {
+  } else {
     std::cout << "ERROR: test not passed" << std::endl;
   }
-
-
-
-
-
-
 
   // Checking the case with different modes, but same Read-out mode.
   std::cout << "Checking the case with different modes, but same Read-out mode." << std::endl;
@@ -239,10 +232,9 @@ int main()
   std::cout << "Stored two combinations of latency and mode: (14, 37), (14, 36)" << std::endl;
   std::cout << "The Read-out mode is the same and is deconvolution" << std::endl;
 
-  if( latency4.singleReadOutMode() == 0 ) {
+  if (latency4.singleReadOutMode() == 0) {
     std::cout << "Test passed" << std::endl;
-  }
-  else {
+  } else {
     std::cout << "ERROR: test not passed" << std::endl;
   }
 
@@ -254,10 +246,9 @@ int main()
   std::cout << "Stored two combinations of latency and mode: (14, 47), (14, 46)" << std::endl;
   std::cout << "The Read-out mode is the same and is peak" << std::endl;
 
-  if( latency5.singleReadOutMode() == 1 ) {
+  if (latency5.singleReadOutMode() == 1) {
     std::cout << "Test passed" << std::endl;
-  }
-  else {
+  } else {
     std::cout << "ERROR: test not passed" << std::endl;
   }
 
@@ -269,10 +260,9 @@ int main()
   std::cout << "Stored four combinations of latency and mode: (14, 47), (14, 46), (14, 37), (14, 36)" << std::endl;
   std::cout << "The Read-out mode is mixed" << std::endl;
 
-  if( latency6.singleReadOutMode() == -1 ) {
+  if (latency6.singleReadOutMode() == -1) {
     std::cout << "Test passed" << std::endl;
-  }
-  else {
+  } else {
     std::cout << "ERROR: test not passed" << std::endl;
   }
 
