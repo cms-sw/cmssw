@@ -179,10 +179,10 @@ inline uint16_t getFRDFileHeaderVersion(const uint8_t* id, const uint8_t* versio
     if (id[i] != FRDFileHeader_id[i])
       return 0;  //not FRD file header
   uint16_t ret = 0;
-  for (i = 4; i < 8; i++) {
-    if (version[i] > 0x39 || version[i] < 0x30)
+  for (i = 0; i<4; i++) {
+    if (version[i] > '9' || version[i] < '0')
       return 0;  //NaN sequence
-    ret += (version[i] - 0x30) << (7 - i);
+    ret = ret*10 + (uint16_t)(version[i]-'0');
   }
   return ret;
 }
