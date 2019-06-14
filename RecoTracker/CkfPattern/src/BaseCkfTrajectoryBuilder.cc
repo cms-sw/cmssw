@@ -27,12 +27,7 @@
 BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
                                                    std::unique_ptr<TrajectoryFilter> filter,
                                                    std::unique_ptr<TrajectoryFilter> inOutFilter)
-    : theUpdator(nullptr),
-      thePropagatorAlong(nullptr),
-      thePropagatorOpposite(nullptr),
-      theEstimator(nullptr),
-      theTTRHBuilder(nullptr),
-      theMeasurementTracker(nullptr),
+    : theSeedAs5DHit(conf.getParameter<bool>("seedAs5DHit")),
       theFilter(std::move(filter)),
       theInOutFilter(std::move(inOutFilter)),
       theUpdatorName(conf.getParameter<std::string>("updator")),
@@ -53,13 +48,22 @@ std::unique_ptr<TrajectoryFilter> BaseCkfTrajectoryBuilder::createTrajectoryFilt
       TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC)};
 }
 
-void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result) const {
+#include "RecoTracker/TransientTrackingRecHit/interface/TRecHit5DParamConstraint.h"
+void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result, bool as5D) const {
   TrajectorySeed::range hitRange = seed.recHits();
 
   PTrajectoryStateOnDet pState(seed.startingState());
   const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet(pState.detId());
   TSOS outerState =
       trajectoryStateTransform::transientState(pState, &(gdet->surface()), forwardPropagator(seed)->magneticField());
+
+  if (as5D) {
+      TrackingRecHit::RecHitPointer recHit(new TRecHit5DParamConstraint(*gdet,outerState));
+      TSOS invalidState(gdet->surface());
+      auto hitLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(pState.detId());
+      result.emplace(invalidState, outerState, recHit, 0, hitLayer);    
+      return;
+  }
 
   for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
     TrackingRecHit::RecHitPointer recHit = ihit->cloneSH();
@@ -101,7 +105,7 @@ void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, Temp
 
 TempTrajectory BaseCkfTrajectoryBuilder::createStartingTrajectory(const TrajectorySeed& seed) const {
   TempTrajectory result(seed.direction(), seed.nHits());
-  seedMeasurements(seed, result);
+  seedMeasurements(seed, result, theSeedAs5DHit);
 
   LogDebug("CkfPattern") << " initial trajectory from the seed: " << PrintoutHelper::dumpCandidate(result, true);
 
