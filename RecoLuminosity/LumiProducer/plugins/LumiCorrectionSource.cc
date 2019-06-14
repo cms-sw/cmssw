@@ -59,7 +59,7 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <boost/filesystem.hpp>
 #include "boost/filesystem/path.hpp"

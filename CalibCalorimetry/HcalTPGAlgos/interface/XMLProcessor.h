@@ -24,7 +24,7 @@
 #include <ctime>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
 #include <cstdio>

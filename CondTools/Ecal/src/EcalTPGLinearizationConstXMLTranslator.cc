@@ -7,7 +7,7 @@
 
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 using namespace XERCES_CPP_NAMESPACE;

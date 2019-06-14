@@ -8,7 +8,7 @@
 #include "CoralKernel/Property.h"
 #include "CoralKernel/Context.h"
 #include "CondCore/CondDB/interface/CoralServiceMacros.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "xercesc/parsers/XercesDOMParser.hpp"
 #include "xercesc/framework/MemBufInputSource.hpp"
 #include "xercesc/dom/DOM.hpp"
