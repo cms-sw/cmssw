@@ -14,8 +14,8 @@ using namespace std;
 //configuration parameter for the HGCAL associator.
 const double ScoreCutLCtoCP_ = 0.01;
 const double ScoreCutCPtoLC_ = 0.01;
-const double ScoreCutMCLtoCP_ = 0.01;
-const double ScoreCutCPtoMCL_ = 0.01;
+const double ScoreCutMCLtoCP_ = 0.2;
+const double ScoreCutCPtoMCL_ = 0.2;
 
 HGVHistoProducerAlgo::HGVHistoProducerAlgo(const edm::ParameterSet& pset)
     :  //parameters for eta
