@@ -25,7 +25,7 @@ using namespace jsoncollector;
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
     :  // default to .5ms sleep per event
       microSleep_(ps.getUntrackedParameter<int>("microSleep", 0)),
-      frdFileVersion_(ps.getUntrackedParameter<int>("frdFileVersion",0))
+      frdFileVersion_(ps.getUntrackedParameter<unsigned int>("frdFileVersion",0))
 //debug_(ps.getUntrackedParameter<bool>("debug", False))
 {
   //per-file JSD and FastMonitor
@@ -159,13 +159,8 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   }
 
   outfd_ = open(fileName_.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
-  if (frdFileVersion_>0) {
-    assert(frdFileVersion_==1);
-    //reserve space for file header
-    ftruncate(outfd_, sizeof(FRDFileHeader_v1));
-    lseek(outfd_,sizeof(FRDFileHeader_v1),SEEK_SET);
-  }
   edm::LogInfo("RawEventFileWriterForBU") << " opened " << fileName_;
+
   if (outfd_ < 0) {  //attention here... it may happen that outfd_ is *not* set (e.g. missing initialize call...)
     throw cms::Exception("RawEventFileWriterForBU", "initialize")
         << "Error opening FED Raw Data event output file: " << name << ": " << strerror(errno) << "\n";
@@ -176,6 +171,14 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
 
   adlera_ = 1;
   adlerb_ = 0;
+
+  if (frdFileVersion_>0) {
+    assert(frdFileVersion_==1);
+    //reserve space for file header
+    ftruncate(outfd_, sizeof(FRDFileHeader_v1));
+    lseek(outfd_,sizeof(FRDFileHeader_v1),SEEK_SET);
+    perFileSize_.value()=sizeof(FRDFileHeader_v1);
+  }
 }
 
 void RawEventFileWriterForBU::writeJsds() {
@@ -215,7 +218,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
 
   if (frdFileVersion_>0) {
     //rewind
-    lseek(outfd_,sizeof(FRDFileHeader_v1),SEEK_SET);
+    lseek(outfd_,0,SEEK_SET);
     FRDFileHeader_v1 frdFileHeader( perFileEventCount_.value(), (uint32_t)ls, perFileSize_.value());
     write(outfd_,(char*)&frdFileHeader,sizeof(FRDFileHeader_v1));
     closefd();
