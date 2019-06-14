@@ -944,6 +944,7 @@ namespace evf {
 
   int EvFDaqDirector::parseFRDFileHeader(std::string const& rawSourcePath,
                                          uint16_t& rawHeaderSize,
+                                         uint32_t& lsFromHeader,
                                          int32_t& eventsFromHeader,
                                          int64_t& fileSizeFromHeader,
                                          bool requireHeader,
@@ -955,7 +956,7 @@ namespace evf {
         edm::LogWarning("EvFDaqDirector")
             << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
         return parseFRDFileHeader(
-            rawSourcePath, rawHeaderSize, eventsFromHeader, fileSizeFromHeader, requireHeader, false);
+            rawSourcePath, rawHeaderSize, lsFromHeader, eventsFromHeader, fileSizeFromHeader, requireHeader, false);
       } else {
         usleep(100000);
         if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
@@ -997,6 +998,7 @@ namespace evf {
       } else {
         //no header, but valid file
         rawHeaderSize = 0;
+        lsFromHeader = 0;
         eventsFromHeader = -1;
         fileSizeFromHeader = -1;
       }
@@ -1009,6 +1011,7 @@ namespace evf {
         return -1;
       }
       //allow header size to exceed read size. Future header versions will not break this, but the size can change.
+      lsFromHeader = fileHead->lumiSection_;
       eventsFromHeader = (int32_t)fileHead->eventCount_;
       fileSizeFromHeader = (int64_t)fileHead->fileSize_;
       rawHeaderSize = fileHead->headerSize_;
@@ -1019,7 +1022,8 @@ namespace evf {
   int EvFDaqDirector::grabNextJsonFromRaw(std::string const& rawSourcePath,
                                           uint16_t& rawHeaderSize,
                                           int64_t& fileSizeFromHeader,
-                                          bool& fileFound) {
+                                          bool& fileFound,
+                                          uint32_t serverLS) {
     fileFound = true;
 
     //take only first three tokens delimited by "_" in the renamed raw file name
@@ -1038,9 +1042,10 @@ namespace evf {
     LogDebug("EvFDaqDirector") << "RAW parse -: " << rawSourcePath << " and JSON create " << jsonDestPath;
 
     //parse RAW file header if it exists
+    uint32_t lsFromRaw;
     int32_t nbEventsWrittenRaw;
     int64_t fileSizeFromRaw;
-    auto ret = parseFRDFileHeader(rawSourcePath, rawHeaderSize, nbEventsWrittenRaw, fileSizeFromRaw, true, true);
+    auto ret = parseFRDFileHeader(rawSourcePath, rawHeaderSize, lsFromRaw, nbEventsWrittenRaw, fileSizeFromRaw, true, true);
     if (ret != 0) {
       if (ret == 1)
         fileFound = false;
@@ -1086,6 +1091,10 @@ namespace evf {
       return -1;
     }
     close(outfile);
+    if (serverLS && serverLS!=lsFromRaw)
+      edm::LogWarning("EvFDaqDirector") << "grabNextJsonFromRaw - mismatch in expected (server) LS " << serverLS 
+                                        << " and raw file header LS " << lsFromRaw;
+
     fileSizeFromHeader = fileSizeFromRaw;
     return nbEventsWrittenRaw;
   }
@@ -1697,7 +1706,7 @@ namespace evf {
 
     if (fileStatus == newFile) {
       if (rawHeader > 0)
-        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw, rawHeaderSize, fileSizeFromMetadata, fileFound);
+        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS);
       else
         serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromMetadata, fileFound);
     }
