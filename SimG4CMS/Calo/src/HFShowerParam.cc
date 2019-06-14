@@ -216,7 +216,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
             int npmt = 0;
             if (zv < 0. || zv > gpar[1]) {
 #ifdef mkdebug
-              std::cout << "-#Zcut-HFShowerParam::getHits:z=" << zv << ",m=" << gpar[1] << std::endl;
+              edm::LogVerbatim("HFShower") << "-#Zcut-HFShowerParam::getHits:z=" << zv << ",m=" << gpar[1];
 #endif
               ok = false;
             }
