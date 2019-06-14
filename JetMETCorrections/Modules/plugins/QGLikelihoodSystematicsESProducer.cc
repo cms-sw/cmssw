@@ -28,7 +28,6 @@ public:
   ~QGLikelihoodSystematicsESProducer() override{};
 
   std::shared_ptr<const QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd &);
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
 
 private:
   edm::ESGetToken<QGLikelihoodSystematicsObject, QGLikelihoodSystematicsRcd> token_;
@@ -40,13 +39,6 @@ QGLikelihoodSystematicsESProducer::QGLikelihoodSystematicsESProducer(const edm::
   std::string label(iConfig.getParameter<std::string>("@module_label"));
   auto algo = iConfig.getParameter<std::string>("algo");
   setWhatProduced(this, label).setConsumes(token_, edm::ESInputTag{"", algo});
-}
-
-// The same PDF's is valid for any time
-void QGLikelihoodSystematicsESProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-                                                       const edm::IOVSyncValue&,
-                                                       edm::ValidityInterval& oInterval) {
-  oInterval = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime());
 }
 
 // Produce the data
