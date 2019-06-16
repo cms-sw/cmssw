@@ -28,17 +28,6 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Fall17_iso_V
 mvaConfigsForEleProducer.append( mvaEleID_Fall17_iso_V2_producer_config )
 
 electronMVAValueMapProducer = cms.EDProducer('ElectronMVAValueMapProducer',
-                                             # The module automatically detects AOD vs miniAOD, so we configure both
-                                             #
-                                             # AOD case
-                                             #
-                                             src = cms.InputTag('gedGsfElectrons'),
-                                             #
-                                             # miniAOD case
-                                             #
-                                             srcMiniAOD = cms.InputTag('slimmedElectrons',processName=cms.InputTag.skipCurrentProcess()),
-                                             #
-                                             # MVA configurations
-                                             #
+                                             src = cms.InputTag('slimmedElectrons'),
                                              mvaConfigurations = mvaConfigsForEleProducer
                                              )

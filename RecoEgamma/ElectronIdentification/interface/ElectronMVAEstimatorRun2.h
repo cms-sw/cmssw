@@ -29,14 +29,13 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
                            const std::vector<std::string> &weightFileNames,
                            bool debug=false );
 
-  // For use with FWLite/Python
-  static std::vector<float> getExtraVars(double rho)
-  {
-      return std::vector<float>{static_cast<float>(rho)};
-  }
-
   // Calculation of the MVA value
   float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
+
+  // for FWLite just passing rho
+  float mvaValue( const reco::Candidate* candidate, float rho, int &iCategory) const {
+    return mvaValue(candidate, std::vector<float>{rho}, iCategory);
+  }
 
   int findCategory( const reco::Candidate* candidate) const override;
 
