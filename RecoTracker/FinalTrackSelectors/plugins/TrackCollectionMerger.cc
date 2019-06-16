@@ -225,8 +225,8 @@ namespace {
               continue;
             auto score2 = score[t2];
 
-            constexpr float almostSame =
-                0.01f;  // difference rather than ratio due to possible negative values for score
+            // difference rather than ratio due to possible negative values for score
+            constexpr float almostSame = 0.01f;
             if (score1 - score2 > almostSame) {
               seti(t1, t2);
             } else if (score2 - score1 > almostSame) {

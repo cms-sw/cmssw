@@ -122,12 +122,11 @@ void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event& iEvent, const
     for (size_t j = 0; j < sv.numberOfDaughters(); j++) {
       TrackRef r;
       if (sv.daughterPtr(j).id() == cands.id()) {
-        r = TrackRef(oh,
-                     trackKeys[sv.daughterPtr(j).key()]);  // use trackKeys because cand->track has gaps from neutral
+        // use trackKeys because cand->track has gaps from neutral
+        r = TrackRef(oh, trackKeys[sv.daughterPtr(j).key()]);
       } else {
-        //				std::cout << "vertex " << i << " using lost Track " << sv.daughterPtr(j).key()  << "  " << offsetAdd+sv.daughterPtr(j).key() << std::endl;
-        r = TrackRef(oh,
-                     offsetAdd + sv.daughterPtr(j).key());  // use directly the key because addTracks is only charged
+        // use directly the key because addTracks is only charged
+        r = TrackRef(oh, offsetAdd + sv.daughterPtr(j).key());
       }
       TrackBaseRef rr(r);
       outSv->back().add(rr);

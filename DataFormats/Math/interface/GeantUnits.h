@@ -74,10 +74,9 @@ namespace geant_units {
       return (mm3 / 1.e9);
     }
 
+    // Convert Geant units to desired units
     template <class NumType>
-    inline constexpr NumType convertUnitsTo(long double desiredUnits,
-                                            NumType val)  // Convert Geant units to desired units
-    {
+    inline constexpr NumType convertUnitsTo(long double desiredUnits, NumType val) {
       return (val / desiredUnits);
     }
   }  // namespace operators
