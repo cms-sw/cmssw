@@ -27,9 +27,7 @@ namespace edm {
       ParameterSet const& conf, ProducerBase& mixMod, ConsumesCollector& iC) const {
     std::string accumulatorType = conf.getParameter<std::string>("accumulatorType");
     FDEBUG(1) << "DigiAccumulatorMixModFactory: digi_accumulator_type = " << accumulatorType << std::endl;
-    std::unique_ptr<DigiAccumulatorMixMod> wm;
-    wm = std::unique_ptr<DigiAccumulatorMixMod>(
-        DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod, iC));
+    auto wm = DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, mixMod, iC);
 
     if (wm.get() == nullptr) {
       throw edm::Exception(errors::Configuration, "NoSourceModule")
