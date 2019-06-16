@@ -9,13 +9,16 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
-#include "RecoEgamma/EgammaTools/interface/Utils.h"
-#include "RecoEgamma/EgammaTools/interface/MultiToken.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "RecoEgamma/EgammaTools/interface/MVAVariableHelper.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "FWCore/Framework/interface/Event.h"
 
-#include <memory>
-#include <vector>
 #include <cmath>
+#include <memory>
+#include <string>
+#include <vector>
 
 template <class ParticleType>
 class MVAValueMapProducer : public edm::global::EDProducer<> {
@@ -23,7 +26,6 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   public:
 
   MVAValueMapProducer(const edm::ParameterSet&);
-  ~MVAValueMapProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -32,7 +34,7 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // for AOD and MiniAOD case
-  const MultiTokenT<edm::View<ParticleType>> src_;
+  const edm::EDGetTokenT<edm::View<ParticleType>> src_;
 
   // MVA estimators
   const std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
@@ -43,11 +45,25 @@ class MVAValueMapProducer : public edm::global::EDProducer<> {
   const std::vector<std::string> mvaCategoriesMapNames_;
 
   // To get the auxiliary MVA variables
-  const MVAVariableHelper<ParticleType> variableHelper_;
+  const MVAVariableHelper variableHelper_;
 
 };
 
 namespace {
+
+    template<typename ValueType, class HandleType>
+    void writeValueMap(edm::Event &iEvent,
+                       const edm::Handle<HandleType>& handle,
+                       const std::vector<ValueType>& values,
+                       const std::string& label)
+    {
+        auto valMap = std::make_unique<edm::ValueMap<ValueType>>();
+        typename edm::ValueMap<ValueType>::Filler filler(*valMap);
+        filler.insert(handle, values.begin(), values.end());
+        filler.fill();
+        iEvent.put(std::move(valMap),label);
+    }
+
 
     auto getMVAEstimators(const edm::VParameterSet& vConfig)
     {
@@ -87,7 +103,7 @@ namespace {
 
 template <class ParticleType>
 MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& iConfig)
-  : src_(consumesCollector(), iConfig, "src", "srcMiniAOD")
+  : src_(consumes<edm::View<ParticleType>>(iConfig.getParameter<edm::InputTag>("src")))
   , mvaEstimators_(getMVAEstimators(iConfig.getParameterSetVector("mvaConfigurations")))
   , mvaValueMapNames_     (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "Values"    ))
   , mvaRawValueMapNames_  (getValueMapNames(iConfig.getParameterSetVector("mvaConfigurations"), "RawValues" ))
@@ -102,8 +118,9 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
 template <class ParticleType>
 void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
+  std::vector<float> auxVariables = variableHelper_.getAuxVariables(iEvent);
 
-  edm::Handle<edm::View<ParticleType> > src = src_.getValidHandle(iEvent);
+  auto src = iEvent.getHandle(src_);
 
   // Loop over MVA estimators
   for( unsigned iEstimator = 0; iEstimator < mvaEstimators_.size(); iEstimator++ ){
@@ -115,8 +132,6 @@ void MVAValueMapProducer<ParticleType>::produce(edm::StreamID, edm::Event& iEven
     // Loop over particles
     for (auto const& cand : src->ptrs())
     {
-      std::vector<float> auxVariables = variableHelper_.getAuxVariables(cand, iEvent);
-
       int cat = -1; // Passed by reference to the mvaValue function to store the category
       const float response = mvaEstimators_[iEstimator]->mvaValue( cand.get(), auxVariables, cat );
       mvaRawValues.push_back( response ); // The MVA score
