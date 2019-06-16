@@ -20,8 +20,7 @@ public:
       const std::string d("name");
       iConfig.addUntrackedParameter<std::string>(d, name);
       std::string componentName = iConfig.getParameter<std::string>("selector");
-      selector_ =
-          std::unique_ptr<EventSelector>(EventSelectorFactoryFromHelper::get()->create(componentName, iConfig, iC));
+      selector_ = EventSelectorFactoryFromHelper::get()->create(componentName, iConfig, iC);
       if (iConfig.exists("description"))
         description_ = iConfig.getParameter<std::vector<std::string> >("description");
       else
