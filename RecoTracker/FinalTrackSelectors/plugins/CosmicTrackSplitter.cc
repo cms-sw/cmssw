@@ -304,8 +304,8 @@ namespace reco {
 
                 // if hit is good check to make sure that we are keeping pixel hits
                 if (excludePixelHits_) {
-                  if ((detid.det() == DetId::Tracker) &&
-                      ((detid.subdetId() == 1) || (detid.subdetId() == 2))) {  // check for pixel hits
+                  // check for pixel hits
+                  if ((detid.det() == DetId::Tracker) && ((detid.subdetId() == 1) || (detid.subdetId() == 2))) {
                     verdict = false;
                   }
                 }

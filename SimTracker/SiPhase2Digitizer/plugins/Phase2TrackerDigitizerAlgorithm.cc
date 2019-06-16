@@ -63,20 +63,19 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       use_ineff_from_db_(conf_specific.getParameter<bool>("Inefficiency_DB")),
       use_module_killing_(conf_specific.getParameter<bool>("KillModules")),    // boolean to kill or not modules
       use_deadmodule_DB_(conf_specific.getParameter<bool>("DeadModules_DB")),  // boolean to access dead modules from DB
-      use_LorentzAngle_DB_(
-          conf_specific.getParameter<bool>("LorentzAngle_DB")),  // boolean to access Lorentz angle from DB
+      // boolean to access Lorentz angle from DB
+      use_LorentzAngle_DB_(conf_specific.getParameter<bool>("LorentzAngle_DB")),
 
-      DeadModules(use_deadmodule_DB_
-                      ? Parameters()
-                      : conf_specific.getParameter<Parameters>("DeadModules")),  // get dead module from cfg file
+      // get dead module from cfg file
+      DeadModules(use_deadmodule_DB_ ? Parameters() : conf_specific.getParameter<Parameters>("DeadModules")),
 
       // Common pixel parameters
       // These are parameters which are not likely to be changed
       GeVperElectron(3.61E-09),                                      // 1 electron(3.61eV, 1keV(277e, mod 9/06 d.k.
       alpha2Order(conf_specific.getParameter<bool>("Alpha2Order")),  // switch on/off of E.B effect
       addXtalk(conf_specific.getParameter<bool>("AddXTalk")),
-      interstripCoupling(conf_specific.getParameter<double>(
-          "InterstripCoupling")),  // Interstrip Coupling - Not used in PixelDigitizerAlgorithm
+      // Interstrip Coupling - Not used in PixelDigitizerAlgorithm
+      interstripCoupling(conf_specific.getParameter<double>("InterstripCoupling")),
 
       Sigma0(conf_specific.getParameter<double>("SigmaZero")),       // Charge diffusion constant 7->3.7
       SigmaCoeff(conf_specific.getParameter<double>("SigmaCoeff")),  // delta in the diffusion across the strip pitch
@@ -84,8 +83,8 @@ Phase2TrackerDigitizerAlgorithm::Phase2TrackerDigitizerAlgorithm(const edm::Para
       // D.B.: Dist300 replaced by moduleThickness, may not work with partially depleted sensors but works otherwise
       // Dist300(0.0300),                                          //   normalized to 300micron Silicon
 
-      ClusterWidth(
-          conf_specific.getParameter<double>("ClusterWidth")),  // Charge integration spread on the collection plane
+      // Charge integration spread on the collection plane
+      ClusterWidth(conf_specific.getParameter<double>("ClusterWidth")),
 
       // Allowed modes of readout which has following values :
       // 0          ---> Digital or binary readout

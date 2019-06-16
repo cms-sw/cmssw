@@ -559,11 +559,11 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
           else {
             // in case of split-hit do full conbinatorics
             auto li = ih;
-            while ((++li) != nh1 && id1 == rh1[k1][li].first)
-              ;
+            while ((++li) != nh1 && id1 == rh1[k1][li].first) {
+            }
             auto lj = jh;
-            while ((++lj) != nh2 && id2 == rh1[k2][lj].first)
-              ;
+            while ((++lj) != nh2 && id2 == rh1[k2][lj].first) {
+            }
             for (auto ii = ih; ii != li; ++ii)
               for (auto jj = jh; jj != lj; ++jj) {
                 const TrackingRecHit* it = rh1[k1][ii].second;

@@ -15,8 +15,8 @@ int CSCDetId::triggerSector() const {
                  ((static_cast<unsigned>(chamber - 3) & 0x7f) / 6) + 1;
   }
 
-  return (result <= 6) ? result
-                       : 6;  // max sector is 6, some calculations give a value greater than six but this is expected.
+  // max sector is 6, some calculations give a value greater than six but this is expected.
+  return (result <= 6) ? result : 6;
 }
 
 int CSCDetId::triggerCscId() const {

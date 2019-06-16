@@ -675,8 +675,8 @@ void SiPixelRawDumper::endJob() {
 //----------------------------------------------------------------------
 void SiPixelRawDumper::beginJob() {
   printLocal = theConfig.getUntrackedParameter<int>("Verbosity", 1);
-  printThreshold =
-      theConfig.getUntrackedParameter<double>("PrintThreshold", 0.001);  // threshold per event for printing errors
+  // threshold per event for printing errors
+  printThreshold = theConfig.getUntrackedParameter<double>("PrintThreshold", 0.001);
   cout << " beginjob " << printLocal << " " << printThreshold << endl;
 
   if (printLocal > 0)
