@@ -5,33 +5,35 @@
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
 namespace reco {
- 
-class JetTagInfo : public BaseTagInfo {
-public:
-  JetTagInfo(void) : m_jet() { }
 
-  template <typename T>
-  JetTagInfo(const edm::Ref<T> & jetRef) : m_jet(jetRef) { }
+  class JetTagInfo : public BaseTagInfo {
+  public:
+    JetTagInfo(void) : m_jet() {}
 
-  JetTagInfo(const edm::RefToBase<Jet> & jetRef) : m_jet(jetRef) { }
+    template <typename T>
+    JetTagInfo(const edm::Ref<T>& jetRef) : m_jet(jetRef) {}
 
-  ~JetTagInfo(void) override { }
-  
-  JetTagInfo* clone(void) const override { return new JetTagInfo(*this); }
+    JetTagInfo(const edm::RefToBase<Jet>& jetRef) : m_jet(jetRef) {}
 
-  edm::RefToBase<Jet> jet(void) const override { return m_jet; }
-  
-  template <typename T>
-  void setJetRef(const edm::Ref<T> & jetRef) { m_jet = edm::RefToBase<Jet>( jetRef ); } 
- 
-  void setJetRef(const edm::RefToBase<Jet> & jetRef) { m_jet = edm::RefToBase<Jet>( jetRef ); } 
+    ~JetTagInfo(void) override {}
 
-protected:
-  edm::RefToBase<Jet> m_jet;
-};
+    JetTagInfo* clone(void) const override { return new JetTagInfo(*this); }
 
-DECLARE_EDM_REFS( JetTagInfo )
+    edm::RefToBase<Jet> jet(void) const override { return m_jet; }
 
-}
+    template <typename T>
+    void setJetRef(const edm::Ref<T>& jetRef) {
+      m_jet = edm::RefToBase<Jet>(jetRef);
+    }
 
-#endif // DataFormats_BTauReco_JetTagInfo_h
+    void setJetRef(const edm::RefToBase<Jet>& jetRef) { m_jet = edm::RefToBase<Jet>(jetRef); }
+
+  protected:
+    edm::RefToBase<Jet> m_jet;
+  };
+
+  DECLARE_EDM_REFS(JetTagInfo)
+
+}  // namespace reco
+
+#endif  // DataFormats_BTauReco_JetTagInfo_h

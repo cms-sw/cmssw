@@ -3,10 +3,8 @@
 
 namespace btagbtvdeep {
 
-class ChargedCandidateFeatures {
-
+  class ChargedCandidateFeatures {
   public:
-
     float ptrel;
     float puppiw;
     float vtx_ass;
@@ -22,16 +20,14 @@ class ChargedCandidateFeatures {
     float btagPf_trackSip2dVal;
     float btagPf_trackSip2dSig;
 
-
     float btagPf_trackJetDistVal;
 
     float chi2;
     float quality;
 
     float drminsv;
+  };
 
-};
+}  // namespace btagbtvdeep
 
-}
-
-#endif //DataFormats_BTauReco_ChargedCandidateFeatures_h
+#endif  //DataFormats_BTauReco_ChargedCandidateFeatures_h
