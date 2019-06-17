@@ -24,27 +24,29 @@ def main(opts):
     sample = SimpleSample(opts.subdirprefix[0], opts.html_sample, filenames)
   
     val = SimpleValidation([sample], opts.outputDir[0])
-    htmlReport = val.createHtmlReport(validationName=opts.html_validation_name)   
+    htmlReport = val.createHtmlReport(validationName=opts.html_validation_name[0])   
 
-    if opts.collection==2:
+    if opts.collection=="hgcalLayerClusters":
+	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
+	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+    elif opts.collection=="hitValidation":
     	hgchit = [hgcalPlots.hgcalHitPlotter]
     	val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
     else :
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
-        val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-	if(opts.collection==3):
-		sample = SimpleSample(opts.subdirprefix[1], opts.html_sample, filenames)
-		val = SimpleValidation([sample], opts.outputDir[1])
-		htmlReport_2 = val.createHtmlReport(validationName=opts.html_validation_name)
-		hgchit = [hgcalPlots.hgcalHitPlotter]
-        	val.doPlots(hgchit, plotterDrawArgs=drawArgs)
+	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+	sample = SimpleSample(opts.subdirprefix[1], opts.html_sample, filenames)
+	val = SimpleValidation([sample], opts.outputDir[1])
+	htmlReport_2 = val.createHtmlReport(validationName=opts.html_validation_name[1])
+	hgchit = [hgcalPlots.hgcalHitPlotter]
+        val.doPlots(hgchit, plotterDrawArgs=drawArgs)
 
     print()
     if opts.no_html:
         print("Plots created into directory '%s'." % opts.outputDir)
     else:
         htmlReport.write()
-	if(opts.collection==3):
+	if(opts.collection=="all"):
 		htmlReport_2.write()
         print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % (','.join(opts.outputDir)))
 
@@ -66,16 +68,16 @@ if __name__ == "__main__":
                         help="Disable HTML page generation")
     parser.add_argument("--html-sample", default="Sample",
                         help="Sample name for HTML page generation (default 'Sample')")
-    parser.add_argument("--html-validation-name", default="",
+    parser.add_argument("--html-validation-name", type=str, default=[""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
-    parser.add_argument("-c", "--collection", type=int, choices=[1,2,3], default=1,
-                        help="Choose plots collection: 1 for layerCluster , 2 for hitValidation , 3 for both")    
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hitValidation", "all"], default="all",
+                        help="Choose plots collection")    
 
     opts = parser.parse_args()
 
-    if opts.collection == 3 and len(opts.outputDir)==1:
+    if opts.collection == "all" and len(opts.outputDir)==1:
 	raise RuntimeError("need to assign names for both dirrectories")
 
     for f in opts.files:
