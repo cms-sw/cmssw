@@ -194,8 +194,8 @@ SiStripSummaryCreator::MonitorElement* SiStripSummaryCreator::getSummaryME(DQMSt
       continue;
     std::string me_name = me->getName();
     if (me_name.find(sum_name) == 0) {
-      if (me->kind() == MonitorElement::DQM_KIND_TH1F || me->kind() == MonitorElement::DQM_KIND_TH2F ||
-          me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+      if (me->kind() == MonitorElement::Kind::TH1F || me->kind() == MonitorElement::Kind::TH2F ||
+          me->kind() == MonitorElement::Kind::TPROFILE) {
         TH1* hist1 = me->getTH1();
         if (hist1) {
           hist1->Reset();
@@ -248,7 +248,7 @@ SiStripSummaryCreator::MonitorElement* SiStripSummaryCreator::getSummaryME(DQMSt
           std::string s_me_name = s_me->getName();
           if (s_me_name.find(name) == std::string::npos)
             continue;
-          if (s_me->kind() == MonitorElement::DQM_KIND_TH1F) {
+          if (s_me->kind() == MonitorElement::Kind::TH1F) {
             TH1F* hist1 = s_me->getTH1F();
             if (hist1) {
               nBins = s_me->getNbinsX();
@@ -262,7 +262,7 @@ SiStripSummaryCreator::MonitorElement* SiStripSummaryCreator::getSummaryME(DQMSt
     }
   }
   // Set the axis title
-  if (me && me->kind() == MonitorElement::DQM_KIND_TH1F && (htype != "sum" || htype != "Sum")) {
+  if (me && me->kind() == MonitorElement::Kind::TH1F && (htype != "sum" || htype != "Sum")) {
     TH1F* hist = me->getTH1F();
     if (hist) {
       if (name.find("NoisyStrips") != std::string::npos)
@@ -284,9 +284,9 @@ void SiStripSummaryCreator::fillHistos(
   if (me->getTH1()) {
     TH1F* hist1 = nullptr;
     TH2F* hist2 = nullptr;
-    if (me->kind() == MonitorElement::DQM_KIND_TH1F)
+    if (me->kind() == MonitorElement::Kind::TH1F)
       hist1 = me->getTH1F();
-    if (me->kind() == MonitorElement::DQM_KIND_TH2F)
+    if (me->kind() == MonitorElement::Kind::TH2F)
       hist2 = me->getTH2F();
 
     int nbins = me_src->getNbinsX();

@@ -44,18 +44,18 @@ static TH1 *checkRootObject(const std::string &name, TObject *tobj, const char *
 
 MonitorElement *MonitorElement::initialise(Kind kind) {
   switch (kind) {
-    case DQM_KIND_INT:
-    case DQM_KIND_REAL:
-    case DQM_KIND_STRING:
-    case DQM_KIND_TH1F:
-    case DQM_KIND_TH1S:
-    case DQM_KIND_TH1D:
-    case DQM_KIND_TH2F:
-    case DQM_KIND_TH2S:
-    case DQM_KIND_TH2D:
-    case DQM_KIND_TH3F:
-    case DQM_KIND_TPROFILE:
-    case DQM_KIND_TPROFILE2D:
+    case Kind::INT:
+    case Kind::REAL:
+    case Kind::STRING:
+    case Kind::TH1F:
+    case Kind::TH1S:
+    case Kind::TH1D:
+    case Kind::TH2F:
+    case Kind::TH2S:
+    case Kind::TH2D:
+    case Kind::TH3F:
+    case Kind::TPROFILE:
+    case Kind::TPROFILE2D:
       data_.flags &= ~DQMNet::DQM_PROP_TYPE_MASK;
     data_.flags |= ((int)kind);
       break;
@@ -73,55 +73,55 @@ MonitorElement *MonitorElement::initialise(Kind kind) {
 MonitorElement *MonitorElement::initialise(Kind kind, TH1 *rootobj) {
   initialise(kind);
   switch (kind) {
-    case DQM_KIND_TH1F:
+    case Kind::TH1F:
       assert(dynamic_cast<TH1F *>(rootobj));
       assert(!reference_ || dynamic_cast<TH1F *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TH1S:
+    case Kind::TH1S:
       assert(dynamic_cast<TH1S *>(rootobj));
       assert(!reference_ || dynamic_cast<TH1S *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TH1D:
+    case Kind::TH1D:
       assert(dynamic_cast<TH1D *>(rootobj));
       assert(!reference_ || dynamic_cast<TH1D *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TH2F:
+    case Kind::TH2F:
       assert(dynamic_cast<TH2F *>(rootobj));
       assert(!reference_ || dynamic_cast<TH2F *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TH2S:
+    case Kind::TH2S:
       assert(dynamic_cast<TH2S *>(rootobj));
       assert(!reference_ || dynamic_cast<TH2S *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TH2D:
+    case Kind::TH2D:
       assert(dynamic_cast<TH2D *>(rootobj));
       assert(!reference_ || dynamic_cast<TH1D *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TH3F:
+    case Kind::TH3F:
       assert(dynamic_cast<TH3F *>(rootobj));
       assert(!reference_ || dynamic_cast<TH3F *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TPROFILE:
+    case Kind::TPROFILE:
       assert(dynamic_cast<TProfile *>(rootobj));
       assert(!reference_ || dynamic_cast<TProfile *>(reference_));
       object_ = rootobj;
       break;
 
-    case DQM_KIND_TPROFILE2D:
+    case Kind::TPROFILE2D:
       assert(dynamic_cast<TProfile2D *>(rootobj));
       assert(!reference_ || dynamic_cast<TProfile2D *>(reference_));
       object_ = rootobj;
@@ -142,7 +142,7 @@ MonitorElement *MonitorElement::initialise(Kind kind, TH1 *rootobj) {
 
 MonitorElement *MonitorElement::initialise(Kind kind, const std::string &value) {
   initialise(kind);
-  if (kind == DQM_KIND_STRING)
+  if (kind == Kind::STRING)
     scalar_.str = value;
   else
     raiseDQMError("MonitorElement",
@@ -255,7 +255,7 @@ bool MonitorElement::CheckBinLabels(const TAxis *a1, const TAxis *a2) {
 /// "Fill" ME methods for string
 void MonitorElement::Fill(std::string &value) {
   update();
-  if (kind() == DQM_KIND_STRING)
+  if (kind() == Kind::STRING)
     scalar_.str = value;
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -264,15 +264,15 @@ void MonitorElement::Fill(std::string &value) {
 /// "Fill" ME methods for double
 void MonitorElement::Fill(double x) {
   update();
-  if (kind() == DQM_KIND_INT)
+  if (kind() == Kind::INT)
     scalar_.num = static_cast<int64_t>(x);
-  else if (kind() == DQM_KIND_REAL)
+  else if (kind() == Kind::REAL)
     scalar_.real = x;
-  else if (kind() == DQM_KIND_TH1F)
+  else if (kind() == Kind::TH1F)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(x, 1);
-  else if (kind() == DQM_KIND_TH1S)
+  else if (kind() == Kind::TH1S)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(x, 1);
-  else if (kind() == DQM_KIND_TH1D)
+  else if (kind() == Kind::TH1D)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(x, 1);
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -281,15 +281,15 @@ void MonitorElement::Fill(double x) {
 /// "Fill" ME method for int64_t
 void MonitorElement::doFill(int64_t x) {
   update();
-  if (kind() == DQM_KIND_INT)
+  if (kind() == Kind::INT)
     scalar_.num = static_cast<int64_t>(x);
-  else if (kind() == DQM_KIND_REAL)
+  else if (kind() == Kind::REAL)
     scalar_.real = static_cast<double>(x);
-  else if (kind() == DQM_KIND_TH1F)
+  else if (kind() == Kind::TH1F)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(static_cast<double>(x), 1);
-  else if (kind() == DQM_KIND_TH1S)
+  else if (kind() == Kind::TH1S)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(static_cast<double>(x), 1);
-  else if (kind() == DQM_KIND_TH1D)
+  else if (kind() == Kind::TH1D)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(static_cast<double>(x), 1);
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -298,19 +298,19 @@ void MonitorElement::doFill(int64_t x) {
 /// can be used with 2D (x,y) or 1D (x, w) histograms
 void MonitorElement::Fill(double x, double yw) {
   update();
-  if (kind() == DQM_KIND_TH1F)
+  if (kind() == Kind::TH1F)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(x, yw);
-  else if (kind() == DQM_KIND_TH1S)
+  else if (kind() == Kind::TH1S)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(x, yw);
-  else if (kind() == DQM_KIND_TH1D)
+  else if (kind() == Kind::TH1D)
     accessRootObject(__PRETTY_FUNCTION__, 1)->Fill(x, yw);
-  else if (kind() == DQM_KIND_TH2F)
+  else if (kind() == Kind::TH2F)
     static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
-  else if (kind() == DQM_KIND_TH2S)
+  else if (kind() == Kind::TH2S)
     static_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
-  else if (kind() == DQM_KIND_TH2D)
+  else if (kind() == Kind::TH2D)
     static_cast<TH2D *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
-  else if (kind() == DQM_KIND_TPROFILE)
+  else if (kind() == Kind::TPROFILE)
     static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))->Fill(x, yw, 1);
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -321,7 +321,7 @@ void MonitorElement::Fill(double x, double yw) {
 /// can be used with 1D or profile histograms only
 void MonitorElement::ShiftFillLast(double y, double ye, int xscale) {
   update();
-  if (kind() == DQM_KIND_TH1F || kind() == DQM_KIND_TH1S || kind() == DQM_KIND_TH1D) {
+  if (kind() == Kind::TH1F || kind() == Kind::TH1S || kind() == Kind::TH1D) {
     int nbins = getNbinsX();
     auto entries = (int)getEntries();
     // first fill bins from left to right
@@ -385,17 +385,17 @@ void MonitorElement::ShiftFillLast(double y, double ye, int xscale) {
 /// can be used with 3D (x, y, z) or 2D (x, y, w) histograms
 void MonitorElement::Fill(double x, double y, double zw) {
   update();
-  if (kind() == DQM_KIND_TH2F)
+  if (kind() == Kind::TH2F)
     static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
-  else if (kind() == DQM_KIND_TH2S)
+  else if (kind() == Kind::TH2S)
     static_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
-  else if (kind() == DQM_KIND_TH2D)
+  else if (kind() == Kind::TH2D)
     static_cast<TH2D *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
-  else if (kind() == DQM_KIND_TH3F)
+  else if (kind() == Kind::TH3F)
     static_cast<TH3F *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, zw, 1);
-  else if (kind() == DQM_KIND_TPROFILE)
+  else if (kind() == Kind::TPROFILE)
     static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
-  else if (kind() == DQM_KIND_TPROFILE2D)
+  else if (kind() == Kind::TPROFILE2D)
     static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, zw, 1);
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -404,9 +404,9 @@ void MonitorElement::Fill(double x, double y, double zw) {
 /// can be used with 3D (x, y, z, w) histograms
 void MonitorElement::Fill(double x, double y, double z, double w) {
   update();
-  if (kind() == DQM_KIND_TH3F)
+  if (kind() == Kind::TH3F)
     static_cast<TH3F *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, z, w);
-  else if (kind() == DQM_KIND_TPROFILE2D)
+  else if (kind() == Kind::TPROFILE2D)
     static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 2))->Fill(x, y, z, w);
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -415,11 +415,11 @@ void MonitorElement::Fill(double x, double y, double z, double w) {
 /// reset ME (ie. contents, errors, etc)
 void MonitorElement::Reset() {
   update();
-  if (kind() == DQM_KIND_INT)
+  if (kind() == Kind::INT)
     scalar_.num = 0;
-  else if (kind() == DQM_KIND_REAL)
+  else if (kind() == Kind::REAL)
     scalar_.real = 0;
-  else if (kind() == DQM_KIND_STRING)
+  else if (kind() == Kind::STRING)
     scalar_.str.clear();
   else
     return accessRootObject(__PRETTY_FUNCTION__, 1)->Reset();
@@ -428,13 +428,13 @@ void MonitorElement::Reset() {
 /// convert scalar data into a string.
 void MonitorElement::packScalarData(std::string &into, const char *prefix) const {
   char buf[64];
-  if (kind() == DQM_KIND_INT) {
+  if (kind() == Kind::INT) {
     snprintf(buf, sizeof(buf), "%s%" PRId64, prefix, scalar_.num);
     into = buf;
-  } else if (kind() == DQM_KIND_REAL) {
+  } else if (kind() == Kind::REAL) {
     snprintf(buf, sizeof(buf), "%s%.*g", prefix, DBL_DIG + 2, scalar_.real);
     into = buf;
-  } else if (kind() == DQM_KIND_STRING) {
+  } else if (kind() == Kind::STRING) {
     into.reserve(strlen(prefix) + scalar_.str.size());
     into += prefix;
     into += scalar_.str;
@@ -449,11 +449,11 @@ void MonitorElement::packQualityData(std::string &into) const { DQMNet::packQual
 /// relevant only for scalar or string MEs
 std::string MonitorElement::valueString() const {
   std::string result;
-  if (kind() == DQM_KIND_INT)
+  if (kind() == Kind::INT)
     packScalarData(result, "i=");
-  else if (kind() == DQM_KIND_REAL)
+  else if (kind() == Kind::REAL)
     packScalarData(result, "f=");
-  else if (kind() == DQM_KIND_STRING)
+  else if (kind() == Kind::STRING)
     packScalarData(result, "s=");
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -627,7 +627,7 @@ void MonitorElement::incompatible(const char *func) const {
 }
 
 TH1 *MonitorElement::accessRootObject(const char *func, int reqdim) const {
-  if (kind() < DQM_KIND_TH1F)
+  if (kind() < Kind::TH1F)
     raiseDQMError("MonitorElement",
                   "Method '%s' cannot be invoked on monitor"
                   " element '%s' because it is not a root object",
@@ -704,9 +704,9 @@ double MonitorElement::getEntries() const { return accessRootObject(__PRETTY_FUN
 
 /// get # of bin entries (for profiles)
 double MonitorElement::getBinEntries(int bin) const {
-  if (kind() == DQM_KIND_TPROFILE)
+  if (kind() == Kind::TPROFILE)
     return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))->GetBinEntries(bin);
-  else if (kind() == DQM_KIND_TPROFILE2D)
+  else if (kind() == Kind::TPROFILE2D)
     return static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 1))->GetBinEntries(bin);
   else {
     incompatible(__PRETTY_FUNCTION__);
@@ -716,7 +716,7 @@ double MonitorElement::getBinEntries(int bin) const {
 
 /// get min Y value (for profiles)
 double MonitorElement::getYmin() const {
-  if (kind() == DQM_KIND_TPROFILE)
+  if (kind() == Kind::TPROFILE)
     return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))->GetYmin();
   else {
     incompatible(__PRETTY_FUNCTION__);
@@ -726,7 +726,7 @@ double MonitorElement::getYmin() const {
 
 /// get max Y value (for profiles)
 double MonitorElement::getYmax() const {
-  if (kind() == DQM_KIND_TPROFILE)
+  if (kind() == Kind::TPROFILE)
     return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))->GetYmax();
   else {
     incompatible(__PRETTY_FUNCTION__);
@@ -783,9 +783,9 @@ void MonitorElement::setBinError(int binx, int biny, int binz, double error) {
 /// set # of bin entries (to be used for profiles)
 void MonitorElement::setBinEntries(int bin, double nentries) {
   update();
-  if (kind() == DQM_KIND_TPROFILE)
+  if (kind() == Kind::TPROFILE)
     static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))->SetBinEntries(bin, nentries);
-  else if (kind() == DQM_KIND_TPROFILE2D)
+  else if (kind() == Kind::TPROFILE2D)
     static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 1))->SetBinEntries(bin, nentries);
   else
     incompatible(__PRETTY_FUNCTION__);
@@ -881,7 +881,7 @@ void MonitorElement::softReset() {
   // On subsequent calls accumulate the current value to the
   // reference, and then reset the current value.  This way the
   // future contents will have the reference "subtracted".
-  if (kind() == DQM_KIND_TH1F) {
+  if (kind() == Kind::TH1F) {
     auto *orig = static_cast<TH1F *>(object_);
     auto *r = static_cast<TH1F *>(refvalue_);
     if (!r) {
@@ -892,7 +892,7 @@ void MonitorElement::softReset() {
 
     r->Add(orig);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TH1S) {
+  } else if (kind() == Kind::TH1S) {
     auto *orig = static_cast<TH1S *>(object_);
     auto *r = static_cast<TH1S *>(refvalue_);
     if (!r) {
@@ -903,7 +903,7 @@ void MonitorElement::softReset() {
 
     r->Add(orig);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TH1D) {
+  } else if (kind() == Kind::TH1D) {
     auto *orig = static_cast<TH1D *>(object_);
     auto *r = static_cast<TH1D *>(refvalue_);
     if (!r) {
@@ -914,7 +914,7 @@ void MonitorElement::softReset() {
 
     r->Add(orig);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TH2F) {
+  } else if (kind() == Kind::TH2F) {
     auto *orig = static_cast<TH2F *>(object_);
     auto *r = static_cast<TH2F *>(refvalue_);
     if (!r) {
@@ -925,7 +925,7 @@ void MonitorElement::softReset() {
 
     r->Add(orig);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TH2S) {
+  } else if (kind() == Kind::TH2S) {
     auto *orig = static_cast<TH2S *>(object_);
     auto *r = static_cast<TH2S *>(refvalue_);
     if (!r) {
@@ -936,7 +936,7 @@ void MonitorElement::softReset() {
 
     r->Add(orig);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TH2D) {
+  } else if (kind() == Kind::TH2D) {
     auto *orig = static_cast<TH2D *>(object_);
     auto *r = static_cast<TH2D *>(refvalue_);
     if (!r) {
@@ -947,7 +947,7 @@ void MonitorElement::softReset() {
 
     r->Add(orig);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TH3F) {
+  } else if (kind() == Kind::TH3F) {
     auto *orig = static_cast<TH3F *>(object_);
     auto *r = static_cast<TH3F *>(refvalue_);
     if (!r) {
@@ -958,7 +958,7 @@ void MonitorElement::softReset() {
 
     r->Add(orig);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TPROFILE) {
+  } else if (kind() == Kind::TPROFILE) {
     auto *orig = static_cast<TProfile *>(object_);
     auto *r = static_cast<TProfile *>(refvalue_);
     if (!r) {
@@ -969,7 +969,7 @@ void MonitorElement::softReset() {
 
     addProfiles(r, orig, r, 1, 1);
     orig->Reset();
-  } else if (kind() == DQM_KIND_TPROFILE2D) {
+  } else if (kind() == Kind::TPROFILE2D) {
     auto *orig = static_cast<TProfile2D *>(object_);
     auto *r = static_cast<TProfile2D *>(refvalue_);
     if (!r) {
@@ -987,15 +987,15 @@ void MonitorElement::softReset() {
 /// reverts action of softReset
 void MonitorElement::disableSoftReset() {
   if (refvalue_) {
-    if (kind() == DQM_KIND_TH1F || kind() == DQM_KIND_TH1S || kind() == DQM_KIND_TH1D || kind() == DQM_KIND_TH2F ||
-        kind() == DQM_KIND_TH2S || kind() == DQM_KIND_TH2D || kind() == DQM_KIND_TH3F) {
+    if (kind() == Kind::TH1F || kind() == Kind::TH1S || kind() == Kind::TH1D || kind() == Kind::TH2F ||
+        kind() == Kind::TH2S || kind() == Kind::TH2D || kind() == Kind::TH3F) {
       auto *orig = static_cast<TH1 *>(object_);
       orig->Add(refvalue_);
-    } else if (kind() == DQM_KIND_TPROFILE) {
+    } else if (kind() == Kind::TPROFILE) {
       auto *orig = static_cast<TProfile *>(object_);
       auto *r = static_cast<TProfile *>(refvalue_);
       addProfiles(orig, r, orig, 1, 1);
-    } else if (kind() == DQM_KIND_TPROFILE2D) {
+    } else if (kind() == Kind::TPROFILE2D) {
       auto *orig = static_cast<TProfile2D *>(object_);
       auto *r = static_cast<TProfile2D *>(refvalue_);
       addProfiles(orig, r, orig, 1, 1);
@@ -1139,15 +1139,15 @@ void MonitorElement::copyFrom(TH1 *from) {
     orig->Reset();
 
   if (isSoftResetEnabled()) {
-    if (kind() == DQM_KIND_TH1F || kind() == DQM_KIND_TH1S || kind() == DQM_KIND_TH1D || kind() == DQM_KIND_TH2F ||
-        kind() == DQM_KIND_TH2S || kind() == DQM_KIND_TH2D || kind() == DQM_KIND_TH3F)
+    if (kind() == Kind::TH1F || kind() == Kind::TH1S || kind() == Kind::TH1D || kind() == Kind::TH2F ||
+        kind() == Kind::TH2S || kind() == Kind::TH2D || kind() == Kind::TH3F)
       // subtract "reference"
       orig->Add(from, refvalue_, 1, -1);
-    else if (kind() == DQM_KIND_TPROFILE)
+    else if (kind() == Kind::TPROFILE)
       // subtract "reference"
       addProfiles(
           static_cast<TProfile *>(from), static_cast<TProfile *>(refvalue_), static_cast<TProfile *>(orig), 1, -1);
-    else if (kind() == DQM_KIND_TPROFILE2D)
+    else if (kind() == Kind::TPROFILE2D)
       // subtract "reference"
       addProfiles(
           static_cast<TProfile2D *>(from), static_cast<TProfile2D *>(refvalue_), static_cast<TProfile2D *>(orig), 1, -1);
@@ -1239,55 +1239,55 @@ TH1 *MonitorElement::getTH1() const {
 }
 
 TH1F *MonitorElement::getTH1F() const {
-  assert(kind() == DQM_KIND_TH1F);
+  assert(kind() == Kind::TH1F);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH1F *>(accessRootObject(__PRETTY_FUNCTION__, 1));
 }
 
 TH1S *MonitorElement::getTH1S() const {
-  assert(kind() == DQM_KIND_TH1S);
+  assert(kind() == Kind::TH1S);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH1S *>(accessRootObject(__PRETTY_FUNCTION__, 1));
 }
 
 TH1D *MonitorElement::getTH1D() const {
-  assert(kind() == DQM_KIND_TH1D);
+  assert(kind() == Kind::TH1D);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH1D *>(accessRootObject(__PRETTY_FUNCTION__, 1));
 }
 
 TH2F *MonitorElement::getTH2F() const {
-  assert(kind() == DQM_KIND_TH2F);
+  assert(kind() == Kind::TH2F);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH2F *>(accessRootObject(__PRETTY_FUNCTION__, 2));
 }
 
 TH2S *MonitorElement::getTH2S() const {
-  assert(kind() == DQM_KIND_TH2S);
+  assert(kind() == Kind::TH2S);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH2S *>(accessRootObject(__PRETTY_FUNCTION__, 2));
 }
 
 TH2D *MonitorElement::getTH2D() const {
-  assert(kind() == DQM_KIND_TH2D);
+  assert(kind() == Kind::TH2D);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH2D *>(accessRootObject(__PRETTY_FUNCTION__, 2));
 }
 
 TH3F *MonitorElement::getTH3F() const {
-  assert(kind() == DQM_KIND_TH3F);
+  assert(kind() == Kind::TH3F);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH3F *>(accessRootObject(__PRETTY_FUNCTION__, 3));
 }
 
 TProfile *MonitorElement::getTProfile() const {
-  assert(kind() == DQM_KIND_TPROFILE);
+  assert(kind() == Kind::TPROFILE);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1));
 }
 
 TProfile2D *MonitorElement::getTProfile2D() const {
-  assert(kind() == DQM_KIND_TPROFILE2D);
+  assert(kind() == Kind::TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TProfile2D *>(accessRootObject(__PRETTY_FUNCTION__, 2));
 }
@@ -1304,55 +1304,55 @@ TH1 *MonitorElement::getRefTH1() const {
 }
 
 TH1F *MonitorElement::getRefTH1F() const {
-  assert(kind() == DQM_KIND_TH1F);
+  assert(kind() == Kind::TH1F);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH1F *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 1));
 }
 
 TH1S *MonitorElement::getRefTH1S() const {
-  assert(kind() == DQM_KIND_TH1S);
+  assert(kind() == Kind::TH1S);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH1S *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 1));
 }
 
 TH1D *MonitorElement::getRefTH1D() const {
-  assert(kind() == DQM_KIND_TH1D);
+  assert(kind() == Kind::TH1D);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH1D *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 1));
 }
 
 TH2F *MonitorElement::getRefTH2F() const {
-  assert(kind() == DQM_KIND_TH2F);
+  assert(kind() == Kind::TH2F);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH2F *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 2));
 }
 
 TH2S *MonitorElement::getRefTH2S() const {
-  assert(kind() == DQM_KIND_TH2S);
+  assert(kind() == Kind::TH2S);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH2S *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 2));
 }
 
 TH2D *MonitorElement::getRefTH2D() const {
-  assert(kind() == DQM_KIND_TH2D);
+  assert(kind() == Kind::TH2D);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH2D *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 2));
 }
 
 TH3F *MonitorElement::getRefTH3F() const {
-  assert(kind() == DQM_KIND_TH3F);
+  assert(kind() == Kind::TH3F);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TH3F *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 3));
 }
 
 TProfile *MonitorElement::getRefTProfile() const {
-  assert(kind() == DQM_KIND_TPROFILE);
+  assert(kind() == Kind::TPROFILE);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TProfile *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 1));
 }
 
 TProfile2D *MonitorElement::getRefTProfile2D() const {
-  assert(kind() == DQM_KIND_TPROFILE2D);
+  assert(kind() == Kind::TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TProfile2D *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 2));
 }

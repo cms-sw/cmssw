@@ -452,7 +452,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker& ibooker, const edm::EventS
                                                       "");
       ShotsVsTimeApvShotsGlobal->setAxisTitle("Time (s)", 1);
       ShotsVsTimeApvShotsGlobal->setAxisTitle("# Apv Shots", 2);
-      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE)
+      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::Kind::TPROFILE)
         ShotsVsTimeApvShotsGlobal->getTH1()->SetCanExtend(TH1::kAllAxes);
     }
 
@@ -985,7 +985,7 @@ SiStripMonitorDigi::MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IB
     return me;
 
   me->setAxisTitle("Lumisection", 1);
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE)
+  if (me->kind() == MonitorElement::Kind::TPROFILE)
     me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
@@ -1198,7 +1198,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string
                                                       "");
     subdetMEs.SubDetTotDigiProf->setAxisTitle("Lumisection", 1);
 
-    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE)
+    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::Kind::TPROFILE)
       subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
 
@@ -1312,7 +1312,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string
                                                         "");
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("Time (s)", 1);
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("# Apv Shots", 2);
-    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE)
+    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::Kind::TPROFILE)
       subdetMEs.SubDetNApvShotsProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
 

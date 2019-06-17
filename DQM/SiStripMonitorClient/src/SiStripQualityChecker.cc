@@ -406,10 +406,10 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
       continue;
     std::string name = me->getName();
     std::vector<DQMChannel> bad_channels_me;
-    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+    if (me->kind() == MonitorElement::Kind::TPROFILE) {
       bad_channels_me = qreports[0]->getBadChannels();
       lname = "";
-    } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D && name.find("TkHMap") != std::string::npos) {
+    } else if (me->kind() == MonitorElement::Kind::TPROFILE2D && name.find("TkHMap") != std::string::npos) {
       bad_channels_me = qreports[0]->getBadChannels();
       lname = name.substr(name.find("TkHMap_") + 7);
       lname = lname.substr(lname.find("_T") + 1);
@@ -476,7 +476,7 @@ void SiStripQualityChecker::fillStatusHistogram(MonitorElement const* me,
                                                 int const xbin,
                                                 int const ybin,
                                                 float const val) {
-  if (me && me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me && me->kind() == MonitorElement::Kind::TH2F) {
     auto th2d = me->getTH2F();
     th2d->SetBinContent(xbin, ybin, val);
   }
@@ -549,7 +549,7 @@ void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore& dqm_store) {
     return;
   std::string fullpath = dqm_store.pwd() + "/PerLumiSection/" + "lumiErrorFraction";
   MonitorElement* me = dqm_store.get(fullpath);
-  if (me && me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me && me->kind() == MonitorElement::Kind::TH1F) {
     TH1F* th1 = me->getTH1F();
     float global_fraction = 0.0;
     float dets = 0.0;

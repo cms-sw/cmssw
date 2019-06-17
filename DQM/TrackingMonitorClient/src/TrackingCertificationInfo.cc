@@ -322,7 +322,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(DQMStore::IBooker& 
       continue;
     if (verbose_)
       std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEs] me: " << me->getName() << std::endl;
-    if (me->kind() == MonitorElement::DQM_KIND_REAL) {
+    if (me->kind() == MonitorElement::Kind::REAL) {
       const std::string& name = me->getName();
       float val = me->getFloatValue();
 
@@ -457,7 +457,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi(DQMStore::IBo
       continue;
     if (verbose_)
       std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] me: " << me->getName() << std::endl;
-    if (me->kind() == MonitorElement::DQM_KIND_REAL) {
+    if (me->kind() == MonitorElement::Kind::REAL) {
       const std::string& name = me->getName();
       float val = me->getFloatValue();
       if (verbose_)
@@ -492,7 +492,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi(DQMStore::IBo
   float global_dqm_flag = 1.0;
   std::string full_path = tracking_dir + "/EventInfo/reportSummary";
   MonitorElement* me_dqm = igetter_.get(full_path);
-  if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL)
+  if (me_dqm && me_dqm->kind() == MonitorElement::Kind::REAL)
     global_dqm_flag = me_dqm->getFloatValue();
   if (verbose_)
     std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] global_dqm_flag: " << global_dqm_flag
