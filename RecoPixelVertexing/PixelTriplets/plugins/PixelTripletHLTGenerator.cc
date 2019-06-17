@@ -19,7 +19,6 @@
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
-#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 #include "CommonTools/Utils/interface/DynArray.h"
 
@@ -129,7 +128,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region, Ordered
 
   typedef RecHitsSortedInPhi::Hit Hit;
 
-  using NodeInfo = KDTreeNodeInfo<unsigned int>;
+  using NodeInfo = KDTreeNodeInfo<unsigned int,2>;
   std::vector<NodeInfo > layerTree; // re-used throughout
   std::vector<unsigned int> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
