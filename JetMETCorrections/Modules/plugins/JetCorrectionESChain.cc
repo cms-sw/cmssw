@@ -10,7 +10,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "JetMETCorrections/Modules/interface/JetCorrectionESChain.h"
 #include "JetMETCorrections/Objects/interface/ChainedJetCorrector.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
