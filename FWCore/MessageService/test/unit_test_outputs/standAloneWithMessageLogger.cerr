@@ -17,11 +17,11 @@ LogProblem  was used to send cat_A
 LogProblem  was used to send cat_B
 threshold DEBUG
 %MSG-d cat_A: 
- standAloneTest.cpp:8
+ standAloneTest.cpp:7
 LogDebug    was used to send cat_A
 %MSG
 %MSG-d cat_B: 
- standAloneTest.cpp:9
+ standAloneTest.cpp:8
 LogDebug    was used to send cat_B
 %MSG
 LogTrace    was used to send cat_A
