@@ -12,7 +12,6 @@ This producer makes use of PFAlgo, the particle flow algorithm.
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFSCEnergyCalibration.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTFormula.h"
 #include "CondFormats/DataRecord/interface/PFCalibrationRcd.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
@@ -137,8 +136,6 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
     = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
     
   algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");  
-
-  algo_config.thePFEnergyCalibration.reset(new PFEnergyCalibration());
 
   //PFEGamma
   //for MVA pass PV if there is one in the collection otherwise pass a dummy  
