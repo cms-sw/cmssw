@@ -5,13 +5,17 @@
 #define __RecoHGCal_TICL_HGCGraph_H__
 
 #include <vector>
+
 #include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
+#include "DataFormats/TICL/interface/TICLSeedingRegion.h"
 #include "HGCDoublet.h"
 
 class HGCGraph {
 public:
+
   void makeAndConnectDoublets(const TICLLayerTiles &h,
+                              const std::vector<ticl::TICLSeedingRegion>& regions,
                               int nEtaBins,
                               int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters,
