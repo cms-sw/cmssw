@@ -70,8 +70,8 @@ DTTTrigCalibration::DTTTrigCalibration(const edm::ParameterSet& pset) {
   doSubtractT0 = pset.getUntrackedParameter<bool>("doSubtractT0","false");
   // Get the synchronizer
   if(doSubtractT0) {
-    theSync = std::unique_ptr<DTTTrigBaseSync>{DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
-                                                                                 pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"))};
+    theSync = DTTTrigSyncFactory::get()->create(pset.getUntrackedParameter<string>("tTrigMode"),
+                                                pset.getUntrackedParameter<ParameterSet>("tTrigModeConfig"));
   }
 
   checkNoisyChannels = pset.getUntrackedParameter<bool>("checkNoisyChannels","false");

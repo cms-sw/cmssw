@@ -56,16 +56,16 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::AlignmentProducerBase";
 
   const auto& algoConfig = config_.getParameterSet("algoConfig");
-  if (hasParameter<bool>(config_, "runAtPCL")) {
+  if (config_.existsAs<bool>("runAtPCL")) {
     // configured in main config?
     runAtPCL_ = config_.getParameter<bool>("runAtPCL");
 
-    if (hasParameter<bool>(algoConfig, "runAtPCL") && (runAtPCL_ != algoConfig.getParameter<bool>("runAtPCL"))) {
+    if (algoConfig.existsAs<bool>("runAtPCL") && (runAtPCL_ != algoConfig.getParameter<bool>("runAtPCL"))) {
       throw cms::Exception("BadConfig") << "Inconsistent settings for 'runAtPCL' in configuration of the "
                                         << "alignment producer and the alignment algorithm.";
     }
 
-  } else if (hasParameter<bool>(algoConfig, "runAtPCL")) {
+  } else if (algoConfig.existsAs<bool>("runAtPCL")) {
     // configured in algo config?
     runAtPCL_ = algoConfig.getParameter<bool>("runAtPCL");
 
@@ -266,12 +266,7 @@ void AlignmentProducerBase::createAlignmentAlgorithm() {
   algoConfig.addUntrackedParameter("enableAlignableUpdates", enableAlignableUpdates_);
 
   const auto& algoName = algoConfig.getParameter<std::string>("algoName");
-  alignmentAlgo_ =
-      std::unique_ptr<AlignmentAlgorithmBase>{AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig)};
-
-  if (!alignmentAlgo_) {
-    throw cms::Exception("BadConfig") << "Couldn't find the called alignment algorithm: " << algoName;
-  }
+  alignmentAlgo_ = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
 }
 
 //------------------------------------------------------------------------------
@@ -279,13 +274,8 @@ void AlignmentProducerBase::createMonitors() {
   const auto& monitorConfig = config_.getParameter<edm::ParameterSet>("monitorConfig");
   auto monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
   for (const auto& miter : monitors) {
-    std::unique_ptr<AlignmentMonitorBase> newMonitor{
-        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter))};
-
-    if (!newMonitor) {
-      throw cms::Exception("BadConfig") << "Couldn't find monitor named " << miter;
-    }
-    monitors_.emplace_back(std::move(newMonitor));
+    monitors_.emplace_back(
+        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter)));
   }
 }
 
@@ -941,24 +931,4 @@ void AlignmentProducerBase::writeDB(AlignmentSurfaceDeformations* alignmentSurfa
   } else {                                // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations;  // ...otherwise we have to delete, as promised!
   }
-}
-
-//------------------------------------------------------------------------------
-template <typename T>
-bool AlignmentProducerBase::hasParameter(const edm::ParameterSet& config, const std::string& name) {
-  try {
-    config.getParameter<T>(name);
-  } catch (const edm::Exception& e) {
-    if (e.categoryCode() == edm::errors::Configuration) {
-      if (e.message().find("MissingParameter") != std::string::npos) {
-        return false;
-      } else {
-        throw;
-      }
-    } else {
-      throw;
-    }
-  }
-
-  return true;
 }
