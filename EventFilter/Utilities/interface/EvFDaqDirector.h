@@ -124,13 +124,16 @@ namespace evf {
                                 const uint32_t currentLumiSection,
                                 bool doCreateBoLS = true);
     static int parseFRDFileHeader(std::string const& rawSourcePath,
+                                  int& rawFd,
                                   uint16_t& rawHeaderSize,
                                   uint32_t& lsFromHeader,
                                   int32_t& eventsFromHeader,
                                   int64_t& fileSizeFromHeader,
                                   bool requireHeader,
-                                  bool retry);
+                                  bool retry,
+                                  bool closeFile);
     int grabNextJsonFromRaw(std::string const& rawSourcePath,
+                            int& rawFd,
                             uint16_t& rawHeaderSize,
                             int64_t& fileSizeFromHeader,
                             bool& fileFound,
@@ -153,6 +156,7 @@ namespace evf {
     FileStatus getNextFromFileBroker(const unsigned int currentLumiSection,
                                      unsigned int& ls,
                                      std::string& nextFile,
+                                     int& rawFd,
                                      uint16_t& rawHeaderSize,
                                      int32_t& serverEventsInNewFile_,
                                      int64_t& fileSize,

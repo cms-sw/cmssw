@@ -205,6 +205,7 @@ struct InputFile {
   evf::EvFDaqDirector::FileStatus status_;
   unsigned int lumi_;
   std::string fileName_;
+  int rawFd_;
   uint64_t fileSize_;
   uint16_t rawHeaderSize_;
   uint32_t nChunks_;
@@ -220,6 +221,7 @@ struct InputFile {
   InputFile(evf::EvFDaqDirector::FileStatus status,
             unsigned int lumi = 0,
             std::string const& name = std::string(),
+            int rawFd = -1,
             uint64_t fileSize = 0,
             uint16_t rawHeaderSize = 0,
             uint32_t nChunks = 0,
@@ -229,6 +231,7 @@ struct InputFile {
         status_(status),
         lumi_(lumi),
         fileName_(name),
+        rawFd_(rawFd),
         fileSize_(fileSize),
         rawHeaderSize_(rawHeaderSize),
         nChunks_(nChunks),

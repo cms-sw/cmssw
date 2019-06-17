@@ -943,12 +943,14 @@ namespace evf {
   }
 
   int EvFDaqDirector::parseFRDFileHeader(std::string const& rawSourcePath,
+                                         int& rawFd,
                                          uint16_t& rawHeaderSize,
                                          uint32_t& lsFromHeader,
                                          int32_t& eventsFromHeader,
                                          int64_t& fileSizeFromHeader,
                                          bool requireHeader,
-                                         bool retry) {
+                                         bool retry,
+                                         bool closeFile) {
     int infile;
 
     if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
@@ -956,7 +958,7 @@ namespace evf {
         edm::LogWarning("EvFDaqDirector")
             << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
         return parseFRDFileHeader(
-            rawSourcePath, rawHeaderSize, lsFromHeader, eventsFromHeader, fileSizeFromHeader, requireHeader, false);
+            rawSourcePath, rawFd, rawHeaderSize, lsFromHeader, eventsFromHeader, fileSizeFromHeader, requireHeader, false, closeFile);
       } else {
         usleep(100000);
         if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
@@ -974,15 +976,21 @@ namespace evf {
     char buf[buf_sz];
 
     ssize_t sz_read = ::read(infile, buf, buf_sz);
-    close(infile);
+    if (closeFile) {
+      close(infile);
+      infile = -1;
+    }
+    //else lseek(infile,0,SEEK_SET);
 
     if (sz_read < 0) {
       edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - unable to read " << rawSourcePath << " : "
                                       << strerror(errno);
+      if (infile!=-1) close(infile);
       return -1;
     }
     if ((size_t)sz_read < buf_sz) {
       edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - file smaller than header: " << rawSourcePath;
+      if (infile!=-1) close(infile);
       return -1;
     }
 
@@ -994,6 +1002,7 @@ namespace evf {
       //no header (specific sequence not detected)
       if (requireHeader) {
         edm::LogError("EvFDaqDirector") << "no header or invalid version string found in:" << rawSourcePath;
+        if (infile!=-1) close(infile);
         return -1;
       } else {
         //no header, but valid file
@@ -1008,6 +1017,7 @@ namespace evf {
       if (headerSizeRaw < buf_sz) {
         edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
                                         << " v:" << frd_version;
+        if (infile!=-1) close(infile);
         return -1;
       }
       //allow header size to exceed read size. Future header versions will not break this, but the size can change.
@@ -1016,10 +1026,12 @@ namespace evf {
       fileSizeFromHeader = (int64_t)fileHead->fileSize_;
       rawHeaderSize = fileHead->headerSize_;
     }
+    rawFd = infile;
     return 0;  //OK
   }
 
   int EvFDaqDirector::grabNextJsonFromRaw(std::string const& rawSourcePath,
+                                          int& rawFd,
                                           uint16_t& rawHeaderSize,
                                           int64_t& fileSizeFromHeader,
                                           bool& fileFound,
@@ -1045,7 +1057,7 @@ namespace evf {
     uint32_t lsFromRaw;
     int32_t nbEventsWrittenRaw;
     int64_t fileSizeFromRaw;
-    auto ret = parseFRDFileHeader(rawSourcePath, rawHeaderSize, lsFromRaw, nbEventsWrittenRaw, fileSizeFromRaw, true, true);
+    auto ret = parseFRDFileHeader(rawSourcePath, rawFd, rawHeaderSize, lsFromRaw, nbEventsWrittenRaw, fileSizeFromRaw, true, true, false);
     if (ret != 0) {
       if (ret == 1)
         fileFound = false;
@@ -1624,6 +1636,7 @@ namespace evf {
   EvFDaqDirector::FileStatus EvFDaqDirector::getNextFromFileBroker(const unsigned int currentLumiSection,
                                                                    unsigned int& ls,
                                                                    std::string& nextFileRaw,
+                                                                   int& rawFd,
                                                                    uint16_t& rawHeaderSize,
                                                                    int32_t& serverEventsInNewFile,
                                                                    int64_t& fileSizeFromMetadata,
@@ -1706,9 +1719,14 @@ namespace evf {
 
     if (fileStatus == newFile) {
       if (rawHeader > 0)
-        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS);
+        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw, rawFd, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS);
       else
         serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromMetadata, fileFound);
+    }
+    //closing file in case of any error
+    if (serverEventsInNewFile<0 && rawFd!=-1) {
+      close(rawFd);
+      rawFd = -1;
     }
     if (!fileFound) {
       //catch condition where directory got deleted
