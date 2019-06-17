@@ -1,0 +1,37 @@
+// Authors: Felice Pantaleo, Marco Rovere 
+// Emails: felice.pantaleo@cern.ch, marco.rovere@cern.ch
+// Date: 06/2019
+
+#ifndef RecoHGCal_TICL_SeedingRegionAlgoBase_H__
+#define RecoHGCal_TICL_SeedingRegionAlgoBase_H__
+
+#include <memory>
+#include <vector>
+#include "DataFormats/TICL/interface/Common.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TICL/interface/TICLSeedingRegion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
+
+namespace ticl {
+  class SeedingRegionAlgoBase {
+  public:
+    SeedingRegionAlgoBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+        : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
+    virtual ~SeedingRegionAlgoBase(){};
+
+    virtual void makeRegions(const edm::Event& ev,
+                                const edm::EventSetup& es,
+                                std::vector<ticl::TICLSeedingRegion>& result) = 0;
+    enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+
+  protected:
+    int algo_verbosity_;
+  };
+}  // namespace ticl
+
+#endif
