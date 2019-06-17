@@ -13,7 +13,7 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalClusteringAlgoBase.h"
 
-#include "KDTreeLinkerAlgoT.h"
+#include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
 
 class HGCal3DClustering
 {
@@ -81,8 +81,8 @@ private:
     ClusterRef(): ind(-1),z(0.){}
   };
 
-  typedef KDTreeLinkerAlgo<ClusterRef,2> KDTree;
-  typedef KDTreeNodeInfoT<ClusterRef,2> KDNode;
+  typedef KDTreeLinkerAlgo<ClusterRef> KDTree;
+  typedef KDTreeNodeInfo<ClusterRef> KDNode;
   std::vector< std::vector<KDNode> > points;
   std::vector<std::array<float,2> > minpos;
   std::vector<std::array<float,2> > maxpos;

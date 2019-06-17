@@ -1,7 +1,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
-#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 #include "TMath.h"
 
@@ -100,36 +99,36 @@ void KDTreeLinkerTrackEcal::insertFieldClusterElt(reco::PFBlockElement *ecalClus
 
 void KDTreeLinkerTrackEcal::buildTree() {
   // List of pseudo-rechits that will be used to create the KDTree
-  std::vector<KDTreeNodeInfo<reco::PFRecHit const *>> eltList;
+  std::vector<KDTreeNodeInfo<reco::PFRecHit const*,2>> eltList;
 
   // Filling of this list
   for (RecHitSet::const_iterator it = rechitsSet_.begin(); it != rechitsSet_.end(); it++) {
     const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
-
-    KDTreeNodeInfo<reco::PFRecHit const *> rh1(*it, posrep.eta(), posrep.phi());
+    
+    KDTreeNodeInfo<reco::PFRecHit const*,2> rh1 (*it, posrep.eta(), posrep.phi());
     eltList.push_back(rh1);
 
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
-    if (rh1.dim[1] > (M_PI - phiOffset_)) {
-      double phi = rh1.dim[1] - 2 * M_PI;
-      KDTreeNodeInfo rh2(*it, posrep.eta(), phi);
+    if (rh1.dims[1] > (M_PI - phiOffset_)) {
+      float phi = rh1.dims[1] - 2 * M_PI;
+      KDTreeNodeInfo<reco::PFRecHit const*,2> rh2(*it, float(posrep.eta()), phi);
       eltList.push_back(rh2);
     }
 
-    if (rh1.dim[1] < (M_PI * -1.0 + phiOffset_)) {
-      double phi = rh1.dim[1] + 2 * M_PI;
-      KDTreeNodeInfo rh3(*it, posrep.eta(), phi);
+    if (rh1.dims[1] < (M_PI * -1.0 + phiOffset_)) {
+      float phi = rh1.dims[1] + 2 * M_PI;
+      KDTreeNodeInfo<reco::PFRecHit const*,2> rh3(*it, float(posrep.eta()), phi);
       eltList.push_back(rh3);
     }
   }
 
   // Here we define the upper/lower bounds of the 2D space (eta/phi).
-  double phimin = -1.0 * M_PI - phiOffset_;
-  double phimax = M_PI + phiOffset_;
+  float phimin = -1.0 * M_PI - phiOffset_;
+  float phimax = M_PI + phiOffset_;
 
   // etamin-etamax, phimin-phimax
-  KDTreeBox region(-3.0, 3.0, phimin, phimax);
+  KDTreeBox region(-3.0f, 3.0f, phimin, phimax);
 
   // We may now build the KDTree
   tree_.build(eltList, region);
@@ -155,15 +154,15 @@ void KDTreeLinkerTrackEcal::searchLinks() {
     const reco::PFTrajectoryPoint &atVertex = trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ClosestApproach);
 
     double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
-    double tracketa = atECAL.positionREP().eta();
-    double trackphi = atECAL.positionREP().phi();
+    float tracketa = atECAL.positionREP().eta();
+    float trackphi = atECAL.positionREP().phi();
     double trackx = atECAL.position().X();
     double tracky = atECAL.position().Y();
     double trackz = atECAL.position().Z();
 
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
-    double range = cristalPhiEtaMaxSize_ * (2.0 + 1.0 / std::min(1., trackPt / 2.));
+    float range = cristalPhiEtaMaxSize_ * (2.0 + 1.0 / std::min(1., trackPt / 2.));
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<reco::PFRecHit const *> recHits;
