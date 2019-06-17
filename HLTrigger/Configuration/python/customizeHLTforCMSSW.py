@@ -18,7 +18,7 @@ from HLTrigger.Configuration.common import *
 #     return process
 
 # use 5DHit as seed
-def customiseFor99999(process):
+def customiseFor27220(process):
    for pset in process._Process__psets.values():
        if hasattr(pset,'ComponentType'):
              if (pset.ComponentType == 'CkfTrajectoryBuilder' or pset.ComponentType == 'GroupedCkfTrajectoryBuilder'):
@@ -60,6 +60,6 @@ def customiseFor2017DtUnpacking(process):
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
-    process = customiseFor99999(process)
+    process = customiseFor27220(process)
 
     return process
