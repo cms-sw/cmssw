@@ -167,7 +167,7 @@ void PFClusterValidation::analyze(edm::Event const& event, edm::EventSetup const
     
   edm::Handle<reco::PFClusterCollection> pfClusterECAL;
   event.getByToken(PFClusterECALTok_, pfClusterECAL);
-  reco::PFClusterCollection::const_iterator pf; 
+  //  reco::PFClusterCollection::const_iterator pf; 
  
   edm::Handle<reco::PFClusterCollection> pfClusterHCAL;
   event.getByToken(PFClusterHCALTok_, pfClusterHCAL);
