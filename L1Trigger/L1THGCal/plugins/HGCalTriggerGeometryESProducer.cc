@@ -45,7 +45,7 @@ HGCalTriggerGeometryESProducer::ReturnType HGCalTriggerGeometryESProducer::produ
   if (calo_geometry.isValid() && calo_geometry->getSubdetectorGeometry(DetId::Forward, HGCEE) &&
       calo_geometry->getSubdetectorGeometry(DetId::Forward, HGCHEF) &&
       calo_geometry->getSubdetectorGeometry(DetId::Hcal, HcalEndcap)) {
-    geometry->initialize(calo_geometry);
+    geometry->initialize(calo_geometry.product());
   }
   // Initialize trigger geometry for V9 HGCAL geometry
   else {
@@ -55,7 +55,7 @@ HGCalTriggerGeometryESProducer::ReturnType HGCalTriggerGeometryESProducer::produ
     iRecord.getRecord<IdealGeometryRecord>().get("HGCalEESensitive", ee_geometry);
     iRecord.getRecord<IdealGeometryRecord>().get("HGCalHESiliconSensitive", hsi_geometry);
     iRecord.getRecord<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", hsc_geometry);
-    geometry->initialize(ee_geometry, hsi_geometry, hsc_geometry);
+    geometry->initialize(ee_geometry.product(), hsi_geometry.product(), hsc_geometry.product());
   }
   return geometry;
 }
