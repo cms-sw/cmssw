@@ -57,7 +57,7 @@ process.out = cms.OutputModule("AsciiOutputModule",
     outputCommands = cms.untracked.vstring(
         "keep *_prod3_*_*",
         "keep *_prod4_*_*",
-        "keep *_prod5_*_*",
+        "keep *_prod6_*_*",
     ),
     verbosity = cms.untracked.uint32(0),
 )
