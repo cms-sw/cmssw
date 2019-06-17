@@ -68,7 +68,7 @@ if __name__ == "__main__":
                         help="Disable HTML page generation")
     parser.add_argument("--html-sample", default="Sample",
                         help="Sample name for HTML page generation (default 'Sample')")
-    parser.add_argument("--html-validation-name", type=str, default=[""], nargs="+",
+    parser.add_argument("--html-validation-name", type=str, default=["",""], nargs="+",
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
