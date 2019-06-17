@@ -8,6 +8,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
+                                      const std::vector<ticl::TICLSeedingRegion>& regions,
                                       int nEtaBins,
                                       int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
@@ -24,7 +25,34 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
   theRootDoublets_.clear();
-  for (int zSide = 0; zSide < 2; ++zSide) {
+  for (const auto& r: regions) {
+
+    bool isGlobal = (r.index == -1);
+    auto zSide = r.zSide;
+    auto firstLayerOnZSide =  maxNumberOfLayers * zSide;
+    const auto &firstLayerHisto = histo[firstLayerOnZSide];
+
+    int entryEtaBin = 0; 
+    int entryPhiBin = 0;
+    int startEtaBin, startPhiBin, etaBinLenght, phiBinLenght;
+
+    if(isGlobal)
+    {
+      startEtaBin = 0;
+      startPhiBin = 0;
+      etaBinLenght = nEtaBins;
+      phiBinLenght = nPhiBins;
+    }
+    else
+    {
+      entryEtaBin = firstLayerHisto.getEtaBin(r.origin.eta());
+      entryPhiBin = firstLayerHisto.getPhiBin(r.origin.phi());
+      startEtaBin = std::max(entryEtaBin - 2, 0);
+      startPhiBin = entryPhiBin - 2;
+      endEtaBin = etaBinLenght 5: nEtaBins-startEtaBin;
+      endPhiBin = 5;
+    }
+
     for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
       for (int outer_layer = 0; outer_layer < std::min(1 + missing_layers, maxNumberOfLayers - 1 - il); ++outer_layer) {
         int currentInnerLayerId = il + maxNumberOfLayers * zSide;
@@ -32,7 +60,7 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
         auto const &outerLayerHisto = histo[currentOuterLayerId];
         auto const &innerLayerHisto = histo[currentInnerLayerId];
 
-        for (int oeta = 0; oeta < nEtaBins; ++oeta) {
+        for (int oeta = startEtaBin; oeta < , nEta; ++oeta) {
           auto offset = oeta * nPhiBins;
           for (int ophi = 0; ophi < nPhiBins; ++ophi) {
             for (auto outerClusterId : outerLayerHisto[offset + ophi]) {
