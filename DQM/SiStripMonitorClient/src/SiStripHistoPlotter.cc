@@ -74,8 +74,8 @@ void SiStripHistoPlotter::makePlot(DQMStore const* dqm_store, const PlotParamete
     std::string tag;
     int icol;
     SiStripUtility::getMEStatusColor(istat, icol, tag);
-    if (me->kind() == MonitorElement::DQM_KIND_TH1F || me->kind() == MonitorElement::DQM_KIND_TH2F ||
-        me->kind() == MonitorElement::DQM_KIND_TPROFILE || me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+    if (me->kind() == MonitorElement::Kind::TH1F || me->kind() == MonitorElement::Kind::TH2F ||
+        me->kind() == MonitorElement::Kind::TPROFILE || me->kind() == MonitorElement::Kind::TPROFILE2D) {
       TH1* histo = me->getTH1();
       TH1F* tproject = nullptr;
       if (dopt == "projection") {
@@ -87,7 +87,7 @@ void SiStripHistoPlotter::makePlot(DQMStore const* dqm_store, const PlotParamete
       } else {
         dopt = "";
         std::string name = histo->GetName();
-        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+        if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
           dopt = "colz";
           histo->SetStats(kFALSE);
         } else {
@@ -241,7 +241,7 @@ void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
   std::string ptit = me->getTitle();
   ptit += "-Yprojection";
 
-  if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me->kind() == MonitorElement::Kind::TH2F) {
     TH2F* hist2 = me->getTH2F();
     tp = new TH1F(
         ptit.c_str(), ptit.c_str(), hist2->GetNbinsY(), hist2->GetYaxis()->GetXmin(), hist2->GetYaxis()->GetXmax());
@@ -253,14 +253,14 @@ void SiStripHistoPlotter::getProjection(MonitorElement* me, TH1F* tp) {
       }
       tp->SetBinContent(j, tot_count);
     }
-  } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+  } else if (me->kind() == MonitorElement::Kind::TPROFILE) {
     TProfile* prof = me->getTProfile();
     tp = new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, prof->GetMaximum() * 1.2);
     tp->GetXaxis()->SetTitle(ptit.c_str());
     for (int i = 1; i < prof->GetNbinsX() + 1; i++) {
       tp->Fill(prof->GetBinContent(i));
     }
-  } else if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  } else if (me->kind() == MonitorElement::Kind::TH1F) {
     TH1F* hist1 = me->getTH1F();
     tp = new TH1F(ptit.c_str(), ptit.c_str(), 100, 0.0, hist1->GetMaximum() * 1.2);
     tp->GetXaxis()->SetTitle(ptit.c_str());

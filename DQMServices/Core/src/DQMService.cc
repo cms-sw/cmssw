@@ -110,9 +110,9 @@ void DQMService::flushStandalone() {
 
       // Pack object and reference, scalar and quality data.
       switch (me.kind()) {
-        case MonitorElement::DQM_KIND_INT:
-        case MonitorElement::DQM_KIND_REAL:
-        case MonitorElement::DQM_KIND_STRING:
+        case MonitorElement::Kind::INT:
+        case MonitorElement::Kind::REAL:
+        case MonitorElement::Kind::STRING:
           me.packScalarData(o.scalar, "");
           break;
 

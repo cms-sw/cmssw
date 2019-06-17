@@ -10,8 +10,8 @@ namespace ecaldqm {
                                    binning::AxisSpecs const *_yaxis /* = 0*/)
       : MESetEcal(_fullPath, _otype, _btype, _kind, 1, nullptr, _yaxis) {
     switch (kind_) {
-      case MonitorElement::DQM_KIND_TH1F:
-      case MonitorElement::DQM_KIND_TPROFILE:
+      case MonitorElement::Kind::TH1F:
+      case MonitorElement::Kind::TPROFILE:
         break;
       default:
         throw_("Unsupported MonitorElement kind");

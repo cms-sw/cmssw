@@ -883,7 +883,7 @@ SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::
                                            0,
                                            0,
                                            "");
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE)
+  if (me->kind() == MonitorElement::Kind::TPROFILE)
     me->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   if (!me)

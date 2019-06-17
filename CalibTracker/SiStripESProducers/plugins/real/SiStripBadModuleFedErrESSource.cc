@@ -100,7 +100,7 @@ float SiStripBadModuleFedErrESSource::getProcessedEvents(DQMStore* dqmStore) con
 std::vector<std::pair<uint16_t, uint16_t>> SiStripBadModuleFedErrESSource::getFedBadChannelList(
     DQMStore* dqmStore, const MonitorElement* me) const {
   std::vector<std::pair<uint16_t, uint16_t>> ret;
-  if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me->kind() == MonitorElement::Kind::TH2F) {
     TH2F* th2 = me->getTH2F();
     float entries = getProcessedEvents(dqmStore);
     if (!entries)

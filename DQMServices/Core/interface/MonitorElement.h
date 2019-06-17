@@ -356,17 +356,17 @@ public:
   TProfile2D *getRefTProfile2D() const;
 
   int64_t getIntValue() const {
-    assert(kind() == DQM_KIND_INT);
+    assert(kind() == Kind::INT);
     return scalar_.num;
   }
 
   double getFloatValue() const {
-    assert(kind() == DQM_KIND_REAL);
+    assert(kind() == Kind::REAL);
     return scalar_.real;
   }
 
   const std::string &getStringValue() const {
-    assert(kind() == DQM_KIND_STRING);
+    assert(kind() == Kind::STRING);
     return scalar_.str;
   }
 

@@ -63,15 +63,15 @@ namespace ecaldqm {
     else {
       unsigned logicalDimensions(-1);
       switch (kind) {
-        case MonitorElement::DQM_KIND_REAL:
+        case MonitorElement::Kind::REAL:
           logicalDimensions = 0;
           break;
-        case MonitorElement::DQM_KIND_TH1F:
-        case MonitorElement::DQM_KIND_TPROFILE:
+        case MonitorElement::Kind::TH1F:
+        case MonitorElement::Kind::TPROFILE:
           logicalDimensions = 1;
           break;
-        case MonitorElement::DQM_KIND_TH2F:
-        case MonitorElement::DQM_KIND_TPROFILE2D:
+        case MonitorElement::Kind::TH2F:
+        case MonitorElement::Kind::TPROFILE2D:
           logicalDimensions = 2;
           break;
         default:

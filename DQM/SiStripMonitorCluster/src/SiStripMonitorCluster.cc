@@ -523,7 +523,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es, DQMStore::IBook
                                                      ParametersNclusVsCycleTimeProf2D.getParameter<double>("ymax"),
                                                      0,
                                                      0);
-      if (NclusVsCycleTimeProf2D->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
+      if (NclusVsCycleTimeProf2D->kind() == MonitorElement::Kind::TPROFILE2D)
         NclusVsCycleTimeProf2D->getTH1()->SetCanExtend(TH1::kAllAxes);
     }
     if (clusterWidth_vs_amplitude_on) {
@@ -1424,7 +1424,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
                                                          0,
                                                          "");
     subdetMEs.SubDetTotClusterProf->setAxisTitle(Parameters.getParameter<std::string>("xaxis"), 1);
-    if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::DQM_KIND_TPROFILE)
+    if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::Kind::TPROFILE)
       subdetMEs.SubDetTotClusterProf->getTH1()->SetCanExtend(TH1::kAllAxes);
 
     Parameters = conf_.getParameter<edm::ParameterSet>("NumberOfClusterPerLayerTrendVar");
@@ -1632,7 +1632,7 @@ SiStripMonitorCluster::MonitorElement* SiStripMonitorCluster::bookMETrend(const 
   if (!me)
     return me;
   me->setAxisTitle(ParametersTrend.getParameter<std::string>("xaxis"), 1);
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE)
+  if (me->kind() == MonitorElement::Kind::TPROFILE)
     me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
