@@ -32,6 +32,7 @@
 #include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
@@ -54,6 +55,8 @@
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
+
+#include "DDG4/Geant4Mapping.h"
 
 #include <iostream>
 #include <sstream>
@@ -99,16 +102,23 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
 RunManagerMT::~RunManagerMT() { stopG4(); }
 
 void RunManagerMT::initG4(const DDCompactView* pDD,
+			  const cms::DDCompactView* pDD4hep,
                           const MagneticField* pMF,
                           const HepPDT::ParticleDataTable* fPDGTable) {
   if (m_managerInitialized)
     return;
 
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialisation of geometry";
-
+  auto geoFromDD4hep = m_p.getUntrackedParameter<bool>("g4GeometryDD4hepSource", false);
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_lv;
-  m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
+  dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
+  if(geoFromDD4hep) {
+    m_world.reset(new DDDWorld(pDD4hep->detector(), lvMap));
+  } else {
+    m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
+  }
+  
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
