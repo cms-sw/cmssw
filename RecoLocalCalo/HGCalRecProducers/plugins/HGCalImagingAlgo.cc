@@ -282,12 +282,12 @@ double HGCalImagingAlgo::calculateLocalDensity(std::vector<KDNode> &nd,
     // speec up search by looking within +/- delta_c window only
     KDTreeBox search_box(nd[i].dims[0] - delta_c, nd[i].dims[0] + delta_c,
                          nd[i].dims[1] - delta_c, nd[i].dims[1] + delta_c);
-    std::vector<KDNode> found;
+    std::vector<Hexel> found;
     lp.search(search_box, found);
     const unsigned int found_size = found.size();
     for (unsigned int j = 0; j < found_size; j++) {
-      if (distance(nd[i].data, found[j].data) < delta_c) {
-        nd[i].data.rho += found[j].data.weight;
+      if (distance(nd[i].data, found[j]) < delta_c) {
+        nd[i].data.rho += found[j].weight;
         maxdensity = std::max(maxdensity, nd[i].data.rho);
       }
     } // end loop found
@@ -351,7 +351,7 @@ HGCalImagingAlgo::calculateDistanceToHigher(std::vector<KDNode> &nd) const {
   return maxdensity;
 }
 int HGCalImagingAlgo::findAndAssignClusters(
-    std::vector<KDNode> &nd, KDTree &lp, double maxdensity, KDTreeBox &bounds,
+    std::vector<KDNode> &nd, KDTree &lp, double maxdensity, KDTreeBox<2> &bounds,
     const unsigned int layer,
     std::vector<std::vector<KDNode>> &clustersOnLayer) const {
 
@@ -435,16 +435,16 @@ int HGCalImagingAlgo::findAndAssignClusters(
     if (ci != -1) {
       KDTreeBox search_box(nd[i].dims[0] - delta_c, nd[i].dims[0] + delta_c,
                            nd[i].dims[1] - delta_c, nd[i].dims[1] + delta_c);
-      std::vector<KDNode> found;
+      std::vector<Hexel> found;
       lp.search(search_box, found);
 
       const unsigned int found_size = found.size();
       for (unsigned int j = 0; j < found_size;
            j++) { // start from 0 here instead of 1
         // check if the hit is not within d_c of another cluster
-        if (found[j].data.clusterIndex != -1) {
-          float dist = distance(found[j].data, nd[i].data);
-          if (dist < delta_c && found[j].data.clusterIndex != ci) {
+        if (found[j].clusterIndex != -1) {
+          float dist = distance(found[j], nd[i].data);
+          if (dist < delta_c && found[j].clusterIndex != ci) {
             // in which case we assign it to the border
             nd[i].data.isBorder = true;
             break;
@@ -453,7 +453,7 @@ int HGCalImagingAlgo::findAndAssignClusters(
           // that we don't unflag the
           // hit when it finds *itself* closer than delta_c
           if (dist < delta_c && dist != 0. &&
-              found[j].data.clusterIndex == ci) {
+              found[j].clusterIndex == ci) {
             // in this case it is not an isolated hit
             // the dist!=0 is because the hit being looked at is also inside the
             // search box and at dist==0
