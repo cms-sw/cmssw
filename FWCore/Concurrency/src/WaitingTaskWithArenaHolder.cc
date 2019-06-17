@@ -30,7 +30,9 @@ namespace edm {
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder const& iHolder)
       : m_task(iHolder.m_task), m_arena(iHolder.m_arena) {
-    m_task->increment_ref_count();
+    if (m_task) {
+      m_task->increment_ref_count();
+    }
   }
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskWithArenaHolder&& iOther)
