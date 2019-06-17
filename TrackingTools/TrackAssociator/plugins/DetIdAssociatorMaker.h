@@ -4,7 +4,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     DetIdAssociatorMaker
-// 
+//
 /**\class DetIdAssociatorMaker DetIdAssociatorMaker.h "DetIdAssociatorMaker.h"
 
  Description: [one line class summary]
@@ -26,28 +26,24 @@
 class DetIdAssociator;
 class DetIdAssociatorRecord;
 
-class DetIdAssociatorMaker
-{
-
- public:
+class DetIdAssociatorMaker {
+public:
   DetIdAssociatorMaker() = default;
   virtual ~DetIdAssociatorMaker() = default;
 
   // ---------- const member functions ---------------------
   virtual std::unique_ptr<DetIdAssociator> make(const DetIdAssociatorRecord&) const = 0;
-  
+
   // ---------- static member functions --------------------
-  
+
   // ---------- member functions ---------------------------
 
- private:
+private:
   DetIdAssociatorMaker(const DetIdAssociatorMaker&) = delete;
-  
-  const DetIdAssociatorMaker& operator=(const DetIdAssociatorMaker&) = delete;
-  
-  // ---------- member data --------------------------------
-  
-};
 
+  const DetIdAssociatorMaker& operator=(const DetIdAssociatorMaker&) = delete;
+
+  // ---------- member data --------------------------------
+};
 
 #endif
