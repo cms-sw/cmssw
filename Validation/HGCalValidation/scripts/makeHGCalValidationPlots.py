@@ -73,7 +73,7 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
     parser.add_argument("--collection", choices=["hgcalLayerClusters", "hitValidation", "all"], default="all",
-                        help="Choose plots collection")    
+                        help="Choose output plots collections: hgcalLayerCluster, hitValidation, all")    
 
     opts = parser.parse_args()
 
