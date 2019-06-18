@@ -15,7 +15,7 @@ void configureIt(const edm::ParameterSet& conf,
   constexpr char tdcSaturation[]    = "tdcSaturation";
   constexpr char tdcOnset[]         = "tdcOnset";
   constexpr char toaLSB_ns[]        = "toaLSB_ns";
-  constexpr char fCPerMIP[]          = "fCPerMIP";
+  constexpr char fCPerMIP[]         = "fCPerMIP";
   
   if( conf.exists(isSiFE) ) {
     maker.set_isSiFESim(conf.getParameter<bool>(isSiFE));
@@ -64,9 +64,11 @@ HGCalUncalibRecHitWorkerWeights::HGCalUncalibRecHitWorkerWeights(const edm::Para
   const edm::ParameterSet& ee_cfg = ps.getParameterSet("HGCEEConfig");
   const edm::ParameterSet& hef_cfg = ps.getParameterSet("HGCHEFConfig");
   const edm::ParameterSet& heb_cfg = ps.getParameterSet("HGCHEBConfig");
+  const edm::ParameterSet& hfnose_cfg = ps.getParameterSet("HGCHFNoseConfig");
   configureIt(ee_cfg,uncalibMaker_ee_);
   configureIt(hef_cfg,uncalibMaker_hef_);
   configureIt(heb_cfg,uncalibMaker_heb_);
+  configureIt(hfnose_cfg,uncalibMaker_hfnose_);
 }
 
 void
@@ -83,33 +85,43 @@ HGCalUncalibRecHitWorkerWeights::set(const edm::EventSetup& es)
     uncalibMaker_hef_.setGeometry(hgchefGeoHandle.product());
   }  
   uncalibMaker_heb_.setGeometry(nullptr);  
+  if (uncalibMaker_hfnose_.isSiFESim()) {
+    edm::ESHandle<HGCalGeometry> hgchfnoseGeoHandle; 
+    es.get<IdealGeometryRecord>().get("HGCalHFNoseSensitive",hgchfnoseGeoHandle) ; 
+    uncalibMaker_hfnose_.setGeometry(hgchfnoseGeoHandle.product());
+  }
 }
 
 
 bool
-HGCalUncalibRecHitWorkerWeights::run1( const edm::Event & evt,
-                                       const HGCalDigiCollection::const_iterator & itdg,
-                                       HGCeeUncalibratedRecHitCollection & result )
+HGCalUncalibRecHitWorkerWeights::runHGCEE( const HGCalDigiCollection::const_iterator & itdg,
+					   HGCeeUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_ee_.makeRecHit(*itdg));  
   return true;
 }
 
 bool
-HGCalUncalibRecHitWorkerWeights::run2( const edm::Event & evt,
-				       const HGCalDigiCollection::const_iterator & itdg,
-				       HGChefUncalibratedRecHitCollection & result )
+HGCalUncalibRecHitWorkerWeights::runHGCHEsil( const HGCalDigiCollection::const_iterator & itdg,
+					      HGChefUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_hef_.makeRecHit(*itdg));
   return true;
 }
 
 bool
-HGCalUncalibRecHitWorkerWeights::run3( const edm::Event & evt,
-				       const HGCalDigiCollection::const_iterator & itdg,
-				       HGChebUncalibratedRecHitCollection & result )
+HGCalUncalibRecHitWorkerWeights::runHGCHEscint(	const HGCalDigiCollection::const_iterator & itdg,
+						HGChebUncalibratedRecHitCollection & result )
 {
   result.push_back(uncalibMaker_heb_.makeRecHit(*itdg));
+  return true;
+}
+
+bool
+HGCalUncalibRecHitWorkerWeights::runHGCHFNose( const HGCalDigiCollection::const_iterator & itdg,
+					       HGChfnoseUncalibratedRecHitCollection & result )
+{
+  result.push_back(uncalibMaker_hfnose_.makeRecHit(*itdg));  
   return true;
 }
 

@@ -6,10 +6,10 @@
 
 namespace reco {
 
-typedef reco::TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo,reco::VertexCompositePtrCandidate> CandSecondaryVertexTagInfo;
+  typedef reco::TemplatedSecondaryVertexTagInfo<reco::CandIPTagInfo, reco::VertexCompositePtrCandidate>
+      CandSecondaryVertexTagInfo;
 
+  DECLARE_EDM_REFS(CandSecondaryVertexTagInfo)
 
-DECLARE_EDM_REFS(CandSecondaryVertexTagInfo)
-
-}
-#endif // DataFormats_BTauReco_CandSecondaryVertexTagInfo_h
+}  // namespace reco
+#endif  // DataFormats_BTauReco_CandSecondaryVertexTagInfo_h
