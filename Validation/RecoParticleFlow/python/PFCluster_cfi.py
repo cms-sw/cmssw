@@ -8,7 +8,7 @@ pfclusterAnalyzer = DQMEDAnalyzer('PFClusterValidation',
                                    pflowClusterHO = cms.untracked.InputTag('particleFlowClusterHO'),
                                    pflowClusterHF = cms.untracked.InputTag('particleFlowClusterHF'),
                                    #hcalselector             = cms.untracked.string('all'),
-                                   mc                       = cms.untracked.string('yes')
+                                   mc                       = cms.untracked.bool(True)
                                
 )
 
