@@ -9,6 +9,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/TICL/interface/TICLSeedingRegion.h"
 
 class HGCDoublet {
 public:
@@ -17,7 +18,7 @@ public:
   HGCDoublet(const int innerClusterId,
              const int outerClusterId,
              const int doubletId,
-             const std::vector<reco::CaloCluster> *layerClusters)
+             const std::vector<reco::CaloCluster> *layerClusters, const int seedIndex)
       : layerClusters_(layerClusters),
         theDoubletId_(doubletId),
         innerClusterId_(innerClusterId),
@@ -30,6 +31,7 @@ public:
         outerY_((*layerClusters)[outerClusterId].y()),
         innerZ_((*layerClusters)[innerClusterId].z()),
         outerZ_((*layerClusters)[outerClusterId].z()),
+        seedIndex_(seedIndex),
         alreadyVisited_(false) {}
 
   double innerX() const { return innerX_; }
@@ -48,6 +50,8 @@ public:
 
   double outerR() const { return outerZ_; }
 
+  int seedIndex() const { return seedIndex_; }
+
   int innerClusterId() const { return innerClusterId_; }
 
   int outerClusterId() const { return outerClusterId_; }
@@ -56,8 +60,8 @@ public:
 
   void tagAsInnerNeighbor(unsigned int otherDoublet) { innerNeighbors_.push_back(otherDoublet); }
 
-  bool checkCompatibilityAndTag(
-      std::vector<HGCDoublet> &, const std::vector<int> &, float, float minCosPointing = 1., bool debug = false);
+  bool checkCompatibilityAndTag(std::vector<HGCDoublet> &, const std::vector<int> &, const GlobalVector& refDir,
+				float, float minCosPointing = 1., bool debug = false);
 
   int areAligned(double xi,
                  double yi,
@@ -67,6 +71,7 @@ public:
                  double zo,
                  float minCosTheta,
                  float minCosPointing,
+		 const GlobalVector& refDir,
                  bool debug = false) const;
 
   void findNtuplets(std::vector<HGCDoublet> &, HGCntuplet &);
@@ -88,6 +93,7 @@ private:
   const double outerY_;
   const double innerZ_;
   const double outerZ_;
+  int seedIndex_;
   bool alreadyVisited_;
 };
 

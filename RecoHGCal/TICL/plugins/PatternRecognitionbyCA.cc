@@ -51,7 +51,9 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
                                     missing_layers_,
                                     rhtools_.lastLayerFH(),
                                     max_delta_time_);
+
   theGraph_->findNtuplets(foundNtuplets, min_clusters_per_ntuplet_);
+
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
   int tracksterId = 0;
