@@ -107,38 +107,39 @@ void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es)
     }
 }
 
-bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedRecHit& uncalibRH,
-        HGCRecHitCollection & result)
-{
-    DetId detid = uncalibRH.id();
-    // don't produce rechit if detid is a ghost one
+bool HGCalRecHitWorkerSimple::run(const edm::Event& evt,
+                                  const HGCUncalibratedRecHit& uncalibRH,
+                                  HGCRecHitCollection& result) {
+  DetId detid = uncalibRH.id();
+  // don't produce rechit if detid is a ghost one
 
-    if (detid.det() == DetId::Forward || detid.det() == DetId::Hcal) {
-      if((detid & rangeMask_) == rangeMatch_)  return false;
-    }
+  if (detid.det() == DetId::Forward || detid.det() == DetId::Hcal) {
+    if ((detid & rangeMask_) == rangeMatch_)
+      return false;
+  }
 
-    int thickness = -1;
-    float sigmaNoiseGeV = 0.f;
-    unsigned int layer = tools_->getLayerWithOffset(detid);
-    float cce_correction = 1.0;
-    int idtype(0);
+  int thickness = -1;
+  float sigmaNoiseGeV = 0.f;
+  unsigned int layer = tools_->getLayerWithOffset(detid);
+  float cce_correction = 1.0;
+  int idtype(0);
 
-    switch (detid.det()) {
+  switch (detid.det()) {
     case DetId::HGCalEE:
-      idtype = hgcee; 
+      idtype = hgcee;
       thickness = 1 + HGCSiliconDetId(detid).type();
       break;
     case DetId::HGCalHSi:
-      idtype = hgcfh; 
+      idtype = hgcfh;
       thickness = 1 + HGCSiliconDetId(detid).type();
       break;
     case DetId::HGCalHSc:
-      idtype = hgcbh; 
+      idtype = hgcbh;
       break;
     default:
       switch (detid.subdetId())  {
       case HGCEE:
-	idtype = hgcee; 
+	idtype = hgcee;
 	thickness = ddds_[detid.subdetId()-3]->waferTypeL(HGCalDetId(detid).wafer());
         break;
       case HGCHEF:
@@ -147,28 +148,28 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
         break;
       case HcalEndcap:
       case HGCHEB:
-	idtype = hgcbh; 
+	idtype = hgcbh;
 	break;
       case HFNose:
-	idtype = hgchfnose; 
+	idtype = hgchfnose;
 	thickness = 1 + HFNoseDetId(detid).type();
 	break;
       default:
 	break;
       }
-    }
-    switch (idtype) {
+  }
+  switch (idtype) {
     case hgcee:
       rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_));
       cce_correction = hgcEE_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
-	* hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1];
+      sigmaNoiseGeV =
+          1e-3 * weights_[layer] * rcorr_[thickness] * hgcEE_noise_fC_[thickness - 1] / hgcEE_fCPerMIP_[thickness - 1];
       break;
     case hgcfh:
       rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
       cce_correction = hgcHEF_cce_[thickness - 1];
-      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
-	* hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
+      sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness] * hgcHEF_noise_fC_[thickness - 1] /
+                      hgcHEF_fCPerMIP_[thickness - 1];
       break;
     case hgcbh:
       rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
@@ -181,27 +182,23 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
 	* hgcHFNose_noise_fC_[thickness - 1] / hgcHFNose_fCPerMIP_[thickness - 1];
       break;
     default:
-      throw cms::Exception("NonHGCRecHit") << "Rechit with detid = " 
-					   << detid.rawId() << " is not HGC!";
-    }
+      throw cms::Exception("NonHGCRecHit") << "Rechit with detid = " << detid.rawId() << " is not HGC!";
+  }
 
-    // make the rechit and put in the output collection
+  // make the rechit and put in the output collection
 
-    HGCRecHit myrechit(rechitMaker_->makeRecHit(uncalibRH, 0));
-    const double new_E = myrechit.energy() * (thickness == -1 ? 1.0 : rcorr_[thickness])/cce_correction;
+  HGCRecHit myrechit(rechitMaker_->makeRecHit(uncalibRH, 0));
+  const double new_E = myrechit.energy() * (thickness == -1 ? 1.0 : rcorr_[thickness]) / cce_correction;
 
+  myrechit.setEnergy(new_E);
+  myrechit.setSignalOverSigmaNoise(new_E / sigmaNoiseGeV);
+  result.push_back(myrechit);
 
-    myrechit.setEnergy(new_E);
-    myrechit.setSignalOverSigmaNoise(new_E/sigmaNoiseGeV);
-    result.push_back(myrechit);
-
-    return true;
+  return true;
 }
 
-HGCalRecHitWorkerSimple::~HGCalRecHitWorkerSimple()
-{
-}
+HGCalRecHitWorkerSimple::~HGCalRecHitWorkerSimple() {}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalRecHitWorkerFactory.h"
-DEFINE_EDM_PLUGIN( HGCalRecHitWorkerFactory, HGCalRecHitWorkerSimple, "HGCalRecHitWorkerSimple" );
+DEFINE_EDM_PLUGIN(HGCalRecHitWorkerFactory, HGCalRecHitWorkerSimple, "HGCalRecHitWorkerSimple");
