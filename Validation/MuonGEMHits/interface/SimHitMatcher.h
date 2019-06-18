@@ -29,16 +29,20 @@
 
 class GEMGeometry;
 
-class SimHitMatcher
-{
+class SimHitMatcher {
 public:
-  
-  SimHitMatcher(const SimTrack& track, const edm::Event& , const GEMGeometry& geom, const edm::ParameterSet& cfg, edm::EDGetToken& simhitToken, edm::EDGetToken& simtrackToken, edm::EDGetToken& simvertexToken);
-  
+  SimHitMatcher(const SimTrack& track,
+                const edm::Event&,
+                const GEMGeometry& geom,
+                const edm::ParameterSet& cfg,
+                edm::EDGetToken& simhitToken,
+                edm::EDGetToken& simtrackToken,
+                edm::EDGetToken& simvertexToken);
+
   ~SimHitMatcher();
 
   /// access to all the GEM SimHits
-  const edm::PSimHitContainer& simHitsGEM() const {return gem_hits_;}
+  const edm::PSimHitContainer& simHitsGEM() const { return gem_hits_; }
   /// GEM partitions' detIds with SimHits
   std::set<unsigned int> detIdsGEM() const;
 
@@ -75,18 +79,18 @@ public:
   float simHitsMeanStrip(const edm::PSimHitContainer& sim_hits) const;
 
   std::set<int> hitStripsInDetId(unsigned int, int margin_n_strips = 0) const;  // GEM or CSC
-  std::set<int> hitPadsInDetId(unsigned int) const; // GEM
-  std::set<int> hitCoPadsInDetId(unsigned int) const; // GEM coincidence pads with hits
+  std::set<int> hitPadsInDetId(unsigned int) const;                             // GEM
+  std::set<int> hitCoPadsInDetId(unsigned int) const;                           // GEM coincidence pads with hits
 
   // what unique partitions numbers were hit by this simtrack?
-  std::set<int> hitPartitions() const; // GEM
+  std::set<int> hitPartitions() const;  // GEM
 
 private:
-
-  void init(const edm::Event& );
+  void init(const edm::Event&);
   const SimTrack& track_;
-  std::vector<unsigned int> getIdsOfSimTrackShower(unsigned  trk_id,
-      const edm::SimTrackContainer& simTracks, const edm::SimVertexContainer& simVertices);
+  std::vector<unsigned int> getIdsOfSimTrackShower(unsigned trk_id,
+                                                   const edm::SimTrackContainer& simTracks,
+                                                   const edm::SimVertexContainer& simVertices);
 
   void matchSimHitsToSimTrack(std::vector<unsigned int> track_ids, const edm::PSimHitContainer& gem_hits);
 
@@ -99,15 +103,14 @@ private:
   edm::Handle<edm::SimTrackContainer> sim_tracks;
   edm::Handle<edm::SimVertexContainer> sim_vertices;
 
-
   const GEMGeometry& gem_geo_;
   std::map<unsigned int, unsigned int> trkid_to_index_;
 
   edm::PSimHitContainer no_hits_;
   edm::PSimHitContainer gem_hits_;
-  std::map<unsigned int, edm::PSimHitContainer > gem_detid_to_hits_;
-  std::map<unsigned int, edm::PSimHitContainer > gem_chamber_to_hits_;
-  std::map<unsigned int, edm::PSimHitContainer > gem_superchamber_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> gem_detid_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> gem_chamber_to_hits_;
+  std::map<unsigned int, edm::PSimHitContainer> gem_superchamber_to_hits_;
 
   // detids with hits in pads
   std::map<unsigned int, std::set<int> > gem_detids_to_pads_;
