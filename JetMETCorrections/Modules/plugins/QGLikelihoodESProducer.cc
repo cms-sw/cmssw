@@ -25,10 +25,10 @@
 
 class QGLikelihoodESProducer : public edm::ESProducer {
 public:
-  QGLikelihoodESProducer(const edm::ParameterSet &);
+  QGLikelihoodESProducer(const edm::ParameterSet&);
   ~QGLikelihoodESProducer() override{};
 
-  std::shared_ptr<const QGLikelihoodObject> produce(const QGLikelihoodRcd &);
+  std::shared_ptr<const QGLikelihoodObject> produce(const QGLikelihoodRcd&);
 
 private:
   edm::ESGetToken<QGLikelihoodObject, QGLikelihoodRcd> token_;
