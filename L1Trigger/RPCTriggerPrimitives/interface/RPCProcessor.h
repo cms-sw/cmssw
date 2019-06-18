@@ -25,64 +25,61 @@
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-
 #include <algorithm>
 #include <iostream>
 #include <fstream>
 #include <map>
 #include <memory>
-#include <string> 
+#include <string>
 #include <sstream>
 #include <utility>
 #include <vector>
 #include <boost/cstdint.hpp>
 
-class RPCProcessor{
-  
- public:
-  
+class RPCProcessor {
+public:
   explicit RPCProcessor();
   ~RPCProcessor();
-  
+
   struct Map_structure {
-    
     std::string linkboard_;
     std::string linkboard_ID;
     std::string chamber1_;
     std::string chamber2_;
-    COND_SERIALIZABLE;     	
+    COND_SERIALIZABLE;
   };
-  
+
   void Process(const edm::Event& iEvent,
-	       const edm::EventSetup& iSetup,
-	       const edm::EDGetToken& RPCDigiToken,
-	       RPCRecHitCollection& primitivedigi,
+               const edm::EventSetup& iSetup,
+               const edm::EDGetToken& RPCDigiToken,
+               RPCRecHitCollection& primitivedigi,
                std::unique_ptr<RPCMaskedStrips>& theRPCMaskedStripsObj,
-	       std::unique_ptr<RPCDeadStrips>& theRPCDeadStripsObj,
-	       std::unique_ptr<RPCRecHitBaseAlgo>& theAlgo,
-               std::map<std::string, std::string> LBName_ChamberID_Map_1, 
-               std::map<std::string, std::string> LBID_ChamberID_Map_1, 
-               std::map<std::string, std::string> LBName_ChamberID_Map_2, 
-	       std::map<std::string, std::string> LBID_ChamberID_Map_2,
-	       bool ApplyLinkBoardCut_, 
-	       int LinkboardCut, 
-               int ClusterSizeCut ) const;
-  
+               std::unique_ptr<RPCDeadStrips>& theRPCDeadStripsObj,
+               std::unique_ptr<RPCRecHitBaseAlgo>& theAlgo,
+               std::map<std::string, std::string> LBName_ChamberID_Map_1,
+               std::map<std::string, std::string> LBID_ChamberID_Map_1,
+               std::map<std::string, std::string> LBName_ChamberID_Map_2,
+               std::map<std::string, std::string> LBID_ChamberID_Map_2,
+               bool ApplyLinkBoardCut_,
+               int LinkboardCut,
+               int ClusterSizeCut) const;
+
   static edm::OwnVector<RPCRecHit> ApplyClusterSizeCut(const edm::OwnVector<RPCRecHit> recHits_, int ClusterSizeCut_);
   static bool ApplyLinkBoardCut(int NClusters, int LinkboardCut);
-  
-  std::vector<Map_structure> const & GetMapVector() const {return MapVec;}
+
+  std::vector<Map_structure> const& GetMapVector() const { return MapVec; }
   std::vector<Map_structure> MapVec;
-  
-  std::string GetStringBarrel(const int ring_, const int station_, const int sector_, const int layer_, const int subsector_, const int roll_) const;
+
+  std::string GetStringBarrel(const int ring_,
+                              const int station_,
+                              const int sector_,
+                              const int layer_,
+                              const int subsector_,
+                              const int roll_) const;
   std::string GetStringEndCap(const int station_, const int ring_, const int chamberID_) const;
-  
-  
+
   COND_SERIALIZABLE;
-  
- private:
-   
+
+private:
 };
 #endif
-
-

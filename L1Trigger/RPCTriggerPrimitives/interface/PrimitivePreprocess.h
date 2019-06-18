@@ -24,55 +24,48 @@
 
 #include "RecoLocalMuon/RPCRecHit/interface/RPCRecHitBaseAlgo.h"
 
-
 #include "L1Trigger/RPCTriggerPrimitives/interface/PrimitiveAlgoFactory.h"
 #include "L1Trigger/RPCTriggerPrimitives/interface/RPCProcessor.h"
-
 
 #include <string>
 #include <fstream>
 #include <memory>
 
-class PrimitivePreprocess{
-  
- public:
+class PrimitivePreprocess {
+public:
   explicit PrimitivePreprocess(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes);
-  
+
   ~PrimitivePreprocess();
-  
-  void beginRun(const edm::EventSetup& );
-  
+
+  void beginRun(const edm::EventSetup&);
+
   void Preprocess(const edm::Event& iEvent, const edm::EventSetup& iSetup, RPCRecHitCollection& primitivedigi);
-  
-  
- private:
-  
-  const edm::EDGetTokenT<RPCDigiCollection> rpcToken_; 
+
+private:
+  const edm::EDGetTokenT<RPCDigiCollection> rpcToken_;
   std::array<RPCProcessor, 1> processorvector_;
-  
+
   edm::FileInPath Mapsource_;
   bool ApplyLinkBoardCut_;
   int LinkBoardCut_;
   int ClusterSizeCut_;
-  
+
   std::vector<RPCProcessor::Map_structure> Final_MapVector;
-  
+
   //masking from rpcrechit module
-  
+
   std::vector<RPCMaskedStrips::MaskItem> MaskVec;
   std::vector<RPCDeadStrips::DeadItem> DeadVec;
-  
-  
+
   std::unique_ptr<RPCMaskedStrips> theRPCMaskedStripsObj;
   // Object with mask-strips-vector for all the RPC Detectors
-  
+
   std::unique_ptr<RPCDeadStrips> theRPCDeadStripsObj;
   // Object with dead-strips-vector for all the RPC Detectors
-  
+
   // The reconstruction algorithm
   std::unique_ptr<RPCRecHitBaseAlgo> theAlgorithm;
-  
+
   enum class MaskSource { File, EventSetup } maskSource_, deadSource_;
 };
 #endif
-
