@@ -205,6 +205,7 @@ bool HcalDbService::makeHcalCalibration(const HcalGenericDetId& fId,
 
 bool HcalDbService::convertPedestalWidths(const HcalGenericDetId& fId,
                                           const HcalPedestalWidth* pedestalwidth,
+                                          const HcalPedestal* pedestal,
                                           float* pedTrueWidth,
                                           bool inADC) const {
   if (!pedestalwidth)
@@ -223,10 +224,11 @@ bool HcalDbService::convertPedestalWidths(const HcalGenericDetId& fId,
       pedTrueWidth[i] = x;
       continue;
     }
-    // assume QIE is linear in low range and use x1=0 and x2=1
-    // y = (y2-y1) * (x) [do not add any constant, only scale!]
-    float y2 = coder->charge(*shape, 1, i);
-    float y1 = coder->charge(*shape, 0, i);
+    float  y = pedestal->getValues()[i];
+    int   x1 = (int)std::floor(y);
+    int   x2 = (int)std::floor(y + 1.);
+    float y1 = coder->charge(*shape, x1, i);
+    float y2 = coder->charge(*shape, x2, i);
     pedTrueWidth[i] = (y2 - y1) * x;
   }
   return true;
@@ -237,15 +239,18 @@ bool HcalDbService::makeHcalCalibrationWidth(const HcalGenericDetId& fId,
                                              bool pedestalInADC,
                                              bool effPedestalInADC) const {
   if (fObject) {
+    const HcalPedestal* pedestal = getPedestal(fId);
+    const HcalPedestal* effpedestal = getEffectivePedestal(fId);
+
     const HcalPedestalWidth* pedestalwidth = getPedestalWidth(fId);
     const HcalPedestalWidth* effpedestalwidth = getEffectivePedestalWidth(fId);
     const HcalGainWidth* gainwidth = getGainWidth(fId);
 
     float pedTrueWidth[4];
-    bool converted = convertPedestalWidths(fId, pedestalwidth, pedTrueWidth, pedestalInADC);
+    bool converted = convertPedestalWidths(fId, pedestalwidth, pedestal, pedTrueWidth, pedestalInADC);
 
     float effPedTrueWidth[4];
-    bool effconverted = convertPedestalWidths(fId, effpedestalwidth, effPedTrueWidth, effPedestalInADC);
+    bool effconverted = convertPedestalWidths(fId, effpedestalwidth, effpedestal, effPedTrueWidth, effPedestalInADC);
     if (pedestalwidth && effpedestalwidth && gainwidth && converted && effconverted) {
       *fObject = HcalCalibrationWidths(gainwidth->getValues(), pedTrueWidth, effPedTrueWidth);
       return true;
