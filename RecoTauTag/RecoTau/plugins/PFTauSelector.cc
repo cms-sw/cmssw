@@ -7,4 +7,3 @@
 typedef ObjectSelectorStream<PFTauSelectorDefinition> PFTauSelector;
 
 DEFINE_FWK_MODULE(PFTauSelector);
-

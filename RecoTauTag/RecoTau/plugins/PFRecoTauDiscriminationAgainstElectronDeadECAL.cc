@@ -35,14 +35,12 @@
 
 using namespace reco;
 
-class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminationProducerBase  
-{
- public:
+class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminationProducerBase {
+public:
   explicit PFRecoTauDiscriminationAgainstElectronDeadECAL(const edm::ParameterSet& cfg)
-    : PFTauDiscriminationProducerBase(cfg),
-      moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      isFirstEvent_(true)
-  {
+      : PFTauDiscriminationProducerBase(cfg),
+        moduleLabel_(cfg.getParameter<std::string>("@module_label")),
+        isFirstEvent_(true) {
     minStatus_ = cfg.getParameter<uint32_t>("minStatus");
     dR_ = cfg.getParameter<double>("dR");
 
@@ -50,113 +48,107 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   }
   ~PFRecoTauDiscriminationAgainstElectronDeadECAL() override {}
 
-  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override
-  {
-    updateBadTowers(es);
-  }
+  void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override { updateBadTowers(es); }
 
-  double discriminate(const PFTauRef& pfTau) const override
-  {
-    if ( verbosity_ ) {
-      edm::LogPrint("PFTauAgainstEleDeadECAL") << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:" ;
-      edm::LogPrint("PFTauAgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_ ;
-      edm::LogPrint("PFTauAgainstEleDeadECAL") << "#badTowers = " << badTowers_.size() ;
-      edm::LogPrint("PFTauAgainstEleDeadECAL") << "tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi() ;
+  double discriminate(const PFTauRef& pfTau) const override {
+    if (verbosity_) {
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "<PFRecoTauDiscriminationAgainstElectronDeadECAL::discriminate>:";
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << " moduleLabel = " << moduleLabel_;
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "#badTowers = " << badTowers_.size();
+      edm::LogPrint("PFTauAgainstEleDeadECAL")
+          << "tau: Pt = " << pfTau->pt() << ", eta = " << pfTau->eta() << ", phi = " << pfTau->phi();
     }
     double discriminator = 1.;
-    for ( std::vector<towerInfo>::const_iterator badTower = badTowers_.begin();
-	  badTower != badTowers_.end(); ++badTower ) {
-      if ( deltaR(badTower->eta_, badTower->phi_, pfTau->eta(), pfTau->phi()) < dR_ ) {
-	if ( verbosity_ ) {
-	  edm::LogPrint("PFTauAgainstEleDeadECAL") << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_ ;
-	}
-	discriminator = 0.;
+    for (std::vector<towerInfo>::const_iterator badTower = badTowers_.begin(); badTower != badTowers_.end();
+         ++badTower) {
+      if (deltaR(badTower->eta_, badTower->phi_, pfTau->eta(), pfTau->phi()) < dR_) {
+        if (verbosity_) {
+          edm::LogPrint("PFTauAgainstEleDeadECAL")
+              << " matches badTower: eta = " << badTower->eta_ << ", phi = " << badTower->phi_;
+        }
+        discriminator = 0.;
       }
     }
-    if ( verbosity_ ) {
-      edm::LogPrint("PFTauAgainstEleDeadECAL") << "--> discriminator = " << discriminator ;
+    if (verbosity_) {
+      edm::LogPrint("PFTauAgainstEleDeadECAL") << "--> discriminator = " << discriminator;
     }
     return discriminator;
   }
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  void updateBadTowers(const edm::EventSetup& es) 
-  {
+private:
+  void updateBadTowers(const edm::EventSetup& es) {
     // NOTE: modified version of SUSY CAF code
     //         UserCode/SusyCAF/plugins/SusyCAF_EcalDeadChannels.cc
     const uint32_t channelStatusId = es.get<EcalChannelStatusRcd>().cacheIdentifier();
-    const uint32_t caloGeometryId  = es.get<CaloGeometryRecord>().cacheIdentifier();
+    const uint32_t caloGeometryId = es.get<CaloGeometryRecord>().cacheIdentifier();
     const uint32_t idealGeometryId = es.get<IdealGeometryRecord>().cacheIdentifier();
 
-    if ( !isFirstEvent_ && channelStatusId == channelStatusId_cache_ && caloGeometryId == caloGeometryId_cache_ && idealGeometryId == idealGeometryId_cache_  ) return;
+    if (!isFirstEvent_ && channelStatusId == channelStatusId_cache_ && caloGeometryId == caloGeometryId_cache_ &&
+        idealGeometryId == idealGeometryId_cache_)
+      return;
 
-    edm::ESHandle<EcalChannelStatus> channelStatus;    
+    edm::ESHandle<EcalChannelStatus> channelStatus;
     es.get<EcalChannelStatusRcd>().get(channelStatus);
-    channelStatusId_cache_ = channelStatusId;  
+    channelStatusId_cache_ = channelStatusId;
 
-    edm::ESHandle<CaloGeometry> caloGeometry;         
+    edm::ESHandle<CaloGeometry> caloGeometry;
     es.get<CaloGeometryRecord>().get(caloGeometry);
-    caloGeometryId_cache_ = caloGeometryId;  
+    caloGeometryId_cache_ = caloGeometryId;
 
     edm::ESHandle<EcalTrigTowerConstituentsMap> ttMap;
     es.get<IdealGeometryRecord>().get(ttMap);
     idealGeometryId_cache_ = idealGeometryId;
 
-    std::map<uint32_t,unsigned> nBadCrystals, maxStatus;
-    std::map<uint32_t,double> sumEta, sumPhi;
-    
-    loopXtals<EBDetId>(nBadCrystals, maxStatus, sumEta, sumPhi, channelStatus.product(), caloGeometry.product(), ttMap.product());
-    loopXtals<EEDetId>(nBadCrystals, maxStatus, sumEta, sumPhi, channelStatus.product(), caloGeometry.product(), ttMap.product());
-    
+    std::map<uint32_t, unsigned> nBadCrystals, maxStatus;
+    std::map<uint32_t, double> sumEta, sumPhi;
+
+    loopXtals<EBDetId>(
+        nBadCrystals, maxStatus, sumEta, sumPhi, channelStatus.product(), caloGeometry.product(), ttMap.product());
+    loopXtals<EEDetId>(
+        nBadCrystals, maxStatus, sumEta, sumPhi, channelStatus.product(), caloGeometry.product(), ttMap.product());
+
     badTowers_.clear();
-    for ( std::map<uint32_t, unsigned>::const_iterator it = nBadCrystals.begin(); 
-	  it != nBadCrystals.end(); ++it ) {
+    for (std::map<uint32_t, unsigned>::const_iterator it = nBadCrystals.begin(); it != nBadCrystals.end(); ++it) {
       uint32_t key = it->first;
-      badTowers_.push_back(towerInfo(key, it->second, maxStatus[key], sumEta[key]/it->second, sumPhi[key]/it->second));
+      badTowers_.push_back(
+          towerInfo(key, it->second, maxStatus[key], sumEta[key] / it->second, sumPhi[key] / it->second));
     }
 
     isFirstEvent_ = false;
   }
-  
+
   template <class Id>
   void loopXtals(std::map<uint32_t, unsigned>& nBadCrystals,
-		 std::map<uint32_t, unsigned>& maxStatus,
-		 std::map<uint32_t, double>& sumEta,
-		 std::map<uint32_t, double>& sumPhi ,
-		 const EcalChannelStatus* channelStatus,
-		 const CaloGeometry* caloGeometry,
-		 const EcalTrigTowerConstituentsMap* ttMap) const 
-  {
+                 std::map<uint32_t, unsigned>& maxStatus,
+                 std::map<uint32_t, double>& sumEta,
+                 std::map<uint32_t, double>& sumPhi,
+                 const EcalChannelStatus* channelStatus,
+                 const CaloGeometry* caloGeometry,
+                 const EcalTrigTowerConstituentsMap* ttMap) const {
     // NOTE: modified version of SUSY CAF code
     //         UserCode/SusyCAF/plugins/SusyCAF_EcalDeadChannels.cc
-    for ( int i = 0; i < Id::kSizeForDenseIndexing; ++i ) {
-      Id id = Id::unhashIndex(i);  
-      if ( id == Id(0) ) continue;
+    for (int i = 0; i < Id::kSizeForDenseIndexing; ++i) {
+      Id id = Id::unhashIndex(i);
+      if (id == Id(0))
+        continue;
       EcalChannelStatusMap::const_iterator it = channelStatus->getMap().find(id.rawId());
-      unsigned status = ( it == channelStatus->end() ) ? 
-	0 : (it->getStatusCode() & statusMask_);
-      if ( status >= minStatus_ ) {
-	const GlobalPoint& point = caloGeometry->getPosition(id);
-	uint32_t key = ttMap->towerOf(id);
-	maxStatus[key] = TMath::Max(status, maxStatus[key]);
-	++nBadCrystals[key];
-	sumEta[key] += point.eta();
-	sumPhi[key] += point.phi();
+      unsigned status = (it == channelStatus->end()) ? 0 : (it->getStatusCode() & statusMask_);
+      if (status >= minStatus_) {
+        const GlobalPoint& point = caloGeometry->getPosition(id);
+        uint32_t key = ttMap->towerOf(id);
+        maxStatus[key] = TMath::Max(status, maxStatus[key]);
+        ++nBadCrystals[key];
+        sumEta[key] += point.eta();
+        sumPhi[key] += point.phi();
       }
     }
   }
 
-  struct towerInfo 
-  {
+  struct towerInfo {
     towerInfo(uint32_t id, unsigned nBad, unsigned maxStatus, double eta, double phi)
-      : id_(id), 
-	nBad_(nBad), 
-	maxStatus_(maxStatus), 
-	eta_(eta), 
-	phi_(phi) 
-    {}
+        : id_(id), nBad_(nBad), maxStatus_(maxStatus), eta_(eta), phi_(phi) {}
     uint32_t id_;
     unsigned nBad_;
     unsigned maxStatus_;
@@ -180,8 +172,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
   int verbosity_;
 };
 
-void
-PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PFRecoTauDiscriminationAgainstElectronDeadECAL::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfRecoTauDiscriminationAgainstElectronDeadECAL
   edm::ParameterSetDescription desc;
   desc.add<int>("verbosity", 0);
