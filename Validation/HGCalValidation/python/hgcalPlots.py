@@ -1097,12 +1097,23 @@ _mergeplots_zminus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate 
 _merges_zminus = PlotGroup("MergeRate_zminus", _mergeplots_zminus, ncols=8)
 
 
-_common_energy_score = dict(removeEmptyBins=True, xbinlabelsize=10, xbinlabeloption="d", ncols=4)
+_common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
+    stat=True,
+    xbinlabeloption="d", ncols=4,
+    ylog=True,
+    xlog=True,
+    xmin=0.001,
+    xmax=1.,
+    ymin=0.01,
+    ymax=1.)
 _energyscore_cp2lc_zminus = []
 for i in range(0, maxlayerzm):
   _energyscore_cp2lc_zminus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
 
 _energyscore_lc2cp_zminus = []
+_common_energy_score["xlog"]=False
+_common_energy_score["ylog"]=False
+_common_energy_score["xmin"]=-0.1
 for i in range(0, maxlayerzm):
   _energyscore_lc2cp_zminus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
 #_energyclustered =
@@ -1226,11 +1237,22 @@ _mergeplots_zplus.extend([Plot("globalEfficiencies", xtitle="Global merge Rate i
 _merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
 
 
-_common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10, xbinlabeloption="d", ncols=4)
+_common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
+    stat=True,
+    xbinlabeloption="d", ncols=4,
+    ylog=True,
+    xlog=True,
+    xmin=0.001,
+    xmax=1.,
+    ymin=0.01,
+    ymax=1.)
 _energyscore_cp2lc_zplus = []
 for i in range(maxlayerzm,maxlayerzp):
   _energyscore_cp2lc_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_caloparticle2layer_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))
 
+_common_energy_score["xlog"]=False
+_common_energy_score["ylog"]=False
+_common_energy_score["xmin"]=-0.1
 _energyscore_lc2cp_zplus = []
 for i in range(maxlayerzm,maxlayerzp):
   _energyscore_lc2cp_zplus.append(PlotOnSideGroup("Energy_vs_Score_Layer{:02d}".format(i), Plot("Energy_vs_Score_layer2caloparticle_perlayer{:02d}".format(i), drawStyle="COLZ", adjustMarginLeft=0.1, adjustMarginRight=0.1, **_common_energy_score)))

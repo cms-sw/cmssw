@@ -55,9 +55,9 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     #Parameters for the score both for:
     #1. calo particle to layer clusters association per layer
     #2. layer cluster to calo particles association per layer
-    minScore = cms.double(-1.01),
+    minScore = cms.double(0.),
     maxScore = cms.double(1.01),
-    nintScore = cms.int32(200),
+    nintScore = cms.int32(100),
 
     #Parameters for shared energy fraction. That is:
     #1. Fraction of each of the layer clusters energy related to a
@@ -65,7 +65,7 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     #2. Fraction of each of the calo particles energy
     #   related to a layer cluster over that layer cluster's energy.
     minSharedEneFrac = cms.double(0.),
-    maxSharedEneFrac = cms.double(3.),
+    maxSharedEneFrac = cms.double(1.),
     nintSharedEneFrac = cms.int32(100),
 
     #Same as above for multiclusters
