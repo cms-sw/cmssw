@@ -9,13 +9,11 @@ PrimitivePreprocess::PrimitivePreprocess(const edm::ParameterSet& iConfig, edm::
   ClusterSizeCut_(iConfig.getParameter<int>("ClusterSizeCut")),
   theRPCMaskedStripsObj(nullptr),
   theRPCDeadStripsObj(nullptr),
-  maskSource_(MaskSource::EventSetup), 
-  deadSource_(MaskSource::EventSetup){
-  
   // Get the concrete reconstruction algo from the factory
-  const std::string theAlgoName = iConfig.getParameter<std::string>("recAlgo");
-  theAlgorithm.reset(PrimitiveAlgoFactory::get()->create(theAlgoName,
-							 iConfig.getParameter<edm::ParameterSet>("recAlgoConfig")));
+  theAlgorithm{PrimitiveAlgoFactory::get()->create(iConfig.getParameter<std::string>("recAlgo"),
+							 iConfig.getParameter<edm::ParameterSet>("recAlgoConfig"))},
+  maskSource_(MaskSource::EventSetup), 
+  deadSource_(MaskSource::EventSetup){ 
   
   
   //Get LUT for linkboard map
