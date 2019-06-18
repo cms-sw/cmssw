@@ -306,7 +306,7 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   edm::ESHandle<SiStripQuality> quality;
   iSetup.get<SiStripQualityRcd>().get("", quality);
 
-  for ( const auto& det : trkgeo->detUnits() ) {
+  for ( const auto det : trkgeo->detUnits() ) {
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
     if ( stripDet != nullptr ) {
       const DetId detid = stripDet->geographicalId();

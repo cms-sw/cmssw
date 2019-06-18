@@ -191,7 +191,7 @@ void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   tkhisto->fillFromAscii("test.txt");
   tkhistoBis->fillFromAscii("test2.txt");
 
-  for ( const auto& det : tkgeom->detUnits() ) {
+  for ( const auto det : tkgeom->detUnits() ) {
     const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
     if ( stripDet != nullptr ) {
       globalPos = stripDet->surface().toGlobal(localPos);
