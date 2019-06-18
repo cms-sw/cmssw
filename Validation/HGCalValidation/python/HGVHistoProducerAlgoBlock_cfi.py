@@ -7,12 +7,12 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     nintEta = cms.int32(100),
     useFabsEta = cms.bool(False),
 
-    #parameters for energy 
+    #parameters for energy
     minEne  = cms.double(0.),
     maxEne  = cms.double(500.),
     nintEne = cms.int32(250),
 
-    #parameters for pt 
+    #parameters for pt
     minPt  = cms.double(0.),
     maxPt  = cms.double(100.),
     nintPt = cms.int32(100),
@@ -32,12 +32,12 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxEneCl = cms.double(110.),
     nintEneCl = cms.int32(110),
 
-    #parameters for the longitudinal depth barycenter 
+    #parameters for the longitudinal depth barycenter
     minLongDepBary = cms.double(0.),
     maxLongDepBary = cms.double(110.),
     nintLongDepBary = cms.int32(110),
 
-    #z position of vertex 
+    #z position of vertex
     minZpos = cms.double(-550.),
     maxZpos = cms.double(550.),
     nintZpos = cms.int32(1100),
@@ -46,26 +46,26 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     minTotNClsperlay = cms.double(0.),
     maxTotNClsperlay = cms.double(50.),
     nintTotNClsperlay = cms.int32(50),
-                             
+
     #Parameters for the energy clustered by layer clusters per layer (fraction)
     minEneClperlay = cms.double(0.),
     maxEneClperlay = cms.double(110.),
     nintEneClperlay = cms.int32(110),
 
-    #Parameters for the score both for: 
+    #Parameters for the score both for:
     #1. calo particle to layer clusters association per layer
     #2. layer cluster to calo particles association per layer
     minScore = cms.double(-1.01),
     maxScore = cms.double(1.01),
     nintScore = cms.int32(200),
-             
-    #Parameters for shared energy fraction. That is: 
-    #1. Fraction of each of the layer clusters energy related to a 
+
+    #Parameters for shared energy fraction. That is:
+    #1. Fraction of each of the layer clusters energy related to a
     #   calo particle over that calo particle's energy.
-    #2. Fraction of each of the calo particles energy 
+    #2. Fraction of each of the calo particles energy
     #   related to a layer cluster over that layer cluster's energy.
     minSharedEneFrac = cms.double(0.),
-    maxSharedEneFrac = cms.double(1.),
+    maxSharedEneFrac = cms.double(3.),
     nintSharedEneFrac = cms.int32(100),
 
     #Same as above for multiclusters
@@ -113,10 +113,10 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxClEneperthickperlayer = cms.double(10.),
     nintClEneperthickperlayer = cms.int32(100),
 
-    #Parameters for the energy density of cluster cells per thickness 
+    #Parameters for the energy density of cluster cells per thickness
     minCellsEneDensperthick = cms.double(0.),
     maxCellsEneDensperthick = cms.double(100.),
-    nintCellsEneDensperthick = cms.int32(200), 
+    nintCellsEneDensperthick = cms.int32(200),
 
     #Parameters for the total number of multiclusters per event
     #We always treet one event as two events, one in +z one in -z
@@ -139,7 +139,7 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     maxMplofLCs = cms.double(20.),
     nintMplofLCs = cms.int32(20),
 
-    #Parameters for cluster size 
+    #Parameters for cluster size
     minSizeCLsinMCLs = cms.double(0.),
     maxSizeCLsinMCLs = cms.double(50.),
     nintSizeCLsinMCLs = cms.int32(50),
