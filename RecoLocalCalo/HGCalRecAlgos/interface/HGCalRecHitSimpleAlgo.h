@@ -26,13 +26,9 @@ public:
     adcToGeVConstantIsSet_ = false;
   }
 
-  void setLayerWeights(const std::vector<float>& weights) override {
-    weights_ = weights;
-  }
+  void setLayerWeights(const std::vector<float>& weights) override { weights_ = weights; }
 
-  void setNoseLayerWeights(const std::vector<float>& weights) {
-    weightsNose_ = weights;
-  }
+  void setNoseLayerWeights(const std::vector<float>& weights) { weightsNose_ = weights; }
 
   void setADCToGeVConstant(const float value) override {
     adcToGeVConstant_ = value;
@@ -53,13 +49,13 @@ public:
     unsigned layer = rhtools_.getLayerWithOffset(baseid);
     bool hfnose(false);
 
-    if ( DetId::Forward == baseid.det() && HFNose == baseid.subdetId() )
+    if (DetId::Forward == baseid.det() && HFNose == baseid.subdetId())
       hfnose = true;
 
     //    float clockToNsConstant = 25;
-    float energy = (hfnose ? (uncalibRH.amplitude() * weightsNose_[layer] * 0.001f) :
-                    (uncalibRH.amplitude() * weights_[layer] * 0.001f));
-    float time   = uncalibRH.jitter();
+    float energy = (hfnose ? (uncalibRH.amplitude() * weightsNose_[layer] * 0.001f)
+                           : (uncalibRH.amplitude() * weights_[layer] * 0.001f));
+    float time = uncalibRH.jitter();
 
     //if(time<0) time   = 0; // fast-track digi conversion
 
@@ -74,7 +70,7 @@ public:
 
 private:
   float adcToGeVConstant_;
-  bool  adcToGeVConstantIsSet_;
+  bool adcToGeVConstantIsSet_;
   std::vector<float> weights_, weightsNose_;
 };
 #endif
