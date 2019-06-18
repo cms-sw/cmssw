@@ -32,6 +32,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 class SiStripLorentzAngleFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -62,12 +64,13 @@ private:
   double m_TOBmeanPerCentError;
   double m_TIBmeanStdDev;
   double m_TOBmeanStdDev;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> m_geomDetToken;
 };
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -110,7 +113,7 @@ namespace { // helper methods
 
 SiStripLorentzAngleFakeESSource::SiStripLorentzAngleFakeESSource(const edm::ParameterSet& iConfig)
 {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(m_tTopoToken).setConsumes(m_geomDetToken);
   findingRecord<SiStripLorentzAngleRcd>();
 
   m_TIB_EstimatedValuesMin = iConfig.getParameter<std::vector<double>>("TIB_EstimatedValuesMin");
@@ -164,30 +167,30 @@ SiStripLorentzAngleFakeESSource::produce(const SiStripLorentzAngleRcd& iRecord)
 {
   using namespace edm::es;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
+  auto tTopoRcd = iRecord.getRecord<TrackerTopologyRcd>();
+  const auto& geomDet = tTopoRcd.getRecord<IdealGeometryRecord>().get(m_geomDetToken);
+  const auto& tTopo = tTopoRcd.get(m_tTopoToken);
 
   auto lorentzAngle = std::make_unique<SiStripLorentzAngle>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
-  for ( const auto& detId : reader->getAllDetIds() ) {
+  for ( const auto detId : getSiStripDetIds(geomDet) ) {
     const DetId detectorId = DetId(detId);
     const int subDet = detectorId.subdetId();
 
     float mobi{0.};
 
     if ( subDet == int(StripSubdetector::TIB) ) {
-      const int layerId = tTopo->tibLayer(detectorId) -1;
+      const int layerId = tTopo.tibLayer(detectorId) -1;
       mobi = hallMobility(m_TIB_EstimatedValuesMin[layerId], m_TIB_EstimatedValuesMax[layerId], m_StdDevs_TIB[layerId], m_uniformTIB[layerId]);
     } else if ( subDet == int(StripSubdetector::TOB) ) {
-      const int layerId = tTopo->tobLayer(detectorId) -1;
+      const int layerId = tTopo.tobLayer(detectorId) -1;
       mobi = hallMobility(m_TOB_EstimatedValuesMin[layerId], m_TOB_EstimatedValuesMax[layerId], m_StdDevs_TOB[layerId], m_uniformTOB[layerId]);
     } else if ( subDet == int (StripSubdetector::TID) ) {
       // ATTENTION: as of now the uniform generation for TID is decided by the setting for layer 0 of TIB
       mobi = hallMobility(m_TIBmeanValueMin, m_TIBmeanValueMax, m_TIBmeanStdDev, m_uniformTIB[0]);
     }
     if ( subDet == int(StripSubdetector::TEC) ) {
-      if ( tTopo->tecRing(detectorId) < 5 ) {
+      if ( tTopo.tecRing(detectorId) < 5 ) {
         // ATTENTION: as of now the uniform generation for TEC is decided by the setting for layer 0 of TIB
         mobi = hallMobility(m_TIBmeanValueMin, m_TIBmeanValueMax, m_TIBmeanStdDev, m_uniformTIB[0]);
       } else {
