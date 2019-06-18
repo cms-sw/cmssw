@@ -157,12 +157,7 @@ if __name__=="__main__":
         def testMassReplaceInputTag(self):
             process1 = cms.Process("test")
             massReplaceInputTag(process1, "a", "b", False, False, False)
-            self.assertEqual(process1.dumpPython(),
-"""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-""")
+            self.assertEqual(process1.dumpPython(), cms.Process('test').dumpPython())
             p = cms.Process("test")
             p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
             p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
@@ -214,12 +209,7 @@ process = cms.Process("test")
         def testMassReplaceParam(self):
             process1 = cms.Process("test")
             massReplaceParameter(process1, "src", cms.InputTag("a"), "b", False)
-            self.assertEqual(process1.dumpPython(),
-"""import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("test")
-
-""")
+            self.assertEqual(process1.dumpPython(), cms.Process("test").dumpPython())
             p = cms.Process("test")
             p.a = cms.EDProducer("a", src=cms.InputTag("gen"))
             p.b = cms.EDProducer("ab", src=cms.InputTag("a"))
