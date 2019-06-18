@@ -5,4 +5,4 @@ typedef ShallowCloneProducer<reco::CaloJetCollection> CaloJetShallowCloneProduce
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( CaloJetShallowCloneProducer );
+DEFINE_FWK_MODULE(CaloJetShallowCloneProducer);

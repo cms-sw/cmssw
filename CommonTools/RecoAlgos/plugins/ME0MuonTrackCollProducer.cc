@@ -9,7 +9,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "RecoMuon/MuonIdentification/plugins/ME0MuonSelector.cc"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -34,7 +34,7 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  edm::Handle <std::vector<reco::ME0Muon> > OurMuons;
+  edm::Handle<std::vector<reco::ME0Muon> > OurMuons;
   //edm::Handle<reco::ME0MuonCollection> muonCollectionH;
   edm::InputTag OurMuonsTag;
   std::vector<std::string> selectionTags;
@@ -42,54 +42,46 @@ private:
   edm::EDGetTokenT<ME0MuonCollection> OurMuonsToken_;
 };
 
-
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ME0MuonTrackCollProducer);
 
-
-ME0MuonTrackCollProducer::ME0MuonTrackCollProducer(const edm::ParameterSet& parset) :
-  OurMuonsTag(parset.getParameter<edm::InputTag>("me0MuonTag")),
-  selectionTags(parset.getParameter< std::vector<std::string> >("selectionTags")),
-  parset_(parset)
-{
+ME0MuonTrackCollProducer::ME0MuonTrackCollProducer(const edm::ParameterSet& parset)
+    : OurMuonsTag(parset.getParameter<edm::InputTag>("me0MuonTag")),
+      selectionTags(parset.getParameter<std::vector<std::string> >("selectionTags")),
+      parset_(parset) {
   produces<reco::TrackCollection>();
   OurMuonsToken_ = consumes<ME0MuonCollection>(OurMuonsTag);
 }
 
-ME0MuonTrackCollProducer::~ME0MuonTrackCollProducer() {
-}
+ME0MuonTrackCollProducer::~ME0MuonTrackCollProducer() {}
 
-void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace reco;
   using namespace edm;
-  Handle <ME0MuonCollection> OurMuons;
-  iEvent.getByToken(OurMuonsToken_,OurMuons);
+  Handle<ME0MuonCollection> OurMuons;
+  iEvent.getByToken(OurMuonsToken_, OurMuons);
 
-  
   std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
- 
+
   reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
-  
 
+  for (std::vector<reco::ME0Muon>::const_iterator thismuon = OurMuons->begin(); thismuon != OurMuons->end();
+       ++thismuon) {
+    if (!muon::isGoodMuon(*thismuon, muon::Tight))
+      continue;
+    reco::TrackRef trackref;
 
-  for(std::vector<reco::ME0Muon>::const_iterator thismuon = OurMuons->begin();
-       thismuon != OurMuons->end(); ++thismuon) {
+    if (thismuon->innerTrack().isNonnull())
+      trackref = thismuon->innerTrack();
 
-    if (!muon::isGoodMuon(*thismuon, muon::Tight)) continue;
-    reco::TrackRef trackref;    
+    const reco::Track* trk = &(*trackref);
+    // pointer to old track:
+    //reco::Track* newTrk = new reco::Track(*trk);
 
-    if (thismuon->innerTrack().isNonnull()) trackref = thismuon->innerTrack();
-
-      const reco::Track* trk = &(*trackref);
-      // pointer to old track:
-      //reco::Track* newTrk = new reco::Track(*trk);
-
-      selectedTracks->push_back( *trk );
-      //selectedTrackExtras->push_back( *newExtra );
+    selectedTracks->push_back(*trk);
+    //selectedTrackExtras->push_back( *newExtra );
   }
   iEvent.put(std::move(selectedTracks));
-
 }

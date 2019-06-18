@@ -17,25 +17,21 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
-
 class ElectronIDAlgo {
-
 public:
-
   ElectronIDAlgo(){};
 
   virtual ~ElectronIDAlgo(){};
 
   //void baseSetup(const edm::ParameterSet& conf) ;
-  virtual void setup(const edm::ParameterSet& conf)  {};
-  virtual double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) {return 0.;};
+  virtual void setup(const edm::ParameterSet& conf){};
+  virtual double result(const reco::GsfElectron*, const edm::Event&, const edm::EventSetup&) { return 0.; };
 
- protected:
-
+protected:
   //EcalClusterLazyTools getClusterShape(const edm::Event&, const edm::EventSetup&);
 
   edm::InputTag reducedBarrelRecHitCollection_;
   edm::InputTag reducedEndcapRecHitCollection_;
 };
 
-#endif // ElectronIDAlgo_H
+#endif  // ElectronIDAlgo_H

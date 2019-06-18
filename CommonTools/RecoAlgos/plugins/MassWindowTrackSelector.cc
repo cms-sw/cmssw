@@ -13,13 +13,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "CommonTools/UtilAlgos/interface/MasslessInvariantMass.h"
 
- typedef ObjectSelector<
-           ObjectPairCollectionSelector<
-             reco::TrackCollection, 
-             RangeObjectPairSelector<
-               MasslessInvariantMass
-             >
-           >
-         > MassWindowTrackSelector;
+typedef ObjectSelector<
+    ObjectPairCollectionSelector<reco::TrackCollection, RangeObjectPairSelector<MasslessInvariantMass> > >
+    MassWindowTrackSelector;
 
-DEFINE_FWK_MODULE( MassWindowTrackSelector );
+DEFINE_FWK_MODULE(MassWindowTrackSelector);

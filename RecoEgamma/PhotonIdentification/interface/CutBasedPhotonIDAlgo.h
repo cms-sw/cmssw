@@ -6,27 +6,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-class CutBasedPhotonIDAlgo  {
-
+class CutBasedPhotonIDAlgo {
 public:
-
   CutBasedPhotonIDAlgo(){};
 
   virtual ~CutBasedPhotonIDAlgo(){};
 
-  void setup(const edm::ParameterSet& conf);
-  void decideEB(const reco::Photon* pho,
-		bool &LooseEM,
-		bool &LoosePhoton, 
-		bool &TightPhoton 
-		);
-  void decideEE(const reco::Photon* pho,
-		bool &LooseEM,
-		bool &LoosePhoton,
-		bool &TightPhoton);
- private:
-  
+  void setup(const edm::ParameterSet &conf);
+  void decideEB(const reco::Photon *pho, bool &LooseEM, bool &LoosePhoton, bool &TightPhoton);
+  void decideEE(const reco::Photon *pho, bool &LooseEM, bool &LoosePhoton, bool &TightPhoton);
+
+private:
   //Which cuts to do?
 
   bool dophotonEcalRecHitIsolationCut_;
@@ -129,8 +119,6 @@ public:
   double tightphotonEtaWidthCutEE_;
   double tightphotonHadOverEMCutEE_;
   double tightphotonR9CutEE_;
-
- 
 };
 
-#endif // CutBasedPhotonIDAlgo_H
+#endif  // CutBasedPhotonIDAlgo_H

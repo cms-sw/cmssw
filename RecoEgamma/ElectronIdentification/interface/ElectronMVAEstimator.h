@@ -8,22 +8,21 @@
 #include <string>
 
 class ElectronMVAEstimator {
- public:
-  struct Configuration{
-         std::vector<std::string> vweightsfiles;
-   };
+public:
+  struct Configuration {
+    std::vector<std::string> vweightsfiles;
+  };
   ElectronMVAEstimator();
   ElectronMVAEstimator(const std::string& fileName);
-  ElectronMVAEstimator(const Configuration & );
-  ~ElectronMVAEstimator() {;}
-  double mva(const reco::GsfElectron& myElectron, int nvertices=0) const;
+  ElectronMVAEstimator(const Configuration&);
+  ~ElectronMVAEstimator() { ; }
+  double mva(const reco::GsfElectron& myElectron, int nvertices = 0) const;
 
- private:
+private:
   const Configuration cfg_;
   void bindVariables(float vars[18]) const;
-  
+
   std::vector<std::unique_ptr<const GBRForest> > gbr_;
-  
 };
 
 #endif
