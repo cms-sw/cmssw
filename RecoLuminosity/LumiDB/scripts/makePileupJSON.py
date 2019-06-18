@@ -136,25 +136,21 @@ if __name__ == '__main__':
                 selBX.add(BX)
             except:
                 print(iBX,"is not an int")
-        print("Processing",args.inputFile,"with selected BXs:",(", ".join(sorted(selBXs))))
+        print("Processing",args.inputFile,"with selected BXs:", sorted(selBX))
     else:
         print("Processing",args.inputFile,"with all BX")
-
-    OUTPUTLINE = ""
 
     # The "CSV" file actually is a little complicated, since we also want to split on the colons separating
     # run/fill as well as the spaces separating the per-BX information.
     sepRE = re.compile(r'[\]\[\s,;:]+')
-    events = open(args.inputFile, 'r')
+    csv_input = open(args.inputFile, 'r')
     OldRun = -1
 
-    InGap = 0
-    GapDict = {}
     LastValidLumi = []
     LastDelivered = 0
 
-    OUTPUTLINE+='{'
-    for line in events:
+    output_line = '{'
+    for line in csv_input:
         runLumiDict = {}    
         csvDict = {}
 
@@ -165,21 +161,10 @@ if __name__ == '__main__':
 
         ipiece = 0
 
-        if len (pieces) < 15: # means we are missing data; keep track of LS, lumi
-            InGap = 1
-            try:
-                run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
-                delivered, recorded = float( pieces[11] ), float( pieces[12] )
-            except:
-                if pieces[0] != 'run':
-                    print(" cannot parse csv file ")
-                InGap = 0
-                continue
-            GapDict[lumi] = [delivered, recorded]
-            continue
-        #if len (pieces) % 2:
-            # not an even number
-        #    continue
+        if len(pieces) < 15:
+            # The most likely cause of this is that we're using a csv file without the bunch data, so might as well
+            # just give up now.
+            raise RuntimeError("Not enough fields in input line; maybe you forgot to include --xing in your brilcalc command?\n"+line)
         try:
             run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
             delivered, recorded = float( pieces[11] ), float( pieces[12] )
@@ -194,75 +179,41 @@ if __name__ == '__main__':
             continue
 
         csvDict.setdefault (run, {})[lumi] = \
-                           ( delivered, recorded, xingInstLumiArray )#( delivered, recorded, xingInstLumiArray )
+                           ( delivered, recorded, xingInstLumiArray )
 
         if run != OldRun:
             if OldRun>0:
-                if InGap == 1:  # We have some LS's at the end with no data
-                    lastLumiS = 0
-                    for lumiS, lumiInfo in sorted ( six.iteritems(GapDict) ):
-                        record = lumiInfo[1]
-                        lastLumiS = lumiS
-                        if record > 0.01:
-
-                            peakratio = lumiInfo[0]/LastDelivered # roughly, ratio of inst lumi
-                            pileup = LastValidLumi[3]*peakratio     # scale for this LS
-                            aveLumi = 0
-                            if lumiInfo[0] >0:
-                                aveLumi = LastValidLumi[1]*peakratio*lumiInfo[1]/lumiInfo[0]  # scale by rec/del
-                            LumiString = "[%d,%2.4e,%2.4e,%2.4e]," % (lumiS, aveLumi, LastValidLumi[2],pileup)
-                            OUTPUTLINE += LumiString
-                        else:
-                            LumiString = "[%d,0.0,0.0,0.0]," % (lumiS)
-                            OUTPUTLINE+=LumiString
-                    #add one empty one at the end
-                    LumiString = "[%d,0.0,0.0,0.0]," % (lastLumiS+1)
-                    OUTPUTLINE+=LumiString
-
-                    InGap = 0
-                    GapDict.clear()
-
                 # add one empty lumi section at the end of each run, to mesh with JSON files
                 LumiString = "[%d,0.0,0.0,0.0]," % (LastValidLumi[0]+1)
-                OUTPUTLINE+=LumiString
+                output_line+=LumiString
 
-                OUTPUTLINE = OUTPUTLINE[:-1] + '], '
+                output_line = output_line[:-1] + '], '
             OldRun = run
-            OUTPUTLINE+= ('"%d":' % run )
-            OUTPUTLINE+= ' ['
+            output_line+= ('"%d":' % run )
+            output_line+= ' ['
 
             if lumi == 2:  # there is a missing LS=1 for this run
-                OUTPUTLINE+= '[1,0.0,0.0,0.0],'
+                output_line+= '[1,0.0,0.0,0.0],'
 
         for runNumber, lumiDict in sorted( six.iteritems(csvDict) ):
-    #	print runNumber
             LumiArray = CalcPileup(lumiDict, parameters, luminometer, selBX)
 
             LastValidLumi = LumiArray
             LastDelivered = lumiDict[LumiArray[0]][0] 
 
-            if InGap == 1:  # We have some gap before this in entry in this run
-                for lumiS, lumiInfo in sorted ( six.iteritems(GapDict) ):
-                    peakratio = lumiInfo[0]/LastDelivered # roughly, ratio of inst lumi
-                    pileup = LumiArray[3]*peakratio     # scale for this LS
-                    aveLumi = 0
-                    if lumiInfo[0] > 0:
-                        aveLumi = LumiArray[1]*peakratio*lumiInfo[1]/lumiInfo[0]  # scale by rec/del
-                    LumiString = "[%d,%2.4e,%2.4e,%2.4e]," % (lumiS, aveLumi, LumiArray[2],pileup)
-                    OUTPUTLINE += LumiString
-                InGap = 0
             LumiString = "[%d,%2.4e,%2.4e,%2.4e]," % (LumiArray[0], LumiArray[1], LumiArray[2], LumiArray[3])
-            OUTPUTLINE += LumiString
+            output_line += LumiString
 
-    OUTPUTLINE = OUTPUTLINE[:-1] + ']}'
-    events.close()
+    output_line = output_line[:-1] + ']}'
+    csv_input.close()
 
     outputfile = open(output,'w')
     if not outputfile:
         raise RuntimeError("Could not open '%s' as an output JSON file" % output)
 
-    outputfile.write(OUTPUTLINE)
+    outputfile.write(output_line)
     outputfile.close()
+    print("Output written to", output)
 
     sys.exit()
 
