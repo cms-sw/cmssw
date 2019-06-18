@@ -3,7 +3,7 @@
  *
  *  simplified version of Ecal code
  *
- *  \author Valeri Andreev (ported to 76X by L. Gray)
+ *  \author Valeri Andreev (ported to 76X by L. Gray, add HFNose by Sunanda)
  *
  **/
 #include "DataFormats/Common/interface/Handle.h"
@@ -35,9 +35,11 @@ class HGCalRecHitProducer : public edm::stream::EDProducer<> {
   const edm::EDGetTokenT<HGCeeUncalibratedRecHitCollection> eeUncalibRecHitCollection_;
   const edm::EDGetTokenT<HGChefUncalibratedRecHitCollection>  hefUncalibRecHitCollection_;
   const edm::EDGetTokenT<HGChebUncalibratedRecHitCollection> hebUncalibRecHitCollection_;
+  const edm::EDGetTokenT<HGChfnoseUncalibratedRecHitCollection> hfnoseUncalibRecHitCollection_;
   const std::string eeRechitCollection_; // instance name for HGCEE
   const std::string hefRechitCollection_; // instance name for HGCHEF
   const std::string hebRechitCollection_; // instance name for HGCHEB 
+  const std::string hfnoseRechitCollection_; // instance name for HFNose
   
   std::unique_ptr<HGCalRecHitWorkerBaseClass> worker_;  
 };
@@ -46,14 +48,17 @@ HGCalRecHitProducer::HGCalRecHitProducer(const edm::ParameterSet& ps) :
   eeUncalibRecHitCollection_( consumes<HGCeeUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCEEuncalibRecHitCollection") ) ),
   hefUncalibRecHitCollection_( consumes<HGChefUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHEFuncalibRecHitCollection") ) ),
   hebUncalibRecHitCollection_( consumes<HGChebUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHEBuncalibRecHitCollection") ) ),
+  hfnoseUncalibRecHitCollection_( consumes<HGChfnoseUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCHFNoseuncalibRecHitCollection") ) ),
   eeRechitCollection_( ps.getParameter<std::string>("HGCEErechitCollection") ),
   hefRechitCollection_( ps.getParameter<std::string>("HGCHEFrechitCollection") ),
   hebRechitCollection_( ps.getParameter<std::string>("HGCHEBrechitCollection") ),
+  hfnoseRechitCollection_( ps.getParameter<std::string>("HGCHFNoserechitCollection") ),
   worker_{ HGCalRecHitWorkerFactory::get()->create(ps.getParameter<std::string>("algo"), ps) }
 {
   produces< HGCeeRecHitCollection >(eeRechitCollection_);
   produces< HGChefRecHitCollection >(hefRechitCollection_);
   produces< HGChebRecHitCollection >(hebRechitCollection_);
+  produces< HGChfnoseRecHitCollection >(hfnoseRechitCollection_);
 }
 
 HGCalRecHitProducer::~HGCalRecHitProducer() {
@@ -66,10 +71,12 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   Handle< HGCeeUncalibratedRecHitCollection > pHGCeeUncalibRecHits;
   Handle< HGChefUncalibratedRecHitCollection > pHGChefUncalibRecHits;
   Handle< HGChebUncalibratedRecHitCollection > pHGChebUncalibRecHits;
+  Handle< HGChfnoseUncalibratedRecHitCollection > pHGChfnoseUncalibRecHits;
   
   const HGCeeUncalibratedRecHitCollection*  eeUncalibRecHits = nullptr;
   const HGChefUncalibratedRecHitCollection*  hefUncalibRecHits = nullptr; 
   const HGChebUncalibratedRecHitCollection*  hebUncalibRecHits = nullptr; 
+  const HGChfnoseUncalibratedRecHitCollection* hfnoseUncalibRecHits = nullptr;
 
   // get the HGC uncalib rechit collection
   evt.getByToken( eeUncalibRecHitCollection_, pHGCeeUncalibRecHits);
@@ -80,6 +87,10 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   
   evt.getByToken( hebUncalibRecHitCollection_, pHGChebUncalibRecHits);
   hebUncalibRecHits = pHGChebUncalibRecHits.product();
+  
+  evt.getByToken( hfnoseUncalibRecHitCollection_, pHGChfnoseUncalibRecHits);
+  if (pHGChfnoseUncalibRecHits.isValid())
+    hfnoseUncalibRecHits = pHGChfnoseUncalibRecHits.product();
     
   // collection of rechits to put in the event
   auto eeRecHits = std::make_unique<HGCeeRecHitCollection>();
@@ -116,6 +127,17 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.put(std::move(eeRecHits), eeRechitCollection_);
   evt.put(std::move(hefRecHits), hefRechitCollection_);
   evt.put(std::move(hebRecHits), hebRechitCollection_);
+
+  // do the same for HFNose hits
+  if (pHGChfnoseUncalibRecHits.isValid()) {
+    auto hfnoseRecHits = std::make_unique<HGChfnoseRecHitCollection>();
+    for(auto it  = hfnoseUncalibRecHits->begin(); it != hfnoseUncalibRecHits->end(); ++it) {
+      worker_->run(evt, *it, *hfnoseRecHits);
+    }
+    hfnoseRecHits->sort();
+    LogInfo("HGCalRecHitInfo") << "total # HGChfnose calibrated rechits: " << hfnoseRecHits->size();
+    evt.put(std::move(hfnoseRecHits), hfnoseRechitCollection_);
+  }
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
