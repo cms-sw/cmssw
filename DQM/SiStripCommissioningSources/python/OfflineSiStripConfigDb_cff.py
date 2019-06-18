@@ -17,4 +17,3 @@ NoiseFromConfigDb = cms.ESSource("SiStripNoiseBuilderFromDb")
 myNoisePrefer = cms.ESPrefer("SiStripNoiseBuilderFromDb", "NoiseFromConfigDb")
 # produce SiStripFecCabling and SiStripDetCabling out of SiStripFedCabling
 sistripconn = cms.ESProducer("SiStripConnectivity")
-SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")

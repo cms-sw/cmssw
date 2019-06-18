@@ -29,8 +29,6 @@ if 'CONFDB' not in os.environ:
     user, _, passwd = auth.get_credentials('COND_AUTH_PATH', 'cms_omds_tunnel/cms_trk_r')
     process.SiStripConfigDb.ConfDb = '{user}/{passwd}@{path}'.format(user=user, passwd=passwd, path='cms_omds_tunnel')
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
 process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb",
                                                    process.SiStripO2OCalibrationFactors

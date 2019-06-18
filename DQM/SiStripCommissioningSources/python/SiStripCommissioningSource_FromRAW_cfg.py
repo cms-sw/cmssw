@@ -39,7 +39,6 @@ process.SiStripCondObjBuilderFromDb.UseFED = cms.untracked.bool(True)
 process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
     CablingSource = cms.untracked.string('UNDEFINED')  
 )
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.PedestalsFromConfigDb = cms.ESSource("SiStripPedestalsBuilderFromDb")
 process.NoiseFromConfigDb = cms.ESSource("SiStripNoiseBuilderFromDb")

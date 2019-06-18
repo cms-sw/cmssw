@@ -17,7 +17,6 @@ process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb")
 process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
   CablingSource = cms.untracked.string('UNDEFINED')   ## <-- this should be replaced by "DEVICES" for a connection run!
 )
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.PedestalsFromConfigDb = cms.ESSource("SiStripPedestalsBuilderFromDb")
 process.NoiseFromConfigDb = cms.ESSource("SiStripNoiseBuilderFromDb")
 # produce SiStripFecCabling and SiStripDetCabling out of SiStripFedCabling
