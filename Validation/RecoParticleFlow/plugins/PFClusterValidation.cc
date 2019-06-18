@@ -20,7 +20,6 @@ PFClusterValidation::PFClusterValidation(const edm::ParameterSet& conf) {
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   mc_ = conf.getUntrackedParameter<bool>("mc", true);
 
-
   imc = 1;
   if (!mc_)
     imc = 0;
