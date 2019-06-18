@@ -6,4 +6,4 @@ typedef ShallowCloneProducer<reco::GsfElectronCollection> PixelMatchGsfElectronS
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( PixelMatchGsfElectronShallowCloneProducer );
+DEFINE_FWK_MODULE(PixelMatchGsfElectronShallowCloneProducer);

@@ -17,21 +17,18 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronLikelihood.h"
 
-class ElectronIDSelectorLikelihood
-{
- public:
+class ElectronIDSelectorLikelihood {
+public:
+  explicit ElectronIDSelectorLikelihood(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+      : ElectronIDSelectorLikelihood(conf, iC) {}
+  explicit ElectronIDSelectorLikelihood(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
+  virtual ~ElectronIDSelectorLikelihood();
 
-  explicit ElectronIDSelectorLikelihood (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
-    ElectronIDSelectorLikelihood(conf, iC) {}
-  explicit ElectronIDSelectorLikelihood (const edm::ParameterSet& conf, edm::ConsumesCollector & iC) ;
-  virtual ~ElectronIDSelectorLikelihood () ;
+  void newEvent(const edm::Event&, const edm::EventSetup&);
+  double operator()(const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&);
 
-  void newEvent (const edm::Event&, const edm::EventSetup&) ;
-  double operator() (const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&) ;
-
- private:
-
-  edm::ESHandle<ElectronLikelihood> likelihoodAlgo_ ;
+private:
+  edm::ESHandle<ElectronLikelihood> likelihoodAlgo_;
 
   edm::ParameterSet conf_;
 
@@ -41,6 +38,5 @@ class ElectronIDSelectorLikelihood
   edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollectionToken_;
 
   bool doLikelihood_;
-
 };
 #endif

@@ -13,24 +13,20 @@
 #include "RecoEgamma/ElectronIdentification/interface/ClassBasedElectronID.h"
 #include "RecoEgamma/ElectronIdentification/interface/CutBasedElectronID.h"
 
-class ElectronIDSelectorCutBased
-{
- public:
+class ElectronIDSelectorCutBased {
+public:
+  explicit ElectronIDSelectorCutBased(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC)
+      : ElectronIDSelectorCutBased(conf, iC) {}
+  explicit ElectronIDSelectorCutBased(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
+  virtual ~ElectronIDSelectorCutBased();
 
-  explicit ElectronIDSelectorCutBased (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
-    ElectronIDSelectorCutBased(conf, iC) {}
-  explicit ElectronIDSelectorCutBased (const edm::ParameterSet& conf, edm::ConsumesCollector & iC) ;
-  virtual ~ElectronIDSelectorCutBased () ;
+  void newEvent(const edm::Event&, const edm::EventSetup&);
+  double operator()(const reco::GsfElectron&, const edm::Event&, const edm::EventSetup&);
 
-  void newEvent (const edm::Event&, const edm::EventSetup&) ;
-  double operator() (const reco::GsfElectron& , const edm::Event& , const edm::EventSetup& ) ;
-
- private:
-
+private:
   ElectronIDAlgo* electronIDAlgo_;
   edm::ParameterSet conf_;
-  std::string algorithm_ ;
-
+  std::string algorithm_;
 };
 
 #endif
