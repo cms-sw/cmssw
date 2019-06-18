@@ -114,7 +114,7 @@ void protobuf_AssignDescriptors() {
   ::google::protobuf::MessageFactory* factory = nullptr;
   AssignDescriptors(
       "DQMServices/Core/src/ROOTFilePB.proto", schemas, file_default_instances, TableStruct::offsets, factory,
-      file_level_metadata, NULL, NULL);
+      file_level_metadata, nullptr, nullptr);
 }
 
 void protobuf_AssignDescriptorsOnce() {
