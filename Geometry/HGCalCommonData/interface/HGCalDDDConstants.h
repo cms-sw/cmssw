@@ -173,6 +173,7 @@ private:
   void cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool debug = false) const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
+  bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
 
   const double k_horizontalShift = 1.0;
