@@ -8,65 +8,51 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-namespace tensorflow
-{
+namespace tensorflow {
 
-void setLogging(const std::string& level)
-{
-    setenv("TF_CPP_MIN_LOG_LEVEL", level.c_str(), 0);
-}
+  void setLogging(const std::string& level) { setenv("TF_CPP_MIN_LOG_LEVEL", level.c_str(), 0); }
 
-void setThreading(SessionOptions& sessionOptions, int nThreads,
-    const std::string& singleThreadPool)
-{
+  void setThreading(SessionOptions& sessionOptions, int nThreads, const std::string& singleThreadPool) {
     // set number of threads used for intra and inter operation communication
     sessionOptions.config.set_intra_op_parallelism_threads(nThreads);
     sessionOptions.config.set_inter_op_parallelism_threads(nThreads);
 
     // when exactly one thread is requested use a custom thread pool
-    if (nThreads == 1 && !singleThreadPool.empty())
-    {
-        // check for known thread pools
-        if (singleThreadPool != "no_threads" && singleThreadPool != "tbb")
-        {
-            throw cms::Exception("UnknownThreadPool")
-                << "thread pool '" << singleThreadPool << "' unknown, use 'no_threads' or 'tbb'";
-        }
-        sessionOptions.target = singleThreadPool;
+    if (nThreads == 1 && !singleThreadPool.empty()) {
+      // check for known thread pools
+      if (singleThreadPool != "no_threads" && singleThreadPool != "tbb") {
+        throw cms::Exception("UnknownThreadPool")
+            << "thread pool '" << singleThreadPool << "' unknown, use 'no_threads' or 'tbb'";
+      }
+      sessionOptions.target = singleThreadPool;
     }
-}
+  }
 
-MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag,
-    SessionOptions& sessionOptions)
-{
+  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, SessionOptions& sessionOptions) {
     // objects to load the graph
     Status status;
     RunOptions runOptions;
     SavedModelBundle bundle;
 
     // load the model
-    status = LoadSavedModel(sessionOptions, runOptions, exportDir, { tag }, &bundle);
-    if (!status.ok())
-    {
-        throw cms::Exception("InvalidMetaGraph")
-            << "error while loading meta graph: " << status.ToString();
+    status = LoadSavedModel(sessionOptions, runOptions, exportDir, {tag}, &bundle);
+    if (!status.ok()) {
+      throw cms::Exception("InvalidMetaGraph") << "error while loading meta graph: " << status.ToString();
     }
 
     // return a copy of the graph
     return new MetaGraphDef(bundle.meta_graph_def);
-}
+  }
 
-MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads)
-{
+  MetaGraphDef* loadMetaGraph(const std::string& exportDir, const std::string& tag, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
 
     return loadMetaGraph(exportDir, tag, sessionOptions);
-}
+  }
 
-GraphDef* loadGraphDef(const std::string& pbFile)
-{
+  GraphDef* loadGraphDef(const std::string& pbFile) {
     // objects to load the graph
     Status status;
 
@@ -75,53 +61,43 @@ GraphDef* loadGraphDef(const std::string& pbFile)
     status = ReadBinaryProto(Env::Default(), pbFile, graphDef);
 
     // check for success
-    if (!status.ok())
-    {
-        throw cms::Exception("InvalidGraphDef")
-            << "error while loading graph def: " << status.ToString();
+    if (!status.ok()) {
+      throw cms::Exception("InvalidGraphDef") << "error while loading graph def: " << status.ToString();
     }
 
     return graphDef;
-}
+  }
 
-Session* createSession(SessionOptions& sessionOptions)
-{
+  Session* createSession(SessionOptions& sessionOptions) {
     // objects to create the session
     Status status;
 
     // create a new, empty session
     Session* session = nullptr;
     status = NewSession(sessionOptions, &session);
-    if (!status.ok())
-    {
-        throw cms::Exception("InvalidSession")
-            << "error while creating session: " << status.ToString();
+    if (!status.ok()) {
+      throw cms::Exception("InvalidSession") << "error while creating session: " << status.ToString();
     }
 
     return session;
-}
+  }
 
-Session* createSession(int nThreads)
-{
+  Session* createSession(int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
 
     return createSession(sessionOptions);
-}
+  }
 
-Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
-    SessionOptions& sessionOptions)
-{
+  Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, SessionOptions& sessionOptions) {
     Session* session = createSession(sessionOptions);
 
     // add the graph def from the meta graph
     Status status;
     status = session->Create(metaGraph->graph_def());
-    if (!status.ok())
-    {
-        throw cms::Exception("InvalidSession")
-            << "error while attaching meta graph to session: " << status.ToString();
+    if (!status.ok()) {
+      throw cms::Exception("InvalidSession") << "error while attaching meta graph to session: " << status.ToString();
     }
 
     // restore variables using the variable and index files in the export directory
@@ -133,9 +109,8 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
     std::string varFile = io::JoinPath(varDir, kSavedModelVariablesFilename);
 
     // when the index file is missing, there's nothing to do
-    if (!Env::Default()->FileExists(indexFile).ok())
-    {
-        return session;
+    if (!Env::Default()->FileExists(indexFile).ok()) {
+      return session;
     }
 
     // create a tensor to store the variable file
@@ -143,27 +118,23 @@ Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir,
     varFileTensor.scalar<std::string>()() = varFile;
 
     // run the restore op
-    status = session->Run({ { varFileTensorName, varFileTensor } }, {}, { restoreOpName }, nullptr);
-    if (!status.ok())
-    {
-        throw cms::Exception("InvalidSession")
-            << "error while restoring variables in session: " << status.ToString();
+    status = session->Run({{varFileTensorName, varFileTensor}}, {}, {restoreOpName}, nullptr);
+    if (!status.ok()) {
+      throw cms::Exception("InvalidSession") << "error while restoring variables in session: " << status.ToString();
     }
 
     return session;
-}
+  }
 
-Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads)
-{
+  Session* createSession(MetaGraphDef* metaGraph, const std::string& exportDir, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
 
     return createSession(metaGraph, exportDir, sessionOptions);
-}
+  }
 
-Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions)
-{
+  Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions) {
     // create a new, empty session
     Session* session = createSession(sessionOptions);
 
@@ -172,29 +143,24 @@ Session* createSession(GraphDef* graphDef, SessionOptions& sessionOptions)
     status = session->Create(*graphDef);
 
     // check for success
-    if (!status.ok())
-    {
-        throw cms::Exception("InvalidSession")
-            << "error while attaching graph def to session: " << status.ToString();
+    if (!status.ok()) {
+      throw cms::Exception("InvalidSession") << "error while attaching graph def to session: " << status.ToString();
     }
 
     return session;
-}
+  }
 
-Session* createSession(GraphDef* graphDef, int nThreads)
-{
+  Session* createSession(GraphDef* graphDef, int nThreads) {
     // create session options and set thread options
     SessionOptions sessionOptions;
     setThreading(sessionOptions, nThreads);
 
     return createSession(graphDef, sessionOptions);
-}
+  }
 
-bool closeSession(Session*& session)
-{
-    if (session == nullptr)
-    {
-        return true;
+  bool closeSession(Session*& session) {
+    if (session == nullptr) {
+      return true;
     }
 
     // close and delete the session
@@ -205,55 +171,55 @@ bool closeSession(Session*& session)
     session = nullptr;
 
     return status.ok();
-}
+  }
 
-void run(Session* session, const NamedTensorList& inputs,
-    const std::vector<std::string>& outputNames, const std::vector<std::string>& targetNodes,
-    std::vector<Tensor>* outputs)
-{
-    if (session == nullptr)
-    {
-        throw cms::Exception("InvalidSession") << "cannot run empty session";
+  void run(Session* session,
+           const NamedTensorList& inputs,
+           const std::vector<std::string>& outputNames,
+           const std::vector<std::string>& targetNodes,
+           std::vector<Tensor>* outputs) {
+    if (session == nullptr) {
+      throw cms::Exception("InvalidSession") << "cannot run empty session";
     }
 
     // run and check the status
     Status status = session->Run(inputs, outputNames, targetNodes, outputs);
-    if (!status.ok())
-    {
-        throw cms::Exception("InvalidRun")
-            << "error while running session: " << status.ToString();
+    if (!status.ok()) {
+      throw cms::Exception("InvalidRun") << "error while running session: " << status.ToString();
     }
-}
+  }
 
-void run(Session* session, const std::vector<std::string>& inputNames,
-    const std::vector<Tensor>& inputTensors, const std::vector<std::string>& outputNames,
-    const std::vector<std::string>& targetNodes, std::vector<Tensor>* outputs)
-{
-    if (inputNames.size() != inputTensors.size())
-    {
-        throw cms::Exception("InvalidInput") << "numbers of input names and tensors not equal";
+  void run(Session* session,
+           const std::vector<std::string>& inputNames,
+           const std::vector<Tensor>& inputTensors,
+           const std::vector<std::string>& outputNames,
+           const std::vector<std::string>& targetNodes,
+           std::vector<Tensor>* outputs) {
+    if (inputNames.size() != inputTensors.size()) {
+      throw cms::Exception("InvalidInput") << "numbers of input names and tensors not equal";
     }
 
     NamedTensorList inputs;
-    for (size_t i = 0; i < inputNames.size(); i++)
-    {
-        inputs.push_back(NamedTensor(inputNames[i], inputTensors[i]));
+    for (size_t i = 0; i < inputNames.size(); i++) {
+      inputs.push_back(NamedTensor(inputNames[i], inputTensors[i]));
     }
 
     run(session, inputs, outputNames, targetNodes, outputs);
-}
+  }
 
-void run(Session* session, const NamedTensorList& inputs,
-    const std::vector<std::string>& outputNames, std::vector<Tensor>* outputs)
-{
+  void run(Session* session,
+           const NamedTensorList& inputs,
+           const std::vector<std::string>& outputNames,
+           std::vector<Tensor>* outputs) {
     run(session, inputs, outputNames, {}, outputs);
-}
+  }
 
-void run(Session* session, const std::vector<std::string>& inputNames,
-    const std::vector<Tensor>& inputTensors, const std::vector<std::string>& outputNames,
-    std::vector<Tensor>* outputs)
-{
+  void run(Session* session,
+           const std::vector<std::string>& inputNames,
+           const std::vector<Tensor>& inputTensors,
+           const std::vector<std::string>& outputNames,
+           std::vector<Tensor>* outputs) {
     run(session, inputNames, inputTensors, outputNames, {}, outputs);
-}
+  }
 
-} // namespace tensorflow
+}  // namespace tensorflow

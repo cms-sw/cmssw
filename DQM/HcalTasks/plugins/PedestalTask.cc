@@ -5,16 +5,14 @@ using namespace hcaldqm;
 using namespace hcaldqm::constants;
 PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	tags
-  _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
-  _tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
+  _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
-  _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
+  _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
   _tagTrigger = ps.getUntrackedParameter<edm::InputTag>("tagTrigger", edm::InputTag("tbunpacker"));
   _taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
-  _tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-  _tokHEP17 = consumes<QIE11DigiCollection>(_tagHE);
+  _tokQIE11 = consumes<QIE11DigiCollection>(_tagQIE11);
   _tokHO = consumes<HODigiCollection>(_tagHO);
-  _tokHF = consumes<QIE10DigiCollection>(_tagHF);
+  _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
   _tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
   _tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
@@ -947,40 +945,19 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
 }
 
 /* virtual */ void PedestalTask::_process(edm::Event const& e, edm::EventSetup const& es) {
-  edm::Handle<HBHEDigiCollection> chbhe;
-  edm::Handle<HODigiCollection> cho;
-  edm::Handle<QIE10DigiCollection> chf;
-  edm::Handle<QIE11DigiCollection> chep17;
+  edm::Handle<HODigiCollection> c_ho;
+  edm::Handle<QIE10DigiCollection> c_QIE10;
+  edm::Handle<QIE11DigiCollection> c_QIE11;
 
-  if (!e.getByToken(_tokHBHE, chbhe))
-    _logger.dqmthrow("Collection HBHEDigiCollection isn't available" + _tagHBHE.label() + " " + _tagHBHE.instance());
-  if (!e.getByToken(_tokHO, cho))
+  if (!e.getByToken(_tokHO, c_ho))
     _logger.dqmthrow("Collection HODigiCollection isn't available" + _tagHO.label() + " " + _tagHO.instance());
-  if (!e.getByToken(_tokHF, chf))
-    _logger.dqmthrow("Collection QIE10DigiCollection isn't available" + _tagHF.label() + " " + _tagHF.instance());
-  if (!e.getByToken(_tokHEP17, chep17))
-    _logger.dqmthrow("Collection QIE11DigiCollection isn't available" + _tagHE.label() + " " + _tagHE.instance());
+  if (!e.getByToken(_tokQIE10, c_QIE10))
+    _logger.dqmthrow("Collection QIE10DigiCollection isn't available" + _tagQIE10.label() + " " + _tagQIE10.instance());
+  if (!e.getByToken(_tokQIE11, c_QIE11))
+    _logger.dqmthrow("Collection QIE11DigiCollection isn't available" + _tagQIE11.label() + " " + _tagQIE11.instance());
 
   int nHB(0), nHE(0), nHO(0), nHF(0);
-  for (HBHEDigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
-    const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
-    HcalDetId did = digi.id();
-    int digiSizeToUse = floor(digi.size() / constants::CAPS_NUM) * constants::CAPS_NUM - 1;
-    did.subdet() == HcalBarrel ? nHB++ : nHE++;
-
-    for (int i = 0; i < digiSizeToUse; i++) {
-      _cADC_SubdetPM.fill(did, it->sample(i).adc());
-
-      _xPedSum1LS.get(did) += it->sample(i).adc();
-      _xPedSum21LS.get(did) += it->sample(i).adc() * it->sample(i).adc();
-      _xPedEntries1LS.get(did)++;
-
-      _xPedSumTotal.get(did) += it->sample(i).adc();
-      _xPedSum2Total.get(did) += it->sample(i).adc() * it->sample(i).adc();
-      _xPedEntriesTotal.get(did)++;
-    }
-  }
-  for (QIE11DigiCollection::const_iterator it = chep17->begin(); it != chep17->end(); ++it) {
+  for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalDetId const& did = digi.detid();
     // Require barrel or endcap. As of 2017, some calibration channels are ending up in this collection.
@@ -1006,7 +983,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS, nHB);
   _cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), _currentLS, nHE);
 
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
+  for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
     HcalDetId did = digi.id();
     int digiSizeToUse = floor(digi.size() / constants::CAPS_NUM) * constants::CAPS_NUM - 1;
@@ -1025,7 +1002,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
   _cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalOuter, 1, 1, 1), _currentLS, nHO);
 
-  for (QIE10DigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+  for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
     const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
     HcalDetId did = digi.detid();
     if (did.subdet() != HcalForward) {

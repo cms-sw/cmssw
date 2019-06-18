@@ -340,8 +340,9 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
       if (noise_MIP_ != 0)
         chargeColl[i] += std::max(CLHEP::RandGaussQ::shoot(engine, 0., noise_MIP_), 0.);
       if (debug && cell.hit_info[0][i] > 0)
-        std::cout << "[runCaliceLikeDigitizer] xtalk=" << xtalk << " En=" << cell.hit_info[0][i] << " keV -> "
-                  << totalIniMIPs << " raw-MIPs -> " << chargeColl[i] << " digi-MIPs" << std::endl;
+	edm::LogVerbatim("HGCDigitizer") 
+	  << "[runCaliceLikeDigitizer] xtalk=" << xtalk << " En=" << cell.hit_info[0][i] << " keV -> "
+	  << totalIniMIPs << " raw-MIPs -> " << chargeColl[i] << " digi-MIPs";
     }
 
     //init a new data frame and run shaper
