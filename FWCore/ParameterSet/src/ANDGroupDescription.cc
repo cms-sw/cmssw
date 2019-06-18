@@ -61,11 +61,12 @@ namespace edm {
   }
 
   void ANDGroupDescription::writeCfi_(std::ostream& os,
+                                      bool optional,
                                       bool& startWithComma,
                                       int indentation,
                                       bool& wroteSomething) const {
-    node_left_->writeCfi(os, startWithComma, indentation, wroteSomething);
-    node_right_->writeCfi(os, startWithComma, indentation, wroteSomething);
+    node_left_->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
+    node_right_->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
   }
 
   void ANDGroupDescription::print_(std::ostream& os, bool optional, bool writeToCfi, DocFormatHelper& dfh) const {

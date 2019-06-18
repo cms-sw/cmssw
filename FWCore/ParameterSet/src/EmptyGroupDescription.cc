@@ -17,6 +17,7 @@ namespace edm {
                                         bool /*optional*/) const {}
 
   void EmptyGroupDescription::writeCfi_(std::ostream&,
+                                        bool /*optional*/,
                                         bool& /*startWithComma*/,
                                         int /*indentation*/,
                                         bool& /*wroteSomething*/) const {}
