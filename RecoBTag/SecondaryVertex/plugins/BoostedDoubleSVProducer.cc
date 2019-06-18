@@ -655,13 +655,13 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
             edm::LogWarning("MissingJetConstituent")
                 << "Jet constituent required for N-subjettiness computation is missing!";
         }
-      } else
-	{
+      } else {
         // Check if any values were nan or inf
-          float valcheck = daughter->px() + daughter->py() +  daughter->pz() + daughter->energy();
-          if (std::isnan(valcheck) || std::isinf(valcheck)) continue;
+        float valcheck = daughter->px() + daughter->py() + daughter->pz() + daughter->energy();
+        if (std::isnan(valcheck) || std::isinf(valcheck))
+          continue;
         fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
-        }
+      }
     } else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
   }
