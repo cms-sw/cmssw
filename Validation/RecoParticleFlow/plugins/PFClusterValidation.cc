@@ -18,10 +18,11 @@ PFClusterValidation::PFClusterValidation(const edm::ParameterSet& conf) {
       conf.getUntrackedParameter<edm::InputTag>("pflowClusterHF"));  // cms.InputTag("particleFlowClusterECAL");
 
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-  mc_ = conf.getUntrackedParameter<std::string>("mc", "yes");
+  mc_ = conf.getUntrackedParameter<bool>("mc", true);
+
 
   imc = 1;
-  if (mc_ == "no")
+  if (!mc_)
     imc = 0;
 
   if (!outputFile_.empty()) {

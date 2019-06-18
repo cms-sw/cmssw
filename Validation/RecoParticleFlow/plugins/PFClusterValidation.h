@@ -58,7 +58,8 @@ private:
   double dR(double eta1, double phi1, double eta2, double phi2);
   double sumEnergy(edm::Handle<reco::PFClusterCollection> pfCluster1);
   std::string outputFile_;
-  std::string mc_;
+  //std::string mc_;
+  bool mc_;
 
   typedef math::RhoEtaPhiVector Vector;
 
