@@ -21,20 +21,17 @@
 
 // Class declaration
 
-class L1TMuonRPCTriggerPrimitivesProducer : public edm::stream::EDProducer<>{
-  
- public:
+class L1TMuonRPCTriggerPrimitivesProducer : public edm::stream::EDProducer<> {
+public:
   explicit L1TMuonRPCTriggerPrimitivesProducer(const edm::ParameterSet&);
   ~L1TMuonRPCTriggerPrimitivesProducer() override;
-  
- private:
+
+private:
   void beginStream(edm::StreamID) override;
   void endStream() override;
   void produce(edm::Event& event, const edm::EventSetup& setup) override;
-  
-  std::unique_ptr<PrimitivePreprocess> preprocess_pointer_; 
-  
+
+  std::unique_ptr<PrimitivePreprocess> preprocess_pointer_;
 };
 
 #endif /* #define L1Trigger_RPCTriggerPrimitives_L1TMuonRPCTriggerPrimitivesProducer_h */
-
