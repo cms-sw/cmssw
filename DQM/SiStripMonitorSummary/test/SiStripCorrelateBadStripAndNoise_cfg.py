@@ -19,6 +19,7 @@ process.load('Configuration.Geometry.GeometryExtended_cff')
 process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.trackerGeometry.applyAlignment = False
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
