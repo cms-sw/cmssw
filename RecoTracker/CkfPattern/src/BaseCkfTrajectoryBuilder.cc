@@ -58,11 +58,11 @@ void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, Temp
       trajectoryStateTransform::transientState(pState, &(gdet->surface()), forwardPropagator(seed)->magneticField());
 
   if (as5D) {
-      TrackingRecHit::RecHitPointer recHit(new TRecHit5DParamConstraint(*gdet,outerState));
-      TSOS invalidState(gdet->surface());
-      auto hitLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(pState.detId());
-      result.emplace(invalidState, outerState, recHit, 0, hitLayer);    
-      return;
+    TrackingRecHit::RecHitPointer recHit(new TRecHit5DParamConstraint(*gdet, outerState));
+    TSOS invalidState(gdet->surface());
+    auto hitLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(pState.detId());
+    result.emplace(invalidState, outerState, recHit, 0, hitLayer);
+    return;
   }
 
   for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {

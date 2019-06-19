@@ -176,7 +176,6 @@ protected:
   const NavigationSchool* theNavigationSchool = nullptr;
 
 private:
-
   bool theSeedAs5DHit;
 
   std::unique_ptr<TrajectoryFilter> theFilter;      /** Filter used at end of complete tracking */
