@@ -54,6 +54,7 @@ private:
 CTPPSDiamondRecHitProducer::CTPPSDiamondRecHitProducer(const edm::ParameterSet& iConfig)
     : digiToken_(consumes<edm::DetSetVector<CTPPSDiamondDigi> >(iConfig.getParameter<edm::InputTag>("digiTag"))),
       timingCalibrationTag_(iConfig.getParameter<std::string>("timingCalibrationTag")),
+      applyCalib_(iConfig.getParameter<bool>("applyCalibration")),
       algo_(iConfig) {
   produces<edm::DetSetVector<CTPPSDiamondRecHit> >();
 }
@@ -66,7 +67,7 @@ void CTPPSDiamondRecHitProducer::produce(edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken(digiToken_, digis);
 
   if (!digis->empty()) {
-    if (calibWatcher_.check(iSetup)) {
+    if (applyCalib_ && calibWatcher_.check(iSetup)) {
       edm::ESHandle<PPSTimingCalibration> hTimingCalib;
       iSetup.get<PPSTimingCalibrationRcd>().get(timingCalibrationTag_, hTimingCalib);
       algo_.setCalibration(*hTimingCalib);
