@@ -17,7 +17,6 @@
 #define L1_TRACK_TRIGGER_STUB_ALGO_official_H
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
@@ -114,6 +113,8 @@ template <typename T>
 class ES_TTStubAlgorithm_official : public edm::ESProducer {
 private:
   /// Data members
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> mGeomToken;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> mTopoToken;
 
   /// Windows
   std::vector<double> setBarrelCut;
@@ -146,31 +147,22 @@ public:
       setTiltedCut.push_back(iPSet->getParameter<std::vector<double> >("TiltedCut"));
     }
 
-    setWhatProduced(this);
+    setWhatProduced(this).setConsumes(mGeomToken).setConsumes(mTopoToken);
   }
 
   /// Destructor
   ~ES_TTStubAlgorithm_official() override {}
 
   /// Implement the producer
-  std::unique_ptr<TTStubAlgorithm<T> > produce(const TTStubAlgorithmRecord &record) {
-    edm::ESHandle<TrackerGeometry> tGeomHandle;
-    record.getRecord<TrackerDigiGeometryRecord>().get(tGeomHandle);
-    const TrackerGeometry *const theTrackerGeom = tGeomHandle.product();
-    edm::ESHandle<TrackerTopology> tTopoHandle;
-    record.getRecord<TrackerTopologyRcd>().get(tTopoHandle);
-    const TrackerTopology *const theTrackerTopo = tTopoHandle.product();
-
-    TTStubAlgorithm<T> *TTStubAlgo = new TTStubAlgorithm_official<T>(theTrackerGeom,
-                                                                     theTrackerTopo,
-                                                                     setBarrelCut,
-                                                                     setRingCut,
-                                                                     setTiltedCut,
-                                                                     setBarrelNTilt,
-                                                                     mPerformZMatchingPS,
-                                                                     mPerformZMatching2S);
-
-    return std::unique_ptr<TTStubAlgorithm<T> >(TTStubAlgo);
+  std::unique_ptr<TTStubAlgorithm<T>> produce(const TTStubAlgorithmRecord &record) {
+    return std::make_unique<TTStubAlgorithm_official<T>>(&record.get(mGeomToken),
+                                                         &record.get(mTopoToken),
+                                                         setBarrelCut,
+                                                         setRingCut,
+                                                         setTiltedCut,
+                                                         setBarrelNTilt,
+                                                         mPerformZMatchingPS,
+                                                         mPerformZMatching2S);
   }
 };
 
