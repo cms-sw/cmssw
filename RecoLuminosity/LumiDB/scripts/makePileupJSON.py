@@ -14,9 +14,13 @@ import six
 ## ######################## ##
 ##############################
 
+# This script takes a .csv file containing the per-BX luminosity values from brilcalc and processes them to
+# produce an output file containing the average and RMS pileup for each lumi section. This can then be fed
+# into pileupCalc.py to calculate a final pileup histogram. For more documentation see:
+# https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupJSONFileforData
+
 # modified from the estimatePileup.py script in RecoLuminosity/LumiDB
 # originally 5 Jan, 2012  Mike Hildreth
-# The Run 2 version only accepts a csv file from brilcalc as input.
 
 if __name__ == '__main__':
     parameters = LumiConstants.ParametersObject()
@@ -75,6 +79,14 @@ if __name__ == '__main__':
             print(pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6],pieces[7],pieces[8],pieces[9])
             continue
 
+        # In principle we could also have a check for if len(pieces) == 15 (i.e. no BX data is present) but
+        # luminosity is present, which implies we're using a luminometer without BX data. In this case we
+        # could just extrapolate from the previous good LS (just scaling the pileup by the ratio of
+        # luminosity). In practice this is an extremely small number of lumi sections, and in 2018 the 14
+        # lumisections in normtag_PHYSICS without BX data (all RAMSES) are al lin periods with zero recorded
+        # lumi, so they don't affect the resulting pileup at all. So for run 2 I haven't bothered to implement
+        # this.
+
         if run != last_run:
             # the script also used to add a dummy LS at the end of runs but this is not necessary in run 2
             if last_run > 0:
@@ -85,7 +97,7 @@ if __name__ == '__main__':
 
         # Now do the actual parsing.
         if luminometer == "HFOC":
-            threshold = 8.
+            threshold = 2.0
         else:
             threshold = 1.2
 
