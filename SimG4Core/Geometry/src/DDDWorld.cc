@@ -33,21 +33,18 @@ DDDWorld::DDDWorld(const DDCompactView *cpv,
   catalog = ret.sdCatalog();
 }
 
-DDDWorld::DDDWorld(const cms::DDDetector* ddd, dd4hep::sim::Geant4GeometryMaps::VolumeMap& map) {
+DDDWorld::DDDWorld(const cms::DDDetector *ddd, dd4hep::sim::Geant4GeometryMaps::VolumeMap &map) {
+  LogVerbatim("SimG4CoreApplication") << "DD4hep_DDDWorld: initialization of DDDWorld...";
 
-  LogVerbatim("SimG4CoreApplication") 
-    << "DD4hep_DDDWorld: initialization of DDDWorld...";
-  
   DetElement world = ddd->description()->world();
-  const Detector& detector = *ddd->description();
+  const Detector &detector = *ddd->description();
   Geant4Converter g4Geo(detector);
-  Geant4GeometryInfo* geometry = g4Geo.create(world).detach();
-  map = geometry->g4Volumes;   
+  Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
+  map = geometry->g4Volumes;
   m_world = geometry->world();
   SetAsWorld(m_world);
 
-  LogVerbatim("SimG4CoreApplication") 
-    << "DD4hep_DDDWorld: initialization of DDDWorld done.";
+  LogVerbatim("SimG4CoreApplication") << "DD4hep_DDDWorld: initialization of DDDWorld done.";
 }
 
 DDDWorld::~DDDWorld() {}
