@@ -102,10 +102,14 @@ void HGCalCLUEAlgo::makeClusters() {
     });
   });
   //Now that we have the density per point we can store it
-  for(unsigned int i=0; i< 2 * maxlayer + 2; ++i) { setDensity(i); }
+  for(unsigned int i=0; i< 2 * maxlayer + 2; ++i) {
+    //std::cout << i << std::endl; //}
+    setDensity(i); }
+  //std::cout << "end makeClusters" << std::endl;
 }
 
 std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
+  
   std::vector<int> offsets(numberOfClustersPerLayer_.size(),0);
 
   int maxClustersOnLayer = numberOfClustersPerLayer_[0];
@@ -136,7 +140,6 @@ std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
         cellsIdInCluster[clusterIndex].push_back(i);
     }
     
-
     std::vector<std::pair<DetId, float>> thisCluster;
     for(auto& cl: cellsIdInCluster)
     {
@@ -178,7 +181,6 @@ math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<int> &v, const
   float maxEnergyValue = 0.f;
   
   auto& cellsOnLayer = cells_[layerId];
-
 
   // loop over hits in cluster candidate
   // determining the maximum energy hit
@@ -318,7 +320,6 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsig
 			      << " density: " << cellsOnLayer.rho[i] << "\n";
   }
 }
-
 
 void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c, float delta_r) {
 
@@ -480,6 +481,7 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
       localStack.push_back(j);
     }
   }
+  //std::cout << "nClustersOnLayer: " << nClustersOnLayer << std::endl; 
   return nClustersOnLayer;
 }
 
