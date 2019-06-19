@@ -21,7 +21,9 @@ from HLTrigger.Configuration.common import *
 def customiseFor27220(process):
    for pset in process._Process__psets.values():
        if hasattr(pset,'ComponentType'):
-             if (pset.ComponentType == 'CkfTrajectoryBuilder' or pset.ComponentType == 'GroupedCkfTrajectoryBuilder'):
+             if (pset.ComponentType == 'CkfTrajectoryBuilder' or 
+                 pset.ComponentType == 'GroupedCkfTrajectoryBuilder' or
+                 pset.ComponentType == 'MuonCkfTrajectoryBuilder'):
                  if not hasattr(pset,'seedAs5DHit'):
                      pset.seedAs5DHit = cms.bool(False)
    return process
