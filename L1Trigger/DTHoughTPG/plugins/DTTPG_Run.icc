@@ -1,0 +1,168 @@
+    b9_Idx_t chamberIdx = static_cast< b9_Idx_t >( idxChamber );
+    MCellPos_t intCentralCoordMCellZero = 4096;
+#ifdef ALSO_THETA
+    MCellPos_t intLongCoordMCellZero = -4096;
+#endif
+    double centralMCellCoord[ MAX_MACROCELLS ];
+#ifdef ALSO_THETA
+    double longMCellCoord[ MAX_MACROCELLS ];
+#endif
+    MCellPos_t intCentralMCellCoord[ MAX_MACROCELLS ];
+#ifdef ALSO_THETA
+    MCellPos_t intLongMCellCoord[ MAX_MACROCELLS ];
+#endif
+    for ( MCellIdx_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+    {
+      centralMCellCoord[ iMacroCell ] = vecCentralRPhiZero[ idxChamber ] + iMacroCell * 2 * defDTCellWidth;
+#ifdef ALSO_THETA
+      longMCellCoord[ iMacroCell ] = vecCentralLongZero[ idxChamber ] - iMacroCell * 2 * defDTCellWidth;
+#endif
+      intCentralMCellCoord[ iMacroCell ] = intCentralCoordMCellZero + iMacroCell * 2048;
+#ifdef ALSO_THETA
+      intLongMCellCoord[ iMacroCell ] = intLongCoordMCellZero - iMacroCell * 2048;
+#endif
+    }
+
+    /***************************************************************/
+
+    WireShift_t numWireShift = vecNumWireShift[ idxChamber ];
+    TimeMMT_t vecInnerMCellHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ];
+    TimeMMT_t vecOuterMCellHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ];
+#ifdef ALSO_THETA
+    TimeMMT_t vecLongMCellHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ];
+#endif
+    unsigned int vecInnerMCellCMSSWHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ];
+    unsigned int vecOuterMCellCMSSWHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ];
+#ifdef ALSO_THETA
+    unsigned int vecLongMCellCMSSWHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ];
+#endif
+    this->DriveHits( 1,
+                     cntHits,
+                     numWireShift,
+                     vecEncodedHits,
+                     vecInnerMCellHits,
+                     vecInnerMCellCMSSWHits,
+                     vecIdxCMSSWHits );
+    this->DriveHits( 3,
+                     cntHits,
+                     numWireShift,
+                     vecEncodedHits,
+                     vecOuterMCellHits,
+                     vecOuterMCellCMSSWHits,
+                     vecIdxCMSSWHits );
+#ifdef ALSO_THETA
+    this->DriveHits( 2,
+                     cntHits,
+                     numWireShift,
+                     vecEncodedHits,
+                     vecLongMCellHits,
+                     vecLongMCellCMSSWHits,
+                     vecIdxCMSSWHits );
+#endif
+    WiBits_t wireBitsInnerMCell[ MAX_MACROCELLS ];
+    WiBits_t wireBitsOuterMCell[ MAX_MACROCELLS ];
+#ifdef ALSO_THETA
+    WiBits_t wireBitsLongMCell[ MAX_MACROCELLS ];
+#endif
+    BOOL_t qualityInnerMCell[ MAX_MACROCELLS ] = { false };
+    BOOL_t qualityOuterMCell[ MAX_MACROCELLS ] = { false };
+#ifdef ALSO_THETA
+    BOOL_t qualityLongMCell[ MAX_MACROCELLS ] = { false };
+#endif
+    TimeMMT_t timePInnerMCell[ MAX_MACROCELLS ];
+    TimeMMT_t timePOuterMCell[ MAX_MACROCELLS ];
+#ifdef ALSO_THETA
+    TimeMMT_t timePLongMCell[ MAX_MACROCELLS ];
+#endif
+    WireShift_t corrFirstWireInner = ( ( numWireShift < ZERO_WireShift ) ? numWireShift : ZERO_WireShift ) - 1;
+    WireShift_t corrFirstWireOuter = - ( ( numWireShift > ZERO_WireShift ) ? numWireShift : ZERO_WireShift ) - 1;
+#ifdef ALSO_THETA
+    WireShift_t corrFirstWireLong = - 1;
+#endif
+    this->RunMMTOneSL( vecInnerMCellHits,
+                       wireBitsInnerMCell,
+                       qualityInnerMCell,
+                       timePInnerMCell );
+    this->RunMMTOneSL( vecOuterMCellHits,
+                       wireBitsOuterMCell,
+                       qualityOuterMCell,
+                       timePOuterMCell );
+#ifdef ALSO_THETA
+    this->RunMMTOneSL( vecLongMCellHits,
+                       wireBitsLongMCell,
+                       qualityLongMCell,
+                       timePLongMCell );
+#endif
+    Qual_t qualCHTInnerMCell[ MAX_MACROCELLS ];
+    Qual_t qualCHTOuterMCell[ MAX_MACROCELLS ];
+#ifdef ALSO_THETA
+    Qual_t qualCHTLongMCell[ MAX_MACROCELLS ];
+#endif
+    Qual_t qualCombMCell[ MAX_MACROCELLS ][ 10 ];
+    TanPhi_t twoTanPhiInnerMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ];
+    TanPhi_t twoTanPhiOuterMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ];
+#ifdef ALSO_THETA
+    TanPhi_t twoTanPhiLongMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ];
+#endif
+    TanPhi_t twoTanPhiCombMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ];
+    MCellPos_t xZeroInnerMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ];
+    MCellPos_t xZeroOuterMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ];
+#ifdef ALSO_THETA
+    MCellPos_t xZeroLongMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ];
+#endif
+    MCellPos_t xZeroInnerCombMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ];
+    MCellPos_t xZeroOuterCombMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ];
+    CHTBitset_t bitsetInnerMCell[ MAX_MACROCELLS ];
+    CHTBitset_t bitsetOuterMCell[ MAX_MACROCELLS ];
+    this->RunCHTOneSL( corrFirstWireInner,
+                       vecInnerMCellHits,
+                       qualCHTInnerMCell,
+                       ( idxStation == 0 ),
+                       isPositiveWheel,
+                       bitsetInnerMCell,
+                       timePInnerMCell,
+                       intCentralMCellCoord,
+                       chamberIdx,
+                       twoTanPhiInnerMCell,
+                       xZeroInnerMCell );
+    this->RunCHTOneSL( corrFirstWireOuter,
+                       vecOuterMCellHits,
+                       qualCHTOuterMCell,
+                       0,//( idxStation == 0 ),
+                       0,//isPositiveWheel,
+                       bitsetOuterMCell,
+                       timePOuterMCell,
+                       intCentralMCellCoord,
+                       chamberIdx,
+                       twoTanPhiOuterMCell,
+                       xZeroOuterMCell );
+#ifdef ALSO_THETA
+    this->RunCHTOneSL( corrFirstWireLong,
+                       vecLongMCellHits,
+                       qualCHTLongMCell,
+                       ( idxStation == 0 ),
+                       isPositiveWheel,
+                       timePLongMCell,
+                       intLongMCellCoord,
+                       chamberIdx,
+                       twoTanPhiLongMCell,
+                       xZeroLongMCell );
+#endif
+    this->RunCHTTwoSL( corrFirstWireInner,
+                       corrFirstWireOuter,
+                       vecInnerMCellHits,
+                       vecOuterMCellHits, 
+                       qualCHTInnerMCell,
+                       qualCHTOuterMCell,
+                       qualCombMCell,
+                       ( idxStation == 0 ),
+                       isPositiveWheel,
+                       bitsetInnerMCell,
+                       bitsetOuterMCell,
+                       timePInnerMCell,
+                       timePOuterMCell,
+                       intCentralMCellCoord,
+                       chamberIdx,
+                       twoTanPhiCombMCell,
+                       xZeroInnerCombMCell,
+                       xZeroOuterCombMCell );

@@ -1,0 +1,9 @@
+<library   file="*.cc" name="L1DTHoughTPGPlugins">
+  <use   name="L1Trigger/DTHoughTPG"/>
+  <use   name="SimDataFormats/TrackingAnalysis"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="root"/>
+  <use   name="rootrflx"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
