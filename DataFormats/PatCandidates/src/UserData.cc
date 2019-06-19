@@ -1,7 +1,7 @@
 #include <cxxabi.h>
 #include "DataFormats/PatCandidates/interface/UserData.h"
 // Note: these two below are allowed in FWLite even if they come from FWCore
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 void pat::UserData::checkDictionaries(const std::type_info &type) {

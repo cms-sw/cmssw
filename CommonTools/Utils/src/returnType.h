@@ -8,7 +8,7 @@
  */
 
 #include "CommonTools/Utils/src/TypeCode.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 namespace edm {
   class FunctionWithDict;

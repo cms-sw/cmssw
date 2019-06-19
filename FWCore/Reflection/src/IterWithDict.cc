@@ -1,4 +1,4 @@
-#include "FWCore/Utilities/interface/IterWithDict.h"
+#include "FWCore/Reflection/interface/IterWithDict.h"
 #include <cassert>
 
 namespace edm {

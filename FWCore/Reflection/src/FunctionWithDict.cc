@@ -1,8 +1,8 @@
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
 
-#include "FWCore/Utilities/interface/IterWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/IterWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include "TMethod.h"
 #include "TMethodArg.h"

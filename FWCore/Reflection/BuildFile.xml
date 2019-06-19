@@ -1,7 +1,4 @@
-<use   name="boost"/>
-<use   name="tbb"/>
 <use   name="rootcore"/>
-<use   name="boost_filesystem"/>
 <use   name="FWCore/Utilities"/>
 <export>
   <lib   name="1"/>

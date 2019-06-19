@@ -15,8 +15,8 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 // user include files
 #include "PhysicsTools/CondLiteIO/interface/RecordWriter.h"

@@ -17,9 +17,9 @@
 
 #include "TEveManager.h"
 #include "TClass.h"
-#include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWConfiguration.h"

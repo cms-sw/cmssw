@@ -1,6 +1,6 @@
-#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
 
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include "TBaseClass.h"
 

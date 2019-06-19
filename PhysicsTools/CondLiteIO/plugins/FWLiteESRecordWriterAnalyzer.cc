@@ -20,7 +20,7 @@
 // system include files
 #include <memory>
 #include "TFile.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

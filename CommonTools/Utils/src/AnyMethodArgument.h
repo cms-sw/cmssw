@@ -1,7 +1,7 @@
 #ifndef CommonTools_Utils_AnyMethodArgument_h
 #define CommonTools_Utils_AnyMethodArgument_h
 
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "CommonTools/Utils/interface/Exception.h"
 
