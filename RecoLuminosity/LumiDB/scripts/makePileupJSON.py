@@ -1,109 +1,10 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import os, sys
-import array
 import argparse
 import RecoLuminosity.LumiDB.LumiConstants as LumiConstants
 import re
 from math import sqrt
-
-from pprint import pprint
 import six
-
-def CalcPileup (deadTable, parameters, luminometer, selBX):
-    '''Given a deadtable, will calculate parameters of pileup distribution. Return formatted
-    string with LumiSection, LS integrated lumi, RMS of bunch to bunch lumi and pileup.'''
-
-    LumiString = ""
-    LumiArray = []
-
-    for lumiSection, deadArray in sorted(six.iteritems(deadTable)):
-        numerator = 0
-        if luminometer == "HFOC":
-            threshold = 8.
-        else:
-            threshold = 1.2
-
-        numerator     = float (deadArray[1])
-        denominator   = float (deadArray[0])
-        instLumiArray =        deadArray[2]
-        livetime = 1
-        if numerator < 0:
-            numerator = 0
-        if denominator:
-            livetime = numerator / denominator
-
-        if lumiSection > 0:
-            TotalLumi = 0 
-            TotalInt = 0
-            TotalInt2 = 0
-            TotalWeight = 0
-            TotalWeight2 = 0
-            FilledXings = 0
-            for xing, xingInstLumi, xingDelvLumi in instLumiArray:
-                if selBX and xing not in selBX:
-                    continue
-                xingIntLumi = xingInstLumi * livetime
-                mean = xingInstLumi * parameters.orbitLength / parameters.lumiSectionLength
-                if mean > 100:
-                    if runNumber:
-                        print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
-                          (runNumber, lumiSection, mean, xingInstLumi))
-                    else:
-                        print("mean number of pileup events > 100 for lum %d: m %f l %f" % \
-                          (lumiSection, mean, xingInstLumi))
-                #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumiSection, mean, xing, xingIntLumi)
-
-                if xingInstLumi > threshold:
-                    TotalLumi = TotalLumi+xingIntLumi
-                    TotalInt+= mean*xingIntLumi
-                    FilledXings = FilledXings+1
-                    #print "xing inst lumi %f %f %d" % (xingIntLumi,TotalLumi,FilledXings)
-
-            #compute weighted mean, then loop again to get weighted RMS       
-            MeanInt = 0
-            if TotalLumi >0:
-                MeanInt = TotalInt/TotalLumi
-            for xing, xingInstLumi, xingDelvlumi in instLumiArray:
-                if selBX and xing not in selBX:
-                    continue
-                if xingInstLumi > threshold:
-                    xingIntLumi = xingInstLumi * livetime
-                    mean = xingInstLumi * parameters.orbitLength / parameters.lumiSectionLength
-                    TotalInt2+= xingIntLumi*(mean-MeanInt)*(mean-MeanInt)
-                    TotalWeight+= xingIntLumi
-                    TotalWeight2+= xingIntLumi*xingIntLumi
-
-        if ((lumiSection > 0)):
-            #print " LS, Total lumi, filled xings %d, %f, %d" %(lumiSection,TotalLumi,FilledXings)
-            if FilledXings > 0:
-                AveLumi = TotalLumi/FilledXings
-            else:
-                AveLumi = 0
-            RMSLumi = 0
-            Denom = TotalWeight*TotalWeight-TotalWeight2
-            if TotalLumi > 0 and Denom > 0:
-                RMSLumi = sqrt(TotalWeight/(TotalWeight*TotalWeight-TotalWeight2)*TotalInt2)
-            LumiString = "[%d,%2.4e,%2.4e,%2.4e]," % (lumiSection, TotalLumi, RMSLumi, MeanInt)
-            LumiArray.append(lumiSection)
-            LumiArray.append(TotalLumi)  # should really weight by total lumi in LS
-            LumiArray.append(RMSLumi)
-            LumiArray.append(MeanInt)
-            lumiX=MeanInt*parameters.lumiSectionLength*FilledXings*(1./parameters.orbitLength)
-
-    #print lumiX
-   # if TotalLumi<(lumiX*0.8):
-#	print lumiSection
-#        print FilledXings
-#        print TotalLumi  
-#        print lumiX  
-#        print numerator
-#	print denominator 
-
-    #print FilledXings
-    return LumiArray
-
-
 
 ##############################
 ## ######################## ##
@@ -114,7 +15,7 @@ def CalcPileup (deadTable, parameters, luminometer, selBX):
 ##############################
 
 # modified from the estimatePileup.py script in RecoLuminosity/LumiDB
-# 5 Jan, 2012  Mike Hildreth
+# originally 5 Jan, 2012  Mike Hildreth
 # The Run 2 version only accepts a csv file from brilcalc as input.
 
 if __name__ == '__main__':
@@ -128,15 +29,15 @@ if __name__ == '__main__':
 
     output = args.outputFile
 
-    selBX = set()
+    sel_bx = set()
     if args.selBX:
-        for iBX in args.selBX.split(","):
+        for ibx in args.selBX.split(","):
             try:
-                BX=int(iBX)
-                selBX.add(BX)
+                bx=int(ibx)
+                sel_bx.add(bx)
             except:
-                print(iBX,"is not an int")
-        print("Processing",args.inputFile,"with selected BXs:", sorted(selBX))
+                print(ibx,"is not an int")
+        print("Processing",args.inputFile,"with selected BXs:", sorted(sel_bx))
     else:
         print("Processing",args.inputFile,"with all BX")
 
@@ -144,65 +45,102 @@ if __name__ == '__main__':
     # run/fill as well as the spaces separating the per-BX information.
     sepRE = re.compile(r'[\]\[\s,;:]+')
     csv_input = open(args.inputFile, 'r')
-    OldRun = -1
+    last_run = -1
 
-    LastValidLumi = []
-    LastDelivered = 0
+    last_valid_lumi = []
 
     output_line = '{'
     for line in csv_input:
-        runLumiDict = {}    
-        csvDict = {}
-
         if line[0] == '#':
-            continue
+            continue # skip comment lines
 
-        pieces = sepRE.split (line.strip())
-
-        ipiece = 0
+        pieces = sepRE.split(line.strip())
 
         if len(pieces) < 15:
             # The most likely cause of this is that we're using a csv file without the bunch data, so might as well
             # just give up now.
             raise RuntimeError("Not enough fields in input line; maybe you forgot to include --xing in your brilcalc command?\n"+line)
         try:
-            run,       lumi     = int  ( pieces[0] ), int  ( pieces[2] )
-            delivered, recorded = float( pieces[11] ), float( pieces[12] )
-            luminometer = str( pieces[14] )
-            xingInstLumiArray = [( int(orbit), float(lum), float(lumdelv) ) \
-                                 for orbit, lum, lumdelv in zip( pieces[15::3],
-                                                                 pieces[16::3],
-                                                                 pieces[17::3]) ]
+            run = int(pieces[0])
+            lumi_section = int(pieces[2])
+            #tot_del_lumi = float(pieces[11])
+            #tot_rec_lumi = float(pieces[12])
+            luminometer = pieces[14]
+            xing_lumi_array = [( int(bxid), float(bunch_del_lumi), float(bunch_rec_lumi) ) \
+                               for bxid, bunch_del_lumi, bunch_rec_lumi in zip( pieces[15::3],
+                                                                                pieces[16::3],
+                                                                                pieces[17::3]) ]
         except:
             print("Failed to parse line: check if the input format has changed")
             print(pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6],pieces[7],pieces[8],pieces[9])
             continue
 
-        csvDict.setdefault (run, {})[lumi] = \
-                           ( delivered, recorded, xingInstLumiArray )
-
-        if run != OldRun:
-            if OldRun>0:
+        if run != last_run:
+            if last_run>0:
                 # add one empty lumi section at the end of each run, to mesh with JSON files
-                LumiString = "[%d,0.0,0.0,0.0]," % (LastValidLumi[0]+1)
-                output_line+=LumiString
-
+                output_line += "[%d,0.0,0.0,0.0]," % (last_valid_lumi[0]+1)
                 output_line = output_line[:-1] + '], '
-            OldRun = run
-            output_line+= ('"%d":' % run )
-            output_line+= ' ['
+            last_run = run
+            output_line += ('"%d":' % run )
+            output_line += ' ['
 
-            if lumi == 2:  # there is a missing LS=1 for this run
-                output_line+= '[1,0.0,0.0,0.0],'
+            if lumi_section == 2:  # there is a missing LS=1 for this run
+                output_line += '[1,0.0,0.0,0.0],'
 
-        for runNumber, lumiDict in sorted( six.iteritems(csvDict) ):
-            LumiArray = CalcPileup(lumiDict, parameters, luminometer, selBX)
+        # Now do the actual parsing.
+        if luminometer == "HFOC":
+            threshold = 8.
+        else:
+            threshold = 1.2
 
-            LastValidLumi = LumiArray
-            LastDelivered = lumiDict[LumiArray[0]][0] 
+        total_lumi = 0 
+        total_int = 0
+        total_int2 = 0
+        total_weight = 0
+        total_weight2 = 0
+        filled_xings = 0
 
-            LumiString = "[%d,%2.4e,%2.4e,%2.4e]," % (LumiArray[0], LumiArray[1], LumiArray[2], LumiArray[3])
-            output_line += LumiString
+        # first loop to get sum for (weighted) mean
+        for bxid, bunch_del_lumi, bunch_rec_lumi in xing_lumi_array:
+            if sel_bx and bxid not in sel_bx:
+                continue
+            if bunch_del_lumi > threshold:
+                total_lumi += bunch_rec_lumi
+                # this will eventually be_pileup*bunch_rec_lumi but it's quicker to apply the factor once outside the loop
+                total_int += bunch_del_lumi*bunch_rec_lumi
+                filled_xings += 1
+
+        # convert sum to pileup and get the mean
+        total_int *= parameters.orbitLength / parameters.lumiSectionLength
+        if total_lumi > 0:
+            mean_int = total_int/total_lumi
+        else:
+            mean_int = 0
+
+        # second loop to get (weighted) RMS
+        for bxid, bunch_del_lumi, bunch_rec_lumi in xing_lumi_array:
+            if sel_bx and bxid not in sel_bx:
+                continue
+            if bunch_del_lumi > threshold:
+                mean_pileup = bunch_del_lumi * parameters.orbitLength / parameters.lumiSectionLength
+                if mean_pileup > 100:
+                    print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
+                          (runNumber, lumi_section, mean_pileup, bunch_del_lumi))
+                    #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumi_section, mean_pileup, bxid, bunch_rec_lumi)
+
+                total_int2 += bunch_rec_lumi*(mean_pileup-mean_int)*(mean_pileup-mean_int)
+                total_weight += bunch_rec_lumi
+                total_weight2 += bunch_rec_lumi*bunch_rec_lumi
+
+        # compute final RMS and write it out
+        #print " LS, Total lumi, filled xings %d, %f, %d" %(lumi_section,total_lumi,filled_xings)
+        bunch_rms_lumi = 0
+        denom = total_weight*total_weight-total_weight2
+        if total_lumi > 0 and denom > 0:
+            bunch_rms_lumi = sqrt(total_weight*total_int2/denom)
+
+        output_line += "[%d,%2.4e,%2.4e,%2.4e]," % (lumi_section, total_lumi, bunch_rms_lumi, mean_int)
+        last_valid_lumi = [lumi_section, total_lumi, bunch_rms_lumi, mean_int]
 
     output_line = output_line[:-1] + ']}'
     csv_input.close()
@@ -214,7 +152,3 @@ if __name__ == '__main__':
     outputfile.write(output_line)
     outputfile.close()
     print("Output written to", output)
-
-    sys.exit()
-
-
