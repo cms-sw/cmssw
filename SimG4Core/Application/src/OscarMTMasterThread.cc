@@ -208,7 +208,7 @@ void OscarMTMasterThread::readES(const edm::EventSetup& iSetup) const {
     return;
 
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  if(m_pGeoFromDD4hep) {
+  if (m_pGeoFromDD4hep) {
     edm::ESTransientHandle<cms::DDCompactView> pDD;
     iSetup.get<IdealGeometryRecord>().get(pDD);
     m_pDD4hep = pDD.product();

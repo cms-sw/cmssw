@@ -102,7 +102,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
 RunManagerMT::~RunManagerMT() { stopG4(); }
 
 void RunManagerMT::initG4(const DDCompactView* pDD,
-			  const cms::DDCompactView* pDD4hep,
+                          const cms::DDCompactView* pDD4hep,
                           const MagneticField* pMF,
                           const HepPDT::ParticleDataTable* fPDGTable) {
   if (m_managerInitialized)
@@ -113,12 +113,12 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_lv;
   dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
-  if(geoFromDD4hep) {
+  if (geoFromDD4hep) {
     m_world.reset(new DDDWorld(pDD4hep->detector(), lvMap));
   } else {
     m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
   }
-  
+
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
