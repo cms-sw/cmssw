@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Script to estimate average and RMS pileup using the per-bunch luminosity information provided by brilcalc. The output is a JSON file containing a dictionary by runs with one entry per lumi section.")
     parser.add_argument('inputFile', help='CSV input file as produced from brilcalc')
     parser.add_argument('outputFile', help='Name of JSON output file')
-    parser.add_argument('-b', '--selBX', help='Comma-separated list of BXs to use (will use all by default)')
+    parser.add_argument('-b', '--selBX', metavar='BXLIST', help='Comma-separated list of BXs to use (will use all by default)')
     args = parser.parse_args()
 
     output = args.outputFile
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     if args.selBX:
         for ibx in args.selBX.split(","):
             try:
-                bx=int(ibx)
+                bx = int(ibx)
                 sel_bx.add(bx)
             except:
                 print(ibx,"is not an int")
@@ -76,16 +76,12 @@ if __name__ == '__main__':
             continue
 
         if run != last_run:
-            if last_run>0:
-                # add one empty lumi section at the end of each run, to mesh with JSON files
-                output_line += "[%d,0.0,0.0,0.0]," % (last_valid_lumi[0]+1)
+            # the script also used to add a dummy LS at the end of runs but this is not necessary in run 2
+            if last_run > 0:
                 output_line = output_line[:-1] + '], '
             last_run = run
-            output_line += ('"%d":' % run )
+            output_line += ('\n"%d":' % run )
             output_line += ' ['
-
-            if lumi_section == 2:  # there is a missing LS=1 for this run
-                output_line += '[1,0.0,0.0,0.0],'
 
         # Now do the actual parsing.
         if luminometer == "HFOC":
