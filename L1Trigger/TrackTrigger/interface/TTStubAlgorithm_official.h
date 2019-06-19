@@ -43,8 +43,8 @@ private:
   std::string className_;
 
   std::vector<double> barrelCut;
-  std::vector<std::vector<double> > ringCut;
-  std::vector<std::vector<double> > tiltedCut;
+  std::vector<std::vector<double>> ringCut;
+  std::vector<std::vector<double>> tiltedCut;
   std::vector<double> barrelNTilt;
 
 public:
@@ -52,8 +52,8 @@ public:
   TTStubAlgorithm_official(const TrackerGeometry *const theTrackerGeom,
                            const TrackerTopology *const theTrackerTopo,
                            std::vector<double> setBarrelCut,
-                           std::vector<std::vector<double> > setRingCut,
-                           std::vector<std::vector<double> > setTiltedCut,
+                           std::vector<std::vector<double>> setRingCut,
+                           std::vector<std::vector<double>> setTiltedCut,
                            std::vector<double> setBarrelNTilt,
                            bool aPerformZMatchingPS,
                            bool aPerformZMatching2S)
@@ -118,8 +118,8 @@ private:
 
   /// Windows
   std::vector<double> setBarrelCut;
-  std::vector<std::vector<double> > setRingCut;
-  std::vector<std::vector<double> > setTiltedCut;
+  std::vector<std::vector<double>> setRingCut;
+  std::vector<std::vector<double>> setTiltedCut;
 
   std::vector<double> setBarrelNTilt;
 
@@ -132,19 +132,19 @@ public:
   ES_TTStubAlgorithm_official(const edm::ParameterSet &p) {
     mPerformZMatchingPS = p.getParameter<bool>("zMatchingPS");
     mPerformZMatching2S = p.getParameter<bool>("zMatching2S");
-    setBarrelCut = p.getParameter<std::vector<double> >("BarrelCut");
-    setBarrelNTilt = p.getParameter<std::vector<double> >("NTiltedRings");
+    setBarrelCut = p.getParameter<std::vector<double>>("BarrelCut");
+    setBarrelNTilt = p.getParameter<std::vector<double>>("NTiltedRings");
 
-    std::vector<edm::ParameterSet> vPSet = p.getParameter<std::vector<edm::ParameterSet> >("EndcapCutSet");
-    std::vector<edm::ParameterSet> vPSet2 = p.getParameter<std::vector<edm::ParameterSet> >("TiltedBarrelCutSet");
+    std::vector<edm::ParameterSet> vPSet = p.getParameter<std::vector<edm::ParameterSet>>("EndcapCutSet");
+    std::vector<edm::ParameterSet> vPSet2 = p.getParameter<std::vector<edm::ParameterSet>>("TiltedBarrelCutSet");
 
     std::vector<edm::ParameterSet>::const_iterator iPSet;
     for (iPSet = vPSet.begin(); iPSet != vPSet.end(); iPSet++) {
-      setRingCut.push_back(iPSet->getParameter<std::vector<double> >("EndcapCut"));
+      setRingCut.push_back(iPSet->getParameter<std::vector<double>>("EndcapCut"));
     }
 
     for (iPSet = vPSet2.begin(); iPSet != vPSet2.end(); iPSet++) {
-      setTiltedCut.push_back(iPSet->getParameter<std::vector<double> >("TiltedCut"));
+      setTiltedCut.push_back(iPSet->getParameter<std::vector<double>>("TiltedCut"));
     }
 
     setWhatProduced(this).setConsumes(mGeomToken).setConsumes(mTopoToken);
