@@ -16,17 +16,50 @@
 //
 //
 
-#include "L1Trigger/RPCTrigger/interface/RPCConeBuilder.h"
-
+#include "CondFormats/DataRecord/interface/L1RPCConeBuilderRcd.h"
+#include "CondFormats/L1TObjects/interface/L1RPCConeDefinition.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConeBuilder.h"
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "L1Trigger/RPCTrigger/interface/RPCStripsRing.h"
 
 #include <cmath>
 #include <vector>
+#include <map>
+#include <memory>
+#include <utility>
+
+class RPCConeBuilder : public edm::ESProducer {
+public:
+  RPCConeBuilder(const edm::ParameterSet&);
+
+  using ReturnType = std::unique_ptr<L1RPCConeBuilder>;
+
+  ReturnType produce(const L1RPCConeBuilderRcd&);
+
+private:
+  void buildCones(RPCGeometry const*, L1RPCConeDefinition const*, RPCStripsRing::TIdToRindMap&);
+
+  void buildConnections(L1RPCConeDefinition const*, RPCStripsRing::TIdToRindMap&);
+
+  /// In the pair that is returned, the first element is the logplane number
+  /// for this connection (if not connected returns -1) and the second element
+  /// is lpSize.
+  std::pair<int, int> areConnected(RPCStripsRing::TIdToRindMap::iterator ref,
+                                   RPCStripsRing::TIdToRindMap::iterator other,
+                                   L1RPCConeDefinition const*);
+
+  // ----------member data ---------------------------
+  int m_towerBeg;
+  int m_towerEnd;
+};
 
 RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig)
     : m_towerBeg(iConfig.getParameter<int>("towerBeg")), m_towerEnd(iConfig.getParameter<int>("towerEnd")) {
@@ -218,3 +251,5 @@ std::pair<int, int> RPCConeBuilder::areConnected(RPCStripsRing::TIdToRindMap::it
   }
   return std::make_pair(logplane, lpSize);
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(RPCConeBuilder);
