@@ -98,18 +98,19 @@ void RPCConeBuilder::buildCones(RPCGeometry const* rpcGeom,
 
   int rolls = 0;
   for (auto const& it : rpcGeom->dets()) {
-    if (dynamic_cast<RPCRoll const*>(it) == nullptr) {
+    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(it);
+    if (roll == nullptr) {
       continue;
     }
 
     ++rolls;
-    RPCRoll const* roll = dynamic_cast<RPCRoll const*>(it);
 
     int ringId = RPCStripsRing::getRingId(roll);
-    if (ringsMap.find(ringId) == ringsMap.end()) {
+    auto found = ringsMap.find(ringId);
+    if (found == ringsMap.end()) {
       ringsMap[ringId] = RPCStripsRing(roll, uncompressedCons);
     } else {
-      ringsMap[ringId].addRoll(roll);
+      found->second.addRoll(roll);
     }
   }
 
