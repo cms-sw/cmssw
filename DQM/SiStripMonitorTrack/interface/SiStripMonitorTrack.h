@@ -123,8 +123,8 @@ private:
                     const SiStripGain* stripGain,
                     const SiStripQuality* stripQuality,
                     const edm::DetSetVector<SiStripDigi>& digilist,
-		    float clustZ,
-		    float clustPhi);
+                    float clustZ,
+                    float clustPhi);
   template <class T>
   void RecHitInfo(const T* tkrecHit,
                   LocalVector LV,

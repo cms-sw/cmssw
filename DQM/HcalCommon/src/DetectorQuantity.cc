@@ -26,7 +26,7 @@ namespace hcaldqm {
 
     uint32_t getBin_ieta(HcalDetId const &did) { return (uint32_t)(getValue_ieta(did) + 1); }
 
-    uint32_t getBin_depth(HcalDetId const &did) { //return (uint32_t)(did.depth());}
+    uint32_t getBin_depth(HcalDetId const &did) {  //return (uint32_t)(did.depth());}
       return (uint32_t)(did.subdet() == HcalOuter ? 7 : did.depth());
     }
 

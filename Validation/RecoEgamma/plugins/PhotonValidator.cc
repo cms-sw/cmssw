@@ -1831,7 +1831,7 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   p_eResVsNVtx_[2][1] =
       iBooker.bookProfile(histname + "unconvEndcap",
                           "Uncoverted photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",
-                         2080,
+                          2080,
                           -0.5,
                           199.5,
                           resBin,
