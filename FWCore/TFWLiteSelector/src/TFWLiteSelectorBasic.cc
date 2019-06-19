@@ -43,8 +43,8 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 

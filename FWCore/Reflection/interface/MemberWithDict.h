@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_MemberWithDict_h
-#define FWCore_Utilities_MemberWithDict_h
+#ifndef FWCore_Reflection_MemberWithDict_h
+#define FWCore_Reflection_MemberWithDict_h
 
 /*----------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ namespace edm {
 
 }  // namespace edm
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
-#endif  // FWCore_Utilities_MemberWithDict_h
+#endif  // FWCore_Reflection_MemberWithDict_h

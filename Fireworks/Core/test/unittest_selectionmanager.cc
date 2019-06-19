@@ -21,7 +21,7 @@
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
 
 #include "Fireworks/Core/interface/FWModelChangeManager.h"

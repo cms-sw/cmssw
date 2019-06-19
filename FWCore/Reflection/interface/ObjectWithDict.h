@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_ObjectWithDict_h
-#define FWCore_Utilities_ObjectWithDict_h
+#ifndef FWCore_Reflection_ObjectWithDict_h
+#define FWCore_Reflection_ObjectWithDict_h
 
 /*----------------------------------------------------------------------
 
@@ -10,7 +10,7 @@ ObjectWithDict:  A holder for an object and its type information.
 #include <string>
 #include <typeinfo>
 
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 namespace edm {
 
@@ -42,4 +42,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif  // FWCore_Utilities_ObjectWithDict_h
+#endif  // FWCore_Reflection_ObjectWithDict_h
