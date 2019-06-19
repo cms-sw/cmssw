@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
 

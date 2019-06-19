@@ -34,7 +34,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 
 // constructor
 L1GtTriggerMenuXmlParser::L1GtTriggerMenuXmlParser()

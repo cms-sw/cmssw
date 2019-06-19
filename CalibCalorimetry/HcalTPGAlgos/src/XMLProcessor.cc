@@ -21,7 +21,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/util/XMLString.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/dom/DOMNode.hpp>
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>

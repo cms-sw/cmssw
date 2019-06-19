@@ -12,7 +12,7 @@
 #include "DetectorDescription/RegressionTest/src/TagName.h"
 #include "DetectorDescription/RegressionTest/src/TinyDom.h"
 #include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "xercesc/util/PlatformUtils.hpp"
 #include "xercesc/util/XMLException.hpp"
 #include "xercesc/util/XMLUni.hpp"

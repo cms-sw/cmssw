@@ -3,7 +3,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
 #include <boost/algorithm/string.hpp>
