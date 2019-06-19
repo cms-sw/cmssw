@@ -3,7 +3,7 @@
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <xercesc/framework/MemBufInputSource.hpp>
