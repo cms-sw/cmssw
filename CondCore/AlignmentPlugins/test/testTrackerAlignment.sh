@@ -69,3 +69,14 @@ do
  	--test;
     
 done
+
+# add example of single IOV barycenter dump
+#*************************************************************************#
+getPayloadData.py \
+    --plugin pluginTrackerAlignment_PayloadInspector \
+    --plot plot_TrackerAlignmentBarycenters \
+    --tag TrackerAlignment_Upgrade2017_realistic_v3 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
