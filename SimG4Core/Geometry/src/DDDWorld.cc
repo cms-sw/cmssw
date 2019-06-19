@@ -39,33 +39,12 @@ DDDWorld::DDDWorld(const cms::DDDetector* ddd, dd4hep::sim::Geant4GeometryMaps::
     << "DD4hep_DDDWorld: initialization of DDDWorld...";
   
   DetElement world = ddd->description()->world();
-  printout(INFO,"SimDD4CMS",
-	   "+++ DDDWorld::DDDWorld start... %s",
-	   world.name());
   const Detector& detector = *ddd->description();
   Geant4Converter g4Geo(detector);
   Geant4GeometryInfo* geometry = g4Geo.create(world).detach();
-  map = geometry->g4Volumes;
-  
-  auto it = geometry->g4Volumes.find(detector.worldVolume().ptr());
-  std::cout << "The world is " << it->first.name() << "\n";
-  
-  if (geometry) {
-    for(auto iter = map.begin(); iter != map.end(); ++iter) {
-      std::cout << iter->first.name() << " = ";
-      if(iter->second)
-	std::cout << iter->second->GetName() << "; ";
-      else
-	std::cout << "***none***; ";
-    }
-    std::cout << "\n"; 
-  }
- 
+  map = geometry->g4Volumes;   
   m_world = geometry->world();
-
   SetAsWorld(m_world);
-  printout(INFO,"SimDD4CMS",
-	   "+++ DDDWorld::DDDWorld done!");
 
   LogVerbatim("SimG4CoreApplication") 
     << "DD4hep_DDDWorld: initialization of DDDWorld done.";
