@@ -66,9 +66,9 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig) {
   fileName = iConfig.getParameter<string>("fileName");
 
   // ### Set internal variables ###
-  nParams = 9;  // Number of free parameters in the fit
+  nParams = 9; // Number of free parameters in the fit
   internalDebug = false;
-  considerVxCovariance = true;  // Deconvolute vertex covariance matrix
+  considerVxCovariance = true; // Deconvolute vertex covariance matrix
   pi = 3.141592653589793238;
   // ##############################
 }
@@ -792,11 +792,11 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
   if ((outputFile.is_open() == true) && (vals != nullptr) && (vals->size() == (nParams - 1) * 2)) {
     vector<double>::const_iterator it = vals->begin();
 
-    outputFile << "Runnumber " << runNumber << endl;
+    outputFile << "Runnumber "      << runNumber << endl;
     outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
-    outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
-    outputFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
-    outputFile << "Type " << dataType << endl;
+    outputFile << "EndTimeOfFit "   << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
+    outputFile << "LumiRange "      << beginLumiOfFit << " - " << endLumiOfFit << endl;
+    outputFile << "Type "           << dataType << endl;
     // 3D Vertexing with Pixel Tracks:
     // Good data = Type  3
     // Bad data  = Type -1
@@ -844,14 +844,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 
     outputFile << "EmittanceX 0" << endl;
     outputFile << "EmittanceY 0" << endl;
-    outputFile << "BetaStar 0" << endl;
-    outputFile << "events 0" << endl;
-    outputFile << "meanPV 0" << endl;
-    outputFile << "meanErrPV 0" << endl;
-    outputFile << "rmsPV 0" << endl;
-    outputFile << "rmsErrPV 0" << endl;
-    outputFile << "maxPV 0" << endl;
-    outputFile << "nPV " << counterVx << endl;
+    outputFile << "BetaStar 0"   << endl;
   }
   outputFile.close();
 
@@ -859,11 +852,11 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
       (vals->size() == (nParams - 1) * 2)) {
     vector<double>::const_iterator it = vals->begin();
 
-    outputDebugFile << "Runnumber " << runNumber << endl;
+    outputDebugFile << "Runnumber "      << runNumber << endl;
     outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
-    outputDebugFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
-    outputDebugFile << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
-    outputDebugFile << "Type " << dataType << endl;
+    outputDebugFile << "EndTimeOfFit "   << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
+    outputDebugFile << "LumiRange "      << beginLumiOfFit << " - " << endLumiOfFit << endl;
+    outputDebugFile << "Type "           << dataType << endl;
     // 3D Vertexing with Pixel Tracks:
     // Good data = Type  3
     // Bad data  = Type -1
@@ -911,18 +904,9 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 
     outputDebugFile << "EmittanceX 0" << endl;
     outputDebugFile << "EmittanceY 0" << endl;
-    outputDebugFile << "BetaStar 0" << endl;
-    outputDebugFile << "events 0" << endl;
-    outputDebugFile << "meanPV 0" << endl;
-    outputDebugFile << "meanErrPV 0" << endl;
-    outputDebugFile << "rmsPV 0" << endl;
-    outputDebugFile << "rmsErrPV 0" << endl;
-    outputDebugFile << "maxPV 0" << endl;
-    outputDebugFile << "nPV " << counterVx << endl;
+    outputDebugFile << "BetaStar 0"   << endl;
 
-    outputDebugFile << "\n"
-                    << "Used vertices: " << counterVx << "\n"
-                    << endl;
+    outputDebugFile << "\nUsed vertices: " << counterVx << "\n" << endl;
   }
 }
 
