@@ -17,26 +17,25 @@ public:
 
   void fill(const std::vector<float>& x, const std::vector<float>& y, const std::vector<float>& eta, const std::vector<float>& phi, const std::vector<bool>& isSilic) {
     auto cellsSize = x.size();
-    //std::cout << "constants: " << hgcaltilesconstants::nColumnsEta << " " << hgcaltilesconstants::nRowsPhi << std::endl;
     for (unsigned int i = 0; i < cellsSize; ++i) {
       tiles_[getGlobalBin(x[i], y[i])].push_back(i);
       if (!isSilic[i]) {
 	tiles_[getGlobalBinEtaPhi(eta[i], phi[i])].push_back(i);
-	if (getPhiBin(phi[i]) == 1) {
-	  tiles_[getGlobalBinEtaPhi(eta[i], phi[i]+2*M_PI)].push_back(i); 
-//	  std::cout << " fill: " << i 
-//		    << " x: " << x[i]
-//		    << " y: " << y[i]
-//		    << " binXY: " << getGlobalBin(x[i], y[i])
-//		    << " eta: " << eta[i]
-//		    << " phi: " << phi[i]
-//		    << " binEta: " << getEtaBin(eta[i])
-//		    << " binPhi: " << getPhiBin(phi[i]) 
-//		    << " binEP: " << getGlobalBinEtaPhi(eta[i], phi[i])
-//		    << " newPhi: " << phi[i]+2*M_PI
-//		    << " binNewPhi: " << getPhiBin(phi[i]+2*M_PI)
-//		    << " binNewEP: " << getGlobalBinEtaPhi(eta[i], phi[i]+2*M_PI)
-//		    << "\n";
+	if (getPhiBin(phi[i]) == 1) {     // need to do this to handle cells at phi=+/-pi
+	  tiles_[getGlobalBinEtaPhi(eta[i], phi[i]+2*M_PI)].push_back(i);
+	  LogDebug("HGCalLayerTiles") << "Debugging fill for cells at phi=pi: \n"
+				      << "  fill: " << i 
+				      << " x: " << x[i]
+				      << " y: " << y[i]
+				      << " binXY: " << getGlobalBin(x[i], y[i])
+				      << " eta: " << eta[i]
+				      << " phi: " << phi[i]
+				      << " binEta: " << getEtaBin(eta[i])
+				      << " binPhi: " << getPhiBin(phi[i]) 
+				      << " binEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i])
+				      << " newPhi: " << phi[i]+2*M_PI
+				      << " binNewPhi: " << getPhiBin(phi[i]+2*M_PI)
+				      << " binNewEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i]+2*M_PI) << "\n";
 	}
 	if (getPhiBin(phi[i]) == 42) {
 	  tiles_[getGlobalBinEtaPhi(eta[i], phi[i]-2*M_PI)].push_back(i); 
