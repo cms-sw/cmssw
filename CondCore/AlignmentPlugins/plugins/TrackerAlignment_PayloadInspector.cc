@@ -544,11 +544,12 @@ namespace {
   *************************************************/
   class TrackerAlignmentBarycenters : public cond::payloadInspector::PlotImage<Alignments> {
   public:
-    TrackerAlignmentBarycenters() : cond::payloadInspector::PlotImage<Alignments>("Display of Tracker Alignment Barycenters") {
+    TrackerAlignmentBarycenters()
+        : cond::payloadInspector::PlotImage<Alignments>("Display of Tracker Alignment Barycenters") {
       setSingleIov(true);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       auto iov = iovs.front();
       std::shared_ptr<Alignments> payload = fetchPayload(std::get<1>(iov));
       unsigned int run = std::get<0>(iov);
@@ -564,28 +565,28 @@ namespace {
       canvas.SetGrid();
 
       auto h2_BarycenterParameters =
-	std::unique_ptr<TH2F>(new TH2F("Parameters", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+          std::unique_ptr<TH2F>(new TH2F("Parameters", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
 
       auto h2_uncBarycenterParameters =
-	std::unique_ptr<TH2F>(new TH2F("Parameters2", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+          std::unique_ptr<TH2F>(new TH2F("Parameters2", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
 
       h2_BarycenterParameters->SetStats(false);
-      h2_BarycenterParameters->SetTitle(0);
+      h2_BarycenterParameters->SetTitle(nullptr);
       h2_uncBarycenterParameters->SetStats(false);
-      h2_uncBarycenterParameters->SetTitle(0);
+      h2_uncBarycenterParameters->SetTitle(nullptr);
 
       std::vector<AlignTransform> alignments = payload->m_align;
 
-      std::array<double, 6> Xbarycenters = {{0.,0.,0.,0.,0.,0.}};
-      std::array<double, 6> Ybarycenters = {{0.,0.,0.,0.,0.,0.}};
-      std::array<double, 6> Zbarycenters = {{0.,0.,0.,0.,0.,0.}};
+      std::array<double, 6> Xbarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> Ybarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> Zbarycenters = {{0., 0., 0., 0., 0., 0.}};
 
-      std::array<double, 6> c_Xbarycenters = {{0.,0.,0.,0.,0.,0.}};
-      std::array<double, 6> c_Ybarycenters = {{0.,0.,0.,0.,0.,0.}};
-      std::array<double, 6> c_Zbarycenters = {{0.,0.,0.,0.,0.,0.}};
+      std::array<double, 6> c_Xbarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> c_Ybarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> c_Zbarycenters = {{0., 0., 0., 0., 0., 0.}};
 
-      std::array<double, 6> nmodules = {{0.,0.,0.,0.,0.,0.}};    
-      
+      std::array<double, 6> nmodules = {{0., 0., 0., 0., 0., 0.}};
+
       for (const auto &ali : alignments) {
         if (DetId(ali.rawId()).det() != DetId::Tracker) {
           edm::LogWarning("TrackerAlignment_PayloadInspector")
@@ -594,56 +595,55 @@ namespace {
           return false;
         }
 
-	int subid = DetId(ali.rawId()).subdetId();
-	
-	switch(subid) {
-	case 1: 
-	  Xbarycenters[0] += (ali.translation().x());  
-	  Ybarycenters[0] += (ali.translation().y());  
-	  Zbarycenters[0] += (ali.translation().z());  
-	  nmodules[0]++;
-	case 2:
-	  Xbarycenters[1] += (ali.translation().x());  
-	  Ybarycenters[1] += (ali.translation().y());  
-	  Zbarycenters[1] += (ali.translation().z());  
-	  nmodules[1]++;
-	case 3:
-	  Xbarycenters[2] += (ali.translation().x());  
-	  Ybarycenters[2] += (ali.translation().y());  
-	  Zbarycenters[2] += (ali.translation().z());  
-	  nmodules[2]++;
-	case 4:
-	  Xbarycenters[3] += (ali.translation().x());  
-	  Ybarycenters[3] += (ali.translation().y());  
-	  Zbarycenters[3] += (ali.translation().z());  
-	  nmodules[3]++;
-	case 5:
-	  Xbarycenters[4] += (ali.translation().x());  
-	  Ybarycenters[4] += (ali.translation().y());  
-	  Zbarycenters[4] += (ali.translation().z());  
-	  nmodules[4]++;
-	case 6:
-	  Xbarycenters[5] += (ali.translation().x());  
-	  Ybarycenters[5] += (ali.translation().y());  
-	  Zbarycenters[5] += (ali.translation().z());  
-	  nmodules[5]++;
-	}	
+        int subid = DetId(ali.rawId()).subdetId();
+
+        switch (subid) {
+          case 1:
+            Xbarycenters[0] += (ali.translation().x());
+            Ybarycenters[0] += (ali.translation().y());
+            Zbarycenters[0] += (ali.translation().z());
+            nmodules[0]++;
+          case 2:
+            Xbarycenters[1] += (ali.translation().x());
+            Ybarycenters[1] += (ali.translation().y());
+            Zbarycenters[1] += (ali.translation().z());
+            nmodules[1]++;
+          case 3:
+            Xbarycenters[2] += (ali.translation().x());
+            Ybarycenters[2] += (ali.translation().y());
+            Zbarycenters[2] += (ali.translation().z());
+            nmodules[2]++;
+          case 4:
+            Xbarycenters[3] += (ali.translation().x());
+            Ybarycenters[3] += (ali.translation().y());
+            Zbarycenters[3] += (ali.translation().z());
+            nmodules[3]++;
+          case 5:
+            Xbarycenters[4] += (ali.translation().x());
+            Ybarycenters[4] += (ali.translation().y());
+            Zbarycenters[4] += (ali.translation().z());
+            nmodules[4]++;
+          case 6:
+            Xbarycenters[5] += (ali.translation().x());
+            Ybarycenters[5] += (ali.translation().y());
+            Zbarycenters[5] += (ali.translation().z());
+            nmodules[5]++;
+        }
       }
 
-      for(unsigned int i=0; i<6;i++){
-	Xbarycenters[i] /= nmodules[i];
-	Ybarycenters[i] /= nmodules[i];
-	Zbarycenters[i] /= nmodules[i];
+      for (unsigned int i = 0; i < 6; i++) {
+        Xbarycenters[i] /= nmodules[i];
+        Ybarycenters[i] /= nmodules[i];
+        Zbarycenters[i] /= nmodules[i];
 
-	c_Xbarycenters[i] = Xbarycenters[i];
-	c_Ybarycenters[i] = Ybarycenters[i];
-	c_Zbarycenters[i] = Zbarycenters[i];
+        c_Xbarycenters[i] = Xbarycenters[i];
+        c_Ybarycenters[i] = Ybarycenters[i];
+        c_Zbarycenters[i] = Zbarycenters[i];
 
-	c_Xbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_x);
-	c_Ybarycenters[i] += hardcodeGPR.at(AlignmentPI::t_y);
-	c_Zbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_z);
+        c_Xbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_x);
+        c_Ybarycenters[i] += hardcodeGPR.at(AlignmentPI::t_y);
+        c_Zbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_z);
       }
-
 
       h2_BarycenterParameters->GetXaxis()->SetBinLabel(1, "X [cm]");
       h2_BarycenterParameters->GetXaxis()->SetBinLabel(2, "Y [cm]");
@@ -653,15 +653,15 @@ namespace {
       h2_BarycenterParameters->GetXaxis()->SetBinLabel(6, "Z_{no GPR} [cm]");
 
       unsigned int yBin = 6;
-      for (unsigned int i=0;i<6;i++) {
+      for (unsigned int i = 0; i < 6; i++) {
         std::string theLabel = getStringFromInt(i);
         h2_BarycenterParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
-        h2_BarycenterParameters->SetBinContent(1,yBin,c_Xbarycenters[i]);
-        h2_BarycenterParameters->SetBinContent(2,yBin,c_Ybarycenters[i]);
-        h2_BarycenterParameters->SetBinContent(3,yBin,c_Zbarycenters[i]);
-        h2_uncBarycenterParameters->SetBinContent(4,yBin,Xbarycenters[i]);
-        h2_uncBarycenterParameters->SetBinContent(5,yBin,Ybarycenters[i]);
-        h2_uncBarycenterParameters->SetBinContent(6,yBin,Zbarycenters[i]);
+        h2_BarycenterParameters->SetBinContent(1, yBin, c_Xbarycenters[i]);
+        h2_BarycenterParameters->SetBinContent(2, yBin, c_Ybarycenters[i]);
+        h2_BarycenterParameters->SetBinContent(3, yBin, c_Zbarycenters[i]);
+        h2_uncBarycenterParameters->SetBinContent(4, yBin, Xbarycenters[i]);
+        h2_uncBarycenterParameters->SetBinContent(5, yBin, Ybarycenters[i]);
+        h2_uncBarycenterParameters->SetBinContent(6, yBin, Zbarycenters[i]);
         yBin--;
       }
 
@@ -685,11 +685,11 @@ namespace {
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
-      return true;     
+      return true;
     }
 
     /************************************************/
-    std::string getStringFromInt(const int& index) {
+    std::string getStringFromInt(const int &index) {
       switch (index) {
         case 0:
           return "BPix";
