@@ -28,11 +28,7 @@ public:
   void build(CSCGeometry& geom, const DDCompactView* fv, const MuonDDDConstants& muonConstants);
 
 protected:
-
 private:
-
   const std::string myName;
-
 };
 #endif
-
