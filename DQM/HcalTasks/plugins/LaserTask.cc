@@ -566,11 +566,13 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
   edm::Handle<QIE10DigiCollection> c_QIE10;
 
   if (!e.getByToken(_tokQIE11, c_QIE11))
-    _logger.dqmthrow("Collection QIE11DigiCollection isn't available " + _tagQIE11.label() + " " + _tagQIE11.instance());
+    _logger.dqmthrow("Collection QIE11DigiCollection isn't available " + _tagQIE11.label() + " " +
+                     _tagQIE11.instance());
   if (!e.getByToken(_tokHO, c_ho))
     _logger.dqmthrow("Collection HODigiCollection isn't available " + _tagHO.label() + " " + _tagHO.instance());
   if (!e.getByToken(_tokQIE10, c_QIE10))
-    _logger.dqmthrow("Collection QIE10DigiCollection isn't available " + _tagQIE10.label() + " " + _tagQIE10.instance());
+    _logger.dqmthrow("Collection QIE10DigiCollection isn't available " + _tagQIE10.label() + " " +
+                     _tagQIE10.instance());
 
   //	int currentEvent = e.eventAuxiliary().id().event();
   int bx = e.bunchCrossing();
