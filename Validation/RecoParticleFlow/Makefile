@@ -1,4 +1,4 @@
-TMPDIR=tmp
+TMPDIR=test/tmp
 RELVALCMD=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/run_relval.sh
 DQM_MC=DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO
 
@@ -7,8 +7,8 @@ conf:
 
 dumpconf:
 	cd ${TMPDIR}/conf && python -c 'import step3; print step3.process.dumpPython()' > step3_dump.py
-	cp ${TMPDIR}/conf/step3.py crab/
-	cp ${TMPDIR}/conf/step3_dump.py crab/
+	cp ${TMPDIR}/conf/step3.py test/crab/
+	cp ${TMPDIR}/conf/step3_dump.py test/crab/
 
 QCD: QCD_reco QCD_dqm
 
@@ -61,9 +61,10 @@ plots:
 	rm -Rf plots	
 	python test/compare.py \
 		--sample FlatQCD_noPU:${TMPDIR}/QCD/${DQM_MC}.root:${TMPDIR}/QCD/${DQM_MC}.root \
-		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU/${DQM_MC}.root \
-		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU/${DQM_MC}.root \
 		--doResponsePlots --doOffsetPlots
+#		--sample FlatQCD_PU25ns:${TMPDIR}/QCDPU/${DQM_MC}.root:${TMPDIR}/QCDPU/${DQM_MC}.root \
+#		--sample NuGunPU:${TMPDIR}/NuGunPU/${DQM_MC}.root:${TMPDIR}/NuGunPU/${DQM_MC}.root \
+#		--doResponsePlots --doOffsetPlots
 
 plots_with_ref:
 	rm -Rf plots	

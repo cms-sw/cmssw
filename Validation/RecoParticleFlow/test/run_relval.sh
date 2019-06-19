@@ -57,22 +57,22 @@ fi
 
 ##RelVal samples
 if [ "$1" == "QCD" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_noPU.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/QCD_noPU.txt
     NAME=QCD
 elif [ "$1" == "QCDPU" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/QCD_PU.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/QCD_PU.txt
     NAME=QCDPU
 elif [ "$1" == "ZMM" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/ZMM.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/ZMM.txt
     NAME=ZMM
 elif [ "$1" == "MinBias" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/MinBias.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/MinBias.txt
     NAME=MinBias
 elif [ "$1" == "NuGunPU" ]; then
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt
     NAME=NuGunPU
 elif [ "$1" == "conf" ]; then  # special switch for creating conf file, 
-    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/tmp/das_cache/NuGun_PU.txt # dummy
+    INPUT_FILELIST=${CMSSW_BASE}/src/Validation/RecoParticleFlow/test/tmp/das_cache/NuGun_PU.txt # dummy
     NAME=conf
 else
     echo "Argument 1 must be [QCD|QCDPU|ZMM|MinBias|NuGunPU|conf] but was $1"
@@ -124,7 +124,7 @@ if [ $STEP == "RECO" ]; then
 	echo "FILENAME="$FILENAME
 	#Run the actual CMS reco with particle flow.
 	echo "Running step RECO" 
-	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n -1 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
+	cmsDriver.py step3 --runUnscheduled  --conditions $CONDITIONS -s RAW2DIGI,L1Reco,RECO,RECOSIM,EI,PAT --datatier RECOSIM,AODSIM,MINIAODSIM --nThreads $NTHREADS -n 100 --era $ERA --eventcontent RECOSIM,AODSIM,MINIAODSIM --geometry=$GEOM --filein $FILENAME --fileout file:step3.root | tee step3.log  2>&1
    
 	#NanoAOD
 	#On lxplus, this step takes about 1 minute / 1000 events
