@@ -11,6 +11,8 @@
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
@@ -19,6 +21,7 @@
 #include "CLHEP/Random/RandGauss.h"
 
 class TrackerTopology;
+class TrackerGeometry;
 /**
  * Produces a noise tag using the same settings as the service used in the DummyDBWriter, but
  * it receives a SiStripApvGain tag from the EventSetup and uses the gain values (per apv) to
@@ -60,6 +63,9 @@ class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer
   double minimumPosValue_;
   bool stripLengthMode_;
   uint32_t printDebug_;
+
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 #endif

@@ -11,6 +11,8 @@
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 
@@ -18,6 +20,7 @@
 #include "CLHEP/Random/RandGauss.h"
 
 class TrackerTopology;
+class TrackerGeometry;
 /**
  * Produces a tag for the apvGain object starting from an already existing tag in the db. <br>
  * The input tag is used as starting point and all the values for missing apvs are filled with
@@ -52,6 +55,8 @@ class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
 
   bool printdebug_;
   edm::ParameterSet pset_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 #endif
