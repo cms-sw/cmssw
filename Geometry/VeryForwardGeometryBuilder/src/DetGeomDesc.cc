@@ -21,25 +21,20 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc::DetGeomDesc( DDFilteredView* fv ) :
-  m_trans( fv->translation()),
-  m_rot( fv->rotation()),
-  m_name((( fv->logicalPart()).ddname()).name()),
-  m_params((( fv->logicalPart()).solid()).parameters()),
-  m_copy( fv->copyno()),
-  m_z( fv->geoHistory().back().absTranslation().z())
-{}
+DetGeomDesc::DetGeomDesc(DDFilteredView* fv)
+    : m_trans(fv->translation()),
+      m_rot(fv->rotation()),
+      m_name(((fv->logicalPart()).ddname()).name()),
+      m_params(((fv->logicalPart()).solid()).parameters()),
+      m_copy(fv->copyno()),
+      m_z(fv->geoHistory().back().absTranslation().z()) {}
 
 //----------------------------------------------------------------------------------------------------
-DetGeomDesc::DetGeomDesc(const DetGeomDesc &ref)
-{
-	(*this) = ref;
-}
+DetGeomDesc::DetGeomDesc(const DetGeomDesc& ref) { (*this) = ref; }
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc& DetGeomDesc::operator= ( const DetGeomDesc &ref )
-{
+DetGeomDesc& DetGeomDesc::operator=(const DetGeomDesc& ref) {
   m_params = ref.m_params;
   m_trans = ref.m_trans;
   m_rot = ref.m_rot;
@@ -52,37 +47,24 @@ DetGeomDesc& DetGeomDesc::operator= ( const DetGeomDesc &ref )
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc::~DetGeomDesc()
-{
-  deepDeleteComponents();
-}
+DetGeomDesc::~DetGeomDesc() { deepDeleteComponents(); }
 
 //----------------------------------------------------------------------------------------------------
 
-DetGeomDesc::Container DetGeomDesc::components() const
-{
-  return m_container;
-}
+DetGeomDesc::Container DetGeomDesc::components() const { return m_container; }
 
 //----------------------------------------------------------------------------------------------------
 
-void DetGeomDesc::addComponent( DetGeomDesc* det )
-{
-  m_container.emplace_back( det );
-}
+void DetGeomDesc::addComponent(DetGeomDesc* det) { m_container.emplace_back(det); }
 
 //----------------------------------------------------------------------------------------------------
 
-void DetGeomDesc::deleteComponents()
-{
-  m_container.erase( m_container.begin(), m_container.end());
-}
+void DetGeomDesc::deleteComponents() { m_container.erase(m_container.begin(), m_container.end()); }
 
 //----------------------------------------------------------------------------------------------------
 
-void DetGeomDesc::deepDeleteComponents()
-{
-  for( auto & it : m_container ) {
+void DetGeomDesc::deepDeleteComponents() {
+  for (auto& it : m_container) {
     it->deepDeleteComponents();
     delete it;
   }
@@ -91,8 +73,7 @@ void DetGeomDesc::deepDeleteComponents()
 
 //----------------------------------------------------------------------------------------------------
 
-void DetGeomDesc::applyAlignment( const CTPPSRPAlignmentCorrectionData &t )
-{
+void DetGeomDesc::applyAlignment(const CTPPSRPAlignmentCorrectionData& t) {
   m_rot = t.getRotationMatrix() * m_rot;
   m_trans = t.getTranslation() + m_trans;
 }
