@@ -58,8 +58,7 @@ void HFNoseNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& p
   double z1(0), tolR(10.0), tolZ(1.0);
   int lay(-1);
   if (index == 0) {
-  } else if ((DetId(index).det() == DetId::Forward) && 
-	     (DetId(index).subdetId() == static_cast<int>(HFNose))) {
+  } else if ((DetId(index).det() == DetId::Forward) && (DetId(index).subdetId() == static_cast<int>(HFNose))) {
     HFNoseDetId id = HFNoseDetId(index);
     lay = id.layer();
     xy = hgcons_.locateCell(lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true);
@@ -80,20 +79,19 @@ void HFNoseNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& p
                           ? "***** ERROR *****"
                           : "");
     if (!(match && inok && outok)) {
-      edm::LogVerbatim("HGCSim") << "HFNoseNumberingScheme::Detector " << DetId(index).det() << " Layer " << lay << " R " << r2 << ":"
-                                 << r1 << ":" << rrange.first << ":" << rrange.second << " Z " << z2 << ":" << z1 << ":"
-                                 << zrange.first << ":" << zrange.second << " Match " << match << ":" << inok << ":"
-                                 << outok << " " << ck;
+      edm::LogVerbatim("HGCSim") << "HFNoseNumberingScheme::Detector " << DetId(index).det() << " Layer " << lay
+                                 << " R " << r2 << ":" << r1 << ":" << rrange.first << ":" << rrange.second << " Z "
+                                 << z2 << ":" << z1 << ":" << zrange.first << ":" << zrange.second << " Match " << match
+                                 << ":" << inok << ":" << outok << " " << ck;
       edm::LogVerbatim("HGCSim") << "Original " << pos.x() << ":" << pos.y() << " return " << xy.first << ":"
                                  << xy.second;
-      if ((DetId(index).det() == DetId::Forward) && 
-	  (DetId(index).subdetId() == static_cast<int>(HFNose))) {
+      if ((DetId(index).det() == DetId::Forward) && (DetId(index).subdetId() == static_cast<int>(HFNose))) {
         double wt = 0, xx = ((pos.z() > 0) ? pos.x() : -pos.x());
         int waferU, waferV, cellU, cellV, waferType;
         hgcons_.waferFromPosition(xx, pos.y(), lay, waferU, waferV, cellU, cellV, waferType, wt, true);
         xy = hgcons_.locateCell(lay, waferU, waferV, cellU, cellV, false, true, true);
-        edm::LogVerbatim("HGCSim") << "HFNoseNumberingScheme " << HFNoseDetId(index) << " position " << xy.first
-                                   << ":" << xy.second;
+        edm::LogVerbatim("HGCSim") << "HFNoseNumberingScheme " << HFNoseDetId(index) << " position " << xy.first << ":"
+                                   << xy.second;
       }
     }
   }
