@@ -6,7 +6,6 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
-
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerFactory.h"
 
 class TrajectoryCleanerESProducer : public edm::ESProducer {
