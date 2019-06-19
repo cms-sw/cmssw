@@ -19,5 +19,6 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="GEMDetIdAnalyzer.cc" name="GEMDetIdAnalyzer">
+  <use name="DataFormats/GEMRecHit"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
