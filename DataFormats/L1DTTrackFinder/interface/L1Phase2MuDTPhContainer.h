@@ -31,13 +31,10 @@
 //              -- Class Interface --
 //              ---------------------
 
-
 class L1Phase2MuDTPhContainer {
-
- public:
-
-  typedef std::vector<L1Phase2MuDTPhDigi>  Segment_Container;
-  typedef Segment_Container::const_iterator   Segment_iterator;
+public:
+  typedef std::vector<L1Phase2MuDTPhDigi> Segment_Container;
+  typedef Segment_Container::const_iterator Segment_iterator;
 
   //  Constructor
   L1Phase2MuDTPhContainer();
@@ -46,12 +43,8 @@ class L1Phase2MuDTPhContainer {
 
   Segment_Container const* getContainer() const;
 
-    
- private:
-
-  Segment_Container m_segments; 
-
+private:
+  Segment_Container m_segments;
 };
 
 #endif
-
