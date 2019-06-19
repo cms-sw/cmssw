@@ -50,7 +50,6 @@ HGCalTriggerGeometryESProducer::~HGCalTriggerGeometryESProducer() {
 HGCalTriggerGeometryESProducer::ReturnType HGCalTriggerGeometryESProducer::produce(const CaloGeometryRecord& iRecord) {
   //using namespace edm::es;
   ReturnType geometry(HGCalTriggerGeometryFactory::get()->create(geometry_name_, geometry_config_));
-  geometry->reset();
   if (isV9Geometry_) {
     // Initialize trigger geometry for V9 HGCAL geometry
     geometry->initialize(
