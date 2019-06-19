@@ -91,6 +91,12 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     ))
 )
 
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+process.trackerGeometry.applyAlignment = False
+
 from SimTracker.SiStripDigitizer.SiStripDigi_cfi import *
 process.prod = cms.EDAnalyzer("SiStripNoiseNormalizedWithApvGainBuilder",
                             printDebug = cms.untracked.uint32(5),
