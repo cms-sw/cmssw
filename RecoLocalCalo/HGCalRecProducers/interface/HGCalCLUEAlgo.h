@@ -86,6 +86,7 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
         1.3,
         1.3,
         5.0,
+	0.0315, // for scintillator
         });
     iDesc.add<bool>("dependSensor", true);
     iDesc.add<double>("ecut", 3.0);
@@ -184,16 +185,14 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
 
   inline float distance2(int cell1, int cell2, int layerId, bool isEtaPhi) const {  // distance squared
     if (isEtaPhi) {
-      const float dphi = (cells_[layerId].phi[cell1]*cells_[layerId].phi[cell2]>=0 || abs(cells_[layerId].phi[cell1])<1.) ?
-	cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] : cells_[layerId].phi[cell1] > 0 ?
-	cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] - 2*M_PI : cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] + 2*M_PI; 
-      //if (cells_[layerId].phi[cell1]*cells_[layerId].phi[cell2]<0) std::cout << "cell 1 phi: " << cells_[layerId].phi[cell1] << "\n";
+      const float dphi = (cells_[layerId].phi[cell1]*cells_[layerId].phi[cell2]>=0 || abs(cells_[layerId].phi[cell1])<1.) ?  // this+search box size guarantee cell1 and cell2 do not located in phi=+/-pi 
+	cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] : cells_[layerId].phi[cell1] > 0 ?  // if cell1 has phi=pi and cell2 has phi=-pi
+	cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] - 2*M_PI : cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] + 2*M_PI; // if cell1 has phi=-pi and cell2 has phi=pi
       const float deta = cells_[layerId].eta[cell1] - cells_[layerId].eta[cell2];
       return (deta * deta + dphi * dphi);
     } else {
       const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
       const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
-      //std::cout << "distance2: " << dx * dx + dy * dy << std::endl;
       return (dx * dx + dy * dy);
     }
   }  
@@ -204,9 +203,9 @@ class HGCalCLUEAlgo : public HGCalClusteringAlgoBase {
   }
   
   void prepareDataStructures(const unsigned int layerId);
-  void calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);  // return max density
-  void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);
-  int findAndAssignClusters(const unsigned int layerId, float delta_c);
+  void calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c, float delta_r);  // return max density
+  void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c, float delta_r);
+  int findAndAssignClusters(const unsigned int layerId, float delta_c, float delta_r);
   math::XYZPoint calculatePosition(const std::vector<int> &v, const unsigned int layerId) const;
   void setDensity(const unsigned int layerId);
 };
