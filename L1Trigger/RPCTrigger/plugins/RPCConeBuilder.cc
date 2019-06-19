@@ -57,13 +57,15 @@ private:
                                    L1RPCConeDefinition const*);
 
   // ----------member data ---------------------------
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> m_rpcGeometryToken;
+  edm::ESGetToken<L1RPCConeDefinition, L1RPCConeDefinitionRcd> m_l1RPCConeDefinitionToken;
   int m_towerBeg;
   int m_towerEnd;
 };
 
 RPCConeBuilder::RPCConeBuilder(const edm::ParameterSet& iConfig)
     : m_towerBeg(iConfig.getParameter<int>("towerBeg")), m_towerEnd(iConfig.getParameter<int>("towerEnd")) {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(m_rpcGeometryToken).setConsumes(m_l1RPCConeDefinitionToken);
 }
 
 // ------------ method called to produce the data  ------------
@@ -73,15 +75,9 @@ RPCConeBuilder::ReturnType RPCConeBuilder::produce(const L1RPCConeBuilderRcd& iR
   pL1RPCConeBuilder->setFirstTower(m_towerBeg);
   pL1RPCConeBuilder->setLastTower(m_towerEnd);
 
-  edm::ESHandle<RPCGeometry> rpcGeometry;
-  iRecord.getRecord<MuonGeometryRecord>().get(rpcGeometry);
-
-  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
-  iRecord.getRecord<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
-
   RPCStripsRing::TIdToRindMap ringsMap;
 
-  buildCones(rpcGeometry.product(), l1RPCConeDefinition.product(), ringsMap);
+  buildCones(&iRecord.get(m_rpcGeometryToken), &iRecord.get(m_l1RPCConeDefinitionToken), ringsMap);
 
   // Compress all connections. Since members of this class are shared
   // pointers this call will compress all data
