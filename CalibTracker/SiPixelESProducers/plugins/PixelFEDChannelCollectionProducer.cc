@@ -2,7 +2,7 @@
 //
 // Package:    CalibTracker/PixelFEDChannelCollectionProducer
 // Class:      PixelFEDChannelCollectionProducer
-// 
+//
 /**\class PixelFEDChannelCollectionProducer
 
  Description: [one line class summary]
@@ -24,7 +24,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h" 
+#include "CondFormats/DataRecord/interface/SiPixelStatusScenariosRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFEDChannelContainer.h"
 #include "CalibTracker/Records/interface/SiPixelFEDChannelContainerESProducerRcd.h"
 
@@ -36,36 +36,31 @@
 //
 
 class PixelFEDChannelCollectionProducer : public edm::ESProducer {
-   public:
-      PixelFEDChannelCollectionProducer(const edm::ParameterSet&);
-      ~PixelFEDChannelCollectionProducer() override;
+public:
+  PixelFEDChannelCollectionProducer(const edm::ParameterSet&);
+  ~PixelFEDChannelCollectionProducer() override;
 
-      typedef std::unordered_map<std::string,PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
-      using ReturnType = std::unique_ptr<PixelFEDChannelCollectionMap>;
+  typedef std::unordered_map<std::string, PixelFEDChannelCollection> PixelFEDChannelCollectionMap;
+  using ReturnType = std::unique_ptr<PixelFEDChannelCollectionMap>;
 
-      ReturnType produce(const SiPixelFEDChannelContainerESProducerRcd &);
-   private:
-      // ----------member data ---------------------------
+  ReturnType produce(const SiPixelFEDChannelContainerESProducerRcd&);
+
+private:
+  // ----------member data ---------------------------
   edm::ESGetToken<SiPixelFEDChannelContainer, SiPixelStatusScenariosRcd> qualityToken_;
 };
 
+PixelFEDChannelCollectionProducer::PixelFEDChannelCollectionProducer(const edm::ParameterSet& iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
+  setWhatProduced(this).setConsumes(qualityToken_);
 
-PixelFEDChannelCollectionProducer::PixelFEDChannelCollectionProducer(const edm::ParameterSet& iConfig)
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
-   setWhatProduced(this).setConsumes(qualityToken_);
-
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
-PixelFEDChannelCollectionProducer::~PixelFEDChannelCollectionProducer()
-{
- 
-   // do anything here that needs to be done at destruction time
-   // (e.g. close files, deallocate resources etc.)
-
+PixelFEDChannelCollectionProducer::~PixelFEDChannelCollectionProducer() {
+  // do anything here that needs to be done at destruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -73,25 +68,23 @@ PixelFEDChannelCollectionProducer::~PixelFEDChannelCollectionProducer()
 //
 
 // ------------ method called to produce the data  ------------
-PixelFEDChannelCollectionProducer::ReturnType
-PixelFEDChannelCollectionProducer::produce(const SiPixelFEDChannelContainerESProducerRcd& iRecord)
-{
+PixelFEDChannelCollectionProducer::ReturnType PixelFEDChannelCollectionProducer::produce(
+    const SiPixelFEDChannelContainerESProducerRcd& iRecord) {
   const auto& qualityCollection = iRecord.get(qualityToken_);
 
   auto out = std::make_unique<PixelFEDChannelCollectionMap>();
 
-  for(const auto& it : qualityCollection.getScenarioMap()){
- 
+  for (const auto& it : qualityCollection.getScenarioMap()) {
     const std::string& scenario = it.first;
     // getScenarioMap() is an unordered_map<string, ...>, so each scenario appears exactly once
     PixelFEDChannelCollection& disabled_channelcollection = (*out)[scenario];
 
     const auto& SiPixelBadFedChannels = it.second;
-    for(const auto &entry : SiPixelBadFedChannels){
+    for (const auto& entry : SiPixelBadFedChannels) {
       disabled_channelcollection.insert(entry.first, entry.second.data(), entry.second.size());
     }
   }
-  
+
   return out;
 }
 
