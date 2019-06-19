@@ -28,16 +28,14 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet &cfg, edm::Consum
       measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker")) {
   if (cfg.exists("pixelTripletGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("pixelTripletGeneratorFactory");
-    pixelTripletGenerator_ = std::unique_ptr<HitTripletGeneratorFromPairAndLayers>{
-        HitTripletGeneratorFromPairAndLayersFactory::get()->create(
-            tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig, consumesCollector)};
+    pixelTripletGenerator_ = HitTripletGeneratorFromPairAndLayersFactory::get()->create(
+        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig, consumesCollector);
   }
 
   if (cfg.exists("MultiHitGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("MultiHitGeneratorFactory");
-    multiHitGenerator_ =
-        std::unique_ptr<MultiHitGeneratorFromPairAndLayers>{MultiHitGeneratorFromPairAndLayersFactory::get()->create(
-            tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig)};
+    multiHitGenerator_ = MultiHitGeneratorFromPairAndLayersFactory::get()->create(
+        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig);
   }
 
   if (cfg.exists("CAHitTripletGeneratorFactory")) {

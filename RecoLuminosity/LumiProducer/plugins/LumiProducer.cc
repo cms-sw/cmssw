@@ -64,7 +64,7 @@ from the configuration file, the DB is not implemented yet)
 #include <boost/tokenizer.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 
 #include "boost/filesystem/path.hpp"
