@@ -56,8 +56,8 @@ HGCalTestRecHitTool::HGCalTestRecHitTool(const edm::ParameterSet& iC)
     : geomToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})},
       geom_(nullptr),
       mode_(iC.getParameter<int>("Mode")) {
-   layerEE_     = layerFH_     = layerBH_     = 0;
-   layerEE1000_ = layerFH1000_ = layerBH1000_ = 0;
+  layerEE_ = layerFH_ = layerBH_ = 0;
+  layerEE1000_ = layerFH1000_ = layerBH1000_ = 0;
 }
 
 HGCalTestRecHitTool::~HGCalTestRecHitTool() {}
@@ -87,10 +87,9 @@ void HGCalTestRecHitTool::analyze(const edm::Event&, const edm::EventSetup& iSet
       layerBH_ = (geomBH->topology().dddConstants()).layers(true);
       layerBH1000_ = (geomBH->topology().dddConstants()).getLayer(10000., true);
     }
-    edm::LogVerbatim("HGCalGeom") 
-      << "Layers " << layerEE_ << ":" << layerFH_ << ":" << layerBH_ 
-      << "\nLayer # at 1000 cm " << layerEE1000_ << ":" << layerFH1000_ << ":"
-      << layerBH1000_;
+    edm::LogVerbatim("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ << ":" << layerBH_
+                                  << "\nLayer # at 1000 cm " << layerEE1000_ << ":" << layerFH1000_ << ":"
+                                  << layerBH1000_;
     for (int layer = 1; layer <= layerEE_; ++layer)
       edm::LogVerbatim("HGCalGeom") << "EE Layer " << layer << " Wafers "
                                     << (geomEE->topology().dddConstants()).wafers(layer, 0) << ":"
