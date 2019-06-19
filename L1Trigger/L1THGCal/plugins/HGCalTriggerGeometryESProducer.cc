@@ -25,16 +25,21 @@ private:
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> ee_geometry_token_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hsi_geometry_token_;
   edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> hsc_geometry_token_;
+  bool isV9Geometry_;
 };
 
 HGCalTriggerGeometryESProducer::HGCalTriggerGeometryESProducer(const edm::ParameterSet& iConfig)
     : geometry_config_(iConfig.getParameterSet("TriggerGeometry")),
-      geometry_name_(geometry_config_.getParameter<std::string>("TriggerGeometryName")) {
-  setWhatProduced(this)
-      .setConsumes(calo_geometry_token_)
-      .setConsumes(ee_geometry_token_, edm::ESInputTag{"", "HGCalEESensitive"})
-      .setConsumes(hsi_geometry_token_, edm::ESInputTag{"", "HGCalHESiliconSensitive"})
-      .setConsumes(hsc_geometry_token_, edm::ESInputTag{"", "HGCalHEScintillatorSensitive"});
+      geometry_name_(geometry_config_.getParameter<std::string>("TriggerGeometryName")),
+      isV9Geometry_(iConfig.getParameter<bool>("isV9Geometry")) {
+  auto cc = setWhatProduced(this);
+  if (isV9Geometry_) {
+    cc.setConsumes(ee_geometry_token_, edm::ESInputTag{"", "HGCalEESensitive"})
+        .setConsumes(hsi_geometry_token_, edm::ESInputTag{"", "HGCalHESiliconSensitive"})
+        .setConsumes(hsc_geometry_token_, edm::ESInputTag{"", "HGCalHEScintillatorSensitive"});
+  } else {
+    cc.setConsumes(calo_geometry_token_);
+  }
 }
 
 HGCalTriggerGeometryESProducer::~HGCalTriggerGeometryESProducer() {
@@ -46,17 +51,20 @@ HGCalTriggerGeometryESProducer::ReturnType HGCalTriggerGeometryESProducer::produ
   //using namespace edm::es;
   ReturnType geometry(HGCalTriggerGeometryFactory::get()->create(geometry_name_, geometry_config_));
   geometry->reset();
-  auto calo_geometry = iRecord.getHandle(calo_geometry_token_);
-  // Initialize trigger geometry for V7/V8 HGCAL geometry
-  if (calo_geometry.isValid() && calo_geometry->getSubdetectorGeometry(DetId::Forward, HGCEE) &&
-      calo_geometry->getSubdetectorGeometry(DetId::Forward, HGCHEF) &&
-      calo_geometry->getSubdetectorGeometry(DetId::Hcal, HcalEndcap)) {
-    geometry->initialize(calo_geometry.product());
-  }
-  // Initialize trigger geometry for V9 HGCAL geometry
-  else {
+  if (isV9Geometry_) {
+    // Initialize trigger geometry for V9 HGCAL geometry
     geometry->initialize(
         &iRecord.get(ee_geometry_token_), &iRecord.get(hsi_geometry_token_), &iRecord.get(hsc_geometry_token_));
+  } else {
+    // Initialize trigger geometry for V7/V8 HGCAL geometry
+    const auto& calo_geometry = iRecord.get(calo_geometry_token_);
+    if (not(calo_geometry.getSubdetectorGeometry(DetId::Forward, HGCEE) &&
+            calo_geometry.getSubdetectorGeometry(DetId::Forward, HGCHEF) &&
+            calo_geometry.getSubdetectorGeometry(DetId::Hcal, HcalEndcap))) {
+      throw cms::Exception("LogicError")
+          << "Configuration asked for non-V9 geometry, but the CaloGeometry does not look like one";
+    }
+    geometry->initialize(&calo_geometry);
   }
   return geometry;
 }

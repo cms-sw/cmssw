@@ -30,5 +30,9 @@ geometry = cms.PSet( TriggerGeometryName = cms.string('HGCalTriggerGeometryHexLa
 
 hgcalTriggerGeometryESProducer = cms.ESProducer(
     'HGCalTriggerGeometryESProducer',
-    TriggerGeometry = geometry
+    TriggerGeometry = geometry,
+    isV9Geometry = cms.bool(False)
 )
+
+from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
+phase2_hgcalV9.toModify(hgcalTriggerGeometryESProducer, isV9Geometry = True)
