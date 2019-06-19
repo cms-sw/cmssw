@@ -40,11 +40,11 @@ protected:
   virtual void _dump();
 
   //	tags and tokens
-  edm::InputTag	_tagQIE11;
-  edm::InputTag	_tagHO;
-  edm::InputTag	_tagQIE10;
-  edm::InputTag	_tagTrigger;
-  edm::InputTag	_taguMN;
+  edm::InputTag _tagQIE11;
+  edm::InputTag _tagHO;
+  edm::InputTag _tagQIE10;
+  edm::InputTag _tagTrigger;
+  edm::InputTag _taguMN;
   edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
   edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
