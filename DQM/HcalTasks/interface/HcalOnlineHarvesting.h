@@ -44,55 +44,45 @@
 #include "DQM/HcalTasks/interface/TPRunSummary.h"
 #include "DQM/HcalTasks/interface/PedestalRunSummary.h"
 
-class HcalOnlineHarvesting : public hcaldqm::DQHarvester
-{
-	public:
-		HcalOnlineHarvesting(edm::ParameterSet const&);
-		~HcalOnlineHarvesting() override{}
-		void beginRun(edm::Run const&, edm::EventSetup const&) override;
+class HcalOnlineHarvesting : public hcaldqm::DQHarvester {
+public:
+  HcalOnlineHarvesting(edm::ParameterSet const &);
+  ~HcalOnlineHarvesting() override {}
+  void beginRun(edm::Run const &, edm::EventSetup const &) override;
 
-	protected:
-		void _dqmEndLuminosityBlock(DQMStore::IBooker&,
-			DQMStore::IGetter&, edm::LuminosityBlock const&,
-			edm::EventSetup const&) override;
-		void _dqmEndJob(DQMStore::IBooker&,
-			DQMStore::IGetter&) override;
+protected:
+  void _dqmEndLuminosityBlock(DQMStore::IBooker &,
+                              DQMStore::IGetter &,
+                              edm::LuminosityBlock const &,
+                              edm::EventSetup const &) override;
+  void _dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-		enum Summary
-		{
-			fRaw=0,
-			fDigi=1,
-			fReco=2,
-			fTP=3,
-			fPedestal=4,
-			nSummary=5
-		};
+  enum Summary { fRaw = 0, fDigi = 1, fReco = 2, fTP = 3, fPedestal = 4, nSummary = 5 };
 
-		//	flags to harvest...
-		std::vector<bool> _vmarks;
-		std::vector<hcaldqm::DQClient*> _vsumgen;
-		std::vector<std::string> _vnames;
+  //	flags to harvest...
+  std::vector<bool> _vmarks;
+  std::vector<hcaldqm::DQClient *> _vsumgen;
+  std::vector<std::string> _vnames;
 
-		//	thresholds
-		double _thresh_bad_bad;
+  //	thresholds
+  double _thresh_bad_bad;
 
-		//	counters
-		int _nBad;
-		int _nTotal;
+  //	counters
+  int _nBad;
+  int _nTotal;
 
-		//	summaries
-		std::vector<hcaldqm::ContainerSingle2D> _vcSummaryvsLS;
+  //	summaries
+  std::vector<hcaldqm::ContainerSingle2D> _vcSummaryvsLS;
 
-		hcaldqm::Container2D _cKnownBadChannels_depth;
+  hcaldqm::Container2D _cKnownBadChannels_depth;
 
-		//	reportSummaryMap
-		MonitorElement *_reportSummaryMap;
-		MonitorElement *_runSummary;
+  //	reportSummaryMap
+  MonitorElement *_reportSummaryMap;
+  MonitorElement *_runSummary;
 
-		// Efficiencies
-		hcaldqm::ContainerSingle2D _cTDCCutEfficiency_depth;
-		hcaldqm::ContainerSingle1D _cTDCCutEfficiency_ieta;
-
+  // Efficiencies
+  hcaldqm::ContainerSingle2D _cTDCCutEfficiency_depth;
+  hcaldqm::ContainerSingle1D _cTDCCutEfficiency_ieta;
 };
 
 #endif
