@@ -7,4 +7,3 @@
 #include <DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhDigi.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTPhContainer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
-

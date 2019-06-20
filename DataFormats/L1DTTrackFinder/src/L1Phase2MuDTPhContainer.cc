@@ -20,7 +20,6 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-
 //---------------
 // C++ Headers --
 //---------------
@@ -28,7 +27,6 @@
 //-------------------
 // Initializations --
 //-------------------
-
 
 //----------------
 // Constructors --
@@ -38,11 +36,6 @@ L1Phase2MuDTPhContainer::L1Phase2MuDTPhContainer() {}
 //--------------
 // Operations --
 //--------------
-void L1Phase2MuDTPhContainer::setContainer(const Segment_Container& inputSegments) {
+void L1Phase2MuDTPhContainer::setContainer(const Segment_Container& inputSegments) { m_segments = inputSegments; }
 
-  m_segments = inputSegments;
-}
-
-L1Phase2MuDTPhContainer::Segment_Container const* L1Phase2MuDTPhContainer::getContainer() const {
-  return &m_segments;
-}
+L1Phase2MuDTPhContainer::Segment_Container const* L1Phase2MuDTPhContainer::getContainer() const { return &m_segments; }
