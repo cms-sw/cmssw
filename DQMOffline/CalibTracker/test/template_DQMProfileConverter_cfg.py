@@ -36,7 +36,7 @@ process.b = cms.ESSource("PoolDBESSource",
 
 process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 # load TrackerTopology (needed for TkDetMap and TkHistoMap)
-process.load("Geometry.CMSCommonData.cmsExtendedGeometry2017XML_cfi")
+process.load("Configuration.Geometry.GeometryExtended2017_cff")
 process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
 process.trackerTopology = cms.ESProducer("TrackerTopologyEP")
 
