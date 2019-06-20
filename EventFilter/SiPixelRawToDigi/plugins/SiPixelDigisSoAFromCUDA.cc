@@ -47,7 +47,7 @@ void SiPixelDigisSoAFromCUDA::fillDescriptions(edm::ConfigurationDescriptions& d
 
 void SiPixelDigisSoAFromCUDA::acquire(const edm::Event& iEvent, const edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   // Do the transfer in a CUDA stream parallel to the computation CUDA stream
-  CUDAScopedContext ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
 
   const auto& gpuDigis = ctx.get(iEvent, digiGetToken_);
 
