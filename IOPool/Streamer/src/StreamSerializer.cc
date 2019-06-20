@@ -312,7 +312,7 @@ namespace edm {
     lzma_options_lzma opt_lzma2;
     lzma_filter filters[] = {
         {.id = LZMA_FILTER_LZMA2, .options = &opt_lzma2},
-        {.id = LZMA_VLI_UNKNOWN, .options = NULL},
+        {.id = LZMA_VLI_UNKNOWN, .options = nullptr},
     };
     lzma_ret returnStatus;
 
