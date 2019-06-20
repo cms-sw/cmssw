@@ -285,6 +285,7 @@ private:
         : edm::limited::EDProducerBase(s_pset),
           edm::limited::EDProducer<edm::EndLuminosityBlockProducer, edm::LuminosityBlockSummaryCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
+    mutable bool m_globalEndLuminosityBlockSummaryCalled = false;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
 
     std::shared_ptr<int> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
@@ -302,10 +303,14 @@ private:
 
     void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, int*) const override {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == false);
+      m_globalEndLuminosityBlockSummaryCalled = true;
     }
 
     void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, int const*) const override {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == true);
+      m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
 };

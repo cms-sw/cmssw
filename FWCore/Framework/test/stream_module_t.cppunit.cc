@@ -275,6 +275,7 @@ private:
       : public edm::stream::EDProducer<edm::EndLuminosityBlockProducer, edm::LuminosityBlockSummaryCache<int>> {
   public:
     static unsigned int m_count;
+    static bool m_globalEndLuminosityBlockSummaryCalled;
     EndLumiSummaryProd(edm::ParameterSet const&) {}
 
     void produce(edm::Event&, edm::EventSetup const&) override { ++m_count; }
@@ -295,6 +296,8 @@ private:
                                                 LuminosityBlockContext const*,
                                                 int*) {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == false);
+      m_globalEndLuminosityBlockSummaryCalled = true;
     }
 
     static void globalEndLuminosityBlockProduce(edm::LuminosityBlock&,
@@ -302,6 +305,8 @@ private:
                                                 LuminosityBlockContext const*,
                                                 int const*) {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == true);
+      m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
 };
@@ -317,6 +322,7 @@ unsigned int testStreamModule::BeginLumiProd::m_count = 0;
 unsigned int testStreamModule::EndLumiProd::m_count = 0;
 unsigned int testStreamModule::EndRunSummaryProd::m_count = 0;
 unsigned int testStreamModule::EndLumiSummaryProd::m_count = 0;
+bool testStreamModule::EndLumiSummaryProd::m_globalEndLuminosityBlockSummaryCalled = false;
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(testStreamModule);
 
