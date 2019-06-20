@@ -17,7 +17,6 @@ public:
 
   void fill(const std::vector<float>& x, const std::vector<float>& y, const std::vector<float>& eta, const std::vector<float>& phi, const std::vector<bool>& isSilic) {
     auto cellsSize = x.size();
-    //std::cout << "constants: " << hgcaltilesconstants::nColumnsEta << " " << hgcaltilesconstants::nRowsPhi << std::endl;
     for (unsigned int i = 0; i < cellsSize; ++i) {
       tiles_[getGlobalBin(x[i], y[i])].push_back(i);
       if (!isSilic[i]) {

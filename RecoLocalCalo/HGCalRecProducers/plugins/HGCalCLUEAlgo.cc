@@ -102,10 +102,7 @@ void HGCalCLUEAlgo::makeClusters() {
     });
   });
   //Now that we have the density per point we can store it
-  for(unsigned int i=0; i< 2 * maxlayer + 2; ++i) {
-    //std::cout << i << std::endl; //}
-    setDensity(i); }
-  //std::cout << "end makeClusters" << std::endl;
+  for(unsigned int i=0; i< 2 * maxlayer + 2; ++i) { setDensity(i); }
 }
 
 std::vector<reco::BasicCluster> HGCalCLUEAlgo::getClusters(bool) {
@@ -481,7 +478,6 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
       localStack.push_back(j);
     }
   }
-  //std::cout << "nClustersOnLayer: " << nClustersOnLayer << std::endl; 
   return nClustersOnLayer;
 }
 
