@@ -7,6 +7,9 @@
 
 #include "GPUCACell.h"
 
+// #define DUMP_GPU_TK_TUPLES
+
+
 class CAHitQuadrupletGeneratorKernels {
 public:
   // counters
@@ -15,6 +18,7 @@ public:
     unsigned long long nHits;
     unsigned long long nCells;
     unsigned long long nTuples;
+    unsigned long long nFitTracks;
     unsigned long long nGoodTracks;
     unsigned long long nUsedHits;
     unsigned long long nDupHits;
@@ -48,6 +52,7 @@ public:
   };
 
   CAHitQuadrupletGeneratorKernels(uint32_t minHitsPerNtuplet,
+                                  bool includeJumpingForwardDoublets,
                                   bool earlyFishbone,
                                   bool lateFishbone,
                                   bool idealConditions,
@@ -63,6 +68,7 @@ public:
                                   float dcaCutOuterTriplet,
                                   QualityCuts const& cuts)
       : minHitsPerNtuplet_(minHitsPerNtuplet),
+        includeJumpingForwardDoublets_(includeJumpingForwardDoublets),
         earlyFishbone_(earlyFishbone),
         lateFishbone_(lateFishbone),
         idealConditions_(idealConditions),
@@ -118,6 +124,7 @@ private:
 
   // params
   const uint32_t minHitsPerNtuplet_;
+  const bool includeJumpingForwardDoublets_;
   const bool earlyFishbone_;
   const bool lateFishbone_;
   const bool idealConditions_;

@@ -61,6 +61,7 @@ constexpr unsigned int CAHitQuadrupletGeneratorGPU::minLayers;
 
 CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : kernels(cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
+              cfg.getParameter<bool>("includeJumpingForwardDoublets"),
               cfg.getParameter<bool>("earlyFishbone"),
               cfg.getParameter<bool>("lateFishbone"),
               cfg.getParameter<bool>("idealConditions"),
@@ -78,7 +79,15 @@ CAHitQuadrupletGeneratorGPU::CAHitQuadrupletGeneratorGPU(const edm::ParameterSet
       fitter(cfg.getParameter<bool>("fit5as4")),
       caThetaCut(cfg.getParameter<double>("CAThetaCut")),
       caPhiCut(cfg.getParameter<double>("CAPhiCut")),
-      caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {}
+      caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {
+
+#ifdef    DUMP_GPU_TK_TUPLES
+      printf("TK: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
+             "tid", "qual", "nh","phi","tip","pt","cot","zip","eta","chil","chic",
+             "h1","h2","h3","h4","h5");
+#endif
+
+}
 
 void CAHitQuadrupletGeneratorGPU::fillDescriptions(edm::ParameterSetDescription &desc) {
   desc.add<double>("CAThetaCut", 0.00125);
@@ -93,15 +102,17 @@ void CAHitQuadrupletGeneratorGPU::fillDescriptions(edm::ParameterSetDescription 
   desc.add<double>("hardCurvCut", 1.f / (0.35 * 87.f))->setComment("Cut on minimum curvature");
   desc.add<double>("dcaCutInnerTriplet", 0.15f)->setComment("Cut on origin radius when the inner hit is on BPix1");
   desc.add<double>("dcaCutOuterTriplet", 0.25f)->setComment("Cut on origin radius when the outer hit is on BPix1");
-  desc.add<bool>("earlyFishbone", false);
-  desc.add<bool>("lateFishbone", true);
+  desc.add<bool>("earlyFishbone", true);
+  desc.add<bool>("lateFishbone", false);
   desc.add<bool>("idealConditions", true);
   desc.add<bool>("fillStatistics", false);
   desc.add<unsigned int>("minHitsPerNtuplet", 4);
+  desc.add<bool>("includeJumpingForwardDoublets", false);
   desc.add<bool>("fit5as4", true);
   desc.add<bool>("doClusterCut", true);
   desc.add<bool>("doZCut", true);
   desc.add<bool>("doPhiCut", true);
+
 
   edm::ParameterSetDescription trackQualityCuts;
   trackQualityCuts.add<double>("chi2MaxPt", 10.)->setComment("max pT used to determine the pT-dependent chi2 cut");

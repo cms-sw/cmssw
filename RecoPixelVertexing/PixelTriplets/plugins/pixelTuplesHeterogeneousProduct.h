@@ -13,7 +13,7 @@ class TrackingRecHit2DSOAView;
 
 namespace pixelTuplesHeterogeneousProduct {
 
-  enum Quality : uint8_t { bad, dup, loose, strict, tight, highPurity };
+  enum Quality : uint8_t { bad=0, dup, loose, strict, tight, highPurity };
 
   using CPUProduct = int;  // dummy
 

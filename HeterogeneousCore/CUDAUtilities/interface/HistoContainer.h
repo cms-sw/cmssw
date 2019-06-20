@@ -269,6 +269,10 @@ public:
   __device__ __host__ __forceinline__ void bulkFinalizeFill(AtomicPairCounter const &apc) {
     auto m = apc.get().m;
     auto n = apc.get().n;
+    if (m >= nbins()) { // overflow!
+      off[nbins()]=uint32_t(off[nbins()-1]);
+      return;
+    }
     auto first = m + blockDim.x * blockIdx.x + threadIdx.x;
     for (auto i = first; i < totbins(); i += gridDim.x * blockDim.x) {
       off[i] = n;

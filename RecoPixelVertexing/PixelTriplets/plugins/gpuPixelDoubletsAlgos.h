@@ -62,7 +62,7 @@ namespace gpuPixelDoubletsAlgos {
     // nPairsMax to be optimized later (originally was 64).
     // If it should be much bigger, consider using a block-wide parallel prefix scan,
     // e.g. see  https://nvlabs.github.io/cub/classcub_1_1_warp_scan.html
-    const int nPairsMax = 16;
+    const int nPairsMax = CAConstants::maxNumberOfLayerPairs();
     assert(nPairs <= nPairsMax);
     __shared__ uint32_t innerLayerCumulativeSize[nPairsMax];
     __shared__ uint32_t ntot;
@@ -133,11 +133,12 @@ namespace gpuPixelDoubletsAlgos {
       constexpr float minRadius =
           hardPtCut * 87.78f;  // cm (1 GeV track has 1 GeV/c / (e * 3.8T) ~ 87 cm radius in a 3.8T field)
       constexpr float minRadius2T4 = 4.f * minRadius * minRadius;
-      auto ptcut = [&](int j) {
+      auto ptcut = [&](int j, int16_t mop) {
         auto r2t4 = minRadius2T4;
         auto ri = mer;
         auto ro = hh.rGlobal(j);
-        auto dphi = short2phi(min(abs(int16_t(mep - hh.iphi(j))), abs(int16_t(hh.iphi(j) - mep))));
+        // auto mop = hh.iphi(j);
+        auto dphi = short2phi(std::min(std::abs(int16_t(mep - mop)), std::abs(int16_t(mop - mep))));
         return dphi * dphi * (r2t4 - ri * ro) > (ro - ri) * (ro - ri);
       };
       auto z0cutoff = [&](int j) {
@@ -181,13 +182,13 @@ namespace gpuPixelDoubletsAlgos {
           auto oi = __ldg(p);
           assert(oi >= offsets[outer]);
           assert(oi < offsets[outer + 1]);
-
-          if (std::min(std::abs(int16_t(hh.iphi(oi) - mep)), std::abs(int16_t(mep - hh.iphi(oi)))) > iphicut)
+          auto mop = hh.iphi(oi);
+          if (std::min(std::abs(int16_t(mop - mep)), std::abs(int16_t(mep - mop))) > iphicut)
             continue;
           if (doPhiCut) {
             if (doClusterCut && zsizeCut(oi))
               continue;
-            if (z0cutoff(oi) || ptcut(oi))
+            if (z0cutoff(oi) || ptcut(oi,mop))
               continue;
           }
           auto ind = atomicAdd(nCells, 1);

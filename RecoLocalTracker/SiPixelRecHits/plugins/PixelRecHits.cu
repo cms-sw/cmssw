@@ -59,8 +59,10 @@ namespace pixelgpudetails {
     cudaCheck(cudaGetLastError());
 
     // assuming full warp of threads is better than a smaller number...
-    setHitsLayerStart<<<1, 32, 0, stream.id()>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
-    cudaCheck(cudaGetLastError());
+    if (nHits) {
+      setHitsLayerStart<<<1, 32, 0, stream.id()>>>(clusters_d.clusModuleStart(), cpeParams, hits_d.hitsLayerStart());
+      cudaCheck(cudaGetLastError());
+    }
 
     if (nHits >= TrackingRecHit2DSOAView::maxHits()) {
       edm::LogWarning("PixelRecHitGPUKernel")
@@ -74,6 +76,13 @@ namespace pixelgpudetails {
           hits_d.phiBinner(), hws.get(), 10, hits_d.iphi(), hits_d.hitsLayerStart(), nHits, 256, stream.id());
       cudaCheck(cudaGetLastError());
     }
+
+    
+#ifdef GPU_DEBUG
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
+#endif
+
     return hits_d;
   }
 

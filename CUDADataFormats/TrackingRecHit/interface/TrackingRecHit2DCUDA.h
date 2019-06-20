@@ -9,6 +9,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
+#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+
 
 namespace pixelCPEforGPU {
   struct ParamsOnGPU;
@@ -20,6 +22,8 @@ public:
   using hindex_type = uint16_t;  // if above is <=2^16
 
   using Hist = HistoContainer<int16_t, 128, gpuClustering::MaxNumClusters, 8 * sizeof(int16_t), uint16_t, 10>;
+
+  using AverageGeometry = phase1PixelTopology::AverageGeometry;
 
   friend class TrackingRecHit2DCUDA;
 
@@ -66,6 +70,10 @@ public:
   __device__ __forceinline__ Hist& phiBinner() { return *m_hist; }
   __device__ __forceinline__ Hist const& phiBinner() const { return *m_hist; }
 
+  __device__ __forceinline__ AverageGeometry & averageGeometry() { return *m_averageGeometry; }
+  __device__ __forceinline__ AverageGeometry const& averageGeometry() const { return *m_averageGeometry; }
+
+
 private:
   // local coord
   float *m_xl, *m_yl;
@@ -82,6 +90,7 @@ private:
   uint16_t* m_detInd;
 
   // supporting objects
+  AverageGeometry * m_averageGeometry; // owned (corrected for beam spot: not sure where to host it otherwise)
   pixelCPEforGPU::ParamsOnGPU const* m_cpeParams;  // forwarded from setup, NOT owned
   uint32_t const* m_hitsModuleStart;               // forwarded from clusters
 
@@ -133,6 +142,7 @@ private:
   cudautils::device::unique_ptr<float[]> m_store32;
 
   cudautils::device::unique_ptr<TrackingRecHit2DSOAView::Hist> m_HistStore;
+  cudautils::device::unique_ptr<TrackingRecHit2DSOAView::AverageGeometry> m_AverageGeometryStore;
 
   cudautils::device::unique_ptr<TrackingRecHit2DSOAView> m_view;
 

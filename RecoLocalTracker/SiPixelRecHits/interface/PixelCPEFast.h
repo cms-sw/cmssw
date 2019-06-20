@@ -81,6 +81,7 @@ private:
   std::vector<pixelCPEforGPU::DetParams, CUDAHostAllocator<pixelCPEforGPU::DetParams>> m_detParamsGPU;
   pixelCPEforGPU::CommonParams m_commonParamsGPU;
   pixelCPEforGPU::LayerGeometry m_layerGeometry;
+  pixelCPEforGPU::AverageGeometry m_averageGeometry;
 
   struct GPUData {
     ~GPUData();

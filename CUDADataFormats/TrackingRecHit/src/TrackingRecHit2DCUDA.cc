@@ -14,6 +14,10 @@ TrackingRecHit2DCUDA::TrackingRecHit2DCUDA(uint32_t nHits,
   auto view = cs->make_host_unique<TrackingRecHit2DSOAView>(stream);
   view->m_nHits = nHits;
   m_view = cs->make_device_unique<TrackingRecHit2DSOAView>(stream);
+  m_AverageGeometryStore = cs->make_device_unique<TrackingRecHit2DSOAView::AverageGeometry>(stream);
+  view->m_averageGeometry = m_AverageGeometryStore.get();
+  view->m_cpeParams = cpeParams;
+  view->m_hitsModuleStart = hitsModuleStart;
 
   // if empy do not bother
   if (0 == nHits) {
@@ -35,9 +39,6 @@ TrackingRecHit2DCUDA::TrackingRecHit2DCUDA(uint32_t nHits,
 
   // copy all the pointers
   m_hist = view->m_hist = m_HistStore.get();
-
-  view->m_cpeParams = cpeParams;
-  view->m_hitsModuleStart = hitsModuleStart;
 
   view->m_xl = get32(0);
   view->m_yl = get32(1);

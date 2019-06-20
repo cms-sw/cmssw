@@ -38,13 +38,16 @@ __global__ void kernelBLFastFit(TuplesOnGPU::Container const *__restrict__ found
 
   assert(pfast_fit);
   assert(foundNtuplets);
+  assert(tupleMultiplicity);
 
   // look in bin for this hit multiplicity
   auto local_start = (blockIdx.x * blockDim.x + threadIdx.x);
 
 #ifdef BROKENLINE_DEBUG
-  if (0 == local_start)
+  if (0 == local_start) {
+    printf("%d total Ntuple\n",foundNtuplets->nbins());
     printf("%d Ntuple of size %d for %d hits to fit\n", tupleMultiplicity->size(nHits), nHits, hitsInFit);
+  }
 #endif
 
   auto tuple_start = local_start + offset;
