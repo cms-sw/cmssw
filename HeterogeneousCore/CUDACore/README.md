@@ -74,7 +74,7 @@ This page documents the CUDA integration within CMSSW
      * Convert the output SoA to legacy CPU data formats
 3. Within `acquire()`/`produce()`, the current CUDA device is set
    implicitly and the CUDA stream is provided by the system (with
-   `CUDAScopedContext`)
+   `CUDAScopedContextAcquire`/`CUDAScopedContextProduce`)
    * It is strongly recommended to use the provided CUDA stream for all operations
      * If that is not feasible for some reason, the provided CUDA
        stream must synchronize with the work queued on other CUDA
@@ -111,12 +111,12 @@ private:
 ...
 void IsolatedProducerCUDA::acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   // Sets the current device and creates a CUDA stream
-  CUDAScopedContext ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
 
   auto const& inputData = iEvent.get(inputToken_);
 
   // Queues asynchronous data transfers and kernels to the CUDA stream
-  // returned by CUDAScopedContext::stream()
+  // returned by CUDAScopedContextAcquire::stream()
   gpuAlgo_.makeAsync(inputData, ctx.stream());
 
   // Destructor of ctx queues a callback to the CUDA stream notifying
@@ -146,34 +146,31 @@ private:
   ProducerOutputGPUAlgo gpuAlgo_;
   edm::EDGetTokenT<InputData> inputToken_;
   edm::EDPutTokenT<CUDAProduct<OutputData>> outputToken_;
-  CUDAContextToken ctxTmp_;
+  CUDAContextState ctxState_;
 };
 ...
 void ProducerOutputCUDA::acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   // Sets the current device and creates a CUDA stream
-  CUDAScopedContext ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder), ctxState_};
 
   auto const& inputData = iEvent.get(inputToken_);
 
   // Queues asynchronous data transfers and kernels to the CUDA stream
-  // returned by CUDAScopedContext::stream()
+  // returned by CUDAScopedContextAcquire::stream()
   gpuAlgo.makeAsync(inputData, ctx.stream());
 
-  // Passes the current device and CUDA stream to produce()
-  // Feels a bit silly, and will hopefully get improved in the future
-  ctxTmp_ = ctx.toToken();
-
   // Destructor of ctx queues a callback to the CUDA stream notifying
-  // waitingTaskHolder when the queued asynchronous work has finished
+  // waitingTaskHolder when the queued asynchronous work has finished,
+  // and saves the device and CUDA stream to ctxState_
 }
 
 // Called after the asynchronous work has finished
 void ProducerOutputCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   // Sets again the current device, uses the CUDA stream created in the acquire()
-  CUDAScopedContext ctx{std::move(ctxTmp_)};
+  CUDAScopedContextProduce ctx{ctxState_};
 
   // Now getResult() returns data in GPU memory that is passed to the
-  // constructor of OutputData. CUDAScopedContext::emplace() wraps the
+  // constructor of OutputData. CUDAScopedContextProduce::emplace() wraps the
   // OutputData to CUDAProduct<OutputData>. CUDAProduct<T> stores also
   // the current device and the CUDA stream since those will be needed
   // in the consumer side.
@@ -203,11 +200,11 @@ void ProducerInputCUDA::acquire(edm::Event const& iEvent, edm::EventSetup& iSetu
 
   // Set the current device to the same that was used to produce
   // InputData, and possibly use the same CUDA stream
-  CUDAScopedContext ctx{inputDataWrapped, std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
 
   // Grab the real input data. Checks that the input data is on the
   // current device. If the input data was produced in a different CUDA
-  // stream than the CUDAScopedContext holds, create an inter-stream
+  // stream than the CUDAScopedContextAcquire holds, create an inter-stream
   // synchronization point with CUDA event and cudaStreamWaitEvent()
   auto const& inputData = ctx.get(inputDataWrapped);
 
@@ -218,7 +215,7 @@ void ProducerInputCUDA::acquire(edm::Event const& iEvent, edm::EventSetup& iSetu
 
 
   // Queues asynchronous data transfers and kernels to the CUDA stream
-  // returned by CUDAScopedContext::stream()
+  // returned by CUDAScopedContextAcquire::stream()
   gpuAlgo.makeAsync(inputData, otherInputData, ctx.stream());
 
   // Destructor of ctx queues a callback to the CUDA stream notifying
@@ -235,8 +232,8 @@ void ProducerInputCUDA::produce(edm::Event& iEvent, edm::EventSetup& iSetup) {
 ```
 
 See [further below](#setting-the-current-device) for the conditions
-when the `CUDAScopedContext` constructor reuses the CUDA stream. Note
-that the `CUDAScopedContext` constructor taking `edm::StreamID` is
+when the `CUDAScopedContextAcquire` constructor reuses the CUDA stream. Note
+that the `CUDAScopedContextAcquire` constructor taking `edm::StreamID` is
 allowed, it will just always create a new CUDA stream.
 
 
@@ -254,7 +251,6 @@ private:
   ProducerInputGPUAlgo gpuAlgo_;
   edm::EDGetTokenT<CUDAProduct<InputData>> inputToken_;
   edm::EDPutTokenT<CUDAProduct<OutputData>> outputToken_;
-  CUDAContextToken ctxTmp_;
 };
 ...
 void ProducerInputOutputCUDA::acquire(edm::Event const& iEvent, edm::EventSetup& iSetup, edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
@@ -262,33 +258,30 @@ void ProducerInputOutputCUDA::acquire(edm::Event const& iEvent, edm::EventSetup&
 
   // Set the current device to the same that was used to produce
   // InputData, and also use the same CUDA stream
-  CUDAScopedContext ctx{inputDataWrapped, std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder), ctxState_};
 
   // Grab the real input data. Checks that the input data is on the
   // current device. If the input data was produced in a different CUDA
-  // stream than the CUDAScopedContext holds, create an inter-stream
+  // stream than the CUDAScopedContextAcquire holds, create an inter-stream
   // synchronization point with CUDA event and cudaStreamWaitEvent()
   auto const& inputData = ctx.get(inputDataWrapped);
 
   // Queues asynchronous data transfers and kernels to the CUDA stream
-  // returned by CUDAScopedContext::stream()
+  // returned by CUDAScopedContextAcquire::stream()
   gpuAlgo.makeAsync(inputData, ctx.stream());
 
-  // Passes the current device and CUDA stream to produce()
-  // Feels a bit silly, and will hopefully get improved in the future
-  ctxTmp_ = ctx.toToken();
-
-// Destructor of ctx queues a callback to the CUDA stream notifying
-  // waitingTaskHolder when the queued asynchronous work has finished
+  // Destructor of ctx queues a callback to the CUDA stream notifying
+  // waitingTaskHolder when the queued asynchronous work has finished,
+  // and saves the device and CUDA stream to ctxState_
 }
 
 // Called after the asynchronous work has finished
 void ProducerInputOutputCUDA::produce(edm::Event& iEvent, edm::EventSetup& iSetup) {
   // Sets again the current device, uses the CUDA stream created in the acquire()
-  CUDAScopedContext ctx{std::move(ctxTmp_)};
+  CUDAScopedContextProduce ctx{ctxState_};
 
   // Now getResult() returns data in GPU memory that is passed to the
-  // constructor of OutputData. CUDAScopedContext::emplace() wraps the
+  // constructor of OutputData. CUDAScopedContextProduce::emplace() wraps the
   // OutputData to CUDAProduct<OutputData>. CUDAProduct<T> stores also
   // the current device and the CUDA stream since those will be needed
   // in the consumer side.
@@ -320,18 +313,18 @@ void ProducerInputOutputCUDA::produce(edm::StreamID streamID, edm::Event& iEvent
 
   // Set the current device to the same that was used to produce
   // InputData, and possibly use the same CUDA stream
-  CUDAScopedContext ctx{inputDataWrapped};
+  CUDAScopedContextProduce ctx{inputDataWrapped};
 
   // Grab the real input data. Checks that the input data is on the
   // current device. If the input data was produced in a different CUDA
-  // stream than the CUDAScopedContext holds, create an inter-stream
+  // stream than the CUDAScopedContextProduce holds, create an inter-stream
   // synchronization point with CUDA event and cudaStreamWaitEvent()
   auto const& inputData = ctx.get(inputDataWrapped);
 
   // Queues asynchronous data transfers and kernels to the CUDA stream
-  // returned by CUDAScopedContext::stream(). Here makeAsync() also
+  // returned by CUDAScopedContextProduce::stream(). Here makeAsync() also
   // returns data in GPU memory that is passed to the constructor of
-  // OutputData. CUDAScopedContext::emplace() wraps the OutputData to
+  // OutputData. CUDAScopedContextProduce::emplace() wraps the OutputData to
   // CUDAProduct<OutputData>. CUDAProduct<T> stores also the current
   // device and the CUDA stream since those will be needed in the
   // consumer side.
@@ -369,17 +362,17 @@ void AnalyzerInputCUDA::analyze(edm::Event const& iEvent, edm::EventSetup& iSetu
 
   // Set the current device to the same that was used to produce
   // InputData, and possibly use the same CUDA stream
-  CUDAScopedContext ctx{inputDataWrapped};
+  CUDAScopedContextProduce ctx{inputDataWrapped};
 
   // Alternatively a new CUDA stream can be created here. This is for
   // a case where there are two (or more) consumers of
   // CUDAProduct<InputData> whose work is independent and thus can be run
   // in parallel.
-  CUDAScopedContext ctx{iEvent.streamID());
+  CUDAScopedContextProduce ctx{iEvent.streamID());
 
   // Grab the real input data. Checks that the input data is on the
   // current device. If the input data was produced in a different CUDA
-  // stream than the CUDAScopedContext holds, create an inter-stream
+  // stream than the CUDAScopedContextProduce holds, create an inter-stream
   // synchronization point with CUDA event and cudaStreamWaitEvent()
   auto const& inputData = ctx.get(inputDataWrapped);
 
@@ -390,7 +383,7 @@ void AnalyzerInputCUDA::analyze(edm::Event const& iEvent, edm::EventSetup& iSetu
 
 
   // Queues asynchronous data transfers and kernels to the CUDA stream
-  // returned by CUDAScopedContext::stream()
+  // returned by CUDAScopedContextProduce::stream()
   gpuAlgo.analyzeAsync(inputData, otherInputData, ctx.stream());
 }
 ```
@@ -452,9 +445,14 @@ As discussed above, with `SwitchProducer` the choice between CPU and
 GPU modules is done at the beginning of the job.
 
 For multi-GPU setup the device is chosen in the first CUDA module in a
-chain of modules by one of the constructors of `CUDAScopedContext`
+chain of modules by one of the constructors of
+`CUDAScopedContextAcquire`/`CUDAScopedContextProduce`
 ```cpp
-CUDAScopedContext ctx{iEvent.streamID()};
+// In ExternalWork acquire()
+CUDAScopedContextAcquire ctx{iEvent.streamID(), ...};
+
+// In normal produce() (or analyze() or filter())
+CUDAScopedContextPRoduce ctx{iEvent.streamID()};
 ```
 As the choice is still the static EDM stream to device assignment, the
 EDM stream ID is needed. The logic will likely evolve in the future to
@@ -473,10 +471,10 @@ When putting the data to event, the data is wrapped to
 * [CUDA event for synchronization between multiple CUDA streams](#synchronizing-between-cuda-streams)
 
 Note that the `CUDAProduct<T>` wrapper can be constructed only with
-`CUDAScopedContext::wrap()`, and the data `T` can be obtained from it
-only with `CUDAScopedContext::get()`, as described further below. When
-putting the data product directly to `edm::Event`, also
-`CUDASCopedContext::emplace()` can be used.
+`CUDAScopedContextProduce::wrap()`, and the data `T` can be obtained
+from it only with `CUDAScopedContextAcquire::get()`/`CUDAScopedContextProduce::get()`,
+as described further below. When putting the data product directly to
+`edm::Event`, also `CUDASCopedContextProduce::emplace()` can be used.
 
 The GPU data products that depend on the CUDA runtime should be placed
 under `CUDADataFormats` package, using the same name for sub-package
@@ -524,20 +522,26 @@ synchronization should be explicitly amortized e.g. by caching.
 
 #### Setting the current device
 
-A CUDA producer should construct `CUDAScopedContext` in `acquire()`
-(`produce()` if not using `ExternalWork`) either with `edm::StreamID`,
-or with a `CUDAProduct<T>` read as an input.
+A CUDA producer should construct `CUDAScopedContextAcquire` in
+`acquire()` (`CUDAScopedContextProduce` `produce()` if not using
+`ExternalWork`) either with `edm::StreamID`, or with a
+`CUDAProduct<T>` read as an input.
 
 ```cpp
 // From edm::StreamID
-CUDAScopedContext ctx{iEvent.streamID()};
+CUDAScopedContextAcquire ctx{iEvent.streamID(), ...};
+// or
+CUDAScopedContextProduce ctx{iEvent.streamID()};
+
 
 // From CUDAProduct<T>
 CUDAProduct<GPUClusters> cclus = iEvent.get(srcToken_);
-CUDAScopedContext ctx{cclus};
+CUDAScopedContextAcquire ctx{cclus, ...};
+// or
+CUDAScopedContextProduce ctx{cclus};
 ```
 
-`CUDAScopedContext` works in the RAII way and does the following
+`CUDAScopedContextAcquire`/`CUDAScopedContextProduce` works in the RAII way and does the following
 * Sets the current device for the current scope
   - If constructed from the `edm::StreamID`, chooses the device and creates a new CUDA stream
   - If constructed from the `CUDAProduct<T>`, uses the same device and possibly the same CUDA stream as was used to produce the `CUDAProduct<T>`
@@ -548,9 +552,10 @@ CUDAScopedContext ctx{cclus};
       time allow a chain of producers to queue their work to the same
       CUDA stream.
 * Gives access to the CUDA stream the algorithm should use to queue asynchronous work
-* Calls `edm::WaitingTaskWithArenaHolder::doneWaiting()` when necessary
+* `CUDAScopedContextAcquire` calls `edm::WaitingTaskWithArenaHolder::doneWaiting()` when necessary (in its destructor)
 * [Synchronizes between CUDA streams if necessary](#synchronizing-between-cuda-streams)
-* Needed to get/put `CUDAProduct<T>` from/to the event
+* Needed to get `CUDAProduct<T>` from the event
+  * `CUDAScopedContextProduce` is needed to put `CUDAProduct<T>` to the event
 
 In case of multiple input products, from possibly different CUDA
 streams and/or CUDA devices, this approach gives the developer full
@@ -559,7 +564,7 @@ control in which of them the kernels of the algorithm should be run.
 #### Getting input
 
 The real product (`T`) can be obtained from `CUDAProduct<T>` only with
-the help of `CUDAScopedContext`.
+the help of `CUDAScopedContextAcquire`/`CUDAScopedContextProduce`.
 
 ```cpp
 // From CUDAProduct<T>
@@ -580,7 +585,7 @@ This step is needed to
 It is usually best to wrap the CUDA kernel calls to a separate class,
 and then call methods of that class from the EDProducer. The only
 requirement is that the CUDA stream where to queue the operations
-should be the one from the `CUDAScopedContext`
+should be the one from the `CUDAScopedContextAcquire`/`CUDAScopedContextProduce`.
 
 ```cpp
 gpuAlgo.makeClustersAsync(..., ctx.stream());
@@ -594,7 +599,7 @@ CUDA events and `cudaStreamWaitEvent()`.
 #### Putting output
 
 The GPU data needs to be wrapped to `CUDAProduct<T>` template with
-`CUDAScopedContext::wrap()` or `CUDAScopedContext::emplace()`
+`CUDAScopedContextProduce::wrap()` or `CUDAScopedContextProduce::emplace()`
 
 ```cpp
 GPUClusters clusters = gpuAlgo.makeClustersAsync(..., ctx.stream());
@@ -628,41 +633,44 @@ needed for downstream DQM, or queueing more asynchronous work. With
 `ExternalWork` an `acquire()` method needs to be implemented that gets
 an `edm::WaitingTaskWithArenaHolder` parameter. The
 `edm::WaitingTaskWithArenaHolder` should then be passed to the
-constructor of `CUDAScopedContext` along
+constructor of `CUDAScopedContextAcquire` along
 
 ```cpp
 void acquire(..., edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   CUDAProduct<GPUClusters> const& cclus = iEvent.get(token_);
-  CUDAScopedContext ctx{cclus, std::move(waitingTaskHolder)}; // can also copy instead of move if waitingTaskHolder is needed for something else as well
+  CUDAScopedContextAcquire ctx{cclus, std::move(waitingTaskHolder)}; // can also copy instead of move if waitingTaskHolder is needed for something else as well
   ...
 ```
 
-When constructed this way, `CUDAScopedContext` registers a callback
-function to the CUDA stream in its destructor to call
+When constructed this way, `CUDAScopedContextAcquire` registers a
+callback function to the CUDA stream in its destructor to call
 `waitingTaskHolder.doneWaiting()`.
 
 A GPU->GPU producer needs a `CUDAScopedContext` also in its
-`produce()`. Currently the best way is to store the state of
-`CUDAScopedContext` to `CUDAContextToken` member variable:
+`produce()`. The device and CUDA stream are transferred via
+`CUDAContextState` member variable:
 
 ```cpp
 class FooProducerCUDA ... {
   ...
-  CUDAContextToken ctxTmp_;
+  CUDAContextState ctxState_;
 };
 
 void acquire(...) {
   ...
-  ctxTmp_ = ctx.toToken();
+  CUDAScopedContextAcquire ctx{..., std::move(waitingTaskHolder), ctxState_};
+  ...
 }
 
 void produce(...( {
   ...
-  CUDAScopedContext ctx{std::move(ctxTmp_)};
+  CUDAScopedContextProduce ctx{ctxState_};
 }
 ```
 
-Ideas for improvements are welcome.
+The `CUDAScopedContextAcquire` saves its state to the `ctxState_` in
+the destructor, and `CUDAScopedContextProduce` then restores the
+context.
 
 
 #### Transferring GPU data to CPU
@@ -676,7 +684,7 @@ the `ExternalWork` needs to be used along
 * In `produce()`
   * If needed, read additional CPU products (e.g. from `edm::Ref`s)
   * Reformat data back to legacy data formats
-  * Note: `CUDAScopedContext` is **not** needed in `produce()`
+  * Note: `CUDAScopedContextProduce` is **not** needed in `produce()`
 
 #### Synchronizing between CUDA streams
 
@@ -685,11 +693,12 @@ more) CUDA streams, these streams have to be synchronized. Here this
 synchronization is achieved with CUDA events.
 
 Each `CUDAProduct<T>` constains also a CUDA event object. The call to
-`CUDAScopedContext::wrap()` will *record* the event in the CUDA stream.
-This means that when all work queued to the CUDA stream up to that
-point has been finished, the CUDA event becomes *occurred*. Then, in
-`CUDAScopedContext::get()`, if the `CUDAProduct<T>` to get from has a
-different CUDA stream than the `CUDAScopedContext`,
+`CUDAScopedContextProduce::wrap()` will *record* the event in the CUDA
+stream. This means that when all work queued to the CUDA stream up to
+that point has been finished, the CUDA event becomes *occurred*. Then,
+in `CUDAScopedContextAcquire::get()`/`CUDAScopedContextProduce::get()`,
+if the `CUDAProduct<T>` to get from has a different CUDA stream than
+the `CUDAScopedContextAcquire`/`CUDAScopedContextProduce`,
 `cudaStreamWaitEvent(stream, event)` is called. This means that all
 subsequent work queued to the CUDA stream will wait for the CUDA event
 to become occurred. Therefore this subsequent work can assume that the

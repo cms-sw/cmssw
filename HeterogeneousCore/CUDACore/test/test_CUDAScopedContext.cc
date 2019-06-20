@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
+#include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
@@ -13,15 +14,15 @@ namespace cudatest {
   class TestCUDAScopedContext {
   public:
     static
-    CUDAScopedContext make(int dev, bool createEvent) {
+    CUDAScopedContextProduce make(int dev, bool createEvent) {
       auto device = cuda::device::get(dev);
       std::unique_ptr<cuda::event_t> event;
       if(createEvent) {
         event = std::make_unique<cuda::event_t>(device.create_event());
       }
-      return CUDAScopedContext(dev,
-                               std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)),
-                               std::move(event));
+      return CUDAScopedContextProduce(dev,
+                                      std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)),
+                                      std::move(event));
     }
   };
 }
@@ -58,27 +59,27 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       std::unique_ptr<CUDAProduct<int>> dataPtr = ctx.wrap(10);
       const auto& data = *dataPtr;
 
-      CUDAScopedContext ctx2{data};
+      CUDAScopedContextProduce ctx2{data};
       REQUIRE(cuda::device::current::get().id() == data.device());
       REQUIRE(ctx2.stream().id() == data.stream().id());
 
       // Second use of a product should lead to new stream
-      CUDAScopedContext ctx3{data};
+      CUDAScopedContextProduce ctx3{data};
       REQUIRE(cuda::device::current::get().id() == data.device());
       REQUIRE(ctx3.stream().id() != data.stream().id());
     }
 
-    SECTION("Storing state as CUDAContextToken") {
-      CUDAContextToken ctxtok;
+    SECTION("Storing state in CUDAContextState") {
+      CUDAContextState ctxstate;
       { // acquire
         std::unique_ptr<CUDAProduct<int>> dataPtr = ctx.wrap(10);
         const auto& data = *dataPtr;
-        CUDAScopedContext ctx2{data};
-        ctxtok = ctx2.toToken();
+        edm::WaitingTaskWithArenaHolder dummy{edm::make_waiting_task(tbb::task::allocate_root(), [](std::exception_ptr const* iPtr){})};
+        CUDAScopedContextAcquire ctx2{data, std::move(dummy), ctxstate};
       }
 
       { // produce
-        CUDAScopedContext ctx2{std::move(ctxtok)};
+        CUDAScopedContextProduce ctx2{ctxstate};
         REQUIRE(cuda::device::current::get().id() == ctx.device());
         REQUIRE(ctx2.stream().id() == ctx.stream().id());
       }
@@ -101,7 +102,7 @@ TEST_CASE("Use of CUDAScopedContext", "[CUDACore]") {
       REQUIRE(wprod1->stream().id() != wprod2->stream().id());
 
       // Mimick a third producer "joining" the two streams
-      CUDAScopedContext ctx2{*wprod1};
+      CUDAScopedContextProduce ctx2{*wprod1};
 
       auto prod1 = ctx2.get(*wprod1);
       auto prod2 = ctx2.get(*wprod2);

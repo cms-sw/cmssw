@@ -47,7 +47,7 @@ void TestCUDAProducerGPUtoCPU::acquire(const edm::Event& iEvent, const edm::Even
   edm::LogVerbatim("TestCUDAProducerGPUtoCPU") << label_ << " TestCUDAProducerGPUtoCPU::acquire begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
 
   const auto& in = iEvent.get(srcToken_);
-  CUDAScopedContext ctx{in, std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{in, std::move(waitingTaskHolder)};
   const CUDAThing& device = ctx.get(in);
 
   edm::Service<CUDAService> cs;

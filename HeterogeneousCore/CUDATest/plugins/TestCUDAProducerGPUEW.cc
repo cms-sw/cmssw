@@ -7,7 +7,7 @@
 
 #include "CUDADataFormats/Common/interface/CUDAProduct.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
-#include "HeterogeneousCore/CUDACore/interface/CUDAContextToken.h"
+#include "HeterogeneousCore/CUDACore/interface/CUDAContextState.h"
 #include "HeterogeneousCore/CUDATest/interface/CUDAThing.h"
 
 #include "TestCUDAProducerGPUKernel.h"
@@ -26,7 +26,7 @@ private:
   edm::EDGetTokenT<CUDAProduct<CUDAThing>> srcToken_;
   edm::EDPutTokenT<CUDAProduct<CUDAThing>> dstToken_;
   TestCUDAProducerGPUKernel gpuAlgo_;
-  CUDAContextToken ctxTmp_;
+  CUDAContextState ctxState_;
   cudautils::device::unique_ptr<float[]> devicePtr_;
   float hostData_ = 0.f;
 };
@@ -47,7 +47,7 @@ void TestCUDAProducerGPUEW::acquire(const edm::Event& iEvent, const edm::EventSe
   edm::LogVerbatim("TestCUDAProducerGPUEW") << label_ << " TestCUDAProducerGPUEW::acquire begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
 
   const auto& in = iEvent.get(srcToken_);
-  CUDAScopedContext ctx{in, std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{in, std::move(waitingTaskHolder), ctxState_};
   const CUDAThing& input = ctx.get(in);
 
   devicePtr_ = gpuAlgo_.runAlgo(label_, input.get(), ctx.stream());
@@ -57,14 +57,12 @@ void TestCUDAProducerGPUEW::acquire(const edm::Event& iEvent, const edm::EventSe
   cuda::memory::async::copy(&hostData_, devicePtr_.get()+10, sizeof(float), ctx.stream().id());
 
   edm::LogVerbatim("TestCUDAProducerGPUEW") << label_ << " TestCUDAProducerGPUEW::acquire end event " << iEvent.id().event() << " stream " << iEvent.streamID();
-
-  ctxTmp_ = ctx.toToken();
 }
 
 void TestCUDAProducerGPUEW::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::LogVerbatim("TestCUDAProducerGPUEW") << label_ << " TestCUDAProducerGPUEW::produce begin event " << iEvent.id().event() << " stream " << iEvent.streamID() << " 10th element " << hostData_; 
 
-  CUDAScopedContext ctx{std::move(ctxTmp_)};
+  CUDAScopedContextProduce ctx{ctxState_};
 
   ctx.emplace(iEvent, dstToken_, std::move(devicePtr_));
 

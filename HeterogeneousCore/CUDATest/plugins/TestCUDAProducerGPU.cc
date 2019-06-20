@@ -43,7 +43,7 @@ void TestCUDAProducerGPU::produce(edm::StreamID streamID, edm::Event& iEvent, co
   edm::LogVerbatim("TestCUDAProducerGPU") << label_ << " TestCUDAProducerGPU::produce begin event " << iEvent.id().event() << " stream " << iEvent.streamID();
 
   const auto& in = iEvent.get(srcToken_);
-  CUDAScopedContext ctx{in};
+  CUDAScopedContextProduce ctx{in};
   const CUDAThing& input = ctx.get(in);
 
   ctx.emplace(iEvent, dstToken_, CUDAThing{gpuAlgo_.runAlgo(label_, input.get(), ctx.stream())});

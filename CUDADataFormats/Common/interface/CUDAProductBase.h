@@ -46,7 +46,8 @@ protected:
   {}
 
 private:
-  friend class CUDAScopedContext;
+  friend class CUDAScopedContextBase;
+  friend class CUDAScopedContextProduce;
 
   // The following functions are intended to be used only from CUDAScopedContext
   void setEvent(std::shared_ptr<cuda::event_t> event) {

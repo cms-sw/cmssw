@@ -85,7 +85,7 @@ void SiPixelRecHitCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   edm::Handle<CUDAProduct<SiPixelClustersCUDA>> hclusters;
   iEvent.getByToken(token_, hclusters);
 
-  CUDAScopedContext ctx{*hclusters};
+  CUDAScopedContextProduce ctx{*hclusters};
   auto const& clusters = ctx.get(*hclusters);
 
   edm::Handle<CUDAProduct<SiPixelDigisCUDA>> hdigis;

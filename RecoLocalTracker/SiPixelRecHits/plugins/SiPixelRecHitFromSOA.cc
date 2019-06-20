@@ -60,7 +60,7 @@ void SiPixelRecHitFromSOA::acquire(edm::Event const& iEvent,
                                    edm::EventSetup const& iSetup,
                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   CUDAProduct<TrackingRecHit2DCUDA> const& inputDataWrapped = iEvent.get(tokenHit_);
-  CUDAScopedContext ctx{inputDataWrapped, std::move(waitingTaskHolder)};
+  CUDAScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
   m_nHits = inputData.nHits();

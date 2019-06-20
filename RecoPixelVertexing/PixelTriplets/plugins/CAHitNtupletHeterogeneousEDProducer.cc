@@ -114,7 +114,7 @@ void CAHitNtupletHeterogeneousEDProducer::acquireGPUCuda(const edm::Heterogeneou
   edm::Service<CUDAService> cs;
   assert(hHits->device() == cs->getCurrentDevice());
 
-  CUDAScopedContext ctx{*hHits};
+  CUDAScopedContextProduce ctx{*hHits};
   auto const &gHits = ctx.get(*hHits);
 
   if (not hHits->isAvailable()) {

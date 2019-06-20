@@ -206,7 +206,7 @@ void ClusterTPAssociationHeterogeneous::acquireGPUCuda(const edm::HeterogeneousE
     cudaCheck(cudaStreamWaitEvent(cudaStream.id(), gh->event()->id(), 0));
   }
 
-  CUDAScopedContext ctx{*gd};
+  CUDAScopedContextProduce ctx{*gd};
   auto const &gDigis = ctx.get(*gd);
   auto const &gHits = ctx.get(*gh);
   auto ndigis = gDigis.nDigis();

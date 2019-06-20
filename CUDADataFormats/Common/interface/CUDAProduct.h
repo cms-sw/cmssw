@@ -37,7 +37,8 @@ public:
   CUDAProduct& operator=(CUDAProduct&&) = default;
 
 private:
-  friend class CUDAScopedContext;
+  friend class CUDAScopedContextBase;
+  friend class CUDAScopedContextProduce;
   friend class edm::Wrapper<CUDAProduct<T>>;
 
   explicit CUDAProduct(int device, std::shared_ptr<cuda::stream_t<>> stream, T data):

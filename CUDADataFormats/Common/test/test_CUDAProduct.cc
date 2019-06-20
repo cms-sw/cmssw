@@ -11,15 +11,15 @@ namespace cudatest {
   class TestCUDAScopedContext {
   public:
     static
-    CUDAScopedContext make(int dev, bool createEvent) {
+    CUDAScopedContextProduce make(int dev, bool createEvent) {
       auto device = cuda::device::get(dev);
       std::unique_ptr<cuda::event_t> event;
       if(createEvent) {
         event = std::make_unique<cuda::event_t>(device.create_event());
       }
-      return CUDAScopedContext(dev,
-                               std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)),
-                               std::move(event));
+      return CUDAScopedContextProduce(dev,
+                                      std::make_unique<cuda::stream_t<>>(device.create_stream(cuda::stream::implicitly_synchronizes_with_default_stream)),
+                                      std::move(event));
     }
   };
 }

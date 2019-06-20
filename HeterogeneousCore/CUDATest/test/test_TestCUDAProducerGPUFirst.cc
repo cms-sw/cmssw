@@ -72,7 +72,7 @@ process.moduleToTest(process.toTest)
     auto event = tester.test();
     auto prod = event.get<CUDAProduct<CUDAThing> >();
     REQUIRE(prod->device() == defaultDevice);
-    auto ctx = CUDAScopedContext(*prod);
+    auto ctx = CUDAScopedContextProduce(*prod);
     const CUDAThing& thing = ctx.get(*prod);
     const float *data = thing.get();
     REQUIRE(data != nullptr);

@@ -62,7 +62,7 @@ void BeamSpotToCUDA::fillDescriptions(edm::ConfigurationDescriptions& descriptio
 }
 
 void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  CUDAScopedContext ctx{streamID};
+  CUDAScopedContextProduce ctx{streamID};
 
   const reco::BeamSpot& bs = iEvent.get(bsGetToken_);
 
