@@ -54,7 +54,7 @@ def MyErf(input):
     return cErf
 
 
-def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
+def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins, run, ls):
     '''
     lumiinfo:[intlumi per LS, mean interactions ]
 
@@ -130,10 +130,8 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
                 hist.Fill (val, prob * LSintLumi)
                 
             if 1.0-totalProb > 0.01:
-                print("Significant probability density outside of your histogram")
-                print("Consider using a higher value of --maxPileupBin")
-                print("Mean %f, RMS %f, Integrated probability %f" % (AveNumInt,RMSInt,totalProb))
-            #    hist.Fill (val, (1 - totalProb) * LSintLumi)
+                print("Run %d, LS %d: Significant probability density outside of your histogram (mean %.2f," % (run, ls, AveNumInt))
+                print("rms %.2f, integrated probability %.3f). Consider using a higher value of --maxPileupBin." % (RMSInt, totalProb))
         else:
             hist.Fill(AveNumInt,LSintLumi)
     else: # have to convolute with a poisson distribution to get observed Nint
@@ -150,7 +148,7 @@ def fillPileupHistogram (lumiInfo, calcOption, hist, minbXsec, Nbins):
                 hist.Fill (val, prob * LSintLumi * RMSWeight)
 
         if 1.0-totalProb > 0.01:
-            print("Significant probability density outside of your histogram")
+            print("Run %d, LS %d: significant probability density outside of your histogram" % (run, ls))
             print("Consider using a higher value of --maxPileupBin")
 
 
@@ -238,8 +236,8 @@ if __name__ == '__main__':
                     #print "found LS %d" % (LSnumber)
                     lumiInfo = LSPUlist[LSnumber]
                     # print lumiInfo
-                    fillPileupHistogram(lumiInfo, options.calcMode,
-                            pileupHist, options.minBiasXsec, nbins)
+                    fillPileupHistogram(lumiInfo, options.calcMode, pileupHist,
+                                        options.minBiasXsec, nbins, run, LSnumber)
                 else: # trouble
                     print("Run %d, LumiSection %d not found in Lumi/Pileup input file. Check your files!" \
                             % (run,LSnumber))
