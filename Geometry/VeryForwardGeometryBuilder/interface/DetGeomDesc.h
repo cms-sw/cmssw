@@ -32,52 +32,51 @@ class CTPPSRPAlignmentCorrectionData;
  \endverbatim
  **/
 
-class DetGeomDesc
-{
- public:
-  using Container = std::vector< DetGeomDesc* >;
+class DetGeomDesc {
+public:
+  using Container = std::vector<DetGeomDesc*>;
   using RotationMatrix = ROOT::Math::Rotation3D;
   using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
 
   ///Constructors to be used when looping over DDD
-  DetGeomDesc( DDFilteredView* fv );
-  
+  DetGeomDesc(DDFilteredView* fv);
+
   /// copy constructor and assignment operator
-  DetGeomDesc( const DetGeomDesc & );
-  DetGeomDesc& operator= ( const DetGeomDesc & );
-  
+  DetGeomDesc(const DetGeomDesc&);
+  DetGeomDesc& operator=(const DetGeomDesc&);
+
   /// destructor
   virtual ~DetGeomDesc();
-  
+
   /// ID stuff
   void setGeographicalID(DetId id) { m_geographicalID = id; }
   DetId geographicalID() const { return m_geographicalID; }
-  
+
   /// access to the tree structure
   Container components() const;
   float parentZPosition() const { return m_z; }
-  
+
   /// components (children) management
-  void addComponent( DetGeomDesc* );
+  void addComponent(DetGeomDesc*);
   bool isLeaf() const { return m_container.empty(); }
-  
+
   /// geometry information
-  RotationMatrix	rotation() const { return m_rot; }
-  Translation		translation() const { return m_trans; }
-  const std::string&	name() const { return m_name; }
-  std::vector<double>	params() const { return m_params; }
+  RotationMatrix rotation() const { return m_rot; }
+  Translation translation() const { return m_trans; }
+  const std::string& name() const { return m_name; }
+  std::vector<double> params() const { return m_params; }
   int copyno() const { return m_copy; }
-  
+
   /// alignment
-  void applyAlignment( const CTPPSRPAlignmentCorrectionData& );
-  
- private:
+  void applyAlignment(const CTPPSRPAlignmentCorrectionData&);
+
+private:
   DetGeomDesc() {}
-  void deleteComponents(); /// deletes just the first daughters
-  void deepDeleteComponents(); /// traverses the treee and deletes all nodes.
+  void deleteComponents();      /// deletes just the first daughters
+  void deepDeleteComponents();  /// traverses the treee and deletes all nodes.
   void clearComponents() { m_container.resize(0); }
-  
-  Container		 m_container;
+
+  Container m_container;
   Translation m_trans;
   RotationMatrix m_rot;
   std::string m_name;

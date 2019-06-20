@@ -8,8 +8,7 @@
 #include <iostream>
 #include <iomanip>
 
-EcalEndcapNumberingScheme::EcalEndcapNumberingScheme() : 
-  EcalNumberingScheme() {
+EcalEndcapNumberingScheme::EcalEndcapNumberingScheme() : EcalNumberingScheme() {
   edm::LogInfo("EcalGeom") << "Creating EcalEndcapNumberingScheme";
 }
 
@@ -17,147 +16,117 @@ EcalEndcapNumberingScheme::~EcalEndcapNumberingScheme() {
   edm::LogInfo("EcalGeom") << "Deleting EcalEndcapNumberingScheme";
 }
 uint32_t EcalEndcapNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) const {
+  const uint32_t nLevels(baseNumber.getLevels());
 
+  //LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
 
-   const uint32_t nLevels ( baseNumber.getLevels() ) ;
-
-   //LogDebug("EcalGeom") << "ECalEndcapNumberingScheme geometry levels = " << nLevels;
-  
-   if( 7 > nLevels )
-   {
-      
-      edm::LogWarning("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-                                  << "Not enough levels found in EcalBaseNumber ( "
-                                  <<  nLevels 
-                                  << ") Returning 0" ;
-      return 0;
-   }
-
-   if ( nLevels <= 10 ) 
-   {
-    
-  
-  // Static geometry
-
-
-  if (baseNumber.getLevels()<1) {
-    edm::LogWarning("EcalGeom") << "EalEndcaplNumberingScheme::getUnitID: No "
-				<< "level found in EcalBaseNumber Returning 0";
+  if (7 > nLevels) {
+    edm::LogWarning("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+                                << "Not enough levels found in EcalBaseNumber ( " << nLevels << ") Returning 0";
     return 0;
   }
 
-  int PVid = baseNumber.getCopyNumber(0);
-  int MVid = 1;
-  if (baseNumber.getLevels() > 1) 
-    MVid = baseNumber.getCopyNumber(1);
-  else 
-    edm::LogWarning("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID: Null"
-				<< " pointer to alveole ! Use default id=1";
+  if (nLevels <= 10) {
+    // Static geometry
 
-  int zside   = baseNumber.getCopyNumber("EREG");
-  zside=2*(1-zside)+1;
-  int module_number  = MVid;
-  int crystal_number  = PVid;
+    if (baseNumber.getLevels() < 1) {
+      edm::LogWarning("EcalGeom") << "EalEndcaplNumberingScheme::getUnitID: No "
+                                  << "level found in EcalBaseNumber Returning 0";
+      return 0;
+    }
 
-  uint32_t intindex = EEDetId(module_number,crystal_number,zside,EEDetId::SCCRYSTALMODE).rawId();
-  
-//LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside 
-//                     << " super crystal = " << module_number << " crystal = "
-//                     << crystal_number << " packed index = 0x" << std::hex 
-//                     << intindex << std::dec;
+    int PVid = baseNumber.getCopyNumber(0);
+    int MVid = 1;
+    if (baseNumber.getLevels() > 1)
+      MVid = baseNumber.getCopyNumber(1);
+    else
+      edm::LogWarning("EcalGeom") << "ECalEndcapNumberingScheme::getUnitID: Null"
+                                  << " pointer to alveole ! Use default id=1";
 
+    int zside = baseNumber.getCopyNumber("EREG");
+    zside = 2 * (1 - zside) + 1;
+    int module_number = MVid;
+    int crystal_number = PVid;
 
-  return intindex;
-   }
-   else
-   {
-      // algorithmic geometry
+    uint32_t intindex = EEDetId(module_number, crystal_number, zside, EEDetId::SCCRYSTALMODE).rawId();
 
-      const int ic  ( baseNumber.getCopyNumber(0)%100 ) ; // crystal #, 0-44
-      const int icx ( ic/10 ) ;
-      const int icy ( ic%5 ) ;
-      const int is  ( baseNumber.getCopyNumber(2)%100 ) ; // supercrystal #, 0-99
-      const int isx ( is/10 ) ;
-      const int isy ( is%10 ) ;
+    //LogDebug("EcalGeom") << "EcalEndcapNumberingScheme: zside = "  << zside
+    //                     << " super crystal = " << module_number << " crystal = "
+    //                     << crystal_number << " packed index = 0x" << std::hex
+    //                     << intindex << std::dec;
 
-      const int iq  ( 3 - 2*baseNumber.getCopyNumber(3) ) ; // quadrant #, -1, +1
-      const int id  ( 3 - 2*baseNumber.getCopyNumber(5) ) ; // dee      #, -1, +1
+    return intindex;
+  } else {
+    // algorithmic geometry
 
-      const int iz  ( 3 - 2*baseNumber.getCopyNumber(7) ) ; // z: -1, +1
+    const int ic(baseNumber.getCopyNumber(0) % 100);  // crystal #, 0-44
+    const int icx(ic / 10);
+    const int icy(ic % 5);
+    const int is(baseNumber.getCopyNumber(2) % 100);  // supercrystal #, 0-99
+    const int isx(is / 10);
+    const int isy(is % 10);
 
-      const int ix  ( 50 + id*iz*( 5*isx + icx + 1 ) - ( id*iz - 1 )/2 ) ; // x: 1-100
-      const int iy  ( 50 + id*iq*( 5*isy + icy + 1 ) - ( id*iq - 1 )/2 ) ; // y: 1-100
+    const int iq(3 - 2 * baseNumber.getCopyNumber(3));  // quadrant #, -1, +1
+    const int id(3 - 2 * baseNumber.getCopyNumber(5));  // dee      #, -1, +1
 
-      const uint32_t idet ( DetId( DetId::Ecal, EEDetId::Subdet ) | ( ( ( 0<iz ? 0x4000 : 0 ) ) + ( ix<<7 ) + iy ) ) ;
+    const int iz(3 - 2 * baseNumber.getCopyNumber(7));  // z: -1, +1
 
-      //*************************** ERROR CHECKING **********************************
+    const int ix(50 + id * iz * (5 * isx + icx + 1) - (id * iz - 1) / 2);  // x: 1-100
+    const int iy(50 + id * iq * (5 * isy + icy + 1) - (id * iq - 1) / 2);  // y: 1-100
 
-      if( 0 > icx ||
-          4 < icx ||
-	  0 > icy ||
-	  4 < icy    )
-      {
-	 edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-				     << "****************** Bad crystal number = " << ic 
-				     << ", Volume Name = " << baseNumber.getLevelName(0)              ;
-	 return 0 ;
-      }
+    const uint32_t idet(DetId(DetId::Ecal, EEDetId::Subdet) | (((0 < iz ? 0x4000 : 0)) + (ix << 7) + iy));
 
-      if( 0 > isx ||
-          9 < isx ||
-	  0 > isy ||
-	  9 < isy    )
-      {
-	 edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-				     << "****************** Bad supercrystal number = " << is 
-				     << ", Volume Name = " << baseNumber.getLevelName(3)              ;
-	 return 0 ;
-      }
+    //*************************** ERROR CHECKING **********************************
 
-      if( 1  != iq &&
-          -1 != iq    )
-      {
-	 edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-				     << "****************** Bad quadrant number = " << iq 
-				     << ", Volume Name = " << baseNumber.getLevelName(4)              ;
-	 return 0 ;
-      }
+    if (0 > icx || 4 < icx || 0 > icy || 4 < icy) {
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+                                  << "****************** Bad crystal number = " << ic
+                                  << ", Volume Name = " << baseNumber.getLevelName(0);
+      return 0;
+    }
 
-      if( 1  != id &&
-          -1 != id    )
-      {
-	 edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-				     << "****************** Bad dee number = " << id
-				     << ", Volume Name = " << baseNumber.getLevelName(6)              ;
-	 return 0 ;
-      }
-      
-      if( -1 != iz &&
-           1 != iz    )
-      {
-	 edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-				     << "****************** Bad z-end number = " << iz
-				     << ", Volume Name = " << baseNumber.getLevelName(8)              ;
-	 return 0 ;
-      }
+    if (0 > isx || 9 < isx || 0 > isy || 9 < isy) {
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+                                  << "****************** Bad supercrystal number = " << is
+                                  << ", Volume Name = " << baseNumber.getLevelName(3);
+      return 0;
+    }
 
-      if( !EEDetId::validDetId( ix, iy, iz ) )
-      {
-	 edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
-				     << "****************** Bad DetId numbers = " 
-				     << ix << ", " << iy << ", " << iz               ;
-	 return 0 ;
-      }
+    if (1 != iq && -1 != iq) {
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+                                  << "****************** Bad quadrant number = " << iq
+                                  << ", Volume Name = " << baseNumber.getLevelName(4);
+      return 0;
+    }
 
-      //*************************************************************************************
-/*
+    if (1 != id && -1 != id) {
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+                                  << "****************** Bad dee number = " << id
+                                  << ", Volume Name = " << baseNumber.getLevelName(6);
+      return 0;
+    }
+
+    if (-1 != iz && 1 != iz) {
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+                                  << "****************** Bad z-end number = " << iz
+                                  << ", Volume Name = " << baseNumber.getLevelName(8);
+      return 0;
+    }
+
+    if (!EEDetId::validDetId(ix, iy, iz)) {
+      edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
+                                  << "****************** Bad DetId numbers = " << ix << ", " << iy << ", " << iz;
+      return 0;
+    }
+
+    //*************************************************************************************
+    /*
       edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::getUnitID(): "
 				  <<std::dec<< ix << ", " << iy << ", " <<iq << ", " << id << ", " << iz << ", " << std::hex << idet              ;
 
       edm::LogWarning("EdalGeom") << "ECalEndcapNumberingScheme::EEDetId: "
 				  << EEDetId(idet)              ;
 */
-      return idet ;
-   }
+    return idet;
+  }
 }
-

@@ -13,13 +13,12 @@ public:
   /**
    *buildBounds() return the Bounds.
    */
-  Bounds* buildBounds( const DDSolidShape &,const std::vector<double>&) const;
- private:
+  Bounds* buildBounds(const DDSolidShape&, const std::vector<double>&) const;
 
-  Bounds* buildBox(const std::vector<double> &) const;
-  Bounds* buildTrap(const std::vector<double> &) const;
-  Bounds* buildOpen(const std::vector<double> &) const;
-
+private:
+  Bounds* buildBox(const std::vector<double>&) const;
+  Bounds* buildTrap(const std::vector<double>&) const;
+  Bounds* buildOpen(const std::vector<double>&) const;
 };
 
 #endif
