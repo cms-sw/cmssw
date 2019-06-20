@@ -7,9 +7,9 @@
 #include <memory>
 #include <vector>
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/TICL/interface/Common.h"
-#include "DataFormats/TICL/interface/Trackster.h"
-#include "DataFormats/TICL/interface/TICLLayerTile.h"
+#include "DataFormats/RecoHGCal/interface/Common.h"
+#include "DataFormats/RecoHGCal/interface/Trackster.h"
+#include "DataFormats/RecoHGCal/interface/TICLLayerTile.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {

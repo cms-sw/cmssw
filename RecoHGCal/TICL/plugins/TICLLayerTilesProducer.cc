@@ -9,8 +9,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
-#include "DataFormats/TICL/interface/Common.h"
-#include "DataFormats/TICL/interface/TICLLayerTile.h"
+#include "DataFormats/RecoHGCal/interface/Common.h"
+#include "DataFormats/RecoHGCal/interface/TICLLayerTile.h"
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 

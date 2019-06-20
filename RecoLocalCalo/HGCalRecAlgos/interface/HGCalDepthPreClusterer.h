@@ -50,7 +50,6 @@ private:
 
   std::unique_ptr<hgcal::ClusterTools> clusterTools;
   hgcal::RecHitTools rhtools_; /*!< instance of tools to access RecHit information. */
-
 };
 
 #endif
