@@ -15,32 +15,25 @@
 typedef VersionedIdProducer<reco::GsfElectronPtr> VersionedGsfElectronIdProducer;
 DEFINE_FWK_MODULE(VersionedGsfElectronIdProducer);
 
-
 typedef VersionedIdProducer<pat::ElectronPtr> VersionedPatElectronIdProducer;
 DEFINE_FWK_MODULE(VersionedPatElectronIdProducer);
 
-typedef ElectronIDSelector<ElectronIDSelectorCutBased>   EleIdCutBasedSel;
+typedef ElectronIDSelector<ElectronIDSelectorCutBased> EleIdCutBasedSel;
 typedef ElectronIDSelector<ElectronIDSelectorLikelihood> EleIdLikelihoodSel;
-typedef ObjectSelector<
-          EleIdCutBasedSel, 
-          edm::RefVector<reco::GsfElectronCollection> 
-         > EleIdCutBasedRef ;
-typedef ObjectSelector<
-          EleIdLikelihoodSel, 
-          edm::RefVector<reco::GsfElectronCollection> 
-         > EleIdLikelihoodRef ;
+typedef ObjectSelector<EleIdCutBasedSel, edm::RefVector<reco::GsfElectronCollection> > EleIdCutBasedRef;
+typedef ObjectSelector<EleIdLikelihoodSel, edm::RefVector<reco::GsfElectronCollection> > EleIdLikelihoodRef;
 DEFINE_FWK_MODULE(EleIdCutBasedRef);
 DEFINE_FWK_MODULE(EleIdLikelihoodRef);
 
 #include "RecoEgamma/ElectronIdentification/plugins/ElectronIDExternalProducer.h"
-typedef ElectronIDExternalProducer<ElectronIDSelectorCutBased>   EleIdCutBasedExtProducer;
+typedef ElectronIDExternalProducer<ElectronIDSelectorCutBased> EleIdCutBasedExtProducer;
 typedef ElectronIDExternalProducer<ElectronIDSelectorLikelihood> EleIdLikelihoodExtProducer;
 DEFINE_FWK_MODULE(EleIdCutBasedExtProducer);
 DEFINE_FWK_MODULE(EleIdLikelihoodExtProducer);
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "RecoEgamma/ElectronIdentification/plugins/ElectronLikelihoodESSource.h"
-DEFINE_FWK_EVENTSETUP_MODULE( ElectronLikelihoodESSource );
+DEFINE_FWK_EVENTSETUP_MODULE(ElectronLikelihoodESSource);
 
 typedef ObjectSelector<EleIdCutBasedSel, reco::GsfElectronCollection> EleIdCutBased;
 DEFINE_FWK_MODULE(EleIdCutBased);

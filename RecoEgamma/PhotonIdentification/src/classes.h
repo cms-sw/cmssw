@@ -10,7 +10,7 @@
 #include "PhysicsTools/SelectorUtils/interface/PrintVIDToString.h"
 
 namespace RecoEgamma_PhotonIdentification {
-  struct dictionary {    
+  struct dictionary {
     typedef VersionedSelector<edm::Ptr<reco::Photon> > VersionedPhotonSelector;
     typedef MakeVersionedSelector<reco::Photon> MakeVersionedPhotonSelector;
     typedef MakePtrFromCollection<reco::PhotonCollection> MakePhoPtrFromCollection;
@@ -22,16 +22,15 @@ namespace RecoEgamma_PhotonIdentification {
     typedef PrintVIDToString<pat::Photon> PrintPatPhotonVIDToString;
 
     //for using the selectors in python
-    VersionedPhotonSelector vGsfElectronSelector;    
+    VersionedPhotonSelector vGsfElectronSelector;
     MakeVersionedPhotonSelector vMakePhotonVersionedSelector;
     PrintPhotonVIDToString vPhoPrintVIDToString;
-    MakePhoPtrFromCollection vPhoMakePtrFromCollection;  
-    
-    VersionedPatPhotonSelector vPatPhotonSelector; 
+    MakePhoPtrFromCollection vPhoMakePtrFromCollection;
+
+    VersionedPatPhotonSelector vPatPhotonSelector;
     MakeVersionedPatPhotonSelector vMakePatPhotonVersionedSelector;
     PrintPatPhotonVIDToString vPatPrintVIDToString;
     MakePatPtrFromCollection vPatMakePtrFromCollection;
     MakePtrFromCollection<std::vector<pat::Photon>, pat::Photon, reco::Photon> vPatToPhoMakePtrFromCollection;
-    
   };
-}
+}  // namespace RecoEgamma_PhotonIdentification

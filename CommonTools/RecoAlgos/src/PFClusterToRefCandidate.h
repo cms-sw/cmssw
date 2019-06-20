@@ -13,21 +13,19 @@ namespace converter {
     typedef reco::PFCluster value_type;
     typedef reco::PFClusterCollection Components;
     typedef reco::RecoPFClusterRefCandidate Candidate;
-    PFClusterToRefCandidate(const edm::ParameterSet & cfg) : 
-      MassiveCandidateConverter(cfg) {
+    PFClusterToRefCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
+    void convert(reco::PFClusterRef pfclusterRef, reco::RecoPFClusterRefCandidate& c) const {
+      c = reco::RecoPFClusterRefCandidate(pfclusterRef, sqrt(massSqr_));
     }
-    void convert(reco::PFClusterRef pfclusterRef, reco::RecoPFClusterRefCandidate & c) const {
-      c = reco::RecoPFClusterRefCandidate( pfclusterRef, sqrt(massSqr_) );
-    }  
   };
 
   namespace helper {
-    template<>
-    struct CandConverter<reco::PFCluster> { 
+    template <>
+    struct CandConverter<reco::PFCluster> {
       typedef PFClusterToRefCandidate type;
     };
-  }
+  }  // namespace helper
 
-}
+}  // namespace converter
 
 #endif
