@@ -10,7 +10,8 @@ class TrackingRecHit2DSOAView;
 class TrackingRecHit2DCUDA;
 
 namespace Rfit {
-  constexpr uint32_t maxNumberOfConcurrentFits() { return 6 * 1024; }
+  // in case of memory issue can be made smaller
+  constexpr uint32_t maxNumberOfConcurrentFits() { return CAConstants::maxNumberOfTuples(); }
   constexpr uint32_t stride() { return maxNumberOfConcurrentFits(); }
   using Matrix3x4d = Eigen::Matrix<double, 3, 4>;
   using Map3x4d = Eigen::Map<Matrix3x4d, 0, Eigen::Stride<3 * stride(), stride()> >;
