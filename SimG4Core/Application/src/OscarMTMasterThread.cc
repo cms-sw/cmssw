@@ -22,7 +22,7 @@
 
 OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     : m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
-      m_pGeoFromDD4hep(iConfig.getUntrackedParameter<bool>("g4GeometryDD4hepSource", false)),
+      m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
       m_pDD(nullptr),
       m_pDD4hep(nullptr),
       m_pMF(nullptr),

@@ -109,7 +109,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     return;
 
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialisation of geometry";
-  auto geoFromDD4hep = m_p.getUntrackedParameter<bool>("g4GeometryDD4hepSource", false);
+  auto geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_lv;
   dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
