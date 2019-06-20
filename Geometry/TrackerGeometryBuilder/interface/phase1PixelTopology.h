@@ -35,6 +35,8 @@ namespace phase1PixelTopology {
     "E-1", "E-2", "E-3"             // negative endcap
   };
 
+  constexpr uint32_t numberOfModulesInBarrel = 1184;
+  constexpr uint32_t numberOfLaddersInBarrel = numberOfModulesInBarrel/8;
 
   template<class Function, std::size_t... Indices>
   constexpr auto map_to_array_helper(Function f, std::index_sequence<Indices...>)
@@ -145,6 +147,18 @@ namespace phase1PixelTopology {
     if (yInRoc>0) shift+=1;
     return py+shift;
   }
+
+  //FIXME move it elsewhere?
+  struct AverageGeometry {
+    static constexpr auto numberOfLaddersInBarrel = phase1PixelTopology::numberOfLaddersInBarrel;
+    float ladderZ[numberOfLaddersInBarrel];
+    float ladderX[numberOfLaddersInBarrel];
+    float ladderY[numberOfLaddersInBarrel];
+    float ladderR[numberOfLaddersInBarrel];
+    float ladderMinZ[numberOfLaddersInBarrel];
+    float ladderMaxZ[numberOfLaddersInBarrel];
+    float endCapZ[2];  // just for pos and neg Layer1
+  };
 
 }
 

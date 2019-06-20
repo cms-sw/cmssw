@@ -44,6 +44,9 @@ namespace pixelCPEforGPU {
     Frame frame;
   };
 
+
+  using phase1PixelTopology::AverageGeometry;
+
   struct LayerGeometry {
     uint32_t layerStart[phase1PixelTopology::numberOfLayers + 1];
     uint8_t layer[phase1PixelTopology::layerIndexSize];
@@ -53,6 +56,7 @@ namespace pixelCPEforGPU {
     CommonParams* m_commonParams;
     DetParams* m_detParams;
     LayerGeometry* m_layerGeometry;
+    AverageGeometry * m_averageGeometry;
 
     constexpr CommonParams const& __restrict__ commonParams() const {
       CommonParams const* __restrict__ l = m_commonParams;
@@ -63,6 +67,7 @@ namespace pixelCPEforGPU {
       return l[i];
     }
     constexpr LayerGeometry const& __restrict__ layerGeometry() const { return *m_layerGeometry; }
+    constexpr AverageGeometry const& __restrict__ averageGeometry() const { return *m_averageGeometry; }
 
     __device__ uint8_t layer(uint16_t id) const {
       return __ldg(m_layerGeometry->layer + id / phase1PixelTopology::maxModuleStride);
