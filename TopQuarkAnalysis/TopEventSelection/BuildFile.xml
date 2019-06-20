@@ -3,7 +3,7 @@
 <use   name="TopQuarkAnalysis/TopTools"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="AnalysisDataFormats/TopObjects"/>
-<use   name="Utilities/Xerces"/>
+<use   name="PhysicsTools/MVATrainer"/>
 <export>
   <lib   name="1"/>
 </export>
