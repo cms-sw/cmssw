@@ -9,8 +9,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 
- typedef ObjectCountFilter<
-           reco::CaloJetCollection
-         >::type CaloJetCountFilter;
+typedef ObjectCountFilter<reco::CaloJetCollection>::type CaloJetCountFilter;
 
-DEFINE_FWK_MODULE( CaloJetCountFilter );
+DEFINE_FWK_MODULE(CaloJetCountFilter);

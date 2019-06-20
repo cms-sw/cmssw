@@ -10,8 +10,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 
- typedef ObjectCountFilter<
-           reco::TrackCollection
-         >::type TrackCountFilter;
+typedef ObjectCountFilter<reco::TrackCollection>::type TrackCountFilter;
 
-DEFINE_FWK_MODULE( TrackCountFilter );
+DEFINE_FWK_MODULE(TrackCountFilter);
