@@ -24,7 +24,7 @@
 #include <sstream>
 #include <iostream>
 
-// include ROOT 
+// include ROOT
 #include "TH2F.h"
 #include "TLegend.h"
 #include "TCanvas.h"
@@ -42,63 +42,63 @@ namespace {
   *************************************************/
 
   class SiPixelQualityTest : public cond::payloadInspector::Histogram1D<SiPixelQuality> {
-    
   public:
-    SiPixelQualityTest() : cond::payloadInspector::Histogram1D<SiPixelQuality>("SiPixelQuality test",
-									       "SiPixelQuality test", 10,0.0,10.0){
-      Base::setSingleIov( true );
+    SiPixelQualityTest()
+        : cond::payloadInspector::Histogram1D<SiPixelQuality>(
+              "SiPixelQuality test", "SiPixelQuality test", 10, 0.0, 10.0) {
+      Base::setSingleIov(true);
     }
-    
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
-      for ( auto const & iov: iovs) {
-	std::shared_ptr<SiPixelQuality> payload = Base::fetchPayload( std::get<1>(iov) );
-	if( payload.get() ){
-	 
-	  fillWithValue(1.);
-	 
-	  auto theDisabledModules = payload->getBadComponentList();
-	  for (const auto &mod : theDisabledModules){
-	    int BadRocCount(0);
-	    for (unsigned short n = 0; n < 16; n++){
-	      unsigned short mask = 1 << n;  // 1 << n = 2^{n} using bitwise shift
-	      if (mod.BadRocs & mask) BadRocCount++;
-	    }
-	    std::cout<<"detId:" <<  mod.DetID << " error type:" << mod.errorType << " BadRocs:"  << BadRocCount <<  std::endl;
-	  }
-	}// payload
-      }// iovs
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      for (auto const& iov : iovs) {
+        std::shared_ptr<SiPixelQuality> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          fillWithValue(1.);
+
+          auto theDisabledModules = payload->getBadComponentList();
+          for (const auto& mod : theDisabledModules) {
+            int BadRocCount(0);
+            for (unsigned short n = 0; n < 16; n++) {
+              unsigned short mask = 1 << n;  // 1 << n = 2^{n} using bitwise shift
+              if (mod.BadRocs & mask)
+                BadRocCount++;
+            }
+            std::cout << "detId:" << mod.DetID << " error type:" << mod.errorType << " BadRocs:" << BadRocCount
+                      << std::endl;
+          }
+        }  // payload
+      }    // iovs
       return true;
-    }// fill
+    }  // fill
   };
-  
+
   /************************************************
     summary class
   *************************************************/
 
   class SiPixelQualityBadRocsSummary : public cond::payloadInspector::PlotImage<SiPixelQuality> {
-
   public:
-    SiPixelQualityBadRocsSummary() : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixel Quality Summary"){
-      setSingleIov( false );
+    SiPixelQualityBadRocsSummary() : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixel Quality Summary") {
+      setSingleIov(false);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
 
-      std::vector<std::tuple<cond::Time_t,cond::Hash> > sorted_iovs = iovs;
+      for (const auto& iov : iovs) {
+        std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
+        auto unpacked = unpack(std::get<0>(iov));
 
-      for(const auto &iov: iovs){
-	std::shared_ptr<SiPixelQuality> payload = fetchPayload( std::get<1>(iov) );
-	auto unpacked = unpack(std::get<0>(iov));
-
-	std::cout<<"======================= " << unpacked.first <<" : "<< unpacked.second  << std::endl;
-	auto theDisabledModules = payload->getBadComponentList();
-	  for (const auto &mod : theDisabledModules){
-	    std::cout<<"detId: " <<  mod.DetID << " |error type: " << mod.errorType << " |BadRocs: "  <<  mod.BadRocs <<  std::endl;
-	  }
+        std::cout << "======================= " << unpacked.first << " : " << unpacked.second << std::endl;
+        auto theDisabledModules = payload->getBadComponentList();
+        for (const auto& mod : theDisabledModules) {
+          std::cout << "detId: " << mod.DetID << " |error type: " << mod.errorType << " |BadRocs: " << mod.BadRocs
+                    << std::endl;
+        }
       }
 
       //=========================
-      TCanvas canvas("Partion summary","partition summary",1200,1000);
+      TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
       canvas.cd();
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
@@ -109,39 +109,40 @@ namespace {
       canvas.SaveAs(fileName.c_str());
 
       return true;
-
     }
 
-    std::pair<unsigned int,unsigned int> unpack(cond::Time_t since){
+    std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
       auto kLowMask = 0XFFFFFFFF;
-      auto run  = (since >> 32);
+      auto run = (since >> 32);
       auto lumi = (since & kLowMask);
-      return std::make_pair(run,lumi);
+      return std::make_pair(run, lumi);
     }
-
   };
 
   /************************************************
     time history class
   *************************************************/
 
-  class SiPixelQualityBadRocsTimeHistory : public cond::payloadInspector::TimeHistoryPlot<SiPixelQuality,std::pair<double,double> > {
-    
+  class SiPixelQualityBadRocsTimeHistory
+      : public cond::payloadInspector::TimeHistoryPlot<SiPixelQuality, std::pair<double, double> > {
   public:
-    SiPixelQualityBadRocsTimeHistory() : cond::payloadInspector::TimeHistoryPlot<SiPixelQuality,std::pair<double,double> >("bad ROCs count vs time","bad ROCs count"){}
+    SiPixelQualityBadRocsTimeHistory()
+        : cond::payloadInspector::TimeHistoryPlot<SiPixelQuality, std::pair<double, double> >("bad ROCs count vs time",
+                                                                                              "bad ROCs count") {}
 
-    std::pair<double,double> getFromPayload(SiPixelQuality& payload ) override{
-      return std::make_pair(extractBadRocCount(payload),0.);
+    std::pair<double, double> getFromPayload(SiPixelQuality& payload) override {
+      return std::make_pair(extractBadRocCount(payload), 0.);
     }
 
-    unsigned int extractBadRocCount(SiPixelQuality& payload){
+    unsigned int extractBadRocCount(SiPixelQuality& payload) {
       unsigned int BadRocCount(0);
       auto theDisabledModules = payload.getBadComponentList();
-      for (const auto &mod : theDisabledModules){
-	for (unsigned short n = 0; n < 16; n++){
-	  unsigned short mask = 1 << n;  // 1 << n = 2^{n} using bitwise shift
-	  if (mod.BadRocs & mask) BadRocCount++;
-	}
+      for (const auto& mod : theDisabledModules) {
+        for (unsigned short n = 0; n < 16; n++) {
+          unsigned short mask = 1 << n;  // 1 << n = 2^{n} using bitwise shift
+          if (mod.BadRocs & mask)
+            BadRocCount++;
+        }
       }
       return BadRocCount;
     }
@@ -150,194 +151,196 @@ namespace {
   /************************************************
    occupancy style map BPix
   *************************************************/
- 
+
   class SiPixelBPixQualityMap : public cond::payloadInspector::PlotImage<SiPixelQuality> {
   public:
-    SiPixelBPixQualityMap () : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Barrel Pixel Map"),
-			   m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())}
-    {
-      setSingleIov( true );
+    SiPixelBPixQualityMap()
+        : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Barrel Pixel Map"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+      setSingleIov(true);
     }
 
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
-      std::shared_ptr<SiPixelQuality> payload = fetchPayload( std::get<1>(iov));
+      std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
       static const int n_layers = 4;
       int nlad_list[n_layers] = {6, 14, 22, 32};
       int divide_roc = 1;
 
-      // ---------------------    BOOK HISTOGRAMS                                                                        
-      std::array<TH2D*,n_layers> h_bpix_occ;
+      // ---------------------    BOOK HISTOGRAMS
+      std::array<TH2D*, n_layers> h_bpix_occ;
 
-      for(unsigned int lay=1;lay<=4;lay++){
-	int nlad = nlad_list[lay-1];
+      for (unsigned int lay = 1; lay <= 4; lay++) {
+        int nlad = nlad_list[lay - 1];
 
-	std::string name = "occ_Layer_"+std::to_string(lay);
-	std::string title = "; Module # ; Ladder #";
-	h_bpix_occ[lay-1] = new TH2D(name.c_str(), title.c_str(),
-				     72*divide_roc,-4.5,4.5,
-				     (nlad*4+2)*divide_roc,-nlad-0.5,nlad+0.5);
+        std::string name = "occ_Layer_" + std::to_string(lay);
+        std::string title = "; Module # ; Ladder #";
+        h_bpix_occ[lay - 1] = new TH2D(name.c_str(),
+                                       title.c_str(),
+                                       72 * divide_roc,
+                                       -4.5,
+                                       4.5,
+                                       (nlad * 4 + 2) * divide_roc,
+                                       -nlad - 0.5,
+                                       nlad + 0.5);
       }
-      
+
       auto theDisabledModules = payload->getBadComponentList();
-      for (const auto &mod : theDisabledModules){
-	int coded_badRocs = mod.BadRocs;
-	if(payload->IsModuleBad(mod.DetID)){
-	  int subid = DetId(mod.DetID).subdetId();
-	  if(subid==PixelSubdetector::PixelBarrel){
+      for (const auto& mod : theDisabledModules) {
+        int coded_badRocs = mod.BadRocs;
+        if (payload->IsModuleBad(mod.DetID)) {
+          int subid = DetId(mod.DetID).subdetId();
+          if (subid == PixelSubdetector::PixelBarrel) {
+            auto layer = m_trackerTopo.pxbLayer(DetId(mod.DetID));
+            auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID), m_trackerTopo, true);
+            auto s_module = SiPixelPI::signed_module(DetId(mod.DetID), m_trackerTopo, true);
 
-	    auto layer  = m_trackerTopo.pxbLayer(DetId(mod.DetID));
-	    auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID),m_trackerTopo,1);
-	    auto s_module = SiPixelPI::signed_module(DetId(mod.DetID),m_trackerTopo,1);
+            //auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
+            //auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
+            // std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module
+            //	         <<" signed ladder: "<< s_ladder
+            //           <<" signed module: "<< s_module << std::endl;
 
-	    //auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
-	    //auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
-	    // std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module 
-	    //	         <<" signed ladder: "<< s_ladder
-	    //           <<" signed module: "<< s_module << std::endl;
-
-	    std::vector<std::pair<int,int> > rocsToMask = maskedBarrelRocsToBins(layer,s_ladder,s_module);
-	    for(const auto& bin : rocsToMask ){
-	      h_bpix_occ[layer-1]->SetBinContent(bin.first,bin.second,1);
-	    }
-	  }
-	}
-	std::bitset<16> bad_rocs(coded_badRocs);	  
+            std::vector<std::pair<int, int> > rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module);
+            for (const auto& bin : rocsToMask) {
+              h_bpix_occ[layer - 1]->SetBinContent(bin.first, bin.second, 1);
+            }
+          }
+        }
+        std::bitset<16> bad_rocs(coded_badRocs);
       }
-   
+
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary","Summary",1200,1200);
-      canvas.Divide(2,2);
+      TCanvas canvas("Summary", "Summary", 1200, 1200);
+      canvas.Divide(2, 2);
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
-  
-      for(unsigned int lay=1;lay<=4;lay++){
-	//dress_occ_plot_bpix(canvas,h_bpix_occ[lay-1],lay);
-	SiPixelPI::dress_occup_plot(canvas,h_bpix_occ[lay-1],lay,0,1);
-      }
 
+      for (unsigned int lay = 1; lay <= 4; lay++) {
+        //dress_occ_plot_bpix(canvas,h_bpix_occ[lay-1],lay);
+        SiPixelPI::dress_occup_plot(canvas, h_bpix_occ[lay - 1], lay, 0, 1);
+      }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for(unsigned int lay=1;lay<=4;lay++){
-      	canvas.cd(lay);
-	auto ltx = TLatex();
-	ltx.SetTextFont(62);
-	ltx.SetTextColor(kBlue);
-	ltx.SetTextSize(0.06);
-	ltx.SetTextAlign(11);
-	ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-			 1-gPad->GetTopMargin()+0.01,
-			 (std::to_string(unpacked.first)+","+std::to_string(unpacked.second)).c_str());
+      for (unsigned int lay = 1; lay <= 4; lay++) {
+        canvas.cd(lay);
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextColor(kBlue);
+        ltx.SetTextSize(0.06);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
 
       return true;
-
     }
 
-    // #============================================================================     
-    std::vector<std::pair<int,int> > maskedBarrelRocsToBins(int layer, int ladder, int module){
-
-      std::vector<std::pair<int,int> > rocsToMask;
+    // #============================================================================
+    std::vector<std::pair<int, int> > maskedBarrelRocsToBins(int layer, int ladder, int module) {
+      std::vector<std::pair<int, int> > rocsToMask;
 
       int nlad_list[4] = {6, 14, 22, 32};
-      int nlad = nlad_list[layer-1];
+      int nlad = nlad_list[layer - 1];
 
-      int start_x = module > 0 ? ((module+4)*8)+1     : ((4-(std::abs(module)))*8)+1;
-      int start_y = ladder > 0 ? ((ladder+nlad)*2)+1  : ((nlad-(std::abs(ladder)))*2)+1;
+      int start_x = module > 0 ? ((module + 4) * 8) + 1 : ((4 - (std::abs(module))) * 8) + 1;
+      int start_y = ladder > 0 ? ((ladder + nlad) * 2) + 1 : ((nlad - (std::abs(ladder))) * 2) + 1;
 
-      int end_x   = start_x+7;
-      int end_y   = start_y+1;
+      int end_x = start_x + 7;
+      int end_y = start_y + 1;
 
-      std::cout <<"module: " << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
-      std::cout <<"ladder: " << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
-      std::cout <<"==================================================================" << std::endl;
+      std::cout << "module: " << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
+      std::cout << "ladder: " << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
+      std::cout << "==================================================================" << std::endl;
 
-      for(int bin_x=1;bin_x<=72;bin_x++){
-	for(int bin_y=1;bin_y<= (nlad*4+2);bin_y++){
-	  if(bin_x >= start_x && bin_x<=end_x && bin_y >= start_y && bin_y <=end_y){
-	    rocsToMask.push_back(std::make_pair(bin_x,bin_y));
-	  }
-	}
+      for (int bin_x = 1; bin_x <= 72; bin_x++) {
+        for (int bin_y = 1; bin_y <= (nlad * 4 + 2); bin_y++) {
+          if (bin_x >= start_x && bin_x <= end_x && bin_y >= start_y && bin_y <= end_y) {
+            rocsToMask.push_back(std::make_pair(bin_x, bin_y));
+          }
+        }
       }
-      
-      return rocsToMask;
 
+      return rocsToMask;
     }
 
-    // #============================================================================     
-    void dress_occ_plot_bpix(TCanvas& canv,TH2D *h,int lay){
-
+    // #============================================================================
+    void dress_occ_plot_bpix(TCanvas& canv, TH2D* h, int lay) {
       canv.cd(lay);
-      
+
       gStyle->SetPadRightMargin(0.125);
       gStyle->SetPalette(56);
 
       h->Draw("zcol");
 
-      int phase      = 1;
+      int phase = 1;
       int half_shift = 1;
       unsigned int n_ladder[4] = {6, 14, 22, 32};
-      unsigned int n_lad = n_ladder[lay-1];
+      unsigned int n_lad = n_ladder[lay - 1];
 
       std::vector<TLine*> lines;
-      std::vector signs = {-1,1}; 
+      std::vector signs = {-1, 1};
 
-      for(const auto x_sign : signs ){
-	for(const auto y_sign : signs ){
-	  float x_low  = x_sign * (half_shift*0.5);
-          float x_high = x_sign * (half_shift*0.5 + 4 );
-          float y_low  = y_sign * (half_shift*0.5);
-          float y_high = y_sign * (half_shift*0.5 + n_lad);
-	  //# Outside box                                  
-	  
-	  lines.push_back(draw_line(x_low,x_high,y_low,y_low,1));   // # bottom
-	  lines.push_back(draw_line(x_low,x_high,y_high,y_high,1)); // # top
-	  lines.push_back(draw_line(x_low,x_low,y_low,y_high,1));   // # left 
-	  lines.push_back(draw_line(x_high,x_high,y_low,y_high,1)); // # right
+      for (const auto x_sign : signs) {
+        for (const auto y_sign : signs) {
+          float x_low = x_sign * (half_shift * 0.5);
+          float x_high = x_sign * (half_shift * 0.5 + 4);
+          float y_low = y_sign * (half_shift * 0.5);
+          float y_high = y_sign * (half_shift * 0.5 + n_lad);
+          //# Outside box
 
-	  //# Inner Horizontal lines                                        
-	  for(unsigned int lad=1;lad<n_lad;lad++){
-	    float y = y_sign * (lad + half_shift*0.5);
-	    lines.push_back(draw_line(x_low,x_high,y,y,1));
-	  }
+          lines.push_back(draw_line(x_low, x_high, y_low, y_low, 1));    // # bottom
+          lines.push_back(draw_line(x_low, x_high, y_high, y_high, 1));  // # top
+          lines.push_back(draw_line(x_low, x_low, y_low, y_high, 1));    // # left
+          lines.push_back(draw_line(x_high, x_high, y_low, y_high, 1));  // # right
 
-	  for(unsigned int lad=1;lad<n_lad+1;lad++){
-	    float y = y_sign * (lad + half_shift*0.5 - 0.5);
-	    lines.push_back(draw_line(x_low, x_high,y,y,1, 3));
-	  }
-	  
-	  //# Inner Vertical lines                                                                                             
-	  for(unsigned int mod=1;mod<=4;mod++){
-	    float x = x_sign * (mod + half_shift*0.5);
-	    lines.push_back(draw_line(x, x, y_low,  y_high, 1));  
-	  }
-          
-	  for(unsigned int mod=1;mod<=4;mod++){
-	    for(unsigned int lad=1;lad<n_lad+1;lad++){
+          //# Inner Horizontal lines
+          for (unsigned int lad = 1; lad < n_lad; lad++) {
+            float y = y_sign * (lad + half_shift * 0.5);
+            lines.push_back(draw_line(x_low, x_high, y, y, 1));
+          }
 
-	      bool flipped = y_sign==1 ? lad%2==0 : lad%2==1;
-	      if (phase==1)  flipped = !flipped;
-	      int roc0_orientation = flipped ? -1 : 1;
-	      if (x_sign==-1) roc0_orientation *= -1;
-	      if (y_sign==-1) roc0_orientation *= -1;
-	      float x1 = x_sign * (mod+half_shift*0.5);
-	      float x2 = x_sign * (mod+half_shift*0.5 - 1./8);
-	      float y1 = y_sign * (lad+half_shift*0.5-0.5);
-	      float y2 = y_sign * (lad+half_shift*0.5-0.5 + roc0_orientation*1./2);
+          for (unsigned int lad = 1; lad < n_lad + 1; lad++) {
+            float y = y_sign * (lad + half_shift * 0.5 - 0.5);
+            lines.push_back(draw_line(x_low, x_high, y, y, 1, 3));
+          }
 
-	      lines.push_back(draw_line(x1, x2, y1, y1, 1));
-	      lines.push_back(draw_line(x2, x2, y1, y2, 1));
-	    }
-	  }
-	}
+          //# Inner Vertical lines
+          for (unsigned int mod = 1; mod <= 4; mod++) {
+            float x = x_sign * (mod + half_shift * 0.5);
+            lines.push_back(draw_line(x, x, y_low, y_high, 1));
+          }
+
+          for (unsigned int mod = 1; mod <= 4; mod++) {
+            for (unsigned int lad = 1; lad < n_lad + 1; lad++) {
+              bool flipped = y_sign == 1 ? lad % 2 == 0 : lad % 2 == 1;
+              if (phase == 1)
+                flipped = !flipped;
+              int roc0_orientation = flipped ? -1 : 1;
+              if (x_sign == -1)
+                roc0_orientation *= -1;
+              if (y_sign == -1)
+                roc0_orientation *= -1;
+              float x1 = x_sign * (mod + half_shift * 0.5);
+              float x2 = x_sign * (mod + half_shift * 0.5 - 1. / 8);
+              float y1 = y_sign * (lad + half_shift * 0.5 - 0.5);
+              float y2 = y_sign * (lad + half_shift * 0.5 - 0.5 + roc0_orientation * 1. / 2);
+
+              lines.push_back(draw_line(x1, x2, y1, y1, 1));
+              lines.push_back(draw_line(x2, x2, y1, y2, 1));
+            }
+          }
+        }
       }
 
       auto ltx = TLatex();
@@ -345,17 +348,16 @@ namespace {
       ltx.SetTextColor(1);
       ltx.SetTextSize(0.06);
       ltx.SetTextAlign(31);
-      ltx.DrawLatexNDC(1-gPad->GetRightMargin(),
-		       1-gPad->GetTopMargin()+0.01,("Layer"+std::to_string(lay)).c_str());
-      
-      for (auto& l : lines){
-	l->Draw("same");
+      ltx.DrawLatexNDC(
+          1 - gPad->GetRightMargin(), 1 - gPad->GetTopMargin() + 0.01, ("Layer" + std::to_string(lay)).c_str());
+
+      for (auto& l : lines) {
+        l->Draw("same");
       }
     }
 
-    //============================================================================                     
-    TLine* draw_line(float x1, float x2,float y1,float y2,int width=2,int style=1,int color=1){
-      
+    //============================================================================
+    TLine* draw_line(float x1, float x2, float y1, float y2, int width = 2, int style = 1, int color = 1) {
       TLine* l = new TLine(x1, y1, x2, y2);
       l->SetLineWidth(width);
       l->SetLineStyle(style);
@@ -370,86 +372,83 @@ namespace {
   /************************************************
    occupancy style map FPix
   *************************************************/
- 
+
   class SiPixelFPixQualityMap : public cond::payloadInspector::PlotImage<SiPixelQuality> {
   public:
-    SiPixelFPixQualityMap () : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Forward Pixel Map"),
-			   m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())}
-    {
-      setSingleIov( true );
+    SiPixelFPixQualityMap()
+        : cond::payloadInspector::PlotImage<SiPixelQuality>("SiPixelQuality Forward Pixel Map"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml").fullPath())} {
+      setSingleIov(true);
     }
-    
-    bool fill( const std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs ) override{
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       auto iov = iovs.front();
-      std::shared_ptr<SiPixelQuality> payload = fetchPayload( std::get<1>(iov));
+      std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
 
       static const int n_rings = 2;
-      std::array<TH2D*,n_rings> h_fpix_occ;
+      std::array<TH2D*, n_rings> h_fpix_occ;
       int divide_roc = 1;
 
-      // ---------------------    BOOK HISTOGRAMS                                                                        
-      for(unsigned int ring=1;ring<=n_rings;ring++){
+      // ---------------------    BOOK HISTOGRAMS
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        int n = ring == 1 ? 92 : 140;
+        float y = ring == 1 ? 11.5 : 17.5;
+        std::string name = "occ_ring_" + std::to_string(ring);
+        std::string title = "; Disk # ; Blade/Panel #";
 
-        int   n = ring==1 ? 92 : 140;
-	float y = ring==1 ? 11.5 : 17.5;
-	std::string name  = "occ_ring_" + std::to_string(ring);
-	std::string title = "; Disk # ; Blade/Panel #";
-                
-	h_fpix_occ[ring-1] = new TH2D(name.c_str(), title.c_str(), 
-				      56*divide_roc, -3.5, 3.5, 
-				      n*divide_roc, -y, y);
+        h_fpix_occ[ring - 1] = new TH2D(name.c_str(), title.c_str(), 56 * divide_roc, -3.5, 3.5, n * divide_roc, -y, y);
       }
-      
+
       auto theDisabledModules = payload->getBadComponentList();
-      for (const auto &mod : theDisabledModules){
-	int coded_badRocs = mod.BadRocs;
-	if(payload->IsModuleBad(mod.DetID)){
-	  int subid = DetId(mod.DetID).subdetId();
-	  if(subid==PixelSubdetector::PixelEndcap){
+      for (const auto& mod : theDisabledModules) {
+        int coded_badRocs = mod.BadRocs;
+        if (payload->IsModuleBad(mod.DetID)) {
+          int subid = DetId(mod.DetID).subdetId();
+          if (subid == PixelSubdetector::PixelEndcap) {
+            auto ring = SiPixelPI::ring(DetId(mod.DetID), m_trackerTopo, true);
+            auto s_blade = SiPixelPI::signed_blade(DetId(mod.DetID), m_trackerTopo, true);
+            auto s_disk = SiPixelPI::signed_disk(DetId(mod.DetID), m_trackerTopo, true);
+            auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(mod.DetID), m_trackerTopo, true);
+            auto panel = m_trackerTopo.pxfPanel(mod.DetID);
 
-	    auto ring    =  SiPixelPI::ring(DetId(mod.DetID),m_trackerTopo,1);
-	    auto s_blade =  SiPixelPI::signed_blade(DetId(mod.DetID),m_trackerTopo,1); 
-	    auto s_disk  =  SiPixelPI::signed_disk(DetId(mod.DetID),m_trackerTopo,1);
-	    auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(mod.DetID),m_trackerTopo,1);
-	    auto panel =  m_trackerTopo.pxfPanel(mod.DetID);
+            std::cout << "ring:" << ring << " blade: " << s_blade << " panel: " << panel << " disk: " << s_disk
+                      << std::endl;
 
-	    std::cout << "ring:" << ring << " blade: "<<s_blade<<" panel: "<<panel
-		      << " disk: "<<s_disk<<std::endl;
-
-	    std::vector<std::pair<int,int> > rocsToMask = maskedForwardRocsToBins(ring,s_blade,panel,s_disk);	   
-	    for(const auto& bin : rocsToMask ){
-	     h_fpix_occ[ring-1]->SetBinContent(bin.first,bin.second,1);
-	    }
-	  }
-	}
-	std::bitset<16> bad_rocs(coded_badRocs);	  
+            std::vector<std::pair<int, int> > rocsToMask = maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
+            for (const auto& bin : rocsToMask) {
+              h_fpix_occ[ring - 1]->SetBinContent(bin.first, bin.second, 1);
+            }
+          }
+        }
+        std::bitset<16> bad_rocs(coded_badRocs);
       }
-   
+
       gStyle->SetOptStat(0);
       //=========================
-      TCanvas canvas("Summary","Summary",1200,600);
-      canvas.Divide(2,1);
+      TCanvas canvas("Summary", "Summary", 1200, 600);
+      canvas.Divide(2, 1);
       canvas.SetBottomMargin(0.11);
       canvas.SetLeftMargin(0.13);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
-  
-      for(unsigned int ring=1;ring<=n_rings;ring++){
-	SiPixelPI::dress_occup_plot(canvas,h_fpix_occ[ring-1],0,ring,1);
+
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        SiPixelPI::dress_occup_plot(canvas, h_fpix_occ[ring - 1], 0, ring, 1);
       }
 
       auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-      for(unsigned int ring=1;ring<=n_rings;ring++){
-	canvas.cd(ring);
-	auto ltx = TLatex();
-	ltx.SetTextFont(62);
-	ltx.SetTextColor(kBlue);
-	ltx.SetTextSize(0.06);
-	ltx.SetTextAlign(11);
-	ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-			 1-gPad->GetTopMargin()+0.01,
-			 (std::to_string(unpacked.first)+","+std::to_string(unpacked.second)).c_str());
+      for (unsigned int ring = 1; ring <= n_rings; ring++) {
+        canvas.cd(ring);
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextColor(kBlue);
+        ltx.SetTextSize(0.06);
+        ltx.SetTextAlign(11);
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                         1 - gPad->GetTopMargin() + 0.01,
+                         (std::to_string(unpacked.first) + "," + std::to_string(unpacked.second)).c_str());
       }
 
       std::string fileName(m_imageFileName);
@@ -459,48 +458,46 @@ namespace {
       return true;
     }
 
-    // #============================================================================     
-    std::vector<std::pair<int,int> > maskedForwardRocsToBins(int ring, int blade, int panel,int disk){
+    // #============================================================================
+    std::vector<std::pair<int, int> > maskedForwardRocsToBins(int ring, int blade, int panel, int disk) {
+      std::vector<std::pair<int, int> > rocsToMask;
 
-      std::vector<std::pair<int,int> > rocsToMask;
+      int nblade_list[2] = {11, 17};
+      int nybins_list[2] = {92, 140};
+      int nblade = nblade_list[ring - 1];
+      int nybins = nybins_list[ring - 1];
 
-      int nblade_list[2] = {11,17};
-      int nybins_list[2] = {92,140};
-      int nblade = nblade_list[ring-1];
-      int nybins = nybins_list[ring-1];
-
-      int start_x = disk  > 0 ? ((disk+3)*8)+1                : ((3-(std::abs(disk)))*8)+1;
+      int start_x = disk > 0 ? ((disk + 3) * 8) + 1 : ((3 - (std::abs(disk))) * 8) + 1;
       //int start_y = blade > 0 ? ((blade+nblade)*4)-panel*2  : ((nblade-(std::abs(blade)))*4)-panel*2;
-      int start_y = blade > 0 ? (nybins/2)+(blade*4)-(panel*2)+3 : ((nybins/2)-(std::abs(blade)*4)-panel*2)+3;
+      int start_y = blade > 0 ? (nybins / 2) + (blade * 4) - (panel * 2) + 3
+                              : ((nybins / 2) - (std::abs(blade) * 4) - panel * 2) + 3;
 
-      int end_x   = start_x+7;
-      int end_y   = start_y+1;
+      int end_x = start_x + 7;
+      int end_y = start_y + 1;
 
-      std::cout <<"==================================================================" << std::endl;
-      std::cout <<"disk:  " << disk  << " start_x:" << start_x << " end_x:" << end_x << std::endl;
-      std::cout <<"blade: " << blade << " start_y:" << start_y << " end_y:" << end_y << std::endl;
+      std::cout << "==================================================================" << std::endl;
+      std::cout << "disk:  " << disk << " start_x:" << start_x << " end_x:" << end_x << std::endl;
+      std::cout << "blade: " << blade << " start_y:" << start_y << " end_y:" << end_y << std::endl;
 
-      for(int bin_x=1;bin_x<=56;bin_x++){
-	for(int bin_y=1;bin_y<=nybins;bin_y++){
-	  if(bin_x >= start_x && bin_x<=end_x && bin_y >= start_y && bin_y <=end_y){
-	    rocsToMask.push_back(std::make_pair(bin_x,bin_y));
-	  }
-	}
+      for (int bin_x = 1; bin_x <= 56; bin_x++) {
+        for (int bin_y = 1; bin_y <= nybins; bin_y++) {
+          if (bin_x >= start_x && bin_x <= end_x && bin_y >= start_y && bin_y <= end_y) {
+            rocsToMask.push_back(std::make_pair(bin_x, bin_y));
+          }
+        }
       }
-      
+
       return rocsToMask;
-
     }
-
 
   private:
     TrackerTopology m_trackerTopo;
   };
 
-} // namespace
+}  // namespace
 
 // Register the classes as boost python plugin
-PAYLOAD_INSPECTOR_MODULE(SiPixelQuality){
+PAYLOAD_INSPECTOR_MODULE(SiPixelQuality) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityTest);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsSummary);
   PAYLOAD_INSPECTOR_CLASS(SiPixelQualityBadRocsTimeHistory);
