@@ -215,7 +215,7 @@ double HGCalDDDConstants::cellThickness(int layer, int waferU, int waferV) const
     if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
       thick = 10000.0 * hgpar_->cellThickness_[type];  // cm to micron
     } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
-      thick = 100.0 * (type+1);  // type = 1,2,3 for 100,200,300 micron
+      thick = 100.0 * (type + 1);  // type = 1,2,3 for 100,200,300 micron
     }
   }
   return thick;
@@ -484,9 +484,8 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
   int indx = HGCalWaferIndex::waferIndex(layer, modU, modV);
   auto itr = hgpar_->typesInLayers_.find(indx);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") 
-    << "HGCalDDDConstants::isValidHex8:WaferType " << layer << ":" << modU << ":" << modV
-    << ":" << indx << " Test " << (itr != hgpar_->typesInLayers_.end());
+  edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants::isValidHex8:WaferType " << layer << ":" << modU << ":" << modV
+                                << ":" << indx << " Test " << (itr != hgpar_->typesInLayers_.end());
 #endif
   if (itr == hgpar_->typesInLayers_.end())
     return false;
@@ -503,7 +502,7 @@ bool HGCalDDDConstants::isValidHex8(int layer, int modU, int modV, int cellU, in
                                 << " Tests " << (cellU >= 0) << ":" << (cellU < 2 * N) << ":" << (cellV >= 0) << ":"
                                 << (cellV < 2 * N) << ":" << ((cellV - cellU) < N) << ":" << ((cellU - cellV) <= N);
 #endif
-  if ((cellU < 0) || (cellU >= 2 * N) || (cellV < 0) || (cellV >= 2 * N)) 
+  if ((cellU < 0) || (cellU >= 2 * N) || (cellV < 0) || (cellV >= 2 * N))
     return false;
   if (((cellV - cellU) >= N) || ((cellU - cellV) > N))
     return false;
@@ -1240,11 +1239,11 @@ int HGCalDDDConstants::waferType(int layer, int waferU, int waferV) const {
   int type(-1);
   if ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full)) {
     auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
-    if (itr != hgpar_->typesInLayers_.end()) 
+    if (itr != hgpar_->typesInLayers_.end())
       type = hgpar_->waferTypeL_[itr->second];
   } else if ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull)) {
     if ((waferU >= 0) && (waferU < (int)(hgpar_->waferTypeL_.size())))
-      type = (hgpar_->waferTypeL_[waferU]-1);
+      type = (hgpar_->waferTypeL_[waferU] - 1);
   }
   return type;
 }
@@ -1416,10 +1415,7 @@ bool HGCalDDDConstants::isValidCell(int lay, int wafer, int cell) const {
   return result;
 }
 
-
-bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, 
-				     int cellU, int cellV, int type) const {
-
+bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const {
   float x(0), y(0);
   int kndx = cellV * 100 + cellU;
   if (type == 0) {
@@ -1430,7 +1426,7 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV,
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Fine " << cellU << ":" << cellV << ":" << kndx << ":" << x << ":" << y << ":"
-				  << (ktr != hgpar_->cellFineIndex_.end());
+                                  << (ktr != hgpar_->cellFineIndex_.end());
 #endif
   } else {
     auto ktr = hgpar_->cellCoarseIndex_.find(kndx);
@@ -1440,7 +1436,7 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV,
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Coarse " << cellU << ":" << cellV << ":" << kndx << ":" << x << ":" << y << ":"
-				  << (ktr != hgpar_->cellCoarseIndex_.end());
+                                  << (ktr != hgpar_->cellCoarseIndex_.end());
 #endif
   }
   int indx = HGCalWaferIndex::waferIndex(0, waferU, waferV);
@@ -1450,16 +1446,15 @@ bool HGCalDDDConstants::isValidCell8(int lay, int waferU, int waferV,
     y += hgpar_->waferPosY_[itr->second];
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "With wafer (" << waferU << "," << waferV <<") " << x << ":" << y;
+  edm::LogVerbatim("HGCalGeom") << "With wafer (" << waferU << "," << waferV << ") " << x << ":" << y;
 #endif
   double rr = sqrt(x * x + y * y);
-  bool result = ((rr >= hgpar_->rMinLayHex_[lay - 1]) && 
-		 (rr <= hgpar_->rMaxLayHex_[lay - 1]));
+  bool result = ((rr >= hgpar_->rMinLayHex_[lay - 1]) && (rr <= hgpar_->rMaxLayHex_[lay - 1]));
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") 
-    << "Input " << lay << ":" << waferU << ":" << waferV  << ":" << cellU << ":" << cellV << " Position " 
-    << x << ":" << y << ":" << rr << " Compare Limits " << hgpar_->rMinLayHex_[lay - 1] << ":"
-    << hgpar_->rMaxLayHex_[lay - 1] << " Flag " << result;
+  edm::LogVerbatim("HGCalGeom") << "Input " << lay << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV
+                                << " Position " << x << ":" << y << ":" << rr << " Compare Limits "
+                                << hgpar_->rMinLayHex_[lay - 1] << ":" << hgpar_->rMaxLayHex_[lay - 1] << " Flag "
+                                << result;
 #endif
   return result;
 }
