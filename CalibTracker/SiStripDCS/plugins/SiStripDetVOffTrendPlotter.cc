@@ -205,7 +205,7 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::Event
   c.Print(("LVOff_" + plot_postfix).data());
 
   if (!m_outputCSV.empty()) {
-    dumpCSV(true , num_modules);
+    dumpCSV(true, num_modules);
     dumpCSV(false, num_modules);
   }
 }

@@ -31,19 +31,17 @@ class TrackerGeometry;
  * several changes to the base classes used together with it.
  */
 
-class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
-{
- public:
-
-  explicit SiStripApvGainBuilderFromTag( const edm::ParameterSet& iConfig);
+class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer {
+public:
+  explicit SiStripApvGainBuilderFromTag(const edm::ParameterSet& iConfig);
 
   ~SiStripApvGainBuilderFromTag() override{};
 
-  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   /// Fills the parameters read from cfg and matching the name in the given map
-  void fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const;
+  void fillParameters(std::map<int, std::vector<double> >& mapToFill, const std::string& parameterName) const;
   /**
    * Fills the map with the paramters for the given subdetector. <br>
    * Each vector "v" holds the parameters for the layers/rings, if the vector has only one parameter
@@ -51,7 +49,10 @@ class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
    * The only other possibility is that the number of parameters equals the number of layers, otherwise
    * an exception of type "Configuration" will be thrown.
    */
-  void fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const;
+  void fillSubDetParameter(std::map<int, std::vector<double> >& mapToFill,
+                           const std::vector<double>& v,
+                           const int subDet,
+                           const unsigned short layers) const;
 
   bool printdebug_;
   edm::ParameterSet pset_;

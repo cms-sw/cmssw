@@ -23,8 +23,7 @@ private:
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
 };
 
-TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&)
-{
+TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&) {
   setWhatProduced(this).setConsumes(tTopoToken_).setConsumes(geomDetToken_);
 }
 
