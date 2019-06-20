@@ -36,9 +36,7 @@ public:
                         DQMStore& dqm_store,
                         std::string& htype,
                         edm::EventSetup const& eSetup);
-  void createInfoFile(std::vector<std::string> const& map_names,
-                      TTree* tkinfo_tree,
-                      DQMStore& dqm_store);
+  void createInfoFile(std::vector<std::string> const& map_names, TTree* tkinfo_tree, DQMStore& dqm_store);
 
 private:
   void paintTkMapFromAlarm(uint32_t det_id,

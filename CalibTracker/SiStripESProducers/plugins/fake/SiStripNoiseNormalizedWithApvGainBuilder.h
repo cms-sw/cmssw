@@ -28,19 +28,17 @@ class TrackerGeometry;
  * rescale the noise (per strip).
  */
 
-class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer
-{
- public:
-
-  explicit SiStripNoiseNormalizedWithApvGainBuilder( const edm::ParameterSet& iConfig);
+class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer {
+public:
+  explicit SiStripNoiseNormalizedWithApvGainBuilder(const edm::ParameterSet& iConfig);
 
   ~SiStripNoiseNormalizedWithApvGainBuilder() override{};
 
-  void analyze(const edm::Event& , const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   /// Fills the parameters read from cfg and matching the name in the given map
-  void fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const;
+  void fillParameters(std::map<int, std::vector<double> >& mapToFill, const std::string& parameterName) const;
   /**
    * Fills the map with the paramters for the given subdetector. <br>
    * Each vector "v" holds the parameters for the layers/rings, if the vector has only one parameter
@@ -48,11 +46,14 @@ class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer
    * The only other possibility is that the number of parameters equals the number of layers, otherwise
    * an exception of type "Configuration" will be thrown.
    */
-  void fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const;
+  void fillSubDetParameter(std::map<int, std::vector<double> >& mapToFill,
+                           const std::vector<double>& v,
+                           const int subDet,
+                           const unsigned short layers) const;
 
-  inline void printLog(const uint32_t detId, const unsigned short strip, const double & noise) const
-  {
-    edm::LogInfo("SiStripNoisesDummyCalculator") << "detid: " << detId << " strip: " << strip <<  " noise: " << noise     << " \t"   << std::endl;
+  inline void printLog(const uint32_t detId, const unsigned short strip, const double& noise) const {
+    edm::LogInfo("SiStripNoisesDummyCalculator")
+        << "detid: " << detId << " strip: " << strip << " noise: " << noise << " \t" << std::endl;
   }
 
   edm::FileInPath fp_;

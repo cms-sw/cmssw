@@ -11,4 +11,4 @@
  */
 std::vector<uint32_t> getSiStripDetIds(const GeometricDet& geomDet);
 
-#endif // GEOMETRY_TRACKERNUMBERINGBUILDER_UTILS_H
+#endif  // GEOMETRY_TRACKERNUMBERINGBUILDER_UTILS_H

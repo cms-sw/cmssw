@@ -67,7 +67,10 @@ private:
   }
 
   void iterateOnDets(const TrackerTopology *tTopo, const TrackerGeometry *tGeom);
-  void iterateOnBadStrips(const uint32_t &detid, const TrackerTopology *tTopo, const TrackerGeometry *tGeom, SiStripQuality::Range &sqrange);
+  void iterateOnBadStrips(const uint32_t &detid,
+                          const TrackerTopology *tTopo,
+                          const TrackerGeometry *tGeom,
+                          SiStripQuality::Range &sqrange);
   void correlateWithNoise(const uint32_t &detid,
                           const TrackerTopology *tTopo,
                           const uint32_t &firstStrip,

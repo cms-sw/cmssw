@@ -10,42 +10,39 @@
 #include "CalibTracker/Records/interface/SiStripHashedDetIdRcd.h"
 
 class SiStripHashedDetIdFakeESSource : public edm::ESProducer {
- public:
-  explicit SiStripHashedDetIdFakeESSource( const edm::ParameterSet& );
+public:
+  explicit SiStripHashedDetIdFakeESSource(const edm::ParameterSet&);
   ~SiStripHashedDetIdFakeESSource() override;
 
-  virtual std::unique_ptr<SiStripHashedDetId> produce( const SiStripHashedDetIdRcd& );
- private:
+  virtual std::unique_ptr<SiStripHashedDetId> produce(const SiStripHashedDetIdRcd&);
+
+private:
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
 };
 
 using namespace sistrip;
 
-SiStripHashedDetIdFakeESSource::SiStripHashedDetIdFakeESSource( const edm::ParameterSet& pset )
-{
+SiStripHashedDetIdFakeESSource::SiStripHashedDetIdFakeESSource(const edm::ParameterSet& pset) {
   setWhatProduced(this).setConsumes(geomDetToken_);
 }
 
 SiStripHashedDetIdFakeESSource::~SiStripHashedDetIdFakeESSource() {}
 
-std::unique_ptr<SiStripHashedDetId> SiStripHashedDetIdFakeESSource::produce( const SiStripHashedDetIdRcd& record ) {
-  edm::LogVerbatim("HashedDetId")
-    << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
-    << " Building \"fake\" hashed DetId map from IdealGeometry";
+std::unique_ptr<SiStripHashedDetId> SiStripHashedDetIdFakeESSource::produce(const SiStripHashedDetIdRcd& record) {
+  edm::LogVerbatim("HashedDetId") << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
+                                  << " Building \"fake\" hashed DetId map from IdealGeometry";
 
-  const auto& geomDet = record.getRecord<TrackerDigiGeometryRecord>().getRecord<IdealGeometryRecord>().get(geomDetToken_);
+  const auto& geomDet =
+      record.getRecord<TrackerDigiGeometryRecord>().getRecord<IdealGeometryRecord>().get(geomDetToken_);
 
   const std::vector<uint32_t> dets = getSiStripDetIds(geomDet);
-  edm::LogVerbatim("HashedDetId")
-    << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
-    << " Retrieved " << dets.size()
-    << " DetIds from IdealGeometry!";
+  edm::LogVerbatim("HashedDetId") << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
+                                  << " Retrieved " << dets.size() << " DetIds from IdealGeometry!";
 
   auto hash = std::make_unique<SiStripHashedDetId>(dets);
-  LogTrace("HashedDetId")
-    << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
-    << " DetId hash map: " << std::endl
-    << *hash;
+  LogTrace("HashedDetId") << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"
+                          << " DetId hash map: " << std::endl
+                          << *hash;
 
   return hash;
 }

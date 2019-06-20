@@ -78,7 +78,7 @@ void SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t &detid,
     percentage += range;
   }
   if (percentage != 0)
-    percentage /= dynamic_cast<const StripGeomDetUnit*>(tGeom->idToDet(detid))->specificTopology().nstrips();
+    percentage /= dynamic_cast<const StripGeomDetUnit *>(tGeom->idToDet(detid))->specificTopology().nstrips();
   if (percentage > 1)
     edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << detid << " value " << percentage << std::endl;
 

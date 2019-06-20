@@ -33,7 +33,9 @@ public:
   SiStripNoisesFakeESSource(const edm::ParameterSet&);
   ~SiStripNoisesFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue& iov,
+                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripNoises> ReturnType;
   ReturnType produce(const SiStripNoisesRcd&);
@@ -53,21 +55,19 @@ private:
 
 #include "CLHEP/Random/RandGauss.h"
 
-namespace { // helper methods
-  inline void printLog(const uint32_t detId, const unsigned short strip, const double & noise)
-  {
-    edm::LogInfo("SiStripNoisesDummyCalculator") << "detid: " << detId << " strip: " << strip <<  " noise: " << noise;
+namespace {  // helper methods
+  inline void printLog(const uint32_t detId, const unsigned short strip, const double& noise) {
+    edm::LogInfo("SiStripNoisesDummyCalculator") << "detid: " << detId << " strip: " << strip << " noise: " << noise;
   }
-}
+}  // namespace
 
-SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iConfig)
-{
+SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
   findingRecord<SiStripNoisesRcd>();
 
   m_stripLengthMode = iConfig.getParameter<bool>("StripLengthMode");
 
-  if ( ! m_stripLengthMode ) {
+  if (!m_stripLengthMode) {
     //parameters for random noise generation. not used if Strip length mode is chosen
     m_noisePar0 = iConfig.getParameter<double>("MinPositiveNoise");
     m_noisePar1 = SiStripFakeAPVParameters(iConfig, "MeanNoise");
@@ -81,20 +81,23 @@ SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iC
 
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
 
-  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
+  m_detInfoFileReader = SiStripDetInfoFileReader{
+      iConfig
+          .getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile",
+                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
+          .fullPath()};
 }
 
 SiStripNoisesFakeESSource::~SiStripNoisesFakeESSource() {}
 
-void SiStripNoisesFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity )
-{
+void SiStripNoisesFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                               const edm::IOVSyncValue& iov,
+                                               edm::ValidityInterval& iValidity) {
   iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 // ------------ method called to produce the data  ------------
-SiStripNoisesFakeESSource::ReturnType
-SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
-{
+SiStripNoisesFakeESSource::ReturnType SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord) {
   using namespace edm::es;
 
   edm::ESHandle<TrackerTopology> tTopo;
@@ -103,34 +106,36 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
   auto noises = std::make_unique<SiStripNoises>();
 
   uint32_t count{0};
-  for ( const auto& elm : m_detInfoFileReader.getAllData() ) {
+  for (const auto& elm : m_detInfoFileReader.getAllData()) {
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
     SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(tTopo.product(), elm.first);
 
-    if ( m_stripLengthMode ) {
+    if (m_stripLengthMode) {
       // Use strip length
       const double linearSlope{m_noisePar1.get(sl)};
       const double linearQuote{m_noisePar2.get(sl)};
       const double stripLength{elm.second.stripLength};
-      for ( unsigned short j{0}; j < 128*elm.second.nApvs; ++j ) {
-        const float noise = (linearSlope*stripLength + linearQuote) / m_noisePar0;
-        if ( count < m_printDebug ) printLog(elm.first, j, noise);
+      for (unsigned short j{0}; j < 128 * elm.second.nApvs; ++j) {
+        const float noise = (linearSlope * stripLength + linearQuote) / m_noisePar0;
+        if (count < m_printDebug)
+          printLog(elm.first, j, noise);
         noises->setData(noise, theSiStripVector);
       }
     } else {
       // Use random generator
-      const double meanN {m_noisePar1.get(sl)};
+      const double meanN{m_noisePar1.get(sl)};
       const double sigmaN{m_noisePar2.get(sl)};
-      for ( unsigned short j{0}; j < 128*elm.second.nApvs; ++j ) {
+      for (unsigned short j{0}; j < 128 * elm.second.nApvs; ++j) {
         const float noise = std::max(CLHEP::RandGauss::shoot(meanN, sigmaN), m_noisePar0);
-        if ( count < m_printDebug ) printLog(elm.first, j, noise);
+        if (count < m_printDebug)
+          printLog(elm.first, j, noise);
         noises->setData(noise, theSiStripVector);
       }
     }
     ++count;
 
-    if ( ! noises->put(elm.first, theSiStripVector) ) {
+    if (!noises->put(elm.first, theSiStripVector)) {
       edm::LogError("SiStripNoisesFakeESSource::produce ") << " detid already exists";
     }
   }
