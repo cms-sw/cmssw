@@ -21,6 +21,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/DataRecord/interface/SiStripThresholdRcd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 class SiStripThresholdFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -36,10 +39,8 @@ private:
   float m_lTh;
   float m_hTh;
   float m_cTh;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripThresholdFakeESSource::SiStripThresholdFakeESSource(const edm::ParameterSet& iConfig)
 {
@@ -49,6 +50,7 @@ SiStripThresholdFakeESSource::SiStripThresholdFakeESSource(const edm::ParameterS
   m_lTh = iConfig.getParameter<double>("LowTh");
   m_hTh = iConfig.getParameter<double>("HighTh");
   m_cTh = iConfig.getParameter<double>("ClusTh");
+  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
 }
 
 SiStripThresholdFakeESSource::~SiStripThresholdFakeESSource() {}
@@ -66,8 +68,7 @@ SiStripThresholdFakeESSource::produce(const SiStripThresholdRcd& iRecord)
 
   auto threshold = std::make_unique<SiStripThreshold>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
-  for ( const auto& elm : reader->getAllData() ) {
+  for ( const auto& elm : m_detInfoFileReader.getAllData() ) {
     //Generate Thresholds for det detid
     SiStripThreshold::Container theSiStripVector;
     uint16_t strip=0;

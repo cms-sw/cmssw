@@ -26,6 +26,8 @@
 
 #include "SiStripFakeAPVParameters.h"
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+
 class SiStripNoisesFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripNoisesFakeESSource(const edm::ParameterSet&);
@@ -42,11 +44,11 @@ private:
   SiStripFakeAPVParameters m_noisePar1;
   SiStripFakeAPVParameters m_noisePar2;
   uint32_t m_printDebug;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "CLHEP/Random/RandGauss.h"
@@ -78,6 +80,8 @@ SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iC
   }
 
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
+
+  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
 }
 
 SiStripNoisesFakeESSource::~SiStripNoisesFakeESSource() {}
@@ -98,9 +102,8 @@ SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord)
 
   auto noises = std::make_unique<SiStripNoises>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
   uint32_t count{0};
-  for ( const auto& elm : reader->getAllData() ) {
+  for ( const auto& elm : m_detInfoFileReader.getAllData() ) {
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
     SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(tTopo.product(), elm.first);

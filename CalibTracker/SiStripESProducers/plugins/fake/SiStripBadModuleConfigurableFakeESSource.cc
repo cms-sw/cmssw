@@ -24,6 +24,8 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+
 class SiStripBadModuleConfigurableFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripBadModuleConfigurableFakeESSource(const edm::ParameterSet&);
@@ -40,6 +42,7 @@ private:
   Parameters m_badAPVsList;
   bool m_printDebug;
   bool m_doByAPVs;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 
   std::vector<uint32_t> selectDetectors(const TrackerTopology* tTopo, const std::vector<uint32_t>& detIds) const;
   std::vector<std::pair<uint32_t,std::vector<uint32_t> > > selectAPVs() const; 
@@ -47,7 +50,6 @@ private:
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSource(const edm::ParameterSet& iConfig)
@@ -59,6 +61,7 @@ SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSour
   m_doByAPVs    = iConfig.getUntrackedParameter<bool>("doByAPVs", false);
   m_badAPVsList = iConfig.getUntrackedParameter<Parameters>("BadAPVList");
   m_printDebug  = iConfig.getUntrackedParameter<bool>("printDebug", false);
+  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
 }
 
 SiStripBadModuleConfigurableFakeESSource::~SiStripBadModuleConfigurableFakeESSource() {}
@@ -79,10 +82,8 @@ SiStripBadModuleConfigurableFakeESSource::produce(const SiStripBadModuleRcd& iRe
 
   auto quality = std::make_unique<SiStripQuality>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
-
   if(!m_doByAPVs){
-    std::vector<uint32_t> selDetIds{selectDetectors(tTopo.product(), reader->getAllDetIds())};
+    std::vector<uint32_t> selDetIds{selectDetectors(tTopo.product(), m_detInfoFileReader.getAllDetIds())};
     edm::LogInfo("SiStripQualityConfigurableFakeESSource")<<"[produce] number of selected dets to be removed " << selDetIds.size() <<std::endl;
 
     std::stringstream ss;
@@ -90,7 +91,7 @@ SiStripBadModuleConfigurableFakeESSource::produce(const SiStripBadModuleRcd& iRe
       SiStripQuality::InputVector theSiStripVector;
     
       unsigned short firstBadStrip{0};
-      unsigned short NconsecutiveBadStrips = reader->getNumberOfApvsAndStripLength(selId).first * 128;
+      unsigned short NconsecutiveBadStrips = m_detInfoFileReader.getNumberOfApvsAndStripLength(selId).first * 128;
       unsigned int theBadStripRange{quality->encode(firstBadStrip,NconsecutiveBadStrips)};
 
       if (m_printDebug) {
