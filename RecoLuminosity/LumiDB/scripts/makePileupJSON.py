@@ -67,12 +67,18 @@ if __name__ == '__main__':
         try:
             run = int(pieces[0])
             lumi_section = int(pieces[2])
+            beam_energy = float(pieces[10])
             #tot_del_lumi = float(pieces[11])
             #tot_rec_lumi = float(pieces[12])
             luminometer = pieces[14]
 
             if luminometer == "HFOC":
-                threshold = 2.0
+                if beam_energy > 3000:
+                    # Use higher threshold for nominal runs otherwise we'll get a lot of junk.
+                    threshold = 8.0
+                else:
+                    # Use lower threshold for 5.02 GeV runs since the overall lumi is quite low.
+                    threshold = 2.0
             else:
                 threshold = 1.2
 
