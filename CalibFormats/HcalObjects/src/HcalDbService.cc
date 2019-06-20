@@ -225,10 +225,11 @@ bool HcalDbService::convertPedestalWidths(const HcalGenericDetId& fId,
       continue;
     }
     float y = pedestal->getValues()[i];
-    int x1 = (int)std::floor(y);
-    int x2 = (int)std::floor(y + 1.);
-    float y1 = coder->charge(*shape, x1, i);
-    float y2 = coder->charge(*shape, x2, i);
+    unsigned x1 = static_cast<unsigned>(std::floor(y));
+    unsigned x2 = static_cast<unsigned>(std::floor(y + 1.));
+    unsigned iun = static_cast<unsigned>(i);
+    float y1 = coder->charge(*shape, x1, iun);
+    float y2 = coder->charge(*shape, x2, iun);
     pedTrueWidth[i] = (y2 - y1) * x;
   }
   return true;
