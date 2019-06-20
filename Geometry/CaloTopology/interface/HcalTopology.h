@@ -297,11 +297,11 @@ private:
   static constexpr int phiCalibHOX1_ = 4, phiCalibHOX2_ = 12, phiCalibHOX3_ = 6;
   static constexpr unsigned int kOffCalibHBX_ = kOffCalibHOX_ + nCalibHOX_;
   static constexpr unsigned int nEtaCalibHBX_ = 1, mPhiCalibHBX_ = 1;
-  static constexpr int etaCalibHBX_ =  16;
+  static constexpr int etaCalibHBX_ = 16;
   static constexpr unsigned int kPhiCalibHBX_ = maxPhi_ / mPhiCalibHBX_;
   static constexpr unsigned int nCalibHBX_ = 2 * kPhiCalibHBX_ * nEtaCalibHBX_;
   static constexpr unsigned int kOffCalibHEX_ = kOffCalibHBX_ + nCalibHBX_;
-  static constexpr unsigned int nEtaCalibHEX_ = 2, mPhiCalibHEX_ =  2;
+  static constexpr unsigned int nEtaCalibHEX_ = 2, mPhiCalibHEX_ = 2;
   static constexpr int etaCalibHEX_[nEtaCalibHEX_] = {25, 27};
   static constexpr unsigned int kPhiCalibHEX_ = maxPhi_ / mPhiCalibHEX_;
   static constexpr unsigned int nCalibHEX_ = 2 * kPhiCalibHEX_ * nEtaCalibHEX_;
