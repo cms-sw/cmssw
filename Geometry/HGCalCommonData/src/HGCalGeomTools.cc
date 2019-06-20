@@ -5,7 +5,7 @@
 #include <string>
 
 //#define EDM_ML_DEBUG
-HGCalGeomTools::HGCalGeomTools() : factor_(1.0/std::sqrt(3.0)) {}
+HGCalGeomTools::HGCalGeomTools() : factor_(1.0 / std::sqrt(3.0)) {}
 
 void HGCalGeomTools::radius(double zf,
                             double zb,
@@ -162,21 +162,30 @@ double HGCalGeomTools::radius(
   return r;
 }
 
-std::pair<double,double> HGCalGeomTools::shiftXY(int waferPosition, 
-						 double waferSize) {
-
+std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) {
   double dx(0), dy(0);
   switch (waferPosition) {
-  case (CornerCenterYp): { dy = factor_*waferSize; break;}
-  case (CornerCenterYm): { dy =-factor_*waferSize; break;}
-  case (CornerCenterXp): { dx = factor_*waferSize; break;}
-  case (CornerCenterXm): { dx =-factor_*waferSize; break;}
+    case (CornerCenterYp): {
+      dy = factor_ * waferSize;
+      break;
+    }
+    case (CornerCenterYm): {
+      dy = -factor_ * waferSize;
+      break;
+    }
+    case (CornerCenterXp): {
+      dx = factor_ * waferSize;
+      break;
+    }
+    case (CornerCenterXm): {
+      dx = -factor_ * waferSize;
+      break;
+    }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") 
-    << "Shift for " << waferPosition << " is (" << dx << ":" << dy << ")";
+  edm::LogVerbatim("HGCalGeom") << "Shift for " << waferPosition << " is (" << dx << ":" << dy << ")";
 #endif
-  return std::make_pair(dx,dy);
+  return std::make_pair(dx, dy);
 }
 
 double HGCalGeomTools::slope(double z, std::vector<double> const& zFront, std::vector<double> const& slope) {
