@@ -15,18 +15,20 @@ namespace gpuPixelRecHits {
 
   __global__ void getHits(pixelCPEforGPU::ParamsOnGPU const* __restrict__ cpeParams,
                           BeamSpotCUDA::Data const* __restrict__ bs,
-                          uint16_t const* __restrict__ id,
-                          uint16_t const* __restrict__ x,
-                          uint16_t const* __restrict__ y,
-                          uint16_t const* __restrict__ adc,
-                          uint32_t const* __restrict__ digiModuleStart,
-                          uint32_t const* __restrict__ clusInModule,
-                          uint32_t const* __restrict__ moduleId,
-                          int32_t const* __restrict__ clus,
+                          SiPixelDigisCUDA::DeviceConstView const * __restrict__ pdigis,
                           int numElements,
-                          uint32_t const* __restrict__ hitsModuleStart,
+                          SiPixelClustersCUDA::DeviceConstView const * __restrict__ pclusters,
                           TrackingRecHit2DSOAView* phits) {
+
+    // FIXME
+    // the compiler seems NOT to optimize loads from views (even in a simple test case)
+    // The whole gimnastic here of copying or not is a pure heuristic exercise that seems to produce the fastest code with the above signature
+    // not using views (passing a gazzilion of array pointers) seems to produce the fastest code (but it is harder to mantain)  
+
     auto& hits = *phits;
+
+    auto const digis = *pdigis; // the copy is intentional!
+    auto const & clusters = *pclusters;
 
     // to be moved in common namespace...
     constexpr uint16_t InvId = 9999;  // must be > MaxNumModules
@@ -37,9 +39,9 @@ namespace gpuPixelRecHits {
     // as usual one block per module
     __shared__ ClusParams clusParams;
 
-    auto first = digiModuleStart[1 + blockIdx.x];
-    auto me = moduleId[blockIdx.x];
-    auto nclus = clusInModule[me];
+    auto first = clusters.moduleStart(1 + blockIdx.x);
+    auto me = clusters.moduleId(blockIdx.x);
+    auto nclus = clusters.clusInModule(me);
 
     if (0 == nclus)
       return;
@@ -47,9 +49,9 @@ namespace gpuPixelRecHits {
 #ifdef GPU_DEBUG
     if (threadIdx.x == 0) {
       auto k = first;
-      while (id[k] == InvId)
+      while (digis.moduleInd(k) == InvId)
         ++k;
-      assert(id[k] == me);
+      assert(digis.moduleInd(k) == me);
     }
 #endif
 
@@ -71,9 +73,7 @@ namespace gpuPixelRecHits {
     }
     nclus = std::min(nclus, MaxHitsInModule);
 
-    auto ic = threadIdx.x;
-
-    if (ic < nclus) {
+    for (int ic = threadIdx.x; ic < nclus; ic += blockDim.x) {
       clusParams.minRow[ic] = std::numeric_limits<uint32_t>::max();
       clusParams.maxRow[ic] = 0;
       clusParams.minCol[ic] = std::numeric_limits<uint32_t>::max();
@@ -92,85 +92,94 @@ namespace gpuPixelRecHits {
     // one thead per "digi"
 
     for (int i = first; i < numElements; i += blockDim.x) {
-      if (id[i] == InvId)
+      auto id = digis.moduleInd(i);
+      if (id == InvId)
         continue;  // not valid
-      if (id[i] != me)
+      if (id != me)
         break;  // end of module
-      if (clus[i] >= nclus)
+      auto cl = digis.clus(i);
+      if (cl >= nclus)
         continue;
-      atomicMin(&clusParams.minRow[clus[i]], x[i]);
-      atomicMax(&clusParams.maxRow[clus[i]], x[i]);
-      atomicMin(&clusParams.minCol[clus[i]], y[i]);
-      atomicMax(&clusParams.maxCol[clus[i]], y[i]);
+      auto x = digis.xx(i);
+      auto y = digis.yy(i);
+      atomicMin(&clusParams.minRow[cl], x);
+      atomicMax(&clusParams.maxRow[cl], x);
+      atomicMin(&clusParams.minCol[cl], y);
+      atomicMax(&clusParams.maxCol[cl], y);
     }
 
     __syncthreads();
 
     for (int i = first; i < numElements; i += blockDim.x) {
-      if (id[i] == InvId)
+      auto id =    digis.moduleInd(i);
+      if (id == InvId)
         continue;  // not valid
-      if (id[i] != me)
+      if (id != me)
         break;  // end of module
-      if (clus[i] >= nclus)
+      auto cl = digis.clus(i);
+      if (cl >= nclus)
         continue;
-      atomicAdd(&clusParams.charge[clus[i]], adc[i]);
-      if (clusParams.minRow[clus[i]] == x[i])
-        atomicAdd(&clusParams.Q_f_X[clus[i]], adc[i]);
-      if (clusParams.maxRow[clus[i]] == x[i])
-        atomicAdd(&clusParams.Q_l_X[clus[i]], adc[i]);
-      if (clusParams.minCol[clus[i]] == y[i])
-        atomicAdd(&clusParams.Q_f_Y[clus[i]], adc[i]);
-      if (clusParams.maxCol[clus[i]] == y[i])
-        atomicAdd(&clusParams.Q_l_Y[clus[i]], adc[i]);
+      auto x = digis.xx(i);
+      auto y = digis.yy(i);      
+      auto ch = digis.adc(i);
+      atomicAdd(&clusParams.charge[cl], ch);
+      if (clusParams.minRow[cl] == x)
+        atomicAdd(&clusParams.Q_f_X[cl], ch);
+      if (clusParams.maxRow[cl] == x)
+        atomicAdd(&clusParams.Q_l_X[cl], ch);
+      if (clusParams.minCol[cl] == y)
+        atomicAdd(&clusParams.Q_f_Y[cl], ch);
+      if (clusParams.maxCol[cl] == y)
+        atomicAdd(&clusParams.Q_l_Y[cl], ch);
     }
 
     __syncthreads();
 
     // next one cluster per thread...
 
-    if (ic >= nclus)
-      return;
+    first = clusters.clusModuleStart(me);
 
-    first = hitsModuleStart[me];
-    auto h = first + ic;  // output index in global memory
+    for (int ic = threadIdx.x; ic < nclus; ic += blockDim.x) {
+      auto h = first + ic;  // output index in global memory
 
-    if (h >= TrackingRecHit2DSOAView::maxHits())
-      return;  // overflow...
+      if (h >= TrackingRecHit2DSOAView::maxHits())
+        break;  // overflow...
 
-    pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
-    pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
+      pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
+      pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
 
-    // store it
+      // store it
 
-    hits.charge(h) = clusParams.charge[ic];
+      hits.charge(h) = clusParams.charge[ic];
 
-    hits.detectorIndex(h) = me;
+      hits.detectorIndex(h) = me;
 
-    float xl, yl;
-    hits.xLocal(h) = xl = clusParams.xpos[ic];
-    hits.yLocal(h) = yl = clusParams.ypos[ic];
+      float xl, yl;
+      hits.xLocal(h) = xl = clusParams.xpos[ic];
+      hits.yLocal(h) = yl = clusParams.ypos[ic];
 
-    hits.clusterSizeX(h) = clusParams.xsize[ic];
-    hits.clusterSizeY(h) = clusParams.ysize[ic];
+      hits.clusterSizeX(h) = clusParams.xsize[ic];
+      hits.clusterSizeY(h) = clusParams.ysize[ic];
 
-    hits.xerrLocal(h) = clusParams.xerr[ic] * clusParams.xerr[ic];
-    hits.yerrLocal(h) = clusParams.yerr[ic] * clusParams.yerr[ic];
+      hits.xerrLocal(h) = clusParams.xerr[ic] * clusParams.xerr[ic];
+      hits.yerrLocal(h) = clusParams.yerr[ic] * clusParams.yerr[ic];
 
-    // keep it local for computations
-    float xg, yg, zg;
-    // to global and compute phi...
-    cpeParams->detParams(me).frame.toGlobal(xl, yl, xg, yg, zg);
-    // here correct for the beamspot...
-    xg -= bs->x;
-    yg -= bs->y;
-    zg -= bs->z;
+      // keep it local for computations
+      float xg, yg, zg;
+      // to global and compute phi...
+      cpeParams->detParams(me).frame.toGlobal(xl, yl, xg, yg, zg);
+      // here correct for the beamspot...
+      xg -= bs->x;
+      yg -= bs->y;
+      zg -= bs->z;
 
-    hits.xGlobal(h) = xg;
-    hits.yGlobal(h) = yg;
-    hits.zGlobal(h) = zg;
+      hits.xGlobal(h) = xg;
+      hits.yGlobal(h) = yg;
+      hits.zGlobal(h) = zg;
 
-    hits.rGlobal(h) = std::sqrt(xg * xg + yg * yg);
-    hits.iphi(h) = unsafe_atan2s<7>(yg, xg);
+      hits.rGlobal(h) = std::sqrt(xg * xg + yg * yg);
+      hits.iphi(h) = unsafe_atan2s<7>(yg, xg);
+    }
   }
 
 }  // namespace gpuPixelRecHits
