@@ -147,8 +147,8 @@ namespace edm {
       const EventSetup c{ci,
                          static_cast<unsigned int>(Transition::EndLuminosityBlock),
                          esGetTokenIndices(Transition::EndLuminosityBlock)};
-      this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlockSummary_(cnstLb, c);
+      this->doEndLuminosityBlockProduce_(lb, c);
       this->doEndLuminosityBlock_(cnstLb, c);
       commit_(lb);
     }
