@@ -47,10 +47,7 @@ public:
 
     DetId baseid = uncalibRH.id();
     unsigned layer = rhtools_.getLayerWithOffset(baseid);
-    bool hfnose(false);
-
-    if (DetId::Forward == baseid.det() && HFNose == baseid.subdetId())
-      hfnose = true;
+    bool hfnose = DetId::Forward == baseid.det() && HFNose == baseid.subdetId();
 
     //    float clockToNsConstant = 25;
     float energy = (hfnose ? (uncalibRH.amplitude() * weightsNose_[layer] * 0.001f)
