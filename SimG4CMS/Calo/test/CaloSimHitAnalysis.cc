@@ -56,11 +56,11 @@ protected:
   void analyzeHits(std::vector<PCaloHit>&, int);
 
 private:
-  const std::string              g4Label_;
+  const std::string g4Label_;
   const std::vector<std::string> hitLab_;
-  const std::vector<double>      timeSliceUnit_;
-  const double                   maxEnergy_, maxTime_, tMax_, tScale_;
-  const bool                     testNumber_;
+  const std::vector<double> timeSliceUnit_;
+  const double maxEnergy_, maxTime_, tMax_, tScale_;
+  const bool testNumber_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > toks_calo_;
 
   const CaloGeometry* caloGeometry_;
@@ -73,30 +73,25 @@ private:
   TH2F *h_rz_, *h_etaphi_;
 };
 
-CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps) : 
-  g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel","g4SimHits")),
-  hitLab_(ps.getParameter<std::vector<std::string> >("hitCollection")),
-  timeSliceUnit_(ps.getParameter<std::vector<double> >("timeSliceUnit")),
-  maxEnergy_(ps.getUntrackedParameter<double>("maxEnergy", 200.0)),
-  maxTime_(ps.getUntrackedParameter<double>("maxTime", 1000.0)),
-  tMax_(ps.getUntrackedParameter<double>("timeCut", 100.0)),
-  tScale_(ps.getUntrackedParameter<double>("timeScale", 1.0)),
-  testNumber_(ps.getUntrackedParameter<bool>("TestNumbering", false)) {
-
+CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
+    : g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
+      hitLab_(ps.getParameter<std::vector<std::string> >("hitCollection")),
+      timeSliceUnit_(ps.getParameter<std::vector<double> >("timeSliceUnit")),
+      maxEnergy_(ps.getUntrackedParameter<double>("maxEnergy", 200.0)),
+      maxTime_(ps.getUntrackedParameter<double>("maxTime", 1000.0)),
+      tMax_(ps.getUntrackedParameter<double>("timeCut", 100.0)),
+      tScale_(ps.getUntrackedParameter<double>("timeScale", 1.0)),
+      testNumber_(ps.getUntrackedParameter<bool>("TestNumbering", false)) {
   usesResource(TFileService::kSharedResource);
 
   // register for data access
   for (unsigned int i = 0; i < hitLab_.size(); i++)
     toks_calo_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_[i])));
 
-  edm::LogVerbatim("HitStudy") 
-    << "Module Label: " << g4Label_ << "   Hits|timeSliceUnit:";
+  edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits|timeSliceUnit:";
   for (unsigned int i = 0; i < hitLab_.size(); i++)
-    edm::LogVerbatim("HitStudy") 
-      << "[" << i << "] "  << hitLab_[i] << " " << timeSliceUnit_[i];
-  edm::LogVerbatim("HitStudy")  
-    << "maxEnergy: " << maxEnergy_ << " maxTime: " << maxTime_ << " tMax: " 
-    << tMax_;
+    edm::LogVerbatim("HitStudy") << "[" << i << "] " << hitLab_[i] << " " << timeSliceUnit_[i];
+  edm::LogVerbatim("HitStudy") << "maxEnergy: " << maxEnergy_ << " maxTime: " << maxTime_ << " tMax: " << tMax_;
 
   edm::Service<TFileService> tfile;
   if (!tfile.isAvailable())
@@ -116,7 +111,8 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps) :
     h_time_[i]->GetXaxis()->SetTitle(title);
     h_time_[i]->GetYaxis()->SetTitle("Hits");
     double ymax = 0.1;
-    if (i > 1) ymax = 0.01;
+    if (i > 1)
+      ymax = 0.01;
     sprintf(name, "Edep%d", i);
     sprintf(title, "Energy deposit (GeV) in %s", dets[i].c_str());
     h_edep_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
@@ -176,8 +172,8 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps) :
 
 void CaloSimHitAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  std::vector<std::string> labels = {"EcalHitsEB1","EcalHitsEE1","HcalHits1"};
-  std::vector<double>      times  = {1,1,1};
+  std::vector<std::string> labels = {"EcalHitsEB1", "EcalHitsEE1", "HcalHits1"};
+  std::vector<double> times = {1, 1, 1};
   desc.addUntracked<std::string>("moduleLabel", "g4SimHits");
   desc.add<std::vector<std::string> >("hitCollection", labels);
   desc.add<std::vector<double> >("timeSliceUnit", times);
@@ -190,9 +186,7 @@ void CaloSimHitAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 void CaloSimHitAnalysis::analyze(edm::Event const& e, edm::EventSetup const& set) {
-  edm::LogVerbatim("HitStudy") 
-    << "CaloSimHitAnalysis:Run = " << e.id().run() << " Event = " 
-    << e.id().event();
+  edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis:Run = " << e.id().run() << " Event = " << e.id().event();
 
   edm::ESHandle<CaloGeometry> calo_handle;
   set.get<CaloGeometryRecord>().get(calo_handle);
@@ -203,14 +197,12 @@ void CaloSimHitAnalysis::analyze(edm::Event const& e, edm::EventSetup const& set
     edm::Handle<edm::PCaloHitContainer> hitsCalo;
     e.getByToken(toks_calo_[i], hitsCalo);
     bool getHits = (hitsCalo.isValid());
-    edm::LogVerbatim("HitStudy") 
-      << "CaloSimHitAnalysis: Input flags Hits[" << i << "]: " << getHits;
+    edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis: Input flags Hits[" << i << "]: " << getHits;
 
     if (getHits) {
       std::vector<PCaloHit> caloHits;
       caloHits.insert(caloHits.end(), hitsCalo->begin(), hitsCalo->end());
-      edm::LogVerbatim("HitStudy") 
-	<< "CaloSimHitAnalysis: Hit buffer [" << i << "] " << caloHits.size();
+      edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis: Hit buffer [" << i << "] " << caloHits.size();
       analyzeHits(caloHits, i);
     }
   }
@@ -218,28 +210,32 @@ void CaloSimHitAnalysis::analyze(edm::Event const& e, edm::EventSetup const& set
 
 void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   int nHit = hits.size();
-  int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nEB = 0, nEE = 0, nBad = 0, iHit=0;
-  std::map<CaloHitID, std::pair<double,double> > hitMap;
+  int nHB = 0, nHE = 0, nHO = 0, nHF = 0, nEB = 0, nEE = 0, nBad = 0, iHit = 0;
+  std::map<CaloHitID, std::pair<double, double> > hitMap;
   double etot[nCalo_], etotG[nCalo_];
-  for (unsigned int k=0; k<nCalo_; ++k) {etot[k] = etotG[k] = 0;}
+  for (unsigned int k = 0; k < nCalo_; ++k) {
+    etot[k] = etotG[k] = 0;
+  }
   for (const auto& hit : hits) {
     double edep = hit.energy();
-    double time = tScale_*hit.time();
+    double time = tScale_ * hit.time();
     uint32_t id = hit.id();
-    int    itra = hit.geantTrackId();
+    int itra = hit.geantTrackId();
     double edepEM = hit.energyEM();
     double edepHad = hit.energyHad();
-    int    idx(-1);
+    int idx(-1);
     if (indx != 2) {
       idx = indx;
-      if (indx == 0) ++nEB;
-      else           ++nEE;
+      if (indx == 0)
+        ++nEB;
+      else
+        ++nEE;
     } else {
       int subdet(0);
       if (testNumber_) {
         int ieta(0), phi(0), z(0), lay(0), depth(0);
-        HcalTestNumbering::unpackHcalIndex(id,subdet,z,depth,ieta,phi,lay);
-	id  = HcalDetId(static_cast<HcalSubdetector>(subdet),z*ieta,phi,depth).rawId();
+        HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, ieta, phi, lay);
+        id = HcalDetId(static_cast<HcalSubdetector>(subdet), z * ieta, phi, depth).rawId();
       } else {
         subdet = HcalDetId(id).subdet();
       }
@@ -258,19 +254,18 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       }
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HitStudy") 
-      << "Hit[" << iHit << ":" << nHit << ":" << idx << "] E " << edep << ":"
-      << edepEM << ":" << edepHad << " T " << time << " itra " << itra << " ID "
-      << std::hex << id << std::dec;
+    edm::LogVerbatim("HitStudy") << "Hit[" << iHit << ":" << nHit << ":" << idx << "] E " << edep << ":" << edepEM
+                                 << ":" << edepHad << " T " << time << " itra " << itra << " ID " << std::hex << id
+                                 << std::dec;
 #endif
     ++iHit;
     if (idx >= 0) {
-      CaloHitID  hid(id,time,itra,0,timeSliceUnit_[indx]);
+      CaloHitID hid(id, time, itra, 0, timeSliceUnit_[indx]);
       auto itr = hitMap.find(hid);
       if (itr == hitMap.end()) {
-	hitMap[hid] = std::make_pair(time, edep);
+        hitMap[hid] = std::make_pair(time, edep);
       } else {
-	((itr->second).second) += edep;
+        ((itr->second).second) += edep;
       }
       h_edepEM_[idx]->Fill(edepEM);
       h_edepHad_[idx]->Fill(edepHad);
@@ -285,9 +280,8 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
     GlobalPoint point;
     DetId id((itr->first).unitID());
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HitStudy") 
-      << "Index " << indx << " Geom " << caloGeometry_ << ":" << hcalGeom_ 
-      << "  " << std::hex << id.rawId() << std::dec;
+    edm::LogVerbatim("HitStudy") << "Index " << indx << " Geom " << caloGeometry_ << ":" << hcalGeom_ << "  "
+                                 << std::hex << id.rawId() << std::dec;
 #endif
     if (indx != 2) {
       idx = indx;
@@ -308,9 +302,8 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
     double edep = (itr->second).second;
     double time = (itr->second).first;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HitStudy") 
-      << "Index " << idx << ":" << nCalo_ << " Point " << point << " E " 
-      << edep << " T " << time;
+    edm::LogVerbatim("HitStudy") << "Index " << idx << ":" << nCalo_ << " Point " << point << " E " << edep << " T "
+                                 << time;
 #endif
     if (idx >= 0) {
       h_time_[idx]->Fill(time);
@@ -319,18 +312,21 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       h_zz_[idx]->Fill(point.z());
       h_eta_[idx]->Fill(point.eta());
       h_phi_[idx]->Fill(point.phi());
-      h_rz_->Fill(std::abs(point.z()),point.perp());
-      h_etaphi_->Fill(std::abs(point.eta()),std::abs(point.phi()));
+      h_rz_->Fill(std::abs(point.z()), point.perp());
+      h_etaphi_->Fill(std::abs(point.eta()), std::abs(point.phi()));
       etot[idx] += edep;
-      if (time < tMax_) etotG[idx] += edep;
+      if (time < tMax_)
+        etotG[idx] += edep;
     }
   }
 
   if (indx < 2) {
     h_etot_[indx]->Fill(etot[indx]);
     h_etotg_[indx]->Fill(etotG[indx]);
-    if (indx == 0) h_hit_[indx]->Fill(double(nEB));
-    else           h_hit_[indx]->Fill(double(nEE));
+    if (indx == 0)
+      h_hit_[indx]->Fill(double(nEB));
+    else
+      h_hit_[indx]->Fill(double(nEE));
   } else {
     h_hit_[2]->Fill(double(nHB));
     h_hit_[3]->Fill(double(nHE));
@@ -342,10 +338,9 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
     }
   }
 
-  edm::LogVerbatim("HitStudy") 
-    << "CaloSimHitAnalysis::analyzeHits: EB " << nEB << " EE " << nEE << " HB "
-    << nHB << " HE " << nHE << " HO " << nHO << " HF " << nHF << " Bad " 
-    << nBad << " All " << nHit << " Reduced " << hitMap.size();
+  edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis::analyzeHits: EB " << nEB << " EE " << nEE << " HB " << nHB
+                               << " HE " << nHE << " HO " << nHO << " HF " << nHF << " Bad " << nBad << " All " << nHit
+                               << " Reduced " << hitMap.size();
 }
 
 //define this as a plug-in
