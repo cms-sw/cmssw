@@ -52,7 +52,7 @@ namespace reco {
       HOLayer = 8,
       /// VFcal(HF) front face
       VFcalEntrance = 9,
-      
+
       NLayers = 10
     };
 
