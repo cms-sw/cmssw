@@ -51,7 +51,7 @@ private:
   int isub;
   int nevent;
 
-  bool imc;
+  int imc;
 
   // eta limits to calcualte MET, SET (not to include HF if not needed)
   double etaMax[3];
