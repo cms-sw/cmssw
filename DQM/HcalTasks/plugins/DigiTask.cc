@@ -5,12 +5,9 @@ using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
 
 DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
-  _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE",
-    edm::InputTag("hcalDigis"));
-  _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO",
-    edm::InputTag("hcalDigis"));
-  _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF",
-    edm::InputTag("hcalDigis"));
+  _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
+  _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
+  _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
 
   _tokQIE11 = consumes<QIE11DigiCollection>(_tagQIE11);
   _tokHO = consumes<HODigiCollection>(_tagHO);
@@ -95,16 +92,17 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   // Filters for QIE8 vs QIE10/11
   std::vector<uint32_t> vhashQIE8;
-  vhashQIE8.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalOuter, 1,1,4)));  
-  _filter_QIE8.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
-    vhashQIE8);
+  vhashQIE8.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalOuter, 1, 1, 4)));
+  _filter_QIE8.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet, vhashQIE8);
 
-  std::vector<uint32_t> vhashQIE1011; 
-  vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalBarrel, 1,1,1)));
-  vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalEndcap, 20,1,1)));
-  vhashQIE1011.push_back(hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29,1,1)));
-  _filter_QIE1011.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet,
-    vhashQIE1011);
+  std::vector<uint32_t> vhashQIE1011;
+  vhashQIE1011.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalBarrel, 1, 1, 1)));
+  vhashQIE1011.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalEndcap, 20, 1, 1)));
+  vhashQIE1011.push_back(
+      hcaldqm::hashfunctions::hash_did[hcaldqm::hashfunctions::fSubdet](HcalDetId(HcalForward, 29, 1, 1)));
+  _filter_QIE1011.initialize(filter::fPreserver, hcaldqm::hashfunctions::fSubdet, vhashQIE1011);
 
   //	INITIALIZE FIRST
   _cADC_SubdetPM.initialize(_name,
@@ -781,9 +779,9 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
 }
 
 /* virtual */ void DigiTask::_process(edm::Event const& e, edm::EventSetup const&) {
-  edm::Handle<QIE11DigiCollection>     c_QIE11;
-  edm::Handle<HODigiCollection>       c_ho;
-  edm::Handle<QIE10DigiCollection>       c_QIE10;
+  edm::Handle<QIE11DigiCollection> c_QIE11;
+  edm::Handle<HODigiCollection> c_ho;
+  edm::Handle<QIE10DigiCollection> c_QIE10;
 
   if (!e.getByToken(_tokQIE11, c_QIE11))
     _logger.dqmthrow("Collection QIE11DigiCollection isn't available" + _tagQIE11.label() + " " + _tagQIE11.instance());
@@ -809,7 +807,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   int numChsCutHE = 0;
 
   // HB+HE QIE11 collection
-  for (QIE11DigiCollection::const_iterator it=c_QIE11->begin(); it!=c_QIE11->end(); ++it) {
+  for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
 
     //	Explicit check on the DetIds present in the Collection
@@ -1237,7 +1235,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
       //if (!_filter_QIE1011.filter(did)) {
       _cSumQ_SubdetPM_QIE1011.fill(did, sumQ);
       //}
-      
+
       _cOccupancy_depth.fill(did);
       if (_ptype == fOnline) {
         _xNChs.get(eid)++;
