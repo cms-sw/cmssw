@@ -20,18 +20,11 @@
 #include "TH1.h"
 #include "TFile.h"
 
-class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>, private HistogramManagerHolder {
-    enum {
-      BADROC,
-      PERMANENTBADROC,
-      FEDERRORROC,
-      STUCKTBMROC,
-      OTHERBADROC,
-      PROMPTBADROC
-    };
+class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>,
+                               private HistogramManagerHolder {
+  enum { BADROC, PERMANENTBADROC, FEDERRORROC, STUCKTBMROC, OTHERBADROC, PROMPTBADROC };
 
- public:
-
+public:
   // Constructor
   SiPixelStatusHarvester(const edm::ParameterSet&);
 
@@ -97,7 +90,6 @@ private:
                     edm::Service<cond::service::PoolDBOutputService>& poolDbService,
                     std::string tagName,
                     edm::Run& iRun);
-
 };
 
 #endif
