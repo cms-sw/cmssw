@@ -262,7 +262,7 @@ private:
   static constexpr unsigned int nCalibHE1_ = kchanCalibHE1_ * nEtaCalibHE_;
   static constexpr unsigned int kOffCalibHF1_ = kOffCalibHE1_ + nCalibHE1_;
   static constexpr unsigned int nchanCalibHF1_ = 3, nEtaCalibHF_ = 2;
-  static constexpr unsigned int mPhiCalibHF1_ = 18, kPhiCalibHF1_ = maxPhi_/mPhiCalibHF1_;
+  static constexpr unsigned int mPhiCalibHF1_ = 18, kPhiCalibHF1_ = maxPhi_ / mPhiCalibHF1_;
   static constexpr int chanCalibHF1_[nchanCalibHF1_] = {0, 1, 8};
   static constexpr int etaCalibHF_[nEtaCalibHF_] = {-1, 1};
   static constexpr unsigned int kchanCalibHF1_ = nchanCalibHF1_ * kPhiCalibHF1_;
@@ -287,7 +287,7 @@ private:
   static constexpr unsigned int kOffCalibHF2_ = kOffCalibHE2_ + nCalibHE2_;
   static constexpr int chanCalibHF2_ = 9, phiCalibHF2_ = 1;
   static constexpr unsigned int kchanCalibHF2_ = 1;
-  static constexpr unsigned int nCalibHF2_ =  nEtaCalibHF_;
+  static constexpr unsigned int nCalibHF2_ = nEtaCalibHF_;
   static constexpr unsigned int kOffCalibHOX_ = kOffCalibHF2_ + nCalibHF2_;
   static constexpr unsigned int nEtaCalibHOX_ = 2, ctypeHX_ = -999;
   static constexpr int etaCalibHOX_[nEtaCalibHOX_] = {4, 15};
@@ -297,14 +297,14 @@ private:
   static constexpr int phiCalibHOX1_ = 4, phiCalibHOX2_ = 12, phiCalibHOX3_ = 6;
   static constexpr unsigned int kOffCalibHBX_ = kOffCalibHOX_ + nCalibHOX_;
   static constexpr unsigned int nEtaCalibHBX_ = 1, mPhiCalibHBX_ = 1;
-  static constexpr int etaCalibHBX_  =  16;
+  static constexpr int etaCalibHBX_ =  16;
   static constexpr unsigned int kPhiCalibHBX_ = maxPhi_ / mPhiCalibHBX_;
   static constexpr unsigned int nCalibHBX_ = 2 * kPhiCalibHBX_ * nEtaCalibHBX_;
   static constexpr unsigned int kOffCalibHEX_ = kOffCalibHBX_ + nCalibHBX_;
-  static constexpr unsigned int nEtaCalibHEX_ = 2, mPhiCalibHEX_  =  2;
+  static constexpr unsigned int nEtaCalibHEX_ = 2, mPhiCalibHEX_ =  2;
   static constexpr int etaCalibHEX_[nEtaCalibHEX_] = {25, 27};
   static constexpr unsigned int kPhiCalibHEX_ = maxPhi_ / mPhiCalibHEX_;
-  static constexpr unsigned int nCalibHEX_ = 2*kPhiCalibHEX_ * nEtaCalibHEX_;
+  static constexpr unsigned int nCalibHEX_ = 2 * kPhiCalibHEX_ * nEtaCalibHEX_;
   static constexpr unsigned int kOffCalibHFX_ = kOffCalibHEX_ + nCalibHEX_;
 };
 

@@ -90,7 +90,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "Topo sizes " << HBSize_ << ":" << HESize_ << ":" << HOSize_ << ":" << HFSize_ << ":"
-			       << HTSize_ << ":" << CALIBSize_ << " for mode " << mode_ << ":" << triggerMode_;
+                               << HTSize_ << ":" << CALIBSize_ << " for mode " << mode_ << ":" << triggerMode_;
 #endif
 
   //The transition between HE/HF in eta
@@ -133,7 +133,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
     setDepthSegmentation(ring, segmentation, false);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "Set segmentation for ring " << ring << " with " << segmentation.size() 
-				 << " elements:";
+                                 << " elements:";
     for (unsigned int k = 0; k < segmentation.size(); ++k)
       edm::LogVerbatim("HCalGeom") << "[" << k << "] " << segmentation[k];
 #endif
@@ -141,7 +141,7 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
     setDepthSegmentation(ring, segmentation, true);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "Set Plan-1 segmentation for ring " << ring << " with " << segmentation.size()
-				 << " elements:";
+                                 << " elements:";
     for (unsigned int k = 0; k < segmentation.size(); ++k)
       edm::LogVerbatim("HCalGeom") << "[" << k << "] " << segmentation[k];
 #endif
@@ -149,11 +149,11 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, const bool mergePos
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "Constants in HcalTopology " << firstHBRing_ << ":" << lastHBRing_ << " "
-			       << firstHERing_ << ":" << lastHERing_ <<":" << firstHEDoublePhiRing_ << ":"
-			       << firstHEQuadPhiRing_ << ":" << firstHETripleDepthRing_ << " " << firstHFRing_ << ":"
-			       << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_ << ":" << lastHORing_
-			       << " " << maxDepthHB_ << ":" << maxDepthHE_ << " " << nEtaHB_ << ":" << nEtaHE_ << " " 
-			       << etaHE2HF_ << ":" << etaHF2HE_ << " " << maxPhiHE_;
+                               << firstHERing_ << ":" << lastHERing_ <<":" << firstHEDoublePhiRing_ << ":"
+                               << firstHEQuadPhiRing_ << ":" << firstHETripleDepthRing_ << " " << firstHFRing_ << ":"
+                               << lastHFRing_ << ":" << firstHFQuadPhiRing_ << " " << firstHORing_ << ":" << lastHORing_
+                               << " " << maxDepthHB_ << ":" << maxDepthHE_ << " " << nEtaHB_ << ":" << nEtaHE_ << " " 
+                               << etaHE2HF_ << ":" << etaHF2HE_ << " " << maxPhiHE_;
 #endif
 }
 
@@ -219,7 +219,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode,
   }
 
   edm::LogWarning("HCalGeom") << "This is an incomplete constructor of HcalTopology - be warned that many "
-                                     "functionalities will not be there - revert from this - get from EventSetup";
+                              << "functionalities will not be there - revert from this - get from EventSetup";
 }
 
 bool HcalTopology::valid(const DetId& id) const {
@@ -281,37 +281,33 @@ bool HcalTopology::validCalib(const HcalCalibDetId& tid) const {
     int chan = tid.cboxChannel();
     unsigned int iphi = static_cast<unsigned int>(tid.iphi());
     if (subdet == HcalBarrel) {
-      if ((std::find(etaCalibHB_,etaCalibHB_+nEtaCalibHB_,ieta) != (etaCalibHB_+nEtaCalibHB_)) &&
-	  (iphi >= minPhi_) &&
-          (std::find(chanCalibHB_,chanCalibHB_+ nchanCalibHB_,chan) != (chanCalibHB_+nchanCalibHB_)) && 
-	  (iphi <= maxPhi_))
+      if ((std::find(etaCalibHB_, etaCalibHB_ + nEtaCalibHB_, ieta) != (etaCalibHB_ + nEtaCalibHB_)) &&
+          (std::find(chanCalibHB_, chanCalibHB_ + nchanCalibHB_, chan) != (chanCalibHB_ + nchanCalibHB_)) && 
+	  (iphi >= minPhi_) && (iphi <= maxPhi_))
         ok = true;
     } else if (subdet == HcalEndcap) {
-      if ((std::find(etaCalibHE_,etaCalibHE_+nEtaCalibHE_,ieta) != (etaCalibHE_+nEtaCalibHE_)) &&
-	  (iphi >= minPhi_) &&
-          (std::find(chanCalibHE1_,chanCalibHE1_+nchanCalibHE1_,chan) != (chanCalibHE1_+nchanCalibHE1_) ||
+      if ((std::find(etaCalibHE_, etaCalibHE_ + nEtaCalibHE_, ieta) != (etaCalibHE_ + nEtaCalibHE_)) &&
+          (std::find(chanCalibHE1_, chanCalibHE1_ + nchanCalibHE1_, chan) != (chanCalibHE1_ + nchanCalibHE1_) ||
 	   (chan == chanCalibHE2_)) &&
-          (iphi <= maxPhi_))
+	  (iphi >= minPhi_) && (iphi <= maxPhi_))
         ok = true;
     } else if (subdet == HcalForward) {
-      if ((std::find(etaCalibHF_,etaCalibHF_+nEtaCalibHF_,ieta) != (etaCalibHF_+nEtaCalibHF_)) &&
-	  (iphi >= minPhi_) &&
-          (std::find(chanCalibHF1_,chanCalibHF1_+nchanCalibHF1_,chan) != (chanCalibHF1_+nchanCalibHF1_) ||
+      if ((std::find(etaCalibHF_, etaCalibHF_ + nEtaCalibHF_, ieta) != (etaCalibHF_ + nEtaCalibHF_)) &&
+          (std::find(chanCalibHF1_, chanCalibHF1_ + nchanCalibHF1_, chan) != (chanCalibHF1_ + nchanCalibHF1_) ||
 	   (chan == chanCalibHF2_)) &&
-          (iphi <= maxPhi_))
+	  (iphi >= minPhi_) &&(iphi <= maxPhi_))
         ok = true;
     } else if (subdet == HcalOuter) {
-      if ((std::find(etaCalibHO_,etaCalibHO_+nEtaCalibHO_,ieta) != (etaCalibHO_+nEtaCalibHO_)) && 
-	  (iphi >= minPhi_) &&
-	  (std::find(chanCalibHO_,chanCalibHO_+nchanCalibHO_,chan) != (chanCalibHO_+ nchanCalibHO_) ||
+      if ((std::find(etaCalibHO_, etaCalibHO_ + nEtaCalibHO_, ieta) != (etaCalibHO_ + nEtaCalibHO_)) && 
+	  (std::find(chanCalibHO_, chanCalibHO_ + nchanCalibHO_, chan) != (chanCalibHO_ + nchanCalibHO_) ||
 	   (chan == chanCalibHOs_)) &&
-	  (iphi <= maxPhi_))
+	  (iphi >= minPhi_) && (iphi <= maxPhi_))
         ok = true;
     }
   } else if (tid.calibFlavor() == HcalCalibDetId::HOCrosstalk) {
     int ieta = std::abs(tid.ieta());
     unsigned int iphi = static_cast<unsigned int>(tid.iphi());
-    if ((std::find(etaCalibHOX_,etaCalibHOX_+nEtaCalibHOX_,ieta) != (etaCalibHOX_+nEtaCalibHOX_)) &&
+    if ((std::find(etaCalibHOX_, etaCalibHOX_ + nEtaCalibHOX_, ieta) != (etaCalibHOX_ + nEtaCalibHOX_)) &&
 	(iphi >= minPhi_) && (iphi <= maxPhi_))
       ok = true;
   } else if (tid.calibFlavor() == HcalCalibDetId::HBX) {
