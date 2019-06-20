@@ -11,9 +11,6 @@ DEFINE_FWK_EVENTSETUP_SOURCE(SiStripQualityFakeESSource);
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripFedCablingFakeESSource.h"
 DEFINE_FWK_EVENTSETUP_SOURCE(SiStripFedCablingFakeESSource);
 
-#include "CalibTracker/SiStripESProducers/plugins/fake/SiStripHashedDetIdFakeESSource.h"
-DEFINE_FWK_EVENTSETUP_SOURCE(SiStripHashedDetIdFakeESSource);
-
 //---------- Empty Fake Source -----------//
 
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripTemplateEmptyFakeESSource.h"
