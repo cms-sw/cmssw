@@ -7,8 +7,8 @@
 //  reducedEndcapRecHitCollection_ = conf.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
 //}
 //
-//EcalClusterLazyTools ElectronIDAlgo::getClusterShape(const edm::Event& ev, 
-//                                                     const edm::EventSetup& es) 
+//EcalClusterLazyTools ElectronIDAlgo::getClusterShape(const edm::Event& ev,
+//                                                     const edm::EventSetup& es)
 //{
 //
 //  edm::Handle< EcalRecHitCollection > pEBRecHits;

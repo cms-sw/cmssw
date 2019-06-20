@@ -13,10 +13,7 @@
 #include "CommonTools/UtilAlgos/interface/MaxNumberSelector.h"
 #include "CommonTools/UtilAlgos/interface/AndSelector.h"
 
- typedef ObjectCountFilter<
-           reco::VertexCollection,
-           AnySelector,
-           AndSelector<MinNumberSelector, MaxNumberSelector>
-         >::type VertexCountFilter;
+typedef ObjectCountFilter<reco::VertexCollection, AnySelector, AndSelector<MinNumberSelector, MaxNumberSelector> >::type
+    VertexCountFilter;
 
-DEFINE_FWK_MODULE( VertexCountFilter );
+DEFINE_FWK_MODULE(VertexCountFilter);
