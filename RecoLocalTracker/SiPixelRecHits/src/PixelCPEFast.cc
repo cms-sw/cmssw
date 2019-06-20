@@ -70,6 +70,7 @@ const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cuda::stream
     cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_commonParams, sizeof(pixelCPEforGPU::CommonParams)));
     cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_detParams,
                          this->m_detParamsGPU.size() * sizeof(pixelCPEforGPU::DetParams)));
+    cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_averageGeometry, sizeof(pixelCPEforGPU::AverageGeometry)));
     cudaCheck(cudaMalloc((void**)&data.h_paramsOnGPU.m_layerGeometry, sizeof(pixelCPEforGPU::LayerGeometry)));
     cudaCheck(cudaMalloc((void**)&data.d_paramsOnGPU, sizeof(pixelCPEforGPU::ParamsOnGPU)));
 
@@ -78,6 +79,11 @@ const pixelCPEforGPU::ParamsOnGPU* PixelCPEFast::getGPUProductAsync(cuda::stream
     cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_commonParams,
                               &this->m_commonParamsGPU,
                               sizeof(pixelCPEforGPU::CommonParams),
+                              cudaMemcpyDefault,
+                              stream.id()));
+    cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_averageGeometry,
+                              &this->m_averageGeometry,
+                              sizeof(pixelCPEforGPU::AverageGeometry),
                               cudaMemcpyDefault,
                               stream.id()));
     cudaCheck(cudaMemcpyAsync(data.h_paramsOnGPU.m_layerGeometry,
@@ -99,6 +105,9 @@ void PixelCPEFast::fillParamsForGpu() {
   m_commonParamsGPU.theThicknessE = m_DetParams.back().theThickness;
   m_commonParamsGPU.thePitchX = m_DetParams[0].thePitchX;
   m_commonParamsGPU.thePitchY = m_DetParams[0].thePitchY;
+
+  // zero average geometry
+  memset(&m_averageGeometry,0,sizeof(pixelCPEforGPU::AverageGeometry));
 
   uint32_t oldLayer = 0;
   uint32_t oldLadder = 0;
@@ -127,8 +136,8 @@ void PixelCPEFast::fillParamsForGpu() {
 
     //if (m_commonParamsGPU.theThickness!=p.theThickness)
     //  std::cout << i << (g.isBarrel ? "B " : "E ") << m_commonParamsGPU.theThickness<<"!="<<p.theThickness << std::endl;
-    auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
 
+    auto ladder = ttopo_.pxbLadder(p.theDet->geographicalId());
     if (oldLayer != g.layer) {
       oldLayer = g.layer;
       // std::cout << "new layer at " << i << (g.isBarrel ? " B  " :  (g.isPosZ ? " E+ " : " E- ")) << g.layer << " starting at " << g.rawId << std::endl;
@@ -238,6 +247,51 @@ void PixelCPEFast::fillParamsForGpu() {
     }
   }
 
+  // compute ladder baricenter (only in global z) for the barrel
+  auto & aveGeom = m_averageGeometry;
+  int il=0;
+  for (int im=0, nm=phase1PixelTopology::numberOfModulesInBarrel; im<nm; ++im) {
+    auto const & g = m_detParamsGPU[im];
+    il = im/8;
+    assert(il<int(phase1PixelTopology::numberOfLaddersInBarrel));
+       auto z = g.frame.z();
+       aveGeom.ladderZ[il] += 0.125f*z;
+       aveGeom.ladderMinZ[il] = std::min(aveGeom.ladderMinZ[il], z);
+       aveGeom.ladderMaxZ[il] = std::max(aveGeom.ladderMaxZ[il], z);
+       aveGeom.ladderX[il] += 0.125f*g.frame.x();
+       aveGeom.ladderY[il] += 0.125f*g.frame.y();
+       aveGeom.ladderR[il] += 0.125*sqrt(g.frame.x()*g.frame.x()+g.frame.y()*g.frame.y());
+  }
+  assert(il+1==int(phase1PixelTopology::numberOfLaddersInBarrel));
+  // add half_module and tollerance
+  constexpr float module_length = 6.7f;
+  constexpr float module_tolerance = 0.2f;
+  for (int il=0, nl=phase1PixelTopology::numberOfLaddersInBarrel; il<nl; ++il) {
+    aveGeom.ladderMinZ[il] -= (0.5f*module_length-module_tolerance);
+    aveGeom.ladderMaxZ[il] += (0.5f*module_length-module_tolerance);
+  }
+
+  // compute "max z" for first layer in endcap (should we restrict to the outermost ring?)
+  for (auto im=phase1PixelTopology::layerStart[4]; im<phase1PixelTopology::layerStart[5]; ++im) {
+     auto const & g = m_detParamsGPU[im];
+     aveGeom.endCapZ[0] = std::max(aveGeom.endCapZ[0],g.frame.z());
+  }
+  for (auto im=phase1PixelTopology::layerStart[7]; im<phase1PixelTopology::layerStart[8]; ++im) {
+     auto const & g = m_detParamsGPU[im];
+     aveGeom.endCapZ[1] = std::min(aveGeom.endCapZ[1],g.frame.z());
+  }
+  // correct for outer ring being closer
+  aveGeom.endCapZ[0] -= 1.5f;
+  aveGeom.endCapZ[1] += 1.5f;
+
+  /*
+  for (int jl=0, nl=phase1PixelTopology::numberOfLaddersInBarrel; jl<nl; ++jl) {
+    std::cout << jl<<':'<<aveGeom.ladderR[jl] << '/'<< std::sqrt(aveGeom.ladderX[jl]*aveGeom.ladderX[jl]+aveGeom.ladderY[jl]*aveGeom.ladderY[jl]) 
+                   <<','<<aveGeom.ladderZ[jl]<<','<<aveGeom.ladderMinZ[jl]<<','<<aveGeom.ladderMaxZ[jl]<< ' ';
+  } std::cout<< std::endl;
+  std::cout << aveGeom.endCapZ[0] << ' ' << aveGeom.endCapZ[1] << std::endl;
+  */
+
   // fill Layer and ladders geometry
   memcpy(m_layerGeometry.layerStart, phase1PixelTopology::layerStart, sizeof(phase1PixelTopology::layerStart));
   memcpy(m_layerGeometry.layer, phase1PixelTopology::layer.data(), phase1PixelTopology::layer.size());
@@ -249,6 +303,7 @@ PixelCPEFast::GPUData::~GPUData() {
   if (d_paramsOnGPU != nullptr) {
     cudaFree(h_paramsOnGPU.m_commonParams);
     cudaFree(h_paramsOnGPU.m_detParams);
+    cudaFree(h_paramsOnGPU.m_averageGeometry);
     cudaFree(d_paramsOnGPU);
   }
 }
