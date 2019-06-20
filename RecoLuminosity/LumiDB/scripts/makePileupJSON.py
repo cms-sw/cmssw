@@ -70,10 +70,18 @@ if __name__ == '__main__':
             #tot_del_lumi = float(pieces[11])
             #tot_rec_lumi = float(pieces[12])
             luminometer = pieces[14]
-            xing_lumi_array = [( int(bxid), float(bunch_del_lumi), float(bunch_rec_lumi) ) \
-                               for bxid, bunch_del_lumi, bunch_rec_lumi in zip( pieces[15::3],
-                                                                                pieces[16::3],
-                                                                                pieces[17::3]) ]
+
+            if luminometer == "HFOC":
+                threshold = 2.0
+            else:
+                threshold = 1.2
+
+            xing_lumi_array = []
+            for bxid, bunch_del_lumi, bunch_rec_lumi in zip(pieces[15::3], pieces[16::3], pieces[17::3]):
+                if sel_bx and int(bxid) not in sel_bx:
+                    continue
+                if float(bunch_del_lumi) > threshold:
+                    xing_lumi_array.append([int(bxid), float(bunch_del_lumi), float(bunch_rec_lumi)])
         except:
             print("Failed to parse line: check if the input format has changed")
             print(pieces[0],pieces[1],pieces[2],pieces[3],pieces[4],pieces[5],pieces[6],pieces[7],pieces[8],pieces[9])
@@ -96,11 +104,6 @@ if __name__ == '__main__':
             output_line += ' ['
 
         # Now do the actual parsing.
-        if luminometer == "HFOC":
-            threshold = 2.0
-        else:
-            threshold = 1.2
-
         total_lumi = 0 
         total_int = 0
         total_int2 = 0
@@ -110,13 +113,10 @@ if __name__ == '__main__':
 
         # first loop to get sum for (weighted) mean
         for bxid, bunch_del_lumi, bunch_rec_lumi in xing_lumi_array:
-            if sel_bx and bxid not in sel_bx:
-                continue
-            if bunch_del_lumi > threshold:
-                total_lumi += bunch_rec_lumi
-                # this will eventually be_pileup*bunch_rec_lumi but it's quicker to apply the factor once outside the loop
-                total_int += bunch_del_lumi*bunch_rec_lumi
-                filled_xings += 1
+            total_lumi += bunch_rec_lumi
+            # this will eventually be_pileup*bunch_rec_lumi but it's quicker to apply the factor once outside the loop
+            total_int += bunch_del_lumi*bunch_rec_lumi
+            filled_xings += 1
 
         # convert sum to pileup and get the mean
         total_int *= parameters.orbitLength / parameters.lumiSectionLength
@@ -127,18 +127,15 @@ if __name__ == '__main__':
 
         # second loop to get (weighted) RMS
         for bxid, bunch_del_lumi, bunch_rec_lumi in xing_lumi_array:
-            if sel_bx and bxid not in sel_bx:
-                continue
-            if bunch_del_lumi > threshold:
-                mean_pileup = bunch_del_lumi * parameters.orbitLength / parameters.lumiSectionLength
-                if mean_pileup > 100:
-                    print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
-                          (runNumber, lumi_section, mean_pileup, bunch_del_lumi))
-                    #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumi_section, mean_pileup, bxid, bunch_rec_lumi)
+            mean_pileup = bunch_del_lumi * parameters.orbitLength / parameters.lumiSectionLength
+            if mean_pileup > 100:
+                print("mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
+                      (runNumber, lumi_section, mean_pileup, bunch_del_lumi))
+                #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumi_section, mean_pileup, bxid, bunch_rec_lumi)
 
-                total_int2 += bunch_rec_lumi*(mean_pileup-mean_int)*(mean_pileup-mean_int)
-                total_weight += bunch_rec_lumi
-                total_weight2 += bunch_rec_lumi*bunch_rec_lumi
+            total_int2 += bunch_rec_lumi*(mean_pileup-mean_int)*(mean_pileup-mean_int)
+            total_weight += bunch_rec_lumi
+            total_weight2 += bunch_rec_lumi*bunch_rec_lumi
 
         # compute final RMS and write it out
         #print " LS, Total lumi, filled xings %d, %f, %d" %(lumi_section,total_lumi,filled_xings)
@@ -149,7 +146,7 @@ if __name__ == '__main__':
 
         output_line += "[%d,%2.4e,%2.4e,%2.4e]," % (lumi_section, total_lumi, bunch_rms_lumi, mean_int)
         last_valid_lumi = [lumi_section, total_lumi, bunch_rms_lumi, mean_int]
-
+        
     output_line = output_line[:-1] + ']}'
     csv_input.close()
 
