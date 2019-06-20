@@ -28,19 +28,16 @@ public:
   virtual ~GlobalTrackingGeometryBuilder();
 
   /// Build the geometry
-  GlobalTrackingGeometry* build(const TrackerGeometry* tk, 
-				const MTDGeometry* mtd,
-				const DTGeometry* dt, 
-                                const CSCGeometry* csc, 
-				const RPCGeometry* rpc,
-				const GEMGeometry* gem,
-				const ME0Geometry* me0);
+  GlobalTrackingGeometry* build(const TrackerGeometry* tk,
+                                const MTDGeometry* mtd,
+                                const DTGeometry* dt,
+                                const CSCGeometry* csc,
+                                const RPCGeometry* rpc,
+                                const GEMGeometry* gem,
+                                const ME0Geometry* me0);
 
 protected:
-
 private:
-
   const std::string myName;
-
 };
 #endif
