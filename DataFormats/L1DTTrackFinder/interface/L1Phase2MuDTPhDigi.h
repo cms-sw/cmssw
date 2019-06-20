@@ -1,6 +1,6 @@
 //-------------------------------------------------
 //
-//   Class L1Phase2MuDTPhDigi	
+//   Class L1Phase2MuDTPhDigi
 //
 //   Description: trigger primtive data for the
 //                muon barrel Phase2 trigger
@@ -17,54 +17,46 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-
 //----------------------
 // Base Class Headers --
 //----------------------
-
 
 //---------------
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
-class L1Phase2MuDTPhDigi 
-{
-
- public:
-
+class L1Phase2MuDTPhDigi {
+public:
   //  Constructors
   L1Phase2MuDTPhDigi();
-  
-  L1Phase2MuDTPhDigi( int bx, int wh, int sc, int st, int sl, int phi, int phib,
-		      int qual, int idx, int t0, int chi2, int rpc=-10);
-  
+
+  L1Phase2MuDTPhDigi(
+      int bx, int wh, int sc, int st, int sl, int phi, int phib, int qual, int idx, int t0, int chi2, int rpc = -10);
+
   // Operations
-  int bxNum()       const;
+  int bxNum() const;
 
-  int whNum()       const;
-  int scNum()       const;
-  int stNum()       const;
-  int slNum()       const;
+  int whNum() const;
+  int scNum() const;
+  int stNum() const;
+  int slNum() const;
 
-  int phi()         const;
-  int phiBend()     const;
+  int phi() const;
+  int phiBend() const;
 
-  int quality()     const;
-  int index()       const;
-   
-  int t0()          const;
-  int chi2()        const;
+  int quality() const;
+  int index() const;
 
-  int rpcFlag()      const;
-  
+  int t0() const;
+  int chi2() const;
 
- private:
+  int rpcFlag() const;
 
+private:
   int m_bx;
   int m_wheel;
   int m_sector;
@@ -76,10 +68,10 @@ class L1Phase2MuDTPhDigi
 
   int m_qualityCode;
   int m_index;
-  
+
   int m_t0;
   int m_chi2;
-  
+
   int m_rpcFlag;
 };
 
