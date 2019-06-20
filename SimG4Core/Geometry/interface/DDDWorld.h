@@ -3,13 +3,20 @@
 
 #include "G4VPhysicalVolume.hh"
 #include "SimG4Core/Geometry/interface/DDGeometryReturnType.h"
+#include "DDG4/Geant4GeometryInfo.h"
 
 class DDG4Builder;
 class DDCompactView;
 
+namespace cms {
+  class DDCompactView;
+  class DDDetector;
+}  // namespace cms
+
 class DDDWorld {
 public:
   DDDWorld(const DDCompactView *, G4LogicalVolumeToDDLogicalPartMap &, SensitiveDetectorCatalog &, bool check = false);
+  DDDWorld(const cms::DDDetector *, dd4hep::sim::Geant4GeometryMaps::VolumeMap &);
   ~DDDWorld();
   static void SetAsWorld(G4VPhysicalVolume *pv);
   static void WorkerSetAsWorld(G4VPhysicalVolume *pv);

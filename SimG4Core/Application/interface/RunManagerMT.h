@@ -25,6 +25,11 @@ class G4SimEvent;
 class RunAction;
 
 class DDCompactView;
+
+namespace cms {
+  class DDCompactView;
+}
+
 class DDDWorld;
 class DDG4ProductionCuts;
 class MagneticField;
@@ -54,10 +59,10 @@ class RunManagerMT {
   friend class RunManagerMTWorker;
 
 public:
-  explicit RunManagerMT(edm::ParameterSet const& p);
+  explicit RunManagerMT(edm::ParameterSet const&);
   ~RunManagerMT();
 
-  void initG4(const DDCompactView* pDD, const MagneticField* pMF, const HepPDT::ParticleDataTable* fPDGTable);
+  void initG4(const DDCompactView*, const cms::DDCompactView*, const MagneticField*, const HepPDT::ParticleDataTable*);
 
   void initializeUserActions();
 
