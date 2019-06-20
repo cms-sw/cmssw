@@ -115,7 +115,6 @@ private:
   DTKeyedConfigCache cfgCache;
 };
 
-
 //
 // constructors and destructor
 //
@@ -142,9 +141,9 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet &p) {
 
   m_UseT0 = p.getParameter<bool>("UseT0");  // CB check for a better way to do it
 
-  if(not cfgConfig) {
+  if (not cfgConfig) {
     cc.setConsumes(m_dttpgParamsToken).setConsumes(m_ccb_confToken);
-    if(m_UseT0) {
+    if (m_UseT0) {
       cc.setConsumes(m_t0iToken);
     }
   }
@@ -204,7 +203,7 @@ std::unique_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManag
 }
 
 void DTConfigDBProducer::readDBPedestalsConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig) {
-  const auto& dttpgParams = iRecord.get(m_dttpgParamsToken);
+  const auto &dttpgParams = iRecord.get(m_dttpgParamsToken);
 
   DTConfigPedestals pedestals;
   pedestals.setDebug(m_debugPed);
@@ -339,7 +338,7 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
   dttpgConfig.setCCBConfigValidity(true);
 
   // get DTCCBConfigRcd from DTConfigManagerRcd (they are dependent records)
-  const auto& ccb_conf = iRecord.get(m_ccb_confToken);
+  const auto &ccb_conf = iRecord.get(m_ccb_confToken);
   int ndata = std::distance(ccb_conf.begin(), ccb_conf.end());
 
   const DTKeyedConfigListRcd &keyRecord = iRecord.getRecord<DTKeyedConfigListRcd>();
