@@ -8,10 +8,10 @@
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 
 class EcalBarrelNumberingScheme : public EcalNumberingScheme {
- public:
+public:
   EcalBarrelNumberingScheme();
   ~EcalBarrelNumberingScheme() override;
-  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override;
 };
 
 #endif
