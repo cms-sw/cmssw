@@ -12,6 +12,7 @@
 			<PartSelector path="//.*:Envelop"/>
 			<Parameter name="CMSCutsRegion" value="CTPPSPixelRegion" eval="false"/>
 			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
+<Parameter name="ProdCutsForProtons" value="1*mm"/>
 			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
 			<Parameter name="ProdCutsForGamma" value="1*mm"/>
 		</SpecPar>
@@ -19,6 +20,7 @@
 			<PartSelector path="//.*:RPixWafer"/>
 			<Parameter name="CMSCutsRegion" value="CTPPSPixelSensitiveRegion" eval="false"/>
 			<Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.01*mm"/>
 			<Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
 			<Parameter name="ProdCutsForGamma" value="0.01*mm"/>
 		</SpecPar>

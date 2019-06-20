@@ -14,6 +14,7 @@ note: see OT613_200_IT4025_2017_03_28.cfg for full config files
       <PartSelector path="//pixfwd:Phase2PixelEndcap"/>
       <Parameter name="CMSCutsRegion" value="TrackerPixelDeadRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+<Parameter name="ProdCutsForProtons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="1*mm"/>
     </SpecPar>
@@ -93,6 +94,7 @@ note: see OT613_200_IT4025_2017_03_28.cfg for full config files
 <PartSelector path="//pixel:EModule5Disc12InnerPixelActive"/>
       <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.01*mm"/>
       <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
     </SpecPar>

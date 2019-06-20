@@ -5,6 +5,7 @@
       <PartSelector path="//ECAL"/>
       <Parameter name="CMSCutsRegion" value="EcalRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="3*mm"/>
+<Parameter name="ProdCutsForProtons" value="3*mm"/>
       <Parameter name="ProdCutsForPositrons" value="3*mm"/>
       <Parameter name="ProdCutsForGamma" value="3*mm"/>
     </SpecPar>

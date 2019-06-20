@@ -53,6 +53,7 @@
 			<PartSelector path="//ZDCtoFP420"/>
 			<Parameter name="CMSCutsRegion" value="InterimRegion" eval="false"/>
 			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
+<Parameter name="ProdCutsForProtons" value="1*mm"/>
 			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
 			<Parameter name="ProdCutsForGamma" value="1*mm"/>
 		</SpecPar>

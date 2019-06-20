@@ -6,6 +6,7 @@
     <PartSelector path="//HFNoseVol"/>
     <Parameter name="CMSCutsRegion" value="HFNoseRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.03*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.03*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.03*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.03*mm"/>
   </SpecPar>
