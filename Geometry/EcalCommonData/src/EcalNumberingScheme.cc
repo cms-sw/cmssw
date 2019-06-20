@@ -9,5 +9,3 @@
 EcalNumberingScheme::EcalNumberingScheme() : CaloNumberingScheme(0) {}
 
 EcalNumberingScheme::~EcalNumberingScheme() {}
-
-

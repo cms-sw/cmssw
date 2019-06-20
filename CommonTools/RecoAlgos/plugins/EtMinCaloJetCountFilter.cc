@@ -11,9 +11,6 @@
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 #include "CommonTools/UtilAlgos/interface/EtMinSelector.h"
 
-typedef ObjectCountFilter<
-          reco::CaloJetCollection, 
-          EtMinSelector
-        >::type EtMinCaloJetCountFilter;
+typedef ObjectCountFilter<reco::CaloJetCollection, EtMinSelector>::type EtMinCaloJetCountFilter;
 
-DEFINE_FWK_MODULE( EtMinCaloJetCountFilter );
+DEFINE_FWK_MODULE(EtMinCaloJetCountFilter);

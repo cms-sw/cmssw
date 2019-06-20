@@ -15,9 +15,9 @@ class PGeometricDet;
  */
 
 class CondDBCmsTrackerConstruction {
- public:
+public:
   CondDBCmsTrackerConstruction() = delete;
-  static std::unique_ptr<GeometricDet> construct( const PGeometricDet& pgd );
+  static std::unique_ptr<GeometricDet> construct(const PGeometricDet& pgd);
 };
 
 #endif

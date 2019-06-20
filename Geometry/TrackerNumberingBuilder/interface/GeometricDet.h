@@ -28,16 +28,15 @@ class DDFilteredView;
  */
 
 class GeometricDet {
- public:
-
+public:
   typedef DDExpandedView::nav_type DDnav_type;
   typedef DDExpandedView::NavRange NavRange;
 
-  typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
-  typedef std::vector< GeometricDet *>  GeometricDetContainer;
+  typedef std::vector<GeometricDet const*> ConstGeometricDetContainer;
+  typedef std::vector<GeometricDet*> GeometricDetContainer;
 
-#ifdef PoolAlloc  
-  typedef std::vector< DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
+#ifdef PoolAlloc
+  typedef std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
   typedef std::vector<int, PoolAlloc<int> > nav_type;
 #else
   typedef std::vector<DDExpandedNode> GeoHistory;
@@ -49,27 +48,51 @@ class GeometricDet {
   //
   // more can be added; please add at the end!
   //
-  typedef enum GDEnumType {unknown=100, Tracker=0, PixelBarrel=1, PixelEndCap=2,
-			  TIB=3, TID=4, TOB=5, TEC=6,
-			  layer=8, wheel=9, strng=10, rod=11, petal=12, ring=13,
-			   ladder=14, mergedDet=15, DetUnit=16, disk=17, panel=18, 
-			   PixelPhase1Barrel=101,
-			   PixelPhase1EndCap=102, PixelPhase1Disk=117,
-			   OTPhase2EndCap=204, OTPhase2Barrel=205, OTPhase2Layer=208, OTPhase2Stack=215,
-			   PixelPhase2Barrel=201, PixelPhase2EndCap=202, OTPhase2Wheel=209,
-			   PixelPhase2FullDisk=217,PixelPhase2ReducedDisk=227,
-			   PixelPhase2TDRDisk=237 } GeometricEnumType;
-			   // PixelV4021Barrel=301, PixelV4021EndCap=302 } GeometricEnumType;
+  typedef enum GDEnumType {
+    unknown = 100,
+    Tracker = 0,
+    PixelBarrel = 1,
+    PixelEndCap = 2,
+    TIB = 3,
+    TID = 4,
+    TOB = 5,
+    TEC = 6,
+    layer = 8,
+    wheel = 9,
+    strng = 10,
+    rod = 11,
+    petal = 12,
+    ring = 13,
+    ladder = 14,
+    mergedDet = 15,
+    DetUnit = 16,
+    disk = 17,
+    panel = 18,
+    PixelPhase1Barrel = 101,
+    PixelPhase1EndCap = 102,
+    PixelPhase1Disk = 117,
+    OTPhase2EndCap = 204,
+    OTPhase2Barrel = 205,
+    OTPhase2Layer = 208,
+    OTPhase2Stack = 215,
+    PixelPhase2Barrel = 201,
+    PixelPhase2EndCap = 202,
+    OTPhase2Wheel = 209,
+    PixelPhase2FullDisk = 217,
+    PixelPhase2ReducedDisk = 227,
+    PixelPhase2TDRDisk = 237
+  } GeometricEnumType;
+  // PixelV4021Barrel=301, PixelV4021EndCap=302 } GeometricEnumType;
   /**
    * Constructors to be used when looping over DDD
    */
 #ifdef GEOMETRICDETDEBUG
-  GeometricDet(DDnav_type const & navtype, GeometricEnumType dd);
+  GeometricDet(DDnav_type const& navtype, GeometricEnumType dd);
   GeometricDet(DDExpandedView* ev, GeometricEnumType dd);
 #endif
   GeometricDet(DDFilteredView* fv, GeometricEnumType dd);
   GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType dd);
-  
+
   /*
   GeometricDet(const GeometricDet &);
 
@@ -80,17 +103,17 @@ class GeometricDet {
    * set or add or clear components
    */
   void setGeographicalID(DetId id) {
-    _geographicalID = id; 
+    _geographicalID = id;
     //std::cout <<"setGeographicalID " << int(id) << std::endl;
   }
 #ifdef GEOMETRICDETDEBUG
-  void setComponents(GeometricDetContainer const & cont) {
-    _container = cont; 
+  void setComponents(GeometricDetContainer const& cont) {
+    _container = cont;
     //std::cout <<"setComponents" << std::endl;
   }
 #endif
-  void addComponents(GeometricDetContainer const & cont);
-  void addComponents(ConstGeometricDetContainer const & cont);
+  void addComponents(GeometricDetContainer const& cont);
+  void addComponents(ConstGeometricDetContainer const& cont);
   void addComponent(GeometricDet*);
   /**
    * clearComponents() only empties the container, the components are not deleted!
@@ -99,43 +122,41 @@ class GeometricDet {
     _container.clear();
     //std::cout<<"clearComponents"<<std::endl;
   }
- 
+
   /**
    * deleteComponents() explicitly deletes the daughters
    * 
    */
   void deleteComponents();
 
-  bool isLeaf() const { 
-    //std::cout <<"isLeaf() ==" <<_container.empty()<<std::endl; 
-    return _container.empty(); 
+  bool isLeaf() const {
+    //std::cout <<"isLeaf() ==" <<_container.empty()<<std::endl;
+    return _container.empty();
   }
-  
-  GeometricDet* component(size_t index) {
-    return const_cast<GeometricDet*>(_container[index]);
-  }
+
+  GeometricDet* component(size_t index) { return const_cast<GeometricDet*>(_container[index]); }
 
   /**
    * Access methods
    */
-  DDRotationMatrix const & rotation() const {
-    //std::cout<<"rotation" <<std::endl; 
+  DDRotationMatrix const& rotation() const {
+    //std::cout<<"rotation" <<std::endl;
     return _rot;
   }
-  DDTranslation const & translation() const {
+  DDTranslation const& translation() const {
     //std::cout<<"translation" <<std::endl;
     return _trans;
   }
-  double phi() const { 
-    //std::cout<<"phi"<<std::endl; 
-    return _phi; 
+  double phi() const {
+    //std::cout<<"phi"<<std::endl;
+    return _phi;
   }
-  double rho() const { 
-    //std::cout << "rho" <<std::endl; 
-    return _rho; 
+  double rho() const {
+    //std::cout << "rho" <<std::endl;
+    return _rho;
   }
 
-  DDSolidShape const & shape() const  {
+  DDSolidShape const& shape() const {
     //std::cout<<"shape"<<std::endl;
     return _shape;
   }
@@ -143,41 +164,41 @@ class GeometricDet {
     //std::cout<<"type"<<std::endl;
     return _type;
   }
-  DDName const & name() const {
+  DDName const& name() const {
     //std::cout<<"name"<<std::endl;
     return _ddname;
   }
   // internal representaion
-  nav_type const & navType() const {
-    //std::cout<<"navType"<<std::endl; 
+  nav_type const& navType() const {
+    //std::cout<<"navType"<<std::endl;
     return _ddd;
   }
   // representation neutral interface
   NavRange navRange() const {
     //std::cout<<"navRange"<<std::endl;
-    return NavRange(&_ddd.front(),_ddd.size());
+    return NavRange(&_ddd.front(), _ddd.size());
   }
   // more meaningfull name (maybe)
   NavRange navpos() const {
     //std::cout<<"navpos"<<std::endl;
-    return NavRange(&_ddd.front(),_ddd.size());
+    return NavRange(&_ddd.front(), _ddd.size());
   }
-  std::vector<double> const & params() const {
+  std::vector<double> const& params() const {
     //std::cout<<"params"<<std::endl;
     return _params;
   }
 
   ~GeometricDet();
-  
+
   /**
    * components() returns explicit components; please note that in case of a leaf 
    * GeometricDet it returns nothing (an empty vector)
    */
-  ConstGeometricDetContainer & components() {
+  ConstGeometricDetContainer& components() {
     //std::cout << "components1" <<std::endl;
     return _container;
-  }  
-  ConstGeometricDetContainer const & components() const {
+  }
+  ConstGeometricDetContainer const& components() const {
     //std::cout<<"const components2 "<<std::endl;
     return _container;
   }
@@ -188,46 +209,46 @@ class GeometricDet {
    */
 
   ConstGeometricDetContainer deepComponents() const;
-  void deepComponents(ConstGeometricDetContainer & cont) const;
+  void deepComponents(ConstGeometricDetContainer& cont) const;
 
 #ifdef GEOMETRICDETDEBUG
   //rr
   /** parents() retuns the geometrical history
    * mec: only works if this is built from DD and not from reco DB.
    */
-  GeoHistory const &  parents() const {
+  GeoHistory const& parents() const {
     //std::cout<<"parents"<<std::endl;
     return _parents;
   }
-  //rr  
+  //rr
 #endif
-  
+
   /**
    *geometricalID() returns the ID associated to the GeometricDet.
    */
-  DetId geographicalID() const  { 
+  DetId geographicalID() const {
     //std::cout<<"geographicalID"<<std::endl;
-    return _geographicalID; 
+    return _geographicalID;
   }
-  DetId geographicalId() const  { 
-    //std::cout<<"geographicalId"<<std::endl; 
-    return _geographicalID; 
+  DetId geographicalId() const {
+    //std::cout<<"geographicalId"<<std::endl;
+    return _geographicalID;
   }
 
   /**
    *positionBounds() returns the position in cm. 
    */
-  Position positionBounds() const; 
+  Position positionBounds() const;
 
   /**
    *rotationBounds() returns the rotation matrix. 
    */
-  Rotation  rotationBounds() const; 
+  Rotation rotationBounds() const;
 
   /**
    *bounds() returns the Bounds.
    */
-  std::unique_ptr<Bounds> bounds() const; 
+  std::unique_ptr<Bounds> bounds() const;
 #ifdef GEOMETRICDETDEBUG
   int copyno() const {
     //std::cout<<"copyno"<<std::endl;
@@ -245,7 +266,7 @@ class GeometricDet {
     //std::cout<<"weight"<<std::endl;
     return _weight;
   }
-  std::string const &  material() const {
+  std::string const& material() const {
     //std::cout<<"material"<<std::endl;
     return _material;
   }
@@ -280,7 +301,7 @@ class GeometricDet {
 
   /**
    * The following two are only meaningful for the silicon tracker.
-   */  
+   */
   bool stereo() const {
     //std::cout<<"stereo"<<std::endl;
     return _stereo;
@@ -298,10 +319,9 @@ class GeometricDet {
     //std::cout<<"wasBuildFromDD"<<std::endl;
     return _fromDD;
   }
-#endif  
+#endif
 
- private:
-
+private:
   ConstGeometricDetContainer _container;
   DDTranslation _trans;
   double _phi;
@@ -319,7 +339,7 @@ class GeometricDet {
   double _volume;
   double _density;
   double _weight;
-  int    _copy;
+  int _copy;
   std::string _material;
 #endif
   double _radLength;
@@ -333,9 +353,7 @@ class GeometricDet {
 #ifdef GEOMETRICDETDEBUG
   bool _fromDD;
 #endif
-
 };
 
 #undef PoolAlloc
 #endif
-

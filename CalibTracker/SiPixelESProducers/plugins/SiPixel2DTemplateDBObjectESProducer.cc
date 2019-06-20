@@ -2,7 +2,7 @@
 //
 // Package:    SiPixel2DTemplateDBObjectESProducer
 // Class:      SiPixel2DTemplateDBObjectESProducer
-// 
+//
 /**\class SiPixel2DTemplateDBObjectESProducer SiPixel2DTemplateDBObjectESProducer.cc CalibTracker/SiPixelESProducers/plugin/SiPixel2DTemplateDBObjectESProducer.cc
 
  Description: ESProducer for magnetic-field-dependent local reco templates
@@ -26,50 +26,44 @@
 
 #include <memory>
 
-
 using namespace edm;
 
-
-class SiPixel2DTemplateDBObjectESProducer : public edm::ESProducer  {
-
+class SiPixel2DTemplateDBObjectESProducer : public edm::ESProducer {
 public:
+  SiPixel2DTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
+  ~SiPixel2DTemplateDBObjectESProducer() override;
+  std::shared_ptr<const SiPixel2DTemplateDBObject> produce(const SiPixel2DTemplateDBObjectESProducerRcd&);
 
-	SiPixel2DTemplateDBObjectESProducer(const edm::ParameterSet& iConfig);
-        ~SiPixel2DTemplateDBObjectESProducer() override;
-	std::shared_ptr<const SiPixel2DTemplateDBObject> produce(const SiPixel2DTemplateDBObjectESProducerRcd &);
 private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
   edm::ESGetToken<SiPixel2DTemplateDBObject, SiPixel2DTemplateDBObjectRcd> dbToken_;
 };
 
-
 SiPixel2DTemplateDBObjectESProducer::SiPixel2DTemplateDBObjectESProducer(const edm::ParameterSet& iConfig) {
   setWhatProduced(this)
-    .setConsumes(magfieldToken_)
-    .setConsumes(dbToken_, edm::ESInputTag{"", "numerator"}); // The correct default
+      .setConsumes(magfieldToken_)
+      .setConsumes(dbToken_, edm::ESInputTag{"", "numerator"});  // The correct default
 }
 
+SiPixel2DTemplateDBObjectESProducer::~SiPixel2DTemplateDBObjectESProducer() {}
 
-SiPixel2DTemplateDBObjectESProducer::~SiPixel2DTemplateDBObjectESProducer(){
-}
+std::shared_ptr<const SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::produce(
+    const SiPixel2DTemplateDBObjectESProducerRcd& iRecord) {
+  const auto& magfield = iRecord.get(magfieldToken_);
 
+  GlobalPoint center(0.0, 0.0, 0.0);
+  float theMagField = magfield.inTesla(center).mag();
 
+  if (theMagField >= 4.1 || theMagField < -0.1)
+    edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixel2DTemplate") << "Magnetic field is " << theMagField;
 
+  const auto& dbobject = iRecord.get(dbToken_);
 
-std::shared_ptr<const SiPixel2DTemplateDBObject> SiPixel2DTemplateDBObjectESProducer::produce(const SiPixel2DTemplateDBObjectESProducerRcd & iRecord) {
-	const auto& magfield = iRecord.get(magfieldToken_);
+  if (std::fabs(theMagField - dbobject.sVector()[22]) > 0.1)
+    edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixel2DTemplate")
+        << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject.sVector()[22];
 
-	GlobalPoint center(0.0, 0.0, 0.0);
-	float theMagField = magfield.inTesla(center).mag();
-
-	if(theMagField>=4.1 || theMagField<-0.1) edm::LogWarning("UnexpectedMagneticFieldUsingDefaultPixel2DTemplate") << "Magnetic field is " << theMagField;
-
-	const auto& dbobject = iRecord.get(dbToken_);
-
-	if(std::fabs(theMagField-dbobject.sVector()[22])>0.1)
-		edm::LogWarning("UnexpectedMagneticFieldUsingNonIdealPixel2DTemplate") << "Magnetic field is " << theMagField << " Template Magnetic field is " << dbobject.sVector()[22];
-	
-	return std::shared_ptr<const SiPixel2DTemplateDBObject>(&dbobject, edm::do_nothing_deleter());
+  return std::shared_ptr<const SiPixel2DTemplateDBObject>(&dbobject, edm::do_nothing_deleter());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(SiPixel2DTemplateDBObjectESProducer);

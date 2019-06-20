@@ -12,23 +12,18 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "CommonTools/RecoAlgos/interface/PrimaryVertexAssignment.h"
 
-
-
 class PrimaryVertexSorting {
- public:
-  enum Quality {UsedInFit=0,PrimaryDz,BTrack,OtherDz,NotReconstructedPrimary,Unassigned=99};
- 
+public:
+  enum Quality { UsedInFit = 0, PrimaryDz, BTrack, OtherDz, NotReconstructedPrimary, Unassigned = 99 };
+
   PrimaryVertexSorting(const edm::ParameterSet& iConfig)
-   //minJetPt_(iConfig.getParameter<double>("minJetPt")),
+  //minJetPt_(iConfig.getParameter<double>("minJetPt")),
   {}
 
-  ~PrimaryVertexSorting(){}
-  float score(const reco::Vertex & pv, const std::vector<const reco::Candidate *> & candidates , bool useMet) const ;
+  ~PrimaryVertexSorting() {}
+  float score(const reco::Vertex& pv, const std::vector<const reco::Candidate*>& candidates, bool useMet) const;
 
-
-
-
- private  :
+private:
 };
 
 #endif
