@@ -45,7 +45,7 @@ public:
       lazyParser_( params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false ),
       multiValue_(false)
   {
-    if( value_!="" )
+    if( !value_.empty() )
     {
       evaluationMap_.insert( std::make_pair( value_, std::unique_ptr<StringObjectFunction<C> >( new StringObjectFunction<C>( value_, lazyParser_ ) ) ) );
       produces< JetValueMap >();
@@ -117,7 +117,7 @@ private:
         else
         {
           jets1_locks.at(matched_index) = true;
-          if( value_!="" )
+          if( !value_.empty() )
             values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
           if( multiValue_ )
           {
@@ -128,7 +128,7 @@ private:
       }
     }// end loop over matched jets
 
-    if( value_!="" )
+    if( !value_.empty() )
     {
       std::unique_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
 
