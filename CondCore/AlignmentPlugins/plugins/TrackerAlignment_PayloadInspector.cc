@@ -16,7 +16,6 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 //#include "CondFormats/Alignment/interface/Definitions.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
@@ -596,34 +595,35 @@ namespace {
         }
 
         int subid = DetId(ali.rawId()).subdetId();
+        auto thePart = static_cast<AlignmentPI::partitions>(subid);
 
-        switch (subid) {
-          case 1:
+        switch (thePart) {
+          case AlignmentPI::BPix:
             Xbarycenters[0] += (ali.translation().x());
             Ybarycenters[0] += (ali.translation().y());
             Zbarycenters[0] += (ali.translation().z());
             nmodules[0]++;
-          case 2:
+          case AlignmentPI::FPix:
             Xbarycenters[1] += (ali.translation().x());
             Ybarycenters[1] += (ali.translation().y());
             Zbarycenters[1] += (ali.translation().z());
             nmodules[1]++;
-          case 3:
+          case AlignmentPI::TIB:
             Xbarycenters[2] += (ali.translation().x());
             Ybarycenters[2] += (ali.translation().y());
             Zbarycenters[2] += (ali.translation().z());
             nmodules[2]++;
-          case 4:
+          case AlignmentPI::TID:
             Xbarycenters[3] += (ali.translation().x());
             Ybarycenters[3] += (ali.translation().y());
             Zbarycenters[3] += (ali.translation().z());
             nmodules[3]++;
-          case 5:
+          case AlignmentPI::TOB:
             Xbarycenters[4] += (ali.translation().x());
             Ybarycenters[4] += (ali.translation().y());
             Zbarycenters[4] += (ali.translation().z());
             nmodules[4]++;
-          case 6:
+          case AlignmentPI::TEC:
             Xbarycenters[5] += (ali.translation().x());
             Ybarycenters[5] += (ali.translation().y());
             Zbarycenters[5] += (ali.translation().z());
@@ -652,13 +652,30 @@ namespace {
       h2_BarycenterParameters->GetXaxis()->SetBinLabel(5, "Y_{no GPR} [cm]");
       h2_BarycenterParameters->GetXaxis()->SetBinLabel(6, "Z_{no GPR} [cm]");
 
+      bool isLikelyMC(false);
+      int checkX =
+          std::count_if(Xbarycenters.begin(), Xbarycenters.begin() + 2, [](float a) { return (std::abs(a) >= 1.e-4); });
+      int checkY =
+          std::count_if(Ybarycenters.begin(), Ybarycenters.begin() + 2, [](float a) { return (std::abs(a) >= 1.e-4); });
+      int checkZ =
+          std::count_if(Zbarycenters.begin(), Zbarycenters.begin() + 2, [](float a) { return (std::abs(a) >= 1.e-4); });
+
+      // if all the coordinate barycenters for both BPix and FPix are below 10um
+      // this is very likely a MC payload
+      if ((checkX + checkY + checkZ) == 0 && run == 1)
+        isLikelyMC = true;
+
       unsigned int yBin = 6;
       for (unsigned int i = 0; i < 6; i++) {
-        std::string theLabel = getStringFromInt(i);
+        auto thePart = static_cast<AlignmentPI::partitions>(i + 1);
+        std::string theLabel = getStringFromPart(thePart);
         h2_BarycenterParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
-        h2_BarycenterParameters->SetBinContent(1, yBin, c_Xbarycenters[i]);
-        h2_BarycenterParameters->SetBinContent(2, yBin, c_Ybarycenters[i]);
-        h2_BarycenterParameters->SetBinContent(3, yBin, c_Zbarycenters[i]);
+        if (!isLikelyMC) {
+          h2_BarycenterParameters->SetBinContent(1, yBin, c_Xbarycenters[i]);
+          h2_BarycenterParameters->SetBinContent(2, yBin, c_Ybarycenters[i]);
+          h2_BarycenterParameters->SetBinContent(3, yBin, c_Zbarycenters[i]);
+        }
+
         h2_uncBarycenterParameters->SetBinContent(4, yBin, Xbarycenters[i]);
         h2_uncBarycenterParameters->SetBinContent(5, yBin, Ybarycenters[i]);
         h2_uncBarycenterParameters->SetBinContent(6, yBin, Zbarycenters[i]);
@@ -686,26 +703,6 @@ namespace {
       canvas.SaveAs(fileName.c_str());
 
       return true;
-    }
-
-    /************************************************/
-    std::string getStringFromInt(const int &index) {
-      switch (index) {
-        case 0:
-          return "BPix";
-        case 1:
-          return "FPix";
-        case 2:
-          return "TIB";
-        case 3:
-          return "TID";
-        case 4:
-          return "TOB";
-        case 5:
-          return "TEC";
-        default:
-          return "should never be here";
-      }
     }
   };
 
