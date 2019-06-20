@@ -24,11 +24,11 @@ cd ${WORKDIR}
 
 cp ${MYWORKDIR}/${name}_${num}.py  conf.py
 
-rfcp /afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/620/mc_pi50_eta05.root  mc.root
+xrdcp /afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/620/mc_pi50_eta05.root  mc.root
 
 cmsRun conf.py > & output.log
 
 ls -lrt
 
-rfcp output.root ${MYWORKDIR}/${name}_${num}.root
-rfcp output.log  ${MYWORKDIR}/${name}_${num}.log
+xrdcp output.root ${MYWORKDIR}/${name}_${num}.root
+xrdcp output.log  ${MYWORKDIR}/${name}_${num}.log
