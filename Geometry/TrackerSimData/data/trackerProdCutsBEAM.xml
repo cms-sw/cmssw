@@ -5,6 +5,7 @@
    <PartSelector path="//BeamTube1"/>
    <Parameter name="CMSCutsRegion" value="BeamPipe" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.01*mm"/>
    <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
    <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
   </SpecPar>
@@ -12,6 +13,7 @@
    <PartSelector path="//BEAM.*"/>
    <Parameter name="CMSCutsRegion" value="BeamPipeOutside" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+<Parameter name="ProdCutsForProtons" value="1*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
    <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>
@@ -19,6 +21,7 @@
    <PartSelector path="//BeamVacuum.*"/>
    <Parameter name="CMSCutsRegion" value="BeamPipeVacuum" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+<Parameter name="ProdCutsForProtons" value="1*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
    <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>

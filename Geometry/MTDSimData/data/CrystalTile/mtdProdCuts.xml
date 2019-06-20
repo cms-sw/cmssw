@@ -14,7 +14,8 @@ note: see MTD_V0005_2018_06_15.cfg for full config files
       <PartSelector path="//BarrelTimingLayer"/>                          
       <PartSelector path="//EndcapTimingLayer"/>                          
       <Parameter name="CMSCutsRegion" value="FastTimerRegion" eval="false"/>   
-      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>                  
+      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.1*mm"/>                  
       <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>                  
       <Parameter name="ProdCutsForGamma" value="0.1*mm"/>                      
     </SpecPar>                                                                                  
@@ -34,7 +35,8 @@ note: see MTD_V0005_2018_06_15.cfg for full config files
 <PartSelector path="//EModule10Disc1Timingactive"/>
 <PartSelector path="//EModule11Disc1Timingactive"/>
       <Parameter name="CMSCutsRegion" value="FastTimerRegion" eval="false"/>   
-      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>                  
+      <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.1*mm"/>                  
       <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>                  
       <Parameter name="ProdCutsForGamma" value="0.1*mm"/>                      
     </SpecPar>

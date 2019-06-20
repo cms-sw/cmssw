@@ -7,6 +7,7 @@
    <PartSelector path="//MBBT.*"/>
    <Parameter name="CMSCutsRegion" value="CaloRegion" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+<Parameter name="ProdCutsForProtons" value="1*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
    <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>
@@ -14,6 +15,7 @@
    <PartSelector path="//VCAL"/>
    <Parameter name="CMSCutsRegion" value="HFRegion" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="1*mm"/>
+<Parameter name="ProdCutsForProtons" value="1*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1*mm"/>
    <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>
