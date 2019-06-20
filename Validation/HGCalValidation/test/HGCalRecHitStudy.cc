@@ -110,7 +110,8 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
       zmax_(iConfig.getUntrackedParameter<double>("zMax", 600.0)),
       etamin_(iConfig.getUntrackedParameter<double>("etaMin", 1.2)),
       etamax_(iConfig.getUntrackedParameter<double>("etaMax", 3.2)),
-      layers_(0), firstLayer_(1) {
+      layers_(0),
+      firstLayer_(1) {
   usesResource(TFileService::kSharedResource);
 
   auto temp = iConfig.getParameter<edm::InputTag>("source");
@@ -127,9 +128,8 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
                                                << "\"HGCalHESiliconSensitive\", \"HGCalHESiliconSensitive\", "
                                                << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!";
   }
-  edm::LogVerbatim("HGCalValidation") 
-    << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag "
-    << temp << " Flag " << ifHCAL_ << ":" << ifNose_ << ":" << verbosity_;
+  edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag " << temp
+                                      << " Flag " << ifHCAL_ << ":" << ifNose_ << ":" << verbosity_;
 }
 
 void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -218,11 +218,11 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer =
-	  (ifNose_ ? HFNoseDetId(detId).layer() :
-	   ((detId.det() == DetId::Forward) ? HGCalDetId(detId).layer() :
-	    ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer() :
-	     HGCSiliconDetId(detId).layer())));
+        int layer = (ifNose_ ? HFNoseDetId(detId).layer()
+                             : ((detId.det() == DetId::Forward)
+                                    ? HGCalDetId(detId).layer()
+                                    : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
+                                                                        : HGCSiliconDetId(detId).layer())));
         recHitValidation(detId, layer, geom0, &it);
       }
     } else {
@@ -232,9 +232,8 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   }
   if (ok)
     fillHitsInfo();
-  edm::LogVerbatim("HGCalValidation") 
-    << "Event " << iEvent.id().event() << " with " << ntot << " total and " 
-    << nused << " used recHits";
+  edm::LogVerbatim("HGCalValidation") << "Event " << iEvent.id().event() << " with " << ntot << " total and " << nused
+                                      << " used recHits";
 }
 
 template <class T1, class T2>
@@ -258,9 +257,8 @@ void HGCalRecHitStudy::recHitValidation(DetId& detId, int layer, const T1* geom,
   hinfo.eta = global.eta();
 
   if (verbosity_ > 1)
-    edm::LogVerbatim("HGCalValidation") 
-      << " --------------------------   gx = " << globalx << " gy = " << globaly
-      << " gz = " << globalz << " phi = " << hinfo.phi << " eta = " << hinfo.eta;
+    edm::LogVerbatim("HGCalValidation") << " --------------------------   gx = " << globalx << " gy = " << globaly
+                                        << " gz = " << globalz << " phi = " << hinfo.phi << " eta = " << hinfo.eta;
 
   fillHitsInfo(hinfo);
 
@@ -313,8 +311,7 @@ void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) 
     firstLayer_ = hgcons_.firstLayer();
   }
 
-  edm::LogVerbatim("HGCalValidation") 
-    << "Finds " << layers_ << " layers for " << nameDetector_;
+  edm::LogVerbatim("HGCalValidation") << "Finds " << layers_ << " layers for " << nameDetector_;
 
   edm::Service<TFileService> fs;
   char histoname[100];
@@ -328,7 +325,7 @@ void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) 
     sprintf(histoname, "EtaPhi_Plus_Layer_%d", ilayer);
     EtaPhi_Plus_.push_back(fs->make<TH2D>(histoname, "Occupancy", nbinEta_, etamin_, etamax_, 72, -M_PI, M_PI));
     sprintf(histoname, "EtaPhi_Minus_Layer_%d", ilayer);
-    EtaPhi_Minus_.push_back(fs->make<TH2D>(histoname, "Occupancy", nbinEta_,-etamax_,-etamin_, 72, -M_PI, M_PI));
+    EtaPhi_Minus_.push_back(fs->make<TH2D>(histoname, "Occupancy", nbinEta_, -etamax_, -etamin_, 72, -M_PI, M_PI));
 
     sprintf(histoname, "Energy_Layer_%d", ilayer);
     energy_.push_back(fs->make<TH1D>(histoname, "Energy", 1000, 0, 10.0));
