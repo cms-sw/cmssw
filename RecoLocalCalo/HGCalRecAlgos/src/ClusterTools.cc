@@ -120,11 +120,15 @@ double ClusterTools::getMultiClusterEnergy(const reco::HGCalMultiCluster& clu) c
   return acc;
 }
 
-bool ClusterTools::getWidths(const reco::CaloCluster & clus,double & sigmaetaeta, double & sigmaphiphi, double & sigmaetaetal, double & sigmaphiphil ) const {
-
-  if (getLayer(clus.hitsAndFractions()[0].first) > (int) rhtools_.lastLayerEE()) return false;
-  const math::XYZPoint & position(clus.position());
-  unsigned nhit=clus.hitsAndFractions().size();
+bool ClusterTools::getWidths(const reco::CaloCluster& clus,
+                             double& sigmaetaeta,
+                             double& sigmaphiphi,
+                             double& sigmaetaetal,
+                             double& sigmaphiphil) const {
+  if (getLayer(clus.hitsAndFractions()[0].first) > (int)rhtools_.lastLayerEE())
+    return false;
+  const math::XYZPoint& position(clus.position());
+  unsigned nhit = clus.hitsAndFractions().size();
 
   sigmaetaeta = 0.;
   sigmaphiphi = 0.;

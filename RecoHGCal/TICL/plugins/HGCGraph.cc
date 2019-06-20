@@ -1,7 +1,7 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 11/2018
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/TICL/interface/Common.h"
+#include "DataFormats/RecoHGCal/interface/Common.h"
 #include "PatternRecognitionbyCA.h"
 #include "HGCDoublet.h"
 #include "HGCGraph.h"

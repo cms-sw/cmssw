@@ -4,7 +4,7 @@
 #ifndef RecoHGCal_TICL_TICLLayerTile_h
 #define RecoHGCal_TICL_TICLLayerTile_h
 
-#include "DataFormats/TICL/interface/Common.h"
+#include "DataFormats/RecoHGCal/interface/Common.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 namespace ticl {

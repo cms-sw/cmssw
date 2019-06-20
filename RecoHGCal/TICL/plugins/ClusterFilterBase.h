@@ -4,7 +4,7 @@
 #ifndef RecoHGCal_TICL_ClusterFilterBase_H__
 #define RecoHGCal_TICL_ClusterFilterBase_H__
 
-#include "DataFormats/TICL/interface/Common.h"
+#include "DataFormats/RecoHGCal/interface/Common.h"
 
 #include <memory>
 #include <vector>
