@@ -51,7 +51,7 @@ public:
   int zside() const { return (((id_ >> kHFNoseZsideOffset) & kHFNoseZsideMask) ? -1 : 1); }
 
   /// get the layer #
-  int layer() const { return ((id_ >> kHFNoseLayerOffset) & kHFNoseLayerMask)+1; }
+  int layer() const { return ((id_ >> kHFNoseLayerOffset) & kHFNoseLayerMask) + 1; }
 
   /// get the cell #'s in u,v or in x,y
   int cellU() const { return (id_ >> kHFNoseCellUOffset) & kHFNoseCellUMask; }
