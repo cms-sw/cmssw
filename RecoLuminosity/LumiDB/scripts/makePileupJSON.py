@@ -91,7 +91,7 @@ if __name__ == '__main__':
         # luminosity is present, which implies we're using a luminometer without BX data. In this case we
         # could just extrapolate from the previous good LS (just scaling the pileup by the ratio of
         # luminosity). In practice this is an extremely small number of lumi sections, and in 2018 the 14
-        # lumisections in normtag_PHYSICS without BX data (all RAMSES) are al lin periods with zero recorded
+        # lumisections in normtag_PHYSICS without BX data (all RAMSES) are all in periods with zero recorded
         # lumi, so they don't affect the resulting pileup at all. So for run 2 I haven't bothered to implement
         # this.
 
@@ -107,17 +107,15 @@ if __name__ == '__main__':
         total_lumi = 0 
         total_int = 0
         total_int2 = 0
-        total_weight = 0
         total_weight2 = 0
-        filled_xings = 0
 
         # first loop to get sum for (weighted) mean
         for bxid, bunch_del_lumi, bunch_rec_lumi in xing_lumi_array:
             total_lumi += bunch_rec_lumi
             # this will eventually be_pileup*bunch_rec_lumi but it's quicker to apply the factor once outside the loop
             total_int += bunch_del_lumi*bunch_rec_lumi
-            filled_xings += 1
-
+        # filled_xings = len(xing_lumi_array)
+        
         # convert sum to pileup and get the mean
         total_int *= parameters.orbitLength / parameters.lumiSectionLength
         if total_lumi > 0:
@@ -134,15 +132,14 @@ if __name__ == '__main__':
                 #print "mean number of pileup events for lum %d: m %f idx %d l %f" % (lumi_section, mean_pileup, bxid, bunch_rec_lumi)
 
             total_int2 += bunch_rec_lumi*(mean_pileup-mean_int)*(mean_pileup-mean_int)
-            total_weight += bunch_rec_lumi
             total_weight2 += bunch_rec_lumi*bunch_rec_lumi
 
         # compute final RMS and write it out
         #print " LS, Total lumi, filled xings %d, %f, %d" %(lumi_section,total_lumi,filled_xings)
         bunch_rms_lumi = 0
-        denom = total_weight*total_weight-total_weight2
+        denom = total_lumi*total_lumi-total_weight2
         if total_lumi > 0 and denom > 0:
-            bunch_rms_lumi = sqrt(total_weight*total_int2/denom)
+            bunch_rms_lumi = sqrt(total_lumi*total_int2/denom)
 
         output_line += "[%d,%2.4e,%2.4e,%2.4e]," % (lumi_section, total_lumi, bunch_rms_lumi, mean_int)
         last_valid_lumi = [lumi_section, total_lumi, bunch_rms_lumi, mean_int]
