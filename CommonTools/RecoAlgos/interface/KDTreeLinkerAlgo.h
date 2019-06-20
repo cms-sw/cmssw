@@ -123,7 +123,7 @@ public:
 
 private:
   // The node pool allow us to do just 1 call to new for each tree building.
-  KDTreeNodes<DATA,DIM> nodePool_;
+  KDTreeNodes<DATA, DIM> nodePool_;
 
   std::vector<DATA> *closestNeighbour;
   std::vector<KDTreeNodeInfo<DATA, DIM> > *initialEltList;
