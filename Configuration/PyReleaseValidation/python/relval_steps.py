@@ -1464,9 +1464,9 @@ steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18']=merge ([{'--filein':'lhe:1
 steps['Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_13UP18']=genvalid('Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_2p_HToGG_M125_LHE_py8_cff',step1GENNormal2018Default)
 
 #GEN-SIM inputs for pLHE-GEN-SIM workflows 2016,2017,2018
-steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17/%s/GEN-SIM'%(baseDataSetRelease[21],),location='STD')}
-steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
+#steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+#steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP17/%s/GEN-SIM'%(baseDataSetRelease[21],),location='STD')}
+#steps['GluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18INPUT']={'INPUT':InputInfo(dataSet='/RelValGluGluHToGG_M125_Pow_MINLO_NNLOPS_py8_13UP18/%s/GEN-SIM'%(baseDataSetRelease[22],),location='STD')}
 
 
 #Sherpa
