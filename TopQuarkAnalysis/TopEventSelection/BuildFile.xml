@@ -1,5 +1,6 @@
 <use   name="FWCore/Framework"/>
 <use   name="PhysicsTools/CandUtils"/>
+<use   name="PhysicsTools/MVATrainer"/>
 <use   name="TopQuarkAnalysis/TopTools"/>
 <use   name="DataFormats/PatCandidates"/>
 <use   name="AnalysisDataFormats/TopObjects"/>
