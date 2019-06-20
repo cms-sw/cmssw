@@ -313,7 +313,6 @@ void HcalDetId2DenseTester::doTestHcalCalibDetId(const HcalTopology& topology) {
 }
 
 void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topology) {
-
   // Check on Dense Index
   std::cout << "\nCheck on Dense Index for CalibDetId's" << std::endl
             << "=======================================" << std::endl;
@@ -325,13 +324,14 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
     for (int i2 = 0; i2 < 3; ++i2) {
       int channel = i2;
       for (int i3 = 0; i3 < 18; ++i3) {
-	int iphi = 4 * i3 + 3;
-	HcalCalibDetId cell(HcalBarrel, ieta, iphi, channel);
-	doTestOneCell(topology, "HcalBarrel", cell, all, total, good, bad);
+        int iphi = 4 * i3 + 3;
+        HcalCalibDetId cell(HcalBarrel, ieta, iphi, channel);
+        doTestOneCell(topology, "HcalBarrel", cell, all, total, good, bad);
       }
     }
   }
-  std::cout << "CalibHB:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n\n";
+  std::cout << "CalibHB:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+            << " bad DetId's\n\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -347,13 +347,14 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
     for (int i2 = 0; i2 < 7; ++i2) {
       int channel = i2;
       for (int i3 = 0; i3 < 18; ++i3) {
-	int iphi = 4 * i3 + 3;
-	HcalCalibDetId cell(HcalEndcap, ieta, iphi, channel);
-	doTestOneCell(topology, "HcalEndcap", cell, all, total, good, bad);
+        int iphi = 4 * i3 + 3;
+        HcalCalibDetId cell(HcalEndcap, ieta, iphi, channel);
+        doTestOneCell(topology, "HcalEndcap", cell, all, total, good, bad);
       }
     }
   }
-  std::cout << "CalibHE:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n\n";
+  std::cout << "CalibHE:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+            << " bad DetId's\n\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -362,7 +363,7 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
   total = 0;
   good = 0;
   bad = 0;
-  
+
   // CalibrationBox (HF)
   int chanHF[4] = {0, 1, 8, 9};
   for (int i1 = 0; i1 < 2; ++i1) {
@@ -371,13 +372,14 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       int channel = chanHF[i2];
       int phimax = (i2 == 3) ? 1 : 4;
       for (int i3 = 0; i3 < phimax; ++i3) {
-	int iphi = 18 * i3 + 3;
-	HcalCalibDetId cell(HcalForward, ieta, iphi, channel);
-	doTestOneCell(topology, "HcalForward", cell, all, total, good, bad);
+        int iphi = 18 * i3 + 3;
+        HcalCalibDetId cell(HcalForward, ieta, iphi, channel);
+        doTestOneCell(topology, "HcalForward", cell, all, total, good, bad);
       }
     }
   }
-  std::cout << "CalibHF:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n\n";
+  std::cout << "CalibHF:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+            << " bad DetId's\n\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -396,13 +398,14 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       int channel = chanHO[i2];
       int phimax = (i2 == 2) ? 1 : ((ieta == 0) ? 12 : 6);
       for (int i3 = 0; i3 < phimax; ++i3) {
-	int iphi = (i2 == 2) ? phiHO[i1] : ((ieta == 0) ? 6 * i3 + 5 : 12 * i3 + 11);
-	HcalCalibDetId cell(HcalOuter, ieta, iphi, channel);
-	doTestOneCell(topology, "HcalOuter", cell, all, total, good, bad);
+        int iphi = (i2 == 2) ? phiHO[i1] : ((ieta == 0) ? 6 * i3 + 5 : 12 * i3 + 11);
+        HcalCalibDetId cell(HcalOuter, ieta, iphi, channel);
+        doTestOneCell(topology, "HcalOuter", cell, all, total, good, bad);
       }
     }
   }
-  std::cout << "CalibHO:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n\n";
+  std::cout << "CalibHO:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+            << " bad DetId's\n\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -411,14 +414,14 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
   total = 0;
   good = 0;
   bad = 0;
-  
+
   // HOX
   int etaHOX[4] = {4, -4, 15, -15};
   for (int i1 = 0; i1 < 4; ++i1) {
     int ieta = etaHOX[i1];
     int phimax = (i1 < 2) ? 36 : 72;
     for (int i3 = 0; i3 < phimax; ++i3) {
-      int iphi = (i1 >= 2) ? i3 + 1 : ((i3 + 4)%12 < 6) ? 2 * i3 + 1 : 2 * i3 + 2;
+      int iphi = (i1 >= 2) ? i3 + 1 : ((i3 + 4) % 12 < 6) ? 2 * i3 + 1 : 2 * i3 + 2;
       HcalCalibDetId cell(HcalCalibDetId::HOCrosstalk, ieta, iphi);
       doTestOneCell(topology, "HOX", cell, all, total, good, bad);
     }
@@ -452,7 +455,7 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
   total = 0;
   good = 0;
   bad = 0;
-  
+
   // HEX
   int etaHEX[4] = {25, -25, 27, -27};
   for (int i1 = 0; i1 < 4; ++i1) {
@@ -468,18 +471,18 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
   totalT += total;
   goodT += good;
   badT += bad;
-  
-  std::cout << "\nAnalyzes total of " << allT << ":" << totalT << " CalibIds with " << goodT << " good and " << badT 
-	    << " bad DetId's" << std::endl;
+
+  std::cout << "\nAnalyzes total of " << allT << ":" << totalT << " CalibIds with " << goodT << " good and " << badT
+            << " bad DetId's" << std::endl;
 }
 
 void HcalDetId2DenseTester::doTestOneCell(const HcalTopology& topology,
-					  const std::string& det, 
-					  const HcalCalibDetId& cell,
-					  int& all,
-					  int& total,
-					  int& good,
-					  int& bad) {
+                                          const std::string& det,
+                                          const HcalCalibDetId& cell,
+                                          int& all,
+                                          int& total,
+                                          int& good,
+                                          int& bad) {
   std::string error;
   ++all;
   if (topology.validCalib(cell)) {
@@ -487,14 +490,14 @@ void HcalDetId2DenseTester::doTestOneCell(const HcalTopology& topology,
     unsigned int dense = topology.detId2denseIdCALIB(DetId(cell));
     DetId id = topology.denseId2detIdCALIB(dense);
     if (cell == HcalCalibDetId(id)) {
-      ++good; 
+      ++good;
       error = "";
     } else {
       ++bad;
       error = "***** ERROR *****";
     }
     std::cout << det << "[" << all << ":" << total << "] " << cell << " Dense " << dense << " o/p "
-	      << HcalCalibDetId(id) << " " << error << "\n";
+              << HcalCalibDetId(id) << " " << error << "\n";
   } else {
     std::cout << det << "[" << all << "] " << cell << "***** INVALID *****\n";
   }
