@@ -255,6 +255,7 @@ private:
   class EndRunSummaryProd : public edm::stream::EDProducer<edm::EndRunProducer, edm::RunSummaryCache<int>> {
   public:
     static unsigned int m_count;
+    static bool m_globalEndRunSummaryCalled;
     EndRunSummaryProd(edm::ParameterSet const&) {}
 
     void produce(edm::Event&, edm::EventSetup const&) override { ++m_count; }
@@ -266,9 +267,17 @@ private:
 
     void endRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
 
-    static void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, RunContext const*, int*) { ++m_count; }
+    static void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, RunContext const*, int*) {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == false);
+      m_globalEndRunSummaryCalled = true;
+    }
 
-    static void globalEndRunProduce(edm::Run&, edm::EventSetup const&, RunContext const*, int const*) { ++m_count; }
+    static void globalEndRunProduce(edm::Run&, edm::EventSetup const&, RunContext const*, int const*) {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == true);
+      m_globalEndRunSummaryCalled = false;
+    }
   };
 
   class EndLumiSummaryProd
@@ -321,6 +330,7 @@ unsigned int testStreamModule::EndRunProd::m_count = 0;
 unsigned int testStreamModule::BeginLumiProd::m_count = 0;
 unsigned int testStreamModule::EndLumiProd::m_count = 0;
 unsigned int testStreamModule::EndRunSummaryProd::m_count = 0;
+bool testStreamModule::EndRunSummaryProd::m_globalEndRunSummaryCalled = false;
 unsigned int testStreamModule::EndLumiSummaryProd::m_count = 0;
 bool testStreamModule::EndLumiSummaryProd::m_globalEndLuminosityBlockSummaryCalled = false;
 ///registration of the test so that the runner can find it

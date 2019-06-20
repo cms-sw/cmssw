@@ -235,6 +235,7 @@ private:
   class EndRunSummaryProd : public edm::global::EDProducer<edm::EndRunProducer, edm::RunSummaryCache<int>> {
   public:
     mutable unsigned int m_count = 0;
+    mutable bool m_globalEndRunSummaryCalled = false;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
 
     std::shared_ptr<int> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
@@ -244,9 +245,17 @@ private:
 
     void streamEndRunSummary(edm::StreamID, edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
 
-    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
+    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == false);
+      m_globalEndRunSummaryCalled = true;
+    }
 
-    void globalEndRunProduce(edm::Run&, edm::EventSetup const&, int const*) const override { ++m_count; }
+    void globalEndRunProduce(edm::Run&, edm::EventSetup const&, int const*) const override {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == true);
+      m_globalEndRunSummaryCalled = false;
+    }
   };
 
   class EndLumiSummaryProd
