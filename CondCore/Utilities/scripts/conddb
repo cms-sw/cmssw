@@ -928,11 +928,12 @@ def listRuns_(args):
     connection = connect(args)
     session = connection.session()
     RunInfo = session.get_dbtype(conddb.RunInfo)
-    output_table(args,
-        session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
+    table = session.query(RunInfo.run_number,RunInfo.start_time,RunInfo.end_time).\
             order_by(RunInfo.run_number).\
-            all(),
-        ['Run_number','Start_time','End_time'],
+            all()
+    for i in range(len(table)):
+        table[i] = table[i] + ( (calendar.timegm( table[i][1].utctimetuple() ) << 32), (calendar.timegm( table[i][2].utctimetuple() ) << 32) )
+    output_table(args, table, ['Run_number','Start_time','End_time','Start_IOV','End_IOV'],
     )
 
 def showFcsr_(args):
@@ -1768,6 +1769,7 @@ def edit(args):
                 return
 
             IOV = session.get_dbtype(conddb.IOV)
+            Payload = session.get_dbtype(conddb.Payload)
             table = session.query(IOV.since, IOV.insertion_time, IOV.payload_hash).\
                 filter(IOV.tag_name == name).\
                 order_by(IOV.since, IOV.insertion_time).\
@@ -1825,12 +1827,13 @@ def edit(args):
                 else:
                     raise Exception('Each line must contain the since, timestamp and payload fields in the required format.')
 
-                # If they payload length is equal, assume it exists --
-                # this avoids queries for the unmodified payloads.
+                # check payload hash format and existance...
                 if len(payload) > conddb.hash_length:
-                    raise Exception('Payload hash too long.')
+                    raise Exception('Payload hash "%s" too long.' %payload )
                 elif len(payload) < conddb.hash_length:
-                    payload = _get_payload_full_hash(session, payload)
+                    raise Exception('Payload hash "%s" too short.' %payload )
+                if not _exists(session, Payload.hash, payload):
+                    raise Exception('Payload hash "%s" not found in the database' %payload )
 
                 if insertion_timestamp == '-':
                     insertion_time = datetime.datetime.utcnow()
