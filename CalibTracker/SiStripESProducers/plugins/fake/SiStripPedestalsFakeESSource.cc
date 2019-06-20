@@ -21,6 +21,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 class SiStripPedestalsFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -35,10 +38,8 @@ public:
 private:
   uint32_t m_pedestalValue;
   uint32_t m_printDebug;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPedestalsFakeESSource::SiStripPedestalsFakeESSource(const edm::ParameterSet& iConfig)
 {
@@ -47,6 +48,7 @@ SiStripPedestalsFakeESSource::SiStripPedestalsFakeESSource(const edm::ParameterS
 
   m_pedestalValue = iConfig.getParameter<uint32_t>("PedestalValue");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
+  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
 }
 
 SiStripPedestalsFakeESSource::~SiStripPedestalsFakeESSource() {}
@@ -64,9 +66,8 @@ SiStripPedestalsFakeESSource::produce(const SiStripPedestalsRcd& iRecord)
 
   auto pedestals = std::make_unique<SiStripPedestals>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
   uint32_t count{0};
-  for ( const auto& elm : reader->getAllData() ) {
+  for ( const auto& elm : m_detInfoFileReader.getAllData() ) {
     //Generate Noises for det detid
     SiStripPedestals::InputVector theSiStripVector;
     for ( unsigned short j{0}; j < 128*elm.second.nApvs; ++j ) {

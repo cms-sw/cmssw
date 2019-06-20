@@ -21,6 +21,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripLatency.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 class SiStripLatencyFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -35,10 +38,8 @@ public:
 private:
   uint32_t m_latency;
   uint32_t m_mode;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripLatencyFakeESSource::SiStripLatencyFakeESSource(const edm::ParameterSet& iConfig)
 {
@@ -47,6 +48,7 @@ SiStripLatencyFakeESSource::SiStripLatencyFakeESSource(const edm::ParameterSet& 
 
   m_latency = iConfig.getParameter<uint32_t>("latency");
   m_mode = iConfig.getParameter<uint32_t>("mode");
+  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
 }
 
 SiStripLatencyFakeESSource::~SiStripLatencyFakeESSource() {}
@@ -64,8 +66,7 @@ SiStripLatencyFakeESSource::produce(const SiStripLatencyRcd& iRecord)
 
   auto latency = std::make_unique<SiStripLatency>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
-  const auto& detInfos = reader->getAllData();
+  const auto& detInfos = m_detInfoFileReader.getAllData();
   // Take the last detId. Since the map is sorted it will be the biggest value
   if ( ! detInfos.empty() ) {
     // Set the apv number as 6, the highest possible

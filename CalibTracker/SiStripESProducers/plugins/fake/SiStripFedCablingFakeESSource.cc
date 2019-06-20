@@ -21,6 +21,7 @@ SiStripFedCablingFakeESSource::SiStripFedCablingFakeESSource( const edm::Paramet
     pset_(pset)
 {
   findingRecord<SiStripFedCablingRcd>();
+  m_detInfoFileReader = SiStripDetInfoFileReader{pset.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
   edm::LogVerbatim("FedCabling") 
     << "[SiStripFedCablingFakeESSource::" << __func__ << "]"
     << " Constructing object...";
@@ -46,10 +47,8 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingR
   SiStripFecCabling* fec_cabling = new SiStripFecCabling();
   
   // Read DetId list from file
-  const edm::Service<SiStripDetInfoFileReader> Detreader;
   typedef std::vector<uint32_t>  Dets;
-  
-  Dets dets = Detreader->getAllDetIds();
+  Dets dets = m_detInfoFileReader.getAllDetIds();
   
   // Read FedId list from file
   typedef std::vector<uint16_t> Feds;
@@ -62,7 +61,7 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make( const SiStripFedCablingR
   Dets::const_iterator idet = dets.begin();
   Dets::const_iterator jdet = dets.end();
   for ( ; idet != jdet; ++idet ) {
-    uint16_t npairs =  Detreader->getNumberOfApvsAndStripLength(*idet).first / 2;
+    uint16_t npairs =  m_detInfoFileReader.getNumberOfApvsAndStripLength(*idet).first / 2;
     for ( uint16_t ipair = 0; ipair < npairs; ++ipair ) {
       uint16_t addr = 0;
       if      ( npairs == 2 && ipair == 0 ) { addr = 32; }

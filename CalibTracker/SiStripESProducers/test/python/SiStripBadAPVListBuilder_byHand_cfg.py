@@ -62,7 +62,6 @@ for det,napv in six.iteritems(detDict):
         )
 
 #Populate ES
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.load("CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi")
 from CalibTracker.SiStripESProducers.fake.SiStripBadModuleConfigurableFakeESSource_cfi import siStripBadModuleConfigurableFakeESSource
 siStripBadModuleConfigurableFakeESSource.doByAPVs = cms.untracked.bool(True)  

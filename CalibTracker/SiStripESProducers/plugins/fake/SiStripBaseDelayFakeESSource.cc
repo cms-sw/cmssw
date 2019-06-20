@@ -21,6 +21,9 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBaseDelay.h"
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 class SiStripBaseDelayFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
@@ -35,10 +38,8 @@ public:
 private:
   uint16_t m_coarseDelay;
   uint16_t m_fineDelay;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterSet& iConfig)
 {
@@ -47,6 +48,7 @@ SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterS
 
   m_coarseDelay = iConfig.getParameter<uint32_t>("CoarseDelay");
   m_fineDelay = iConfig.getParameter<uint32_t>("FineDelay");
+  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
 }
 
 SiStripBaseDelayFakeESSource::~SiStripBaseDelayFakeESSource() {}
@@ -64,12 +66,11 @@ SiStripBaseDelayFakeESSource::produce(const SiStripBaseDelayRcd& iRecord)
 
   auto baseDelay = std::make_unique<SiStripBaseDelay>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
-  const auto& detInfos = reader->getAllData();
+  const auto& detInfos = m_detInfoFileReader.getAllData();
   if ( detInfos.empty() ) {
     edm::LogError("SiStripBaseDelayGenerator") << "Error: detInfo map is empty.";
   }
-  for ( const auto& elm : reader->getAllData() ) {
+  for ( const auto& elm : m_detInfoFileReader.getAllData() ) {
     baseDelay->put(elm.first, m_coarseDelay, m_fineDelay);
   }
 

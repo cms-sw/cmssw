@@ -22,6 +22,8 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+
 class SiStripApvGainFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripApvGainFakeESSource(const edm::ParameterSet&);
@@ -38,10 +40,10 @@ private:
   double m_sigmaGain;
   double m_minimumPosValue;
   uint32_t m_printDebug;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CLHEP/Random/RandGauss.h"
 
 SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& iConfig)
@@ -54,6 +56,7 @@ SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& 
   m_sigmaGain = iConfig.getParameter<double>("SigmaGain");
   m_minimumPosValue = iConfig.getParameter<double>("MinPositiveGain");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
+  m_detInfoFileReader = SiStripDetInfoFileReader{iConfig.getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")).fullPath()};
 }
 
 SiStripApvGainFakeESSource::~SiStripApvGainFakeESSource() {}
@@ -71,9 +74,9 @@ SiStripApvGainFakeESSource::produce(const SiStripApvGainRcd& iRecord)
 
   auto apvGain = std::make_unique<SiStripApvGain>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
+
   uint32_t count{0};
-  for ( const auto& elm : reader->getAllData() ) {
+  for ( const auto& elm : m_detInfoFileReader.getAllData() ) {
     std::vector<float> theSiStripVector;
     for ( unsigned short j=0; j < elm.second.nApvs; ++j ){
       float gainValue;
