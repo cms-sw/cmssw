@@ -9,7 +9,7 @@ void SensitiveDetectorCatalog::insert(const std::string &cN, const std::string &
   theClassNameMap[cN].emplace_back(rN);
   theROUNameMap[rN].emplace_back(lvN);
 #ifdef DEBUG
-  LogDebug("SimG4CoreGeometry") << "SenstiveDetectorCatalog: insert (" << cN << "," << rN << "," << lvN << ")\n"
+  edm::LogVerbatim("SimG4CoreGeometry") << "SenstiveDetectorCatalog: insert (" << cN << "," << rN << "," << lvN << ")\n"
                                 << "                         has     " << readoutNames().size() << " ROUs "
                                 << readoutNames().front() << "\n"
                                 << "                         has     " << classNames().size() << " classes "

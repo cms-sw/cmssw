@@ -67,13 +67,11 @@ private:
   string_view keywordRegion_;
   unique_ptr<DDDWorld> world_;
   int verbosity_;
-  bool protonCut_;
 };
 
 DD4hepTestDDDWorld::DD4hepTestDDDWorld(const ParameterSet& iConfig)
     : tag_(iConfig.getParameter<ESInputTag>("DDDetector")) {
   keywordRegion_ = "CMSCutsRegion";
-  protonCut_ = iConfig.getUntrackedParameter<bool>("CutsOnProton", true);
   verbosity_ = iConfig.getUntrackedParameter<int>("Verbosity", 1);
   kernel_ = new G4MTRunManagerKernel();
 }
@@ -177,20 +175,17 @@ void DD4hepTestDDDWorld::update() {
 
     auto positroncutStr = it.second->strValue("ProdCutsForPositrons");
     double positroncut = dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()});
-    double protoncut = 0.0;
+    
+    auto protoncutStr = it.second->strValue("ProdCutsForProtons");
+    double protoncut = dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()});
 
     //
-    // For the moment I assume all of the three are set
+    // For the moment I assume all of the four are set
     //
     G4ProductionCuts* prodCuts = getProductionCuts(region);
     prodCuts->SetProductionCut(gammacut, idxG4GammaCut);
     prodCuts->SetProductionCut(electroncut, idxG4ElectronCut);
     prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
-
-    // For recoil use the same cut as for e-
-    if (protonCut_) {
-      protoncut = electroncut;
-    }
     prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
     if (verbosity_ > 0) {
       LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << regName

@@ -118,7 +118,6 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         type = cms.string('SimG4Core/Physics/FTFP_BERT_EMM'),
         DummyEMPhysics = cms.bool(False),
         CutsPerRegion = cms.bool(True),
-        CutsOnProton  = cms.untracked.bool(True),
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
         Verbosity = cms.untracked.int32(0),
