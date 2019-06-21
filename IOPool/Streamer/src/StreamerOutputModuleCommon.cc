@@ -196,6 +196,8 @@ namespace edm {
       EventForOutput const& e,
       Handle<TriggerResults> const& triggerResults,
       ParameterSetID const& selectorCfg) {
+
+    constexpr unsigned int reserve_size = SerializeDataBuffer::reserve_size;
     //Lets Build the Event Message first
 
     //Following is strictly DUMMY Data for L! Trig and will be replaced with actual

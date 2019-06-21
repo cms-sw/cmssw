@@ -243,7 +243,7 @@ namespace edm {
           data_buffer.comp_buf_.resize(dest_size + reserveSize);
         std::copy((char *)data_buffer.rootbuf_.Buffer(),
                   (char *)data_buffer.rootbuf_.Buffer() + dest_size,
-                  (char *)(&data_buffer.comp_buf_[reserve_size]));
+                  (char *)(&data_buffer.comp_buf_[SerializeDataBuffer::reserve_size]));
         break;
     };
 

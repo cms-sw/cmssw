@@ -18,12 +18,12 @@
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-const int init_size = 0;  //will be allocated on first event
-const unsigned int reserve_size = 50000;
 
 // Data structure to be shared by all output modules for event serialization
 struct SerializeDataBuffer {
   typedef std::vector<char> SBuffer;
+  static constexpr int init_size = 0;  //will be allocated on first event
+  static constexpr unsigned int reserve_size = 50000;
 
   SerializeDataBuffer()
       : comp_buf_(reserve_size + init_size),
