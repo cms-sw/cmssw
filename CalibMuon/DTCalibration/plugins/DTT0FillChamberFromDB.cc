@@ -29,7 +29,7 @@ DTT0FillChamberFromDB::DTT0FillChamberFromDB(const ParameterSet& pset):
   chamberRef_( pset.getParameter<string>("chamberId") ) {
 
   //DTChamberId chosenChamberId;
-  if( chamberRef_ != "" && chamberRef_ != "None" ){
+  if( !chamberRef_.empty() && chamberRef_ != "None" ){
     stringstream linestr;
     int selWheel, selStation, selSector;
     linestr << chamberRef_;
@@ -65,7 +65,7 @@ DTT0Data DTT0FillChamberFromDB::correction(const DTWireId& wireId) {
  
   DTChamberId chamberId = wireId.layerId().superlayerId().chamberId();
 
-  if( chamberRef_ != "" && chamberRef_ != "None" && chamberId == chosenChamberId_ ){
+  if( !chamberRef_.empty() && chamberRef_ != "None" && chamberId == chosenChamberId_ ){
      // Access reference DB
      float t0MeanRef,t0RMSRef;
      int statusRef = t0MapRef_->get(wireId,t0MeanRef,t0RMSRef,DTTimeUnits::counts);

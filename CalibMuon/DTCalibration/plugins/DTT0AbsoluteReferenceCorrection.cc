@@ -29,7 +29,7 @@ DTT0AbsoluteReferenceCorrection::DTT0AbsoluteReferenceCorrection(const Parameter
    reference_( pset.getParameter<double>("reference") ) {
 
    //DTChamberId chosenChamberId;
-   if( calibChamber_ != "" && calibChamber_ != "None" && calibChamber_ != "All" ){
+   if( !calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All" ){
       stringstream linestr;
       int selWheel, selStation, selSector;
       linestr << calibChamber_;
@@ -56,7 +56,7 @@ DTT0Data DTT0AbsoluteReferenceCorrection::correction(const DTWireId& wireId) {
 
    DTChamberId chamberId = wireId.layerId().superlayerId().chamberId();
 
-   if( calibChamber_ == "" || calibChamber_ == "None" )          return defaultT0(wireId);
+   if( calibChamber_.empty() || calibChamber_ == "None" )          return defaultT0(wireId);
    if( calibChamber_ != "All" && chamberId != chosenChamberId_ ) return defaultT0(wireId);
 
    // Access DB

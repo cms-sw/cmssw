@@ -27,7 +27,7 @@ DTTTrigConstantShift::DTTTrigConstantShift(const ParameterSet& pset):
 
   LogVerbatim("Calibration") << "[DTTTrigConstantShift] Applying constant correction value: " << value_ << endl;
 
-  if( calibChamber_ != "" && calibChamber_ != "None" && calibChamber_ != "All" ){
+  if( !calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All" ){
     stringstream linestr;
     int selWheel, selStation, selSector;
     linestr << calibChamber_;
@@ -55,7 +55,7 @@ DTTTrigData DTTTrigConstantShift::correction(const DTSuperLayerId& slId) {
                                                                  << slId << endl;
 
   float tTrigMeanNew = tTrigMean;
-  if( calibChamber_ != "" && calibChamber_ != "None"){
+  if( !calibChamber_.empty() && calibChamber_ != "None"){
      if( ( calibChamber_ == "All" ) ||
          ( calibChamber_ != "All" && slId.chamberId() == chosenChamberId_ ) ) {
         tTrigMeanNew = tTrigMean + value_; 
