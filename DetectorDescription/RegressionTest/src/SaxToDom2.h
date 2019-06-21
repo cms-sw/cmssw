@@ -16,26 +16,22 @@
 
 class AttributeList;
 
-class SaxToDom2 : public XERCES_CPP_NAMESPACE::DefaultHandler
-{
-
+class SaxToDom2 : public XERCES_CPP_NAMESPACE::DefaultHandler {
 public:
   using Attributes = XERCES_CPP_NAMESPACE::Attributes;
   using SAXParseException = XERCES_CPP_NAMESPACE::SAXParseException;
   SaxToDom2();
   ~SaxToDom2() override;
   void startElement(const XMLCh* uri, const XMLCh* localname, const XMLCh* qname, const Attributes& attrs) override;
-  void endElement(const XMLCh* uri,
-		  const XMLCh* name, 
-		  const XMLCh* qname) override;
-  const TinyDom2 & dom() const;
+  void endElement(const XMLCh* uri, const XMLCh* name, const XMLCh* qname) override;
+  const TinyDom2& dom() const;
 
   // errors
   void error(const SAXParseException& e) override;
-  
+
 private:
   std::vector<Node2> parent_;
-  TinyDom2 dom_; 
+  TinyDom2 dom_;
 };
 
 #endif
