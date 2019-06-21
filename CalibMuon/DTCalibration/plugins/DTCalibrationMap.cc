@@ -161,7 +161,7 @@ void DTCalibrationMap::readConsts(const string& inputFileName) {
 
   // Read all the lines
   while (getline(file,line)) {
-    if( line == "" || line[0] == '#' ) continue; // Skip comments and empty lines
+    if( line.empty() || line[0] == '#' ) continue; // Skip comments and empty lines
     stringstream linestr;
     linestr << line;
 

@@ -42,7 +42,7 @@ void DTMapGenerator::endJob() {
   // Read the map between DDU - ROS and Chambers
   string lineMap;
   while (getline(existingChannels,lineMap)) {
-    if( lineMap == "" || lineMap[0] == '#' ) continue; // Skip comments and empty lines
+    if( lineMap.empty() || lineMap[0] == '#' ) continue; // Skip comments and empty lines
     stringstream linestr;
     linestr << lineMap;
     int wheelEx, stationEx, sectorEx, slEx, layerEx, wireEx;
@@ -61,7 +61,7 @@ void DTMapGenerator::endJob() {
   // Read the map between DDU - ROS and Chambers
   string line;
   while (getline(skeletonMap,line)) {
-    if( line == "" || line[0] == '#' ) continue; // Skip comments and empty lines
+    if( line.empty() || line[0] == '#' ) continue; // Skip comments and empty lines
     stringstream linestr;
     linestr << line;
     int ddu, ros, wheel, station, sector;
@@ -81,7 +81,7 @@ void DTMapGenerator::endJob() {
 
     string lineChamberMap;
     while (getline(chamberMap,lineChamberMap)) {
-      if( lineChamberMap == "" || lineChamberMap[0] == '#' ) continue; // Skip comments and empty lines
+      if( lineChamberMap.empty() || lineChamberMap[0] == '#' ) continue; // Skip comments and empty lines
       stringstream chamberMapStr;
       chamberMapStr << lineChamberMap;
       
