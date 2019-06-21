@@ -827,6 +827,9 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return config
     def dumpPython(self, options=PrintOptions()):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
+    # XXX FIXME handle refToPSet
+    def directDependencies(self):
+        return []
     def clone(self, **params):
         myparams = self.parameters_()
         _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
