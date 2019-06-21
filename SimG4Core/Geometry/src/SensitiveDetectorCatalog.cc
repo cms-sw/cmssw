@@ -10,16 +10,16 @@ void SensitiveDetectorCatalog::insert(const std::string &cN, const std::string &
   theROUNameMap[rN].emplace_back(lvN);
 #ifdef DEBUG
   edm::LogVerbatim("SimG4CoreGeometry") << "SenstiveDetectorCatalog: insert (" << cN << "," << rN << "," << lvN << ")\n"
-                                << "                         has     " << readoutNames().size() << " ROUs "
-                                << readoutNames().front() << "\n"
-                                << "                         has     " << classNames().size() << " classes "
-                                << classNames().front();
+                                        << "                         has     " << readoutNames().size() << " ROUs "
+                                        << readoutNames().front() << "\n"
+                                        << "                         has     " << classNames().size() << " classes "
+                                        << classNames().front();
 #endif
 }
 
 std::vector<std::string> SensitiveDetectorCatalog::readoutNames() const {
   std::vector<std::string> temp;
-  for (auto const& it : theROUNameMap)
+  for (auto const &it : theROUNameMap)
     temp.emplace_back(it.first);
   return temp;
 }
@@ -35,15 +35,15 @@ const std::vector<std::string> &SensitiveDetectorCatalog::logicalNames(const std
 std::vector<std::string> SensitiveDetectorCatalog::logicalNamesFromClassName(const std::string &className) const {
   std::vector<std::string> temp;
   const std::vector<std::string> &rous = theClassNameMap.at(className);
-  for (auto const& it : rous)
+  for (auto const &it : rous)
     temp.emplace_back(it);
   return temp;
 }
 
 std::string SensitiveDetectorCatalog::className(const std::string &readoutName) const {
-  for (auto const& it : theClassNameMap) {
+  for (auto const &it : theClassNameMap) {
     std::vector<std::string> temp = it.second;
-    for (auto const& it2 : temp) {
+    for (auto const &it2 : temp) {
       if (it2 == readoutName)
         return it.first;
     }
@@ -53,7 +53,7 @@ std::string SensitiveDetectorCatalog::className(const std::string &readoutName) 
 
 std::vector<std::string> SensitiveDetectorCatalog::classNames() const {
   std::vector<std::string> temp;
-  for (auto const& it : theClassNameMap)
+  for (auto const &it : theClassNameMap)
     temp.emplace_back(it.first);
   return temp;
 }
