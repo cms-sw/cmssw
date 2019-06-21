@@ -1151,7 +1151,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
       histograms.h_score_layercl2caloparticle_perlayer.at(lcLayerId).fill(cpPair.second);
       auto const& cp_linked = cPOnLayer[cpPair.first][lcLayerId].layerClusterIdToEnergyAndScore[lcId];
       histograms.h_sharedenergy_layercl2caloparticle_perlayer.at(lcLayerId).fill(cp_linked.first /
-                                                                                 clusters[lcId].energy());
+                                                                                 clusters[lcId].energy(), clusters[lcId].energy());
       histograms.h_energy_vs_score_layercl2caloparticle_perlayer.at(lcLayerId).fill(
           cpPair.second > 1. ? 1. : cpPair.second, cp_linked.first / clusters[lcId].energy());
     }
@@ -1257,7 +1257,7 @@ void HGVHistoProducerAlgo::layerClusters_to_CaloParticles(const Histograms& hist
                   << "shared energy fraction:\t" << (lcPair.second.first / CPenergy) << "\n";
         histograms.h_score_caloparticle2layercl_perlayer.at(layerId).fill(
             lcPair.second.second > 1. ? 1. : lcPair.second.second);
-        histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId).fill(lcPair.second.first / CPenergy);
+        histograms.h_sharedenergy_caloparticle2layercl_perlayer.at(layerId).fill(lcPair.second.first / CPenergy, CPenergy);
         histograms.h_energy_vs_score_caloparticle2layercl_perlayer.at(layerId).fill(
             lcPair.second.second > 1. ? 1. : lcPair.second.second, lcPair.second.first / CPenergy);
       }
