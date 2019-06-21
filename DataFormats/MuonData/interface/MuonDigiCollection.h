@@ -56,10 +56,10 @@ template <typename IndexType, typename DigiType>
     DigiContainerIterator &operator++ (void)
     { ++base_; return *this; }
 
-    bool operator== (const DigiContainerIterator &x) const
+    bool operator== (const DigiContainerIterator &x)
     { return x.base_ == base_; }
 
-    bool operator!= (const DigiContainerIterator &x) const
+    bool operator!= (const DigiContainerIterator &x)
     { return x.base_ != base_; }
 
     value_type operator* (void) const
@@ -170,6 +170,69 @@ template <typename IndexType,
 inline
 void swap(MuonDigiCollection<IndexType,DigiType> & rh,
           MuonDigiCollection<IndexType,DigiType> & lh){ rh.swap(lh);}
+
+
+
+// NICOLA // for making references
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/traits.h"
+
+namespace edm
+{
+  namespace refhelper
+  {
+    template< typename IndexType, typename DigiType >
+    class FindForMuonDigiCollection : public std::binary_function< const MuonDigiCollection< IndexType, DigiType >&, std::pair< IndexType, typename std::vector< DigiType >::size_type >, const DigiType* >
+    {
+      public:
+        typedef FindForMuonDigiCollection< IndexType, DigiType > Self;
+        typename Self::result_type operator()
+        ( typename Self::first_argument_type iContainer, typename Self::second_argument_type iIndex ) const
+        {
+//          typedef MuonDigiCollection< IndexType, DigiType > Cont;
+          return &(*(iContainer.get(iIndex.first).first + iIndex.second));
+        }
+    };
+
+    template< typename IndexType, typename DigiType >
+    struct FindTrait< MuonDigiCollection< IndexType, DigiType >, DigiType >
+    {
+      typedef FindForMuonDigiCollection< IndexType, DigiType > value;
+    };
+  }
+}
+
+template< typename IndexType, typename DigiType >
+edm::Ref< MuonDigiCollection< IndexType, DigiType >, DigiType >
+makeRefToMuons( const edm::Handle< MuonDigiCollection< IndexType, DigiType > >& iHandle,
+                const IndexType& iDetID,
+                typename std::vector<DigiType>::const_iterator itIter ) //const
+{
+  unsigned long int index = 0;
+  typename std::vector<DigiType>::const_iterator theFirstOne = iHandle->get(iDetID).first;
+  index += ( itIter - theFirstOne );
+  return edm::Ref< MuonDigiCollection< IndexType, DigiType >, DigiType >( iHandle, std::make_pair( iDetID, index ) );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #endif
 
