@@ -22,11 +22,10 @@
 
 #include "Fireworks/Core/interface/FWItemRandomAccessor.h"
 
-REGISTER_TEMPLATE_FWITEMACCESSOR(
-    BXVectorAccessor<BXVector<l1t::HGCalTriggerCell>>, 
-    BXVector<l1t::HGCalTriggerCell>, "HGCalTriggerCellCollectionAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(BXVectorAccessor<BXVector<l1t::HGCalTriggerCell>>,
+                                 BXVector<l1t::HGCalTriggerCell>,
+                                 "HGCalTriggerCellCollectionAccessor");
 
-REGISTER_TEMPLATE_FWITEMACCESSOR(
-    BXVectorAccessor<BXVector<l1t::HGCalMulticluster>>, 
-    BXVector<l1t::HGCalMulticluster>, "HGCalTriggerClusterCollectionAccessor");
-
+REGISTER_TEMPLATE_FWITEMACCESSOR(BXVectorAccessor<BXVector<l1t::HGCalMulticluster>>,
+                                 BXVector<l1t::HGCalMulticluster>,
+                                 "HGCalTriggerClusterCollectionAccessor");
