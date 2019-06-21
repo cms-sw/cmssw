@@ -23,27 +23,27 @@ class TFile;
 
 namespace dtCalibration {
 
-class DTTTrigT0SegCorrection: public DTTTrigBaseCorrection {
-public:
-  // Constructor
-  DTTTrigT0SegCorrection(const edm::ParameterSet&);
+  class DTTTrigT0SegCorrection : public DTTTrigBaseCorrection {
+  public:
+    // Constructor
+    DTTTrigT0SegCorrection(const edm::ParameterSet&);
 
-  // Destructor
-  ~DTTTrigT0SegCorrection() override;
+    // Destructor
+    ~DTTTrigT0SegCorrection() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTTTrigData correction(const DTSuperLayerId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTTTrigData correction(const DTSuperLayerId&) override;
 
-private:
-  const TH1F* getHisto(const DTSuperLayerId&);
-  std::string getHistoName(const DTSuperLayerId& slID);
+  private:
+    const TH1F* getHisto(const DTSuperLayerId&);
+    std::string getHistoName(const DTSuperLayerId& slID);
 
-  TFile* rootFile_;
+    TFile* rootFile_;
 
-  std::string dbLabel;
+    std::string dbLabel;
 
-  const DTTtrig *tTrigMap_;
-};
+    const DTTtrig* tTrigMap_;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

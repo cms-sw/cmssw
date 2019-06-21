@@ -30,15 +30,15 @@ public:
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
   void endJob() override;
-  
+
 private:
   typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMapTH1F;
   typedef std::map<DTChamberId, std::vector<TH2F*> > ChamberHistosMapTH2F;
   void bookHistos(DTChamberId);
 
-  DTSegmentSelector *select_;
+  DTSegmentSelector* select_;
 
-  edm::InputTag  theRecHits4DLabel_;
+  edm::InputTag theRecHits4DLabel_;
   //bool writeVDriftDB_;
   std::string theCalibChamber_;
 
@@ -47,4 +47,3 @@ private:
   ChamberHistosMapTH2F theVDriftHistoMapTH2F_;
 };
 #endif
-

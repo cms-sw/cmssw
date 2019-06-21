@@ -28,10 +28,8 @@ class DTT0;
 class DTT0Rcd;
 class DTLayerId;
 
-class DTFakeT0ESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
-
+class DTFakeT0ESProducer : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-
   DTFakeT0ESProducer(const edm::ParameterSet& pset);
 
   ~DTFakeT0ESProducer() override;
@@ -39,13 +37,13 @@ public:
   std::unique_ptr<DTT0> produce(const DTT0Rcd& iRecord);
 
 private:
-
   void parseDDD(const DTT0Rcd& iRecord);
 
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
-		      edm::ValidityInterval & oValidity) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval& oValidity) override;
 
-  std::map<DTLayerId,std::pair<unsigned int,unsigned int> > theLayerIdWiresMap;
+  std::map<DTLayerId, std::pair<unsigned int, unsigned int> > theLayerIdWiresMap;
 
   //t0 mean and sigma values read from cfg
   double t0Mean;
