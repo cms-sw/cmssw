@@ -1726,8 +1726,6 @@ for i in range(HEScintillator_min,HEScintillator_max+1):
 
 _common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
 
-_common = {"stat": True, "drawStyle": "hist", "staty": 0.65, "ymin": 0.1, "ylog": True}
-
 _DigiHits_TOA_EE = PlotGroup("DigiHits_TOA_EE", [
                                                  Plot("TOA_layer_{:02d}".format(i), title="DigiHits_TOA_EE", xtitle="Layer {}".format(i), **_common) for i in range(EE_min,EE_max+1)
                                                  ], ncols=4)
