@@ -41,7 +41,6 @@ def main(opts):
 	hgchit = [hgcalPlots.hgcalHitPlotter]
         val.doPlots(hgchit, plotterDrawArgs=drawArgs)
 
-    print()
     if opts.no_html:
         print("Plots created into directory '%s'." % opts.outputDir)
     else:
