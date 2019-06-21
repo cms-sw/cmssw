@@ -29,9 +29,8 @@ class MuonGeometryRecord;
 
 class GlobalTrackingGeometryESProducer : public edm::ESProducer {
 public:
-
   /// Constructor
-  GlobalTrackingGeometryESProducer(const edm::ParameterSet & p);
+  GlobalTrackingGeometryESProducer(const edm::ParameterSet& p);
 
   /// Destructor
   ~GlobalTrackingGeometryESProducer() override;
@@ -39,8 +38,7 @@ public:
   /// Produce GlobalTrackingGeometry
   std::unique_ptr<GlobalTrackingGeometry> produce(const GlobalTrackingGeometryRecord& record);
 
-private:  
-
+private:
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerToken_;
   edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdToken_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtToken_;
@@ -50,9 +48,3 @@ private:
   edm::ESGetToken<ME0Geometry, MuonGeometryRecord> me0Token_;
 };
 #endif
-
-
-
-
-
-
