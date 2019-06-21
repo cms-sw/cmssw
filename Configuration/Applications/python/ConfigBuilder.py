@@ -6,12 +6,12 @@ __source__ = "$Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python
 
 import FWCore.ParameterSet.Config as cms
 from FWCore.ParameterSet.Modules import _Module
-
 import six
 # The following import is provided for backward compatibility reasons.
 # The function used to be defined in this file.
 from FWCore.ParameterSet.MassReplace import massReplaceInputTag as MassReplaceInputTag
 
+import hashlib
 import sys
 import re
 import collections
@@ -297,12 +297,11 @@ class ConfigBuilder(object):
 
 
         if not profilerFormat:
-            profilerFormat = "%s___%s___%s___%s___%s___%s___%%I.gz" % (self._options.evt_type.replace("_cfi", ""),
-                                                                       self._options.step,
-                                                                       self._options.pileup,
-                                                                       self._options.conditions,
-                                                                       self._options.datatier,
-                                                                       self._options.profileTypeLabel)
+            profilerFormat = "%s___%s___%s___%%I.gz" % (
+                self._options.evt_type.replace("_cfi", ""),
+                self._options.step,
+                hashlib.md5(str(self._options.pileup) + str(self._options.conditions) + str(self._options.datatier) + str(self._options.profileTypeLabel)).hexdigest()
+            )
         if not profilerJobFormat and profilerFormat.endswith(".gz"):
             profilerJobFormat = profilerFormat.replace(".gz", "_EndOfJob.gz")
         elif not profilerJobFormat:
