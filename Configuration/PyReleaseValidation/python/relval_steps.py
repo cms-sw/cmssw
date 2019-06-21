@@ -1431,7 +1431,7 @@ step1LHENormal = {'--relval'     : '10000,50',
                  '--datatier'    : 'LHE',
                  '--eventcontent': 'LHE',
                  '--era'         : 'Run2_2016',
-                 '-n'            : 100,
+                 '-n'            : 10,
                  }
 # followed by GEN-SIM step
 step1GENNormal = {'--relval'     : '10000,50',
