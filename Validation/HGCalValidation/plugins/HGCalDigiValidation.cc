@@ -384,33 +384,37 @@ void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB, edm::Run const&,
   std::ostringstream histoname;
   for (int il = 0; il < layers_; ++il) {
     int ilayer = firstLayer_ + il;
+    auto istr1 = std::to_string(ilayer);
+    while (istr1.size() < 2) {
+      istr1.insert(0, "0");
+    }
     histoname.str("");
     histoname << "TOA_"
-              << "layer_" << ilayer;
+              << "layer_" << istr1;
     TOA_.push_back(iB.book1D(histoname.str().c_str(), "toa_", 1024, 0, 1024));
 
     histoname.str("");
     histoname << "ADC_"
-              << "layer_" << ilayer;
+              << "layer_" << istr1;
     ADC_.push_back(iB.book1D(histoname.str().c_str(), "ADCDigiOccupancy", 1024, 0, 1024));
 
     histoname.str("");
     histoname << "TOT_"
-              << "layer_" << ilayer;
+              << "layer_" << istr1;
     TOT_.push_back(iB.book1D(histoname.str().c_str(), "TOTDigiOccupancy", 4096, 0, 4096));
 
     histoname.str("");
     histoname << "DigiOccupancy_XY_"
-              << "layer_" << ilayer;
+              << "layer_" << istr1;
     DigiOccupancy_XY_.push_back(iB.book2D(histoname.str().c_str(), "DigiOccupancy", 50, -500, 500, 50, -500, 500));
 
     histoname.str("");
     histoname << "DigiOccupancy_Plus_"
-              << "layer_" << ilayer;
+              << "layer_" << istr1;
     DigiOccupancy_Plus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy +z", 100, 0, 1000));
     histoname.str("");
     histoname << "DigiOccupancy_Minus_"
-              << "layer_" << ilayer;
+              << "layer_" << istr1;
     DigiOccupancy_Minus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy -z", 100, 0, 1000));
   }
 
