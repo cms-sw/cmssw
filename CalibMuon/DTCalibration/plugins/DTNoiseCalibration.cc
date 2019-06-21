@@ -68,7 +68,7 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
     vector<string> cellsWithHisto = pset.getParameter<vector<string> >("cellsWithHisto");
     for (vector<string>::const_iterator cell = cellsWithHisto.begin(); cell != cellsWithHisto.end(); ++cell) {
       //FIXME: Use regex to check whether format is right
-      if (cell->empty() && (*cell) != "None") {
+      if ((!cell->empty()) && (*cell) != "None") {
         stringstream linestr;
         int wheel, station, sector, sl, layer, wire;
         linestr << (*cell);
