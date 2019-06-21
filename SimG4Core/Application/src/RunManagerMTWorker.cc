@@ -286,7 +286,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   edm::ESTransientHandle<DDCompactView> pDD;
   if (geoFromDD4hep) {
     es.get<IdealGeometryRecord>().get(pDD4hep);
-  } else {  
+  } else {
     es.get<IdealGeometryRecord>().get(pDD);
   }
 

@@ -60,8 +60,8 @@ void DDG4ProductionCuts::initialize() {
   sort(vec_.begin(), vec_.end(), &dd_is_greater);
   if (verbosity_ > 0) {
     edm::LogVerbatim("Physics") << " DDG4ProductionCuts (New) : starting\n"
-                        << " DDG4ProductionCuts : Got " << vec_.size() << " region roots.\n"
-                        << " DDG4ProductionCuts : List of all roots:";
+                                << " DDG4ProductionCuts : Got " << vec_.size() << " region roots.\n"
+                                << " DDG4ProductionCuts : List of all roots:";
     for (size_t jj = 0; jj < vec_.size(); ++jj)
       edm::LogVerbatim("Physics") << "   DDG4ProductionCuts : root=" << vec_[jj].second.name();
   }
@@ -78,7 +78,8 @@ void DDG4ProductionCuts::initialize() {
     region->AddRootLogicalVolume((*tit).first);
 
     if (verbosity_ > 0)
-      edm::LogVerbatim("Physics") << " MakeRegions: added " << ((*tit).first)->GetName() << " to region " << region->GetName();
+      edm::LogVerbatim("Physics") << " MakeRegions: added " << ((*tit).first)->GetName() << " to region "
+                                  << region->GetName();
   }
 }
 
@@ -141,8 +142,9 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume*
   prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
   prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
   if (verbosity_ > 0) {
-    edm::LogVerbatim("Physics") << "DDG4ProductionCuts : Setting cuts for " << regionName << "\n    Electrons: " << electroncut
-                        << "\n    Positrons: " << positroncut << "\n    Gamma    : " << gammacut;
+    edm::LogVerbatim("Physics") << "DDG4ProductionCuts : Setting cuts for " << regionName
+                                << "\n    Electrons: " << electroncut << "\n    Positrons: " << positroncut
+                                << "\n    Gamma    : " << gammacut;
   }
 }
 
