@@ -28,10 +28,10 @@ private:
   edm::EDGetTokenT<reco::GsfElectronCollection> gsfEleToken_;
   edm::EDGetTokenT<edm::View<pat::Electron> > patEleToken_;
   edm::EDGetTokenT<edm::ValueMap<bool> > idDecisionMapToken_;  //a bool true=passed ID, false = failed ID
-  edm::EDGetTokenT<edm::ValueMap<unsigned> >
-      firstIdCutFailedMapToken_;  //the number of the first cut failed in the order they are defined in the PSet starting at zero (ie if you et,dEtaIn,dPhiIn,hadem cuts defined and it passed et,dEtaIn but failed dPhiIn, this number would be 2, in the case of no cuts failed it is #cuts
-  edm::EDGetTokenT<std::string>
-      idMD5NameToken_;  //the md5sum of the ID you are using (E/gamma might ask you for this to verify you are running the right ID)
+  //the number of the first cut failed in the order they are defined in the PSet starting at zero (ie if you et,dEtaIn,dPhiIn,hadem cuts defined and it passed et,dEtaIn but failed dPhiIn, this number would be 2, in the case of no cuts failed it is #cuts
+  edm::EDGetTokenT<edm::ValueMap<unsigned> > firstIdCutFailedMapToken_;
+  //the md5sum of the ID you are using (E/gamma might ask you for this to verify you are running the right ID)
+  edm::EDGetTokenT<std::string> idMD5NameToken_;
 
   size_t nrPassID_;
   size_t nrFailID_;
@@ -82,8 +82,8 @@ void VIDUsageExample::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   if (patEles.isValid()) {  //we have pat electrons availible use them
     for (auto ele = patEles->begin(); ele != patEles->end(); ++ele) {
-      const edm::Ptr<pat::Electron> elePtr(
-          patEles, ele - patEles->begin());    //value map is keyed of edm::Ptrs so we need to make one
+      //value map is keyed of edm::Ptrs so we need to make one
+      const edm::Ptr<pat::Electron> elePtr(patEles, ele - patEles->begin());
       bool passID = (*idDecisionMap)[elePtr];  //a bool, true if it passed the ID, false if it didnt
       if (passID) {
         std::cout << "pat ele passed ID" << std::endl;
@@ -96,8 +96,8 @@ void VIDUsageExample::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
   } else if (gsfEles.isValid()) {  //no pat electrons availible, fall back to GsfElectrons
     for (auto ele = gsfEles->begin(); ele != gsfEles->end(); ++ele) {
-      const edm::Ptr<reco::GsfElectron> elePtr(
-          gsfEles, ele - gsfEles->begin());    //value map is keyed of edm::Ptrs so we need to make one
+      //value map is keyed of edm::Ptrs so we need to make one
+      const edm::Ptr<reco::GsfElectron> elePtr(gsfEles, ele - gsfEles->begin());
       bool passID = (*idDecisionMap)[elePtr];  //a bool, true if it passed the ID, false if it didnt
       if (passID) {
         std::cout << "gsf ele passed ID" << std::endl;
