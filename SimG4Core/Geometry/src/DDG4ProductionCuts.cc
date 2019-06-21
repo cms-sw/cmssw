@@ -11,9 +11,8 @@
 DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map,
                                        int verb,
                                        const edm::ParameterSet& p)
-    : map_(map), m_Verbosity(verb) {
-  m_KeywordRegion = "CMSCutsRegion";
-  m_protonCut = p.getUntrackedParameter<bool>("CutsOnProton", true);
+    : map_(map), verbosity_(verb) {
+  keywordRegion_ = "CMSCutsRegion";
   initialize();
 }
 
@@ -47,30 +46,30 @@ void DDG4ProductionCuts::update() {
   //
   // Loop over all DDLP and provide the cuts for each region
   //
-  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin(); tit != vec_.end(); tit++) {
-    setProdCuts((*tit).second, (*tit).first);
+  for (auto const& tit : vec_) {
+    setProdCuts(tit.second, tit.first);
   }
 }
 
 void DDG4ProductionCuts::initialize() {
-  vec_ = map_.all(m_KeywordRegion);
+  vec_ = map_.all(keywordRegion_);
   // sort all root volumes - to get the same sequence at every run of the application.
   // (otherwise, the sequence will depend on the pointer (memory address) of the
   // involved objects, because 'new' does no guarantee that you allways get a
   // higher (or lower) address when allocating an object of the same type ...
   sort(vec_.begin(), vec_.end(), &dd_is_greater);
-  if (m_Verbosity > 0) {
-    LogDebug("Physics") << " DDG4ProductionCuts (New) : starting\n"
+  if (verbosity_ > 0) {
+    edm::LogVerbatim("Physics") << " DDG4ProductionCuts (New) : starting\n"
                         << " DDG4ProductionCuts : Got " << vec_.size() << " region roots.\n"
                         << " DDG4ProductionCuts : List of all roots:";
     for (size_t jj = 0; jj < vec_.size(); ++jj)
-      LogDebug("Physics") << "   DDG4ProductionCuts : root=" << vec_[jj].second.name();
+      edm::LogVerbatim("Physics") << "   DDG4ProductionCuts : root=" << vec_[jj].second.name();
   }
 
   // Now generate all the regions
   for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin(); tit != vec_.end(); tit++) {
     std::string regionName;
-    unsigned int num = map_.toString(m_KeywordRegion, (*tit).second, regionName);
+    unsigned int num = map_.toString(keywordRegion_, (*tit).second, regionName);
 
     if (num != 1) {
       throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::initialize: Problem with Region tags.");
@@ -78,25 +77,25 @@ void DDG4ProductionCuts::initialize() {
     G4Region* region = getRegion(regionName);
     region->AddRootLogicalVolume((*tit).first);
 
-    if (m_Verbosity > 0)
-      LogDebug("Physics") << " MakeRegions: added " << ((*tit).first)->GetName() << " to region " << region->GetName();
+    if (verbosity_ > 0)
+      edm::LogVerbatim("Physics") << " MakeRegions: added " << ((*tit).first)->GetName() << " to region " << region->GetName();
   }
 }
 
 void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume* lvol) {
-  if (m_Verbosity > 0)
-    LogDebug("Physics") << " DDG4ProductionCuts: inside setProdCuts";
+  if (verbosity_ > 0)
+    edm::LogVerbatim("Physics") << " DDG4ProductionCuts: inside setProdCuts";
 
   G4Region* region = nullptr;
 
   std::string regionName;
-  unsigned int num = map_.toString(m_KeywordRegion, lpart, regionName);
+  unsigned int num = map_.toString(keywordRegion_, lpart, regionName);
 
   if (num != 1) {
     throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::setProdCuts: Problem with Region tags.");
   }
-  if (m_Verbosity > 0)
-    LogDebug("Physics") << "Using region " << regionName;
+  if (verbosity_ > 0)
+    edm::LogVerbatim("Physics") << "Using region " << regionName;
 
   region = getRegion(regionName);
 
@@ -107,7 +106,7 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume*
   double gammacut;
   double electroncut;
   double positroncut;
-  double protoncut = 0.0;
+  double protoncut;
   int temp = map_.toDouble("ProdCutsForGamma", lpart, gammacut);
   if (temp != 1) {
     throw cms::Exception(
@@ -126,20 +125,23 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume*
         "SimG4CorePhysics",
         " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForPositrons.");
   }
+  temp = map_.toDouble("ProdCutsForProtons", lpart, protoncut);
+  if (temp != 1) {
+    throw cms::Exception(
+        "SimG4CorePhysics",
+        " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForProtons.");
+  }
+
   //
-  // For the moment I assume all of the three are set
+  // For the moment I assume all of the four are set
   //
   G4ProductionCuts* prodCuts = getProductionCuts(region);
   prodCuts->SetProductionCut(gammacut, idxG4GammaCut);
   prodCuts->SetProductionCut(electroncut, idxG4ElectronCut);
   prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
-  // For recoil use the same cut as for e-
-  if (m_protonCut) {
-    protoncut = electroncut;
-  }
   prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
-  if (m_Verbosity > 0) {
-    LogDebug("Physics") << "DDG4ProductionCuts : Setting cuts for " << regionName << "\n    Electrons: " << electroncut
+  if (verbosity_ > 0) {
+    edm::LogVerbatim("Physics") << "DDG4ProductionCuts : Setting cuts for " << regionName << "\n    Electrons: " << electroncut
                         << "\n    Positrons: " << positroncut << "\n    Gamma    : " << gammacut;
   }
 }

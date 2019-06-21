@@ -102,7 +102,6 @@ process.g4SimHits.Physics = cms.PSet(
     G4BremsstrahlungThreshold = cms.double(0.5),
     DefaultCutValue = cms.double(1.0),
     CutsPerRegion   = cms.bool(True),
-    CutsOnProton    = cms.bool(True),
     Verbosity       = cms.untracked.int32(0),
     EMPhysics       = cms.untracked.bool(False),
     HadPhysics      = cms.untracked.bool(True),

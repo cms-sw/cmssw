@@ -32,6 +32,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
@@ -280,8 +281,14 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
   // Get DDCompactView, or would it be better to get the object from
   // runManagerMaster instead of EventSetup in here?
+  auto geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
+  edm::ESTransientHandle<cms::DDCompactView> pDD4hep;
   edm::ESTransientHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get(pDD);
+  if (geoFromDD4hep) {
+    es.get<IdealGeometryRecord>().get(pDD4hep);
+  } else {  
+    es.get<IdealGeometryRecord>().get(pDD);
+  }
 
   // setup the magnetic field
   if (m_pUseMagneticField) {
