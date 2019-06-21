@@ -18,7 +18,6 @@
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
-
 // Data structure to be shared by all output modules for event serialization
 struct SerializeDataBuffer {
   typedef std::vector<char> SBuffer;
