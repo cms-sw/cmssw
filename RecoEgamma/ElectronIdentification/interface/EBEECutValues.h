@@ -9,8 +9,8 @@ class EBEECutValuesT {
 private:
   T barrel_;
   T endcap_;
-  const double barrelCutOff_ =
-      1.479;  //this is currrently used to identify if object is barrel or endcap but may change
+  //this is currrently used to identify if object is barrel or endcap but may change
+  const double barrelCutOff_ = 1.479;
 
 public:
   EBEECutValuesT(const edm::ParameterSet& params, const std::string& name)

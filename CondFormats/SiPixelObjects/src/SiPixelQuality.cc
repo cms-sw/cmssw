@@ -101,8 +101,8 @@ bool SiPixelQuality::IsModuleBad(const uint32_t& detid) const {
   std::sort(disabledModules.begin(), disabledModules.end(), SiPixelQuality::BadComponentStrictWeakOrdering());
   std::vector<disabledModuleType>::const_iterator iter = std::lower_bound(
       disabledModules.begin(), disabledModules.end(), detid, SiPixelQuality::BadComponentStrictWeakOrdering());
-  if (iter != disabledModules.end() && iter->DetID == detid &&
-      iter->errorType == 0)  //errorType 0 corresponds to "whole" dead module
+  //errorType 0 corresponds to "whole" dead module
+  if (iter != disabledModules.end() && iter->DetID == detid && iter->errorType == 0)
     return true;
   return false;
 }

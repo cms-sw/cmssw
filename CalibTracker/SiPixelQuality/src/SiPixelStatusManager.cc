@@ -54,9 +54,8 @@ bool SiPixelStatusManager::rankByLumi(SiPixelDetectorStatus status1, SiPixelDete
 }
 
 void SiPixelStatusManager::createPayloads() {
-  if (!siPixelStatusVtr_
-           .empty()) {  //only create std::map payloads when the number of non-zero DIGI lumi sections is greater than ZERO otherwise segmentation fault
-
+  //only create std::map payloads when the number of non-zero DIGI lumi sections is greater than ZERO otherwise segmentation fault
+  if (!siPixelStatusVtr_.empty()) {
     // sort the vector according to lumi
     std::sort(siPixelStatusVtr_.begin(), siPixelStatusVtr_.end(), SiPixelStatusManager::rankByLumi);
 
@@ -92,9 +91,8 @@ void SiPixelStatusManager::createBadComponents() {
 
   siPixelStatusMap_.clear();
 
-  if (outputBase_ == "nLumibased" &&
-      nLumi_ > 1) {  // doesn't work for nLumi_=1 cos any integer can be completely divided by 1
-
+  // doesn't work for nLumi_=1 cos any integer can be completely divided by 1
+  if (outputBase_ == "nLumibased" && nLumi_ > 1) {
     // if the total number of Lumi Blocks can't be completely divided by nLumi_,
     // the residual Lumi Blocks will be as the last IOV
     int iterationLumi = 0;
