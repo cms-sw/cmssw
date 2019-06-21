@@ -452,6 +452,9 @@ class _TypedParameterizable(_Parameterizable):
                             params[name] = getattr(default,name)
                         return params
         return None
+
+    def directDependencies(self):
+        return []
     
     def dumpConfig(self, options=PrintOptions()):
         config = self.__type +' { \n'
@@ -534,7 +537,10 @@ class _Labelable(object):
     def dumpSequenceConfig(self):
         return str(self.__label)
     def dumpSequencePython(self, options=PrintOptions()):
-        return 'process.'+str(self.__label)
+        if options.isCfg:
+            return 'process.'+str(self.__label)
+        else:
+            return str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
         myDeps=knownDeps.get(self.label_(),None)
