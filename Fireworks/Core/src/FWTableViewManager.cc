@@ -192,6 +192,10 @@ FWTableViewManager::FWTableViewManager(FWGUIManager *iGUIMgr) : FWViewManagerBas
       .column("charge", 0)
       .column("dxy", 3)
       .column("dzAssociatedPV", 3, "dzAssociatedPV()");
+
+  table("l1t::HGCalTriggerCell").column("pT", 1, "pt").column("eta", 3).column("phi", 3).column("detId", 0);
+
+  table("CaloParticle").column("eta", 3).column("phi", 3).column("energy", 3);
 }
 
 FWTableViewManager::~FWTableViewManager() {}
