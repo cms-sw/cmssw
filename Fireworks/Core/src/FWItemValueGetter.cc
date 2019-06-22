@@ -70,6 +70,10 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
     addEntry("cscDetId().endcap()", 0, "ec");
     addEntry("cscDetId().station()", 0, "st");
     addEntry("cscDetId().ring()", 0, "rn");
+  } else if (iPurpose == "HGCal Trigger Cell" || iPurpose == "HGCal Trigger Cluster") {
+    addEntry("detId", 0);
+  } else if (iPurpose == "CaloParticle") {
+    addEntry("energy", 1);
   } else {
     // by the default  add pt, et, or energy
     bool x = addEntry("pt", 1);

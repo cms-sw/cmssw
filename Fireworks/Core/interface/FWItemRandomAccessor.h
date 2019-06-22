@@ -252,4 +252,32 @@ public:
   }
 };
 
+template <class C>
+class BXVectorAccessor : public FWItemRandomAccessorBase {
+public:
+  typedef C container_type;
+
+  BXVectorAccessor(const TClass *iClass) : FWItemRandomAccessorBase(iClass, typeid(typename C::value_type)) {}
+
+  REGISTER_FWITEMACCESSOR_METHODS();
+
+  const void *modelData(int iIndex) const override {
+    if (!getDataPtr())
+      return nullptr;
+
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+
+    return &(c->at(0, iIndex));
+  }
+
+  unsigned int size() const override {
+    if (!getDataPtr())
+      return 0;
+
+    const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
+
+    return c->size(0);
+  }
+};
+
 #endif
