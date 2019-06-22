@@ -9,6 +9,7 @@
 <use   name="DataFormats/EcalRawData"/>
 <use   name="DataFormats/EcalRecHit"/>
 <use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/Scalers"/>
 <use   name="rootphysics"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="CondFormats/ESObjects"/>
