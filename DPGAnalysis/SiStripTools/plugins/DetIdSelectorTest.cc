@@ -119,7 +119,7 @@ void DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
   {
     edm::ESHandle<GeometricDet> geomDetHandle;
     iSetup.get<IdealGeometryRecord>().get(geomDetHandle);
-    const auto detids = getSiStripDetIds(*geomDetHandle);
+    const auto detids = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
 
     for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
       LogDebug("DetID") << *detid;

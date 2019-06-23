@@ -1,7 +1,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 #include "DataFormats/TrackerCommon/interface/SiStripEnums.h"
 
-std::vector<uint32_t> getSiStripDetIds(const GeometricDet& geomDet) {
+std::vector<uint32_t> TrackerGeometryUtils::getSiStripDetIds(const GeometricDet& geomDet) {
   std::vector<const GeometricDet*> deepComp;
   geomDet.deepComponents(deepComp);
   std::vector<uint32_t> stripDetIds;

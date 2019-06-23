@@ -87,7 +87,7 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::Event
   // get total number of modules
   edm::ESHandle<GeometricDet> geomDetHandle;
   evtSetup.get<IdealGeometryRecord>().get(geomDetHandle);
-  const auto num_modules = getSiStripDetIds(*geomDetHandle).size();
+  const auto num_modules = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle).size();
 
   // get start and end time for DB query
   boost::posix_time::ptime p_start, p_end;
