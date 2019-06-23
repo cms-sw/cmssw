@@ -187,7 +187,7 @@ SiStripLorentzAngleFakeESSource::ReturnType SiStripLorentzAngleFakeESSource::pro
 
   auto lorentzAngle = std::make_unique<SiStripLorentzAngle>();
 
-  for (const auto detId : getSiStripDetIds(geomDet)) {
+  for (const auto detId : TrackerGeometryUtils::getSiStripDetIds(geomDet)) {
     const DetId detectorId = DetId(detId);
     const int subDet = detectorId.subdetId();
 

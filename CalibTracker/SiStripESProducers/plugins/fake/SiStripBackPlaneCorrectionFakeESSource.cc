@@ -69,7 +69,7 @@ SiStripBackPlaneCorrectionFakeESSource::ReturnType SiStripBackPlaneCorrectionFak
 
   auto backPlaneCorrection = std::make_unique<SiStripBackPlaneCorrection>();
 
-  for (const auto detId : getSiStripDetIds(geomDet)) {
+  for (const auto detId : TrackerGeometryUtils::getSiStripDetIds(geomDet)) {
     const auto moduleGeometry = static_cast<unsigned int>(tTopo.moduleGeometry(DetId(detId))) - 1;
     if (moduleGeometry > m_valuePerModuleGeometry.size()) {
       edm::LogError("SiStripBackPlaneCorrectionGenerator")

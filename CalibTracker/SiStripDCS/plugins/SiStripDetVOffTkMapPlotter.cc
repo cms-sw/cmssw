@@ -94,7 +94,7 @@ void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::Event
   edm::ESHandle<GeometricDet> geomDetHandle;
   evtSetup.get<IdealGeometryRecord>().get(geomDetHandle);
 
-  const auto detids = getSiStripDetIds(*geomDetHandle);
+  const auto detids = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
   for (auto id : detids) {
     if (payload->IsModuleLVOff(id))
       lvhisto.fill(id, 1);  // RED

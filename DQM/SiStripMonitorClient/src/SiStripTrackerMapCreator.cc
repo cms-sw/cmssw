@@ -483,7 +483,7 @@ void SiStripTrackerMapCreator::createInfoFile(std::vector<std::string> const& ma
 
     edm::ESHandle<GeometricDet> geomDetHandle;
     eSetup_.get<IdealGeometryRecord>().get(geomDetHandle);
-    const auto detidList = getSiStripDetIds(*geomDetHandle);
+    const auto detidList = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
     for (auto const id : detidList) {
       det_id = id;
       for (uint32_t ih = 0; ih < nHists; ++ih) {
