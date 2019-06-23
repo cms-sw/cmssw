@@ -29,25 +29,22 @@ public:
 
   // Operations
 
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup );
+  virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup);
 
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){}
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
 
   virtual void endJob();
 
 protected:
-
 private:
-  const DTTtrig *tTrigMap;
+  const DTTtrig* tTrigMap;
   edm::ESHandle<DTGeometry> muonGeom;
 
   std::string dbLabel;
 
   std::vector<std::vector<int> > chambers;
   std::vector<double> shifts;
-  std::map<std::vector <int>, double> mapShiftsByChamber;
+  std::map<std::vector<int>, double> mapShiftsByChamber;
   bool debug;
-
 };
 #endif
-

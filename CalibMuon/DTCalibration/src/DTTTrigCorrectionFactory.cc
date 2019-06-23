@@ -6,4 +6,4 @@
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigCorrectionFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(DTTTrigCorrectionFactory,"DTTTrigCorrectionFactory");
+EDM_REGISTER_PLUGINFACTORY(DTTTrigCorrectionFactory, "DTTTrigCorrectionFactory");

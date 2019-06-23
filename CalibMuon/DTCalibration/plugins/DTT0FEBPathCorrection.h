@@ -22,26 +22,27 @@ class DTT0;
 
 namespace dtCalibration {
 
-class DTT0FEBPathCorrection: public DTT0BaseCorrection {
-public:
-  // Constructor
-  DTT0FEBPathCorrection(const edm::ParameterSet&);
+  class DTT0FEBPathCorrection : public DTT0BaseCorrection {
+  public:
+    // Constructor
+    DTT0FEBPathCorrection(const edm::ParameterSet&);
 
-  // Destructor
-  ~DTT0FEBPathCorrection() override;
+    // Destructor
+    ~DTT0FEBPathCorrection() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTT0Data correction(const DTWireId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTT0Data correction(const DTWireId&) override;
 
-  float t0FEBPathCorrection(int wheel, int st, int sec, int sl, int l, int w);
-private:
-  DTT0Data defaultT0(const DTWireId&);
+    float t0FEBPathCorrection(int wheel, int st, int sec, int sl, int l, int w);
 
-  std::string calibChamber_;
+  private:
+    DTT0Data defaultT0(const DTWireId&);
 
-  DTChamberId chosenChamberId_;
-  const DTT0 *t0Map_;
-};
+    std::string calibChamber_;
 
-} // namespace
+    DTChamberId chosenChamberId_;
+    const DTT0* t0Map_;
+  };
+
+}  // namespace dtCalibration
 #endif
