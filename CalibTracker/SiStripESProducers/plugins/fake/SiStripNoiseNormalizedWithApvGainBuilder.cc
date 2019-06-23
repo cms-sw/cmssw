@@ -1,5 +1,4 @@
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripNoiseNormalizedWithApvGainBuilder.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -19,17 +18,16 @@ SiStripNoiseNormalizedWithApvGainBuilder::SiStripNoiseNormalizedWithApvGainBuild
       printDebug_(0) {
   tTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   tGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  inputApvGainToken_ = esConsumes<SiStripApvGain, SiStripApvGainRcd>();
 }
 
 void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, const edm::EventSetup& iSetup) {
-  const auto& tTopo = iSetup.get<TrackerTopologyRcd>().get(tTopoToken_);
-  const auto& tGeom = iSetup.get<TrackerDigiGeometryRecord>().get(tGeomToken_);
-
+  const auto& tTopo = iSetup.getData(tTopoToken_);
+  const auto& tGeom = iSetup.getData(tGeomToken_);
   // Read the gain from the given tag
-  edm::ESHandle<SiStripApvGain> inputApvGain;
-  iSetup.get<SiStripApvGainRcd>().get(inputApvGain);
+  const auto& inputApvGain = iSetup.getData(inputApvGainToken_);
   std::vector<uint32_t> inputDetIds;
-  inputApvGain->getDetIds(inputDetIds);
+  inputApvGain.getDetIds(inputDetIds);
 
   // Prepare the new object
   SiStripNoises* obj = new SiStripNoises();
@@ -54,7 +52,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
     if (stripDet != nullptr) {
       const DetId detId = stripDet->geographicalId();
       // Find if this DetId is in the input tag and if so how many are the Apvs for which it contains information
-      SiStripApvGain::Range inputRange(inputApvGain->getRange(detId));
+      SiStripApvGain::Range inputRange(inputApvGain.getRange(detId));
 
       //Generate Noises for det detid
       SiStripNoises::InputVector theSiStripVector;
@@ -68,7 +66,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
         double linearQuote = noiseStripLengthLinearQuote.get(sl);
         double stripLength = stripDet->specificTopology().stripLength();
         for (unsigned short j = 0; j < nApvs; ++j) {
-          double gain = inputApvGain->getApvGain(j, inputRange);
+          double gain = inputApvGain.getApvGain(j, inputRange);
 
           for (unsigned short stripId = 0; stripId < 128; ++stripId) {
             noise = ((linearSlope * stripLength + linearQuote) / electronsPerADC_) * gain;
@@ -82,7 +80,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
         double meanN = meanNoise.get(sl);
         double sigmaN = sigmaNoise.get(sl);
         for (unsigned short j = 0; j < nApvs; ++j) {
-          double gain = inputApvGain->getApvGain(j, inputRange);
+          double gain = inputApvGain.getApvGain(j, inputRange);
 
           for (unsigned short stripId = 0; stripId < 128; ++stripId) {
             noise = (CLHEP::RandGauss::shoot(meanN, sigmaN)) * gain;

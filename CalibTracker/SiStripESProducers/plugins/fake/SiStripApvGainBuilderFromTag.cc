@@ -1,5 +1,4 @@
 #include "CalibTracker/SiStripESProducers/plugins/fake/SiStripApvGainBuilderFromTag.h"
-#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -14,11 +13,12 @@ SiStripApvGainBuilderFromTag::SiStripApvGainBuilderFromTag(const edm::ParameterS
     : printdebug_(iConfig.getUntrackedParameter<uint32_t>("printDebug", 1)), pset_(iConfig) {
   tTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   tGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
+  inputApvGainToken_ = esConsumes<SiStripApvGain, SiStripApvGainRcd>();
 }
 
 void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::EventSetup& iSetup) {
-  const auto& tTopo = iSetup.get<TrackerTopologyRcd>().get(tTopoToken_);
-  const auto& tGeom = iSetup.get<TrackerDigiGeometryRecord>().get(tGeomToken_);
+  const auto& tTopo = iSetup.getData(tTopoToken_);
+  const auto& tGeom = iSetup.getData(tGeomToken_);
 
   //   unsigned int run=evt.id().run();
 
@@ -35,10 +35,9 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
   SiStripFakeAPVParameters correct{pset_, "correct"};
 
   // Read the gain from the given tag
-  edm::ESHandle<SiStripApvGain> inputApvGain;
-  iSetup.get<SiStripApvGainRcd>().get(inputApvGain);
+  const auto& inputApvGain = iSetup.getData(inputApvGainToken_);
   std::vector<uint32_t> inputDetIds;
-  inputApvGain->getDetIds(inputDetIds);
+  inputApvGain.getDetIds(inputDetIds);
 
   // Prepare the new object
   SiStripApvGain* obj = new SiStripApvGain();
@@ -52,7 +51,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
       SiStripApvGain::Range inputRange;
       size_t inputRangeSize = 0;
       if (find(inputDetIds.begin(), inputDetIds.end(), detid) != inputDetIds.end()) {
-        inputRange = inputApvGain->getRange(detid);
+        inputRange = inputApvGain.getRange(detid);
         inputRangeSize = distance(inputRange.first, inputRange.second);
       }
 
@@ -61,7 +60,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
         double gainValue = meanGain_;
 
         if (j < inputRangeSize) {
-          gainValue = inputApvGain->getApvGain(j, inputRange);
+          gainValue = inputApvGain.getApvGain(j, inputRange);
           // cout << "Gain = " << gainValue <<" from input tag for DetId = " << detid.rawId() << " and apv = " << j << endl;
         }
         // else {
