@@ -18,8 +18,7 @@ using namespace sistrip;
 SiStripFedCablingFakeESSource::SiStripFedCablingFakeESSource(const edm::ParameterSet& pset)
     : SiStripFedCablingESProducer(pset), fedIds_(pset.getParameter<edm::FileInPath>("FedIdsFile")), pset_(pset) {
   findingRecord<SiStripFedCablingRcd>();
-  m_detInfoFileReader =
-      SiStripDetInfoFileReader{pset.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
+  m_detInfoFileReader = SiStripDetInfoFileReader{pset.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
   edm::LogVerbatim("FedCabling") << "[SiStripFedCablingFakeESSource::" << __func__ << "]"
                                  << " Constructing object...";
 }
