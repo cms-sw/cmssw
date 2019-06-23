@@ -33,7 +33,7 @@ std::unique_ptr<SiStripHashedDetId> SiStripHashedDetIdFakeESSource::produce(cons
                                   << " Building \"fake\" hashed DetId map from IdealGeometry";
 
   const auto& geomDet =
-      record.getRecord<TrackerDigiGeometryRecord>().getRecord<IdealGeometryRecord>().get(geomDetToken_);
+      record.getRecord<TrackerDigiGeometryRecord>().get(geomDetToken_);
 
   const std::vector<uint32_t> dets = getSiStripDetIds(geomDet);
   edm::LogVerbatim("HashedDetId") << "[SiStripHashedDetIdFakeESSource::" << __func__ << "]"

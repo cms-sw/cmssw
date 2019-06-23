@@ -16,6 +16,7 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
@@ -67,6 +68,7 @@ private:
 
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
+  edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> inputApvGainToken_;
 };
 
 #endif

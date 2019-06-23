@@ -182,9 +182,8 @@ SiStripLorentzAngleFakeESSource::ReturnType SiStripLorentzAngleFakeESSource::pro
     const SiStripLorentzAngleRcd& iRecord) {
   using namespace edm::es;
 
-  auto tTopoRcd = iRecord.getRecord<TrackerTopologyRcd>();
-  const auto& geomDet = tTopoRcd.getRecord<IdealGeometryRecord>().get(m_geomDetToken);
-  const auto& tTopo = tTopoRcd.get(m_tTopoToken);
+  const auto& geomDet = iRecord.getRecord<TrackerTopologyRcd>().get(m_geomDetToken);
+  const auto& tTopo = iRecord.get(m_tTopoToken);
 
   auto lorentzAngle = std::make_unique<SiStripLorentzAngle>();
 
