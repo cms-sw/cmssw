@@ -30,6 +30,7 @@ process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = RUNNUMBER
 process.SiStripConfigDb.TNS_ADMIN = '/etc'
 
 process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb")
+process.SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 process.SiStripCondObjBuilderFromDb.UseFEC = cms.untracked.bool(True)
 process.SiStripCondObjBuilderFromDb.UseFED = cms.untracked.bool(True)
 

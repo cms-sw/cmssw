@@ -45,9 +45,7 @@ SiStripCondObjBuilderFromDb::SiStripCondObjBuilderFromDb(const edm::ParameterSet
       m_usefec(static_cast<bool>(pset.getUntrackedParameter<bool>("UseFEC", false))),
       m_debug(static_cast<bool>(pset.getUntrackedParameter<bool>("DebugMode", false))),
       m_reader(std::make_unique<SiStripDetInfoFileReader>(
-          pset.getUntrackedParameter<edm::FileInPath>(
-                  "SiStripDetInfoFile", edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
-              .fullPath())),
+          pset.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath())),
       tTopo(buildTrackerTopology()) {
   LogTrace(mlESSources_) << "[SiStripCondObjBuilderFromDb::" << __func__ << "]"
                          << " Constructing object...";

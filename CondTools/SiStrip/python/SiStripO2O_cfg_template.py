@@ -36,6 +36,7 @@ process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb"
 process.SiStripCondObjBuilderFromDb.UseFED = True
 process.SiStripCondObjBuilderFromDb.UseFEC = True
 process.SiStripCondObjBuilderFromDb.UseAnalysis = _USEANALYSIS_
+process.SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 process.SiStripCondObjBuilderFromDb.SkippedDevices = cms.untracked.VPSet(
 _SKIPPED_
 )
