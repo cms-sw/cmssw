@@ -49,11 +49,8 @@ SiStripBaseDelayFakeESSource::SiStripBaseDelayFakeESSource(const edm::ParameterS
 
   m_coarseDelay = iConfig.getParameter<uint32_t>("CoarseDelay");
   m_fineDelay = iConfig.getParameter<uint32_t>("FineDelay");
-  m_detInfoFileReader = SiStripDetInfoFileReader{
-      iConfig
-          .getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile",
-                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
-          .fullPath()};
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripBaseDelayFakeESSource::~SiStripBaseDelayFakeESSource() {}

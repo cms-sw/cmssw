@@ -57,11 +57,8 @@ SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& 
   m_sigmaGain = iConfig.getParameter<double>("SigmaGain");
   m_minimumPosValue = iConfig.getParameter<double>("MinPositiveGain");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
-  m_detInfoFileReader = SiStripDetInfoFileReader{
-      iConfig
-          .getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile",
-                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
-          .fullPath()};
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripApvGainFakeESSource::~SiStripApvGainFakeESSource() {}

@@ -39,6 +39,7 @@ process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb",
     process.SiStripO2OCalibrationFactors
 )
+process.SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 process.SiStripCondObjBuilderFromDb.UseAnalysis = True
 
 process.load("CondCore.DBCommon.CondDBCommon_cfi")

@@ -81,11 +81,8 @@ SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iC
 
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
 
-  m_detInfoFileReader = SiStripDetInfoFileReader{
-      iConfig
-          .getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile",
-                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
-          .fullPath()};
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripNoisesFakeESSource::~SiStripNoisesFakeESSource() {}

@@ -49,11 +49,8 @@ SiStripLatencyFakeESSource::SiStripLatencyFakeESSource(const edm::ParameterSet& 
 
   m_latency = iConfig.getParameter<uint32_t>("latency");
   m_mode = iConfig.getParameter<uint32_t>("mode");
-  m_detInfoFileReader = SiStripDetInfoFileReader{
-      iConfig
-          .getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile",
-                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
-          .fullPath()};
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripLatencyFakeESSource::~SiStripLatencyFakeESSource() {}

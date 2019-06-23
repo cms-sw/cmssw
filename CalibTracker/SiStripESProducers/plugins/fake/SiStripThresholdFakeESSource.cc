@@ -51,11 +51,8 @@ SiStripThresholdFakeESSource::SiStripThresholdFakeESSource(const edm::ParameterS
   m_lTh = iConfig.getParameter<double>("LowTh");
   m_hTh = iConfig.getParameter<double>("HighTh");
   m_cTh = iConfig.getParameter<double>("ClusTh");
-  m_detInfoFileReader = SiStripDetInfoFileReader{
-      iConfig
-          .getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile",
-                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
-          .fullPath()};
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripThresholdFakeESSource::~SiStripThresholdFakeESSource() {}

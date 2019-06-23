@@ -62,11 +62,8 @@ SiStripBadModuleConfigurableFakeESSource::SiStripBadModuleConfigurableFakeESSour
   m_doByAPVs = iConfig.getUntrackedParameter<bool>("doByAPVs", false);
   m_badAPVsList = iConfig.getUntrackedParameter<Parameters>("BadAPVList");
   m_printDebug = iConfig.getUntrackedParameter<bool>("printDebug", false);
-  m_detInfoFileReader = SiStripDetInfoFileReader{
-      iConfig
-          .getUntrackedParameter<edm::FileInPath>("SiStripDetInfoFile",
-                                                  edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"))
-          .fullPath()};
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripBadModuleConfigurableFakeESSource::~SiStripBadModuleConfigurableFakeESSource() {}
