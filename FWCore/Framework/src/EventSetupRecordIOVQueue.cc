@@ -18,7 +18,14 @@ namespace edm {
   namespace eventsetup {
 
     EventSetupRecordIOVQueue::EventSetupRecordIOVQueue(unsigned int nConcurrentIOVs)
-        : iovQueue_(nConcurrentIOVs), isAvailable_(nConcurrentIOVs), cacheIdentifier_(1) {
+        : iovQueue_(nConcurrentIOVs),
+          isAvailable_(nConcurrentIOVs),
+          // start valid cacheIdentifiers at 1 and only increment them
+          // so that the EventSetup system will never return the value 0
+          // as a cacheIdentifier. Then clients which store a cache identifier
+          // identifying the state of their own cache can store a 0 when their
+          // cache is uninitialized.
+          cacheIdentifier_(1) {
       for (auto& i : isAvailable_) {
         i.store(true);
       }
