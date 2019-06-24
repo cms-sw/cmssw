@@ -10,7 +10,7 @@
 #include "CommonTools/Utils/src/ExpressionPtr.h"
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/interface/expressionParser.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 template <typename T, bool DefaultLazyness = false>
 struct StringObjectFunction {

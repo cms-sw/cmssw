@@ -9,7 +9,7 @@
  * \version $Revision: 1.2 $
  *
  */
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <vector>
 
 namespace reco {

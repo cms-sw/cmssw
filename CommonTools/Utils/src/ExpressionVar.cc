@@ -1,10 +1,10 @@
 #include "CommonTools/Utils/src/ExpressionVar.h"
 #include "CommonTools/Utils/src/MethodInvoker.h"
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <cassert>
 #include <map>
