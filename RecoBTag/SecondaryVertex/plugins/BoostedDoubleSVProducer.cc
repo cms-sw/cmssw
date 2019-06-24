@@ -672,8 +672,11 @@ BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef & jet, float &
           if (constit) {
             // Check if any values were nan or inf
             float valcheck = constit->px() + constit->py() + constit->pz() + constit->energy();
-            if (edm::isNotFinite(valcheck))
+            if (edm::isNotFinite(valcheck)) {
+              edm::LogWarning("FaultyJetConstituent")
+                  << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
               continue;
+            }
             fjParticles.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
           } else
             edm::LogWarning("MissingJetConstituent")
@@ -682,8 +685,11 @@ BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef & jet, float &
       } else {
         // Check if any values were nan or inf
         float valcheck = daughter->px() + daughter->py() + daughter->pz() + daughter->energy();
-        if (edm::isNotFinite(valcheck))
+        if (edm::isNotFinite(valcheck)) {
+          edm::LogWarning("FaultyJetConstituent")
+              << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
           continue;
+        }
         fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
       }
     } else
