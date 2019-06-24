@@ -78,7 +78,6 @@ namespace edm {
       EventSetupRecordImpl(EventSetupRecordImpl const&) = delete;
       EventSetupRecordImpl const& operator=(EventSetupRecordImpl const&) = delete;
 
-      // ---------- const member functions ---------------------
       ValidityInterval validityInterval() const;
 
       ///returns false if no data available for key
@@ -109,23 +108,25 @@ namespace edm {
           */
       unsigned long long cacheIdentifier() const { return cacheIdentifier_; }
 
-      void setCacheIdentifier(unsigned long long value) { cacheIdentifier_ = value; }
-
       unsigned int iovIndex() const { return iovIndex_; }
 
       ///clears the oToFill vector and then fills it with the keys for all registered data keys
       void fillRegisteredDataKeys(std::vector<DataKey>& oToFill) const;
       ///there is a 1-to-1 correspondence between elements returned and the elements returned from fillRegisteredDataKey.
       std::vector<ComponentDescription const*> componentsForRegisteredDataKeys() const;
-      // ---------- static member functions --------------------
-
-      // ---------- member functions ---------------------------
 
       // The following member functions should only be used by EventSetupRecordProvider
       bool add(DataKey const& iKey, DataProxy* iProxy);
       void clearProxies();
 
-      void set(ValidityInterval const&);
+      ///Set the cache identifier and validity interval when starting a new IOV
+      void initializeForNewIOV(unsigned long long iCacheIdentifier, ValidityInterval const&);
+
+      /**Set the validity interval in a thread safe way. This is used when the
+         IOV is already in use and the end of the IOV needs to be updated but
+         the start time stays the same. In this case a new IOV does not need
+         to be started.
+          */
       void setSafely(ValidityInterval const&) const;
 
       void getESProducers(std::vector<ComponentDescription const*>& esproducers) const;

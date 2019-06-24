@@ -140,8 +140,7 @@ namespace edm {
     void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier) {
       EventSetupRecordImpl* impl = recordImpls_[iovIndex].get();
       recordImpl_ = impl;
-      impl->set(validityInterval_);
-      impl->setCacheIdentifier(cacheIdentifier);
+      impl->initializeForNewIOV(cacheIdentifier, validityInterval_);
       eventSetupImpl_->addRecordImpl(*recordImpl_);
     }
 

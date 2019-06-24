@@ -31,7 +31,7 @@ namespace edm {
         : validity_(),
           key_(iKey),
           activityRegistry_(activityRegistry),
-          cacheIdentifier_(1),
+          cacheIdentifier_(1),  // initial value meaningless, gets overwritten before use
           iovIndex_(iovIndex),
           isAvailable_(true),
           validityModificationUnderway_(false) {}
@@ -46,7 +46,11 @@ namespace edm {
       return temp;
     }
 
-    void EventSetupRecordImpl::set(const ValidityInterval& iInterval) { validity_ = iInterval; }
+    void EventSetupRecordImpl::initializeForNewIOV(unsigned long long iCacheIdentifier,
+                                                   ValidityInterval const& iValidityInterval) {
+      cacheIdentifier_ = iCacheIdentifier;
+      validity_ = iValidityInterval;
+    }
 
     void EventSetupRecordImpl::setSafely(const ValidityInterval& iInterval) const {
       bool expected = false;
