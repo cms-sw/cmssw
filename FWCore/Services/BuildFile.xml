@@ -8,11 +8,10 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/Concurrency"/>
 <use   name="FWCore/Framework"/>
-<use   name="Utilities/Xerces"/>
 <use   name="boost"/>
+<use   name="tinyxml2"/>
 <use   name="rootcore"/>
 <use   name="roothistmatrix"/>
-<use   name="xerces-c"/>
 <export>
   <lib   name="1"/>
 </export>
