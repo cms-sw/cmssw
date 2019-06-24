@@ -138,9 +138,9 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume*
       protoncut = 0.;
     }
   } else if (temp != 1) {
-      throw cms::Exception(
-          "SimG4CorePhysics",
-	  " DDG4ProductionCuts::setProdCuts: Problem with Region tags - more than one ProdCutsForProtons.");
+    throw cms::Exception(
+        "SimG4CorePhysics",
+        " DDG4ProductionCuts::setProdCuts: Problem with Region tags - more than one ProdCutsForProtons.");
   }
 
   //
