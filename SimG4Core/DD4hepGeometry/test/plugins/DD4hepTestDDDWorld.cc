@@ -176,9 +176,13 @@ void DD4hepTestDDDWorld::update() {
     auto positroncutStr = it.second->strValue("ProdCutsForPositrons");
     double positroncut = dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()});
 
+    double protoncut = 0.0;
     auto protoncutStr = it.second->strValue("ProdCutsForProtons");
-    double protoncut = dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()});
-
+    if (it.second->hasValue("ProdCutsForProtons")) {
+      protoncut = dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()});
+    } else {
+      protoncut = electroncut;
+    }
     //
     // For the moment I assume all of the four are set
     //
@@ -191,7 +195,8 @@ void DD4hepTestDDDWorld::update() {
       LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << regName
                               << "\n    Electrons: " << electroncutStr << " (" << electroncut
                               << ")\n    Positrons: " << positroncutStr << " (" << positroncut
-                              << ")\n    Gamma    : " << gammacutStr << " (" << gammacut << ")\n";
+                              << ")\n    Gamma    : " << gammacutStr << " (" << gammacut
+                              << ")\n    Protons  : " << protoncutStr << " (" << protoncut << ")\n";
     }
   }
 }
