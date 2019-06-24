@@ -13,6 +13,8 @@ DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& 
                                        const edm::ParameterSet& p)
     : map_(map), verbosity_(verb) {
   keywordRegion_ = "CMSCutsRegion";
+  // Legacy flag
+  protonCut_ = p.getUntrackedParameter<bool>("CutsOnProton", true);
   initialize();
 }
 
@@ -127,10 +129,18 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume*
         " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForPositrons.");
   }
   temp = map_.toDouble("ProdCutsForProtons", lpart, protoncut);
-  if (temp != 1) {
-    throw cms::Exception(
-        "SimG4CorePhysics",
-        " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForProtons.");
+  if (temp == 0) {
+    // There is no ProdCutsForProtons set in XML,
+    // check if it's a legacy geometry scenario without it
+    if (protonCut_) {
+      protoncut = electroncut;
+    } else {
+      protoncut = 0.;
+    }
+  } else if (temp != 1) {
+      throw cms::Exception(
+          "SimG4CorePhysics",
+	  " DDG4ProductionCuts::setProdCuts: Problem with Region tags - more than one ProdCutsForProtons.");
   }
 
   //

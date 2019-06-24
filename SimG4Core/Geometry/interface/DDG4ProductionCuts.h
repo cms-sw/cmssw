@@ -29,6 +29,8 @@ private:
   G4ProductionCuts* getProductionCuts(G4Region*);
 
   G4LogicalVolumeToDDLogicalPartMap map_;
+  // Legacy flag
+  bool protonCut_;
   std::string keywordRegion_;
   int verbosity_;
   G4LogicalVolumeToDDLogicalPartMap::Vector vec_;
