@@ -99,9 +99,9 @@ bool TwoBowedSurfacesDeformation::add(const SurfaceDeformation &other) {
   if (this->type() == other.type()) {
     const std::vector<double> otherParameters(other.parameters());
     if (otherParameters.size() == parameterSize()) {
+      // Second check in case it is really adding, either way DO NOT check equality directly
       if (fabs(theParameters[k_ySplit()] - otherParameters[k_ySplit()]) < 1e-5 ||
-          fabs(otherParameters[k_ySplit()]) <
-              1e-5) {  // Second check in case it is really adding, either way DO NOT check equality directly
+          fabs(otherParameters[k_ySplit()]) < 1e-5) {
         for (unsigned int i = 0; i != parameterSize() - 1; ++i) {  // -1 for ySplit
           // mean bows, delta shifts, delta angles and delta bows can simply be added up
           theParameters[i] += otherParameters[i];

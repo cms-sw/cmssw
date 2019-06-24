@@ -5,8 +5,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include <iostream>
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <typeinfo>
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"

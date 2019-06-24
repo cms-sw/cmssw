@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_FunctionWithDict_h
-#define FWCore_Utilities_FunctionWithDict_h
+#ifndef FWCore_Reflection_FunctionWithDict_h
+#define FWCore_Reflection_FunctionWithDict_h
 
 /*----------------------------------------------------------------------
 
@@ -7,7 +7,7 @@ FunctionWithDict:  A holder for a class member function
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Utilities/interface/IterWithDict.h"
+#include "FWCore/Reflection/interface/IterWithDict.h"
 
 #include "TMethod.h"
 #include "TMethodArg.h"
@@ -55,4 +55,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif  // FWCore_Utilities_FunctionWithDict_h
+#endif  // FWCore_Reflection_FunctionWithDict_h

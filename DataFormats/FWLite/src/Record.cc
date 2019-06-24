@@ -17,7 +17,7 @@
 #include "DataFormats/FWLite/interface/Record.h"
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "DataFormats/FWLite/interface/format_type_name.h"
 
 //

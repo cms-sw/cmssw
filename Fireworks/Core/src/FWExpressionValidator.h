@@ -21,7 +21,7 @@
 // system include files
 #include <vector>
 #include <memory>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 #include "Fireworks/Core/src/FWValidatorBase.h"
