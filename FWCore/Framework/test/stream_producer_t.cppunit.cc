@@ -1,5 +1,5 @@
 /*
- *  stream_module_test.cppunit.cc
+ *  stream_producer_test.cppunit.cc
  *  EDMProto
  *
  *  Created by Chris Jones on 2/8/2013.
@@ -29,8 +29,8 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
-class testStreamModule : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testStreamModule);
+class testStreamProducer : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testStreamProducer);
 
   CPPUNIT_TEST(basicTest);
   CPPUNIT_TEST(globalTest);
@@ -48,7 +48,7 @@ class testStreamModule : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testStreamModule();
+  testStreamProducer();
 
   void setUp() {}
   void tearDown() {}
@@ -319,22 +319,22 @@ private:
     }
   };
 };
-unsigned int testStreamModule::BasicProd::m_count = 0;
-unsigned int testStreamModule::GlobalProd::m_count = 0;
-unsigned int testStreamModule::RunProd::m_count = 0;
-unsigned int testStreamModule::LumiProd::m_count = 0;
-unsigned int testStreamModule::RunSummaryProd::m_count = 0;
-unsigned int testStreamModule::LumiSummaryProd::m_count = 0;
-unsigned int testStreamModule::BeginRunProd::m_count = 0;
-unsigned int testStreamModule::EndRunProd::m_count = 0;
-unsigned int testStreamModule::BeginLumiProd::m_count = 0;
-unsigned int testStreamModule::EndLumiProd::m_count = 0;
-unsigned int testStreamModule::EndRunSummaryProd::m_count = 0;
-bool testStreamModule::EndRunSummaryProd::m_globalEndRunSummaryCalled = false;
-unsigned int testStreamModule::EndLumiSummaryProd::m_count = 0;
-bool testStreamModule::EndLumiSummaryProd::m_globalEndLuminosityBlockSummaryCalled = false;
+unsigned int testStreamProducer::BasicProd::m_count = 0;
+unsigned int testStreamProducer::GlobalProd::m_count = 0;
+unsigned int testStreamProducer::RunProd::m_count = 0;
+unsigned int testStreamProducer::LumiProd::m_count = 0;
+unsigned int testStreamProducer::RunSummaryProd::m_count = 0;
+unsigned int testStreamProducer::LumiSummaryProd::m_count = 0;
+unsigned int testStreamProducer::BeginRunProd::m_count = 0;
+unsigned int testStreamProducer::EndRunProd::m_count = 0;
+unsigned int testStreamProducer::BeginLumiProd::m_count = 0;
+unsigned int testStreamProducer::EndLumiProd::m_count = 0;
+unsigned int testStreamProducer::EndRunSummaryProd::m_count = 0;
+bool testStreamProducer::EndRunSummaryProd::m_globalEndRunSummaryCalled = false;
+unsigned int testStreamProducer::EndLumiSummaryProd::m_count = 0;
+bool testStreamProducer::EndLumiSummaryProd::m_globalEndLuminosityBlockSummaryCalled = false;
 ///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testStreamModule);
+CPPUNIT_TEST_SUITE_REGISTRATION(testStreamProducer);
 
 namespace {
   struct ShadowStreamID {
@@ -355,7 +355,7 @@ static edm::StreamID makeID() {
 }
 static const edm::StreamID s_streamID0 = makeID();
 
-testStreamModule::testStreamModule()
+testStreamProducer::testStreamProducer()
     : m_prodReg(new edm::ProductRegistry{}),
       m_idHelper(new edm::BranchIDListHelper{}),
       m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
@@ -463,14 +463,14 @@ namespace {
   }
   template <typename T>
   void testTransition(edm::Worker* iWorker,
-                      testStreamModule::Trans iTrans,
-                      testStreamModule::Expectations const& iExpect,
+                      testStreamProducer::Trans iTrans,
+                      testStreamProducer::Expectations const& iExpect,
                       std::function<void(edm::Worker*)> iFunc) {
     assert(0 == T::m_count);
     iFunc(iWorker);
     auto count = std::count(iExpect.begin(), iExpect.end(), iTrans);
     if (count != T::m_count) {
-      std::cout << "For trans " << static_cast<std::underlying_type<testStreamModule::Trans>::type>(iTrans)
+      std::cout << "For trans " << static_cast<std::underlying_type<testStreamProducer::Trans>::type>(iTrans)
                 << " expected " << count << " and got " << T::m_count << std::endl;
     }
     CPPUNIT_ASSERT(T::m_count == count);
@@ -480,56 +480,56 @@ namespace {
 }  // namespace
 
 template <typename T, typename U>
-void testStreamModule::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
+void testStreamProducer::testTransitions(std::shared_ptr<U> iMod, Expectations const& iExpect) {
   edm::WorkerT<edm::stream::EDProducerAdaptorBase> w{iMod, m_desc, nullptr};
   for (auto& keyVal : m_transToFunc) {
     testTransition<T>(&w, keyVal.first, iExpect, keyVal.second);
   }
 }
 template <typename T>
-void testStreamModule::runTest(Expectations const& iExpect) {
+void testStreamProducer::runTest(Expectations const& iExpect) {
   auto mod = createModule<T>();
   CPPUNIT_ASSERT(0 == T::m_count);
   testTransitions<T>(mod, iExpect);
 }
 
-void testStreamModule::basicTest() { runTest<BasicProd>({Trans::kEvent}); }
+void testStreamProducer::basicTest() { runTest<BasicProd>({Trans::kEvent}); }
 
-void testStreamModule::globalTest() { runTest<GlobalProd>({Trans::kBeginJob, Trans::kEvent, Trans::kEndJob}); }
+void testStreamProducer::globalTest() { runTest<GlobalProd>({Trans::kBeginJob, Trans::kEvent, Trans::kEndJob}); }
 
-void testStreamModule::runTest() { runTest<RunProd>({Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun}); }
+void testStreamProducer::runTest() { runTest<RunProd>({Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun}); }
 
-void testStreamModule::runSummaryTest() {
+void testStreamProducer::runSummaryTest() {
   runTest<RunSummaryProd>({Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
-void testStreamModule::lumiTest() {
+void testStreamProducer::lumiTest() {
   runTest<LumiProd>({Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
 }
 
-void testStreamModule::lumiSummaryTest() {
+void testStreamProducer::lumiSummaryTest() {
   runTest<LumiSummaryProd>({Trans::kGlobalBeginLuminosityBlock,
                             Trans::kEvent,
                             Trans::kStreamEndLuminosityBlock,
                             Trans::kGlobalEndLuminosityBlock});
 }
 
-void testStreamModule::beginRunProdTest() { runTest<BeginRunProd>({Trans::kGlobalBeginRun, Trans::kEvent}); }
+void testStreamProducer::beginRunProdTest() { runTest<BeginRunProd>({Trans::kGlobalBeginRun, Trans::kEvent}); }
 
-void testStreamModule::beginLumiProdTest() {
+void testStreamProducer::beginLumiProdTest() {
   runTest<BeginLumiProd>({Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
 }
 
-void testStreamModule::endRunProdTest() { runTest<EndRunProd>({Trans::kGlobalEndRun, Trans::kEvent}); }
+void testStreamProducer::endRunProdTest() { runTest<EndRunProd>({Trans::kGlobalEndRun, Trans::kEvent}); }
 
-void testStreamModule::endLumiProdTest() { runTest<EndLumiProd>({Trans::kGlobalEndLuminosityBlock, Trans::kEvent}); }
+void testStreamProducer::endLumiProdTest() { runTest<EndLumiProd>({Trans::kGlobalEndLuminosityBlock, Trans::kEvent}); }
 
-void testStreamModule::endRunSummaryProdTest() {
+void testStreamProducer::endRunSummaryProdTest() {
   runTest<EndRunSummaryProd>(
       {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
-void testStreamModule::endLumiSummaryProdTest() {
+void testStreamProducer::endLumiSummaryProdTest() {
   runTest<EndLumiSummaryProd>({Trans::kGlobalEndLuminosityBlock,
                                Trans::kEvent,
                                Trans::kGlobalBeginLuminosityBlock,
