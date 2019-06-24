@@ -84,15 +84,23 @@ def offsetStack( files, var, r, outdir ) :
     cloneStack.Add(hfh_clone)
     cloneStack.Draw("samepe")
 
-    d_hist2["ne"] .SetAxisRange(-2.9,2.9)
-    d_hist2["hfe"].SetAxisRange(-5,-2.6)
-    d_hist2["nh"] .SetAxisRange(-2.9,2.9)
-    d_hist2["hfh"].SetAxisRange(-5,-2.6)
-    d_hist2["chu"].SetAxisRange(-2.9,2.9)
-    d_hist2["chm"].SetAxisRange(-2.9,2.9)
+    #
+    # Disable plotting restrictions for fixing Phase 2 offset plots.
+    # Better to have busy plots than missing info...
+    # Some clever trick for skipping zero fractions could be implemented
+    # for the second PR
+    # -Juska 24 June 2019
+    #
+    
+    #d_hist2["ne"] .SetAxisRange(-2.9,2.9)
+    #d_hist2["hfe"].SetAxisRange(-5,-2.6)
+    #d_hist2["nh"] .SetAxisRange(-2.9,2.9)
+    #d_hist2["hfh"].SetAxisRange(-5,-2.6)
+    #d_hist2["chu"].SetAxisRange(-2.9,2.9)
+    #d_hist2["chm"].SetAxisRange(-2.9,2.9)
 
-    hfe_clone     .SetAxisRange(2.6,5)
-    hfh_clone     .SetAxisRange(2.6,5)
+    #hfe_clone     .SetAxisRange(2.6,5)
+    #hfh_clone     .SetAxisRange(2.6,5)
 
   leg.SetBorderSize(0)
   leg.SetFillColor(0)
