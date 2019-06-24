@@ -104,13 +104,11 @@ public:
         algo_ok = false;
     }
     if (!algorithmMask_.empty() && algo_ok) {
-      if (std::find_if(
-              algorithmMask_.begin(),
-              algorithmMask_.end(),
-              [&](reco::TrackBase::TrackAlgorithm algo)
-                  -> bool {  // for some reason I have to either explicitly give the return type, or use static_cast<bool>()
-                return t.algoMask()[algo];
-              }) == algorithmMask_.end())
+      if (std::find_if(algorithmMask_.begin(),
+                       algorithmMask_.end(),
+                       // for some reason I have to either explicitly give the return type, or use static_cast<bool>()
+                       [&](reco::TrackBase::TrackAlgorithm algo) -> bool { return t.algoMask()[algo]; }) ==
+          algorithmMask_.end())
         algo_ok = false;
     }
 

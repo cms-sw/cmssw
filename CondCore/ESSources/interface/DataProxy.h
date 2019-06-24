@@ -110,8 +110,8 @@ public:
                    const char* source = nullptr)
       : cond::DataProxyWrapperBase(ilabel),
         m_source(source ? source : ""),
-        m_proxy(new PayProxy(
-            source)),  //'errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions' still needed?
+        //'errorPolicy set to true: PayloadProxy should catch and re-throw ORA exceptions' still needed?
+        m_proxy(new PayProxy(source)),
         m_edmProxy(new DataProxy(m_proxy)) {
     m_proxy->setUp(session);
     //NOTE: We do this so that the type 'DataT' will get registered
