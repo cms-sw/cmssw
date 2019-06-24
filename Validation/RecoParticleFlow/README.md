@@ -2,58 +2,127 @@
 # Quickstart
 
 Run locally on lxplus
+
+
+Set up the work area
+for lxplus with SLC7 (default since April 2019)
+
 ~~~
-#set up the work area
-# for lxplus with SLC7 (default since April 2019)
 export SCRAM_ARCH=slc7_amd64_gcc700
 # for SLC6 use 'slc6_amd64_gcc700' instead above
 cmsrel CMSSW_10_6_0
 cd CMSSW_10_6_0
 cmsenv
+~~~
 
-#get the code
+Get the code and compile
+
+~~~
 git cms-checkout-topic jpata:pfvalidation-10_6_X-master
 # 'git cms-rebase-topic jpata:pfvalidation-10_6_X-master' might be better when using 10_6_0_patchX or higher version
 scram b -j4
 cd $CMSSW_BASE/src/Validation/RecoParticleFlow
-
-# Activate reading files from remote locations (needed at lxplus at least)
-voms-proxy-init -voms cms
-
-#RECO step, about 30 minutes
-#Necessary if you need to re-reco events to test introduced changes to PF reco.
-#Note that the default era & condition is now set to 2018. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands.
-#Also, you may run 'python datasets.py' to update filelists in tmp/das_cache after checking datasets specified in this python script
-make QCD_reco
-
-#DQM step, a few minutes
-make QCD_dqm
-
-# Repeat for QCDPU & NuGunPU (make QCDPU_reco, make QCDPU_dqm etc.) or use crab for reco and run dqm steps as indicated below.
-# Or, edit the 'make plots' part of Makefile for successfully running 'make plots'
-
-#Do final HTML plots (this just plot two identical results in tmp/{QCD,QCDPU,NuGunPU} twice)
-make plots
-# 
-# or if you have reference DQM results in tmp/QCD_ref, tmp/QCDPU_ref, tmp/NuGunPU_ref (i.e. reference results) etc under _tmp area:
-make pltos_with_ref
-
-# The 'plots' directory can be viewed from a web browser once it is moved to e.g. /afs/cern.ch/user/f/foo/www/.
-# In this case the URL for the directory is 'http://cern.ch/foo/plots', where 'foo' is the username
 ~~~
+
+Activate reading files from remote locations and
+using dasgoclient for creating filelists in the next step
+
+~~~
+voms-proxy-init -voms cms
+~~~
+
+Create input file lists under test/tmp/das_cache
+(You can modify which datasets are being used in the end of datasets.py script)
+
+~~~
+python test/datasets.py
+~~~
+
+Proceed to RECO step, about 30 minutes
+Necessary if you need to re-reco events to test introduced changes to PF reco.
+
+Note 1: the default era & condition is now set to 2018. Change CONDITIONS and
+ERA in test/run_relval.sh when trying other era, before trying the above commands.
+
+Note 2: the execution will fail if the destination directory (test/tmp/QCD etc.)
+already exists. Rename or remove existing conflicting directories from test/tmp.
+
+~~~
+make QCD_reco
+~~~
+
+Now let's do the DQM step that takes a few minutes
+
+~~~
+make QCD_dqm
+~~~
+
+Repeat for QCDPU & NuGunPU (make QCDPU_reco, make QCDPU_dqm etc.) or use CRAB
+for reco and run dqm steps as indicated below.
+
+Do final HTML plots (by default this just plot two identical results in
+tmp/{QCD,QCDPU,NuGunPU}
+
+You can also edit the 'make plots' part of Makefile for successfully running
+'make plots' without all the data samples produced, or use the selective commands
+'make QCD_plots', 'make QCDPU_plots' and 'make NuGunPU_plots'
+
+Note: each of the provided plotting commands will first empty and remove the
+plots/ -directory, so please save wanted plots somewhere else.
+
+~~~
+make plots
+~~~
+
+If you have reference DQM results in tmp/QCD_ref, tmp/QCDPU_ref,
+tmp/NuGunPU_ref (i.e. reference results) etc under _tmp area, do this instead:
+
+~~~
+make plots_with_ref
+~~~
+
+The 'plots' directory can be viewed from a web browser once it is moved to e.g. /afs/cern.ch/user/f/foo/www/.
+In this case the URL for the directory is 'http://cern.ch/foo/plots', where 'foo' is the username
+(This requires that your personal cern web page cern.ch/username is enabled)
+
 
 
 # Running via crab
 
-The reco step can also be run via Crab, using
+
+The reco step can also be run via Crab. Prepare CRAB scripts
+
 ~~~
 make conf
 make dumpconf
-cd crab
+cd test/crab
+~~~
+
+Initialize CRAB environment if not done already
+
+~~~
+source /cvmfs/cms.cern.ch/crab3/sh.crab
+voms-proxy-init -voms cms
+cmsenv
+~~~
+
+Submit jobs
+Note that the datasets to run over are defined in the below script.
+Modify the "samples" -list there for changing datasets to process.
+
+~~~
 python multicrab.py
 ~~~
 
-Note that the default era, condition, and samples are now set to 2018. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands. Also check (and if necessary, update) input samples and conf.Site.storageSite specified in $CMSSW_BASE/src/Validation/RecoParticleFlow/crab/multicrab.py (default storage site is T2_US_Caltech, but change it to your favorite site you have access to. use crab checkwrite --site=<site> to check your permission).  
+Once the jobs are done, move the step3_inMINIAODSIM_*.root -files
+from your GRID destination directory to test/tmp/QCD (etc) directory and proceed
+with QCD_dqm etc.
+Please note that any file matching 'step3*MINIAODSIM*.root' will
+be included in the DQM step, so delete files you don't want to study.
+
+~~~
+
+Note that the default era, condition, and samples are now set to 2018. Change CONDITIONS and ERA in test/run_relval.sh when trying other era, before trying the above commands. Also check (and if necessary, update) input samples and conf.Site.storageSite specified in $CMSSW_BASE/src/Validation/RecoParticleFlow/crab/multicrab.py (default storage site is T2_US_Caltech, but change it to your favorite site you have access to. use crab checkwrite --site=<site> to check your permission).
 Take note that the CMSSW python configuration for running the RECO sequence is dumped into `crab/step3_dump.py`.
 
 
