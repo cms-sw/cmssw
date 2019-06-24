@@ -11,6 +11,7 @@
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include "FWCore/Utilities/interface/Likely.h"
 #include <cassert>
 
 using namespace edm::eventsetup;
@@ -23,9 +24,9 @@ namespace edm {
     Intervals::iterator itFound = intervals_.find(iKey);
     assert(itFound != intervals_.end());
     if (!itFound->second.validFor(iInstance)) {
-      if (iInstance != IOVSyncValue::invalidIOVSyncValue()) {
-        setIntervalFor(iKey, iInstance, itFound->second);
-      } else {
+      if
+        LIKELY(iInstance != IOVSyncValue::invalidIOVSyncValue()) { setIntervalFor(iKey, iInstance, itFound->second); }
+      else {
         itFound->second = ValidityInterval::invalidInterval();
       }
     }
