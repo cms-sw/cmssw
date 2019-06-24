@@ -21,8 +21,8 @@
 
 // system include files
 #include <string>
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 // user include files
 
 // forward declarations

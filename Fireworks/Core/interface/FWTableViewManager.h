@@ -23,7 +23,7 @@
 #include <vector>
 #include <set>
 #include <map>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 

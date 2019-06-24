@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_IterWithDict_h
-#define FWCore_Utilities_IterWithDict_h
+#ifndef FWCore_Reflection_IterWithDict_h
+#define FWCore_Reflection_IterWithDict_h
 
 /*----------------------------------------------------------------------
 
@@ -40,4 +40,4 @@ namespace edm {
 
 }  // namespace edm
 
-#endif  // FWCore_Utilities_IterWithDict_h
+#endif  // FWCore_Reflection_IterWithDict_h

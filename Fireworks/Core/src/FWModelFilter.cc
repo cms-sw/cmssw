@@ -13,7 +13,7 @@
 // system include files
 #include <sstream>
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWModelFilter.h"

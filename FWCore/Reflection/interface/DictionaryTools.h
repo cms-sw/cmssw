@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_DictionaryTools_h
-#define FWCore_Utilities_DictionaryTools_h
+#ifndef FWCore_Reflection_DictionaryTools_h
+#define FWCore_Reflection_DictionaryTools_h
 
 /*----------------------------------------------------------------------
 
@@ -62,4 +62,4 @@ namespace edm {
                            std::vector<TypeWithDict>& baseTypes);
 }  // namespace edm
 
-#endif  // FWCore_Utilities_DictionaryTools_h
+#endif  // FWCore_Reflection_DictionaryTools_h

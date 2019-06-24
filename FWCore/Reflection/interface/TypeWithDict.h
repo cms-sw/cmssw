@@ -1,5 +1,5 @@
-#ifndef FWCore_Utilities_TypeWithDict_h
-#define FWCore_Utilities_TypeWithDict_h
+#ifndef FWCore_Reflection_TypeWithDict_h
+#define FWCore_Reflection_TypeWithDict_h
 
 /*----------------------------------------------------------------------
 
@@ -9,7 +9,7 @@ The identifier is unique within an entire program, but can not be
 persisted across invocations of the program.
 
 ----------------------------------------------------------------------*/
-#include "FWCore/Utilities/interface/IterWithDict.h"
+#include "FWCore/Reflection/interface/IterWithDict.h"
 #include "FWCore/Utilities/interface/value_ptr.h"
 
 #include "TBaseClass.h"
@@ -185,8 +185,8 @@ namespace edm {
 
 }  // namespace edm
 
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
-#endif  // FWCore_Utilities_TypeWithDict_h
+#endif  // FWCore_Reflection_TypeWithDict_h

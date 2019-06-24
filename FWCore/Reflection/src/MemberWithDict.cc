@@ -1,7 +1,7 @@
-#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Reflection/interface/MemberWithDict.h"
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <ostream>
 #include <sstream>
 
