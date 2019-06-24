@@ -1099,7 +1099,8 @@ _merges_zminus = PlotGroup("MergeRate_zminus", _mergeplots_zminus, ncols=8)
 
 _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     stat=True,
-    xbinlabeloption="d", ncols=4,
+    xbinlabeloption="d",
+    ncols=1,
     ylog=True,
     xlog=True,
     xmin=0.001,
@@ -1239,7 +1240,8 @@ _merges_zplus = PlotGroup("MergeRate_zplus", _mergeplots_zplus, ncols=8)
 
 _common_energy_score = dict(removeEmptyBins=False, xbinlabelsize=10,
     stat=True,
-    xbinlabeloption="d", ncols=4,
+    xbinlabeloption="d",
+    ncols=1,
     ylog=True,
     xlog=True,
     xmin=0.001,
