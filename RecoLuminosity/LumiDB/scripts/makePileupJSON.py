@@ -29,6 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('inputFile', help='CSV input file as produced from brilcalc')
     parser.add_argument('outputFile', help='Name of JSON output file')
     parser.add_argument('-b', '--selBX', metavar='BXLIST', help='Comma-separated list of BXs to use (will use all by default)')
+    parser.add_argument('-n', '--no-threshold', action='store_true', help='By default, to avoid including spurious luminosity from afterglow in the pileup calculation, bunches with luminosity below a given threshold are excluded. This threshold is 8.0/ub/LS for HFOC at nominal energy, 2.0/ub/LS for HFOC at low energy, and 1.2/ub/LS for other luminometers. If the input data has already been preprocessed (e.g. by using the --xingTr argument in brilcalc) to exclude these bunches, or if you are running on special data with low overall luminosity, then use this flag to disable the application of the threshold.')
     args = parser.parse_args()
 
     output = args.outputFile
@@ -86,7 +87,7 @@ if __name__ == '__main__':
             for bxid, bunch_del_lumi, bunch_rec_lumi in zip(pieces[15::3], pieces[16::3], pieces[17::3]):
                 if sel_bx and int(bxid) not in sel_bx:
                     continue
-                if float(bunch_del_lumi) > threshold:
+                if args.no_threshold or float(bunch_del_lumi) > threshold:
                     xing_lumi_array.append([int(bxid), float(bunch_del_lumi), float(bunch_rec_lumi)])
         except:
             print("Failed to parse line: check if the input format has changed")
