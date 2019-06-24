@@ -279,7 +279,7 @@ upgradeProperties[2017] = {
     '2021' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2021_realistic',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
@@ -287,7 +287,7 @@ upgradeProperties[2017] = {
     '2021Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2021_design',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
