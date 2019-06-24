@@ -77,8 +77,8 @@ void PhotonMIPHaloTagger::MIPcalculate(const reco::Photon* pho,
   e.getByToken(EBecalCollection_, barrelHitHandle);
 
   if (!barrelHitHandle.isValid()) {
-    edm::LogError("MIPcalculate")
-        << "Error! Can't get the barrel hits product ";  //<<EBecalCollection_.label(); (cant be bothered tracking the input tag just for this error message)
+    edm::LogError("MIPcalculate") << "Error! Can't get the barrel hits product ";
+    //<<EBecalCollection_.label(); (cant be bothered tracking the input tag just for this error message)
     validEcalRecHits = false;
   }
 

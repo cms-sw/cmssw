@@ -182,8 +182,8 @@ public:
     else {
       FreeTrajectoryState ftsAtProduction(finalGP, finalGV, TrackCharge(tpr->charge()), theMF.product());
       TSCBLBuilderNoMaterial tscblBuilder;
-      TrajectoryStateClosestToBeamLine tsAtClosestApproach =
-          tscblBuilder(ftsAtProduction, *bs);  //as in TrackProducerAlgorithm
+      //as in TrackProducerAlgorithm
+      TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction, *bs);
       if (!tsAtClosestApproach.isValid()) {
         edm::LogVerbatim("CosmicTrackingParticleSelector")
             << "*** WARNING in CosmicTrackingParticleSelector: tsAtClosestApproach is not valid."
