@@ -213,7 +213,7 @@ class ConfigBuilder(object):
                 (hasattr(self._options,"datatier") and \
                 self._options.datatier and \
                 'DQMIO' in self._options.datatier):
-                print("removing ENDJOB from steps since not compatible with DQMIO dataTier") 
+                print("removing ENDJOB from steps since not compatible with DQMIO dataTier")
                 self._options.step=self._options.step.replace(',ENDJOB','')
 
 
@@ -281,8 +281,8 @@ class ConfigBuilder(object):
 
         if len(profileOpts):
             #type, given as first argument is unused here
-            profileOpts.pop(0) 
-        if len(profileOpts):   
+            profileOpts.pop(0)
+        if len(profileOpts):
             startEvent = profileOpts.pop(0)
             if not startEvent.isdigit():
                 raise Exception("%s is not a number" % startEvent)
@@ -297,10 +297,9 @@ class ConfigBuilder(object):
 
 
         if not profilerFormat:
-            profilerFormat = "%s___%s___%s___%%I.gz" % (
+            profilerFormat = "%s___%s___%%I.gz" % (
                 self._options.evt_type.replace("_cfi", ""),
-                self._options.step,
-                hashlib.md5(str(self._options.pileup) + str(self._options.conditions) + str(self._options.datatier) + str(self._options.profileTypeLabel)).hexdigest()
+                hashlib.md5(str(self._options.step) + str(self._options.pileup) + str(self._options.conditions) + str(self._options.datatier) + str(self._options.profileTypeLabel)).hexdigest()
             )
         if not profilerJobFormat and profilerFormat.endswith(".gz"):
             profilerJobFormat = profilerFormat.replace(".gz", "_EndOfJob.gz")
@@ -453,7 +452,7 @@ class ConfigBuilder(object):
             if self._options.inputCommands:
                 self._options.inputCommands+=',drop LHEXMLStringProduct_*_*_*,'
             else:
-                self._options.inputCommands='keep *, drop LHEXMLStringProduct_*_*_*,'    
+                self._options.inputCommands='keep *, drop LHEXMLStringProduct_*_*_*,'
 
         if self.process.source and self._options.inputCommands:
             if not hasattr(self.process.source,'inputCommands'): self.process.source.inputCommands=cms.untracked.vstring()
@@ -557,7 +556,7 @@ class ConfigBuilder(object):
                 if self._options.timeoutOutput:
                     CppType='TimeoutPoolOutputModule'
                 if theStreamType=='DQM' and theTier=='DQMIO': CppType='DQMRootOutputModule'
-                output = cms.OutputModule(CppType,			
+                output = cms.OutputModule(CppType,
                                           theEventContent.clone(),
                                           fileName = cms.untracked.string(theFileName),
                                           dataset = cms.untracked.PSet(
@@ -567,7 +566,7 @@ class ConfigBuilder(object):
                 if not theSelectEvent and hasattr(self.process,'generation_step') and theStreamType!='LHE':
                     output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('generation_step'))
                 if not theSelectEvent and hasattr(self.process,'filtering_step'):
-                    output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))				
+                    output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))
                 if theSelectEvent:
                     output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
 
@@ -802,7 +801,7 @@ class ConfigBuilder(object):
                 self.process.source.dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
 
 
-        return 
+        return
 
     def addConditions(self):
         """Add conditions to the process"""
@@ -856,7 +855,7 @@ class ConfigBuilder(object):
             allFcn.extend(custMap[opt])
         for fcn in allFcn:
             if allFcn.count(fcn)!=1:
-                raise Exception("cannot specify twice "+fcn+" as a customisation method") 
+                raise Exception("cannot specify twice "+fcn+" as a customisation method")
 
         for f in custMap:
             # let python search for that package and do syntax checking at the same time
@@ -1009,7 +1008,7 @@ class ConfigBuilder(object):
             self.GENDefaultSeq='fixGenInfo'
 
         if self._options.scenario=='cosmics':
-            self._options.pileup='Cosmics'	
+            self._options.pileup='Cosmics'
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
             self.SKIMDefaultCFF="Configuration/StandardSequences/SkimsCosmics_cff"
@@ -1375,7 +1374,7 @@ class ConfigBuilder(object):
             except ImportError:
                 raise Exception("VertexSmearing type or beamspot "+self._options.beamspot+" unknown.")
 
-            if self._options.scenario == 'HeavyIons': 
+            if self._options.scenario == 'HeavyIons':
                 if self._options.pileup=='HiMixGEN':
                     self.loadAndRemember("Configuration/StandardSequences/GeneratorMix_cff")
                 else:
@@ -1389,7 +1388,7 @@ class ConfigBuilder(object):
 
         if 'reGEN' in self.stepMap:
             #stop here
-            return 
+            return
 
         """ Enrich the schedule with the summary of the filter step """
         #the gen filter in the endpath
@@ -1613,7 +1612,7 @@ class ConfigBuilder(object):
         self.scheduleSequence(filterSeq,'filtering_step')
         self.nextScheduleIsConditional=True
         ## put it before all the other paths
-        self.productionFilterSequence = filterSeq 
+        self.productionFilterSequence = filterSeq
 
         return
 
@@ -1668,7 +1667,7 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with PATGEN '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.PATGENDefaultCFF) #this is unscheduled
         self.labelsToAssociate.append('patGENTask')
-        if not self._options.runUnscheduled:	
+        if not self._options.runUnscheduled:
             raise Exception("MiniGEN production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
         if self._options.isData:
             raise Exception("PATGEN step can only run on MC")
@@ -2101,7 +2100,7 @@ class ConfigBuilder(object):
         #yes, the cfg code gets out of sync here if a process is passed in. That could be fixed in the future
         #assuming there is some way for the fwk to get the list of modifiers (and their stringified name)
         if self.process == None:
-            if len(modifiers)>0:	
+            if len(modifiers)>0:
                 self.process = cms.Process(self._options.name,*modifiers)
             else:
                 self.process = cms.Process(self._options.name)
@@ -2227,7 +2226,7 @@ class ConfigBuilder(object):
             self.pythonCfgCode +="process.options.numberOfStreams=cms.untracked.uint32("+self._options.nStreams+")\n"
             self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32("+self._options.nConcurrentLumis+")\n"
             self.process.options.numberOfThreads=cms.untracked.uint32(int(self._options.nThreads))
-            self.process.options.numberOfStreams=cms.untracked.uint32(int(self._options.nStreams))            
+            self.process.options.numberOfStreams=cms.untracked.uint32(int(self._options.nStreams))
             self.process.options.numberOfConcurrentLuminosityBlocks=cms.untracked.uint32(int(self._options.nConcurrentLumis))
         #repacked version
         if self._options.isRepacked:
@@ -2243,7 +2242,7 @@ class ConfigBuilder(object):
             if len(self.conditionalPaths):
                 self.pythonCfgCode +='\tif not path in %s: continue\n'%str(self.conditionalPaths)
             if len(self.excludedPaths):
-                self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)			
+                self.pythonCfgCode +='\tif path in %s: continue\n'%str(self.excludedPaths)
             self.pythonCfgCode +='\tgetattr(process,path).insert(0, process.%s)\n'%(self.productionFilterSequence,)
             pfs = getattr(self.process,self.productionFilterSequence)
             for path in self.process.paths:
@@ -2255,7 +2254,7 @@ class ConfigBuilder(object):
         # dump customise fragment
         self.pythonCfgCode += self.addCustomise()
 
-        if self._options.runUnscheduled:	
+        if self._options.runUnscheduled:
             # prune and delete paths
             #this is not supporting the blacklist at this point since I do not understand it
             self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
