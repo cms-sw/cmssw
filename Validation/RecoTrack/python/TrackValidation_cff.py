@@ -462,7 +462,8 @@ _trackValidatorSeedingBuilding = trackValidator.clone( # common for built tracks
     dodEdxPlots = False,
     doPVAssociationPlots = False,
     doSimPlots = False,
-    doResolutionPlotsForLabels = ["disabled"],
+#    doResolutionPlotsForLabels = ["disabled"],
+    doResolutionPlotsForLabels = [], # enable resolution plots for building as well
 )
 trackValidatorBuilding = _trackValidatorSeedingBuilding.clone(
     dirName = "Tracking/TrackBuilding/",
