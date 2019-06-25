@@ -115,19 +115,13 @@ void CSCGeometryBuilder::build(CSCGeometry& theGeometry,
   }
 }
 
-void CSCGeometryBuilder::buildChamber(CSCGeometry& theGeometry  // the geometry container
-                                      ,
-                                      CSCDetId chamberId  // the DetId for this chamber
-                                      ,
-                                      const std::vector<float>& fpar  // volume parameters hB, hT. hD, hH
-                                      ,
-                                      const std::vector<float>& fupar  // user parameters
-                                      ,
-                                      const std::vector<float>& gtran  // translation vector
-                                      ,
-                                      const std::vector<float>& grmat  // rotation matrix
-                                      ,
-                                      const CSCWireGroupPackage& wg  // wire group info
+void CSCGeometryBuilder::buildChamber(CSCGeometry& theGeometry,         // the geometry container
+                                      CSCDetId chamberId,               // the DetId for this chamber
+                                      const std::vector<float>& fpar,   // volume parameters hB, hT. hD, hH
+                                      const std::vector<float>& fupar,  // user parameters
+                                      const std::vector<float>& gtran,  // translation vector
+                                      const std::vector<float>& grmat,  // rotation matrix
+                                      const CSCWireGroupPackage& wg     // wire group info
 ) {
   LogTrace(myName) << myName << ": entering buildChamber";
 

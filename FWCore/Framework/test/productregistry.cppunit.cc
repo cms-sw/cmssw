@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
 #include "cppunit/extensions/HelperMacros.h"

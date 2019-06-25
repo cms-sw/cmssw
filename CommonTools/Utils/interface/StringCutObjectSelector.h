@@ -10,7 +10,7 @@
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/interface/cutParser.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 template <typename T, bool DefaultLazyness = false>
 struct StringCutObjectSelector {

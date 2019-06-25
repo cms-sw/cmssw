@@ -1,9 +1,9 @@
 
 #include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "DataFormats/Provenance/interface/ViewTypeChecker.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 #include "FWCore/Utilities/interface/getAnyPtr.h"
 

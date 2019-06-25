@@ -1061,20 +1061,18 @@ float ContentSigma::runTest(const MonitorElement* me) {
     neighborsY = 0;
   }
 
-  if (xMin_ != 0 &&
-      xMax_ !=
-          0) {  //give users option for automatic mininum and maximum selection by inputting 0 to any of the parameters
-                // check that user's parameters are completely in agreement with histogram
-                // for instance, if inputted xMax is out of range xMin will automatically be ignored
+  //give users option for automatic mininum and maximum selection by inputting 0 to any of the parameters
+  // check that user's parameters are completely in agreement with histogram
+  // for instance, if inputted xMax is out of range xMin will automatically be ignored
+  if (xMin_ != 0 && xMax_ != 0) {
     if ((xMax_ <= nbinsX) && (xMin_ <= xMax_)) {  // rescale area of histogram being analyzed
       nbinsX = xMax_ - xMin_ + 1;
       xMax = xMax_;  // do NOT use overflow bin
       xMin = xMin_;  // do NOT use underflow bin
     }
   }
-  if (yMin_ != 0 &&
-      yMax_ !=
-          0) {  //give users option for automatic mininum and maximum selection by inputting 0 to any of the parameters
+  //give users option for automatic mininum and maximum selection by inputting 0 to any of the parameters
+  if (yMin_ != 0 && yMax_ != 0) {
     if ((yMax_ <= nbinsY) && (yMin_ <= yMax_)) {
       nbinsY = yMax_ - yMin_ + 1;
       yMax = yMax_;
@@ -1138,8 +1136,8 @@ float ContentSigma::runTest(const MonitorElement* me) {
 
       double average = sum / (XWidth * YWidth - 1);
       double sigma = getNeighborSigma(average, groupx, groupy, XBlocks, YBlocks, neighborsX, neighborsY, h);
-      sigma -= (average - blocksum) *
-               (average - blocksum);  //get rid of block being tested just like we did with the average
+      //get rid of block being tested just like we did with the average
+      sigma -= (average - blocksum) * (average - blocksum);
       double sigma_2 = sqrt(sigma) / sqrt(XWidth * YWidth - 2);  //N-1 where N=XWidth*YWidth - 1
       double sigma_real = sigma_2 / (XWidth * YWidth - 1);
       //double avg_uncrt = average*sqrt(sum)/sum;//Obsolete now(Chad Freer)
@@ -1205,11 +1203,10 @@ double ContentSigma::getNeighborSum(unsigned groupx,
   unsigned Xbinnum = 1;
   unsigned Ybinnum = 1;
 
-  if (xMin_ != 0 &&
-      xMax_ !=
-          0) {  //give users option for automatic mininum and maximum selection by inputting 0 to any of the parameters
-                // check that user's parameters are completely in agreement with histogram
-                // for instance, if inputted xMax is out of range xMin will automatically be ignored
+  //give users option for automatic mininum and maximum selection by inputting 0 to any of the parameters
+  // check that user's parameters are completely in agreement with histogram
+  // for instance, if inputted xMax is out of range xMin will automatically be ignored
+  if (xMin_ != 0 && xMax_ != 0) {
     if ((xMax_ <= nbinsX) && (xMin_ <= xMax_)) {
       nbinsX = xMax_ - xMin_ + 1;
       xMax = xMax_;  // do NOT use overflow bin

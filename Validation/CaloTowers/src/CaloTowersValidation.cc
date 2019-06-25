@@ -12,7 +12,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf) {
 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
 
-  mc_ = conf.getUntrackedParameter<std::string>("mc", "yes");
+  mc_ = conf.getUntrackedParameter<bool>("mc", true);
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
 
   etaMin[0] = 0.;
@@ -31,7 +31,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf) {
     isub = 3;
 
   imc = 1;
-  if (mc_ == "no")
+  if (!mc_)
     imc = 0;
 
   if (!outputFile_.empty()) {

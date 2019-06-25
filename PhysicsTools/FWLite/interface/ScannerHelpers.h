@@ -2,7 +2,7 @@
 #define PhysicsTools_FWLite_ScannerHelpers_h
 
 #include <string>
-#include <FWCore/Utilities/interface/TypeWithDict.h>
+#include <FWCore/Reflection/interface/TypeWithDict.h>
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
