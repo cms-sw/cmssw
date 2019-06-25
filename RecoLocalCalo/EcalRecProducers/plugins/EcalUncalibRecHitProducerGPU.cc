@@ -313,7 +313,7 @@ void EcalUncalibRecHitProducerGPU::acquire(
         edm::EventSetup const& setup,
         edm::WaitingTaskWithArenaHolder holder) 
 {
-    DurationMeasurer<std::chrono::milliseconds> timer{std::string{"acquire duration"}};
+    //DurationMeasurer<std::chrono::milliseconds> timer{std::string{"acquire duration"}};
 
     // raii
     CUDAScopedContextAcquire ctx{event.streamID(), std::move(holder), cudaState_};
@@ -394,7 +394,7 @@ void EcalUncalibRecHitProducerGPU::produce(
         edm::Event& event, 
         edm::EventSetup const& setup) 
 {
-    DurationMeasurer<std::chrono::milliseconds> timer{std::string{"produce duration"}};
+    //DurationMeasurer<std::chrono::milliseconds> timer{std::string{"produce duration"}};
     CUDAScopedContextProduce ctx{cudaState_};
 
     if (shouldTransferToHost_) {
