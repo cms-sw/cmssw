@@ -10,7 +10,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include "FWCore/Framework/interface/limited/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/Framework/src/ModuleHolder.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
@@ -29,19 +29,8 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
-namespace {
-  edm::ParameterSet makePSet() {
-    edm::ParameterSet pset;
-    const unsigned int kLimit = 1;
-    pset.addUntrackedParameter("concurrencyLimit", kLimit);
-    return pset;
-  }
-
-  const edm::ParameterSet s_pset = makePSet();
-}  // namespace
-
-class testLimitedModule : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testLimitedModule);
+class testGlobalFilter : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testGlobalFilter);
 
   CPPUNIT_TEST(basicTest);
   CPPUNIT_TEST(streamTest);
@@ -59,7 +48,7 @@ class testLimitedModule : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testLimitedModule();
+  testGlobalFilter();
 
   void setUp() {}
   void tearDown() {}
@@ -99,6 +88,7 @@ private:
   std::map<Trans, std::function<void(edm::Worker*)>> m_transToFunc;
 
   edm::ProcessConfiguration m_procConfig;
+  edm::PreallocationConfiguration m_preallocConfig;
   std::shared_ptr<edm::ProductRegistry> m_prodReg;
   std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
   std::shared_ptr<edm::ThinnedAssociationsHelper> m_associationsHelper;
@@ -114,18 +104,22 @@ private:
   template <typename T>
   void testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect);
 
-  class BasicProd : public edm::limited::EDProducer<> {
+  class BasicProd : public edm::global::EDFilter<> {
   public:
-    BasicProd() : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<>(s_pset) {}
     mutable unsigned int m_count = 0;  //[[cms-thread-safe]]
 
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
   };
-  class StreamProd : public edm::limited::EDProducer<edm::StreamCache<int>> {
+  class StreamProd : public edm::global::EDFilter<edm::StreamCache<int>> {
   public:
-    StreamProd() : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::StreamCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     std::unique_ptr<int> beginStream(edm::StreamID) const override {
       ++m_count;
@@ -147,11 +141,13 @@ private:
     void endStream(edm::StreamID) const override { ++m_count; }
   };
 
-  class RunProd : public edm::limited::EDProducer<edm::RunCache<int>> {
+  class RunProd : public edm::global::EDFilter<edm::RunCache<int>> {
   public:
-    RunProd() : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::RunCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     std::shared_ptr<int> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
@@ -161,12 +157,13 @@ private:
     void globalEndRun(edm::Run const&, edm::EventSetup const&) const override { ++m_count; }
   };
 
-  class LumiProd : public edm::limited::EDProducer<edm::LuminosityBlockCache<int>> {
+  class LumiProd : public edm::global::EDFilter<edm::LuminosityBlockCache<int>> {
   public:
-    LumiProd()
-        : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::LuminosityBlockCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     std::shared_ptr<int> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
                                                     edm::EventSetup const&) const override {
@@ -177,12 +174,13 @@ private:
     void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override { ++m_count; }
   };
 
-  class RunSummaryProd : public edm::limited::EDProducer<edm::RunSummaryCache<int>> {
+  class RunSummaryProd : public edm::global::EDFilter<edm::RunSummaryCache<int>> {
   public:
-    RunSummaryProd()
-        : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::RunSummaryCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     std::shared_ptr<int> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
@@ -194,13 +192,13 @@ private:
     void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
   };
 
-  class LumiSummaryProd : public edm::limited::EDProducer<edm::LuminosityBlockSummaryCache<int>> {
+  class LumiSummaryProd : public edm::global::EDFilter<edm::LuminosityBlockSummaryCache<int>> {
   public:
-    LumiSummaryProd()
-        : edm::limited::EDProducerBase(s_pset),
-          edm::limited::EDProducer<edm::LuminosityBlockSummaryCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     std::shared_ptr<int> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                            edm::EventSetup const&) const override {
@@ -220,51 +218,58 @@ private:
     }
   };
 
-  class BeginRunProd : public edm::limited::EDProducer<edm::BeginRunProducer> {
+  class BeginRunProd : public edm::global::EDFilter<edm::BeginRunProducer> {
   public:
-    BeginRunProd() : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::BeginRunProducer>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     void globalBeginRunProduce(edm::Run&, edm::EventSetup const&) const override { ++m_count; }
   };
 
-  class BeginLumiProd : public edm::limited::EDProducer<edm::BeginLuminosityBlockProducer> {
+  class BeginLumiProd : public edm::global::EDFilter<edm::BeginLuminosityBlockProducer> {
   public:
-    BeginLumiProd()
-        : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::BeginLuminosityBlockProducer>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override { ++m_count; }
   };
 
-  class EndRunProd : public edm::limited::EDProducer<edm::EndRunProducer> {
+  class EndRunProd : public edm::global::EDFilter<edm::EndRunProducer> {
   public:
-    EndRunProd() : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::EndRunProducer>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     void globalEndRunProduce(edm::Run&, edm::EventSetup const&) const override { ++m_count; }
   };
 
-  class EndLumiProd : public edm::limited::EDProducer<edm::EndLuminosityBlockProducer> {
+  class EndLumiProd : public edm::global::EDFilter<edm::EndLuminosityBlockProducer> {
   public:
-    EndLumiProd()
-        : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::EndLuminosityBlockProducer>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override { ++m_count; }
   };
 
-  class EndRunSummaryProd : public edm::limited::EDProducer<edm::EndRunProducer, edm::RunSummaryCache<int>> {
+  class EndRunSummaryProd : public edm::global::EDFilter<edm::EndRunProducer, edm::RunSummaryCache<int>> {
   public:
-    EndRunSummaryProd()
-        : edm::limited::EDProducerBase(s_pset),
-          edm::limited::EDProducer<edm::EndRunProducer, edm::RunSummaryCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    mutable bool m_globalEndRunSummaryCalled = false;
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     std::shared_ptr<int> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
@@ -273,19 +278,28 @@ private:
 
     void streamEndRunSummary(edm::StreamID, edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
 
-    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
+    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == false);
+      m_globalEndRunSummaryCalled = true;
+    }
 
-    void globalEndRunProduce(edm::Run&, edm::EventSetup const&, int const*) const override { ++m_count; }
+    void globalEndRunProduce(edm::Run&, edm::EventSetup const&, int const*) const override {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == true);
+      m_globalEndRunSummaryCalled = false;
+    }
   };
 
   class EndLumiSummaryProd
-      : public edm::limited::EDProducer<edm::EndLuminosityBlockProducer, edm::LuminosityBlockSummaryCache<int>> {
+      : public edm::global::EDFilter<edm::EndLuminosityBlockProducer, edm::LuminosityBlockSummaryCache<int>> {
   public:
-    EndLumiSummaryProd()
-        : edm::limited::EDProducerBase(s_pset),
-          edm::limited::EDProducer<edm::EndLuminosityBlockProducer, edm::LuminosityBlockSummaryCache<int>>(s_pset) {}
     mutable unsigned int m_count = 0;
-    void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
+    mutable bool m_globalEndLuminosityBlockSummaryCalled = false;
+    bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override {
+      ++m_count;
+      return true;
+    }
 
     std::shared_ptr<int> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
                                                            edm::EventSetup const&) const override {
@@ -302,10 +316,14 @@ private:
 
     void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, int*) const override {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == false);
+      m_globalEndLuminosityBlockSummaryCalled = true;
     }
 
     void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, int const*) const override {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == true);
+      m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
 };
@@ -330,10 +348,11 @@ static edm::StreamID makeID() {
 static const edm::StreamID s_streamID0 = makeID();
 
 ///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testLimitedModule);
+CPPUNIT_TEST_SUITE_REGISTRATION(testGlobalFilter);
 
-testLimitedModule::testLimitedModule()
-    : m_prodReg(new edm::ProductRegistry{}),
+testGlobalFilter::testGlobalFilter()
+    : m_preallocConfig{},
+      m_prodReg(new edm::ProductRegistry{}),
       m_idHelper(new edm::BranchIDListHelper{}),
       m_associationsHelper(new edm::ThinnedAssociationsHelper{}),
       m_ep() {
@@ -346,9 +365,9 @@ testLimitedModule::testLimitedModule()
   edm::Timestamp now(1234567UL);
   auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_, 0));
-  edm::LuminosityBlockAuxiliary lumiAux(m_rp->run(), 1, now, now);
+  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
   m_lbp.reset(new edm::LuminosityBlockPrincipal(m_prodReg, m_procConfig, &historyAppender_, 0));
-  m_lbp->setAux(lumiAux);
+  m_lbp->setAux(*lumiAux);
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);
 
@@ -426,14 +445,14 @@ namespace {
   template <typename T>
   void testTransition(std::shared_ptr<T> iMod,
                       edm::Worker* iWorker,
-                      testLimitedModule::Trans iTrans,
-                      testLimitedModule::Expectations const& iExpect,
+                      testGlobalFilter::Trans iTrans,
+                      testGlobalFilter::Expectations const& iExpect,
                       std::function<void(edm::Worker*)> iFunc) {
     assert(0 == iMod->m_count);
     iFunc(iWorker);
     auto count = std::count(iExpect.begin(), iExpect.end(), iTrans);
     if (count != iMod->m_count) {
-      std::cout << "For trans " << static_cast<std::underlying_type<testLimitedModule::Trans>::type>(iTrans)
+      std::cout << "For trans " << static_cast<std::underlying_type<testGlobalFilter::Trans>::type>(iTrans)
                 << " expected " << count << " and got " << iMod->m_count << std::endl;
     }
     CPPUNIT_ASSERT(iMod->m_count == count);
@@ -443,23 +462,24 @@ namespace {
 }  // namespace
 
 template <typename T>
-void testLimitedModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
-  edm::maker::ModuleHolderT<edm::limited::EDProducerBase> h(iMod, nullptr);
+void testGlobalFilter::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+  edm::maker::ModuleHolderT<edm::global::EDFilterBase> h(iMod, nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
-  edm::WorkerT<edm::limited::EDProducerBase> w{iMod, m_desc, nullptr};
+
+  edm::WorkerT<edm::global::EDFilterBase> w{iMod, m_desc, nullptr};
   for (auto& keyVal : m_transToFunc) {
     testTransition(iMod, &w, keyVal.first, iExpect, keyVal.second);
   }
 }
 
-void testLimitedModule::basicTest() {
+void testGlobalFilter::basicTest() {
   auto testProd = std::make_shared<BasicProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent});
 }
 
-void testLimitedModule::streamTest() {
+void testGlobalFilter::streamTest() {
   auto testProd = std::make_shared<StreamProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
@@ -473,28 +493,28 @@ void testLimitedModule::streamTest() {
                    Trans::kEndStream});
 }
 
-void testLimitedModule::runTest() {
+void testGlobalFilter::runTest() {
   auto testProd = std::make_shared<RunProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
 }
 
-void testLimitedModule::runSummaryTest() {
+void testGlobalFilter::runSummaryTest() {
   auto testProd = std::make_shared<RunSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
-void testLimitedModule::lumiTest() {
+void testGlobalFilter::lumiTest() {
   auto testProd = std::make_shared<LumiProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
 }
 
-void testLimitedModule::lumiSummaryTest() {
+void testGlobalFilter::lumiSummaryTest() {
   auto testProd = std::make_shared<LumiSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
@@ -505,35 +525,35 @@ void testLimitedModule::lumiSummaryTest() {
                    Trans::kGlobalEndLuminosityBlock});
 }
 
-void testLimitedModule::beginRunProdTest() {
+void testGlobalFilter::beginRunProdTest() {
   auto testProd = std::make_shared<BeginRunProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent});
 }
 
-void testLimitedModule::beginLumiProdTest() {
+void testGlobalFilter::beginLumiProdTest() {
   auto testProd = std::make_shared<BeginLumiProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
 }
 
-void testLimitedModule::endRunProdTest() {
+void testGlobalFilter::endRunProdTest() {
   auto testProd = std::make_shared<EndRunProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent});
 }
 
-void testLimitedModule::endLumiProdTest() {
+void testGlobalFilter::endLumiProdTest() {
   auto testProd = std::make_shared<EndLumiProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent});
 }
 
-void testLimitedModule::endRunSummaryProdTest() {
+void testGlobalFilter::endRunSummaryProdTest() {
   auto testProd = std::make_shared<EndRunSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
@@ -542,7 +562,7 @@ void testLimitedModule::endRunSummaryProdTest() {
       {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
-void testLimitedModule::endLumiSummaryProdTest() {
+void testGlobalFilter::endLumiSummaryProdTest() {
   auto testProd = std::make_shared<EndLumiSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);

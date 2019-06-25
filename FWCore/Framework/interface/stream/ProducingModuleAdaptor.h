@@ -137,11 +137,11 @@ namespace edm {
           const EventSetup c{ci,
                              static_cast<unsigned int>(Transition::EndRun),
                              this->consumer()->esGetTokenIndices(Transition::EndRun)};
+          MyGlobalRunSummary::globalEndRun(r, c, &rc, m_runSummaries[ri].get());
           if constexpr (T::HasAbility::kEndRunProducer) {
             MyEndRunProduce::produce(r, c, &rc, m_runSummaries[ri].get());
             this->commit(r);
           }
-          MyGlobalRunSummary::globalEndRun(r, c, &rc, m_runSummaries[ri].get());
           MyGlobalRun::endRun(r, c, &rc);
         }
       }
@@ -186,11 +186,11 @@ namespace edm {
           const EventSetup c{ci,
                              static_cast<unsigned int>(Transition::EndLuminosityBlock),
                              this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock)};
+          MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb, c, &lc, m_lumiSummaries[li].get());
           if constexpr (T::HasAbility::kEndLuminosityBlockProducer) {
             MyEndLuminosityBlockProduce::produce(lb, c, &lc, m_lumiSummaries[li].get());
             this->commit(lb);
           }
-          MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb, c, &lc, m_lumiSummaries[li].get());
           MyGlobalLuminosityBlock::endLuminosityBlock(lb, c, &lc);
         }
       }
