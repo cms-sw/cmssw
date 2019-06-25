@@ -67,9 +67,8 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
         }
       }
 
-      const int time_slice = (t_lead != 0)
-        ? (t_lead - ch_t_offset / ts_to_ns_) / 1024
-        : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
+      const int time_slice =
+          (t_lead != 0) ? (t_lead - ch_t_offset / ts_to_ns_) / 1024 : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       // calibrated time of arrival
       const double t0 = (t_lead % 1024) * ts_to_ns_ - ch_t_twc;
