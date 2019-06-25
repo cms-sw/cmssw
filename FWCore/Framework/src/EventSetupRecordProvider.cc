@@ -104,11 +104,9 @@ namespace edm {
             make_shared_noexcept_false<IntersectingIOVRecordIntervalFinder>(key_);
         intFinder->swapFinders(*multipleFinders_);
         finder_ = intFinder;
-        hasNonconcurrentFinder_ = intFinder->hasNonconcurrentFinder();
-      } else {
-        if (finder_.get() != nullptr) {
-          hasNonconcurrentFinder_ = !finder_->concurrentFinder();
-        }
+      }
+      if (finder_) {
+        hasNonconcurrentFinder_ = !finder_->concurrentFinder();
       }
 
       //now we get rid of the temporary
