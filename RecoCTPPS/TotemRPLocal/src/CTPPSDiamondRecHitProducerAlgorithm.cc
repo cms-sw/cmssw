@@ -36,19 +36,17 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
     float z_pos = 0.;
     z_pos = det->parentZPosition();  // retrieve the plane position;
 
-    const float x_width = 2.0 * det->params().at(0),  // parameters stand for half the size
-        y_width = 2.0 * det->params().at(1), z_width = 2.0 * det->params().at(2);
+    // parameters stand for half the size
+    const float x_width = 2.0 * det->params().at(0);
+    const float y_width = 2.0 * det->params().at(1);
+    const float z_width = 2.0 * det->params().at(2);
 
     // retrieve the timing calibration part for this channel
     const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
-    std::vector<double> ch_params;
+    const auto ch_params = (apply_calib_) ? calib_.parameters(sector, station, plane, channel) : {};
     // default values for offset + time precision if calibration object not found
-    double ch_t_offset = 0., ch_t_precis = 0.;
-    if (apply_calib_) {
-      ch_params = calib_.parameters(sector, station, plane, channel);
-      ch_t_offset = calib_.timeOffset(sector, station, plane, channel);
-      ch_t_precis = calib_.timePrecision(sector, station, plane, channel);
-    }
+    const double ch_t_offset = (apply_calib_) ? calib_.timeOffset(sector, station, plane, channel) : 0.;
+    const double ch_t_precis = (apply_calib_) ? calib_.timePrecision(sector, station, plane, channel) : 0.;
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert(detid);
 
@@ -69,8 +67,9 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
         }
       }
 
-      const int time_slice =
-          (t_lead != 0) ? (t_lead - ch_t_offset / ts_to_ns_) / 1024 : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
+      const int time_slice = (t_lead != 0)
+        ? (t_lead - ch_t_offset / ts_to_ns_) / 1024
+        : CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING;
 
       // calibrated time of arrival
       const double t0 = (t_lead % 1024) * ts_to_ns_ - ch_t_twc;
