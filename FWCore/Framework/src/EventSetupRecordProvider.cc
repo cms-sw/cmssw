@@ -45,11 +45,11 @@ namespace edm {
           nConcurrentIOVs_(nConcurrentIOVs) {
       recordImpls_.reserve(nConcurrentIOVs);
       for (unsigned int i = 0; i < nConcurrentIOVs_; ++i) {
-        recordImpls_.push_back(std::make_unique<EventSetupRecordImpl>(iKey, activityRegistry, i));
+        recordImpls_.emplace_back(iKey, activityRegistry, i);
       }
     }
 
-    EventSetupRecordImpl const& EventSetupRecordProvider::firstRecordImpl() const { return *recordImpls_[0]; }
+    EventSetupRecordImpl const& EventSetupRecordProvider::firstRecordImpl() const { return recordImpls_[0]; }
 
     void EventSetupRecordProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
       assert(iProvider->isUsingRecord(key_));
@@ -133,13 +133,13 @@ namespace edm {
               continue;
             }
           }
-          recordImpls_.at(iovIndex)->add(keyedProxy.dataKey(), keyedProxy.dataProxy());
+          recordImpls_.at(iovIndex).add(keyedProxy.dataKey(), keyedProxy.dataProxy());
         }
       }
     }
 
     void EventSetupRecordProvider::initializeForNewIOV(unsigned int iovIndex, unsigned long long cacheIdentifier) {
-      EventSetupRecordImpl* impl = recordImpls_[iovIndex].get();
+      EventSetupRecordImpl* impl = &recordImpls_[iovIndex];
       recordImpl_ = impl;
       impl->initializeForNewIOV(cacheIdentifier, validityInterval_);
       eventSetupImpl_->addRecordImpl(*recordImpl_);
@@ -154,7 +154,7 @@ namespace edm {
       }
     }
 
-    void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex]->invalidateProxies(); }
+    void EventSetupRecordProvider::endIOV(unsigned int iovIndex) { recordImpls_[iovIndex].invalidateProxies(); }
 
     void EventSetupRecordProvider::initializeForNewSyncValue() {
       intervalStatus_ = IntervalStatus::NotInitializedForSyncValue;
@@ -213,8 +213,8 @@ namespace edm {
     void EventSetupRecordProvider::resetProxies() {
       // Clear out all the DataProxy's
       for (auto& recordImplIter : recordImpls_) {
-        recordImplIter->invalidateProxies();
-        recordImplIter->resetIfTransientInProxies();
+        recordImplIter.invalidateProxies();
+        recordImplIter.resetIfTransientInProxies();
       }
       // Force a new IOV to start with a new cacheIdentifier
       // on the next eventSetupForInstance call.
@@ -243,7 +243,7 @@ namespace edm {
 
     void EventSetupRecordProvider::resetRecordToProxyPointers(DataToPreferredProviderMap const& iMap) {
       for (auto& recordImplIter : recordImpls_) {
-        recordImplIter->clearProxies();
+        recordImplIter.clearProxies();
       }
       using std::placeholders::_1;
       for_all(providers_, std::bind(&EventSetupRecordProvider::addProxiesToRecordHelper, this, _1, iMap));

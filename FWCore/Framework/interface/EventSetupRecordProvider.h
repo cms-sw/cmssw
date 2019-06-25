@@ -180,7 +180,7 @@ namespace edm {
 
       EventSetupImpl* eventSetupImpl_ = nullptr;
 
-      std::vector<edm::propagate_const<std::unique_ptr<EventSetupRecordImpl>>> recordImpls_;
+      std::vector<EventSetupRecordImpl> recordImpls_;
       EventSetupRecordImpl const* recordImpl_ = nullptr;
 
       edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>> finder_;
