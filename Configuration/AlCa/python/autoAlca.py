@@ -7,7 +7,7 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   # New PD in 2018 to replace SinglePhoton SingleElectron and DoubleEG in 2017
                   "EGamma"         : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkFilter+HcalCalIterativePhiSym",
                   "HLTPhysics"     : "TkAlMinBias",
-                  "JetHT"          : "HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter",
+                  "JetHT"          : "HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter+TkAlMinBias",
                   "MinimumBias"    : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
                   "MuOnia"         : "TkAlUpsilonMuMu",
                   "NoBPTX"         : "TkAlCosmicsInCollisions",
