@@ -1,5 +1,5 @@
-#ifndef RecoHGCal_TICL_interface_Common_h
-#define RecoHGCal_TICL_interface_Common_h
+#ifndef DataFormats_HGCalReco_Common_h
+#define DataFormats_HGCalReco_Common_h
 
 #include <vector>
 #include <array>
@@ -20,4 +20,4 @@ namespace ticl {
   typedef std::array<TICLLayerTile, ticl::constants::nLayers> Tiles;
 }  // namespace ticl
 
-#endif  // RecoHGCal_TICL_interface_Common_h
+#endif  // DataFormats_HGCalReco_Common_h

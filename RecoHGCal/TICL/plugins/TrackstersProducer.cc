@@ -15,8 +15,8 @@
 
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-#include "DataFormats/RecoHGCal/interface/Trackster.h"
-#include "DataFormats/RecoHGCal/interface/TICLLayerTile.h"
+#include "DataFormats/HGCalReco/interface/Trackster.h"
+#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "PatternRecognitionbyCA.h"
