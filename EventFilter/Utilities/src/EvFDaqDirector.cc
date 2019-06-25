@@ -1499,12 +1499,24 @@ namespace evf {
 
         auto server_ls = serverMap.find("lumisection");
 
-        unsigned int version = 1;
-        try {
-          version = boost::lexical_cast<unsigned int>(server_version->second);
-        } catch (boost::bad_lexical_cast const&) {
-          edm::LogWarning("EvFDaqDirector")
-              << "Bad lexical cast while parsing server version " << server_version->second;
+        int version_maj = 1;
+        int version_min = 0;
+        int version_rev = 0;
+        {
+          auto * s_ptr = server_version->second.c_str();
+          if (server_version->second.size() > 1 && server_version->second[0] == '"') s_ptr++;
+          auto res = sscanf(s_ptr,"%d.%d.%d",&version_maj,&version_min,&version_rev);
+          if (res < 3) {
+            res = sscanf(s_ptr,"%d.%d",&version_maj,&version_min);
+            if (res < 2) {
+              res = sscanf(s_ptr,"%d",&version_maj);
+              if (res < 1) {
+                //expecting at least 1 number (major version)
+                edm::LogWarning("EvFDaqDirector")
+                  << "Can not parse server version " << server_version->second;
+              }
+            }
+          }
         }
 
         closedServerLS = (uint64_t)std::max(0, atoi(server_eols->second.c_str()));
@@ -1549,7 +1561,7 @@ namespace evf {
             else
               filestem = server_file->second;
             assert(!filestem.empty());
-            if (version > 1) {
+            if (version_maj > 1) {
               nextFileRaw = bu_run_dir_ + "/" + fileprefix + filestem + ".raw";  //filestem should be raw
               filestem = bu_run_dir_ + "/" + fileprefix + filestem;
               nextFileJson = "";
