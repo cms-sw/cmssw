@@ -43,7 +43,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
 
     // retrieve the timing calibration part for this channel
     const int sector = detid.arm(), station = detid.station(), plane = detid.plane(), channel = detid.channel();
-    const auto ch_params = (apply_calib_) ? calib_.parameters(sector, station, plane, channel) : {};
+    const auto& ch_params = (apply_calib_) ? calib_.parameters(sector, station, plane, channel) : std::vector<double>{};
     // default values for offset + time precision if calibration object not found
     const double ch_t_offset = (apply_calib_) ? calib_.timeOffset(sector, station, plane, channel) : 0.;
     const double ch_t_precis = (apply_calib_) ? calib_.timePrecision(sector, station, plane, channel) : 0.;
