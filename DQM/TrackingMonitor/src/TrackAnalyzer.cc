@@ -1623,45 +1623,45 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
     tkmes.Quality->setBinLabel(ibin + 1, reco::TrackBase::qualityNames[ibin]);
   }
 
-  histname = "TrackPtZone1_" + histTag;
-  tkmes.TrackPtZone1 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone1->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone1->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_NegEta_Phi_btw_neg16_neg32_" + histTag;
+  tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPtZone2_" + histTag;
-  tkmes.TrackPtZone2 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone2->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone2->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_NegEta_Phi_btw_0_neg16_" + histTag;
+  tkmes.TrackPt_NegEta_Phi_btw_0_neg16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_NegEta_Phi_btw_0_neg16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_NegEta_Phi_btw_0_neg16->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPtZone3_" + histTag;
-  tkmes.TrackPtZone3 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone3->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone3->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_NegEta_Phi_btw_16_0_" + histTag;
+  tkmes.TrackPt_NegEta_Phi_btw_16_0 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_NegEta_Phi_btw_16_0->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_NegEta_Phi_btw_16_0->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPtZone4_" + histTag;
-  tkmes.TrackPtZone4 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone4->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone4->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_NegEta_Phi_btw_32_16_" + histTag;
+  tkmes.TrackPt_NegEta_Phi_btw_32_16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_NegEta_Phi_btw_32_16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_NegEta_Phi_btw_32_16->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPtZone5_" + histTag;
-  tkmes.TrackPtZone5 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone5->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone5->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_PosEta_Phi_btw_neg16_neg32_" + histTag;
+  tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPtZone6_" + histTag;
-  tkmes.TrackPtZone6 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone6->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone6->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_PosEta_Phi_btw_0_neg16_" + histTag;
+  tkmes.TrackPt_PosEta_Phi_btw_0_neg16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_PosEta_Phi_btw_0_neg16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_PosEta_Phi_btw_0_neg16->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPtZone7_" + histTag;
-  tkmes.TrackPtZone7 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone7->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone7->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_PosEta_Phi_btw_16_0_" + histTag;
+  tkmes.TrackPt_PosEta_Phi_btw_16_0 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_PosEta_Phi_btw_16_0->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_PosEta_Phi_btw_16_0->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPtZone8_" + histTag;
-  tkmes.TrackPtZone8 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtZone8->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtZone8->setAxisTitle("Number of Tracks", 2);
+  histname = "TrackPt_PosEta_Phi_btw_32_16_" + histTag;
+  tkmes.TrackPt_PosEta_Phi_btw_32_16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+  tkmes.TrackPt_PosEta_Phi_btw_32_16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+  tkmes.TrackPt_PosEta_Phi_btw_32_16->setAxisTitle("Number of Tracks", 2);
 
   histname = "Ratio_byFolding_" + histTag;
   tkmes.Ratio_byFolding = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
@@ -2056,43 +2056,44 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       }
     }
 
-    //pT histograms to create efficiency vs pT plot for only the more inefficient region.
+    //pT histograms to create efficiency vs pT plot, only for the most inefficient region.
 
     if (eta < 0. && phi < -1.6) {
-      tkmes.TrackPtZone1->Fill(pt);
+      tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->Fill(pt);
     }
     if (eta < 0. && phi < 0 && phi >= -1.6) {
-      tkmes.TrackPtZone2->Fill(pt);
+      tkmes.TrackPt_NegEta_Phi_btw_0_neg16->Fill(pt);
     }
     if (eta < 0. && phi < 1.6 && phi >= 0) {
-      tkmes.TrackPtZone3->Fill(pt);
+      tkmes.TrackPt_NegEta_Phi_btw_16_0->Fill(pt);
     }
     if (eta < 0. && phi >= 1.6) {
-      tkmes.TrackPtZone4->Fill(pt);
+      tkmes.TrackPt_NegEta_Phi_btw_32_16->Fill(pt);
     }
     if (eta >= 0. && phi < -1.6) {
-      tkmes.TrackPtZone5->Fill(pt);
+      tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->Fill(pt);
     }
     if (eta >= 0. && phi < 0 && phi >= -1.6) {
-      tkmes.TrackPtZone6->Fill(pt);
+      tkmes.TrackPt_PosEta_Phi_btw_0_neg16->Fill(pt);
     }
     if (eta >= 0. && phi < 1.6 && phi >= 0) {
-      tkmes.TrackPtZone7->Fill(pt);
+      tkmes.TrackPt_PosEta_Phi_btw_16_0->Fill(pt);
     }
     if (eta >= 0. && phi >= 1.6) {
-      tkmes.TrackPtZone8->Fill(pt);
+      tkmes.TrackPt_PosEta_Phi_btw_32_16->Fill(pt);
     }
 
     float A[8];
-    A[0] = tkmes.TrackPtZone1->getTH1()->Integral();
-    A[1] = tkmes.TrackPtZone2->getTH1()->Integral();
-    A[2] = tkmes.TrackPtZone3->getTH1()->Integral();
-    A[3] = tkmes.TrackPtZone4->getTH1()->Integral();
-    A[4] = tkmes.TrackPtZone5->getTH1()->Integral();
-    A[5] = tkmes.TrackPtZone6->getTH1()->Integral();
-    A[6] = tkmes.TrackPtZone7->getTH1()->Integral();
-    A[7] = tkmes.TrackPtZone8->getTH1()->Integral();
+    A[0] = tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1()->Integral();
+    A[1] = tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1()->Integral();
+    A[2] = tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1()->Integral();
+    A[3] = tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1()->Integral();
+    A[4] = tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1()->Integral();
+    A[5] = tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1()->Integral();
+    A[6] = tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1()->Integral();
+    A[7] = tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1()->Integral();
 
+    //WZ (the worst zone)
     int WZ = 0;
     float minA = A[0];
     for (int w = 1; w < 8; w++) {
@@ -2104,56 +2105,80 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
 
     switch (WZ) {
       case 1:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone1->getTH1(), tkmes.TrackPtZone4->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone1->getTH1(), tkmes.TrackPtZone2->getTH1(), 1., 1., "B");
+        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(),
+                                                1.,
+                                                1.,
+                                                "B");
+        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                 tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(),
+                                                 1.,
+                                                 1.,
+                                                 "B");
         break;
       case 2:
         tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone2->getTH1(), tkmes.TrackPtZone3->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone2->getTH1(), tkmes.TrackPtZone1->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
+        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(),
+                                                 tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                 1.,
+                                                 1.,
+                                                 "B");
         break;
       case 3:
         tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone3->getTH1(), tkmes.TrackPtZone2->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(), 1., 1., "B");
         tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone3->getTH1(), tkmes.TrackPtZone4->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(), 1., 1., "B");
         break;
       case 4:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone4->getTH1(), tkmes.TrackPtZone1->getTH1(), 1., 1., "B");
+        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(),
+                                                tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                1.,
+                                                1.,
+                                                "B");
         tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone4->getTH1(), tkmes.TrackPtZone3->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
         break;
       case 5:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone5->getTH1(), tkmes.TrackPtZone8->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone5->getTH1(), tkmes.TrackPtZone6->getTH1(), 1., 1., "B");
+        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(),
+                                                1.,
+                                                1.,
+                                                "B");
+        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                 tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(),
+                                                 1.,
+                                                 1.,
+                                                 "B");
         break;
       case 6:
         tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone6->getTH1(), tkmes.TrackPtZone7->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone6->getTH1(), tkmes.TrackPtZone5->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
+        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(),
+                                                 tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                 1.,
+                                                 1.,
+                                                 "B");
         break;
       case 7:
         tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone7->getTH1(), tkmes.TrackPtZone6->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(), 1., 1., "B");
         tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone7->getTH1(), tkmes.TrackPtZone8->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(), 1., 1., "B");
         break;
       case 8:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPtZone8->getTH1(), tkmes.TrackPtZone5->getTH1(), 1., 1., "B");
+        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(),
+                                                tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                1.,
+                                                1.,
+                                                "B");
         tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPtZone8->getTH1(), tkmes.TrackPtZone7->getTH1(), 1., 1., "B");
+            tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
         break;
     }
-    tkmes.Ratio_byFolding->setAxisTitle("Efficiency(Ratio)_Zone" + std::to_string(WZ), 2);
-    tkmes.Ratio_byFolding2->setAxisTitle("Efficiency(Ratio)_Zone" + std::to_string(WZ), 2);
+    tkmes.Ratio_byFolding->setAxisTitle("Efficiency(Ratio)_" + std::to_string(WZ), 2);
+    tkmes.Ratio_byFolding2->setAxisTitle("Efficiency(Ratio)_" + std::to_string(WZ), 2);
 
     tkmes.TrackEtaPhiInner->Fill(etaIn, phiIn);
     tkmes.TrackEtaPhiOuter->Fill(etaOut, phiOut);
