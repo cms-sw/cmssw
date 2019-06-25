@@ -12,7 +12,6 @@
 			<PartSelector path="//TotemT2"/>
 			<Parameter name="CMSCutsRegion" value="TotemT2Region" eval="false"/>
 			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
 			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
 			<Parameter name="ProdCutsForGamma" value="1*mm"/>
 		</SpecPar>
@@ -20,7 +19,6 @@
 			<PartSelector path="//TotemT2gem_driftspace7r"/>
 			<Parameter name="CMSCutsRegion" value="TotemT2SensitiveRegion" eval="false"/>
 			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
 			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
 			<Parameter name="ProdCutsForGamma" value="1*mm"/>
 		</SpecPar>

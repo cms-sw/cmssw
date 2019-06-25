@@ -11,6 +11,7 @@
   </SpecPar>
   <SpecPar name="ebapd">
    <PartSelector path="//EAPD.*"/>
+   <PartSelector path="//EATJ.*"/>
    <Parameter name="CMSCutsRegion" value="APDRegion" eval="false"/>
    <Parameter name="ProdCutsForElectrons" value="0.005*mm"/>
 <Parameter name="ProdCutsForProtons" value="0.005*mm"/>
