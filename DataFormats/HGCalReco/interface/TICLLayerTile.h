@@ -1,10 +1,10 @@
 // Authors: Marco Rovere, Felice Pantaleo - marco.rovere@cern.ch, felice.pantaleo@cern.ch
 // Date: 05/2019
 
-#ifndef DataFormats_RecoHGCal_TICLLayerTile_h
-#define DataFormats_RecoHGCal_TICLLayerTile_h
+#ifndef DataFormats_HGCalReco_TICLLayerTile_h
+#define DataFormats_HGCalReco_TICLLayerTile_h
 
-#include "DataFormats/RecoHGCal/interface/Common.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 class TICLLayerTile {

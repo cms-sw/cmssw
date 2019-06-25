@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo - felice.pantaleo@cern.ch
 // Date: 09/2018
 
-#ifndef __DataFormats_RecoHGCal_Trackster_H__
-#define __DataFormats_RecoHGCal_Trackster_H__
+#ifndef DataFormats_HGCalReco_Trackster_h
+#define DataFormats_HGCalReco_Trackster_h
 
 #include <array>
 #include <vector>

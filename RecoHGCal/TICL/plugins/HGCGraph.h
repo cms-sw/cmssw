@@ -5,8 +5,8 @@
 #define __RecoHGCal_TICL_HGCGraph_H__
 
 #include <vector>
-#include "DataFormats/RecoHGCal/interface/Common.h"
-#include "DataFormats/RecoHGCal/interface/TICLLayerTile.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
+#include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 #include "HGCDoublet.h"
 
 class HGCGraph {
