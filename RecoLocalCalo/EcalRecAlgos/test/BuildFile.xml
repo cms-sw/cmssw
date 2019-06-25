@@ -6,6 +6,13 @@
 
 </bin>
 
+<bin name="validateGPU" file="validateGPU.cpp">
+    <use name="root"/>
+    <use name="DataFormats/Common"/>
+    <use name="CUDADataFormats/EcalRecHitSoA"/>
+    <use name="DataFormats/EcalRecHit"/>
+</bin>
+
 
 <library   file="stubs/testEcalSeverityLevelAlgo.cc" name="testEcalSeverityLevelAlgo">
 
