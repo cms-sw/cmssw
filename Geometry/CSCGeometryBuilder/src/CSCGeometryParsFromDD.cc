@@ -258,9 +258,9 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
           noOfAnonParams = kNoOfAnonParams;
         }  // in case it wasn't seen
 
-        std::copy(uparvals.begin() + noOfAnonParams + 1,
-                  uparvals.begin() + (2 * noOfAnonParams) + 2,
-                  uparvals.begin() + 1);  // copy ME1a params from back to the front
+        // copy ME1a params from back to the front
+        std::copy(
+            uparvals.begin() + noOfAnonParams + 1, uparvals.begin() + (2 * noOfAnonParams) + 2, uparvals.begin() + 1);
 
         CSCDetId detid1a = CSCDetId(jendcap, 1, 4, jchamber, 0);  // reset to ME1A
         rig.insert(detid1a.rawId(), gtran, grmat, fpar);

@@ -1,5 +1,10 @@
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorBestChoiceImpl.h"
 
+constexpr unsigned HGCalConcentratorBestChoiceImpl::kNDataSize_;
+constexpr uint32_t HGCalConcentratorBestChoiceImpl::kWaferOffset_;
+constexpr uint32_t HGCalConcentratorBestChoiceImpl::kWaferMask_;
+constexpr uint32_t HGCalConcentratorBestChoiceImpl::kLinkMask_;
+
 HGCalConcentratorBestChoiceImpl::HGCalConcentratorBestChoiceImpl(const edm::ParameterSet& conf)
     : nData_(conf.getParameter<std::vector<unsigned>>("NData")) {
   if (nData_.size() != kNDataSize_) {

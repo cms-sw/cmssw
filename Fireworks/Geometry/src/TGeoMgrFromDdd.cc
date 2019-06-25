@@ -106,7 +106,7 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     return std::unique_ptr<TGeoManager>();
   }
 
-  TGeoVolume* top = createVolume(info.first.name().fullname(), info.first.solid(), info.first.material());
+  TGeoVolume* top = createVolume(info.first.name().name(), info.first.solid(), info.first.material());
 
   if (top == nullptr) {
     return std::unique_ptr<TGeoManager>();
@@ -131,8 +131,8 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
                 << DDSolidShapesName::name(info.first.solid().shape()) << std::endl;
     }
 
-    bool childAlreadyExists = (nullptr != nameToVolume_[info.first.name().fullname()]);
-    TGeoVolume* child = createVolume(info.first.name().fullname(), info.first.solid(), info.first.material());
+    bool childAlreadyExists = (nullptr != nameToVolume_[info.first.name().name()]);
+    TGeoVolume* child = createVolume(info.first.name().name(), info.first.solid(), info.first.material());
     if (nullptr != child && info.second != nullptr) {
       parentStack.back()->AddNode(
           child, info.second->copyno(), createPlacement(info.second->rotation(), info.second->translation()));
@@ -394,8 +394,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           throw cms::Exception("GeomConvert") << "conversion to DDBooleanSolid failed";
         }
 
-        std::unique_ptr<TGeoShape> left(createShape(boolSolid.solidA().name().fullname(), boolSolid.solidA()));
-        std::unique_ptr<TGeoShape> right(createShape(boolSolid.solidB().name().fullname(), boolSolid.solidB()));
+        std::unique_ptr<TGeoShape> left(createShape(boolSolid.solidA().name().name(), boolSolid.solidA()));
+        std::unique_ptr<TGeoShape> right(createShape(boolSolid.solidB().name().name(), boolSolid.solidB()));
         if (nullptr != left.get() && nullptr != right.get()) {
           TGeoSubtraction* sub =
               new TGeoSubtraction(left.release(),
@@ -424,15 +424,15 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
         // check the parameters
         if (rIn <= 0 || rOut <= 0 || cutAtStart <= 0 || cutAtDelta <= 0) {
           std::string s =
-              "TruncTubs " + std::string(tt.name().fullname()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
+              "TruncTubs " + std::string(tt.name().name()) + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
           throw cms::Exception(s);
         }
         if (rIn >= rOut) {
-          std::string s = "TruncTubs " + std::string(tt.name().fullname()) + ": rIn<rOut violated!";
+          std::string s = "TruncTubs " + std::string(tt.name().name()) + ": rIn<rOut violated!";
           throw cms::Exception(s);
         }
         if (startPhi != 0.) {
-          std::string s = "TruncTubs " + std::string(tt.name().fullname()) + ": startPhi != 0 not supported!";
+          std::string s = "TruncTubs " + std::string(tt.name().name()) + ": startPhi != 0 not supported!";
           throw cms::Exception(s);
         }
 
@@ -483,8 +483,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           throw cms::Exception("GeomConvert") << "conversion to DDBooleanSolid failed";
         }
 
-        std::unique_ptr<TGeoShape> left(createShape(boolSolid.solidA().name().fullname(), boolSolid.solidA()));
-        std::unique_ptr<TGeoShape> right(createShape(boolSolid.solidB().name().fullname(), boolSolid.solidB()));
+        std::unique_ptr<TGeoShape> left(createShape(boolSolid.solidA().name().name(), boolSolid.solidA()));
+        std::unique_ptr<TGeoShape> right(createShape(boolSolid.solidB().name().name(), boolSolid.solidB()));
         //DEBUGGING
         //break;
         if (nullptr != left.get() && nullptr != right.get()) {
@@ -502,8 +502,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           throw cms::Exception("GeomConvert") << "conversion to DDBooleanSolid failed";
         }
 
-        std::unique_ptr<TGeoShape> left(createShape(boolSolid.solidA().name().fullname(), boolSolid.solidA()));
-        std::unique_ptr<TGeoShape> right(createShape(boolSolid.solidB().name().fullname(), boolSolid.solidB()));
+        std::unique_ptr<TGeoShape> left(createShape(boolSolid.solidA().name().name(), boolSolid.solidA()));
+        std::unique_ptr<TGeoShape> right(createShape(boolSolid.solidB().name().name(), boolSolid.solidB()));
         if (nullptr != left.get() && nullptr != right.get()) {
           TGeoIntersection* boolS =
               new TGeoIntersection(left.release(),
@@ -539,8 +539,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
 TGeoVolume* TGeoMgrFromDdd::createVolume(const std::string& iName, const DDSolid& iSolid, const DDMaterial& iMaterial) {
   TGeoVolume* v = nameToVolume_[iName];
   if (v == nullptr) {
-    TGeoShape* solid = createShape(iSolid.name().fullname(), iSolid);
-    std::string mat_name = iMaterial.name().fullname();
+    TGeoShape* solid = createShape(iSolid.name().name(), iSolid);
+    std::string mat_name = iMaterial.name().name();
     TGeoMedium* geo_med = nameToMedium_[mat_name];
     if (geo_med == nullptr) {
       TGeoMaterial* geo_mat = createMaterial(iMaterial);
@@ -556,7 +556,7 @@ TGeoVolume* TGeoMgrFromDdd::createVolume(const std::string& iName, const DDSolid
 }
 
 TGeoMaterial* TGeoMgrFromDdd::createMaterial(const DDMaterial& iMaterial) {
-  std::string mat_name = iMaterial.name().fullname();
+  std::string mat_name = iMaterial.name().name();
   TGeoMaterial* mat = nameToMaterial_[mat_name];
 
   if (mat == nullptr) {

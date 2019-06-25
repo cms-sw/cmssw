@@ -52,8 +52,8 @@ OuterTrackerMonitorTrackingParticles::OuterTrackerMonitorTrackingParticles(const
   L1Tk_maxChi2 = conf_.getParameter<double>("L1Tk_maxChi2");        // maximum chi2 of the track
   L1Tk_maxChi2dof = conf_.getParameter<double>("L1Tk_maxChi2dof");  // maximum chi2/dof of the track
   TP_minNStub = conf_.getParameter<int>("TP_minNStub");             // min number of stubs in the tracking particle to
-  TP_minNLayersStub = conf_.getParameter<int>(
-      "TP_minNLayersStub");  //min number of layers with stubs in the tracking particle to consider matching                                                                  // consider matching
+  //min number of layers with stubs in the tracking particle to consider matching
+  TP_minNLayersStub = conf_.getParameter<int>("TP_minNLayersStub");
   TP_minPt = conf_.getParameter<double>("TP_minPt");                 // min pT to consider matching
   TP_maxPt = conf_.getParameter<double>("TP_maxPt");                 // max pT to consider matching
   TP_maxEta = conf_.getParameter<double>("TP_maxEta");               // max eta to consider matching

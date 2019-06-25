@@ -116,8 +116,9 @@ private:
 
   float pedPrecision, gainPrecision;
 
-  unsigned int
-      numberOfRowsToAverageOver_;  //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING!
+  //THIS WILL BE HARDCODED TO 80 (all rows in a ROC) DON'T CHANGE UNLESS YOU KNOW WHAT YOU ARE DOING!
+  unsigned int numberOfRowsToAverageOver_;
+
   unsigned int nBinsToUseForEncoding_;
   unsigned int deadFlag_;
   unsigned int noisyFlag_;

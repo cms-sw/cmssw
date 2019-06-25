@@ -240,8 +240,8 @@ void ModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         // TIB
       case 3: {
         // TIB loop
-        unsigned int string_int_ext_TIB[8] = {
-            26, 30, 34, 38, 44, 46, 52, 56};                      // number of strings per layer 1/4 int/ext
+        // number of strings per layer 1/4 int/ext
+        unsigned int string_int_ext_TIB[8] = {26, 30, 34, 38, 44, 46, 52, 56};
         unsigned int mod_type_TIB[8] = {1, 2, 1, 2, 0, 0, 0, 0};  // first and last type for module type loop
         unsigned int nLayers = 4;
         unsigned int nModules = 3;

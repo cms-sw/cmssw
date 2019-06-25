@@ -253,12 +253,12 @@ namespace reco {
       math::XYZPointF positionAtVtx;   // the track PCA to the beam spot
       math::XYZPointF positionAtCalo;  // the track PCA to the supercluster position
       math::XYZVectorF momentumAtVtx;  // the track momentum at the PCA to the beam spot
-      math::XYZVectorF
-          momentumAtCalo;  // the track momentum extrapolated at the supercluster position from the innermost track state
-      math::XYZVectorF
-          momentumOut;  // the track momentum extrapolated at the seed cluster position from the outermost track state
-      math::XYZVectorF
-          momentumAtEleClus;  // the track momentum extrapolated at the ele cluster position from the outermost track state
+      // the track momentum extrapolated at the supercluster position from the innermost track state
+      math::XYZVectorF momentumAtCalo;
+      // the track momentum extrapolated at the seed cluster position from the outermost track state
+      math::XYZVectorF momentumOut;
+      // the track momentum extrapolated at the ele cluster position from the outermost track state
+      math::XYZVectorF momentumAtEleClus;
       math::XYZVectorF momentumAtVtxWithConstraint;  // the track momentum at the PCA to the beam spot using bs constraint
     };
 

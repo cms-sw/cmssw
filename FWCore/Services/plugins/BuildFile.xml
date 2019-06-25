@@ -1,4 +1,5 @@
 <use   name="FWCore/Services"/>
+<use   name="FWCore/Reflection"/>
 <use   name="Utilities/StorageFactory"/>
 <use   name="Utilities/XrdAdaptor"/>
 <use   name="boost"/>
