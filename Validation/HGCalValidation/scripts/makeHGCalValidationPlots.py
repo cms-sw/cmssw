@@ -29,15 +29,28 @@ def main(opts):
     if opts.collection=="hgcalLayerClusters":
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
+    elif opts.collection=="hgcalMultiClusters":
+        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+        val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
     elif opts.collection=="hitValidation":
     	hgchit = [hgcalPlots.hgcalHitPlotter]
     	val.doPlots(hgchit, plotterDrawArgs=drawArgs)   
     else :
+        #In case of all you have to keep a specific order in one to one 
+        #correspondance between subdirprefix and collections and validation names
+	#layer clusters 
 	hgclayclus = [hgcalPlots.hgcalLayerClustersPlotter]
 	val.doPlots(hgclayclus, plotterDrawArgs=drawArgs)
-	sample = SimpleSample(opts.subdirprefix[1], opts.html_sample, filenames)
-	val = SimpleValidation([sample], opts.outputDir[1])
-	htmlReport_2 = val.createHtmlReport(validationName=opts.html_validation_name[1])
+        #multiclusters
+        sample = SimpleSample(opts.subdirprefix[1], opts.html_sample, filenames)
+        val = SimpleValidation([sample], opts.outputDir[1])
+        htmlReport_2 = val.createHtmlReport(validationName=opts.html_validation_name[1])
+        hgcmulticlus = [hgcalPlots.hgcalMultiClustersPlotter]
+        val.doPlots(hgcmulticlus, plotterDrawArgs=drawArgs)
+        #hits
+	sample = SimpleSample(opts.subdirprefix[2], opts.html_sample, filenames)
+	val = SimpleValidation([sample], opts.outputDir[2])
+	htmlReport_3 = val.createHtmlReport(validationName=opts.html_validation_name[2])
 	hgchit = [hgcalPlots.hgcalHitPlotter]
         val.doPlots(hgchit, plotterDrawArgs=drawArgs)
 
@@ -47,6 +60,8 @@ def main(opts):
         htmlReport.write()
 	if(opts.collection=="all"):
 		htmlReport_2.write()
+                htmlReport_3.write()
+
         print("Plots and HTML report created into directory '%s'. You can just move it to some www area and access the pages via web browser" % (','.join(opts.outputDir)))
 
 if __name__ == "__main__":
@@ -71,13 +86,13 @@ if __name__ == "__main__":
                         help="Validation name for HTML page generation (enters to <title> element) (default '')")
     parser.add_argument("--verbose", action="store_true",
                         help="Be verbose")
-    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hitValidation", "all"], default="all",
-                        help="Choose output plots collections: hgcalLayerCluster, hitValidation, all")    
+    parser.add_argument("--collection", choices=["hgcalLayerClusters", "hgcalMultiClusters", "hitValidation", "all"], default="all",
+                        help="Choose output plots collections: hgcalLayerCluster, hgcalMultiClusters, hitValidation, all")    
 
     opts = parser.parse_args()
 
     if opts.collection == "all" and len(opts.outputDir)==1:
-	raise RuntimeError("need to assign names for both dirrectories")
+	raise RuntimeError("need to assign names for all dirrectories")
 
     for f in opts.files:
         if not os.path.exists(f):
