@@ -6,7 +6,7 @@
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
 
-void HGCGraph::makeAndConnectDoublets(const ticl::TICLLayerTiles &histo,
+void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                                       int nEtaBins,
                                       int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,

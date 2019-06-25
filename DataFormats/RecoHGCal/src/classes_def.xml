@@ -7,13 +7,13 @@
   <class name="edm::Wrapper<Trackster>" />
   <class name="edm::Wrapper<std::vector<Trackster> >" />
 
-  <class name="ticl::TICLLayerTile" ClassVersion="3" persistent="false">
+  <class name="TICLLayerTile" ClassVersion="4" persistent="false">
     <field name="tile_" transient="true"/>
-    <version ClassVersion="3" checksum="321036035"/>
+    <version ClassVersion="4" checksum="63861365"/>
   </class>
-  <class name="ticl::TICLLayerTiles" ClassVersion="3" persistent="false">
+  <class name="TICLLayerTiles" ClassVersion="4" persistent="false">
     <field name="tiles_" transient="true"/>
-    <version ClassVersion="3" checksum="963108220"/>
+    <version ClassVersion="4" checksum="191584210"/>
   </class>
-  <class name="edm::Wrapper<ticl::TICLLayerTiles> " />
+  <class name="edm::Wrapper<TICLLayerTiles> " />
 </lcgdict>
