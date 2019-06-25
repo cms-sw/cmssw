@@ -17,7 +17,6 @@
       <PartSelector path="//EdgeR2Out3"/>
       <Parameter name="CMSCutsRegion" value="BeamPipeRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
-<Parameter name="ProdCutsForProtons" value="10000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
       <Parameter name="ProdCutsForGamma" value="10000*mm"/>
     </SpecPar>
@@ -26,7 +25,6 @@
       <PartSelector path="//GASTOF"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
-<Parameter name="ProdCutsForProtons" value="1000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
       <Parameter name="ProdCutsForGamma" value="1000*mm"/>
     </SpecPar>
@@ -44,7 +42,6 @@
       <PartSelector path="//BOUNDDET"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1000*mm"/>
-<Parameter name="ProdCutsForProtons" value="1000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1000*mm"/>
       <Parameter name="ProdCutsForGamma" value="1000*mm"/>
     </SpecPar>
@@ -52,7 +49,6 @@
       <PartSelector path="//SIDETL"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="100*mm"/>
-<Parameter name="ProdCutsForProtons" value="100*mm"/>
       <Parameter name="ProdCutsForPositrons" value="100*mm"/>
       <Parameter name="ProdCutsForGamma" value="100*mm"/>
     </SpecPar>
@@ -60,7 +56,6 @@
       <PartSelector path="//SIDETR"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="100*mm"/>
-<Parameter name="ProdCutsForProtons" value="100*mm"/>
       <Parameter name="ProdCutsForPositrons" value="100*mm"/>
       <Parameter name="ProdCutsForGamma" value="100*mm"/>
     </SpecPar>
@@ -69,7 +64,6 @@
       <PartSelector path="//SIELECTR"/>
       <Parameter name="CMSCutsRegion" value="SidetRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="10000*mm"/>
-<Parameter name="ProdCutsForProtons" value="10000*mm"/>
       <Parameter name="ProdCutsForPositrons" value="10000*mm"/>
       <Parameter name="ProdCutsForGamma" value="10000*mm"/>
     </SpecPar>

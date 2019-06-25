@@ -10,7 +10,6 @@
       <Parameter name="ProdCutsForPositrons" value="0.10*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.10*mm"/-->
       <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
     </SpecPar>
@@ -26,7 +25,6 @@
       <PartSelector path="//RP_Barrette_Right"/>
       <Parameter name="CMSCutsRegion" value="RPRomanPotParts" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="10*mm"/>
     </SpecPar>
@@ -57,7 +55,6 @@
       <PartSelector path="//RP_210_Left_Station_Tube_1"/>
       <Parameter name="CMSCutsRegion" value="RPOtherDetPartsCuts" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="10*mm"/>
-<Parameter name="ProdCutsForProtons" value="10*mm"/>
       <Parameter name="ProdCutsForPositrons" value="10*mm"/>
       <Parameter name="ProdCutsForGamma" value="100*mm"/>
     </SpecPar>
@@ -70,7 +67,6 @@
       <PartSelector path="//RP_210_Left_Station_Vacuum_5"/>
       <Parameter name="CMSCutsRegion" value="RP_NonDenseMaterialsCuts" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="50*m"/>
-<Parameter name="ProdCutsForProtons" value="50*m"/>
       <Parameter name="ProdCutsForPositrons" value="50*m"/>
       <Parameter name="ProdCutsForGamma" value="50*m"/>
     </SpecPar>

@@ -12,7 +12,6 @@ July 2009
     <PartSelector path="//Tracker" />
     <Parameter name="CMSCutsRegion" value="TrackerDeadRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>
@@ -63,7 +62,6 @@ July 2009
     <PartSelector path="//TECModule6RphiWafer" />
     <Parameter name="CMSCutsRegion" value="TrackerSensRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
   </SpecPar>
@@ -73,7 +71,6 @@ July 2009
     <PartSelector path="//PixelForwardZminus" />
     <Parameter name="CMSCutsRegion" value="TrackerPixelDeadRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>
@@ -88,7 +85,6 @@ July 2009
     <!-- PartSelector path="//PixelForwardSensor3" / -->
     <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.01*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
   </SpecPar>

@@ -13,14 +13,12 @@ note: see Baseline_tilted_2016_04_12.cfg for full config files
       <PartSelector path="//Tracker"/>
       <Parameter name="CMSCutsRegion" value="TrackerDeadRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="1*mm"/>
     </SpecPar>
     <SpecPar name="tracker-sens">
       <Parameter name="CMSCutsRegion" value="TrackerSensRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.01*mm"/>
       <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
     </SpecPar>
@@ -29,7 +27,6 @@ note: see Baseline_tilted_2016_04_12.cfg for full config files
       <PartSelector path="//PixelForward"/>
       <Parameter name="CMSCutsRegion" value="TrackerPixelDeadRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="1*mm"/>
     </SpecPar>
@@ -50,7 +47,6 @@ note: see Baseline_tilted_2016_04_12.cfg for full config files
       <PartSelector path="//PixelForwardSensor10"/>
       <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.01*mm"/>
       <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
     </SpecPar>
@@ -59,7 +55,6 @@ note: see Baseline_tilted_2016_04_12.cfg for full config files
       <PartSelector path="//Phase2OTForward"/>
       <Parameter name="CMSCutsRegion" value="TrackerOuterDeadRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="1*mm"/>
-<Parameter name="ProdCutsForProtons" value="1*mm"/>
       <Parameter name="ProdCutsForPositrons" value="1*mm"/>
       <Parameter name="ProdCutsForGamma" value="1*mm"/>
     </SpecPar>
@@ -396,7 +391,6 @@ note: see Baseline_tilted_2016_04_12.cfg for full config files
       <PartSelector path="//EModule15Disc10Upper2Sactive"/>
       <Parameter name="CMSCutsRegion" value="TrackerOuterSensRegion" eval="false"/>
       <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.01*mm"/>
       <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>
       <Parameter name="ProdCutsForGamma" value="0.01*mm"/>
     </SpecPar>
