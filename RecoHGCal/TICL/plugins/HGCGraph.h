@@ -11,7 +11,7 @@
 
 class HGCGraph {
 public:
-  void makeAndConnectDoublets(const ticl::TICLLayerTiles &h,
+  void makeAndConnectDoublets(const TICLLayerTiles &h,
                               int nEtaBins,
                               int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters,
