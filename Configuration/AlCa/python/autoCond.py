@@ -43,6 +43,8 @@ autoCond = {
     'run2_hlt_relval_hi'   :   '103X_dataRun2_HLT_relval_HI_v4',
     # GlobalTag for Run2 HLT for HI (not 2018 HI): it points to the online GT
     'run2_hlt_hi'       :   '101X_dataRun2_HLTHI_frozen_v9',
+    # GlobalTag for Run3 data relvals
+    'run3_data_promptlike'         :   '106X_dataRun3_Prompt_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '110X_mc2017_design_v1',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
