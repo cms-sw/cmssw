@@ -59,7 +59,7 @@ void TICLLayerTileProducer::produce(edm::Event &evt, const edm::EventSetup &) {
 void TICLLayerTileProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalLayerClusters"));
-  descriptions.add("TICLLayerTileProducer", desc);
+  descriptions.add("ticlLayerTileProducer", desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

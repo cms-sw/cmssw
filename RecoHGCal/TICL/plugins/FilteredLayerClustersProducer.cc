@@ -63,14 +63,12 @@ void FilteredLayerClustersProducer::produce(edm::Event& evt, const edm::EventSet
   edm::Handle<std::vector<reco::CaloCluster>> clusterHandle;
   edm::Handle<std::vector<float>> inputClustersMaskHandle;
   auto availableLayerClusters = std::make_unique<ticl::HgcalClusterFilterMask>();
-  auto layerClustersMask = std::make_unique<std::vector<float>>();
   evt.getByToken(clusters_token_, clusterHandle);
   evt.getByToken(clustersMask_token_, inputClustersMaskHandle);
   const auto& inputClusterMask = *inputClustersMaskHandle;
 
   // Transfer input mask in output
-  layerClustersMask->reserve(inputClusterMask.size());
-  std::copy(std::begin(inputClusterMask), std::end(inputClusterMask), std::back_inserter(*layerClustersMask));
+  auto layerClustersMask = std::make_unique<std::vector<float>>(inputClusterMask);
 
   const auto& layerClusters = *clusterHandle;
   auto numLayerClusters = layerClusters.size();

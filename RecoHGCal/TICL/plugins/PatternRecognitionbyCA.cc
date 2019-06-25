@@ -12,8 +12,8 @@ using namespace ticl;
 
 PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf) : PatternRecognitionAlgoBase(conf) {
   theGraph_ = std::make_unique<HGCGraph>();
-  min_cos_theta_ = (float)conf.getParameter<double>("min_cos_theta");
-  min_cos_pointing_ = (float)conf.getParameter<double>("min_cos_pointing");
+  min_cos_theta_ = conf.getParameter<double>("min_cos_theta");
+  min_cos_pointing_ = conf.getParameter<double>("min_cos_pointing");
   missing_layers_ = conf.getParameter<int>("missing_layers");
   min_clusters_per_ntuplet_ = conf.getParameter<int>("min_clusters_per_ntuplet");
 }
@@ -79,8 +79,8 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
     tracksterId++;
   }
   for (auto &trackster : result) {
+    assert(trackster.vertices.size() < trackster.vertex_multiplicity.size());
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
-      assert(i < trackster.vertex_multiplicity.size());
       trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
       LogDebug("HGCPatterRecoByCA") << "LayerID: " << trackster.vertices[i]
                                     << " count: " << (int)trackster.vertex_multiplicity[i] << std::endl;
