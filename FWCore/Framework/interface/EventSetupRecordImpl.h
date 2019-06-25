@@ -77,6 +77,8 @@ namespace edm {
       EventSetupRecordImpl(const EventSetupRecordKey& iKey, ActivityRegistry const*, unsigned int iovIndex = 0);
       EventSetupRecordImpl(EventSetupRecordImpl const&) = delete;
       EventSetupRecordImpl const& operator=(EventSetupRecordImpl const&) = delete;
+      EventSetupRecordImpl(EventSetupRecordImpl&&);
+      EventSetupRecordImpl& operator=(EventSetupRecordImpl&&);
 
       ValidityInterval validityInterval() const;
 

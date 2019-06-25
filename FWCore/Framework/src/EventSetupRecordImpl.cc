@@ -36,6 +36,30 @@ namespace edm {
           isAvailable_(true),
           validityModificationUnderway_(false) {}
 
+    EventSetupRecordImpl::EventSetupRecordImpl(EventSetupRecordImpl&& source)
+        : validity_{source.validity_},
+          key_{source.key_},
+          keysForProxies_{std::move(source.keysForProxies_)},
+          proxies_(std::move(source.proxies_)),
+          activityRegistry_{source.activityRegistry_},
+          cacheIdentifier_{source.cacheIdentifier_},
+          iovIndex_{source.iovIndex_},
+          isAvailable_{source.isAvailable_.load()},
+          validityModificationUnderway_{source.validityModificationUnderway_.load()} {}
+
+    EventSetupRecordImpl& EventSetupRecordImpl::operator=(EventSetupRecordImpl&& rhs) {
+      validity_ = rhs.validity_;
+      key_ = rhs.key_;
+      keysForProxies_ = std::move(rhs.keysForProxies_);
+      proxies_ = std::move(rhs.proxies_);
+      activityRegistry_ = rhs.activityRegistry_;
+      cacheIdentifier_ = rhs.cacheIdentifier_;
+      iovIndex_ = rhs.iovIndex_;
+      isAvailable_.store(rhs.isAvailable_.load());
+      validityModificationUnderway_.store(validityModificationUnderway_.load());
+      return *this;
+    }
+
     ValidityInterval EventSetupRecordImpl::validityInterval() const {
       bool expected = false;
       while (not validityModificationUnderway_.compare_exchange_strong(expected, true)) {
