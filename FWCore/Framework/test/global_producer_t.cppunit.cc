@@ -29,8 +29,8 @@
 
 #include "cppunit/extensions/HelperMacros.h"
 
-class testGlobalModule : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testGlobalModule);
+class testGlobalProducer : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testGlobalProducer);
 
   CPPUNIT_TEST(basicTest);
   CPPUNIT_TEST(streamTest);
@@ -48,7 +48,7 @@ class testGlobalModule : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  testGlobalModule();
+  testGlobalProducer();
 
   void setUp() {}
   void tearDown() {}
@@ -235,6 +235,7 @@ private:
   class EndRunSummaryProd : public edm::global::EDProducer<edm::EndRunProducer, edm::RunSummaryCache<int>> {
   public:
     mutable unsigned int m_count = 0;
+    mutable bool m_globalEndRunSummaryCalled = false;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
 
     std::shared_ptr<int> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
@@ -244,15 +245,24 @@ private:
 
     void streamEndRunSummary(edm::StreamID, edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
 
-    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override { ++m_count; }
+    void globalEndRunSummary(edm::Run const&, edm::EventSetup const&, int*) const override {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == false);
+      m_globalEndRunSummaryCalled = true;
+    }
 
-    void globalEndRunProduce(edm::Run&, edm::EventSetup const&, int const*) const override { ++m_count; }
+    void globalEndRunProduce(edm::Run&, edm::EventSetup const&, int const*) const override {
+      ++m_count;
+      CPPUNIT_ASSERT(m_globalEndRunSummaryCalled == true);
+      m_globalEndRunSummaryCalled = false;
+    }
   };
 
   class EndLumiSummaryProd
       : public edm::global::EDProducer<edm::EndLuminosityBlockProducer, edm::LuminosityBlockSummaryCache<int>> {
   public:
     mutable unsigned int m_count = 0;
+    mutable bool m_globalEndLuminosityBlockSummaryCalled = false;
     void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override { ++m_count; }
 
     std::shared_ptr<int> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&,
@@ -270,10 +280,14 @@ private:
 
     void globalEndLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, int*) const override {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == false);
+      m_globalEndLuminosityBlockSummaryCalled = true;
     }
 
     void globalEndLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&, int const*) const override {
       ++m_count;
+      CPPUNIT_ASSERT(m_globalEndLuminosityBlockSummaryCalled == true);
+      m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
 };
@@ -298,9 +312,9 @@ static edm::StreamID makeID() {
 static const edm::StreamID s_streamID0 = makeID();
 
 ///registration of the test so that the runner can find it
-CPPUNIT_TEST_SUITE_REGISTRATION(testGlobalModule);
+CPPUNIT_TEST_SUITE_REGISTRATION(testGlobalProducer);
 
-testGlobalModule::testGlobalModule()
+testGlobalProducer::testGlobalProducer()
     : m_preallocConfig{},
       m_prodReg(new edm::ProductRegistry{}),
       m_idHelper(new edm::BranchIDListHelper{}),
@@ -395,14 +409,14 @@ namespace {
   template <typename T>
   void testTransition(std::shared_ptr<T> iMod,
                       edm::Worker* iWorker,
-                      testGlobalModule::Trans iTrans,
-                      testGlobalModule::Expectations const& iExpect,
+                      testGlobalProducer::Trans iTrans,
+                      testGlobalProducer::Expectations const& iExpect,
                       std::function<void(edm::Worker*)> iFunc) {
     assert(0 == iMod->m_count);
     iFunc(iWorker);
     auto count = std::count(iExpect.begin(), iExpect.end(), iTrans);
     if (count != iMod->m_count) {
-      std::cout << "For trans " << static_cast<std::underlying_type<testGlobalModule::Trans>::type>(iTrans)
+      std::cout << "For trans " << static_cast<std::underlying_type<testGlobalProducer::Trans>::type>(iTrans)
                 << " expected " << count << " and got " << iMod->m_count << std::endl;
     }
     CPPUNIT_ASSERT(iMod->m_count == count);
@@ -412,7 +426,7 @@ namespace {
 }  // namespace
 
 template <typename T>
-void testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
+void testGlobalProducer::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   edm::maker::ModuleHolderT<edm::global::EDProducerBase> h(iMod, nullptr);
   h.preallocate(edm::PreallocationConfiguration{});
 
@@ -422,14 +436,14 @@ void testGlobalModule::testTransitions(std::shared_ptr<T> iMod, Expectations con
   }
 }
 
-void testGlobalModule::basicTest() {
+void testGlobalProducer::basicTest() {
   auto testProd = std::make_shared<BasicProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kEvent});
 }
 
-void testGlobalModule::streamTest() {
+void testGlobalProducer::streamTest() {
   auto testProd = std::make_shared<StreamProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
@@ -443,28 +457,28 @@ void testGlobalModule::streamTest() {
                    Trans::kEndStream});
 }
 
-void testGlobalModule::runTest() {
+void testGlobalProducer::runTest() {
   auto testProd = std::make_shared<RunProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kGlobalEndRun});
 }
 
-void testGlobalModule::runSummaryTest() {
+void testGlobalProducer::runSummaryTest() {
   auto testProd = std::make_shared<RunSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
-void testGlobalModule::lumiTest() {
+void testGlobalProducer::lumiTest() {
   auto testProd = std::make_shared<LumiProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent, Trans::kGlobalEndLuminosityBlock});
 }
 
-void testGlobalModule::lumiSummaryTest() {
+void testGlobalProducer::lumiSummaryTest() {
   auto testProd = std::make_shared<LumiSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
@@ -475,35 +489,35 @@ void testGlobalModule::lumiSummaryTest() {
                    Trans::kGlobalEndLuminosityBlock});
 }
 
-void testGlobalModule::beginRunProdTest() {
+void testGlobalProducer::beginRunProdTest() {
   auto testProd = std::make_shared<BeginRunProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginRun, Trans::kEvent});
 }
 
-void testGlobalModule::beginLumiProdTest() {
+void testGlobalProducer::beginLumiProdTest() {
   auto testProd = std::make_shared<BeginLumiProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalBeginLuminosityBlock, Trans::kEvent});
 }
 
-void testGlobalModule::endRunProdTest() {
+void testGlobalProducer::endRunProdTest() {
   auto testProd = std::make_shared<EndRunProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndRun, Trans::kEvent});
 }
 
-void testGlobalModule::endLumiProdTest() {
+void testGlobalProducer::endLumiProdTest() {
   auto testProd = std::make_shared<EndLumiProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
   testTransitions(testProd, {Trans::kGlobalEndLuminosityBlock, Trans::kEvent});
 }
 
-void testGlobalModule::endRunSummaryProdTest() {
+void testGlobalProducer::endRunSummaryProdTest() {
   auto testProd = std::make_shared<EndRunSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
@@ -512,7 +526,7 @@ void testGlobalModule::endRunSummaryProdTest() {
       {Trans::kGlobalEndRun, Trans::kEvent, Trans::kGlobalBeginRun, Trans::kStreamEndRun, Trans::kGlobalEndRun});
 }
 
-void testGlobalModule::endLumiSummaryProdTest() {
+void testGlobalProducer::endLumiSummaryProdTest() {
   auto testProd = std::make_shared<EndLumiSummaryProd>();
 
   CPPUNIT_ASSERT(0 == testProd->m_count);
