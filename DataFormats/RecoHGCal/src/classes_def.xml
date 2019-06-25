@@ -1,11 +1,11 @@
 
 <lcgdict>
-  <class name="Trackster" ClassVersion="4">
-   <version ClassVersion="4" checksum="544592457"/>
+  <class name="ticl::Trackster" ClassVersion="5">
+   <version ClassVersion="5" checksum="3878166595"/>
   </class>
-  <class name="std::vector<Trackster>" />
-  <class name="edm::Wrapper<Trackster>" />
-  <class name="edm::Wrapper<std::vector<Trackster> >" />
+  <class name="std::vector<ticl::Trackster>" />
+  <class name="edm::Wrapper<ticl::Trackster>" />
+  <class name="edm::Wrapper<std::vector<ticl::Trackster> >" />
 
   <class name="TICLLayerTile" ClassVersion="4" persistent="false">
     <field name="tile_" transient="true"/>

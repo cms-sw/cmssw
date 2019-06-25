@@ -26,7 +26,7 @@ public:
 private:
   std::string label_;
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> layer_clusters_token_;
-  edm::EDGetTokenT<std::vector<Trackster>> tracksters_token_;
+  edm::EDGetTokenT<std::vector<ticl::Trackster>> tracksters_token_;
 };
 
 DEFINE_FWK_MODULE(MultiClustersFromTrackstersProducer);
@@ -34,7 +34,7 @@ DEFINE_FWK_MODULE(MultiClustersFromTrackstersProducer);
 MultiClustersFromTrackstersProducer::MultiClustersFromTrackstersProducer(const edm::ParameterSet& ps)
     : label_(ps.getParameter<std::string>("label")),
       layer_clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("LayerClusters"))),
-      tracksters_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("Tracksters"))) {
+      tracksters_token_(consumes<std::vector<ticl::Trackster>>(ps.getParameter<edm::InputTag>("Tracksters"))) {
   produces<std::vector<reco::HGCalMultiCluster>>(label_);
 }
 
@@ -50,7 +50,7 @@ void MultiClustersFromTrackstersProducer::fillDescriptions(edm::ConfigurationDes
 
 void MultiClustersFromTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto multiclusters = std::make_unique<std::vector<reco::HGCalMultiCluster>>();
-  edm::Handle<std::vector<Trackster>> tracksterHandle;
+  edm::Handle<std::vector<ticl::Trackster>> tracksterHandle;
   evt.getByToken(tracksters_token_, tracksterHandle);
 
   edm::Handle<std::vector<reco::CaloCluster>> layer_clustersHandle;
