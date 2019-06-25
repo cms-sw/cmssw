@@ -39,15 +39,12 @@ namespace edm {
 
       void swapFinders(std::vector<edm::propagate_const<std::shared_ptr<EventSetupRecordIntervalFinder>>>&);
 
-      bool hasNonconcurrentFinder() const;
-
     protected:
       void setIntervalFor(const EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) override;
 
     private:
       void doResetInterval(const eventsetup::EventSetupRecordKey&) override;
 
-      // Should never be called for this class
       bool isConcurrentFinder() const override;
 
       bool isNonconcurrentAndIOVNeedsUpdate(const EventSetupRecordKey&, const IOVSyncValue&) const override;

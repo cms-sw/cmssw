@@ -27,15 +27,6 @@ namespace edm {
       finders_.swap(iFinders);
     }
 
-    bool IntersectingIOVRecordIntervalFinder::hasNonconcurrentFinder() const {
-      for (auto const& finder : finders_) {
-        if (!finder->concurrentFinder()) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     void IntersectingIOVRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
                                                              const IOVSyncValue& iTime,
                                                              ValidityInterval& oInterval) {
@@ -84,9 +75,11 @@ namespace edm {
     }
 
     bool IntersectingIOVRecordIntervalFinder::isConcurrentFinder() const {
-      throw Exception(errors::LogicError)
-          << "IntersectingIOVRecordIntervalFinder::isConcurrentFinder() should never be called.\n"
-          << "Contact a Framework developer\n";
+      for (auto const& finder : finders_) {
+        if (!finder->concurrentFinder()) {
+          return false;
+        }
+      }
       return true;
     }
 
