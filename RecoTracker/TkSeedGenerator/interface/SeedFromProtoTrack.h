@@ -7,16 +7,17 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include <boost/shared_ptr.hpp>
 
-namespace reco { class Track; }
-namespace edm { class EventSetup; }
+namespace reco {
+  class Track;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class SeedFromProtoTrack {
 public:
-
-
-  SeedFromProtoTrack(const reco::Track & proto, const edm::EventSetup& ); 
-  SeedFromProtoTrack(const reco::Track & proto,const SeedingHitSet & hits,
-    const edm::EventSetup& es);
+  SeedFromProtoTrack(const reco::Track& proto, const edm::EventSetup&);
+  SeedFromProtoTrack(const reco::Track& proto, const SeedingHitSet& hits, const edm::EventSetup& es);
 
   ~SeedFromProtoTrack() {}
 
@@ -25,22 +26,18 @@ public:
   bool isValid() const { return theValid; }
 
 private:
-
-  void init(const reco::Track & proto, const edm::EventSetup& es);
+  void init(const reco::Track& proto, const edm::EventSetup& es);
 
   PropagationDirection direction() const { return alongMomentum; }
 
-  PTrajectoryStateOnDet const & trajectoryState() const { return thePTraj; }
-
+  PTrajectoryStateOnDet const& trajectoryState() const { return thePTraj; }
 
   typedef edm::OwnVector<TrackingRecHit> RecHitContainer;
-  const RecHitContainer & hits() const { return theHits; }
+  const RecHitContainer& hits() const { return theHits; }
 
 private:
-
   bool theValid;
   RecHitContainer theHits;
   PTrajectoryStateOnDet thePTraj;
-
 };
 #endif
