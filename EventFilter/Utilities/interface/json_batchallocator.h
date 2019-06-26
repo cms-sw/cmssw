@@ -76,6 +76,10 @@ namespace Json {
       freeHead_ = object;
     }
 
+    // disabled copy constructor and assignement operator.
+    BatchAllocator(const BatchAllocator &) = delete;
+    void operator=(const BatchAllocator &) = delete;
+
   private:
     struct BatchInfo {
       BatchInfo *next_;
@@ -83,10 +87,6 @@ namespace Json {
       AllocatedType *end_;
       AllocatedType buffer_[objectPerAllocation];
     };
-
-    // disabled copy constructor and assignement operator.
-    BatchAllocator(const BatchAllocator &) = delete;
-    void operator=(const BatchAllocator &) = delete;
 
     static BatchInfo *allocateBatch(unsigned int objectsPerPage) {
       const unsigned int mallocSize = sizeof(BatchInfo) - sizeof(AllocatedType) * objectPerAllocation +
