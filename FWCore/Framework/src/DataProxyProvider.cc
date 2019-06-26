@@ -189,17 +189,16 @@ namespace edm {
         keyedProxies.insert(std::move(keyedProxiesVector));
 
         bool mustChangeLabels = (!appendToDataLabel_.empty());
-        for (KeyedProxies::Iterator itProxy = keyedProxies.begin(), itEnd = keyedProxies.end(); itProxy != itEnd;
-             ++itProxy) {
-          itProxy.dataProxy()->setProviderDescription(&description());
+        for (auto keyedProxy : keyedProxies) {
+          keyedProxy.dataProxy_->setProviderDescription(&description());
           if (mustChangeLabels) {
             //Using swap is fine since
             // 1) the data structure is not a map and so we have not sorted on the keys
             // 2) this is the first time filling this so no outside agency has yet seen
             //   the label and therefore can not be dependent upon its value
-            std::string temp(std::string(itProxy.dataKey().name().value()) + appendToDataLabel_);
-            DataKey newKey(itProxy.dataKey().type(), temp.c_str());
-            swap(itProxy.dataKey(), newKey);
+            std::string temp(std::string(keyedProxy.dataKey_.name().value()) + appendToDataLabel_);
+            DataKey newKey(keyedProxy.dataKey_.type(), temp.c_str());
+            swap(keyedProxy.dataKey_, newKey);
           }
         }
       }

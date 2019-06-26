@@ -126,21 +126,19 @@ namespace edm {
               //add them to our output
               EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap = iReturnValue[recordKey];
 
-              for (DataProxyProvider::KeyedProxies::Iterator itProxy = keyedProxies.begin(), itEnd = keyedProxies.end();
-                   itProxy != itEnd;
-                   ++itProxy) {
+              for (auto keyedProxy : keyedProxies) {
                 EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
-                    dataToProviderMap.find(itProxy.dataKey());
+                    dataToProviderMap.find(keyedProxy.dataKey_);
                 if (itFind != dataToProviderMap.end()) {
                   throw cms::Exception("ESPreferConflict")
                       << "Two providers have been set to be preferred for\n"
-                      << itProxy.dataKey().type().name() << " \"" << itProxy.dataKey().name().value() << "\""
+                      << keyedProxy.dataKey_.type().name() << " \"" << keyedProxy.dataKey_.name().value() << "\""
                       << "\n the providers are "
                       << "\n 1) type=" << itFind->second.type_ << " label=\"" << itFind->second.label_ << "\""
                       << "\n 2) type=" << iComponent.type_ << " label=\"" << iComponent.label_ << "\""
                       << "\nPlease modify configuration so only one is preferred";
                 }
-                dataToProviderMap.insert(std::make_pair(itProxy.dataKey(), iComponent));
+                dataToProviderMap.insert(std::make_pair(keyedProxy.dataKey_, iComponent));
               }
             }
           }
