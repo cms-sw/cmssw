@@ -51,6 +51,16 @@ namespace {
     return iCheck;
   }
 
+  std::string defaultURL() {
+    std::string returnValue;
+    const char *tmp = getenv("CMS_PATH");
+    if (tmp) {
+      returnValue = tmp;
+    }
+    returnValue += "/SITECONF/local/JobConfig/site-local-config.xml";
+    return returnValue;
+  }
+
 }  // namespace
 
 namespace edm {
@@ -59,8 +69,7 @@ namespace edm {
     const std::string SiteLocalConfigService::m_statisticsDefaultPort = "3334";
 
     SiteLocalConfigService::SiteLocalConfigService(ParameterSet const &pset)
-        : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl",
-                                                        "/SITECONF/local/JobConfig/site-local-config.xml")),
+        : m_url(pset.getUntrackedParameter<std::string>("siteLocalConfigFileUrl", defaultURL())),
           m_dataCatalog(),
           m_fallbackDataCatalog(),
           m_frontierConnect(),
@@ -89,14 +98,6 @@ namespace edm {
           m_statisticsAddrInfo(nullptr),
           m_statisticsInfoAvail(false),
           m_siteName() {
-      if (m_url.empty()) {
-        char *tmp = getenv("CMS_PATH");
-        m_url = "/SITECONF/local/JobConfig/site-local-config.xml";
-        if (tmp) {
-          m_url = tmp + m_url;
-        }
-      }
-
       this->parse(m_url);
 
       //apply overrides
