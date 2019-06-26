@@ -118,8 +118,8 @@ namespace edm {
       typedef DataProxyProvider::KeyedProxies ProxyList;
       typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;
 
-      for (unsigned int iovIndex = 0; iovIndex < nConcurrentIOVs_; ++iovIndex) {
-        ProxyList& keyedProxies(iProvider->keyedProxies(this->key(), iovIndex));
+      for (auto& record : recordImpls_) {
+        ProxyList& keyedProxies(iProvider->keyedProxies(this->key(), record.iovIndex()));
 
         for (auto keyedProxy : keyedProxies) {
           PreferredMap::const_iterator itFound = iMap.find(keyedProxy.dataKey_);
@@ -130,7 +130,7 @@ namespace edm {
               continue;
             }
           }
-          recordImpls_.at(iovIndex).add(keyedProxy.dataKey_, keyedProxy.dataProxy_);
+          record.add(keyedProxy.dataKey_, keyedProxy.dataProxy_);
         }
       }
     }
