@@ -519,7 +519,7 @@ namespace pat {
   const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByType( const trigger::TriggerObjectType triggerObjectType, const size_t idx ) const {
     std::vector< size_t > refs;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasTriggerObjectType( triggerObjectType ) ) refs.push_back( i );
+      if ( triggerObjectMatch( i ) != nullptr && triggerObjectMatch( i )->hasTriggerObjectType( triggerObjectType ) ) refs.push_back( i );
     }
     if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
@@ -621,7 +621,7 @@ namespace pat {
   const TriggerObjectStandAlone * PATObject<ObjectType>::triggerObjectMatchByPath( const std::string & namePath, const bool pathLastFilterAccepted, const bool pathL3FilterAccepted, const size_t idx ) const {
     std::vector< size_t > refs;
     for ( size_t i = 0; i < triggerObjectMatches().size(); ++i ) {
-      if ( triggerObjectMatch( i ) != 0 && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted, pathL3FilterAccepted ) ) refs.push_back( i );
+      if ( triggerObjectMatch( i ) != nullptr && triggerObjectMatch( i )->hasPathName( namePath, pathLastFilterAccepted, pathL3FilterAccepted ) ) refs.push_back( i );
     }
     if ( idx >= refs.size() ) return nullptr;
     TriggerObjectStandAloneRef ref( &triggerObjectMatchesEmbedded_, refs.at( idx ) );
