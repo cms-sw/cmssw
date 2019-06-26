@@ -11,6 +11,7 @@ from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClu
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import hgcalMultiClusters
 
 
+from RecoHGCal.TICL.TICLLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer
@@ -18,6 +19,8 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 
 def TICL_iterations_withReco(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
+
+  process.TICLLayerTileProducer = ticlLayerTileProducer.clone()
 
   process.FilteredLayerClustersMIP = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterBySize",
@@ -60,6 +63,7 @@ def TICL_iterations_withReco(process):
 
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL_Task = cms.Task(
+      process.TICLLayerTileProducer,
       process.FilteredLayerClustersMIP,
       process.TrackstersMIP,
       process.MultiClustersFromTrackstersMIP,
@@ -71,6 +75,8 @@ def TICL_iterations_withReco(process):
 
 def TICL_iterations(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
+
+  process.TICLLayerTileProducer = ticlLayerTileProducer.clone()
 
   process.FilteredLayerClustersMIP = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterBySize",
@@ -117,6 +123,7 @@ def TICL_iterations(process):
       process.HGCalRecHit,
       process.hgcalLayerClusters,
       process.FilteredLayerClustersMIP,
+      process.TICLLayerTileProducer,
       process.TrackstersMIP,
       process.MultiClustersFromTrackstersMIP,
       process.FilteredLayerClusters,
