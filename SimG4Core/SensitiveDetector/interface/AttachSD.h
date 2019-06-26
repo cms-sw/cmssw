@@ -6,7 +6,7 @@
 namespace edm {
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 class SensitiveDetectorCatalog;
 class SensitiveTkDetector;

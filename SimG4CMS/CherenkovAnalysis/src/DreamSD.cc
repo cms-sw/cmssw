@@ -106,7 +106,6 @@ uint32_t DreamSD::setDetUnitId(const G4Step *aStep) {
 
 //________________________________________________________________________________________
 void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
-
   edm::ESTransientHandle<DDCompactView> cpv;
   es.get<IdealGeometryRecord>().get(cpv);
 

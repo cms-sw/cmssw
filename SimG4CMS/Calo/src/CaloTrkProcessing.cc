@@ -26,7 +26,7 @@
 //#define EDM_ML_DEBUG
 
 CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
-				     const edm::EventSetup& es,
+                                     const edm::EventSetup& es,
                                      const SensitiveDetectorCatalog& clg,
                                      edm::ParameterSet const& p,
                                      const SimTrackManager* manager)
