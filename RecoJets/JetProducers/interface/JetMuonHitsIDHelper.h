@@ -11,38 +11,34 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
-
 namespace reco {
 
   namespace helper {
 
     class JetMuonHitsIDHelper {
-
-    public : 
+    public:
       // construction
       JetMuonHitsIDHelper() {}
-      JetMuonHitsIDHelper( edm::ParameterSet const & pset,  edm::ConsumesCollector&& iC );
-      ~JetMuonHitsIDHelper() {} 
+      JetMuonHitsIDHelper(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC);
+      ~JetMuonHitsIDHelper() {}
 
       void fillDescription(edm::ParameterSetDescription& iDesc);
 
-      void initValues ();
+      void initValues();
 
       // interface
-      void calculate( const edm::Event& event, const edm::EventSetup & isetup, 
-		      const reco::Jet &jet, const int iDbg = 0 );
+      void calculate(const edm::Event& event, const edm::EventSetup& isetup, const reco::Jet& jet, const int iDbg = 0);
 
       // access
-      int numberOfHits1RPC() const { return numberOfHits1RPC_;}
-      int numberOfHits2RPC() const { return numberOfHits2RPC_;}
-      int numberOfHits3RPC() const { return numberOfHits3RPC_;}
-      int numberOfHits4RPC() const { return numberOfHits4RPC_;}
-      int numberOfHitsRPC () const { return numberOfHitsRPC_ ;}
-  
-    private:
+      int numberOfHits1RPC() const { return numberOfHits1RPC_; }
+      int numberOfHits2RPC() const { return numberOfHits2RPC_; }
+      int numberOfHits3RPC() const { return numberOfHits3RPC_; }
+      int numberOfHits4RPC() const { return numberOfHits4RPC_; }
+      int numberOfHitsRPC() const { return numberOfHitsRPC_; }
 
-      edm::InputTag rpcRecHits_; // collection of rpc rechits
-      bool          isRECO_;     // if this is RECO this will run, else nothing will be added
+    private:
+      edm::InputTag rpcRecHits_;  // collection of rpc rechits
+      bool isRECO_;               // if this is RECO this will run, else nothing will be added
 
       int numberOfHits1RPC_;
       int numberOfHits2RPC_;
@@ -51,8 +47,7 @@ namespace reco {
       int numberOfHitsRPC_;
 
       edm::EDGetTokenT<RPCRecHitCollection> input_rpchits_token_;
-
     };
-  }
-}
+  }  // namespace helper
+}  // namespace reco
 #endif
