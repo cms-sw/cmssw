@@ -34,7 +34,7 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   systLabel(							iConfig.getParameter<std::string>("systematicsLabel")),
   useQC(							iConfig.getParameter<bool>("useQualityCuts")),
   useJetCorr(							!iConfig.getParameter<edm::InputTag>("jec").label().empty()),
-  produceSyst(							systLabel != "")
+  produceSyst(							!systLabel.empty())
 {
   produces<edm::ValueMap<float>>("qgLikelihood");
   produces<edm::ValueMap<float>>("axis2");
