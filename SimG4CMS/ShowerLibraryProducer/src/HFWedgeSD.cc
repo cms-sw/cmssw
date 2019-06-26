@@ -17,11 +17,11 @@
 #include "G4SystemOfUnits.hh"
 
 HFWedgeSD::HFWedgeSD(const std::string& iname,
-                     const DDCompactView& cpv,
+                     const edm::EventSetup& es,
                      const SensitiveDetectorCatalog& clg,
                      edm::ParameterSet const& p,
                      const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, cpv, clg, p),
+    : SensitiveCaloDetector(iname, es, clg, p),
       m_trackManager(manager),
       hcID(-1),
       theHC(nullptr),

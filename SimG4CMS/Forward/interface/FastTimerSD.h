@@ -19,7 +19,7 @@ class FastTimeDDDConstants;
 class FastTimerSD : public TimingSD, public Observer<const BeginOfJob *> {
 public:
   FastTimerSD(const std::string &,
-              const DDCompactView &,
+              const edm::EventSetup &,
               const SensitiveDetectorCatalog &,
               edm::ParameterSet const &,
               const SimTrackManager *);

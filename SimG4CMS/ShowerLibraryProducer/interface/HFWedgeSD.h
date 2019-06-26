@@ -18,7 +18,7 @@ class G4HCofThisEvent;
 class HFWedgeSD : public SensitiveCaloDetector {
 public:
   explicit HFWedgeSD(const std::string&,
-                     const DDCompactView& cpv,
+                     const edm::EventSetup& cpv,
                      const SensitiveDetectorCatalog& clg,
                      edm::ParameterSet const& p,
                      const SimTrackManager*);

@@ -19,7 +19,7 @@ class G4HCofThisEvent;
 class HFChamberSD : public SensitiveCaloDetector {
 public:
   explicit HFChamberSD(const std::string&,
-                       const DDCompactView&,
+                       const edm::EventSetup&,
                        const SensitiveDetectorCatalog&,
                        const edm::ParameterSet&,
                        const SimTrackManager*);

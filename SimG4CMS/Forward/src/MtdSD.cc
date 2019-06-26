@@ -26,20 +26,23 @@
 //#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name,
-             const DDCompactView& cpv,
+             const edm::EventSetup& es,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : TimingSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
+    : TimingSD(name, es, clg, p, manager), numberingScheme(nullptr) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("MtdSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
 
   SetVerboseLevel(verbn);
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   std::string attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, name, 0)};
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*cpv, filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
   std::vector<int> temp = dbl_to_int(getDDDArray("Type", sv));

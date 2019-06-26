@@ -16,7 +16,7 @@
 #include <sstream>
 
 SensitiveDetector::SensitiveDetector(const std::string& iname,
-                                     const DDCompactView& cpv,
+                                     const edm::EventSetup& es,
                                      const SensitiveDetectorCatalog& clg,
                                      edm::ParameterSet const& p,
                                      bool calo)

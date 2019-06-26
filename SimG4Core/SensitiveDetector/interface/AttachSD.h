@@ -4,9 +4,10 @@
 #include <vector>
 
 namespace edm {
+  class EventSetup;
   class ParameterSet;
 }
-class DDCompactView;
+
 class SensitiveDetectorCatalog;
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
@@ -19,7 +20,7 @@ public:
   ~AttachSD();
 
   std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *> > create(
-      const DDCompactView &,
+      const edm::EventSetup &,
       const SensitiveDetectorCatalog &,
       edm::ParameterSet const &,
       const SimTrackManager *,
