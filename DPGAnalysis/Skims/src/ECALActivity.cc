@@ -70,7 +70,7 @@ bool ECALActivity::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EBRecHitCollection*  EBRecHits = nullptr;
   const EERecHitCollection*  EERecHits = nullptr; 
   
-  if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) 
+  if ( !EBRecHitCollection_.label().empty() && !EBRecHitCollection_.instance().empty() ) 
     {
       iEvent.getByLabel( EBRecHitCollection_, pEBRecHits);
       if ( pEBRecHits.isValid() ) 
@@ -83,7 +83,7 @@ bool ECALActivity::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
     }
 
-  if ( EERecHitCollection_.label() != "" && EERecHitCollection_.instance() != "" ) 
+  if ( !EERecHitCollection_.label().empty() && !EERecHitCollection_.instance().empty() ) 
     {
       iEvent.getByLabel( EERecHitCollection_, pEERecHits);
       

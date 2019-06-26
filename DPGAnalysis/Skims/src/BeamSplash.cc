@@ -75,7 +75,7 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   const EERecHitCollection*  EERecHits = nullptr; 
   const HBHERecHitCollection*  HBHERecHits = nullptr; 
   
-  if ( EBRecHitCollection_.label() != "" && EBRecHitCollection_.instance() != "" ) 
+  if ( !EBRecHitCollection_.label().empty() && !EBRecHitCollection_.instance().empty() ) 
     {
       iEvent.getByLabel( EBRecHitCollection_, pEBRecHits);
       if ( pEBRecHits.isValid() ) 
@@ -88,7 +88,7 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
     }
 
-  if ( EERecHitCollection_.label() != "" && EERecHitCollection_.instance() != "" ) 
+  if ( !EERecHitCollection_.label().empty() && !EERecHitCollection_.instance().empty() ) 
     {
       iEvent.getByLabel( EERecHitCollection_, pEERecHits);
       
@@ -102,7 +102,7 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
     }
 
-  if ( HBHERecHitCollection_.label() != "" )
+  if ( !HBHERecHitCollection_.label().empty() )
     {
       iEvent.getByLabel( HBHERecHitCollection_, pHBHERecHits);
       
