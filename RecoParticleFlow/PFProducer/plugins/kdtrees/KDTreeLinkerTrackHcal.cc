@@ -100,26 +100,26 @@ void KDTreeLinkerTrackHcal::insertFieldClusterElt(reco::PFBlockElement* hcalClus
 
 void KDTreeLinkerTrackHcal::buildTree() {
   // List of pseudo-rechits that will be used to create the KDTree
-  std::vector<KDTreeNodeInfo<reco::PFRecHit const*,2>> eltList;
+  std::vector<KDTreeNodeInfo<reco::PFRecHit const*, 2>> eltList;
 
   // Filling of this list
   for (RecHitSet::const_iterator it = rechitsSet_.begin(); it != rechitsSet_.end(); it++) {
     const reco::PFRecHit::REPPoint& posrep = (*it)->positionREP();
 
-    KDTreeNodeInfo<reco::PFRecHit const*,2> rh1(*it, posrep.eta(), posrep.phi());
+    KDTreeNodeInfo<reco::PFRecHit const*, 2> rh1(*it, posrep.eta(), posrep.phi());
     eltList.push_back(rh1);
 
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
     if (rh1.dims[1] > (M_PI - phiOffset_)) {
       float phi = rh1.dims[1] - 2 * M_PI;
-      KDTreeNodeInfo<reco::PFRecHit const*,2> rh2(*it, float(posrep.eta()), phi);
+      KDTreeNodeInfo<reco::PFRecHit const*, 2> rh2(*it, float(posrep.eta()), phi);
       eltList.push_back(rh2);
     }
 
     if (rh1.dims[1] < (M_PI * -1.0 + phiOffset_)) {
       float phi = rh1.dims[1] + 2 * M_PI;
-      KDTreeNodeInfo<reco::PFRecHit const*,2> rh3(*it, float(posrep.eta()), phi);
+      KDTreeNodeInfo<reco::PFRecHit const*, 2> rh3(*it, float(posrep.eta()), phi);
       eltList.push_back(rh3);
     }
   }
