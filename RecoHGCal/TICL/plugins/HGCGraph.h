@@ -16,12 +16,17 @@ public:
                               int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters,
                               const std::vector<float> &mask,
+			      const edm::ValueMap<float> &layerClustersTime,
                               int deltaIEta,
                               int deltaIPhi,
                               float minCosThetai,
                               float maxCosPointing,
                               int missing_layers,
-                              int maxNumberOfLayers);
+			      int maxNumberOfLayers,
+			      float maxDeltaTime);
+
+  bool areTimeCompatible(int innerIdx, int outerIdx,
+			 const edm::ValueMap<float> &layerClustersTime, float maxDeltaTime);
 
   std::vector<HGCDoublet> &getAllDoublets() { return allDoublets_; }
   void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets, const unsigned int minClustersPerNtuplet);
