@@ -1,4 +1,16 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+options = VarParsing.VarParsing('analysis')
+
+options.register ('compAlgo',
+                  'ZLIB', # default value
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "Compression Algorithm")
+
+options.parseArguments()
+
 
 process = cms.Process("HLT")
 
@@ -30,6 +42,7 @@ process.out = cms.OutputModule("EventStreamFileWriter",
     fileName = cms.untracked.string('teststreamfile.dat'),
     compression_level = cms.untracked.int32(1),
     use_compression = cms.untracked.bool(True),
+    compression_algorithm = cms.untracked.string(options.compAlgo),
     max_event_size = cms.untracked.int32(7000000)
 )
 
