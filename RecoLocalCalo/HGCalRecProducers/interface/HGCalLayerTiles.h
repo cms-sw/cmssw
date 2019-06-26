@@ -14,7 +14,6 @@
 
 class HGCalLayerTiles {
 public:
-
   void fill(const std::vector<float>& x, const std::vector<float>& y) {
     auto cellsSize = x.size();
     for (unsigned int i = 0; i < cellsSize; ++i) {
@@ -60,7 +59,7 @@ public:
   const std::vector<int>& operator[](int globalBinId) const { return tiles_[globalBinId]; }
 
 private:
-  std::array<std::vector<int>, hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows  > tiles_;
+  std::array<std::vector<int>, hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows> tiles_;
 };
 
 #endif
