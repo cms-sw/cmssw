@@ -2,8 +2,20 @@
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
+if [ -z  $LOCAL_TEST_DIR ]; then
+LOCAL_TEST_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+fi
 echo "LOCAL_TEST_DIR = $LOCAL_TEST_DIR"
+
+if [ -z  $LOCAL_TMP_DIR ]; then
+LOCAL_TMP_DIR="/tmp"
+fi
 echo "LOCAL_TMP_DIR = $LOCAL_TMP_DIR"
+
+if [ -z  $TEST_COMPRESSION_ALGO ]; then
+TEST_COMPRESSION_ALGO="ZLIB"
+fi
+echo "TEST_COMPRESSION_ALGO = $TEST_COMPRESSION_ALGO"
 
 cd $LOCAL_TEST_DIR
 
@@ -16,7 +28,7 @@ mkdir ${OUTDIR}
 cp *_cfg.py ${OUTDIR}
 cd ${OUTDIR}
 
-cmsRun --parameter-set NewStreamOut_cfg.py > out 2>&1 || die "cmsRun NewStreamOut_cfg.py" $?
+cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO} > out 2>&1 || die "cmsRun NewStreamOut_cfg.py compAlgo=${TEST_COMPRESSION_ALGO}" $?
 cmsRun --parameter-set NewStreamIn_cfg.py  > in  2>&1 || die "cmsRun NewStreamIn_cfg.py" $?
 cmsRun --parameter-set NewStreamIn2_cfg.py  > in2  2>&1 || die "cmsRun NewStreamIn2_cfg.py" $?
 cmsRun --parameter-set NewStreamCopy_cfg.py  > copy  2>&1 || die "cmsRun NewStreamCopy_cfg.py" $?

@@ -27,17 +27,17 @@ namespace edm {
       :
 
         serializer_(selections),
-        maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
         useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
+        compressionAlgoStr_(ps.getUntrackedParameter<std::string>("compression_algorithm")),
         compressionLevel_(ps.getUntrackedParameter<int>("compression_level")),
         lumiSectionInterval_(ps.getUntrackedParameter<int>("lumiSection_interval")),
-        serializeDataBuffer_(),
         hltsize_(0),
-        origSize_(0),
         host_name_(),
         hltTriggerSelections_(),
         outputModuleId_(0) {
-    // no compression as default value - we need this!
+    //limits initially set for default ZLIB option
+    int minCompressionLevel = 1;
+    int maxCompressionLevel = 9;
 
     // test luminosity sections
     struct timeval now;
@@ -46,16 +46,36 @@ namespace edm {
     timeInSecSinceUTC = static_cast<double>(now.tv_sec) + (static_cast<double>(now.tv_usec) / 1000000.0);
 
     if (useCompression_ == true) {
-      if (compressionLevel_ <= 0) {
+      if (compressionAlgoStr_ == "ZLIB") {
+        compressionAlgo_ = ZLIB;
+      } else if (compressionAlgoStr_ == "LZMA") {
+        compressionAlgo_ = LZMA;
+        minCompressionLevel = 0;
+      } else if (compressionAlgoStr_ == "ZSTD") {
+        compressionAlgo_ = ZSTD;
+        maxCompressionLevel = 20;
+      } else if (compressionAlgoStr_ == "UNCOMPRESSED") {
+        compressionLevel_ = 0;
+        useCompression_ = false;
+        compressionAlgo_ = UNCOMPRESSED;
+      } else
+        throw cms::Exception("StreamerOutputModuleCommon", "Compression type unknown")
+            << "Unknown compression algorithm " << compressionAlgoStr_;
+
+      if (compressionLevel_ < minCompressionLevel) {
         FDEBUG(9) << "Compression Level = " << compressionLevel_ << " no compression" << std::endl;
         compressionLevel_ = 0;
         useCompression_ = false;
-      } else if (compressionLevel_ > 9) {
-        FDEBUG(9) << "Compression Level = " << compressionLevel_ << " using max compression level 9" << std::endl;
-        compressionLevel_ = 9;
+        compressionAlgo_ = UNCOMPRESSED;
+      } else if (compressionLevel_ > maxCompressionLevel) {
+        FDEBUG(9) << "Compression Level = " << compressionLevel_ << " using max compression level "
+                  << maxCompressionLevel << std::endl;
+        compressionLevel_ = maxCompressionLevel;
+        compressionAlgo_ = UNCOMPRESSED;
       }
-    }
-    serializeDataBuffer_.bufs_.resize(maxEventSize_);
+    } else
+      compressionAlgo_ = UNCOMPRESSED;
+
     int got_host = gethostname(host_name_, 255);
     if (got_host != 0)
       strncpy(host_name_, "noHostNameFoundOrTooLong", sizeof(host_name_));
@@ -68,19 +88,20 @@ namespace edm {
 
   StreamerOutputModuleCommon::~StreamerOutputModuleCommon() {}
 
-  std::unique_ptr<InitMsgBuilder> StreamerOutputModuleCommon::serializeRegistry(const BranchIDLists& branchLists,
+  std::unique_ptr<InitMsgBuilder> StreamerOutputModuleCommon::serializeRegistry(SerializeDataBuffer& sbuf,
+                                                                                const BranchIDLists& branchLists,
                                                                                 ThinnedAssociationsHelper const& helper,
                                                                                 std::string const& processName,
                                                                                 std::string const& moduleLabel,
                                                                                 ParameterSetID const& toplevel) {
-    serializer_.serializeRegistry(serializeDataBuffer_, branchLists, helper);
+    serializer_.serializeRegistry(sbuf, branchLists, helper);
 
-    // resize bufs_ to reflect space used in serializer_ + header
+    // resize header_buf_ to reflect space used in serializer_ + header
     // I just added an overhead for header of 50000 for now
-    unsigned int src_size = serializeDataBuffer_.currentSpaceUsed();
+    unsigned int src_size = sbuf.currentSpaceUsed();
     unsigned int new_size = src_size + 50000;
-    if (serializeDataBuffer_.header_buf_.size() < new_size)
-      serializeDataBuffer_.header_buf_.resize(new_size);
+    if (sbuf.header_buf_.size() < new_size)
+      sbuf.header_buf_.resize(new_size);
 
     //Build the INIT Message
     //Following values are strictly DUMMY and will be replaced
@@ -109,8 +130,8 @@ namespace edm {
     crc = crc32(crc, buf, moduleLabel.length());
     outputModuleId_ = static_cast<uint32>(crc);
 
-    auto init_message = std::make_unique<InitMsgBuilder>(&serializeDataBuffer_.header_buf_[0],
-                                                         serializeDataBuffer_.header_buf_.size(),
+    auto init_message = std::make_unique<InitMsgBuilder>(&sbuf.header_buf_[0],
+                                                         sbuf.header_buf_.size(),
                                                          run,
                                                          Version((uint8 const*)toplevel.compactForm().c_str()),
                                                          getReleaseVersion().c_str(),
@@ -120,10 +141,10 @@ namespace edm {
                                                          hltTriggerNames,
                                                          hltTriggerSelections_,
                                                          l1_names,
-                                                         (uint32)serializeDataBuffer_.adler32_chksum());
+                                                         (uint32)sbuf.adler32_chksum());
 
     // copy data into the destination message
-    unsigned char* src = serializeDataBuffer_.bufferPointer();
+    unsigned char* src = sbuf.bufferPointer();
     std::copy(src, src + src_size, init_message->dataAddress());
     init_message->setDataLength(src_size);
     return init_message;
@@ -171,7 +192,11 @@ namespace edm {
   }
 
   std::unique_ptr<EventMsgBuilder> StreamerOutputModuleCommon::serializeEvent(
-      EventForOutput const& e, Handle<TriggerResults> const& triggerResults, ParameterSetID const& selectorCfg) {
+      SerializeDataBuffer& sbuf,
+      EventForOutput const& e,
+      Handle<TriggerResults> const& triggerResults,
+      ParameterSetID const& selectorCfg) {
+    constexpr unsigned int reserve_size = SerializeDataBuffer::reserve_size;
     //Lets Build the Event Message first
 
     //Following is strictly DUMMY Data for L! Trig and will be replaced with actual
@@ -196,17 +221,14 @@ namespace edm {
         lumi = static_cast<uint32>(timeInSec / lumiSectionInterval_) + 1;
     }
 
-    serializer_.serializeEvent(e, selectorCfg, useCompression_, compressionLevel_, serializeDataBuffer_);
+    serializer_.serializeEvent(sbuf, e, selectorCfg, compressionAlgo_, compressionLevel_, reserve_size);
 
-    // resize bufs_ to reflect space used in serializer_ + header
-    // I just added an overhead for header of 50000 for now
-    unsigned int src_size = serializeDataBuffer_.currentSpaceUsed();
-    unsigned int new_size = src_size + 50000;
-    if (serializeDataBuffer_.bufs_.size() < new_size)
-      serializeDataBuffer_.bufs_.resize(new_size);
+    // resize header_buf_ to reserved size on first written event
+    if (sbuf.header_buf_.size() < reserve_size)
+      sbuf.header_buf_.resize(reserve_size);
 
-    auto msg = std::make_unique<EventMsgBuilder>(&serializeDataBuffer_.bufs_[0],
-                                                 serializeDataBuffer_.bufs_.size(),
+    auto msg = std::make_unique<EventMsgBuilder>(&sbuf.header_buf_[0],
+                                                 sbuf.comp_buf_.size(),
                                                  e.id().run(),
                                                  e.id().event(),
                                                  lumi,
@@ -215,37 +237,50 @@ namespace edm {
                                                  l1bit,
                                                  (uint8*)&hltbits[0],
                                                  hltsize_,
-                                                 (uint32)serializeDataBuffer_.adler32_chksum(),
+                                                 (uint32)sbuf.adler32_chksum(),
                                                  host_name_);
-    msg->setOrigDataSize(origSize_);  // we need this set to zero
 
-    // copy data into the destination message
-    // an alternative is to have serializer only to the serialization
-    // in serializeEvent, and then call a new member "getEventData" that
-    // takes the compression arguments and a place to put the data.
-    // This will require one less copy.  The only catch is that the
-    // space provided in bufs_ should be at least the uncompressed
-    // size + overhead for header because we will not know the actual
-    // compressed size.
+    // 50000 bytes is reserved for header as has been the case with previous version which did one extra copy of event data
+    uint32 headerSize = msg->headerSize();
+    if (headerSize > reserve_size)
+      throw cms::Exception("StreamerOutputModuleCommon", "Header Overflow")
+          << " header of size " << headerSize << "bytes is too big to fit into the reserved buffer space";
 
-    unsigned char* src = serializeDataBuffer_.bufferPointer();
-    std::copy(src, src + src_size, msg->eventAddr());
-    msg->setEventLength(src_size);
+    //set addresses to other buffer and copy constructed header there
+    msg->setBufAddr(&sbuf.comp_buf_[reserve_size - headerSize]);
+    msg->setEventAddr(sbuf.bufferPointer());
+    std::copy(&sbuf.header_buf_[0], &sbuf.header_buf_[headerSize], (char*)(&sbuf.comp_buf_[reserve_size - headerSize]));
+
+    unsigned int src_size = sbuf.currentSpaceUsed();
+    msg->setEventLength(src_size);  //compressed size
     if (useCompression_)
-      msg->setOrigDataSize(serializeDataBuffer_.currentEventSize());
+      msg->setOrigDataSize(
+          sbuf.currentEventSize());  //uncompressed size (or 0 if no compression -> streamer input source requires this)
+    else
+      msg->setOrigDataSize(0);
 
     return msg;
   }
 
   void StreamerOutputModuleCommon::fillDescription(ParameterSetDescription& desc) {
-    desc.addUntracked<int>("max_event_size", 7000000)
-        ->setComment("Starting size in bytes of the serialized event buffer.");
+    desc.addUntracked<int>("max_event_size", 7000000)->setComment("Obsolete parameter.");
     desc.addUntracked<bool>("use_compression", true)
         ->setComment("If True, compression will be used to write streamer file.");
-    desc.addUntracked<int>("compression_level", 1)->setComment("ROOT compression level to use.");
+    desc.addUntracked<std::string>("compression_algorithm", "ZLIB")
+        ->setComment("Compression algorithm to use: UNCOMPRESSED, ZLIB, LZMA or ZSTD");
+    desc.addUntracked<int>("compression_level", 1)->setComment("Compression level to use on serialized ROOT events");
     desc.addUntracked<int>("lumiSection_interval", 0)
         ->setComment(
             "If 0, use lumi section number from event.\n"
             "If not 0, the interval in seconds between fake lumi sections.");
+  }
+
+  SerializeDataBuffer* StreamerOutputModuleCommon::getSerializerBuffer() {
+    auto* ptr = serializerBuffer_.get();
+    if (!ptr) {
+      serializerBuffer_.reset(new SerializeDataBuffer);
+      ptr = serializerBuffer_.get();
+    }
+    return ptr;
   }
 }  // namespace edm
