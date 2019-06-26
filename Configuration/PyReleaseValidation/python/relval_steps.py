@@ -1490,7 +1490,7 @@ steps['BsToMuMu_forSTEAM_13TeV_TuneCUETP8M1']=genvalid('BsToMuMu_forSTEAM_13TeV_
 
 
 # sometimes v1 won't be used - override it here - the dictionary key is gen fragment + '_' + geometry
-overrideFragments={}
+overrideFragments={'H125GGgluonfusion_13UP18INPUT':'2'}
 
 import re
 for key in overrideFragments:
