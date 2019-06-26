@@ -31,6 +31,7 @@
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/TrackerRecHit2D"/>
 <use name="DataFormats/VertexReco"/>
+<use name="DataFormats/RPCRecHit"/>
 <use name="EventFilter/HcalRawToDigi"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
