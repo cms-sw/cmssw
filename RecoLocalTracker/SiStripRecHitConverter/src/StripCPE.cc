@@ -37,12 +37,13 @@ StripCPE::StripCPE(edm::ParameterSet& conf,
   modules["W6"] = SiStripModuleGeometry::W6;
   modules["W7"] = SiStripModuleGeometry::W7;
 
-  const unsigned size = static_cast<unsigned int>(max_element(modules.begin(),
-                                    modules.end(),
-                                    boost::bind(&map_t::value_type::second, boost::lambda::_1) <
-                                        boost::bind(&map_t::value_type::second, boost::lambda::_2))
-                            ->second) +
-                        1;
+  const unsigned size =
+      static_cast<unsigned int>(max_element(modules.begin(),
+                                            modules.end(),
+                                            boost::bind(&map_t::value_type::second, boost::lambda::_1) <
+                                                boost::bind(&map_t::value_type::second, boost::lambda::_2))
+                                    ->second) +
+      1;
   xtalk1.resize(size);
   xtalk2.resize(size);
 
