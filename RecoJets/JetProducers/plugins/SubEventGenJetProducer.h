@@ -14,36 +14,30 @@
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-namespace cms
-{
-  class SubEventGenJetProducer : public VirtualJetProducer
-  {
+namespace cms {
+  class SubEventGenJetProducer : public VirtualJetProducer {
   public:
-
     SubEventGenJetProducer(const edm::ParameterSet& ps);
     ~SubEventGenJetProducer() override {}
     void produce(edm::Event&, const edm::EventSetup&) override;
     void runAlgorithm(edm::Event&, const edm::EventSetup&) override;
-    
-  protected:
-   std::vector<std::vector<fastjet::PseudoJet> > subInputs_;
-   std::vector<reco::GenJet>* subJets_;
-   std::vector<int> hydroTag_;
-   std::vector<int> nSubParticles_;
-   bool ignoreHydro_;
 
   protected:
+    std::vector<std::vector<fastjet::PseudoJet> > subInputs_;
+    std::vector<reco::GenJet>* subJets_;
+    std::vector<int> hydroTag_;
+    std::vector<int> nSubParticles_;
+    bool ignoreHydro_;
 
-    // overridden inputTowers method. Resets fjCompoundJets_ and 
+  protected:
+    // overridden inputTowers method. Resets fjCompoundJets_ and
     // calls VirtualJetProducer::inputTowers
     void inputTowers() override;
 
   private:
     edm::EDGetTokenT<reco::CandidateView> input_cand_token_;
-  
   };
-  
-}
 
+}  // namespace cms
 
 #endif
