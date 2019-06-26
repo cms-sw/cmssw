@@ -25,7 +25,7 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig) :
 	std::ostringstream ecfN_str;
 	std::shared_ptr<fastjet::FunctionOfPseudoJet<double> > pfunc;
 
-	if ( ecftype_ == "ECF" || ecftype_ == "" ) {
+	if ( ecftype_ == "ECF" || ecftype_.empty() ) {
 	  ecfN_str << "ecf" << *n;
 	  pfunc.reset( new fastjet::contrib::EnergyCorrelator( *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R ) );
 	}
