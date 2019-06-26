@@ -217,7 +217,8 @@ namespace edm {
 
     virtual void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const = 0;
 
-    virtual void writeCfi_(std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const = 0;
+    virtual void writeCfi_(
+        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const = 0;
 
     virtual void print_(std::ostream&, bool /*optional*/, bool /*writeToCfi*/, DocFormatHelper&) const {}
 
