@@ -33,6 +33,7 @@ void testfriendlyName::test() {
   typedef std::pair<std::string, std::string> Values;
   std::map<std::string, std::string> classToFriendly;
   classToFriendly.insert(Values("Foo", "Foo"));
+  classToFriendly.insert(Values("const Foo", "constFoo"));
   classToFriendly.insert(Values("bar::Foo", "barFoo"));
   classToFriendly.insert(Values("std::vector<Foo>", "Foos"));
   classToFriendly.insert(Values("std::vector<bar::Foo>", "barFoos"));
@@ -49,7 +50,10 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("std::__cxx11::vector<std::__cxx11::basic_string<char>>", "Strings"));
   classToFriendly.insert(Values("std::unique_ptr<Foo>", "FooUniquePtr"));
   classToFriendly.insert(Values("std::unique_ptr<bar::Foo>", "barFooUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<const Foo>", "constFooUniquePtr"));
+  classToFriendly.insert(Values("const std::unique_ptr<Foo>", "FooconstUniquePtr"));
   classToFriendly.insert(Values("std::vector<std::unique_ptr<bar::Foo>>", "barFooUniquePtrs"));
+  classToFriendly.insert(Values("std::vector<std::unique_ptr<const Foo>>", "constFooUniquePtrs"));
   classToFriendly.insert(Values("V<A,B>", "ABV"));
   classToFriendly.insert(Values("edm::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>",
                                 "recoSuperClustersrecoSuperClusterRefProdsedmExtCollection"));
