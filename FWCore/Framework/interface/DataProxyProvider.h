@@ -93,6 +93,16 @@ namespace edm {
 
           bool operator!=(Iterator const& right) const { return dataKeysIter_ != right.dataKeysIter_; }
 
+          // Warning: dereference operator does not return a reference to an element in a container.
+          // The return type is nonstandard because the iteration is simultaneous over 2 containers.
+          // This return type is used in "ranged-based for" loops.
+          struct KeyedProxy {
+            KeyedProxy(DataKey& dataKey, DataProxy* dataProxy) : dataKey_(dataKey), dataProxy_(dataProxy) {}
+            DataKey& dataKey_;
+            DataProxy* dataProxy_;
+          };
+          KeyedProxy operator*() { return KeyedProxy(dataKey(), dataProxy()); }
+
         private:
           friend KeyedProxies;
           Iterator(std::vector<DataKey>::iterator dataKeysIter,

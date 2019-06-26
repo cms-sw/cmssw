@@ -121,17 +121,16 @@ namespace edm {
       for (unsigned int iovIndex = 0; iovIndex < nConcurrentIOVs_; ++iovIndex) {
         ProxyList& keyedProxies(iProvider->keyedProxies(this->key(), iovIndex));
 
-        for (ProxyList::Iterator keyedProxy = keyedProxies.begin(), itEnd = keyedProxies.end(); keyedProxy != itEnd;
-             ++keyedProxy) {
-          PreferredMap::const_iterator itFound = iMap.find(keyedProxy.dataKey());
+        for (auto keyedProxy : keyedProxies) {
+          PreferredMap::const_iterator itFound = iMap.find(keyedProxy.dataKey_);
           if (iMap.end() != itFound) {
-            if (itFound->second.type_ != keyedProxy.dataProxy()->providerDescription()->type_ ||
-                itFound->second.label_ != keyedProxy.dataProxy()->providerDescription()->label_) {
+            if (itFound->second.type_ != keyedProxy.dataProxy_->providerDescription()->type_ ||
+                itFound->second.label_ != keyedProxy.dataProxy_->providerDescription()->label_) {
               //this is not the preferred provider
               continue;
             }
           }
-          recordImpls_.at(iovIndex).add(keyedProxy.dataKey(), keyedProxy.dataProxy());
+          recordImpls_.at(iovIndex).add(keyedProxy.dataKey_, keyedProxy.dataProxy_);
         }
       }
     }
