@@ -42,18 +42,18 @@ bool any(const std::vector<T>& v, const T& what) {
 }
 
 ECalSD::ECalSD(const std::string& name,
-	       const edm::EventSetup& es,
-	       const SensitiveDetectorCatalog& clg,
-	       edm::ParameterSet const& p,
-	       const SimTrackManager* manager)
-  : CaloSD(name,
+               const edm::EventSetup& es,
+               const SensitiveDetectorCatalog& clg,
+               edm::ParameterSet const& p,
+               const SimTrackManager* manager)
+    : CaloSD(name,
              es,
              clg,
              p,
-	     manager,
-	     (float)(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")),
-	     p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")),
-    numberingScheme_(nullptr) {
+             manager,
+             (float)(p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit")),
+             p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")),
+      numberingScheme_(nullptr) {
   //   static SimpleConfigurable<bool>   on1(false,  "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.00463,"ECalSD:BirkC1");
   //   static SimpleConfigurable<double> bk2(-0.03,  "ECalSD:BirkC2");

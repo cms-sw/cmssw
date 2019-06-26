@@ -22,7 +22,7 @@ class SensitiveDetectorCatalog;
 namespace edm {
   class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 class SensitiveDetectorMakerBase {
 public:
