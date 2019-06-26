@@ -126,7 +126,7 @@ namespace edm {
           regex const eMatch(std::string("(^[^<]*)<")+aMatch+">");
           result = regex_replace(result,eMatch,theSub+"$1");
        }
-       return result;
+       return removeAllSpaces(result);
     }
 
     std::string handleTemplateArguments(std::string const& iIn) {
@@ -138,7 +138,7 @@ namespace edm {
              smatch theMatch;
              if(regex_search(result,theMatch,reTemplateClass)) {
                 std::string templateClass = theMatch.str(1);
-                std::string friendlierName = removeAllSpaces(subFriendlyName(templateClass));
+                std::string friendlierName = subFriendlyName(templateClass);
                
                 //std::cout <<" t: "<<templateClass <<" f:"<<friendlierName<<std::endl;
                 result = regex_replace(result, regex(templateClass),friendlierName);
