@@ -120,14 +120,14 @@ void KDTreeLinkerPSEcal::buildTree() {
 
 void KDTreeLinkerPSEcal::buildTree(const RecHitSet &rechitsSet, KDTreeLinkerAlgo<reco::PFRecHit const *> &tree) {
   // List of pseudo-rechits that will be used to create the KDTree
-  std::vector<KDTreeNodeInfo<reco::PFRecHit const*,2>> eltList;
+  std::vector<KDTreeNodeInfo<reco::PFRecHit const *, 2>> eltList;
 
   // Filling of this eltList
   for (RecHitSet::const_iterator it = rechitsSet.begin(); it != rechitsSet.end(); it++) {
     const reco::PFRecHit *rh = *it;
     const auto &posxyz = rh->position();
 
-    KDTreeNodeInfo<reco::PFRecHit const*,2> rhinfo {rh, posxyz.x(), posxyz.y()};
+    KDTreeNodeInfo<reco::PFRecHit const *, 2> rhinfo{rh, posxyz.x(), posxyz.y()};
     eltList.push_back(rhinfo);
   }
 

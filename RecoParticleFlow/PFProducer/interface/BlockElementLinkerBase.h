@@ -8,27 +8,23 @@
 #include <string>
 
 class BlockElementLinkerBase {
- public:
- BlockElementLinkerBase(const edm::ParameterSet& conf):
-  _linkerName( conf.getParameter<std::string>("linkerName") ) { }
-  BlockElementLinkerBase(const BlockElementLinkerBase& ) = delete;
+public:
+  BlockElementLinkerBase(const edm::ParameterSet& conf) : _linkerName(conf.getParameter<std::string>("linkerName")) {}
+  BlockElementLinkerBase(const BlockElementLinkerBase&) = delete;
   virtual ~BlockElementLinkerBase() = default;
   BlockElementLinkerBase& operator=(const BlockElementLinkerBase&) = delete;
 
-  virtual bool linkPrefilter( const reco::PFBlockElement*,
-			      const reco::PFBlockElement* ) const 
-  { return true; }
+  virtual bool linkPrefilter(const reco::PFBlockElement*, const reco::PFBlockElement*) const { return true; }
 
-  virtual double testLink( const reco::PFBlockElement*,
-			   const reco::PFBlockElement* ) const = 0;
+  virtual double testLink(const reco::PFBlockElement*, const reco::PFBlockElement*) const = 0;
 
   const std::string& name() const { return _linkerName; }
-  
- private:
+
+private:
   const std::string _linkerName;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< BlockElementLinkerBase* (const edm::ParameterSet&) > BlockElementLinkerFactory;
+typedef edmplugin::PluginFactory<BlockElementLinkerBase*(const edm::ParameterSet&)> BlockElementLinkerFactory;
 
 #endif

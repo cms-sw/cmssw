@@ -11,7 +11,6 @@ namespace {
   double getScale(const double lo, const double hi) { return 0.5 * (hi - lo); }
 }  // namespace
 
-
 PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet &conf, edm::ConsumesCollector &&cc)
     : calibrator_(new PFEnergyCalibration) {
   applyCrackCorrections_ = conf.getParameter<bool>("applyCrackCorrections");
@@ -245,8 +244,10 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
       double sigmacor = sigma * ecor;
 
       cluster.setCorrectedEnergy(ecor);
-      if(setEnergyUncertainty_) cluster.setCorrectedEnergyUncertainty(sigmacor);
-      else cluster.setCorrectedEnergyUncertainty(0.);
+      if (setEnergyUncertainty_)
+        cluster.setCorrectedEnergyUncertainty(sigmacor);
+      else
+        cluster.setCorrectedEnergyUncertainty(0.);
     }
     return;
   }
@@ -414,8 +415,10 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
         << "response : correction = " << exp(mean) << " " << ecor;
 
     cluster.setCorrectedEnergy(ecor);
-    if(setEnergyUncertainty_) cluster.setCorrectedEnergyUncertainty(sigmacor);
-    else cluster.setCorrectedEnergyUncertainty(0.);
+    if (setEnergyUncertainty_)
+      cluster.setCorrectedEnergyUncertainty(sigmacor);
+    else
+      cluster.setCorrectedEnergyUncertainty(0.);
   }
 }
 
