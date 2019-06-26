@@ -170,9 +170,13 @@ namespace edm {
     bool EventSetupRecordProvider::setValidityIntervalFor(const IOVSyncValue& iTime) {
       // This function can be called multiple times for the same
       // IOVSyncValue because DependentRecordIntervalFinder::setIntervalFor
-      // can call it in addition to it being called directly. Don't
-      // need to do the work multiple times for the same call to
-      // eventSetupForInstance.
+      // can call it in addition to it being called directly. We don't
+      // need to do the work multiple times for the same IOVSyncValue.
+      // The next line of code protects against this. Note that it would
+      // be possible to avoid this check if the calls to setValidityIntervalFor
+      // were made in the right order, but it would take some development work
+      // to come up with code to calculate that order (maybe a project for the
+      // future, but it's not clear it would be worth the effort).
       if (intervalStatus_ == IntervalStatus::NotInitializedForSyncValue) {
         intervalStatus_ = IntervalStatus::Invalid;
 
