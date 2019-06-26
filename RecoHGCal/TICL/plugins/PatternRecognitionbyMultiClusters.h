@@ -23,6 +23,7 @@ namespace ticl {
                         const edm::EventSetup& es,
                         const std::vector<reco::CaloCluster>& layerClusters,
                         const std::vector<float>& mask,
+			const edm::ValueMap<float> &layerClustersTime,
                         const TICLLayerTiles& tiles,
                         std::vector<Trackster>& result) override;
   };
