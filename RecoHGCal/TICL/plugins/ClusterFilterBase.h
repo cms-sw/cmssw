@@ -4,28 +4,28 @@
 #ifndef RecoHGCal_TICL_ClusterFilterBase_H__
 #define RecoHGCal_TICL_ClusterFilterBase_H__
 
-#include "RecoHGCal/TICL/interface/Common.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
 
 #include <memory>
 #include <vector>
 
 namespace edm {
-class ParameterSet;
+  class ParameterSet;
 }
 namespace reco {
-class CaloCluster;
+  class CaloCluster;
 }
 
 namespace ticl {
   class ClusterFilterBase {
-    public:
-      explicit ClusterFilterBase(const edm::ParameterSet&){};
-      virtual ~ClusterFilterBase(){};
+  public:
+    explicit ClusterFilterBase(const edm::ParameterSet&){};
+    virtual ~ClusterFilterBase(){};
 
-      virtual std::unique_ptr<HgcalClusterFilterMask> filter(
-          const std::vector<reco::CaloCluster>& layerClusters,
-          const HgcalClusterFilterMask& mask) const = 0;
+    virtual std::unique_ptr<HgcalClusterFilterMask> filter(const std::vector<reco::CaloCluster>& layerClusters,
+                                                           const HgcalClusterFilterMask& mask,
+                                                           std::vector<float>& layerClustersMask) const = 0;
   };
-}
+}  // namespace ticl
 
 #endif
