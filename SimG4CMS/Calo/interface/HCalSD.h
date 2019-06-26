@@ -26,7 +26,6 @@
 #include <map>
 #include <string>
 
-class DDCompactView;
 class DDFilteredView;
 class G4LogicalVolume;
 class G4Material;
@@ -37,7 +36,7 @@ class TH1F;
 class HCalSD : public CaloSD, public Observer<const BeginOfJob*> {
 public:
   HCalSD(const std::string&,
-         const DDCompactView&,
+         const edm::EventSetup&,
          const SensitiveDetectorCatalog&,
          edm::ParameterSet const&,
          const SimTrackManager*);
@@ -56,7 +55,7 @@ protected:
 private:
   void fillLogVolumeVector(const std::string&,
                            const std::string&,
-                           const DDCompactView&,
+                           const edm::EventSetup&,
                            std::vector<const G4LogicalVolume*>&,
                            std::vector<G4String>&);
 

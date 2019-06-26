@@ -28,12 +28,12 @@
 //#define EDM_ML_DEBUG
 
 HGCalSD::HGCalSD(const std::string& name,
-                 const DDCompactView& cpv,
+                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
     : CaloSD(name,
-             cpv,
+             es,
              clg,
              p,
              manager,

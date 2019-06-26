@@ -25,13 +25,13 @@
 //#define EDM_ML_DEBUG
 
 CaloSD::CaloSD(const std::string& name,
-               const DDCompactView& cpv,
+               const edm::EventSetup& es,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager,
                float timeSliceUnit,
                bool ignoreTkID)
-    : SensitiveCaloDetector(name, cpv, clg, p),
+    : SensitiveCaloDetector(name, es, clg, p),
       G4VGFlashSensitiveDetector(),
       eminHit(0.),
       currentHit(nullptr),

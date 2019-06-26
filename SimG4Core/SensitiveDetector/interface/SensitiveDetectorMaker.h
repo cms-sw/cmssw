@@ -18,12 +18,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // forward declarations
-class DDCompactView;
 class SimTrackManager;
 class SimActivityRegistry;
 class SensitiveDetectorCatalog;
 
 namespace edm {
+  class EventSetup;
   class ParameterSet;
 }
 
@@ -34,12 +34,12 @@ public:
 
   // ---------- const member functions ---------------------
   SensitiveDetector* make(const std::string& iname,
-                          const DDCompactView& cpv,
+                          const edm::EventSetup& es,
                           const SensitiveDetectorCatalog& clg,
                           const edm::ParameterSet& p,
                           const SimTrackManager* man,
                           SimActivityRegistry& reg) const override {
-    T* sd = new T(iname, cpv, clg, p, man);
+    T* sd = new T(iname, es, clg, p, man);
     SimActivityRegistryEnroller::enroll(reg, sd);
     return static_cast<SensitiveDetector*>(sd);
   };
