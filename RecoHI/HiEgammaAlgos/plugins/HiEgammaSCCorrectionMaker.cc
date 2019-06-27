@@ -79,8 +79,7 @@ HiEgammaSCCorrectionMaker::HiEgammaSCCorrectionMaker(const edm::ParameterSet& ps
 
   // energy correction class
   if (applyEnergyCorrection_)
-    EnergyCorrection_ = std::unique_ptr<EcalClusterFunctionBaseClass>{
-        EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps)};
+    EnergyCorrection_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
 }
 
 HiEgammaSCCorrectionMaker::~HiEgammaSCCorrectionMaker() = default;

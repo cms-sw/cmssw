@@ -12,10 +12,8 @@ class HGCalTriggerGeometryImp1 : public HGCalTriggerGeometryGenericMapping {
 public:
   HGCalTriggerGeometryImp1(const edm::ParameterSet& conf);
 
-  void initialize(const edm::ESHandle<CaloGeometry>&) final;
-  void initialize(const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&) final;
+  void initialize(const CaloGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
 
 private:
   edm::FileInPath l1tCellsMapping_;
@@ -31,7 +29,7 @@ HGCalTriggerGeometryImp1::HGCalTriggerGeometryImp1(const edm::ParameterSet& conf
 {}
 
 /*****************************************************************/
-void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
+void HGCalTriggerGeometryImp1::initialize(const CaloGeometry* calo_geometry)
 /*****************************************************************/
 {
   // FIXME: !!!Only for HGCEE for the moment!!!
@@ -42,9 +40,9 @@ void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<CaloGeometry>& cal
 }
 
 /*****************************************************************/
-void HGCalTriggerGeometryImp1::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
-                                          const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
-                                          const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry)
+void HGCalTriggerGeometryImp1::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                          const HGCalGeometry* hgc_hsi_geometry,
+                                          const HGCalGeometry* hgc_hsc_geometry)
 /*****************************************************************/
 {
   throw cms::Exception("BadGeometry")

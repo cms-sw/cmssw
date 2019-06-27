@@ -66,10 +66,9 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
 
   edm::ConsumesCollector iC = consumesCollector();
   combinatorialSeedGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
-      std::unique_ptr<OrderedHitsGenerator>{
-          OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC)},
+      OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC),
       nullptr,
-      std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)});
+      SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet));
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
 }
 

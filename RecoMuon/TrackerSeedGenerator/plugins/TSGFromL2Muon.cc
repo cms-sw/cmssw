@@ -28,8 +28,7 @@ TSGFromL2Muon::TSGFromL2Muon(const edm::ParameterSet& cfg) {
   //Seed generator
   edm::ParameterSet seedGenPSet = cfg.getParameter<edm::ParameterSet>("TkSeedGenerator");
   std::string seedGenName = seedGenPSet.getParameter<std::string>("ComponentName");
-  theTkSeedGenerator =
-      std::unique_ptr<TrackerSeedGenerator>{TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet, iC)};
+  theTkSeedGenerator = TrackerSeedGeneratorFactory::get()->create(seedGenName, seedGenPSet, iC);
 
   //Seed cleaner
   edm::ParameterSet trackerSeedCleanerPSet = cfg.getParameter<edm::ParameterSet>("TrackerSeedCleaner");
