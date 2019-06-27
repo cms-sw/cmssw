@@ -46,6 +46,20 @@ neighbour_weights_2ndOrder = cms.vdouble(-0.25, 0.5, -0.25,
                                          -0.25, 0.5, -0.25)
 
 
+seed_smoothing_ecal = cms.vdouble(
+        1., 1., 1.,
+        1., 1.1, 1.,
+        1., 1., 1.,
+        )
+seed_smoothing_hcal = cms.vdouble(
+        1., 1., 1., 1., 1.,
+        1., 1., 1., 1., 1.,
+        1., 1., 2., 1., 1.,
+        1., 1., 1., 1., 1.,
+        1., 1., 1., 1., 1., 
+        )
+
+
 distance_C3d_params = cms.PSet(type_multicluster=cms.string('dRC3d'),
                                dR_multicluster=cms.double(0.01),
                                minPt_multicluster=cms.double(0.5),  # minimum pt of the multicluster (GeV)
@@ -69,14 +83,17 @@ histoMax_C3d_params = cms.PSet(type_multicluster=cms.string('HistoMaxC3d'),
                                dR_multicluster_byLayer_coefficientB=cms.vdouble(),
                                shape_threshold=cms.double(1.),
                                minPt_multicluster=cms.double(0.5),  # minimum pt of the multicluster (GeV)
-                               nBins_R_histo_multicluster=cms.uint32(42), # bin size of about 0.012
-                               nBins_Phi_histo_multicluster=cms.uint32(216), # bin size of about 0.029
+                               nBins_X1_histo_multicluster=cms.uint32(42), # bin size of about 0.012
+                               nBins_X2_histo_multicluster=cms.uint32(216), # bin size of about 0.029
                                binSumsHisto=binSums,
                                threshold_histo_multicluster=cms.double(10.),
                                cluster_association=cms.string("NearestNeighbour"),
                                EGIdentification=egamma_identification_histomax.clone(),
                                neighbour_weights=neighbour_weights_1stOrder,
                                seed_position=cms.string("BinCentre"),#BinCentre, TCWeighted
+                               seeding_space=cms.string("RPhi"),# RPhi, XY
+                               seed_smoothing_ecal=seed_smoothing_ecal,
+                               seed_smoothing_hcal=seed_smoothing_hcal,
                                )
 # V9 samples have a different defintiion of the dEdx calibrations. To account for it
 # we reascale the thresholds of the clustering seeds
@@ -93,6 +110,12 @@ histoMaxVariableDR_C3d_params = histoMax_C3d_params.clone(
         dR_multicluster_byLayer_coefficientB = cms.vdouble([0]*(MAX_LAYERS+1))
         )
 
+
+histoMaxXYVariableDR_C3d_params = histoMaxVariableDR_C3d_params.clone(
+        seeding_space=cms.string("XY"),
+        nBins_X1_histo_multicluster=cms.uint32(192),
+        nBins_X2_histo_multicluster=cms.uint32(192)
+        )
 
 histoSecondaryMax_C3d_params = histoMax_C3d_params.clone(
         type_multicluster = cms.string('HistoSecondaryMaxC3d')
