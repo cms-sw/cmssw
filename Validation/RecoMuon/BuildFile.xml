@@ -5,6 +5,7 @@
 <use   name="DataFormats/MuonReco"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="SimDataFormats/Track"/>
+<use   name="SimDataFormats/Associations"/>
 <use   name="CommonTools/Statistics"/>
 <use   name="RecoVertex/VertexTools"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
