@@ -9,7 +9,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 class TrackerTopology;
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 
 class TkDetMapESProducer : public edm::ESProducer {
 public:
@@ -20,9 +20,12 @@ public:
 
 private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geomDetToken_;
 };
 
-TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&) { setWhatProduced(this).setConsumes(tTopoToken_); }
+TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&) {
+  setWhatProduced(this).setConsumes(tTopoToken_).setConsumes(geomDetToken_);
+}
 
 namespace {
   TkLayerMap makeTkLayerMap(int layer, const TrackerTopology* tTopo, const std::vector<uint32_t> tkDetIdList) {
@@ -290,15 +293,8 @@ namespace {
 }  // namespace
 
 std::unique_ptr<TkDetMap> TkDetMapESProducer::produce(const TrackerTopologyRcd& tTopoRcd) {
-  if (!edm::Service<SiStripDetInfoFileReader>().isAvailable()) {
-    edm::LogError("TkLayerMap")
-        << "\n------------------------------------------"
-           "\nUnAvailable Service SiStripDetInfoFileReader: please insert in the configuration file an instance like"
-           "\n\tprocess.SiStripDetInfoFileReader = cms.Service(\"SiStripDetInfoFileReader\")"
-           "\n------------------------------------------";
-  }
-  SiStripDetInfoFileReader* fr = edm::Service<SiStripDetInfoFileReader>().operator->();
-  const std::vector<uint32_t>& TkDetIdList = fr->getAllDetIds();
+  const auto& geomDet = tTopoRcd.getRecord<IdealGeometryRecord>().get(geomDetToken_);
+  const auto TkDetIdList = TrackerGeometryUtils::getSiStripDetIds(geomDet);
 
   const auto& tTopo = tTopoRcd.get(tTopoToken_);
   auto tkDetMap = std::make_unique<TkDetMap>(&tTopo);

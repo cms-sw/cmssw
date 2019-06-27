@@ -5,10 +5,6 @@
 
 DEFINE_FWK_MODULE(SiStripDetInfoFileWriter);
 
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-DEFINE_FWK_SERVICE(SiStripDetInfoFileReader);
-
 #include "CalibTracker/SiStripCommon/interface/ShallowTree.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowEventDataProducer.h"
 #include "CalibTracker/SiStripCommon/interface/ShallowDigisProducer.h"

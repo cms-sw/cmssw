@@ -14,7 +14,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -185,54 +184,44 @@ void testTkHistoMap::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<TrackerGeometry> tkgeom;
   iSetup.get<TrackerDigiGeometryRecord>().get(tkgeom);
 
-  SiStripDetInfoFileReader* fr = edm::Service<SiStripDetInfoFileReader>().operator->();
-  std::vector<uint32_t> TkDetIdList, fullTkDetIdList = fr->getAllDetIds();
   float value;
   LocalPoint localPos(0., 0., 0.);
   GlobalPoint globalPos;
 
-  TkDetIdList = fullTkDetIdList;
-
-  //extract  vector of module in the layer
-  /*
-    SiStripSubStructure::getTIBDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
-    SiStripSubStructure::getTOBDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
-    SiStripSubStructure::getTIDDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
-    //SiStripSubStructure::getTECDetectors(fullTkDetIdList,TkDetIdList,trackerTopology,0,0,0);
-  */
-
   tkhisto->fillFromAscii("test.txt");
   tkhistoBis->fillFromAscii("test2.txt");
 
-  for (size_t i = 0; i < TkDetIdList.size(); ++i) {
-    const StripGeomDetUnit* _StripGeomDetUnit =
-        dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(TkDetIdList[i])));
-    globalPos = (_StripGeomDetUnit->surface()).toGlobal(localPos);
+  for (const auto det : tkgeom->detUnits()) {
+    const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
+    if (stripDet != nullptr) {
+      globalPos = stripDet->surface().toGlobal(localPos);
+      const DetId id = stripDet->geographicalId();
 
-    value = TkDetIdList[i] % 1000000;
+      value = id % 1000000;
 
-    //tkhisto->fill(TkDetIdList[i],value);
-    //tkhistoBis->fill(TkDetIdList[i],value);
-    tkhistoZ->fill(TkDetIdList[i], globalPos.z());
-    tkhistoPhi->fill(TkDetIdList[i], globalPos.phi());
-    tkhistoR->fill(TkDetIdList[i], globalPos.perp());
-    tkhistoCheck->add(TkDetIdList[i], 1.);
-    tkhistoCheck->add(TkDetIdList[i], 1.);
+      //tkhisto->fill(id,value);
+      //tkhistoBis->fill(id,value);
+      tkhistoZ->fill(id, globalPos.z());
+      tkhistoPhi->fill(id, globalPos.phi());
+      tkhistoR->fill(id, globalPos.perp());
+      tkhistoCheck->add(id, 1.);
+      tkhistoCheck->add(id, 1.);
 
-    edm::LogInfo("testTkHistoMap") << "detid " << TkDetIdList[i] << " pos z " << globalPos.z() << " phi "
-                                   << globalPos.phi() << " r " << globalPos.perp() << std::endl;
+      edm::LogInfo("testTkHistoMap") << "detid " << id.rawId() << " pos z " << globalPos.z() << " phi "
+                                     << globalPos.phi() << " r " << globalPos.perp() << std::endl;
 
-    if (value != tkhisto->getValue(TkDetIdList[i]))
-      edm::LogError("testTkHistoMap") << " input value " << value << " differs from read value "
-                                      << tkhisto->getValue(TkDetIdList[i]) << std::endl;
+      if (value != tkhisto->getValue(id))
+        edm::LogError("testTkHistoMap") << " input value " << value << " differs from read value "
+                                        << tkhisto->getValue(id) << std::endl;
 
-    // For usage that reset histo content use setBinContent instead than fill
-    /* 
-    tkhisto->setBinContent(TkDetIdList[i],value);
-    tkhistoZ->setBinContent(TkDetIdList[i],globalPos.z());
-    tkhistoPhi->setBinContent(TkDetIdList[i],globalPos.phi());
-    tkhistoR->setBinContent(TkDetIdList[i],globalPos.perp());
-    */
+      // For usage that reset histo content use setBinContent instead than fill
+      /* 
+      tkhisto->setBinContent(id,value);
+      tkhistoZ->setBinContent(id,globalPos.z());
+      tkhistoPhi->setBinContent(id,globalPos.phi());
+      tkhistoR->setBinContent(id,globalPos.perp());
+      */
+    }
   }
 }
 

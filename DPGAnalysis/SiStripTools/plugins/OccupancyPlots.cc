@@ -41,7 +41,6 @@
 
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -54,6 +53,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -306,27 +306,28 @@ void OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   edm::ESHandle<SiStripQuality> quality;
   iSetup.get<SiStripQualityRcd>().get("", quality);
 
-  SiStripDetInfoFileReader* reader = edm::Service<SiStripDetInfoFileReader>().operator->();
+  for (const auto det : trkgeo->detUnits()) {
+    const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
+    if (stripDet != nullptr) {
+      const DetId detid = stripDet->geographicalId();
 
-  const std::vector<uint32_t>& detids = reader->getAllDetIds();
+      int nchannideal = stripDet->specificTopology().nstrips();
+      //     int nchannreal = stripDet->specificTopology().nstrips();
+      int nchannreal = 0;
+      for (int strip = 0; strip < nchannideal; ++strip) {
+        if (!quality->IsStripBad(detid, strip))
+          ++nchannreal;
+      }
 
-  for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
-    int nchannideal = reader->getNumberOfApvsAndStripLength(*detid).first * 128;
-    //     int nchannreal = reader->getNumberOfApvsAndStripLength(*detid).first*128;
-    int nchannreal = 0;
-    for (int strip = 0; strip < nchannideal; ++strip) {
-      if (!quality->IsStripBad(*detid, strip))
-        ++nchannreal;
-    }
-
-    for (std::map<unsigned int, DetIdSelector>::const_iterator sel = m_wantedsubdets.begin();
-         sel != m_wantedsubdets.end();
-         ++sel) {
-      if (sel->second.isSelected(*detid)) {
-        if (m_nchannels_ideal && *m_nchannels_ideal)
-          (*m_nchannels_ideal)->Fill(sel->first, nchannideal);
-        if (m_nchannels_real && *m_nchannels_real)
-          (*m_nchannels_real)->Fill(sel->first, nchannreal);
+      for (std::map<unsigned int, DetIdSelector>::const_iterator sel = m_wantedsubdets.begin();
+           sel != m_wantedsubdets.end();
+           ++sel) {
+        if (sel->second.isSelected(detid)) {
+          if (m_nchannels_ideal && *m_nchannels_ideal)
+            (*m_nchannels_ideal)->Fill(sel->first, nchannideal);
+          if (m_nchannels_real && *m_nchannels_real)
+            (*m_nchannels_real)->Fill(sel->first, nchannreal);
+        }
       }
     }
   }

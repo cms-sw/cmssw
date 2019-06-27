@@ -5,7 +5,6 @@ process = cms.Process("Reader")
 process.load("DQM.SiStripCommon.TkHistoMap_cfi")
 
 process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring(''),

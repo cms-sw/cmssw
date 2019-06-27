@@ -29,8 +29,6 @@ if 'CONFDB' not in os.environ:
     user, _, passwd = auth.get_credentials('COND_AUTH_PATH', 'cms_omds_tunnel/cms_trk_r')
     process.SiStripConfigDb.ConfDb = '{user}/{passwd}@{path}'.format(user=user, passwd=passwd, path='cms_omds_tunnel')
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
 process.load("OnlineDB.SiStripO2O.SiStripO2OCalibrationFactors_cfi")
 process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb",
                                                    process.SiStripO2OCalibrationFactors
@@ -38,6 +36,7 @@ process.SiStripCondObjBuilderFromDb = cms.Service( "SiStripCondObjBuilderFromDb"
 process.SiStripCondObjBuilderFromDb.UseFED = True
 process.SiStripCondObjBuilderFromDb.UseFEC = True
 process.SiStripCondObjBuilderFromDb.UseAnalysis = _USEANALYSIS_
+process.SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 process.SiStripCondObjBuilderFromDb.SkippedDevices = cms.untracked.VPSet(
 _SKIPPED_
 )

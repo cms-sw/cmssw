@@ -137,7 +137,7 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
 )
 
 # Services needed for TkHistoMap / DetIdInfoFile
-process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 process.TFileService = cms.Service('TFileService',
   fileName = cms.string(options.detIdInfoFile)
 )
