@@ -37,7 +37,7 @@
 #include "CommonTools/Utils/src/MethodSetter.h"
 #include "CommonTools/Utils/src/MethodArgumentSetter.h"
 #include "CommonTools/Utils/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 // #include "CommonTools/Utils/src/Abort.h"
 
 namespace reco {

@@ -1,3 +1,5 @@
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HFNoseDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizer.h"
@@ -279,7 +281,8 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     if (producesEEDigis()) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCEEDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() << " EE hits";
+      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
+                                       << " EE hits";
 #ifdef EDM_ML_DEBUG
       checkPosition(&(*digiResult));
 #endif
@@ -288,7 +291,8 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     if (producesHEfrontDigis()) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCHEfrontDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() << " HE front hits";
+      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
+                                       << " HE silicon hits";
 #ifdef EDM_ML_DEBUG
       checkPosition(&(*digiResult));
 #endif
@@ -297,7 +301,8 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     if (producesHEbackDigis()) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHGCHEbackDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() << " HE back hits";
+      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
+                                       << " HE Scintillator hits";
 #ifdef EDM_ML_DEBUG
       checkPosition(&(*digiResult));
 #endif
@@ -306,7 +311,8 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
     if (producesHFNoseDigis()) {
       auto digiResult = std::make_unique<HGCalDigiCollection>();
       theHFNoseDigitizer_->run(digiResult, *simHitAccumulator_, theGeom, validIds_, digitizationType_, hre);
-      edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() << " HFNose hits";
+      edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer:: finalize event - produced " << digiResult->size()
+                                       << " HFNose hits";
 #ifdef EDM_ML_DEBUG
       checkPosition(&(*digiResult));
 #endif
@@ -384,11 +390,11 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
 
     if (verbosity_ > 0) {
       if (producesEEDigis())
-        edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << " o/p " << id.rawId() << std::dec
-                                     << std::endl;
+        edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer::i/p " << std::hex << the_hit.id() << " o/p " << id.rawId()
+                                         << std::dec;
       else
-        edm::LogInfo("HGCDigitizer") << " i/p " << std::hex << the_hit.id() << " o/p " << id.rawId() << std::dec
-                                     << std::endl;
+        edm::LogVerbatim("HGCDigitizer") << "HGCDigitizer::i/p " << std::hex << the_hit.id() << " o/p " << id.rawId()
+                                         << std::dec;
     }
 
     if (0 != id.rawId()) {
@@ -675,19 +681,25 @@ void HGCDigitizer::checkPosition(const HGCalDigiCollection* digis) const {
                          (z > zrange.second + tol))
                             ? "***** ERROR *****"
                             : "");
-      if (!ok) {
-        if (id.det() == DetId::HGCalHSi) {
+      bool val = gHGCal_->topology().valid(id);
+      if ((!ok) || (!val)) {
+        if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) {
           edm::LogVerbatim("HGCDigitizer") << "Check " << HGCSiliconDetId(id) << " " << global << " R " << r << ":"
                                            << rrange.first << ":" << rrange.second << " Z " << z << ":" << zrange.first
-                                           << ":" << zrange.second << " Flag " << ok << " " << ck;
+                                           << ":" << zrange.second << " Flag " << ok << ":" << val << " " << ck;
         } else if (id.det() == DetId::HGCalHSc) {
           edm::LogVerbatim("HGCDigitizer") << "Check " << HGCScintillatorDetId(id) << " " << global << " R " << r << ":"
                                            << rrange.first << ":" << rrange.second << " Z " << z << ":" << zrange.first
-                                           << ":" << zrange.second << " Flag " << ok << " " << ck;
-        } else {
+                                           << ":" << zrange.second << " Flag " << ok << ":" << val << " " << ck;
+        } else if ((id.det() == DetId::Forward) && (id.subdetId() == static_cast<int>(HFNose))) {
           edm::LogVerbatim("HGCDigitizer") << "Check " << HFNoseDetId(id) << " " << global << " R " << r << ":"
                                            << rrange.first << ":" << rrange.second << " Z " << z << ":" << zrange.first
-                                           << ":" << zrange.second << " Flag " << ok << " " << ck;
+                                           << ":" << zrange.second << " Flag " << ok << ":" << val << " " << ck;
+        } else {
+          edm::LogVerbatim("HGCDigitizer")
+              << "Check " << std::hex << id.rawId() << std::dec << " " << id.det() << ":" << id.subdetId() << " "
+              << global << " R " << r << ":" << rrange.first << ":" << rrange.second << " Z " << z << ":"
+              << zrange.first << ":" << zrange.second << " Flag " << ok << ":" << val << " " << ck;
         }
       }
     }

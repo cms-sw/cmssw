@@ -147,6 +147,7 @@ namespace edm {
   }
 
   void ParameterWildcardBase::writeCfi_(std::ostream&,
+                                        bool /*optional*/,
                                         bool& /*startWithComma*/,
                                         int /*indentation*/,
                                         bool& /*wroteSomething*/) const {

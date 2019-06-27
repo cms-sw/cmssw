@@ -8,18 +8,14 @@
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 
 namespace reco {
- 
+
   struct TauImpactParameterTrackData {
     Measurement1D transverseIp;
     Measurement1D ip3D;
   };
 
-  typedef edm::AssociationMap <
-            edm::OneToValue<
-              reco::TrackCollection,
-              reco::TauImpactParameterTrackData
-            >
-          > TrackTauImpactParameterAssociationCollection;
+  typedef edm::AssociationMap<edm::OneToValue<reco::TrackCollection, reco::TauImpactParameterTrackData> >
+      TrackTauImpactParameterAssociationCollection;
 
   typedef TrackTauImpactParameterAssociationCollection::value_type TrackTauImpactParameterAssociation;
 
@@ -27,25 +23,25 @@ namespace reco {
   public:
     TauImpactParameterInfo() {}
     virtual ~TauImpactParameterInfo() {}
-    
-    virtual TauImpactParameterInfo* clone() const { return new TauImpactParameterInfo( * this ); }
-    
-    float discriminator(double,double,double,bool,bool) const;
+
+    virtual TauImpactParameterInfo *clone() const { return new TauImpactParameterInfo(*this); }
+
+    float discriminator(double, double, double, bool, bool) const;
     float discriminator() const;
-    
-    const TauImpactParameterTrackData * getTrackData(const reco::TrackRef &) const;
+
+    const TauImpactParameterTrackData *getTrackData(const reco::TrackRef &) const;
     void storeTrackData(const reco::TrackRef &, const TauImpactParameterTrackData &);
-    
-    const IsolatedTauTagInfoRef & getIsolatedTauTag() const;
+
+    const IsolatedTauTagInfoRef &getIsolatedTauTag() const;
     void setIsolatedTauTag(const IsolatedTauTagInfoRef &);
-    
+
   private:
     TrackTauImpactParameterAssociationCollection trackDataMap;
-    IsolatedTauTagInfoRef                        isolatedTaus;
+    IsolatedTauTagInfoRef isolatedTaus;
   };
- 
-  DECLARE_EDM_REFS( TauImpactParameterInfo )
 
-}
+  DECLARE_EDM_REFS(TauImpactParameterInfo)
 
-#endif // DataFormats_BTauReco_TauImpactParameterInfo_h
+}  // namespace reco
+
+#endif  // DataFormats_BTauReco_TauImpactParameterInfo_h

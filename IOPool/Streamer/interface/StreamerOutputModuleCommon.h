@@ -23,20 +23,22 @@ namespace edm {
     ~StreamerOutputModuleCommon();
     static void fillDescription(ParameterSetDescription& desc);
 
-    std::unique_ptr<InitMsgBuilder> serializeRegistry(BranchIDLists const& branchLists,
+    std::unique_ptr<InitMsgBuilder> serializeRegistry(SerializeDataBuffer& sbuf,
+                                                      BranchIDLists const& branchLists,
                                                       ThinnedAssociationsHelper const& helper,
                                                       std::string const& processName,
                                                       std::string const& moduleLabel,
                                                       ParameterSetID const& toplevel);
 
-    std::unique_ptr<EventMsgBuilder> serializeEvent(EventForOutput const& e,
+    std::unique_ptr<EventMsgBuilder> serializeEvent(SerializeDataBuffer& sbuf,
+                                                    EventForOutput const& e,
                                                     Handle<TriggerResults> const& triggerResults,
                                                     ParameterSetID const& selectorCfg);
 
-    void clearSerializeDataBuffer() {
-      serializeDataBuffer_.header_buf_.clear();
-      serializeDataBuffer_.header_buf_.shrink_to_fit();
-    }
+    SerializeDataBuffer* getSerializerBuffer();
+
+  protected:
+    std::unique_ptr<SerializeDataBuffer> serializerBuffer_;
 
   private:
     void setHltMask(EventForOutput const& e,
@@ -47,16 +49,16 @@ namespace edm {
 
     int maxEventSize_;
     bool useCompression_;
+    std::string compressionAlgoStr_;
     int compressionLevel_;
+
+    StreamerCompressionAlgo compressionAlgo_;
 
     // test luminosity sections
     int lumiSectionInterval_;
     double timeInSecSinceUTC;
 
-    SerializeDataBuffer serializeDataBuffer_;
-
     unsigned int hltsize_;
-    uint32 origSize_;
     char host_name_[255];
 
     Strings hltTriggerSelections_;

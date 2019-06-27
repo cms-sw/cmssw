@@ -22,22 +22,22 @@ class DTRecHit1D;
 class DTStatusFlag;
 
 class DTSegmentSelector {
-   public:
-      DTSegmentSelector(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
-      ~DTSegmentSelector() {}
-      bool operator() (DTRecSegment4D const&, edm::Event const&, edm::EventSetup const&);
-    
-   private:
-      bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, std::vector<DTRecHit1D> const&);
+public:
+  DTSegmentSelector(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
+  ~DTSegmentSelector() {}
+  bool operator()(DTRecSegment4D const&, edm::Event const&, edm::EventSetup const&);
 
-      edm::InputTag muonTags_; 
-      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
-      bool checkNoisyChannels_;
-      int minHitsPhi_;
-      int minHitsZ_;
-      double maxChi2_;
-      double maxAnglePhi_;
-      double maxAngleZ_;
+private:
+  bool checkNoisySegment(edm::ESHandle<DTStatusFlag> const&, std::vector<DTRecHit1D> const&);
+
+  edm::InputTag muonTags_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  bool checkNoisyChannels_;
+  int minHitsPhi_;
+  int minHitsZ_;
+  double maxChi2_;
+  double maxAnglePhi_;
+  double maxAngleZ_;
 };
 
 #endif

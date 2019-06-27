@@ -8,23 +8,23 @@
 #include <iostream>
 
 namespace edm {
-class ParameterSet;
-class Event;
-class EventSetup;
-}
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 namespace ticl {
   class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBase {
-    public:
-      PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf)
-        : PatternRecognitionAlgoBase(conf) {
-        }
-      ~PatternRecognitionbyMultiClusters() override {};
+  public:
+    PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf) : PatternRecognitionAlgoBase(conf) {}
+    ~PatternRecognitionbyMultiClusters() override{};
 
-      void makeTracksters(const edm::Event& ev, const edm::EventSetup& es,
-          const std::vector<reco::CaloCluster>& layerClusters,
-          const ticl::HgcalClusterFilterMask & mask,
-          std::vector<Trackster>& result) override;
+    void makeTracksters(const edm::Event& ev,
+                        const edm::EventSetup& es,
+                        const std::vector<reco::CaloCluster>& layerClusters,
+                        const std::vector<float>& mask,
+                        const TICLLayerTiles& tiles,
+                        std::vector<Trackster>& result) override;
   };
-}
+}  // namespace ticl
 #endif

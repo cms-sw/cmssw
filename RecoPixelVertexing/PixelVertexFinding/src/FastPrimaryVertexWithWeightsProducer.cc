@@ -77,12 +77,12 @@ private:
   const double m_maxDeltaPhi;         // Use only pixel clusters with DeltaPhi(Jet,Cluster) < maxDeltaPhi
   const double m_weight_charge_down;  // Use only pixel clusters with ClusterCharge > weight_charge_down
   const double m_weight_charge_up;    // Use only pixel clusters with ClusterCharge < weight_charge_up
-  const double
-      m_PixelCellHeightOverWidth;  //It is the ratio between pixel cell height and width along z coordinate about 285µm/150µm=1.9
-  const double
-      m_minSizeY_q;  // Use only pixel clusters with sizeY > PixelCellHeightOverWidth * |jetZOverRho| + minSizeY_q
-  const double
-      m_maxSizeY_q;  // Use only pixel clusters with sizeY < PixelCellHeightOverWidth * |jetZOverRho| + maxSizeY_q
+      //It is the ratio between pixel cell height and width along z coordinate about 285µm/150µm=1.9
+  const double m_PixelCellHeightOverWidth;
+  // Use only pixel clusters with sizeY > PixelCellHeightOverWidth * |jetZOverRho| + minSizeY_q
+  const double m_minSizeY_q;
+  // Use only pixel clusters with sizeY < PixelCellHeightOverWidth * |jetZOverRho| + maxSizeY_q
+  const double m_maxSizeY_q;
 
   // PARAMETERS USED TO WEIGHT THE BARREL PIXEL CLUSTERS
   // The cluster weight is defined as weight = weight_dPhi * weight_sizeY  * weight_rho * weight_sizeX1 * weight_charge
@@ -91,8 +91,8 @@ private:
   const double m_weight_SizeX1;       // used in weight_SizeX1 = (ClusterSizeX==2)*1+(ClusterSizeX==1)*m_weight_SizeX1;
   const double m_weight_rho_up;       // used in weight_rho = (m_weight_rho_up - ClusterRho)/m_weight_rho_up
   const double m_weight_charge_peak;  // Give the maximum weight_charge for a cluster with Charge = m_weight_charge_peak
-  const double
-      m_peakSizeY_q;  // Give the maximum weight_sizeY for a cluster with sizeY = PixelCellHeightOverWidth * |jetZOverRho| + peakSizeY_q
+      // Give the maximum weight_sizeY for a cluster with sizeY = PixelCellHeightOverWidth * |jetZOverRho| + peakSizeY_q
+  const double m_peakSizeY_q;
 
   // PARAMETERS USED IN THE ENDCAP PIXEL CLUSTERS PROJECTION
   const bool m_endCap;            // Use clusters from pixel endcap
@@ -306,8 +306,8 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
                 (m_endCap && std::abs(modulepos.z()) > barrel_lenght &&
                  std::abs(deltaPhi((*jit)->momentum().Phi(), v_bs.phi())) <= m_maxDeltaPhi_EC)  //EC
             ) {
-              float z = v.z() - ((v.x() - beamSpot->x0()) * px + (v.y() - beamSpot->y0()) * py) / pt * pz /
-                                    pt;  //calculate z-projection
+              //calculate z-projection
+              float z = v.z() - ((v.x() - beamSpot->x0()) * px + (v.y() - beamSpot->y0()) * py) / pt * pz / pt;
               if (std::abs(z) < m_maxZ) {
                 zProjections.push_back(z);  //add z-projection in zProjections
                 float weight = 0;
@@ -435,8 +435,8 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
   auto zClusterQuality = std::make_unique<float>();
   *zClusterQuality = -1;
   if (nWeightedTot != 0) {
-    *zClusterQuality =
-        nWeightedTotPeak / sqrt(nWeightedTot / (2 * half_width_peak));  // where 30 is the beam spot lenght
+    // where 30 is the beam spot lenght
+    *zClusterQuality = nWeightedTotPeak / sqrt(nWeightedTot / (2 * half_width_peak));
     iEvent.put(std::move(zClusterQuality));
   } else
     iEvent.put(std::move(zClusterQuality));

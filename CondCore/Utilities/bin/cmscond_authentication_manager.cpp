@@ -4,7 +4,7 @@
 #include "CondCore/Utilities/interface/Utilities.h"
 //
 #include "RelationalAccess/AuthenticationCredentials.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 //
 #include <iostream>
 #include <fstream>

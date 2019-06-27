@@ -15,7 +15,7 @@ HGCalUncalibRecHit = cms.EDProducer(
     HGCHEFhitCollection = cms.string('HGCHEFUncalibRecHits'),
     HGCHEBdigiCollection = cms.InputTag('hgcalDigis:HEback'),
     HGCHEBhitCollection = cms.string('HGCHEBUncalibRecHits'),
-    HGCHFNosedigiCollection = cms.InputTag('hgcalDigis:HFNose'),
+    HGCHFNosedigiCollection = cms.InputTag('hfnoseDigis:HFNose'),
     HGCHFNosehitCollection = cms.string('HGCHFNoseUncalibRecHits'),
     
     HGCEEConfig = cms.PSet(
@@ -77,5 +77,4 @@ phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig , isSiFE = True )
-
 

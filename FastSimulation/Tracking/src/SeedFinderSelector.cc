@@ -28,16 +28,14 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet &cfg, edm::Consum
       measurementTrackerLabel_(cfg.getParameter<std::string>("measurementTracker")) {
   if (cfg.exists("pixelTripletGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("pixelTripletGeneratorFactory");
-    pixelTripletGenerator_ = std::unique_ptr<HitTripletGeneratorFromPairAndLayers>{
-        HitTripletGeneratorFromPairAndLayersFactory::get()->create(
-            tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig, consumesCollector)};
+    pixelTripletGenerator_ = HitTripletGeneratorFromPairAndLayersFactory::get()->create(
+        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig, consumesCollector);
   }
 
   if (cfg.exists("MultiHitGeneratorFactory")) {
     const edm::ParameterSet &tripletConfig = cfg.getParameter<edm::ParameterSet>("MultiHitGeneratorFactory");
-    multiHitGenerator_ =
-        std::unique_ptr<MultiHitGeneratorFromPairAndLayers>{MultiHitGeneratorFromPairAndLayersFactory::get()->create(
-            tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig)};
+    multiHitGenerator_ = MultiHitGeneratorFromPairAndLayersFactory::get()->create(
+        tripletConfig.getParameter<std::string>("ComponentName"), tripletConfig);
   }
 
   if (cfg.exists("CAHitTripletGeneratorFactory")) {
@@ -46,19 +44,17 @@ SeedFinderSelector::SeedFinderSelector(const edm::ParameterSet &cfg, edm::Consum
     seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(
         cfg,
         consumesCollector,
-        edm::InputTag(
-            "fastTrackerRecHits"));  //calling the new FastSim specific constructor to make SeedingLayerSetsHits pointer for triplet iterations
+        //calling the new FastSim specific constructor to make SeedingLayerSetsHits pointer for triplet iterations
+        edm::InputTag("fastTrackerRecHits"));
     layerPairs_ = cfg.getParameter<std::vector<unsigned>>("layerPairs");  //allowed layer pairs for CA triplets
   }
 
   if (cfg.exists("CAHitQuadrupletGeneratorFactory")) {
     const edm::ParameterSet &quadrupletConfig = cfg.getParameter<edm::ParameterSet>("CAHitQuadrupletGeneratorFactory");
     CAHitQuadGenerator_ = std::make_unique<CAHitQuadrupletGenerator>(quadrupletConfig, consumesCollector);
-    seedingLayers_ = std::make_unique<SeedingLayerSetsBuilder>(
-        cfg,
-        consumesCollector,
-        edm::InputTag(
-            "fastTrackerRecHits"));  //calling the new FastSim specific constructor to make SeedingLayerSetsHits pointer for quadruplet iterations
+    //calling the new FastSim specific constructor to make SeedingLayerSetsHits pointer for quadruplet iterations
+    seedingLayers_ =
+        std::make_unique<SeedingLayerSetsBuilder>(cfg, consumesCollector, edm::InputTag("fastTrackerRecHits"));
     layerPairs_ = cfg.getParameter<std::vector<unsigned>>("layerPairs");  //allowed layer pairs for CA quadruplets
   }
 
@@ -227,10 +223,8 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
       tripletresult.resize(ihd.regionSize());
       for (auto &ntuplet : tripletresult)
         ntuplet.reserve(3);
-      CAHitTriplGenerator_->hitNtuplets(ihd,
-                                        tripletresult,
-                                        *eventSetup_,
-                                        *seedingLayer);  //calling the function from the class, modifies tripletresult
+      //calling the function from the class, modifies tripletresult
+      CAHitTriplGenerator_->hitNtuplets(ihd, tripletresult, *eventSetup_, *seedingLayer);
       return !tripletresult[0].empty();
     }
   }
@@ -316,10 +310,8 @@ bool SeedFinderSelector::pass(const std::vector<const FastTrackerRecHit *> &hits
     quadrupletresult.resize(ihd.regionSize());
     for (auto &ntuplet : quadrupletresult)
       ntuplet.reserve(4);
-    CAHitQuadGenerator_->hitNtuplets(ihd,
-                                     quadrupletresult,
-                                     *eventSetup_,
-                                     *seedingLayer);  //calling the function from the class, modifies quadrupletresult
+    //calling the function from the class, modifies quadrupletresult
+    CAHitQuadGenerator_->hitNtuplets(ihd, quadrupletresult, *eventSetup_, *seedingLayer);
     return !quadrupletresult[0].empty();
   }
 

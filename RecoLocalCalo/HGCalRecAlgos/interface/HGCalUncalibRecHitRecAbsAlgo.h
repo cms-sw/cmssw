@@ -11,13 +11,12 @@
 #include <vector>
 #include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
 
-template<class C> class HGCalUncalibRecHitRecAbsAlgo
-{
- public:
-  enum { nWeightsRows = 3, iAmplitude = 0, iPedestal = 1, iTime = 2 };  
+template <class C>
+class HGCalUncalibRecHitRecAbsAlgo {
+public:
+  enum { nWeightsRows = 3, iAmplitude = 0, iPedestal = 1, iTime = 2 };
 
   /// Constructor
-  virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame ) = 0;
-
+  virtual HGCUncalibratedRecHit makeRecHit(const C& dataFrame) = 0;
 };
 #endif

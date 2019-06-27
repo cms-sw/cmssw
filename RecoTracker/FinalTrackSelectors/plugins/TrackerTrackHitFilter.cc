@@ -779,8 +779,8 @@ namespace reco {
       //  if( subdetStoN_[subdet_cnt-1]&& (id.subdetId()==subdet_cnt)  ){//check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
 
       if (GeomDetEnumerators::isTrackerStrip(theGeometry->geomDetSubDetector(id.subdetId()))) {
-        if (subdetStoN_[subdet_cnt -
-                        1]) {  //check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
+        if (subdetStoN_[subdet_cnt - 1]) {
+          //check that hit is in a det belonging to a subdet where we decided to apply a S/N cut
           const std::type_info &type = typeid(*therechit);
           const SiStripCluster *cluster;
           if (type == typeid(SiStripRecHit2D)) {

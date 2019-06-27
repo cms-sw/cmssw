@@ -4,7 +4,7 @@
 //
 // Package:     TrackingTools/TrackAssociator
 // Class  :     EcalDetIdAssociatorMaker
-// 
+//
 /**\class EcalDetIdAssociatorMaker EcalDetIdAssociatorMaker.h "EcalDetIdAssociatorMaker.h"
 
  Description: [one line class summary]
@@ -26,18 +26,14 @@
 #include "CaloDetIdAssociatorMaker.h"
 #include "EcalDetIdAssociator.h"
 
-class EcalDetIdAssociatorMaker : public CaloDetIdAssociatorMaker
-{
-
- public:
+class EcalDetIdAssociatorMaker : public CaloDetIdAssociatorMaker {
+public:
   using CaloDetIdAssociatorMaker::CaloDetIdAssociatorMaker;
-  
- private:
-  std::unique_ptr<DetIdAssociator> make(CaloGeometry const& geom, int nPhi, int nEta, double etaBinSize ) const final {
-    return std::unique_ptr<DetIdAssociator>( new EcalDetIdAssociator(nPhi,nEta, etaBinSize, &geom) );
+
+private:
+  std::unique_ptr<DetIdAssociator> make(CaloGeometry const& geom, int nPhi, int nEta, double etaBinSize) const final {
+    return std::unique_ptr<DetIdAssociator>(new EcalDetIdAssociator(nPhi, nEta, etaBinSize, &geom));
   }
-
 };
-
 
 #endif

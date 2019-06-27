@@ -27,12 +27,10 @@ bool HcalTestNS::compare(HcalNumberingFromDDD::HcalID const& tmp, uint32_t const
   DetId hid = HcalHitRelabeller::relabel(id0, hcons_);
   bool ok = (id == hid.rawId());
 #ifdef EDM_ML_DEBUG
-  std::cout << "Det ID from HCalSD " << HcalDetId(id) << " " << std::hex << id << std::dec << " from relabller "
-            << HcalDetId(hid) << " " << std::hex << hid.rawId() << std::dec;
-  if (!ok)
-    std::cout << " **** ERROR ****" << std::endl;
-  else
-    std::cout << " OK " << std::endl;
+  std::string ck = (ok ? " OK " : " **** ERROR ****");
+  edm::LogVerbatim("HcalSim") << "HcalTestNS:: Det ID from HCalSD " << HcalDetId(id) << " " << std::hex << id
+                              << std::dec << " from relabller " << HcalDetId(hid) << " " << std::hex << hid.rawId()
+                              << std::dec << ck;
 #endif
   return ok;
 }

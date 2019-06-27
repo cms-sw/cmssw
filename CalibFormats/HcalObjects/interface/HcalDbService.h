@@ -139,6 +139,7 @@ private:
   bool convertPedestals(const HcalGenericDetId& fId, const HcalPedestal* pedestal, float* pedTrue, bool inADC) const;
   bool convertPedestalWidths(const HcalGenericDetId& fId,
                              const HcalPedestalWidth* pedestalwidth,
+                             const HcalPedestal* pedestal,
                              float* pedTrueWidth,
                              bool inADC) const;
   const HcalPedestals* mPedestals;

@@ -23,7 +23,6 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 #include "boost/cstdint.hpp"
 #include <memory>
@@ -41,6 +40,7 @@ class DcuDetIdMap;
 class SiStripApvGain;
 class SiStripLatency;
 class TrackerTopology;
+class SiStripDetInfoFileReader;
 
 class SiStripCondObjBuilderFromDb {
 public:
@@ -201,6 +201,7 @@ protected:
   bool m_usefed;
   bool m_usefec;
   bool m_debug;
+  std::unique_ptr<const SiStripDetInfoFileReader> m_reader;
 
   //Data containers
   TrackerTopology* tTopo;

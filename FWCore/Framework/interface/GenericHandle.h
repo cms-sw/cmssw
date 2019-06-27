@@ -28,8 +28,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // system include files
 #include <string>

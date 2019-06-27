@@ -147,10 +147,8 @@ namespace {
                                  Point const& bestVertexError,
                                  float drCut[]) {
     float drE = trk.d0Error();
-    float rPVerr = sqrt(
-        bestVertexError.x() *
-        bestVertexError
-            .y());  // shouldn't it be bestVertex.xError()*bestVertex.xError()+bestVertex.yError()*bestVertex.yError() ?!?!?
+    // shouldn't it be bestVertex.xError()*bestVertex.xError()+bestVertex.yError()*bestVertex.yError() ?!?!?
+    float rPVerr = sqrt(bestVertexError.x() * bestVertexError.y());
 
     float drErrPV = std::sqrt(drE * drE + rPVerr * rPVerr);
     for (int i = 2; i >= 0; --i) {
@@ -247,8 +245,8 @@ namespace {
       // original dz and dr cut
       if (maxDz[2] < std::numeric_limits<float>::max() || maxDr[2] < std::numeric_limits<float>::max()) {
         // if not primaryVertices are reconstructed, check compatibility w.r.t. beam spot
-        Point bestVertex =
-            getBestVertex(trk, vertices, minNVtxTrk);  // min number of tracks [2 (=default) for offline, 3 for HLT]
+        // min number of tracks [2 (=default) for offline, 3 for HLT]
+        Point bestVertex = getBestVertex(trk, vertices, minNVtxTrk);
         float maxDzcut[3];
         std::copy(std::begin(maxDz), std::end(maxDz), std::begin(maxDzcut));
         if (bestVertex.z() < -99998.) {
@@ -267,8 +265,8 @@ namespace {
       // parametrized dz and dr cut by using PV error
       if (dzWPVerr_par[2] < std::numeric_limits<float>::max() || drWPVerr_par[2] < std::numeric_limits<float>::max()) {
         Point bestVertexError(-1., -1., -1.);
-        Point bestVertex = getBestVertex_withError(
-            trk, vertices, bestVertexError, minNVtxTrk);  // min number of tracks [2 (=default) for offline, 3 for HLT]
+        // min number of tracks [2 (=default) for offline, 3 for HLT]
+        Point bestVertex = getBestVertex_withError(trk, vertices, bestVertexError, minNVtxTrk);
 
         float maxDz_par[3];
         float maxDr_par[3];

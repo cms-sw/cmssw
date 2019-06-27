@@ -16,7 +16,6 @@
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/DetId/interface/DetId.h"
 
 //#include "CondFormats/Alignment/interface/Definitions.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
@@ -539,6 +538,174 @@ namespace {
   typedef BPixBarycenterHistory<AlignmentPI::t_y> Y_BPixBarycenterHistory;
   typedef BPixBarycenterHistory<AlignmentPI::t_z> Z_BPixBarycenterHistory;
 
+  /************************************************
+    Display of Tracker Detector barycenters
+  *************************************************/
+  class TrackerAlignmentBarycenters : public cond::payloadInspector::PlotImage<Alignments> {
+  public:
+    TrackerAlignmentBarycenters()
+        : cond::payloadInspector::PlotImage<Alignments>("Display of Tracker Alignment Barycenters") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+      auto iov = iovs.front();
+      std::shared_ptr<Alignments> payload = fetchPayload(std::get<1>(iov));
+      unsigned int run = std::get<0>(iov);
+
+      TCanvas canvas("Tracker Alignment Barycenter Summary", "Tracker Alignment Barycenter summary", 1600, 1000);
+      canvas.cd();
+
+      canvas.SetTopMargin(0.07);
+      canvas.SetBottomMargin(0.06);
+      canvas.SetLeftMargin(0.15);
+      canvas.SetRightMargin(0.03);
+      canvas.Modified();
+      canvas.SetGrid();
+
+      auto h2_BarycenterParameters =
+          std::unique_ptr<TH2F>(new TH2F("Parameters", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+
+      auto h2_uncBarycenterParameters =
+          std::unique_ptr<TH2F>(new TH2F("Parameters2", "SubDetector Barycenter summary", 6, 0.0, 6.0, 6, 0, 6.));
+
+      h2_BarycenterParameters->SetStats(false);
+      h2_BarycenterParameters->SetTitle(nullptr);
+      h2_uncBarycenterParameters->SetStats(false);
+      h2_uncBarycenterParameters->SetTitle(nullptr);
+
+      std::vector<AlignTransform> alignments = payload->m_align;
+
+      std::array<double, 6> Xbarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> Ybarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> Zbarycenters = {{0., 0., 0., 0., 0., 0.}};
+
+      std::array<double, 6> c_Xbarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> c_Ybarycenters = {{0., 0., 0., 0., 0., 0.}};
+      std::array<double, 6> c_Zbarycenters = {{0., 0., 0., 0., 0., 0.}};
+
+      std::array<double, 6> nmodules = {{0., 0., 0., 0., 0., 0.}};
+
+      for (const auto &ali : alignments) {
+        if (DetId(ali.rawId()).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerAlignment_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << ali.rawId() << " " << DetId(ali.rawId()).det()
+              << " is different from " << DetId::Tracker << "  - terminating ";
+          return false;
+        }
+
+        int subid = DetId(ali.rawId()).subdetId();
+        auto thePart = static_cast<AlignmentPI::partitions>(subid);
+
+        switch (thePart) {
+          case AlignmentPI::BPix:
+            Xbarycenters[0] += (ali.translation().x());
+            Ybarycenters[0] += (ali.translation().y());
+            Zbarycenters[0] += (ali.translation().z());
+            nmodules[0]++;
+          case AlignmentPI::FPix:
+            Xbarycenters[1] += (ali.translation().x());
+            Ybarycenters[1] += (ali.translation().y());
+            Zbarycenters[1] += (ali.translation().z());
+            nmodules[1]++;
+          case AlignmentPI::TIB:
+            Xbarycenters[2] += (ali.translation().x());
+            Ybarycenters[2] += (ali.translation().y());
+            Zbarycenters[2] += (ali.translation().z());
+            nmodules[2]++;
+          case AlignmentPI::TID:
+            Xbarycenters[3] += (ali.translation().x());
+            Ybarycenters[3] += (ali.translation().y());
+            Zbarycenters[3] += (ali.translation().z());
+            nmodules[3]++;
+          case AlignmentPI::TOB:
+            Xbarycenters[4] += (ali.translation().x());
+            Ybarycenters[4] += (ali.translation().y());
+            Zbarycenters[4] += (ali.translation().z());
+            nmodules[4]++;
+          case AlignmentPI::TEC:
+            Xbarycenters[5] += (ali.translation().x());
+            Ybarycenters[5] += (ali.translation().y());
+            Zbarycenters[5] += (ali.translation().z());
+            nmodules[5]++;
+        }
+      }
+
+      for (unsigned int i = 0; i < 6; i++) {
+        Xbarycenters[i] /= nmodules[i];
+        Ybarycenters[i] /= nmodules[i];
+        Zbarycenters[i] /= nmodules[i];
+
+        c_Xbarycenters[i] = Xbarycenters[i];
+        c_Ybarycenters[i] = Ybarycenters[i];
+        c_Zbarycenters[i] = Zbarycenters[i];
+
+        c_Xbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_x);
+        c_Ybarycenters[i] += hardcodeGPR.at(AlignmentPI::t_y);
+        c_Zbarycenters[i] += hardcodeGPR.at(AlignmentPI::t_z);
+      }
+
+      h2_BarycenterParameters->GetXaxis()->SetBinLabel(1, "X [cm]");
+      h2_BarycenterParameters->GetXaxis()->SetBinLabel(2, "Y [cm]");
+      h2_BarycenterParameters->GetXaxis()->SetBinLabel(3, "Z [cm]");
+      h2_BarycenterParameters->GetXaxis()->SetBinLabel(4, "X_{no GPR} [cm]");
+      h2_BarycenterParameters->GetXaxis()->SetBinLabel(5, "Y_{no GPR} [cm]");
+      h2_BarycenterParameters->GetXaxis()->SetBinLabel(6, "Z_{no GPR} [cm]");
+
+      bool isLikelyMC(false);
+      int checkX =
+          std::count_if(Xbarycenters.begin(), Xbarycenters.begin() + 2, [](float a) { return (std::abs(a) >= 1.e-4); });
+      int checkY =
+          std::count_if(Ybarycenters.begin(), Ybarycenters.begin() + 2, [](float a) { return (std::abs(a) >= 1.e-4); });
+      int checkZ =
+          std::count_if(Zbarycenters.begin(), Zbarycenters.begin() + 2, [](float a) { return (std::abs(a) >= 1.e-4); });
+
+      // if all the coordinate barycenters for both BPix and FPix are below 10um
+      // this is very likely a MC payload
+      if ((checkX + checkY + checkZ) == 0 && run == 1)
+        isLikelyMC = true;
+
+      unsigned int yBin = 6;
+      for (unsigned int i = 0; i < 6; i++) {
+        auto thePart = static_cast<AlignmentPI::partitions>(i + 1);
+        std::string theLabel = getStringFromPart(thePart);
+        h2_BarycenterParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
+        if (!isLikelyMC) {
+          h2_BarycenterParameters->SetBinContent(1, yBin, c_Xbarycenters[i]);
+          h2_BarycenterParameters->SetBinContent(2, yBin, c_Ybarycenters[i]);
+          h2_BarycenterParameters->SetBinContent(3, yBin, c_Zbarycenters[i]);
+        }
+
+        h2_uncBarycenterParameters->SetBinContent(4, yBin, Xbarycenters[i]);
+        h2_uncBarycenterParameters->SetBinContent(5, yBin, Ybarycenters[i]);
+        h2_uncBarycenterParameters->SetBinContent(6, yBin, Zbarycenters[i]);
+        yBin--;
+      }
+
+      h2_BarycenterParameters->GetXaxis()->LabelsOption("h");
+      h2_BarycenterParameters->GetYaxis()->SetLabelSize(0.05);
+      h2_BarycenterParameters->GetXaxis()->SetLabelSize(0.05);
+      h2_BarycenterParameters->SetMarkerSize(1.5);
+      h2_BarycenterParameters->Draw("TEXT");
+
+      h2_uncBarycenterParameters->SetMarkerSize(1.5);
+      h2_uncBarycenterParameters->SetMarkerColor(kRed);
+      h2_uncBarycenterParameters->Draw("TEXTsame");
+
+      TLatex t1;
+      t1.SetNDC();
+      t1.SetTextAlign(26);
+      t1.SetTextSize(0.05);
+      t1.DrawLatex(0.5, 0.96, Form("Tracker Alignment Barycenters, IOV %i", run));
+      t1.SetTextSize(0.025);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+  };
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
@@ -557,4 +724,5 @@ PAYLOAD_INSPECTOR_MODULE(TrackerAlignment) {
   PAYLOAD_INSPECTOR_CLASS(X_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Y_BPixBarycenterHistory);
   PAYLOAD_INSPECTOR_CLASS(Z_BPixBarycenterHistory);
+  PAYLOAD_INSPECTOR_CLASS(TrackerAlignmentBarycenters)
 }

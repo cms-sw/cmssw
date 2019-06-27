@@ -47,6 +47,16 @@ namespace edm {
                                   bool subsequent);
 
     /**
+     * Detect if buffer starts with "XZ\0" which means it is compressed in LZMA format
+     */
+    bool isBufferLZMA(unsigned char const* inputBuffer, unsigned int inputSize);
+
+    /**
+     * Detect if buffer starts with "Z\0" which means it is compressed in ZStandard format
+     */
+    bool isBufferZSTD(unsigned char const* inputBuffer, unsigned int inputSize);
+
+    /**
      * Uncompresses the data in the specified input buffer into the
      * specified output buffer.  The inputSize should be set to the size
      * of the compressed data in the inputBuffer.  The expectedFullSize should
@@ -58,6 +68,18 @@ namespace edm {
                                          unsigned int inputSize,
                                          std::vector<unsigned char>& outputBuffer,
                                          unsigned int expectedFullSize);
+
+    static unsigned int uncompressBufferLZMA(unsigned char* inputBuffer,
+                                             unsigned int inputSize,
+                                             std::vector<unsigned char>& outputBuffer,
+                                             unsigned int expectedFullSize,
+                                             bool hasHeader = true);
+
+    static unsigned int uncompressBufferZSTD(unsigned char* inputBuffer,
+                                             unsigned int inputSize,
+                                             std::vector<unsigned char>& outputBuffer,
+                                             unsigned int expectedFullSize,
+                                             bool hasHeader = true);
 
   protected:
     static void declareStreamers(SendDescs const& descs);

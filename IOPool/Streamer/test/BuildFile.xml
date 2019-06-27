@@ -10,8 +10,17 @@
   <bin   file="WriteStreamerFile.cpp">
     <use   name="IOPool/Streamer"/>
   </bin>
-  <bin   file="RunThis_t.cpp">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunSimple_NewStreamer.sh"/>
+  <bin   file="RunThis_t.cpp" name="NewStreamerUNCOMPRESSED">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunUNCOMPRESSED.sh"/>
+  </bin>
+  <bin   file="RunThis_t.cpp" name="NewStreamerZLIB">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunZLIB.sh"/>
+  </bin>
+  <bin   file="RunThis_t.cpp" name="NewStreamerLZMA">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunLZMA.sh"/>
+  </bin>
+  <bin   file="RunThis_t.cpp" name="NewStreamerZSTD">
+    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunZSTD.sh"/>
   </bin>
   <library   file="StreamThingProducer.cc" name="StreamThingProducer">
     <flags   EDM_PLUGIN="1"/>

@@ -1,7 +1,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="FWCore/Concurrency"/>
+<use   name="Utilities/Xerces"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/HcalDetId"/>

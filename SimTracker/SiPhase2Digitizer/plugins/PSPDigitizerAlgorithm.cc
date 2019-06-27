@@ -65,15 +65,12 @@ void PSPDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_iterat
     if (((*it).tof() - pixdet->surface().toGlobal((*it).localPosition()).mag() / 30.) >= theTofLowerCut &&
         ((*it).tof() - pixdet->surface().toGlobal((*it).localPosition()).mag() / 30.) <= theTofUpperCut) {
       primary_ionization(*it, ionization_points);  // fills _ionization_points
-      drift(*it,
-            pixdet,
-            bfield,
-            ionization_points,
-            collection_points);  // transforms _ionization_points to collection_points
+      // transforms _ionization_points to collection_points
+      drift(*it, pixdet, bfield, ionization_points, collection_points);
 
       // compute induced signal on readout elements and add to _signal
-      induce_signal(
-          *it, simHitGlobalIndex, tofBin, pixdet, collection_points);  // *ihit needed only for SimHit<-->Digi link
+      // *ihit needed only for SimHit<-->Digi link
+      induce_signal(*it, simHitGlobalIndex, tofBin, pixdet, collection_points);
     }
   }
 }

@@ -14,7 +14,7 @@
 
 // user include files
 #include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>

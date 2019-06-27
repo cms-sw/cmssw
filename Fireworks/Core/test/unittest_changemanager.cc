@@ -25,7 +25,7 @@
 
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
 
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 //
 // constants, enums and typedefs

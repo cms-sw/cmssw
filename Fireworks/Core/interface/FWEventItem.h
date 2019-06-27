@@ -21,7 +21,7 @@
 // system include files
 #include <string>
 #include <vector>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <memory>
 #include <sigc++/connection.h>
 

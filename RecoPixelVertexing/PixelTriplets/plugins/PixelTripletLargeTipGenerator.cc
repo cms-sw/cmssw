@@ -15,7 +15,6 @@
 
 #include "MatchedHitRZCorrectionFromBending.h"
 #include "CommonTools/RecoAlgos/interface/KDTreeLinkerAlgo.h"
-#include "CommonTools/RecoAlgos/interface/KDTreeLinkerTools.h"
 
 #include <algorithm>
 #include <iostream>
@@ -146,7 +145,7 @@ void PixelTripletLargeTipGenerator::hitTriplets(const TrackingRegion& region, Or
   
   auto outSeq =  doublets.detLayer(HitDoublets::outer)->seqNum();
 
-  using NodeInfo = KDTreeNodeInfo<unsigned int>;
+  using NodeInfo = KDTreeNodeInfo<unsigned int,2>;
   std::vector<NodeInfo > layerTree; // re-used throughout
   std::vector<unsigned int> foundNodes; // re-used throughout
   foundNodes.reserve(100);

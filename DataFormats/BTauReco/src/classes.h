@@ -58,12 +58,9 @@
 #include "DataFormats/BTauReco/interface/DeepDoubleXTagInfo.h"
 #include "DataFormats/BTauReco/interface/DeepBoostedJetTagInfo.h"
 
-
-
 namespace reco {
-    typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
-    typedef TrackTauImpactParameterAssociationCollection::ref_type          TrackTauImpactParameterAssociationRefType;
-    typedef TauMassTagInfo::ClusterTrackAssociationCollection::map_type     TauMassTagInfo_ClusterTrackAssociationMapType;
-    typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type     TauMassTagInfo_ClusterTrackAssociationRefType;
-}
-
+  typedef TrackTauImpactParameterAssociationCollection::map_type TrackTauImpactParameterAssociationMapType;
+  typedef TrackTauImpactParameterAssociationCollection::ref_type TrackTauImpactParameterAssociationRefType;
+  typedef TauMassTagInfo::ClusterTrackAssociationCollection::map_type TauMassTagInfo_ClusterTrackAssociationMapType;
+  typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type TauMassTagInfo_ClusterTrackAssociationRefType;
+}  // namespace reco

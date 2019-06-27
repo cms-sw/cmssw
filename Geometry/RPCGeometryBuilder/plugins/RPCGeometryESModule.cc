@@ -17,15 +17,14 @@
 
 using namespace edm;
 
-RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet & p):
-  comp11{p.getUntrackedParameter<bool>("compatibiltyWith11",true)},
-  // Find out if using the DDD or CondDB Geometry source.
-  useDDD{p.getUntrackedParameter<bool>("useDDD",true)}
-{
+RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet& p)
+    : comp11{p.getUntrackedParameter<bool>("compatibiltyWith11", true)},
+      // Find out if using the DDD or CondDB Geometry source.
+      useDDD{p.getUntrackedParameter<bool>("useDDD", true)} {
   auto cc = setWhatProduced(this);
 
-    const edm::ESInputTag kEmptyTag;
-  if(useDDD) {
+  const edm::ESInputTag kEmptyTag;
+  if (useDDD) {
     idealGeomToken_ = cc.consumesFrom<DDCompactView, IdealGeometryRecord>(kEmptyTag);
     dddConstantsToken_ = cc.consumesFrom<MuonDDDConstants, MuonNumberingRecord>(kEmptyTag);
   } else {
@@ -33,21 +32,18 @@ RPCGeometryESModule::RPCGeometryESModule(const edm::ParameterSet & p):
   }
 }
 
+std::unique_ptr<RPCGeometry> RPCGeometryESModule::produce(const MuonGeometryRecord& record) {
+  if (useDDD) {
+    edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle(idealGeomToken_);
 
-std::unique_ptr<RPCGeometry>
-RPCGeometryESModule::produce(const MuonGeometryRecord & record) {
-  if(useDDD){
-    edm::ESTransientHandle<DDCompactView> cpv = record.getTransientHandle( idealGeomToken_ ); 
-
-    auto const& mdc = record.get( dddConstantsToken_ );
+    auto const& mdc = record.get(dddConstantsToken_);
     RPCGeometryBuilderFromDDD builder(comp11);
     return std::unique_ptr<RPCGeometry>(builder.build(&(*cpv), mdc));
-  }else{
-    auto const& rigrpc = record.get( recoIdealToken_ );
+  } else {
+    auto const& rigrpc = record.get(recoIdealToken_);
     RPCGeometryBuilderFromCondDB builder(comp11);
     return std::unique_ptr<RPCGeometry>(builder.build(rigrpc));
   }
-
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(RPCGeometryESModule);

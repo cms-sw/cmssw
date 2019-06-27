@@ -21,10 +21,8 @@ public:
                      int charge,                     // chi2
                      const std::vector<const TrackingRecHit*>& hits,
                      const MagneticField* mf,
-                     const GlobalPoint& reference = GlobalPoint(0,
-                                                                0,
-                                                                0)  // reference point of a track for IP computation
-                     ) const;
+                     // reference point of a track for IP computation
+                     const GlobalPoint& reference = GlobalPoint(0, 0, 0)) const;
 };
 
 #endif

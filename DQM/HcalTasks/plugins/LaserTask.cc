@@ -7,16 +7,14 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _nevents = ps.getUntrackedParameter<int>("nevents", 2000);
 
   //	tags
-  _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
-  _tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
+  _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
-  _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
+  _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
   _taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
   _tagLaserMon = ps.getUntrackedParameter<edm::InputTag>("tagLaserMon", edm::InputTag("LASERMON"));
-  _tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-  _tokHE = consumes<QIE11DigiCollection>(_tagHE);
+  _tokQIE11 = consumes<QIE11DigiCollection>(_tagQIE11);
   _tokHO = consumes<HODigiCollection>(_tagHO);
-  _tokHF = consumes<QIE10DigiCollection>(_tagHF);
+  _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
   _tokuMN = consumes<HcalUMNioDigi>(_taguMN);
   _tokLaserMon = consumes<QIE10DigiCollection>(_tagLaserMon);
 
@@ -26,7 +24,6 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	constants
   _lowHBHE = ps.getUntrackedParameter<double>("lowHBHE", 50);
-  _lowHE = ps.getUntrackedParameter<double>("lowHE", 150);
   _lowHO = ps.getUntrackedParameter<double>("lowHO", 100);
   _lowHF = ps.getUntrackedParameter<double>("lowHF", 50);
   _laserType = (uint32_t)ps.getUntrackedParameter<uint32_t>("laserType");
@@ -564,19 +561,18 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
 }
 
 /* virtual */ void LaserTask::_process(edm::Event const& e, edm::EventSetup const& es) {
-  edm::Handle<HBHEDigiCollection> chbhe;
-  edm::Handle<QIE11DigiCollection> cHE;
-  edm::Handle<HODigiCollection> cho;
-  edm::Handle<QIE10DigiCollection> chf;
+  edm::Handle<QIE11DigiCollection> c_QIE11;
+  edm::Handle<HODigiCollection> c_ho;
+  edm::Handle<QIE10DigiCollection> c_QIE10;
 
-  if (!e.getByToken(_tokHBHE, chbhe))
-    _logger.dqmthrow("Collection HBHEDigiCollection isn't available " + _tagHBHE.label() + " " + _tagHBHE.instance());
-  if (!e.getByToken(_tokHE, cHE))
-    _logger.dqmthrow("Collection QIE11DigiCollection isn't available " + _tagHE.label() + " " + _tagHE.instance());
-  if (!e.getByToken(_tokHO, cho))
+  if (!e.getByToken(_tokQIE11, c_QIE11))
+    _logger.dqmthrow("Collection QIE11DigiCollection isn't available " + _tagQIE11.label() + " " +
+                     _tagQIE11.instance());
+  if (!e.getByToken(_tokHO, c_ho))
     _logger.dqmthrow("Collection HODigiCollection isn't available " + _tagHO.label() + " " + _tagHO.instance());
-  if (!e.getByToken(_tokHF, chf))
-    _logger.dqmthrow("Collection QIE10DigiCollection isn't available " + _tagHF.label() + " " + _tagHF.instance());
+  if (!e.getByToken(_tokQIE10, c_QIE10))
+    _logger.dqmthrow("Collection QIE10DigiCollection isn't available " + _tagQIE10.label() + " " +
+                     _tagQIE10.instance());
 
   //	int currentEvent = e.eventAuxiliary().id().event();
   int bx = e.bunchCrossing();
@@ -631,51 +627,10 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
   }
 
-  for (HBHEDigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
-    const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
-    double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(digi, 2.5, 0, digi.size() - 1);
-    if (sumQ < _lowHBHE)
-      continue;
-    HcalDetId did = digi.id();
-    HcalElectronicsId eid = digi.elecId();
-
-    double aveTS = hcaldqm::utilities::aveTS<HBHEDataFrame>(digi, 2.5, 0, digi.size() - 1);
-    _xSignalSum.get(did) += sumQ;
-    _xSignalSum2.get(did) += sumQ * sumQ;
-    _xTimingSum.get(did) += aveTS;
-    _xTimingSum2.get(did) += aveTS * aveTS;
-    _xEntries.get(did)++;
-
-    for (int i = 0; i < digi.size(); i++) {
-      if (_ptype == fLocal) {  // hidefed2crate
-        _cShapeCut_FEDSlot.fill(eid, i, digi.sample(i).nominal_fC() - 2.5);
-      }
-      _cADC_SubdetPM.fill(did, digi.sample(i).adc());
-    }
-
-    //	select based on local global
-    double digiTimingSOI = (aveTS - digi.presamples()) * 25.;
-    double deltaTiming = digiTimingSOI - laserMonTiming;
-    _cTiming_DigivsLaserMon_SubdetPM.fill(did, laserMonTiming, digiTimingSOI);
-    _xTimingRefLMSum.get(did) += deltaTiming;
-    _xTimingRefLMSum2.get(did) += deltaTiming * deltaTiming;
-    if (_ptype == fLocal) {
-      int currentEvent = e.eventAuxiliary().id().event();
-      _cTimingvsEvent_SubdetPM.fill(did, currentEvent, aveTS);
-      _cSignalvsEvent_SubdetPM.fill(did, currentEvent, sumQ);
-      _cTimingDiffLS_SubdetPM.fill(did, currentEvent, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
-    } else {
-      _cTimingvsLS_SubdetPM.fill(did, _currentLS, aveTS);
-      _cSignalvsLS_SubdetPM.fill(did, _currentLS, sumQ);
-      _cTimingvsBX_SubdetPM.fill(did, bx, aveTS);
-      _cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
-      _cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
-    }
-  }
-  for (QIE11DigiCollection::const_iterator it = cHE->begin(); it != cHE->end(); ++it) {
+  for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalDetId const& did = digi.detid();
-    if (did.subdet() != HcalEndcap) {
+    if ((did.subdet() != HcalBarrel) && (did.subdet() != HcalEndcap)) {
       continue;
     }
     uint32_t rawid = _ehashmap.lookup(did);
@@ -684,7 +639,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
     CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
     //double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
     double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
-    if (sumQ < _lowHE)
+    if (sumQ < _lowHBHE)
       continue;
 
     //double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
@@ -722,7 +677,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
       _cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
     }
   }
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
+  for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
     double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, digi.size() - 1);
     if (sumQ < _lowHO)
@@ -763,7 +718,7 @@ LaserTask::LaserTask(edm::ParameterSet const& ps) : DQTask(ps) {
       _cTimingDiffLS_SubdetPM.fill(did, _currentLS, hcaldqm::utilities::getRBX(did.iphi()), deltaTiming);
     }
   }
-  for (QIE10DigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+  for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
     const QIE10DataFrame digi = (const QIE10DataFrame)(*it);
     HcalDetId did = digi.detid();
     if (did.subdet() != HcalForward) {

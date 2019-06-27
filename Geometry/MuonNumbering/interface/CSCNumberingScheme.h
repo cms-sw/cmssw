@@ -17,36 +17,26 @@ class DDCompactView;
 class MuonDDDConstants;
 
 class CSCNumberingScheme : public MuonNumberingScheme {
- public:
-
-  CSCNumberingScheme( const MuonDDDConstants& muonConstants );
-  CSCNumberingScheme( const DDCompactView& cpv );
+public:
+  CSCNumberingScheme(const MuonDDDConstants& muonConstants);
+  CSCNumberingScheme(const DDCompactView& cpv);
   ~CSCNumberingScheme() override{};
-  
-  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
-  
- private:
 
-  void initMe( const MuonDDDConstants& muonConstants );
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
+
+private:
+  void initMe(const MuonDDDConstants& muonConstants);
   /**
    * Tim Cox - IMPORTANT - this is where we set CSC chamber labelling
    */
-  int chamberIndex( int, int, int, int ) const;
-  
+  int chamberIndex(int, int, int, int) const;
+
   int theRegionLevel;
   int theStationLevel;
   int theSubringLevel;
   int theSectorLevel;
   int theLayerLevel;
   int theRingLevel;
-
 };
 
 #endif
-
-
-
-
-
-
-
