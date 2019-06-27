@@ -6,13 +6,13 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include <vector>
 
-namespace reco { 
+namespace reco {
   class BeamSpot;
-  class PreId; 
-}
+  class PreId;
+}  // namespace reco
 
 namespace lowptgsfeleseed {
-  
+
   class Features {
   public:
     float trk_pt_ = -1.;
@@ -39,38 +39,34 @@ namespace lowptgsfeleseed {
     float preid_gsf_dpt_ = -1.;
     float preid_trk_gsf_chiratio_ = -1.;
     float preid_gsf_chi2red_ = -1.;
-    float trk_dxy_sig_ = -1.; // must be last (not used by unbiased model)
+    float trk_dxy_sig_ = -1.;  // must be last (not used by unbiased model)
   public:
     std::vector<float> get();
-    void set( const reco::PreId& ecal,
-	      const reco::PreId& hcal,
-	      double rho,
-	      const reco::BeamSpot& spot,
-	      noZS::EcalClusterLazyTools& ecalTools );
+    void set(const reco::PreId& ecal,
+             const reco::PreId& hcal,
+             double rho,
+             const reco::BeamSpot& spot,
+             noZS::EcalClusterLazyTools& ecalTools);
   };
 
   class HeavyObjectCache {
-
   public:
-
-    HeavyObjectCache( const edm::ParameterSet& );
+    HeavyObjectCache(const edm::ParameterSet&);
 
     std::vector<std::string> modelNames() const { return names_; }
 
-    bool eval( const std::string& name,
-	       reco::PreId& ecal, 
-	       reco::PreId& hcal, 
-	       double rho,
-	       const reco::BeamSpot& spot,
-	       noZS::EcalClusterLazyTools& ecalTools ) const;
-    
+    bool eval(const std::string& name,
+              reco::PreId& ecal,
+              reco::PreId& hcal,
+              double rho,
+              const reco::BeamSpot& spot,
+              noZS::EcalClusterLazyTools& ecalTools) const;
+
   private:
-
     std::vector<std::string> names_;
-    std::vector< std::unique_ptr<const GBRForest> > models_;
+    std::vector<std::unique_ptr<const GBRForest> > models_;
     std::vector<double> thresholds_;
-
   };
-}
+}  // namespace lowptgsfeleseed
 
-#endif // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h
+#endif  // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedHeavyObjectCache_h

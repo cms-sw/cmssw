@@ -7,8 +7,6 @@
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
 
-
-
 /** \class EcalTriggerPrimitiveDigi
 
 see also EcalTrigPrimCompactColl.
@@ -16,43 +14,38 @@ see also EcalTrigPrimCompactColl.
 */
 
 class EcalTriggerPrimitiveDigi {
- public:
-  typedef EcalTrigTowerDetId key_type; ///< For the sorted collection
-  
+public:
+  typedef EcalTrigTowerDetId key_type;  ///< For the sorted collection
 
-  EcalTriggerPrimitiveDigi(); // for persistence
+  EcalTriggerPrimitiveDigi();  // for persistence
   explicit EcalTriggerPrimitiveDigi(const EcalTrigTowerDetId& id);
-  
-  
 
   void swap(EcalTriggerPrimitiveDigi& rh) {
-    std::swap(id_,rh.id_);
-    std::swap(size_,rh.size_);
-    std::swap(data_,rh.data_);
+    std::swap(id_, rh.id_);
+    std::swap(size_, rh.size_);
+    std::swap(data_, rh.data_);
   }
-  
-  
+
   const EcalTrigTowerDetId& id() const { return id_; }
   int size() const { return size_; }
-    
+
   const EcalTriggerPrimitiveSample& operator[](int i) const { return data_[i]; }
   const EcalTriggerPrimitiveSample& sample(int i) const { return data_[i]; }
-    
+
   void setSize(int size);
-  void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam;}
+  void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i] = sam; }
   void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
-    
+
   static const int MAXSAMPLES = 20;
 
   /// get the encoded/compressed Et of interesting sample
-  int compressedEt() const; 
-  
-  
+  int compressedEt() const;
+
   /// get the fine-grain bit of interesting sample
-  bool fineGrain() const; 
-  
+  bool fineGrain() const;
+
   /// get the Trigger tower Flag of interesting sample
-  int ttFlag() const; 
+  int ttFlag() const;
 
   /// Gets the "strip fine grain veto bit" (sFGVB) used as L1A spike detection
   /// @return 0 spike like pattern
@@ -64,7 +57,7 @@ class EcalTriggerPrimitiveDigi {
   /// @return 0 spike like pattern
   ///         1 EM shower like pattern
   int l1aSpike() const { return sFGVB(); }
-  
+
   /// True if debug mode (# of samples > 1)
   bool isDebug() const;
 
@@ -77,13 +70,8 @@ private:
   std::vector<EcalTriggerPrimitiveSample> data_;
 };
 
-
-inline void swap(EcalTriggerPrimitiveDigi& lh, EcalTriggerPrimitiveDigi& rh) {
-  lh.swap(rh);
-}
+inline void swap(EcalTriggerPrimitiveDigi& lh, EcalTriggerPrimitiveDigi& rh) { lh.swap(rh); }
 
 std::ostream& operator<<(std::ostream& s, const EcalTriggerPrimitiveDigi& digi);
-
-
 
 #endif

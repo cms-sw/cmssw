@@ -8,16 +8,13 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "RecoEgamma/EgammaElectronProducers/plugins/LowPtGsfElectronProducer.h"
 
-LowPtGsfElectronProducer::LowPtGsfElectronProducer( const edm::ParameterSet& cfg, 
-						    const gsfAlgoHelpers::HeavyObjectCache* hoc )
-  : GsfElectronBaseProducer(cfg,hoc)
-{}
+LowPtGsfElectronProducer::LowPtGsfElectronProducer(const edm::ParameterSet& cfg,
+                                                   const gsfAlgoHelpers::HeavyObjectCache* hoc)
+    : GsfElectronBaseProducer(cfg, hoc) {}
 
-LowPtGsfElectronProducer::~LowPtGsfElectronProducer()
-{}
+LowPtGsfElectronProducer::~LowPtGsfElectronProducer() {}
 
-void LowPtGsfElectronProducer::produce( edm::Event& event, const edm::EventSetup& setup )
-{
+void LowPtGsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   reco::GsfElectronCollection electrons;
   algo_->completeElectrons(electrons, event, setup, globalCache());
   fillEvent(electrons, event);

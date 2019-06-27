@@ -9,30 +9,36 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-namespace edm { class Event; class ParameterSet; class ParameterSetDescription; }
+namespace edm {
+  class Event;
+  class ParameterSet;
+  class ParameterSetDescription;
+}  // namespace edm
 
-namespace reco { namespace utils {
+namespace reco {
+  namespace utils {
     struct ClusterTotals {
-       ClusterTotals() : strip(0), pixel(0), stripdets(0), pixeldets(0) {}
-       int strip; /// number of strip clusters
-       int pixel; /// number of pixel clusters
-       int stripdets; /// number of strip detectors with at least one cluster
-       int pixeldets; /// number of pixel detectors with at least one cluster    
+      ClusterTotals() : strip(0), pixel(0), stripdets(0), pixeldets(0) {}
+      int strip;      /// number of strip clusters
+      int pixel;      /// number of pixel clusters
+      int stripdets;  /// number of strip detectors with at least one cluster
+      int pixeldets;  /// number of pixel detectors with at least one cluster
     };
-} }
+  }  // namespace utils
+}  // namespace reco
 
 class ClusterChecker {
- public: 
-  ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector & iC) ;
-  ClusterChecker(const edm::ParameterSet & conf, edm::ConsumesCollector && iC) ;
+public:
+  ClusterChecker(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
+  ClusterChecker(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC);
 
   static void fillDescriptions(edm::ParameterSetDescription& description);
 
-  ~ClusterChecker() ;
-  size_t tooManyClusters(const edm::Event & e) const ;
+  ~ClusterChecker();
+  size_t tooManyClusters(const edm::Event& e) const;
 
- private: 
-  ClusterChecker() = delete; // This is only needed for StringCutObjectSelector
+private:
+  ClusterChecker() = delete;  // This is only needed for StringCutObjectSelector
   bool doACheck_;
   edm::InputTag clusterCollectionInputTag_;
   edm::InputTag pixelClusterCollectionInputTag_;

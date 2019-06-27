@@ -4,7 +4,7 @@
 //
 // Package:     EgammaElectronProducers
 // Class  :     SiStripElectronAssociator
-// 
+//
 /**\class SiStripElectronAssociator SiStripElectronAssociator.h RecoEgamma/EgammaElectronProducers/interface/SiStripElectronAssociator.h
 
  Description: <one line class summary>
@@ -40,18 +40,18 @@
 //
 
 class SiStripElectronAssociator : public edm::stream::EDProducer<> {
- public:
+public:
   explicit SiStripElectronAssociator(const edm::ParameterSet&);
   ~SiStripElectronAssociator() override;
-  
-  
+
   void produce(edm::Event&, const edm::EventSetup&) override;
- private:
+
+private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::SiStripElectronCollection> siStripElectronCollection_;
   edm::EDGetTokenT<reco::TrackCollection> trackCollection_;
-  
+
   edm::InputTag electronsLabel_;
 };
 
-#endif // EgammaElectronProducers_SiStripElectronAssociator_h
+#endif  // EgammaElectronProducers_SiStripElectronAssociator_h

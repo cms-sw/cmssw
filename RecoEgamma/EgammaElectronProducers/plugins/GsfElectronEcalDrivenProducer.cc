@@ -16,22 +16,19 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
-
 #include <iostream>
 
 using namespace reco;
 
-GsfElectronEcalDrivenProducer::GsfElectronEcalDrivenProducer( const edm::ParameterSet & cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc )
-  : GsfElectronBaseProducer(cfg,hoc)
- {}
+GsfElectronEcalDrivenProducer::GsfElectronEcalDrivenProducer(const edm::ParameterSet& cfg,
+                                                             const gsfAlgoHelpers::HeavyObjectCache* hoc)
+    : GsfElectronBaseProducer(cfg, hoc) {}
 
-GsfElectronEcalDrivenProducer::~GsfElectronEcalDrivenProducer()
- {}
+GsfElectronEcalDrivenProducer::~GsfElectronEcalDrivenProducer() {}
 
 // ------------ method called to produce the data  ------------
-void GsfElectronEcalDrivenProducer::produce( edm::Event & event, const edm::EventSetup & setup )
- {
+void GsfElectronEcalDrivenProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   reco::GsfElectronCollection electrons;
-  algo_->completeElectrons(electrons, event, setup, globalCache()) ;
-  fillEvent(electrons, event) ;
- }
+  algo_->completeElectrons(electrons, event, setup, globalCache());
+  fillEvent(electrons, event);
+}
