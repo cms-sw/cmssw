@@ -52,8 +52,29 @@ void testfriendlyName::test() {
   classToFriendly.insert(Values("std::unique_ptr<bar::Foo>", "barFooUniquePtr"));
   classToFriendly.insert(Values("std::unique_ptr<const Foo>", "constFooUniquePtr"));
   classToFriendly.insert(Values("const std::unique_ptr<Foo>", "FooconstUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<Foo,std::default_delete<Foo>>", "FooUniquePtr"));
+  classToFriendly.insert(Values("std::unique_ptr<const Foo, std::default_delete<const Foo>>", "constFooUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::unique_ptr<Bar,std::default_delete<Bar>>,std::default_delete<std::unique_ptr<Bar,"
+             "std::default_delete<Bar>>>>",
+             "BarUniquePtrUniquePtr"));
   classToFriendly.insert(Values("std::vector<std::unique_ptr<bar::Foo>>", "barFooUniquePtrs"));
+  classToFriendly.insert(
+      Values("std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>", "barFooUniquePtrs"));
   classToFriendly.insert(Values("std::vector<std::unique_ptr<const Foo>>", "constFooUniquePtrs"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo>>>", "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo>>, "
+             "std::default_delete<std::vector<std::unique_ptr<bar::Foo>>>>",
+             "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>>",
+             "barFooUniquePtrsUniquePtr"));
+  classToFriendly.insert(
+      Values("std::unique_ptr<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>, "
+             "std::default_delete<std::vector<std::unique_ptr<bar::Foo, std::default_delete<bar::Foo>>>>>",
+             "barFooUniquePtrsUniquePtr"));
   classToFriendly.insert(Values("V<A,B>", "ABV"));
   classToFriendly.insert(Values("edm::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>",
                                 "recoSuperClustersrecoSuperClusterRefProdsedmExtCollection"));
