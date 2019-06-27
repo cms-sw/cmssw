@@ -36,11 +36,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "CommonTools/UtilAlgos/interface/DetIdSelector.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -117,12 +117,9 @@ void DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   {
-    SiStripDetInfoFileReader* reader = edm::Service<SiStripDetInfoFileReader>().operator->();
-
-    //   SiStripDetInfoFileReader reader(edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat"));
-    //   SiStripDetInfoFileReader reader;
-
-    const std::vector<uint32_t>& detids = reader->getAllDetIds();
+    edm::ESHandle<GeometricDet> geomDetHandle;
+    iSetup.get<IdealGeometryRecord>().get(geomDetHandle);
+    const auto detids = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
 
     for (std::vector<uint32_t>::const_iterator detid = detids.begin(); detid != detids.end(); ++detid) {
       LogDebug("DetID") << *detid;

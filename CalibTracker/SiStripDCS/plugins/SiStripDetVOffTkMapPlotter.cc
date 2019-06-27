@@ -10,8 +10,8 @@
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerNumberingBuilder/interface/utils.h"
 
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetVOff.h"
 #include "CondFormats/Common/interface/Time.h"
 #include "CondFormats/Common/interface/TimeConversions.h"
@@ -41,8 +41,6 @@ private:
   std::string m_plotFormat;
   // Specify output root file name. Leave empty if do not want to save plots in a root file.
   std::string m_outputFile;
-
-  edm::Service<SiStripDetInfoFileReader> detidReader;
 };
 
 SiStripDetVOffTkMapPlotter::SiStripDetVOffTkMapPlotter(const edm::ParameterSet& iConfig)
@@ -93,7 +91,10 @@ void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::Event
   TkHistoMap lvhisto(tkDetMap, "LV_Status", "LV_Status", -1);
   TkHistoMap hvhisto(tkDetMap, "HV_Status", "HV_Status", -1);
 
-  auto detids = detidReader->getAllDetIds();
+  edm::ESHandle<GeometricDet> geomDetHandle;
+  evtSetup.get<IdealGeometryRecord>().get(geomDetHandle);
+
+  const auto detids = TrackerGeometryUtils::getSiStripDetIds(*geomDetHandle);
   for (auto id : detids) {
     if (payload->IsModuleLVOff(id))
       lvhisto.fill(id, 1);  // RED

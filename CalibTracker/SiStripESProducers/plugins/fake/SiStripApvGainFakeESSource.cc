@@ -22,12 +22,16 @@
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+
 class SiStripApvGainFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
   SiStripApvGainFakeESSource(const edm::ParameterSet&);
   ~SiStripApvGainFakeESSource() override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity ) override;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue& iov,
+                      edm::ValidityInterval& iValidity) override;
 
   typedef std::unique_ptr<SiStripApvGain> ReturnType;
   ReturnType produce(const SiStripApvGainRcd&);
@@ -38,14 +42,13 @@ private:
   double m_sigmaGain;
   double m_minimumPosValue;
   uint32_t m_printDebug;
+  SiStripDetInfoFileReader m_detInfoFileReader;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CLHEP/Random/RandGauss.h"
 
-SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& iConfig)
-{
+SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
   findingRecord<SiStripApvGainRcd>();
 
@@ -54,49 +57,50 @@ SiStripApvGainFakeESSource::SiStripApvGainFakeESSource(const edm::ParameterSet& 
   m_sigmaGain = iConfig.getParameter<double>("SigmaGain");
   m_minimumPosValue = iConfig.getParameter<double>("MinPositiveGain");
   m_printDebug = iConfig.getUntrackedParameter<uint32_t>("printDebug", 5);
+  m_detInfoFileReader =
+      SiStripDetInfoFileReader{iConfig.getParameter<edm::FileInPath>("SiStripDetInfoFile").fullPath()};
 }
 
 SiStripApvGainFakeESSource::~SiStripApvGainFakeESSource() {}
 
-void SiStripApvGainFakeESSource::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue& iov, edm::ValidityInterval& iValidity )
-{
+void SiStripApvGainFakeESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                                const edm::IOVSyncValue& iov,
+                                                edm::ValidityInterval& iValidity) {
   iValidity = edm::ValidityInterval{iov.beginOfTime(), iov.endOfTime()};
 }
 
 // ------------ method called to produce the data  ------------
-SiStripApvGainFakeESSource::ReturnType
-SiStripApvGainFakeESSource::produce(const SiStripApvGainRcd& iRecord)
-{
+SiStripApvGainFakeESSource::ReturnType SiStripApvGainFakeESSource::produce(const SiStripApvGainRcd& iRecord) {
   using namespace edm::es;
 
   auto apvGain = std::make_unique<SiStripApvGain>();
 
-  const edm::Service<SiStripDetInfoFileReader> reader;
   uint32_t count{0};
-  for ( const auto& elm : reader->getAllData() ) {
+  for (const auto& elm : m_detInfoFileReader.getAllData()) {
     std::vector<float> theSiStripVector;
-    for ( unsigned short j=0; j < elm.second.nApvs; ++j ){
+    for (unsigned short j = 0; j < elm.second.nApvs; ++j) {
       float gainValue;
-      if ( m_genMode == "default" ) {
-	gainValue = m_meanGain;
-      } else if ( m_genMode == "gaussian" ) {
-	gainValue = CLHEP::RandGauss::shoot(m_meanGain, m_sigmaGain);
-	if ( gainValue <= m_minimumPosValue ) {
+      if (m_genMode == "default") {
+        gainValue = m_meanGain;
+      } else if (m_genMode == "gaussian") {
+        gainValue = CLHEP::RandGauss::shoot(m_meanGain, m_sigmaGain);
+        if (gainValue <= m_minimumPosValue) {
           gainValue = m_minimumPosValue;
         }
       } else {
-        LogDebug("SiStripApvGain") << "ERROR: wrong genMode specifier : " << m_genMode << ", please select one of \"default\" or \"gaussian\"";
+        LogDebug("SiStripApvGain") << "ERROR: wrong genMode specifier : " << m_genMode
+                                   << ", please select one of \"default\" or \"gaussian\"";
         exit(1);
       }
 
-      if ( count < m_printDebug ) {
-	edm::LogInfo("SiStripApvGainGenerator") << "detid: " << elm.first  << " Apv: " << j <<  " gain: " << gainValue;
+      if (count < m_printDebug) {
+        edm::LogInfo("SiStripApvGainGenerator") << "detid: " << elm.first << " Apv: " << j << " gain: " << gainValue;
       }
       theSiStripVector.push_back(gainValue);
     }
     ++count;
 
-    if ( ! apvGain->put(elm.first, SiStripApvGain::Range{theSiStripVector.begin(),theSiStripVector.end()}) ) {
+    if (!apvGain->put(elm.first, SiStripApvGain::Range{theSiStripVector.begin(), theSiStripVector.end()})) {
       edm::LogError("SiStripApvGainGenerator") << " detid already exists";
     }
   }

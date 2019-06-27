@@ -31,7 +31,7 @@ process.ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilter
     PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShapePhase1_noL1.par" )
 )
 #SiStrip Local Reco
-process.load("CalibTracker.SiStripCommon.TkDetMap_cff")
+process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 
 #---- for P5 (online) DB access
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")

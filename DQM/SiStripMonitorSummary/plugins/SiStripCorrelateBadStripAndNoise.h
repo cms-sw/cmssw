@@ -34,7 +34,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
 #include "TFile.h"
@@ -45,6 +44,7 @@
 // class decleration
 //
 class TrackerTopology;
+class TrackerGeometry;
 class SiStripCorrelateBadStripAndNoise : public edm::EDAnalyzer {
 public:
   explicit SiStripCorrelateBadStripAndNoise(const edm::ParameterSet &);
@@ -66,8 +66,11 @@ private:
     return eSetup.get<SiStripQualityRcd>().cacheIdentifier();
   }
 
-  void iterateOnDets(const TrackerTopology *tTopo);
-  void iterateOnBadStrips(const uint32_t &detid, const TrackerTopology *tTopo, SiStripQuality::Range &sqrange);
+  void iterateOnDets(const TrackerTopology *tTopo, const TrackerGeometry *tGeom);
+  void iterateOnBadStrips(const uint32_t &detid,
+                          const TrackerTopology *tTopo,
+                          const TrackerGeometry *tGeom,
+                          SiStripQuality::Range &sqrange);
   void correlateWithNoise(const uint32_t &detid,
                           const TrackerTopology *tTopo,
                           const uint32_t &firstStrip,
