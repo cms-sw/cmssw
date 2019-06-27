@@ -2,7 +2,7 @@
 //
 // Package:    SiStripQualityESProducer
 // Class:      SiStripQualityESProducer
-// 
+//
 /**\class SiStripQualityESProducer SiStripQualityESProducer.h CalibTracker/SiStripESProducers/plugins/real/SiStripQualityESProducer.cc
 
  Description: <one line class summary>
@@ -40,35 +40,30 @@ namespace {
   };
 
   template <typename Product, typename InputRecord, typename RealRecord>
-  class ProductGetterT: public ProductGetter<Product, InputRecord> {
+  class ProductGetterT : public ProductGetter<Product, InputRecord> {
   public:
-    ProductGetterT(edm::ESConsumesCollector& cc, const std::string& label):
-      token_{cc.consumesFrom<Product, RealRecord>(edm::ESInputTag{"", label})}
-    {}
-    const Product& get(const InputRecord& iRecord) const override {
-      return iRecord.get(token_);
-    }
+    ProductGetterT(edm::ESConsumesCollector& cc, const std::string& label)
+        : token_{cc.consumesFrom<Product, RealRecord>(edm::ESInputTag{"", label})} {}
+    const Product& get(const InputRecord& iRecord) const override { return iRecord.get(token_); }
 
   private:
     edm::ESGetToken<Product, RealRecord> token_;
   };
 
-
   template <typename RealRecord>
   auto make_badStripGetter(edm::ESConsumesCollector& cc, const std::string& label) {
-    return std::make_unique<ProductGetterT<SiStripBadStrip, SiStripQualityRcd, RealRecord> >(cc, label);
+    return std::make_unique<ProductGetterT<SiStripBadStrip, SiStripQualityRcd, RealRecord>>(cc, label);
   }
-}
-
+}  // namespace
 
 class SiStripQualityESProducer : public edm::ESProducer {
- public:
+public:
   SiStripQualityESProducer(const edm::ParameterSet&);
   ~SiStripQualityESProducer() override{};
-  
+
   std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
-   
- private:
+
+private:
   std::vector<std::unique_ptr<ProductGetter<SiStripBadStrip, SiStripQualityRcd>>> badStripGetters_;
   // Can there be more than one entry for cabling? If not, this could be changed to a single token
   std::vector<ProductGetterT<SiStripDetCabling, SiStripQualityRcd, SiStripDetCablingRcd>> cablingGetters_;
@@ -82,15 +77,13 @@ class SiStripQualityESProducer : public edm::ESProducer {
   const bool reduceGranularity_;
 };
 
-
 SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iConfig)
-  : thresholdForReducedGranularity_{iConfig.getParameter<double>("ThresholdForReducedGranularity")},
-    printDebugOutput_{iConfig.getParameter<bool>("PrintDebugOutput")},
-    useEmptyRunInfo_{iConfig.getParameter<bool>("UseEmptyRunInfo")},
-    reduceGranularity_{iConfig.getParameter<bool>("ReduceGranularity")}
-{
+    : thresholdForReducedGranularity_{iConfig.getParameter<double>("ThresholdForReducedGranularity")},
+      printDebugOutput_{iConfig.getParameter<bool>("PrintDebugOutput")},
+      useEmptyRunInfo_{iConfig.getParameter<bool>("UseEmptyRunInfo")},
+      reduceGranularity_{iConfig.getParameter<bool>("ReduceGranularity")} {
   auto cc = setWhatProduced(this);
-  
+
   edm::LogInfo("SiStripQualityESProducer") << "ctor";
 
   bool doRunInfo = false;
@@ -98,45 +91,46 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
 
   auto toGet = iConfig.getParameter<std::vector<edm::ParameterSet>>("ListOfRecordToMerge");
 
-  for(const auto& toGetPSet: toGet) {
+  for (const auto& toGetPSet : toGet) {
     auto tagName = toGetPSet.getParameter<std::string>("tag");
     auto recordName = toGetPSet.getParameter<std::string>("record");
 
-    edm::LogInfo("SiStripQualityESProducer") << "[SiStripQualityESProducer::ctor] Going to get data from record " << recordName << " with tag " << tagName;
+    edm::LogInfo("SiStripQualityESProducer")
+        << "[SiStripQualityESProducer::ctor] Going to get data from record " << recordName << " with tag " << tagName;
 
-    if (recordName=="SiStripBadModuleRcd"){
+    if (recordName == "SiStripBadModuleRcd") {
       badStripGetters_.emplace_back(make_badStripGetter<SiStripBadModuleRcd>(cc, tagName));
-    } else if (recordName=="SiStripBadModuleFedErrRcd"){
+    } else if (recordName == "SiStripBadModuleFedErrRcd") {
       badStripGetters_.emplace_back(make_badStripGetter<SiStripBadModuleFedErrRcd>(cc, tagName));
-    } else if (recordName=="SiStripBadFiberRcd"){
+    } else if (recordName == "SiStripBadFiberRcd") {
       badStripGetters_.emplace_back(make_badStripGetter<SiStripBadFiberRcd>(cc, tagName));
-    } else if (recordName=="SiStripBadChannelRcd"){
+    } else if (recordName == "SiStripBadChannelRcd") {
       badStripGetters_.emplace_back(make_badStripGetter<SiStripBadChannelRcd>(cc, tagName));
-    } else if (recordName=="SiStripBadStripRcd"){
+    } else if (recordName == "SiStripBadStripRcd") {
       badStripGetters_.emplace_back(make_badStripGetter<SiStripBadStripRcd>(cc, tagName));
-    } else if (recordName=="SiStripDetCablingRcd"){
+    } else if (recordName == "SiStripDetCablingRcd") {
       cablingGetters_.emplace_back(cc, tagName);
-    } else if (recordName=="SiStripDetVOffRcd"){
+    } else if (recordName == "SiStripDetVOffRcd") {
       voffGetters_.emplace_back(cc, tagName);
-    } else if (recordName=="RunInfoRcd") {
+    } else if (recordName == "RunInfoRcd") {
       runInfoTagName = tagName;
       doRunInfo = true;
     } else {
       // Would it make sense to elevate this to an exception?
-      edm::LogError("SiStripQualityESProducer") << "[SiStripQualityESProducer::ctor] Skipping the requested data for unexisting record " << recordName << " with tag " << tagName << std::endl;
+      edm::LogError("SiStripQualityESProducer")
+          << "[SiStripQualityESProducer::ctor] Skipping the requested data for unexisting record " << recordName
+          << " with tag " << tagName << std::endl;
       continue;
     }
   }
 
-  if(doRunInfo) {
+  if (doRunInfo) {
     cc.setConsumes(runInfoToken_, edm::ESInputTag{"", runInfoTagName});
   }
 }
 
-
-std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord)
-{
-  auto quality = std::make_unique<SiStripQuality>();  
+std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQualityRcd& iRecord) {
+  auto quality = std::make_unique<SiStripQuality>();
   edm::LogInfo("SiStripQualityESProducer") << "produce called";
 
   // Set the debug output level
@@ -144,30 +138,30 @@ std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQ
   // Set the protection against empty RunInfo objects
   quality->setUseEmptyRunInfo(useEmptyRunInfo_);
 
-  for(const auto& getter: badStripGetters_) {
+  for (const auto& getter : badStripGetters_) {
     quality->add(&getter->get(iRecord));
   }
-  for(const auto& getter: cablingGetters_) {
+  for (const auto& getter : cablingGetters_) {
     quality->add(&getter.get(iRecord));
   }
-  for(const auto& getter: voffGetters_) {
+  for (const auto& getter : voffGetters_) {
     quality->add(&getter.get(iRecord));
   }
 
   // We do this after all the others so we know it is done after the DetCabling (if any)
-  if(runInfoToken_.isInitialized()) {
+  if (runInfoToken_.isInitialized()) {
     quality->add(&iRecord.get(runInfoToken_));
   }
 
   quality->cleanUp();
 
-  if(reduceGranularity_) {
-      quality->ReduceGranularity(thresholdForReducedGranularity_);
-      quality->cleanUp(true);
+  if (reduceGranularity_) {
+    quality->ReduceGranularity(thresholdForReducedGranularity_);
+    quality->cleanUp(true);
   }
 
   quality->fillBadComponents();
-  
+
   return quality;
 }
 

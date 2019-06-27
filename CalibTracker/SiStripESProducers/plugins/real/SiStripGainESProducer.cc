@@ -20,18 +20,16 @@
 // class declaration
 //
 class SiStripGainESProducer : public edm::ESProducer {
- public:
+public:
   SiStripGainESProducer(const edm::ParameterSet&);
   ~SiStripGainESProducer() override{};
-  
+
   std::unique_ptr<SiStripGain> produce(const SiStripGainRcd&);
 
- private:
+private:
   class GainGetter {
   public:
-    GainGetter(std::string record, std::string label):
-      recordLabel_{std::move(record), std::move(label)}
-    {}
+    GainGetter(std::string record, std::string label) : recordLabel_{std::move(record), std::move(label)} {}
     virtual ~GainGetter() = default;
     virtual const SiStripApvGain& gain(const SiStripGainRcd& rcd) const = 0;
 
@@ -42,16 +40,13 @@ class SiStripGainESProducer : public edm::ESProducer {
   };
 
   template <typename Record>
-  class GainGetterT: public GainGetter {
+  class GainGetterT : public GainGetter {
   public:
-    GainGetterT(edm::ESConsumesCollector& cc, std::string record, std::string label):
-      GainGetter(std::move(record), std::move(label)),
-      token_{cc.consumesFrom<SiStripApvGain, Record>(edm::ESInputTag{"", recordLabel().second})}
-    {}
+    GainGetterT(edm::ESConsumesCollector& cc, std::string record, std::string label)
+        : GainGetter(std::move(record), std::move(label)),
+          token_{cc.consumesFrom<SiStripApvGain, Record>(edm::ESInputTag{"", recordLabel().second})} {}
 
-    const SiStripApvGain& gain(const SiStripGainRcd& rcd) const override {
-      return rcd.get(token_);
-    }
+    const SiStripApvGain& gain(const SiStripGainRcd& rcd) const override { return rcd.get(token_); }
 
   private:
     edm::ESGetToken<SiStripApvGain, Record> token_;
@@ -67,38 +62,40 @@ class SiStripGainESProducer : public edm::ESProducer {
   SiStripGainFactor factor_;
 };
 
-SiStripGainESProducer::SiStripGainESProducer(const edm::ParameterSet& iConfig):
-  factor_{iConfig}
-{
+SiStripGainESProducer::SiStripGainESProducer(const edm::ParameterSet& iConfig) : factor_{iConfig} {
   auto cc = setWhatProduced(this);
 
-  auto apvGainLabels = iConfig.getParameter<std::vector<edm::ParameterSet> >("APVGain");
-  if(apvGainLabels.empty()) {
+  auto apvGainLabels = iConfig.getParameter<std::vector<edm::ParameterSet>>("APVGain");
+  if (apvGainLabels.empty()) {
     throw cms::Exception("Configuration") << "Got empty APVGain vector, but need at least one entry";
   }
 
   // Fill the vector of apv labels
-  for(const auto& gainPSet: apvGainLabels) {
+  for (const auto& gainPSet : apvGainLabels) {
     // Shouldn't all these parameters be tracked?
     auto record = gainPSet.getParameter<std::string>("Record");
     auto label = gainPSet.getUntrackedParameter<std::string>("Label", "");
-    if(record == "SiStripApvGainRcd") gainGetters_.emplace_back(make_GainGetter<SiStripApvGainRcd>(cc, record, label));
-    else if(record == "SiStripApvGain2Rcd") gainGetters_.emplace_back(make_GainGetter<SiStripApvGain2Rcd>(cc, record, label));
-    else if(record == "SiStripApvGain3Rcd") gainGetters_.emplace_back(make_GainGetter<SiStripApvGain3Rcd>(cc, record, label));
-    else throw cms::Exception("Configuration") << "SiStripGainESProducer::ctor ERROR: unrecognized record name " << record << std::endl
-                                               << "please specify one of: SiStripApvGainRcd, SiStripApvGain2Rcd, SiStripApvGain3Rcd";
+    if (record == "SiStripApvGainRcd")
+      gainGetters_.emplace_back(make_GainGetter<SiStripApvGainRcd>(cc, record, label));
+    else if (record == "SiStripApvGain2Rcd")
+      gainGetters_.emplace_back(make_GainGetter<SiStripApvGain2Rcd>(cc, record, label));
+    else if (record == "SiStripApvGain3Rcd")
+      gainGetters_.emplace_back(make_GainGetter<SiStripApvGain3Rcd>(cc, record, label));
+    else
+      throw cms::Exception("Configuration")
+          << "SiStripGainESProducer::ctor ERROR: unrecognized record name " << record << std::endl
+          << "please specify one of: SiStripApvGainRcd, SiStripApvGain2Rcd, SiStripApvGain3Rcd";
     factor_.push_back_norm(gainPSet.getUntrackedParameter<double>("NormalizationFactor", 1.));
   }
   factor_.resetIfBadNorm();
 }
 
-std::unique_ptr<SiStripGain> SiStripGainESProducer::produce(const SiStripGainRcd& iRecord)
-{
+std::unique_ptr<SiStripGain> SiStripGainESProducer::produce(const SiStripGainRcd& iRecord) {
   const auto& apvGain = gainGetters_[0]->gain(iRecord);
   // Create a new gain object and insert the ApvGain
-  auto gain = std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), gainGetters_[0]->recordLabel() );
+  auto gain = std::make_unique<SiStripGain>(apvGain, factor_.get(apvGain, 0), gainGetters_[0]->recordLabel());
 
-  for( unsigned int i=1; i<gainGetters_.size(); ++i ) {
+  for (unsigned int i = 1; i < gainGetters_.size(); ++i) {
     const auto& apvGain = gainGetters_[i]->gain(iRecord);
     // Add the new ApvGain to the gain object
     gain->multiply(apvGain, factor_.get(apvGain, i), gainGetters_[i]->recordLabel());
