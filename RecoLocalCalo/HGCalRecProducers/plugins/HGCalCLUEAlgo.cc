@@ -271,8 +271,7 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const u
           unsigned int otherId = lt[binId][j];
 
           float dist = distance(i, otherId, layerId);
-          bool foundHigher = cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i];
-
+          bool foundHigher = (cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i]) || (cellsOnLayer.rho[otherId] == cellsOnLayer.rho[i] && cellsOnLayer.detid[otherId] > cellsOnLayer.detid[i]);
           // if dist == i_delta, then last comer being the nearest higher
           if (foundHigher && dist <= i_delta) {
             // update i_delta
