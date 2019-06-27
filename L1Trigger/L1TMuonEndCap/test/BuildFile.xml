@@ -13,6 +13,11 @@
     <use name="DataFormats/MuonDetId"/>
     <use name="cppunit"/>
   </bin>
+
+  <bin name="TestTensorFlow" file="unittests/TestTensorFlow.cpp">
+    <use name="PhysicsTools/TensorFlow"/>
+    <use name="cppunit"/>
+  </bin>
 </environment>
 
 

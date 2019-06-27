@@ -7,6 +7,7 @@
 
 // Experimental features
 #include "L1Trigger/L1TMuonEndCap/interface/experimental/EMTFSubsystemCollector.h"
+#include "L1Trigger/L1TMuonEndCap/interface/experimental/Phase2SectorProcessor.h"
 
 
 TrackFinder::TrackFinder(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iConsumes) :
@@ -190,25 +191,63 @@ void TrackFinder::process(
   // Reload pT LUT if necessary
   pt_assign_engine_->load(condition_helper_.get_pt_lut_version(), &(condition_helper_.getForest()));
 
-  // MIN/MAX ENDCAP and TRIGSECTOR set in interface/Common.h
-  for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
-    for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
-      const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
+  if (era_ == "Phase2_timing") {
+    for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
+      for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
+        auto minBX      = config_.getParameter<int>("MinBX");
+        auto maxBX      = config_.getParameter<int>("MaxBX");
+        auto bxWindow   = config_.getParameter<int>("BXWindow");
+        auto bxShiftCSC = config_.getParameter<int>("CSCInputBXShift");
+        auto bxShiftRPC = config_.getParameter<int>("RPCInputBXShift");
+        auto bxShiftGEM = config_.getParameter<int>("GEMInputBXShift");
+        int delayBX   = bxWindow - 1;
+        // For now, only consider BX=0
+        minBX = 0;
+        maxBX = 0;
+        delayBX = 0;
 
-      // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
-      if (iEvent.isRealData() && fwConfig_) {
-        sector_processors_.at(es).configure_by_fw_version(condition_helper_.get_fw_version());
+        experimental::Phase2SectorProcessor expt_sp;
+        for (int bx = minBX; bx <= maxBX + delayBX; ++bx) {
+          expt_sp.configure(
+            &geometry_translator_,
+            &condition_helper_,
+            &sector_processor_lut_,
+            pt_assign_engine_.get(),
+            verbose_, endcap, sector, bx,
+            bxShiftCSC, bxShiftRPC, bxShiftGEM,
+            era_
+          );
+          expt_sp.process(
+            iEvent, iSetup,
+            muon_primitives,
+            out_hits,
+            out_tracks
+          );
+        }
       }
-
-      // Process
-      sector_processors_.at(es).process(
-          iEvent.id().event(),
-          muon_primitives,
-          out_hits,
-          out_tracks
-      );
     }
-  }
+  }  // era_ == "Phase2_timing"
+
+  else {  // era_ != "Phase2_timing"
+    for (int endcap = emtf::MIN_ENDCAP; endcap <= emtf::MAX_ENDCAP; ++endcap) {
+      for (int sector = emtf::MIN_TRIGSECTOR; sector <= emtf::MAX_TRIGSECTOR; ++sector) {
+        const int es = (endcap - emtf::MIN_ENDCAP) * (emtf::MAX_TRIGSECTOR - emtf::MIN_TRIGSECTOR + 1) + (sector - emtf::MIN_TRIGSECTOR);
+
+        // Run-dependent configure. This overwrites many of the configurables passed by the python config file.
+        if (iEvent.isRealData() && fwConfig_) {
+          sector_processors_.at(es).configure_by_fw_version(condition_helper_.get_fw_version());
+        }
+
+        // Process
+        sector_processors_.at(es).process(
+            iEvent.id().event(),
+            muon_primitives,
+            out_hits,
+            out_tracks
+        );
+      }
+    }
+  }  // era_ != "Phase2_timing"
 
 
   // ___________________________________________________________________________
