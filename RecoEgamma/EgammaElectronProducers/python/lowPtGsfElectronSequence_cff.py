@@ -42,9 +42,7 @@ lowPtGsfEleGsfTracks.src = 'lowPtGsfEleCkfTrackCandidates'
 fastSim.toModify(lowPtGsfEleGsfTracks,src = cms.InputTag("fastLowPtGsfTkfTrackCandidates"))
 
 # GSFTrack to track association
-from RecoEgamma.EgammaElectronProducers.lowPtGsfToTrackLinksDefault_cfi import *
-
-lowPtGsfToTrackLinks = lowPtGsfToTrackLinksDefault.clone()
+from RecoEgamma.EgammaElectronProducers.lowPtGsfToTrackLinks_cfi import lowPtGsfToTrackLinks
 
 # GsfPFRecTracks
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
@@ -59,18 +57,10 @@ lowPtGsfElePfGsfTracks.useFifthStepForTrackerDrivenGsf = True
 # RecoParticleFlow/PFClusterProducer/python/particleFlowClusterECALUncorrected_cfi.py
 # RecoParticleFlow/PFClusterProducer/python/particleFlowClusterECAL_cff.py
 # (particleFlowClusterECAL_cfi is generated automatically)
-from RecoEgamma.EgammaElectronProducers.defaultLowPtGsfElectronSuperClusters_cfi import defaultLowPtGsfElectronSuperClusters
-
-lowPtGsfElectronSuperClusters = defaultLowPtGsfElectronSuperClusters.clone()
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSuperClusters_cfi import lowPtGsfElectronSuperClusters
 
 # Low pT electron cores
-from RecoEgamma.EgammaElectronProducers.defaultLowPtGsfElectronCores_cfi import defaultLowPtGsfElectronCores
-
-lowPtGsfElectronCores = defaultLowPtGsfElectronCores.clone(
-    gsfPfRecTracks = cms.InputTag("lowPtGsfElePfGsfTracks"),
-    gsfTracks = cms.InputTag("lowPtGsfEleGsfTracks"),
-    ctfTracks = cms.InputTag("generalTracks"),
-    )
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cfi import lowPtGsfElectronCores
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(lowPtGsfElectronCores,ctfTracks = cms.InputTag("generalTracksBeforeMixing"))
@@ -79,22 +69,11 @@ fastSim.toModify(lowPtGsfElectronCores,ctfTracks = cms.InputTag("generalTracksBe
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *
 
 # Low pT Electron value maps
-from RecoEgamma.EgammaElectronProducers.defaultLowPtGsfElectronSeedValueMaps_cfi import defaultLowPtGsfElectronSeedValueMaps
-
-lowPtGsfElectronSeedValueMaps = defaultLowPtGsfElectronSeedValueMaps.clone(
-    ModelNames = cms.vstring(['unbiased','ptbiased'])
-    )
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cfi import lowPtGsfElectronSeedValueMaps
 
 # Low pT Electron ID
-from RecoEgamma.EgammaElectronProducers.defaultLowPtGsfElectronID_cfi import defaultLowPtGsfElectronID
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
 
-lowPtGsfElectronID = defaultLowPtGsfElectronID.clone(
-    ModelNames = cms.vstring(['']),
-    ModelWeights = cms.vstring([
-            'RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Autumn18_LowPtElectrons_mva_id.xml.gz',
-            ]),
-    ModelThresholds = cms.vdouble([-10.])
-    )
 
 # Full sequence 
 lowPtGsfElectronTask = cms.Task(lowPtGsfElePfTracks,

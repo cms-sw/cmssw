@@ -12,7 +12,7 @@ from TrackingTools.MaterialEffects.MaterialPropagator_cfi import *
 
 # module to produce electron seeds
 from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
-from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
+from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 
 
 ecalDrivenElectronSeeds.barrelSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
@@ -24,4 +24,4 @@ gsfElectrons.endcapSuperClusters = cms.InputTag('cosmicSuperClusters','CosmicEnd
 gsfElectrons.barrelClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicBarrelSuperClusters')
 gsfElectrons.endcapClusterShapes = cms.InputTag('cosmicSuperClusters','CosmicEndcapSuperClusters')
 
-cosmicElectronSequence = cms.Sequence(electronSequence)
+cosmicElectronSequence = cms.Sequence(gsfElectronSequence)

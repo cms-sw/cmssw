@@ -224,11 +224,11 @@ reco::PFClusterRef LowPtGsfElectronSCProducer::closestCluster(const reco::PFTraj
 //
 void LowPtGsfElectronSCProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag("lowPtGsfElePfGsfTracks"));
-  desc.add<edm::InputTag>("ecalClusters", edm::InputTag("particleFlowClusterECAL"));
-  desc.add<edm::InputTag>("hcalClusters", edm::InputTag("particleFlowClusterHCAL"));
-  desc.add<double>("MaxDeltaR2", 0.5);
-  descriptions.add("defaultLowPtGsfElectronSuperClusters", desc);
+  desc.add<edm::InputTag>("gsfPfRecTracks",edm::InputTag("lowPtGsfElePfGsfTracks"));
+  desc.add<edm::InputTag>("ecalClusters",edm::InputTag("particleFlowClusterECAL"));
+  desc.add<edm::InputTag>("hcalClusters",edm::InputTag("particleFlowClusterHCAL"));
+  desc.add<double>("MaxDeltaR2",0.5);
+  descriptions.add("lowPtGsfElectronSuperClusters",desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

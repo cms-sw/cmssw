@@ -70,15 +70,15 @@ void LowPtGsfElectronIDProducer::produce(edm::Event& event, const edm::EventSetu
 //
 void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
-  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
-  desc.add<std::vector<std::string> >("ModelNames", std::vector<std::string>());
-  desc.add<std::vector<std::string> >("ModelWeights", std::vector<std::string>());
-  desc.add<std::vector<double> >("ModelThresholds", std::vector<double>());
-  desc.add<bool>("PassThrough", false);
-  desc.add<double>("MinPtThreshold", 0.5);
-  desc.add<double>("MaxPtThreshold", 15.);
-  descriptions.add("defaultLowPtGsfElectronID", desc);
+  desc.add<edm::InputTag>("electrons",edm::InputTag("lowPtGsfElectrons"));
+  desc.add<edm::InputTag>("rho",edm::InputTag("fixedGridRhoFastjetAllTmp"));
+  desc.add< std::vector<std::string> >("ModelNames",{""});
+  desc.add< std::vector<std::string> >("ModelWeights",{"RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Autumn18_LowPtElectrons_mva_id.xml.gz"});
+  desc.add< std::vector<double> >("ModelThresholds",{-10.});
+  desc.add<bool>("PassThrough",false);
+  desc.add<double>("MinPtThreshold",0.5);
+  desc.add<double>("MaxPtThreshold",15.);
+  descriptions.add("lowPtGsfElectronID",desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
