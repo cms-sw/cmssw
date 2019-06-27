@@ -1050,11 +1050,17 @@ class TauIDEmbedder(object):
 
         ##
         if self.debug: print 'Embedding new TauIDs into \"'+self.updatedTauName+'\"'
-        embedID = self.cms.EDProducer("PATTauIDEmbedder",
-            src = self.cms.InputTag('slimmedTaus'),
-            tauIDSources = tauIDSources
-        )
-        setattr(self.process, self.updatedTauName, embedID)
+        if not hasattr(self.process, self.updatedTauName):
+            embedID = self.cms.EDProducer("PATTauIDEmbedder",
+               src = self.cms.InputTag('slimmedTaus'),
+               tauIDSources = tauIDSources
+            )
+            setattr(self.process, self.updatedTauName, embedID)
+        else: #assume same type
+            tauIDSources = self.cms.PSet(
+                getattr(self.process, self.updatedTauName).tauIDSources,
+                tauIDSources)
+            getattr(self.process, self.updatedTauName).tauIDSources = tauIDSources
 
 
     def processDeepProducer(self, producer_name, tauIDSources, workingPoints_):
