@@ -14,29 +14,22 @@
 #include <iostream>
 
 class PFEGammaFilters {
-  
- public:
-   
-  PFEGammaFilters(const edm::ParameterSet& iConfig);
-  
+public:
+  PFEGammaFilters(const edm::ParameterSet &iConfig);
+
   bool passPhotonSelection(const reco::Photon &) const;
-  bool passElectronSelection(const reco::GsfElectron &, 
-			     const reco::PFCandidate &,
-			     const int & ) const;
-  bool isElectron(const reco::GsfElectron & ) const;
-  
-  bool isElectronSafeForJetMET(const reco::GsfElectron &, 
-			       const reco::PFCandidate &,
-			       const reco::Vertex &,
-			       bool& lockTracks) const;
+  bool passElectronSelection(const reco::GsfElectron &, const reco::PFCandidate &, const int &) const;
+  bool isElectron(const reco::GsfElectron &) const;
 
-  bool isPhotonSafeForJetMET(const reco::Photon &, 
-			     const reco::PFCandidate &) const;
-  
+  bool isElectronSafeForJetMET(const reco::GsfElectron &,
+                               const reco::PFCandidate &,
+                               const reco::Vertex &,
+                               bool &lockTracks) const;
 
- private:
+  bool isPhotonSafeForJetMET(const reco::Photon &, const reco::PFCandidate &) const;
+
+private:
   bool passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron &) const;
-
 
   // Photon selections
   const float ph_Et_;
@@ -47,7 +40,7 @@ class PFEGammaFilters {
   float pho_sumPtTrackIso_;
   float pho_sumPtTrackIsoSlope_;
 
-  // Electron selections 
+  // Electron selections
   const float ele_iso_pt_;
   const float ele_iso_mva_eb_;
   const float ele_iso_mva_ee_;
@@ -72,10 +65,10 @@ class PFEGammaFilters {
   float ele_maxDPhiIN_;
 
   // dead hcal selections (electrons)
-  std::array<float,2> badHcal_full5x5_sigmaIetaIeta_;
-  std::array<float,2> badHcal_eInvPInv_;
-  std::array<float,2> badHcal_dEta_;
-  std::array<float,2> badHcal_dPhi_;
+  std::array<float, 2> badHcal_full5x5_sigmaIetaIeta_;
+  std::array<float, 2> badHcal_eInvPInv_;
+  std::array<float, 2> badHcal_dEta_;
+  std::array<float, 2> badHcal_dPhi_;
   bool badHcal_eleEnable_;
 
   // dead hcal selections (photons)

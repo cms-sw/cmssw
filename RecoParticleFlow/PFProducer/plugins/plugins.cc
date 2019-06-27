@@ -15,9 +15,9 @@
 
 typedef Merger<reco::PFCandidateCollection> PFCandidateListMerger;
 typedef edm::ProductFromFwdPtrProducer<reco::PFCandidate, reco::PFCandidateWithSrcPtrFactory>
-        PFCandidateProductFromFwdPtrProducer;
+    PFCandidateProductFromFwdPtrProducer;
 typedef edm::FwdPtrProducer<reco::PFCandidate, reco::PFCandidateFwdPtrFactory> PFCandidateFwdPtrProducer;
 
-DEFINE_FWK_MODULE( PFCandidateListMerger );
+DEFINE_FWK_MODULE(PFCandidateListMerger);
 DEFINE_FWK_MODULE(PFCandidateProductFromFwdPtrProducer);
 DEFINE_FWK_MODULE(PFCandidateFwdPtrProducer);
