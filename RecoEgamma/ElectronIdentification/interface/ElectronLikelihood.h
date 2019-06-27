@@ -13,62 +13,55 @@
 #include <TDirectory.h>
 #include <vector>
 
-
 class ElectronLikelihood {
-
- public:
-  
+public:
   //! ctor, not used for this algo (need initialization from ES)
-  ElectronLikelihood () {} ;
+  ElectronLikelihood(){};
 
   //! ctor
-  ElectronLikelihood (const ElectronLikelihoodCalibration *calibration,
-		      LikelihoodSwitches eleIDSwitches,
-		      std::string signalWeightSplitting,
-		      std::string backgroundWeightSplitting,
-		      bool splitSignalPdfs,
-		      bool splitBackgroundPdfs) ;
+  ElectronLikelihood(const ElectronLikelihoodCalibration* calibration,
+                     LikelihoodSwitches eleIDSwitches,
+                     std::string signalWeightSplitting,
+                     std::string backgroundWeightSplitting,
+                     bool splitSignalPdfs,
+                     bool splitBackgroundPdfs);
 
   //! dtor
-  virtual ~ElectronLikelihood () ;
+  virtual ~ElectronLikelihood();
 
   //! not used for this algo
-  void setup (const edm::ParameterSet& conf) {} ;
+  void setup(const edm::ParameterSet& conf){};
 
   //! get the result of the algorithm
-  float result (const reco::GsfElectron &electron, 
-                const EcalClusterLazyTools&) const ;
+  float result(const reco::GsfElectron& electron, const EcalClusterLazyTools&) const;
   //! get the log-expanded result of the algorithm
-  float resultLog (const reco::GsfElectron &electron, 
-                   const EcalClusterLazyTools&) const ;
+  float resultLog(const reco::GsfElectron& electron, const EcalClusterLazyTools&) const;
 
- private:
-
-  //! build the likelihood model from histograms 
+private:
+  //! build the likelihood model from histograms
   //! in Barrel file and Endcap file
-  void Setup (const ElectronLikelihoodCalibration *calibration,
-	      std::string signalWeightSplitting,
-	      std::string backgroundWeightSplitting,
-	      bool splitSignalPdfs,
-	      bool splitBackgroundPdfs) ;
-
+  void Setup(const ElectronLikelihoodCalibration* calibration,
+             std::string signalWeightSplitting,
+             std::string backgroundWeightSplitting,
+             bool splitSignalPdfs,
+             bool splitBackgroundPdfs);
 
   //! get the input variables from the electron and the e-Setup
-  void getInputVar (const reco::GsfElectron &electron, 
-                    std::vector<float> &measuremnts, 
-                    const EcalClusterLazyTools&) const ;
+  void getInputVar(const reco::GsfElectron& electron,
+                   std::vector<float>& measuremnts,
+                   const EcalClusterLazyTools&) const;
 
   //Class to enforce that we only call const functions on LikelihoodPdfProduct
   // when we are in const functions of ElectronLikelihood
   class LikelihoodPdfProductPtr {
   public:
-    LikelihoodPdfProductPtr(): m_ptr(nullptr) {}
-    LikelihoodPdfProductPtr( LikelihoodPdfProduct* iPtr): m_ptr(iPtr) {}
+    LikelihoodPdfProductPtr() : m_ptr(nullptr) {}
+    LikelihoodPdfProductPtr(LikelihoodPdfProduct* iPtr) : m_ptr(iPtr) {}
 
-    LikelihoodPdfProduct* operator->() { return m_ptr;}
-    const LikelihoodPdfProduct* operator->() const { return m_ptr;}
+    LikelihoodPdfProduct* operator->() { return m_ptr; }
+    const LikelihoodPdfProduct* operator->() const { return m_ptr; }
 
-    LikelihoodPdfProduct* get() { return m_ptr;}
+    LikelihoodPdfProduct* get() { return m_ptr; }
 
   private:
     LikelihoodPdfProduct* m_ptr;
@@ -80,15 +73,14 @@ class ElectronLikelihood {
   LikelihoodPdfProductPtr _EB0gt15lh, _EB1gt15lh, _EEgt15lh;
 
   //! general parameters of all the ele id algorithms
-  LikelihoodSwitches m_eleIDSwitches ;
+  LikelihoodSwitches m_eleIDSwitches;
 
   //! splitting rule for PDF's
   std::string m_signalWeightSplitting;
   std::string m_backgroundWeightSplitting;
-
 };
 
 #include "FWCore/Framework/interface/data_default_record_trait.h"
-EVENTSETUP_DATA_DEFAULT_RECORD (ElectronLikelihood, ElectronLikelihoodRcd)
+EVENTSETUP_DATA_DEFAULT_RECORD(ElectronLikelihood, ElectronLikelihoodRcd)
 
-#endif // ElectronLikelihood_H
+#endif  // ElectronLikelihood_H

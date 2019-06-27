@@ -50,8 +50,10 @@ namespace reco {
       HCALExit = 7,
       /// HO layer
       HOLayer = 8,
+      /// VFcal(HF) front face
+      VFcalEntrance = 9,
 
-      NLayers = 9
+      NLayers = 10
     };
 
     /// default constructor. Set variables at default dummy values

@@ -89,11 +89,7 @@ class MVAVariableManager {
     {
         bool hasLowerClip = lowerClip.find("None") == std::string::npos;
         bool hasUpperClip = upperClip.find("None") == std::string::npos;
-        bool isAuxiliary = formula.find("MVAVariableHelper")  != std::string::npos ||
-                           formula.find("IDValueMapProducer") != std::string::npos ||
-                           formula.find("egmPhotonIsolation") != std::string::npos ||
-                           formula.find("Rho") != std::string::npos;
-                           // *Rho* is still hardcoded...
+        bool isAuxiliary = formula.find("Rho") != std::string::npos; // *Rho* is still hardcoded...
         float lowerClipValue = hasLowerClip ? (float)::atof(lowerClip.c_str()) : 0.;
         float upperClipValue = hasUpperClip ? (float)::atof(upperClip.c_str()) : 0.;
 
@@ -128,7 +124,7 @@ class MVAVariableManager {
     std::vector<std::string> names_;
     std::map<std::string, int> indexMap_;
 
-    const MVAVariableIndexMap<ParticleType> indexMap;
+    const MVAVariableIndexMap indexMap;
 };
 
 #endif

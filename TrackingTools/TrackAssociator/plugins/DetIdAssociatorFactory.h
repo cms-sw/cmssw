@@ -6,6 +6,8 @@
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "DetIdAssociatorMaker.h"
 
-typedef edmplugin::PluginFactory<DetIdAssociatorMaker * ( const edm::ParameterSet& pSet, edm::ESConsumesCollectorT<DetIdAssociatorRecord>&& )> DetIdAssociatorFactory;
+typedef edmplugin::PluginFactory<DetIdAssociatorMaker*(const edm::ParameterSet& pSet,
+                                                       edm::ESConsumesCollectorT<DetIdAssociatorRecord>&&)>
+    DetIdAssociatorFactory;
 
 #endif

@@ -1,7 +1,7 @@
 #include "CommonTools/Utils/src/returnType.h"
 
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <algorithm>
 #include <cstring>

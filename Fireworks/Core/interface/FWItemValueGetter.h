@@ -22,7 +22,7 @@
 #include <vector>
 
 #include "Rtypes.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorBase.h"

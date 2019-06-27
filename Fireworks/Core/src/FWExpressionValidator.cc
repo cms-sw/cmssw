@@ -14,8 +14,8 @@
 #include <cctype>
 #include <algorithm>
 
-#include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
 #include <cstring>
 
 // user include files

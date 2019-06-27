@@ -6,16 +6,6 @@
 
 SiStripPlotGain::SiStripPlotGain(const edm::ParameterSet &iConfig) : cacheID(0xFFFFFFFF) {
   // now do what ever initialization is needed
-  if (!edm::Service<SiStripDetInfoFileReader>().isAvailable()) {
-    edm::LogError("TkLayerMap") << "\n------------------------------------------"
-                                   "\nUnAvailable Service SiStripDetInfoFileReader: please insert in "
-                                   "the configuration file an instance like"
-                                   "\n\tprocess.SiStripDetInfoFileReader = "
-                                   "cms.Service(\"SiStripDetInfoFileReader\")"
-                                   "\n------------------------------------------";
-  }
-
-  fr = edm::Service<SiStripDetInfoFileReader>().operator->();
   file = new TFile("correlTest.root", "RECREATE");
   tkmap = new TrackerMap();
 }

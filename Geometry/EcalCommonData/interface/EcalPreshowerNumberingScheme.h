@@ -8,15 +8,12 @@
 #include "Geometry/EcalCommonData/interface/EcalNumberingScheme.h"
 
 class EcalPreshowerNumberingScheme : public EcalNumberingScheme {
-
- public:
-
+public:
   EcalPreshowerNumberingScheme();
   ~EcalPreshowerNumberingScheme() override;
-  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override ;
+  uint32_t getUnitID(const EcalBaseNumber& baseNumber) const override;
 
- private:
-
+private:
   int L3ax[3];
   int L3ay[3];
   int L3bx[1];
@@ -41,7 +38,6 @@ class EcalPreshowerNumberingScheme : public EcalNumberingScheme {
   int L0by[1];
   int L0cx[1];
   int L0cy[1];
-
 };
 
 #endif

@@ -22,37 +22,35 @@
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 //#include "CondCore/DBCommon/interface/Time.h"
 
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 
-namespace cond{
+namespace cond {
   class DataProxyWrapperBase;
 }
 
-class CondDBESSource : public edm::eventsetup::DataProxyProvider,
-		       public edm::EventSetupRecordIntervalFinder{
- public:
-  typedef std::shared_ptr<cond::DataProxyWrapperBase > ProxyP;
-  typedef std::multimap< std::string,  ProxyP> ProxyMap;
+class CondDBESSource : public edm::eventsetup::DataProxyProvider, public edm::EventSetupRecordIntervalFinder {
+public:
+  typedef std::shared_ptr<cond::DataProxyWrapperBase> ProxyP;
+  typedef std::multimap<std::string, ProxyP> ProxyMap;
 
   typedef enum { NOREFRESH, REFRESH_ALWAYS, REFRESH_OPEN_IOVS, REFRESH_EACH_RUN, RECONNECT_EACH_RUN } RefreshPolicy;
-  
 
-  explicit CondDBESSource( const edm::ParameterSet& );
+  explicit CondDBESSource(const edm::ParameterSet&);
   ~CondDBESSource() override;
-  
- protected:
+
+protected:
   void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
-			      const edm::IOVSyncValue& , 
-			      edm::ValidityInterval&) override ;
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
 
-  void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) override ;
+  void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey, KeyedProxies& aProxyList) override;
 
-  void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType, const edm::ValidityInterval& iInterval) override ;
+  void newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordType,
+                   const edm::ValidityInterval& iInterval) override;
 
- private:
-
+private:
   // ----------member data ---------------------------
 
   cond::persistency::ConnectionPool m_connection;
@@ -61,13 +59,12 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   // Container of DataProxy, implemented as multi-map keyed by records
   ProxyMap m_proxies;
 
-
-  typedef std::map< std::string, cond::GTEntry_t > TagCollection;
+  typedef std::map<std::string, cond::GTEntry_t> TagCollection;
   // the collections of tag, record/label used in this ESSource
   TagCollection m_tagCollection;
-  std::map<std::string,std::pair<cond::persistency::Session,std::string> > m_sessionPool;
-  std::map<std::string,unsigned int> m_lastRecordRuns;
-  
+  std::map<std::string, std::pair<cond::persistency::Session, std::string> > m_sessionPool;
+  std::map<std::string, unsigned int> m_lastRecordRuns;
+
   struct Stats {
     int nData;
     int nSet;
@@ -84,25 +81,27 @@ class CondDBESSource : public edm::eventsetup::DataProxyProvider,
   unsigned int m_lastRun;
   unsigned int m_lastLumi;
   RefreshPolicy m_policy;
-  
+
   bool m_doDump;
 
- private:
+private:
+  void fillList(const std::string& pfn,
+                std::vector<std::string>& pfnList,
+                const unsigned int listSize,
+                const std::string& type);
 
-  void fillList(const std::string & pfn, std::vector<std::string> & pfnList, const unsigned int listSize, const std::string & type);
+  void fillTagCollectionFromGT(const std::string& connectionString,
+                               const std::string& prefix,
+                               const std::string& postfix,
+                               const std::string& roottag,
+                               std::set<cond::GTEntry_t>& tagcoll,
+                               cond::GTMetadata_t& gtMetadata);
 
-  void fillTagCollectionFromGT(const std::string & connectionString,
-                               const std::string & prefix,
-                               const std::string & postfix,
-                               const std::string & roottag,
-                               std::set< cond::GTEntry_t > & tagcoll,
-			       cond::GTMetadata_t& gtMetadata);
-
-  void fillTagCollectionFromDB( const std::vector<std::string> & connectionStringList,
-                                const std::vector<std::string> & prefixList,
-                                const std::vector<std::string> & postfixList,
-                                const std::vector<std::string> & roottagList,
-                                std::map<std::string,cond::GTEntry_t>& replacement,
-				cond::GTMetadata_t& gtMetadata);
+  void fillTagCollectionFromDB(const std::vector<std::string>& connectionStringList,
+                               const std::vector<std::string>& prefixList,
+                               const std::vector<std::string>& postfixList,
+                               const std::vector<std::string>& roottagList,
+                               std::map<std::string, cond::GTEntry_t>& replacement,
+                               cond::GTMetadata_t& gtMetadata);
 };
 #endif

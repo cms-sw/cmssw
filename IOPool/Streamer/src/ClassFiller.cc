@@ -1,9 +1,9 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include "TClass.h"
 

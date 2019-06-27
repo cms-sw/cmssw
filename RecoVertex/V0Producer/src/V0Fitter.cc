@@ -175,7 +175,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
 
       // the POCA should at least be in the sensitive volume
       GlobalPoint cxPt = cApp.crossingPoint();
-      if (sqrt(cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. || std::abs(cxPt.z()) > 300.)
+      if ((cxPt.x() * cxPt.x() + cxPt.y() * cxPt.y()) > 120. * 120. || std::abs(cxPt.z()) > 300.)
         continue;
 
       // the tracks should at least point in the same quadrant
@@ -190,8 +190,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       double totalE = sqrt(posTSCP.momentum().mag2() + piMassSquared) + sqrt(negTSCP.momentum().mag2() + piMassSquared);
       double totalESq = totalE * totalE;
       double totalPSq = (posTSCP.momentum() + negTSCP.momentum()).mag2();
-      double mass = sqrt(totalESq - totalPSq);
-      if (mass > mPiPiCut_)
+      double massSquared = totalESq - totalPSq;
+      if (massSquared > mPiPiCut_ * mPiPiCut_)
         continue;
 
       // Fill the vector of TransientTracks to send to KVF
@@ -239,18 +239,20 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       }
 
       // make sure the vertex radius is within the inner track hit radius
+      double tkHitPosLimitSquared =
+          (distMagXY - sigmaDistMagXY * innerHitPosCut_) * (distMagXY - sigmaDistMagXY * innerHitPosCut_);
       if (innerHitPosCut_ > 0. && positiveTrackRef->innerOk()) {
         reco::Vertex::Point posTkHitPos = positiveTrackRef->innerPosition();
         double posTkHitPosD2 = (posTkHitPos.x() - referencePos.x()) * (posTkHitPos.x() - referencePos.x()) +
                                (posTkHitPos.y() - referencePos.y()) * (posTkHitPos.y() - referencePos.y());
-        if (sqrt(posTkHitPosD2) < (distMagXY - sigmaDistMagXY * innerHitPosCut_))
+        if (posTkHitPosD2 < tkHitPosLimitSquared)
           continue;
       }
       if (innerHitPosCut_ > 0. && negativeTrackRef->innerOk()) {
         reco::Vertex::Point negTkHitPos = negativeTrackRef->innerPosition();
         double negTkHitPosD2 = (negTkHitPos.x() - referencePos.x()) * (negTkHitPos.x() - referencePos.x()) +
                                (negTkHitPos.y() - referencePos.y()) * (negTkHitPos.y() - referencePos.y());
-        if (sqrt(negTkHitPosD2) < (distMagXY - sigmaDistMagXY * innerHitPosCut_))
+        if (negTkHitPosD2 < tkHitPosLimitSquared)
           continue;
       }
 

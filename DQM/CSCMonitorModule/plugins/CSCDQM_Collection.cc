@@ -16,7 +16,7 @@
  */
 
 #include "CSCDQM_Collection.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <cstdio>
 #include <string>
 #include <xercesc/util/XMLString.hpp>

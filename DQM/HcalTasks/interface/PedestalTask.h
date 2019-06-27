@@ -36,17 +36,15 @@ protected:
   virtual void _dump();
 
   //	tags and tokens
-  edm::InputTag _tagHBHE;
-  edm::InputTag _tagHE;
+  edm::InputTag _tagQIE11;
   edm::InputTag _tagHO;
-  edm::InputTag _tagHF;
+  edm::InputTag _tagQIE10;
   edm::InputTag _tagTrigger;
   edm::InputTag _taguMN;
   edm::EDGetTokenT<HcalUMNioDigi> _tokuMN;
-  edm::EDGetTokenT<HBHEDigiCollection> _tokHBHE;
-  edm::EDGetTokenT<QIE11DigiCollection> _tokHEP17;
+  edm::EDGetTokenT<QIE11DigiCollection> _tokQIE11;
   edm::EDGetTokenT<HODigiCollection> _tokHO;
-  edm::EDGetTokenT<QIE10DigiCollection> _tokHF;
+  edm::EDGetTokenT<QIE10DigiCollection> _tokQIE10;
   edm::EDGetTokenT<HcalTBTriggerData> _tokTrigger;
 
   std::vector<hcaldqm::flag::Flag> _vflags;

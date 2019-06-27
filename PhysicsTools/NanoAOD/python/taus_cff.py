@@ -12,9 +12,16 @@ from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTausUpdated"),
-    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2'))")
+    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2') || tauID('byVVVLooseDeepTau2017v2VSjet'))")
 )
 
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
+for era in [run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
+    era.toModify(finalTaus,
+                 cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || tauID('byVLooseIsolationMVArun2v1DBoldDMwLT2015') || tauID('byVLooseIsolationMVArun2v1DBnewDMwLT') || tauID('byVLooseIsolationMVArun2v1DBdR03oldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT') || tauID('byVVLooseIsolationMVArun2v1DBoldDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBnewDMwLT2017v2') || tauID('byVVLooseIsolationMVArun2v1DBdR03oldDMwLT2017v2'))")
+    )
 from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toModify(finalTaus,
@@ -34,12 +41,16 @@ def _tauId2WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("Loose","Tight"),doc=doc)
 def _tauId3WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("Loose","Medium","Tight"),doc=doc)
+def _tauId4WPMask(pattern,doc):
+    return _tauIdWPMask(pattern, choices=("VLoose", "Loose", "Medium", "Tight"), doc=doc)
 def _tauId5WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight"),doc=doc)
 def _tauId6WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
 def _tauId7WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
+def _tauId8WPMask(pattern,doc):
+    return _tauIdWPMask(pattern,choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
 
 tauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","taus"),
@@ -112,13 +123,22 @@ _mvaAntiEVars2018 = cms.PSet(
        rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
        idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA62018", doc= "Anti-electron MVA discriminator V6 (2018)"),
 )
+_deepTauVars2017v2 = cms.PSet(
+    rawDeepTau2017v2VSe = Var("tauID('byDeepTau2017v2VSeraw')", float, doc="byDeepTau2017v2VSe raw output discriminator (deepTau2017v2)", precision=10),
+    rawDeepTau2017v2VSmu = Var("tauID('byDeepTau2017v2VSmuraw')", float, doc="byDeepTau2017v2VSmu raw output discriminator (deepTau2017v2)", precision=10),
+    rawDeepTau2017v2VSjet = Var("tauID('byDeepTau2017v2VSjetraw')", float, doc="byDeepTau2017v2VSjet raw output discriminator (deepTau2017v2)", precision=10),
+    idDeepTau2017v2VSe = _tauId8WPMask("by%sDeepTau2017v2VSe", doc="byDeepTau2017v2VSe ID working points (deepTau2017v2)"),
+    idDeepTau2017v2VSmu = _tauId4WPMask("by%sDeepTau2017v2VSmu", doc="byDeepTau2017v2VSmu ID working points (deepTau2017v2)"),
+    idDeepTau2017v2VSjet = _tauId8WPMask("by%sDeepTau2017v2VSjet", doc="byDeepTau2017v2VSjet ID working points (deepTau2017v2)"),
+)
 
 _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
     _mvaAntiEVars2018,
     _mvaIsoVars2015Reduced,
     _mvaIsoVars2017v1,
-    _mvaIsoVars2017v2
+    _mvaIsoVars2017v2,
+    _deepTauVars2017v2
 )
 _variablesMiniV1 = _variablesMiniV2.clone()
 _variablesMiniV1.rawMVAoldDM = Var( "tauID('byIsolationMVArun2v1DBoldDMwLTraw')",float, doc="byIsolationMVArun2v1DBoldDMwLT raw output discriminator (2015)",precision=10)
@@ -139,6 +159,16 @@ for era in [run2_nanoAOD_94XMiniAODv1,]:
 run2_miniAOD_80XLegacy.toModify(tauTable,
                                      variables = _variables80X
 )
+for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
+    era.toModify(tauTable.variables,
+                 rawDeepTau2017v2VSe = None,
+                 rawDeepTau2017v2VSmu = None,
+                 rawDeepTau2017v2VSjet = None,
+                 idDeepTau2017v2VSe = None,
+                 idDeepTau2017v2VSmu = None,
+                 idDeepTau2017v2VSjet = None
+    )
+
 tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
 tauGenJets.includeNeutrinos = cms.bool(False)
 

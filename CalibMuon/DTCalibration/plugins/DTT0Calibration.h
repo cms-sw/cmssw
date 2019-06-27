@@ -44,14 +44,12 @@ public:
   // Operations
 
   /// Fill the maps with t0 (by channel)
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /// Compute the mean and the RMS of the t0 from the maps and write them to the DB with channel granularity
   void endJob() override;
 
-
 protected:
-
 private:
   // Generate the histo name
   std::string getHistoName(const DTWireId& wId) const;
@@ -79,7 +77,7 @@ private:
   //Acceptance of t0 w.r.t. reference peak
   double tpPeakWidthPerLayer;
 
-  //Digi's will be rejected if too far from TP peak 
+  //Digi's will be rejected if too far from TP peak
   unsigned int rejectDigiFromPeak;
 
   //The wheels,sector to be calibrated (default All)
@@ -93,7 +91,7 @@ private:
 
   // Histogram containing position of all peaks
   TH1D hLayerPeaks;
-  
+
   TSpectrum spectrum;
 
   //Layer with histos for each wire
@@ -101,29 +99,28 @@ private:
   std::vector<DTLayerId> layerIdWithWireHistos;
 
   //Maps with t0, sigma, number of digi per wire
-  std::map<DTWireId,double> theAbsoluteT0PerWire;
-  std::map<DTWireId,double> theRelativeT0PerWire;
-  std::map<DTWireId,double> theSigmaT0PerWire;
-  std::map<DTWireId,int> nDigiPerWire;
-  std::map<DTWireId,int> nDigiPerWire_ref;
-  std::map<DTWireId,double> mK;
-  std::map<DTWireId,double> mK_ref;
-  std::map<DTWireId,double> qK;
+  std::map<DTWireId, double> theAbsoluteT0PerWire;
+  std::map<DTWireId, double> theRelativeT0PerWire;
+  std::map<DTWireId, double> theSigmaT0PerWire;
+  std::map<DTWireId, int> nDigiPerWire;
+  std::map<DTWireId, int> nDigiPerWire_ref;
+  std::map<DTWireId, double> mK;
+  std::map<DTWireId, double> mK_ref;
+  std::map<DTWireId, double> qK;
   //Map with histo per wire for the chosen layer
-  std::map<DTWireId,TH1I> theHistoWireMap;
+  std::map<DTWireId, TH1I> theHistoWireMap;
   //Map with mean and RMS of t0 per layer
-  std::map<std::string,double> theT0LayerMap;
-  std::map<std::string,double> theSigmaT0LayerMap;
-  std::map<DTLayerId,double> theTPPeakMap;
+  std::map<std::string, double> theT0LayerMap;
+  std::map<std::string, double> theSigmaT0LayerMap;
+  std::map<DTLayerId, double> theTPPeakMap;
   //Ref. t0 per chamber
-  std::map<DTChamberId,double> theSumT0ByChamber;
-  std::map<DTChamberId,int> theCountT0ByChamber;
-  std::map<DTChamberId,double> theSigmaT0ByChamber;
-  std::map<DTChamberId,double> theMeanT0ByChamber;
-  std::map<DTChamberId,double> theRefT0ByChamber;
+  std::map<DTChamberId, double> theSumT0ByChamber;
+  std::map<DTChamberId, int> theCountT0ByChamber;
+  std::map<DTChamberId, double> theSigmaT0ByChamber;
+  std::map<DTChamberId, double> theMeanT0ByChamber;
+  std::map<DTChamberId, double> theRefT0ByChamber;
 
   //DTGeometry used to loop on the SL in the endJob
   edm::ESHandle<DTGeometry> dtGeom;
 };
 #endif
-

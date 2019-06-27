@@ -9,16 +9,6 @@
 SiStripCorrelateNoise::SiStripCorrelateNoise(const edm::ParameterSet &iConfig)
     : refNoise(nullptr), oldGain(nullptr), newGain(nullptr), cacheID_noise(0xFFFFFFFF), cacheID_gain(0xFFFFFFFF) {
   // now do what ever initialization is needed
-  if (!edm::Service<SiStripDetInfoFileReader>().isAvailable()) {
-    edm::LogError("TkLayerMap") << "\n------------------------------------------"
-                                   "\nUnAvailable Service SiStripDetInfoFileReader: please insert in "
-                                   "the configuration file an instance like"
-                                   "\n\tprocess.SiStripDetInfoFileReader = "
-                                   "cms.Service(\"SiStripDetInfoFileReader\")"
-                                   "\n------------------------------------------";
-  }
-
-  fr = edm::Service<SiStripDetInfoFileReader>().operator->();
   file = new TFile("correlTest.root", "RECREATE");
 
   file->cd();

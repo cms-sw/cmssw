@@ -123,11 +123,11 @@ static constexpr std::string_view c2t(char iCode) {
       return s_types[index];
     }
   }
-  return nullptr;
+  return std::string_view();
 }
 
 static constexpr std::array<std::string_view, 255> fillTable() {
-  std::array<std::string_view, 255> table_ = {{nullptr}};
+  std::array<std::string_view, 255> table_ = {{std::string_view()}};
   static_assert(not c2t(kTvBool).empty());
   table_[kTvBool] = c2t(kTvBool);
   static_assert(not c2t(kTbool).empty());

@@ -2,7 +2,7 @@
 #define CommonTools_Utils_expressionParset_h
 #include "CommonTools/Utils/src/ExpressionPtr.h"
 #include "CommonTools/Utils/interface/Exception.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include <string>
 
 namespace reco {

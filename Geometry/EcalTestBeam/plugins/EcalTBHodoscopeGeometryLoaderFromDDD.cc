@@ -11,133 +11,107 @@
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 
-typedef CaloCellGeometry::CCGFloat CCGFloat ;
+typedef CaloCellGeometry::CCGFloat CCGFloat;
 
 #include <iostream>
 #include <utility>
 #include <vector>
 #include <memory>
 
-std::unique_ptr<CaloSubdetectorGeometry> 
-EcalTBHodoscopeGeometryLoaderFromDDD::load( const DDCompactView* cpv ) 
-{
-   std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope" << std::endl;
+std::unique_ptr<CaloSubdetectorGeometry> EcalTBHodoscopeGeometryLoaderFromDDD::load(const DDCompactView* cpv) {
+  std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: start the construction of EcalTBHodoscope" << std::endl;
 
-   std::unique_ptr<CaloSubdetectorGeometry> ebg
-      ( new EcalTBHodoscopeGeometry() ) ;
+  std::unique_ptr<CaloSubdetectorGeometry> ebg(new EcalTBHodoscopeGeometry());
 
-   makeGeometry( cpv, ebg.get() ) ;
+  makeGeometry(cpv, ebg.get());
 
-   std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry" << std::endl;
+  std::cout << "[EcalTBHodoscopeGeometryLoaderFromDDD]:: Returning EcalTBHodoscopeGeometry" << std::endl;
 
-   return ebg;
+  return ebg;
 }
 
-void 
-EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(
-   const DDCompactView*     cpv ,
-   CaloSubdetectorGeometry* ebg  )
-{
-   if( ebg->cornersMgr() == nullptr ) ebg->allocateCorners( EBDetId::kSizeForDenseIndexing ) ;
-   if( ebg->parMgr()     == nullptr ) ebg->allocatePar( 10, 3 ) ;
-  
-   std::unique_ptr<DDFilter> filter{getDDFilter()};
+void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv, CaloSubdetectorGeometry* ebg) {
+  if (ebg->cornersMgr() == nullptr)
+    ebg->allocateCorners(EBDetId::kSizeForDenseIndexing);
+  if (ebg->parMgr() == nullptr)
+    ebg->allocatePar(10, 3);
 
-   DDFilteredView fv(*cpv,*filter);
-  
-   bool doSubDets;
-   for (doSubDets = fv.firstChild(); doSubDets ; doSubDets = fv.nextSibling())
-   {
-      
+  std::unique_ptr<DDFilter> filter{getDDFilter()};
+
+  DDFilteredView fv(*cpv, *filter);
+
+  bool doSubDets;
+  for (doSubDets = fv.firstChild(); doSubDets; doSubDets = fv.nextSibling()) {
 #if 0
       std::string answer = getDDDString("ReadOutName",&fv);
       if (answer != "EcalTBH4BeamHits")
         continue;
 #endif
-      
-      const DDSolid & solid = fv.logicalPart().solid();
 
-      if( solid.shape() != DDSolidShape::ddbox ) 
-      {
-	 throw cms::Exception("DDException") << std::string(__FILE__) 
-			    << "\n CaloGeometryEcalTBHodoscope::upDate(...): currently only box fiber shapes supported ";
-	 edm::LogWarning("EcalTBHodoscopeGeometry") << "Wrong shape for sensitive volume!" << solid;
-      }
-       
-      std::vector<double> pv = solid.parameters();      
+    const DDSolid& solid = fv.logicalPart().solid();
 
-      // use preshower strip as box in space representation
+    if (solid.shape() != DDSolidShape::ddbox) {
+      throw cms::Exception("DDException")
+          << std::string(__FILE__)
+          << "\n CaloGeometryEcalTBHodoscope::upDate(...): currently only box fiber shapes supported ";
+      edm::LogWarning("EcalTBHodoscopeGeometry") << "Wrong shape for sensitive volume!" << solid;
+    }
 
-      // rotate the box and then move it
-      DD3Vector x, y, z;
-      fv.rotation().GetComponents(x,y,z);
-      CLHEP::Hep3Vector hx(x.X(), x.Y(), x.Z());
-      CLHEP::Hep3Vector hy(y.X(), y.Y(), y.Z());
-      CLHEP::Hep3Vector hz(z.X(), z.Y(), z.Z());
-      CLHEP::HepRotation hrot(hx, hy, hz);
-      CLHEP::Hep3Vector htran ( fv.translation().X(),
-				fv.translation().Y(),
-				fv.translation().Z()  );
+    std::vector<double> pv = solid.parameters();
 
-      const HepGeom::Transform3D ht3d ( hrot,  // only scale translation
-					CaloCellGeometry::k_ScaleFromDDDtoGeant*htran ) ;    
+    // use preshower strip as box in space representation
 
-      const HepGeom::Point3D<float> ctr (
-	 ht3d*HepGeom::Point3D<float> (0,0,0) ) ;
+    // rotate the box and then move it
+    DD3Vector x, y, z;
+    fv.rotation().GetComponents(x, y, z);
+    CLHEP::Hep3Vector hx(x.X(), x.Y(), x.Z());
+    CLHEP::Hep3Vector hy(y.X(), y.Y(), y.Z());
+    CLHEP::Hep3Vector hz(z.X(), z.Y(), z.Z());
+    CLHEP::HepRotation hrot(hx, hy, hz);
+    CLHEP::Hep3Vector htran(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
 
-      const GlobalPoint refPoint ( ctr.x(), ctr.y(), ctr.z() ) ;
+    const HepGeom::Transform3D ht3d(hrot,  // only scale translation
+                                    CaloCellGeometry::k_ScaleFromDDDtoGeant * htran);
 
-      std::vector<CCGFloat> vv ;
-      vv.reserve( pv.size() + 1 ) ;
-      for( unsigned int i ( 0 ) ; i != pv.size() ; ++i )
-      {
-	 vv.emplace_back( CaloCellGeometry::k_ScaleFromDDDtoGeant*pv[i] ) ;
-      }
-      vv.emplace_back( 0. ) ; // tilt=0 here
-      const CCGFloat* pP ( CaloCellGeometry::getParmPtr( vv, 
-							 ebg->parMgr(), 
-							 ebg->parVecVec() ) ) ;
+    const HepGeom::Point3D<float> ctr(ht3d * HepGeom::Point3D<float>(0, 0, 0));
 
-      const DetId detId ( getDetIdForDDDNode(fv) ) ;
+    const GlobalPoint refPoint(ctr.x(), ctr.y(), ctr.z());
 
-      //Adding cell to the Geometry
+    std::vector<CCGFloat> vv;
+    vv.reserve(pv.size() + 1);
+    for (unsigned int i(0); i != pv.size(); ++i) {
+      vv.emplace_back(CaloCellGeometry::k_ScaleFromDDDtoGeant * pv[i]);
+    }
+    vv.emplace_back(0.);  // tilt=0 here
+    const CCGFloat* pP(CaloCellGeometry::getParmPtr(vv, ebg->parMgr(), ebg->parVecVec()));
 
-      ebg->newCell( refPoint, refPoint, refPoint,
-		    pP, 
-		    detId ) ;
-   } // loop over all children
+    const DetId detId(getDetIdForDDDNode(fv));
+
+    //Adding cell to the Geometry
+
+    ebg->newCell(refPoint, refPoint, refPoint, pP, detId);
+  }  // loop over all children
 }
 
-unsigned int 
-EcalTBHodoscopeGeometryLoaderFromDDD::getDetIdForDDDNode(
-   const DDFilteredView &fv )
-{
-   // perform some consistency checks
-   // get the parents and grandparents of this node
-   DDGeoHistory parents = fv.geoHistory();
-  
-   assert(parents.size() >= 3);
+unsigned int EcalTBHodoscopeGeometryLoaderFromDDD::getDetIdForDDDNode(const DDFilteredView& fv) {
+  // perform some consistency checks
+  // get the parents and grandparents of this node
+  DDGeoHistory parents = fv.geoHistory();
 
-   EcalBaseNumber baseNumber;
-   //baseNumber.setSize(parents.size());
+  assert(parents.size() >= 3);
 
-   for( unsigned int i=1 ;i <= parents.size(); i++)
-   {
-      baseNumber.addLevel( parents[ parents.size() - i ].logicalPart().name().name(),
-			   parents[ parents.size() - i ].copyno() ) ;
-   }
+  EcalBaseNumber baseNumber;
+  //baseNumber.setSize(parents.size());
 
-   return _scheme.getUnitID( baseNumber ) ;
+  for (unsigned int i = 1; i <= parents.size(); i++) {
+    baseNumber.addLevel(parents[parents.size() - i].logicalPart().name().name(), parents[parents.size() - i].copyno());
+  }
+
+  return _scheme.getUnitID(baseNumber);
 }
 
-DDFilter* EcalTBHodoscopeGeometryLoaderFromDDD::getDDFilter()
-{
-   return new DDAndFilter<DDSpecificsMatchesValueFilter,
-                          DDSpecificsMatchesValueFilter>(
-                             DDSpecificsMatchesValueFilter{DDValue( "SensitiveDetector",
-                                                                    "EcalTBH4BeamDetector",
-                                                                    0 )},
-                             DDSpecificsMatchesValueFilter{DDValue( "ReadOutName",
-                                                                    "EcalTBH4BeamHits",
-                                                                    0 )});
+DDFilter* EcalTBHodoscopeGeometryLoaderFromDDD::getDDFilter() {
+  return new DDAndFilter<DDSpecificsMatchesValueFilter, DDSpecificsMatchesValueFilter>(
+      DDSpecificsMatchesValueFilter{DDValue("SensitiveDetector", "EcalTBH4BeamDetector", 0)},
+      DDSpecificsMatchesValueFilter{DDValue("ReadOutName", "EcalTBH4BeamHits", 0)});
 }

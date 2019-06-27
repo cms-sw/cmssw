@@ -16,9 +16,9 @@
 #include "TGMenu.h"
 #include "KeySymbols.h"
 
-#include "FWCore/Utilities/interface/FunctionWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/FunctionWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "TClass.h"
 #include "TError.h"
 

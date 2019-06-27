@@ -26,6 +26,10 @@
 
 #include <iostream>
 
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibrationHF.h"
+
+
 /// \brief Particle Flow Algorithm
 /*!
   \author Colin Bernet
@@ -33,9 +37,6 @@
 */
 
 
-class PFEnergyCalibration;
-class PFSCEnergyCalibration;
-class PFEnergyCalibrationHF;
 class PFMuonAlgo;
 
 class ElementIndices {
@@ -56,16 +57,11 @@ class PFAlgo {
  public:
 
   /// constructor
-  PFAlgo(bool debug);
+  PFAlgo(double nSigmaECAL, double nSigmaHCAL, PFEnergyCalibration& calibration, PFEnergyCalibrationHF& thepfEnergyCalibrationHF, const edm::ParameterSet& pset, bool debug);
 
   void setHOTag(bool ho) { useHO_ = ho;}
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
 
-  void setParameters(double nSigmaECAL,
-                     double nSigmaHCAL, 
-                     const std::shared_ptr<PFEnergyCalibration>& calibration,
-		     const std::shared_ptr<PFEnergyCalibrationHF>& thepfEnergyCalibrationHF);
-  
   void setCandConnectorParameters( const edm::ParameterSet& iCfgCandConnector ){
     connector_.setParameters(iCfgCandConnector);
   }
@@ -79,11 +75,6 @@ class PFAlgo {
     connector_.setParameters(bCorrect, bCalibPrimary, dptRel_PrimaryTrack, dptRel_MergedTrack, ptErrorSecondary, nuclCalibFactors);
   }
 
-
-  void setPFMuonAndFakeParameters(const edm::ParameterSet& pset);
-
-  void setBadHcalTrackParams(const edm::ParameterSet& pset);
-   
   PFMuonAlgo*  getPFMuonAlgo();
   
   void setEGammaParameters(bool use_EGammaFilters, bool useProtectionsForJetMET);
@@ -130,11 +121,6 @@ class PFAlgo {
     return connector_.connect(*pfCandidates_);
   }
   
-  /// return the pointer to the calibration function
-  PFEnergyCalibration* thePFEnergyCalibration() { 
-    return calibration_.get();
-  }
-
   friend std::ostream& operator<<(std::ostream& out, const PFAlgo& algo);
   
  private:
@@ -208,14 +194,13 @@ void createCandidatesECAL(const reco::PFBlock &block, reco::PFBlock::LinkData& l
   void postCleaning();
 
   /// number of sigma to judge energy excess in ECAL
-  double             nSigmaECAL_;
+  const double nSigmaECAL_;
   
   /// number of sigma to judge energy excess in HCAL
-  double             nSigmaHCAL_;
+  const double nSigmaHCAL_;
   
-  std::shared_ptr<PFEnergyCalibration>  calibration_;
-  std::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
-  std::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
+  PFEnergyCalibration & calibration_;
+  PFEnergyCalibrationHF & thepfEnergyCalibrationHF_;
 
   bool               useHO_;
   const bool         debug_;
@@ -290,7 +275,7 @@ void createCandidatesECAL(const reco::PFBlock &block, reco::PFBlock::LinkData& l
 
   //MIKE -May19th: Add option for the vertices....
   reco::Vertex       primaryVertex_;
-  bool               useVertices_; 
+  bool               useVertices_ = false;
 
   edm::Handle<reco::MuonCollection> muonHandle_;
 

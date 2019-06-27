@@ -21,7 +21,7 @@ struct T : public B {
   float v;
   bool operator==(T t) const { return v == t.v; }
 
-  virtual T *clone() const { return new T(*this); }
+  T *clone() const final { return new T(*this); }
 };
 
 bool operator==(T const &t, B const &b) {
@@ -384,10 +384,14 @@ namespace {
     void fill(TSFF &ff) override {
       aborted = false;
       try {
-        int n = ff.id() - 20;
+        const int n = ff.id() - 20;
         CPPUNIT_ASSERT(n > 0);
         ff.resize(n);
-        std::copy(test.sv.begin(), test.sv.begin() + n, ff.begin());
+        int nCopied = n;
+        if (static_cast<size_t>(n) > test.sv.size()) {
+          nCopied = test.sv.size();
+        }
+        std::copy(test.sv.begin(), test.sv.begin() + nCopied, ff.begin());
         if (ff.full()) {
           ff.abort();
           aborted = true;
