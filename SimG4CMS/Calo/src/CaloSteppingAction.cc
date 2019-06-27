@@ -37,10 +37,10 @@ CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p) : count_(0) {
   nameHCSD_ = iC.getParameter<std::vector<std::string> >("HCSDNames");
   nameHitC_ = iC.getParameter<std::vector<std::string> >("HitCollNames");
   slopeLY_ = iC.getParameter<double>("SlopeLightYield");
-  birkC1EC_ = iC.getParameter<double>("BirkC1EC") * (g / (MeV * cm2));
+  birkC1EC_ = iC.getParameter<double>("BirkC1EC");
   birkSlopeEC_ = iC.getParameter<double>("BirkSlopeEC");
   birkCutEC_ = iC.getParameter<double>("BirkCutEC");
-  birkC1HC_ = iC.getParameter<double>("BirkC1HC") * (g / (MeV * cm2));
+  birkC1HC_ = iC.getParameter<double>("BirkC1HC");
   birkC2HC_ = iC.getParameter<double>("BirkC2HC");
   birkC3HC_ = iC.getParameter<double>("BirkC3HC");
 
@@ -127,7 +127,7 @@ void CaloSteppingAction::update(const BeginOfRun* run) {
           volEBSD_.emplace_back(itr->second);
           int type = (lvname.find("refl") == std::string::npos) ? -1 : 1;
           G4Trap* solid = static_cast<G4Trap*>(itr->second->GetSolid());
-          double dz = 2 * solid->GetZHalfLength();
+          double dz = 2 * solid->GetZHalfLength() / CLHEP::mm;
           xtalMap_.insert(std::pair<const G4LogicalVolume*, double>(itr->second, dz * type));
         }
       }
@@ -139,7 +139,7 @@ void CaloSteppingAction::update(const BeginOfRun* run) {
           volEESD_.emplace_back(itr->second);
           int type = (lvname.find("refl") == std::string::npos) ? 1 : -1;
           G4Trap* solid = static_cast<G4Trap*>(itr->second->GetSolid());
-          double dz = 2 * solid->GetZHalfLength();
+          double dz = 2 * solid->GetZHalfLength() / CLHEP::mm;
           xtalMap_.insert(std::pair<const G4LogicalVolume*, double>(itr->second, dz * type));
         }
       }
@@ -184,9 +184,9 @@ void CaloSteppingAction::update(const G4Step* aStep) {
   bool eb = (std::find(volEBSD_.begin(), volEBSD_.end(), lv) != volEBSD_.end());
   bool ee = (std::find(volEESD_.begin(), volEESD_.end(), lv) != volEESD_.end());
   if (hc || eb || ee) {
-    double dEStep = aStep->GetTotalEnergyDeposit();
+    double dEStep = aStep->GetTotalEnergyDeposit() / CLHEP::MeV;
     auto const theTrack = aStep->GetTrack();
-    double time = theTrack->GetGlobalTime() / nanosecond;
+    double time = theTrack->GetGlobalTime() / CLHEP::nanosecond;
     int primID = theTrack->GetTrackID();
     bool em = G4TrackToParticleID::isGammaElectronPositron(theTrack);
     auto const touch = aStep->GetPreStepPoint()->GetTouchable();
@@ -198,9 +198,9 @@ void CaloSteppingAction::update(const G4Step* aStep) {
       auto unitID = getDetIDHC(det, lay, depth, math::XYZVectorD(hitPoint.x(), hitPoint.y(), hitPoint.z()));
       if (unitID > 0 && dEStep > 0.0) {
         dEStep *= getBirkHC(dEStep,
-                            aStep->GetStepLength(),
+                            (aStep->GetStepLength() / CLHEP::cm),
                             aStep->GetPreStepPoint()->GetCharge(),
-                            aStep->GetPreStepPoint()->GetMaterial()->GetDensity());
+                            (aStep->GetPreStepPoint()->GetMaterial()->GetDensity() / (CLHEP::g / CLHEP::cm3)));
         fillHit(unitID, dEStep, time, primID, 0, em, 2);
       }
     } else {
@@ -220,14 +220,14 @@ void CaloSteppingAction::update(const G4Step* aStep) {
         auto local = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
         auto ite = xtalMap_.find(lv);
         double crystalLength = ((ite == xtalMap_.end()) ? 230.0 : std::abs(ite->second));
-        double crystalDepth = ((ite == xtalMap_.end()) ? 0.0 : (std::abs(0.5 * (ite->second) + local.z())));
-        double radl = aStep->GetPreStepPoint()->GetMaterial()->GetRadlen();
+        double crystalDepth = ((ite == xtalMap_.end()) ? 0.0 : (std::abs(0.5 * (ite->second) + (local.z() / CLHEP::mm))));
+        double radl = aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() / CLHEP::mm;
         bool flag = ((ite == xtalMap_.end()) ? true : (((ite->second) >= 0) ? true : false));
         auto depth = getDepth(flag, crystalDepth, radl);
         dEStep *= (getBirkL3(dEStep,
-                             aStep->GetStepLength(),
+                             (aStep->GetStepLength() / CLHEP::cm),
                              aStep->GetPreStepPoint()->GetCharge(),
-                             aStep->GetPreStepPoint()->GetMaterial()->GetDensity()) *
+                             (aStep->GetPreStepPoint()->GetMaterial()->GetDensity() / (CLHEP::g / CLHEP::cm3))) *
                    curve_LY(crystalLength, crystalDepth));
         fillHit(unitID, dEStep, time, primID, depth, em, (eb ? 0 : 1));
       }
@@ -356,8 +356,8 @@ void CaloSteppingAction::saveHits(int type) {
   slave_[type].get()->ReserveMemory(hitMap_[type].size());
   for (auto const& hit : hitMap_[type]) {
     slave_[type].get()->processHits(hit.second.getUnitID(),
-                                    hit.second.getEM() / GeV,
-                                    hit.second.getHadr() / GeV,
+                                    0.001 * hit.second.getEM(),
+                                    0.001 * hit.second.getHadr(),
                                     hit.second.getTimeSlice(),
                                     hit.second.getTrackID(),
                                     hit.second.getDepth());

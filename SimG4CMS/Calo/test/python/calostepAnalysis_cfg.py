@@ -35,7 +35,7 @@ process.TFileService = cms.Service("TFileService",
 process.analysis_step   = cms.Path(process.caloSimHitAnalysis)
 
 #process.caloSimHitAnalysis.moduleLabel = "geantv"
-#process.caloSimHitAnalysis.timeScale   = 0.0000000001
+#process.caloSimHitAnalysis.timeScale   = 1.0
 
 # Schedule definition                                                          
 process.schedule = cms.Schedule(process.analysis_step)
