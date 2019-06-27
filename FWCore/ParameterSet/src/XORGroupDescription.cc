@@ -78,11 +78,8 @@ namespace edm {
     }
   }
 
-  void XORGroupDescription::writeCfi_(std::ostream& os,
-                                      bool optional,
-                                      bool& startWithComma,
-                                      int indentation,
-                                      bool& wroteSomething) const {
+  void XORGroupDescription::writeCfi_(
+      std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const {
     node_left_->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
   }
 
