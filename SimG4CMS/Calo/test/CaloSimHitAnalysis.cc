@@ -273,8 +273,10 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
         ((itr->second).second) += edep;
       }
       h_edepT_[idx]->Fill(edep);
-      if (edepEM> 0) h_edepEM_[idx]->Fill(edepEM);
-      if (edepHad> 0) h_edepHad_[idx]->Fill(edepHad);
+      if (edepEM > 0)
+        h_edepEM_[idx]->Fill(edepEM);
+      if (edepHad > 0)
+        h_edepHad_[idx]->Fill(edepHad);
     } else {
       ++nBad;
     }
