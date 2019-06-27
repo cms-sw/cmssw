@@ -7,22 +7,17 @@
 #include "RecoEgamma/EgammaElectronProducers/plugins/GsfElectronCoreBaseProducer.h"
 
 class LowPtGsfElectronCoreProducer : public GsfElectronCoreBaseProducer {
+public:
+  explicit LowPtGsfElectronCoreProducer(const edm::ParameterSet& conf);
 
- public:
-  
-  explicit LowPtGsfElectronCoreProducer( const edm::ParameterSet& conf );
-  
   ~LowPtGsfElectronCoreProducer() override;
-  
-  void produce( edm::Event&, const edm::EventSetup& ) override;
-  
-  static void fillDescriptions( edm::ConfigurationDescriptions& );
 
- private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT< edm::ValueMap<reco::SuperClusterRef> > superClusterRefs_;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
+private:
+  edm::EDGetTokenT<edm::ValueMap<reco::SuperClusterRef> > superClusterRefs_;
 };
 
-#endif // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronCoreProducer_h
-
+#endif  // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronCoreProducer_h

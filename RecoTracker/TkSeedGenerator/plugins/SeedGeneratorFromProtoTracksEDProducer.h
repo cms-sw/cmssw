@@ -6,15 +6,17 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace edm { class Event; class EventSetup; }
-
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::stream::EDProducer<> {
 public:
   SeedGeneratorFromProtoTracksEDProducer(const edm::ParameterSet& cfg);
-  ~SeedGeneratorFromProtoTracksEDProducer() override{}
+  ~SeedGeneratorFromProtoTracksEDProducer() override {}
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   const edm::ParameterSet theConfig;
@@ -26,6 +28,5 @@ private:
   const bool usePV_;
   const edm::EDGetTokenT<reco::TrackCollection> theInputCollectionTag;
   const edm::EDGetTokenT<reco::VertexCollection> theInputVertexCollectionTag;
-
 };
 #endif
