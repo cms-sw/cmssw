@@ -178,7 +178,7 @@ hgchebackDigitizer = cms.PSet(
         scaleByArea   = cms.bool(True),
         noise         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")), #scales both for scint raddam and sipm dark current
         calibDigis    = cms.bool(True),
-        keV2MIP       = cms.double(1./500.0),
+        keV2MIP       = cms.double(1./675.0),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(21.0),
         nTotalPE  = cms.double(7500),
