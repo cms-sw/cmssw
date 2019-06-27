@@ -65,6 +65,7 @@
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="CondFormats/SiStripObjects"/>
+  <use   name="CalibFormats/SiStripObjects"/>
   <use   name="CalibTracker/StandaloneTrackerTopology"/>
   <use   name="CalibTracker/SiStripCommon"/>
 </library>
