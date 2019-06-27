@@ -24,20 +24,18 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 //
 // class declaration
 //
 
-
 class BeamSplash : public edm::EDFilter {
 public:
-  explicit BeamSplash( const edm::ParameterSet & );
+  explicit BeamSplash(const edm::ParameterSet &);
   ~BeamSplash() override;
-  
+
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
-  
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+
   edm::InputTag EBRecHitCollection_;
   edm::InputTag EERecHitCollection_;
   edm::InputTag HBHERecHitCollection_;
@@ -45,8 +43,6 @@ private:
   double EnergyCutEcal;
   double EnergyCutHcal;
   bool applyfilter;
-
-  
 };
 
 #endif

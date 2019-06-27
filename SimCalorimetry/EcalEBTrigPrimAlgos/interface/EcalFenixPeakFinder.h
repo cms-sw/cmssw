@@ -3,7 +3,7 @@
 
 #include <vector>
 
-  /** 
+/** 
    \ class EcalFenixPeakFinder
    \brief calculates the peak for Fenix strip, barrel
    *  input : 18 bits
@@ -14,8 +14,7 @@
    */
 
 class EcalFenixPeakFinder {
-
- private:
+private:
   bool disabled;
   int setInput(int input);
   int process();
@@ -23,14 +22,13 @@ class EcalFenixPeakFinder {
   int inputsAlreadyIn_;
   int buffer_[3];
 
- public:
-
+public:
   EcalFenixPeakFinder();
   virtual ~EcalFenixPeakFinder();
-  virtual std::vector<int> process(std::vector<int>& filtout, std::vector<int> & output);
+  virtual std::vector<int> process(std::vector<int>& filtout, std::vector<int>& output);
   // from CaloVShape
   //  virtual double operator()(double) const {return 0.;}
   //  virtual double derivative(double) const {return 0.;}
- };
+};
 
 #endif

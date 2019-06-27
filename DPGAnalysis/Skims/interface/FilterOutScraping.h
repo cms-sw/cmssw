@@ -30,15 +30,14 @@
 // class declaration
 //
 
-
 class FilterOutScraping : public edm::EDFilter {
 public:
-  explicit FilterOutScraping( const edm::ParameterSet & );
+  explicit FilterOutScraping(const edm::ParameterSet &);
   ~FilterOutScraping() override;
-  
+
 private:
-  bool filter ( edm::Event &, const edm::EventSetup&) override;
-  
+  bool filter(edm::Event &, const edm::EventSetup &) override;
+
   bool applyfilter;
   bool debugOn;
   double thresh;

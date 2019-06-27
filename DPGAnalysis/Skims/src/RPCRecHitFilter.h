@@ -1,7 +1,7 @@
 #ifndef RPCRecHitsFilter_h
 #define RPCRecHitsFilter_h
 
-// Orso Iorio, INFN Napoli 
+// Orso Iorio, INFN Napoli
 
 #include <string>
 #include <map>
@@ -33,8 +33,8 @@
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
 
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h" 
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h" 
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
@@ -54,28 +54,23 @@ class Propagator;
 class GeomDet;
 class TrajectoryStateOnSurface;
 
-typedef std::vector<TrajectoryMeasurement>                  MeasurementContainer;
-typedef std::pair<const GeomDet*, TrajectoryStateOnSurface> DetWithState;
-typedef std::vector<Trajectory>                             Trajectories;
-
+typedef std::vector<TrajectoryMeasurement> MeasurementContainer;
+typedef std::pair<const GeomDet *, TrajectoryStateOnSurface> DetWithState;
+typedef std::vector<Trajectory> Trajectories;
 
 class RPCRecHitFilter : public edm::EDFilter {
-
 public:
-
-  explicit RPCRecHitFilter(const edm::ParameterSet&);
-  ~RPCRecHitFilter() override { }
+  explicit RPCRecHitFilter(const edm::ParameterSet &);
+  ~RPCRecHitFilter() override {}
 
 private:
-
-  bool filter(edm::Event &, const edm::EventSetup&) override;
+  bool filter(edm::Event &, const edm::EventSetup &) override;
 
   std::string RPCDataLabel;
-  
-  int centralBX_, BXWindow_, minHits_, hitsInStations_;
-  
-  bool Verbose_, Debug_, Barrel_, EndcapPositive_, EndcapNegative_, cosmicsVeto_;
 
+  int centralBX_, BXWindow_, minHits_, hitsInStations_;
+
+  bool Verbose_, Debug_, Barrel_, EndcapPositive_, EndcapNegative_, cosmicsVeto_;
 };
 
-#endif // RPCRecHitsFilter_h
+#endif  // RPCRecHitsFilter_h
