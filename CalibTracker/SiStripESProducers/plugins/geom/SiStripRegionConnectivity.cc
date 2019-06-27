@@ -13,16 +13,14 @@
 
 using namespace sistrip;
 
-class SiStripRegionConnectivity: public edm::ESProducer {
-
- public:
-
-  SiStripRegionConnectivity( const edm::ParameterSet& );
+class SiStripRegionConnectivity : public edm::ESProducer {
+public:
+  SiStripRegionConnectivity(const edm::ParameterSet&);
   ~SiStripRegionConnectivity() override;
-  
-  std::unique_ptr<SiStripRegionCabling> produceRegionCabling( const SiStripRegionCablingRcd&  );
-  
- private:
+
+  std::unique_ptr<SiStripRegionCabling> produceRegionCabling(const SiStripRegionCablingRcd&);
+
+private:
   edm::ESGetToken<SiStripDetCabling, SiStripDetCablingRcd> detcablingToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkgeomToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
@@ -35,72 +33,81 @@ class SiStripRegionConnectivity: public edm::ESProducer {
   double etamax_;
 };
 
-SiStripRegionConnectivity::SiStripRegionConnectivity(const edm::ParameterSet& pset) :
+SiStripRegionConnectivity::SiStripRegionConnectivity(const edm::ParameterSet& pset)
+    :
 
-  etadivisions_(pset.getUntrackedParameter<unsigned int>("EtaDivisions",10)),
-  phidivisions_(pset.getUntrackedParameter<unsigned int>("PhiDivisions",10)),
-  etamax_(pset.getUntrackedParameter<double>("EtaMax",2.4))
+      etadivisions_(pset.getUntrackedParameter<unsigned int>("EtaDivisions", 10)),
+      phidivisions_(pset.getUntrackedParameter<unsigned int>("PhiDivisions", 10)),
+      etamax_(pset.getUntrackedParameter<double>("EtaMax", 2.4))
 
 {
   setWhatProduced(this, &SiStripRegionConnectivity::produceRegionCabling)
-    .setConsumes(detcablingToken_)
-    .setConsumes(tkgeomToken_)
-    .setConsumes(tTopoToken_);
+      .setConsumes(detcablingToken_)
+      .setConsumes(tkgeomToken_)
+      .setConsumes(tTopoToken_);
 }
 
 SiStripRegionConnectivity::~SiStripRegionConnectivity() {}
 
-std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling( const SiStripRegionCablingRcd& iRecord ) {
-
+std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabling(
+    const SiStripRegionCablingRcd& iRecord) {
   const auto& detcabling = iRecord.get(detcablingToken_);
   const auto& tkgeom = iRecord.get(tkgeomToken_);
   const auto& tTopo = iRecord.get(tTopoToken_);
 
   //here build an object of type SiStripRegionCabling using the information from class SiStripDetCabling **PLUS** the geometry.
-  
+
   //Construct region cabling object
-  auto RegionConnections = std::make_unique<SiStripRegionCabling>(etadivisions_,phidivisions_,etamax_);
+  auto RegionConnections = std::make_unique<SiStripRegionCabling>(etadivisions_, phidivisions_, etamax_);
 
   //Construct region cabling map
-  SiStripRegionCabling::Cabling regioncabling(etadivisions_*phidivisions_,SiStripRegionCabling::RegionCabling(SiStripRegionCabling::ALLSUBDETS,SiStripRegionCabling::WedgeCabling(SiStripRegionCabling::ALLLAYERS,SiStripRegionCabling::ElementCabling())));
-  
+  SiStripRegionCabling::Cabling regioncabling(
+      etadivisions_ * phidivisions_,
+      SiStripRegionCabling::RegionCabling(
+          SiStripRegionCabling::ALLSUBDETS,
+          SiStripRegionCabling::WedgeCabling(SiStripRegionCabling::ALLLAYERS, SiStripRegionCabling::ElementCabling())));
+
   //Loop det cabling
-  for (const auto& idet: detcabling.getDetCabling()) {
-    if (!idet.first || (idet.first == sistrip::invalid32_)) continue;
+  for (const auto& idet : detcabling.getDetCabling()) {
+    if (!idet.first || (idet.first == sistrip::invalid32_))
+      continue;
 
     // Check if geom det unit exists
     auto geom_det = tkgeom.idToDetUnit(DetId(idet.first));
-    auto strip_det = dynamic_cast<StripGeomDetUnit const *>( geom_det );
-    if ( !strip_det ) { continue; }
-    
+    auto strip_det = dynamic_cast<StripGeomDetUnit const*>(geom_det);
+    if (!strip_det) {
+      continue;
+    }
+
     //Calculate region from geometry
     double eta = tkgeom.idToDet(DetId(idet.first))->position().eta();
     double phi = tkgeom.idToDet(DetId(idet.first))->position().phi().value();
-    uint32_t reg = RegionConnections->region(SiStripRegionCabling::Position(eta,phi));
-  
-    //Find subdet from det-id 
+    uint32_t reg = RegionConnections->region(SiStripRegionCabling::Position(eta, phi));
+
+    //Find subdet from det-id
     uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdetFromDetId(idet.first));
-    
+
     //Find layer from det-id
     uint32_t layer = tTopo.layer(idet.first);
 
     //@@ BELOW IS TEMP FIX TO HANDLE BUG IN DET CABLING
-    const std::vector<const FedChannelConnection *>& conns = idet.second;
+    const std::vector<const FedChannelConnection*>& conns = idet.second;
 
     //Update region cabling map
     regioncabling[reg][subdet][layer].push_back(SiStripRegionCabling::Element());
-    auto &  elem = regioncabling[reg][subdet][layer].back();
-    elem.first=idet.first; elem.second.resize(conns.size());
-    for (const auto& iconn: conns) {
-      if ( (iconn != nullptr) && (iconn->apvPairNumber() < conns.size()) ) { 
-	elem.second[iconn->apvPairNumber()] = *iconn;
+    auto& elem = regioncabling[reg][subdet][layer].back();
+    elem.first = idet.first;
+    elem.second.resize(conns.size());
+    for (const auto& iconn : conns) {
+      if ((iconn != nullptr) && (iconn->apvPairNumber() < conns.size())) {
+        elem.second[iconn->apvPairNumber()] = *iconn;
       }
     }
   }
 
   //Add map to region cabling object
   RegionConnections->setRegionCabling(regioncabling);
-  
+
   return RegionConnections;
 }
 

@@ -16,29 +16,22 @@ class SiStripPedestalsRcd;
     @author R.Bainbridge
 */
 class SiStripPedestalsESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  SiStripPedestalsESSource(const edm::ParameterSet&);
+  ~SiStripPedestalsESSource() override { ; }
 
- public:
+  virtual std::unique_ptr<SiStripPedestals> produce(const SiStripPedestalsRcd&);
 
-  SiStripPedestalsESSource( const edm::ParameterSet& );
-  ~SiStripPedestalsESSource() override {;}
-  
-  virtual std::unique_ptr<SiStripPedestals> produce( const SiStripPedestalsRcd& );
-  
- protected:
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue&,
+                      edm::ValidityInterval&) override;
 
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
-  
- private:
-  
-  SiStripPedestalsESSource( const SiStripPedestalsESSource& ) = delete;
-  const SiStripPedestalsESSource& operator=( const SiStripPedestalsESSource& ) = delete;
+private:
+  SiStripPedestalsESSource(const SiStripPedestalsESSource&) = delete;
+  const SiStripPedestalsESSource& operator=(const SiStripPedestalsESSource&) = delete;
 
-  virtual SiStripPedestals* makePedestals() = 0; 
-
+  virtual SiStripPedestals* makePedestals() = 0;
 };
 
-#endif // CalibTracker_SiStripESProducers_SiStripPedestalsESSource_H
-
-
+#endif  // CalibTracker_SiStripESProducers_SiStripPedestalsESSource_H

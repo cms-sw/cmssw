@@ -16,45 +16,40 @@
 // class declaration
 //
 
-template< typename TObject , typename TRecord>
-class SiStripTemplateEmptyFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
- public:
+template <typename TObject, typename TRecord>
+class SiStripTemplateEmptyFakeESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
   SiStripTemplateEmptyFakeESSource(const edm::ParameterSet&);
   ~SiStripTemplateEmptyFakeESSource() override{};
-  
-  
+
   std::unique_ptr<TObject> produce(const TRecord&);
-  
+
 private:
-  
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-		       const edm::IOVSyncValue& iov,
-		       edm::ValidityInterval& iValidity) override;
-  
-  SiStripTemplateEmptyFakeESSource( const SiStripTemplateEmptyFakeESSource& ) = delete;
-  const SiStripTemplateEmptyFakeESSource& operator=( const SiStripTemplateEmptyFakeESSource& ) = delete;
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                      const edm::IOVSyncValue& iov,
+                      edm::ValidityInterval& iValidity) override;
+
+  SiStripTemplateEmptyFakeESSource(const SiStripTemplateEmptyFakeESSource&) = delete;
+  const SiStripTemplateEmptyFakeESSource& operator=(const SiStripTemplateEmptyFakeESSource&) = delete;
 };
 
-template< typename TObject , typename TRecord>
-SiStripTemplateEmptyFakeESSource<TObject,TRecord>::SiStripTemplateEmptyFakeESSource(const edm::ParameterSet& iConfig)
-{
+template <typename TObject, typename TRecord>
+SiStripTemplateEmptyFakeESSource<TObject, TRecord>::SiStripTemplateEmptyFakeESSource(const edm::ParameterSet& iConfig) {
   setWhatProduced(this);
   findingRecord<TRecord>();
 }
 
-template< typename TObject , typename TRecord>
-std::unique_ptr<TObject> SiStripTemplateEmptyFakeESSource<TObject,TRecord>::produce(const TRecord& iRecord)
-{
+template <typename TObject, typename TRecord>
+std::unique_ptr<TObject> SiStripTemplateEmptyFakeESSource<TObject, TRecord>::produce(const TRecord& iRecord) {
   return std::make_unique<TObject>();
 }
 
-template< typename TObject , typename TRecord>
-void SiStripTemplateEmptyFakeESSource<TObject,TRecord>::setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-							 const edm::IOVSyncValue& iov,
-							 edm::ValidityInterval& iValidity){
-  edm::ValidityInterval infinity( iov.beginOfTime(), iov.endOfTime() );
+template <typename TObject, typename TRecord>
+void SiStripTemplateEmptyFakeESSource<TObject, TRecord>::setIntervalFor(const edm::eventsetup::EventSetupRecordKey&,
+                                                                        const edm::IOVSyncValue& iov,
+                                                                        edm::ValidityInterval& iValidity) {
+  edm::ValidityInterval infinity(iov.beginOfTime(), iov.endOfTime());
   iValidity = infinity;
 }
-
 
 #endif
