@@ -17,7 +17,7 @@ public:
 private:
   std::vector<std::string> logicalNamesFromClassName(const std::string &className) const;
   std::vector<std::string> classNames() const;
-  
+
   MapType theClassNameMap;
   MapType theROUNameMap;
 };
