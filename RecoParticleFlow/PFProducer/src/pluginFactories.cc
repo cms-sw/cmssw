@@ -5,4 +5,4 @@ EDM_REGISTER_PLUGINFACTORY(BlockElementImporterFactory, "BlockElementImporterFac
 EDM_REGISTER_PLUGINFACTORY(BlockElementLinkerFactory, "BlockElementLinkerFactory");
 
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
-EDM_REGISTER_PLUGINFACTORY(KDTreeLinkerFactory,"KDTreeLinkerFactory");
+EDM_REGISTER_PLUGINFACTORY(KDTreeLinkerFactory, "KDTreeLinkerFactory");

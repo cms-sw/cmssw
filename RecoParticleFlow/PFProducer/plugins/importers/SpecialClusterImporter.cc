@@ -11,76 +11,62 @@
 // NOTE! This should come *after* and importers that bring in super clusters
 // of their own (like electron seeds or photons)
 // otherwise ECAL <-> ECAL linking will not work correctly
-template<reco::PFBlockElement::Type T> 
+template <reco::PFBlockElement::Type T>
 class SpecialClusterImporter : public BlockElementImporterBase {
 public:
-  SpecialClusterImporter(const edm::ParameterSet& conf,
-			 edm::ConsumesCollector& sumes) :
-    BlockElementImporterBase(conf,sumes),
-    _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))),
-    _assoc(sumes.consumes<edm::ValueMap<reco::CaloClusterPtr> >(conf.getParameter<edm::InputTag>("BCtoPFCMap"))) {}
-  
-  void importToBlock( const edm::Event& ,
-		      ElementList& ) const override;
+  SpecialClusterImporter(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+      : BlockElementImporterBase(conf, sumes),
+        _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))),
+        _assoc(sumes.consumes<edm::ValueMap<reco::CaloClusterPtr> >(conf.getParameter<edm::InputTag>("BCtoPFCMap"))) {}
+
+  void importToBlock(const edm::Event&, ElementList&) const override;
 
 private:
   edm::EDGetTokenT<reco::PFClusterCollection> _src;
   edm::EDGetTokenT<edm::ValueMap<reco::CaloClusterPtr> > _assoc;
 };
 
-
-template<reco::PFBlockElement::Type T> 
-void SpecialClusterImporter<T>::
-importToBlock( const edm::Event& e, 
-	       BlockElementImporterBase::ElementList& elems ) const {
+template <reco::PFBlockElement::Type T>
+void SpecialClusterImporter<T>::importToBlock(const edm::Event& e, BlockElementImporterBase::ElementList& elems) const {
   BlockElementImporterBase::ElementList ecals;
   auto clusters = e.getHandle(_src);
   auto assoc = e.getHandle(_assoc);
   auto bclus = clusters->cbegin();
   auto eclus = clusters->cend();
   // get all the SCs in the element list
-  auto sc_end = std::partition(elems.begin(),elems.end(),
-			       [](const ElementList::value_type& o){
-				 return o->type() == reco::PFBlockElement::SC;
-			       });   
+  auto sc_end = std::partition(elems.begin(), elems.end(), [](const ElementList::value_type& o) {
+    return o->type() == reco::PFBlockElement::SC;
+  });
   ecals.reserve(clusters->size());
-  for( auto clus = bclus; clus != eclus; ++clus  ) {    
-    reco::PFClusterRef tempref(clusters, std::distance(bclus,clus));
-    reco::PFBlockElementCluster* newelem = 
-      new reco::PFBlockElementCluster(tempref,T);
-    for( auto scelem = elems.begin(); scelem != sc_end; ++scelem ) {
+  for (auto clus = bclus; clus != eclus; ++clus) {
+    reco::PFClusterRef tempref(clusters, std::distance(bclus, clus));
+    reco::PFBlockElementCluster* newelem = new reco::PFBlockElementCluster(tempref, T);
+    for (auto scelem = elems.begin(); scelem != sc_end; ++scelem) {
       const reco::PFBlockElementSuperCluster* elem_as_sc =
-	static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
+          static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
       const reco::SuperClusterRef& this_sc = elem_as_sc->superClusterRef();
 
-      const bool in_sc = ( elem_as_sc->fromPFSuperCluster() ?
-			   // use association map if from PFSC
-			   ClusterClusterMapping::overlap(tempref,
-							  *this_sc,
-							  *assoc) :
-			   // match by overlapping rechit otherwise
-			   ClusterClusterMapping::overlap(*tempref,
-							  *this_sc) );
-      if( in_sc ) {	
-	newelem->setSuperClusterRef(this_sc);
-	break;
+      const bool in_sc = (elem_as_sc->fromPFSuperCluster() ?
+                                                           // use association map if from PFSC
+                              ClusterClusterMapping::overlap(tempref, *this_sc, *assoc)
+                                                           :
+                                                           // match by overlapping rechit otherwise
+                              ClusterClusterMapping::overlap(*tempref, *this_sc));
+      if (in_sc) {
+        newelem->setSuperClusterRef(this_sc);
+        break;
       }
     }
     ecals.emplace_back(newelem);
   }
-  elems.reserve(elems.size()+ecals.size());
-  for( auto& ecal : ecals ) {
+  elems.reserve(elems.size() + ecals.size());
+  for (auto& ecal : ecals) {
     elems.emplace_back(ecal.release());
   }
 }
 
-
 typedef SpecialClusterImporter<reco::PFBlockElement::ECAL> ECALClusterImporter;
-DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
-		  ECALClusterImporter, 
-		  "ECALClusterImporter");
+DEFINE_EDM_PLUGIN(BlockElementImporterFactory, ECALClusterImporter, "ECALClusterImporter");
 
 typedef SpecialClusterImporter<reco::PFBlockElement::HGCAL> HGCalClusterImporter;
-DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
-		  HGCalClusterImporter, 
-		  "HGCalClusterImporter");
+DEFINE_EDM_PLUGIN(BlockElementImporterFactory, HGCalClusterImporter, "HGCalClusterImporter");
