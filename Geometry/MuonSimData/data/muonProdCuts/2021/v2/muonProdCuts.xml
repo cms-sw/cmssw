@@ -6,7 +6,7 @@
    <Parameter name="CMSCutsRegion" value="Muon" eval="false"/>
    <Parameter name="ProdCutsForGamma" value="100.*mm"/>
    <Parameter name="ProdCutsForElectrons" value="10.*mm"/>
-<Parameter name="ProdCutsForProtons" value="10.*mm"/>
+   <Parameter name="ProdCutsForProtons" value="10.*mm"/>
    <Parameter name="ProdCutsForPositrons" value="10.*mm"/>
   </SpecPar>
   <SpecPar name="MuonIron">
@@ -28,7 +28,7 @@
    <Parameter name="CMSCutsRegion" value="MuonIron" eval="false"/>
    <Parameter name="ProdCutsForGamma" value="1.*mm"/>
    <Parameter name="ProdCutsForElectrons" value="1.*mm"/>
-<Parameter name="ProdCutsForProtons" value="1.*mm"/>
+   <Parameter name="ProdCutsForProtons" value="1.*mm"/>
    <Parameter name="ProdCutsForPositrons" value="1.*mm"/>
   </SpecPar>
   <SpecPar name="MuonChamber">
@@ -40,7 +40,7 @@
    <Parameter name="CMSCutsRegion" value="MuonChamber" eval="false"/>
    <Parameter name="ProdCutsForGamma" value="1.*mm"/>
    <Parameter name="ProdCutsForElectrons" value="0.002*mm"/>
-<Parameter name="ProdCutsForProtons" value="0.002*mm"/>
+   <Parameter name="ProdCutsForProtons" value="0.002*mm"/>
    <Parameter name="ProdCutsForPositrons" value="0.002*mm"/>
   </SpecPar>
   <SpecPar name="MuonSensitive_DT-CSC">
@@ -51,7 +51,7 @@
    <Parameter name="CMSCutsRegion" value="MuonSensitive_DT-CSC" eval="false"/>
    <Parameter name="ProdCutsForGamma" value="25.*mm"/>
    <Parameter name="ProdCutsForElectrons" value="1.*mm"/>
-<Parameter name="ProdCutsForProtons" value="1.*mm"/>
+   <Parameter name="ProdCutsForProtons" value="1.*mm"/>
    <Parameter name="ProdCutsForPositrons" value="2.5*m"/>
   </SpecPar>
   <SpecPar name="MuonSensitive_RPC">
@@ -68,7 +68,7 @@
    <Parameter name="CMSCutsRegion" value="MuonSensitive_RPC" eval="false"/>
    <Parameter name="ProdCutsForGamma" value="8.5*m"/>
    <Parameter name="ProdCutsForElectrons" value="8.*mm"/>
-<Parameter name="ProdCutsForProtons" value="8.*mm"/>
+   <Parameter name="ProdCutsForProtons" value="8.*mm"/>
    <Parameter name="ProdCutsForPositrons" value="2.5*m"/>
   </SpecPar>
  </SpecParSection>
