@@ -17,7 +17,7 @@
 
 #include "TVector3.h"
 
-#include "L1Trigger/RPCTriggerPrimitives/interface/PrimitivePreprocess.h"
+#include "L1Trigger/RPCTriggerPrimitives/plugins/PrimitivePreprocess.h"
 
 // Class declaration
 
