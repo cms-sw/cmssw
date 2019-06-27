@@ -49,8 +49,7 @@ BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder() {}
 
 std::unique_ptr<TrajectoryFilter> BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset,
                                                                                    edm::ConsumesCollector& iC) {
-  return std::unique_ptr<TrajectoryFilter>{
-      TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC)};
+  return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
 }
 
 void BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed, TempTrajectory& result) const {
