@@ -16,6 +16,11 @@
 // templated class.  Up front we'd register a class name to a transformation function (which would probably take a std::vector<std::string> which holds
 // the results of the node transformations)
 
+namespace {
+  constexpr bool debug = false;
+  std::string prefix; // used only if debug == true
+}
+
 namespace edm {
   namespace friendlyname {
     static std::regex const reBeginSpace("^ +");
@@ -24,9 +29,10 @@ namespace edm {
     static std::regex const reColons("::");
     static std::regex const reComma(",");
     static std::regex const reTemplateArgs("[^<]*<(.*)>$");
-    static std::regex const reTemplateClass("([^<>,]+<[^<>]*>)");
     static std::regex const rePointer("\\*");
     static std::regex const reArray("\\[\\]");
+    static std::regex const reUniquePtrDeleter("^std::unique_ptr< *(.*), *std::default_delete<\\1> *>");
+    static std::regex const reUniquePtr("^std::unique_ptr");
     static std::string const emptyString("");
 
     std::string handleNamespaces(std::string const& iIn) {
@@ -56,7 +62,6 @@ namespace edm {
     static std::regex const reLong("long ");
     static std::regex const reVector("std::vector");
     static std::regex const reSharedPtr("std::shared_ptr");
-    static std::regex const reUniquePtr("std::unique_ptr");
     static std::regex const reAIKR(", *edm::helper::AssociationIdenticalKeyReference"); //this is a default so can replaced with empty
     //force first argument to also be the argument to edm::ClonePolicy so that if OwnVector is within
     // a template it will not eat all the remaining '>'s
@@ -96,7 +101,6 @@ namespace edm {
        name = regex_replace(name,reLong,"l");
        name = regex_replace(name,reVector,"s");
        name = regex_replace(name,reSharedPtr,"SharedPtr");
-       name = regex_replace(name,reUniquePtr,"UniquePtr");
        name = regex_replace(name,reOwnVector,"sOwned<$1>");
        name = regex_replace(name,reToVector,"AssociationVector<$1,To,$2>");
        name = regex_replace(name,reOneToOne,"Association<$1,ToOne,$2>");
@@ -116,13 +120,36 @@ namespace edm {
        using namespace std;
        std::string result = removeExtraSpaces(iFullName);
 
-       smatch theMatch;
-       if(regex_match(result,theMatch,reTemplateArgs)) {
+       // temporarily remove leading const
+       std::string leadingConst;
+       if(std::string_view{result}.substr(0, 5) == "const") {
+         leadingConst = "const";
+         result = removeExtraSpaces(result.substr(5));
+       }
+
+       if constexpr (debug) { std::cout << prefix << "subFriendlyName iFullName " << iFullName << " result " << result << std::endl; }
+       // Handle unique_ptr, which may contain the deleter (but handle only std::default_delete)
+       {
+         auto result2 = regex_replace(result,reUniquePtrDeleter,"UniquePtr<$1>", std::regex_constants::format_first_only);
+         if (result2 == result) {
+           result2 = regex_replace(result,reUniquePtr,"UniquePtr", std::regex_constants::format_first_only);
+         }
+         result = std::move(result2);
+       }
+       // insert the leading const back if it was there
+       result = leadingConst+result;
+       if(smatch theMatch; regex_match(result,theMatch,reTemplateArgs)) {
           //std::cout <<"found match \""<<theMatch.str(1) <<"\"" <<std::endl;
           //static regex const templateClosing(">$");
           //std::string aMatch = regex_replace(theMatch.str(1),templateClosing,"");
           std::string aMatch = theMatch.str(1);
+          if constexpr (debug) { prefix += "  "; }
           std::string theSub = handleTemplateArguments(aMatch);
+          if constexpr (debug) {
+            prefix.pop_back();
+            prefix.pop_back();
+            std::cout << prefix << " aMatch "<< aMatch <<" theSub " << theSub << std::endl;
+          }
           regex const eMatch(std::string("(^[^<]*)<")+aMatch+">");
           result = regex_replace(result,eMatch,theSub+"$1");
        }
@@ -132,36 +159,65 @@ namespace edm {
     std::string handleTemplateArguments(std::string const& iIn) {
        using namespace std;
        std::string result = removeExtraSpaces(iIn);
-       bool shouldStop = false;
-       while(!shouldStop) {
-          if(std::string::npos != result.find_first_of("<")) {
-             smatch theMatch;
-             if(regex_search(result,theMatch,reTemplateClass)) {
-                std::string templateClass = theMatch.str(1);
-                std::string friendlierName = subFriendlyName(templateClass);
-               
-                //std::cout <<" t: "<<templateClass <<" f:"<<friendlierName<<std::endl;
-                result = regex_replace(result, regex(templateClass),friendlierName);
-             } else {
-                //static regex const eComma(",");
-                //result = regex_replace(result,eComma,"");
-                std::cout <<" no template match for \""<<result<<"\""<<std::endl;
-                assert(nullptr =="failed to find a match for template class");
+       if constexpr (debug) { std::cout << prefix << "handleTemplateArguments " << iIn << " removeExtraSpaces " << result << std::endl; }
+
+       // Trick to have every full class name to end with comma to
+       // avoid treating the end as a special case
+       result += ",";
+
+       std::string result2;
+       result2.reserve(iIn.size());
+       unsigned int openTemplate = 0;
+       bool hadTemplate = false;
+       size_t begin = 0;
+       for(size_t i=0, size=result.size(); i<size; ++i) {
+         if(result[i] == '<') {
+           ++openTemplate;
+           hadTemplate = true;
+           continue;
+         }
+         else if(result[i] == '>') {
+           --openTemplate;
+         }
+         if((result[i] == ',') and openTemplate == 0) {
+           std::string templateClass = result.substr(begin, i-begin);
+           if constexpr (debug) { std::cout << prefix << " templateClass " << templateClass << std::endl; }
+           if(hadTemplate) {
+             if constexpr (debug) { prefix += "  "; }
+             std::string friendlierName = subFriendlyName(templateClass);
+             if constexpr (debug) {
+               prefix.pop_back();
+               prefix.pop_back();
+               std::cout << prefix << " friendlierName " << friendlierName << std::endl;
              }
-          } else {
-             shouldStop=true;
-          }
+             result2 += friendlierName;
+           }
+           else {
+             result2 += templateClass;
+           }
+           if constexpr(debug) { std::cout << prefix << " result2 " << result2 << std::endl; }
+           // reset counters
+           hadTemplate = false;
+           begin = i+1;
+         }
        }
-       result = regex_replace(result,reComma,"");
+
+       result = regex_replace(result2,reComma,"");
+       if constexpr(debug) { std::cout << prefix << " reComma " << result << std::endl; }
        return result;
     }
     std::string friendlyName(std::string const& iFullName) {
+      if constexpr (debug) {
+        std::cout << "\nfriendlyName for " << iFullName << std::endl;
+        prefix = " ";
+        }
        typedef tbb::concurrent_unordered_map<std::string, std::string> Map;
        static Map s_fillToFriendlyName;
        auto itFound = s_fillToFriendlyName.find(iFullName);
        if(s_fillToFriendlyName.end()==itFound) {
           itFound = s_fillToFriendlyName.insert(Map::value_type(iFullName, handleNamespaces(subFriendlyName(standardRenames(iFullName))))).first;
        }
+       if constexpr (debug) { std::cout << "result " << itFound->second << std::endl; }
        return itFound->second;
     }
   }
