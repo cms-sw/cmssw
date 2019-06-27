@@ -220,7 +220,8 @@ void CaloSteppingAction::update(const G4Step* aStep) {
         auto local = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
         auto ite = xtalMap_.find(lv);
         double crystalLength = ((ite == xtalMap_.end()) ? 230.0 : std::abs(ite->second));
-        double crystalDepth = ((ite == xtalMap_.end()) ? 0.0 : (std::abs(0.5 * (ite->second) + (local.z() / CLHEP::mm))));
+        double crystalDepth =
+            ((ite == xtalMap_.end()) ? 0.0 : (std::abs(0.5 * (ite->second) + (local.z() / CLHEP::mm))));
         double radl = aStep->GetPreStepPoint()->GetMaterial()->GetRadlen() / CLHEP::mm;
         bool flag = ((ite == xtalMap_.end()) ? true : (((ite->second) >= 0) ? true : false));
         auto depth = getDepth(flag, crystalDepth, radl);
