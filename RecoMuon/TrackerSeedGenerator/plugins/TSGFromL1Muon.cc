@@ -48,8 +48,7 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg) {
 
   edm::ParameterSet hitsfactoryPSet = cfg.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  theHitGenerator = std::unique_ptr<OrderedHitsGenerator>{
-      OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC)};
+  theHitGenerator = OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC);
 
   theSourceToken = iC.consumes<L1MuonParticleCollection>(theSourceTag);
 

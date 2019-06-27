@@ -22,8 +22,7 @@ PFRecHitProducer::PFRecHitProducer(const edm::ParameterSet& iConfig) {
 
   edm::ParameterSet navSet = iConfig.getParameter<edm::ParameterSet>("navigator");
 
-  navigator_ = std::unique_ptr<PFRecHitNavigatorBase>{
-      PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet)};
+  navigator_ = PFRecHitNavigationFactory::get()->create(navSet.getParameter<std::string>("name"), navSet);
 }
 
 PFRecHitProducer::~PFRecHitProducer() = default;

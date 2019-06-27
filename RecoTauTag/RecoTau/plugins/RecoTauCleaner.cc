@@ -86,8 +86,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
     // Get plugin name
     const std::string& pluginType = cleanerPSet->getParameter<std::string>("plugin");
     // Build the plugin
-    cleanerEntry->plugin_ = std::unique_ptr<Cleaner>{
-        RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector())};
+    cleanerEntry->plugin_ = RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector());
     cleanerEntry->tolerance_ = cleanerPSet->getParameter<double>("tolerance");
     cleaners_.emplace_back(std::move(cleanerEntry));
   }

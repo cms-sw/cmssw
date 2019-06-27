@@ -47,7 +47,7 @@ private:
 
 testEcalClusterFunctions::testEcalClusterFunctions(const edm::ParameterSet& ps) {
   std::string functionName = ps.getParameter<std::string>("functionName");
-  ff_ = std::unique_ptr<EcalClusterFunctionBaseClass>{EcalClusterFunctionFactory::get()->create(functionName, ps)};
+  ff_ = EcalClusterFunctionFactory::get()->create(functionName, ps);
   std::cout << "got " << functionName << " function at: " << ff_.get() << "\n";
 }
 

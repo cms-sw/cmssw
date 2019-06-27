@@ -52,8 +52,7 @@ using namespace std;
 namespace {
   std::unique_ptr<BaseCkfTrajectoryBuilder> createBaseCkfTrajectoryBuilder(const edm::ParameterSet& pset,
                                                                            edm::ConsumesCollector& iC) {
-    return std::unique_ptr<BaseCkfTrajectoryBuilder>{
-        BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC)};
+    return BaseCkfTrajectoryBuilderFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
   }
 }  // namespace
 

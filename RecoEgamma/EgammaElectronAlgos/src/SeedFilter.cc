@@ -65,10 +65,9 @@ SeedFilter::SeedFilter(const edm::ParameterSet& conf, const SeedFilter::Tokens& 
   std::string seedCreatorType = seedCreatorPSet.getParameter<std::string>("ComponentName");
 
   combinatorialSeedGenerator = std::make_unique<SeedGeneratorFromRegionHits>(
-      std::unique_ptr<OrderedHitsGenerator>{
-          OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC)},
+      OrderedHitsGeneratorFactory::get()->create(hitsfactoryName, hitsfactoryPSet, iC),
       nullptr,
-      std::unique_ptr<SeedCreator>{SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet)});
+      SeedCreatorFactory::get()->create(seedCreatorType, seedCreatorPSet));
   beamSpotTag_ = tokens.token_bs;
   ;
   if (hitsfactoryMode_ != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {

@@ -71,8 +71,7 @@ MuIsoDepositProducer::MuIsoDepositProducer(const ParameterSet& par)
 
   edm::ParameterSet extractorPSet = par.getParameter<edm::ParameterSet>("ExtractorPSet");
   std::string extractorName = extractorPSet.getParameter<std::string>("ComponentName");
-  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>{
-      IsoDepositExtractorFactory::get()->create(extractorName, extractorPSet, consumesCollector())};
+  theExtractor = IsoDepositExtractorFactory::get()->create(extractorName, extractorPSet, consumesCollector());
   LogDebug(metname) << " Load extractor..." << extractorName;
 }
 
