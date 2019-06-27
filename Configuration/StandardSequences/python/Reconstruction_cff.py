@@ -299,4 +299,4 @@ reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*l
 # define a standard candle. please note I am picking up individual
 # modules instead of sequences
 #
-reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
+reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*gsfElectronSequence*photonSequence)
