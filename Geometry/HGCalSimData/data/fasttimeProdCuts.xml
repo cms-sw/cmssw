@@ -7,6 +7,7 @@
     <PartSelector path="//SF"/>
     <Parameter name="CMSCutsRegion" value="FastTimerRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+<Parameter name="ProdCutsForProtons" value="0.1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
     <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
   </SpecPar>
