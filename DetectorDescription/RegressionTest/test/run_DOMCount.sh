@@ -12,7 +12,6 @@ echo "Normal output of DOMCount is written to file tmp/${SCRAM_ARCH}/run_DOMCoun
 cfiFiles=Geometry/CMSCommonData/cmsIdealGeometryXML_cfi
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsIdealGeometry2015XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsIdealGeometry2015devXML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsIdealGeometryAPD1XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsIdealGeometryGFlashXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsIdealGeometryHFLibraryXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsIdealGeometryHFParametrizeXML_cfi"
