@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.MessageLogger = cms.Service("MessageLogger",
     statistics = cms.untracked.vstring('cout', 'simG4test'),
-    categories = cms.untracked.vstring('SimG4CoreApplication'),
+    categories = cms.untracked.vstring('SimG4CoreApplication','Geometry','Physics'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
@@ -48,6 +48,12 @@ process.MessageLogger = cms.Service("MessageLogger",
         threshold = cms.untracked.string('INFO'),
         SimG4CoreApplication = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
+        ),
+        Geometry = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        Physics = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
         )
     ),
     destinations = cms.untracked.vstring('cout',
@@ -62,8 +68,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
-
 )
+
+process. g4SimHits.Physics.Verbosity = 1
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
