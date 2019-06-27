@@ -79,7 +79,7 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
     tracksterId++;
   }
   for (auto &trackster : result) {
-    assert(trackster.vertices.size() < trackster.vertex_multiplicity.size());
+    assert(trackster.vertices.size() <= trackster.vertex_multiplicity.size());
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
       trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
       LogDebug("HGCPatterRecoByCA") << "LayerID: " << trackster.vertices[i]
