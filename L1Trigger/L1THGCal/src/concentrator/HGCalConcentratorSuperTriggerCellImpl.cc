@@ -35,7 +35,7 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
     if (triggerTools_.isSilicon(output_ids.at(0))) {
       thickness = triggerTools_.thicknessIndex(output_ids.at(0), true);
     } else if (triggerTools_.isScintillator(output_ids.at(0))) {
-      thickness = 3;
+      thickness = kScintillatorPseudoThicknessIndex_;
     }
 
     for (const auto& id : output_ids) {
@@ -104,9 +104,10 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
                              ? double(kTriggerCellsForDivision_)
                              : double(superTCmapping_.getConstituentTriggerCells(stc.getSTCId()).size());
 
-    c.setHwPt(stc.getSumHwPt() / denominator);
-    c.setMipPt(stc.getSumMipPt() / denominator);
-    c.setPt(stc.getSumPt() / denominator);
+    double denominatorInv = 1. / denominator;
+    c.setHwPt(stc.getSumHwPt() * denominatorInv);
+    c.setMipPt(stc.getSumMipPt() * denominatorInv);
+    c.setPt(stc.getSumPt() * denominatorInv);
   } else if (energyDivisionType_ == oneBitFraction) {
     double frac = 0;
 
@@ -124,7 +125,7 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   if (triggerTools_.isSilicon(c.detId())) {
     thickness = triggerTools_.thicknessIndex(c.detId(), true);
   } else if (triggerTools_.isScintillator(c.detId())) {
-    thickness = 3;
+    thickness = kScintillatorPseudoThicknessIndex_;
   }
 
   GlobalPoint point;

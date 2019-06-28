@@ -42,7 +42,7 @@ private:
 
   //Parameters for energyDivisionType_ = equalShare
   static constexpr int kTriggerCellsForDivision_ = 4;
-
+  static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 3;
   class SuperTriggerCell {
   private:
     float sumPt_, sumMipPt_, maxMipPt_, fracsum_;
