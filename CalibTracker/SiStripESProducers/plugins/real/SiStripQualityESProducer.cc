@@ -32,27 +32,28 @@
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
 namespace {
-  template <typename Product, typename InputRecord>
-  class ProductGetter {
+  class ProductAdder {
   public:
-    virtual ~ProductGetter() = default;
-    virtual const Product& get(const InputRecord& iRecord) const = 0;
+    virtual ~ProductAdder() = default;
+    virtual void add(const SiStripQualityRcd& iRecord, SiStripQuality& quality) const = 0;
   };
 
-  template <typename Product, typename InputRecord, typename RealRecord>
-  class ProductGetterT : public ProductGetter<Product, InputRecord> {
+  template <typename Product, typename RealRecord>
+  class ProductAdderT : public ProductAdder {
   public:
-    ProductGetterT(edm::ESConsumesCollector& cc, const std::string& label)
+    ProductAdderT(edm::ESConsumesCollector& cc, const std::string& label)
         : token_{cc.consumesFrom<Product, RealRecord>(edm::ESInputTag{"", label})} {}
-    const Product& get(const InputRecord& iRecord) const override { return iRecord.get(token_); }
+    void add(const SiStripQualityRcd& iRecord, SiStripQuality& quality) const override {
+      quality.add(&iRecord.get(token_));
+    }
 
   private:
     edm::ESGetToken<Product, RealRecord> token_;
   };
 
-  template <typename RealRecord>
-  auto make_badStripGetter(edm::ESConsumesCollector& cc, const std::string& label) {
-    return std::make_unique<ProductGetterT<SiStripBadStrip, SiStripQualityRcd, RealRecord>>(cc, label);
+  template <typename Product, typename RealRecord>
+  auto make_ProductAdder(edm::ESConsumesCollector& cc, const std::string& label) {
+    return std::make_unique<ProductAdderT<Product, RealRecord>>(cc, label);
   }
 }  // namespace
 
@@ -64,11 +65,7 @@ public:
   std::unique_ptr<SiStripQuality> produce(const SiStripQualityRcd&);
 
 private:
-  std::vector<std::unique_ptr<ProductGetter<SiStripBadStrip, SiStripQualityRcd>>> badStripGetters_;
-  // Can there be more than one entry for cabling? If not, this could be changed to a single token
-  std::vector<ProductGetterT<SiStripDetCabling, SiStripQualityRcd, SiStripDetCablingRcd>> cablingGetters_;
-  // Can there be more than one entry for VOff? If not, this could be changed to a single token
-  std::vector<ProductGetterT<SiStripDetVOff, SiStripQualityRcd, SiStripDetVOffRcd>> voffGetters_;
+  std::vector<std::unique_ptr<const ProductAdder>> productAdders_;
   edm::ESGetToken<RunInfo, RunInfoRcd> runInfoToken_;
 
   const double thresholdForReducedGranularity_;
@@ -99,19 +96,19 @@ SiStripQualityESProducer::SiStripQualityESProducer(const edm::ParameterSet& iCon
         << "[SiStripQualityESProducer::ctor] Going to get data from record " << recordName << " with tag " << tagName;
 
     if (recordName == "SiStripBadModuleRcd") {
-      badStripGetters_.emplace_back(make_badStripGetter<SiStripBadModuleRcd>(cc, tagName));
+      productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadModuleRcd>(cc, tagName));
     } else if (recordName == "SiStripBadModuleFedErrRcd") {
-      badStripGetters_.emplace_back(make_badStripGetter<SiStripBadModuleFedErrRcd>(cc, tagName));
+      productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadModuleFedErrRcd>(cc, tagName));
     } else if (recordName == "SiStripBadFiberRcd") {
-      badStripGetters_.emplace_back(make_badStripGetter<SiStripBadFiberRcd>(cc, tagName));
+      productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadFiberRcd>(cc, tagName));
     } else if (recordName == "SiStripBadChannelRcd") {
-      badStripGetters_.emplace_back(make_badStripGetter<SiStripBadChannelRcd>(cc, tagName));
+      productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadChannelRcd>(cc, tagName));
     } else if (recordName == "SiStripBadStripRcd") {
-      badStripGetters_.emplace_back(make_badStripGetter<SiStripBadStripRcd>(cc, tagName));
+      productAdders_.emplace_back(make_ProductAdder<SiStripBadStrip, SiStripBadStripRcd>(cc, tagName));
     } else if (recordName == "SiStripDetCablingRcd") {
-      cablingGetters_.emplace_back(cc, tagName);
+      productAdders_.emplace_back(make_ProductAdder<SiStripDetCabling, SiStripDetCablingRcd>(cc, tagName));
     } else if (recordName == "SiStripDetVOffRcd") {
-      voffGetters_.emplace_back(cc, tagName);
+      productAdders_.emplace_back(make_ProductAdder<SiStripDetVOff, SiStripDetVOffRcd>(cc, tagName));
     } else if (recordName == "RunInfoRcd") {
       runInfoTagName = tagName;
       doRunInfo = true;
@@ -138,14 +135,8 @@ std::unique_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQ
   // Set the protection against empty RunInfo objects
   quality->setUseEmptyRunInfo(useEmptyRunInfo_);
 
-  for (const auto& getter : badStripGetters_) {
-    quality->add(&getter->get(iRecord));
-  }
-  for (const auto& getter : cablingGetters_) {
-    quality->add(&getter.get(iRecord));
-  }
-  for (const auto& getter : voffGetters_) {
-    quality->add(&getter.get(iRecord));
+  for (const auto& adder : productAdders_) {
+    adder->add(iRecord, *quality);
   }
 
   // We do this after all the others so we know it is done after the DetCabling (if any)
