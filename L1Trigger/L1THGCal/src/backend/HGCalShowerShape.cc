@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 HGCalShowerShape::HGCalShowerShape(const edm::ParameterSet& conf)
-    : threshold_(conf.existsAs<double>("shape_threshold") ? conf.getParameter<double>("shape_threshold") : 0.) {}
+    : threshold_(conf.getParameter<double>("shape_threshold")) {}
 
 //Compute energy-weighted mean of any variable X in the cluster
 

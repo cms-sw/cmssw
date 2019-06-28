@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Modifier_phase2_hgcalV9_cff import phase2_hgcalV9
 
+inputs_small = ['cl3d_firstlayer', 'cl3d_coreshowerlength', 'cl3d_maxlayer', 'cl3d_srrmean']
+inputs_large = ['cl3d_coreshowerlength', 'cl3d_showerlength', 'cl3d_firstlayer', 'cl3d_maxlayer', 'cl3d_szz', 'cl3d_srrmean', 'cl3d_srrtot', 'cl3d_seetot', 'cl3d_spptot']
 
 class Category:
     def __init__(self, eta_min, eta_max, pt_min, pt_max):
@@ -71,9 +73,9 @@ working_points_drnn_dbscan = [
 
 # Identification for 3D HistoMax clustering: switch between configurations for v8 and v9 geometry
 input_features_histomax = {
-        "v8_352":['cl3d_firstlayer', 'cl3d_coreshowerlength', 'cl3d_maxlayer', 'cl3d_srrmean'],
-        "v9_370":['cl3d_coreshowerlength', 'cl3d_showerlength', 'cl3d_firstlayer', 'cl3d_maxlayer', 'cl3d_szz', 'cl3d_srrmean', 'cl3d_srrtot', 'cl3d_seetot', 'cl3d_spptot'],
-        "v9_394":['cl3d_coreshowerlength', 'cl3d_showerlength', 'cl3d_firstlayer', 'cl3d_maxlayer', 'cl3d_szz', 'cl3d_srrmean', 'cl3d_srrtot', 'cl3d_seetot', 'cl3d_spptot']
+        "v8_352":inputs_small,
+        "v9_370":inputs_large,
+        "v9_394":inputs_large
         }
 
 bdt_weights_histomax = {
@@ -153,7 +155,7 @@ loose_wp = ['995', '950']
 
 
 egamma_identification_drnn_cone = cms.PSet(
-        Inputs=cms.vstring('cl3d_firstlayer', 'cl3d_coreshowerlength', 'cl3d_maxlayer', 'cl3d_srrmean'),
+        Inputs=cms.vstring(inputs_small),
         CategoriesEtaMin=cms.vdouble([cat.eta_min for cat in categories]),
         CategoriesEtaMax=cms.vdouble([cat.eta_max for cat in categories]),
         CategoriesPtMin=cms.vdouble([cat.pt_min for cat in categories]),
@@ -163,7 +165,7 @@ egamma_identification_drnn_cone = cms.PSet(
         )
 
 egamma_identification_drnn_dbscan = cms.PSet(
-        Inputs=cms.vstring('cl3d_firstlayer', 'cl3d_coreshowerlength', 'cl3d_maxlayer', 'cl3d_srrmean'),
+        Inputs=cms.vstring(inputs_small),
         CategoriesEtaMin=cms.vdouble([cat.eta_min for cat in categories]),
         CategoriesEtaMax=cms.vdouble([cat.eta_max for cat in categories]),
         CategoriesPtMin=cms.vdouble([cat.pt_min for cat in categories]),
