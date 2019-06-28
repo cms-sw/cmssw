@@ -68,15 +68,15 @@ uint32_t HGCalCoarseTriggerCellMapping::getRepresentativeDetId(uint32_t tcid) co
       int newV = 0;
       HGCalTriggerDetId tc_IdV9(tcid);
       int rocnum = detIdToROC_.getROCNumber(tc_IdV9.triggerCellU(), tc_IdV9.triggerCellV(), 1);
-      if (rocnum == 1) {
+      if (rocnum == kRoc0deg_) {
         uPrime = tc_IdV9.triggerCellU();
         newU = (uPrime & ~1);
         newV = tc_IdV9.triggerCellV() - tc_IdV9.triggerCellU() + newU;
-      } else if (rocnum == 2) {
+      } else if (rocnum == kRoc120deg_) {
         uPrime = tc_IdV9.triggerCellU() - tc_IdV9.triggerCellV() - 1;
         newU = (uPrime & ~1) + tc_IdV9.triggerCellV() + 1;
         newV = tc_IdV9.triggerCellV();
-      } else if (rocnum == 3) {
+      } else if (rocnum == kRoc240deg_) {
         uPrime = tc_IdV9.triggerCellV() - kRotate4_;
         newU = tc_IdV9.triggerCellU();
         newV = (uPrime & ~1) + kRotate4_;
@@ -136,15 +136,15 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) c
       int vPrime = 0;
       int rocnum = detIdToROC_.getROCNumber(tc_IdV9.triggerCellU(), tc_IdV9.triggerCellV(), 1);
 
-      if (rocnum == 1) {
+      if (rocnum == kRoc0deg_) {
         uPrime = tc_IdV9.triggerCellU();
         vPrime = tc_IdV9.triggerCellV() - tc_IdV9.triggerCellU();
 
-      } else if (rocnum == 2) {
+      } else if (rocnum == kRoc120deg_) {
         uPrime = tc_IdV9.triggerCellU() - tc_IdV9.triggerCellV() - 1;
         vPrime = tc_IdV9.triggerCellV();
 
-      } else if (rocnum == 3) {
+      } else if (rocnum == kRoc240deg_) {
         uPrime = tc_IdV9.triggerCellV() - kRotate4_;
         vPrime = kRotate7_ - tc_IdV9.triggerCellU();
       }
@@ -207,13 +207,13 @@ std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(
         int u = 0;
         int v = 0;
 
-        if (rocnum == 1) {
+        if (rocnum == kRoc0deg_) {
           u = uPrime;
           v = vPrime + u;
-        } else if (rocnum == 2) {
+        } else if (rocnum == kRoc120deg_) {
           u = uPrime + vPrime + 1;
           v = vPrime;
-        } else if (rocnum == 3) {
+        } else if (rocnum == kRoc240deg_) {
           u = kRotate7_ - vPrime;
           v = uPrime + kRotate4_;
         }
