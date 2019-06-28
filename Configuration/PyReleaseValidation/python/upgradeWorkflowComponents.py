@@ -239,6 +239,24 @@ upgradeSteps['Premix'] = {
     'suffix': '_Premix',
     'offset': 0.97,
 }
+upgradeSteps['TICLOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_TICLOnly',
+    'offset' : 0.51,
+}
+upgradeSteps['TICLFullReco'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_TICLFullReco',
+    'offset' : 0.52,
+}
 # Premix stage2 is derived from baseline+PU in relval_upgrade.py
 premixS2_offset = 0.98
 # Premix combined stage1+stage2 is derived for Premix+PU and baseline+PU in relval_upgrade.py
@@ -576,6 +594,7 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'SingleGammaPt25Eta1p7_2p7_cfi',
                   'SingleElectronPt15Eta1p7_2p7_cfi',
                   'ZTT_All_hadronic_14TeV_TuneCUETP8M1_cfi',
+                  'CloseByParticle_Photon_ERZRanges_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -671,6 +690,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'SingleGammaPt25Eta1p7_2p7_cfi':Kby(9,100),
            'SingleElectronPt15Eta1p7_2p7_cfi':Kby(9,100),
            'ZTT_All_hadronic_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'CloseByParticle_Photon_ERZRanges_cfi':Kby(9,100),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -766,4 +786,5 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'SingleGammaPt25Eta1p7_2p7_cfi':'SingleGammaPt25Eta1p7_2p7',
                             'SingleElectronPt15Eta1p7_2p7_cfi':'SingleElectronPt15Eta1p7_2p7',
                             'ZTT_All_hadronic_14TeV_TuneCUETP8M1_cfi': 'ZTT_14',
+                            'CloseByParticle_Photon_ERZRanges_cfi': 'CloseByParticleGun',
 }
