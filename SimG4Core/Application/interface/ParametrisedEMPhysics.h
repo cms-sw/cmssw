@@ -1,6 +1,6 @@
 
-#ifndef SimG4Core_GFlash_ParametrisedPhysics_H
-#define SimG4Core_GFlash_ParametrisedPhysics_H
+#ifndef SimG4Core_Application_ParametrisedEMPhysics_H
+#define SimG4Core_Application_ParametrisedEMPhysics_H
 
 // Joanna Weng 08.2005
 // Physics process for Gflash parameterisation
