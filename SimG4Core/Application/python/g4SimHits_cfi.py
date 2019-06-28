@@ -41,6 +41,7 @@ common_UseLuminosity = cms.PSet(
 )
 
 g4SimHits = cms.EDProducer("OscarMTProducer",
+    g4GeometryDD4hepSource = cms.bool(False),
     NonBeamEvent = cms.bool(False),
     G4EventManagerVerbosity = cms.untracked.int32(0),
     G4StackManagerVerbosity = cms.untracked.int32(0),
