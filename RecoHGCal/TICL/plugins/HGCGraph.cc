@@ -103,12 +103,7 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
   float timeIn = layerClustersTime.get(innerIdx);
   float timeOut = layerClustersTime.get(outerIdx);
 
-  if (timeIn == -99 || timeOut == -99)
-    return true;
-  if (std::abs(timeIn - timeOut) < maxDeltaTime)
-    return true;
-  else
-    return false;
+  return (timeIn == -99 || timeOut == -99 || std::abs(timeIn - timeOut) < maxDeltaTime);
 }
 
 void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
