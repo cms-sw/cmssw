@@ -4,8 +4,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
-#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 
 struct AlignableObjectId::entry {
   align::StructureType type;
@@ -322,11 +320,4 @@ AlignableObjectId::Geometry AlignableObjectId ::commonGeometry(Geometry first, G
 AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const AlignableObjectId &first,
                                                              const AlignableObjectId &second) {
   return AlignableObjectId{commonGeometry(first.geometry(), second.geometry())};
-}
-
-AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const AlignableTracker *tracker,
-                                                             const AlignableMuon *muon) {
-  auto trackerGeometry = (tracker ? tracker->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
-  auto muonGeometry = (muon ? muon->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
-  return AlignableObjectId::commonGeometry(trackerGeometry, muonGeometry);
 }
