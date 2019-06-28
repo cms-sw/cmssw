@@ -60,7 +60,7 @@ class _ProxyParameter(_ParameterTypeBase):
             return setattr(v,name,value)
         else:
             return object.__setattr__(self, name, value)
-    def __nonzero__(self):
+    def __bool__(self):
         v = self.__dict__.get('_ProxyParameter__value',None)
         return _builtin_bool(v)
     def dumpPython(self, options=PrintOptions()):
