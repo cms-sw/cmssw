@@ -11,7 +11,7 @@ from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClu
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import hgcalMultiClusters
 
 
-from RecoHGCal.TICL.TICLLayerTileProducer_cfi import ticlLayerTileProducer
+from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer
 from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClustersFromTrackstersProducer
