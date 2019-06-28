@@ -31,7 +31,7 @@ private:
 
     T& at(int zside, unsigned x1, unsigned x2) { return histogram_[index(zside, x1, x2)]; }
 
-    const T& at(int zside, unsigned x1, unsigned x2) const { return histogram_.at(index(zside, x1, x2)); }
+    const T& at(int zside, unsigned x1, unsigned x2) const { return histogram_[index(zside, x1, x2)]; }
 
     iterator begin() { return histogram_.begin(); }
     const_iterator begin() const { return histogram_.begin(); }
