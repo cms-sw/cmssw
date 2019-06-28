@@ -85,7 +85,7 @@ namespace edm {
 
       std::shared_ptr<EventSetupProvider> makeProvider(ParameterSet&,
                                                        ActivityRegistry*,
-                                                       ParameterSet const* optionsPset = nullptr);
+                                                       ParameterSet const* eventSetupPset = nullptr);
 
       // Pass in an IOVSyncValue to let the EventSetup system know which run and lumi
       // need to be processed and prepare IOVs for it (also could be a time or only a run).

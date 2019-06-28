@@ -35,7 +35,7 @@ namespace edm {
     public:
       NumberOfConcurrentIOVs();
 
-      void initialize(ParameterSet const* optionsPset);
+      void initialize(ParameterSet const* eventSetupPset);
 
       void initialize(EventSetupProvider const&);
 
