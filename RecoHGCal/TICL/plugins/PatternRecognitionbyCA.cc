@@ -25,7 +25,7 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
                                             const edm::EventSetup &es,
                                             const std::vector<reco::CaloCluster> &layerClusters,
                                             const std::vector<float> &mask,
-					    const edm::ValueMap<float> &layerClustersTime,
+                                            const edm::ValueMap<float> &layerClustersTime,
                                             const TICLLayerTiles &tiles,
                                             std::vector<Trackster> &result) {
   rhtools_.getEventSetup(es);
@@ -42,14 +42,14 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
                                     ticl::constants::nPhiBins,
                                     layerClusters,
                                     mask,
-				    layerClustersTime,
+                                    layerClustersTime,
                                     2,
                                     2,
                                     min_cos_theta_,
                                     min_cos_pointing_,
                                     missing_layers_,
-				    rhtools_.lastLayerFH(),
-				    max_delta_time_);
+                                    rhtools_.lastLayerFH(),
+                                    max_delta_time_);
   theGraph_->findNtuplets(foundNtuplets, min_clusters_per_ntuplet_);
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
