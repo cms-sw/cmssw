@@ -90,7 +90,7 @@ for year in upgradeKeys:
                     workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
 
             # special workflows for HGCAL/TICL
-            if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun"):
+            if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2023' in key):
                 TICLVariations = ['TICLOnly', 'TICLFullReco']
                 # Skip Hharvesting for TICLOnly
                 for tv in TICLVariations:
