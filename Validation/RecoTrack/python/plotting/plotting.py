@@ -2158,7 +2158,9 @@ class Plot:
 
         # Set properties of frame
         frame.setTitle(histos[0].GetTitle())
-        if self._xtitle is not None:
+        if self._xtitle == 'Default':
+            frame.setXTitle( histos[0].GetXaxis().GetTitle() )
+        elif self._xtitle is not None:
             frame.setXTitle(self._xtitle)
         if self._xtitlesize is not None:
             frame.setXTitleSize(self._xtitlesize)
@@ -2166,7 +2168,9 @@ class Plot:
             frame.setXTitleOffset(self._xtitleoffset)
         if self._xlabelsize is not None:
             frame.setXLabelSize(self._xlabelsize)
-        if self._ytitle is not None:
+        if self._ytitle == 'Default':
+            frame.setYTitle( histos[0].GetYaxis().GetTitle() )
+        elif self._ytitle is not None:
             frame.setYTitle(self._ytitle)
         if self._ytitlesize is not None:
             frame.setYTitleSize(self._ytitlesize)
