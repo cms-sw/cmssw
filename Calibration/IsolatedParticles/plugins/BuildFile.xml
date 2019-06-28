@@ -37,6 +37,7 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="HLTrigger/Timer"/>
 <use   name="Calibration/IsolatedParticles"/>
+<use   name="DataFormats/HcalIsolatedTrack"/>
 <flags   EDM_PLUGIN="1"/>
 <library   name="CalibrationIsolatedTracksNxN" file="IsolatedTracksNxN.cc"> </library>
 <library   name="CalibrationIsolatedTracksCone" file="IsolatedTracksCone.cc"> </library>
