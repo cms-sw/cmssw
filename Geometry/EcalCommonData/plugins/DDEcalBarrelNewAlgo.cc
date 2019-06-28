@@ -1,25 +1,14 @@
-
 //////////////////////////////////////////////////////////////////////////////
 // File: DDEcalBarrelNewAlgo.cc
 // Description: Geometry factory class for Ecal Barrel
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
-#include <CLHEP/Geometry/Point3D.h>
-#include <CLHEP/Geometry/Vector3D.h>
-#include <CLHEP/Geometry/Transform3D.h>
-#include <map>
-#include <string>
-#include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
@@ -27,7 +16,17 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
+#include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Vector3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
+
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace geant_units::operators;
 
 class DDEcalBarrelNewAlgo : public DDAlgorithm {
 public:
@@ -1546,7 +1545,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
     const DDSolid spmCutBox(DDSolidFactory::box(spmCutName(),
                                                 1.05 * (vecSpmRMax()[indx] - vecSpmRMin()[indx]) / 2.,
                                                 spmCutThick() / 2.,
-                                                fabs(vecSpmZPts().back() - vecSpmZPts().front()) / 2. + 1 * mm));
+                                                fabs(vecSpmZPts().back() - vecSpmZPts().front()) / 2. + 1_mm));
     const std::vector<double>& cutBoxParms(spmCutBox.parameters());
     const DDLogicalPart spmCutLog(spmCutName(), spmMat(), spmCutBox);
 
@@ -1623,14 +1622,14 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
     const DDLogicalPart spmLog(spmName(), spmMat(), ((0 != spmCutShow()) ? ddspm : temp2));
 
-    const double dphi(360. * deg / (1. * spmNPerHalf()));
+    const double dphi(360._deg / (1. * spmNPerHalf()));
     for (unsigned int iphi(0); iphi < 2 * spmNPerHalf(); ++iphi) {
       const double phi(iphi * dphi + spmPhiOff());  //- 0.000130/deg ) ;
 
       // this base rotation includes the base translation & rotation
       // plus flipping for the negative z hemisphere, plus
       // the phi rotation for this module
-      const Tf3D rotaBase(RoZ3D(phi) * (iphi < spmNPerHalf() ? Ro3D() : RoX3D(180. * deg)) *
+      const Tf3D rotaBase(RoZ3D(phi) * (iphi < spmNPerHalf() ? Ro3D() : RoX3D(180._deg)) *
                           Ro3D(vecSpmBRota()[3], Vec3(vecSpmBRota()[0], vecSpmBRota()[1], vecSpmBRota()[2])) *
                           Tl3D(Vec3(vecSpmBTran()[0], vecSpmBTran()[1], vecSpmBTran()[2])));
 
@@ -1647,7 +1646,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
       const Tf3D both(rotaExtra * rotaBase);
 
-      const DDRotation rota(myrot(spmName().name() + std::to_string(phi / deg), both.getRotation()));
+      const DDRotation rota(myrot(spmName().name() + std::to_string(convertRadToDeg(phi)), both.getRotation()));
 
       if (vecSpmHere()[iphi] != 0) {
         // convert from CLHEP to DDTranslation & etc. -- Michael Case
@@ -1677,12 +1676,12 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         const DDName pName(ddname(ilyPipeName() + "_" + std::to_string(iPipeType + 1)));
 
         DDSolid ilyPipeSolid(
-            DDSolidFactory::tubs(pName, vecIlyPipeLength()[iPipeType] / 2., 0, ilyPipeOD() / 2, 0 * deg, 360 * deg));
+            DDSolidFactory::tubs(pName, vecIlyPipeLength()[iPipeType] / 2., 0, ilyPipeOD() / 2, 0_deg, 360_deg));
         ilyPipeLog[iPipeType] = DDLogicalPart(pName, ilyPipeMat(), ilyPipeSolid);
 
         const DDName pWaName(ddname(ilyPipeName() + "Wa_" + std::to_string(iPipeType + 1)));
         DDSolid ilyPipeWaSolid(
-            DDSolidFactory::tubs(pWaName, vecIlyPipeLength()[iPipeType] / 2., 0, ilyPipeID() / 2, 0 * deg, 360 * deg));
+            DDSolidFactory::tubs(pWaName, vecIlyPipeLength()[iPipeType] / 2., 0, ilyPipeID() / 2, 0_deg, 360_deg));
         const DDLogicalPart ilyPipeWaLog(pWaName, backPipeWaterMat(), ilyPipeWaSolid);
 
         cpv.position(ilyPipeWaLog, pName, copyOne, DDTranslation(0, 0, 0), DDRotation());
@@ -1732,11 +1731,11 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
         unsigned int copyNum[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-        if (10 * mm < vecIlyThick()[ily] && vecIlyThick().size() != (ily + 1) && 0 != ilyPipeHere()) {
+        if (10_mm < vecIlyThick()[ily] && vecIlyThick().size() != (ily + 1) && 0 != ilyPipeHere()) {
           if (0 != ilyPTMHere()) {
             unsigned int ptmCopy(0);
             for (unsigned int ilyPTM(0); ilyPTM != vecIlyPTMZ().size(); ++ilyPTM) {
-              const double radius(ilyRMax - 1 * mm - ilyPTMHeight() / 2.);
+              const double radius(ilyRMax - 1_mm - ilyPTMHeight() / 2.);
               const double phi(vecIlyPTMPhi()[ilyPTM]);
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
@@ -1751,7 +1750,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           if (0 != ilyFanOutHere()) {
             unsigned int fanOutCopy(0);
             for (unsigned int ilyFO(0); ilyFO != vecIlyFanOutZ().size(); ++ilyFO) {
-              const double radius(ilyRMax - 1 * mm - ilyFanOutHeight() / 2.);
+              const double radius(ilyRMax - 1_mm - ilyFanOutHeight() / 2.);
               const double phi(vecIlyFanOutPhi()[ilyFO]);
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
@@ -1761,11 +1760,11 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                            fanOutCopy,
                            DDTranslation(xx, yy, vecIlyFanOutZ()[ilyFO] - ilyLength / 2),
                            myrot(ilyFanOutLog.name().name() + "_rot" + std::to_string(fanOutCopy),
-                                 CLHEP::HepRotationZ(phi) * CLHEP::HepRotationY(180 * deg)));
+                                 CLHEP::HepRotationZ(phi) * CLHEP::HepRotationY(180_deg)));
             }
             unsigned int femCopy(0);
             for (unsigned int ilyFEM(0); ilyFEM != vecIlyFEMZ().size(); ++ilyFEM) {
-              const double radius(ilyRMax - 1 * mm - ilyFEMHeight() / 2.);
+              const double radius(ilyRMax - 1_mm - ilyFEMHeight() / 2.);
               const double phi(vecIlyFEMPhi()[ilyFEM]);
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
@@ -1783,7 +1782,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
             const double zz(-ilyLength / 2 + vecIlyPipeZ()[iPipe] + (9 > type ? vecIlyPipeLength()[type] / 2. : 0));
 
             for (unsigned int ly(0); ly != 2; ++ly) {
-              const double radius(0 == ly ? ilyRMin + ilyPipeOD() / 2. + 1 * mm : ilyRMax - ilyPipeOD() / 2. - 1 * mm);
+              const double radius(0 == ly ? ilyRMin + ilyPipeOD() / 2. + 1_mm : ilyRMax - ilyPipeOD() / 2. - 1_mm);
               const double phi(vecIlyPipePhi()[iPipe]);
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
@@ -1795,7 +1794,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                       DDTranslation(xx, yy, zz),
                       (9 > type ? DDRotation()
                                 : myrot(ilyPipeLog[type].name().name() + "_rot" + std::to_string(copyNum[type]),
-                                        Rota(Vec3(xx, yy, 0), 90 * deg))));
+                                        Rota(Vec3(xx, yy, 0), 90_deg))));
             }
           }
         }
@@ -1810,11 +1809,11 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
     std::vector<double> czz;
     czz.emplace_back(vecSpmZPts()[1]);
     cri.emplace_back(vecSpmRMin()[0]);
-    cro.emplace_back(vecSpmRMin()[0] + 25 * mm);
+    cro.emplace_back(vecSpmRMin()[0] + 25_mm);
     czz.emplace_back(vecSpmZPts()[2]);
     cri.emplace_back(vecSpmRMin()[2]);
-    cro.emplace_back(vecSpmRMin()[2] + 10 * mm);
-    const DDSolid clyrSolid(DDSolidFactory::polycone(clyrName, -9.5 * deg, 19 * deg, czz, cri, cro));
+    cro.emplace_back(vecSpmRMin()[2] + 10_mm);
+    const DDSolid clyrSolid(DDSolidFactory::polycone(clyrName, -9.5_deg, 19_deg, czz, cri, cro));
     const DDLogicalPart clyrLog(clyrName, ddmat(vecIlyMat()[4]), clyrSolid);
     cpv.position(clyrLog, spmLog, copyOne, DDTranslation(0, 0, 0), DDRotation());
 
@@ -1858,7 +1857,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                         H_hawR / 2.,  //double aHalfLengthYNegZ    , // h1, H/2
                         h_hawR / 2.,  //double aHalfLengthYPosZ    , // h2, h/2
                         L_hawR / 2.,  //double aHalfLengthZ        , // dz,  L/2
-                        90 * deg,     //double aAngleAD            , // alfa1
+                        90_deg,       //double aAngleAD            , // alfa1
                         0,            //double aCoord15X           , // x15
                         0             //double aCoord15Y             // y15
     );
@@ -1888,7 +1887,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
     const Trap::VertexList vHAW(trapHAWR.vertexList());
     const Trap::VertexList vFAW(trapFAW.vertexList());
 
-    const double hawBoxClr(1 * mm);
+    const double hawBoxClr(1_mm);
 
     // HAW cut box to cut off back end of wedge
     const DDName hawCutName(ddname(hawRName().name() + "CUTBOX"));
@@ -1932,8 +1931,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
     const Tf3D fawCutForm(bb1,
                           bb2,
                           bb3,
-                          vFAW[2] + Pt3D(2 * hawBoxClr, -5 * mm, 0),
-                          vFAW[1] + Pt3D(-2 * hawBoxClr, -5 * mm, 0),
+                          vFAW[2] + Pt3D(2 * hawBoxClr, -5_mm, 0),
+                          vFAW[1] + Pt3D(-2 * hawBoxClr, -5_mm, 0),
                           Pt3D(vFAW[1].x() - 2 * hawBoxClr, vFAW[1].y() - trapFAW.h(), vFAW[1].z() - zDel));
 
     const DDSolid fawSolid(DDSolidFactory::subtraction(
@@ -1964,7 +1963,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         copyTwo,
         DDTranslation(-hawRform.getTranslation().x(), -hawRform.getTranslation().y(), -hawRform.getTranslation().z()),
         myrot(hawRName().name() + "RotRefl",
-              CLHEP::HepRotationY(180 * deg) *  // rotate about Y after refl thru Z
+              CLHEP::HepRotationY(180_deg) *  // rotate about Y after refl thru Z
                   CLHEP::HepRep3x3(1, 0, 0, 0, 1, 0, 0, 0, -1)));
 
     /* this for display of haw cut box instead of subtraction
@@ -1980,7 +1979,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       const double rPhi(fawPhiOff() + (iPhi - 0.5) * fawDelPhi());
 
       const Tf3D fawform(RoZ3D(rPhi) * Tl3D(fawRadOff() + (trapFAW.H() + trapFAW.h()) / 4, 0, trapFAW.L() / 2) *
-                         RoZ3D(-90 * deg + fawPhiRot()));
+                         RoZ3D(-90_deg + fawPhiRot()));
       if (fawHere())
         cpv.position(
             fawLog,
@@ -2001,8 +2000,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                         b_hawR / 2.,                                         // tl2, b/2
                         h_Grid / 2.,                                         // h1, H/2
                         h_Grid / 2.,                                         // h2, h/2
-                        (L_hawR - 8 * cm) / 2.,                              // dz,  L/2
-                        90 * deg,                                            // alfa1
+                        (L_hawR - 8_cm) / 2.,                              // dz,  L/2
+                        90_deg,                                            // alfa1
                         0,                                                   // x15
                         H_hawR - h_hawR                                      // y15
     );
@@ -2055,10 +2054,10 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
     const double rClr(clrReAlv());
 
     // theta is angle in yz plane between z axis & leading edge of crystal
-    double theta(90 * deg);
-    double zee(0 * mm);
-    double side(0 * mm);
-    double zeta(0 * deg);  // increment in theta for last crystal
+    double theta(90_deg);
+    double zee(0_mm);
+    double side(0_mm);
+    double zeta(0_deg);  // increment in theta for last crystal
 
     for (unsigned int cryType(1); cryType <= nCryTypes(); ++cryType) {
       const std::string sType("_" + std::string(10 > cryType ? "0" : "") + std::to_string(cryType));
@@ -2070,7 +2069,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       const double HNom(vecNomCryDimBR()[cryType - 1]);
       const double hNom(vecNomCryDimBF()[cryType - 1]);
 
-      const double alfCry(90 * deg + atan((bNom - bUnd - aNom + aUnd) / (hNom - hUnd)));
+      const double alfCry(90_deg + atan((bNom - bUnd - aNom + aUnd) / (hNom - hUnd)));
 
       const Trap trapCry((ANom - AUnd) / 2.,         //double aHalfLengthXNegZLoY , // bl1, A/2
                          (aNom - aUnd) / 2.,         //double aHalfLengthXPosZLoY , // bl2, a/2
@@ -2166,7 +2165,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       const double sinbeta(sin(beta));
 
       // Now clearance trap
-      const double alfClr(90 * deg + atan((bNom - aNom) / (hNom + sClr)));
+      const double alfClr(90_deg + atan((bNom - aNom) / (hNom + sClr)));
 
       const Trap trapClr((ANom + sClr + rClr * singamma) / 2.,  //double aHalfLengthXNegZLoY , // bl1, A/2
                          (aNom + sClr - fClr * singamma) / 2.,  //double aHalfLengthXPosZLoY , // bl2, a/2
@@ -2185,7 +2184,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
       // Now wrap trap
 
-      const double alfWrap(90 * deg + atan((bNom - aNom) / (hNom + sClr + 2 * sWrap)));
+      const double alfWrap(90_deg + atan((bNom - aNom) / (hNom + sClr + 2 * sWrap)));
 
       const Trap trapWrap((trapClr.A() + 2 * sWrap + rWrap * singamma) / 2,  // bl1, A/2
                           (trapClr.a() + 2 * sWrap - fWrap * singamma) / 2,  // bl2, a/2
@@ -2194,7 +2193,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                           (trapClr.h() + 2 * sWrap - fWrap * sindelta) / 2,  // h2,  h/2
                           (trapClr.L() + fWrap + rWrap) / 2.,                // dz,  L/2
                           alfWrap,                                           //double aAngleAD            , // alfa1
-                          aNom - ANom - (cryType > 9 ? 0 : 0.020 * mm),
+                          aNom - ANom - (cryType > 9 ? 0 : 0.020_mm),
                           hNom - HNom  //double aCoord15Y             // y15
       );
 
@@ -2204,7 +2203,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
       // Now wall trap
 
-      const double alfWall(90 * deg + atan((bNom - aNom) / (hNom + sClr + 2 * sWrap + 2 * sWall)));
+      const double alfWall(90_deg + atan((bNom - aNom) / (hNom + sClr + 2 * sWrap + 2 * sWall)));
 
       const Trap trapWall((trapWrap.A() + 2 * sWall + rWall * singamma) / 2,  // A/2
                           (trapWrap.a() + 2 * sWall - fWall * singamma) / 2,  // a/2
@@ -2213,7 +2212,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                           (trapWrap.h() + 2 * sWall - fWall * sindelta) / 2,  // h/2
                           (trapWrap.L() + fWall + rWall) / 2.,                // L/2
                           alfWall,                                            // alfa1
-                          aNom - ANom - (cryType < 10 ? 0.150 * mm : 0.100 * mm),
+                          aNom - ANom - (cryType < 10 ? 0.150_mm : 0.100_mm),
                           hNom - HNom  // y15
       );
 
@@ -2322,12 +2321,12 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
       // Now for placement of clr within wall
       const Vec3 wrapToWall1(0, 0, (rWall - fWall) / 2);
-      const Vec3 wrapToWall(Vec3((cryType > 9 ? 0 : 0.005 * mm), 0, 0) + wrapToWall1);
+      const Vec3 wrapToWall(Vec3((cryType > 9 ? 0 : 0.005_mm), 0, 0) + wrapToWall1);
 
       cpv.position(wrapLog,
                    wallLog,
                    copyOne,
-                   DDTranslation(Vec3((cryType > 9 ? 0 : 0.005 * mm), 0, 0) + wrapToWall1),  //SAME as wrapToWall
+                   DDTranslation(Vec3((cryType > 9 ? 0 : 0.005_mm), 0, 0) + wrapToWall1),  //SAME as wrapToWall
                    DDRotation());
 
       const Trap::VertexList vWall(trapWall.vertexList());
@@ -2356,10 +2355,10 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       }
 
       for (unsigned int etaAlv(1); etaAlv <= nCryPerAlvEta(); ++etaAlv) {
-        LogDebug("EcalGeom") << "theta=" << theta / deg << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
+        LogDebug("EcalGeom") << "theta=" << convertRadToDeg(theta) << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
                              << ",  zeta=" << zeta << ", delta=" << delta << ",  zee=" << zee;
 
-        zee += 0.075 * mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
+        zee += 0.075_mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
 
         LogDebug("EcalGeom") << "New zee=" << zee;
 
@@ -2376,7 +2375,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
         const Tf3D tForm1(trap1, trap2, trap3, wedge1, wedge2, wedge3);
 
-        const double xx(0.050 * mm);
+        const double xx(0.050_mm);
 
         const Tf3D tForm(HepGeom::Translate3D(xx, 0, 0) * tForm1);
 
@@ -2441,7 +2440,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       const DDLogicalPart backPlateLog(backPlateName(), backPlateMat(), backPlateSolid);
 
       const DDTranslation backPlateTra(
-          backSideHeight() / 2 + backPlateParms[1], 0 * mm, backPlateParms[2] - backSideLength() / 2);
+          backSideHeight() / 2 + backPlateParms[1], 0_mm, backPlateParms[2] - backSideLength() / 2);
 
       DDSolid backPlate2Solid(
           DDSolidFactory::box(backPlate2Name(), backPlateWidth() / 2., backPlate2Thick() / 2., backPlateLength() / 2.));
@@ -2456,7 +2455,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                      spmName(),
                      copyOne,
                      outtra + backPlateTra,
-                     myrot(backPlateName().name() + "Rot5", CLHEP::HepRotationZ(270 * deg)));
+                     myrot(backPlateName().name() + "Rot5", CLHEP::HepRotationZ(270_deg)));
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2484,21 +2483,21 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       const DDSolid backSideSolid(mytrap(backSideName().name(), trapBS));
       const DDLogicalPart backSideLog(backSideName(), backSideMat(), backSideSolid);
 
-      const DDTranslation backSideTra1(0 * mm, backPlateWidth() / 2 + backSideYOff1(), 1 * mm);
+      const DDTranslation backSideTra1(0_mm, backPlateWidth() / 2 + backSideYOff1(), 1_mm);
       if (0 != backSideHere()) {
         cpv.position(
             backSideLog,
             spmName(),
             copyOne,
             outtra + backSideTra1,
-            myrot(backSideName().name() + "Rot8", CLHEP::HepRotationX(180 * deg) * CLHEP::HepRotationZ(90 * deg)));
+            myrot(backSideName().name() + "Rot8", CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)));
 
-        const DDTranslation backSideTra2(0 * mm, -backPlateWidth() / 2 + backSideYOff2(), 1 * mm);
+        const DDTranslation backSideTra2(0_mm, -backPlateWidth() / 2 + backSideYOff2(), 1_mm);
         cpv.position(backSideLog,
                      spmName(),
                      copyTwo,
                      outtra + backSideTra2,
-                     myrot(backSideName().name() + "Rot9", CLHEP::HepRotationZ(90 * deg)));
+                     myrot(backSideName().name() + "Rot9", CLHEP::HepRotationZ(90_deg)));
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2515,15 +2514,15 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      const double manifCut(2 * mm);
+      const double manifCut(2_mm);
 
       DDSolid mBManifSolid(DDSolidFactory::tubs(
-          mBManifName(), backCoolWidth / 2. - manifCut, 0, mBManifOutDiam() / 2, 0 * deg, 360 * deg));
+          mBManifName(), backCoolWidth / 2. - manifCut, 0, mBManifOutDiam() / 2, 0_deg, 360_deg));
       const DDLogicalPart mBManifLog(mBManifName(), mBManifMat(), mBManifSolid);
 
       const DDName mBManifWaName(ddname(mBManifName().name() + "Wa"));
       DDSolid mBManifWaSolid(DDSolidFactory::tubs(
-          mBManifWaName, backCoolWidth / 2. - manifCut, 0, mBManifInnDiam() / 2, 0 * deg, 360 * deg));
+          mBManifWaName, backCoolWidth / 2. - manifCut, 0, mBManifInnDiam() / 2, 0_deg, 360_deg));
       const DDLogicalPart mBManifWaLog(mBManifWaName, backPipeWaterMat(), mBManifWaSolid);
       cpv.position(mBManifWaLog, mBManifName(), copyOne, DDTranslation(0, 0, 0), DDRotation());
 
@@ -2539,7 +2538,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       //!!!!!!!!!!!!!!     Begin Loop over Grilles & MB Cooling Manifold !!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      const double deltaY(-5 * mm);
+      const double deltaY(-5_mm);
 
       DDSolid grEdgeSlotSolid(
           DDSolidFactory::box(grEdgeSlotName(), grEdgeSlotHeight() / 2., grEdgeSlotWidth() / 2., grilleThick() / 2.));
@@ -2608,14 +2607,14 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                        gTra - DDTranslation(-mBManifOutDiam() / 2. + vecGrilleHeight()[iGr] / 2.,
                                             manifCut,
                                             grilleThick() / 2. + 3 * mBManifOutDiam() / 2.),
-                       myrot(mBManifName().name() + "R1", CLHEP::HepRotationX(90 * deg)));
+                       myrot(mBManifName().name() + "R1", CLHEP::HepRotationX(90_deg)));
           cpv.position(mBManifLog,
                        spmName(),
                        iGr - 1,
                        gTra - DDTranslation(-3 * mBManifOutDiam() / 2. + vecGrilleHeight()[iGr] / 2.,
                                             manifCut,
                                             grilleThick() / 2 + 3 * mBManifOutDiam() / 2.),
-                       myrot(mBManifName().name() + "R2", CLHEP::HepRotationX(90 * deg)));
+                       myrot(mBManifName().name() + "R2", CLHEP::HepRotationX(90_deg)));
         }
       }
 
@@ -2707,7 +2706,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                    backCoolVFEName(),
                    copyTwo,
                    DDTranslation(0, 0, -backCoolBarThick() / 2. - thickVFE / 2.),
-                   myrot(backVFEName().name() + "Flip", CLHEP::HepRotationX(180 * deg)));
+                   myrot(backVFEName().name() + "Flip", CLHEP::HepRotationX(180_deg)));
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2725,9 +2724,9 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       unsigned int iNSec(0);
       const unsigned int nMisc(vecBackMiscThick().size() / 4);
       for (unsigned int iMod(0); iMod != 4; ++iMod) {
-        const double pipeLength(vecGrilleZOff()[2 * iMod + 1] - vecGrilleZOff()[2 * iMod] - grilleThick() - 3 * mm);
+        const double pipeLength(vecGrilleZOff()[2 * iMod + 1] - vecGrilleZOff()[2 * iMod] - grilleThick() - 3_mm);
 
-        const double pipeZPos(vecGrilleZOff()[2 * iMod + 1] - pipeLength / 2 - 1.5 * mm);
+        const double pipeZPos(vecGrilleZOff()[2 * iMod + 1] - pipeLength / 2 - 1.5_mm);
 
         // accumulate total height of parent volume
 
@@ -2756,7 +2755,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         //===
         const double backCoolTankHeight(backCoolBarHeight());  // - backBracketHeight() ) ;
 
-        const double halfZTank(halfZBCool - 5 * cm);
+        const double halfZTank(halfZBCool - 5_cm);
 
         DDName bTankName(ddname(backCoolTankName() + std::to_string(iMod + 1)));
         DDSolid backCoolTankSolid(
@@ -2813,7 +2812,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
           const DDLogicalPart bLog(bName, ddmat(vecBackMiscMat()[iMod * nMisc + j]), bSolid);
 
-          const DDTranslation bTra(vecBackMiscThick()[iMod * nMisc + j] / 2, 0 * mm, 0 * mm);
+          const DDTranslation bTra(vecBackMiscThick()[iMod * nMisc + j] / 2, 0_mm, 0_mm);
 
           if (0 != backMiscHere())
             cpv.position(bLog, backCName, copyOne, bSumTra + bTra, DDRotation());
@@ -2833,9 +2832,9 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
             const DDLogicalPart mLog(mName, ddmat(vecMBLyrMat()[j]), mSolid);
 
-            mTra += DDTranslation(vecMBLyrThick()[j] / 2.0, 0 * mm, 0 * mm);
+            mTra += DDTranslation(vecMBLyrThick()[j] / 2.0, 0_mm, 0_mm);
             cpv.position(mLog, backCName, copyOne, mTra, DDRotation());
-            mTra += DDTranslation(vecMBLyrThick()[j] / 2.0, 0 * mm, 0 * mm);
+            mTra += DDTranslation(vecMBLyrThick()[j] / 2.0, 0_mm, 0_mm);
           }
         }
 
@@ -2843,12 +2842,12 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           const DDName mBName(ddname(mBCoolTubeName() + "_" + std::to_string(iMod + 1)));
 
           DDSolid mBCoolTubeSolid(
-              DDSolidFactory::tubs(mBName, halfZBCool, 0, mBCoolTubeOutDiam() / 2, 0 * deg, 360 * deg));
+              DDSolidFactory::tubs(mBName, halfZBCool, 0, mBCoolTubeOutDiam() / 2, 0_deg, 360_deg));
           const DDLogicalPart mBLog(mBName, mBCoolTubeMat(), mBCoolTubeSolid);
 
           const DDName mBWaName(ddname(mBCoolTubeName() + "Wa_" + std::to_string(iMod + 1)));
           DDSolid mBCoolTubeWaSolid(
-              DDSolidFactory::tubs(mBWaName, halfZBCool, 0, mBCoolTubeInnDiam() / 2, 0 * deg, 360 * deg));
+              DDSolidFactory::tubs(mBWaName, halfZBCool, 0, mBCoolTubeInnDiam() / 2, 0_deg, 360_deg));
           const DDLogicalPart mBWaLog(mBWaName, backPipeWaterMat(), mBCoolTubeWaSolid);
           cpv.position(mBWaLog, mBName, copyOne, DDTranslation(0, 0, 0), DDRotation());
 
@@ -2874,14 +2873,14 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           DDName bInnerName(ddname(backPipeName() + "_H2O_" + std::to_string(iMod + 1)));
 
           DDSolid backPipeSolid(
-              DDSolidFactory::tubs(bPipeName, pipeLength / 2, 0 * mm, vecBackPipeDiam()[iMod] / 2, 0 * deg, 360 * deg));
+              DDSolidFactory::tubs(bPipeName, pipeLength / 2, 0_mm, vecBackPipeDiam()[iMod] / 2, 0_deg, 360_deg));
 
           DDSolid backInnerSolid(DDSolidFactory::tubs(bInnerName,
                                                       pipeLength / 2,
-                                                      0 * mm,
+                                                      0_mm,
                                                       vecBackPipeDiam()[iMod] / 2 - vecBackPipeThick()[iMod],
-                                                      0 * deg,
-                                                      360 * deg));
+                                                      0_deg,
+                                                      360_deg));
 
           const DDLogicalPart backPipeLog(bPipeName, backPipeMat(), backPipeSolid);
 
@@ -2914,7 +2913,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           DDName dryAirTubName(ddname(dryAirTubeName() + std::to_string(iMod + 1)));
 
           DDSolid dryAirTubeSolid(DDSolidFactory::tubs(
-              dryAirTubName, pipeLength / 2, dryAirTubeInnDiam() / 2, dryAirTubeOutDiam() / 2, 0 * deg, 360 * deg));
+              dryAirTubName, pipeLength / 2, dryAirTubeInnDiam() / 2, dryAirTubeOutDiam() / 2, 0_deg, 360_deg));
 
           const DDLogicalPart dryAirTubeLog(dryAirTubName, dryAirTubeMat(), dryAirTubeSolid);
 
@@ -2985,7 +2984,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
       const DDLogicalPart patchLog(patchPanelName(), spmMat(), patchSolid);
 
-      const DDTranslation patchTra(backXOff() + 4 * mm, 0 * mm, vecGrilleZOff().back() + grilleThick() + patchParms[2]);
+      const DDTranslation patchTra(backXOff() + 4_mm, 0_mm, vecGrilleZOff().back() + grilleThick() + patchParms[2]);
       if (0 != patchPanelHere())
         cpv.position(patchLog, spmName(), copyOne, patchTra, DDRotation());
 
@@ -2998,11 +2997,11 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
         const DDLogicalPart pLog(pName, ddmat(vecPatchPanelMat()[j]), pSolid);
 
-        pTra += DDTranslation(vecPatchPanelThick()[j] / 2, 0 * mm, 0 * mm);
+        pTra += DDTranslation(vecPatchPanelThick()[j] / 2, 0_mm, 0_mm);
 
         cpv.position(pLog, patchPanelName(), copyOne, pTra, DDRotation());
 
-        pTra += DDTranslation(vecPatchPanelThick()[j] / 2, 0 * mm, 0 * mm);
+        pTra += DDTranslation(vecPatchPanelThick()[j] / 2, 0_mm, 0_mm);
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3083,8 +3082,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         }
 
         // Place the rods
-        //	 const double radius ( fawRadOff() - pincerEnvHeight()/2 -1*mm ) ;
-        const double radius(ilyRMin - pincerEnvHeight() / 2 - 1 * mm);
+        //	 const double radius ( fawRadOff() - pincerEnvHeight()/2 -1_mm ) ;
+        const double radius(ilyRMin - pincerEnvHeight() / 2 - 1_mm);
 
         const DDName xilyName(ddname(ilyName() + std::to_string(vecIlyMat().size() - 1)));
 
@@ -3097,7 +3096,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                        1 + iRod,
                        rodTra,
                        myrot(pincerRodName().name() + std::to_string(iRod),
-                             CLHEP::HepRotationZ(90 * deg + vecPincerRodAzimuth()[iRod])));
+                             CLHEP::HepRotationZ(90_deg + vecPincerRodAzimuth()[iRod])));
         }
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -3159,7 +3158,7 @@ void DDEcalBarrelNewAlgo::web(unsigned int iWeb,
                         thick / 2,     // H/2
                         thick / 2,     // h/2
                         LWebx / 2,     // L/2
-                        90 * deg,      // alfa1
+                        90_deg,        // alfa1
                         bWeb - BWebx,  // x15
                         0              // y15
   );
@@ -3173,7 +3172,7 @@ void DDEcalBarrelNewAlgo::web(unsigned int iWeb,
                        vecWebPlTh()[iWeb] / 2,           // H/2
                        vecWebPlTh()[iWeb] / 2,           // h/2
                        trapWebClr.L() / 2.,              // L/2
-                       90 * deg,                         // alfa1
+                       90_deg,                           // alfa1
                        trapWebClr.b() - trapWebClr.B(),  // x15
                        0                                 // y15
   );
