@@ -80,6 +80,8 @@ public:
   DetId simToReco(const DetId&, const HGCalTopology&) const;
   DetId simToReco(const DetId&, const HcalTopology&) const;
 
+  static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 3;
+
 private:
   const HGCalTriggerGeometryBase* geom_;
   unsigned eeLayers_;

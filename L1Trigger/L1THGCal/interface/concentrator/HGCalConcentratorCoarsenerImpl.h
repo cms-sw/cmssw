@@ -21,7 +21,6 @@ private:
   bool fixedDataSizePerHGCROC_;
   HGCalCoarseTriggerCellMapping coarseTCmapping_;
   static constexpr int kHighDensityThickness_ = 0;
-  static constexpr unsigned kScintillatorPseudoThicknessIndex_ = 3;
 
   struct CoarseTC {
     float sumPt;

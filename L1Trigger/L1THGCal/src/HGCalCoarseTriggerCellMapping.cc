@@ -100,7 +100,7 @@ uint32_t HGCalCoarseTriggerCellMapping::getCoarseTriggerCellId(uint32_t detid) c
   if (triggerTools_.isSilicon(detid)) {
     thickness = triggerTools_.thicknessIndex(detid, true);
   } else if (triggerTools_.isScintillator(detid)) {
-    thickness = 3;
+    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
   }
   int ctcSize = ctcSize_.at(thickness);
 
@@ -164,7 +164,7 @@ std::vector<uint32_t> HGCalCoarseTriggerCellMapping::getConstituentTriggerCells(
   if (triggerTools_.isSilicon(ctcId)) {
     thickness = triggerTools_.thicknessIndex(ctcId, true);
   } else if (triggerTools_.isScintillator(ctcId)) {
-    thickness = 3;
+    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
   }
   int ctcSize = ctcSize_.at(thickness);
 
