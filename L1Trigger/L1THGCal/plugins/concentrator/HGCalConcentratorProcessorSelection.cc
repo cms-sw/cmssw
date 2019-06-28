@@ -58,7 +58,7 @@ void HGCalConcentratorProcessorSelection::run(const edm::Handle<l1t::HGCalTrigge
     if (triggerTools_.isSilicon(module_trigcell.second.at(0).detId())) {
       thickness = triggerTools_.thicknessIndex(module_trigcell.second.at(0).detId(), true);
     } else if (triggerTools_.isScintillator(module_trigcell.second.at(0).detId())) {
-      thickness = 3;
+      thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
     }
 
     if (coarsenTriggerCells_ || (fixedDataSizePerHGCROC_ && thickness > kHighDensityThickness_)) {

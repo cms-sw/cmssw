@@ -35,7 +35,7 @@ void HGCalConcentratorSuperTriggerCellImpl::createAllTriggerCells(
     if (triggerTools_.isSilicon(output_ids.at(0))) {
       thickness = triggerTools_.thicknessIndex(output_ids.at(0), true);
     } else if (triggerTools_.isScintillator(output_ids.at(0))) {
-      thickness = kScintillatorPseudoThicknessIndex_;
+      thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
     }
 
     for (const auto& id : output_ids) {
@@ -125,7 +125,7 @@ void HGCalConcentratorSuperTriggerCellImpl::assignSuperTriggerCellEnergyAndPosit
   if (triggerTools_.isSilicon(c.detId())) {
     thickness = triggerTools_.thicknessIndex(c.detId(), true);
   } else if (triggerTools_.isScintillator(c.detId())) {
-    thickness = kScintillatorPseudoThicknessIndex_;
+    thickness = HGCalTriggerTools::kScintillatorPseudoThicknessIndex_;
   }
 
   GlobalPoint point;
