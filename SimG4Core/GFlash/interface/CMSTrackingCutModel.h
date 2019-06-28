@@ -11,10 +11,9 @@
 
 class G4ParticleDefinition;
 
-class  CMSTrackingCutModel {
+class CMSTrackingCutModel {
 public:
-
-  explicit CMSTrackingCutModel(const G4ParticleDefinition*);
+  explicit CMSTrackingCutModel(const G4ParticleDefinition *);
   virtual ~CMSTrackingCutModel();
 
   virtual G4double SampleEnergyDepositEcal(G4double kinEnergy);
@@ -29,8 +28,7 @@ protected:
   G4double rms_;
 };
 
-inline void 
-CMSTrackingCutModel::InitialiseForStep(G4double fac, G4double rms) {
+inline void CMSTrackingCutModel::InitialiseForStep(G4double fac, G4double rms) {
   factor_ = fac;
   rms_ = rms;
 }
