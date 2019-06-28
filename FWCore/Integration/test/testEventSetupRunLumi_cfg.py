@@ -19,7 +19,9 @@ process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(6),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(6),
-    numberOfConcurrentIOVs = cms.untracked.uint32(5)
+    eventSetup = cms.untracked.PSet(
+        numberOfConcurrentIOVs = cms.untracked.uint32(5)
+    )
 )
 
 process.runLumiESSource = cms.ESSource("RunLumiESSource")

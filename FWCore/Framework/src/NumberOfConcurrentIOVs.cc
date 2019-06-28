@@ -14,11 +14,11 @@ namespace edm {
 
     NumberOfConcurrentIOVs::NumberOfConcurrentIOVs() : numberConcurrentIOVs_(1) {}
 
-    void NumberOfConcurrentIOVs::initialize(ParameterSet const* optionsPset) {
-      if (optionsPset) {  // this condition is false for SubProcesses
-        numberConcurrentIOVs_ = optionsPset->getUntrackedParameter<unsigned int>("numberOfConcurrentIOVs");
+    void NumberOfConcurrentIOVs::initialize(ParameterSet const* eventSetupPset) {
+      if (eventSetupPset) {  // this condition is false for SubProcesses
+        numberConcurrentIOVs_ = eventSetupPset->getUntrackedParameter<unsigned int>("numberOfConcurrentIOVs");
 
-        ParameterSet const& pset(optionsPset->getUntrackedParameterSet("forceNumberOfConcurrentIOVs"));
+        ParameterSet const& pset(eventSetupPset->getUntrackedParameterSet("forceNumberOfConcurrentIOVs"));
         std::vector<std::string> recordNames = pset.getParameterNames();
         for (auto const& recordName : recordNames) {
           EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));

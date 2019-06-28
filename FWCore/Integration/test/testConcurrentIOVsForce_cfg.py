@@ -24,9 +24,11 @@ process.options = cms.untracked.PSet(
     numberOfStreams = cms.untracked.uint32(4),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(4),
-    numberOfConcurrentIOVs = cms.untracked.uint32(4),
-    forceNumberOfConcurrentIOVs = cms.untracked.PSet(
-        ESTestRecordA = cms.untracked.uint32(4)
+    eventSetup = cms.untracked.PSet(
+        numberOfConcurrentIOVs = cms.untracked.uint32(4),
+        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
+            ESTestRecordA = cms.untracked.uint32(4)
+        )
     )
 )
 
