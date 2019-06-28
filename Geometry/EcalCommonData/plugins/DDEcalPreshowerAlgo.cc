@@ -394,16 +394,16 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                 0);
 
     DDSolid solid_lbck = DDSolidFactory::trap(DDName("LDRBCK", "esalgo"),
-                                              LdrBck_Length / 2,                                   // pDz
-                                              -wedge_angle,                                        // pTheta
-                                              0,                                                   // pPhi
-                                              ladder_width / 2,                                    // pDy1
+                                              LdrBck_Length / 2,                                 // pDz
+                                              -wedge_angle,                                      // pTheta
+                                              0,                                                 // pPhi
+                                              ladder_width / 2,                                  // pDy1
                                               (box_thick / cos(wedge_angle * 2) + 0.02_mm) / 2,  // pDx1
                                               (box_thick / cos(wedge_angle * 2) + 0.02_mm) / 2,  //     pDx2
-                                              0,                                                   //pAlp1
-                                              ladder_width / 2,                                    //pDy2
-                                              (ladder_thick - wedge_back_thick) / 2,               // pDx3
-                                              (ladder_thick - wedge_back_thick) / 2,               // pDx4
+                                              0,                                                 //pAlp1
+                                              ladder_width / 2,                                  //pDy2
+                                              (ladder_thick - wedge_back_thick) / 2,             // pDx3
+                                              (ladder_thick - wedge_back_thick) / 2,             // pDx4
                                               0);
 
     DDSolid solid_lfhalf = DDSolidFactory::trap(DDName("LDRFHALF", "esalgo"),
@@ -420,16 +420,16 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
                                                 0);
 
     DDSolid solid_lbhalf = DDSolidFactory::trap(DDName("LDRBHALF", "esalgo"),
-                                                LdrBck_Length / 2,                                   // pDz
-                                                -wedge_angle,                                        // pTheta
-                                                0,                                                   // pPhi
-                                                (ladder_width / 2) / 2,                              // pDy1
+                                                LdrBck_Length / 2,                                 // pDz
+                                                -wedge_angle,                                      // pTheta
+                                                0,                                                 // pPhi
+                                                (ladder_width / 2) / 2,                            // pDy1
                                                 (box_thick / cos(wedge_angle * 2) + 0.02_mm) / 2,  // pDx1
                                                 (box_thick / cos(wedge_angle * 2) + 0.02_mm) / 2,  //     pDx2
-                                                0,                                                   //pAlp1
-                                                (ladder_width / 2) / 2,                              //pDy2
-                                                (ladder_thick - wedge_back_thick) / 2,               // pDx3
-                                                (ladder_thick - wedge_back_thick) / 2,               // pDx4
+                                                0,                                                 //pAlp1
+                                                (ladder_width / 2) / 2,                            //pDy2
+                                                (ladder_thick - wedge_back_thick) / 2,             // pDx3
+                                                (ladder_thick - wedge_back_thick) / 2,             // pDx4
                                                 0);
 
     DDSolid solid_lfhtrunc =
@@ -758,8 +758,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       for (int i = 0; i <= 1; i++) {
         for (int j = 0; j <= 4; j++) {
           xpos = (i * 2 - 1) * waf_intra_col_sep / 2.;
-          ypos = -ladder_length / 2. + 0.05_mm - (LdrFrnt_Length - LdrBck_Length) / 2 + wedge_length / 2. +
-                 j * waf_active;
+          ypos =
+              -ladder_length / 2. + 0.05_mm - (LdrFrnt_Length - LdrBck_Length) / 2 + wedge_length / 2. + j * waf_active;
           zpos = -ladder_thick / 2. + 0.005_mm + wedge_offset;
           if (ladd_l5_map_[(i + j * 2 + M * 10)] == 1) {
             scopy++;
@@ -796,8 +796,8 @@ void DDEcalPreshowerAlgo::doLadders(DDCompactView& cpv) {
       for (int i = 0; i <= 1; i++) {
         for (int j = 0; j <= 3; j++) {
           xpos = (i * 2 - 1) * waf_intra_col_sep / 2.;
-          ypos = -ladder_length / 2. + 0.05_mm - (LdrFrnt_Length - LdrBck_Length) / 2 + wedge_length / 2. +
-                 j * waf_active;
+          ypos =
+              -ladder_length / 2. + 0.05_mm - (LdrFrnt_Length - LdrBck_Length) / 2 + wedge_length / 2. + j * waf_active;
           zpos = -ladder_thick / 2. + 0.005_mm + wedge_offset;
           if (ladd_l4_map_[(i + j * 2 + (M - types_l5_.size()) * 8)] == 1) {
             scopy++;

@@ -2000,8 +2000,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
                         b_hawR / 2.,                                         // tl2, b/2
                         h_Grid / 2.,                                         // h1, H/2
                         h_Grid / 2.,                                         // h2, h/2
-                        (L_hawR - 8_cm) / 2.,                              // dz,  L/2
-                        90_deg,                                            // alfa1
+                        (L_hawR - 8_cm) / 2.,                                // dz,  L/2
+                        90_deg,                                              // alfa1
                         0,                                                   // x15
                         H_hawR - h_hawR                                      // y15
     );
@@ -2355,8 +2355,9 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
       }
 
       for (unsigned int etaAlv(1); etaAlv <= nCryPerAlvEta(); ++etaAlv) {
-        LogDebug("EcalGeom") << "theta=" << convertRadToDeg(theta) << ", sidePrime=" << sidePrime << ", frontPrime=" << frontPrime
-                             << ",  zeta=" << zeta << ", delta=" << delta << ",  zee=" << zee;
+        LogDebug("EcalGeom") << "theta=" << convertRadToDeg(theta) << ", sidePrime=" << sidePrime
+                             << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
+                             << ",  zee=" << zee;
 
         zee += 0.075_mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
 
@@ -2485,12 +2486,11 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
       const DDTranslation backSideTra1(0_mm, backPlateWidth() / 2 + backSideYOff1(), 1_mm);
       if (0 != backSideHere()) {
-        cpv.position(
-            backSideLog,
-            spmName(),
-            copyOne,
-            outtra + backSideTra1,
-            myrot(backSideName().name() + "Rot8", CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)));
+        cpv.position(backSideLog,
+                     spmName(),
+                     copyOne,
+                     outtra + backSideTra1,
+                     myrot(backSideName().name() + "Rot8", CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)));
 
         const DDTranslation backSideTra2(0_mm, -backPlateWidth() / 2 + backSideYOff2(), 1_mm);
         cpv.position(backSideLog,
@@ -2516,13 +2516,13 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
 
       const double manifCut(2_mm);
 
-      DDSolid mBManifSolid(DDSolidFactory::tubs(
-          mBManifName(), backCoolWidth / 2. - manifCut, 0, mBManifOutDiam() / 2, 0_deg, 360_deg));
+      DDSolid mBManifSolid(
+          DDSolidFactory::tubs(mBManifName(), backCoolWidth / 2. - manifCut, 0, mBManifOutDiam() / 2, 0_deg, 360_deg));
       const DDLogicalPart mBManifLog(mBManifName(), mBManifMat(), mBManifSolid);
 
       const DDName mBManifWaName(ddname(mBManifName().name() + "Wa"));
-      DDSolid mBManifWaSolid(DDSolidFactory::tubs(
-          mBManifWaName, backCoolWidth / 2. - manifCut, 0, mBManifInnDiam() / 2, 0_deg, 360_deg));
+      DDSolid mBManifWaSolid(
+          DDSolidFactory::tubs(mBManifWaName, backCoolWidth / 2. - manifCut, 0, mBManifInnDiam() / 2, 0_deg, 360_deg));
       const DDLogicalPart mBManifWaLog(mBManifWaName, backPipeWaterMat(), mBManifWaSolid);
       cpv.position(mBManifWaLog, mBManifName(), copyOne, DDTranslation(0, 0, 0), DDRotation());
 
@@ -2841,8 +2841,7 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
         if (0 != mBCoolTubeHere()) {
           const DDName mBName(ddname(mBCoolTubeName() + "_" + std::to_string(iMod + 1)));
 
-          DDSolid mBCoolTubeSolid(
-              DDSolidFactory::tubs(mBName, halfZBCool, 0, mBCoolTubeOutDiam() / 2, 0_deg, 360_deg));
+          DDSolid mBCoolTubeSolid(DDSolidFactory::tubs(mBName, halfZBCool, 0, mBCoolTubeOutDiam() / 2, 0_deg, 360_deg));
           const DDLogicalPart mBLog(mBName, mBCoolTubeMat(), mBCoolTubeSolid);
 
           const DDName mBWaName(ddname(mBCoolTubeName() + "Wa_" + std::to_string(iMod + 1)));
@@ -2875,12 +2874,8 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
           DDSolid backPipeSolid(
               DDSolidFactory::tubs(bPipeName, pipeLength / 2, 0_mm, vecBackPipeDiam()[iMod] / 2, 0_deg, 360_deg));
 
-          DDSolid backInnerSolid(DDSolidFactory::tubs(bInnerName,
-                                                      pipeLength / 2,
-                                                      0_mm,
-                                                      vecBackPipeDiam()[iMod] / 2 - vecBackPipeThick()[iMod],
-                                                      0_deg,
-                                                      360_deg));
+          DDSolid backInnerSolid(DDSolidFactory::tubs(
+              bInnerName, pipeLength / 2, 0_mm, vecBackPipeDiam()[iMod] / 2 - vecBackPipeThick()[iMod], 0_deg, 360_deg));
 
           const DDLogicalPart backPipeLog(bPipeName, backPipeMat(), backPipeSolid);
 
