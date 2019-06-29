@@ -2,6 +2,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Alignment/CommonAlignment"/>
+<use   name="Alignment/TrackerAlignment"/>
 
 <use   name="DataFormats/GeometrySurface"/>
 
