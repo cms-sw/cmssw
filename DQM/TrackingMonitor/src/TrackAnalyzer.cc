@@ -770,7 +770,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
 
   // use the AlgoName and Quality Name
   std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
-  std::string Folder = TopFolder_.substr(0,2);
+  std::string Folder = TopFolder_.substr(0, 2);
 
   // book the Beam Spot related histograms
   // ---------------------------------------------------------------------------------//
@@ -854,20 +854,19 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
     DistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks", 2);
 
     if (Folder == "Tr") {
+      histname = "DistanceOfClosestApproachToBSdz_";
+      DistanceOfClosestApproachToBSdz =
+          ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -1.1, 1.1);
+      DistanceOfClosestApproachToBSdz->setAxisTitle("Track d_{z} wrt beam spot (cm)", 1);
+      DistanceOfClosestApproachToBSdz->setAxisTitle("Number of Tracks", 2);
 
-    histname = "DistanceOfClosestApproachToBSdz_";
-    DistanceOfClosestApproachToBSdz = ibooker.book1D(histname + CategoryName, histname + CategoryName, 100, -1.1, 1.1);
-    DistanceOfClosestApproachToBSdz->setAxisTitle("Track d_{z} wrt beam spot (cm)", 1);
-    DistanceOfClosestApproachToBSdz->setAxisTitle("Number of Tracks", 2);
-
-    histname = "DistanceOfClosestApproachToBSVsEta_";
-    DistanceOfClosestApproachToBSVsEta = ibooker.bookProfile(
-        histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax, "");
-    DistanceOfClosestApproachToBSVsEta->getTH1()->SetCanExtend(TH1::kAllAxes);
-    DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track #eta", 1);
-    DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track d_{xy} wrt beam spot (cm)", 2);
-
-   }
+      histname = "DistanceOfClosestApproachToBSVsEta_";
+      DistanceOfClosestApproachToBSVsEta = ibooker.bookProfile(
+          histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax, "");
+      DistanceOfClosestApproachToBSVsEta->getTH1()->SetCanExtend(TH1::kAllAxes);
+      DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track #eta", 1);
+      DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track d_{xy} wrt beam spot (cm)", 2);
+    }
 
     histname = "AbsDistanceOfClosestApproachToBS_";
     AbsDistanceOfClosestApproachToBS =
@@ -1176,7 +1175,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   auto chi2prob = TMath::Prob(track.chi2(), (int)track.ndof());
   auto chi2oNDF = track.normalizedChi2();
 
-  std::string Folder = TopFolder_.substr(0,2);
+  std::string Folder = TopFolder_.substr(0, 2);
 
   if (doHitPropertiesPlots_ || doAllPlots_) {
     // rec hits
@@ -1287,8 +1286,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     DistanceOfClosestApproachToBS->Fill(track.dxy(bs.position()));
 
     if (Folder == "Tr") {
-    DistanceOfClosestApproachToBSdz->Fill(track.dz(bs.position()));
-    DistanceOfClosestApproachToBSVsEta->Fill(track.eta(), track.dxy(bs.position()));
+      DistanceOfClosestApproachToBSdz->Fill(track.dz(bs.position()));
+      DistanceOfClosestApproachToBSVsEta->Fill(track.eta(), track.dxy(bs.position()));
     }
 
     AbsDistanceOfClosestApproachToBS->Fill(std::abs(track.dxy(bs.position())));
@@ -1459,8 +1458,8 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track& trac
 void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibooker) {
   // parameters from the configuration
   std::string QualName = conf_->getParameter<std::string>("Quality");
-  std::string AlgoName = conf_->getParameter<std::string>("AlgoName");   
-  std::string Folder = TopFolder_.substr(0,2);
+  std::string AlgoName = conf_->getParameter<std::string>("AlgoName");
+  std::string Folder = TopFolder_.substr(0, 2);
 
   // use the AlgoName and Quality Name
   std::string CategoryName = !QualName.empty() ? AlgoName + "_" + QualName : AlgoName;
@@ -1611,8 +1610,6 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
   tkmes.TrackPt->setAxisTitle("Track p_{T} (GeV/c)", 1);
   tkmes.TrackPt->setAxisTitle("Number of Tracks", 2);
 
-
-
   if (doTrackPxPyPlots_) {
     histname = "TrackPx_" + histTag;
     tkmes.TrackPx = ibooker.book1D(histname, histname, TrackPxBin, TrackPxMin, TrackPxMax);
@@ -1640,134 +1637,132 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
   tkmes.TrackEta->setAxisTitle("Number of Tracks", 2);
 
   if (Folder == "Tr") {
+    histname = "TrackPtHighPurity_" + histTag;
+    tkmes.TrackPtHighPurity = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtHighPurity->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtHighPurity->setAxisTitle("Number of High Purity Tracks", 2);
 
-  histname = "TrackPtHighPurity_" + histTag;
-  tkmes.TrackPtHighPurity = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtHighPurity->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtHighPurity->setAxisTitle("Number of High Purity Tracks", 2);
+    histname = "TrackPtTight_" + histTag;
+    tkmes.TrackPtTight = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtTight->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtTight->setAxisTitle("Number of Tight Tracks", 2);
 
-  histname = "TrackPtTight_" + histTag;
-  tkmes.TrackPtTight = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtTight->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtTight->setAxisTitle("Number of Tight Tracks", 2);
+    histname = "TrackPtLoose_" + histTag;
+    tkmes.TrackPtLoose = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPtLoose->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPtLoose->setAxisTitle("Number of Loose Tracks", 2);
 
-  histname = "TrackPtLoose_" + histTag;
-  tkmes.TrackPtLoose = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPtLoose->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPtLoose->setAxisTitle("Number of Loose Tracks", 2);
+    histname = "Quality_";
+    tkmes.Quality = ibooker.book1D(histname + CategoryName, histname + CategoryName, 3, 0., 3.);
+    tkmes.Quality->setAxisTitle("Track quality", 1);
+    tkmes.Quality->setAxisTitle("Number of Tracks", 2);
 
-  histname = "Quality_";
-  tkmes.Quality = ibooker.book1D(histname + CategoryName, histname + CategoryName, 3, 0., 3.);
-  tkmes.Quality->setAxisTitle("Track quality", 1);
-  tkmes.Quality->setAxisTitle("Number of Tracks", 2);
+    for (size_t ibin = 0; ibin < 3; ibin++) {
+      tkmes.Quality->setBinLabel(ibin + 1, reco::TrackBase::qualityNames[ibin]);
+    }
 
-  for (size_t ibin = 0; ibin < 3; ibin++) {
-    tkmes.Quality->setBinLabel(ibin + 1, reco::TrackBase::qualityNames[ibin]);
-  }
+    histname = "TrackPt_NegEta_Phi_btw_neg16_neg32_" + histTag;
+    tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_NegEta_Phi_btw_neg16_neg32_" + histTag;
-  tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->setAxisTitle("Number of Tracks", 2);
+    histname = "TrackPt_NegEta_Phi_btw_0_neg16_" + histTag;
+    tkmes.TrackPt_NegEta_Phi_btw_0_neg16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_NegEta_Phi_btw_0_neg16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_NegEta_Phi_btw_0_neg16->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_NegEta_Phi_btw_0_neg16_" + histTag;
-  tkmes.TrackPt_NegEta_Phi_btw_0_neg16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_NegEta_Phi_btw_0_neg16->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_NegEta_Phi_btw_0_neg16->setAxisTitle("Number of Tracks", 2);
+    histname = "TrackPt_NegEta_Phi_btw_16_0_" + histTag;
+    tkmes.TrackPt_NegEta_Phi_btw_16_0 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_NegEta_Phi_btw_16_0->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_NegEta_Phi_btw_16_0->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_NegEta_Phi_btw_16_0_" + histTag;
-  tkmes.TrackPt_NegEta_Phi_btw_16_0 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_NegEta_Phi_btw_16_0->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_NegEta_Phi_btw_16_0->setAxisTitle("Number of Tracks", 2);
+    histname = "TrackPt_NegEta_Phi_btw_32_16_" + histTag;
+    tkmes.TrackPt_NegEta_Phi_btw_32_16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_NegEta_Phi_btw_32_16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_NegEta_Phi_btw_32_16->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_NegEta_Phi_btw_32_16_" + histTag;
-  tkmes.TrackPt_NegEta_Phi_btw_32_16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_NegEta_Phi_btw_32_16->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_NegEta_Phi_btw_32_16->setAxisTitle("Number of Tracks", 2);
+    histname = "TrackPt_PosEta_Phi_btw_neg16_neg32_" + histTag;
+    tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_PosEta_Phi_btw_neg16_neg32_" + histTag;
-  tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->setAxisTitle("Number of Tracks", 2);
+    histname = "TrackPt_PosEta_Phi_btw_0_neg16_" + histTag;
+    tkmes.TrackPt_PosEta_Phi_btw_0_neg16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_PosEta_Phi_btw_0_neg16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_PosEta_Phi_btw_0_neg16->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_PosEta_Phi_btw_0_neg16_" + histTag;
-  tkmes.TrackPt_PosEta_Phi_btw_0_neg16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_PosEta_Phi_btw_0_neg16->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_PosEta_Phi_btw_0_neg16->setAxisTitle("Number of Tracks", 2);
+    histname = "TrackPt_PosEta_Phi_btw_16_0_" + histTag;
+    tkmes.TrackPt_PosEta_Phi_btw_16_0 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_PosEta_Phi_btw_16_0->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_PosEta_Phi_btw_16_0->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_PosEta_Phi_btw_16_0_" + histTag;
-  tkmes.TrackPt_PosEta_Phi_btw_16_0 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_PosEta_Phi_btw_16_0->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_PosEta_Phi_btw_16_0->setAxisTitle("Number of Tracks", 2);
+    histname = "TrackPt_PosEta_Phi_btw_32_16_" + histTag;
+    tkmes.TrackPt_PosEta_Phi_btw_32_16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.TrackPt_PosEta_Phi_btw_32_16->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    tkmes.TrackPt_PosEta_Phi_btw_32_16->setAxisTitle("Number of Tracks", 2);
 
-  histname = "TrackPt_PosEta_Phi_btw_32_16_" + histTag;
-  tkmes.TrackPt_PosEta_Phi_btw_32_16 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.TrackPt_PosEta_Phi_btw_32_16->setAxisTitle("Track p_{T} (GeV/c)", 1);
-  tkmes.TrackPt_PosEta_Phi_btw_32_16->setAxisTitle("Number of Tracks", 2);
+    histname = "Ratio_byFolding_" + histTag;
+    tkmes.Ratio_byFolding = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.Ratio_byFolding->setAxisTitle("Track p_{T} (GeV/c)", 1);
 
-  histname = "Ratio_byFolding_" + histTag;
-  tkmes.Ratio_byFolding = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.Ratio_byFolding->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    histname = "Ratio_byFolding2_" + histTag;
+    tkmes.Ratio_byFolding2 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
+    tkmes.Ratio_byFolding2->setAxisTitle("Track p_{T} (GeV/c)", 1);
 
-  histname = "Ratio_byFolding2_" + histTag;
-  tkmes.Ratio_byFolding2 = ibooker.book1D(histname, histname, TrackPtBin, TrackPtMin, TrackPtMax);
-  tkmes.Ratio_byFolding2->setAxisTitle("Track p_{T} (GeV/c)", 1);
+    histname = "TrackEtaHighpurity_" + histTag;
+    tkmes.TrackEtaHighPurity = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+    tkmes.TrackEtaHighPurity->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaHighPurity->setAxisTitle("Number of High Purity Tracks", 2);
 
-  histname = "TrackEtaHighpurity_" + histTag;
-  tkmes.TrackEtaHighPurity = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
-  tkmes.TrackEtaHighPurity->setAxisTitle("Track #eta", 1);
-  tkmes.TrackEtaHighPurity->setAxisTitle("Number of High Purity Tracks", 2);
+    histname = "TrackEtaTight_" + histTag;
+    tkmes.TrackEtaTight = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+    tkmes.TrackEtaTight->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaTight->setAxisTitle("Number of Tight Tracks", 2);
 
-  histname = "TrackEtaTight_" + histTag;
-  tkmes.TrackEtaTight = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
-  tkmes.TrackEtaTight->setAxisTitle("Track #eta", 1);
-  tkmes.TrackEtaTight->setAxisTitle("Number of Tight Tracks", 2);
+    histname = "TrackEtaLoose_" + histTag;
+    tkmes.TrackEtaLoose = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
+    tkmes.TrackEtaLoose->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaLoose->setAxisTitle("Number of Loose Tracks", 2);
 
-  histname = "TrackEtaLoose_" + histTag;
-  tkmes.TrackEtaLoose = ibooker.book1D(histname, histname, EtaBin, EtaMin, EtaMax);
-  tkmes.TrackEtaLoose->setAxisTitle("Track #eta", 1);
-  tkmes.TrackEtaLoose->setAxisTitle("Number of Loose Tracks", 2);
+    histname = "TrackEtaPhiInverted_" + histTag;
+    tkmes.TrackEtaPhiInverted = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiInverted->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiInverted->setAxisTitle("Track #phi", 2);
 
-  histname = "TrackEtaPhiInverted_" + histTag;
-  tkmes.TrackEtaPhiInverted = ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-  tkmes.TrackEtaPhiInverted->setAxisTitle("Track #eta", 1);
-  tkmes.TrackEtaPhiInverted->setAxisTitle("Track #phi", 2);
+    histname = "TrackEtaPhiInvertedoutofphase_" + histTag;
+    tkmes.TrackEtaPhiInvertedoutofphase =
+        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #phi", 2);
 
-  histname = "TrackEtaPhiInvertedoutofphase_" + histTag;
-  tkmes.TrackEtaPhiInvertedoutofphase =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-  tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #eta", 1);
-  tkmes.TrackEtaPhiInvertedoutofphase->setAxisTitle("Track #phi", 2);
+    histname = "TkEtaPhi_Ratio_byFoldingmap_" + histTag;
+    tkmes.TkEtaPhi_Ratio_byFoldingmap =
+        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
 
-  histname = "TkEtaPhi_Ratio_byFoldingmap_" + histTag;
-  tkmes.TkEtaPhi_Ratio_byFoldingmap =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-  tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #eta", 1);
-  tkmes.TkEtaPhi_Ratio_byFoldingmap->setAxisTitle("Track #phi", 2);
+    histname = "TkEtaPhi_Ratio_byFoldingmap_op_" + histTag;
+    tkmes.TkEtaPhi_Ratio_byFoldingmap_op =
+        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
 
-  histname = "TkEtaPhi_Ratio_byFoldingmap_op_" + histTag;
-  tkmes.TkEtaPhi_Ratio_byFoldingmap_op =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-  tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-  tkmes.TkEtaPhi_Ratio_byFoldingmap_op->setAxisTitle("Track #phi", 2);
+    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_" + histTag;
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap =
+        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
 
-  histname = "TkEtaPhi_RelativeDifference_byFoldingmap_" + histTag;
-  tkmes.TkEtaPhi_RelativeDifference_byFoldingmap =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-  tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #eta", 1);
-  tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->setAxisTitle("Track #phi", 2);
+    histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_" + histTag;
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op =
+        ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
+    tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
 
-  histname = "TkEtaPhi_RelativeDifference_byFoldingmap_op_" + histTag;
-  tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op =
-      ibooker.book2D(histname, histname, Eta2DBin, EtaMin, EtaMax, Phi2DBin, PhiMin, PhiMax);
-  tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #eta", 1);
-  tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->setAxisTitle("Track #phi", 2);
-
-  histname = "TrackQoverP_" + histTag;
-  tkmes.TrackQoverP = ibooker.book1D(histname, histname, 10 * TrackQBin, TrackQMin, TrackQMax);
-  tkmes.TrackQoverP->setAxisTitle("Track QoverP", 1);
-  tkmes.TrackQoverP->setAxisTitle("Number of Tracks", 2);
-
+    histname = "TrackQoverP_" + histTag;
+    tkmes.TrackQoverP = ibooker.book1D(histname, histname, 10 * TrackQBin, TrackQMin, TrackQMax);
+    tkmes.TrackQoverP->setAxisTitle("Track QoverP", 1);
+    tkmes.TrackQoverP->setAxisTitle("Number of Tracks", 2);
   }
 
   histname = "TrackEtaPhi_" + histTag;
@@ -1938,7 +1933,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
   double p, px, py, pz, pt, theta, phi, eta, q;
   double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;
 
-  std::string Folder = TopFolder_.substr(0,2);
+  std::string Folder = TopFolder_.substr(0, 2);
 
   auto phiIn = track.innerPosition().phi();
   auto etaIn = track.innerPosition().eta();
@@ -2020,192 +2015,190 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     tkmes.TrackEtaPhi->Fill(eta, phi);
 
     if (Folder == "Tr") {
+      tkmes.TrackEtaPhiInverted->Fill(eta, -1 * phi);
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, 3.141592654 + -1 * phi);
+      tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, -1 * phi - 3.141592654);
+      tkmes.TkEtaPhi_Ratio_byFoldingmap->getTH2F()->Divide(
+          tkmes.TrackEtaPhi->getTH2F(), tkmes.TrackEtaPhiInverted->getTH2F(), 1., 1., "");
+      tkmes.TkEtaPhi_Ratio_byFoldingmap_op->getTH2F()->Divide(
+          tkmes.TrackEtaPhi->getTH2F(), tkmes.TrackEtaPhiInvertedoutofphase->getTH2F(), 1., 1., "");
 
-    tkmes.TrackEtaPhiInverted->Fill(eta, -1 * phi);
-    tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, 3.141592654 + -1*phi);
-    tkmes.TrackEtaPhiInvertedoutofphase->Fill(eta, -1*phi - 3.141592654);
-    tkmes.TkEtaPhi_Ratio_byFoldingmap->getTH2F()->Divide(
-        tkmes.TrackEtaPhi->getTH2F(), tkmes.TrackEtaPhiInverted->getTH2F(), 1., 1., "");
-    tkmes.TkEtaPhi_Ratio_byFoldingmap_op->getTH2F()->Divide(
-        tkmes.TrackEtaPhi->getTH2F(), tkmes.TrackEtaPhiInvertedoutofphase->getTH2F(), 1., 1., "");
+      int nx = tkmes.TrackEtaPhi->getTH2F()->GetNbinsX();
+      int ny = tkmes.TrackEtaPhi->getTH2F()->GetNbinsY();
 
-    int nx = tkmes.TrackEtaPhi->getTH2F()->GetNbinsX();
-    int ny = tkmes.TrackEtaPhi->getTH2F()->GetNbinsY();
+      for (int ii = 1; ii <= nx; ii++) {
+        for (int jj = 1; jj <= ny; jj++) {
+          double Sum1 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) +
+                        tkmes.TrackEtaPhiInverted->getTH2F()->GetBinContent(ii, jj);
+          double Sum2 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) +
+                        tkmes.TrackEtaPhiInvertedoutofphase->getTH2F()->GetBinContent(ii, jj);
 
-    for (int ii = 1; ii <= nx; ii++) {
-      for (int jj = 1; jj <= ny; jj++) {
-        double Sum1 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) +
-                      tkmes.TrackEtaPhiInverted->getTH2F()->GetBinContent(ii, jj);
-        double Sum2 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) +
-                      tkmes.TrackEtaPhiInvertedoutofphase->getTH2F()->GetBinContent(ii, jj);
+          double Sub1 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) -
+                        tkmes.TrackEtaPhiInverted->getTH2F()->GetBinContent(ii, jj);
+          double Sub2 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) -
+                        tkmes.TrackEtaPhiInvertedoutofphase->getTH2F()->GetBinContent(ii, jj);
 
-        double Sub1 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) -
-                      tkmes.TrackEtaPhiInverted->getTH2F()->GetBinContent(ii, jj);
-        double Sub2 = tkmes.TrackEtaPhi->getTH2F()->GetBinContent(ii, jj) -
-                      tkmes.TrackEtaPhiInvertedoutofphase->getTH2F()->GetBinContent(ii, jj);
-
-        if (Sum1 == 0 || Sum2 == 0) {
-          tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii, jj, 1);
-          tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii, jj, 1);
-        } else {
-          double ratio1 = Sub1 / Sum1;
-          double ratio2 = Sub2 / Sum2;
-          tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii, jj, ratio1);
-          tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii, jj, ratio2);
+          if (Sum1 == 0 || Sum2 == 0) {
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii, jj, 1);
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii, jj, 1);
+          } else {
+            double ratio1 = Sub1 / Sum1;
+            double ratio2 = Sub2 / Sum2;
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap->getTH2F()->SetBinContent(ii, jj, ratio1);
+            tkmes.TkEtaPhi_RelativeDifference_byFoldingmap_op->getTH2F()->SetBinContent(ii, jj, ratio2);
+          }
         }
       }
-    }
 
-    //pT histograms to create efficiency vs pT plot, only for the most inefficient region.
+      //pT histograms to create efficiency vs pT plot, only for the most inefficient region.
 
-    if (eta < 0. && phi < -1.6) {
-      tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->Fill(pt);
-    }
-    if (eta < 0. && phi < 0 && phi >= -1.6) {
-      tkmes.TrackPt_NegEta_Phi_btw_0_neg16->Fill(pt);
-    }
-    if (eta < 0. && phi < 1.6 && phi >= 0) {
-      tkmes.TrackPt_NegEta_Phi_btw_16_0->Fill(pt);
-    }
-    if (eta < 0. && phi >= 1.6) {
-      tkmes.TrackPt_NegEta_Phi_btw_32_16->Fill(pt);
-    }
-    if (eta >= 0. && phi < -1.6) {
-      tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->Fill(pt);
-    }
-    if (eta >= 0. && phi < 0 && phi >= -1.6) {
-      tkmes.TrackPt_PosEta_Phi_btw_0_neg16->Fill(pt);
-    }
-    if (eta >= 0. && phi < 1.6 && phi >= 0) {
-      tkmes.TrackPt_PosEta_Phi_btw_16_0->Fill(pt);
-    }
-    if (eta >= 0. && phi >= 1.6) {
-      tkmes.TrackPt_PosEta_Phi_btw_32_16->Fill(pt);
-    }
-
-    float A[8];
-    A[0] = tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1()->Integral();
-    A[1] = tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1()->Integral();
-    A[2] = tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1()->Integral();
-    A[3] = tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1()->Integral();
-    A[4] = tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1()->Integral();
-    A[5] = tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1()->Integral();
-    A[6] = tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1()->Integral();
-    A[7] = tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1()->Integral();
-
-    //WZ (the worst zone)
-    int WZ = 0;
-    float minA = A[0];
-    for (int w = 1; w < 8; w++) {
-      if (minA > A[w]) {
-        minA = A[w];
-        WZ = w;
+      if (eta < 0. && phi < -1.6) {
+        tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->Fill(pt);
       }
-    }
+      if (eta < 0. && phi < 0 && phi >= -1.6) {
+        tkmes.TrackPt_NegEta_Phi_btw_0_neg16->Fill(pt);
+      }
+      if (eta < 0. && phi < 1.6 && phi >= 0) {
+        tkmes.TrackPt_NegEta_Phi_btw_16_0->Fill(pt);
+      }
+      if (eta < 0. && phi >= 1.6) {
+        tkmes.TrackPt_NegEta_Phi_btw_32_16->Fill(pt);
+      }
+      if (eta >= 0. && phi < -1.6) {
+        tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->Fill(pt);
+      }
+      if (eta >= 0. && phi < 0 && phi >= -1.6) {
+        tkmes.TrackPt_PosEta_Phi_btw_0_neg16->Fill(pt);
+      }
+      if (eta >= 0. && phi < 1.6 && phi >= 0) {
+        tkmes.TrackPt_PosEta_Phi_btw_16_0->Fill(pt);
+      }
+      if (eta >= 0. && phi >= 1.6) {
+        tkmes.TrackPt_PosEta_Phi_btw_32_16->Fill(pt);
+      }
 
-    switch (WZ) {
-      case 1:
-        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
-                                                tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(),
-                                                1.,
-                                                1.,
-                                                "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
-                                                 tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(),
-                                                 1.,
-                                                 1.,
-                                                 "B");
-        break;
-      case 2:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(),
-                                                 tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
-                                                 1.,
-                                                 1.,
-                                                 "B");
-        break;
-      case 3:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(), 1., 1., "B");
-        break;
-      case 4:
-        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(),
-                                                tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
-                                                1.,
-                                                1.,
-                                                "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
-        break;
-      case 5:
-        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
-                                                tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(),
-                                                1.,
-                                                1.,
-                                                "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
-                                                 tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(),
-                                                 1.,
-                                                 1.,
-                                                 "B");
-        break;
-      case 6:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(),
-                                                 tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
-                                                 1.,
-                                                 1.,
-                                                 "B");
-        break;
-      case 7:
-        tkmes.Ratio_byFolding->getTH1()->Divide(
-            tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(), 1., 1., "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(), 1., 1., "B");
-        break;
-      case 8:
-        tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(),
-                                                tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
-                                                1.,
-                                                1.,
-                                                "B");
-        tkmes.Ratio_byFolding2->getTH1()->Divide(
-            tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
-        break;
-    }
-    tkmes.Ratio_byFolding->setAxisTitle("Efficiency(Ratio)_" + std::to_string(WZ), 2);
-    tkmes.Ratio_byFolding2->setAxisTitle("Efficiency(Ratio)_" + std::to_string(WZ), 2);
+      float A[8];
+      A[0] = tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1()->Integral();
+      A[1] = tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1()->Integral();
+      A[2] = tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1()->Integral();
+      A[3] = tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1()->Integral();
+      A[4] = tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1()->Integral();
+      A[5] = tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1()->Integral();
+      A[6] = tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1()->Integral();
+      A[7] = tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1()->Integral();
 
-    if (track.quality(reco::TrackBase::highPurity)) {
-      tkmes.TrackPtHighPurity->Fill(pt);
-      tkmes.Quality->Fill(reco::TrackBase::highPurity, 1.);
-    }
-    if (track.quality(reco::TrackBase::tight)) {
-      tkmes.TrackPtTight->Fill(pt);
-      tkmes.Quality->Fill(reco::TrackBase::tight, 1.);
-    }
-    if (track.quality(reco::TrackBase::loose)) {
-      tkmes.TrackPtLoose->Fill(pt);
-      tkmes.Quality->Fill(reco::TrackBase::loose, 1.);
-    }
-    if (track.quality(reco::TrackBase::highPurity)) {
-      tkmes.TrackEtaHighPurity->Fill(eta);
-    }
-    if (track.quality(reco::TrackBase::tight)) {
-      tkmes.TrackEtaTight->Fill(eta);
-    }
-    if (track.quality(reco::TrackBase::loose)) {
-      tkmes.TrackEtaLoose->Fill(eta);
-    }
+      //WZ (the worst zone)
+      int WZ = 0;
+      float minA = A[0];
+      for (int w = 1; w < 8; w++) {
+        if (minA > A[w]) {
+          minA = A[w];
+          WZ = w;
+        }
+      }
 
-    if (p > 0.) {
-      tkmes.TrackQoverP->Fill(q / p);
-    }
+      switch (WZ) {
+        case 1:
+          tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                  tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(),
+                                                  1.,
+                                                  1.,
+                                                  "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                   tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(),
+                                                   1.,
+                                                   1.,
+                                                   "B");
+          break;
+        case 2:
+          tkmes.Ratio_byFolding->getTH1()->Divide(
+              tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(),
+                                                   tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                   1.,
+                                                   1.,
+                                                   "B");
+          break;
+        case 3:
+          tkmes.Ratio_byFolding->getTH1()->Divide(
+              tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_0_neg16->getTH1(), 1., 1., "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(
+              tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(), 1., 1., "B");
+          break;
+        case 4:
+          tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(),
+                                                  tkmes.TrackPt_NegEta_Phi_btw_neg16_neg32->getTH1(),
+                                                  1.,
+                                                  1.,
+                                                  "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(
+              tkmes.TrackPt_NegEta_Phi_btw_32_16->getTH1(), tkmes.TrackPt_NegEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
+          break;
+        case 5:
+          tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                  tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(),
+                                                  1.,
+                                                  1.,
+                                                  "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                   tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(),
+                                                   1.,
+                                                   1.,
+                                                   "B");
+          break;
+        case 6:
+          tkmes.Ratio_byFolding->getTH1()->Divide(
+              tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(),
+                                                   tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                   1.,
+                                                   1.,
+                                                   "B");
+          break;
+        case 7:
+          tkmes.Ratio_byFolding->getTH1()->Divide(
+              tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_0_neg16->getTH1(), 1., 1., "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(
+              tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(), 1., 1., "B");
+          break;
+        case 8:
+          tkmes.Ratio_byFolding->getTH1()->Divide(tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(),
+                                                  tkmes.TrackPt_PosEta_Phi_btw_neg16_neg32->getTH1(),
+                                                  1.,
+                                                  1.,
+                                                  "B");
+          tkmes.Ratio_byFolding2->getTH1()->Divide(
+              tkmes.TrackPt_PosEta_Phi_btw_32_16->getTH1(), tkmes.TrackPt_PosEta_Phi_btw_16_0->getTH1(), 1., 1., "B");
+          break;
+      }
+      tkmes.Ratio_byFolding->setAxisTitle("Efficiency(Ratio)_" + std::to_string(WZ), 2);
+      tkmes.Ratio_byFolding2->setAxisTitle("Efficiency(Ratio)_" + std::to_string(WZ), 2);
 
+      if (track.quality(reco::TrackBase::highPurity)) {
+        tkmes.TrackPtHighPurity->Fill(pt);
+        tkmes.Quality->Fill(reco::TrackBase::highPurity, 1.);
+      }
+      if (track.quality(reco::TrackBase::tight)) {
+        tkmes.TrackPtTight->Fill(pt);
+        tkmes.Quality->Fill(reco::TrackBase::tight, 1.);
+      }
+      if (track.quality(reco::TrackBase::loose)) {
+        tkmes.TrackPtLoose->Fill(pt);
+        tkmes.Quality->Fill(reco::TrackBase::loose, 1.);
+      }
+      if (track.quality(reco::TrackBase::highPurity)) {
+        tkmes.TrackEtaHighPurity->Fill(eta);
+      }
+      if (track.quality(reco::TrackBase::tight)) {
+        tkmes.TrackEtaTight->Fill(eta);
+      }
+      if (track.quality(reco::TrackBase::loose)) {
+        tkmes.TrackEtaLoose->Fill(eta);
+      }
+
+      if (p > 0.) {
+        tkmes.TrackQoverP->Fill(q / p);
+      }
     }
 
     tkmes.TrackEtaPhiInner->Fill(etaIn, phiIn);
