@@ -970,14 +970,14 @@ void DTTPG::RemoveDuplicates( std::vector< DTHough< RefDTDigi_t > > *tempDTHough
   }
 }
 
-void DTTPG::RunAlgorithm( int32_t localZeroTime,
+void DTTPG::RunAlgorithm( int32_t localZeroTime, bool isData,
                           std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > > aMapDigisByChamber,
                           std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigMMTOnly,
                           std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigCHT1SL,
                           std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigCHT2SL,
                           std::vector< L1MuDTChambPhDigi > *anOutputPhiTrigger,
                           std::vector< L1Phase2MuDTPhDigi > *anOutputPhiTrigger2,
-                          std::vector< L1Phase2MuDTPhDigi > *anOutputPhiTrigger2slRF ) const
+                          std::vector< L1Phase2MuDTPhDigi > *anOutputPhiTrigger2slRF )
 {
   std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > >::const_iterator iterMapDigisByChamber;
   for ( iterMapDigisByChamber = aMapDigisByChamber.begin();
@@ -990,6 +990,40 @@ void DTTPG::RunAlgorithm( int32_t localZeroTime,
     uint32_t idxStation = static_cast< uint32_t >( thisChambId.station() - 1 );
     uint32_t idxChamber = idxWheel * 14 * 4 + idxSector * 4 + idxStation;
     BOOL_t isPositiveWheel = this->CheckPositiveWheel( thisChambId );
+    if ( isData )
+    {
+      if ( idxStation == 0 && ( idxWheel == 0 || idxWheel == 4 ) )
+      {
+        defMaxDriftTime = vDefMaxDriftTime[3];
+        defVDrift = vDefVDrift[3];
+        defSlopeToTime = vDefSlopeToTime[3];
+        mmtNonLinCorr = &(vMmtNonLinCorr[3*116]);
+      }
+      else
+      {
+        defMaxDriftTime = vDefMaxDriftTime[1];
+        defVDrift = vDefVDrift[1];
+        defSlopeToTime = vDefSlopeToTime[1];
+        mmtNonLinCorr = &(vMmtNonLinCorr[1*116]);
+      }
+    }
+    else
+    {
+      if ( idxStation == 0 && ( idxWheel == 0 || idxWheel == 4 ) )
+      {
+        defMaxDriftTime = vDefMaxDriftTime[2];
+        defVDrift = vDefVDrift[2];
+        defSlopeToTime = vDefSlopeToTime[2];
+        mmtNonLinCorr = &(vMmtNonLinCorr[2*116]);
+      }
+      else
+      {
+        defMaxDriftTime = vDefMaxDriftTime[0];
+        defVDrift = vDefVDrift[0];
+        defSlopeToTime = vDefSlopeToTime[0];
+        mmtNonLinCorr = &(vMmtNonLinCorr[0*116]);
+      }
+    }
     std::vector< std::pair< uint32_t, RefDTDigi_t > > thisChamberHits = iterMapDigisByChamber->second;
     InputBMask_t vecEncodedHits[ MAX_CHAMBERHITS ] = {0};
     uint32_t vecIdxCMSSWHits[ MAX_CHAMBERHITS ] = {0};

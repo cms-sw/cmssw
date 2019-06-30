@@ -84,12 +84,12 @@ CHTBitset_t DTTPG::RunCHTOneMC( TimeMMT_t vecHits[ NUM_MACROCELLWIRES ],
   CompMMT_t timeByPlace[ NUM_MACROCELLWIRES ];
   for ( b4_Idx_t iPlace = 0; iPlace < NUM_MACROCELLWIRES; ++iPlace )
     timeByPlace[ iPlace ] = static_cast< CompMMT_t >( vecHits[ iPlace ] );
-  this->FillCHTHist( 0, 1, timeByPlace, 13, 169, 1, 1, 179, 10, tempHist, aTimeP );
-  this->FillCHTHist( 1, 2, timeByPlace, 13, 169, 1, 1, 179, 10, tempHist, aTimeP );
-  this->FillCHTHist( 2, 3, timeByPlace, 13, 169, 1, 1, 179, 10, tempHist, aTimeP );
-  this->FillCHTHist( 0, 2, timeByPlace, 7, 49, 1, 2, 179, 11, tempHist, aTimeP );
-  this->FillCHTHist( 1, 3, timeByPlace, 7, 49, 1, 2, 179, 11, tempHist, aTimeP );
-  this->FillCHTHist( 0, 3, timeByPlace, 4, 16, 2731, 14, 955, 14, tempHist, aTimeP );
+  this->FillCHTHist( 0, 1, timeByPlace, 13, 169,    1,  1, chtWinCorr[0], 10, tempHist, aTimeP );
+  this->FillCHTHist( 1, 2, timeByPlace, 13, 169,    1,  1, chtWinCorr[1], 10, tempHist, aTimeP );
+  this->FillCHTHist( 2, 3, timeByPlace, 13, 169,    1,  1, chtWinCorr[2], 10, tempHist, aTimeP );
+  this->FillCHTHist( 0, 2, timeByPlace,  7,  49,    1,  2, chtWinCorr[3], 11, tempHist, aTimeP );
+  this->FillCHTHist( 1, 3, timeByPlace,  7,  49,    1,  2, chtWinCorr[4], 11, tempHist, aTimeP );
+  this->FillCHTHist( 0, 3, timeByPlace,  4,  16, 2731, 14, chtWinCorr[5], 14, tempHist, aTimeP );
   CHTBitset_t bitSet44(0);
   CHTBitset_t bitSet34(0);
   b2_Idx_t checkNonZeroSize44 = 0;
@@ -132,7 +132,6 @@ void DTTPG::FillCHTHist( b3_Idx_t anInnerLayer,
                          CHTHist_t aCHTHist[ BINNUM_TANPHI ],
                          TimeMMT_t aTimeP ) const
 {
-  TimeMMT_t tdcConstCorr = 1;
   b5_Idx_t iPlaceMin = 0;
   b5_Idx_t iPlaceMax = 0;
   b5_Idx_t jPlaceMin = 0;
@@ -177,8 +176,8 @@ void DTTPG::FillCHTHist( b3_Idx_t anInnerLayer,
       if ( aTimeListByPlace[ jPlace ] == 0
            || ( static_cast< CompTDC_t >( aTimeP ) > aTimeListByPlace[ jPlace ] + 8 ) )        
         continue;
-      CompTDC_t driftTimeSum = ( aTimeListByPlace[ iPlace ] + aTimeListByPlace[ jPlace ] - 2 * static_cast< CompTDC_t >( aTimeP ) + tdcConstCorr ) * 1073 >> 8;
-      CompTDC_t driftTimeDiff = ( aTimeListByPlace[ iPlace ] - aTimeListByPlace[ jPlace ] ) * 1073;
+      CompTDC_t driftTimeSum = ( aTimeListByPlace[ iPlace ] + aTimeListByPlace[ jPlace ] - 2 * static_cast< CompTDC_t >( aTimeP ) ) * defVDrift >> 8;
+      CompTDC_t driftTimeDiff = ( aTimeListByPlace[ iPlace ] - aTimeListByPlace[ jPlace ] ) * defVDrift;
       driftTimeDiff = ( driftTimeDiff >> 8 ) + ( ( driftTimeDiff & 1 ) && ( driftTimeDiff < 0 ) );
       MCellPos_t xWireDiff = idxToCoordMap[ jPlace ] - idxToCoordMap[ iPlace ];
       MCellPos_t xMCellDiff[4] = { xWireDiff + static_cast< MCellPos_t >( driftTimeDiff ),
@@ -236,7 +235,7 @@ void DTTPG::UnpackCHTOneMC( TimeMMT_t vecHits[ NUM_MACROCELLWIRES ],
       TimeMMT_t driftTime = vecHits[ jHit ] - aTimeP;
       MCellPos_t wireCoordinate = idxToCoordMap[ jHit ];
       driftTime += this->CorrectDriftTime( temp2TanPhi128 );
-      MCellPos_t recoDrift = static_cast< MCellPos_t >( static_cast< CompTDC_t >( driftTime ) * 1073 >> 8 );
+      MCellPos_t recoDrift = static_cast< MCellPos_t >( static_cast< CompTDC_t >( driftTime ) * defVDrift >> 8 );
       MCellPos_t xLeft = wireCoordinate - recoDrift;
       MCellPos_t xRight = wireCoordinate + recoDrift;
       ZLocSL_t zLayer = 2 * thisWireLayer - 5;

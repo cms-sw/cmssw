@@ -1,5 +1,4 @@
 /*! \class DTTPG
-SORT OUTPUT
  *  \author Nicola Pozzobon
  *  \brief EDProducer of L1 DT based on the Hough Transform
  *  \date 2018, Sep 12
@@ -121,7 +120,7 @@ void DTTPG::produce( edm::Event& anEvent, const edm::EventSetup& anEventSetup )
   //std::vector< L1MuDTChambThDigi > outputThetaTrigger;
 
   std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > > mapDigisByChamber = this->RetrieveDigis( anEvent );
-  this->RunAlgorithm( localZeroTime, mapDigisByChamber, &(*outputHoughTrigMMTOnly), &(*outputHoughTrigSingleSL), &(*outputHoughTrig), &(*outputPhiTrigger), &(*outputPhiTrigger2), &(*outputPhiTrigger2slRF) );
+  this->RunAlgorithm( localZeroTime, anEvent.isRealData(), mapDigisByChamber, &(*outputHoughTrigMMTOnly), &(*outputHoughTrigSingleSL), &(*outputHoughTrig), &(*outputPhiTrigger), &(*outputPhiTrigger2), &(*outputPhiTrigger2slRF) );
 
   anEvent.put( std::move( outputHoughTrig ), "FromDTDigis" );
   anEvent.put( std::move( outputHoughTrigSingleSL ), "FromDTDigisSingleSL" );

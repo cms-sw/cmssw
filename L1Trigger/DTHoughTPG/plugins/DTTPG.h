@@ -88,14 +88,14 @@ class DTTPG : public edm::EDProducer
                            std::vector< L1MuDTChambPhDigi > *outputPhiTrigger,
                            std::vector< L1Phase2MuDTPhDigi > *outputPhiTrigger2,
                            std::vector< L1Phase2MuDTPhDigi > *outputPhiTrigger2slRF ) const;
-    void RunAlgorithm( int32_t localZeroTime,
+    void RunAlgorithm( int32_t localZeroTime, bool isData,
                        std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > > aMapDigisByChamber,
                        std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigMMTOnly,
                        std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigCHT1SL,
                        std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigCHT2SL,
                        std::vector< L1MuDTChambPhDigi > *anOutputPhiTrigger,
                        std::vector< L1Phase2MuDTPhDigi > *outputPhiTrigger2,
-                       std::vector< L1Phase2MuDTPhDigi > *outputPhiTrigger2slRF ) const;
+                       std::vector< L1Phase2MuDTPhDigi > *outputPhiTrigger2slRF );
     void DriveHits( b2_Idx_t aSuperLayer,
                     NHitPerChmb_t aHitCounter,
                     WireShift_t numWireShift,
@@ -223,6 +223,11 @@ class DTTPG : public edm::EDProducer
     edm::EDGetTokenT< DTDigiCollection > dtDigisToken;
     edm::Handle< DTDigiCollection > DTDigiHandle;
     edm::ESHandle< DTGeometry > DTGeometryHandle;
+
+    TimeMMT_t defMaxDriftTime;
+    CompTDC_t defVDrift;
+    TanPhi_t defSlopeToTime;
+    TimeMMT_t *mmtNonLinCorr;
 
   protected :
 };

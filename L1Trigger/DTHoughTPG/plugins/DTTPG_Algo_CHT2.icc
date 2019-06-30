@@ -50,29 +50,48 @@ void DTTPG::RunCHTTwoSL( WireShift_t corrFirstWire1,
                                                                      : this->RunCHTOneMC( vecHits3[ iShiftedCell ],
                                                                                           &tmpQual3,
                                                                                           thisTimePMCell1 );
-        CHTBitset_t bitSetResultT = bitSetResult & bitSet1 & bitSet3;
-        CHTBitset_t bitSetResultL = bitSetResult & ( bitSet1 | bitSet3 );
-        b2_Idx_t checkNonZeroSizeT = 0; 
-        b2_Idx_t checkNonZeroSizeL = 0;
+        CHTBitset_t bitSetResultComb1(0);
+        CHTBitset_t bitSetResultComb3(0);
+        CHTBitset_t bitSetResultComb(0);
+        bitSetResultComb1 = bitSetResult & bitSet1 ;
+        bitSetResultComb3 = bitSetResult & bitSet3;
+        bitSetResultComb = bitSetResultComb1 & bitSetResultComb3;
+        if ( bitSetResultComb == 0 )
+        {
+          if ( bitSetResultComb1 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb1;
+            tmpQual3 = qDummy;
+          }
+          else if ( bitSetResultComb3 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb3;
+            tmpQual1 = qDummy;
+          }
+        }
+        bool canBeDoubleTight8 = ( tmpQual1 == qSingle && tmpQual3 == qSingle );
+        bool canBeDoubleTight7 = ( tmpQual1 == qSingle && tmpQual3 == qSinglePoor ) ||
+                                 ( tmpQual1 == qSinglePoor && tmpQual3 == qSingle );
+        bool canBeDoubleLoose  = ( tmpQual1 == qSinglePoor && tmpQual3 == qSinglePoor );
+        bool canBeDoubleTight6 = ( tmpQual1 == qSingle || tmpQual3 == qSingle );
+        bool canBeDoublePoor   = ( tmpQual1 == qSinglePoor || tmpQual3 == qSinglePoor );
+        b2_Idx_t checkNonZeroSizeComb = 0;
         for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
         {
-          BOOL_t bitCombT = ( bitSetResultT[iBin] ) & 1;
-          BOOL_t bitCombL = ( bitSetResultL[iBin] ) & 1;
-          if ( bitCombT )
-            checkNonZeroSizeT = ( checkNonZeroSizeT << 1 ) + 1;
-          if ( bitCombL )
-            checkNonZeroSizeL = ( checkNonZeroSizeL << 1 ) + 1;
+          BOOL_t bitComb = ( bitSetResultComb[iBin] ) & 1;
+          if ( bitComb )
+            checkNonZeroSizeComb = ( checkNonZeroSizeComb << 1 ) + 1;
         }
         Qual_t qualComb = qDummy;
-        if ( checkNonZeroSizeT >= 3 && tmpQual1 == qSingle && tmpQual3 == qSingle )
+        if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight8 )
           qualComb = qDoubleTight8; /// 4/4 + 4/4
-        else if ( checkNonZeroSizeT >= 3 && ( ( tmpQual1 == qSingle && tmpQual3 == qSinglePoor ) || ( tmpQual1 == qSinglePoor && tmpQual3 == qSingle ) ) )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight7 )
           qualComb = qDoubleTight7; /// 4/4 + 3/4
-        else if ( checkNonZeroSizeL >= 3 && ( tmpQual1 == qSingle || tmpQual3 == qSingle ) )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight6 )
           qualComb = qDoubleTight6; /// 4/4 + 2/4
-        else if ( checkNonZeroSizeT >= 3 && tmpQual1 == qSinglePoor && tmpQual3 == qSinglePoor )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleLoose )
           qualComb = qDoubleLoose;  /// 3/4 + 3/4
-        else if ( checkNonZeroSizeL >= 3 && ( tmpQual1 == qSinglePoor || tmpQual3 == qSinglePoor ) )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoublePoor )
           qualComb = qDoublePoor;  /// 3/4 + 2/4
         b5_Idx_t iCombin = 2 * ( iShiftedCell - firstMacroCell );
         vecQualityComb[ iMacroCell ][ iCombin ] = qualComb;
@@ -92,7 +111,7 @@ void DTTPG::RunCHTTwoSL( WireShift_t corrFirstWire1,
           this->UnpackCHTOneMC( vecHits1[ iMacroCell ],
                                 thisTimePMCell1,
                                 centralMCellCoord[ iMacroCell ],
-                                ( qualComb == qDoubleTight6 || qualComb == qDoublePoor ) ? bitSetResultL : bitSetResultT,
+                                bitSetResultComb,
                                 aChamberIdx,
                                 isMB1,
                                 isPositiveWheel,
@@ -101,7 +120,7 @@ void DTTPG::RunCHTTwoSL( WireShift_t corrFirstWire1,
           this->UnpackCHTOneMC( vecHits3[ iShiftedCell ],
                                 thisTimePMCell1,
                                 centralMCellCoord[ iShiftedCell ],
-                                ( qualComb == qDoubleTight6 || qualComb == qDoublePoor ) ? bitSetResultL : bitSetResultT,
+                                bitSetResultComb,
                                 aChamberIdx,
                                 isMB1,
                                 isPositiveWheel,
@@ -135,29 +154,48 @@ void DTTPG::RunCHTTwoSL( WireShift_t corrFirstWire1,
                                                                      : this->RunCHTOneMC( vecHits1[ iMacroCell ],
                                                                                           &tmpQual1,
                                                                                           thisTimePMCell3 );
-        CHTBitset_t bitSetResultT = bitSetResult & bitSet1 & bitSet3;
-        CHTBitset_t bitSetResultL = bitSetResult & ( bitSet1 | bitSet3 );
-        b2_Idx_t checkNonZeroSizeT = 0; 
-        b2_Idx_t checkNonZeroSizeL = 0;
+        CHTBitset_t bitSetResultComb1(0);
+        CHTBitset_t bitSetResultComb3(0);
+        CHTBitset_t bitSetResultComb(0);
+        bitSetResultComb1 = bitSetResult & bitSet1 ;
+        bitSetResultComb3 = bitSetResult & bitSet3;
+        bitSetResultComb = bitSetResultComb1 & bitSetResultComb3;
+        if ( bitSetResultComb == 0 )
+        {
+          if ( bitSetResultComb1 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb1;
+            tmpQual3 = qDummy;
+          }
+          else if ( bitSetResultComb3 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb3;
+            tmpQual1 = qDummy;
+          }
+        }
+        bool canBeDoubleTight8 = ( tmpQual1 == qSingle && tmpQual3 == qSingle );
+        bool canBeDoubleTight7 = ( tmpQual1 == qSingle && tmpQual3 == qSinglePoor ) ||
+                                 ( tmpQual1 == qSinglePoor && tmpQual3 == qSingle );
+        bool canBeDoubleLoose  = ( tmpQual1 == qSinglePoor && tmpQual3 == qSinglePoor );
+        bool canBeDoubleTight6 = ( tmpQual1 == qSingle || tmpQual3 == qSingle );
+        bool canBeDoublePoor   = ( tmpQual1 == qSinglePoor || tmpQual3 == qSinglePoor );
+        b2_Idx_t checkNonZeroSizeComb = 0;
         for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
         {
-          BOOL_t bitCombT = ( bitSetResultT[iBin] ) & 1;
-          BOOL_t bitCombL = ( bitSetResultL[iBin] ) & 1;
-          if ( bitCombT )
-            checkNonZeroSizeT = ( checkNonZeroSizeT << 1 ) + 1;
-          if ( bitCombL )
-            checkNonZeroSizeL = ( checkNonZeroSizeL << 1 ) + 1;
+          BOOL_t bitComb = ( bitSetResultComb[iBin] ) & 1;
+          if ( bitComb )
+            checkNonZeroSizeComb = ( checkNonZeroSizeComb << 1 ) + 1;
         }
         Qual_t qualComb = qDummy;
-        if ( checkNonZeroSizeT >= 3 && tmpQual1 == qSingle && tmpQual3 == qSingle )
+        if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight8 )
           qualComb = qDoubleTight8; /// 4/4 + 4/4
-        else if ( checkNonZeroSizeT >= 3 && ( ( tmpQual1 == qSingle && tmpQual3 == qSinglePoor ) || ( tmpQual1 == qSinglePoor && tmpQual3 == qSingle ) ) )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight7 )
           qualComb = qDoubleTight7; /// 4/4 + 3/4
-        else if ( checkNonZeroSizeL >= 3 && ( tmpQual1 == qSingle || tmpQual3 == qSingle ) )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight6 )
           qualComb = qDoubleTight6; /// 4/4 + 2/4
-        else if ( checkNonZeroSizeT >= 3 && tmpQual1 == qSinglePoor && tmpQual3 == qSinglePoor )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleLoose )
           qualComb = qDoubleLoose;  /// 3/4 + 3/4
-        else if ( checkNonZeroSizeL >= 3 && ( tmpQual1 == qSinglePoor || tmpQual3 == qSinglePoor ) )
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoublePoor )
           qualComb = qDoublePoor;  /// 3/4 + 2/4
         b5_Idx_t iCombin = 2 * ( iShiftedCell - firstMacroCell ) + 1;
         vecQualityComb[ iMacroCell ][ iCombin ] = qualComb;
@@ -177,7 +215,7 @@ void DTTPG::RunCHTTwoSL( WireShift_t corrFirstWire1,
           this->UnpackCHTOneMC( vecHits1[ iMacroCell ],
                                 thisTimePMCell3,
                                 centralMCellCoord[ iMacroCell ],
-                                ( qualComb == qDoubleTight6 || qualComb == qDoublePoor ) ? bitSetResultL : bitSetResultT,
+                                bitSetResultComb,
                                 aChamberIdx,
                                 isMB1,
                                 isPositiveWheel,
@@ -186,7 +224,7 @@ void DTTPG::RunCHTTwoSL( WireShift_t corrFirstWire1,
           this->UnpackCHTOneMC( vecHits3[ iShiftedCell ],
                                 thisTimePMCell3,
                                 centralMCellCoord[ iShiftedCell ],
-                                ( qualComb == qDoubleTight6 || qualComb == qDoublePoor ) ? bitSetResultL : bitSetResultT,
+                                bitSetResultComb,
                                 aChamberIdx,
                                 isMB1,
                                 isPositiveWheel,
@@ -233,26 +271,26 @@ CHTBitset_t DTTPG::RunCHTTwoMC( MCellPos_t aMCellXDiff,
     return 0;
   if ( checkCnt1 + checkCnt3 < 6 )
     return 0;
-  this->FillCHTHist( 3, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 543, 14, 95, 13, tempHist, aTimeP );
-  this->FillCHTHist( 2, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 255, 13, 89, 13, tempHist, aTimeP );
-  this->FillCHTHist( 3, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 255, 13, 89, 13, tempHist, aTimeP );
-  this->FillCHTHist( 1, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 15, 9, 671, 16, tempHist, aTimeP );
-  this->FillCHTHist( 2, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 15, 9, 671, 16, tempHist, aTimeP );
-  this->FillCHTHist( 3, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 15, 9, 671, 16, tempHist, aTimeP );
-  this->FillCHTHist( 0, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, 317, 15, tempHist, aTimeP );
-  this->FillCHTHist( 1, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, 317, 15, tempHist, aTimeP );
-  this->FillCHTHist( 2, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, 317, 15, tempHist, aTimeP );
-  this->FillCHTHist( 3, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, 317, 15, tempHist, aTimeP );
-  this->FillCHTHist( 0, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, 75, 13, tempHist, aTimeP );
-  this->FillCHTHist( 1, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, 75, 13, tempHist, aTimeP );
-  this->FillCHTHist( 2, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, 75, 13, tempHist, aTimeP );
-  this->FillCHTHist( 0, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 51, 11, 571, 16, tempHist, aTimeP );
-  this->FillCHTHist( 1, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 51, 11, 571, 16, tempHist, aTimeP );
-  this->FillCHTHist( 0, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 389, 14, 17, 11, tempHist, aTimeP );
+  this->FillCHTHist( 3, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 543, 14,  chtWinCorr[6], 13, tempHist, aTimeP );
+  this->FillCHTHist( 2, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 255, 13,  chtWinCorr[7], 13, tempHist, aTimeP );
+  this->FillCHTHist( 3, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 255, 13,  chtWinCorr[8], 13, tempHist, aTimeP );
+  this->FillCHTHist( 1, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  15,  9,  chtWinCorr[9], 16, tempHist, aTimeP );
+  this->FillCHTHist( 2, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  15,  9, chtWinCorr[10], 16, tempHist, aTimeP );
+  this->FillCHTHist( 3, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  15,  9, chtWinCorr[11], 16, tempHist, aTimeP );
+  this->FillCHTHist( 0, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[12], 15, tempHist, aTimeP );
+  this->FillCHTHist( 1, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[13], 15, tempHist, aTimeP );
+  this->FillCHTHist( 2, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[14], 15, tempHist, aTimeP );
+  this->FillCHTHist( 3, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[15], 15, tempHist, aTimeP );
+  this->FillCHTHist( 0, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, chtWinCorr[16], 13, tempHist, aTimeP );
+  this->FillCHTHist( 1, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, chtWinCorr[17], 13, tempHist, aTimeP );
+  this->FillCHTHist( 2, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, chtWinCorr[18], 13, tempHist, aTimeP );
+  this->FillCHTHist( 0, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  51, 11, chtWinCorr[19], 16, tempHist, aTimeP );
+  this->FillCHTHist( 1, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  51, 11, chtWinCorr[20], 16, tempHist, aTimeP );
+  this->FillCHTHist( 0, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 389, 14, chtWinCorr[21], 11, tempHist, aTimeP );
   CHTBitset_t bitSet68(0);
   for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
   {
-    BOOL_t bit68 = static_cast< BOOL_t >( ( tempHist[ iBin ] >> 6 ) & 1 ); // > 6, min 7
+    BOOL_t bit68 = static_cast< BOOL_t >( ( tempHist[ iBin ] >> 5 ) & 1 ); // > 5, min 6 for 5/8, WAS > 6, min 7
     bitSet68.set(iBin, bitSet68[iBin] || bit68);
   }
   return bitSet68;
@@ -272,7 +310,6 @@ void DTTPG::FillCHTHist( b3_Idx_t anInnerLayer,
                          CHTHist_t aCHTHist[ BINNUM_TANPHI ],
                          TimeMMT_t aTimeP ) const
 {
-  TimeMMT_t tdcConstCorr = 1;
   b5_Idx_t iPlaceMin = 0;
   b5_Idx_t iPlaceMax = 0;
   b5_Idx_t jPlaceMin = 0;
@@ -327,8 +364,8 @@ void DTTPG::FillCHTHist( b3_Idx_t anInnerLayer,
       if ( aTimeListByPlace3[ jPlace ] == 0
            || ( static_cast< CompTDC_t >( aTimeP ) > aTimeListByPlace3[ jPlace ] + 8 ) )
         continue;
-      CompTDC_t driftTimeSum = ( aTimeListByPlace1[ iPlace ] + aTimeListByPlace3[ jPlace ] - 2 * aTimeP + tdcConstCorr ) * 1073 >> 8;
-      CompTDC_t driftTimeDiff = ( aTimeListByPlace1[ iPlace ] - aTimeListByPlace3[ jPlace ] ) * 1073;
+      CompTDC_t driftTimeSum = ( aTimeListByPlace1[ iPlace ] + aTimeListByPlace3[ jPlace ] - 2 * aTimeP ) * defVDrift >> 8;
+      CompTDC_t driftTimeDiff = ( aTimeListByPlace1[ iPlace ] - aTimeListByPlace3[ jPlace ] ) * defVDrift;
       driftTimeDiff = ( driftTimeDiff >> 8 ) + ( ( driftTimeDiff & 1 ) && ( driftTimeDiff < 0 ) );
       MCellPos_t xWireDiff = idxToCoordMap[ jPlace ] - idxToCoordMap[ iPlace ] + aMCellXDiff;
       MCellPos_t xMCellDiff[4] = { xWireDiff + static_cast< MCellPos_t >( driftTimeDiff ),

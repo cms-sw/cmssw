@@ -143,9 +143,9 @@ CHTBin_t DTTPG::CorrectCHTWindow( CHTBin_t *aBin, CHTBin_t aHalfWidth, CHTBin_t 
 
 TimeTDC_t DTTPG::CorrectDriftTime( TanPhi_t a2TanPhi128 ) const
 {
-  TimeMMT_t normTimeDiff = static_cast< TimeMMT_t >( abs( a2TanPhi128 ) * 76 + 128 ) >> 8;
-  if ( normTimeDiff > 128 )
-    normTimeDiff = 128;
+  TimeMMT_t normTimeDiff = static_cast< TimeMMT_t >( abs( a2TanPhi128 ) * defSlopeToTime + 128 ) >> 8;
+  if ( normTimeDiff > 115 )
+    normTimeDiff = 115;
   return mmtNonLinCorr[ normTimeDiff ];
 }
 
