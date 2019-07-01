@@ -99,7 +99,7 @@ namespace gem {
 
     /// v3
     uint8_t header() const { return VFATfirst{fw_}.header; }
-    uint8_t crcCheck() const { return VFATfirst{fw_}.crcCheck; }
+    uint8_t crcCheck() const { return VFATfirst{fw_}.vc; }
     uint8_t position() const { return VFATfirst{fw_}.pos; }
 
     /// v2

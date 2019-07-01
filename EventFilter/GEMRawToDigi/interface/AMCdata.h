@@ -62,7 +62,7 @@ namespace gem {
   class AMCdata {
   public:
   AMCdata() : amch1_(0), amch2_(0), amct_(0), eh_(0), et_(0) {};
-    ~AMCdata() {gebd_.clear();}
+    ~AMCdata() { gebd_.clear(); }
 
     void setAMCheader1(uint64_t word) { amch1_ = word; }
     void setAMCheader1(uint32_t dataLength, uint16_t bxID, uint32_t l1AID, uint8_t AMCnum);
@@ -82,7 +82,7 @@ namespace gem {
     void setGEMeventTrailer(uint64_t word) { et_ = word; }
     uint64_t getGEMeventTrailer() const { return et_; }
 
-    uint32_t dataLength() const { return AMCheader1{amch1_}.dataLength; }
+    uint32_t dataLength() const { return AMCTrailer{amct_}.dataLength; }
     uint16_t bx() const { return AMCheader1{amch1_}.bxID; }
     uint32_t l1A() const { return AMCheader1{amch1_}.l1AID; }
     uint8_t amcNum() const { return AMCheader1{amch1_}.AMCnum; }
@@ -94,22 +94,19 @@ namespace gem {
     uint8_t param1() const { return AMCheader2{amch2_}.param1; }
     uint8_t runType() const { return AMCheader2{amch2_}.runType; }
     uint8_t formatVer() const { return AMCheader2{amch2_}.formatVer; }
+ 
+    uint16_t ttsState() const { return EventHeader{eh_}.ttsState; }
+    uint8_t davCnt() const { return EventHeader{eh_}.davCnt; }
+    uint32_t buffState() const { return EventHeader{eh_}.buffState; }
+    uint32_t davList() const { return EventHeader{eh_}.davList; }
 
-    uint32_t dataLength() const {return AMCTrailer{amct_}.dataLengthT;}
-    uint16_t bx() const {return AMCheader1{amch1_}.bxID;}
-    uint32_t l1A() const {return AMCheader1{amch1_}.l1AID;}
-    uint8_t amcNum() const {return AMCheader1{amch1_}.AMCnum;}
-
+    uint8_t bc0locked() const { return EventTrailer{et_}.BCL; }
+    uint8_t daqReady() const { return EventTrailer{et_}.DR; }
+    uint8_t daqClockLocked() const { return EventTrailer{et_}.CL; }
+    uint8_t mmcmLocked() const { return EventTrailer{et_}.ML; }
+    uint8_t backPressure() const { return EventTrailer{et_}.BP; }
     uint8_t oosGlib() const { return EventTrailer{et_}.oosGlib; }
-    uint32_t chTimeOut() const { return EventTrailer{et_}.chTimeOut; }
-
-    uint8_t bc0locked() const {return EventTrailer{et_}.BCL;}
-    uint8_t daqReady() const {return EventTrailer{et_}.DR;}
-    uint8_t daqClockLocked() const {return EventTrailer{et_}.CL;}
-    uint8_t mmcmLocked() const {return EventTrailer{et_}.ML;}
-    uint8_t backPressure() const {return EventTrailer{et_}.BP;}
-    uint8_t oosGlib() const {return EventTrailer{et_}.oosGlib;}
-    uint32_t linkTo() const {return EventTrailer{et_}.linkTo;}
+    uint32_t linkTo() const { return EventTrailer{et_}.linkTo; }
  
     //!Adds GEB data to vector
     void addGEB(GEBdata g) { gebd_.push_back(g); }
