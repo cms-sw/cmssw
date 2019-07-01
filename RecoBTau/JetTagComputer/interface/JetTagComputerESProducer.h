@@ -2,9 +2,8 @@
 #define RecoBTau_JetTagComputerESProducer_h
 
 #include <string>
-#include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 #include <memory>
+#include <type_traits>
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +14,7 @@ template <typename ConcreteJetTagComputer>
 class JetTagComputerESProducer : public edm::ESProducer {
 private:
   // check that the template parameter inherits from JetTagComputer
-  static_assert((boost::is_convertible<ConcreteJetTagComputer*, JetTagComputer*>::value));
+  static_assert(std::is_convertible_v<ConcreteJetTagComputer*, JetTagComputer*>);
 
 public:
   JetTagComputerESProducer(const edm::ParameterSet& pset) : m_pset(pset) {
