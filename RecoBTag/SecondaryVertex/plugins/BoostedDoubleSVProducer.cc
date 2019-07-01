@@ -29,6 +29,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
@@ -649,14 +650,29 @@ void BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef& jet,
         for (size_t i = 0; i < daughter->numberOfDaughters(); ++i) {
           const reco::Candidate* constit = daughter->daughter(i);
 
-          if (constit)
+          if (constit) {
+            // Check if any values were nan or inf
+            float valcheck = constit->px() + constit->py() + constit->pz() + constit->energy();
+            if (edm::isNotFinite(valcheck)) {
+              edm::LogWarning("FaultyJetConstituent")
+                  << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
+              continue;
+            }
             fjParticles.push_back(fastjet::PseudoJet(constit->px(), constit->py(), constit->pz(), constit->energy()));
-          else
+          } else
             edm::LogWarning("MissingJetConstituent")
                 << "Jet constituent required for N-subjettiness computation is missing!";
         }
-      } else
+      } else {
+        // Check if any values were nan or inf
+        float valcheck = daughter->px() + daughter->py() + daughter->pz() + daughter->energy();
+        if (edm::isNotFinite(valcheck)) {
+          edm::LogWarning("FaultyJetConstituent")
+              << "Jet constituent required for N-subjettiness computation contains Nan/Inf values!";
+          continue;
+        }
         fjParticles.push_back(fastjet::PseudoJet(daughter->px(), daughter->py(), daughter->pz(), daughter->energy()));
+      }
     } else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
   }
