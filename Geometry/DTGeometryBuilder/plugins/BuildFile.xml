@@ -16,6 +16,7 @@
 <library name="DTGeometryValidationPlugins" file="DTGeometryValidate.cc">
   <use name="Fireworks/Core"/>
   <use name="Geometry/DTGeometry"/>
+  <use name="rootgeom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 
