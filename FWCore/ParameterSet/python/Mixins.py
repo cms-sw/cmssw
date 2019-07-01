@@ -1,5 +1,5 @@
 from __future__ import print_function
-from builtins import range
+from builtins import range, object
 import inspect
 import six
 
