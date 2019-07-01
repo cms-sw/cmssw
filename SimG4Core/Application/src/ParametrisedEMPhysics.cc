@@ -38,14 +38,23 @@
 #include "G4LossTableManager.hh"
 #include "G4ProcessManager.hh"
 #include "G4Transportation.hh"
+#include <string>
+#include <vector>
+
+const G4int NREG = 7;
+const G4String rname[NREG] = {"EcalRegion",
+                              "HcalRegion",
+                              "HGcalRegion",
+                              "MuonIron",
+                              "PreshowerRegion",
+                              "CastorRegion",
+                              "DefaultRegionForTheWorld"};
 
 struct ParametrisedEMPhysics::TLSmod {
   std::unique_ptr<GFlashEMShowerModel> theEcalEMShowerModel;
   std::unique_ptr<GFlashEMShowerModel> theHcalEMShowerModel;
   std::unique_ptr<GFlashHadronShowerModel> theEcalHadShowerModel;
   std::unique_ptr<GFlashHadronShowerModel> theHcalHadShowerModel;
-  std::unique_ptr<ElectronLimiter> theElectronLimiter;
-  std::unique_ptr<ElectronLimiter> thePositronLimiter;
   std::unique_ptr<G4FastSimulationManagerProcess> theFastSimulationManagerProcess;
 };
 
@@ -78,9 +87,6 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
   // Russian roulette and tracking cut for e+-
   double energyLim = theParSet.getParameter<double>("RusRoElectronEnergyLimit") * MeV;
   if (energyLim > 0.0) {
-    const G4int NREG = 6;
-    const G4String rname[NREG] = {
-        "EcalRegion", "HcalRegion", "MuonIron", "PreshowerRegion", "CastorRegion", "DefaultRegionForTheWorld"};
     G4double rrfact[NREG] = {1.0};
 
     rrfact[0] = theParSet.getParameter<double>("RusRoEcalElectron");
@@ -198,24 +204,87 @@ void ParametrisedEMPhysics::ConstructProcess() {
   bool eLimiter = theParSet.getParameter<bool>("ElectronStepLimit");
   bool rLimiter = theParSet.getParameter<bool>("ElectronRangeTest");
   bool pLimiter = theParSet.getParameter<bool>("PositronStepLimit");
+  // Step limiters for hadrons
+  bool pTCut = theParSet.getParameter<bool>("ProtonRegionLimit");
+  bool piTCut = theParSet.getParameter<bool>("PionRegionLimit");
 
-  if (eLimiter || rLimiter) {
-    if (!m_tpmod) {
-      m_tpmod = new TLSmod;
+  std::vector<std::string> regnames = theParSet.getParameter<std::vector<std::string> >("LimitsPerRegion");
+  std::vector<double> limitsE = theParSet.getParameter<std::vector<double> >("EnergyLimitsE");
+  std::vector<double> limitsH = theParSet.getParameter<std::vector<double> >("EnergyLimitsH");
+  std::vector<double> facE = theParSet.getParameter<std::vector<double> >("EnergyFactorsE");
+  std::vector<double> rmsE = theParSet.getParameter<std::vector<double> >("EnergyRMSE");
+  int nlimits = regnames.size();
+  int nlimitsH = 0;
+  std::vector<const G4Region*> reg;
+  std::vector<G4double> rlimE;
+  std::vector<G4double> rlimH;
+  std::vector<G4double> factE;
+  std::vector<G4double> rmsvE;
+  if (0 < nlimits) {
+    G4RegionStore* store = G4RegionStore::GetInstance();
+    for (int i = 0; i < nlimits; ++i) {
+      // apply limiter for whole CMS
+      if (regnames[i] == "all") {
+        reg.clear();
+        rlimE.clear();
+        rlimH.clear();
+        factE.clear();
+        rmsvE.clear();
+        reg.emplace_back(nullptr);
+        rlimE.emplace_back(limitsE[i] * CLHEP::MeV);
+        rlimH.emplace_back(limitsH[i] * CLHEP::MeV);
+        factE.emplace_back(facE[i]);
+        rmsvE.emplace_back(rmsE[i]);
+        nlimitsH = (limitsH[i] > 0) ? 1 : 0;
+        break;
+      }
+      const G4Region* r = store->GetRegion(regnames[i]);
+      // apply for concrete G4Region
+      if (r && (limitsE[i] > 0.0 || limitsH[i] > 0.0)) {
+        reg.emplace_back(r);
+        rlimE.emplace_back(limitsE[i] * CLHEP::MeV);
+        rlimH.emplace_back(limitsH[i] * CLHEP::MeV);
+        factE.emplace_back(facE[i]);
+        rmsvE.emplace_back(rmsE[i]);
+        if (limitsH[i] > 0) {
+          ++nlimitsH;
+        }
+      }
     }
-    m_tpmod->theElectronLimiter.reset(new ElectronLimiter(theParSet));
-    m_tpmod->theElectronLimiter.get()->SetRangeCheckFlag(rLimiter);
-    m_tpmod->theElectronLimiter.get()->SetFieldCheckFlag(eLimiter);
-    ph->RegisterProcess(m_tpmod->theElectronLimiter.get(), G4Electron::Electron());
+    nlimits = reg.size();
   }
 
-  if (pLimiter) {
-    if (!m_tpmod) {
-      m_tpmod = new TLSmod;
+  if (eLimiter || rLimiter || 0 < nlimits) {
+    ElectronLimiter* elim = new ElectronLimiter(theParSet, G4Electron::Electron());
+    elim->SetRangeCheckFlag(rLimiter);
+    elim->SetFieldCheckFlag(eLimiter);
+    elim->SetTrackingCutPerRegion(reg, rlimE, factE, rmsvE);
+    ph->RegisterProcess(elim, G4Electron::Electron());
+  }
+
+  if (pLimiter || 0 < nlimits) {
+    ElectronLimiter* plim = new ElectronLimiter(theParSet, G4Positron::Positron());
+    plim->SetFieldCheckFlag(pLimiter);
+    plim->SetTrackingCutPerRegion(reg, rlimE, factE, rmsvE);
+    ph->RegisterProcess(plim, G4Positron::Positron());
+  }
+  if (0 < nlimits && 0 < nlimitsH) {
+    if (pTCut) {
+      ElectronLimiter* plim = new ElectronLimiter(theParSet, G4Proton::Proton());
+      plim->SetFieldCheckFlag(pLimiter);
+      plim->SetTrackingCutPerRegion(reg, rlimH, factE, rmsvE);
+      ph->RegisterProcess(plim, G4Proton::Proton());
     }
-    m_tpmod->thePositronLimiter.reset(new ElectronLimiter(theParSet));
-    m_tpmod->thePositronLimiter.get()->SetFieldCheckFlag(pLimiter);
-    ph->RegisterProcess(m_tpmod->theElectronLimiter.get(), G4Positron::Positron());
+    if (piTCut) {
+      ElectronLimiter* plim = new ElectronLimiter(theParSet, G4PionPlus::PionPlus());
+      plim->SetFieldCheckFlag(pLimiter);
+      plim->SetTrackingCutPerRegion(reg, rlimH, factE, rmsvE);
+      ph->RegisterProcess(plim, G4PionPlus::PionPlus());
+      plim = new ElectronLimiter(theParSet, G4PionMinus::PionMinus());
+      plim->SetFieldCheckFlag(pLimiter);
+      plim->SetTrackingCutPerRegion(reg, rlimH, factE, rmsvE);
+      ph->RegisterProcess(plim, G4PionMinus::PionMinus());
+    }
   }
   // enable fluorescence
   bool fluo = theParSet.getParameter<bool>("FlagFluo");
