@@ -2,6 +2,7 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DQMServices/Core"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="CalibTracker/Records"/>
