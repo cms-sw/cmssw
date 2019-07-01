@@ -43,11 +43,11 @@ static TrackerG4SimHitNumberingScheme& numberingScheme(const DDCompactView& cpv,
 }
 
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::string& name,
-                                                                 const DDCompactView& cpv,
+                                                                 const edm::EventSetup& es,
                                                                  const SensitiveDetectorCatalog& clg,
                                                                  edm::ParameterSet const& p,
                                                                  const SimTrackManager* manager)
-    : SensitiveTkDetector(name, cpv, clg, p),
+    : SensitiveTkDetector(name, es, clg, p),
       theManager(manager),
       rTracker(1200. * CLHEP::mm),
       zTracker(3000. * CLHEP::mm),

@@ -17,11 +17,11 @@
 #include "G4SystemOfUnits.hh"
 
 HFChamberSD::HFChamberSD(const std::string& name,
-                         const DDCompactView& cpv,
+                         const edm::EventSetup& es,
                          const SensitiveDetectorCatalog& clg,
                          edm::ParameterSet const& p,
                          const SimTrackManager* manager)
-    : SensitiveCaloDetector(name, cpv, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {}
+    : SensitiveCaloDetector(name, es, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr), theNSteps(0) {}
 
 HFChamberSD::~HFChamberSD() { delete theHC; }
 

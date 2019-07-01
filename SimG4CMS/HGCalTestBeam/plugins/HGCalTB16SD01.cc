@@ -21,7 +21,7 @@
 class HGCalTB16SD01 : public CaloSD {
 public:
   HGCalTB16SD01(const std::string&,
-                const DDCompactView&,
+                const edm::EventSetup&,
                 const SensitiveDetectorCatalog&,
                 edm::ParameterSet const&,
                 const SimTrackManager*);
@@ -44,11 +44,11 @@ private:
 };
 
 HGCalTB16SD01::HGCalTB16SD01(const std::string& name,
-                             const DDCompactView& cpv,
+                             const edm::EventSetup& es,
                              const SensitiveDetectorCatalog& clg,
                              edm::ParameterSet const& p,
                              const SimTrackManager* manager)
-    : CaloSD(name, cpv, clg, p, manager), initialize_(true) {
+    : CaloSD(name, es, clg, p, manager), initialize_(true) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HGCalTestBeamSD");
   matName_ = m_HC.getParameter<std::string>("Material");

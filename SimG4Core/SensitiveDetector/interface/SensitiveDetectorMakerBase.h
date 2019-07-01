@@ -16,13 +16,13 @@
 
 // forward declarations
 class SimActivityRegistry;
-class DDCompactView;
 class SimTrackManager;
 class SensitiveDetectorCatalog;
 
 namespace edm {
+  class EventSetup;
   class ParameterSet;
-}
+}  // namespace edm
 
 class SensitiveDetectorMakerBase {
 public:
@@ -31,7 +31,7 @@ public:
 
   // ---------- const member functions ---------------------
   virtual SensitiveDetector* make(const std::string& iname,
-                                  const DDCompactView& cpv,
+                                  const edm::EventSetup& es,
                                   const SensitiveDetectorCatalog& clg,
                                   const edm::ParameterSet& p,
                                   const SimTrackManager* man,

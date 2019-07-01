@@ -14,10 +14,14 @@
 #include "SimG4CMS/Muon/interface/MuonG4Numbering.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSimHitNumberingScheme.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
+
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 
 #include "G4VProcess.hh"
 #include "G4EventManager.hh"
@@ -33,11 +37,11 @@
 //#define DebugLog
 
 MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
-                                             const DDCompactView& cpv,
+                                             const edm::EventSetup& es,
                                              const SensitiveDetectorCatalog& clg,
                                              edm::ParameterSet const& p,
                                              const SimTrackManager* manager)
-    : SensitiveTkDetector(name, cpv, clg, p),
+    : SensitiveTkDetector(name, es, clg, p),
       thePV(nullptr),
       theHit(nullptr),
       theDetUnitId(0),
@@ -55,8 +59,11 @@ MuonSensitiveDetector::MuonSensitiveDetector(const std::string& name,
   LogDebug("MuonSimDebug") << "create MuonSubDetector " << name;
   detector = new MuonSubDetector(name);
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   //The constants take time to calculate and are needed by many helpers
-  MuonDDDConstants constants(cpv);
+  MuonDDDConstants constants(*cpv);
   G4String sdet = "unknown";
   if (detector->isEndcap()) {
     theRotation = new MuonEndcapFrameRotation();

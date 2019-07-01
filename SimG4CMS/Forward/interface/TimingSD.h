@@ -29,7 +29,7 @@ class G4ProcessTypeEnumerator;
 class TimingSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
   TimingSD(const std::string&,
-           const DDCompactView&,
+           const edm::EventSetup&,
            const SensitiveDetectorCatalog&,
            const edm::ParameterSet&,
            const SimTrackManager*);

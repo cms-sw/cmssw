@@ -38,11 +38,11 @@ static const double invdeg = 1.0 / CLHEP::deg;
 
 //-------------------------------------------------------------------
 TimingSD::TimingSD(const std::string& name,
-                   const DDCompactView& cpv,
+                   const edm::EventSetup& es,
                    const SensitiveDetectorCatalog& clg,
                    edm::ParameterSet const& p,
                    const SimTrackManager* manager)
-    : SensitiveTkDetector(name, cpv, clg, p),
+    : SensitiveTkDetector(name, es, clg, p),
       theManager(manager),
       theHC(nullptr),
       currentHit(nullptr),

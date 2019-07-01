@@ -20,11 +20,11 @@
 #include "G4SystemOfUnits.hh"
 
 EcalTBH4BeamSD::EcalTBH4BeamSD(const std::string &name,
-                               const DDCompactView &cpv,
+                               const edm::EventSetup &es,
                                const SensitiveDetectorCatalog &clg,
                                edm::ParameterSet const &p,
                                const SimTrackManager *manager)
-    : CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
+    : CaloSD(name, es, clg, p, manager), numberingScheme(nullptr) {
   edm::ParameterSet m_EcalTBH4BeamSD = p.getParameter<edm::ParameterSet>("EcalTBH4BeamSD");
   useBirk = m_EcalTBH4BeamSD.getParameter<bool>("UseBirkLaw");
   birk1 = m_EcalTBH4BeamSD.getParameter<double>("BirkC1") * (g / (MeV * cm2));
