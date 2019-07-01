@@ -14,52 +14,52 @@ namespace {
 
   // Barrel volume
   struct Barrel {
-    string name; // Barrel volume name
-    string mat;   // Barrel material name
-    VecDouble vecZPts; // Barrel list of z pts
-    VecDouble vecRMin; // Barrel list of rMin pts
-    VecDouble vecRMax; // Barrel list of rMax pts
-    VecDouble vecTran; // Barrel translation
-    VecDouble vecRota; // Barrel rotation
-    VecDouble vecRota2; // 2nd Barrel rotation
-    VecDouble vecRota3; // 2nd Barrel rotation
-    double phiLo; // Barrel phi lo
-    double phiHi; // Barrel phi hi
-    double here;   // Barrel presence flag
+    string name;         // Barrel volume name
+    string mat;          // Barrel material name
+    VecDouble vecZPts;   // Barrel list of z pts
+    VecDouble vecRMin;   // Barrel list of rMin pts
+    VecDouble vecRMax;   // Barrel list of rMax pts
+    VecDouble vecTran;   // Barrel translation
+    VecDouble vecRota;   // Barrel rotation
+    VecDouble vecRota2;  // 2nd Barrel rotation
+    VecDouble vecRota3;  // 2nd Barrel rotation
+    double phiLo;        // Barrel phi lo
+    double phiHi;        // Barrel phi hi
+    double here;         // Barrel presence flag
   };
 
   // Supermodule volume
   struct Supermodule {
-    string name;              // Supermodule volume name
-    string mat;               // Supermodule material name
-    VecDouble vecZPts;   // Supermodule list of z pts
-    VecDouble vecRMin;   // Supermodule list of rMin pts
-    VecDouble vecRMax;   // Supermodule list of rMax pts
-    VecDouble vecTran;   // Supermodule translation
-    VecDouble vecRota;   // Supermodule rotation
-    VecDouble vecBTran;  // Base Supermodule translation
-    VecDouble vecBRota;  // Base Supermodule rotation
-    unsigned int nPerHalf;         // # Supermodules per half detector
-    double lowPhi;                 // Low   phi value of base supermodule
-    double delPhi;                 // Delta phi value of base supermodule
-    double phiOff;                 // Phi offset value supermodule
-    VecDouble vecHere;   // Bit saying if a supermodule is present or not
-    string cutName;           // Name of cut box
-    double cutThick;               // Box thickness
-    int cutShow;                   // Non-zero means show the box on display (testing only)
-    VecDouble vecCutTM;  // Translation for minus phi cut box
-    VecDouble vecCutTP;  // Translation for plus  phi cut box
-    double cutRM;                  // Rotation for minus phi cut box
-    double cutRP;                  // Rotation for plus  phi cut box
-    double expThick;               // Thickness (x) of supermodule expansion box
-    double expWide;                // Width     (y) of supermodule expansion box
-    double expYOff;                // Offset    (y) of supermodule expansion box
-    string sideName;          // Supermodule Side Plate volume name
-    string sideMat;           // Supermodule Side Plate material name
-    double sideHigh;               // Side plate height
-    double sideThick;              // Side plate thickness
-    double sideYOffM;              // Side plate Y offset on minus phi side
-    double sideYOffP;              // Side plate Y offset on plus  phi side
+    string name;            // Supermodule volume name
+    string mat;             // Supermodule material name
+    VecDouble vecZPts;      // Supermodule list of z pts
+    VecDouble vecRMin;      // Supermodule list of rMin pts
+    VecDouble vecRMax;      // Supermodule list of rMax pts
+    VecDouble vecTran;      // Supermodule translation
+    VecDouble vecRota;      // Supermodule rotation
+    VecDouble vecBTran;     // Base Supermodule translation
+    VecDouble vecBRota;     // Base Supermodule rotation
+    unsigned int nPerHalf;  // # Supermodules per half detector
+    double lowPhi;          // Low   phi value of base supermodule
+    double delPhi;          // Delta phi value of base supermodule
+    double phiOff;          // Phi offset value supermodule
+    VecDouble vecHere;      // Bit saying if a supermodule is present or not
+    string cutName;         // Name of cut box
+    double cutThick;        // Box thickness
+    int cutShow;            // Non-zero means show the box on display (testing only)
+    VecDouble vecCutTM;     // Translation for minus phi cut box
+    VecDouble vecCutTP;     // Translation for plus  phi cut box
+    double cutRM;           // Rotation for minus phi cut box
+    double cutRP;           // Rotation for plus  phi cut box
+    double expThick;        // Thickness (x) of supermodule expansion box
+    double expWide;         // Width     (y) of supermodule expansion box
+    double expYOff;         // Offset    (y) of supermodule expansion box
+    string sideName;        // Supermodule Side Plate volume name
+    string sideMat;         // Supermodule Side Plate material name
+    double sideHigh;        // Side plate height
+    double sideThick;       // Side plate thickness
+    double sideYOffM;       // Side plate Y offset on minus phi side
+    double sideYOffP;       // Side plate Y offset on plus  phi side
   };
 
   struct Crystal {
@@ -68,8 +68,8 @@ namespace {
     VecDouble vecNomCryDimAR;  // Nominal crystal AR
     VecDouble vecNomCryDimBR;  // Nominal crystal BR
     VecDouble vecNomCryDimCR;  // Nominal crystal CR
-    double nomCryDimAF;             // Nominal crystal AF
-    double nomCryDimLZ;             // Nominal crystal LZ
+    double nomCryDimAF;        // Nominal crystal AF
+    double nomCryDimLZ;        // Nominal crystal LZ
 
     double underAF;  // undershoot of AF
     double underLZ;  // undershoot of LZ
@@ -79,21 +79,21 @@ namespace {
     double underBR;  // undershoot of BR
     double underCR;  // undershoot of CR
 
-    string name;   // string name of crystal volume
+    string name;      // string name of crystal volume
     string clrName;   // string name of clearance volume
     string wrapName;  // string name of wrap volume
     string wallName;  // string name of wall volume
 
-    string mat;   // string name of crystal material
+    string mat;      // string name of crystal material
     string clrMat;   // string name of clearance material
     string wrapMat;  // string name of wrap material
     string wallMat;  // string name of wall material
   };
 
   struct Alveolus {
-    double wallThAlv;                  // alveoli wall thickness
-    double wrapThAlv;                  // wrapping thickness
-    double clrThAlv;                   // clearance thickness (nominal)
+    double wallThAlv;        // alveoli wall thickness
+    double wrapThAlv;        // wrapping thickness
+    double clrThAlv;         // clearance thickness (nominal)
     VecDouble vecGapAlvEta;  // Extra clearance after each alveoli perp to crystal axis
 
     double wallFrAlv;  // alveoli wall frontage
@@ -103,127 +103,127 @@ namespace {
     double wallReAlv;  // alveoli wall rearage
     double wrapReAlv;  // wrapping rearage
     double clrReAlv;   // clearance rearage (nominal)
-  
+
     unsigned int nCryTypes;      // number of crystal shapes
     unsigned int nCryPerAlvEta;  // number of crystals in eta per alveolus
   };
   struct Capsule {
-    string name;  // Capsule
-    double here;       //
-    string mat;   //
-    double xSize;      //
-    double ySize;      //
-    double thick;      //
+    string name;   // Capsule
+    double here;   //
+    string mat;    //
+    double xSize;  //
+    double ySize;  //
+    double thick;  //
   };
 
   struct Ceramic {
-    string name;  // Ceramic
-    string mat;   //
-    double xSize;      //
-    double ySize;      //
-    double thick;      //
+    string name;   // Ceramic
+    string mat;    //
+    double xSize;  //
+    double ySize;  //
+    double thick;  //
   };
 
   struct BulkSilicon {
-    string name;  // Bulk Silicon
-    string mat;   //
-    double xSize;      //
-    double ySize;      //
-    double thick;      //
+    string name;   // Bulk Silicon
+    string mat;    //
+    double xSize;  //
+    double ySize;  //
+    double thick;  //
   };
 
   struct APD {
-    string name;  // APD
-    string mat;   //
-    double side;       //
-    double thick;      //
-    double z;          //
-    double x1;         //
-    double x2;         //
-  
-    string atjName;  // After-The-Junction
-    string atjMat;   //
-    double atjThick;      //
+    string name;   // APD
+    string mat;    //
+    double side;   //
+    double thick;  //
+    double z;      //
+    double x1;     //
+    double x2;     //
 
-    string sglName;  // APD-Silicone glue
-    string sglMat;   //
-    double sglThick;      //
+    string atjName;   // After-The-Junction
+    string atjMat;    //
+    double atjThick;  //
 
-    string aglName;  // APD-Glue
-    string aglMat;   //
-    double aglThick;      //
+    string sglName;   // APD-Silicone glue
+    string sglMat;    //
+    double sglThick;  //
 
-    string andName;  // APD-Non-Depleted
-    string andMat;   //
-    double andThick;      //
+    string aglName;   // APD-Glue
+    string aglMat;    //
+    double aglThick;  //
+
+    string andName;   // APD-Non-Depleted
+    string andMat;    //
+    double andThick;  //
   };
 
   struct Web {
-    double here;                    // here flag
-    string plName;             // string name of web plate volume
-    string clrName;            // string name of web clearance volume
-    string plMat;              // string name of web material
-    string clrMat;             // string name of web clearance material
+    double here;             // here flag
+    string plName;           // string name of web plate volume
+    string clrName;          // string name of web clearance volume
+    string plMat;            // string name of web material
+    string clrMat;           // string name of web clearance material
     VecDouble vecWebPlTh;    // Thickness of web plates
     VecDouble vecWebClrTh;   // Thickness of total web clearance
     VecDouble vecWebLength;  // Length of web plate
   };
 
   struct InnerLayerVolume {
-    double here;                      // here flag
-    string name;                 // string name of inner layer volume
-    double phiLow;                    // low phi of volumes
-    double delPhi;                    // delta phi of ily
-    VecStr vecIlyMat;  // materials of inner layer volumes
-    VecDouble vecIlyThick;     // Thicknesses of inner layer volumes
+    double here;            // here flag
+    string name;            // string name of inner layer volume
+    double phiLow;          // low phi of volumes
+    double delPhi;          // delta phi of ily
+    VecStr vecIlyMat;       // materials of inner layer volumes
+    VecDouble vecIlyThick;  // Thicknesses of inner layer volumes
 
-    string pipeName;               // Cooling pipes
-    double pipeHere;                    //
-    string pipeMat;                //
-    double pipeOD;                      //
-    double pipeID;                      //
+    string pipeName;             // Cooling pipes
+    double pipeHere;             //
+    string pipeMat;              //
+    double pipeOD;               //
+    double pipeID;               //
     VecDouble vecIlyPipeLength;  //
     VecDouble vecIlyPipeType;    //
     VecDouble vecIlyPipePhi;     //
     VecDouble vecIlyPipeZ;       //
 
-    string pTMName;            // PTM
-    double pTMHere;                 //
-    string pTMMat;             //
-    double pTMWidth;                //
-    double pTMLength;               //
-    double pTMHeight;               //
+    string pTMName;          // PTM
+    double pTMHere;          //
+    string pTMMat;           //
+    double pTMWidth;         //
+    double pTMLength;        //
+    double pTMHeight;        //
     VecDouble vecIlyPTMZ;    //
     VecDouble vecIlyPTMPhi;  //
 
-    string fanOutName;            // FanOut
-    double fanOutHere;                 //
-    string fanOutMat;             //
-    double fanOutWidth;                //
-    double fanOutLength;               //
-    double fanOutHeight;               //
+    string fanOutName;          // FanOut
+    double fanOutHere;          //
+    string fanOutMat;           //
+    double fanOutWidth;         //
+    double fanOutLength;        //
+    double fanOutHeight;        //
     VecDouble vecIlyFanOutZ;    //
     VecDouble vecIlyFanOutPhi;  //
-    string diffName;              // Diffuser
-    string diffMat;               //
-    double diffOff;                    //
-    double diffLength;                 //
-    string bndlName;              // Fiber bundle
-    string bndlMat;               //
-    double bndlOff;                    //
-    double bndlLength;                 //
-    string fEMName;               // FEM
-    string fEMMat;                //
-    double fEMWidth;                   //
-    double fEMLength;                  //
-    double fEMHeight;                  //
+    string diffName;            // Diffuser
+    string diffMat;             //
+    double diffOff;             //
+    double diffLength;          //
+    string bndlName;            // Fiber bundle
+    string bndlMat;             //
+    double bndlOff;             //
+    double bndlLength;          //
+    string fEMName;             // FEM
+    string fEMMat;              //
+    double fEMWidth;            //
+    double fEMLength;           //
+    double fEMHeight;           //
     VecDouble vecIlyFEMZ;       //
     VecDouble vecIlyFEMPhi;     //
   };
 
   struct AlveolarWedge {
-    string hawRName;      // string name of half-alveolar wedge
-    string fawName;       // string name of full-alveolar wedge
+    string hawRName;           // string name of half-alveolar wedge
+    string fawName;            // string name of full-alveolar wedge
     double fawHere;            // here flag
     double hawRHBIG;           // height at big end of half alveolar wedge
     double hawRhsml;           // height at small end of half alveolar wedge
@@ -239,246 +239,246 @@ namespace {
   };
 
   struct Grid {
-    double here;       // here flag
-    string name;  // Grid name
-    string mat;   // Grid material
-    double thick;      // Grid Thickness
+    double here;   // here flag
+    string name;   // Grid name
+    string mat;    // Grid material
+    double thick;  // Grid Thickness
   };
 
   struct Back {
-    double xOff;  //
-    double yOff;  //
-    double here;                      // here flag
-    string sideName;             //  Back Sides
-    double sideHere;                  //
-    double sideLength;                //
-    double sideHeight;                //
-    double sideWidth;                 //
-    double sideYOff1;                 //
-    double sideYOff2;                 //
-    double sideAngle;                 //
-    string sideMat;              //
-    string plateName;            // back plate
-    double plateHere;                 //
-    double plateLength;               //
-    double plateThick;                //
-    double plateWidth;                //
-    string plateMat;             //
-    string plate2Name;           // back plate2
-    double plate2Thick;               //
-    string plate2Mat;            //
+    double xOff;         //
+    double yOff;         //
+    double here;         // here flag
+    string sideName;     //  Back Sides
+    double sideHere;     //
+    double sideLength;   //
+    double sideHeight;   //
+    double sideWidth;    //
+    double sideYOff1;    //
+    double sideYOff2;    //
+    double sideAngle;    //
+    string sideMat;      //
+    string plateName;    // back plate
+    double plateHere;    //
+    double plateLength;  //
+    double plateThick;   //
+    double plateWidth;   //
+    string plateMat;     //
+    string plate2Name;   // back plate2
+    double plate2Thick;  //
+    string plate2Mat;    //
   };
 
   struct Grille {
-    string name;               // grille
-    double here;                    //
-    double thick;                   //
-    double width;                   //
-    double zSpace;                  //
-    string mat;                //
+    string name;          // grille
+    double here;          //
+    double thick;         //
+    double width;         //
+    double zSpace;        //
+    string mat;           //
     VecDouble vecHeight;  //
     VecDouble vecZOff;    //
-    
-    string edgeSlotName;  // Slots in Grille
-    string edgeSlotMat;   //
-    double edgeSlotHere;       //
-    double edgeSlotHeight;     //
-    double edgeSlotWidth;      //
-    
-    string midSlotName;               // Slots in Grille
-    string midSlotMat;                //
-    double midSlotHere;                    //
-    double midSlotWidth;                   //
-    double midSlotXOff;                    //
+
+    string edgeSlotName;    // Slots in Grille
+    string edgeSlotMat;     //
+    double edgeSlotHere;    //
+    double edgeSlotHeight;  //
+    double edgeSlotWidth;   //
+
+    string midSlotName;          // Slots in Grille
+    string midSlotMat;           //
+    double midSlotHere;          //
+    double midSlotWidth;         //
+    double midSlotXOff;          //
     VecDouble vecMidSlotHeight;  //
   };
 
   struct BackPipe {
-    double here;                   // here flag
-    string name;              //
+    double here;         // here flag
+    string name;         //
     VecDouble vecDiam;   // pipes
     VecDouble vecThick;  // pipes
-    string mat;               //
-    string waterMat;          //
+    string mat;          //
+    string waterMat;     //
   };
 
   struct BackCooling {
-    VecStr vecName;  // cooling circuits
-    double here;                       // here flag
-    double barHere;                    // here flag
-    double barWidth;                   //
-    double barHeight;                  //
+    VecStr vecName;    // cooling circuits
+    double here;       // here flag
+    double barHere;    // here flag
+    double barWidth;   //
+    double barHeight;  //
     string mat;
-    string barName;  // cooling bar
-    double barThick;      //
+    string barName;   // cooling bar
+    double barThick;  //
     string barMat;
-    string barSSName;  // cooling bar tubing
-    double barSSThick;      //
+    string barSSName;   // cooling bar tubing
+    double barSSThick;  //
     string barSSMat;
-    string barWaName;  // cooling bar water
-    double barWaThick;      //
+    string barWaName;   // cooling bar water
+    double barWaThick;  //
     string barWaMat;
     double vFEHere;  // here flag
     string vFEName;
     string vFEMat;
     string backVFEName;
     string backVFEMat;
-    VecDouble vecBackVFELyrThick;      //
-    VecStr vecBackVFELyrName;  //
-    VecStr vecBackVFELyrMat;   //
-    VecDouble vecBackCoolNSec;         //
-    VecDouble vecBackCoolSecSep;       //
-    VecDouble vecBackCoolNPerSec;      //
+    VecDouble vecBackVFELyrThick;  //
+    VecStr vecBackVFELyrName;      //
+    VecStr vecBackVFELyrMat;       //
+    VecDouble vecBackCoolNSec;     //
+    VecDouble vecBackCoolSecSep;   //
+    VecDouble vecBackCoolNPerSec;  //
   };
 
   struct BackMisc {
-    double here;                         // here flag
-    VecDouble vecThick;        // misc materials
-    VecStr vecName;    //
-    VecStr vecMat;     //
-    double backCBStdSep;                         //
+    double here;          // here flag
+    VecDouble vecThick;   // misc materials
+    VecStr vecName;       //
+    VecStr vecMat;        //
+    double backCBStdSep;  //
   };
 
   struct PatchPanel {
-    double here;                        // here flag
-    string name;                   //
-    VecDouble vecThick;       // patch panel materials
-    VecStr vecNames;  //
-    VecStr vecMat;    //
+    double here;         // here flag
+    string name;         //
+    VecDouble vecThick;  // patch panel materials
+    VecStr vecNames;     //
+    VecStr vecMat;       //
   };
 
   struct BackCoolTank {
-    double here;         // here flag
-    string name;    // service tank
-    double width;        //
-    double thick;        //
-    string mat;     //
-    string waName;  //
-    double waWidth;      //
-    string waMat;   //
-    string backBracketName;     //
-    double backBracketHeight;        //
-    string backBracketMat;      //
+    double here;               // here flag
+    string name;               // service tank
+    double width;              //
+    double thick;              //
+    string mat;                //
+    string waName;             //
+    double waWidth;            //
+    string waMat;              //
+    string backBracketName;    //
+    double backBracketHeight;  //
+    string backBracketMat;     //
   };
 
   struct DryAirTube {
-    double here;                  // here flag
-    string name;             // dry air tube
-    unsigned int mbCoolTubeNum;             //
-    double innDiam;               //
-    double outDiam;               //
-    string mat;              //
+    double here;                 // here flag
+    string name;                 // dry air tube
+    unsigned int mbCoolTubeNum;  //
+    double innDiam;              //
+    double outDiam;              //
+    string mat;                  //
   };
 
   struct MBCoolTube {
-    double here;                  // here flag
-    string name;             // mothr bd cooling tube
-    double innDiam;               //
-    double outDiam;               //
-    string mat;              //
+    double here;     // here flag
+    string name;     // mothr bd cooling tube
+    double innDiam;  //
+    double outDiam;  //
+    string mat;      //
   };
 
   struct MBManif {
-    double here;                     // here flag
-    string name;                //mother bd manif
-    double innDiam;                  //
-    double outDiam;                  //
-    string mat;                 //
+    double here;     // here flag
+    string name;     //mother bd manif
+    double innDiam;  //
+    double outDiam;  //
+    string mat;      //
   };
 
   struct MBLyr {
-  double here;                       // here flag
-  VecDouble vecMBLyrThick;      // mother bd lyrs
-  VecStr vecMBLyrName;  //
-  VecStr vecMBLyrMat;   //
+    double here;              // here flag
+    VecDouble vecMBLyrThick;  // mother bd lyrs
+    VecStr vecMBLyrName;      //
+    VecStr vecMBLyrMat;       //
   };
 
   struct Pincer {
-    double rodHere;                     // here flag
-    string rodName;                // pincer rod
-    string rodMat;                 //
+    double rodHere;           // here flag
+    string rodName;           // pincer rod
+    string rodMat;            //
     VecDouble vecRodAzimuth;  //
 
-    string envName;             // pincer envelope
-    string envMat;              //
-    double envWidth;                 //
-    double envHeight;                //
-    double envLength;                //
+    string envName;        // pincer envelope
+    string envMat;         //
+    double envWidth;       //
+    double envHeight;      //
+    double envLength;      //
     VecDouble vecEnvZOff;  //
 
-    string blkName;  // pincer block
-    string blkMat;   //
-    double blkLength;     //
+    string blkName;    // pincer block
+    string blkMat;     //
+    double blkLength;  //
 
-    string shim1Name;  // pincer shim
-    double shimHeight;      //
-    string shim2Name;  //
-    string shimMat;    //
-    double shim1Width;      //
-    double shim2Width;      //
+    string shim1Name;   // pincer shim
+    double shimHeight;  //
+    string shim2Name;   //
+    string shimMat;     //
+    double shim1Width;  //
+    double shim2Width;  //
 
-    string cutName;  // pincer block
-    string cutMat;   //
-    double cutWidth;      //
-    double cutHeight;     //
+    string cutName;    // pincer block
+    string cutMat;     //
+    double cutWidth;   //
+    double cutHeight;  //
   };
-}
+}  // namespace
 
 static long algorithm(dd4hep::Detector& /* description */,
-		      cms::DDParsingContext& ctxt,
-		      xml_h e,
-		      dd4hep::SensitiveDetector& /* sens */) {
+                      cms::DDParsingContext& ctxt,
+                      xml_h e,
+                      dd4hep::SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
 
   // Barrel volume
   // barrel parent volume
   Barrel bar;
-  bar.name = args.str("BarName"); // Barrel volume name
-  bar.mat = args.str("BarMat");   // Barrel material name
-  bar.vecZPts = args.vecDble("BarZPts"); // Barrel list of z pts
-  bar.vecRMin = args.vecDble("BarRMin"); // Barrel list of rMin pts
-  bar.vecRMax = args.vecDble("BarRMax"); // Barrel list of rMax pts
-  bar.vecTran = args.vecDble("BarTran"); // Barrel translation
-  bar.vecRota = args.vecDble("BarRota"); // Barrel rotation
-  bar.vecRota2 = args.vecDble("BarRota2"); // 2nd Barrel rotation
-  bar.vecRota3 = args.vecDble("BarRota3"); // 2nd Barrel rotation
-  bar.phiLo = args.dble("BarPhiLo"); // Barrel phi lo
-  bar.phiHi = args.dble("BarPhiHi"); // Barrel phi hi
-  bar.here = args.dble("BarHere");   // Barrel presence flag
+  bar.name = args.str("BarName");           // Barrel volume name
+  bar.mat = args.str("BarMat");             // Barrel material name
+  bar.vecZPts = args.vecDble("BarZPts");    // Barrel list of z pts
+  bar.vecRMin = args.vecDble("BarRMin");    // Barrel list of rMin pts
+  bar.vecRMax = args.vecDble("BarRMax");    // Barrel list of rMax pts
+  bar.vecTran = args.vecDble("BarTran");    // Barrel translation
+  bar.vecRota = args.vecDble("BarRota");    // Barrel rotation
+  bar.vecRota2 = args.vecDble("BarRota2");  // 2nd Barrel rotation
+  bar.vecRota3 = args.vecDble("BarRota3");  // 2nd Barrel rotation
+  bar.phiLo = args.dble("BarPhiLo");        // Barrel phi lo
+  bar.phiHi = args.dble("BarPhiHi");        // Barrel phi hi
+  bar.here = args.dble("BarHere");          // Barrel presence flag
 
   // Supermodule volume
   Supermodule spm;
-  spm.name = args.str("SpmName"); // Supermodule volume name
-  spm.mat = args.str("SpmMat"); // Supermodule material name
-  spm.vecZPts = args.vecDble("SpmZPts"); // Supermodule list of z pts
-  spm.vecRMin = args.vecDble("SpmRMin"); // Supermodule list of rMin pts
-  spm.vecRMax = args.vecDble("SpmRMax"); // Supermodule list of rMax pts
-  spm.vecTran = args.vecDble("SpmTran"); // Supermodule translation
-  spm.vecRota = args.vecDble("SpmRota"); // Supermodule rotation
-  spm.vecBTran = args.vecDble("SpmBTran"); // Base Supermodule translation
-  spm.vecBRota = args.vecDble("SpmBRota"); // Base Supermodule rotation
-  spm.nPerHalf = args.integer("SpmNPerHalf"); // # Supermodules per half detector
-  spm.lowPhi = args.dble("SpmLowPhi"); // Low   phi value of base supermodule
-  spm.delPhi = args.dble("SpmDelPhi"); // Delta phi value of base supermodule
-  spm.phiOff = args.dble("SpmPhiOff"); // Phi offset value supermodule
-  spm.vecHere = args.vecDble("SpmHere"); // Bit saying if a supermodule is present or not
-  spm.cutName = args.str("SpmCutName"); // Name of cut box
-  spm.cutThick = args.dble("SpmCutThick"); // Box thickness
-  spm.cutShow = args.value<int>("SpmCutShow"); // Non-zero means show the box on display (testing only)
-  spm.vecCutTM = args.vecDble("SpmCutTM"); // Translation for minus phi cut box
-  spm.vecCutTP = args.vecDble("SpmCutTP"); // Translation for plus  phi cut box
-  spm.cutRM = args.dble("SpmCutRM"); // Rotation for minus phi cut box
-  spm.cutRP = args.dble("SpmCutRP"); // Rotation for plus  phi cut box
-  spm.expThick = args.dble("SpmExpThick"); // Thickness (x) of supermodule expansion box
-  spm.expWide = args.dble("SpmExpWide"); // Width     (y) of supermodule expansion box
-  spm.expYOff = args.dble("SpmExpYOff"); // Offset    (y) of supermodule expansion box
-  spm.sideName = args.str("SpmSideName"); // Supermodule Side Plate volume name
-  spm.sideMat = args.str("SpmSideMat");     // Supermodule Side Plate material name
-  spm.sideHigh = args.dble("SpmSideHigh");   // Side plate height
-  spm.sideThick = args.dble("SpmSideThick"); // Side plate thickness
-  spm.sideYOffM = args.dble("SpmSideYOffM"); // Side plate Y offset on minus phi side
-  spm.sideYOffP = args.dble("SpmSideYOffP"); // Side plate Y offset on plus  phi side
+  spm.name = args.str("SpmName");               // Supermodule volume name
+  spm.mat = args.str("SpmMat");                 // Supermodule material name
+  spm.vecZPts = args.vecDble("SpmZPts");        // Supermodule list of z pts
+  spm.vecRMin = args.vecDble("SpmRMin");        // Supermodule list of rMin pts
+  spm.vecRMax = args.vecDble("SpmRMax");        // Supermodule list of rMax pts
+  spm.vecTran = args.vecDble("SpmTran");        // Supermodule translation
+  spm.vecRota = args.vecDble("SpmRota");        // Supermodule rotation
+  spm.vecBTran = args.vecDble("SpmBTran");      // Base Supermodule translation
+  spm.vecBRota = args.vecDble("SpmBRota");      // Base Supermodule rotation
+  spm.nPerHalf = args.integer("SpmNPerHalf");   // # Supermodules per half detector
+  spm.lowPhi = args.dble("SpmLowPhi");          // Low   phi value of base supermodule
+  spm.delPhi = args.dble("SpmDelPhi");          // Delta phi value of base supermodule
+  spm.phiOff = args.dble("SpmPhiOff");          // Phi offset value supermodule
+  spm.vecHere = args.vecDble("SpmHere");        // Bit saying if a supermodule is present or not
+  spm.cutName = args.str("SpmCutName");         // Name of cut box
+  spm.cutThick = args.dble("SpmCutThick");      // Box thickness
+  spm.cutShow = args.value<int>("SpmCutShow");  // Non-zero means show the box on display (testing only)
+  spm.vecCutTM = args.vecDble("SpmCutTM");      // Translation for minus phi cut box
+  spm.vecCutTP = args.vecDble("SpmCutTP");      // Translation for plus  phi cut box
+  spm.cutRM = args.dble("SpmCutRM");            // Rotation for minus phi cut box
+  spm.cutRP = args.dble("SpmCutRP");            // Rotation for plus  phi cut box
+  spm.expThick = args.dble("SpmExpThick");      // Thickness (x) of supermodule expansion box
+  spm.expWide = args.dble("SpmExpWide");        // Width     (y) of supermodule expansion box
+  spm.expYOff = args.dble("SpmExpYOff");        // Offset    (y) of supermodule expansion box
+  spm.sideName = args.str("SpmSideName");       // Supermodule Side Plate volume name
+  spm.sideMat = args.str("SpmSideMat");         // Supermodule Side Plate material name
+  spm.sideHigh = args.dble("SpmSideHigh");      // Side plate height
+  spm.sideThick = args.dble("SpmSideThick");    // Side plate thickness
+  spm.sideYOffM = args.dble("SpmSideYOffM");    // Side plate Y offset on minus phi side
+  spm.sideYOffP = args.dble("SpmSideYOffP");    // Side plate Y offset on plus  phi side
 
   Crystal cry;
   cry.nomCryDimAF = args.dble("NomCryDimAF");
@@ -742,7 +742,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   backMisc.vecName = args.vecStr("BackMiscName");
   backMisc.vecMat = args.vecStr("BackMiscMat");
   backMisc.backCBStdSep = args.dble("BackCBStdSep");
-  
+
   PatchPanel patchPanel;
   patchPanel.here = args.dble("PatchPanelHere");
   patchPanel.vecThick = args.vecDble("PatchPanelThick");
@@ -762,7 +762,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   backCoolTank.backBracketName = args.str("BackBracketName");
   backCoolTank.backBracketHeight = args.dble("BackBracketHeight");
   backCoolTank.backBracketMat = args.str("BackBracketMat");
-  
+
   DryAirTube dryAirTube;
   dryAirTube.here = args.dble("DryAirTubeHere");
   dryAirTube.name = args.str("DryAirTubeName");
