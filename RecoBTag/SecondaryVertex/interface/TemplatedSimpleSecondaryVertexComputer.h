@@ -16,6 +16,8 @@
 template <class IPTI, class VTX>
 class TemplatedSimpleSecondaryVertexComputer : public JetTagComputer {
 public:
+  using Tokens = void;
+
   typedef reco::TemplatedSecondaryVertexTagInfo<IPTI, VTX> TagInfo;
 
   TemplatedSimpleSecondaryVertexComputer(const edm::ParameterSet &parameters)

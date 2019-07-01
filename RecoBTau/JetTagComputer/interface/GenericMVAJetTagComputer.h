@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -15,7 +15,12 @@ class JetTagComputerRecord;
 
 class GenericMVAJetTagComputer : public JetTagComputer {
 public:
-  GenericMVAJetTagComputer(const edm::ParameterSet &parameters);
+  struct Tokens {
+    Tokens(const edm::ParameterSet &parameters, edm::ESConsumesCollector &&cc);
+    edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, JetTagComputerRecord> calib_;
+  };
+
+  GenericMVAJetTagComputer(const edm::ParameterSet &parameters, Tokens tokens);
   ~GenericMVAJetTagComputer() override;
 
   void initialize(const JetTagComputerRecord &) override;
@@ -28,7 +33,7 @@ public:
 private:
   std::unique_ptr<TagInfoMVACategorySelector> categorySelector_;
   GenericMVAComputerCache computerCache_;
-  std::string recordLabel_;
+  Tokens tokens_;
 };
 
 #endif  // RecoBTau_JetTagComputer_GenericMVAJetTagComputer_h
