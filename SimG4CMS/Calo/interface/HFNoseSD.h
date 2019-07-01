@@ -13,7 +13,6 @@
 
 #include <string>
 
-class DDCompactView;
 class HGCalDDDConstants;
 class G4LogicalVolume;
 class G4Step;
@@ -21,7 +20,7 @@ class G4Step;
 class HFNoseSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:
   HFNoseSD(const std::string &,
-           const DDCompactView &,
+           const edm::EventSetup &,
            const SensitiveDetectorCatalog &,
            edm::ParameterSet const &,
            const SimTrackManager *);

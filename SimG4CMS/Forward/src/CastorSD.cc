@@ -29,11 +29,11 @@
 //#define debugLog
 
 CastorSD::CastorSD(const std::string& name,
-                   const DDCompactView& cpv,
+                   const edm::EventSetup& es,
                    const SensitiveDetectorCatalog& clg,
                    edm::ParameterSet const& p,
                    const SimTrackManager* manager)
-    : CaloSD(name, cpv, clg, p, manager),
+    : CaloSD(name, es, clg, p, manager),
       numberingScheme(nullptr),
       lvC3EF(nullptr),
       lvC3HF(nullptr),

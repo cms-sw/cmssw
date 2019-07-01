@@ -6,6 +6,9 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Forward/interface/ZdcSD.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "G4SDManager.hh"
@@ -21,11 +24,11 @@
 #include "G4Poisson.hh"
 
 ZdcSD::ZdcSD(const std::string& name,
-             const DDCompactView& cpv,
+             const edm::EventSetup& es,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : CaloSD(name, cpv, clg, p, manager) {
+    : CaloSD(name, es, clg, p, manager) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   useShowerLibrary = m_ZdcSD.getParameter<bool>("UseShowerLibrary");
   useShowerHits = m_ZdcSD.getParameter<bool>("UseShowerHits");
@@ -47,8 +50,11 @@ ZdcSD::ZdcSD(const std::string& name,
 
   edm::LogInfo("ForwardSim") << "\nEnergy Threshold Cut set to " << zdcHitEnergyCut / GeV << " (GeV)";
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   if (useShowerLibrary) {
-    showerLibrary.reset(new ZdcShowerLibrary(name, cpv, p));
+    showerLibrary.reset(new ZdcShowerLibrary(name, *cpv, p));
     setParameterized(true);
   } else {
     showerLibrary.reset(nullptr);

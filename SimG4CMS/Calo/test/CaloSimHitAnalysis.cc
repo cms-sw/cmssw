@@ -67,7 +67,7 @@ private:
   const HcalGeometry* hcalGeom_;
 
   static constexpr int nCalo_ = 6;
-  TH1F *h_hit_[nCalo_], *h_time_[nCalo_], *h_edep_[nCalo_];
+  TH1F *h_hit_[nCalo_], *h_time_[nCalo_], *h_edep_[nCalo_], *h_edepT_[nCalo_];
   TH1F *h_edepEM_[nCalo_], *h_edepHad_[nCalo_], *h_rr_[nCalo_], *h_zz_[nCalo_];
   TH1F *h_eta_[nCalo_], *h_phi_[nCalo_], *h_etot_[nCalo_], *h_etotg_[nCalo_];
   TH2F *h_rz_, *h_etaphi_;
@@ -77,7 +77,7 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     : g4Label_(ps.getUntrackedParameter<std::string>("moduleLabel", "g4SimHits")),
       hitLab_(ps.getParameter<std::vector<std::string> >("hitCollection")),
       timeSliceUnit_(ps.getParameter<std::vector<double> >("timeSliceUnit")),
-      maxEnergy_(ps.getUntrackedParameter<double>("maxEnergy", 200.0)),
+      maxEnergy_(ps.getUntrackedParameter<double>("maxEnergy", 250.0)),
       maxTime_(ps.getUntrackedParameter<double>("maxTime", 1000.0)),
       tMax_(ps.getUntrackedParameter<double>("timeCut", 100.0)),
       tScale_(ps.getUntrackedParameter<double>("timeScale", 1.0)),
@@ -118,6 +118,11 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     h_edep_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
     h_edep_[i]->GetXaxis()->SetTitle(title);
     h_edep_[i]->GetYaxis()->SetTitle("Hits");
+    sprintf(name, "EdepT%d", i);
+    sprintf(title, "Energy deposit (GeV) of each hit in %s", dets[i].c_str());
+    h_edepT_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
+    h_edepT_[i]->GetXaxis()->SetTitle(title);
+    h_edepT_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "EdepEM%d", i);
     sprintf(title, "Energy deposit (GeV) by EM particles in %s", dets[i].c_str());
     h_edepEM_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
@@ -131,22 +136,22 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     ymax = (i > 1) ? 1.0 : maxEnergy_;
     sprintf(name, "Etot%d", i);
     sprintf(title, "Total energy deposit (GeV) in %s", dets[i].c_str());
-    h_etot_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
+    h_etot_[i] = tfile->make<TH1F>(name, title, 50, 0., ymax);
     h_etot_[i]->GetXaxis()->SetTitle(title);
     h_etot_[i]->GetYaxis()->SetTitle("Events");
     sprintf(name, "EtotG%d", i);
     sprintf(title, "Total energy deposit (GeV) in %s (t < 100 ns)", dets[i].c_str());
-    h_etotg_[i] = tfile->make<TH1F>(name, title, 100, 0., ymax);
+    h_etotg_[i] = tfile->make<TH1F>(name, title, 50, 0., ymax);
     h_etotg_[i]->GetXaxis()->SetTitle(title);
     h_etotg_[i]->GetYaxis()->SetTitle("Events");
     sprintf(name, "rr%d", i);
     sprintf(title, "R of hit point (cm) in %s", dets[i].c_str());
-    h_rr_[i] = tfile->make<TH1F>(name, title, 100, 0., 500.);
+    h_rr_[i] = tfile->make<TH1F>(name, title, 100, 0., 250.);
     h_rr_[i]->GetXaxis()->SetTitle(title);
     h_rr_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "zz%d", i);
     sprintf(title, "z of hit point (cm) in %s", dets[i].c_str());
-    h_zz_[i] = tfile->make<TH1F>(name, title, 240, -1200., 1200.);
+    h_zz_[i] = tfile->make<TH1F>(name, title, 240, -600., 600.);
     h_zz_[i]->GetXaxis()->SetTitle(title);
     h_zz_[i]->GetYaxis()->SetTitle("Hits");
     sprintf(name, "eta%d", i);
@@ -161,7 +166,7 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     h_phi_[i]->GetYaxis()->SetTitle("Hits");
   }
   sprintf(title, "R vs Z of hit point");
-  h_rz_ = tfile->make<TH2F>("rz", title, 120, 0., 1200., 100, 0., 500.);
+  h_rz_ = tfile->make<TH2F>("rz", title, 120, 0., 600., 100, 0., 250.);
   h_rz_->GetXaxis()->SetTitle("z (cm)");
   h_rz_->GetYaxis()->SetTitle("R (cm)");
   sprintf(title, "#phi vs #eta of hit point");
@@ -177,7 +182,7 @@ void CaloSimHitAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<std::string>("moduleLabel", "g4SimHits");
   desc.add<std::vector<std::string> >("hitCollection", labels);
   desc.add<std::vector<double> >("timeSliceUnit", times);
-  desc.addUntracked<double>("maxEnergy", 200.0);
+  desc.addUntracked<double>("maxEnergy", 250.0);
   desc.addUntracked<double>("maxTime", 1000.0);
   desc.addUntracked<double>("timeCut", 100.0);
   desc.addUntracked<double>("timeScale", 1.0);
@@ -267,8 +272,11 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       } else {
         ((itr->second).second) += edep;
       }
-      h_edepEM_[idx]->Fill(edepEM);
-      h_edepHad_[idx]->Fill(edepHad);
+      h_edepT_[idx]->Fill(edep);
+      if (edepEM > 0)
+        h_edepEM_[idx]->Fill(edepEM);
+      if (edepHad > 0)
+        h_edepHad_[idx]->Fill(edepHad);
     } else {
       ++nBad;
     }

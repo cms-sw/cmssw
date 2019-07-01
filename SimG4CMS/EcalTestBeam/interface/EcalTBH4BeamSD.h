@@ -20,7 +20,7 @@ class EcalBaseNumber;
 class EcalTBH4BeamSD : public CaloSD {
 public:
   EcalTBH4BeamSD(const std::string &,
-                 const DDCompactView &,
+                 const edm::EventSetup &,
                  const SensitiveDetectorCatalog &,
                  edm::ParameterSet const &,
                  const SimTrackManager *);

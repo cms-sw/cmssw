@@ -30,7 +30,7 @@ class FiberSD : public SensitiveCaloDetector,
                 public Observer<const EndOfEvent *> {
 public:
   explicit FiberSD(const std::string &,
-                   const DDCompactView &,
+                   const edm::EventSetup &,
                    const SensitiveDetectorCatalog &,
                    edm::ParameterSet const &,
                    const SimTrackManager *);

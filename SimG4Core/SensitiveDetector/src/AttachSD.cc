@@ -13,7 +13,7 @@ AttachSD::AttachSD() {}
 AttachSD::~AttachSD() {}
 
 std::pair<std::vector<SensitiveTkDetector*>, std::vector<SensitiveCaloDetector*> > AttachSD::create(
-    const DDCompactView& cpv,
+    const edm::EventSetup& es,
     const SensitiveDetectorCatalog& clg,
     edm::ParameterSet const& p,
     const SimTrackManager* man,
@@ -25,7 +25,7 @@ std::pair<std::vector<SensitiveTkDetector*>, std::vector<SensitiveCaloDetector*>
     std::string className = clg.className(rname);
     std::unique_ptr<SensitiveDetectorMakerBase> temp{SensitiveDetectorPluginFactory::get()->create(className)};
 
-    std::unique_ptr<SensitiveDetector> sd{temp->make(rname, cpv, clg, p, man, reg)};
+    std::unique_ptr<SensitiveDetector> sd{temp->make(rname, es, clg, p, man, reg)};
 
     std::stringstream ss;
     ss << " AttachSD: created a " << className << " with name " << rname;

@@ -17,12 +17,15 @@ class G4Step;
 class G4HCofThisEvent;
 class G4TouchableHistory;
 class G4VPhysicalVolume;
-class DDCompactView;
+
+namespace edm {
+  class EventSetup;
+}
 
 class SensitiveDetector : public G4VSensitiveDetector {
 public:
   explicit SensitiveDetector(const std::string& iname,
-                             const DDCompactView& cpv,
+                             const edm::EventSetup& es,
                              const SensitiveDetectorCatalog&,
                              edm::ParameterSet const& p,
                              bool calo);

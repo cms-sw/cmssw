@@ -24,7 +24,7 @@
 class AHCalSD : public CaloSD {
 public:
   AHCalSD(const std::string&,
-          const DDCompactView&,
+          const edm::EventSetup&,
           const SensitiveDetectorCatalog&,
           edm::ParameterSet const&,
           const SimTrackManager*);
@@ -43,12 +43,12 @@ private:
 };
 
 AHCalSD::AHCalSD(const std::string& name,
-                 const DDCompactView& cpv,
+                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
     : CaloSD(name,
-             cpv,
+             es,
              clg,
              p,
              manager,
