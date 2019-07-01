@@ -10,6 +10,7 @@
 //  V2.10 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
 //  V2.20 - Add directory path selection to the ascii pushfile method
 //  V2.21 - Move templateStore to the heap, fix variable name in pushfile()
+//  V2.30 - Fix interpolation of IrradiationBias corrections
 
 // Build the template storage structure from several pieces
 
