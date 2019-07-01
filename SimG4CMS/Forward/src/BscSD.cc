@@ -21,11 +21,11 @@
 #define debug
 //-------------------------------------------------------------------
 BscSD::BscSD(const std::string& name,
-             const DDCompactView& cpv,
+             const edm::EventSetup& es,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : TimingSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
+    : TimingSD(name, es, clg, p, manager), numberingScheme(nullptr) {
   //Parameters
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BscSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");

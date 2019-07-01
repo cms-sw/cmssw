@@ -3,7 +3,10 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "G4VPhysicalVolume.hh"
@@ -19,12 +22,14 @@
 #include "G4ios.hh"
 
 FiberSD::FiberSD(const std::string& iname,
-                 const DDCompactView& cpv,
+                 const edm::EventSetup& es,
                  const SensitiveDetectorCatalog& clg,
                  edm::ParameterSet const& p,
                  const SimTrackManager* manager)
-    : SensitiveCaloDetector(iname, cpv, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr) {
-  theShower = new HFShower(iname, cpv, p, 1);
+    : SensitiveCaloDetector(iname, es, clg, p), m_trackManager(manager), theHCID(-1), theHC(nullptr) {
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+  theShower = new HFShower(iname, *cpv, p, 1);
 }
 
 FiberSD::~FiberSD() {

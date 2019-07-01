@@ -11,7 +11,7 @@ class G4Step;
 class Bcm1fSD : public TimingSD {
 public:
   Bcm1fSD(const std::string &,
-          const DDCompactView &,
+          const edm::EventSetup &,
           const SensitiveDetectorCatalog &,
           edm::ParameterSet const &,
           const SimTrackManager *);

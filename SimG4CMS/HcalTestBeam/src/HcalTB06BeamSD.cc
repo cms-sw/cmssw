@@ -6,12 +6,15 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -23,11 +26,11 @@
 //#define EDM_ML_DEBUG
 
 HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
-                               const DDCompactView& cpv,
+                               const edm::EventSetup& es,
                                const SensitiveDetectorCatalog& clg,
                                edm::ParameterSet const& p,
                                const SimTrackManager* manager)
-    : CaloSD(name, cpv, clg, p, manager) {
+    : CaloSD(name, es, clg, p, manager) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");
   useBirk = m_HC.getParameter<bool>("UseBirkLaw");
@@ -41,11 +44,14 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
 
   std::string attribute, value;
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   // Wire Chamber volume names
   attribute = "Volume";
   value = "WireChamber";
   DDSpecificsMatchesValueFilter filter1{DDValue(attribute, value, 0)};
-  DDFilteredView fv1(cpv, filter1);
+  DDFilteredView fv1(*cpv, filter1);
   wcNames = getNames(fv1);
   edm::LogInfo("HcalTB06BeamSD") << "HcalTB06BeamSD:: Names to be tested for " << attribute << " = " << value << ": "
                                  << wcNames.size() << " paths";
@@ -55,7 +61,7 @@ HcalTB06BeamSD::HcalTB06BeamSD(const std::string& name,
   //Material list for scintillator detector
   attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter2{DDValue(attribute, name, 0)};
-  DDFilteredView fv2(cpv, filter2);
+  DDFilteredView fv2(*cpv, filter2);
   bool dodet = fv2.firstChild();
 
   std::vector<G4String> matNames;

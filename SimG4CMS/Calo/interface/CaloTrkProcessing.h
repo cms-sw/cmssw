@@ -25,7 +25,7 @@ class CaloTrkProcessing : public SensitiveCaloDetector,
                           public Observer<const G4Step*> {
 public:
   CaloTrkProcessing(const std::string& aSDname,
-                    const DDCompactView& cpv,
+                    const edm::EventSetup& es,
                     const SensitiveDetectorCatalog& clg,
                     edm::ParameterSet const& p,
                     const SimTrackManager*);

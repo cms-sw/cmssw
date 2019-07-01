@@ -44,7 +44,7 @@ class FP420SD : public SensitiveTkDetector,
                 public Observer<const EndOfEvent*> {
 public:
   FP420SD(const std::string&,
-          const DDCompactView&,
+          const edm::EventSetup&,
           const SensitiveDetectorCatalog&,
           edm::ParameterSet const&,
           const SimTrackManager*);

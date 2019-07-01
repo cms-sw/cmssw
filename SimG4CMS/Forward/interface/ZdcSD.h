@@ -13,7 +13,7 @@
 class ZdcSD : public CaloSD {
 public:
   ZdcSD(const std::string &,
-        const DDCompactView &,
+        const edm::EventSetup &,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);
