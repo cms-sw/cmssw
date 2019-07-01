@@ -46,10 +46,10 @@ namespace gem {
   public:
     
   GEBdata() : ch_(0), ct_(0) {};
-    ~GEBdata() {vfatd_.clear();}
+    ~GEBdata() { vfatd_.clear(); }
 
     //!Read chamberHeader from the block.
-    void setChamberHeader(uint64_t word) { ch_ = word;}
+    void setChamberHeader(uint64_t word) { ch_ = word; }
     void setChamberHeader(uint16_t vfatWordCnt, uint8_t inputID)
     {
       GEBchamberHeader u{0};
@@ -60,7 +60,7 @@ namespace gem {
     uint64_t getChamberHeader() const { return ch_; }
 
     //!Read chamberTrailer from the block.
-    void setChamberTrailer(uint64_t word) { ct_ = word;}
+    void setChamberTrailer(uint64_t word) { ct_ = word; }
     void setChamberTrailer(uint32_t ecOH, uint16_t bcOH, uint16_t vfatWordCntT)
     {
       GEBchamberTrailer u{0};
@@ -71,31 +71,30 @@ namespace gem {
     }
     uint64_t getChamberTrailer() const { return ct_; }
 
-
-    uint16_t bxmVvV() const {return GEBchamberHeader{ch_}.BxmVvV;}
-    uint8_t bxmAvV() const {return GEBchamberHeader{ch_}.BxmAvV;}
-    uint8_t oOScVvV() const {return GEBchamberHeader{ch_}.OOScVvV;}
-    uint8_t oOScAvV() const {return GEBchamberHeader{ch_}.OOScAvV;}
-    uint8_t noVFAT() const {return GEBchamberHeader{ch_}.noVFAT;}
-    uint8_t evtSzW() const {return GEBchamberHeader{ch_}.EvtSzW;}
-    uint8_t l1aNF() const {return GEBchamberHeader{ch_}.L1aNF;}
-    uint8_t inNF() const {return GEBchamberHeader{ch_}.InNF;}
-    uint8_t evtNF() const {return GEBchamberHeader{ch_}.EvtNF;}
-    uint8_t evtSzOFW() const {return GEBchamberHeader{ch_}.EvtSzOFW;}
-    uint8_t l1aF() const {return GEBchamberHeader{ch_}.L1aF;}
-    uint8_t inF() const {return GEBchamberHeader{ch_}.InF;}
-    uint8_t evtF() const {return GEBchamberHeader{ch_}.EvtF;}
-    uint16_t vfatWordCnt() const {return GEBchamberHeader{ch_}.VfWdCnt;}
-    uint8_t inputID() const {return GEBchamberHeader{ch_}.inputID;}
-    uint32_t zeroSupWordsCnt() const {return GEBchamberHeader{ch_}.zeroSupWordsCnt;}
+    uint16_t bxmVvV() const { return GEBchamberHeader{ch_}.BxmVvV; }
+    uint8_t bxmAvV() const { return GEBchamberHeader{ch_}.BxmAvV; }
+    uint8_t oOScVvV() const { return GEBchamberHeader{ch_}.OOScVvV; }
+    uint8_t oOScAvV() const { return GEBchamberHeader{ch_}.OOScAvV; }
+    uint8_t noVFAT() const { return GEBchamberHeader{ch_}.noVFAT; }
+    uint8_t evtSzW() const { return GEBchamberHeader{ch_}.EvtSzW; }
+    uint8_t l1aNF() const { return GEBchamberHeader{ch_}.L1aNF; }
+    uint8_t inNF() const { return GEBchamberHeader{ch_}.InNF; }
+    uint8_t evtNF() const { return GEBchamberHeader{ch_}.EvtNF; }
+    uint8_t evtSzOFW() const { return GEBchamberHeader{ch_}.EvtSzOFW; }
+    uint8_t l1aF() const { return GEBchamberHeader{ch_}.L1aF; }
+    uint8_t inF() const { return GEBchamberHeader{ch_}.InF; }
+    uint8_t evtF() const { return GEBchamberHeader{ch_}.EvtF; }
+    uint16_t vfatWordCnt() const { return GEBchamberHeader{ch_}.VfWdCnt; }
+    uint8_t inputID() const { return GEBchamberHeader{ch_}.inputID; }
+    uint32_t zeroSupWordsCnt() const { return GEBchamberHeader{ch_}.zeroSupWordsCnt; }
  
-    uint32_t ecOH() const {return GEBchamberTrailer{ct_}.ecOH;}
-    uint16_t bcOH() const {return GEBchamberTrailer{ct_}.bcOH;}
-    uint8_t inUfw() const {return GEBchamberTrailer{ct_}.InUfw;}
-    uint8_t stuckData() const {return GEBchamberTrailer{ct_}.SkD;}
-    uint8_t evUfw() const {return GEBchamberTrailer{ct_}.EvUfw;}
-    uint16_t vfatWordCntT() const {return GEBchamberTrailer{ct_}.VfWdCntT;}
-    uint16_t crc() const {return GEBchamberTrailer{ct_}.crc16;}
+    uint32_t ecOH() const { return GEBchamberTrailer{ct_}.ecOH; }
+    uint16_t bcOH() const { return GEBchamberTrailer{ct_}.bcOH; }
+    uint8_t inUfw() const { return GEBchamberTrailer{ct_}.InUfw; }
+    uint8_t stuckData() const { return GEBchamberTrailer{ct_}.SkD; }
+    uint8_t evUfw() const { return GEBchamberTrailer{ct_}.EvUfw; }
+    uint16_t vfatWordCntT() const { return GEBchamberTrailer{ct_}.VfWdCntT; }
+    uint16_t crc() const { return GEBchamberTrailer{ct_}.crc16; }
 
     //!Adds VFAT data to the vector
     void addVFAT(VFATdata v) { vfatd_.push_back(v); }

@@ -51,7 +51,7 @@ namespace gem {
   class AMC13Event {
   public:
   AMC13Event() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
-    ~AMC13Event() {amcHeaders_.clear(); amcs_.clear();}
+    ~AMC13Event() { amcHeaders_.clear(); amcs_.clear(); }
 
     void setCDFHeader(uint64_t word) { cdfh_ = word; }
     void setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
