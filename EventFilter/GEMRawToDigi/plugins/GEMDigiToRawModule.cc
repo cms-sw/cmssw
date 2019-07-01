@@ -21,9 +21,9 @@
 using namespace gem;
 
 GEMDigiToRawModule::GEMDigiToRawModule(const edm::ParameterSet& pset)
-  : event_type_(pset.getParameter<int>("eventType")),
-    digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
-    useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
+    : event_type_(pset.getParameter<int>("eventType")),
+      digi_token(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigi"))),
+      useDBEMap_(pset.getParameter<bool>("useDBEMap")) {
   produces<FEDRawDataCollection>();
 }
 
@@ -115,9 +115,9 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
                 msData |= 1UL << (chMap.chNum - 64);
 
               LogDebug("GEMDigiToRawModule")
-                << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
-                << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
-                << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
+                  << " fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
+                  << " vfat:" << vfat_dc.localPhi << ",type: " << vfat_dc.vfatType << " id:" << gemId
+                  << " ch:" << chMap.chNum << " st:" << digi.strip() << " bx:" << digi.bx();
             }
 
             if (!hasDigi)
@@ -127,107 +127,102 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             gebData->addVFAT(*vfatData);
           }
 
-      }  // end of vfats in GEB
+        }  // end of vfats in GEB
 
-      if (!gebData->vFATs()->empty()) {
-        uint16_t vfatWordCnt = gebData->vFATs()->size()*3;
-        gebData->setChamberHeader(vfatWordCnt, gebId);
-        gebData->setChamberTrailer(0, 0, vfatWordCnt);          
-        amcData->addGEB(*gebData);
+        if (!gebData->vFATs()->empty()) {
+          gebData->setChamberHeader(gebData->vFATs()->size() * 3, gebId);
+          gebData->setChamberTrailer(0, 0, gebData->vFATs()->size() * 3);
+          amcData->addGEB(*gebData);
+        }
+
+      }  // end of GEB loop
+
+      if (!amcData->gebs()->empty()) {
+        amcData->setAMCheader1(0, GEMeMap::amcBX_, 0, amcNum);
+        amcData->setAMCheader2(amcNum, 0, 1);
+        amcData->setGEMeventHeader(amcData->gebs()->size(), 0);
+        amc13Event->addAMCpayload(*amcData);
       }
 
-    }  // end of GEB loop
+    }  // end of AMC loop
 
-    if (!amcData->gebs()->empty()) {
-      amcData->setAMCheader1(0, GEMeMap::amcBX_, 0, amcNum);
-      amcData->setAMCheader2(amcNum, 0, 1);
-      amcData->setGEMeventHeader(amcData->gebs()->size(), 0);
-      amc13Event->addAMCpayload(*amcData);
-    }
+    if (!amc13Event->getAMCpayloads()->empty()) {
+      // CDFHeader
+      uint32_t LV1_id = iEvent.id().event();
+      uint16_t BX_id = iEvent.bunchCrossing();
+      amc13Event->setCDFHeader(event_type_, LV1_id, BX_id, fedId);
 
-  }  // end of AMC loop
+      // AMC13header
+      uint8_t CalTyp = 1;
+      uint8_t nAMC = amc13Event->getAMCpayloads()->size();
+      uint32_t OrN = 2;
+      amc13Event->setAMC13Header(CalTyp, nAMC, OrN);
 
-  if (!amc13Event->getAMCpayloads()->empty()) {
-    // CDFHeader
-    uint32_t LV1_id = iEvent.id().event();
-    uint16_t BX_id = iEvent.bunchCrossing();
-    amc13Event->setCDFHeader(event_type_, LV1_id, BX_id, fedId);
-
-    // AMC13header
-    uint8_t CalTyp = 1;
-    uint8_t nAMC = amc13Event->getAMCpayloads()->size();
-    uint32_t OrN = 2;
-    amc13Event->setAMC13Header(CalTyp, nAMC, OrN);
-
-    for (unsigned short i = 0; i < amc13Event->nAMC(); ++i) {
-      uint32_t AMC_size = 0;
-      uint8_t Blk_No = 0;
-      uint8_t AMC_No = 0;
-      uint16_t BoardID = 0;
-      amc13Event->addAMCheader(AMC_size, Blk_No, AMC_No, BoardID);
-    }
-
-    //AMC13 trailer
-    uint8_t Blk_NoT = 0;
-    uint8_t LV1_idT = 0;
-    uint16_t BX_idT = BX_id;
-    amc13Event->setAMC13Trailer(Blk_NoT, LV1_idT, BX_idT);
-    //CDF trailer
-    uint32_t EvtLength = 0;
-    amc13Event->setCDFTrailer(EvtLength);
-    amc13Events.emplace_back(std::move(amc13Event));
-  }  // finished making amc13Event data
-
-}  // end of FED loop
-
-// read out amc13Events into fedRawData
-for (const auto& amc13e : amc13Events) {
-  std::vector<uint64_t> words;
-  words.emplace_back(amc13e->getCDFHeader());
-  words.emplace_back(amc13e->getAMC13Header());
-    
-  for (const auto & w: *amc13e->getAMCheaders()) {
-    words.emplace_back(w);
-  }
-  LogDebug("GEMDigiToRawModule") <<"AMC size " << int(amc13e->nAMC());
-  for (const auto & amc : *amc13e->getAMCpayloads()) {
-      
-    words.emplace_back(amc.getAMCheader1());
-    words.emplace_back(amc.getAMCheader2());
-    words.emplace_back(amc.getGEMeventHeader());
-
-    LogDebug("GEMDigiToRawModule") <<"davCnt " << int(amc.davCnt());      
-    for (const auto & geb: *amc.gebs()) {
-      words.emplace_back(geb.getChamberHeader());
-
-      LogDebug("GEMDigiToRawModule") <<"vfatWordCnt " << int(geb.vfatWordCnt())/3;        
-      for (const auto & vfat: *geb.vFATs()) {
-        words.emplace_back(vfat.get_fw());
-        words.emplace_back(vfat.get_sw());
-        words.emplace_back(vfat.get_tw());
+      for (unsigned short i = 0; i < amc13Event->nAMC(); ++i) {
+        uint32_t AMC_size = 0;
+        uint8_t Blk_No = 0;
+        uint8_t AMC_No = 0;
+        uint16_t BoardID = 0;
+        amc13Event->addAMCheader(AMC_size, Blk_No, AMC_No, BoardID);
       }
 
-      words.emplace_back(geb.getChamberTrailer());
+      //AMC13 trailer
+      uint8_t Blk_NoT = 0;
+      uint8_t LV1_idT = 0;
+      uint16_t BX_idT = BX_id;
+      amc13Event->setAMC13Trailer(Blk_NoT, LV1_idT, BX_idT);
+      //CDF trailer
+      uint32_t EvtLength = 0;
+      amc13Event->setCDFTrailer(EvtLength);
+      amc13Events.emplace_back(std::move(amc13Event));
+    }  // finished making amc13Event data
+
+  }  // end of FED loop
+
+  // read out amc13Events into fedRawData
+  for (const auto& amc13e : amc13Events) {
+    std::vector<uint64_t> words;
+    words.emplace_back(amc13e->getCDFHeader());
+    words.emplace_back(amc13e->getAMC13Header());
+
+    for (const auto& w : *amc13e->getAMCheaders())
+      words.emplace_back(w);
+
+    for (const auto& amc : *amc13e->getAMCpayloads()) {
+      words.emplace_back(amc.getAMCheader1());
+      words.emplace_back(amc.getAMCheader2());
+      words.emplace_back(amc.getGEMeventHeader());
+
+      for (const auto& geb : *amc.gebs()) {
+        words.emplace_back(geb.getChamberHeader());
+
+        for (const auto& vfat : *geb.vFATs()) {
+          words.emplace_back(vfat.get_fw());
+          words.emplace_back(vfat.get_sw());
+          words.emplace_back(vfat.get_tw());
+        }
+
+        words.emplace_back(geb.getChamberTrailer());
+      }
+
+      words.emplace_back(amc.getGEMeventTrailer());
+      words.emplace_back(amc.getAMCTrailer());
     }
 
-    words.emplace_back(amc.getGEMeventTrailer());
-    words.emplace_back(amc.getAMCTrailer());
+    words.emplace_back(amc13e->getAMC13Trailer());
+    words.emplace_back(amc13e->getCDFTrailer());
+
+    FEDRawData& fedRawData = fedRawDataCol->FEDData(amc13e->sourceId());
+
+    int dataSize = (words.size()) * sizeof(uint64_t);
+    fedRawData.resize(dataSize);
+
+    uint64_t* w = reinterpret_cast<uint64_t*>(fedRawData.data());
+    for (const auto& word : words)
+      *(w++) = word;
+
+    LogDebug("GEMDigiToRawModule") << " words " << words.size();
   }
 
-  words.emplace_back(amc13e->getAMC13Trailer());
-  words.emplace_back(amc13e->getCDFTrailer());
-
-  FEDRawData& fedRawData = fedRawDataCol->FEDData(amc13e->sourceId());
-
-  int dataSize = (words.size()) * sizeof(uint64_t);
-  fedRawData.resize(dataSize);
-    
-  uint64_t * w = reinterpret_cast<uint64_t* >(fedRawData.data());  
-  for (const auto & word: words) *(w++) = word;
-    
-  LogDebug("GEMDigiToRawModule") <<"FED size " << words.size();
-
- }
-
-iEvent.put(std::move(fedRawDataCol));
+  iEvent.put(std::move(fedRawDataCol));
 }

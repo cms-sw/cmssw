@@ -8,43 +8,43 @@ namespace gem {
   union CDFHeader {
     uint64_t word;
     struct {
-      uint64_t fov : 8;         // not used
-      uint64_t sourceId : 12;   // FED number assigned by CDAQ
-      uint64_t bxId : 12;       // BX number, Reset by BC0
-      uint64_t lv1Id : 24;      // L1A / event number, Reset by EC0
-      uint64_t eventType : 4;   // Event Type (1 for normal, 2 for calibration)
-      uint64_t cb5 : 4;         // 0x5
+      uint64_t fov : 8;        // not used
+      uint64_t sourceId : 12;  // FED number assigned by CDAQ
+      uint64_t bxId : 12;      // BX number, Reset by BC0
+      uint64_t lv1Id : 24;     // L1A / event number, Reset by EC0
+      uint64_t eventType : 4;  // Event Type (1 for normal, 2 for calibration)
+      uint64_t cb5 : 4;        // 0x5
     };
   };
   union AMC13Header {
     uint64_t word;
     struct {
-      uint64_t cb0 : 4;         // 0x0
-      uint64_t orbitN : 32;     // Orbit Number
-      uint64_t reserved0 : 16;  // reserved
-      uint64_t nAMC : 4;        // Number of AMCs following (0 to 12)
-      uint64_t calType : 4;     // Calibration event type
-      uint64_t uFov : 4;        // Format version: 0x1
+      uint64_t cb0 : 4;        // 0x0
+      uint64_t orbitN : 32;    // Orbit Number
+      uint64_t reserved0 : 16; // reserved
+      uint64_t nAMC : 4;       // Number of AMCs following (0 to 12)
+      uint64_t calType : 4;    // Calibration event type
+      uint64_t uFov : 4;       // Format version: 0x1
     };
   };
   union AMC13Trailer {
     uint64_t word;
     struct {
-      uint64_t bxIdT : 12;      // bx id
-      uint64_t lv1IdT : 8;      // level 1 id
-      uint64_t blkN : 8;        // block number
-      uint64_t crc32 : 36;      // Overall CRC (first 32 bits)
+      uint64_t bxIdT : 12;     // bx id
+      uint64_t lv1IdT : 8;     // level 1 id
+      uint64_t blkN : 8;       // block number
+      uint64_t crc32 : 36;     // Overall CRC (first 32 bits)
     };
   };
   union CDFTrailer {
     uint64_t word;
     struct {
-      uint64_t tts : 8;         // tts (first 4 bits)
-      uint64_t evtStat : 4;     // event status
-      uint64_t crcCDF : 20;     // CDF crc (first 16 bits)
-      uint64_t evtLength : 24;  // event length
-      uint64_t eventType : 4;   // Event Type
-      uint64_t cbA : 4;         // 0xA
+      uint64_t tts : 8;        // tts (first 4 bits)
+      uint64_t evtStat : 4;    // event status
+      uint64_t crcCDF : 20;    // CDF crc (first 16 bits)
+      uint64_t evtLength : 24; // event length
+      uint64_t eventType : 4;  // Event Type
+      uint64_t cbA : 4;        // 0xA
     };
   };
 
