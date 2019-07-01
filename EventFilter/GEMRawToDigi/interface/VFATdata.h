@@ -9,13 +9,13 @@ namespace gem {
     uint64_t word;
     // v3 dataformat
     struct {
-      uint64_t msData1  : 16; ///<channels from 65to128
-      uint64_t bc       : 16; ///<Bunch Crossing number, 16 bits
-      uint64_t ec       : 8;  ///<Event Counter, 8 bits
-      uint64_t header   : 8;  ///<normally 0x1E. 0x5E indicates that the VFAT3 internal buffer is half-full, so it's like a warning
-      uint64_t vc       : 1;  /// VFAT CRC Error
-      uint64_t unused   : 7;  ///<bits 183:177 are not used, should be 0, bit 176 is 1 if CTP7 detected a CRC mismatch
-      uint64_t pos      : 8;  ///<an 8bit value indicating the VFAT position on this GEB (it can be 0 to 23)
+      uint64_t msData1 : 16;    ///<channels from 65to128
+      uint64_t bc : 16;         ///<Bunch Crossing number, 16 bits
+      uint64_t ec : 8;          ///<Event Counter, 8 bits
+      uint64_t header : 8;      ///<normally 0x1E. 0x5E indicates that the VFAT3 internal buffer is half-full, so it's like a warning
+      uint64_t vc : 1;          /// VFAT CRC Error
+      uint64_t unused : 7;      ///<bits 183:177 are not used, should be 0, bit 176 is 1 if CTP7 detected a CRC mismatch
+      uint64_t pos : 8;         ///<an 8bit value indicating the VFAT position on this GEB (it can be 0 to 23)
     };
     // v2 dataformat
     struct {
@@ -32,15 +32,15 @@ namespace gem {
   union VFATsecond {
     uint64_t word;
     struct {
-      uint64_t lsData1 : 16;  ///<channels from 1to64
-      uint64_t msData2 : 48;  ///<channels from 65to128
+      uint64_t lsData1 : 16;    ///<channels from 1to64
+      uint64_t msData2 : 48;    ///<channels from 65to128
     };
   };
   union VFATthird {
     uint64_t word;
     struct {
-      uint64_t crc : 16;      ///<Check Sum value, 16 bits
-      uint64_t lsData2 : 48;  ///<channels from 1to64
+      uint64_t crc : 16;        ///<Check Sum value, 16 bits
+      uint64_t lsData2 : 48;    ///<channels from 1to64
     };
   };
 
