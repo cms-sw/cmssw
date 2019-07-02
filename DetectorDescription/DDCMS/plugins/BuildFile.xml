@@ -17,6 +17,7 @@
 </library>
 
 <library name="DetectorDescriptionDD4HepPlugins" file="dd4hep/*.cc" >
+  <use name="MagneticField/Records"/>
   <use name="rootgeom"/>
   <flags DD4HEP_PLUGIN="1"/>
 </library>
