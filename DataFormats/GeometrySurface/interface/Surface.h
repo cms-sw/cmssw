@@ -56,7 +56,10 @@ protected:
       : Base(pos, rot), theMediumProperties(mp), theBounds(bounds) {}
 
   Surface(const Surface& iSurface)
-      :  ReferenceCountedInConditions(iSurface), Base(iSurface), theMediumProperties(iSurface.theMediumProperties), theBounds(iSurface.theBounds) {}
+      : ReferenceCountedInConditions(iSurface),
+        Base(iSurface),
+        theMediumProperties(iSurface.theMediumProperties),
+        theBounds(iSurface.theBounds) {}
 
   Surface(Surface&& iSurface)
       : Base(iSurface), theMediumProperties(iSurface.theMediumProperties), theBounds(std::move(iSurface.theBounds)) {}
