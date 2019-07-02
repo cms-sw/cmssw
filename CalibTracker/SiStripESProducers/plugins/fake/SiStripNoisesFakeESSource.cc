@@ -41,6 +41,7 @@ public:
   ReturnType produce(const SiStripNoisesRcd&);
 
 private:
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> m_tTopoToken;
   bool m_stripLengthMode;
   double m_noisePar0;
   SiStripFakeAPVParameters m_noisePar1;
@@ -49,7 +50,6 @@ private:
   SiStripDetInfoFileReader m_detInfoFileReader;
 };
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
@@ -62,7 +62,7 @@ namespace {  // helper methods
 }  // namespace
 
 SiStripNoisesFakeESSource::SiStripNoisesFakeESSource(const edm::ParameterSet& iConfig) {
-  setWhatProduced(this);
+  setWhatProduced(this).setConsumes(m_tTopoToken);
   findingRecord<SiStripNoisesRcd>();
 
   m_stripLengthMode = iConfig.getParameter<bool>("StripLengthMode");
@@ -97,8 +97,7 @@ void SiStripNoisesFakeESSource::setIntervalFor(const edm::eventsetup::EventSetup
 SiStripNoisesFakeESSource::ReturnType SiStripNoisesFakeESSource::produce(const SiStripNoisesRcd& iRecord) {
   using namespace edm::es;
 
-  edm::ESHandle<TrackerTopology> tTopo;
-  iRecord.getRecord<TrackerTopologyRcd>().get(tTopo);
+  const auto& tTopo = iRecord.get(m_tTopoToken);
 
   auto noises = std::make_unique<SiStripNoises>();
 
@@ -106,7 +105,7 @@ SiStripNoisesFakeESSource::ReturnType SiStripNoisesFakeESSource::produce(const S
   for (const auto& elm : m_detInfoFileReader.getAllData()) {
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
-    SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(tTopo.product(), elm.first);
+    SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(&tTopo, elm.first);
 
     if (m_stripLengthMode) {
       // Use strip length
