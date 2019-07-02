@@ -13,9 +13,12 @@
 #include "Utilities/BinningTools/interface/PeriodicBinFinderInPhi.h"
 
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include <iostream>
 
 using namespace std;
 using namespace edm;
@@ -63,12 +66,15 @@ MagGeometry::MagGeometry(int geomVersion,
   //FIXME assume sectors are already sorted in phi
   //FIXME: PeriodicBinFinderInPhi gets *center* of first bin
   int nEBins = theESectors.size();
-  theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi() + Geom::pi() / nEBins, nEBins);
+  if (nEBins > 0)
+    theEndcapBinFinder = new PeriodicBinFinderInPhi<float>(theESectors.front()->minPhi() + Geom::pi() / nEBins, nEBins);
 }
 
 MagGeometry::~MagGeometry() {
-  delete theBarrelBinFinder;
-  delete theEndcapBinFinder;
+  if (theBarrelBinFinder != nullptr)
+    delete theBarrelBinFinder;
+  if (theEndcapBinFinder != nullptr)
+    delete theEndcapBinFinder;
 
   for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
     delete (*ilay);
@@ -103,11 +109,16 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint& gp) const {
 MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double tolerance) const {
   MagVolume6Faces const* found = nullptr;
 
+  int errCnt = 0;
   if (inBarrel(gp)) {  // Barrel
     for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin(); v != theBVolumes.end(); ++v) {
       if ((*v) == nullptr) {  //FIXME: remove this check
-        cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
-        continue;
+        cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume for barrel not set" << endl;
+        ++errCnt;
+        if (errCnt < 3)
+          continue;
+        else
+          break;
       }
       if ((*v)->inside(gp, tolerance)) {
         found = (*v);
@@ -118,8 +129,12 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
   } else {  // Endcaps
     for (vector<MagVolume6Faces const*>::const_iterator v = theEVolumes.begin(); v != theEVolumes.end(); ++v) {
       if ((*v) == nullptr) {  //FIXME: remove this check
-        cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
-        continue;
+        cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume for endcap not set" << endl;
+        ++errCnt;
+        if (errCnt < 3)
+          continue;
+        else
+          break;
       }
       if ((*v)->inside(gp, tolerance)) {
         found = (*v);
@@ -157,12 +172,15 @@ MagVolume const* MagGeometry::findVolume(const GlobalPoint& gp, double tolerance
 
   } else {  // Endcaps
     Geom::Phi<float> phi = gp.phi();
-    int bin = theEndcapBinFinder->binIndex(phi);
-    if (verbose::debugOut)
-      cout << "Trying endcap sector at phi " << theESectors[bin]->minPhi() << " " << phi << endl;
-    result = theESectors[bin]->findVolume(gp, tolerance);
-    if (verbose::debugOut)
-      cout << "***In guessed esector " << (result == nullptr ? " failed " : " OK ") << endl;
+    if (theEndcapBinFinder != nullptr && !theESectors.empty()) {
+      int bin = theEndcapBinFinder->binIndex(phi);
+      if (verbose::debugOut)
+        cout << "Trying endcap sector at phi " << theESectors[bin]->minPhi() << " " << phi << endl;
+      result = theESectors[bin]->findVolume(gp, tolerance);
+      if (verbose::debugOut)
+        cout << "***In guessed esector " << (result == nullptr ? " failed " : " OK ") << endl;
+    } else
+      edm::LogError("MagGeometry") << "Endcap empty";
   }
 
   if (result == nullptr && tolerance < 0.0001) {

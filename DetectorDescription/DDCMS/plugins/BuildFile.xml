@@ -9,14 +9,16 @@
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc,DDDetectorESProducer.cc,DDVectorRegistryESProducer.cc,DDSpecParRegistryESProducer.cc,DDCompactViewESProducer.cc" >
+<library name="DetectorDescriptionPlugins" file="DDCMSDetector.cc,DDDetectorESProducer.cc,DDVectorRegistryESProducer.cc,DDSpecParRegistryESProducer.cc,DDCompactViewESProducer.cc,DDCompactViewMFESProducer.cc" >
   <use name="Geometry/Records"/>
+  <use name="MagneticField/Records"/>
   <lib name="Geom"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library name="DetectorDescriptionDD4HepPlugins" file="*.cc" >
   <flags SKIP_FILES="DTGeometryESProducer.cc"/>
   <flags SKIP_FILES="DDCompactViewESProducer.cc"/>
+  <flags SKIP_FILES="DDCompactViewMFESProducer.cc"/>
   <flags SKIP_FILES="DDCMSDetector.cc"/>
   <flags SKIP_FILES="DDTestCompactView.cc"/>
   <flags SKIP_FILES="DDTestVectors.cc"/>

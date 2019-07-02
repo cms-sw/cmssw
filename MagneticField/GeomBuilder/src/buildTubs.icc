@@ -1,21 +1,18 @@
-void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "Building tubs surfaces...: " << endl;
+void volumeHandle::buildTubs() {
+  LogDebug("magneticfield::volumeHandle") << "Building tubs surfaces...: " << endl;
 
   DDTubs tubs(solid);
 
-  double zhalf = tubs.zhalf() / cm;
-  double rIn = tubs.rIn() / cm;
-  double rOut = tubs.rOut() / cm;
+  // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
+  // convertUnits should be defined appropriately.
+  double zhalf = convertUnits(tubs.zhalf());
+  double rIn = convertUnits(tubs.rIn());
+  double rOut = convertUnits(tubs.rOut());
   double startPhi = tubs.startPhi();
   double deltaPhi = tubs.deltaPhi();
 
-  if (MagGeoBuilderFromDDD::debug)
-    cout << "zhalf    " << zhalf << endl
-         << "rIn      " << rIn << endl
-         << "rOut     " << rOut << endl
-         << "startPhi " << startPhi << endl
-         << "deltaPhi " << deltaPhi << endl;
+  LogDebug("magneticfield::volumeHandle") << " zhalf    " << zhalf << "\n rIn      " << rIn << "\n rOut     " << rOut
+                                          << "\n startPhi " << startPhi << "\n deltaPhi " << deltaPhi;
 
   // recalculate center: (for a DDTubs, DDD gives 0,0,Z)
   double rCentr = (rIn + rOut) / 2.;
@@ -36,13 +33,12 @@ void MagGeoBuilderFromDDD::volumeHandle::buildTubs(const DDExpandedView &fv) {
   buildPhiZSurf(startPhi, deltaPhi, zhalf, rCentr);
 
   // Check ordering.
-  if (MagGeoBuilderFromDDD::debug) {
-    if (dynamic_cast<const Cylinder *>(&(*surfaces[outer]))->radius() <
-        dynamic_cast<const Cylinder *>(&(*surfaces[inner]))->radius()) {
-      cout << "*** WARNING: pos_outer < pos_inner " << endl;
+  if (debug) {
+    if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
+        dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()) {
+      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner " << endl;
     }
   }
-
   // Save volume boundaries
   theRMin = rIn;
   theRMax = rOut;
