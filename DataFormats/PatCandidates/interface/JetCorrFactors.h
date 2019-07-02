@@ -35,6 +35,9 @@
 namespace pat {
 
   class JetCorrFactors {
+
+  friend class Jet;
+
   public:
     // jet energy correction factor. For flavor independent jet energy corrections the
     // std::vector<float> holds just a single entry. From the first flavor dependent entry
