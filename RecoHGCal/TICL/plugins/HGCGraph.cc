@@ -43,8 +43,8 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
       auto firstLayerOnZSide =  maxNumberOfLayers * zSide;
       const auto &firstLayerHisto = histo[firstLayerOnZSide];
 
-      int entryEtaBin = firstLayerHisto.getEtaBin(r.origin.eta());
-      int entryPhiBin = firstLayerHisto.getPhiBin(r.origin.phi());
+      int entryEtaBin = firstLayerHisto.etaBin(r.origin.eta());
+      int entryPhiBin = firstLayerHisto.phiBin(r.origin.phi());
       startEtaBin = std::max(entryEtaBin - 2, 0);
       endEtaBin = std::min(startEtaBin + 5, nEtaBins);
       startPhiBin = entryPhiBin - 2;

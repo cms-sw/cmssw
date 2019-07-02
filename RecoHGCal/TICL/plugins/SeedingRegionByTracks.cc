@@ -24,8 +24,8 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
 SeedingRegionByTracks::~SeedingRegionByTracks(){};
 
 void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
-                                            const edm::EventSetup &es,
-                                            std::vector<ticl::TICLSeedingRegion> &result) {
+					const edm::EventSetup &es,
+					std::vector<ticl::TICLSeedingRegion> &result) {
 
   std::call_once(initializeGeometry_, [&](){
       edm::ESHandle<HGCalDDDConstants> hdc;
