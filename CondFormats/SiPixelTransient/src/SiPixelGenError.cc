@@ -1,5 +1,5 @@
 //
-//  SiPixelGenError.cc  Version 2.20
+//  SiPixelGenError.cc  Version 2.30
 //
 //  Object stores Lorentz widths, bias corrections, and errors for the Generic Algorithm
 //
@@ -10,7 +10,7 @@
 //  V2.10 - Update the variable size [SI_PIXEL_TEMPLATE_USE_BOOST] option so that it works with VI's enhancements
 //  V2.20 - Add directory path selection to the ascii pushfile method
 //  V2.21 - Move templateStore to the heap, fix variable name in pushfile()
-
+//  V2.30 - Fix interpolation of IrradiationBias corrections
 
 //#include <stdlib.h>
 //#include <stdio.h>
@@ -676,6 +676,18 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    sy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].syone + yratio*thePixelTemp_[index].enty[ihigh].syone;
    sy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].sytwo + yratio*thePixelTemp_[index].enty[ihigh].sytwo;   
    
+   if(irradiationCorrections){
+
+     auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
+     if(flip_y) {yavggen = -yavggen;}
+     deltay = yavggen;
+     dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
+     if(flip_y) {dy1 = -dy1;}
+     dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
+     if(flip_y) {dy2 = -dy2;}
+
+   }
+
    // next, loop over all x-angle entries, first, find relevant y-slices
    
    auto iylow = 0;
@@ -722,14 +734,7 @@ int SiPixelGenError::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
    
    
    if(irradiationCorrections) {
-      auto yavggen =(1.f - yratio)*thePixelTemp_[index].enty[ilow].yavggen[binq] + yratio*thePixelTemp_[index].enty[ihigh].yavggen[binq];
-      if(flip_y) {yavggen = -yavggen;}
-      deltay = yavggen;
-      dy1 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dyone + yratio*thePixelTemp_[index].enty[ihigh].dyone;
-      if(flip_y) {dy1 = -dy1;}
-      dy2 = (1.f - yratio)*thePixelTemp_[index].enty[ilow].dytwo + yratio*thePixelTemp_[index].enty[ihigh].dytwo;
-      if(flip_y) {dy2 = -dy2;}
-
+   
       auto xavggen = (1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index].entx[iylow][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iylow][ihigh].xavggen[binq])
       +yxratio*((1.f - xxratio)*thePixelTemp_[index].entx[iyhigh][ilow].xavggen[binq] + xxratio*thePixelTemp_[index].entx[iyhigh][ihigh].xavggen[binq]);
       if(flip_x) {xavggen = -xavggen;}
