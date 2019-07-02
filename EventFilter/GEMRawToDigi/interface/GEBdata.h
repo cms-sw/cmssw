@@ -11,47 +11,45 @@ namespace gem {
   union GEBchamberHeader {
     uint64_t word;
     struct {
-      uint64_t BxmVvV : 11;          // 1st bit BX mismatch VFAT vs VFAT
-      uint64_t BxmAvV : 1;           // BX mismatch AMC vs VFAT
-      uint64_t OOScVvV : 1;          // OOS (EC mismatch) VFAT vs VFAT
-      uint64_t OOScAvV : 1;          // OOS (EC mismatch) AMC vs VFAT
-      uint64_t noVFAT : 1;           // No VFAT marker
-      uint64_t EvtSzW : 1;           // Event size warning
-      uint64_t L1aNF : 1;            // L1A FIFO near full
-      uint64_t InNF : 1;             // Input FIFO near full
-      uint64_t EvtNF : 1;            // Event FIFO near full
-      uint64_t EvtSzOFW : 1;         // Event size overflow
-      uint64_t L1aF : 1;             // L1A FIFO full
-      uint64_t InF : 1;              // Input FIFO full
-      uint64_t EvtF : 1;             // Event FIFO full
-      uint64_t VfWdCnt : 12;         // VFAT word count (in number of 64-bit words)
-      uint64_t inputID : 5 ;         // Input link ID
-      uint64_t zeroSupWordsCnt : 24; // Number of zero suppressed VFAT 64bit words
+      uint64_t BxmVvV : 11;           // 1st bit BX mismatch VFAT vs VFAT
+      uint64_t BxmAvV : 1;            // BX mismatch AMC vs VFAT
+      uint64_t OOScVvV : 1;           // OOS (EC mismatch) VFAT vs VFAT
+      uint64_t OOScAvV : 1;           // OOS (EC mismatch) AMC vs VFAT
+      uint64_t noVFAT : 1;            // No VFAT marker
+      uint64_t EvtSzW : 1;            // Event size warning
+      uint64_t L1aNF : 1;             // L1A FIFO near full
+      uint64_t InNF : 1;              // Input FIFO near full
+      uint64_t EvtNF : 1;             // Event FIFO near full
+      uint64_t EvtSzOFW : 1;          // Event size overflow
+      uint64_t L1aF : 1;              // L1A FIFO full
+      uint64_t InF : 1;               // Input FIFO full
+      uint64_t EvtF : 1;              // Event FIFO full
+      uint64_t VfWdCnt : 12;          // VFAT word count (in number of 64-bit words)
+      uint64_t inputID : 5;           // Input link ID
+      uint64_t zeroSupWordsCnt : 24;  // Number of zero suppressed VFAT 64bit words
     };
   };
   union GEBchamberTrailer {
     uint64_t word;
     struct {
-      uint64_t ecOH : 20;            // OH event counter
-      uint64_t bcOH : 13;            // OH bunch crossing
-      uint64_t InUfw : 1;            // Input FIFO underflow
-      uint64_t SkD : 1;              // Stuck data
-      uint64_t EvUfw : 1;            // Event FIFO underflow
-      uint64_t VfWdCntT : 12;        // VFAT word count (in number of 64-bit words)
-      uint64_t crc16 : 16;           // CRC of OH data (currently not available – filled with 0)
+      uint64_t ecOH : 20;      // OH event counter
+      uint64_t bcOH : 13;      // OH bunch crossing
+      uint64_t InUfw : 1;      // Input FIFO underflow
+      uint64_t SkD : 1;        // Stuck data
+      uint64_t EvUfw : 1;      // Event FIFO underflow
+      uint64_t VfWdCntT : 12;  // VFAT word count (in number of 64-bit words)
+      uint64_t crc16 : 16;     // CRC of OH data (currently not available – filled with 0)
     };
   };
 
   class GEBdata {
   public:
-    
-  GEBdata() : ch_(0), ct_(0) {};
+    GEBdata() : ch_(0), ct_(0){};
     ~GEBdata() { vfatd_.clear(); }
 
     //!Read chamberHeader from the block.
     void setChamberHeader(uint64_t word) { ch_ = word; }
-    void setChamberHeader(uint16_t vfatWordCnt, uint8_t inputID)
-    {
+    void setChamberHeader(uint16_t vfatWordCnt, uint8_t inputID) {
       GEBchamberHeader u{0};
       u.VfWdCnt = vfatWordCnt;
       u.inputID = inputID;
@@ -61,8 +59,7 @@ namespace gem {
 
     //!Read chamberTrailer from the block.
     void setChamberTrailer(uint64_t word) { ct_ = word; }
-    void setChamberTrailer(uint32_t ecOH, uint16_t bcOH, uint16_t vfatWordCntT)
-    {
+    void setChamberTrailer(uint32_t ecOH, uint16_t bcOH, uint16_t vfatWordCntT) {
       GEBchamberTrailer u{0};
       u.ecOH = ecOH;
       u.bcOH = bcOH;
@@ -87,7 +84,7 @@ namespace gem {
     uint16_t vfatWordCnt() const { return GEBchamberHeader{ch_}.VfWdCnt; }
     uint8_t inputID() const { return GEBchamberHeader{ch_}.inputID; }
     uint32_t zeroSupWordsCnt() const { return GEBchamberHeader{ch_}.zeroSupWordsCnt; }
- 
+
     uint32_t ecOH() const { return GEBchamberTrailer{ct_}.ecOH; }
     uint16_t bcOH() const { return GEBchamberTrailer{ct_}.bcOH; }
     uint8_t inUfw() const { return GEBchamberTrailer{ct_}.InUfw; }
@@ -104,10 +101,10 @@ namespace gem {
     static const int sizeGebID = 5;
 
   private:
-    uint64_t ch_; // GEBchamberHeader
-    uint64_t ct_; // GEBchamberTrailer
+    uint64_t ch_;  // GEBchamberHeader
+    uint64_t ct_;  // GEBchamberTrailer
 
     std::vector<VFATdata> vfatd_;
   };
-} // namespace gem
+}  // namespace gem
 #endif

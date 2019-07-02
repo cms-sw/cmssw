@@ -19,39 +19,42 @@ namespace gem {
   union AMC13Header {
     uint64_t word;
     struct {
-      uint64_t cb0 : 4;        // 0x0
-      uint64_t orbitN : 32;    // Orbit Number
-      uint64_t reserved0 : 16; // reserved
-      uint64_t nAMC : 4;       // Number of AMCs following (0 to 12)
-      uint64_t calType : 4;    // Calibration event type
-      uint64_t uFov : 4;       // Format version: 0x1
+      uint64_t cb0 : 4;         // 0x0
+      uint64_t orbitN : 32;     // Orbit Number
+      uint64_t reserved0 : 16;  // reserved
+      uint64_t nAMC : 4;        // Number of AMCs following (0 to 12)
+      uint64_t calType : 4;     // Calibration event type
+      uint64_t uFov : 4;        // Format version: 0x1
     };
   };
   union AMC13Trailer {
     uint64_t word;
     struct {
-      uint64_t bxIdT : 12;     // bx id
-      uint64_t lv1IdT : 8;     // level 1 id
-      uint64_t blkN : 8;       // block number
-      uint64_t crc32 : 36;     // Overall CRC (first 32 bits)
+      uint64_t bxIdT : 12;  // bx id
+      uint64_t lv1IdT : 8;  // level 1 id
+      uint64_t blkN : 8;    // block number
+      uint64_t crc32 : 36;  // Overall CRC (first 32 bits)
     };
   };
   union CDFTrailer {
     uint64_t word;
     struct {
-      uint64_t tts : 8;        // tts (first 4 bits)
-      uint64_t evtStat : 4;    // event status
-      uint64_t crcCDF : 20;    // CDF crc (first 16 bits)
-      uint64_t evtLength : 24; // event length
-      uint64_t eventType : 4;  // Event Type
-      uint64_t cbA : 4;        // 0xA
+      uint64_t tts : 8;         // tts (first 4 bits)
+      uint64_t evtStat : 4;     // event status
+      uint64_t crcCDF : 20;     // CDF crc (first 16 bits)
+      uint64_t evtLength : 24;  // event length
+      uint64_t eventType : 4;   // Event Type
+      uint64_t cbA : 4;         // 0xA
     };
   };
 
   class AMC13Event {
   public:
-  AMC13Event() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
-    ~AMC13Event() { amcHeaders_.clear(); amcs_.clear(); }
+    AMC13Event() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
+    ~AMC13Event() {
+      amcHeaders_.clear();
+      amcs_.clear();
+    }
 
     void setCDFHeader(uint64_t word) { cdfh_ = word; }
     void setCDFHeader(uint8_t Evt_ty, uint32_t LV1_id, uint16_t BX_id, uint16_t Source_id);
