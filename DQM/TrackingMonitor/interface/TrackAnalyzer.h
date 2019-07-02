@@ -226,6 +226,20 @@ namespace dqm {
       MonitorElement* TrackPy;
       MonitorElement* TrackPz;
       MonitorElement* TrackPt;
+      MonitorElement* TrackPt_NegEta_Phi_btw_neg16_neg32;
+      MonitorElement* TrackPt_NegEta_Phi_btw_0_neg16;
+      MonitorElement* TrackPt_NegEta_Phi_btw_16_0;
+      MonitorElement* TrackPt_NegEta_Phi_btw_32_16;
+      MonitorElement* TrackPt_PosEta_Phi_btw_neg16_neg32;
+      MonitorElement* TrackPt_PosEta_Phi_btw_0_neg16;
+      MonitorElement* TrackPt_PosEta_Phi_btw_16_0;
+      MonitorElement* TrackPt_PosEta_Phi_btw_32_16;
+      MonitorElement* Ratio_byFolding;
+      MonitorElement* Ratio_byFolding2;
+      MonitorElement* TrackPtHighPurity;
+      MonitorElement* TrackPtTight;
+      MonitorElement* TrackPtLoose;
+      MonitorElement* Quality;
 
       MonitorElement* TrackPxErr;
       MonitorElement* TrackPyErr;
@@ -236,10 +250,20 @@ namespace dqm {
       MonitorElement* TrackPtErrVsEta;
 
       MonitorElement* TrackQ;
+      MonitorElement* TrackQoverP;
 
       MonitorElement* TrackPhi;
       MonitorElement* TrackEta;
+      MonitorElement* TrackEtaHighPurity;
+      MonitorElement* TrackEtaTight;
+      MonitorElement* TrackEtaLoose;
       MonitorElement* TrackEtaPhi = nullptr;
+      MonitorElement* TrackEtaPhiInverted = nullptr;
+      MonitorElement* TrackEtaPhiInvertedoutofphase = nullptr;
+      MonitorElement* TkEtaPhi_Ratio_byFoldingmap = nullptr;
+      MonitorElement* TkEtaPhi_Ratio_byFoldingmap_op = nullptr;
+      MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap = nullptr;
+      MonitorElement* TkEtaPhi_RelativeDifference_byFoldingmap_op = nullptr;
       MonitorElement* TrackEtaPhiInner = nullptr;
       MonitorElement* TrackEtaPhiOuter = nullptr;
 
@@ -369,6 +393,7 @@ namespace dqm {
     MonitorElement* DistanceOfClosestApproachErrorVsPhi;
     MonitorElement* DistanceOfClosestApproachErrorVsDxy;
     MonitorElement* DistanceOfClosestApproachToBS;
+    MonitorElement* DistanceOfClosestApproachToBSdz;
     MonitorElement* AbsDistanceOfClosestApproachToBS;
     MonitorElement* DistanceOfClosestApproachToPV;
     MonitorElement* DistanceOfClosestApproachToPVZoom;
@@ -377,6 +402,7 @@ namespace dqm {
     MonitorElement* DistanceOfClosestApproachVsTheta;
     MonitorElement* DistanceOfClosestApproachVsPhi;
     MonitorElement* DistanceOfClosestApproachToBSVsPhi;
+    MonitorElement* DistanceOfClosestApproachToBSVsEta;
     MonitorElement* DistanceOfClosestApproachToPVVsPhi;
     MonitorElement* DistanceOfClosestApproachVsEta;
     MonitorElement* xPointOfClosestApproach;

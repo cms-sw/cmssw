@@ -1,6 +1,6 @@
 /*
  *  See header file for a description of this class.
- *
+ **
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -230,6 +230,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   std::string Quality = conf->getParameter<std::string>("Quality");
   std::string AlgoName = conf->getParameter<std::string>("AlgoName");
   MEFolderName = conf->getParameter<std::string>("FolderName");
+  std::string Folder = MEFolderName.substr(0, 2);
 
   // test for the Quality veriable validity
   if (!Quality_.empty()) {
@@ -287,6 +288,26 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     NumberOfTracks = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
     NumberOfTracks->setAxisTitle("Number of Tracks per Event", 1);
     NumberOfTracks->setAxisTitle("Number of Events", 2);
+
+    if (Folder == "Tr") {
+      histname = "NumberOfTracks_PUvtx_" + CategoryName;
+      NumberOfTracks_PUvtx = ibooker.book1D(histname, histname, 3 * TKNoBin, TKNoMin, (TKNoMax + 0.5) * 3. - 0.5);
+      NumberOfTracks_PUvtx->setAxisTitle("Number of Tracks per Event (matched a PU vertex)", 1);
+      NumberOfTracks_PUvtx->setAxisTitle("Number of Events", 2);
+
+      histname = "NumberofTracks_Hardvtx_" + CategoryName;
+      NumberofTracks_Hardvtx =
+          ibooker.book1D(histname, histname, TKNoBin / 10, TKNoMin, (TKNoMax / 10 + 0.5) * 3. - 0.5);
+      NumberofTracks_Hardvtx->setAxisTitle("Number of Tracks per Event (matched main vertex)", 1);
+      NumberofTracks_Hardvtx->setAxisTitle("Number of Events", 2);
+
+      histname = "NumberofTracks_Hardvtx_PUvtx_" + CategoryName;
+      NumberofTracks_Hardvtx_PUvtx = ibooker.book1D(histname, histname, 2, 0., 2.);
+      NumberofTracks_Hardvtx_PUvtx->setAxisTitle("Number of Tracks per PU/Hard vertex", 1);
+      NumberofTracks_Hardvtx_PUvtx->setAxisTitle("Number of Tracks", 2);
+      NumberofTracks_Hardvtx_PUvtx->setBinLabel(1, "PU_Vertex");
+      NumberofTracks_Hardvtx_PUvtx->setBinLabel(2, "Hard_Vertex");
+    }
 
     histname = "NumberOfMeanRecHitsPerTrack_" + CategoryName;
     NumberOfMeanRecHitsPerTrack = ibooker.book1D(histname, histname, MeanHitBin, MeanHitMin, MeanHitMax);
@@ -728,7 +749,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Filter out events if Trigger Filtering is requested
   if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup))
     return;
-
+  auto const* conf = edm::pset::Registry::instance()->getMapped(confID_);
+  MEFolderName = conf->getParameter<std::string>("FolderName");
+  std::string Folder = MEFolderName.substr(0, 2);
   float lumi = -1.;
   edm::Handle<LumiScalersCollection> lumiScalers;
   iEvent.getByToken(lumiscalersToken_, lumiScalers);
@@ -819,7 +842,15 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       frac = static_cast<double>(numberOfTracks_num) / static_cast<double>(numberOfTracks_den);
 
     if (doGeneralPropertiesPlots_ || doAllPlots) {
-      NumberOfTracks->Fill(numberOfTracks);
+      NumberOfTracks->Fill(double(numberOfTracks));
+
+      if (Folder == "Tr") {
+        NumberofTracks_Hardvtx->Fill(double(numberOfTracks_pv0));
+        NumberOfTracks_PUvtx->Fill(double(numberOfTracks - numberOfTracks_pv0));
+        NumberofTracks_Hardvtx_PUvtx->Fill(0.5, double(numberOfTracks_pv0));
+        NumberofTracks_Hardvtx_PUvtx->Fill(1.5, double(numberOfTracks - numberOfTracks_pv0));
+      }
+
       if (doPlotsVsBX_ || doAllPlots)
         NumberOfTracksVsBX->Fill(bx, numberOfTracks);
       if (doPlotsVsLUMI_ || doAllPlots)
