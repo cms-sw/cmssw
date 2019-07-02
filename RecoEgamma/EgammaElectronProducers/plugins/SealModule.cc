@@ -7,14 +7,12 @@
 #include "GsfElectronEcalDrivenProducer.h"
 #include "GsfElectronCoreProducer.h"
 #include "GsfElectronProducer.h"
-#include "GsfElectronFull5x5Filler.h"
 
 #include "GEDGsfElectronCoreProducer.h"
 #include "GEDGsfElectronProducer.h"
 #include "GEDGsfElectronFinalizer.h"
 
 DEFINE_FWK_MODULE(ElectronSeedProducer);
-DEFINE_FWK_MODULE(GsfElectronFull5x5Filler);
 DEFINE_FWK_MODULE(GsfElectronCoreEcalDrivenProducer);
 DEFINE_FWK_MODULE(GsfElectronEcalDrivenProducer);
 DEFINE_FWK_MODULE(GsfElectronCoreProducer);
