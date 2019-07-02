@@ -204,7 +204,7 @@ void CalorimetryManager::reconstructTrack(FSimTrack& myTrack, RandomEngineAndDis
           reconstructHCAL(myTrack, random);
       }
     }  // electron or photon
-    else if (pid == 13) {
+    else if (pid == 13 || pid == 1000024) {
       MuonMipSimulation(myTrack, random);
     }
     // Simulate energy smearing for hadrons (i.e., everything
@@ -454,7 +454,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack, RandomEngineA
   double EGen = myTrack.hcalEntrance().e();
   double emeas = 0.;
 
-  if (pid == 13) {
+  if (pid == 13 || pid == 1000024) {
     emeas = myHDResponse_->responseHCAL(0, EGen, pathEta, 2, random);  // 2=muon
     if (debug_)
       LogInfo("FastCalorimetry") << "CalorimetryManager::reconstructHCAL - MUON !!!" << std::endl;
@@ -1205,7 +1205,7 @@ void CalorimetryManager::loadMuonSimTracks(edm::SimTrackContainer& muons) const 
   unsigned size = muons.size();
   for (unsigned i = 0; i < size; ++i) {
     int id = muons[i].trackId();
-    if (abs(muons[i].type()) != 13)
+    if (abs(muons[i].type()) != 13 && abs(muons[i].type()) != 1000024)
       continue;
     // identify the corresponding muon in the local collection
 
