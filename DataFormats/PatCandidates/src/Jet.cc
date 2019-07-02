@@ -244,6 +244,17 @@ const reco::JetFlavourInfo& Jet::jetFlavourInfo() const { return jetFlavourInfo_
 
 /// ============= Jet Energy Correction methods ============
 
+/// Scale energy and correspondingly adjust raw jec factors
+void Jet::scaleEnergy(double fScale) {
+   setP4(p4() * fScale);
+   if((jecSetsAvailable())&&(fScale!=0)) {
+     // adjust raw jec factors, to keep energy fraction functions invariant, when scaling jet energy
+     for (size_t i = 0; i < jec_[0].jec_[0].second.size(); ++i) {
+       jec_[0].jec_[0].second[i]/=fScale;
+     }
+   }
+}
+
 // initialize the jet to a given JEC level during creation starting from Uncorrected
 void Jet::initializeJEC(unsigned int level, const JetCorrFactors::Flavor& flavor, unsigned int set) {
   currentJECSet(set);
