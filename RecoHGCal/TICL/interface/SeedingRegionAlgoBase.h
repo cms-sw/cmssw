@@ -7,9 +7,9 @@
 
 #include <memory>
 #include <vector>
-#include "DataFormats/TICL/interface/Common.h"
+#include "DataFormats/HGCalReco/interface/Common.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TICL/interface/TICLSeedingRegion.h"
+#include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
@@ -31,6 +31,7 @@ namespace ticl {
 
   protected:
     int algo_verbosity_;
+    int algoId_;
   };
 }  // namespace ticl
 
