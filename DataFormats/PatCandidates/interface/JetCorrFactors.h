@@ -35,8 +35,7 @@
 namespace pat {
 
   class JetCorrFactors {
-
-  friend class Jet;
+    friend class Jet;
 
   public:
     // jet energy correction factor. For flavor independent jet energy corrections the
