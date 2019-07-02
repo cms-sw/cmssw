@@ -5,18 +5,21 @@
 #include "PatternRecognitionbyCA.h"
 #include "HGCDoublet.h"
 #include "HGCGraph.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                                       int nEtaBins,
                                       int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,
                                       const std::vector<float> &mask,
+                                      const edm::ValueMap<float> &layerClustersTime,
                                       int deltaIEta,
                                       int deltaIPhi,
                                       float minCosTheta,
                                       float minCosPointing,
                                       int missing_layers,
-                                      int maxNumberOfLayers) {
+                                      int maxNumberOfLayers,
+                                      float maxDeltaTime) {
   isOuterClusterOfDoublets_.clear();
   isOuterClusterOfDoublets_.resize(layerClusters.size());
   allDoublets_.clear();
@@ -53,6 +56,9 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                     if (mask[innerClusterId] == 0.)
                       continue;
                     auto doubletId = allDoublets_.size();
+                    if (maxDeltaTime != -1 &&
+                        !areTimeCompatible(innerClusterId, outerClusterId, layerClustersTime, maxDeltaTime))
+                      continue;
                     allDoublets_.emplace_back(innerClusterId, outerClusterId, doubletId, &layerClusters);
                     if (verbosity_ > Advanced) {
                       LogDebug("HGCGraph")
@@ -88,6 +94,16 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
                          << allDoublets_.size() << std::endl;
   }
   // #endif
+}
+
+bool HGCGraph::areTimeCompatible(int innerIdx,
+                                 int outerIdx,
+                                 const edm::ValueMap<float> &layerClustersTime,
+                                 float maxDeltaTime) {
+  float timeIn = layerClustersTime.get(innerIdx);
+  float timeOut = layerClustersTime.get(outerIdx);
+
+  return (timeIn == -99 || timeOut == -99 || std::abs(timeIn - timeOut) < maxDeltaTime);
 }
 
 void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
