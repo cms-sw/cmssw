@@ -4,7 +4,7 @@
  *  \author N. Amapane - INFN Torino (original developer)
  */
 
-#include "MagneticField/GeomBuilder/src/BaseVolumeHandle.h"
+#include "BaseVolumeHandle.h"
 
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -13,6 +13,7 @@
 
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
+#include <cassert>
 #include <string>
 #include <iterator>
 #include <iomanip>
@@ -22,13 +23,14 @@ using namespace SurfaceOrientation;
 using namespace std;
 using namespace magneticfield;
 
-BaseVolumeHandle::BaseVolumeHandle(bool debugVal)
+BaseVolumeHandle::BaseVolumeHandle(bool expand2Pi, bool debugVal)
     : magVolume(nullptr),
       masterSector(1),
       theRN(0.),
       theRMin(0.),
       theRMax(0.),
       refPlane(nullptr),
+      expand(expand2Pi),
       isIronFlag(false),
       debug(debugVal) {}
 

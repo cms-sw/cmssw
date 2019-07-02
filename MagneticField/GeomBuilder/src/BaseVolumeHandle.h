@@ -26,7 +26,7 @@ namespace magneticfield {
     typedef Surface::LocalVector LocalVector;
     typedef SurfaceOrientation::GlobalFace Sides;
 
-    BaseVolumeHandle(bool debugVal = false);
+    BaseVolumeHandle(bool expand2Pi = false, bool debugVal = false);
 
     // Disallow Default/copy ctor
     // (we want to handle only pointers!!!)
@@ -114,7 +114,7 @@ namespace magneticfield {
     virtual DDSolidShape shape() const = 0;
 
   protected:
-    typedef ReferenceCountingPointer<Surface> RCPS;
+    typedef ConstReferenceCountingPointer<Surface> RCPS;
 
     // The volume's six surfaces.
     RCPS surfaces[6];

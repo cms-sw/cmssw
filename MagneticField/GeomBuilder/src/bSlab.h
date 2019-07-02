@@ -17,7 +17,6 @@
 #include "MagneticField/Layers/interface/MagBSlab.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
-
 class MagBSlab;
 
 namespace magneticfield {

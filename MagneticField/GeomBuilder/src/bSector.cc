@@ -15,6 +15,7 @@
 #include "Utilities/General/interface/precomputed_value_sort.h"
 
 #include <algorithm>
+#include <iostream>
 
 using namespace SurfaceOrientation;
 using namespace std;
@@ -58,7 +59,7 @@ bSector::bSector(handles::const_iterator begin, handles::const_iterator end, boo
     if (debug) {
       cout << "volumes size = " << volumes.size();
       cout << ", phi0 = " << phi0 << ", volumes.back()->maxPhi() = " << volumes.back()->maxPhi();
-      cout << ", phiMin = " << phiMin << ", phiMax = " << phiMax;
+      cout << ", phiMin = " << phiMin << endl << "phiMax = " << phiMax;
       cout << ", int((phiMax - phiMin) / resolution) + 1 = " << int((phiMax - phiMin) / resolution) + 1 << endl;
     }
     ClusterizingHistogram hisPhi(int((phiMax - phiMin) / resolution) + 1, phiMin, phiMax);

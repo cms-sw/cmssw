@@ -1,5 +1,3 @@
-// #include "Utilities/Configuration/interface/Architecture.h"
-
 /*
  *  See header file for a description of this class.
  *
@@ -32,12 +30,11 @@ using namespace SurfaceOrientation;
 using namespace std;
 
 MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool expand2Pi, bool debugVal)
-    : magneticfield::BaseVolumeHandle(debugVal) {
+    : magneticfield::BaseVolumeHandle(expand2Pi, debugVal) {
   name = fv.logicalPart().name().name();
   copyno = fv.copyno();
   solid = fv.logicalPart().solid();
   center_ = GlobalPoint(fv.translation().x() / cm, fv.translation().y() / cm, fv.translation().z() / cm);
-  expand = expand2Pi;
 
   // ASSUMPTION: volume names ends with "_NUM" where NUM is the volume number
   string volName = name;
@@ -248,11 +245,11 @@ namespace {
   {
     return (geant_units::operators::convertMmToCm(millimeters));
   }
-}
+}  // namespace
 
-#include "MagneticField/GeomBuilder/src/buildBox.icc"
-#include "MagneticField/GeomBuilder/src/buildTrap.icc"
-#include "MagneticField/GeomBuilder/src/buildTubs.icc"
-#include "MagneticField/GeomBuilder/src/buildCons.icc"
-#include "MagneticField/GeomBuilder/src/buildPseudoTrap.icc"
-#include "MagneticField/GeomBuilder/src/buildTruncTubs.icc"
+#include "buildBox.icc"
+#include "buildTrap.icc"
+#include "buildTubs.icc"
+#include "buildCons.icc"
+#include "buildPseudoTrap.icc"
+#include "buildTruncTubs.icc"

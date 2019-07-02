@@ -1,5 +1,5 @@
 void volumeHandle::buildTubs() {
-  LogDebug("magneticfield::volumeHandle") << "Building tubs surfaces...: ";
+  LogTrace("magneticfield::volumeHandle") << "Building tubs surfaces...: ";
 
   DDTubs tubs(solid);
 
@@ -11,7 +11,7 @@ void volumeHandle::buildTubs() {
   double startPhi = tubs.startPhi();
   double deltaPhi = tubs.deltaPhi();
 
-  LogDebug("magneticfield::volumeHandle") << " zhalf    " << zhalf << "\n rIn      " << rIn << "\n rOut     " << rOut
+  LogTrace("magneticfield::volumeHandle") << " zhalf    " << zhalf << "\n rIn      " << rIn << "\n rOut     " << rOut
                                           << "\n startPhi " << startPhi << "\n deltaPhi " << deltaPhi;
 
   // recalculate center: (for a DDTubs, DDD gives 0,0,Z)
@@ -36,7 +36,7 @@ void volumeHandle::buildTubs() {
   if (debug) {
     if (dynamic_cast<const Cylinder*>(&(*surfaces[outer]))->radius() <
         dynamic_cast<const Cylinder*>(&(*surfaces[inner]))->radius()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner ";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner ";
     }
   }
   // Save volume boundaries
