@@ -9,7 +9,6 @@
 #include <map>
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
 
 class StripCPEESProducer : public edm::ESProducer {
 public:

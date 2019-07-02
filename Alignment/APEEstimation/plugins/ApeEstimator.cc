@@ -108,7 +108,6 @@
 //ADDED BY LOIC QUERTENMONT
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
 /////////
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
