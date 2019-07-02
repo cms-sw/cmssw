@@ -5,7 +5,7 @@
  */
 
 void volumeHandle::buildBox() {
-  LogDebug("magneticfield::volumeHandle") << "Building box surfaces...: ";
+  LogTrace("magneticfield::volumeHandle") << "Building box surfaces...: ";
 
   DDBox box(solid);
   // Old DD needs mm to cm conversion, but DD4hep needs no conversion.
@@ -70,27 +70,27 @@ void volumeHandle::buildBox() {
     rot_phi = Surface::RotationType(planeZAxis, planeYAxis);  // opposite to x axis
   }
 
-  LogDebug("magneticfield::volumeHandle") << " halfX: " << halfX << " halfY: " << halfY << " halfZ: " << halfZ
-                                          << " RN            " << theRN;
+  LogTrace("magneticfield::volumeHandle")
+      << " halfX: " << halfX << "  halfY: " << halfY << "  halfZ: " << halfZ << "  RN: " << theRN;
 
-  LogDebug("magneticfield::volumeHandle")
-      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi()
-      << " pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi()
-      << " pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi()
-      << " pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi()
-      << " pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi()
-      << " pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
+  LogTrace("magneticfield::volumeHandle")
+      << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << endl
+      << "pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << endl
+      << "pos_zplus    " << pos_zplus << " " << pos_zplus.perp() << " " << pos_zplus.phi() << endl
+      << "pos_zminus   " << pos_zminus << " " << pos_zminus.perp() << " " << pos_zminus.phi() << endl
+      << "pos_phiplus  " << pos_phiplus << " " << pos_phiplus.perp() << " " << pos_phiplus.phi() << endl
+      << "pos_phiminus " << pos_phiminus << " " << pos_phiminus.perp() << " " << pos_phiminus.phi();
 
   // Check ordering.
   if (debug) {
     if (pos_outer.perp() < pos_inner.perp()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for box";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for box";
     }
     if (pos_zplus.z() < pos_zminus.z()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for box";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for box";
     }
     if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for box";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for box";
     }
   }
 
@@ -102,9 +102,9 @@ void volumeHandle::buildBox() {
   surfaces[phiplus] = new Plane(pos_phiplus, rot_phi);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phi);
 
-  LogDebug("magneticfield::volumeHandle") << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.))
-                                          << " rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.))
-                                          << " rot_phi " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.));
+  LogTrace("magneticfield::volumeHandle") << "rot_R   " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << endl
+                                          << "rot_Z   " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
+                                          << "rot_phi " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.));
 
   // Save volume boundaries
   theRMin = std::abs(surfaces[inner]->toLocal(GlobalPoint(0, 0, 0)).z());

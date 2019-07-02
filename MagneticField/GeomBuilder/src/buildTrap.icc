@@ -5,7 +5,7 @@
  */
 
 void volumeHandle::buildTrap() {
-  LogDebug("magneticfield::volumeHandle") << "Building trapezoid surfaces...: ";
+  LogTrace("magneticfield::volumeHandle") << "Building trapezoid surfaces...: ";
 
   DDTrap trap(solid);  //FIXME
 
@@ -23,7 +23,7 @@ void volumeHandle::buildTrap() {
   double alpha1 = trap.alpha1();
   double alpha2 = trap.alpha2();
 
-  LogDebug("magneticfield::volumeHandle") << "x1 " << x1 << endl
+  LogTrace("magneticfield::volumeHandle") << "x1 " << x1 << endl
                                           << "x2 " << x2 << endl
                                           << "x3 " << x3 << endl
                                           << "x4 " << x4 << endl
@@ -40,7 +40,7 @@ void volumeHandle::buildTrap() {
     const double epsilon = 1e-5;
     if (theta > epsilon || phi > epsilon || y1 - y2 > epsilon || x1 - x3 > epsilon || x2 - x4 > epsilon ||
         alpha1 - alpha2 > epsilon) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: unexpected trapezoid parameters.";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: unexpected trapezoid parameters.";
     }
   }
 
@@ -76,7 +76,7 @@ void volumeHandle::buildTrap() {
   GlobalPoint pos_phiplus(refPlane->toGlobal(LocalPoint(-halfX, 0., 0.)));
   GlobalPoint pos_phiminus(refPlane->toGlobal(LocalPoint(halfX, 0., 0.)));
 
-  LogDebug("magneticfield::volumeHandle")
+  LogTrace("magneticfield::volumeHandle")
       << "RN           " << theRN << endl
       << "pos_outer    " << pos_outer << " " << pos_outer.perp() << " " << pos_outer.phi() << endl
       << "pos_inner    " << pos_inner << " " << pos_inner.perp() << " " << pos_inner.phi() << endl
@@ -88,13 +88,13 @@ void volumeHandle::buildTrap() {
   // Check ordering.
   if (debug) {
     if (pos_outer.perp() < pos_inner.perp()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for trapezoid";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_outer < pos_inner for trapezoid";
     }
     if (pos_zplus.z() < pos_zminus.z()) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for trapezoid";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_zplus < pos_zminus for trapezoid";
     }
     if (Geom::Phi<float>(pos_phiplus.phi() - pos_phiminus.phi()) < 0.) {
-      LogDebug("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid";
+      LogTrace("magneticfield::volumeHandle") << "*** WARNING: pos_phiplus < pos_phiminus for trapezoid";
     }
   }
 
@@ -103,8 +103,7 @@ void volumeHandle::buildTrap() {
   GlobalVector y_phiminusV = (refPlane->toGlobal(LocalVector((tan(alpha1) * y1 + (x2 - x1) / 2.), y1, 0.)));
   GlobalVector y_phiminus = y_phiminusV.unit();
 
-  LogDebug("magneticfield::volumeHandle") << "y_phiplus " << y_phiplus;
-  LogDebug("magneticfield::volumeHandle") << "y_phiminus " << y_phiminus;
+  LogTrace("magneticfield::volumeHandle") << "y_phiplus  " << y_phiplus << endl << "y_phiminus " << y_phiminus;
 
   Surface::RotationType rot_R(planeZAxis, planeXAxis);
   Surface::RotationType rot_Z(planeXAxis, planeYAxis);
@@ -132,18 +131,16 @@ void volumeHandle::buildTrap() {
   } else {
     thePhiMin = min((pos_phiminus + y_phiminusV).phi(), (pos_phiminus - y_phiminusV).phi());
   }
-
+  LogTrace("magneticfield::volumeHandle")
+      << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << endl
+      << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
+      << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
+      << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
+      << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
   if (debug) {
-    LogDebug("magneticfield::volumeHandle")
-        << "rot_R " << surfaces[outer]->toGlobal(LocalVector(0., 0., 1.)) << endl
-        << "rot_Z " << surfaces[zplus]->toGlobal(LocalVector(0., 0., 1.)) << endl
-        << "rot_phi+ " << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-        << surfaces[phiplus]->toGlobal(LocalVector(0., 0., 1.)).phi() << endl
-        << "rot_phi- " << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)) << " phi "
-        << surfaces[phiminus]->toGlobal(LocalVector(0., 0., 1.)).phi();
-
     if (std::abs(surfaces[phiminus]->position().phi() - thePhiMin) > 1e-5) {
-      LogDebug("magneticfield::volumeHandle") << " Trapez. phiMin = " << thePhiMin;
+      LogTrace("magneticfield::volumeHandle") << " Trapez. phiMin = " << thePhiMin;
     }
   }
 }
