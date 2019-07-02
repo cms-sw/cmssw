@@ -24,16 +24,16 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '106X_mcRun2_pA_v4',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '106X_dataRun2_v13',
+    'run1_data'         :   '106X_dataRun2_v17',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '106X_dataRun2_v13',
+    'run2_data'         :   '106X_dataRun2_v17',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '106X_dataRun2_relval_v12',
+    'run2_data_relval'  :   '106X_dataRun2_relval_v16',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v8',
+    'run2_data_promptlike_HEfail' : '106X_dataRun2_PromptLike_HEfail_v9',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
-    'run2_data_promptlike'    : '106X_dataRun2_PromptLike_v9',
-    'run2_data_promptlike_hi' : '106X_dataRun2_PromptLike_HI_v9',
+    'run2_data_promptlike'    : '106X_dataRun2_PromptLike_v10',
+    'run2_data_promptlike_hi' : '106X_dataRun2_PromptLike_HI_v10',
     # GlobalTag for Run1 HLT: it points to the online GT
     'run1_hlt'          :   '101X_dataRun2_HLT_frozen_v9',
     # GlobalTag for Run2 HLT: it points to the online GT
@@ -46,7 +46,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'       :  '106X_mc2017_design_IdealBS_v5',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
-    'phase1_2017_realistic'    :  '106X_mc2017_realistic_v5',
+    'phase1_2017_realistic'    :  '106X_mc2017_realistic_v7',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in DECO mode
     'phase1_2017_cosmics'      :  '106X_mc2017cosmics_realistic_deco_v2',
     # GlobalTag for MC production (cosmics) with realistic alignment and calibrations for Phase1 2017 detector, Strip tracker in PEAK mode
