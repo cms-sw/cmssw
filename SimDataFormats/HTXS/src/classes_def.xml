@@ -1,0 +1,4 @@
+<lcgdict>
+  <class name="HTXS::HiggsClassification"/>
+  <class name="edm::Wrapper<HTXS::HiggsClassification >"/>
+</lcgdict>
