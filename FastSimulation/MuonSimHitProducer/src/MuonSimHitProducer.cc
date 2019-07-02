@@ -170,7 +170,6 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     int pid = mySimTrack.type();
     if (abs(pid) != 13 && abs(pid) != 1000024)
       continue;
-    std::cout << "pid in muon sim hit producer is " << pid << std::endl;
     double t0 = 0;
     GlobalPoint initialPosition;
     int ivert = mySimTrack.vertIndex();
