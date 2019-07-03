@@ -136,14 +136,18 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
 
 
 void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
+			    std::vector<int> &seedIndices,
                             const unsigned int minClustersPerNtuplet) {
+
   HGCDoublet::HGCntuplet tmpNtuplet;
   tmpNtuplet.reserve(minClustersPerNtuplet);
   for (auto rootDoublet : theRootDoublets_) {
     tmpNtuplet.clear();
-    allDoublets_[rootDoublet].findNtuplets(allDoublets_, tmpNtuplet);
+    int seedIndex = allDoublets_[rootDoublet].seedIndex();
+    allDoublets_[rootDoublet].findNtuplets(allDoublets_, tmpNtuplet, seedIndex);
     if (tmpNtuplet.size() > minClustersPerNtuplet) {
       foundNtuplets.push_back(tmpNtuplet);
+      seedIndices.push_back(seedIndex);
     }
   }
 }

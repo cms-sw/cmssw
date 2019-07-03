@@ -9,6 +9,7 @@
 #include "DataFormats/Math/interface/normalizedPhi.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 namespace ticl {
   struct TICLSeedingRegion {
@@ -18,11 +19,11 @@ namespace ticl {
     // zSide can be either 0 or 1
     int zSide;
     // the index in the seeding collection
-    // index = -1 indicates a global seeding region
+    // with index = -1 indicating a global seeding region
     int index;
 
-
-  
+    // collectionID = 0 used for global seeding collection
+    edm::ProductID collectionID;
   };
   
 }  // namespace ticl
