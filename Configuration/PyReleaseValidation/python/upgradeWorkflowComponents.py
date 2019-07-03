@@ -17,6 +17,10 @@ upgradeKeys[2017] = [
     '2021PU',
     '2021Design',
     '2021DesignPU',
+    '2023',
+    '2023PU',
+    '2024',
+    '2024PU',
 ]
 
 upgradeKeys[2026] = [
@@ -279,6 +283,22 @@ upgradeProperties[2017] = {
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+    },
+    '2023' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2023_realistic',
+        'HLTmenu': '@relval2017',
+        'Era' : 'Run3',
+        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
+    },
+    '2024' : {
+        'Geom' : 'DB:Extended',
+        'GT' : 'auto:phase1_2024_realistic',
+        'HLTmenu': '@relval2017',
+        'Era' : 'Run3',
+        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
+        'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
     },
 }
 
