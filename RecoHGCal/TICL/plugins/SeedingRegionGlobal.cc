@@ -27,5 +27,4 @@ void SeedingRegionGlobal::makeRegions(const edm::Event &ev,
   for (int i = 0; i< 2; ++i ) {
     result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1, edm::ProductID()}) );
   }
- 
 }

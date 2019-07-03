@@ -12,7 +12,7 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
   double xi[VSIZE];
   double yi[VSIZE];
   double zi[VSIZE];
-  double seedi[VSIZE];
+  int seedi[VSIZE];
   auto xo = outerX();
   auto yo = outerY();
   auto zo = outerZ();

@@ -1,4 +1,4 @@
-// Authors: Felice Pantaleo, Marco Rovere 
+// Authors: Felice Pantaleo, Marco Rovere
 // Emails: felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 06/2019
 
@@ -16,16 +16,14 @@ namespace ticl {
     GlobalPoint origin;
     GlobalVector directionAtOrigin;
 
-    // zSide can be either 0 or 1
+    // zSide can be either 0(neg) or 1(pos)
     int zSide;
     // the index in the seeding collection
     // with index = -1 indicating a global seeding region
     int index;
-
     // collectionID = 0 used for global seeding collection
     edm::ProductID collectionID;
   };
-  
 }  // namespace ticl
 
 #endif

@@ -1,4 +1,4 @@
-// Authors: Felice Pantaleo, Marco Rovere 
+// Authors: Felice Pantaleo, Marco Rovere
 // Emails: felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 06/2019
 
@@ -48,7 +48,7 @@ TICLSeedingRegionProducer::TICLSeedingRegionProducer(const edm::ParameterSet& ps
     myAlgo_ = std::make_unique<SeedingRegionGlobal>(ps,sumes);
     break;
   default:
-    break; 
+    break;
   }
   produces<std::vector<ticl::TICLSeedingRegion>>();
 }
