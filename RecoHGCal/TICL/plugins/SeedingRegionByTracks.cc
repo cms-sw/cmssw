@@ -14,9 +14,7 @@ using namespace ticl;
 
 SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm::ConsumesCollector& sumes) : SeedingRegionAlgoBase(conf, sumes),
   cutTk_(conf.getParameter<std::string>("cutTk")),
-  propName_(conf.getParameter<std::string>("propagator"))
-  
-{
+  propName_(conf.getParameter<std::string>("propagator")){
   tracks_token_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"));
 
 }
@@ -38,30 +36,28 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
 
   edm::Handle<reco::TrackCollection> tracks_h;
   ev.getByToken(tracks_token_, tracks_h);
+  edm::ProductID trkId = tracks_h.id();
   auto bFieldProd = bfield_.product();
   const Propagator &prop = (*propagator_);
 
-  int nTracks = tracks_h->size();  
+  int nTracks = tracks_h->size();
    for (int i = 0; i<nTracks; ++i ) {
 
-     const reco::TrackRef tk(tracks_h, i);
-     if (!cutTk_((*tk))){
+     const reco::Track &tk = (*tracks_h)[i];
+     if (!cutTk_((tk))){
       continue;
     }
 
-     FreeTrajectoryState fts = trajectoryStateTransform::outerFreeState((*tk), bFieldProd);
-     int iSide = int(tk->eta() > 0);
+     FreeTrajectoryState fts = trajectoryStateTransform::outerFreeState((tk), bFieldProd);
+     int iSide = int(tk.eta() > 0);
      TrajectoryStateOnSurface tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
      if (tsos.isValid()){
-       result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(tsos.globalPosition()), 
+       result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(tsos.globalPosition()),
 	       GlobalVector(tsos.globalMomentum().x(), tsos.globalMomentum().y(), tsos.globalMomentum().z()),
-	       iSide, 
-	       i, tk.id()}));      
+	       iSide, i, trkId}));
      }
    }
-   
 }
-
 
 
 void SeedingRegionByTracks::buildFirstLayers()

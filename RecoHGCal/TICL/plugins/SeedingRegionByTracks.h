@@ -48,7 +48,7 @@ namespace ticl {
   const StringCutObjectSelector<reco::Track> cutTk_;
   std::string detectorName_ = "HGCalEESensitive";
   edm::ESHandle<Propagator> propagator_;
-  const std::string propName_;  
+  const std::string propName_;
   edm::ESHandle<MagneticField> bfield_;
   GeomDet* firstDisk_[2];
   };

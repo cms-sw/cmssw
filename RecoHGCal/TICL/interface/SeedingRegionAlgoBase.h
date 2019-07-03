@@ -1,4 +1,4 @@
-// Authors: Felice Pantaleo, Marco Rovere 
+// Authors: Felice Pantaleo, Marco Rovere
 // Emails: felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 06/2019
 

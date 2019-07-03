@@ -45,10 +45,10 @@ void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
 
       int entryEtaBin = firstLayerHisto.etaBin(r.origin.eta());
       int entryPhiBin = firstLayerHisto.phiBin(r.origin.phi());
-      startEtaBin = std::max(entryEtaBin - 2, 0);
-      endEtaBin = std::min(startEtaBin + 5, nEtaBins);
-      startPhiBin = entryPhiBin - 2;
-      endPhiBin = startPhiBin + 5;
+      startEtaBin = std::max(entryEtaBin - deltaIEta, 0);
+      endEtaBin = std::min(entryEtaBin + deltaIEta, nEtaBins);
+      startPhiBin = entryPhiBin - deltaIPhi;
+      endPhiBin = entryPhiBin + deltaIPhi;
     }
 
     for (int il = 0; il < maxNumberOfLayers - 1; ++il) {
@@ -135,6 +135,7 @@ bool HGCGraph::areTimeCompatible(int innerIdx,
 }
 
 
+//also return a vector of seedIndex for the reconstructed tracksters
 void HGCGraph::findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
 			    std::vector<int> &seedIndices,
                             const unsigned int minClustersPerNtuplet) {

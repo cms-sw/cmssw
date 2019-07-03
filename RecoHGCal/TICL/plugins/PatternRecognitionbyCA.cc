@@ -54,7 +54,7 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
                                     max_delta_time_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_);
-  edm::ProductID seedCollectionId = regions[0].collectionID; 
+  edm::ProductID seedCollectionId = regions[0].collectionID;
 
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
