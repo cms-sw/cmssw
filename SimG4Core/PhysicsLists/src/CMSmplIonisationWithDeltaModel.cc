@@ -106,8 +106,8 @@ void CMSmplIonisationWithDeltaModel::Initialise(const G4ParticleDefinition* p, c
     for (G4int i = 0; i < numOfCouples; ++i) {
       const G4Material* material = theCoupleTable->GetMaterialCutsCouple(i)->GetMaterial();
       G4double eDensity = material->GetElectronDensity();
-      G4double vF = electron_Compton_length * g4calc->A13(3. * pi * pi * eDensity);
-      (*dedx0)[i] = pi_hbarc2_over_mc2 * eDensity * nmpl * nmpl * (G4Log(2 * vF / fine_structure_const) - 0.5) / vF;
+      G4double vF2 = 2 * electron_Compton_length * g4calc->A13(3. * pi * pi * eDensity);
+      (*dedx0)[i] = pi_hbarc2_over_mc2 * eDensity * nmpl * nmpl * (G4Log(vF2 / fine_structure_const) - 0.5) / vF2;
     }
   }
 }
