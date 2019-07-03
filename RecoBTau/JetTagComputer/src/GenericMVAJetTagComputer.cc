@@ -6,7 +6,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
-#include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"

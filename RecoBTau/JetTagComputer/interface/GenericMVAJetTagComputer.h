@@ -5,6 +5,7 @@
 
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
@@ -17,7 +18,7 @@ class GenericMVAJetTagComputer : public JetTagComputer {
 public:
   struct Tokens {
     Tokens(const edm::ParameterSet &parameters, edm::ESConsumesCollector &&cc);
-    edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, JetTagComputerRecord> calib_;
+    edm::ESGetToken<PhysicsTools::Calibration::MVAComputerContainer, BTauGenericMVAJetTagComputerRcd> calib_;
   };
 
   GenericMVAJetTagComputer(const edm::ParameterSet &parameters, Tokens tokens);
