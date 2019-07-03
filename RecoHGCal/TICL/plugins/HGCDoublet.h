@@ -74,7 +74,7 @@ public:
 		 const GlobalVector& refDir,
                  bool debug = false) const;
 
-  void findNtuplets(std::vector<HGCDoublet> &, HGCntuplet &);
+  void findNtuplets(std::vector<HGCDoublet> &, HGCntuplet &, int);
 
 private:
   const std::vector<reco::CaloCluster> *layerClusters_;

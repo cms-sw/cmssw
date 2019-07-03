@@ -34,40 +34,32 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
       buildFirstLayers();
       es.get<IdealMagneticFieldRecord>().get(bfield_);
       es.get<TrackingComponentsRecord>().get(propName_, propagator_);
-
   });
 
   edm::Handle<reco::TrackCollection> tracks_h;
-
-
-
-
-
   ev.getByToken(tracks_token_, tracks_h);
-  const Propagator &prop = (*propagator_);
-  
-  int nTracks = tracks_h->size();
   auto bFieldProd = bfield_.product();
-   for (int i = 0; i< nTracks; ++i ) {
+  const Propagator &prop = (*propagator_);
 
+  int nTracks = tracks_h->size();  
+   for (int i = 0; i<nTracks; ++i ) {
 
-    const reco::Track &tk = (*tracks_h)[i];
-    if (!cutTk_(tk)){
+     const reco::TrackRef tk(tracks_h, i);
+     if (!cutTk_((*tk))){
       continue;
     }
 
-    FreeTrajectoryState fts = trajectoryStateTransform::outerFreeState(tk, bFieldProd);
-    int iSide = int(tk.eta() > 0);
-    TrajectoryStateOnSurface tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
-    if (tsos.isValid()){
-      result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(tsos.globalPosition()), 
-                                                  GlobalVector(tsos.globalMomentum().x(), tsos.globalMomentum().y(), tsos.globalMomentum().z()),
-                                                  iSide, 
-                                                  i}));
-      
-    }
-  }
- 
+     FreeTrajectoryState fts = trajectoryStateTransform::outerFreeState((*tk), bFieldProd);
+     int iSide = int(tk->eta() > 0);
+     TrajectoryStateOnSurface tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
+     if (tsos.isValid()){
+       result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(tsos.globalPosition()), 
+	       GlobalVector(tsos.globalMomentum().x(), tsos.globalMomentum().y(), tsos.globalMomentum().z()),
+	       iSide, 
+	       i, tk.id()}));      
+     }
+   }
+   
 }
 
 

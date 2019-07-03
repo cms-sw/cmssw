@@ -9,7 +9,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
-
 using namespace ticl;
 
 SeedingRegionGlobal::SeedingRegionGlobal(const edm::ParameterSet &conf, edm::ConsumesCollector& sumes) : SeedingRegionAlgoBase(conf, sumes)
@@ -26,7 +25,7 @@ void SeedingRegionGlobal::makeRegions(const edm::Event &ev,
   // for unseeded iterations create 2 global seeding regions
   // one for each endcap
   for (int i = 0; i< 2; ++i ) {
-    result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1}) );
+    result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1, edm::ProductID()}) );
   }
  
 }

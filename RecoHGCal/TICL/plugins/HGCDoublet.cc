@@ -107,13 +107,13 @@ int HGCDoublet::areAligned(double xi,
   return (cosTheta > minCosTheta) && (cosTheta_pointing > minCosPointing);
 }
 
-void HGCDoublet::findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &tmpNtuplet) {
-  if (!alreadyVisited_) {
+void HGCDoublet::findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &tmpNtuplet, int seedIndex) {
+  if (!alreadyVisited_ && seedIndex == seedIndex_) {
     alreadyVisited_ = true;
     tmpNtuplet.push_back(theDoubletId_);
     unsigned int numberOfOuterNeighbors = outerNeighbors_.size();
     for (unsigned int i = 0; i < numberOfOuterNeighbors; ++i) {
-      allDoublets[outerNeighbors_[i]].findNtuplets(allDoublets, tmpNtuplet);
+      allDoublets[outerNeighbors_[i]].findNtuplets(allDoublets, tmpNtuplet, seedIndex);
     }
   }
 }
