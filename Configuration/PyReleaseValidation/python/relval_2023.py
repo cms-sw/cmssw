@@ -23,7 +23,7 @@ numWFIB.extend([24034.0]) #2023D28
 numWFIB.extend([27434.0,27434.21,27634.21]) #2023D35, prodlike, prodlike PU
 numWFIB.extend([27834.0]) #2023D38
 numWFIB.extend([28634.0]) #2023D40
-numWFIB.extend([29034.0]) #2023D41
+numWFIB.extend([29034.0,29093.52]) #2023D41,2023D41+TICL
 numWFIB.extend([29434.0]) #2023D42
 numWFIB.extend([29834.0]) #2023D43
 for numWF in numWFIB:
