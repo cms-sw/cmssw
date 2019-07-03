@@ -2089,6 +2089,12 @@ step3_HIPM = {
     '--era': 'Run2_2016_HIPM'
 }
 step3Up2015Defaults_trackingOnly = merge([step3_trackingOnly, remove(step3Up2015Defaults, "--runUnscheduled")])
+step3_TICLOnly = {
+    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations'
+}
+step3_TICLFullReco = {
+    '--customise' : 'RecoHGCal/TICL/ticl_iterations.TICL_iterations_withReco'
+}
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
@@ -3265,6 +3271,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         stepName = step + upgradeSteps['ParkingBPH']['suffix']
         if 'Reco' in step and 'Run2_2018' in upgradeStepDict[step][k]['--era']:
             upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2018,bParking'}, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['TICLOnly']['steps']:
+        stepName = step + upgradeSteps['TICLOnly']['suffix']
+        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLOnly, upgradeStepDict[step][k]])
+
+    for step in upgradeSteps['TICLFullReco']['steps']:
+        stepName = step + upgradeSteps['TICLFullReco']['suffix']
+        if 'Reco' in step: upgradeStepDict[stepName][k] = merge([step3_TICLFullReco, upgradeStepDict[step][k]])
 
     # setup PU
     if k2 in PUDataSets:
