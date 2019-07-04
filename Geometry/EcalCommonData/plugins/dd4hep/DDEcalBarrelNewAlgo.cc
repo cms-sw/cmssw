@@ -1,5 +1,6 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/Printout.h"
+// FIXME: use local definition until dd4hep fixes the uniits
 //#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,6 +13,7 @@
 using namespace std;
 using namespace cms;
 using namespace dd4hep;
+
 // FIXME: use local definition until dd4hep fixes the uniits
 // using namespace geant_units::operators;
 
@@ -1122,11 +1124,12 @@ static long algorithm(dd4hep::Detector& /* description */,
     
     ilyFanOutLog.placeVolume(ilyDiffLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, -ily.fanOutLength / 2 + ily.diffLength / 2 + ily.diffOff)));
     ilyFanOutLog.placeVolume(ilyBndlLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, -ily.fanOutLength / 2 + ily.bndlLength / 2 + ily.bndlOff)));
+    Volume xilyLog;
     for (unsigned int iily(0); iily != ily.vecIlyThick.size(); ++iily) {
       const double ilyRMax(ilyRMin + ily.vecIlyThick[iily]);
       string xilyName(ily.name + std::to_string(iily));
       Solid xilySolid = Tube(xilyName, ilyRMin, ilyRMax, 0.5 * ilyLength, ily.phiLow, ily.phiLow + ily.delPhi);
-      Volume xilyLog = Volume(xilyName, xilySolid, ns.material(ily.vecIlyMat[iily]));
+      xilyLog = ns.addVolume(Volume(xilyName, xilySolid, ns.material(ily.vecIlyMat[iily])));
       if (0 != ily.here) {
 	ilyLog.placeVolume(xilyLog, copyOne);
 	
@@ -2044,48 +2047,46 @@ static long algorithm(dd4hep::Detector& /* description */,
 
         //=================================================
 
-  //       if (0 != dryAirTubeHere()) {
-  //         string dryAirTubName(ddname(dryAirTubeName() + std::to_string(iMod + 1)));
+	if (0 != dryAirTube.here) {
+	  string dryAirTubName(dryAirTube.name + std::to_string(iMod + 1));
 
-  //         DDSolid dryAirTubeSolid(DDSolidFactory::tubs(
-  //             dryAirTubName, pipeLength / 2, dryAirTubeInnDiam() / 2, dryAirTubeOutDiam() / 2, 0_deg, 360_deg));
+	  Solid dryAirTubeSolid = Tube(dryAirTubName, dryAirTube.innDiam / 2, dryAirTube.outDiam / 2, pipeLength / 2, 0_deg, 360_deg);
+	  Volume dryAirTubeLog = Volume(dryAirTubName, dryAirTubeSolid, ns.material(dryAirTube.mat));
 
-  //         const DDLogicalPart dryAirTubeLog(dryAirTubName, dryAirTubeMat(), dryAirTubeSolid);
+          const DDTranslation dryAirTubeTra1(
+              back.xOff + back.sideHeight - 0.7 * dryAirTube.outDiam - backPipe.vecDiam[iMod],
+              back.yOff + back.plateWidth / 2 - back.sideWidth - 1.2 * dryAirTube.outDiam,
+              pipeZPos);
 
-  //         const DDTranslation dryAirTubeTra1(
-  //             back.xOff + back.sideHeight - 0.7 * dryAirTubeOutDiam() - backPipe.vecDiam[iMod],
-  //             back.yOff + back.plateWidth / 2 - back.sideWidth - 1.2 * dryAirTubeOutDiam(),
-  //             pipeZPos);
+	  spmLog.placeVolume(dryAirTubeLog, copyOne, Transform3D(Rotation3D(), dryAirTubeTra1));
 
-  //         cpv.position(dryAirTubeLog, spmName(), copyOne, dryAirTubeTra1, DDRotation());
+          const DDTranslation dryAirTubeTra2(
+              dryAirTubeTra1.x(),
+              back.yOff - back.plateWidth / 2 + back.sideWidth + 0.7 * dryAirTube.outDiam,
+              dryAirTubeTra1.z());
 
-  //         const DDTranslation dryAirTubeTra2(
-  //             dryAirTubeTra1.x(),
-  //             back.yOff - back.plateWidth / 2 + back.sideWidth + 0.7 * dryAirTubeOutDiam(),
-  //             dryAirTubeTra1.z());
-
-  //         cpv.position(dryAirTubeLog, spmName(), copyTwo, dryAirTubeTra2, DDRotation());
-  //       }
+	  spmLog.placeVolume(dryAirTubeLog, copyTwo, Transform3D(Rotation3D(), dryAirTubeTra2));
+	}
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //!!!!!!!!!!!!!! Begin Placement of Cooling + VFE Cards          !!!!!!
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!! Begin Placement of Cooling + VFE Cards          !!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  //       DDTranslation cTra(backCool.barHeight / 2. - backCoolHeight / 2. + bottomThick, 0, -halfZTank + halfZCoolVFE);
-  //       const unsigned int numSec(static_cast<unsigned int>(vecBackCoolNSec()[iMod]));
-  //       for (unsigned int jSec(0); jSec != numSec; ++jSec) {
-  //         const unsigned int nMax(static_cast<unsigned int>(vecBackCoolNPerSec()[iNSec++]));
-  //         for (unsigned int iBar(0); iBar != nMax; ++iBar) {
-  //           cpv.position(backCoolVFELog, backCName, iCVFECopy++, cTra, DDRotation());
-  //           cTra += DDTranslation(0, 0, backCBStdSep());
-  //         }
-  //         cTra -= DDTranslation(0, 0, backCBStdSep());  // backspace to previous
-  //         if (jSec != numSec - 1)
-  //           cTra += DDTranslation(0, 0, vecBackCoolSecSep()[iSep++]);  // now take atypical step
-  //       }
+        DDTranslation cTra(backCool.barHeight / 2. - backCoolHeight / 2. + bottomThick, 0, -halfZTank + halfZCoolVFE);
+        const unsigned int numSec(static_cast<unsigned int>(backCool.vecBackCoolNSec[iMod]));
+        for (unsigned int jSec(0); jSec != numSec; ++jSec) {
+          const unsigned int nMax(static_cast<unsigned int>(backCool.vecBackCoolNPerSec[iNSec++]));
+          for (unsigned int iBar(0); iBar != nMax; ++iBar) {
+	    backCoolLog.placeVolume(backCoolVFELog, iCVFECopy++, Transform3D(Rotation3D(), cTra));
+            cTra += DDTranslation(0, 0, backMisc.backCBStdSep);
+          }
+          cTra -= DDTranslation(0, 0, backMisc.backCBStdSep);  // backspace to previous
+          if (jSec != numSec - 1)
+            cTra += DDTranslation(0, 0, backCool.vecBackCoolSecSep[iSep++]);  // now take atypical step
+        }
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!! End Placement of Cooling + VFE Cards            !!!!!!
@@ -2148,86 +2149,62 @@ static long algorithm(dd4hep::Detector& /* description */,
       if (0 != pincer.rodHere) {
       // Make hierarchy of rods, envelopes, blocks, shims, and cutouts
 
-  //     Solid rodSolid(
-  //           DDSolidFactory::box(pincerRodName(), pincerEnvWidth() / 2., pincerEnvHeight() / 2., ilyLength / 2));
-  //       const DDLogicalPart rodLog(pincerRodName(), pincerRodMat(), rodSolid);
+	Solid rodSolid = Box(pincer.rodName, pincer.envWidth / 2., pincer.envHeight / 2., ilyLength / 2);
+	Volume rodLog = Volume(pincer.rodName, rodSolid, ns.material(pincer.rodMat));
+	
+	array<double, 3> envParms{ { pincer.envWidth / 2., pincer.envHeight / 2., pincer.envLength / 2 } };
+	Solid envSolid = Box(pincer.envName, envParms[0], envParms[1], envParms[2]);
+	Volume envLog = Volume(pincer.envName, envSolid, ns.material(pincer.envMat));
 
-  //       DDSolid envSolid(
-  //           DDSolidFactory::box(pincerEnvName(), pincerEnvWidth() / 2., pincerEnvHeight() / 2., pincerEnvLength() / 2));
-  //       const DDLogicalPart envLog(pincerEnvName(), pincerEnvMat(), envSolid);
-  //       const std::vector<double>& envParms(envSolid.parameters());
+	array<double, 3> blkParms{ { pincer.envWidth / 2., pincer.envHeight / 2., pincer.blkLength / 2 } };
+	Solid blkSolid = Box(pincer.blkName, blkParms[0], blkParms[1], blkParms[2]);
+	Volume blkLog = Volume(pincer.blkName, blkSolid, ns.material(pincer.blkMat));
 
-  //       DDSolid blkSolid(
-  //           DDSolidFactory::box(pincerBlkName(), pincerEnvWidth() / 2., pincerEnvHeight() / 2., pincerBlkLength() / 2));
-  //       const DDLogicalPart blkLog(pincerBlkName(), pincerBlkMat(), blkSolid);
-  //       const std::vector<double>& blkParms(blkSolid.parameters());
-  //       cpv.position(blkLog,
-  //                    pincerEnvName(),
-  //                    copyOne,
-  //                    DDTranslation(0, 0, pincerEnvLength() / 2 - pincerBlkLength() / 2),
-  //                    DDRotation());
+	envLog.placeVolume(blkLog, copyOne, Transform3D(Rotation3D(),
+							DDTranslation(0, 0, pincer.envLength / 2 - pincer.blkLength / 2)));
 
-  //       DDSolid cutSolid(
-  //           DDSolidFactory::box(pincerCutName(), pincerCutWidth() / 2., pincerCutHeight() / 2., pincerBlkLength() / 2));
-  //       const DDLogicalPart cutLog(pincerCutName(), pincerCutMat(), cutSolid);
-  //       const std::vector<double>& cutParms(cutSolid.parameters());
-  //       cpv.position(
-  //           cutLog,
-  //           pincerBlkName(),
-  //           copyOne,
-  //           DDTranslation(
-  //               +blkParms[0] - cutParms[0] - pincerShim1Width() + pincerShim2Width(), -blkParms[1] + cutParms[1], 0),
-  //           DDRotation());
+	array<double, 3> cutParms{ { pincer.cutWidth / 2., pincer.cutHeight / 2., pincer.blkLength / 2 } };
+	Solid cutSolid = Box(pincer.cutName, cutParms[0], cutParms[1], cutParms[2]);
+	Volume cutLog = Volume(pincer.cutName, cutSolid, ns.material(pincer.cutMat));
+	blkLog.placeVolume(cutLog, copyOne,
+			   Transform3D(Rotation3D(),
+				       DDTranslation(+blkParms[0] - cutParms[0] - pincer.shim1Width + pincer.shim2Width,
+						     -blkParms[1] + cutParms[1], 0)));
+	array<double, 3> shim2Parms{ { pincer.shim2Width / 2., pincer.shimHeight / 2., pincer.blkLength / 2 } };
+	Solid shim2Solid = Box(pincer.shim2Name, shim2Parms[0], shim2Parms[1], shim2Parms[2]);
+	Volume shim2Log = Volume(pincer.shim2Name, shim2Solid, ns.material(pincer.shimMat));
+	cutLog.placeVolume(shim2Log, copyOne,
+			   Transform3D(Rotation3D(),
+				       DDTranslation(+cutParms[0] - shim2Parms[0], -cutParms[1] + shim2Parms[1], 0)));
 
-  //       DDSolid shim2Solid(DDSolidFactory::box(
-  //           pincerShim2Name(), pincerShim2Width() / 2., pincerShimHeight() / 2., pincerBlkLength() / 2));
-  //       const DDLogicalPart shim2Log(pincerShim2Name(), pincerShimMat(), shim2Solid);
-  //       const std::vector<double>& shim2Parms(shim2Solid.parameters());
-  //       cpv.position(shim2Log,
-  //                    pincerCutName(),
-  //                    copyOne,
-  //                    DDTranslation(+cutParms[0] - shim2Parms[0], -cutParms[1] + shim2Parms[1], 0),
-  //                    DDRotation());
+	array<double, 3> shim1Parms{ { pincer.shim1Width / 2., pincer.shimHeight / 2., (pincer.envLength - pincer.blkLength) / 2 } };
+	Solid shim1Solid = Box(pincer.shim1Name, shim1Parms[0], shim1Parms[1], shim1Parms[2]);
+	Volume shim1Log = Volume(pincer.shim1Name, shim1Solid, ns.material(pincer.shimMat));
+	envLog.placeVolume(shim1Log, copyOne,
+			   Transform3D(Rotation3D(),
+				       DDTranslation(+envParms[0] - shim1Parms[0],
+						     -envParms[1] + shim1Parms[1],
+						     -envParms[2] + shim1Parms[2])));
 
-  //       DDSolid shim1Solid(DDSolidFactory::box(pincerShim1Name(),
-  //                                              pincerShim1Width() / 2.,
-  //                                              pincerShimHeight() / 2.,
-  //                                              (pincerEnvLength() - pincerBlkLength()) / 2));
+	for (unsigned int iEnv(0); iEnv != pincer.vecEnvZOff.size(); ++iEnv) {
+	  rodLog.placeVolume(envLog, 1 + iEnv, Transform3D(Rotation3D(),
+							   DDTranslation(0, 0, -ilyLength / 2. + pincer.vecEnvZOff[iEnv]
+									 - pincer.envLength / 2.)));
+	}
 
-  //       const DDLogicalPart shim1Log(pincerShim1Name(), pincerShimMat(), shim1Solid);
-  //       const std::vector<double>& shim1Parms(shim1Solid.parameters());
-  //       cpv.position(
-  //           shim1Log,
-  //           pincerEnvName(),
-  //           copyOne,
-  //           DDTranslation(+envParms[0] - shim1Parms[0], -envParms[1] + shim1Parms[1], -envParms[2] + shim1Parms[2]),
-  //           DDRotation());
+	// Place the rods
+	const double radius(ilyRMin - pincer.envHeight / 2 - 1_mm);
+	const string xilyName(ily.name + std::to_string(ily.vecIlyMat.size() - 1));
 
-  //       for (unsigned int iEnv(0); iEnv != vecPincerEnvZOff().size(); ++iEnv) {
-  //         cpv.position(envLog,
-  //                      pincerRodName(),
-  //                      1 + iEnv,
-  //                      DDTranslation(0, 0, -ilyLength / 2. + vecPincerEnvZOff()[iEnv] - pincerEnvLength() / 2.),
-  //                      DDRotation());
-  //       }
-
-  //       // Place the rods
-  //       //	 const double radius ( fawRadOff() - pincerEnvHeight()/2 -1_mm ) ;
-  //       const double radius(ilyRMin - pincerEnvHeight() / 2 - 1_mm);
-
-  //       const string xilyName(ddname(ilyName() + std::to_string(vecIlyMat().size() - 1)));
-
-  //       for (unsigned int iRod(0); iRod != vecPincerRodAzimuth().size(); ++iRod) {
-  //         const DDTranslation rodTra(
-  //             radius * cos(vecPincerRodAzimuth()[iRod]), radius * sin(vecPincerRodAzimuth()[iRod]), 0);
-
-  //         cpv.position(rodLog,
-  //                      xilyName,
-  //                      1 + iRod,
-  //                      rodTra,
-  //                      myrot(pincerRodName().name() + std::to_string(iRod),
-  //                            CLHEP::HepRotationZ(90_deg + vecPincerRodAzimuth()[iRod])));
-	//}
+	for (unsigned int iRod(0); iRod != pincer.vecRodAzimuth.size(); ++iRod) {
+	  const DDTranslation rodTra(radius * cos(pincer.vecRodAzimuth[iRod]),
+				     radius * sin(pincer.vecRodAzimuth[iRod]), 0);
+	  //ns.volume(xilyName)
+	  xilyLog.placeVolume(rodLog, 1 + iRod,
+			      Transform3D(myrot(ns, pincer.rodName + std::to_string(iRod),
+						CLHEP::HepRotationZ(90_deg + pincer.vecRodAzimuth[iRod])),
+					  rodTra));
+	}
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
