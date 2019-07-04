@@ -49,8 +49,6 @@
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
 #include "G4ParticleTable.hh"
-#include "G4Field.hh"
-#include "G4FieldManager.hh"
 #include "G4CascadeInterface.hh"
 
 #include "G4GDMLParser.hh"
@@ -72,7 +70,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
-      m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
@@ -94,9 +91,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_geometryManager->G4GeometryManager::GetInstance();
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap", false);
-  m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML", "");
-  m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField", "");
-  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions", "");
 }
 
 RunManagerMT::~RunManagerMT() { stopG4(); }
@@ -121,26 +115,14 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   m_registry.dddWorldSignal_(m_world.get());
 
-  // setup the magnetic field
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialisation of magnetic field";
-
-  if (m_pUseMagneticField && !m_FieldFile.empty()) {
-    const GlobalPoint g(0., 0., 0.);
-    sim::FieldBuilder fieldBuilder(pMF, m_pField);
-    CMSFieldManager* fieldManager = new CMSFieldManager();
-    G4TransportationManager* tM = G4TransportationManager::GetTransportationManager();
-    tM->SetFieldManager(fieldManager);
-    fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
-    DumpMagneticField(tM->GetFieldManager()->GetDetectorField());
-  }
-
   // Create physics list
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: create PhysicsList";
 
   std::unique_ptr<PhysicsListMakerBase> physicsMaker(
       PhysicsListFactory::get()->create(m_pPhysics.getParameter<std::string>("type")));
   if (physicsMaker.get() == nullptr) {
-    throw edm::Exception(edm::errors::Configuration) << "Unable to find the Physics list requested";
+    throw edm::Exception(edm::errors::Configuration) 
+      << "Unable to find the Physics list requested";
   }
   m_physicsList = physicsMaker->make(m_pPhysics, m_registry);
 
@@ -166,10 +148,11 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialisation of PhysicsList for master";
+  edm::LogVerbatim("SimG4CoreApplication") 
+    << "RunManagerMT: start initialisation of PhysicsList for master";
 
-  int verb =
-      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
+  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), 
+                      m_p.getParameter<int>("SteppingVerbosity"));
   m_kernel->SetVerboseLevel(verb);
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
@@ -225,17 +208,19 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
 
   // geometry dump
-  if (!m_WriteFile.empty()) {
+  auto writeFile = m_p.getUntrackedParameter<std::string>("FileNameGDML", "");
+  if (!writeFile.empty()) {
     G4GDMLParser gdml;
     gdml.SetRegionExport(true);
     gdml.SetEnergyCutsExport(true);
-    gdml.Write(m_WriteFile, m_world->GetWorldVolume(), true);
+    gdml.Write(writeFile, m_world->GetWorldVolume(), true);
   }
 
   // G4Region dump
-  if (!m_RegionFile.empty()) {
+  auto regionFile = m_p.getUntrackedParameter<std::string>("FileNameRegions", "");
+  if (!regionFile.empty()) {
     G4RegionReporter rrep;
-    rrep.ReportRegions(m_RegionFile);
+    rrep.ReportRegions(regionFile);
   }
 
   // Intersection check
@@ -281,51 +266,4 @@ void RunManagerMT::terminateRun() {
     m_kernel->RunTermination();
   }
   m_runTerminated = true;
-}
-
-void RunManagerMT::DumpMagneticField(const G4Field* field) const {
-  std::ofstream fout(m_FieldFile.c_str(), std::ios::out);
-  if (fout.fail()) {
-    edm::LogWarning("SimG4CoreApplication") << " RunManager WARNING : "
-                                            << "error opening file <" << m_FieldFile << "> for magnetic field";
-  } else {
-    // CMS magnetic field volume
-    double rmax = 9000 * mm;
-    double zmax = 24000 * mm;
-
-    double dr = 5 * cm;
-    double dz = 20 * cm;
-
-    int nr = (int)(rmax / dr);
-    int nz = 2 * (int)(zmax / dz);
-
-    double r = 0.0;
-    double z0 = -zmax;
-    double z;
-
-    double phi = 0.0;
-    double cosf = cos(phi);
-    double sinf = sin(phi);
-
-    double point[4] = {0.0, 0.0, 0.0, 0.0};
-    double bfield[3] = {0.0, 0.0, 0.0};
-
-    fout << std::setprecision(6);
-    for (int i = 0; i <= nr; ++i) {
-      z = z0;
-      for (int j = 0; j <= nz; ++j) {
-        point[0] = r * cosf;
-        point[1] = r * sinf;
-        point[2] = z;
-        field->GetFieldValue(point, bfield);
-        fout << "R(mm)= " << r / mm << " phi(deg)= " << phi / degree << " Z(mm)= " << z / mm
-             << "   Bz(tesla)= " << bfield[2] / tesla << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / tesla
-             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / tesla << G4endl;
-        z += dz;
-      }
-      r += dr;
-    }
-
-    fout.close();
-  }
 }
