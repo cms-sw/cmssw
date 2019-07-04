@@ -1597,7 +1597,6 @@ static long algorithm(dd4hep::Detector& /* description */,
         zeta = delta;
       }
       if (5 == cryType || 9 == cryType || 13 == cryType || 17 == cryType) {  // web plates
-        const unsigned int webIndex(cryType / 4);
         zee += 0.5 * alv.vecGapAlvEta[cryType] / sin(theta);
         zee += 0.5 * alv.vecGapAlvEta[cryType] / sin(theta);
       } else {
