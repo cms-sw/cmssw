@@ -1,5 +1,6 @@
-#include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
+#include "SimMuon/GEMDigitizer/plugins/GEMPadDigiProducer.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -19,6 +20,13 @@ GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps) : geometry_(
 }
 
 GEMPadDigiProducer::~GEMPadDigiProducer() {}
+
+void GEMPadDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputCollection", edm::InputTag("simMuonGEMDigis"));
+
+  descriptions.add("simMuonGEMPadDigisDef",desc);
+}
 
 void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {
   edm::ESHandle<GEMGeometry> hGeom;
@@ -63,3 +71,5 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
     }
   }
 }
+
+DEFINE_FWK_MODULE(GEMPadDigiProducer);
