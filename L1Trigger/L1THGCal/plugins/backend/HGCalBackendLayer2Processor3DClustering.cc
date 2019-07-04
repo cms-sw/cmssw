@@ -19,11 +19,12 @@ public:
     } else if (typeMulticluster == "DBSCANC3d") {
       multiclusteringAlgoType_ = DBSCANC3d;
       multiclustering_ = std::make_unique<HGCalMulticlusteringImpl>(conf.getParameterSet("C3d_parameters"));
-    } else if (typeMulticluster.find("Histo") != std::string::npos) {
+    } else if (typeMulticluster == "Histo") {
       multiclusteringAlgoType_ = HistoC3d;
-      multiclusteringHistoSeeding_ = std::make_unique<HGCalHistoSeedingImpl>(conf.getParameterSet("C3d_parameters"));
-      multiclusteringHistoClustering_ =
-          std::make_unique<HGCalHistoClusteringImpl>(conf.getParameterSet("C3d_parameters"));
+      multiclusteringHistoSeeding_ = std::make_unique<HGCalHistoSeedingImpl>(
+          conf.getParameterSet("C3d_parameters").getParameterSet("histoMax_C3d_seeding_parameters"));
+      multiclusteringHistoClustering_ = std::make_unique<HGCalHistoClusteringImpl>(
+          conf.getParameterSet("C3d_parameters").getParameterSet("histoMax_C3d_clustering_parameters"));
     } else {
       throw cms::Exception("HGCTriggerParameterError") << "Unknown Multiclustering type '" << typeMulticluster << "'";
     }
