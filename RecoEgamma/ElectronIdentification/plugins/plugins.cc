@@ -18,8 +18,6 @@ typedef VersionedIdProducer<pat::ElectronPtr> VersionedPatElectronIdProducer;
 DEFINE_FWK_MODULE(VersionedPatElectronIdProducer);
 
 typedef ElectronIDSelector<ElectronIDSelectorCutBased> EleIdCutBasedSel;
-typedef ObjectSelector<EleIdCutBasedSel, edm::RefVector<reco::GsfElectronCollection> > EleIdCutBasedRef;
-DEFINE_FWK_MODULE(EleIdCutBasedRef);
 
 #include "RecoEgamma/ElectronIdentification/plugins/ElectronIDExternalProducer.h"
 typedef ElectronIDExternalProducer<ElectronIDSelectorCutBased> EleIdCutBasedExtProducer;
