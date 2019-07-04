@@ -1,14 +1,55 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DD4hep/Printout.h"
+//#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
+#include "Math/AxisAngle.h"
+#include "CLHEP/Geometry/Point3D.h"
+#include "CLHEP/Geometry/Vector3D.h"
+#include "CLHEP/Geometry/Transform3D.h"
 
 using namespace std;
+using namespace cms;
 using namespace dd4hep;
-using namespace geant_units::operators;
+// FIXME: use local definition until dd4hep fixes the uniits
+// using namespace geant_units::operators;
+
+constexpr long double piRadians(M_PIl);              // M_PIl is long double version of pi
+constexpr long double degPerRad = 180. / piRadians;  // Degrees per radian
+constexpr double operator"" _deg(long double deg) { return deg / degPerRad; }
+constexpr double operator"" _deg(unsigned long long int deg) { return deg / degPerRad; }
+
+// Length
+constexpr double operator"" _mm(long double length) { return length * 0.1; }
+constexpr double operator"" _mm(unsigned long long int length) { return length * 0.1; }
+constexpr double operator"" _cm(unsigned long long int length) { return length * 1; }
+
+template <class NumType>
+inline constexpr NumType convertRadToDeg(NumType radians)  // Radians -> degrees
+{
+  return (radians * degPerRad);
+}
+
+template <class NumType>
+inline constexpr long double convertDegToRad(NumType degrees)  // Degrees -> radians
+{
+  return (degrees / degPerRad);
+}
 
 using VecDouble = vector<double>;
 using VecStr = vector<string>;
+using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
+using EcalTrap = EcalTrapezoidParameters;
+
+using Pt3D = HepGeom::Point3D<double>;
+using Vec3 = CLHEP::Hep3Vector;
+using Rota = CLHEP::HepRotation;
+using Ro3D = HepGeom::Rotate3D;
+using Tl3D = HepGeom::Translate3D;
+using Tf3D = HepGeom::Transform3D;
+using RoX3D = HepGeom::RotateX3D;
+using RoZ3D = HepGeom::RotateZ3D;
 
 namespace {
 
@@ -422,6 +463,96 @@ namespace {
     double cutWidth;   //
     double cutHeight;  //
   };
+
+  const Rotation3D& myrot(cms::DDNamespace& ns, const string& nam, const CLHEP::HepRotation& r) {
+    ns.addRotation(nam, Rotation3D(r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz()));
+    return ns.rotation(ns.prepend(nam));
+  }
+
+  Solid mytrap(cms::DDNamespace& ns, const std::string& nam, const EcalTrapezoidParameters& t) {
+    return ns.addSolid(nam, Trap(t.dz(), t.theta(), t.phi(), t.h1(), t.bl1(), t.tl1(), t.alp1(), t.h2(), t.bl2(), t.tl2(), t.alp2()));
+  }
+
+// void DDEcalBarrelNewAlgo::web(unsigned int iWeb,
+//                               double bWeb,
+//                               double BWeb,
+//                               double LWeb,
+//                               double theta,
+//                               const HepGeom::Point3D<double>& corner,
+//                               const DDLogicalPart& logPar,
+//                               double& zee,
+//                               double side,
+//                               double front,
+//                               double delta,
+//                               DDCompactView& cpv) {
+//   const unsigned int copyOne(1);
+
+//   const double LWebx(vecWebLength()[iWeb]);
+
+//   const double BWebx(bWeb + (BWeb - bWeb) * LWebx / LWeb);
+
+//   const double thick(vecWebPlTh()[iWeb] + vecWebClrTh()[iWeb]);
+//   const Trap trapWebClr(BWebx / 2,     // A/2
+//                         bWeb / 2,      // a/2
+//                         bWeb / 2,      // b/2
+//                         thick / 2,     // H/2
+//                         thick / 2,     // h/2
+//                         LWebx / 2,     // L/2
+//                         90_deg,        // alfa1
+//                         bWeb - BWebx,  // x15
+//                         0              // y15
+//   );
+//   const DDName webClrDDName(webClrName() + std::to_string(iWeb));
+//   const DDSolid webClrSolid(mytrap(webClrDDName.name(), trapWebClr));
+//   const DDLogicalPart webClrLog(webClrDDName, webClrMat(), webClrSolid);
+
+//   const Trap trapWebPl(trapWebClr.A() / 2,               // A/2
+//                        trapWebClr.a() / 2,               // a/2
+//                        trapWebClr.b() / 2,               // b/2
+//                        vecWebPlTh()[iWeb] / 2,           // H/2
+//                        vecWebPlTh()[iWeb] / 2,           // h/2
+//                        trapWebClr.L() / 2.,              // L/2
+//                        90_deg,                           // alfa1
+//                        trapWebClr.b() - trapWebClr.B(),  // x15
+//                        0                                 // y15
+//   );
+//   const DDName webPlDDName(webPlName() + std::to_string(iWeb));
+//   const DDSolid webPlSolid(mytrap(webPlDDName.fullname(), trapWebPl));
+//   const DDLogicalPart webPlLog(webPlDDName, webPlMat(), webPlSolid);
+
+//   cpv.position(webPlLog,  // place plate inside clearance volume
+//                webClrDDName,
+//                copyOne,
+//                DDTranslation(0, 0, 0),
+//                DDRotation());
+
+//   const Trap::VertexList vWeb(trapWebClr.vertexList());
+
+//   zee += trapWebClr.h() / sin(theta);
+
+//   const double beta(theta + delta);
+
+//   const double zWeb(zee - front * cos(beta) + side * sin(beta));
+//   const double yWeb(front * sin(beta) + side * cos(beta));
+
+//   const Pt3D wedge3(corner + Pt3D(0, -yWeb, zWeb));
+//   const Pt3D wedge2(wedge3 + Pt3D(0, trapWebClr.h() * cos(theta), -trapWebClr.h() * sin(theta)));
+//   const Pt3D wedge1(wedge3 + Pt3D(trapWebClr.a(), 0, 0));
+
+//   LogDebug("EcalGeom") << "trap1=" << vWeb[0] << ", trap2=" << vWeb[2] << ", trap3=" << vWeb[3];
+
+//   LogDebug("EcalGeom") << "wedge1=" << wedge1 << ", wedge2=" << wedge2 << ", wedge3=" << wedge3;
+
+//   const Tf3D tForm(vWeb[0], vWeb[2], vWeb[3], wedge1, wedge2, wedge3);
+
+//   if (0 != webHere())
+//     cpv.position(webClrLog,
+//                  logPar,
+//                  copyOne,
+//                  DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z()),
+//                  myrot(webClrLog.name().name() + std::to_string(iWeb), tForm.getRotation()));
+// }
+
 }  // namespace
 
 static long algorithm(dd4hep::Detector& /* description */,
@@ -442,7 +573,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   bar.vecTran = args.vecDble("BarTran");    // Barrel translation
   bar.vecRota = args.vecDble("BarRota");    // Barrel rotation
   bar.vecRota2 = args.vecDble("BarRota2");  // 2nd Barrel rotation
-  bar.vecRota3 = args.vecDble("BarRota3");  // 2nd Barrel rotation
+  bar.vecRota3 = args.vecDble("BarRota3");  // 3rd Barrel rotation
   bar.phiLo = args.dble("BarPhiLo");        // Barrel phi lo
   bar.phiHi = args.dble("BarPhiHi");        // Barrel phi hi
   bar.here = args.dble("BarHere");          // Barrel presence flag
@@ -816,6 +947,1296 @@ static long algorithm(dd4hep::Detector& /* description */,
   pincer.cutWidth = args.dble("PincerCutWidth");
   pincer.cutHeight = args.dble("PincerCutHeight");
 
+  Volume parentVolume = ns.volume(args.parentName());
+  if (bar.here != 0) {
+    const unsigned int copyOne(1);
+    const unsigned int copyTwo(2);
+    // Barrel parent volume----------------------------------------------------------
+    Solid barSolid = Polycone(bar.phiLo, (bar.phiHi - bar.phiLo), bar.vecRMin, bar.vecRMax, bar.vecZPts);
+    Position tran(bar.vecTran[0], bar.vecTran[1], bar.vecTran[2]);
+    Rotation3D rotation = myrot(ns, bar.name + "Rot",
+				Rota(Vec3(bar.vecRota3[0], bar.vecRota3[1], bar.vecRota3[2]), bar.vecRota3[3]) *
+				Rota(Vec3(bar.vecRota2[0], bar.vecRota2[1], bar.vecRota2[2]), bar.vecRota2[3]) *
+				Rota(Vec3(bar.vecRota[0], bar.vecRota[1], bar.vecRota[2]), bar.vecRota[3])); 
+    Volume barVolume = Volume(bar.name, barSolid, ns.material(bar.mat));
+    parentVolume.placeVolume(barVolume, copyOne, Transform3D(rotation, tran));
+    // End Barrel parent volume----------------------------------------------------------
+
+    // Supermodule parent------------------------------------------------------------
+
+    const string spmcut1ddname((0 != spm.cutShow) ? spm.name : (spm.name + "CUT1"));
+    Solid ddspm = Polycone(spm.lowPhi, spm.delPhi, spm.vecRMin, spm.vecRMax, spm.vecZPts);
+
+    const unsigned int indx(0.5 * spm.vecRMax.size());
+
+    // Deal with the cut boxes first
+    array<double, 3 > cutBoxParms { { 1.05 * (spm.vecRMax[indx] - spm.vecRMin[indx]) * 0.5,
+	  0.5 * spm.cutThick, fabs(spm.vecZPts.back() - spm.vecZPts.front()) * 0.5 + 1_mm } };
+    Solid spmCutBox = Box(spm.cutName, cutBoxParms[0], cutBoxParms[1], cutBoxParms[2]);
+    Volume spmCutLog = Volume(spm.cutName, spmCutBox, ns.material(spm.mat));
+			  
+    // Now the expansion box
+    /*const double xExp(0.5 * spm.expThick);
+    const double yExp(0.5 * spm.expWide);
+    const double zExp(0.5 * fabs(spm.vecZPts.back() - spm.vecZPts.front()));
+    string expName(spm.name + "EXP");
+    Solid spmExpBox = ns.addSolidNS(expName, Box(xExp, yExp, zExp));
+    Position expTra(spm.vecRMax.back() - xExp, spm.expYOff, spm.vecZPts.front() + zExp);
+    Volume expLog = ns.addVolume(Volume(expName, spmExpBox, ns.material(spm.mat)));*/
+  
+    // Supermodule side platess
+    array<double, 3> sideParms{ {0.5 * spm.sideHigh, 0.5 * spm.sideThick, 0.5 * fabs(spm.vecZPts[1] - spm.vecZPts[0])} };
+    Solid sideSolid = Box(sideParms[0], sideParms[1], sideParms[2]);
+    Volume sideLog = Volume(spm.sideName, sideSolid, ns.material(spm.sideMat));
+
+    Solid temp1;
+    Solid temp2;
+    DDTranslation sideddtra1;
+    DDTranslation sideddtra2;
+    Transform3D alltrot1;
+    Transform3D alltrot2;
+    for (unsigned int icopy(1); icopy <= 2; ++icopy) {
+      const std::vector<double>& tvec(1 == icopy ? spm.vecCutTM : spm.vecCutTP);
+      double rang(1 == icopy ? spm.cutRM : spm.cutRP);
+      
+      const Position tr(tvec[0], tvec[1], tvec[2]);
+      RotationZ ro(rang);
+      const double ang(1 == icopy ? spm.lowPhi : spm.lowPhi + spm.delPhi);
+      RotationZ ro1(ang);
+      const Position tr1(0.5 * (spm.vecRMax[indx] + spm.vecRMin[indx]), 0, 0.5 * (spm.vecZPts.front() + spm.vecZPts.back()));
+      Transform3D alltrot(Transform3D(Transform3D(ro1 * tr1) * tr) * ro);
+      if(1 == icopy) {
+	alltrot1 = alltrot;
+	temp1 = SubtractionSolid(spm.name + "_T1", ddspm, spmCutBox, alltrot);
+      } else {
+	alltrot2 = alltrot;
+	temp2 = SubtractionSolid(spm.name, temp1, spmCutBox, alltrot);
+      }
+      const Tl3D trSide(tvec[0],
+                        tvec[1] + (1 == icopy ? 1. : -1.) * (cutBoxParms[1] + sideParms[1]) +
+                            (1 == icopy ? spm.sideYOffM : spm.sideYOffP),
+                        tvec[2]);
+      const RoZ3D roSide(rang);
+      const Tf3D sideRot(RoZ3D(1 == icopy ? spm.lowPhi : spm.lowPhi + spm.delPhi) *
+                         Tl3D(spm.vecRMin.front() + sideParms[0], 0, spm.vecZPts.front() + sideParms[2]) * trSide *
+                         roSide);
+
+      Rotation3D sideddrot(myrot(ns, spm.sideName + std::to_string(icopy), sideRot.getRotation()));
+      const DDTranslation sideddtra(sideRot.getTranslation());
+      1 == icopy ? sideddtra1 = sideddtra : sideddtra2 = sideddtra;
+    }
+    Volume spmLog = Volume(spm.name, ((0 != spm.cutShow) ? ddspm : temp2), ns.material(spm.mat));
+    if (0 != spm.cutShow) {
+      spmLog.placeVolume(spmCutLog, 1, alltrot1);
+      spmLog.placeVolume(spmCutLog, 1, alltrot2);			 
+    }
+    spmLog.placeVolume(sideLog, 1, Transform3D(ns.rotation(ns.prepend(spm.sideName + std::to_string(1))), sideddtra1));
+    spmLog.placeVolume(sideLog, 2, Transform3D(ns.rotation(ns.prepend(spm.sideName + std::to_string(2))), sideddtra2));
+    
+    const double dphi(360._deg / (1. * spm.nPerHalf));
+    for (unsigned int iphi(0); iphi < 2 * spm.nPerHalf; ++iphi) {
+      const double phi(iphi * dphi + spm.phiOff);  //- 0.000130/deg ) ;
+
+      // this base rotation includes the base translation & rotation
+      // plus flipping for the negative z hemisphere, plus
+      // the phi rotation for this module
+      const Tf3D rotaBase(RoZ3D(phi) * (iphi < spm.nPerHalf ? Ro3D() : RoX3D(180._deg)) *
+                          Ro3D(spm.vecBRota[3], Vec3(spm.vecBRota[0], spm.vecBRota[1], spm.vecBRota[2])) *
+                          Tl3D(Vec3(spm.vecBTran[0], spm.vecBTran[1], spm.vecBTran[2])));
+
+      // here the individual rotations & translations of the supermodule
+      // are implemented on top of the overall "base" rotation & translation
+
+      const unsigned int offr(4 * iphi);
+      const unsigned int offt(3 * iphi);
+
+      const Ro3D r1(spm.vecRota[offr + 3],
+                    Vec3(spm.vecRota[offr + 0], spm.vecRota[offr + 1], spm.vecRota[offr + 2]));
+
+      const Tf3D rotaExtra(r1 * Tl3D(Vec3(spm.vecTran[offt + 0], spm.vecTran[offt + 1], spm.vecTran[offt + 2])));
+
+      const Tf3D both(rotaExtra * rotaBase);
+
+      const Rotation3D rota(myrot(ns, spm.name + std::to_string(convertRadToDeg(phi)), both.getRotation()));
+
+      if (spm.vecHere[iphi] != 0) {
+        // convert from CLHEP to DDTranslation & etc.
+        DDTranslation myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
+	barVolume.placeVolume(spmLog, iphi + 1, Transform3D(rota, myTran));
+      }
+    }
+    // End Supermodule parent------------------------------------------------------------
+
+    // Begin Inner Layer volumes---------------------------------------------------------
+    const double ilyLength(spm.vecZPts[1] - spm.vecZPts[0]);
+    double ilyRMin(spm.vecRMin[0]);
+    double ilyThick(0);
+    for (unsigned int ilyx(0); ilyx != ily.vecIlyThick.size(); ++ilyx) {
+      ilyThick += ily.vecIlyThick[ilyx];
+    }
+    Solid ilySolid = Tube(ily.name, ilyRMin, // rmin
+			  ilyRMin + ilyThick, //rmax
+			  0.5 * ilyLength, // dz
+			  ily.phiLow, // startPhi
+			  ily.phiLow + ily.delPhi); // startPhi + deltaPhi
+    Volume ilyLog = Volume(ily.name, ilySolid, ns.material(spm.mat));
+    spmLog.placeVolume(ilyLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0.5 * ilyLength)));
+
+    Volume ilyPipeLog[200];
+    if (0 != ily.pipeHere) {
+      for (unsigned int iPipeType(0); iPipeType != ily.vecIlyPipeLength.size(); ++iPipeType) {
+	string pName(ily.pipeName + "_" + std::to_string(iPipeType + 1));
+	
+	Solid ilyPipeSolid = Tube(pName, 0, // rmin
+				  ily.pipeOD, //rmax
+				  0.5 * ily.vecIlyPipeLength[iPipeType], // dz
+				  0_deg, // startPhi
+				  360_deg); // startPhi + deltaPhi
+	ilyPipeLog[iPipeType] = Volume(pName, ilyPipeSolid, ns.material(ily.pipeMat));
+	
+	string pWaName(ily.pipeName + "Wa_" + std::to_string(iPipeType + 1));
+	Solid ilyPipeWaSolid = Tube(pWaName, 0, // rmin
+				    0.5 * ily.pipeID, //rmax
+				    0.5 * ily.vecIlyPipeLength[iPipeType], // dz
+				    0_deg, // startPhi
+				    360_deg); // startPhi + deltaPhi
+	Volume ilyPipeWaLog = Volume(pWaName, ilyPipeWaSolid, ns.material(backPipe.waterMat));
+	ilyPipeLog[iPipeType].placeVolume(ilyPipeWaLog, copyOne);
+      }
+    }
+
+    Solid ilyPTMSolid = Box(ily.pTMHeight / 2., ily.pTMWidth / 2., ily.pTMLength / 2.);
+    Volume ilyPTMLog = Volume(ily.pTMName, ilyPTMSolid, ns.material(ily.pTMMat));
+
+    Solid ilyFanOutSolid = Box(ily.fanOutHeight / 2., ily.fanOutWidth / 2., ily.fanOutLength / 2.);
+    Volume ilyFanOutLog = Volume(ily.fanOutName, ilyFanOutSolid, ns.material(ily.fanOutMat));
+
+    Solid ilyFEMSolid = Box(ily.fEMHeight / 2., ily.fEMWidth / 2., ily.fEMLength / 2.);
+    Volume ilyFEMLog = Volume(ily.fEMName, ilyFEMSolid, ns.material(ily.fEMMat));
+
+    Solid ilyDiffSolid = Box(ily.fanOutHeight / 2., ily.fanOutWidth / 2., ily.diffLength / 2.);
+    Volume ilyDiffLog = Volume(ily.diffName, ilyDiffSolid, ns.material(ily.diffMat));
+
+    Solid ilyBndlSolid = Box(ily.fanOutHeight / 2., ily.fanOutWidth / 2., ily.bndlLength / 2.);
+    Volume ilyBndlLog = Volume(ily.bndlName, ilyBndlSolid, ns.material(ily.bndlMat));
+    
+    ilyFanOutLog.placeVolume(ilyDiffLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, -ily.fanOutLength / 2 + ily.diffLength / 2 + ily.diffOff)));
+    ilyFanOutLog.placeVolume(ilyBndlLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, -ily.fanOutLength / 2 + ily.bndlLength / 2 + ily.bndlOff)));
+    for (unsigned int iily(0); iily != ily.vecIlyThick.size(); ++iily) {
+      const double ilyRMax(ilyRMin + ily.vecIlyThick[iily]);
+      string xilyName(ily.name + std::to_string(iily));
+      Solid xilySolid = Tube(xilyName, ilyRMin, ilyRMax, 0.5 * ilyLength, ily.phiLow, ily.phiLow + ily.delPhi);
+      Volume xilyLog = Volume(xilyName, xilySolid, ns.material(ily.vecIlyMat[iily]));
+      if (0 != ily.here) {
+	ilyLog.placeVolume(xilyLog, copyOne);
+	
+	unsigned int copyNum[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	if (10_mm < ily.vecIlyThick[iily] && ily.vecIlyThick.size() != (iily + 1) && 0 != ily.pipeHere) {
+	  if (0 != ily.pTMHere) {
+	    unsigned int ptmCopy(0);
+	    for (unsigned int ilyPTM(0); ilyPTM != ily.vecIlyPTMZ.size(); ++ilyPTM) {
+	      const double radius(ilyRMax - 1_mm - ily.pTMHeight / 2.);
+	      const double phi(ily.vecIlyPTMPhi[ilyPTM]);
+	      const double yy(radius * sin(phi));
+	      const double xx(radius * cos(phi));
+	      ++ptmCopy;
+	      xilyLog.placeVolume(ilyPTMLog, ptmCopy, Transform3D(RotationZ(phi), Position(xx, yy, ily.vecIlyPTMZ[ilyPTM] - ilyLength / 2)));
+	    }
+	  }
+	  if (0 != ily.fanOutHere) {
+	    unsigned int fanOutCopy(0);
+	    for (unsigned int ilyFO(0); ilyFO != ily.vecIlyFanOutZ.size(); ++ilyFO) {
+              const double radius(ilyRMax - 1_mm - ily.fanOutHeight / 2.);
+              const double phi(ily.vecIlyFanOutPhi[ilyFO]);
+              const double yy(radius * sin(phi));
+              const double xx(radius * cos(phi));
+              ++fanOutCopy;
+	      xilyLog.placeVolume(ilyFanOutLog, fanOutCopy,
+				  Transform3D(RotationZ(phi)*RotationY(180_deg),
+					      Position(xx, yy, ily.vecIlyFanOutZ[ilyFO] - ilyLength / 2)));
+            }
+	    unsigned int femCopy(0);
+            for (unsigned int ilyFEM(0); ilyFEM != ily.vecIlyFEMZ.size(); ++ilyFEM) {
+              const double radius(ilyRMax - 1_mm - ily.fEMHeight / 2.);
+              const double phi(ily.vecIlyFEMPhi[ilyFEM]);
+              const double yy(radius * sin(phi));
+              const double xx(radius * cos(phi));
+              ++femCopy;
+	      xilyLog.placeVolume(ilyFEMLog, femCopy,
+				  Transform3D(RotationZ(phi), Position(xx, yy, ily.vecIlyFEMZ[ilyFEM] - ilyLength / 2)));
+	    }
+	  }
+          for (unsigned int iPipe(0); iPipe != ily.vecIlyPipePhi.size(); ++iPipe) {
+            const unsigned int type(static_cast<unsigned int>(round(ily.vecIlyPipeType[iPipe])));
+            const double zz(-ilyLength / 2 + ily.vecIlyPipeZ[iPipe] + (9 > type ? ily.vecIlyPipeLength[type] / 2. : 0));
+
+            for (unsigned int ly(0); ly != 2; ++ly) {
+              const double radius(0 == ly ? ilyRMin + ily.pipeOD / 2. + 1_mm : ilyRMax - ily.pipeOD / 2. - 1_mm);
+              const double phi(ily.vecIlyPipePhi[iPipe]);
+              const double yy(radius * sin(phi));
+              const double xx(radius * cos(phi));
+              ++copyNum[type];
+	      xilyLog.placeVolume(ilyPipeLog[type], copyNum[type],
+				  Transform3D((9 > type ? Rotation3D() :
+					       Rotation3D(ROOT::Math::AxisAngle(ROOT::Math::AxisAngle::XYZVector(xx, yy, 0), 90_deg)),
+					       Position(xx, yy, zz))));
+	    }
+	  }
+	}
+      }
+      ilyRMin = ilyRMax;
+    }
+    // End Inner Layer volumes---------------------------------------------------------
+
+    string clyrName("ECLYR");
+    std::vector<double> cri;
+    std::vector<double> cro;
+    std::vector<double> czz;
+    czz.emplace_back(spm.vecZPts[1]);
+    cri.emplace_back(spm.vecRMin[0]);
+    cro.emplace_back(spm.vecRMin[0] + 25_mm);
+    czz.emplace_back(spm.vecZPts[2]);
+    cri.emplace_back(spm.vecRMin[2]);
+    cro.emplace_back(spm.vecRMin[2] + 10_mm);
+    Solid clyrSolid = Polycone(clyrName, -9.5_deg, 19_deg, cri, cro, czz);
+    Volume clyrLog = Volume(clyrName, clyrSolid, ns.material(ily.vecIlyMat[4]));
+    spmLog.placeVolume(clyrLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
+
+    // Begin Alveolar Wedge parent ------------------------------------------------------
+    //----------------
+
+    // the next few lines accumulate dimensions appropriate to crystal type 1
+    // which we use to set some of the features of the half-alveolar wedge (hawR).
+
+    const double BNom1(cry.vecNomCryDimCR[0]);
+    const double bNom1(cry.vecNomCryDimCF[0]);
+    const double sWall1(alv.wallThAlv);
+    const double fWall1(alv.wallFrAlv);
+    const double sWrap1(alv.wrapThAlv);
+    const double fWrap1(alv.wrapFrAlv);
+    const double sClr1(alv.clrThAlv);
+    const double fClr1(alv.clrFrAlv);
+    const double LNom1(cry.nomCryDimLZ);
+    const double beta1(atan((BNom1 - bNom1) / LNom1));
+    const double sinbeta1(sin(beta1));
+
+    const double tana_hawR((BNom1 - bNom1) / LNom1);
+
+    const double H_hawR(alvWedge.hawRHBIG);
+    const double h_hawR(alvWedge.hawRhsml);
+    const double a_hawR(bNom1 + sClr1 + 2 * sWrap1 + 2 * sWall1 - sinbeta1 * (fClr1 + fWrap1 + fWall1));
+    const double B_hawR(a_hawR + H_hawR * tana_hawR);
+    const double b_hawR(a_hawR + h_hawR * tana_hawR);
+    const double L_hawR(spm.vecZPts[2]);
+
+    const EcalTrap trapHAWR(a_hawR / 2.,  //double aHalfLengthXNegZLoY , // bl1, A/2
+			    a_hawR / 2.,  //double aHalfLengthXPosZLoY , // bl2, a/2
+			    b_hawR / 2.,  //double aHalfLengthXPosZHiY , // tl2, b/2
+			    H_hawR / 2.,  //double aHalfLengthYNegZ    , // h1, H/2
+			    h_hawR / 2.,  //double aHalfLengthYPosZ    , // h2, h/2
+			    L_hawR / 2.,  //double aHalfLengthZ        , // dz,  L/2
+			    90_deg,       //double aAngleAD            , // alfa1
+			    0,            //double aCoord15X           , // x15
+			    0             //double aCoord15Y             // y15
+			    );
+    
+    string hawRName1(alvWedge.hawRName + "1");
+    Solid hawRSolid1 = mytrap(ns, hawRName1, trapHAWR);
+    // FIXME: not used - Volume hawRLog1 = Volume(hawRName1, hawRSolid1, ns.material(spm.mat));
+
+    const double al1_fawR(atan((B_hawR - a_hawR) / H_hawR) + M_PI_2);
+
+    // here is trap for Full Alveolar Wedge
+    const EcalTrap trapFAW(a_hawR,       //double aHalfLengthXNegZLoY , // bl1, A/2
+			   a_hawR,       //double aHalfLengthXPosZLoY , // bl2, a/2
+			   b_hawR,       //double aHalfLengthXPosZHiY , // tl2, b/2
+			   H_hawR / 2.,  //double aHalfLengthYNegZ    , // h1, H/2
+			   h_hawR / 2.,  //double aHalfLengthYPosZ    , // h2, h/2
+			   L_hawR / 2.,  //double aHalfLengthZ        , // dz,  L/2
+			   al1_fawR,     //double aAngleAD            , // alfa1
+			   0,            //double aCoord15X           , // x15
+			   0             //double aCoord15Y             // y15
+			   );
+    
+    const string fawName1(alvWedge.fawName + "1");
+    Solid fawSolid1 = mytrap(ns, fawName1,  trapFAW);
+    // FIXME: not used - Volume fawLog1 = Volume(fawName1, fawSolid1, ns.material(spm.mat));
+
+    const EcalTrap::VertexList vHAW(trapHAWR.vertexList());
+    const EcalTrap::VertexList vFAW(trapFAW.vertexList());
+
+    const double hawBoxClr(1_mm);
+
+    // HAW cut box to cut off back end of wedge
+    const string hawCutName(alvWedge.hawRName + "CUTBOX");
+    array<double, 3> hawBoxParms{ { 0.5 * b_hawR + hawBoxClr, 0.5 * alvWedge.hawRCutY, 0.5 * alvWedge.hawRCutZ } };
+    Solid hawCutBox = Box(hawCutName, hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
+    // FIXME: not used - Volume hawCutLog = Volume(hawCutName, hawCutBox, ns.material(spm.mat));
+
+    const Pt3D b1(hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
+    const Pt3D b2(-hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
+    const Pt3D b3(-hawBoxParms[0], hawBoxParms[1], -hawBoxParms[2]);
+
+    const double zDel(sqrt(4 * hawBoxParms[2] * hawBoxParms[2] - (h_hawR - alvWedge.hawRCutDelY) * (h_hawR - alvWedge.hawRCutDelY)));
+
+    const Tf3D hawCutForm(b1,
+                          b2,
+                          b3,
+                          vHAW[2] + Pt3D(hawBoxClr, -alvWedge.hawRCutDelY, 0),
+                          vHAW[1] + Pt3D(-hawBoxClr, -alvWedge.hawRCutDelY, 0),
+                          Pt3D(vHAW[0].x() - hawBoxClr, vHAW[0].y(), vHAW[0].z() - zDel));
+
+    Solid hawRSolid = SubtractionSolid(hawRSolid1, hawCutBox, Transform3D(myrot(ns, hawCutName + "R", hawCutForm.getRotation()),
+									  DDTranslation(hawCutForm.getTranslation().x(),
+											hawCutForm.getTranslation().y(),
+											hawCutForm.getTranslation().z())));
+    Volume hawRLog = Volume(alvWedge.hawRName, hawRSolid, ns.material(spm.mat));
+
+    // FAW cut box to cut off back end of wedge
+    const string fawCutName(alvWedge.fawName + "CUTBOX");
+    const array<double, 3> fawBoxParms{ { 2 * hawBoxParms[0], hawBoxParms[1], hawBoxParms[2] } };
+    Solid fawCutBox = Box(fawCutName, fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
+    // FIXME: not used - Volume fawCutLog = Volume(fawCutName, fawCutBox, ns.material(spm.mat));
+
+    const Pt3D bb1(fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
+    const Pt3D bb2(-fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
+    const Pt3D bb3(-fawBoxParms[0], fawBoxParms[1], -fawBoxParms[2]);
+
+    const Tf3D fawCutForm(bb1,
+                          bb2,
+                          bb3,
+                          vFAW[2] + Pt3D(2 * hawBoxClr, -5_mm, 0),
+                          vFAW[1] + Pt3D(-2 * hawBoxClr, -5_mm, 0),
+                          Pt3D(vFAW[1].x() - 2 * hawBoxClr, vFAW[1].y() - trapFAW.h(), vFAW[1].z() - zDel));
+
+    Solid fawSolid = SubtractionSolid(fawSolid1, fawCutBox, Transform3D(myrot(ns, fawCutName + "R", fawCutForm.getRotation()),
+									DDTranslation(fawCutForm.getTranslation().x(),
+										      fawCutForm.getTranslation().y(),
+										      fawCutForm.getTranslation().z())));
+    Volume fawLog = Volume(alvWedge.fawName, fawSolid, ns.material(spm.mat));
+
+    const Tf3D hawRform(vHAW[3],
+                        vHAW[0],
+                        vHAW[1],  // HAW inside FAW
+                        vFAW[3],
+                        0.5 * (vFAW[0] + vFAW[3]),
+                        0.5 * (vFAW[1] + vFAW[2]));
+    fawLog.placeVolume(hawRLog, copyOne, Transform3D(myrot(ns, alvWedge.hawRName + "R", hawRform.getRotation()),
+						     DDTranslation(hawRform.getTranslation().x(),
+								   hawRform.getTranslation().y(),
+								   hawRform.getTranslation().z())));
+    fawLog.placeVolume(hawRLog, copyTwo, Transform3D(myrot(ns, alvWedge.hawRName + "RotRefl", CLHEP::HepRotationY(180_deg) *  // rotate about Y after refl thru Z
+							   CLHEP::HepRep3x3(1, 0, 0, 0, 1, 0, 0, 0, -1)),
+						     DDTranslation(-hawRform.getTranslation().x(),
+								   -hawRform.getTranslation().y(),
+								   -hawRform.getTranslation().z())));
+
+    for (unsigned int iPhi(1); iPhi <= alvWedge.nFawPerSupm; ++iPhi) {
+      const double rPhi(alvWedge.fawPhiOff + (iPhi - 0.5) * alvWedge.fawDelPhi);
+
+      const Tf3D fawform(RoZ3D(rPhi) * Tl3D(alvWedge.fawRadOff + (trapFAW.H() + trapFAW.h()) / 4, 0, trapFAW.L() / 2) *
+                         RoZ3D(-90_deg + alvWedge.fawPhiRot));
+      if (alvWedge.fawHere)
+	spmLog.placeVolume(fawLog, iPhi, Transform3D(myrot(ns, alvWedge.fawName + "_Rot" + std::to_string(iPhi), fawform.getRotation()),
+						     DDTranslation(fawform.getTranslation().x(),
+								   fawform.getTranslation().y(),
+								   fawform.getTranslation().z())));
+    }
+
+    // End Alveolar Wedge parent ------------------------------------------------------
+
+    // Begin Grid + Tablet insertion
+
+    const double h_Grid(grid.thick);
+
+    const EcalTrap trapGrid((B_hawR - h_Grid * (B_hawR - a_hawR) / H_hawR) / 2,  // bl1, A/2
+			    (b_hawR - h_Grid * (B_hawR - a_hawR) / H_hawR) / 2,  // bl2, a/2
+			    b_hawR / 2.,                                         // tl2, b/2
+			    h_Grid / 2.,                                         // h1, H/2
+			    h_Grid / 2.,                                         // h2, h/2
+			    (L_hawR - 8_cm) / 2.,                                // dz,  L/2
+			    90_deg,                                              // alfa1
+			    0,                                                   // x15
+			    H_hawR - h_hawR                                      // y15
+			    );
+
+    Solid gridSolid = mytrap(ns, grid.name, trapGrid);
+    Volume gridLog = Volume(grid.name, gridSolid, ns.material(grid.mat));
+
+    const EcalTrap::VertexList vGrid(trapGrid.vertexList());
+
+    const Tf3D gridForm(vGrid[4],
+                        vGrid[5],
+                        vGrid[6],  // Grid inside HAW
+                        vHAW[5] - Pt3D(0, h_Grid, 0),
+                        vHAW[5],
+                        vHAW[6]);
+
+    if (0 != grid.here)
+      hawRLog.placeVolume(gridLog, copyOne, Transform3D(myrot(ns, grid.name + "R", gridForm.getRotation()),
+							DDTranslation(gridForm.getTranslation().x(),
+								      gridForm.getTranslation().y(),
+								      gridForm.getTranslation().z())));
+    // End Grid + Tablet insertion
+
+    // begin filling Wedge with crystal plus supports --------------------------
+
+    const double aNom(cry.nomCryDimAF);
+    const double LNom(cry.nomCryDimLZ);
+
+    const double AUnd(cry.underAR);
+    const double aUnd(cry.underAF);
+    const double bUnd(cry.underCF);
+    const double HUnd(cry.underBR);
+    const double hUnd(cry.underBF);
+    const double LUnd(cry.underLZ);
+
+    const double sWall(alv.wallThAlv);
+    const double sWrap(alv.wrapThAlv);
+    const double sClr(alv.clrThAlv);
+
+    const double fWall(alv.wallFrAlv);
+    const double fWrap(alv.wrapFrAlv);
+    const double fClr(alv.clrFrAlv);
+
+    const double rWall(alv.wallReAlv);
+    const double rWrap(alv.wrapReAlv);
+    const double rClr(alv.clrReAlv);
+
+    // theta is angle in yz plane between z axis & leading edge of crystal
+    double theta(90_deg);
+    double zee(0_mm);
+    double side(0_mm);
+    double zeta(0_deg);  // increment in theta for last crystal
+
+    for (unsigned int cryType(1); cryType <= alv.nCryTypes; ++cryType) {
+      const string sType("_" + std::string(10 > cryType ? "0" : "") + std::to_string(cryType));
+
+      LogDebug("EcalGeom") << "Crytype=" << cryType;
+      const double ANom(cry.vecNomCryDimAR[cryType - 1]);
+      const double BNom(cry.vecNomCryDimCR[cryType - 1]);
+      const double bNom(cry.vecNomCryDimCF[cryType - 1]);
+      const double HNom(cry.vecNomCryDimBR[cryType - 1]);
+      const double hNom(cry.vecNomCryDimBF[cryType - 1]);
+
+      const double alfCry(90_deg + atan((bNom - bUnd - aNom + aUnd) / (hNom - hUnd)));
+
+      const EcalTrap trapCry((ANom - AUnd) / 2.,         //double aHalfLengthXNegZLoY , // bl1, A/2
+			     (aNom - aUnd) / 2.,         //double aHalfLengthXPosZLoY , // bl2, a/2
+			     (bNom - bUnd) / 2.,         //double aHalfLengthXPosZHiY , // tl2, b/2
+			     (HNom - HUnd) / 2.,         //double aHalfLengthYNegZ    , // h1, H/2
+			     (hNom - hUnd) / 2.,         //double aHalfLengthYPosZ    , // h2, h/2
+			     (LNom - LUnd) / 2.,         //double aHalfLengthZ        , // dz,  L/2
+			     alfCry,                     //double aAngleAD            , // alfa1
+			     aNom - aUnd - ANom + AUnd,  //double aCoord15X           , // x15
+			     hNom - hUnd - HNom + HUnd   //double aCoord15Y             // y15
+			     );
+
+      const string cryDDName(cry.name + sType);
+      Solid crySolid = mytrap(ns, cry.name, trapCry);
+      Volume cryLog = Volume(cryDDName, crySolid, ns.material(cry.mat));
+      
+      //++++++++++++++++++++++++++++++++++  APD ++++++++++++++++++++++++++++++++++
+      const unsigned int copyCap(1);
+      const string capDDName(cap.name + sType);
+      Solid capSolid = Box(cap.xSize / 2., cap.ySize / 2., cap.thick / 2.);
+      Volume capLog = Volume(capDDName, capSolid, ns.material(cap.mat));
+
+      const string sglDDName(apd.sglName + sType);
+      Solid sglSolid = Box(cap.xSize / 2., cap.ySize / 2., apd.sglThick / 2.);
+      Volume sglLog = Volume(sglDDName, sglSolid, ns.material(apd.sglMat));
+      const unsigned int copySGL(1);
+      
+      const string cerDDName(cer.name + sType);
+      Solid cerSolid = Box(cer.xSize / 2., cer.ySize / 2., cer.thick / 2.);
+      Volume cerLog = Volume(cerDDName, cerSolid, ns.material(cer.mat));
+      unsigned int copyCER(0);
+
+      const string bsiDDName(bSi.name + sType);
+      Solid bsiSolid = Box(bSi.xSize / 2., bSi.ySize / 2., bSi.thick / 2.);
+      Volume bsiLog = Volume(bsiDDName, bsiSolid, ns.material(bSi.mat));
+      const unsigned int copyBSi(1);
+
+      const string atjDDName(apd.atjName + sType);
+      Solid atjSolid = Box(atjDDName, apd.side / 2., apd.side / 2., apd.atjThick / 2.);
+      Volume atjLog = Volume(atjDDName, atjSolid, ns.material(apd.atjMat));
+      const unsigned int copyATJ(1);
+
+      const string aglDDName(apd.aglName + sType);
+      Solid aglSolid = Box(bSi.xSize / 2., bSi.ySize / 2., apd.aglThick / 2.);
+      Volume aglLog = Volume(aglDDName, aglSolid, ns.material(apd.aglMat));
+      const unsigned int copyAGL(1);
+
+      const string andDDName(apd.andName + sType);
+      Solid andSolid = Box(apd.side / 2., apd.side / 2., apd.andThick / 2.);
+      Volume andLog = Volume(andDDName, andSolid, ns.material(apd.andMat));
+      const unsigned int copyAND(1);
+
+      const string apdDDName(apd.name + sType);
+      Solid apdSolid = Box(apdDDName, apd.side / 2., apd.side / 2., apd.thick / 2.);
+      Volume apdLog = Volume(apdDDName, apdSolid, ns.material(apd.mat));
+      const unsigned int copyAPD(1);
+      
+      //++++++++++++++++++++++++++++++++++ END APD ++++++++++++++++++++++++++++++++++
+
+      const double delta(atan((HNom - hNom) / LNom));
+      const double sindelta(sin(delta));
+
+      const double gamma(atan((ANom - aNom) / LNom));
+      const double singamma(sin(gamma));
+
+      const double beta(atan((BNom - bNom) / LNom));
+      const double sinbeta(sin(beta));
+
+      // Now clearance trap
+      const double alfClr(90_deg + atan((bNom - aNom) / (hNom + sClr)));
+
+      const EcalTrap trapClr((ANom + sClr + rClr * singamma) / 2.,  //double aHalfLengthXNegZLoY , // bl1, A/2
+			     (aNom + sClr - fClr * singamma) / 2.,  //double aHalfLengthXPosZLoY , // bl2, a/2
+			     (bNom + sClr - fClr * sinbeta) / 2.,   //double aHalfLengthXPosZHiY , // tl2, b/2
+			     (HNom + sClr + rClr * sindelta) / 2.,  //double aHalfLengthYNegZ    , // h1,  H/2
+			     (hNom + sClr - fClr * sindelta) / 2.,  //double aHalfLengthYPosZ    , // h2,  h/2
+			     (LNom + fClr + rClr) / 2.,             // dz,  L/2
+			     alfClr,                                //double aAngleAD            , // alfa1
+			     aNom - ANom,                           //double aCoord15X           , // x15
+			     hNom - HNom                            //double aCoord15Y             // y15
+			     );
+
+      const string clrDDName(cry.clrName + sType);
+      Solid clrSolid = mytrap(ns, clrDDName, trapClr);
+      Volume clrLog = Volume(clrDDName, clrSolid, ns.material(cry.clrMat));
+
+      // Now wrap trap
+      const double alfWrap(90_deg + atan((bNom - aNom) / (hNom + sClr + 2 * sWrap)));
+
+      const EcalTrap trapWrap((trapClr.A() + 2 * sWrap + rWrap * singamma) / 2,  // bl1, A/2
+			      (trapClr.a() + 2 * sWrap - fWrap * singamma) / 2,  // bl2, a/2
+			      (trapClr.b() + 2 * sWrap - fWrap * sinbeta) / 2,   // tl2, b/2
+			      (trapClr.H() + 2 * sWrap + rWrap * sindelta) / 2,  // h1,  H/2
+			      (trapClr.h() + 2 * sWrap - fWrap * sindelta) / 2,  // h2,  h/2
+			      (trapClr.L() + fWrap + rWrap) / 2.,                // dz,  L/2
+			      alfWrap,                                           //double aAngleAD            , // alfa1
+			      aNom - ANom - (cryType > 9 ? 0 : 0.020_mm),
+			      hNom - HNom  //double aCoord15Y             // y15
+			      );
+
+      const string wrapDDName(cry.wrapName + sType);
+      Solid wrapSolid = mytrap(ns, wrapDDName, trapWrap);
+      Volume wrapLog = Volume(wrapDDName, wrapSolid, ns.material(cry.wrapMat));
+
+      // Now wall trap
+
+      const double alfWall(90_deg + atan((bNom - aNom) / (hNom + sClr + 2 * sWrap + 2 * sWall)));
+
+      const EcalTrap trapWall((trapWrap.A() + 2 * sWall + rWall * singamma) / 2,  // A/2
+			      (trapWrap.a() + 2 * sWall - fWall * singamma) / 2,  // a/2
+			      (trapWrap.b() + 2 * sWall - fWall * sinbeta) / 2,   // b/2
+			      (trapWrap.H() + 2 * sWall + rWall * sindelta) / 2,  // H/2
+			      (trapWrap.h() + 2 * sWall - fWall * sindelta) / 2,  // h/2
+			      (trapWrap.L() + fWall + rWall) / 2.,                // L/2
+			      alfWall,                                            // alfa1
+			      aNom - ANom - (cryType < 10 ? 0.150_mm : 0.100_mm),
+			      hNom - HNom  // y15
+			      );
+
+      const string wallDDName(cry.wallName + sType);
+      Solid wallSolid = mytrap(ns, wallDDName, trapWall);
+      Volume wallLog = Volume(wallDDName, wallSolid, ns.material(cry.wallMat));
+
+      // Now for placement of cry within clr
+      const Vec3 cryToClr(0, 0, (rClr - fClr) / 2);
+      clrLog.placeVolume(cryLog, copyOne, Transform3D(Rotation3D(), DDTranslation(0, 0, (rClr - fClr) / 2)));
+
+      if (0 != cap.here) {
+	bsiLog.placeVolume(aglLog, copyAGL, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.aglThick / 2. + bSi.thick / 2.)));
+	bsiLog.placeVolume(andLog, copyAND, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.andThick / 2. + bSi.thick / 2.)));
+	bsiLog.placeVolume(apdLog, copyAPD, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.thick / 2. + bSi.thick / 2.)));
+	bsiLog.placeVolume(atjLog, copyATJ, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.atjThick / 2. - apd.thick - apd.andThick - apd.aglThick + bSi.thick / 2.)));
+	cerLog.placeVolume(bsiLog, copyBSi, Transform3D(Rotation3D(), DDTranslation(0, 0, -bSi.thick / 2. + cer.thick / 2.)));
+	capLog.placeVolume(sglLog, copySGL, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.sglThick / 2. + cap.thick / 2.)));
+
+	for (unsigned int ijkl(0); ijkl != 2; ++ijkl) {
+	  capLog.placeVolume(cerLog, ++copyCER, Transform3D(Rotation3D(), DDTranslation(trapCry.bl1() - (0 == ijkl ? apd.x1 : apd.x2),
+											trapCry.h1() - apd.z,
+											-apd.sglThick - cer.thick / 2. + cap.thick / 2.)));
+	}
+	clrLog.placeVolume(capLog, copyCap, Transform3D(Rotation3D(), DDTranslation(0, 0, -trapCry.dz() - cap.thick / 2. + (rClr - fClr) / 2.)));
+      }
+
+      const Vec3 clrToWrap(0, 0, (rWrap - fWrap) / 2);
+      wrapLog.placeVolume(clrLog, copyOne, Transform3D(Rotation3D(), DDTranslation(0, 0, (rWrap - fWrap) / 2))); //SAME as cryToWrap
+
+      // Now for placement of clr within wall
+      const Vec3 wrapToWall1(0, 0, (rWall - fWall) / 2);
+      const Vec3 wrapToWall(Vec3((cryType > 9 ? 0 : 0.005_mm), 0, 0) + wrapToWall1);
+      wallLog.placeVolume(wrapLog, copyOne, Transform3D(Rotation3D(), DDTranslation(Vec3((cryType > 9 ? 0 : 0.005_mm), 0, 0) + wrapToWall1)));  //SAME as wrapToWall
+
+      const EcalTrap::VertexList vWall(trapWall.vertexList());
+      const EcalTrap::VertexList vCry(trapCry.vertexList());
+
+      const double sidePrime((trapWall.a() - trapCry.a()) / 2);
+      const double frontPrime(fWall + fWrap + fClr + LUnd / 2);
+
+      // define web plates with clearance ===========================================
+
+      if (1 == cryType)  // first web plate: inside clearance volume
+      {
+        zee += alv.vecGapAlvEta[0];
+      }
+
+      for (unsigned int etaAlv(1); etaAlv <= alv.nCryPerAlvEta; ++etaAlv) {
+        LogDebug("EcalGeom") << "theta=" << convertRadToDeg(theta) << ", sidePrime=" << sidePrime
+                             << ", frontPrime=" << frontPrime << ",  zeta=" << zeta << ", delta=" << delta
+                             << ",  zee=" << zee;
+
+        zee += 0.075_mm + (side * cos(zeta) + trapWall.h() - sidePrime) / sin(theta);
+
+	// make transform for placing enclosed crystal
+
+	const Pt3D trap2(vCry[2] + cryToClr + clrToWrap + wrapToWall);
+
+        const Pt3D trap3(trap2 + Pt3D(0, -trapCry.h(), 0));
+        const Pt3D trap1(trap3 + Pt3D(-trapCry.a(), 0, 0));
+
+        const Pt3D wedge3(vHAW[4] + Pt3D(sidePrime, alvWedge.hawYOffCry, zee));
+        const Pt3D wedge2(wedge3 + Pt3D(0, trapCry.h() * cos(theta), -trapCry.h() * sin(theta)));
+        const Pt3D wedge1(wedge3 + Pt3D(trapCry.a(), 0, 0));
+
+        const Tf3D tForm1(trap1, trap2, trap3, wedge1, wedge2, wedge3);
+
+        const double xx(0.050_mm);
+
+        const Tf3D tForm(HepGeom::Translate3D(xx, 0, 0) * tForm1);
+	hawRLog.placeVolume(wallLog, etaAlv, Transform3D(myrot(ns, wallDDName + "_" + std::to_string(etaAlv), tForm.getRotation()),
+							 DDTranslation(tForm.getTranslation().x(),
+								       tForm.getTranslation().y(),
+								       tForm.getTranslation().z())));
+	theta -= delta;
+	side = sidePrime;
+	zeta = delta;
+      }
+      if (5 == cryType || 9 == cryType || 13 == cryType || 17 == cryType)  { // web plates
+        const unsigned int webIndex(cryType / 4);
+        zee += 0.5 * alv.vecGapAlvEta[cryType] / sin(theta);
+	zee += 0.5 * alv.vecGapAlvEta[cryType] / sin(theta);
+      } else {
+        if (17 != cryType)
+	  zee += alv.vecGapAlvEta[cryType] / sin(theta);
+      }
+    }
+    // END   filling Wedge with crystal plus supports --------------------------
+
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    //**************** Material at outer radius of supermodule ***************
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+
+    if (0 != back.here) {
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     Begin Back Cover Plate     !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      const DDTranslation outtra(back.xOff + back.sideHeight / 2, back.yOff, back.sideLength / 2);
+
+      const double realBPthick(back.plateThick + back.plate2Thick);
+      array<double, 3> backPlateParms { { back.plateWidth / 2., realBPthick / 2., back.plateLength / 2. } };
+      Solid backPlateSolid = Box(backPlateParms[0], backPlateParms[1], backPlateParms[2]);
+      Volume backPlateLog = Volume(back.plateName, backPlateSolid, ns.material(back.plateMat));
+
+      const DDTranslation backPlateTra(back.sideHeight / 2 + backPlateParms[1], 0_mm, backPlateParms[2] - back.sideLength / 2);
+
+      Solid backPlate2Solid = Box(back.plateWidth / 2., back.plate2Thick / 2., back.plateLength / 2.);
+      Volume backPlate2Log = Volume(back.plate2Name, backPlate2Solid, ns.material(back.plate2Mat));
+
+      const DDTranslation backPlate2Tra(0, -backPlateParms[1] + back.plate2Thick / 2., 0);
+      if (0 != back.plateHere) {
+	backPlateLog.placeVolume(backPlate2Log, copyOne, Transform3D(Rotation3D(), backPlate2Tra));
+	spmLog.placeVolume(backPlateLog, copyOne, Transform3D(myrot(ns, back.plateName + "Rot5", CLHEP::HepRotationZ(270_deg)),
+							      outtra + backPlateTra));
+      }
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     End Back Cover Plate       !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     Begin Back Side Plates    !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      const EcalTrap trapBS(back.sideWidth / 2.,   //double aHalfLengthXNegZLoY , // bl1, A/2
+			    back.sideWidth / 2.,   //double aHalfLengthXPosZLoY , // bl2, a/2
+			    back.sideWidth / 4.,   //double aHalfLengthXPosZHiY , // tl2, b/2
+			    back.sideHeight / 2.,  //double aHalfLengthYNegZ    , // h1, H/2
+			    back.sideHeight / 2.,  //double aHalfLengthYPosZ    , // h2, h/2
+			    back.sideLength / 2.,  //double aHalfLengthZ        , // dz,  L/2
+			    back.sideAngle,        //double aAngleAD            , // alfa1
+			    0,                      //double aCoord15X           , // x15
+			    0                       //double aCoord15Y             // y15
+			    );
+
+      Solid backSideSolid = mytrap(ns, back.sideName, trapBS);
+      Volume backSideLog = Volume(back.sideName, backSideSolid, ns.material(back.sideMat));
+
+      const DDTranslation backSideTra1(0_mm, back.plateWidth / 2 + back.sideYOff1, 1_mm);
+      if (0 != back.sideHere) {
+	spmLog.placeVolume(backSideLog, copyOne, Transform3D(myrot(ns, back.sideName + "Rot8",
+								   CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)),
+							     outtra + backSideTra1));
+	const DDTranslation backSideTra2(0_mm, -back.plateWidth / 2 + back.sideYOff2, 1_mm);
+	spmLog.placeVolume(backSideLog, copyTwo, Transform3D(myrot(ns, back.sideName + "Rot9", CLHEP::HepRotationZ(90_deg)),
+							     outtra + backSideTra2));
+      }
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     End Back Side Plates       !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //=====================
+      const double backCoolWidth(backCool.barWidth + 2. * backCoolTank.width);
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     Begin Mother Board Cooling Manifold Setup !!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      const double manifCut(2_mm);
+
+      Solid mBManifSolid = Tube(0, mbManif.outDiam / 2, backCoolWidth / 2. - manifCut, 0_deg, 360_deg);
+      Volume mBManifLog = Volume(mbManif.name, mBManifSolid, ns.material(mbManif.mat));
+
+      const string mBManifWaName(mbManif.name + "Wa");
+      Solid mBManifWaSolid = Tube(0, mbManif.innDiam / 2, backCoolWidth / 2. - manifCut, 0_deg, 360_deg);
+      Volume mBManifWaLog(mBManifWaName, mBManifWaSolid, ns.material(backPipe.waterMat));
+      mBManifLog.placeVolume(mBManifWaLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     End Mother Board Cooling Manifold Setup   !!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //=====================
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     Begin Loop over Grilles & MB Cooling Manifold !!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      const double deltaY(-5_mm);
+
+      Solid grEdgeSlotSolid = Box(grille.edgeSlotHeight / 2., grille.edgeSlotWidth / 2., grille.thick / 2.);
+      Volume grEdgeSlotLog = Volume(grille.edgeSlotName, grEdgeSlotSolid, ns.material(grille.edgeSlotMat));
+
+      unsigned int edgeSlotCopy(0);
+      unsigned int midSlotCopy(0);
+
+      Volume grMidSlotLog[4];
+
+      for (unsigned int iGr(0); iGr != grille.vecHeight.size(); ++iGr) {
+        string gName(grille.name + std::to_string(iGr));
+        Solid grilleSolid = Box(grille.vecHeight[iGr] / 2., backCoolWidth / 2., grille.thick / 2.);
+        Volume grilleLog = Volume(gName, grilleSolid, ns.material(grille.mat));
+
+        const DDTranslation grilleTra(-realBPthick / 2 - grille.vecHeight[iGr] / 2,
+                                      deltaY,
+                                      grille.vecZOff[iGr] + grille.thick / 2 - back.sideLength / 2);
+        const DDTranslation gTra(outtra + backPlateTra + grilleTra);
+
+        if (0 != grille.midSlotHere && 0 != iGr) {
+          if (0 == (iGr - 1) % 2) {
+            string mName(grille.midSlotName + std::to_string(iGr / 2));
+            Solid grMidSlotSolid = Box(grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.,
+				       grille.midSlotWidth / 2., grille.thick / 2.);
+	    grMidSlotLog[(iGr - 1) / 2] = Volume(mName, grMidSlotSolid, ns.material(grille.midSlotMat));
+	  }
+	  grilleLog.placeVolume(grMidSlotLog[(iGr - 1) / 2], ++midSlotCopy,
+				Transform3D(Rotation3D(),
+					    DDTranslation(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.,
+							  +grille.midSlotXOff, 0)));
+	  grilleLog.placeVolume(grMidSlotLog[(iGr - 1) / 2], ++midSlotCopy,
+				Transform3D(Rotation3D(),
+					    DDTranslation(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.,
+							  -grille.midSlotXOff, 0)));
+        }
+
+        if (0 != grille.edgeSlotHere && 0 != iGr) {
+	  grilleLog.placeVolume(grEdgeSlotLog, ++edgeSlotCopy,
+				Transform3D(Rotation3D(),
+					    DDTranslation(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.,
+							  backCoolWidth / 2 - grille.edgeSlotWidth / 2., 0)));
+	  grilleLog.placeVolume(grEdgeSlotLog, ++edgeSlotCopy,
+				Transform3D(Rotation3D(),
+					    DDTranslation(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.,
+							  -backCoolWidth / 2 + grille.edgeSlotWidth / 2.,
+							  0)));
+        }
+        if (0 != grille.here)
+	  spmLog.placeVolume(grilleLog, iGr, Transform3D(Rotation3D(), gTra));
+
+        if ((0 != iGr % 2) && (0 != mbManif.here)) {
+          spmLog.placeVolume(mBManifLog,
+			     iGr, Transform3D(myrot( ns, mbManif.name + "R1", CLHEP::HepRotationX(90_deg)), 
+					      gTra - DDTranslation(-mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
+								   manifCut,
+								   grille.thick / 2. + 3 * mbManif.outDiam / 2.)));
+	  spmLog.placeVolume(mBManifLog,
+			     iGr - 1, Transform3D(myrot( ns, mbManif.name + "R2", CLHEP::HepRotationX(90_deg)),
+						  gTra - DDTranslation(-3 * mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
+								       manifCut,
+								       grille.thick / 2 + 3 * mbManif.outDiam / 2.)));
+        }
+      }
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     End Loop over Grilles & MB Cooling Manifold   !!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     Begin Cooling Bar Setup    !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      Solid backCoolBarSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barThick / 2.);
+      Volume backCoolBarLog = Volume(backCool.barName, backCoolBarSolid, ns.material(backCool.barMat));
+
+      Solid backCoolBarSSSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barSSThick / 2.);
+      Volume backCoolBarSSLog = Volume(backCool.barSSName, backCoolBarSSSolid, ns.material(backCool.barSSMat));
+      const DDTranslation backCoolBarSSTra(0, 0, 0);
+      backCoolBarLog.placeVolume(backCoolBarSSLog, copyOne, Transform3D(Rotation3D(), backCoolBarSSTra));
+
+      Solid backCoolBarWaSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barWaThick / 2.);
+      Volume backCoolBarWaLog = Volume(backCool.barWaName, backCoolBarWaSolid, ns.material(backCool.barWaMat));
+      const DDTranslation backCoolBarWaTra(0, 0, 0);
+      backCoolBarSSLog.placeVolume(backCoolBarWaLog, copyOne, Transform3D(Rotation3D(), backCoolBarWaTra));
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     End Cooling Bar Setup      !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     Begin VFE Card Setup       !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      double thickVFE(0);
+      for (unsigned int iLyr(0); iLyr != backCool.vecBackVFELyrThick.size(); ++iLyr) {
+        thickVFE += backCool.vecBackVFELyrThick[iLyr];
+      }
+      Solid backVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., thickVFE / 2.);
+      Volume backVFELog = Volume(backCool.vFEName, backVFESolid, ns.material(backCool.vFEMat));
+      DDTranslation offTra(0, 0, -thickVFE / 2);
+      for (unsigned int iLyr(0); iLyr != backCool.vecBackVFELyrThick.size(); ++iLyr) {
+	Solid backVFELyrSolid = Box(backCool.barHeight / 2.,
+				    backCool.barWidth / 2.,
+				    backCool.vecBackVFELyrThick[iLyr] / 2.);
+	Volume backVFELyrLog = Volume(backCool.vecBackVFELyrName[iLyr], backVFELyrSolid, ns.material(backCool.vecBackVFELyrMat[iLyr]));
+	const DDTranslation backVFELyrTra(0, 0, backCool.vecBackVFELyrThick[iLyr] / 2);
+	backVFELog.placeVolume(backVFELyrLog, copyOne, Transform3D(Rotation3D(), backVFELyrTra + offTra));
+	offTra += 2 * backVFELyrTra;
+      }
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     End VFE Card Setup         !!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     Begin Cooling Bar + VFE Setup  !!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      const double halfZCoolVFE(thickVFE + backCool.barThick / 2.);
+      Solid backCoolVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., halfZCoolVFE);
+      Volume backCoolVFELog = Volume(backCool.backVFEName, backCoolVFESolid, ns.material(backCool.backVFEMat));
+      if (0 != backCool.barHere)
+	backCoolVFELog.placeVolume(backCoolBarLog, copyOne, Transform3D());
+      if (0 != backCool.vFEHere)
+	backCoolVFELog.placeVolume(backVFELog, copyOne,
+				   Transform3D(Rotation3D(), DDTranslation(0, 0, backCool.barThick / 2. + thickVFE / 2.)));
+      backCoolVFELog.placeVolume(backVFELog, copyTwo,
+				 Transform3D(myrot(ns, backCool.backVFEName + "Flip", CLHEP::HepRotationX(180_deg)),
+					     DDTranslation(0, 0, -backCool.barThick / 2. - thickVFE / 2.)));
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!     End Cooling Bar + VFE Setup    !!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!! Begin Placement of Readout & Cooling by Module  !!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      unsigned int iCVFECopy(1);
+      unsigned int iSep(0);
+      unsigned int iNSec(0);
+      const unsigned int nMisc(backMisc.vecThick.size() / 4);
+      for (unsigned int iMod(0); iMod != 4; ++iMod) {
+	const double pipeLength(grille.vecZOff[2 * iMod + 1] - grille.vecZOff[2 * iMod] - grille.thick - 3_mm);
+	const double pipeZPos(grille.vecZOff[2 * iMod + 1] - pipeLength / 2 - 1.5_mm);
+
+	// accumulate total height of parent volume
+	double backCoolHeight(backCool.barHeight + mbCoolTube.outDiam);
+	for (unsigned int iMisc(0); iMisc != nMisc; ++iMisc) {
+	  backCoolHeight += backMisc.vecThick[iMod * nMisc + iMisc];
+	}
+	double bottomThick(mbCoolTube.outDiam);
+	for (unsigned int iMB(0); iMB != mbLyr.vecMBLyrThick.size(); ++iMB) {
+	  backCoolHeight += mbLyr.vecMBLyrThick[iMB];
+	  bottomThick += mbLyr.vecMBLyrThick[iMB];
+	}
+
+	string backCName(backCool.vecName[iMod]);
+	const double halfZBCool((pipeLength - 2 * mbManif.outDiam - grille.zSpace) / 2);
+	Solid backCoolSolid = Box(backCoolHeight / 2., backCoolWidth / 2., halfZBCool);
+	Volume backCoolLog = Volume(backCName, backCoolSolid, ns.material(spm.mat));
+
+        const DDTranslation bCoolTra(
+            -realBPthick / 2 + backCoolHeight / 2 - grille.vecHeight[2 * iMod],
+            deltaY,
+            grille.vecZOff[2 * iMod] + grille.thick + grille.zSpace + halfZBCool - back.sideLength / 2);
+	if (0 != backCool.here)
+	  spmLog.placeVolume(backCoolLog, iMod + 1, Transform3D(Rotation3D(), outtra + backPlateTra + bCoolTra));
+
+	//===
+	const double backCoolTankHeight(backCool.barHeight);  // - backBracketHeight() ) ;
+	const double halfZTank(halfZBCool - 5_cm);
+
+	string bTankName(backCoolTank.name + std::to_string(iMod + 1));
+	Solid backCoolTankSolid = Box(backCoolTankHeight / 2., backCoolTank.width / 2., halfZTank);
+	Volume backCoolTankLog = Volume(bTankName, backCoolTankSolid, ns.material(backCoolTank.mat));
+	if (0 != backCoolTank.here)
+	  backCoolLog.placeVolume(backCoolTankLog, copyOne,
+				  Transform3D(Rotation3D(),
+					      DDTranslation(-backCoolHeight / 2 + backCoolTankHeight / 2. + bottomThick,
+							    backCool.barWidth / 2. + backCoolTank.width / 2.,
+							    0)));
+
+	string bTankWaName(backCoolTank.waName + std::to_string(iMod + 1));
+	Solid backCoolTankWaSolid = Box(backCoolTankHeight / 2. - backCoolTank.thick / 2.,
+					backCoolTank.waWidth / 2.,
+					halfZTank - backCoolTank.thick / 2.);
+	Volume backCoolTankWaLog = Volume(bTankWaName, backCoolTankWaSolid, ns.material(backCoolTank.waMat));
+	backCoolTankLog.placeVolume(backCoolTankWaLog, copyOne, Transform3D(Rotation3D(),DDTranslation(0, 0, 0)));
+
+	string bBracketName(backCoolTank.backBracketName + std::to_string(iMod + 1));
+	Solid backBracketSolid = Box( backCoolTank.backBracketHeight / 2., backCoolTank.width / 2., halfZTank);
+	Volume backBracketLog = Volume(bBracketName, backBracketSolid, ns.material(backCoolTank.backBracketMat));
+	if (0 != backCoolTank.here)
+	  backCoolLog.placeVolume(backBracketLog, copyOne,
+				  Transform3D(Rotation3D(),
+					      DDTranslation(backCool.barHeight - backCoolHeight / 2.
+							    - backCoolTank.backBracketHeight / 2. + bottomThick,
+							    -backCool.barWidth / 2. - backCoolTank.width / 2.,
+							    0)));
+	//===
+
+	DDTranslation bSumTra(backCool.barHeight - backCoolHeight / 2. + bottomThick, 0, 0);
+	for (unsigned int j(0); j != nMisc; ++j) { // loop over miscellaneous layers
+	  const string bName(backMisc.vecName[iMod * nMisc + j]);
+	  Solid bSolid = Box(backMisc.vecThick[iMod * nMisc + j] / 2,
+			     backCool.barWidth / 2. + backCoolTank.width,
+			     halfZBCool);
+
+	  Volume bLog = Volume(bName, bSolid, ns.material(backMisc.vecMat[iMod * nMisc + j]));
+
+	  const DDTranslation bTra(backMisc.vecThick[iMod * nMisc + j] / 2, 0_mm, 0_mm);
+
+	  if (0 != backMisc.here)
+	    backCoolLog.placeVolume(bLog, copyOne, Transform3D(Rotation3D(), bSumTra + bTra));
+
+	  bSumTra += 2 * bTra;
+	}
+
+        const double bHalfWidth(backCool.barWidth / 2. + backCoolTank.width);
+
+	if (0 != mbLyr.here) {
+	  DDTranslation mTra(-backCoolHeight / 2. + mbCoolTube.outDiam, 0, 0);
+	  for (unsigned int j(0); j != mbLyr.vecMBLyrThick.size(); ++j)  // loop over MB layers
+          {
+	    const string mName(mbLyr.vecMBLyrName[j] + "_" + std::to_string(iMod + 1));
+	    Solid mSolid = Box(mbLyr.vecMBLyrThick[j] / 2, bHalfWidth, halfZBCool);
+	    Volume mLog = Volume(mName, mSolid, ns.material(mbLyr.vecMBLyrMat[j]));
+
+	    mTra += DDTranslation(mbLyr.vecMBLyrThick[j] / 2.0, 0_mm, 0_mm);
+	    backCoolLog.placeVolume(mLog, copyOne, Transform3D(Rotation3D(), mTra));
+	    mTra += DDTranslation(mbLyr.vecMBLyrThick[j] / 2.0, 0_mm, 0_mm);
+	  }
+	}
+
+	if (0 != mbCoolTube.here) {
+	  const string mBName(mbCoolTube.name + "_" + std::to_string(iMod + 1));
+
+	  Solid mBCoolTubeSolid = Tube(0, mbCoolTube.outDiam / 2, halfZBCool, 0_deg, 360_deg);
+	  Volume mBLog = Volume(mBName, mBCoolTubeSolid, ns.material(mbCoolTube.mat));
+
+	  const string mBWaName(mbCoolTube.name + "Wa_" + std::to_string(iMod + 1));
+	  Solid mBCoolTubeWaSolid = Tube(mBWaName, 0, mbCoolTube.innDiam / 2, halfZBCool, 0_deg, 360_deg);
+	  Volume mBWaLog = Volume(mBWaName, mBCoolTubeWaSolid, ns.material(backPipe.waterMat));
+	  mBLog.placeVolume(mBWaLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
+
+          for (unsigned int j(0); j != dryAirTube.mbCoolTubeNum; ++j)  // loop over all MB cooling circuits
+          {
+	    backCoolLog.placeVolume(mBLog, 2 * j + 1,
+				    Transform3D(Rotation3D(),
+						DDTranslation(-backCoolHeight / 2.0 + mbCoolTube.outDiam / 2.,
+							      -bHalfWidth + (j + 1) * bHalfWidth / 5,
+							      0)));
+	  }
+	}
+
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!! Begin Back Water Pipes   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	if (0 != backPipe.here && 0 != iMod) {
+          string bPipeName(backPipe.name + "_" + std::to_string(iMod + 1));
+	  string bInnerName(backPipe.name + "_H2O_" + std::to_string(iMod + 1));
+
+	  Solid backPipeSolid = Tube(bPipeName, 0_mm, backPipe.vecDiam[iMod] / 2, pipeLength / 2, 0_deg, 360_deg);
+	  Solid backInnerSolid = Tube(bInnerName, 0_mm, backPipe.vecDiam[iMod] / 2 - backPipe.vecThick[iMod], pipeLength / 2,
+				      0_deg, 360_deg);
+
+	  Volume backPipeLog = Volume(bPipeName, backPipeSolid, ns.material(backPipe.mat));
+	  Volume backInnerLog = Volume(bInnerName, backInnerSolid, ns.material(backPipe.waterMat));
+
+          const DDTranslation bPipeTra1(
+              back.xOff + back.sideHeight - 0.7 * backPipe.vecDiam[iMod],
+              back.yOff + back.plateWidth / 2 - back.sideWidth - 0.7 * backPipe.vecDiam[iMod],
+              pipeZPos);
+
+	  spmLog.placeVolume(backPipeLog, copyOne, Transform3D(Rotation3D(), bPipeTra1));
+
+	  const DDTranslation bPipeTra2(bPipeTra1.x(),
+					back.yOff - back.plateWidth / 2 + back.sideWidth + backPipe.vecDiam[iMod],
+					bPipeTra1.z());
+
+	  spmLog.placeVolume(backPipeLog, copyTwo, Transform3D(Rotation3D(), bPipeTra2));
+	  backPipeLog.placeVolume(backInnerLog, copyOne, Transform3D(Rotation3D(), DDTranslation()));
+        }
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!! End Back Water Pipes   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        //=================================================
+
+  //       if (0 != dryAirTubeHere()) {
+  //         string dryAirTubName(ddname(dryAirTubeName() + std::to_string(iMod + 1)));
+
+  //         DDSolid dryAirTubeSolid(DDSolidFactory::tubs(
+  //             dryAirTubName, pipeLength / 2, dryAirTubeInnDiam() / 2, dryAirTubeOutDiam() / 2, 0_deg, 360_deg));
+
+  //         const DDLogicalPart dryAirTubeLog(dryAirTubName, dryAirTubeMat(), dryAirTubeSolid);
+
+  //         const DDTranslation dryAirTubeTra1(
+  //             back.xOff + back.sideHeight - 0.7 * dryAirTubeOutDiam() - backPipe.vecDiam[iMod],
+  //             back.yOff + back.plateWidth / 2 - back.sideWidth - 1.2 * dryAirTubeOutDiam(),
+  //             pipeZPos);
+
+  //         cpv.position(dryAirTubeLog, spmName(), copyOne, dryAirTubeTra1, DDRotation());
+
+  //         const DDTranslation dryAirTubeTra2(
+  //             dryAirTubeTra1.x(),
+  //             back.yOff - back.plateWidth / 2 + back.sideWidth + 0.7 * dryAirTubeOutDiam(),
+  //             dryAirTubeTra1.z());
+
+  //         cpv.position(dryAirTubeLog, spmName(), copyTwo, dryAirTubeTra2, DDRotation());
+  //       }
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!! Begin Placement of Cooling + VFE Cards          !!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  //       DDTranslation cTra(backCool.barHeight / 2. - backCoolHeight / 2. + bottomThick, 0, -halfZTank + halfZCoolVFE);
+  //       const unsigned int numSec(static_cast<unsigned int>(vecBackCoolNSec()[iMod]));
+  //       for (unsigned int jSec(0); jSec != numSec; ++jSec) {
+  //         const unsigned int nMax(static_cast<unsigned int>(vecBackCoolNPerSec()[iNSec++]));
+  //         for (unsigned int iBar(0); iBar != nMax; ++iBar) {
+  //           cpv.position(backCoolVFELog, backCName, iCVFECopy++, cTra, DDRotation());
+  //           cTra += DDTranslation(0, 0, backCBStdSep());
+  //         }
+  //         cTra -= DDTranslation(0, 0, backCBStdSep());  // backspace to previous
+  //         if (jSec != numSec - 1)
+  //           cTra += DDTranslation(0, 0, vecBackCoolSecSep()[iSep++]);  // now take atypical step
+  //       }
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!! End Placement of Cooling + VFE Cards            !!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      }
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!! End Placement of Readout & Cooling by Module    !!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!! Begin Patch Panel   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      double patchHeight(0);
+      for (unsigned int iPatch(0); iPatch != patchPanel.vecThick.size(); ++iPatch) {
+	patchHeight += patchPanel.vecThick[iPatch];
+      }
+
+      array<double, 3> patchParms{ { patchHeight / 2.,
+	    backCool.barWidth / 2.,
+	    (spm.vecZPts.back() - grille.vecZOff.back() - grille.thick) / 2 } };
+      Solid patchSolid = Box(patchParms[0], patchParms[1], patchParms[2]);
+      Volume patchLog = Volume(patchPanel.name, patchSolid, ns.material(spm.mat));
+
+      const DDTranslation patchTra(back.xOff + 4_mm, 0_mm, grille.vecZOff.back() + grille.thick + patchParms[2]);
+      if (0 != patchPanel.here)
+	spmLog.placeVolume(patchLog, copyOne, Transform3D(Rotation3D(), patchTra));
+
+      DDTranslation pTra(-patchParms[0], 0, 0);
+
+      for (unsigned int j(0); j != patchPanel.vecNames.size(); ++j) {
+	const string pName(patchPanel.vecNames[j]);
+
+	Solid pSolid = Box(patchPanel.vecThick[j] / 2., patchParms[1], patchParms[2]);
+	Volume pLog = Volume(pName, pSolid, ns.material(patchPanel.vecMat[j]));
+
+	pTra += DDTranslation(patchPanel.vecThick[j] / 2, 0_mm, 0_mm);
+	patchLog.placeVolume(pLog, copyOne, Transform3D(Rotation3D(), pTra));
+
+	pTra += DDTranslation(patchPanel.vecThick[j] / 2, 0_mm, 0_mm);
+      }
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!! End Patch Panel     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!! Begin Pincers       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+      if (0 != pincer.rodHere) {
+      // Make hierarchy of rods, envelopes, blocks, shims, and cutouts
+
+  //     Solid rodSolid(
+  //           DDSolidFactory::box(pincerRodName(), pincerEnvWidth() / 2., pincerEnvHeight() / 2., ilyLength / 2));
+  //       const DDLogicalPart rodLog(pincerRodName(), pincerRodMat(), rodSolid);
+
+  //       DDSolid envSolid(
+  //           DDSolidFactory::box(pincerEnvName(), pincerEnvWidth() / 2., pincerEnvHeight() / 2., pincerEnvLength() / 2));
+  //       const DDLogicalPart envLog(pincerEnvName(), pincerEnvMat(), envSolid);
+  //       const std::vector<double>& envParms(envSolid.parameters());
+
+  //       DDSolid blkSolid(
+  //           DDSolidFactory::box(pincerBlkName(), pincerEnvWidth() / 2., pincerEnvHeight() / 2., pincerBlkLength() / 2));
+  //       const DDLogicalPart blkLog(pincerBlkName(), pincerBlkMat(), blkSolid);
+  //       const std::vector<double>& blkParms(blkSolid.parameters());
+  //       cpv.position(blkLog,
+  //                    pincerEnvName(),
+  //                    copyOne,
+  //                    DDTranslation(0, 0, pincerEnvLength() / 2 - pincerBlkLength() / 2),
+  //                    DDRotation());
+
+  //       DDSolid cutSolid(
+  //           DDSolidFactory::box(pincerCutName(), pincerCutWidth() / 2., pincerCutHeight() / 2., pincerBlkLength() / 2));
+  //       const DDLogicalPart cutLog(pincerCutName(), pincerCutMat(), cutSolid);
+  //       const std::vector<double>& cutParms(cutSolid.parameters());
+  //       cpv.position(
+  //           cutLog,
+  //           pincerBlkName(),
+  //           copyOne,
+  //           DDTranslation(
+  //               +blkParms[0] - cutParms[0] - pincerShim1Width() + pincerShim2Width(), -blkParms[1] + cutParms[1], 0),
+  //           DDRotation());
+
+  //       DDSolid shim2Solid(DDSolidFactory::box(
+  //           pincerShim2Name(), pincerShim2Width() / 2., pincerShimHeight() / 2., pincerBlkLength() / 2));
+  //       const DDLogicalPart shim2Log(pincerShim2Name(), pincerShimMat(), shim2Solid);
+  //       const std::vector<double>& shim2Parms(shim2Solid.parameters());
+  //       cpv.position(shim2Log,
+  //                    pincerCutName(),
+  //                    copyOne,
+  //                    DDTranslation(+cutParms[0] - shim2Parms[0], -cutParms[1] + shim2Parms[1], 0),
+  //                    DDRotation());
+
+  //       DDSolid shim1Solid(DDSolidFactory::box(pincerShim1Name(),
+  //                                              pincerShim1Width() / 2.,
+  //                                              pincerShimHeight() / 2.,
+  //                                              (pincerEnvLength() - pincerBlkLength()) / 2));
+
+  //       const DDLogicalPart shim1Log(pincerShim1Name(), pincerShimMat(), shim1Solid);
+  //       const std::vector<double>& shim1Parms(shim1Solid.parameters());
+  //       cpv.position(
+  //           shim1Log,
+  //           pincerEnvName(),
+  //           copyOne,
+  //           DDTranslation(+envParms[0] - shim1Parms[0], -envParms[1] + shim1Parms[1], -envParms[2] + shim1Parms[2]),
+  //           DDRotation());
+
+  //       for (unsigned int iEnv(0); iEnv != vecPincerEnvZOff().size(); ++iEnv) {
+  //         cpv.position(envLog,
+  //                      pincerRodName(),
+  //                      1 + iEnv,
+  //                      DDTranslation(0, 0, -ilyLength / 2. + vecPincerEnvZOff()[iEnv] - pincerEnvLength() / 2.),
+  //                      DDRotation());
+  //       }
+
+  //       // Place the rods
+  //       //	 const double radius ( fawRadOff() - pincerEnvHeight()/2 -1_mm ) ;
+  //       const double radius(ilyRMin - pincerEnvHeight() / 2 - 1_mm);
+
+  //       const string xilyName(ddname(ilyName() + std::to_string(vecIlyMat().size() - 1)));
+
+  //       for (unsigned int iRod(0); iRod != vecPincerRodAzimuth().size(); ++iRod) {
+  //         const DDTranslation rodTra(
+  //             radius * cos(vecPincerRodAzimuth()[iRod]), radius * sin(vecPincerRodAzimuth()[iRod]), 0);
+
+  //         cpv.position(rodLog,
+  //                      xilyName,
+  //                      1 + iRod,
+  //                      rodTra,
+  //                      myrot(pincerRodName().name() + std::to_string(iRod),
+  //                            CLHEP::HepRotationZ(90_deg + vecPincerRodAzimuth()[iRod])));
+	//}
+      }
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!! End   Pincers       !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    }
+  }
+  
   return 1;
 }
 

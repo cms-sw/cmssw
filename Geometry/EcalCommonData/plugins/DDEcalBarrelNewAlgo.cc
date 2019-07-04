@@ -1558,19 +1558,6 @@ void DDEcalBarrelNewAlgo::execute(DDCompactView& cpv) {
     const DDTranslation expTra(vecSpmRMax().back() - xExp, spmExpYOff(), vecSpmZPts().front() + zExp);
     const DDLogicalPart expLog(expName, spmMat(), spmExpBox);
 
-    /*      const DDName unionName ( ddname( m_SpmName + "UNI" ) ) ;
-      if( 0 != spmCutShow() )
-      {
-	 cpv.position( expLog, spmName(), copyOne, expTra, DDRotation() ) ;
-      }
-      else
-      {
-	 const DDSolid unionSolid ( DDSolidFactory::unionSolid(
-				       unionName,
-				       spmcut1ddname, expName,
-				       expTra, DDRotation() ) ) ;
-				       }*/
-
     // Supermodule side platess
     const DDSolid sideSolid(DDSolidFactory::box(
         spmSideName(), spmSideHigh() / 2., spmSideThick() / 2., fabs(vecSpmZPts()[1] - vecSpmZPts()[0]) / 2.));
