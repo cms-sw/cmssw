@@ -121,8 +121,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   std::unique_ptr<PhysicsListMakerBase> physicsMaker(
       PhysicsListFactory::get()->create(m_pPhysics.getParameter<std::string>("type")));
   if (physicsMaker.get() == nullptr) {
-    throw edm::Exception(edm::errors::Configuration) 
-      << "Unable to find the Physics list requested";
+    throw edm::Exception(edm::errors::Configuration) << "Unable to find the Physics list requested";
   }
   m_physicsList = physicsMaker->make(m_pPhysics, m_registry);
 
@@ -148,11 +147,10 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
-  edm::LogVerbatim("SimG4CoreApplication") 
-    << "RunManagerMT: start initialisation of PhysicsList for master";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialisation of PhysicsList for master";
 
-  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), 
-                      m_p.getParameter<int>("SteppingVerbosity"));
+  int verb =
+      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
   m_kernel->SetVerboseLevel(verb);
 
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
