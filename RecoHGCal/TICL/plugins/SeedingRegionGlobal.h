@@ -25,8 +25,6 @@
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-
-
 class HGCGraph;
 
 namespace ticl {
@@ -36,11 +34,10 @@ namespace ticl {
     ~SeedingRegionGlobal() override;
 
     void makeRegions(const edm::Event& ev,
-		     const edm::EventSetup& es,
-		     std::vector<ticl::TICLSeedingRegion>& result) override;
+                     const edm::EventSetup& es,
+                     std::vector<ticl::TICLSeedingRegion>& result) override;
 
   private:
-
   };
 }  // namespace ticl
 #endif

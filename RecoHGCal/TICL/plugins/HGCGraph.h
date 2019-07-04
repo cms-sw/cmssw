@@ -13,9 +13,8 @@
 
 class HGCGraph {
 public:
-
   void makeAndConnectDoublets(const TICLLayerTiles &h,
-                              const std::vector<ticl::TICLSeedingRegion>& regions,
+                              const std::vector<ticl::TICLSeedingRegion> &regions,
                               int nEtaBins,
                               int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters,
@@ -32,7 +31,9 @@ public:
   bool areTimeCompatible(int innerIdx, int outerIdx, const edm::ValueMap<float> &layerClustersTime, float maxDeltaTime);
 
   std::vector<HGCDoublet> &getAllDoublets() { return allDoublets_; }
-  void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets, std::vector<int> &seedIndices, const unsigned int minClustersPerNtuplet);
+  void findNtuplets(std::vector<HGCDoublet::HGCntuplet> &foundNtuplets,
+                    std::vector<int> &seedIndices,
+                    const unsigned int minClustersPerNtuplet);
   void clear() {
     allDoublets_.clear();
     theRootDoublets_.clear();

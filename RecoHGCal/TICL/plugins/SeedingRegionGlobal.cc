@@ -11,20 +11,18 @@
 
 using namespace ticl;
 
-SeedingRegionGlobal::SeedingRegionGlobal(const edm::ParameterSet &conf, edm::ConsumesCollector& sumes) : SeedingRegionAlgoBase(conf, sumes)
-{
-
-}
+SeedingRegionGlobal::SeedingRegionGlobal(const edm::ParameterSet &conf, edm::ConsumesCollector &sumes)
+    : SeedingRegionAlgoBase(conf, sumes) {}
 
 SeedingRegionGlobal::~SeedingRegionGlobal(){};
 
 void SeedingRegionGlobal::makeRegions(const edm::Event &ev,
-				      const edm::EventSetup &es,
-				      std::vector<ticl::TICLSeedingRegion> &result) {
-
+                                      const edm::EventSetup &es,
+                                      std::vector<ticl::TICLSeedingRegion> &result) {
   // for unseeded iterations create 2 global seeding regions
   // one for each endcap
-  for (int i = 0; i< 2; ++i ) {
-    result.emplace_back(ticl::TICLSeedingRegion({GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1, edm::ProductID()}) );
+  for (int i = 0; i < 2; ++i) {
+    result.emplace_back(
+        ticl::TICLSeedingRegion({GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1, edm::ProductID()}));
   }
 }

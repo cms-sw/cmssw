@@ -25,8 +25,8 @@ namespace ticl {
     virtual ~SeedingRegionAlgoBase(){};
 
     virtual void makeRegions(const edm::Event& ev,
-                                const edm::EventSetup& es,
-                                std::vector<ticl::TICLSeedingRegion>& result) = 0;
+                             const edm::EventSetup& es,
+                             std::vector<ticl::TICLSeedingRegion>& result) = 0;
     enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
   protected:
