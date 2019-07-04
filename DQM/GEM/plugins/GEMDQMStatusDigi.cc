@@ -119,11 +119,11 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
   for (GEMGEBdataCollection::DigiRangeIterator gebIt = gemGEB->begin(); gebIt != gemGEB->end(); ++gebIt) {
     const GEMGEBdataCollection::Range &range = (*gebIt).second;
     for (auto GEBStatus = range.first; GEBStatus != range.second; ++GEBStatus) {
-      h1_geb_inputStatus_->Fill(GEBStatus->inputStatus());
+      //h1_geb_inputStatus_->Fill(GEBStatus->inputStatus());
       h1_geb_vfatWordCnt_->Fill(GEBStatus->vfatWordCnt() / 3);
       h1_geb_zeroSupWordsCnt_->Fill(GEBStatus->zeroSupWordsCnt());
       h1_geb_stuckData_->Fill(GEBStatus->stuckData());
-      h1_geb_inFIFOund_->Fill(GEBStatus->inFIFOund());
+      h1_geb_inFIFOund_->Fill(GEBStatus->evUfw());
     }
   }
 
@@ -134,7 +134,7 @@ void GEMDQMStatusDigi::analyze(edm::Event const &event, edm::EventSetup const &e
       h1_amc_davCnt_->Fill(amc->davCnt());
       h1_amc_buffState_->Fill(amc->buffState());
       h1_amc_oosGlib_->Fill(amc->oosGlib());
-      h1_amc_chTimeOut_->Fill(amc->chTimeOut());
+      h1_amc_chTimeOut_->Fill(amc->linkTo());
     }
   }
 }
