@@ -16,23 +16,20 @@
 
 class GEMGeometry;
 
-namespace CLHEP
-{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
-class GEMBkgModel: public GEMDigiModel
-{
+class GEMBkgModel : public GEMDigiModel {
 public:
-
   GEMBkgModel(const edm::ParameterSet&);
 
   ~GEMBkgModel() override;
 
-  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
+  void simulate(
+      const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
 
 private:
-
   double averageEfficiency_;
   int minBunch_;
   int maxBunch_;
@@ -42,8 +39,8 @@ private:
   bool simulateElectronBkg_;
   double instLumi_;
   double rateFact_;
-  const double referenceInstLumi_; 
-  double resolutionX_; 
+  const double referenceInstLumi_;
+  double resolutionX_;
 
   //params for pol3 model of electron bkg for GE1/1 and GE2/1:
   double GE11ElecBkgParam0_;
@@ -59,8 +56,5 @@ private:
   double GE21ModNeuBkgParam0_;
   double GE21ModNeuBkgParam1_;
   double GE21ModNeuBkgParam2_;
-    
 };
 #endif
-
-

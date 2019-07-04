@@ -31,7 +31,7 @@ void GEMPadDigiClusterProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<unsigned int>("maxClusters", 8);
   desc.add<unsigned int>("maxClusterSize", 8);
 
-  descriptions.add("simMuonGEMPadDigiClustersDef",desc);
+  descriptions.add("simMuonGEMPadDigiClustersDef", desc);
 }
 
 void GEMPadDigiClusterProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {

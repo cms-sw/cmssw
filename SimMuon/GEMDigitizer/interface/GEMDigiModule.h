@@ -32,13 +32,11 @@ class GEMEtaPartition;
 class GEMGeometry;
 class PSimHit;
 
-class GEMDigiModule
-{
+class GEMDigiModule {
 public:
-
   GEMDigiModule(const edm::ParameterSet&);
-  
-  ~GEMDigiModule(); 
+
+  ~GEMDigiModule();
 
   typedef edm::DetSet<StripDigiSimLink> StripDigiSimLinks;
   typedef edm::DetSet<GEMDigiSimLink> GEMDigiSimLinks;
@@ -49,32 +47,27 @@ public:
 
   void fillDigis(int rollDetId, GEMDigiCollection&);
 
-  const StripDigiSimLinks & stripDigiSimLinks() const {return stripDigiSimLinks_;}
-  const GEMDigiSimLinks & gemDigiSimLinks() const {return theGemDigiSimLinks_;}
-  
+  const StripDigiSimLinks& stripDigiSimLinks() const { return stripDigiSimLinks_; }
+  const GEMDigiSimLinks& gemDigiSimLinks() const { return theGemDigiSimLinks_; }
+
 private:
+  const GEMGeometry* geometry_;
 
-  const GEMGeometry * geometry_;
+  std::vector<std::unique_ptr<GEMDigiModel> > models;
 
-  std::vector< std::unique_ptr<GEMDigiModel> > models;
-  
-  typedef std::set< std::pair<int, int> > Strips;
+  typedef std::set<std::pair<int, int> > Strips;
 
   /// creates links from Digi to SimTrack
-  void addLinks(unsigned int strip,int bx);
-  void addLinksWithPartId(unsigned int strip,int bx);
+  void addLinks(unsigned int strip, int bx);
+  void addLinksWithPartId(unsigned int strip, int bx);
 
   // keeps track of which hits contribute to which channels
-  typedef std::multimap<
-      std::pair<unsigned int, int>,
-      const PSimHit*,
-      std::less<std::pair<unsigned int, int> >
-    >  DetectorHitMap;
+  typedef std::multimap<std::pair<unsigned int, int>, const PSimHit*, std::less<std::pair<unsigned int, int> > >
+      DetectorHitMap;
 
   Strips strips_;
   DetectorHitMap detectorHitMap_;
   StripDigiSimLinks stripDigiSimLinks_;
   GEMDigiSimLinks theGemDigiSimLinks_;
-
 };
 #endif
