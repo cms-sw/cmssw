@@ -40,7 +40,7 @@ private:
   edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> clustersTime_token_;
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
-  edm::EDGetTokenT<std::vector<ticl::TICLSeedingRegion> > seeding_regions_token_;
+  edm::EDGetTokenT<std::vector<ticl::TICLSeedingRegion>> seeding_regions_token_;
 
   std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
 };
@@ -53,7 +53,8 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
   original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
   clustersTime_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("time_layerclusters"));
   layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
-  seeding_regions_token_ = consumes<std::vector<ticl::TICLSeedingRegion> >(ps.getParameter<edm::InputTag>("seeding_regions"));
+  seeding_regions_token_ =
+      consumes<std::vector<ticl::TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"));
 
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
@@ -95,13 +96,13 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   evt.getByToken(layer_clusters_tiles_token_, layer_clusters_tiles_h);
   evt.getByToken(seeding_regions_token_, seeding_regions_h);
 
-
   const auto& layerClusters = *cluster_h;
   const auto& inputClusterMask = *filtered_layerclusters_mask_h;
   const auto& layerClustersTimes = *time_clusters_h;
   const auto& layer_clusters_tiles = *layer_clusters_tiles_h;
   const auto& seeding_regions = *seeding_regions_h;
-  myAlgo_->makeTracksters(evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions, *result);
+  myAlgo_->makeTracksters(
+      evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions, *result);
 
   // Now update the global mask and put it into the event
   output_mask->reserve(original_layerclusters_mask_h->size());

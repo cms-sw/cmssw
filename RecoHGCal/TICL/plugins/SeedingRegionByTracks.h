@@ -25,8 +25,6 @@
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-
-
 class HGCGraph;
 
 namespace ticl {
@@ -36,21 +34,21 @@ namespace ticl {
     ~SeedingRegionByTracks() override;
 
     void makeRegions(const edm::Event& ev,
-                        const edm::EventSetup& es,
-                        std::vector<ticl::TICLSeedingRegion>& result) override;
+                     const edm::EventSetup& es,
+                     std::vector<ticl::TICLSeedingRegion>& result) override;
 
   private:
-  void buildFirstLayers();
+    void buildFirstLayers();
 
-  edm::EDGetTokenT<reco::TrackCollection> tracks_token_;
-  std::once_flag initializeGeometry_;
-  const HGCalDDDConstants* hgcons_;
-  const StringCutObjectSelector<reco::Track> cutTk_;
-  std::string detectorName_ = "HGCalEESensitive";
-  edm::ESHandle<Propagator> propagator_;
-  const std::string propName_;
-  edm::ESHandle<MagneticField> bfield_;
-  GeomDet* firstDisk_[2];
+    edm::EDGetTokenT<reco::TrackCollection> tracks_token_;
+    std::once_flag initializeGeometry_;
+    const HGCalDDDConstants* hgcons_;
+    const StringCutObjectSelector<reco::Track> cutTk_;
+    std::string detectorName_ = "HGCalEESensitive";
+    edm::ESHandle<Propagator> propagator_;
+    const std::string propName_;
+    edm::ESHandle<MagneticField> bfield_;
+    GeomDet* firstDisk_[2];
   };
 }  // namespace ticl
 #endif

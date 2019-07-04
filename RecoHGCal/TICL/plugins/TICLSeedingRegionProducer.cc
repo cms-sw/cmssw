@@ -28,27 +28,25 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-
   std::unique_ptr<SeedingRegionAlgoBase> myAlgo_;
   int algoId_;
   std::string seedingId_;
 };
 DEFINE_FWK_MODULE(TICLSeedingRegionProducer);
 
-TICLSeedingRegionProducer::TICLSeedingRegionProducer(const edm::ParameterSet& ps):
-  algoId_(ps.getParameter<int>("algoId"))
-{
+TICLSeedingRegionProducer::TICLSeedingRegionProducer(const edm::ParameterSet& ps)
+    : algoId_(ps.getParameter<int>("algoId")) {
   auto sumes = consumesCollector();
 
   switch (algoId_) {
-  case 1:
-    myAlgo_ = std::make_unique<SeedingRegionByTracks>(ps,sumes);
-    break;
-  case 2:
-    myAlgo_ = std::make_unique<SeedingRegionGlobal>(ps,sumes);
-    break;
-  default:
-    break;
+    case 1:
+      myAlgo_ = std::make_unique<SeedingRegionByTracks>(ps, sumes);
+      break;
+    case 2:
+      myAlgo_ = std::make_unique<SeedingRegionGlobal>(ps, sumes);
+      break;
+    default:
+      break;
   }
   produces<std::vector<ticl::TICLSeedingRegion>>();
 }
@@ -58,7 +56,9 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
   edm::ParameterSetDescription desc;
   desc.add<int>("algo_verbosity", 0);
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.add<std::string>("cutTk", "1.48 < abs(eta) < 3.0 && pt > 2. && p > 1 && quality(\"highPurity\") && hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 10");
+  desc.add<std::string>("cutTk",
+                        "1.48 < abs(eta) < 3.0 && pt > 2. && p > 1 && quality(\"highPurity\") && "
+                        "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 10");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<int>("algoId", 1);
   descriptions.add("seedingRegionProducer", desc);

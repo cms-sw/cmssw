@@ -27,7 +27,7 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
                                             const std::vector<float> &mask,
                                             const edm::ValueMap<float> &layerClustersTime,
                                             const TICLLayerTiles &tiles,
-                                            const std::vector<ticl::TICLSeedingRegion>& regions,
+                                            const std::vector<ticl::TICLSeedingRegion> &regions,
                                             std::vector<Trackster> &result) {
   rhtools_.getEventSetup(es);
 
@@ -39,7 +39,8 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   std::vector<int> seedIndices;
   std::vector<uint8_t> layer_cluster_usage(layerClusters.size(), 0);
-  theGraph_->makeAndConnectDoublets(tiles, regions,
+  theGraph_->makeAndConnectDoublets(tiles,
+                                    regions,
                                     ticl::constants::nEtaBins,
                                     ticl::constants::nPhiBins,
                                     layerClusters,
@@ -67,12 +68,12 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
       effective_cluster_idx.insert(innerCluster);
       effective_cluster_idx.insert(outerCluster);
       if (algo_verbosity_ > Advanced) {
-	LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
-				      << innerCluster << " " << layerClusters[innerCluster].x() << " "
-				      << layerClusters[innerCluster].y() << " " << layerClusters[innerCluster].z()
-				      << " OuterCl " << outerCluster << " " << layerClusters[outerCluster].x() << " "
-				      << layerClusters[outerCluster].y() << " " << layerClusters[outerCluster].z()
-				      << " " << tracksterId << std::endl;
+        LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
+                                      << innerCluster << " " << layerClusters[innerCluster].x() << " "
+                                      << layerClusters[innerCluster].y() << " " << layerClusters[innerCluster].z()
+                                      << " OuterCl " << outerCluster << " " << layerClusters[outerCluster].x() << " "
+                                      << layerClusters[outerCluster].y() << " " << layerClusters[outerCluster].z()
+                                      << " " << tracksterId << std::endl;
       }
     }
     for (auto const i : effective_cluster_idx) {
