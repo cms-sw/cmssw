@@ -102,7 +102,6 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   const auto& layer_clusters_tiles = *layer_clusters_tiles_h;
   const auto& seeding_regions = *seeding_regions_h;
   myAlgo_->makeTracksters(evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions, *result);
-  myAlgo_->makeTracksters(evt, es, layerClusters, inputClusterMask, layer_clusters_tiles, seeding_regions, *result);
 
   // Now update the global mask and put it into the event
   output_mask->reserve(original_layerclusters_mask_h->size());
