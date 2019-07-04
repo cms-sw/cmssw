@@ -211,12 +211,12 @@ def psetPhoSCEtaMultiRangeCut():
         )
 
 # Configure the cut on full5x5 sigmaIEtaIEta
-def psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE):
+def psetFull5x5SigmaIEtaIEtaCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleFull5x5SigmaIEtaIEtaCut'),
-        full5x5SigmaIEtaIEtaCutValueEB = cms.double( wpEB.full5x5_sigmaIEtaIEtaCut ),
-        full5x5SigmaIEtaIEtaCutValueEE = cms.double( wpEE.full5x5_sigmaIEtaIEtaCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("full5x5_sigmaIetaIeta"),
+        cutValueEB = cms.double( wpEB.full5x5_sigmaIEtaIEtaCut ),
+        cutValueEE = cms.double( wpEE.full5x5_sigmaIEtaIEtaCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -237,10 +237,10 @@ def psetDEtaInSeedCut(wpEB, wpEE):
 # Configure dPhiIn cut
 def psetDPhiInCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleDPhiInCut'),
-        dPhiInCutValueEB = cms.double( wpEB.dPhiInCut ),
-        dPhiInCutValueEE = cms.double( wpEE.dPhiInCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("abs(deltaPhiSuperClusterTrackAtVtx)"),
+        cutValueEB = cms.double( wpEB.dPhiInCut ),
+        cutValueEE = cms.double( wpEE.dPhiInCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -248,10 +248,10 @@ def psetDPhiInCut(wpEB, wpEE):
 # Configure H/E cut
 def psetHadronicOverEMCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleHadronicOverEMCut'),
-        hadronicOverEMCutValueEB = cms.double( wpEB.hOverECut ),
-        hadronicOverEMCutValueEE = cms.double( wpEE.hOverECut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("hadronicOverEm"),
+        cutValueEB = cms.double( wpEB.hOverECut ),
+        cutValueEE = cms.double( wpEE.hOverECut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -276,10 +276,10 @@ def psetHadronicOverEMEnergyScaledCut(wpEB, wpEE):
 # Configure |1/E-1/p| cut
 def psetEInerseMinusPInverseCut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleEInverseMinusPInverseCut'),
-        eInverseMinusPInverseCutValueEB = cms.double( wpEB.absEInverseMinusPInverseCut ),
-        eInverseMinusPInverseCutValueEE = cms.double( wpEE.absEInverseMinusPInverseCut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("abs(1. - eSuperClusterOverP) / ecalEnergy"),
+        cutValueEB = cms.double( wpEB.absEInverseMinusPInverseCut ),
+        cutValueEE = cms.double( wpEE.absEInverseMinusPInverseCut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -345,10 +345,10 @@ def psetTrkPtIsoCut(wpEB, wpEE):
 # Configure GsfTrack chi2/NDOF cut
 def psetNormalizedGsfChi2Cut(wpEB, wpEE):
     return cms.PSet( 
-        cutName = cms.string('GsfEleNormalizedGsfChi2Cut'),
-        normalizedGsfChi2CutValueEB = cms.double( wpEB.normalizedGsfChi2Cut ),
-        normalizedGsfChi2CutValueEE = cms.double( wpEE.normalizedGsfChi2Cut ),
-        barrelCutOff = cms.double(ebCutOff),
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("? gsfTrack.isNonnull ? gsfTrack.normalizedChi2 : 999990."),
+        cutValueEB = cms.double( wpEB.normalizedGsfChi2Cut ),
+        cutValueEE = cms.double( wpEE.normalizedGsfChi2Cut ),
         needsAdditionalProducts = cms.bool(False),
         isIgnored = cms.bool(False)
         )
@@ -439,30 +439,10 @@ def configureVIDCutBasedEleID_V2( wpEB, wpEE, isoInputs ):
                     ),
                       needsAdditionalProducts = cms.bool(False),
                       isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('GsfEleDEtaInCut'),
-                      dEtaInCutValueEB = cms.double( wpEB.dEtaInCut ),
-                      dEtaInCutValueEE = cms.double( wpEE.dEtaInCut ),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('GsfEleDPhiInCut'),
-                      dPhiInCutValueEB = cms.double( wpEB.dPhiInCut ),
-                      dPhiInCutValueEE = cms.double( wpEE.dPhiInCut ),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('GsfEleFull5x5SigmaIEtaIEtaCut'),
-                      full5x5SigmaIEtaIEtaCutValueEB = cms.double( wpEB.full5x5_sigmaIEtaIEtaCut ),
-                      full5x5SigmaIEtaIEtaCutValueEE = cms.double( wpEE.full5x5_sigmaIEtaIEtaCut ),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('GsfEleHadronicOverEMCut'),
-                      hadronicOverEMCutValueEB = cms.double( wpEB.hOverECut ),
-                      hadronicOverEMCutValueEE = cms.double( wpEE.hOverECut ),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False)),
+            psetDEtaInCut(wpEB, wpEE),
+            psetDPhiInCut(wpEB, wpEE),
+            psetFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),
+            psetHadronicOverEMCut(wpEB, wpEE),
             cms.PSet( cutName = cms.string('GsfEleDxyCut'),
                       dxyCutValueEB = cms.double( wpEB.dxyCut ),
                       dxyCutValueEE = cms.double( wpEE.dxyCut ),
@@ -479,12 +459,7 @@ def configureVIDCutBasedEleID_V2( wpEB, wpEE, isoInputs ):
                       barrelCutOff = cms.double(ebCutOff),
                       needsAdditionalProducts = cms.bool(True),
                       isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('GsfEleEInverseMinusPInverseCut'),
-                      eInverseMinusPInverseCutValueEB = cms.double( wpEB.absEInverseMinusPInverseCut ),
-                      eInverseMinusPInverseCutValueEE = cms.double( wpEE.absEInverseMinusPInverseCut ),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False)),
+            psetEInerseMinusPInverseCut(wpEB, wpEE),
             cms.PSet( cutName = cms.string('GsfEleEffAreaPFIsoCut'),
                       isoCutEBLowPt  = cms.double( wpEB.relCombIsolationWithEALowPtCut  ),
                       isoCutEBHighPt = cms.double( wpEB.relCombIsolationWithEAHighPtCut ),
@@ -537,7 +512,7 @@ def configureVIDCutBasedEleID_V3( wpEB, wpEE, isoInputs ):
             psetPhoSCEtaMultiRangeCut(),                        # eta cut
             psetDEtaInSeedCut(wpEB, wpEE),                      # dEtaIn seed cut
             psetDPhiInCut(wpEB, wpEE),                          # dPhiIn cut
-            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
+            psetFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
             psetHadronicOverEMCut(wpEB, wpEE),                  # H/E cut
             psetEInerseMinusPInverseCut(wpEB, wpEE),            # |1/e-1/p| cut
             psetEffAreaPFIsoCut(wpEB, wpEE, isoInputs),         # rel. comb. PF isolation cut
@@ -566,7 +541,7 @@ def configureVIDCutBasedEleID_V4( wpEB, wpEE, isoInputs ):
             psetPhoSCEtaMultiRangeCut(),                        # eta cut
             psetDEtaInSeedCut(wpEB, wpEE),                      # dEtaIn seed cut
             psetDPhiInCut(wpEB, wpEE),                          # dPhiIn cut
-            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
+            psetFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
             psetHadronicOverEMEnergyScaledCut(wpEB, wpEE),      # H/E cut
             psetEInerseMinusPInverseCut(wpEB, wpEE),            # |1/e-1/p| cut
             psetEffAreaPFIsoCut(wpEB, wpEE, isoInputs),         # rel. comb. PF isolation cut
@@ -595,7 +570,7 @@ def configureVIDCutBasedEleID_V5( wpEB, wpEE, isoInputs ):
             psetPhoSCEtaMultiRangeCut(),                        # eta cut
             psetDEtaInSeedCut(wpEB, wpEE),                      # dEtaIn seed cut
             psetDPhiInCut(wpEB, wpEE),                          # dPhiIn cut
-            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
+            psetFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
             psetHadronicOverEMEnergyScaledCut(wpEB, wpEE),      # H/E cut
             psetEInerseMinusPInverseCut(wpEB, wpEE),            # |1/e-1/p| cut
             psetRelPFIsoScaledCut(wpEB, wpEE, isoInputs),       # rel. comb. PF isolation cut
@@ -626,7 +601,7 @@ def configureVIDCutBasedEleHLTPreselection_V1( wpEB, wpEE, ecalIsoInputs, hcalIs
         cutFlow = cms.VPSet(
             psetMinPtCut(),                                     # min pt cut
             psetPhoSCEtaMultiRangeCut(),                        # eta cut
-            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
+            psetFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),         # full 5x5 sigmaIEtaIEta cut
             psetDEtaInSeedCut(wpEB, wpEE),                      # dEtaIn seed cut
             psetDPhiInCut(wpEB, wpEE),                          # dPhiIn cut
             psetHadronicOverEMCut(wpEB, wpEE),                  # H/E cut

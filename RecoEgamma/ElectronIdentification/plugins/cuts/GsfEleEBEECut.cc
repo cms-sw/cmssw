@@ -12,7 +12,7 @@ public:
     {}
         
   result_type operator()(const reco::GsfElectronPtr& cand) const final {
-    return value(cand) < cutValue_(cand);
+    return cutFormula_(*cand) < cutValue_(cand);
   }
 
   double value(const reco::CandidatePtr& cand) const final {
