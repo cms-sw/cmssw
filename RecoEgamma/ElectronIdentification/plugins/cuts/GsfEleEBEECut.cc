@@ -6,14 +6,9 @@
 class GsfEleEBEECut : public CutApplicatorBase {
 public:
   GsfEleEBEECut(const edm::ParameterSet& c)
-      : CutApplicatorBase(c),
-        cutFormula_(c.getParameter<std::string>("cutString")),
-        cutValue_(c, "cutValue")
-    {}
-        
-  result_type operator()(const reco::GsfElectronPtr& cand) const final {
-    return cutFormula_(*cand) < cutValue_(cand);
-  }
+      : CutApplicatorBase(c), cutFormula_(c.getParameter<std::string>("cutString")), cutValue_(c, "cutValue") {}
+
+  result_type operator()(const reco::GsfElectronPtr& cand) const final { return cutFormula_(*cand) < cutValue_(cand); }
 
   double value(const reco::CandidatePtr& cand) const final {
     reco::GsfElectronPtr ele(cand);
