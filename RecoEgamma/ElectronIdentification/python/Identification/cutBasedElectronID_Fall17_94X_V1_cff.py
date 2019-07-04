@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # Common functions and classes for ID definition are imported here:
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_tools \
     import ( EleWorkingPoint_V4,
-             IsolationCutInputs_V2,
              configureVIDCutBasedEleID_V4 )
 
 #
@@ -150,20 +149,17 @@ WP_Tight_EE = EleWorkingPoint_V4(
     )
 
 # Second, define what effective areas to use for pile-up correction
-isoInputs = IsolationCutInputs_V2(
-    # phoIsolationEffAreas
-    "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
-)
+isoEffAreas = "RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_92X.txt"
 
 
 #
 # Set up VID configuration for all cuts and working points
 #
 
-cutBasedElectronID_Fall17_94X_V1_veto = configureVIDCutBasedEleID_V4(WP_Veto_EB, WP_Veto_EE, isoInputs)
-cutBasedElectronID_Fall17_94X_V1_loose = configureVIDCutBasedEleID_V4(WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedElectronID_Fall17_94X_V1_medium = configureVIDCutBasedEleID_V4(WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedElectronID_Fall17_94X_V1_tight = configureVIDCutBasedEleID_V4(WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedElectronID_Fall17_94X_V1_veto = configureVIDCutBasedEleID_V4(WP_Veto_EB, WP_Veto_EE, isoEffAreas)
+cutBasedElectronID_Fall17_94X_V1_loose = configureVIDCutBasedEleID_V4(WP_Loose_EB, WP_Loose_EE, isoEffAreas)
+cutBasedElectronID_Fall17_94X_V1_medium = configureVIDCutBasedEleID_V4(WP_Medium_EB, WP_Medium_EE, isoEffAreas)
+cutBasedElectronID_Fall17_94X_V1_tight = configureVIDCutBasedEleID_V4(WP_Tight_EB, WP_Tight_EE, isoEffAreas)
 
 
 # The MD5 sum numbers below reflect the exact set of cut variables
