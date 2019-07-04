@@ -10,40 +10,38 @@
 #include <utility>
 #include <map>
 
-GEMNoiseModel::GEMNoiseModel(const edm::ParameterSet& config) 
+GEMNoiseModel::GEMNoiseModel(const edm::ParameterSet& config)
     : GEMDigiModel(config),
-      averageNoiseRate_(config.getParameter<double> ("averageNoiseRate")),
-      minBunch_(config.getParameter<int> ("minBunch")),
-      maxBunch_(config.getParameter<int> ("maxBunch")) {}
+      averageNoiseRate_(config.getParameter<double>("averageNoiseRate")),
+      minBunch_(config.getParameter<int>("minBunch")),
+      maxBunch_(config.getParameter<int>("maxBunch")) {}
 
 GEMNoiseModel::~GEMNoiseModel() {}
 
-void GEMNoiseModel::simulate(const GEMEtaPartition* roll, 
-                             const edm::PSimHitContainer&, 
-                             CLHEP::HepRandomEngine* engine, 
-                             Strips& strips_, 
+void GEMNoiseModel::simulate(const GEMEtaPartition* roll,
+                             const edm::PSimHitContainer&,
+                             CLHEP::HepRandomEngine* engine,
+                             Strips& strips_,
                              DetectorHitMap& detectorHitMap_) {
   const GEMDetId& gemId(roll->id());
   const int nstrips(roll->nstrips());
   double trStripArea(0.0);
-  if (gemId.region() == 0)
-  {
+  if (gemId.region() == 0) {
     throw cms::Exception("Geometry")
         << "GEMSynchronizer::simulate() - this GEM id is from barrel, which cannot happen.";
   }
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float striplength(top_->stripLength());
   trStripArea = (roll->pitch()) * striplength;
-  float trArea(trStripArea*nstrips);
+  float trArea(trStripArea * nstrips);
   const int nBxing(maxBunch_ - minBunch_ + 1);
   //simulate intrinsic noise
   const double aveIntrinsicNoise(averageNoiseRate_ * nBxing * trArea * 25.0e-9);
   CLHEP::RandPoissonQ randPoissonQ(*engine, aveIntrinsicNoise);
   const int n_intrHits(randPoissonQ.fire());
-  
-  for (int k = 0; k < n_intrHits; k++ )
-  {
-    const int centralStrip(static_cast<int> (CLHEP::RandFlat::shoot(engine, 1, nstrips)));
+
+  for (int k = 0; k < n_intrHits; k++) {
+    const int centralStrip(static_cast<int>(CLHEP::RandFlat::shoot(engine, 1, nstrips)));
     const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
     std::pair<int, int> digi(centralStrip, time_hit);
     strips_.emplace(digi);

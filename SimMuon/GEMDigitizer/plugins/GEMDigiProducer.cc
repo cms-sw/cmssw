@@ -25,8 +25,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
-    : gemDigiModule_(std::make_unique<GEMDigiModule>(ps)) {
+GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps) : gemDigiModule_(std::make_unique<GEMDigiModule>(ps)) {
   produces<GEMDigiCollection>();
   produces<StripDigiSimLinks>("GEM");
   produces<GEMDigiSimLinks>("GEM");
@@ -46,8 +45,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
 
 GEMDigiProducer::~GEMDigiProducer() = default;
 
-void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("inputCollection", "g4SimHitsMuonGEMHits");
   desc.add<std::string>("mixLabel", "mix");
@@ -58,7 +56,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("averageShapingTime", 50.0);
   desc.add<double>("averageEfficiency", 0.98);
   desc.add<double>("averageNoiseRate", 0.001);
-  
+
   desc.add<int>("minBunch", -5);
   desc.add<int>("maxBunch", 3);
 
@@ -73,12 +71,12 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("rateFact", 1.0);
   desc.add<double>("referenceInstLumi", 5.);
   desc.add<double>("resolutionX", 0.03);
-  
-  desc.add<double>("GE11ModNeuBkgParam0", 5710.23);  
-  desc.add<double>("GE11ModNeuBkgParam1", -43.3928); 
-  desc.add<double>("GE11ModNeuBkgParam2", 0.0863681); 
+
+  desc.add<double>("GE11ModNeuBkgParam0", 5710.23);
+  desc.add<double>("GE11ModNeuBkgParam1", -43.3928);
+  desc.add<double>("GE11ModNeuBkgParam2", 0.0863681);
   desc.add<double>("GE21ModNeuBkgParam0", 1440.44);
-  desc.add<double>("GE21ModNeuBkgParam1", -7.48607); 
+  desc.add<double>("GE21ModNeuBkgParam1", -7.48607);
   desc.add<double>("GE21ModNeuBkgParam2", 0.0103078);
   desc.add<double>("GE11ElecBkgParam0", 406.249);
   desc.add<double>("GE11ElecBkgParam1", -2.90939);
@@ -87,7 +85,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("GE21ElecBkgParam1", -43.3928);
   desc.add<double>("GE21ElecBkgParam2", 00.000550599);
 
-  descriptions.add("simMuonGEMDigisDef",desc);
+  descriptions.add("simMuonGEMDigisDef", desc);
 }
 
 void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) {
@@ -108,8 +106,8 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
 
   // Create empty output
   std::unique_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
-  std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks() );
-  std::unique_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks() );
+  std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks());
+  std::unique_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks());
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
@@ -118,7 +116,7 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   }
 
   // simulate signal and noise for each eta partition
-  const auto & etaPartitions(geometry_->etaPartitions());
+  const auto& etaPartitions(geometry_->etaPartitions());
 
   for (const auto& roll : etaPartitions) {
     const GEMDetId detId(roll->id());

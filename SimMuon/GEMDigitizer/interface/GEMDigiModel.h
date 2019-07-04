@@ -30,29 +30,23 @@ class PSimHit;
 class GEMEtaPartition;
 class GEMGeometry;
 
-class GEMDigiModel
-{
+class GEMDigiModel {
 protected:
-  typedef std::set< std::pair<int, int> > Strips;
+  typedef std::set<std::pair<int, int> > Strips;
 
-  typedef std::multimap<
-      std::pair<unsigned int, int>,
-      const PSimHit*,
-      std::less<std::pair<unsigned int, int> >
-    >  DetectorHitMap;
+  typedef std::multimap<std::pair<unsigned int, int>, const PSimHit *, std::less<std::pair<unsigned int, int> > >
+      DetectorHitMap;
 
 public:
-
   virtual ~GEMDigiModel() {}
 
-  virtual void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) = 0;
+  virtual void simulate(
+      const GEMEtaPartition *, const edm::PSimHitContainer &, CLHEP::HepRandomEngine *, Strips &, DetectorHitMap &) = 0;
 
-  void setGeometry(const GEMGeometry *geom) {geometry_ = geom;}
+  void setGeometry(const GEMGeometry *geom) { geometry_ = geom; }
 
 protected:
-
-  const GEMGeometry * geometry_;
-  GEMDigiModel(const edm::ParameterSet&) {}
-
+  const GEMGeometry *geometry_;
+  GEMDigiModel(const edm::ParameterSet &) {}
 };
 #endif

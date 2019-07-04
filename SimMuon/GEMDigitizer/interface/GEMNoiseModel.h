@@ -16,27 +16,22 @@
 
 class GEMGeometry;
 
-namespace CLHEP
-{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
-class GEMNoiseModel: public GEMDigiModel
-{
+class GEMNoiseModel : public GEMDigiModel {
 public:
-
   GEMNoiseModel(const edm::ParameterSet&);
 
   ~GEMNoiseModel() override;
 
-  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
+  void simulate(
+      const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
 
 private:
-
   double averageNoiseRate_;
   int minBunch_;
   int maxBunch_;
 };
 #endif
-
-

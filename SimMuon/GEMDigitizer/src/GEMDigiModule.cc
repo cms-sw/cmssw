@@ -7,9 +7,9 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 GEMDigiModule::GEMDigiModule(const edm::ParameterSet& config) {
-  bool simulateBkgNoise_(config.getParameter<bool> ("simulateBkgNoise"));
-  bool simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"));
-  if (simulateIntrinsicNoise_){
+  bool simulateBkgNoise_(config.getParameter<bool>("simulateBkgNoise"));
+  bool simulateIntrinsicNoise_(config.getParameter<bool>("simulateIntrinsicNoise"));
+  if (simulateIntrinsicNoise_) {
     models.push_back(std::make_unique<GEMNoiseModel>(config));
   }
   if (simulateBkgNoise_) {
@@ -20,8 +20,8 @@ GEMDigiModule::GEMDigiModule(const edm::ParameterSet& config) {
 
 GEMDigiModule::~GEMDigiModule() = default;
 
-void GEMDigiModule::simulate(const GEMEtaPartition* roll, 
-                             const edm::PSimHitContainer& simHits, 
+void GEMDigiModule::simulate(const GEMEtaPartition* roll,
+                             const edm::PSimHitContainer& simHits,
                              CLHEP::HepRandomEngine* engine) {
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
@@ -34,11 +34,10 @@ void GEMDigiModule::simulate(const GEMEtaPartition* roll,
   return;
 }
 
-void 
-GEMDigiModule::fillDigis(int rollDetId, GEMDigiCollection& digis) {
-  for (const auto& d: strips_)
-  {
-    if (d.second == -999) continue;
+void GEMDigiModule::fillDigis(int rollDetId, GEMDigiCollection& digis) {
+  for (const auto& d : strips_) {
+    if (d.second == -999)
+      continue;
     // (strip, bx)
     GEMDigi digi(d.first, d.second);
     digis.insertDigi(GEMDetId(rollDetId), digi);
@@ -48,8 +47,7 @@ GEMDigiModule::fillDigis(int rollDetId, GEMDigiCollection& digis) {
   strips_.clear();
 }
 
-void 
-GEMDigiModule::addLinks(unsigned int strip, int bx) {
+void GEMDigiModule::addLinks(unsigned int strip, int bx) {
   std::pair<unsigned int, int> digi(strip, bx);
   auto channelHitItr = detectorHitMap_.equal_range(digi);
 
@@ -83,10 +81,9 @@ GEMDigiModule::addLinks(unsigned int strip, int bx) {
   }
 }
 
-void GEMDigiModule::addLinksWithPartId(unsigned int strip, int bx) { 
-  std::pair<unsigned int, int > digi(strip, bx);
-  std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr 
-     = detectorHitMap_.equal_range(digi);
+void GEMDigiModule::addLinksWithPartId(unsigned int strip, int bx) {
+  std::pair<unsigned int, int> digi(strip, bx);
+  std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr = detectorHitMap_.equal_range(digi);
 
   for (DetectorHitMap::iterator hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr) {
     const PSimHit* hit = (hitItr->second);
@@ -107,8 +104,7 @@ void GEMDigiModule::addLinksWithPartId(unsigned int strip, int bx) {
   }
 }
 
-void GEMDigiModule::setGeometry(const GEMGeometry *geom)
-{
+void GEMDigiModule::setGeometry(const GEMGeometry* geom) {
   for (auto&& model : models) {
     model->setGeometry(geom);
   }

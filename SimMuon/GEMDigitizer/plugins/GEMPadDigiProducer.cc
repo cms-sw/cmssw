@@ -25,7 +25,7 @@ void GEMPadDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputCollection", edm::InputTag("simMuonGEMDigis"));
 
-  descriptions.add("simMuonGEMPadDigisDef",desc);
+  descriptions.add("simMuonGEMPadDigisDef", desc);
 }
 
 void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) {

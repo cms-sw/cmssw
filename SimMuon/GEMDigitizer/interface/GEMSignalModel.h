@@ -16,37 +16,33 @@
 
 class GEMGeometry;
 
-namespace CLHEP
-{
+namespace CLHEP {
   class HepRandomEngine;
 }
 
-class GEMSignalModel: public GEMDigiModel
-{
+class GEMSignalModel : public GEMDigiModel {
 public:
-
   GEMSignalModel(const edm::ParameterSet&);
 
   ~GEMSignalModel() override;
 
-  void simulate(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
+  void simulate(
+      const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
 
   int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
 
-  std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine*);
+  std::vector<std::pair<int, int> > simulateClustering(const GEMEtaPartition*,
+                                                       const PSimHit*,
+                                                       const int,
+                                                       CLHEP::HepRandomEngine*);
 
 private:
-
   double averageEfficiency_;
   double averageShapingTime_;
   double timeResolution_;
   double timeJitter_;
   double signalPropagationSpeed_;
   bool digitizeOnlyMuons_;
-  double resolutionX_; 
-
+  double resolutionX_;
 };
 #endif
-
-
