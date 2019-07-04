@@ -55,8 +55,6 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
                                     max_delta_time_);
 
   theGraph_->findNtuplets(foundNtuplets, seedIndices, min_clusters_per_ntuplet_);
-  edm::ProductID seedCollectionId = regions[0].collectionID;
-
   //#ifdef FP_DEBUG
   const auto &doublets = theGraph_->getAllDoublets();
   int tracksterId = 0;
@@ -84,7 +82,9 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
     Trackster tmp;
     tmp.vertices.reserve(effective_cluster_idx.size());
     tmp.vertex_multiplicity.resize(effective_cluster_idx.size(), 0);
-    tmp.seedID = seedCollectionId;
+    //regions and seedIndices can have different size
+    //if a seeding region does not lead to any trackster
+    tmp.seedID = regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
     std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
     result.push_back(tmp);
