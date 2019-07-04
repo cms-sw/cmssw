@@ -128,7 +128,7 @@ string DDAlgoArguments::resolveValue(const std::string& aValue) const {
       value[idp] = NAMESPACE_SEP;
     idx = value.find('[', idx);
   }
-    
+
   string rep;
   string& v = value;
   size_t idq;
@@ -173,11 +173,16 @@ namespace {
              num,
              data.size());
     }
-    printout(
-        a->context.debug_algorithms ? ALWAYS : DEBUG, "DD4CMS", "+++ VectorParam<%s>: ret=%d %s -> %s", typ.c_str(), res, nam.c_str(), gr.str(&data).c_str());
+    printout(a->context.debug_algorithms ? ALWAYS : DEBUG,
+             "DD4CMS",
+             "+++ VectorParam<%s>: ret=%d %s -> %s",
+             typ.c_str(),
+             res,
+             nam.c_str(),
+             gr.str(&data).c_str());
     return data;
   }
-  
+
   template <typename T>
   T __cnv(const string&) {
     return 0;
@@ -231,7 +236,13 @@ namespace {
       T d = __cnv<T>(piece);
       data.push_back(d);
     }
-    printout(a->context.debug_algorithms ? ALWAYS : DEBUG, "DD4CMS", "+++ VectorParam<%s>: %s[%d] -> %s", typ.c_str(), nam.c_str(), num, val.c_str());
+    printout(a->context.debug_algorithms ? ALWAYS : DEBUG,
+             "DD4CMS",
+             "+++ VectorParam<%s>: %s[%d] -> %s",
+             typ.c_str(),
+             nam.c_str(),
+             num,
+             val.c_str());
     return data;
   }
 }  // namespace
@@ -286,9 +297,7 @@ namespace cms {
 string DDAlgoArguments::str(const string& nam) const { return this->value<string>(nam); }
 
 /// Shortcut to access double arguments
-double DDAlgoArguments::dble(const string& nam) const {
-  return this->value<double>(resolveValue(nam));
-}
+double DDAlgoArguments::dble(const string& nam) const { return this->value<double>(resolveValue(nam)); }
 
 /// Shortcut to access integer arguments
 int DDAlgoArguments::integer(const string& nam) const { return this->value<int>(nam); }
