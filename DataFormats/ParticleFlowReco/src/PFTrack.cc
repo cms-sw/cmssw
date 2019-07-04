@@ -57,7 +57,9 @@ void PFTrack::calculatePositionREP() {
 
 const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) const {
   const unsigned offset_layerid = nTrajectoryMeasurements() + layerid;
-  if (layerid >= reco::PFTrajectoryPoint::NLayers || offset_layerid >= trajectoryPoints_.size()) {
+  //if (layerid >= reco::PFTrajectoryPoint::NLayers || offset_layerid >= trajectoryPoints_.size()) {
+  //KH hack to make tracks extrapolated to HF work
+  if (layerid >= reco::PFTrajectoryPoint::NLayers) {
     throw cms::Exception("SizeError") << "PFRecTrack::extrapolatedPoint: cannot access " << layerid
                                       << " #traj meas = " << nTrajectoryMeasurements()
                                       << " #traj points = " << trajectoryPoints_.size() << endl
