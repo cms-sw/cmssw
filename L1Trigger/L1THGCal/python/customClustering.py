@@ -5,7 +5,7 @@ from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import dummy_C2d_params, 
                                                               constrTopological_C2d_params
 from L1Trigger.L1THGCal.hgcalBackEndLayer2Producer_cfi import distance_C3d_params, \
                                                               dbscan_C3d_params, \
-                                                              histoMax_C3d_params, \
+                                                              histoMax_C3d_clustering_params, \
                                                               histoMaxVariableDR_C3d_params, \
                                                               histoMaxXYVariableDR_C3d_params, \
                                                               histoSecondaryMax_C3d_params, \
@@ -82,140 +82,39 @@ def custom_3dclustering_dbscan(process,
     return process
 
 
-def set_histomax_params(parameters_c3d,
+def set_histomax_clustering_params(parameters_c3d,
                         distance,
-                        nBins_X1,
-                        nBins_X2,
-                        binSumsHisto,
-                        seed_threshold,
                         shape_threshold
                         ):
     parameters_c3d.dR_multicluster = distance
-    parameters_c3d.nBins_X1_histo_multicluster = nBins_X1
-    parameters_c3d.nBins_X2_histo_multicluster = nBins_X2
-    parameters_c3d.binSumsHisto = binSumsHisto
-    parameters_c3d.threshold_histo_multicluster = seed_threshold
     parameters_c3d.shape_threshold = shape_threshold
 
 
-def custom_3dclustering_histoMax(process,
-                                 distance=histoMax_C3d_params.dR_multicluster,
-                                 nBins_X1=histoMax_C3d_params.nBins_X1_histo_multicluster,
-                                 nBins_X2=histoMax_C3d_params.nBins_X2_histo_multicluster,
-                                 binSumsHisto=histoMax_C3d_params.binSumsHisto,
-                                 seed_threshold=histoMax_C3d_params.threshold_histo_multicluster,
-                                 shape_threshold=histoMax_C3d_params.shape_threshold,
-                                 ):
-    parameters_c3d = histoMax_C3d_params.clone()
-    set_histomax_params(parameters_c3d, distance, nBins_X1, nBins_X2, binSumsHisto,
-                        seed_threshold, shape_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
+def custom_3dclustering_fixedRadius(process,
+                                distance=histoMax_C3d_clustering_params.dR_multicluster,
+                                shape_threshold=histoMax_C3d_clustering_params.shape_threshold,
+                                ):
+    parameters_c3d = histoMax_C3d_clustering_params.clone()
+    set_histomax_clustering_params(parameters_c3d, distance, shape_threshold)
+    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters = parameters_c3d
     return process
 
 
-def custom_3dclustering_histoSecondaryMax(process,
-                                          distance=histoSecondaryMax_C3d_params.dR_multicluster,
-                                          threshold=histoSecondaryMax_C3d_params.threshold_histo_multicluster,
-                                          nBins_X1=histoSecondaryMax_C3d_params.nBins_X1_histo_multicluster,
-                                          nBins_X2=histoSecondaryMax_C3d_params.nBins_X2_histo_multicluster,
-                                          binSumsHisto=histoSecondaryMax_C3d_params.binSumsHisto,
-                                          shape_threshold=histoSecondaryMax_C3d_params.shape_threshold,
-                                          ):
-    parameters_c3d = histoSecondaryMax_C3d_params.clone()
-    set_histomax_params(parameters_c3d, distance, nBins_X1, nBins_X2, binSumsHisto,
-                        threshold, shape_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
-    return process
-
-
-def custom_3dclustering_histoMax_variableDr(process,
-                                            distances=histoMaxVariableDR_C3d_params.dR_multicluster_byLayer_coefficientA,
-                                            nBins_X1=histoMaxVariableDR_C3d_params.nBins_X1_histo_multicluster,
-                                            nBins_X2=histoMaxVariableDR_C3d_params.nBins_X2_histo_multicluster,
-                                            binSumsHisto=histoMaxVariableDR_C3d_params.binSumsHisto,
-                                            seed_threshold=histoMaxVariableDR_C3d_params.threshold_histo_multicluster,
-                                            seed_position=histoMaxVariableDR_C3d_params.seed_position,
+def custom_3dclustering_variableDr(process, distances=histoMaxVariableDR_C3d_params.dR_multicluster_byLayer_coefficientA,
                                             shape_threshold=histoMaxVariableDR_C3d_params.shape_threshold,
                                             ):
     parameters_c3d = histoMaxVariableDR_C3d_params.clone(
             dR_multicluster_byLayer_coefficientA = cms.vdouble(distances)
             )
-    set_histomax_params(parameters_c3d, 0, nBins_X1, nBins_X2, binSumsHisto,
-                        seed_threshold, shape_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
-    return process
-
-def custom_3dclustering_XYHistoMax_variableDr(process,
-                                            distances=histoMaxXYVariableDR_C3d_params.dR_multicluster_byLayer_coefficientA,
-                                            nBins_X1=histoMaxXYVariableDR_C3d_params.nBins_X1_histo_multicluster,
-                                            nBins_X2=histoMaxXYVariableDR_C3d_params.nBins_X2_histo_multicluster,
-                                            seed_threshold=histoMaxXYVariableDR_C3d_params.threshold_histo_multicluster,
-                                            seed_position=histoMaxXYVariableDR_C3d_params.seed_position,
-                                            shape_threshold=histoMaxXYVariableDR_C3d_params.shape_threshold,
-                                            ):
-    parameters_c3d = histoMaxXYVariableDR_C3d_params.clone(
-            dR_multicluster_byLayer_coefficientA = cms.vdouble(distances)
-            )
-    set_histomax_params(parameters_c3d, 0, nBins_X1, nBins_X2,
-            histoMaxXYVariableDR_C3d_params.binSumsHisto,
-            seed_threshold, shape_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
-    return process
-
-
-def custom_3dclustering_histoInterpolatedMax1stOrder(process,
-                                                     distance=histoInterpolatedMax_C3d_params.dR_multicluster,
-                                                     nBins_X1=histoInterpolatedMax_C3d_params.nBins_X1_histo_multicluster,
-                                                     nBins_X2=histoInterpolatedMax_C3d_params.nBins_X2_histo_multicluster,
-                                                     binSumsHisto=histoInterpolatedMax_C3d_params.binSumsHisto,
-                                                     seed_threshold=histoInterpolatedMax_C3d_params.threshold_histo_multicluster,
-                                                     shape_threshold=histoInterpolatedMax_C3d_params.shape_threshold,
-                                                     ):
-    parameters_c3d = histoInterpolatedMax_C3d_params.clone(
-            neighbour_weights = neighbour_weights_1stOrder
-            )
-    set_histomax_params(parameters_c3d, distance, nBins_X1, nBins_X2, binSumsHisto,
-                        seed_threshold, shape_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
-    return process
-
-
-def custom_3dclustering_histoInterpolatedMax2ndOrder(process,
-                                                     distance=histoInterpolatedMax_C3d_params.dR_multicluster,
-                                                     nBins_X1=histoInterpolatedMax_C3d_params.nBins_X1_histo_multicluster,
-                                                     nBins_X2=histoInterpolatedMax_C3d_params.nBins_X2_histo_multicluster,
-                                                     binSumsHisto=histoInterpolatedMax_C3d_params.binSumsHisto,
-                                                     seed_threshold=histoInterpolatedMax_C3d_params.threshold_histo_multicluster,
-                                                     shape_threshold=histoInterpolatedMax_C3d_params.shape_threshold,
-                                                     ):
-    parameters_c3d = histoInterpolatedMax_C3d_params.clone(
-            neighbour_weights = neighbour_weights_2ndOrder
-            )
-    set_histomax_params(parameters_c3d, distance, nBins_X1, nBins_X2, binSumsHisto,
-                        seed_threshold, shape_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
-    return process
-
-
-def custom_3dclustering_histoThreshold(process,
-                                       distance=histoThreshold_C3d_params.dR_multicluster,
-                                       nBins_X1=histoThreshold_C3d_params.nBins_X1_histo_multicluster,
-                                       nBins_X2=histoThreshold_C3d_params.nBins_X2_histo_multicluster,
-                                       binSumsHisto=histoThreshold_C3d_params.binSumsHisto,
-                                       seed_threshold=histoThreshold_C3d_params.threshold_histo_multicluster,
-                                       shape_threshold=histoThreshold_C3d_params.shape_threshold,
-                                       ):
-    parameters_c3d = histoThreshold_C3d_params.clone()
-    set_histomax_params(parameters_c3d, distance, nBins_X1, nBins_X2, binSumsHisto,
-                        seed_threshold, shape_threshold)
-    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters = parameters_c3d
+    set_histomax_clustering_params(parameters_c3d, 0, shape_threshold)
+    process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters = parameters_c3d
     return process
 
 
 def custom_3dclustering_clusteringRadiusLayerbyLayerVariableEta(process,
                                                                 distance_coefficientA=dr_layerbylayer,
                                                                 distance_coefficientB=dr_layerbylayer_Bcoefficient):
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters
     parameters_c3d.dR_multicluster_byLayer_coefficientA = distance_coefficientA
     parameters_c3d.dR_multicluster_byLayer_coefficientB = distance_coefficientB
     return process
@@ -223,14 +122,14 @@ def custom_3dclustering_clusteringRadiusLayerbyLayerVariableEta(process,
 
 def custom_3dclustering_clusteringRadiusLayerbyLayerFixedEta(process,
                                                              distance_coefficientA=dr_layerbylayer):
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters
     parameters_c3d.dR_multicluster_byLayer_coefficientA = distance_coefficientA
     parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [0]*(MAX_LAYERS+1) )
     return process
 
 def custom_3dclustering_clusteringRadiusNoLayerDependenceFixedEta(process,
                                                                   distance_coefficientA=0.03):
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters
     parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble( [distance_coefficientA]*(MAX_LAYERS+1) )
     parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [0]*(MAX_LAYERS+1) )
     return process
@@ -238,20 +137,20 @@ def custom_3dclustering_clusteringRadiusNoLayerDependenceFixedEta(process,
 def custom_3dclustering_clusteringRadiusNoLayerDependenceVariableEta(process,
                                                                      distance_coefficientA=0.03,
                                                                      distance_coefficientB=0.02):
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters
     parameters_c3d.dR_multicluster_byLayer_coefficientA = cms.vdouble( [distance_coefficientA]*(MAX_LAYERS+1) )
     parameters_c3d.dR_multicluster_byLayer_coefficientB = cms.vdouble( [distance_coefficientB]*(MAX_LAYERS+1) )
     return process
 
 
 def custom_3dclustering_nearestNeighbourAssociation(process):
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters
     parameters_c3d.cluster_association = cms.string('NearestNeighbour')
 
     return process
 
 def custom_3dclustering_EnergySplitAssociation(process):
 
-    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters.histoMax_C3d_clustering_parameters
     parameters_c3d.cluster_association = cms.string('EnergySplit')
     return process
