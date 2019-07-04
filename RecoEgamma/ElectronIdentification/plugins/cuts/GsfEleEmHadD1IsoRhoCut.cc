@@ -1,8 +1,7 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "RecoEgamma/EgammaTools/interface/EleEnergyRetriever.h"
-
-#include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
+#include "RecoEgamma/EgammaTools/interface/EBEECutValues.h"
 
 class GsfEleEmHadD1IsoRhoCut : public CutApplicatorWithEventContentBase {
 public:

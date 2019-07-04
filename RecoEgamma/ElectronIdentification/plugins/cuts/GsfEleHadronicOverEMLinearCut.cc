@@ -1,6 +1,7 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
+#include "RecoEgamma/EgammaTools/interface/EBEECutValues.h"
+
 class GsfEleHadronicOverEMLinearCut : public CutApplicatorBase {
 public:
   GsfEleHadronicOverEMLinearCut(const edm::ParameterSet& params)

@@ -1,7 +1,7 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "RecoEgamma/ElectronIdentification/interface/EBEECutValues.h"
+#include "RecoEgamma/EgammaTools/interface/EBEECutValues.h"
 
 class GsfEleFull5x5SigmaIEtaIEtaWithSatCut : public CutApplicatorBase {
 public:
