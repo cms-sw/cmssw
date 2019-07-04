@@ -6,6 +6,7 @@
 
 <library name="DD4hep_GeometryEcalCommonDataPlugins" file="dd4hep/*.cc">
   <use name="DetectorDescription/DDCMS"/>
+  <use name="Geometry/EcalCommonData"/>
   <use name="dd4hep"/>
   <lib name="Geom"/>
   <flags DD4HEP_PLUGIN="1"/>

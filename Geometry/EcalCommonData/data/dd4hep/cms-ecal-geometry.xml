@@ -51,7 +51,7 @@
     <Include ref='Geometry/CMSCommonData/data/caloBase/2023/v2/caloBase.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ectkcable.xml'/>
     <Include ref='Geometry/EcalCommonData/data/PhaseII/eregalgo.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/ebalgo.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/ebalgo/2021/v1/ebalgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebcon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebrot.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
