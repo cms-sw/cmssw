@@ -31,10 +31,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <sstream>
-#include <utility>
 #include <vector>
-#include <boost/cstdint.hpp>
 
 class RPCProcessor {
 public:
