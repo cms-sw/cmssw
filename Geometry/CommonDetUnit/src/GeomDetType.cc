@@ -14,6 +14,10 @@ bool GeomDetType::isTrackerStrip() const { return GeomDetEnumerators::isTrackerS
 
 bool GeomDetType::isTrackerPixel() const { return GeomDetEnumerators::isTrackerPixel(theSubDet); }
 
+bool GeomDetType::isInnerTracker() const { return GeomDetEnumerators::isInnerTracker(theSubDet); }
+
+bool GeomDetType::isOuterTracker() const { return GeomDetEnumerators::isOuterTracker(theSubDet); }
+
 bool GeomDetType::isTracker() const { return GeomDetEnumerators::isTracker(theSubDet); }
 
 bool GeomDetType::isDT() const { return GeomDetEnumerators::isDT(theSubDet); }
