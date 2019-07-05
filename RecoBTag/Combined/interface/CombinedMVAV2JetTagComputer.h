@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 class CombinedMVAV2JetTagComputer : public JetTagComputer {

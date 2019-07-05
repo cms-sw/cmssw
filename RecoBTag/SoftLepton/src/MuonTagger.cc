@@ -5,8 +5,6 @@
 #include <limits>
 #include <random>
 
-#include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
