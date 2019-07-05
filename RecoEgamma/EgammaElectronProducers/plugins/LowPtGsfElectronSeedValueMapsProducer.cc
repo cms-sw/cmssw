@@ -76,10 +76,10 @@ void LowPtGsfElectronSeedValueMapsProducer::produce(edm::Event& event, const edm
 //
 void LowPtGsfElectronSeedValueMapsProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("gsfTracks",edm::InputTag("lowPtGsfEleGsfTracks"));
-  desc.add<edm::InputTag>("preIdsValueMap",edm::InputTag("lowPtGsfElectronSeeds"));
-  desc.add< std::vector<std::string> >("ModelNames",{"unbiased", "ptbiased"});
-  descriptions.add("lowPtGsfElectronSeedValueMaps",desc);
+  desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
+  desc.add<edm::InputTag>("preIdsValueMap", edm::InputTag("lowPtGsfElectronSeeds"));
+  desc.add<std::vector<std::string> >("ModelNames", {"unbiased", "ptbiased"});
+  descriptions.add("lowPtGsfElectronSeedValueMaps", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

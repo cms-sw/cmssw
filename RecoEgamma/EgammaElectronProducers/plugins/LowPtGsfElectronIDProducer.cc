@@ -132,8 +132,7 @@ namespace {
 
 }  // namespace
 
-class LowPtGsfElectronIDProducer final
-    : public edm::global::EDProducer<> {
+class LowPtGsfElectronIDProducer final : public edm::global::EDProducer<> {
 public:
   explicit LowPtGsfElectronIDProducer(const edm::ParameterSet&);
 
@@ -164,18 +163,17 @@ LowPtGsfElectronIDProducer::LowPtGsfElectronIDProducer(const edm::ParameterSet& 
       minPtThreshold_(conf.getParameter<double>("MinPtThreshold")),
       maxPtThreshold_(conf.getParameter<double>("MaxPtThreshold")),
       thresholds_(conf.getParameter<std::vector<double> >("ModelThresholds")) {
-    for (auto& weights : conf.getParameter<std::vector<std::string> >("ModelWeights")) {
-      models_.push_back(createGBRForest(edm::FileInPath(weights)));
-    }
-    if (names_.size() != models_.size()) {
-      throw cms::Exception("Incorrect configuration")
-          << "'ModelNames' size (" << names_.size() << ") != 'ModelWeights' size (" << models_.size() << ").\n";
-    }
-    if (models_.size() != thresholds_.size()) {
-      throw cms::Exception("Incorrect configuration")
-          << "'ModelWeights' size (" << models_.size() << ") != 'ModelThresholds' size (" << thresholds_.size()
-          << ").\n";
-    }
+  for (auto& weights : conf.getParameter<std::vector<std::string> >("ModelWeights")) {
+    models_.push_back(createGBRForest(edm::FileInPath(weights)));
+  }
+  if (names_.size() != models_.size()) {
+    throw cms::Exception("Incorrect configuration")
+        << "'ModelNames' size (" << names_.size() << ") != 'ModelWeights' size (" << models_.size() << ").\n";
+  }
+  if (models_.size() != thresholds_.size()) {
+    throw cms::Exception("Incorrect configuration")
+        << "'ModelWeights' size (" << models_.size() << ") != 'ModelThresholds' size (" << thresholds_.size() << ").\n";
+  }
   for (const auto& name : names_) {
     produces<edm::ValueMap<float> >(name);
   }
@@ -229,8 +227,7 @@ double LowPtGsfElectronIDProducer::eval(const std::string& name, const reco::Gsf
     std::vector<float> inputs = getFeatures(ele, rho);
     return models_.at(index)->GetResponse(inputs.data());
   } else {
-    throw cms::Exception("Unknown model name")
-        << "'Name given: '" << name << "'. Check against configuration file.\n";
+    throw cms::Exception("Unknown model name") << "'Name given: '" << name << "'. Check against configuration file.\n";
   }
   return 0.;
 }
@@ -239,15 +236,17 @@ double LowPtGsfElectronIDProducer::eval(const std::string& name, const reco::Gsf
 //
 void LowPtGsfElectronIDProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("electrons",edm::InputTag("lowPtGsfElectrons"));
-  desc.add<edm::InputTag>("rho",edm::InputTag("fixedGridRhoFastjetAllTmp"));
-  desc.add< std::vector<std::string> >("ModelNames",{""});
-  desc.add< std::vector<std::string> >("ModelWeights",{"RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Autumn18_LowPtElectrons_mva_id.xml.gz"});
-  desc.add< std::vector<double> >("ModelThresholds",{-10.});
-  desc.add<bool>("PassThrough",false);
-  desc.add<double>("MinPtThreshold",0.5);
-  desc.add<double>("MaxPtThreshold",15.);
-  descriptions.add("lowPtGsfElectronID",desc);
+  desc.add<edm::InputTag>("electrons", edm::InputTag("lowPtGsfElectrons"));
+  desc.add<edm::InputTag>("rho", edm::InputTag("fixedGridRhoFastjetAllTmp"));
+  desc.add<std::vector<std::string> >("ModelNames", {""});
+  desc.add<std::vector<std::string> >(
+      "ModelWeights",
+      {"RecoEgamma/ElectronIdentification/data/LowPtElectrons/RunII_Autumn18_LowPtElectrons_mva_id.xml.gz"});
+  desc.add<std::vector<double> >("ModelThresholds", {-10.});
+  desc.add<bool>("PassThrough", false);
+  desc.add<double>("MinPtThreshold", 0.5);
+  desc.add<double>("MaxPtThreshold", 15.);
+  descriptions.add("lowPtGsfElectronID", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
