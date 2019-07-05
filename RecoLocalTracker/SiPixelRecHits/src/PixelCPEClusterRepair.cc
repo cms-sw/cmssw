@@ -123,10 +123,10 @@ void PixelCPEClusterRepair::fill2DTemplIDs() {
         << "Subdetector " << i << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i] << " offset "
         << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) << " is it strip? "
         << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size()
-                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()
+                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()
                 : false);
     if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() &&
-        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()) {
       if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors)
         m_detectors = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
     }
