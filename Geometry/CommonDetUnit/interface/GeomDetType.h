@@ -25,6 +25,8 @@ public:
 
   bool isTrackerStrip() const;
   bool isTrackerPixel() const;
+  bool isInnerTracker() const;
+  bool isOuterTracker() const;
   bool isTracker() const;
   bool isDT() const;
   bool isCSC() const;

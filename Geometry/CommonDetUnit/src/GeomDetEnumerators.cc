@@ -70,6 +70,15 @@ bool GeomDetEnumerators::isTrackerPixel(const GeomDetEnumerators::SubDetector su
           subdet == P2PXEC || subdet == P2OTB || subdet == P2OTEC);
 }
 
+bool GeomDetEnumerators::isInnerTracker(const GeomDetEnumerators::SubDetector subdet) {
+  return (subdet == PixelBarrel || subdet == PixelEndcap || subdet == P1PXB || subdet == P1PXEC || subdet == P2PXB ||
+          subdet == P2PXEC);
+}
+
+bool GeomDetEnumerators::isOuterTracker(const GeomDetEnumerators::SubDetector subdet) {
+  return (subdet == TIB || subdet == TOB || subdet == TID || subdet == TEC || subdet == P2OTB || subdet == P2OTEC);
+}
+
 bool GeomDetEnumerators::isTracker(const GeomDetEnumerators::SubDetector subdet) {
   return (isTrackerStrip(subdet) || isTrackerPixel(subdet));
 }
