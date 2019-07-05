@@ -12,7 +12,6 @@
 
 #include "G4PVPlacement.hh"
 #include "G4RunManagerKernel.hh"
-#include "G4TransportationManager.hh"
 
 using namespace edm;
 using namespace dd4hep;
@@ -51,22 +50,10 @@ DDDWorld::~DDDWorld() {}
 
 void DDDWorld::SetAsWorld(G4VPhysicalVolume *pv) {
   G4RunManagerKernel *kernel = G4RunManagerKernel::GetRunManagerKernel();
-  if (kernel)
-    kernel->DefineWorldVolume(pv);
-  else
-    edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
-  edm::LogInfo("SimG4CoreGeometry") << " World volume defined ";
-}
-
-void DDDWorld::WorkerSetAsWorld(G4VPhysicalVolume *pv) {
-  G4RunManagerKernel *kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (kernel) {
-    kernel->WorkerDefineWorldVolume(pv);
-    // The following does not get done in WorkerDefineWorldVolume()
-    // because we don't use G4MTRunManager
-    G4TransportationManager *transM = G4TransportationManager::GetTransportationManager();
-    transM->SetWorldForTracking(pv);
-  } else
+    kernel->DefineWorldVolume(m_world);
+  } else {
     edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
-  edm::LogInfo("SimG4CoreGeometry") << " World volume defined (for worker) ";
+  }
+  edm::LogVerbatim("SimG4CoreGeometry") << " World volume defined " << pv->GetName();
 }
