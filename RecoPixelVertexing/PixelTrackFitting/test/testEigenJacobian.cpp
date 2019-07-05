@@ -85,7 +85,7 @@ int main() {
 
   // Matrix5d covf = transfFast(cov0,par0);
 
-  Rfit::transformToPerigeePlane(par0,cov0,par1,cov1,charge);
+  Rfit::transformToPerigeePlane(par0,cov0,par1,cov1);
 
   std::cout << "cov1\n" << cov1 << std::endl;
 

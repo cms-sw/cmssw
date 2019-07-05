@@ -18,8 +18,3 @@ pixelVertices = cms.EDProducer("PixelVertexProducer",
        refToPSet_ = cms.string('pvClusterComparer')
     )
 )
-
-
-from Configuration.ProcessModifiers.gpu_cff import gpu
-from RecoPixelVertexing.PixelVertexFinding.pixelVertexHeterogeneousProducer_cfi import pixelVertexHeterogeneousProducer as _pixelVertexHeterogeneousProducer
-gpu.toReplaceWith(pixelVertices, _pixelVertexHeterogeneousProducer)

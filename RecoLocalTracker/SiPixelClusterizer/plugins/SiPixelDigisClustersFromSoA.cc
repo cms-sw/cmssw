@@ -109,8 +109,10 @@ void SiPixelDigisClustersFromSoA::produce(edm::StreamID, edm::Event& iEvent, con
     auto clusterThreshold = (layer == 1) ? 2000 : 4000;
     for (int32_t ic = 0; ic < nclus + 1; ++ic) {
       auto const& acluster = aclusters[ic];
+      // in any case we cannot  go out of sync with gpu...
       if (acluster.charge < clusterThreshold)
-        continue;
+        edm::LogWarning("SiPixelDigisClustersFromSoA") << "cluster below charge Threshold "
+             << "Layer/DetId/clusId " << layer<<'/'<<detId<<'/'<<ic << " size/charge " << acluster.isize<<'/'<<acluster.charge; 
       SiPixelCluster cluster(acluster.isize, acluster.adc, acluster.x, acluster.y, acluster.xmin, acluster.ymin);
       cluster.setOriginalId(ic);
       ++totCluseFilled;

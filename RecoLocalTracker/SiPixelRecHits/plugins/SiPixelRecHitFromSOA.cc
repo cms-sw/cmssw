@@ -20,6 +20,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "HeterogeneousCore/CUDACore/interface/CUDAScopedContext.h"
 #include "HeterogeneousCore/CUDACore/interface/GPUCuda.h"
+#include "CUDADataFormats/Common/interface/ArrayShadow.h"
 
 class SiPixelRecHitFromSOA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -27,6 +28,9 @@ public:
   ~SiPixelRecHitFromSOA() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  using HitModuleStart = std::array<uint32_t,gpuClustering::MaxNumModules + 1>;
+  using HMSstorage = ArrayShadow<HitModuleStart>;
 
 private:
   void acquire(edm::Event const& iEvent,
@@ -47,6 +51,7 @@ SiPixelRecHitFromSOA::SiPixelRecHitFromSOA(const edm::ParameterSet& iConfig)
     : tokenHit_(consumes<CUDAProduct<TrackingRecHit2DCUDA>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))) {
   produces<SiPixelRecHitCollectionNew>();
+  produces<HMSstorage>();
 }
 
 void SiPixelRecHitFromSOA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -75,6 +80,10 @@ void SiPixelRecHitFromSOA::acquire(edm::Event const& iEvent,
 }
 
 void SiPixelRecHitFromSOA::produce(edm::Event& iEvent, edm::EventSetup const& es) {
+  auto hml = std::make_unique< HMSstorage>();
+  std::copy(m_hitsModuleStart.get(),m_hitsModuleStart.get()+hml->size(), hml->data);
+  iEvent.put(std::move(hml));
+
   auto output = std::make_unique<SiPixelRecHitCollectionNew>();
   if (0 == m_nHits) {
     iEvent.put(std::move(output));

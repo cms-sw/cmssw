@@ -17,12 +17,13 @@
 #include "HelixFitOnGPU.h"
 
 using HitsOnGPU = TrackingRecHit2DSOAView;
-using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
+using Tuples = pixelTrack::HitContainer;
+using OutputSoA = pixelTrack::TrackSoA;
 
 using namespace Eigen;
 
 template <int N>
-__global__ void kernelFastFit(TuplesOnGPU::Container const *__restrict__ foundNtuplets,
+__global__ void kernelFastFit(Tuples const *__restrict__ foundNtuplets,
                               CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
                               uint32_t nHits,
                               HitsOnGPU const *__restrict__ hhp,
@@ -51,17 +52,17 @@ __global__ void kernelFastFit(TuplesOnGPU::Container const *__restrict__ foundNt
     return;
 
   // get it from the ntuple container (one to one to helix)
-  auto helix_start = *(tupleMultiplicity->begin(nHits) + tuple_start);
-  assert(helix_start < foundNtuplets->nbins());
+  auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_start);
+  assert(tkid < foundNtuplets->nbins());
 
-  assert(foundNtuplets->size(helix_start) == nHits);
+  assert(foundNtuplets->size(tkid) == nHits);
 
   Rfit::Map3xNd<N> hits(phits + local_start);
   Rfit::Map4d fast_fit(pfast_fit + local_start);
   Rfit::Map6xNf<N> hits_ge(phits_ge + local_start);
 
   // Prepare data structure
-  auto const *hitId = foundNtuplets->begin(helix_start);
+  auto const *hitId = foundNtuplets->begin(tkid);
   for (unsigned int i = 0; i < hitsInFit; ++i) {
     auto hit = hitId[i];
     // printf("Hit global: %f,%f,%f\n", hhp->xg_d[hit],hhp->yg_d[hit],hhp->zg_d[hit]);
@@ -102,7 +103,7 @@ __global__ void kernelCircleFit(CAConstants::TupleMultiplicity const *__restrict
     return;
 
   // get it for the ntuple container (one to one to helix)
-  auto helix_start = *(tupleMultiplicity->begin(nHits) + tuple_start);
+  auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_start);
 
   Rfit::Map3xNd<N> hits(phits + local_start);
   Rfit::Map4d fast_fit(pfast_fit_input + local_start);
@@ -116,7 +117,7 @@ __global__ void kernelCircleFit(CAConstants::TupleMultiplicity const *__restrict
   circle_fit[local_start] = Rfit::Circle_fit(hits.block(0, 0, 2, N), hits_cov, fast_fit, rad, B, true);
 
 #ifdef RIEMANN_DEBUG
-//  printf("kernelCircleFit circle.par(0,1,2): %d %f,%f,%f\n", helix_start,
+//  printf("kernelCircleFit circle.par(0,1,2): %d %f,%f,%f\n", tkid,
 //         circle_fit[local_start].par(0), circle_fit[local_start].par(1), circle_fit[local_start].par(2));
 #endif
 }
@@ -125,7 +126,7 @@ template <int N>
 __global__ void kernelLineFit(CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
                               uint32_t nHits,
                               double B,
-                              Rfit::helix_fit *results,
+                              OutputSoA *results,
                               double *__restrict__ phits,
                               float *__restrict__ phits_ge,
                               double *__restrict__ pfast_fit_input,
@@ -144,7 +145,7 @@ __global__ void kernelLineFit(CAConstants::TupleMultiplicity const *__restrict__
     return;
 
   // get it for the ntuple container (one to one to helix)
-  auto helix_start = *(tupleMultiplicity->begin(nHits) + tuple_start);
+  auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_start);
 
   Rfit::Map3xNd<N> hits(phits + local_start);
   Rfit::Map4d fast_fit(pfast_fit_input + local_start);
@@ -152,39 +153,31 @@ __global__ void kernelLineFit(CAConstants::TupleMultiplicity const *__restrict__
 
   auto const &line_fit = Rfit::Line_fit(hits, hits_ge, circle_fit[local_start], fast_fit, B, true);
 
-  par_uvrtopak(circle_fit[local_start], B, true);
+  Rfit::fromCircleToPerigee(circle_fit[local_start]);
 
-  // Grab helix_fit from the proper location in the output vector
-  auto &helix = results[helix_start];
-  helix.par << circle_fit[local_start].par, line_fit.par;
-
-  // TODO: pass properly error booleans
-
-  helix.cov = Rfit::Matrix5d::Zero();
-  helix.cov.block(0, 0, 3, 3) = circle_fit[local_start].cov;
-  helix.cov.block(3, 3, 2, 2) = line_fit.cov;
-
-  helix.q = circle_fit[local_start].q;
-  helix.chi2_circle = circle_fit[local_start].chi2;
-  helix.chi2_line = line_fit.chi2;
+  results->stateAtBS.copyFromCircle(circle_fit[local_start].par,circle_fit[local_start].cov,
+                                   line_fit.par,line_fit.cov,1.f/float(B),tkid);
+  results->pt(tkid) =  B/std::abs(circle_fit[local_start].par(2));
+  results->eta(tkid) =  asinhf(line_fit.par(0));
+  results->chi2(tkid) = (circle_fit[local_start].chi2+line_fit.chi2)/(2*N-5);
 
 #ifdef RIEMANN_DEBUG
   printf("kernelLineFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n",
          N,
          nHits,
-         helix_start,
+         tkid,
          circle_fit[local_start].par(0),
          circle_fit[local_start].par(1),
          circle_fit[local_start].par(2));
-  printf("kernelLineFit line.par(0,1): %d %f,%f\n", helix_start, line_fit.par(0), line_fit.par(1));
+  printf("kernelLineFit line.par(0,1): %d %f,%f\n", tkid, line_fit.par(0), line_fit.par(1));
   printf("kernelLineFit chi2 cov %f/%f %e,%e,%e,%e,%e\n",
-         helix.chi2_circle,
-         helix.chi2_line,
-         helix.cov(0, 0),
-         helix.cov(1, 1),
-         helix.cov(2, 2),
-         helix.cov(3, 3),
-         helix.cov(4, 4));
+         circle_fit[local_start].chi2,
+         line_fit.chi2,
+         circle_fit[local_start].cov(0, 0),
+         circle_fit[local_start].cov(1, 1),
+         circle_fit[local_start].cov(2, 2),
+         line_fit.cov(0, 0),
+         line_fit.cov(1, 1));
 #endif
 }
 
@@ -234,7 +227,7 @@ void HelixFitOnGPU::launchRiemannKernels(HitsOnCPU const &hh,
     kernelLineFit<3><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                     3,
                                                                     bField_,
-                                                                    helix_fit_results_d,
+                                                                    outputSoa_d,
                                                                     hitsGPU_.get(),
                                                                     hits_geGPU_.get(),
                                                                     fast_fit_resultsGPU_.get(),
@@ -266,7 +259,7 @@ void HelixFitOnGPU::launchRiemannKernels(HitsOnCPU const &hh,
     kernelLineFit<4><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                     4,
                                                                     bField_,
-                                                                    helix_fit_results_d,
+                                                                    outputSoa_d,
                                                                     hitsGPU_.get(),
                                                                     hits_geGPU_.get(),
                                                                     fast_fit_resultsGPU_.get(),
@@ -299,7 +292,7 @@ void HelixFitOnGPU::launchRiemannKernels(HitsOnCPU const &hh,
       kernelLineFit<4><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                       5,
                                                                       bField_,
-                                                                      helix_fit_results_d,
+                                                                      outputSoa_d,
                                                                       hitsGPU_.get(),
                                                                       hits_geGPU_.get(),
                                                                       fast_fit_resultsGPU_.get(),
@@ -331,7 +324,7 @@ void HelixFitOnGPU::launchRiemannKernels(HitsOnCPU const &hh,
       kernelLineFit<5><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                       5,
                                                                       bField_,
-                                                                      helix_fit_results_d,
+                                                                      outputSoa_d,
                                                                       hitsGPU_.get(),
                                                                       hits_geGPU_.get(),
                                                                       fast_fit_resultsGPU_.get(),

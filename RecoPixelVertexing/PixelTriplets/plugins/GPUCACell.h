@@ -15,7 +15,8 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/GPUVecArray.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/CircleEq.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
+#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CAConstants.h"
 
 class GPUCACell {
 public:
@@ -33,10 +34,9 @@ public:
 
   using TmpTuple = GPU::VecArray<uint32_t, 6>;
 
-  using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
-
-  using Quality = pixelTuplesHeterogeneousProduct::Quality;
-  static constexpr auto bad = pixelTuplesHeterogeneousProduct::bad;
+  using HitContainer = pixelTrack::HitContainer;
+  using Quality = trackQuality::Quality;
+  static constexpr auto bad = trackQuality::bad;
 
   GPUCACell() = default;
 #ifdef __CUDACC__
@@ -249,7 +249,7 @@ public:
   __device__ inline void find_ntuplets(Hits const& hh,
                                        GPUCACell* __restrict__ cells,
                                        CellTracksVector& cellTracks,
-                                       TuplesOnGPU::Container& foundNtuplets,
+                                       HitContainer & foundNtuplets,
                                        AtomicPairCounter& apc,
                                        Quality* __restrict__ quality,
                                        TmpTuple& tmpNtuplet,

@@ -5,6 +5,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 #include <cuda/api_wrappers.h>
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
 class SiPixelDigisCUDA {
 public:
@@ -56,19 +57,17 @@ public:
 
   class DeviceConstView {
   public:
-    DeviceConstView() = default;
+    // DeviceConstView() = default;
 
-#ifdef __CUDACC__
     __device__ __forceinline__ uint16_t xx(int i) const { return __ldg(xx_+i); }
     __device__ __forceinline__ uint16_t yy(int i) const { return __ldg(yy_+i); }
     __device__ __forceinline__ uint16_t adc(int i) const { return __ldg(adc_+i); }
     __device__ __forceinline__ uint16_t moduleInd(int i) const { return __ldg(moduleInd_+i); }
     __device__ __forceinline__ int32_t  clus(int i) const { return __ldg(clus_+i); }
-#endif
 
     friend class SiPixelDigisCUDA;
 
-  private:
+  // private:
     uint16_t const *xx_;
     uint16_t const *yy_;
     uint16_t const *adc_;

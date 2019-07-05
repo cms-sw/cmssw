@@ -18,7 +18,8 @@ namespace gpuPixelRecHits {
                           SiPixelDigisCUDA::DeviceConstView const * __restrict__ pdigis,
                           int numElements,
                           SiPixelClustersCUDA::DeviceConstView const * __restrict__ pclusters,
-                          TrackingRecHit2DSOAView* phits) {
+                          TrackingRecHit2DSOAView* phits
+                         ){
 
     // FIXME
     // the compiler seems NOT to optimize loads from views (even in a simple test case)
@@ -83,7 +84,8 @@ namespace gpuPixelRecHits {
         printf("hitbuilder: %d clusters in module %d. will write at %d\n", nclus, me, hitsModuleStart[me]);
 #endif
 
-    assert(blockDim.x >= MaxHitsInModule);
+//      true on gpu only...
+//    assert(blockDim.x >= MaxHitsInModule);
 
     if (threadIdx.x == 0 && nclus > MaxHitsInModule) {
       printf("WARNING: too many clusters %d in Module %d. Only first %d processed\n", nclus, me, MaxHitsInModule);
@@ -95,7 +97,7 @@ namespace gpuPixelRecHits {
     }
     nclus = std::min(nclus, MaxHitsInModule);
 
-    for (int ic = threadIdx.x; ic < nclus; ic += blockDim.x) {
+    for (int ic = threadIdx.x, nc=nclus; ic < nc; ic += blockDim.x) {
       clusParams.minRow[ic] = std::numeric_limits<uint32_t>::max();
       clusParams.maxRow[ic] = 0;
       clusParams.minCol[ic] = std::numeric_limits<uint32_t>::max();
@@ -120,7 +122,7 @@ namespace gpuPixelRecHits {
       if (id != me)
         break;  // end of module
       auto cl = digis.clus(i);
-      if (cl >= nclus)
+      if (cl >= int(nclus))
         continue;
       auto x = digis.xx(i);
       auto y = digis.yy(i);
@@ -139,7 +141,7 @@ namespace gpuPixelRecHits {
       if (id != me)
         break;  // end of module
       auto cl = digis.clus(i);
-      if (cl >= nclus)
+      if (cl >= int(nclus))
         continue;
       auto x = digis.xx(i);
       auto y = digis.yy(i);      
@@ -161,11 +163,14 @@ namespace gpuPixelRecHits {
 
     first = clusters.clusModuleStart(me);
 
-    for (int ic = threadIdx.x; ic < nclus; ic += blockDim.x) {
+    for (int ic = threadIdx.x, nc=nclus; ic < nc; ic += blockDim.x) {
       auto h = first + ic;  // output index in global memory
-
+     
+      // this cannot happen anymore
       if (h >= TrackingRecHit2DSOAView::maxHits())
         break;  // overflow...
+      assert(h<hits.nHits());
+      assert(h<clusters.clusModuleStart(me+1));
 
       pixelCPEforGPU::position(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);
       pixelCPEforGPU::errorFromDB(cpeParams->commonParams(), cpeParams->detParams(me), clusParams, ic);

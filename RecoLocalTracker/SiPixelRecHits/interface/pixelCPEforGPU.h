@@ -53,10 +53,10 @@ namespace pixelCPEforGPU {
   };
 
   struct ParamsOnGPU {
-    CommonParams* m_commonParams;
-    DetParams* m_detParams;
-    LayerGeometry* m_layerGeometry;
-    AverageGeometry * m_averageGeometry;
+    CommonParams const * m_commonParams;
+    DetParams const * m_detParams;
+    LayerGeometry const * m_layerGeometry;
+    AverageGeometry const * m_averageGeometry;
 
     constexpr CommonParams const& __restrict__ commonParams() const {
       CommonParams const* __restrict__ l = m_commonParams;

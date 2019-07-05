@@ -128,6 +128,14 @@ void SiPixelClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 
     // Step D: write output to file
     output->shrink_to_fit();
+
+    // set sequential identifier (this is a const interface, but we need to set it after the sorting)
+    for (auto DSViter = output->begin(); DSViter != output->end(); DSViter++) {
+       uint16_t id=0;
+      for (auto & clust : *DSViter) {
+        const_cast<SiPixelCluster&>(clust).setOriginalId(id++);
+      }
+    } 
     e.put(tPutPixelClusters, std::move(output));
 
   }

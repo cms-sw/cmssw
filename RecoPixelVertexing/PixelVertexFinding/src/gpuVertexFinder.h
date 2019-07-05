@@ -4,30 +4,12 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
-#include "RecoPixelVertexing/PixelVertexFinding/interface/pixelVertexHeterogeneousProduct.h"
+#include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
 
 namespace gpuVertexFinder {
 
-  // SOA for vertices
-  // These vertices are clusterized and fitted only along the beam line (z)
-  // to obtain their global coordinate the beam spot position shall be added (eventually correcting for the beam angle as well)
-  // FIXME move to DataFormats
-  struct ZVertices {
-    static constexpr uint32_t MAXTRACKS = 16000;
-    static constexpr uint32_t MAXVTX = 1024;
-
-    int32_t idv[MAXTRACKS];    // vertex index for each associated (original) track
-    float zv[MAXVTX];          // output z-posistion of found vertices
-    float wv[MAXVTX];          //  output weight (1/error^2) on the above
-    float chi2[MAXVTX];        // vertices chi2
-    float ptv2[MAXVTX];        // vertices pt^2
-    int32_t ndof[MAXVTX];      // vertices number of dof (resued as workspace for the number of nearest neighbours)
-    uint16_t sortInd[MAXVTX];  // sorted index (by pt2)
-    uint32_t nvFinal;          // the number of vertices
-
-    __host__ __device__ void init() { nvFinal = 0; }
-  };
+  using ZVertices = ZVertexSoA;
+  using TkSoA = pixelTrack::TrackSoA;
 
   // workspace used in the vertex reco algos
   struct WorkSpace {
@@ -50,34 +32,17 @@ namespace gpuVertexFinder {
     }
   };
 
-#ifdef __CUDACC__
-  __global__ void init(ZVertices* pdata, WorkSpace* pws) {
+  __global__ void init(ZVertexSoA * pdata, WorkSpace* pws) {
     pdata->init();
     pws->init();
   }
-#endif
-
-  // Data Format on cpu???
-  struct OnCPU {
-    OnCPU() = default;
-
-    std::vector<float, CUDAHostAllocator<float>> z, zerr, chi2;
-    std::vector<int16_t, CUDAHostAllocator<int16_t>> sortInd;
-    std::vector<int32_t, CUDAHostAllocator<int32_t>> ivtx;
-    std::vector<uint16_t, CUDAHostAllocator<uint16_t>> itrk;
-
-    uint32_t nVertices = 0;
-    uint32_t nTracks = 0;
-    ZVertices const* gpu_d = nullptr;
-  };
 
   class Producer {
   public:
-    using TuplesOnCPU = pixelTuplesHeterogeneousProduct::TuplesOnCPU;
-
-    using OnCPU = gpuVertexFinder::OnCPU;
-    using ZVertices = gpuVertexFinder::ZVertices;
+    
+    using ZVertices = ZVertexSoA;
     using WorkSpace = gpuVertexFinder::WorkSpace;
+    using TkSoA = pixelTrack::TrackSoA;
 
     Producer(bool useDensity,
              bool useDBSCAN,
@@ -85,30 +50,22 @@ namespace gpuVertexFinder {
              int iminT,       // min number of neighbours to be "core"
              float ieps,      // max absolute distance to cluster
              float ierrmax,   // max error to be "seed"
-             float ichi2max,  // max normalized distance to cluster
-             bool ienableTransfer)
+             float ichi2max   // max normalized distance to cluster
+             )
         : useDensity_(useDensity),
           useDBSCAN_(useDBSCAN),
           useIterative_(useIterative),
           minT(iminT),
           eps(ieps),
           errmax(ierrmax),
-          chi2max(ichi2max),
-          enableTransfer(ienableTransfer) {}
+          chi2max(ichi2max) {}
 
-    ~Producer() { deallocate(); }
+    ~Producer() = default;
 
-    void produce(cudaStream_t stream, TuplesOnCPU const& tuples, float ptMin);
-
-    OnCPU const& fillResults(cudaStream_t stream);
-
-    void allocate();
-    void deallocate();
+    ZVertexHeterogeneous makeAsync(cuda::stream_t<>& stream, TkSoA const * tksoa, float ptMin) const;
+    ZVertexHeterogeneous make(TkSoA const * tksoa, float ptMin) const;
 
   private:
-    OnCPU gpuProduct;
-    ZVertices* gpu_d = nullptr;
-    WorkSpace* ws_d = nullptr;
 
     const bool useDensity_;
     const bool useDBSCAN_;
@@ -118,7 +75,6 @@ namespace gpuVertexFinder {
     float eps;      // max absolute distance to cluster
     float errmax;   // max error to be "seed"
     float chi2max;  // max normalized distance to cluster
-    const bool enableTransfer;
   };
 
 }  // namespace gpuVertexFinder

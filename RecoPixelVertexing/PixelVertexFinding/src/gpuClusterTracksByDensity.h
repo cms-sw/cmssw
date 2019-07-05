@@ -17,13 +17,15 @@ namespace gpuVertexFinder {
   //
   // based on Rodrighez&Laio algo
   //
-  __global__ void clusterTracksByDensity(ZVertices* pdata,
-                                         WorkSpace* pws,
+  __global__ void clusterTracksByDensity(gpuVertexFinder::ZVertices* pdata,
+                                         gpuVertexFinder::WorkSpace* pws,
                                          int minT,      // min number of neighbours to be "seed"
                                          float eps,     // max absolute distance to cluster
                                          float errmax,  // max error to be "seed"
                                          float chi2max  // max normalized distance to cluster
   ) {
+
+    using namespace gpuVertexFinder;
     constexpr bool verbose = false;  // in principle the compiler should optmize out if false
 
     if (verbose && 0 == threadIdx.x)

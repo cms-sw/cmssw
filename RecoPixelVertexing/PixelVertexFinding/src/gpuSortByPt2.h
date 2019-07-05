@@ -26,8 +26,16 @@ namespace gpuVertexFinder {
     float* __restrict__ ptv2 = data.ptv2;
     uint16_t* __restrict__ sortInd = data.sortInd;
 
+    // if (threadIdx.x == 0)
+    //    printf("sorting %d vertices\n",nvFinal);
+
     if (nvFinal < 1)
       return;
+
+    // fill indexing
+    for (auto i = threadIdx.x; i < nt; i += blockDim.x) {
+      data.idv[ws.itrk[i]] = iv[i];
+    }
 
     // can be done asynchronoisly at the end of previous event
     for (auto i = threadIdx.x; i < nvFinal; i += blockDim.x) {
@@ -56,6 +64,7 @@ namespace gpuVertexFinder {
       sortInd[i] = i;
     std::sort(sortInd, sortInd + nvFinal, [&](auto i, auto j) { return ptv2[i] < ptv2[j]; });
 #endif
+
   }
 
 }  // namespace gpuVertexFinder

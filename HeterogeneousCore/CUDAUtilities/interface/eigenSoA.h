@@ -19,9 +19,12 @@ namespace eigenSoA {
     using Scalar = T;
 
     __host__ __device__ constexpr Scalar& operator()(int32_t i) { return data_[i]; }
-    __host__ __device__ constexpr const Scalar operator()(int32_t i) const { return *__ldg(data_ + i); }
+    __device__ constexpr const Scalar operator()(int32_t i) const { return __ldg(data_ + i); }
     __host__ __device__ constexpr Scalar& operator[](int32_t i) { return data_[i]; }
-    __host__ __device__ constexpr const Scalar operator[](int32_t i) const { return *__ldg(data_ + i); }
+    __device__ constexpr const Scalar operator[](int32_t i) const { return __ldg(data_ + i); }
+
+    __host__ __device__ constexpr Scalar * data() { return data_; }
+    __host__ __device__ constexpr Scalar const * data() const { return data_; }
 
   private:
     Scalar data_[S];
@@ -37,9 +40,9 @@ namespace eigenSoA {
     using CMap = Eigen::Map<const M, 0, Eigen::Stride<M::RowsAtCompileTime * S, S> >;
 
     __host__ __device__ constexpr Map operator()(int32_t i) { return Map(data_ + i); }
-    __host__ __device__ constexpr CMap operator()(int32_t i) const { return CMap(__ldg(data_ + i)); }
+    __host__ __device__ constexpr CMap operator()(int32_t i) const { return CMap(data_ + i); }
     __host__ __device__ constexpr Map operator[](int32_t i) { return Map(data_ + i); }
-    __host__ __device__ constexpr CMap operator[](int32_t i) const { return CMap(__ldg(data_ + i)); }
+    __host__ __device__ constexpr CMap operator[](int32_t i) const { return CMap(data_ + i); }
 
   private:
     Scalar data_[S * M::RowsAtCompileTime * M::ColsAtCompileTime];

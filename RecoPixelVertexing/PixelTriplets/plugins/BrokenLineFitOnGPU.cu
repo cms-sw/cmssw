@@ -17,14 +17,15 @@
 #include "HelixFitOnGPU.h"
 
 using HitsOnGPU = TrackingRecHit2DSOAView;
-using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
+using Tuples = pixelTrack::HitContainer;
+using OutputSoA = pixelTrack::TrackSoA;
 
 using namespace Eigen;
 
 // #define BL_DUMP_HITS
 
 template <int N>
-__global__ void kernelBLFastFit(TuplesOnGPU::Container const *__restrict__ foundNtuplets,
+__global__ void kernelBLFastFit(Tuples const *__restrict__ foundNtuplets,
                                 CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
                                 HitsOnGPU const *__restrict__ hhp,
                                 double *__restrict__ phits,
@@ -55,10 +56,10 @@ __global__ void kernelBLFastFit(TuplesOnGPU::Container const *__restrict__ found
     return;
 
   // get it from the ntuple container (one to one to helix)
-  auto helix_start = *(tupleMultiplicity->begin(nHits) + tuple_start);
-  assert(helix_start < foundNtuplets->nbins());
+  auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_start);
+  assert(tkid < foundNtuplets->nbins());
 
-  assert(foundNtuplets->size(helix_start) == nHits);
+  assert(foundNtuplets->size(tkid) == nHits);
 
   Rfit::Map3xNd<N> hits(phits + local_start);
   Rfit::Map4d fast_fit(pfast_fit + local_start);
@@ -68,11 +69,11 @@ __global__ void kernelBLFastFit(TuplesOnGPU::Container const *__restrict__ found
   __shared__ int done;
   done = 0;
   __syncthreads();
-  bool dump = (foundNtuplets->size(helix_start) == 5 && 0 == atomicAdd(&done, 1));
+  bool dump = (foundNtuplets->size(tkid) == 5 && 0 == atomicAdd(&done, 1));
 #endif
 
   // Prepare data structure
-  auto const *hitId = foundNtuplets->begin(helix_start);
+  auto const *hitId = foundNtuplets->begin(tkid);
   for (unsigned int i = 0; i < hitsInFit; ++i) {
     auto hit = hitId[i];
     float ge[6];
@@ -80,14 +81,14 @@ __global__ void kernelBLFastFit(TuplesOnGPU::Container const *__restrict__ found
 #ifdef BL_DUMP_HITS
     if (dump) {
       printf("Hit global: %d: %d hits.col(%d) << %f,%f,%f\n",
-             helix_start,
+             tkid,
              hhp->detectorIndex(hit),
              i,
              hhp->xGlobal(hit),
              hhp->yGlobal(hit),
              hhp->zGlobal(hit));
       printf("Error: %d: %d  hits_ge.col(%d) << %e,%e,%e,%e,%e,%e\n",
-             helix_start,
+             tkid,
              hhp->detetectorIndex(hit),
              i,
              ge[0],
@@ -113,7 +114,7 @@ __global__ void kernelBLFastFit(TuplesOnGPU::Container const *__restrict__ found
 template <int N>
 __global__ void kernelBLFit(CAConstants::TupleMultiplicity const *__restrict__ tupleMultiplicity,
                             double B,
-                            Rfit::helix_fit *results,
+                            OutputSoA *results,
                             double *__restrict__ phits,
                             float *__restrict__ phits_ge,
                             double *__restrict__ pfast_fit,
@@ -133,7 +134,7 @@ __global__ void kernelBLFit(CAConstants::TupleMultiplicity const *__restrict__ t
     return;
 
   // get it for the ntuple container (one to one to helix)
-  auto helix_start = *(tupleMultiplicity->begin(nHits) + tuple_start);
+  auto tkid = *(tupleMultiplicity->begin(nHits) + tuple_start);
 
   Rfit::Map3xNd<N> hits(phits + local_start);
   Rfit::Map4d fast_fit(pfast_fit + local_start);
@@ -148,41 +149,31 @@ __global__ void kernelBLFit(CAConstants::TupleMultiplicity const *__restrict__ t
   BrokenLine::prepareBrokenLineData(hits, fast_fit, B, data);
   BrokenLine::BL_Line_fit(hits_ge, fast_fit, B, data, line);
   BrokenLine::BL_Circle_fit(hits, hits_ge, fast_fit, B, data, circle);
-  Jacob << 1, 0, 0, 0, 1, 0, 0, 0, -B / std::copysign(Rfit::sqr(circle.par(2)), circle.par(2));
-  circle.par(2) = B / std::abs(circle.par(2));
-  circle.cov = Jacob * circle.cov * Jacob.transpose();
 
-  // Grab helix_fit from the proper location in the output vector
-  auto &helix = results[helix_start];
-  helix.par << circle.par, line.par;
-
-  helix.cov = Rfit::Matrix5d::Zero();
-  helix.cov.block(0, 0, 3, 3) = circle.cov;
-  helix.cov.block(3, 3, 2, 2) = line.cov;
-
-  helix.q = circle.q;
-  helix.chi2_circle = circle.chi2;
-  helix.chi2_line = line.chi2;
+  results->stateAtBS.copyFromCircle(circle.par,circle.cov,line.par,line.cov,1.f/float(B),tkid);
+  results->pt(tkid) =  float(B)/float(std::abs(circle.par(2)));
+  results->eta(tkid) =  asinhf(line.par(0));
+  results->chi2(tkid) = (circle.chi2+line.chi2)/(2*N-5);
 
 #ifdef BROKENLINE_DEBUG
   if (!(circle.chi2 >= 0) || !(line.chi2 >= 0))
-    printf("kernelBLFit failed! %f/%f\n", helix.chi2_circle, helix.chi2_line);
+    printf("kernelBLFit failed! %f/%f\n", circle.chi2, line.chi2);
   printf("kernelBLFit size %d for %d hits circle.par(0,1,2): %d %f,%f,%f\n",
          N,
          nHits,
-         helix_start,
+         tkid,
          circle.par(0),
          circle.par(1),
          circle.par(2));
-  printf("kernelBLHits line.par(0,1): %d %f,%f\n", helix_start, line.par(0), line.par(1));
+  printf("kernelBLHits line.par(0,1): %d %f,%f\n", tkid, line.par(0), line.par(1));
   printf("kernelBLHits chi2 cov %f/%f  %e,%e,%e,%e,%e\n",
-         helix.chi2_circle,
-         helix.chi2_line,
-         helix.cov(0, 0),
-         helix.cov(1, 1),
-         helix.cov(2, 2),
-         helix.cov(3, 3),
-         helix.cov(4, 4));
+         circle.chi2,
+         line.chi2,
+         circle.cov(0, 0),
+         circle.cov(1, 1),
+         circle.cov(2, 2),
+         line.cov(0, 0),
+         line.cov(1, 1));
 #endif
 }
 
@@ -218,7 +209,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsOnCPU const &hh,
 
     kernelBLFit<3><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                   bField_,
-                                                                  helix_fit_results_d,
+                                                                  outputSoa_d,
                                                                   hitsGPU_.get(),
                                                                   hits_geGPU_.get(),
                                                                   fast_fit_resultsGPU_.get(),
@@ -239,7 +230,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsOnCPU const &hh,
 
     kernelBLFit<4><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                   bField_,
-                                                                  helix_fit_results_d,
+                                                                  outputSoa_d,
                                                                   hitsGPU_.get(),
                                                                   hits_geGPU_.get(),
                                                                   fast_fit_resultsGPU_.get(),
@@ -261,7 +252,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsOnCPU const &hh,
 
       kernelBLFit<4><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                     bField_,
-                                                                    helix_fit_results_d,
+                                                                    outputSoa_d,
                                                                     hitsGPU_.get(),
                                                                     hits_geGPU_.get(),
                                                                     fast_fit_resultsGPU_.get(),
@@ -282,7 +273,7 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsOnCPU const &hh,
 
       kernelBLFit<5><<<numberOfBlocks, blockSize, 0, stream.id()>>>(tupleMultiplicity_d,
                                                                     bField_,
-                                                                    helix_fit_results_d,
+                                                                    outputSoa_d,
                                                                     hitsGPU_.get(),
                                                                     hits_geGPU_.get(),
                                                                     fast_fit_resultsGPU_.get(),

@@ -49,6 +49,15 @@ public:
   // the same cudaStream, or after cudaStreamSynchronize.
   const pixelCPEforGPU::ParamsOnGPU *getGPUProductAsync(cuda::stream_t<> &cudaStream) const;
 
+  pixelCPEforGPU::ParamsOnGPU getCPUProduct() const {
+    return pixelCPEforGPU::ParamsOnGPU {
+             &m_commonParamsGPU,
+             m_detParamsGPU.data(),
+             &m_layerGeometry,
+             &m_averageGeometry,
+           };
+  }
+
 private:
   ClusterParam *createClusterParam(const SiPixelCluster &cl) const override;
 
@@ -78,7 +87,9 @@ private:
   //--- DB Error Parametrization object, new light templates
   std::vector<SiPixelGenErrorStore> thePixelGenError_;
 
-  std::vector<pixelCPEforGPU::DetParams, CUDAHostAllocator<pixelCPEforGPU::DetParams>> m_detParamsGPU;
+  // allocate it with posix malloc to be ocmpatible with cpu wf
+  std::vector<pixelCPEforGPU::DetParams> m_detParamsGPU;
+  // std::vector<pixelCPEforGPU::DetParams, CUDAHostAllocator<pixelCPEforGPU::DetParams>> m_detParamsGPU;
   pixelCPEforGPU::CommonParams m_commonParamsGPU;
   pixelCPEforGPU::LayerGeometry m_layerGeometry;
   pixelCPEforGPU::AverageGeometry m_averageGeometry;

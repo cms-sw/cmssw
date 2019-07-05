@@ -32,6 +32,12 @@
 
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 
+// Make heterogeneous framewokr happy....
+#include "CUDADataFormats/Common/interface/ArrayShadow.h"
+using HitModuleStart = std::array<uint32_t,2000 + 1>;
+using HMSstorage = ArrayShadow<HitModuleStart>;
+
+
 using namespace std;
 
 namespace cms
@@ -46,7 +52,8 @@ namespace cms
     tPixelCluster(consumes< edmNew::DetSetVector<SiPixelCluster> >( src_)) {
     //--- Declare to the EDM what kind of collections we will be making.
     produces<SiPixelRecHitCollection>();
-    
+    produces<HMSstorage>();
+
   }
   
   // Destructor

@@ -27,12 +27,12 @@ namespace cudautils {
                                   T const *__restrict__ v,
                                   uint32_t const *__restrict__ offsets) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int i = first; i < offsets[nh]; i += gridDim.x * blockDim.x) {
+    for (int i = first, nt = offsets[nh]; i<nt; i += gridDim.x * blockDim.x) {
       auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
       assert((*off) > 0);
       int32_t ih = off - offsets - 1;
       assert(ih >= 0);
-      assert(ih < nh);
+      assert(ih < int(nh));
       (*h).count(v[i], ih);
     }
   }
@@ -43,18 +43,18 @@ namespace cudautils {
                                  T const *__restrict__ v,
                                  uint32_t const *__restrict__ offsets) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
-    for (int i = first; i < offsets[nh]; i += gridDim.x * blockDim.x) {
+    for (int i = first, nt = offsets[nh]; i<nt; i += gridDim.x * blockDim.x) {
       auto off = cuda_std::upper_bound(offsets, offsets + nh + 1, i);
       assert((*off) > 0);
       int32_t ih = off - offsets - 1;
       assert(ih >= 0);
-      assert(ih < nh);
+      assert(ih < int(nh));
       (*h).fill(v[i], i, ih);
     }
   }
 
   template <typename Histo>
-  void launchZero(Histo *__restrict__ h,
+  inline void launchZero(Histo *__restrict__ h,
                   cudaStream_t stream
 #ifndef __CUDACC__
                   = 0
@@ -69,7 +69,7 @@ namespace cudautils {
   }
 
   template <typename Histo>
-  void launchFinalize(Histo *__restrict__ h,
+  inline void launchFinalize(Histo *__restrict__ h,
                       uint8_t *__restrict__ ws
 #ifndef __CUDACC__
                       = nullptr
@@ -92,7 +92,7 @@ namespace cudautils {
   }
 
   template <typename Histo, typename T>
-  void fillManyFromVector(Histo *__restrict__ h,
+  inline void fillManyFromVector(Histo *__restrict__ h,
                           uint8_t *__restrict__ ws,
                           uint32_t nh,
                           T const *__restrict__ v,
@@ -158,11 +158,7 @@ template <typename T,                  // the type of the discretized input valu
           >
 class HistoContainer {
 public:
-#ifdef __CUDACC__
   using Counter = uint32_t;
-#else
-  using Counter = std::atomic<uint32_t>;
-#endif
 
   using CountersOnly = HistoContainer<T, NBINS, 0, S, I, NHISTS>;
 
@@ -219,7 +215,8 @@ public:
 #ifdef __CUDA_ARCH__
       atomicAdd(off + i, co.off[i]);
 #else
-      off[i] += co.off[i];
+      auto & a = (std::atomic<Counter>&)(off[i]);
+      a += co.off[i];
 #endif
     }
   }
@@ -228,7 +225,8 @@ public:
 #ifdef __CUDA_ARCH__
     return atomicAdd(&x, 1);
 #else
-    return x++;
+    auto & a = (std::atomic<Counter>&)(x);
+    return a++;
 #endif
   }
 
@@ -236,7 +234,8 @@ public:
 #ifdef __CUDA_ARCH__
     return atomicSub(&x, 1);
 #else
-    return x--;
+    auto & a = (std::atomic<Counter>&)(x);
+    return a--;
 #endif
   }
 
