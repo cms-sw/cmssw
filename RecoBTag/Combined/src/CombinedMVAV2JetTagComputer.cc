@@ -12,9 +12,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoBTag/Combined/interface/CombinedMVAV2JetTagComputer.h"
-#include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
 using namespace reco;
 
