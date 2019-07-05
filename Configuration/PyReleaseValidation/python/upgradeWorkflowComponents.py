@@ -342,7 +342,7 @@ for key in list(upgradeProperties[2023].keys()):
 
 # for relvals
 defaultDataSets = {}
-for year in [2017, 2023]:
+for year in upgradeKeys:
     for key in upgradeKeys[year]:
         if 'PU' in key: continue
         defaultDataSets[key] = ''
