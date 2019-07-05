@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # This config was generated automatically using generate2023Geometry.py
 # If you notice a mistake, please update the generating script, not just this config
 
-from Configuration.Geometry.GeometryExtended2023D17_cff import *
+from Configuration.Geometry.GeometryExtended2023D44_cff import *
 
 # tracker
 from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *
@@ -14,17 +14,21 @@ from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 trackerGeometry.applyAlignment = cms.bool(False)
 
 # calo
-from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *
-from Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi import *
+from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *
+from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
+from Geometry.CaloEventSetup.HFNoseTopology_cfi import *
+from Geometry.ForwardGeometry.HFNoseGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
-    SelectedCalos = cms.vstring("HCAL"                   ,
-                                "ZDC"                    ,
-                                "EcalBarrel"             ,
-                                "TOWER"                  ,
-                                "HGCalEESensitive"       ,
-                                "HGCalHESiliconSensitive" 
+    SelectedCalos = cms.vstring("HCAL",
+                                "ZDC",
+                                "EcalBarrel",
+                                "TOWER",
+                                "HGCalEESensitive",
+                                "HGCalHESiliconSensitive",
+                                "HGCalHEScintillatorSensitive",
+                                "HGCalHFNoseSensitive",
     )
 )
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
@@ -47,4 +51,13 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 
 # forward
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
+
+# timing
+from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *
+from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *
+from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *
+from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *
+from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *
+from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *
+mtdGeometry.applyAlignment = cms.bool(False)
 
