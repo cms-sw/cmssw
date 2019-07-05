@@ -335,17 +335,17 @@ upgradeProperties[2023] = {
     },
 }
 
-#standard PU sequences
-upgradeProperties[2023]['2023D35PU'] = deepcopy(upgradeProperties[2023]['2023D35'])
-upgradeProperties[2023]['2023D35PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D41PU'] = deepcopy(upgradeProperties[2023]['2023D41'])
-upgradeProperties[2023]['2023D41PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D43PU'] = deepcopy(upgradeProperties[2023]['2023D43'])
-upgradeProperties[2023]['2023D43PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D44PU'] = deepcopy(upgradeProperties[2023]['2023D44'])
-upgradeProperties[2023]['2023D44PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
-upgradeProperties[2023]['2023D45PU'] = deepcopy(upgradeProperties[2023]['2023D45'])
-upgradeProperties[2023]['2023D45PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+# standard PU sequences
+for key in list(upgradeProperties[2023].keys()):
+    upgradeProperties[2023][key+'PU'] = deepcopy(upgradeProperties[2023][key])
+    upgradeProperties[2023][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+
+# for relvals
+defaultDataSets = {}
+for year in [2017, 2023]:
+    for key in upgradeKeys[year]:
+        if 'PU' in key: continue
+        defaultDataSets[key] = ''
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
 
