@@ -1,13 +1,26 @@
+
 //////////////////////////////////////////////////////////////////////////////
 // File: DDEcalEndcapAlgo.cc
 // Description: Geometry factory class for Ecal Barrel
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <cmath>
+#include <algorithm>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <CLHEP/Geometry/Transform3D.h>
+
+// Header files for endcap supercrystal geometry
+#include "DDEcalEndcapTrap.h"
+
+#include <map>
+#include <string>
+#include <vector>
 #include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
@@ -16,17 +29,6 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 #include "CLHEP/Geometry/Transform3D.h"
-
-// Header files for endcap supercrystal geometry
-#include "DDEcalEndcapTrap.h"
-
-#include <cmath>
-#include <algorithm>
-#include <map>
-#include <string>
-#include <vector>
-
-using namespace geant_units::operators;
 
 class DDEcalEndcapAlgo : public DDAlgorithm {
 public:
@@ -349,7 +351,7 @@ void DDEcalEndcapAlgo::execute(DDCompactView& cpv) {
   m_cutParms = &eeCutBox.parameters();
   //**************************************************************
 
-  const double zFix(m_zFront - 3172_mm);  // fix for changing z offset
+  const double zFix(m_zFront - 3172 * mm);  // fix for changing z offset
 
   //** fill supercrystal front and rear center positions from xml input
   for (unsigned int iC(0); iC != (unsigned int)eenSCquad(); ++iC) {
@@ -441,8 +443,8 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
   const double eFront(0.5 * eeSCEFront());
   const double eRear(0.5 * eeSCERear());
   const double eAng(atan((eeSCERear() - eeSCEFront()) / (sqrt(2.) * eeSCELength())));
-  const double ffived(45_deg);
-  const double zerod(0_deg);
+  const double ffived(45 * deg);
+  const double zerod(0 * deg);
   DDSolid eeSCEnv(DDSolidFactory::trap((1 == iSCType ? envName(iSCType) : addTmp(envName(iSCType))),
                                        0.5 * eeSCELength(),
                                        eAng,
@@ -505,7 +507,7 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
     const double fifth((*m_cutParms)[0] + eePFFifth() * eeCrysRear());
     const double fac(eePF45());
 
-    const double zmm(0_mm);
+    const double zmm(0 * mm);
 
     DDTranslation cutTra(
         2 == iSCType ? DDTranslation(zmm, half, zmm)
@@ -538,7 +540,7 @@ void DDEcalEndcapAlgo::EECreateSC(const unsigned int iSCType,
 
     const double mySign(iSCType < 4 ? +1. : -1.);
 
-    const DDTranslation extraI(xyIOff + mySign * 2_mm, xyIOff + mySign * 2_mm, zIOff);
+    const DDTranslation extraI(xyIOff + mySign * 2 * mm, xyIOff + mySign * 2 * mm, zIOff);
 
     DDSolid eeCutInt(
         DDSolidFactory::subtraction(intName(iSCType), addTmp(intName(iSCType)), cutBoxName(), cutTra - extraI, cutRot));
@@ -575,15 +577,15 @@ void DDEcalEndcapAlgo::EECreateCR() {
   DDSolid EECRSolid(DDSolidFactory::trap(cryName(),
                                          0.5 * eeCrysLength(),
                                          atan((eeCrysRear() - eeCrysFront()) / (sqrt(2.) * eeCrysLength())),
-                                         45._deg,
+                                         45. * deg,
                                          0.5 * eeCrysFront(),
                                          0.5 * eeCrysFront(),
                                          0.5 * eeCrysFront(),
-                                         0._deg,
+                                         0. * deg,
                                          0.5 * eeCrysRear(),
                                          0.5 * eeCrysRear(),
                                          0.5 * eeCrysRear(),
-                                         0._deg));
+                                         0. * deg));
 
   DDLogicalPart part(cryName(), eeCrysMat(), EECRSolid);
 }
