@@ -4,10 +4,9 @@
 #include <cuda/api_wrappers.h>
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/FitResult.h"
-#include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
-
-class TrackingRecHit2DSOAView;
-class TrackingRecHit2DCUDA;
+#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DCUDA.h"
+#include "CAConstants.h"
 
 namespace Rfit {
   // in case of memory issue can be made smaller
@@ -38,10 +37,12 @@ public:
   using HitsOnGPU = TrackingRecHit2DSOAView;
   using HitsOnCPU = TrackingRecHit2DCUDA;
 
-  using TuplesOnGPU = pixelTuplesHeterogeneousProduct::TuplesOnGPU;
+  using Tuples = pixelTrack::HitContainer;
+  using OutputSoA = pixelTrack::TrackSoA;
+
   using TupleMultiplicity = CAConstants::TupleMultiplicity;
 
-  explicit HelixFitOnGPU(bool fit5as4) : fit5as4_(fit5as4) {}
+  explicit HelixFitOnGPU(float bf, bool fit5as4) : bField_(bf), fit5as4_(fit5as4) {}
   ~HelixFitOnGPU() { deallocateOnGPU(); }
 
   void setBField(double bField) { bField_ = bField; }
@@ -54,19 +55,19 @@ public:
                                uint32_t maxNumberOfTuples,
                                cuda::stream_t<> &cudaStream);
 
-  void allocateOnGPU(TuplesOnGPU::Container const *tuples,
+  void allocateOnGPU(Tuples const *tuples,
                      TupleMultiplicity const *tupleMultiplicity,
-                     Rfit::helix_fit *helix_fit_results);
+                     OutputSoA * outputSoA);
   void deallocateOnGPU();
 
 private:
   static constexpr uint32_t maxNumberOfConcurrentFits_ = Rfit::maxNumberOfConcurrentFits();
 
   // fowarded
-  TuplesOnGPU::Container const *tuples_d = nullptr;
+  Tuples const *tuples_d = nullptr;
   TupleMultiplicity const *tupleMultiplicity_d = nullptr;
-  double bField_;
-  Rfit::helix_fit *helix_fit_results_d = nullptr;
+  OutputSoA * outputSoa_d;
+  float bField_;
 
   const bool fit5as4_;
 };
