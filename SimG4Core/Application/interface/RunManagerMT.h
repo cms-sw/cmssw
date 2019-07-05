@@ -37,7 +37,6 @@ class MagneticField;
 class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
-class G4Field;
 class G4StateManager;
 class G4GeometryManager;
 class RunAction;
@@ -87,7 +86,6 @@ public:
 
 private:
   void terminateRun();
-  void DumpMagneticField(const G4Field*) const;
 
   G4MTRunManagerKernel* m_kernel;
 
@@ -107,7 +105,6 @@ private:
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
   bool m_check;
-  edm::ParameterSet m_pField;
   edm::ParameterSet m_pPhysics;
   edm::ParameterSet m_pRunAction;
   edm::ParameterSet m_g4overlap;
@@ -118,10 +115,6 @@ private:
   std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
   SimActivityRegistry m_registry;
   SensitiveDetectorCatalog m_catalog;
-
-  std::string m_FieldFile;
-  std::string m_WriteFile;
-  std::string m_RegionFile;
 };
 
 #endif

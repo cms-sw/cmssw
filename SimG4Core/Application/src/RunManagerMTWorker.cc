@@ -18,8 +18,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
@@ -58,11 +59,17 @@
 #include "G4WorkerRunManagerKernel.hh"
 #include "G4StateManager.hh"
 #include "G4TransportationManager.hh"
+#include "G4Field.hh"
+#include "G4FieldManager.hh"
 
 #include <atomic>
 #include <thread>
 #include <sstream>
 #include <vector>
+//#include <mutex>
+
+static std::once_flag applyOnce;
+thread_local bool RunManagerMTWorker::dumpMF = false;
 
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
@@ -226,8 +233,8 @@ void RunManagerMTWorker::initializeTLS() {
     m_tls->registry->connect(*otherRegistry);
     if (thisID > 0) {
       throw edm::Exception(edm::errors::Configuration)
-          << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. If this use "
-             "case is needed, RunManagerMTWorker has to be updated.";
+          << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. "
+          << " \n If this use case is needed, RunManagerMTWorker has to be updated.";
     }
   }
   if (m_hasWatchers) {
@@ -274,7 +281,10 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
   // Set the geometry for the worker, share from master
-  DDDWorld::WorkerSetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
+  auto worldPV = runManagerMaster.world().GetWorldVolume();
+  m_tls->kernel->WorkerDefineWorldVolume(worldPV);
+  G4TransportationManager* tM = G4TransportationManager::GetTransportationManager();
+  tM->SetWorldForTracking(worldPV);
 
   // we need the track manager now
   m_tls->trackManager.reset(new SimTrackManager());
@@ -299,9 +309,17 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
 
     sim::FieldBuilder fieldBuilder(pMF.product(), m_pField);
     CMSFieldManager* fieldManager = new CMSFieldManager();
-    G4TransportationManager* tM = G4TransportationManager::GetTransportationManager();
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
+
+    std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField", "");
+    if (!fieldFile.empty()) {
+      std::call_once(applyOnce, []() { dumpMF = true; });
+      if (dumpMF) {
+        edm::LogVerbatim("SimG4CoreApplication") << " RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
+        DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
+      }
+    }
   }
 
   // attach sensitive detector
@@ -484,8 +502,10 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   m_simEvent->weight(m_generator.eventWeight());
   if (m_generator.genVertex() != nullptr) {
     auto genVertex = m_generator.genVertex();
-    m_simEvent->collisionPoint(math::XYZTLorentzVectorD(
-        genVertex->x() / centimeter, genVertex->y() / centimeter, genVertex->z() / centimeter, genVertex->t() / second));
+    m_simEvent->collisionPoint(math::XYZTLorentzVectorD(genVertex->x() / CLHEP::cm,
+                                                        genVertex->y() / CLHEP::cm,
+                                                        genVertex->z() / CLHEP::cm,
+                                                        genVertex->t() / CLHEP::second));
   }
   if (m_tls->currentEvent->GetNumberOfPrimaryVertex() == 0) {
     std::stringstream ss;
@@ -581,5 +601,52 @@ void RunManagerMTWorker::resetGenParticleId(const edm::Event& inpevt) {
   inpevt.getByToken(m_theLHCTlinkToken, theLHCTlink);
   if (theLHCTlink.isValid()) {
     m_tls->trackManager->setLHCTransportLink(theLHCTlink.product());
+  }
+}
+
+void RunManagerMTWorker::DumpMagneticField(const G4Field* field, const std::string& file) const {
+  std::ofstream fout(file.c_str(), std::ios::out);
+  if (fout.fail()) {
+    edm::LogWarning("SimG4CoreApplication")
+        << " RunManager WARNING : error opening file <" << file << "> for magnetic field";
+  } else {
+    // CMS magnetic field volume
+    double rmax = 9000 * mm;
+    double zmax = 24000 * mm;
+
+    double dr = 1 * cm;
+    double dz = 5 * cm;
+
+    int nr = (int)(rmax / dr);
+    int nz = 2 * (int)(zmax / dz);
+
+    double r = 0.0;
+    double z0 = -zmax;
+    double z;
+
+    double phi = 0.0;
+    double cosf = cos(phi);
+    double sinf = sin(phi);
+
+    double point[4] = {0.0, 0.0, 0.0, 0.0};
+    double bfield[3] = {0.0, 0.0, 0.0};
+
+    fout << std::setprecision(6);
+    for (int i = 0; i <= nr; ++i) {
+      z = z0;
+      for (int j = 0; j <= nz; ++j) {
+        point[0] = r * cosf;
+        point[1] = r * sinf;
+        point[2] = z;
+        field->GetFieldValue(point, bfield);
+        fout << "R(mm)= " << r / mm << " phi(deg)= " << phi / degree << " Z(mm)= " << z / mm
+             << "   Bz(tesla)= " << bfield[2] / tesla << " Br(tesla)= " << (bfield[0] * cosf + bfield[1] * sinf) / tesla
+             << " Bphi(tesla)= " << (bfield[0] * sinf - bfield[1] * cosf) / tesla << G4endl;
+        z += dz;
+      }
+      r += dr;
+    }
+
+    fout.close();
   }
 }
