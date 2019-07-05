@@ -16,8 +16,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-template<typename Ev>
-void storeTracks(Ev & ev, const pixeltrackfitting::TracksWithTTRHs& tracksWithHits, const TrackerTopology& ttopo)
+template<typename Ev, typename TWH>
+void storeTracks(Ev & ev, const TWH& tracksWithHits, const TrackerTopology& ttopo)
 {
   auto tracks = std::make_unique<reco::TrackCollection>();
   auto recHits = std::make_unique<TrackingRecHitCollection>();
@@ -27,12 +27,12 @@ void storeTracks(Ev & ev, const pixeltrackfitting::TracksWithTTRHs& tracksWithHi
 
   for (int i = 0; i < nTracks; i++)
   {
-    reco::Track* track =  tracksWithHits.at(i).first;
-    const SeedingHitSet& hits = tracksWithHits.at(i).second;
+    reco::Track* track =  tracksWithHits[i].first;
+    const auto & hits = tracksWithHits[i].second;
 
     for (unsigned int k = 0; k < hits.size(); k++)
     {
-      TrackingRecHit *hit = hits[k]->hit()->clone();
+      auto * hit = hits[k]->clone();
 
       track->appendHitPattern(*hit, ttopo);
       recHits->push_back(hit);
