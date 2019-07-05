@@ -2992,24 +2992,11 @@ defaultDataSets['2018']='CMSSW_10_6_0-106X_upgrade2018_realistic_v4-v'
 defaultDataSets['2018Design']='CMSSW_10_6_0-106X_upgrade2018_design_v3-v'
 defaultDataSets['2021']='CMSSW_10_6_0-106X_upgrade2021_realistic_v5_LowSigmaZGTv5-v'
 defaultDataSets['2021Design']='CMSSW_10_6_0_pre3-105X_postLS2_realistic_v6-v'
-defaultDataSets['2023D17']='CMSSW_10_2_0_pre2-101X_upgrade2023_realistic_v5_2023D17noPU-v'
-defaultDataSets['2023D19']=''
-defaultDataSets['2023D21']=''
-defaultDataSets['2023D24']=''
-defaultDataSets['2023D25']=''
-defaultDataSets['2023D28']=''
-defaultDataSets['2023D29']=''
-defaultDataSets['2023D30']=''
-defaultDataSets['2023D31']=''
-defaultDataSets['2023D33']=''
-defaultDataSets['2023D34']=''
 defaultDataSets['2023D35']='CMSSW_10_4_0_mtd3-103X_upgrade2023_realistic_v2_2023D35noPU_2-v'
-defaultDataSets['2023D38']=''
-defaultDataSets['2023D39']=''
-defaultDataSets['2023D40']=''
 defaultDataSets['2023D41']=''
-defaultDataSets['2023D42']=''
 defaultDataSets['2023D43']=''
+defaultDataSets['2023D44']=''
+defaultDataSets['2023D45']=''
 
 keys=defaultDataSets.keys()
 for key in keys:
@@ -3228,13 +3215,6 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
         stepName = step + upgradeSteps['trackingLowPU']['suffix']
         if 'Reco' in step and upgradeStepDict[step][k]['--era']=='Run2_2017':
             upgradeStepDict[stepName][k] = merge([{'--era': 'Run2_2017_trackingLowPU'}, upgradeStepDict[step][k]])
-
-    for step in upgradeSteps['Timing']['steps']:
-        stepName = step + upgradeSteps['Timing']['suffix']
-        upgradeStepDict[stepName][k] = deepcopy(upgradeStepDict[step][k])
-        # avoid some nonsense
-        if '--era' in upgradeStepDict[stepName][k].keys() and not "_timing" in upgradeStepDict[stepName][k]['--era']:
-            upgradeStepDict[stepName][k]['--era'] += "_timing"
 
     for step in upgradeSteps['Neutron']['steps']:
         if 'GenSim' in step:
