@@ -58,12 +58,12 @@ void LowPtGsfElectronCoreProducer::produce(edm::Event& event, const edm::EventSe
 //
 void LowPtGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("gsfPfRecTracks",edm::InputTag("lowPtGsfElePfGsfTracks")) ;
-  desc.add<edm::InputTag>("gsfTracks",edm::InputTag("lowPtGsfEleGsfTracks")) ;
-  desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
-  desc.add<bool>("useGsfPfRecTracks",true) ;
-  desc.add<edm::InputTag>("superClusters",edm::InputTag("lowPtGsfElectronSuperClusters"));
-  descriptions.add("lowPtGsfElectronCores",desc);
+  desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag("lowPtGsfElePfGsfTracks"));
+  desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
+  desc.add<edm::InputTag>("ctfTracks", edm::InputTag("generalTracks"));
+  desc.add<bool>("useGsfPfRecTracks", true);
+  desc.add<edm::InputTag>("superClusters", edm::InputTag("lowPtGsfElectronSuperClusters"));
+  descriptions.add("lowPtGsfElectronCores", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
