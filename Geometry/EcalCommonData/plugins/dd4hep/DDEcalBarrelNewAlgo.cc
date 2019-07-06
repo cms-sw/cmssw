@@ -3,6 +3,7 @@
 // FIXME: use local definition until dd4hep fixes the uniits
 //#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
+#include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/EcalTrapezoidParameters.h"
 #include "Math/AxisAngle.h"
@@ -41,7 +42,6 @@ inline constexpr long double convertDegToRad(NumType degrees)  // Degrees -> rad
 
 using VecDouble = vector<double>;
 using VecStr = vector<string>;
-using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 using EcalTrap = EcalTrapezoidParameters;
 
 using Pt3D = HepGeom::Point3D<double>;
@@ -65,7 +65,7 @@ namespace {
     VecDouble vecTran;   // Barrel translation
     VecDouble vecRota;   // Barrel rotation
     VecDouble vecRota2;  // 2nd Barrel rotation
-    VecDouble vecRota3;  // 2nd Barrel rotation
+    VecDouble vecRota3;  // 3nd Barrel rotation
     double phiLo;        // Barrel phi lo
     double phiHi;        // Barrel phi hi
     double here;         // Barrel presence flag
@@ -233,9 +233,9 @@ namespace {
     string pTMName;          // PTM
     double pTMHere;          //
     string pTMMat;           //
-    double pTMWidth;         //
-    double pTMLength;        //
-    double pTMHeight;        //
+    double pTMWidthHalf;     //
+    double pTMLengthHalf;    //
+    double pTMHeightHalf;    //
     VecDouble vecIlyPTMZ;    //
     VecDouble vecIlyPTMPhi;  //
 
@@ -244,7 +244,7 @@ namespace {
     string fanOutMat;           //
     double fanOutWidth;         //
     double fanOutLength;        //
-    double fanOutHeight;        //
+    double fanOutHeightHalf;    //
     VecDouble vecIlyFanOutZ;    //
     VecDouble vecIlyFanOutPhi;  //
     string diffName;            // Diffuser
@@ -471,9 +471,8 @@ namespace {
     return ns.rotation(ns.prepend(nam));
   }
 
-  Solid mytrap(cms::DDNamespace& ns, const std::string& nam, const EcalTrapezoidParameters& t) {
-    return ns.addSolid(
-        nam, Trap(t.dz(), t.theta(), t.phi(), t.h1(), t.bl1(), t.tl1(), t.alp1(), t.h2(), t.bl2(), t.tl2(), t.alp2()));
+  Solid mytrap(const std::string& nam, const EcalTrapezoidParameters& t) {
+    return Trap(nam, t.dz(), t.theta(), t.phi(), t.h1(), t.bl1(), t.tl1(), t.alp1(), t.h2(), t.bl2(), t.tl2(), t.alp2());
   }
 }  // namespace
 
@@ -481,6 +480,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
                       xml_h e,
                       dd4hep::SensitiveDetector& /* sens */) {
+  BenchmarkGrd counter("DDEcalBarrelNewAlgo");
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
 
@@ -655,9 +655,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   ily.pTMName = args.str("IlyPTMName");
   ily.pTMHere = args.dble("IlyPTMHere");
   ily.pTMMat = args.str("IlyPTMMat");
-  ily.pTMWidth = args.dble("IlyPTMWidth");
-  ily.pTMLength = args.dble("IlyPTMLength");
-  ily.pTMHeight = args.dble("IlyPTMHeight");
+  ily.pTMWidthHalf = 0.5 * args.dble("IlyPTMWidth");
+  ily.pTMLengthHalf = 0.5 * args.dble("IlyPTMLength");
+  ily.pTMHeightHalf = 0.5 * args.dble("IlyPTMHeight");
   ily.vecIlyPTMZ = args.vecDble("IlyPTMZ");
   ily.vecIlyPTMPhi = args.vecDble("IlyPTMPhi");
 
@@ -666,7 +666,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   ily.fanOutMat = args.str("IlyFanOutMat");
   ily.fanOutWidth = args.dble("IlyFanOutWidth");
   ily.fanOutLength = args.dble("IlyFanOutLength");
-  ily.fanOutHeight = args.dble("IlyFanOutHeight");
+  ily.fanOutHeightHalf = 0.5 * args.dble("IlyFanOutHeight");
   ily.vecIlyFanOutZ = args.vecDble("IlyFanOutZ");
   ily.vecIlyFanOutPhi = args.vecDble("IlyFanOutPhi");
   ily.diffName = args.str("IlyDiffName");
@@ -899,15 +899,6 @@ static long algorithm(dd4hep::Detector& /* description */,
     Solid spmCutBox = Box(spm.cutName, cutBoxParms[0], cutBoxParms[1], cutBoxParms[2]);
     Volume spmCutLog = Volume(spm.cutName, spmCutBox, ns.material(spm.mat));
 
-    // Now the expansion box
-    /*const double xExp(0.5 * spm.expThick);
-    const double yExp(0.5 * spm.expWide);
-    const double zExp(0.5 * fabs(spm.vecZPts.back() - spm.vecZPts.front()));
-    string expName(spm.name + "EXP");
-    Solid spmExpBox = ns.addSolidNS(expName, Box(xExp, yExp, zExp));
-    Position expTra(spm.vecRMax.back() - xExp, spm.expYOff, spm.vecZPts.front() + zExp);
-    Volume expLog = ns.addVolume(Volume(expName, spmExpBox, ns.material(spm.mat)));*/
-
     // Supermodule side platess
     array<double, 3> sideParms{{0.5 * spm.sideHigh, 0.5 * spm.sideThick, 0.5 * fabs(spm.vecZPts[1] - spm.vecZPts[0])}};
     Solid sideSolid = Box(sideParms[0], sideParms[1], sideParms[2]);
@@ -915,8 +906,8 @@ static long algorithm(dd4hep::Detector& /* description */,
 
     Solid temp1;
     Solid temp2;
-    DDTranslation sideddtra1;
-    DDTranslation sideddtra2;
+    Position sideddtra1;
+    Position sideddtra2;
     Transform3D alltrot1;
     Transform3D alltrot2;
     for (unsigned int icopy(1); icopy <= 2; ++icopy) {
@@ -947,7 +938,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                          roSide);
 
       Rotation3D sideddrot(myrot(ns, spm.sideName + std::to_string(icopy), sideRot.getRotation()));
-      const DDTranslation sideddtra(sideRot.getTranslation());
+      const Position sideddtra(sideRot.getTranslation());
       1 == icopy ? sideddtra1 = sideddtra : sideddtra2 = sideddtra;
     }
     Volume spmLog = Volume(spm.name, ((0 != spm.cutShow) ? ddspm : temp2), ns.material(spm.mat));
@@ -960,7 +951,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 
     const double dphi(360._deg / (1. * spm.nPerHalf));
     for (unsigned int iphi(0); iphi < 2 * spm.nPerHalf; ++iphi) {
-      const double phi(iphi * dphi + spm.phiOff);  //- 0.000130/deg ) ;
+      const double phi(iphi * dphi + spm.phiOff);
 
       // this base rotation includes the base translation & rotation
       // plus flipping for the negative z hemisphere, plus
@@ -984,8 +975,8 @@ static long algorithm(dd4hep::Detector& /* description */,
       const Rotation3D rota(myrot(ns, spm.name + std::to_string(convertRadToDeg(phi)), both.getRotation()));
 
       if (spm.vecHere[iphi] != 0) {
-        // convert from CLHEP to DDTranslation & etc.
-        DDTranslation myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
+        // convert from CLHEP to Position & etc.
+        Position myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
         barVolume.placeVolume(spmLog, iphi + 1, Transform3D(rota, myTran));
       }
     }
@@ -1000,13 +991,12 @@ static long algorithm(dd4hep::Detector& /* description */,
     }
     Solid ilySolid = Tube(ily.name,
                           ilyRMin,                   // rmin
-                          ilyRMin + ilyThick,        //rmax
+                          ilyRMin + ilyThick,        // rmax
                           0.5 * ilyLength,           // dz
                           ily.phiLow,                // startPhi
                           ily.phiLow + ily.delPhi);  // startPhi + deltaPhi
     Volume ilyLog = Volume(ily.name, ilySolid, ns.material(spm.mat));
-    spmLog.placeVolume(ilyLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0.5 * ilyLength)));
-
+    spmLog.placeVolume(ilyLog, copyOne, Position(0, 0, 0.5 * ilyLength));
     Volume ilyPipeLog[200];
     if (0 != ily.pipeHere) {
       for (unsigned int iPipeType(0); iPipeType != ily.vecIlyPipeLength.size(); ++iPipeType) {
@@ -1014,7 +1004,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 
         Solid ilyPipeSolid = Tube(pName,
                                   0,                                      // rmin
-                                  ily.pipeOD,                             //rmax
+                                  0.5 * ily.pipeOD,                       // rmax
                                   0.5 * ily.vecIlyPipeLength[iPipeType],  // dz
                                   0_deg,                                  // startPhi
                                   360_deg);                               // startPhi + deltaPhi
@@ -1023,7 +1013,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         string pWaName(ily.pipeName + "Wa_" + std::to_string(iPipeType + 1));
         Solid ilyPipeWaSolid = Tube(pWaName,
                                     0,                                      // rmin
-                                    0.5 * ily.pipeID,                       //rmax
+                                    0.5 * ily.pipeID,                       // rmax
                                     0.5 * ily.vecIlyPipeLength[iPipeType],  // dz
                                     0_deg,                                  // startPhi
                                     360_deg);                               // startPhi + deltaPhi
@@ -1032,29 +1022,29 @@ static long algorithm(dd4hep::Detector& /* description */,
       }
     }
 
-    Solid ilyPTMSolid = Box(ily.pTMHeight / 2., ily.pTMWidth / 2., ily.pTMLength / 2.);
+    Solid ilyPTMSolid = Box(ily.pTMHeightHalf, ily.pTMWidthHalf, ily.pTMLengthHalf);
     Volume ilyPTMLog = Volume(ily.pTMName, ilyPTMSolid, ns.material(ily.pTMMat));
 
-    Solid ilyFanOutSolid = Box(ily.fanOutHeight / 2., ily.fanOutWidth / 2., ily.fanOutLength / 2.);
+    Solid ilyFanOutSolid = Box(ily.fanOutHeightHalf, ily.fanOutWidth / 2., ily.fanOutLength / 2.);
     Volume ilyFanOutLog = Volume(ily.fanOutName, ilyFanOutSolid, ns.material(ily.fanOutMat));
 
     Solid ilyFEMSolid = Box(ily.fEMHeight / 2., ily.fEMWidth / 2., ily.fEMLength / 2.);
     Volume ilyFEMLog = Volume(ily.fEMName, ilyFEMSolid, ns.material(ily.fEMMat));
 
-    Solid ilyDiffSolid = Box(ily.fanOutHeight / 2., ily.fanOutWidth / 2., ily.diffLength / 2.);
+    Solid ilyDiffSolid = Box(ily.fanOutHeightHalf, ily.fanOutWidth / 2., ily.diffLength / 2.);
     Volume ilyDiffLog = Volume(ily.diffName, ilyDiffSolid, ns.material(ily.diffMat));
 
-    Solid ilyBndlSolid = Box(ily.fanOutHeight / 2., ily.fanOutWidth / 2., ily.bndlLength / 2.);
+    Solid ilyBndlSolid = Box(ily.fanOutHeightHalf, ily.fanOutWidth / 2., ily.bndlLength / 2.);
     Volume ilyBndlLog = Volume(ily.bndlName, ilyBndlSolid, ns.material(ily.bndlMat));
 
     ilyFanOutLog.placeVolume(
         ilyDiffLog,
         copyOne,
-        Transform3D(Rotation3D(), Position(0, 0, -ily.fanOutLength / 2 + ily.diffLength / 2 + ily.diffOff)));
+        Position(0_mm, 0_mm, -ily.fanOutLength / 2 + ily.diffLength / 2 + ily.diffOff));
     ilyFanOutLog.placeVolume(
         ilyBndlLog,
         copyOne,
-        Transform3D(Rotation3D(), Position(0, 0, -ily.fanOutLength / 2 + ily.bndlLength / 2 + ily.bndlOff)));
+        Position(0_mm, 0_mm, -ily.fanOutLength / 2 + ily.bndlLength / 2 + ily.bndlOff));
     Volume xilyLog;
     for (unsigned int iily(0); iily != ily.vecIlyThick.size(); ++iily) {
       const double ilyRMax(ilyRMin + ily.vecIlyThick[iily]);
@@ -1070,7 +1060,7 @@ static long algorithm(dd4hep::Detector& /* description */,
           if (0 != ily.pTMHere) {
             unsigned int ptmCopy(0);
             for (unsigned int ilyPTM(0); ilyPTM != ily.vecIlyPTMZ.size(); ++ilyPTM) {
-              const double radius(ilyRMax - 1_mm - ily.pTMHeight / 2.);
+              const double radius(ilyRMax - 1_mm - ily.pTMHeightHalf);
               const double phi(ily.vecIlyPTMPhi[ilyPTM]);
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
@@ -1084,7 +1074,7 @@ static long algorithm(dd4hep::Detector& /* description */,
           if (0 != ily.fanOutHere) {
             unsigned int fanOutCopy(0);
             for (unsigned int ilyFO(0); ilyFO != ily.vecIlyFanOutZ.size(); ++ilyFO) {
-              const double radius(ilyRMax - 1_mm - ily.fanOutHeight / 2.);
+              const double radius(ilyRMax - 1_mm - ily.fanOutHeightHalf);
               const double phi(ily.vecIlyFanOutPhi[ilyFO]);
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
@@ -1117,12 +1107,16 @@ static long algorithm(dd4hep::Detector& /* description */,
               const double yy(radius * sin(phi));
               const double xx(radius * cos(phi));
               ++copyNum[type];
-              xilyLog.placeVolume(ilyPipeLog[type],
-                                  copyNum[type],
-                                  Transform3D((9 > type ? Rotation3D()
-                                                        : Rotation3D(ROOT::Math::AxisAngle(
-                                                              ROOT::Math::AxisAngle::XYZVector(xx, yy, 0), 90_deg)),
-                                               Position(xx, yy, zz))));
+	      if(9 > type) {
+		xilyLog.placeVolume(ilyPipeLog[type],
+				    copyNum[type],
+				    Position(xx, yy, zz));
+	      } else {
+		xilyLog.placeVolume(ilyPipeLog[type],
+				    copyNum[type],
+				    Transform3D(Rotation3D(ROOT::Math::AxisAngle(ROOT::Math::AxisAngle::XYZVector(xx, yy, 0), 90_deg)),
+						 Position(xx, yy, zz)));
+	      }
             }
           }
         }
@@ -1143,7 +1137,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     cro.emplace_back(spm.vecRMin[2] + 10_mm);
     Solid clyrSolid = Polycone(clyrName, -9.5_deg, 19_deg, cri, cro, czz);
     Volume clyrLog = Volume(clyrName, clyrSolid, ns.material(ily.vecIlyMat[4]));
-    spmLog.placeVolume(clyrLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
+    spmLog.placeVolume(clyrLog, copyOne);
 
     // Begin Alveolar Wedge parent ------------------------------------------------------
     //----------------
@@ -1184,8 +1178,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     );
 
     string hawRName1(alvWedge.hawRName + "1");
-    Solid hawRSolid1 = mytrap(ns, hawRName1, trapHAWR);
-    // FIXME: not used - Volume hawRLog1 = Volume(hawRName1, hawRSolid1, ns.material(spm.mat));
+    Solid hawRSolid1 = mytrap(hawRName1, trapHAWR);
 
     const double al1_fawR(atan((B_hawR - a_hawR) / H_hawR) + M_PI_2);
 
@@ -1202,8 +1195,7 @@ static long algorithm(dd4hep::Detector& /* description */,
     );
 
     const string fawName1(alvWedge.fawName + "1");
-    Solid fawSolid1 = mytrap(ns, fawName1, trapFAW);
-    // FIXME: not used - Volume fawLog1 = Volume(fawName1, fawSolid1, ns.material(spm.mat));
+    Solid fawSolid1 = mytrap(fawName1, trapFAW);
 
     const EcalTrap::VertexList vHAW(trapHAWR.vertexList());
     const EcalTrap::VertexList vFAW(trapFAW.vertexList());
@@ -1214,7 +1206,6 @@ static long algorithm(dd4hep::Detector& /* description */,
     const string hawCutName(alvWedge.hawRName + "CUTBOX");
     array<double, 3> hawBoxParms{{0.5 * b_hawR + hawBoxClr, 0.5 * alvWedge.hawRCutY, 0.5 * alvWedge.hawRCutZ}};
     Solid hawCutBox = Box(hawCutName, hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
-    // FIXME: not used - Volume hawCutLog = Volume(hawCutName, hawCutBox, ns.material(spm.mat));
 
     const Pt3D b1(hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
     const Pt3D b2(-hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]);
@@ -1233,16 +1224,15 @@ static long algorithm(dd4hep::Detector& /* description */,
     Solid hawRSolid = SubtractionSolid(hawRSolid1,
                                        hawCutBox,
                                        Transform3D(myrot(ns, hawCutName + "R", hawCutForm.getRotation()),
-                                                   DDTranslation(hawCutForm.getTranslation().x(),
-                                                                 hawCutForm.getTranslation().y(),
-                                                                 hawCutForm.getTranslation().z())));
+                                                   Position(hawCutForm.getTranslation().x(),
+							    hawCutForm.getTranslation().y(),
+							    hawCutForm.getTranslation().z())));
     Volume hawRLog = Volume(alvWedge.hawRName, hawRSolid, ns.material(spm.mat));
 
     // FAW cut box to cut off back end of wedge
     const string fawCutName(alvWedge.fawName + "CUTBOX");
     const array<double, 3> fawBoxParms{{2 * hawBoxParms[0], hawBoxParms[1], hawBoxParms[2]}};
     Solid fawCutBox = Box(fawCutName, fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
-    // FIXME: not used - Volume fawCutLog = Volume(fawCutName, fawCutBox, ns.material(spm.mat));
 
     const Pt3D bb1(fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
     const Pt3D bb2(-fawBoxParms[0], fawBoxParms[1], fawBoxParms[2]);
@@ -1254,13 +1244,13 @@ static long algorithm(dd4hep::Detector& /* description */,
                           vFAW[2] + Pt3D(2 * hawBoxClr, -5_mm, 0),
                           vFAW[1] + Pt3D(-2 * hawBoxClr, -5_mm, 0),
                           Pt3D(vFAW[1].x() - 2 * hawBoxClr, vFAW[1].y() - trapFAW.h(), vFAW[1].z() - zDel));
-
+    // FIXME: EFAW extruded by: EFAW/EHAWR_2 ovlp=0.209316 cm
     Solid fawSolid = SubtractionSolid(fawSolid1,
                                       fawCutBox,
                                       Transform3D(myrot(ns, fawCutName + "R", fawCutForm.getRotation()),
-                                                  DDTranslation(fawCutForm.getTranslation().x(),
-                                                                fawCutForm.getTranslation().y(),
-                                                                fawCutForm.getTranslation().z())));
+                                                  Position(fawCutForm.getTranslation().x(),
+							   fawCutForm.getTranslation().y(),
+							   fawCutForm.getTranslation().z())));
     Volume fawLog = Volume(alvWedge.fawName, fawSolid, ns.material(spm.mat));
 
     const Tf3D hawRform(vHAW[3],
@@ -1269,22 +1259,23 @@ static long algorithm(dd4hep::Detector& /* description */,
                         vFAW[3],
                         0.5 * (vFAW[0] + vFAW[3]),
                         0.5 * (vFAW[1] + vFAW[2]));
+
     fawLog.placeVolume(
         hawRLog,
         copyOne,
         Transform3D(myrot(ns, alvWedge.hawRName + "R", hawRform.getRotation()),
-                    DDTranslation(
-                        hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z())));
+		    Position(hawRform.getTranslation().x(),
+			     hawRform.getTranslation().y(),
+			     hawRform.getTranslation().z())));
+    
+    // FIXME: extrusion!
     fawLog.placeVolume(hawRLog,
                        copyTwo,
-                       Transform3D(myrot(ns,
-                                         alvWedge.hawRName + "RotRefl",
-                                         CLHEP::HepRotationY(180_deg) *  // rotate about Y after refl thru Z
-                                             CLHEP::HepRep3x3(1, 0, 0, 0, 1, 0, 0, 0, -1)),
-                                   DDTranslation(-hawRform.getTranslation().x(),
-                                                 -hawRform.getTranslation().y(),
-                                                 -hawRform.getTranslation().z())));
-
+                       Transform3D(Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.)*RotationY(-M_PI), // rotate about Y after refl thru Z
+                                   Position(-hawRform.getTranslation().x(),
+					    -hawRform.getTranslation().y(),
+					    -hawRform.getTranslation().z())));
+    
     for (unsigned int iPhi(1); iPhi <= alvWedge.nFawPerSupm; ++iPhi) {
       const double rPhi(alvWedge.fawPhiOff + (iPhi - 0.5) * alvWedge.fawDelPhi);
 
@@ -1295,7 +1286,7 @@ static long algorithm(dd4hep::Detector& /* description */,
             fawLog,
             iPhi,
             Transform3D(myrot(ns, alvWedge.fawName + "_Rot" + std::to_string(iPhi), fawform.getRotation()),
-                        DDTranslation(
+                        Position(
                             fawform.getTranslation().x(), fawform.getTranslation().y(), fawform.getTranslation().z())));
     }
 
@@ -1316,7 +1307,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                             H_hawR - h_hawR                                      // y15
     );
 
-    Solid gridSolid = mytrap(ns, grid.name, trapGrid);
+    Solid gridSolid = mytrap(grid.name, trapGrid);
     Volume gridLog = Volume(grid.name, gridSolid, ns.material(grid.mat));
 
     const EcalTrap::VertexList vGrid(trapGrid.vertexList());
@@ -1332,7 +1323,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       hawRLog.placeVolume(gridLog,
                           copyOne,
                           Transform3D(myrot(ns, grid.name + "R", gridForm.getRotation()),
-                                      DDTranslation(gridForm.getTranslation().x(),
+                                      Position(gridForm.getTranslation().x(),
                                                     gridForm.getTranslation().y(),
                                                     gridForm.getTranslation().z())));
     // End Grid + Tablet insertion
@@ -1391,7 +1382,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       );
 
       const string cryDDName(cry.name + sType);
-      Solid crySolid = mytrap(ns, cry.name, trapCry);
+      Solid crySolid = mytrap(cry.name, trapCry);
       Volume cryLog = Volume(cryDDName, crySolid, ns.material(cry.mat));
 
       //++++++++++++++++++++++++++++++++++  APD ++++++++++++++++++++++++++++++++++
@@ -1461,7 +1452,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       );
 
       const string clrDDName(cry.clrName + sType);
-      Solid clrSolid = mytrap(ns, clrDDName, trapClr);
+      Solid clrSolid = mytrap(clrDDName, trapClr);
       Volume clrLog = Volume(clrDDName, clrSolid, ns.material(cry.clrMat));
 
       // Now wrap trap
@@ -1479,7 +1470,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       );
 
       const string wrapDDName(cry.wrapName + sType);
-      Solid wrapSolid = mytrap(ns, wrapDDName, trapWrap);
+      Solid wrapSolid = mytrap(wrapDDName, trapWrap);
       Volume wrapLog = Volume(wrapDDName, wrapSolid, ns.material(cry.wrapMat));
 
       // Now wall trap
@@ -1498,57 +1489,53 @@ static long algorithm(dd4hep::Detector& /* description */,
       );
 
       const string wallDDName(cry.wallName + sType);
-      Solid wallSolid = mytrap(ns, wallDDName, trapWall);
+      Solid wallSolid = mytrap(wallDDName, trapWall);
       Volume wallLog = Volume(wallDDName, wallSolid, ns.material(cry.wallMat));
 
       // Now for placement of cry within clr
       const Vec3 cryToClr(0, 0, (rClr - fClr) / 2);
-      clrLog.placeVolume(cryLog, copyOne, Transform3D(Rotation3D(), DDTranslation(0, 0, (rClr - fClr) / 2)));
+      clrLog.placeVolume(cryLog, copyOne, Position(0_mm, 0_mm, (rClr - fClr) / 2));
 
       if (0 != cap.here) {
         bsiLog.placeVolume(
-            aglLog, copyAGL, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.aglThick / 2. + bSi.thick / 2.)));
+			   aglLog, copyAGL, Position(0_mm, 0_mm, 0.5 * (-apd.aglThick + bSi.thick)));
         bsiLog.placeVolume(
-            andLog, copyAND, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.andThick / 2. + bSi.thick / 2.)));
+			   andLog, copyAND, Position(0_mm, 0_mm, 0.5 * (-apd.andThick + bSi.thick)));
         bsiLog.placeVolume(
-            apdLog, copyAPD, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.thick / 2. + bSi.thick / 2.)));
+			   apdLog, copyAPD, Position(0_mm, 0_mm, 0.5 * (-apd.thick + bSi.thick)));
         bsiLog.placeVolume(
             atjLog,
             copyATJ,
-            Transform3D(
-                Rotation3D(),
-                DDTranslation(0, 0, -apd.atjThick / 2. - apd.thick - apd.andThick - apd.aglThick + bSi.thick / 2.)));
+            Position(0_mm, 0_mm, -apd.atjThick / 2. - apd.thick - apd.andThick - apd.aglThick + bSi.thick / 2.));
         cerLog.placeVolume(
-            bsiLog, copyBSi, Transform3D(Rotation3D(), DDTranslation(0, 0, -bSi.thick / 2. + cer.thick / 2.)));
+            bsiLog, copyBSi, Position(0_mm, 0_mm, -bSi.thick / 2. + cer.thick / 2.));
         capLog.placeVolume(
-            sglLog, copySGL, Transform3D(Rotation3D(), DDTranslation(0, 0, -apd.sglThick / 2. + cap.thick / 2.)));
+            sglLog, copySGL, Position(0_mm, 0_mm, -apd.sglThick / 2. + cap.thick / 2.));
 
         for (unsigned int ijkl(0); ijkl != 2; ++ijkl) {
           capLog.placeVolume(cerLog,
                              ++copyCER,
-                             Transform3D(Rotation3D(),
-                                         DDTranslation(trapCry.bl1() - (0 == ijkl ? apd.x1 : apd.x2),
-                                                       trapCry.h1() - apd.z,
-                                                       -apd.sglThick - cer.thick / 2. + cap.thick / 2.)));
+                             Position(trapCry.bl1() - (0 == ijkl ? apd.x1 : apd.x2),
+				      trapCry.h1() - apd.z,
+				      -apd.sglThick - cer.thick / 2. + cap.thick / 2.));
         }
         clrLog.placeVolume(
             capLog,
             copyCap,
-            Transform3D(Rotation3D(), DDTranslation(0, 0, -trapCry.dz() - cap.thick / 2. + (rClr - fClr) / 2.)));
+            Position(0_mm, 0_mm, -trapCry.dz() - cap.thick / 2. + (rClr - fClr) / 2.));
       }
 
       const Vec3 clrToWrap(0, 0, (rWrap - fWrap) / 2);
       wrapLog.placeVolume(
-          clrLog, copyOne, Transform3D(Rotation3D(), DDTranslation(0, 0, (rWrap - fWrap) / 2)));  //SAME as cryToWrap
+          clrLog, copyOne, Position(0_mm, 0_mm, (rWrap - fWrap) / 2));  //SAME as cryToWrap
 
       // Now for placement of clr within wall
-      const Vec3 wrapToWall1(0, 0, (rWall - fWall) / 2);
-      const Vec3 wrapToWall(Vec3((cryType > 9 ? 0 : 0.005_mm), 0, 0) + wrapToWall1);
+      const Vec3 wrapToWall1(0_mm, 0_mm, (rWall - fWall) / 2);
+      const Vec3 wrapToWall(Vec3((cryType > 9 ? 0_mm : 0.005_mm), 0_mm, 0_mm) + wrapToWall1);
       wallLog.placeVolume(
           wrapLog,
           copyOne,
-          Transform3D(Rotation3D(),
-                      DDTranslation(Vec3((cryType > 9 ? 0 : 0.005_mm), 0, 0) + wrapToWall1)));  //SAME as wrapToWall
+          Position(Vec3((cryType > 9 ? 0_mm : 0.005_mm), 0_mm, 0_mm) + wrapToWall1));  //SAME as wrapToWall
 
       const EcalTrap::VertexList vWall(trapWall.vertexList());
       const EcalTrap::VertexList vCry(trapCry.vertexList());
@@ -1591,7 +1578,7 @@ static long algorithm(dd4hep::Detector& /* description */,
             etaAlv,
             Transform3D(
                 myrot(ns, wallDDName + "_" + std::to_string(etaAlv), tForm.getRotation()),
-                DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
+                Position(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z())));
         theta -= delta;
         side = sidePrime;
         zeta = delta;
@@ -1623,22 +1610,22 @@ static long algorithm(dd4hep::Detector& /* description */,
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      const DDTranslation outtra(back.xOff + back.sideHeight / 2, back.yOff, back.sideLength / 2);
+      const Position outtra(back.xOff + back.sideHeight / 2, back.yOff, back.sideLength / 2);
 
       const double realBPthick(back.plateThick + back.plate2Thick);
       array<double, 3> backPlateParms{{back.plateWidth / 2., realBPthick / 2., back.plateLength / 2.}};
       Solid backPlateSolid = Box(backPlateParms[0], backPlateParms[1], backPlateParms[2]);
       Volume backPlateLog = Volume(back.plateName, backPlateSolid, ns.material(back.plateMat));
 
-      const DDTranslation backPlateTra(
+      const Position backPlateTra(
           back.sideHeight / 2 + backPlateParms[1], 0_mm, backPlateParms[2] - back.sideLength / 2);
 
       Solid backPlate2Solid = Box(back.plateWidth / 2., back.plate2Thick / 2., back.plateLength / 2.);
       Volume backPlate2Log = Volume(back.plate2Name, backPlate2Solid, ns.material(back.plate2Mat));
 
-      const DDTranslation backPlate2Tra(0, -backPlateParms[1] + back.plate2Thick / 2., 0);
+      const Position backPlate2Tra(0_mm, -backPlateParms[1] + back.plate2Thick / 2., 0_mm);
       if (0 != back.plateHere) {
-        backPlateLog.placeVolume(backPlate2Log, copyOne, Transform3D(Rotation3D(), backPlate2Tra));
+        backPlateLog.placeVolume(backPlate2Log, copyOne, Transform3D(backPlate2Tra));
         spmLog.placeVolume(
             backPlateLog,
             copyOne,
@@ -1667,17 +1654,17 @@ static long algorithm(dd4hep::Detector& /* description */,
                             0                      //double aCoord15Y             // y15
       );
 
-      Solid backSideSolid = mytrap(ns, back.sideName, trapBS);
+      Solid backSideSolid = mytrap(back.sideName, trapBS);
       Volume backSideLog = Volume(back.sideName, backSideSolid, ns.material(back.sideMat));
 
-      const DDTranslation backSideTra1(0_mm, back.plateWidth / 2 + back.sideYOff1, 1_mm);
+      const Position backSideTra1(0_mm, back.plateWidth / 2 + back.sideYOff1, 1_mm);
       if (0 != back.sideHere) {
         spmLog.placeVolume(
             backSideLog,
             copyOne,
             Transform3D(myrot(ns, back.sideName + "Rot8", CLHEP::HepRotationX(180_deg) * CLHEP::HepRotationZ(90_deg)),
                         outtra + backSideTra1));
-        const DDTranslation backSideTra2(0_mm, -back.plateWidth / 2 + back.sideYOff2, 1_mm);
+        const Position backSideTra2(0_mm, -back.plateWidth / 2 + back.sideYOff2, 1_mm);
         spmLog.placeVolume(
             backSideLog,
             copyTwo,
@@ -1706,7 +1693,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       const string mBManifWaName(mbManif.name + "Wa");
       Solid mBManifWaSolid = Tube(0, mbManif.innDiam / 2, backCoolWidth / 2. - manifCut, 0_deg, 360_deg);
       Volume mBManifWaLog(mBManifWaName, mBManifWaSolid, ns.material(backPipe.waterMat));
-      mBManifLog.placeVolume(mBManifWaLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
+      mBManifLog.placeVolume(mBManifWaLog, copyOne);
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1732,33 +1719,33 @@ static long algorithm(dd4hep::Detector& /* description */,
 
       for (unsigned int iGr(0); iGr != grille.vecHeight.size(); ++iGr) {
         string gName(grille.name + std::to_string(iGr));
-        Solid grilleSolid = Box(grille.vecHeight[iGr] / 2., backCoolWidth / 2., grille.thick / 2.);
+        Solid grilleSolid = Box(gName, grille.vecHeight[iGr] / 2., backCoolWidth / 2., grille.thick / 2.);
         Volume grilleLog = Volume(gName, grilleSolid, ns.material(grille.mat));
 
-        const DDTranslation grilleTra(-realBPthick / 2 - grille.vecHeight[iGr] / 2,
+        const Position grilleTra(-realBPthick / 2 - grille.vecHeight[iGr] / 2,
                                       deltaY,
                                       grille.vecZOff[iGr] + grille.thick / 2 - back.sideLength / 2);
-        const DDTranslation gTra(outtra + backPlateTra + grilleTra);
+        const Position gTra(outtra + backPlateTra + grilleTra);
 
         if (0 != grille.midSlotHere && 0 != iGr) {
           if (0 == (iGr - 1) % 2) {
             string mName(grille.midSlotName + std::to_string(iGr / 2));
             Solid grMidSlotSolid =
-                Box(grille.vecMidSlotHeight[(iGr - 1) / 2] / 2., grille.midSlotWidth / 2., grille.thick / 2.);
+                Box(mName, grille.vecMidSlotHeight[(iGr - 1) / 2] / 2., grille.midSlotWidth / 2., grille.thick / 2.);
             grMidSlotLog[(iGr - 1) / 2] = Volume(mName, grMidSlotSolid, ns.material(grille.midSlotMat));
           }
           grilleLog.placeVolume(
               grMidSlotLog[(iGr - 1) / 2],
               ++midSlotCopy,
-              Transform3D(Rotation3D(),
-                          DDTranslation(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.,
+              Transform3D(
+                          Position(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.,
                                         +grille.midSlotXOff,
                                         0)));
           grilleLog.placeVolume(
               grMidSlotLog[(iGr - 1) / 2],
               ++midSlotCopy,
-              Transform3D(Rotation3D(),
-                          DDTranslation(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.,
+              Transform3D(
+                          Position(grille.vecHeight[iGr] / 2. - grille.vecMidSlotHeight[(iGr - 1) / 2] / 2.,
                                         -grille.midSlotXOff,
                                         0)));
         }
@@ -1766,31 +1753,31 @@ static long algorithm(dd4hep::Detector& /* description */,
         if (0 != grille.edgeSlotHere && 0 != iGr) {
           grilleLog.placeVolume(grEdgeSlotLog,
                                 ++edgeSlotCopy,
-                                Transform3D(Rotation3D(),
-                                            DDTranslation(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.,
+                                Transform3D(
+                                            Position(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.,
                                                           backCoolWidth / 2 - grille.edgeSlotWidth / 2.,
                                                           0)));
           grilleLog.placeVolume(grEdgeSlotLog,
                                 ++edgeSlotCopy,
-                                Transform3D(Rotation3D(),
-                                            DDTranslation(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.,
+                                Transform3D(
+                                            Position(grille.vecHeight[iGr] / 2. - grille.edgeSlotHeight / 2.,
                                                           -backCoolWidth / 2 + grille.edgeSlotWidth / 2.,
                                                           0)));
         }
         if (0 != grille.here)
-          spmLog.placeVolume(grilleLog, iGr, Transform3D(Rotation3D(), gTra));
+          spmLog.placeVolume(grilleLog, iGr, Transform3D(gTra));
 
         if ((0 != iGr % 2) && (0 != mbManif.here)) {
           spmLog.placeVolume(mBManifLog,
                              iGr,
                              Transform3D(myrot(ns, mbManif.name + "R1", CLHEP::HepRotationX(90_deg)),
-                                         gTra - DDTranslation(-mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
+                                         gTra - Position(-mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
                                                               manifCut,
                                                               grille.thick / 2. + 3 * mbManif.outDiam / 2.)));
           spmLog.placeVolume(mBManifLog,
                              iGr - 1,
                              Transform3D(myrot(ns, mbManif.name + "R2", CLHEP::HepRotationX(90_deg)),
-                                         gTra - DDTranslation(-3 * mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
+                                         gTra - Position(-3 * mbManif.outDiam / 2. + grille.vecHeight[iGr] / 2.,
                                                               manifCut,
                                                               grille.thick / 2 + 3 * mbManif.outDiam / 2.)));
         }
@@ -1813,13 +1800,13 @@ static long algorithm(dd4hep::Detector& /* description */,
 
       Solid backCoolBarSSSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barSSThick / 2.);
       Volume backCoolBarSSLog = Volume(backCool.barSSName, backCoolBarSSSolid, ns.material(backCool.barSSMat));
-      const DDTranslation backCoolBarSSTra(0, 0, 0);
-      backCoolBarLog.placeVolume(backCoolBarSSLog, copyOne, Transform3D(Rotation3D(), backCoolBarSSTra));
+      const Position backCoolBarSSTra(0, 0, 0);
+      backCoolBarLog.placeVolume(backCoolBarSSLog, copyOne, Transform3D(backCoolBarSSTra));
 
       Solid backCoolBarWaSolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.barWaThick / 2.);
       Volume backCoolBarWaLog = Volume(backCool.barWaName, backCoolBarWaSolid, ns.material(backCool.barWaMat));
-      const DDTranslation backCoolBarWaTra(0, 0, 0);
-      backCoolBarSSLog.placeVolume(backCoolBarWaLog, copyOne, Transform3D(Rotation3D(), backCoolBarWaTra));
+      const Position backCoolBarWaTra(0, 0, 0);
+      backCoolBarSSLog.placeVolume(backCoolBarWaLog, copyOne, Transform3D(backCoolBarWaTra));
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1839,14 +1826,14 @@ static long algorithm(dd4hep::Detector& /* description */,
       }
       Solid backVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., thickVFE / 2.);
       Volume backVFELog = Volume(backCool.vFEName, backVFESolid, ns.material(backCool.vFEMat));
-      DDTranslation offTra(0, 0, -thickVFE / 2);
+      Position offTra(0, 0, -thickVFE / 2);
       for (unsigned int iLyr(0); iLyr != backCool.vecBackVFELyrThick.size(); ++iLyr) {
         Solid backVFELyrSolid =
             Box(backCool.barHeight / 2., backCool.barWidth / 2., backCool.vecBackVFELyrThick[iLyr] / 2.);
         Volume backVFELyrLog =
             Volume(backCool.vecBackVFELyrName[iLyr], backVFELyrSolid, ns.material(backCool.vecBackVFELyrMat[iLyr]));
-        const DDTranslation backVFELyrTra(0, 0, backCool.vecBackVFELyrThick[iLyr] / 2);
-        backVFELog.placeVolume(backVFELyrLog, copyOne, Transform3D(Rotation3D(), backVFELyrTra + offTra));
+        const Position backVFELyrTra(0, 0, backCool.vecBackVFELyrThick[iLyr] / 2);
+        backVFELog.placeVolume(backVFELyrLog, copyOne, Transform3D(backVFELyrTra + offTra));
         offTra += 2 * backVFELyrTra;
       }
 
@@ -1871,11 +1858,11 @@ static long algorithm(dd4hep::Detector& /* description */,
         backCoolVFELog.placeVolume(
             backVFELog,
             copyOne,
-            Transform3D(Rotation3D(), DDTranslation(0, 0, backCool.barThick / 2. + thickVFE / 2.)));
+            Transform3D(Position(0, 0, backCool.barThick / 2. + thickVFE / 2.)));
       backCoolVFELog.placeVolume(backVFELog,
                                  copyTwo,
                                  Transform3D(myrot(ns, backCool.backVFEName + "Flip", CLHEP::HepRotationX(180_deg)),
-                                             DDTranslation(0, 0, -backCool.barThick / 2. - thickVFE / 2.)));
+                                             Position(0, 0, -backCool.barThick / 2. - thickVFE / 2.)));
 
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1912,12 +1899,12 @@ static long algorithm(dd4hep::Detector& /* description */,
         Solid backCoolSolid = Box(backCoolHeight / 2., backCoolWidth / 2., halfZBCool);
         Volume backCoolLog = Volume(backCName, backCoolSolid, ns.material(spm.mat));
 
-        const DDTranslation bCoolTra(
+        const Position bCoolTra(
             -realBPthick / 2 + backCoolHeight / 2 - grille.vecHeight[2 * iMod],
             deltaY,
             grille.vecZOff[2 * iMod] + grille.thick + grille.zSpace + halfZBCool - back.sideLength / 2);
         if (0 != backCool.here)
-          spmLog.placeVolume(backCoolLog, iMod + 1, Transform3D(Rotation3D(), outtra + backPlateTra + bCoolTra));
+          spmLog.placeVolume(backCoolLog, iMod + 1, outtra + backPlateTra + bCoolTra);
 
         //===
         const double backCoolTankHeight(backCool.barHeight);  // - backBracketHeight() ) ;
@@ -1930,7 +1917,7 @@ static long algorithm(dd4hep::Detector& /* description */,
           backCoolLog.placeVolume(backCoolTankLog,
                                   copyOne,
                                   Transform3D(Rotation3D(),
-                                              DDTranslation(-backCoolHeight / 2 + backCoolTankHeight / 2. + bottomThick,
+                                              Position(-backCoolHeight / 2 + backCoolTankHeight / 2. + bottomThick,
                                                             backCool.barWidth / 2. + backCoolTank.width / 2.,
                                                             0)));
 
@@ -1939,7 +1926,7 @@ static long algorithm(dd4hep::Detector& /* description */,
                                         backCoolTank.waWidth / 2.,
                                         halfZTank - backCoolTank.thick / 2.);
         Volume backCoolTankWaLog = Volume(bTankWaName, backCoolTankWaSolid, ns.material(backCoolTank.waMat));
-        backCoolTankLog.placeVolume(backCoolTankWaLog, copyOne, Transform3D(Rotation3D(), DDTranslation(0, 0, 0)));
+        backCoolTankLog.placeVolume(backCoolTankWaLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
 
         string bBracketName(backCoolTank.backBracketName + std::to_string(iMod + 1));
         Solid backBracketSolid = Box(backCoolTank.backBracketHeight / 2., backCoolTank.width / 2., halfZTank);
@@ -1948,13 +1935,13 @@ static long algorithm(dd4hep::Detector& /* description */,
           backCoolLog.placeVolume(backBracketLog,
                                   copyOne,
                                   Transform3D(Rotation3D(),
-                                              DDTranslation(backCool.barHeight - backCoolHeight / 2. -
+                                              Position(backCool.barHeight - backCoolHeight / 2. -
                                                                 backCoolTank.backBracketHeight / 2. + bottomThick,
                                                             -backCool.barWidth / 2. - backCoolTank.width / 2.,
                                                             0)));
         //===
 
-        DDTranslation bSumTra(backCool.barHeight - backCoolHeight / 2. + bottomThick, 0, 0);
+        Position bSumTra(backCool.barHeight - backCoolHeight / 2. + bottomThick, 0, 0);
         for (unsigned int j(0); j != nMisc; ++j) {  // loop over miscellaneous layers
           const string bName(backMisc.vecName[iMod * nMisc + j]);
           Solid bSolid =
@@ -1962,7 +1949,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 
           Volume bLog = Volume(bName, bSolid, ns.material(backMisc.vecMat[iMod * nMisc + j]));
 
-          const DDTranslation bTra(backMisc.vecThick[iMod * nMisc + j] / 2, 0_mm, 0_mm);
+          const Position bTra(backMisc.vecThick[iMod * nMisc + j] / 2, 0_mm, 0_mm);
 
           if (0 != backMisc.here)
             backCoolLog.placeVolume(bLog, copyOne, Transform3D(Rotation3D(), bSumTra + bTra));
@@ -1973,16 +1960,16 @@ static long algorithm(dd4hep::Detector& /* description */,
         const double bHalfWidth(backCool.barWidth / 2. + backCoolTank.width);
 
         if (0 != mbLyr.here) {
-          DDTranslation mTra(-backCoolHeight / 2. + mbCoolTube.outDiam, 0, 0);
+          Position mTra(-backCoolHeight / 2. + mbCoolTube.outDiam, 0, 0);
           for (unsigned int j(0); j != mbLyr.vecMBLyrThick.size(); ++j)  // loop over MB layers
           {
             const string mName(mbLyr.vecMBLyrName[j] + "_" + std::to_string(iMod + 1));
             Solid mSolid = Box(mbLyr.vecMBLyrThick[j] / 2, bHalfWidth, halfZBCool);
             Volume mLog = Volume(mName, mSolid, ns.material(mbLyr.vecMBLyrMat[j]));
 
-            mTra += DDTranslation(mbLyr.vecMBLyrThick[j] / 2.0, 0_mm, 0_mm);
+            mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0_mm, 0_mm);
             backCoolLog.placeVolume(mLog, copyOne, Transform3D(Rotation3D(), mTra));
-            mTra += DDTranslation(mbLyr.vecMBLyrThick[j] / 2.0, 0_mm, 0_mm);
+            mTra += Position(mbLyr.vecMBLyrThick[j] / 2.0, 0_mm, 0_mm);
           }
         }
 
@@ -1995,14 +1982,14 @@ static long algorithm(dd4hep::Detector& /* description */,
           const string mBWaName(mbCoolTube.name + "Wa_" + std::to_string(iMod + 1));
           Solid mBCoolTubeWaSolid = Tube(mBWaName, 0, mbCoolTube.innDiam / 2, halfZBCool, 0_deg, 360_deg);
           Volume mBWaLog = Volume(mBWaName, mBCoolTubeWaSolid, ns.material(backPipe.waterMat));
-          mBLog.placeVolume(mBWaLog, copyOne, Transform3D(Rotation3D(), Position(0, 0, 0)));
+          mBLog.placeVolume(mBWaLog, copyOne);
 
           for (unsigned int j(0); j != dryAirTube.mbCoolTubeNum; ++j)  // loop over all MB cooling circuits
           {
             backCoolLog.placeVolume(mBLog,
                                     2 * j + 1,
                                     Transform3D(Rotation3D(),
-                                                DDTranslation(-backCoolHeight / 2.0 + mbCoolTube.outDiam / 2.,
+                                                Position(-backCoolHeight / 2.0 + mbCoolTube.outDiam / 2.,
                                                               -bHalfWidth + (j + 1) * bHalfWidth / 5,
                                                               0)));
           }
@@ -2024,17 +2011,17 @@ static long algorithm(dd4hep::Detector& /* description */,
           Volume backPipeLog = Volume(bPipeName, backPipeSolid, ns.material(backPipe.mat));
           Volume backInnerLog = Volume(bInnerName, backInnerSolid, ns.material(backPipe.waterMat));
 
-          const DDTranslation bPipeTra1(back.xOff + back.sideHeight - 0.7 * backPipe.vecDiam[iMod],
+          const Position bPipeTra1(back.xOff + back.sideHeight - 0.7 * backPipe.vecDiam[iMod],
                                         back.yOff + back.plateWidth / 2 - back.sideWidth - 0.7 * backPipe.vecDiam[iMod],
                                         pipeZPos);
 
           spmLog.placeVolume(backPipeLog, copyOne, Transform3D(Rotation3D(), bPipeTra1));
 
-          const DDTranslation bPipeTra2(
+          const Position bPipeTra2(
               bPipeTra1.x(), back.yOff - back.plateWidth / 2 + back.sideWidth + backPipe.vecDiam[iMod], bPipeTra1.z());
 
           spmLog.placeVolume(backPipeLog, copyTwo, Transform3D(Rotation3D(), bPipeTra2));
-          backPipeLog.placeVolume(backInnerLog, copyOne, Transform3D(Rotation3D(), DDTranslation()));
+          backPipeLog.placeVolume(backInnerLog, copyOne, Transform3D(Rotation3D(), Position()));
         }
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2051,14 +2038,14 @@ static long algorithm(dd4hep::Detector& /* description */,
               Tube(dryAirTubName, dryAirTube.innDiam / 2, dryAirTube.outDiam / 2, pipeLength / 2, 0_deg, 360_deg);
           Volume dryAirTubeLog = Volume(dryAirTubName, dryAirTubeSolid, ns.material(dryAirTube.mat));
 
-          const DDTranslation dryAirTubeTra1(
+          const Position dryAirTubeTra1(
               back.xOff + back.sideHeight - 0.7 * dryAirTube.outDiam - backPipe.vecDiam[iMod],
               back.yOff + back.plateWidth / 2 - back.sideWidth - 1.2 * dryAirTube.outDiam,
               pipeZPos);
 
           spmLog.placeVolume(dryAirTubeLog, copyOne, Transform3D(Rotation3D(), dryAirTubeTra1));
 
-          const DDTranslation dryAirTubeTra2(
+          const Position dryAirTubeTra2(
               dryAirTubeTra1.x(),
               back.yOff - back.plateWidth / 2 + back.sideWidth + 0.7 * dryAirTube.outDiam,
               dryAirTubeTra1.z());
@@ -2073,17 +2060,17 @@ static long algorithm(dd4hep::Detector& /* description */,
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        DDTranslation cTra(backCool.barHeight / 2. - backCoolHeight / 2. + bottomThick, 0, -halfZTank + halfZCoolVFE);
+        Position cTra(backCool.barHeight / 2. - backCoolHeight / 2. + bottomThick, 0, -halfZTank + halfZCoolVFE);
         const unsigned int numSec(static_cast<unsigned int>(backCool.vecBackCoolNSec[iMod]));
         for (unsigned int jSec(0); jSec != numSec; ++jSec) {
           const unsigned int nMax(static_cast<unsigned int>(backCool.vecBackCoolNPerSec[iNSec++]));
           for (unsigned int iBar(0); iBar != nMax; ++iBar) {
-            backCoolLog.placeVolume(backCoolVFELog, iCVFECopy++, Transform3D(Rotation3D(), cTra));
-            cTra += DDTranslation(0, 0, backMisc.backCBStdSep);
+            backCoolLog.placeVolume(backCoolVFELog, iCVFECopy++, cTra);
+            cTra += Position(0, 0, backMisc.backCBStdSep);
           }
-          cTra -= DDTranslation(0, 0, backMisc.backCBStdSep);  // backspace to previous
+          cTra -= Position(0, 0, backMisc.backCBStdSep);  // backspace to previous
           if (jSec != numSec - 1)
-            cTra += DDTranslation(0, 0, backCool.vecBackCoolSecSep[iSep++]);  // now take atypical step
+            cTra += Position(0, 0, backCool.vecBackCoolSecSep[iSep++]);  // now take atypical step
         }
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2114,11 +2101,11 @@ static long algorithm(dd4hep::Detector& /* description */,
       Solid patchSolid = Box(patchParms[0], patchParms[1], patchParms[2]);
       Volume patchLog = Volume(patchPanel.name, patchSolid, ns.material(spm.mat));
 
-      const DDTranslation patchTra(back.xOff + 4_mm, 0_mm, grille.vecZOff.back() + grille.thick + patchParms[2]);
+      const Position patchTra(back.xOff + 4_mm, 0_mm, grille.vecZOff.back() + grille.thick + patchParms[2]);
       if (0 != patchPanel.here)
-        spmLog.placeVolume(patchLog, copyOne, Transform3D(Rotation3D(), patchTra));
+        spmLog.placeVolume(patchLog, copyOne, patchTra);
 
-      DDTranslation pTra(-patchParms[0], 0, 0);
+      Position pTra(-patchParms[0], 0, 0);
 
       for (unsigned int j(0); j != patchPanel.vecNames.size(); ++j) {
         const string pName(patchPanel.vecNames[j]);
@@ -2126,10 +2113,10 @@ static long algorithm(dd4hep::Detector& /* description */,
         Solid pSolid = Box(patchPanel.vecThick[j] / 2., patchParms[1], patchParms[2]);
         Volume pLog = Volume(pName, pSolid, ns.material(patchPanel.vecMat[j]));
 
-        pTra += DDTranslation(patchPanel.vecThick[j] / 2, 0_mm, 0_mm);
-        patchLog.placeVolume(pLog, copyOne, Transform3D(Rotation3D(), pTra));
+        pTra += Position(patchPanel.vecThick[j] / 2, 0_mm, 0_mm);
+        patchLog.placeVolume(pLog, copyOne, pTra);
 
-        pTra += DDTranslation(patchPanel.vecThick[j] / 2, 0_mm, 0_mm);
+        pTra += Position(patchPanel.vecThick[j] / 2, 0_mm, 0_mm);
       }
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2159,24 +2146,23 @@ static long algorithm(dd4hep::Detector& /* description */,
 
         envLog.placeVolume(blkLog,
                            copyOne,
-                           Transform3D(Rotation3D(), DDTranslation(0, 0, pincer.envLength / 2 - pincer.blkLength / 2)));
+                           Position(0_mm, 0_mm, pincer.envLength / 2 - pincer.blkLength / 2));
 
         array<double, 3> cutParms{{pincer.cutWidth / 2., pincer.cutHeight / 2., pincer.blkLength / 2}};
         Solid cutSolid = Box(pincer.cutName, cutParms[0], cutParms[1], cutParms[2]);
         Volume cutLog = Volume(pincer.cutName, cutSolid, ns.material(pincer.cutMat));
         blkLog.placeVolume(cutLog,
                            copyOne,
-                           Transform3D(Rotation3D(),
-                                       DDTranslation(+blkParms[0] - cutParms[0] - pincer.shim1Width + pincer.shim2Width,
-                                                     -blkParms[1] + cutParms[1],
-                                                     0)));
+                           Position(+blkParms[0] - cutParms[0] - pincer.shim1Width + pincer.shim2Width,
+				    -blkParms[1] + cutParms[1],
+				    0_mm));
         array<double, 3> shim2Parms{{pincer.shim2Width / 2., pincer.shimHeight / 2., pincer.blkLength / 2}};
         Solid shim2Solid = Box(pincer.shim2Name, shim2Parms[0], shim2Parms[1], shim2Parms[2]);
         Volume shim2Log = Volume(pincer.shim2Name, shim2Solid, ns.material(pincer.shimMat));
         cutLog.placeVolume(
             shim2Log,
             copyOne,
-            Transform3D(Rotation3D(), DDTranslation(+cutParms[0] - shim2Parms[0], -cutParms[1] + shim2Parms[1], 0)));
+            Position(+cutParms[0] - shim2Parms[0], -cutParms[1] + shim2Parms[1], 0_mm));
 
         array<double, 3> shim1Parms{
             {pincer.shim1Width / 2., pincer.shimHeight / 2., (pincer.envLength - pincer.blkLength) / 2}};
@@ -2185,16 +2171,13 @@ static long algorithm(dd4hep::Detector& /* description */,
         envLog.placeVolume(
             shim1Log,
             copyOne,
-            Transform3D(Rotation3D(),
-                        DDTranslation(
-                            +envParms[0] - shim1Parms[0], -envParms[1] + shim1Parms[1], -envParms[2] + shim1Parms[2])));
+            Position(+envParms[0] - shim1Parms[0], -envParms[1] + shim1Parms[1], -envParms[2] + shim1Parms[2]));
 
         for (unsigned int iEnv(0); iEnv != pincer.vecEnvZOff.size(); ++iEnv) {
           rodLog.placeVolume(
               envLog,
               1 + iEnv,
-              Transform3D(Rotation3D(),
-                          DDTranslation(0, 0, -ilyLength / 2. + pincer.vecEnvZOff[iEnv] - pincer.envLength / 2.)));
+              Position(0_mm, 0_mm, -ilyLength / 2. + pincer.vecEnvZOff[iEnv] - pincer.envLength / 2.));
         }
 
         // Place the rods
@@ -2202,9 +2185,8 @@ static long algorithm(dd4hep::Detector& /* description */,
         const string xilyName(ily.name + std::to_string(ily.vecIlyMat.size() - 1));
 
         for (unsigned int iRod(0); iRod != pincer.vecRodAzimuth.size(); ++iRod) {
-          const DDTranslation rodTra(
-              radius * cos(pincer.vecRodAzimuth[iRod]), radius * sin(pincer.vecRodAzimuth[iRod]), 0);
-          //ns.volume(xilyName)
+          const Position rodTra(
+              radius * cos(pincer.vecRodAzimuth[iRod]), radius * sin(pincer.vecRodAzimuth[iRod]), 0_mm);
           xilyLog.placeVolume(rodLog,
                               1 + iRod,
                               Transform3D(myrot(ns,
