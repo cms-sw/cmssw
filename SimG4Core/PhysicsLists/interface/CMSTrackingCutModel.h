@@ -1,5 +1,5 @@
-#ifndef SimG4Core_GFlash_CMSTrackingCutModel_H
-#define SimG4Core_GFlash_CMSTrackingCutModel_H
+#ifndef SimG4Core_PhysicsLists_CMSTrackingCutModel_H
+#define SimG4Core_PhysicsLists_CMSTrackingCutModel_H
 //
 // Vladimir Ivanchenko 27.06.2019
 //
