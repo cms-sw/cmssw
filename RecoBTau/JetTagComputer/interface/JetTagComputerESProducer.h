@@ -11,7 +11,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 /**
- * The idea here is to provide to implementations for
+ * The idea here is to provide two implementations for
  * JetTagConmputerESProducer: one for those ConcreteJetTagComputers
  * that consume ES products and thus need the ESGetTokens, and one for
  * those that do not. All ConcreteJetTagComputers are required to have
@@ -26,7 +26,7 @@
  * Those that do not need ESGetTokens should define the nested type as
  * void, and in this case no further modifications are needed.
  */
-namespace jetTagComputerESProducerImpl {
+namespace jet_tag_computer_esproducer_impl {
   template <typename ConcreteJetTagComputer, bool>
   class JetTagComputerESProducer : public edm::ESProducer {
   private:
@@ -72,10 +72,10 @@ namespace jetTagComputerESProducerImpl {
   private:
     const edm::ParameterSet m_pset;
   };
-}  // namespace jetTagComputerESProducerImpl
+}  // namespace jet_tag_computer_esproducer_impl
 
 template <typename T>
 using JetTagComputerESProducer =
-    jetTagComputerESProducerImpl::JetTagComputerESProducer<T, std::is_same_v<typename T::Tokens, void>>;
+    jet_tag_computer_esproducer_impl::JetTagComputerESProducer<T, std::is_same_v<typename T::Tokens, void>>;
 
 #endif  // RecoBTau_JetTagComputerESProducer_h
