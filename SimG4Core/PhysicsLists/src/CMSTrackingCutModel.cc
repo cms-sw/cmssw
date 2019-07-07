@@ -1,4 +1,4 @@
-#include "SimG4Core/GFlash/interface/CMSTrackingCutModel.h"
+#include "SimG4Core/PhysicsLists/interface/CMSTrackingCutModel.h"
 
 #include "G4ParticleDefinition.hh"
 #include "G4Electron.hh"
