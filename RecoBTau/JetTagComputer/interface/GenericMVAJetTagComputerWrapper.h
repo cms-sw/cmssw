@@ -48,8 +48,8 @@ template <class Provider,
           const char *ti4 = btau_dummy::none>
 class GenericMVAJetTagComputerWrapper : public GenericMVAJetTagComputer, private Provider {
 public:
-  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params)
-      : GenericMVAJetTagComputer(params), Provider(params) {
+  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params, Tokens tokens)
+      : GenericMVAJetTagComputer(params, std::move(tokens)), Provider(params) {
     uses(0, ti1);
     uses(1, ti2);
     uses(2, ti3);
@@ -69,8 +69,8 @@ template <class Provider, class TI1, const char *ti1, class TI2, const char *ti2
 class GenericMVAJetTagComputerWrapper<Provider, TI1, ti1, TI2, ti2, TI3, ti3, btau_dummy::Null, btau_dummy::none>
     : public GenericMVAJetTagComputer, private Provider {
 public:
-  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params)
-      : GenericMVAJetTagComputer(params), Provider(params) {
+  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params, Tokens tokens)
+      : GenericMVAJetTagComputer(params, std::move(tokens)), Provider(params) {
     uses(0, ti1);
     uses(1, ti2);
     uses(2, ti3);
@@ -96,8 +96,8 @@ class GenericMVAJetTagComputerWrapper<Provider,
                                       btau_dummy::none> : public GenericMVAJetTagComputer,
                                                           private Provider {
 public:
-  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params)
-      : GenericMVAJetTagComputer(params), Provider(params) {
+  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params, Tokens tokens)
+      : GenericMVAJetTagComputer(params, std::move(tokens)), Provider(params) {
     uses(0, ti1);
     uses(1, ti2);
   }
@@ -122,8 +122,8 @@ class GenericMVAJetTagComputerWrapper<Provider,
                                       btau_dummy::none> : public GenericMVAJetTagComputer,
                                                           private Provider {
 public:
-  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params)
-      : GenericMVAJetTagComputer(params), Provider(params) {
+  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params, Tokens tokens)
+      : GenericMVAJetTagComputer(params, std::move(tokens)), Provider(params) {
     uses(0, ti1);
   }
 
@@ -147,8 +147,8 @@ class GenericMVAJetTagComputerWrapper<Provider,
                                       btau_dummy::none> : public GenericMVAJetTagComputer,
                                                           private Provider {
 public:
-  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params)
-      : GenericMVAJetTagComputer(params), Provider(params) {}
+  GenericMVAJetTagComputerWrapper(const edm::ParameterSet &params, Tokens tokens)
+      : GenericMVAJetTagComputer(params, std::move(tokens)), Provider(params) {}
 
 protected:
   reco::TaggingVariableList taggingVariables(const TagInfoHelper &info) const override {

@@ -15,6 +15,8 @@
 
 class LeptonTaggerByIP : public JetTagComputer {
 public:
+  using Tokens = void;
+
   /// explicit ctor
   explicit LeptonTaggerByIP(const edm::ParameterSet& configuration)
       : m_use3d(configuration.getParameter<bool>("use3d")), m_selector(configuration) {
