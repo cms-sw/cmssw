@@ -14,23 +14,36 @@ threshold_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorPro
                                fixedDataSizePerHGCROC = cms.bool(False),
                                )
 
+# Column is Nlinks, Row is NWafers
+# Requested size = 8(links)x8(wafers)
+# Values taken from https://indico.cern.ch/event/747610/contributions/3155360/, slide 13
+# For motherboards larger than 3, it is split in two
+bestchoice_ndata_centralized = [
+        13, 42, 75,  0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        13, 40, 74, 80, 114, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        12, 39, 72, 82, 116, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        12, 26, 53, 80, 114, 148, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        12, 25, 52, 79, 112, 146, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 24, 51, 78, 111, 144, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0,  0,  0,  0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0,  0,  0,  0,   0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        ]
+
+
+bestchoice_ndata_decentralized = [
+        1, 3, 6, 9, 14, 18, 23, 27, 32, 37, 41, 46, 0, 0, 0, 0,
+        0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
+        0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
+        0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
+        0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
+        0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
+        0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
+        0, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 0, 0, 0,
+        ]
 
 best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                           Method = cms.string('bestChoiceSelect'),
-                          # Column is Nlinks, Row is NWafers
-                          # Requested size = 8(links)x8(wafers)
-                          # Values taken from https://indico.cern.ch/event/747610/contributions/3155360/, slide 13
-                          # For motherboards larger than 3, it is split in two
-                          NData = cms.vuint32(
-                              13, 42, 75,  0,   0,   0, 0, 0,
-                              13, 40, 74, 80, 114, 148, 0, 0,
-                              12, 39, 72, 82, 116, 146, 0, 0,
-                              12, 26, 53, 80, 114, 148, 0, 0,
-                              12, 25, 52, 79, 112, 146, 0, 0,
-                               0, 24, 51, 78, 111, 144, 0, 0,
-                               0,  0,  0,  0,   0,   0, 0, 0,
-                               0,  0,  0,  0,   0,   0, 0, 0,
-                              ),
+                          NData = cms.vuint32(bestchoice_ndata_centralized),
                           coarsenTriggerCells = cms.bool(False),
                           fixedDataSizePerHGCROC = cms.bool(False),
                           )
