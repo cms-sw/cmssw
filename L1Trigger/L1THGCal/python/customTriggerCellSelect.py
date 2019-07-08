@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, coarsetc_equalshare_proc
+from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc, coarsetc_equalshare_proc, bestchoice_ndata_decentralized
 
 def custom_triggercellselect_supertriggercell(process,
                                               stcSize=supertc_conc_proc.stcSize,
@@ -35,6 +35,10 @@ def custom_triggercellselect_bestchoice(process,
     parameters = best_conc_proc.clone(NData = triggercells)
     process.hgcalConcentratorProducer.ProcessorParameters = parameters
     return process
+
+
+def custom_triggercellselect_bestchoice_decentralized(process):
+    return custom_triggercellselect_bestchoice(process, triggercells=bestchoice_ndata_decentralized)
 
 
 def custom_coarsetc_onebitfraction(process,

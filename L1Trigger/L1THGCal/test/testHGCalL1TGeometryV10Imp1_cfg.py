@@ -103,7 +103,7 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 # Eventually modify default geometry parameters
 from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
-process = custom_geometry_V9(process)
+process = custom_geometry_V9(process, 1)
 
 process.hgcaltriggergeomtester = cms.EDAnalyzer(
     "HGCalTriggerGeomTesterV9"
