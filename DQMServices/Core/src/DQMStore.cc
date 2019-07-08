@@ -1190,7 +1190,7 @@ bool DQMStore::dirExists(std::string const& path) const { return dirs_.count(pat
 //////////////////////////////////////////////////////////////////////
 template <class HISTO, class COLLATE>
 MonitorElement* DQMStore::book_(
-    std::string const& dir, std::string const& name, char const* context, int const kind, HISTO* h, COLLATE collate) {
+    std::string const& dir, std::string const& name, char const* context, MonitorElement::Kind const kind, HISTO* h, COLLATE collate) {
   assert(name.find('/') == std::string::npos);
   if (verbose_ > 3)
     print_trace(dir, name);
