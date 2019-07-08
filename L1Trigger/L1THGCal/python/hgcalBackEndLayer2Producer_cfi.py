@@ -83,7 +83,7 @@ histoMax_C3d_seeding_params = cms.PSet(type_histoalgo=cms.string('HistoMaxC3d'),
                                binSumsHisto=binSums,
                                threshold_histo_multicluster=cms.double(10.),
                                neighbour_weights=neighbour_weights_1stOrder,
-                               seed_position=cms.string("BinCentre"),#BinCentre, TCWeighted
+                               seed_position=cms.string("TCWeighted"),#BinCentre, TCWeighted
                                seeding_space=cms.string("RPhi"),# RPhi, XY
                                seed_smoothing_ecal=seed_smoothing_ecal,
                                seed_smoothing_hcal=seed_smoothing_hcal,
