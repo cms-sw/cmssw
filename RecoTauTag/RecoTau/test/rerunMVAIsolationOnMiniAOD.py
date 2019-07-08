@@ -65,6 +65,7 @@ process.rerunDiscriminationAgainstElectronMVA6 = patTauDiscriminationAgainstElec
     Prediscriminants = noPrediscriminants,
     #Prediscriminants = requireLeadTrack,
     loadMVAfromDB = cms.bool(True),
+    vetoEcalCracks = cms.bool(False),
     returnMVA = cms.bool(True),
     method = cms.string("BDTG"),
     mvaName_NoEleMatch_woGwoGSF_BL = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL"),
