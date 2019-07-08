@@ -165,7 +165,7 @@ void DTRunConditionVar::bookChamberHistos(
       << "[DTRunConditionVar]: booking histos in " << bookingFolder << endl;
 
   string histoName = histoType + histoTag;
-  string histoLabel = histoType;
+  const string& histoLabel = histoType;
 
   (chamberHistos[dtCh.rawId()])[histoType] = ibooker.book1D(histoName, histoLabel, nbins, min, max);
 }
