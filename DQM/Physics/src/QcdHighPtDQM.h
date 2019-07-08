@@ -18,7 +18,6 @@
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class QcdHighPtDQM : public DQMEDAnalyzer {
 public:
   QcdHighPtDQM(const edm::ParameterSet&);

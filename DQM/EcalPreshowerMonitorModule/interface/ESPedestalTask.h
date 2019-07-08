@@ -10,7 +10,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class ESPedestalTask : public DQMEDAnalyzer {
 public:
   ESPedestalTask(const edm::ParameterSet& ps);

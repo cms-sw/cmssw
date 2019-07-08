@@ -37,7 +37,6 @@ namespace reco {
 }
 class NavigationSchool;
 
-
 class TrackEfficiencyMonitor : public DQMEDAnalyzer {
 public:
   typedef reco::Track Track;

@@ -74,7 +74,6 @@ const Double_t BarrelEta = 2.0;
 const Double_t EndcapEta = 3.0;
 const Double_t ForwardEta = 5.0;
 
-
 class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
 public:
   explicit JetAnalyzer_HeavyIons(const edm::ParameterSet&);

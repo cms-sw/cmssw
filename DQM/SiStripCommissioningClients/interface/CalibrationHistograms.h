@@ -4,7 +4,6 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class CalibrationHistograms : virtual public CommissioningHistograms {
 public:
   CalibrationHistograms(const edm::ParameterSet& pset, DQMStore*, const sistrip::RunType& task = sistrip::CALIBRATION);

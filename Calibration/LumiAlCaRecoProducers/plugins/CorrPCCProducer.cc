@@ -48,7 +48,6 @@ ________________________________________________________________**/
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-
 class CorrPCCProducer : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit CorrPCCProducer(const edm::ParameterSet&);

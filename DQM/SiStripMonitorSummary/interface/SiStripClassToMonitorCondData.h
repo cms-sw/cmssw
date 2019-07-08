@@ -27,7 +27,6 @@
 #include <string>
 #include <vector>
 
-
 class SiStripPedestalsDQM;
 class SiStripNoisesDQM;
 class SiStripQualityDQM;

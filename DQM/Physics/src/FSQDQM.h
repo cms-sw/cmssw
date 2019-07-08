@@ -75,7 +75,6 @@
 #include <map>
 #include <cmath>
 
-
 class FSQDQM : public DQMEDAnalyzer {
 public:
   FSQDQM(const edm::ParameterSet &ps);

@@ -12,7 +12,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class DTTimeEvolutionHisto {
 public:
   /// Constructor

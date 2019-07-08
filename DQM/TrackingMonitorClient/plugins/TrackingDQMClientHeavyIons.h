@@ -10,7 +10,6 @@
 #include <TH1.h>
 #include <TEfficiency.h>
 
-
 class TrackingDQMClientHeavyIons : public DQMEDHarvester {
 public:
   TrackingDQMClientHeavyIons(const edm::ParameterSet& pset);

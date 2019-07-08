@@ -23,7 +23,6 @@ namespace reco {
   class Jet;
 }
 
-
 class QcdPhotonsDQM : public DQMEDAnalyzer {
 public:
   /// Constructor

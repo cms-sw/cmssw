@@ -33,7 +33,6 @@
 #include <fstream>
 #include <vector>
 
-
 class HLTInclusiveVBFClient : public edm::EDAnalyzer {
 private:
   DQMStore* dbe_;  //dbe seems to be the standard name for this, I dont know why. We of course dont own it

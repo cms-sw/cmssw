@@ -18,7 +18,6 @@
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-
 class DTOfflineSummaryClients : public DQMEDHarvester {
 public:
   /// Constructor

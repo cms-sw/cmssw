@@ -29,7 +29,6 @@
 #include <iostream>
 #include <vector>
 
-
 class NoiseRatesClient : public DQMEDHarvester {
 private:
   std::string outputFile_;

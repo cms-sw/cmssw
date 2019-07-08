@@ -18,7 +18,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-
 class DQMHcalPhiSymAlCaReco : public DQMEDAnalyzer {
 public:
   DQMHcalPhiSymAlCaReco(const edm::ParameterSet &);
