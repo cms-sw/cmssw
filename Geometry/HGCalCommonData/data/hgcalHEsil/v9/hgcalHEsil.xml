@@ -42,6 +42,8 @@
       0, 0, 0, 0, 0, 0, 1, 0, 0,
       0, 0, 0, 0, 0, 0, 1, 0, 0,
       0, 0, 0, 0, 0, 0, 1, 0, 0 </Vector>
+    <Vector name="LayerCenter" type="numeric" nEntries="8">
+      0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="AbsorberMode"     value="0"/>
     <Numeric name="zMinBlock"        value="[hgcal:zMinHEsil]"/>

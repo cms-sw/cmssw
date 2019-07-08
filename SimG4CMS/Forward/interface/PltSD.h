@@ -11,7 +11,7 @@ class SimTrackManager;
 class PltSD : public TimingSD {
 public:
   PltSD(const std::string &,
-        const DDCompactView &,
+        const edm::EventSetup &,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);

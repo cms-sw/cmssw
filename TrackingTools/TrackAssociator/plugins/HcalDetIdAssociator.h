@@ -4,7 +4,7 @@
 //
 // Package:    TrackAssociator
 // Class:      HcalDetIdAssociator
-// 
+//
 /*
 
  Description: <one line class summary>
@@ -20,25 +20,23 @@
 
 #include "CaloDetIdAssociator.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-class HcalDetIdAssociator: public CaloDetIdAssociator{
- public:
-   HcalDetIdAssociator():CaloDetIdAssociator(72, 70 ,0.087){};
+class HcalDetIdAssociator : public CaloDetIdAssociator {
+public:
+  HcalDetIdAssociator() : CaloDetIdAssociator(72, 70, 0.087, nullptr){};
 
-   HcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet)
-    ,hcalReg_(pSet.getParameter<int> ("hcalRegion"))
-    {};
-   
-   const char* name() const override { return "HCAL"; }
+  HcalDetIdAssociator(int hcalReg, int nPhi, int nEta, double etaBinSize, CaloGeometry const* geom)
+      : CaloDetIdAssociator(nPhi, nEta, etaBinSize, geom), hcalReg_{hcalReg} {}
 
- protected:
-    
-   int hcalReg_;
-   const unsigned int getNumberOfSubdetectors() const override { return hcalReg_;}
-   void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const override {
-     if ( subDetectorIndex == 0 )
-       validIds = geometry_->getValidDetIds(DetId::Hcal, HcalBarrel);//HB
-     else
-       validIds = geometry_->getValidDetIds(DetId::Hcal, HcalEndcap);//HE
-   };
+  const char* name() const override { return "HCAL"; }
+
+protected:
+  int hcalReg_;
+  const unsigned int getNumberOfSubdetectors() const override { return hcalReg_; }
+  void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const override {
+    if (subDetectorIndex == 0)
+      validIds = geometry_->getValidDetIds(DetId::Hcal, HcalBarrel);  //HB
+    else
+      validIds = geometry_->getValidDetIds(DetId::Hcal, HcalEndcap);  //HE
+  };
 };
 #endif

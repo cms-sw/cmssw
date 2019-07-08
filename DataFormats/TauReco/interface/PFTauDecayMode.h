@@ -27,8 +27,8 @@
 namespace reco {
   class PFTauDecayMode : public CompositeCandidate {
   public:
-    const static unsigned char maxNumberOfPiZeroCandidatesAllowed =
-        4;  //to help with indexing.  changing this value necissitates changing the enum below
+    //to help with indexing.  changing this value necissitates changing the enum below
+    const static unsigned char maxNumberOfPiZeroCandidatesAllowed = 4;
 
     enum hadronicTauDecayModes {
       tauDecay1ChargedPion0PiZero,

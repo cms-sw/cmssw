@@ -15,7 +15,7 @@ def makeStepNameSim(key,frag,step,suffix):
 def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
-neutronKeys = ['2023D17','2023D19','2023D21','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D38','2023D39','2023D40','2023D41','2023D42']
+neutronKeys = ['2023D17','2023D19','2023D21','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D38','2023D39','2023D40','2023D41','2023D42','2023D43']
 neutronFrags = ['ZMM_14','MinBias_14TeV']
 
 tbmFrags = ['TTbar_13','ZMM_13']
@@ -88,6 +88,16 @@ for year in upgradeKeys:
                         workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
                 elif '2018' in key:
                     workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
+
+            # special workflows for HGCAL/TICL
+            if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2023' in key):
+                TICLVariations = ['TICLOnly', 'TICLFullReco']
+                # Skip Hharvesting for TICLOnly
+                for tv in TICLVariations:
+                    if 'TICLOnly' in tv:
+                        stepList[tv] = [s for s in stepList[tv] if ("HARVEST" not in s)]
+                for tv in TICLVariations:
+                    workflows[numWF+upgradeSteps[tv]['offset']] = [ upgradeDatasetFromFragment[frag], stepList[tv]]
 
             # special workflows for HE
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:

@@ -17,21 +17,22 @@
 namespace reco {
   namespace parser {
 
-    template<typename T>
+    template <typename T>
     struct power_of {
       T operator()(T lhs, T rhs) const { return pow(lhs, rhs); }
     };
 
-    template<typename Op>
+    template <typename Op>
     struct ExpressionBinaryOperatorSetter {
-      ExpressionBinaryOperatorSetter(ExpressionStack & stack) : stack_(stack) { }
+      ExpressionBinaryOperatorSetter(ExpressionStack& stack) : stack_(stack) {}
       void operator()(const char*, const char*) const {
-	stack_.push_back(ExpressionPtr(new ExpressionBinaryOperator<Op>(stack_)));
+        stack_.push_back(ExpressionPtr(new ExpressionBinaryOperator<Op>(stack_)));
       }
+
     private:
-      ExpressionStack & stack_;
+      ExpressionStack& stack_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

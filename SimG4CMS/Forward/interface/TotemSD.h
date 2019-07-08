@@ -43,7 +43,7 @@ class SimTrackManager;
 class TotemSD : public SensitiveTkDetector, public Observer<const BeginOfEvent*> {
 public:
   TotemSD(const std::string&,
-          const DDCompactView&,
+          const edm::EventSetup&,
           const SensitiveDetectorCatalog&,
           edm::ParameterSet const&,
           const SimTrackManager*);

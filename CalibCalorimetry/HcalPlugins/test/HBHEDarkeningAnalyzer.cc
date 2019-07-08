@@ -96,10 +96,8 @@ void HBHEDarkeningAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup
   for (int i = 0; i < maxEta; i++) {
     theTopology->getDepthSegmentation(i + 1, m_segmentation[i]);
   }
-  std::cout << "HB: Eta " << theTopology->firstHBRing() 
-	    << ":" << theTopology->lastHBRing() << " HE: Eta "
-	    << theTopology->firstHERing() << ":" << theTopology->lastHERing()
-	    << std::endl;
+  std::cout << "HB: Eta " << theTopology->firstHBRing() << ":" << theTopology->lastHBRing() << " HE: Eta "
+            << theTopology->firstHERing() << ":" << theTopology->lastHERing() << std::endl;
   hb_recalibration.setup(m_segmentation, hb_darkening);
   he_recalibration.setup(m_segmentation, he_darkening);
 }
@@ -133,8 +131,7 @@ void HBHEDarkeningAnalyzer::print(int ieta_min,
                                   int lay_max,
                                   const HBHEDarkening* darkening,
                                   const HBHERecalibration& recalibration) {
-  std::cout << "Darkening: ieta " << ieta_min << ":" << ieta_max << " layer "
-	    << lay_min << ":" << lay_max << std::endl;
+  std::cout << "Darkening: ieta " << ieta_min << ":" << ieta_max << " layer " << lay_min << ":" << lay_max << std::endl;
   for (int ieta = ieta_min; ieta <= ieta_max; ++ieta) {
     std::cout << "Tower " << ieta << ": ";
     for (int lay = lay_min; lay <= lay_max; ++lay) {
@@ -143,8 +140,8 @@ void HBHEDarkeningAnalyzer::print(int ieta_min,
     std::cout << std::endl;
   }
 
-  std::cout << "Recalibration: ieta " << ieta_min << ":" << ieta_max 
-	    << " layer " << lay_min << ":" << lay_max << std::endl;
+  std::cout << "Recalibration: ieta " << ieta_min << ":" << ieta_max << " layer " << lay_min << ":" << lay_max
+            << std::endl;
   for (int ieta = ieta_min; ieta <= ieta_max; ++ieta) {
     std::cout << "Tower " << ieta << ": ";
     for (int depth = 1; depth <= recalibration.maxDepth(); ++depth) {

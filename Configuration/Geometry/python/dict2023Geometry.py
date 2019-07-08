@@ -248,13 +248,13 @@ caloDict = {
     "C3" : {
         1 : [
             'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/PhaseII/eregalgo.xml',
+            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
             'Geometry/EcalCommonData/data/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',
             'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/escon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/esalgo.xml',
+            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
+            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
             'Geometry/HcalCommonData/data/hcalrotations.xml',
             'Geometry/HcalCommonData/data/hcal/HGCal/hcalalgo.xml',
             'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
@@ -321,13 +321,13 @@ caloDict = {
     "C4" : {
         1 : [
             'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/PhaseII/eregalgo.xml',
+            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
             'Geometry/EcalCommonData/data/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',
             'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/escon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/esalgo.xml',
+            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
+            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
             'Geometry/HcalCommonData/data/hcalrotations.xml',
             'Geometry/HcalCommonData/data/hcal/NoHE/hcalalgo.xml',
             'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
@@ -396,13 +396,13 @@ caloDict = {
     "C5" : {
         1 : [
             'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/PhaseII/eregalgo.xml',
+            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
             'Geometry/EcalCommonData/data/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',
             'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/escon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/esalgo.xml',
+            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
+            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
             'Geometry/HcalCommonData/data/hcalrotations.xml',
             'Geometry/HcalCommonData/data/hcal/NoHE/hcalalgo.xml',
             'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
@@ -471,13 +471,13 @@ caloDict = {
     "C6" : {
         1 : [
             'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/PhaseII/eregalgo.xml',
+            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
             'Geometry/EcalCommonData/data/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',
             'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/escon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/esalgo.xml',
+            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
+            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
             'Geometry/HcalCommonData/data/hcalrotations.xml',
             'Geometry/HcalCommonData/data/hcal/NoHE/hcalalgo.xml',
             'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
@@ -557,13 +557,13 @@ caloDict = {
     "C7" : {
         1 : [
             'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/PhaseII/eregalgo.xml',
+            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
             'Geometry/EcalCommonData/data/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',
             'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/escon.xml',
-            'Geometry/EcalCommonData/data/PhaseII/esalgo.xml',
+            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
+            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
             'Geometry/HcalCommonData/data/hcalrotations.xml',
             'Geometry/HcalCommonData/data/hcal/NoHE/hcalalgo.xml',
             'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
@@ -631,9 +631,9 @@ caloDict = {
 
     "C8" : {
         1 : [
-            'Geometry/EcalCommonData/data/PhaseII/v2/eregalgo.xml',
-            'Geometry/EcalCommonData/data/PhaseII/v2/ectkcable.xml',
-            'Geometry/EcalCommonData/data/PhaseII/v2/ectkcablemat.xml',
+            'Geometry/EcalCommonData/data/eregalgo/2023/v2/eregalgo.xml',
+            'Geometry/EcalCommonData/data/ectkcable/2023/v1/ectkcable.xml',
+            'Geometry/EcalCommonData/data/ectkcablemat/2023/v1/ectkcablemat.xml',
             'Geometry/EcalCommonData/data/ebalgo.xml',
             'Geometry/EcalCommonData/data/ebcon.xml',
             'Geometry/EcalCommonData/data/ebrot.xml',
@@ -1104,6 +1104,7 @@ detectorVersionDict = {
     ("O2","T14","C3","M2","F2","I1") : "D40",
     ("O3","T14","C8","M3","F2","I9") : "D41",
     ("O2","T15","C3","M2","F2","I1") : "D42",
+    ("O2","T14","C4","M3","F2","I7") : "D43",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18", "D20", "D22", "D23", "D26", "D27", "D36", "D37" ])

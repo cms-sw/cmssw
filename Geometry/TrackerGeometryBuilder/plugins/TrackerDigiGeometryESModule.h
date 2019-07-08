@@ -27,30 +27,29 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class  TrackerDigiGeometryESModule: public edm::ESProducer{
- public:
-  TrackerDigiGeometryESModule(const edm::ParameterSet & p);
-  ~TrackerDigiGeometryESModule() override; 
+class TrackerDigiGeometryESModule : public edm::ESProducer {
+public:
+  TrackerDigiGeometryESModule(const edm::ParameterSet &p);
+  ~TrackerDigiGeometryESModule() override;
   std::unique_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord &);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
- private:
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
   /// Called when geometry description changes
   const std::string alignmentsLabel_;
   const std::string myLabel_;
 
-  edm::ESGetToken<GeometricDet,IdealGeometryRecord> geometricDetToken_;
-  edm::ESGetToken<TrackerTopology,TrackerTopologyRcd> trackerTopoToken_;
-  edm::ESGetToken<PTrackerParameters,PTrackerParametersRcd> trackerParamsToken_;
+  edm::ESGetToken<GeometricDet, IdealGeometryRecord> geometricDetToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerTopoToken_;
+  edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> trackerParamsToken_;
 
-  edm::ESGetToken<Alignments,GlobalPositionRcd> globalAlignmentToken_;
-  edm::ESGetToken<Alignments,TrackerAlignmentRcd> trackerAlignmentToken_;
+  edm::ESGetToken<Alignments, GlobalPositionRcd> globalAlignmentToken_;
+  edm::ESGetToken<Alignments, TrackerAlignmentRcd> trackerAlignmentToken_;
   edm::ESGetToken<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd> alignmentErrorsToken_;
   edm::ESGetToken<AlignmentSurfaceDeformations, TrackerSurfaceDeformationRcd> deformationsToken_;
 
-  const bool applyAlignment_; // Switch to apply alignment corrections
+  const bool applyAlignment_;  // Switch to apply alignment corrections
 };
-
 
 #endif

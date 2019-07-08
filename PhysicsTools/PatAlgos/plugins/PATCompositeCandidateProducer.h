@@ -15,7 +15,6 @@
   \version  $Id: PATCompositeCandidateProducer.h,v 1.3 2009/06/25 23:49:35 gpetrucc Exp $
 */
 
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,30 +37,26 @@
 namespace pat {
 
   class PATCompositeCandidateProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATCompositeCandidateProducer(const edm::ParameterSet& iConfig);
+    ~PATCompositeCandidateProducer() override;
 
-    public:
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-      explicit PATCompositeCandidateProducer(const edm::ParameterSet & iConfig);
-      ~PATCompositeCandidateProducer() override;
+  private:
+    // configurables
+    const edm::EDGetTokenT<edm::View<reco::CompositeCandidate> > srcToken_;  // list of reco::CompositeCandidates
 
-      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    const bool useUserData_;
+    pat::PATUserDataHelper<pat::CompositeCandidate> userDataHelper_;
 
-    private:
+    const bool addEfficiencies_;
+    pat::helper::EfficiencyLoader efficiencyLoader_;
 
-      // configurables
-      const edm::EDGetTokenT<edm::View<reco::CompositeCandidate> > srcToken_;     // list of reco::CompositeCandidates
-
-      const bool useUserData_;
-      pat::PATUserDataHelper<pat::CompositeCandidate> userDataHelper_;
-
-      const bool addEfficiencies_;
-      pat::helper::EfficiencyLoader efficiencyLoader_;
-
-      const bool addResolutions_;
-      pat::helper::KinResolutionsLoader resolutionLoader_;
+    const bool addResolutions_;
+    pat::helper::KinResolutionsLoader resolutionLoader_;
   };
 
-
-}
+}  // namespace pat
 
 #endif

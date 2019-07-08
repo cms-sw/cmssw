@@ -48,6 +48,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"

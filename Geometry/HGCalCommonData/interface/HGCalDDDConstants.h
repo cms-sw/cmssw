@@ -159,6 +159,7 @@ public:
     return ((wafer >= 0) && (wafer < (int)(hgpar_->waferTypeL_.size()))) ? hgpar_->waferTypeL_[wafer] : 0;
   }
   int waferType(DetId const& id) const;
+  int waferType(int layer, int waferU, int waferV) const;
   int waferUVMax() const { return hgpar_->waferUVMax_; }
   bool waferVirtual(int layer, int waferU, int waferV) const;
   double waferZ(int layer, bool reco) const;
@@ -172,6 +173,7 @@ private:
   void cellHex(double xloc, double yloc, int cellType, int& cellU, int& cellV, bool debug = false) const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
+  bool isValidCell8(int lay, int waferU, int waferV, int cellU, int cellV, int type) const;
   bool waferInLayerTest(int wafer, int lay, bool full) const;
 
   const double k_horizontalShift = 1.0;

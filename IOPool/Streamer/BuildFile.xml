@@ -8,10 +8,13 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Sources"/>
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/Reflection"/>
 <use   name="FWCore/Version"/>
 <use   name="Utilities/StorageFactory"/>
 <use   name="rootcore"/>
 <use   name="zlib"/>
+<use   name="xz"/>
+<use   name="zstd"/>
 <export>
   <lib   name="1"/>
 </export>

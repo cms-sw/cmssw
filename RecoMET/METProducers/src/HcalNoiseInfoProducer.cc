@@ -1242,10 +1242,8 @@ void HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent,
     }
 
     if (rechit.flags() & ts4ts5bitset) {
-      if (not dbStatus->isBitSet(
-              HcalChannelStatus::
-                  HcalCellExcludeFromHBHENoiseSummaryR45))  // only add to TS4TS5 if the bit is not marked as "HcalCellExcludeFromHBHENoiseSummaryR45"
-      {
+      // only add to TS4TS5 if the bit is not marked as "HcalCellExcludeFromHBHENoiseSummaryR45"
+      if (not dbStatus->isBitSet(HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummaryR45)) {
         summary.nts4ts5noise_++;
         summary.ts4ts5noisee_ += rechit.eraw();
         GlobalPoint gp = geo->getPosition(rechit.id());

@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 
-
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
@@ -38,8 +37,6 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 
-
-
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -51,30 +48,29 @@
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 
-
 #include <ext/hash_map>
-
 
 class ShallowGainCalibration : public edm::EDProducer {
 public:
   explicit ShallowGainCalibration(const edm::ParameterSet&);
+
 private:
-	const edm::EDGetTokenT< edm::View<reco::Track> > tracks_token_;
-	const edm::EDGetTokenT< TrajTrackAssociationCollection > association_token_;
-	
+  const edm::EDGetTokenT<edm::View<reco::Track> > tracks_token_;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> association_token_;
+
   std::string Suffix;
   std::string Prefix;
 
-  void   produce( edm::Event &, const edm::EventSetup & ) override;
-//  virtual void beginJob(EventSetup const&);
-//  virtual void beginRun(Run&, EventSetup const&);
-  bool   IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
-  double thickness    (DetId id);
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  //  virtual void beginJob(EventSetup const&);
+  //  virtual void beginRun(Run&, EventSetup const&);
+  bool IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
+  double thickness(DetId id);
 
   const TrackerGeometry* m_tracker;
-  std::map<DetId,double> m_thicknessMap;
+  std::map<DetId, double> m_thicknessMap;
 
-/*
+  /*
   struct stAPVGain{int DetId; int APVId; double PreviousGain;};
   class isEqual{
       public:
@@ -85,6 +81,3 @@ private:
 */
 };
 #endif
-
-
-

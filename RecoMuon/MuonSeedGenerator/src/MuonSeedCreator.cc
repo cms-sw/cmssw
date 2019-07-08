@@ -952,11 +952,11 @@ void MuonSeedCreator::weightedPt(const std::vector<double>& ptEstimate,
     //std::cout<<" weighting pt: "<< ptEstimate[j] <<std::endl;
     if (ptEstimate[j] < 0.) {
       // To prevent from blowing up, add 0.1
-      charge -=
-          1. * (ptEstimate[j] * ptEstimate[j]) / (sptEstimate[j] * sptEstimate[j]);  // weight by relative error on pt
+      // weight by relative error on pt
+      charge -= 1. * (ptEstimate[j] * ptEstimate[j]) / (sptEstimate[j] * sptEstimate[j]);
     } else {
-      charge +=
-          1. * (ptEstimate[j] * ptEstimate[j]) / (sptEstimate[j] * sptEstimate[j]);  // weight by relative error on pt
+      // weight by relative error on pt
+      charge += 1. * (ptEstimate[j] * ptEstimate[j]) / (sptEstimate[j] * sptEstimate[j]);
     }
   }
 

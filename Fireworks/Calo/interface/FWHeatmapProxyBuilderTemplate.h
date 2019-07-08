@@ -90,45 +90,43 @@ protected:
       iItem->getConfig()->assertParam("Z-", true);
     }
   }
-  
-  void build(const FWEventItem *iItem, TEveElementList *product, const FWViewContext *vc) override
-  {
-      if (item()->getConfig()->template value<bool>("Heatmap"))
-      {
-         hitmap.clear();
 
-         edm::Handle<HGCRecHitCollection> recHitHandleEE;
-         edm::Handle<HGCRecHitCollection> recHitHandleFH;
-         edm::Handle<HGCRecHitCollection> recHitHandleBH;   
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext* vc) override {
+    if (item()->getConfig()->template value<bool>("Heatmap")) {
+      hitmap.clear();
 
-         const edm::EventBase *event = iItem->getEvent();
-         event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCEERecHits" ), recHitHandleEE );
-         event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEFRecHits" ), recHitHandleFH );
-         event->getByLabel( edm::InputTag( "HGCalRecHit", "HGCHEBRecHits" ), recHitHandleBH );
+      edm::Handle<HGCRecHitCollection> recHitHandleEE;
+      edm::Handle<HGCRecHitCollection> recHitHandleFH;
+      edm::Handle<HGCRecHitCollection> recHitHandleBH;
 
-         if(recHitHandleEE.isValid()){
-            const auto& rechitsEE = *recHitHandleEE;
+      const edm::EventBase* event = iItem->getEvent();
+      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCEERecHits"), recHitHandleEE);
+      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCHEFRecHits"), recHitHandleFH);
+      event->getByLabel(edm::InputTag("HGCalRecHit", "HGCHEBRecHits"), recHitHandleBH);
 
-            for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
-               hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
-            }
-         }
+      if (recHitHandleEE.isValid()) {
+        const auto& rechitsEE = *recHitHandleEE;
 
-         if(recHitHandleFH.isValid()){
-            const auto& rechitsFH = *recHitHandleFH;
+        for (unsigned int i = 0; i < rechitsEE.size(); ++i) {
+          hitmap[rechitsEE[i].detid().rawId()] = &rechitsEE[i];
+        }
+      }
 
-            for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
-               hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
-            }
-         }
+      if (recHitHandleFH.isValid()) {
+        const auto& rechitsFH = *recHitHandleFH;
 
-         if(recHitHandleBH.isValid()){
-            const auto& rechitsBH = *recHitHandleBH;
+        for (unsigned int i = 0; i < rechitsFH.size(); ++i) {
+          hitmap[rechitsFH[i].detid().rawId()] = &rechitsFH[i];
+        }
+      }
 
-            for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
-               hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
-            }
-         }
+      if (recHitHandleBH.isValid()) {
+        const auto& rechitsBH = *recHitHandleBH;
+
+        for (unsigned int i = 0; i < rechitsBH.size(); ++i) {
+          hitmap[rechitsBH[i].detid().rawId()] = &rechitsBH[i];
+        }
+      }
     }
 
     FWSimpleProxyBuilder::build(iItem, product, vc);

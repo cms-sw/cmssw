@@ -1,8 +1,10 @@
 #include "HGCDoublet.h"
 
 bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
-    const std::vector<int> &innerDoublets, float minCosTheta,
-    float minCosPointing, bool debug) {
+                                          const std::vector<int> &innerDoublets,
+                                          float minCosTheta,
+                                          float minCosPointing,
+                                          bool debug) {
   int nDoublets = innerDoublets.size();
   int constexpr VSIZE = 4;
   int ok[VSIZE];
@@ -38,18 +40,26 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
     }
   };
   auto lim = VSIZE * (nDoublets / VSIZE);
-  for (int i = 0; i < lim; i += VSIZE) loop(i, VSIZE);
+  for (int i = 0; i < lim; i += VSIZE)
+    loop(i, VSIZE);
   loop(lim, nDoublets - lim);
 
   if (debug) {
-    LogDebug("HGCDoublet") << "Found " << innerNeighbors_.size() << " compatible doublets out of "
-      << nDoublets << " considered" << std::endl;
+    LogDebug("HGCDoublet") << "Found " << innerNeighbors_.size() << " compatible doublets out of " << nDoublets
+                           << " considered" << std::endl;
   }
   return innerNeighbors_.empty();
 }
 
-int HGCDoublet::areAligned(double xi, double yi, double zi, double xo, double yo, double zo,
-    float minCosTheta, float minCosPointing, bool debug) const {
+int HGCDoublet::areAligned(double xi,
+                           double yi,
+                           double zi,
+                           double xo,
+                           double yo,
+                           double zo,
+                           float minCosTheta,
+                           float minCosPointing,
+                           bool debug) const {
   auto dx1 = xo - xi;
   auto dy1 = yo - yi;
   auto dz1 = zo - zi;
@@ -66,9 +76,8 @@ int HGCDoublet::areAligned(double xi, double yi, double zi, double xo, double yo
   // angle between the vectors
   auto cosTheta = dot / (mag1 * mag2);
   if (debug) {
-    LogDebug("HGCDoublet") << "dot: " << dot << " mag1: " << mag1 << " mag2: " << mag2
-      << " cosTheta: " << cosTheta << " isWithinLimits: " << (cosTheta > minCosTheta)
-      << std::endl;
+    LogDebug("HGCDoublet") << "dot: " << dot << " mag1: " << mag1 << " mag2: " << mag2 << " cosTheta: " << cosTheta
+                           << " isWithinLimits: " << (cosTheta > minCosTheta) << std::endl;
   }
 
   // Now check the compatibility with the pointing origin.
@@ -80,9 +89,9 @@ int HGCDoublet::areAligned(double xi, double yi, double zi, double xo, double yo
   auto mag_pointing = std::sqrt(xi * xi + yi * yi + zi * zi);
   auto cosTheta_pointing = dot_pointing / (mag2 * mag_pointing);
   if (debug) {
-    LogDebug("HGCDoublet") << "dot_pointing: " << dot_pointing << " mag_pointing: " << mag_pointing
-      << " mag2: " << mag2 << " cosTheta_pointing: " << cosTheta_pointing
-      << " isWithinLimits: " << (cosTheta_pointing < minCosPointing) << std::endl;
+    LogDebug("HGCDoublet") << "dot_pointing: " << dot_pointing << " mag_pointing: " << mag_pointing << " mag2: " << mag2
+                           << " cosTheta_pointing: " << cosTheta_pointing
+                           << " isWithinLimits: " << (cosTheta_pointing < minCosPointing) << std::endl;
   }
 
   return (cosTheta > minCosTheta) && (cosTheta_pointing > minCosPointing);
@@ -98,4 +107,3 @@ void HGCDoublet::findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &
     }
   }
 }
-

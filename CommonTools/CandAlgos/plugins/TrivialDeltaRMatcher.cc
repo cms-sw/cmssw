@@ -4,4 +4,4 @@
 
 typedef reco::modules::CandMatcher<AnyPairSelector> TrivialDeltaRMatcher;
 
-DEFINE_FWK_MODULE( TrivialDeltaRMatcher );
+DEFINE_FWK_MODULE(TrivialDeltaRMatcher);

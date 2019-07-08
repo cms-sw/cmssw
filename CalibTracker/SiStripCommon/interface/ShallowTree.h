@@ -31,47 +31,66 @@
 #include <TTree.h>
 
 class ShallowTree : public edm::EDAnalyzer {
-private:    
+private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override{}
+  void endJob() override {}
 
-	template <class T> 
-	void eat(edm::BranchDescription const* desc) {
-		consumes<T>(edm::InputTag(desc->moduleLabel(), desc->productInstanceName()));
-	}
+  template <class T>
+  void eat(edm::BranchDescription const* desc) {
+    consumes<T>(edm::InputTag(desc->moduleLabel(), desc->productInstanceName()));
+  }
 
   class BranchConnector {
   public:
-    virtual ~BranchConnector() {};
+    virtual ~BranchConnector(){};
     virtual void connect(const edm::Event&) = 0;
   };
-  
+
   template <class T>
   class TypedBranchConnector : public BranchConnector {
   private:
-    std::string ml;  //module label
+    std::string ml;   //module label
     std::string pin;  //product instance name
     T object_;
     T* object_ptr_;
+
   public:
     TypedBranchConnector(edm::BranchDescription const*, std::string, TTree*);
     void connect(const edm::Event&) override;
   };
 
   edm::Service<TFileService> fs_;
-  TTree * tree_;
+  TTree* tree_;
   std::vector<BranchConnector*> connectors_;
 
 public:
-  explicit ShallowTree(const edm::ParameterSet& iConfig);// : pset(iConfig) {}
-  
-  enum LEAFTYPE {BOOL=1,  BOOL_V,          
-		 SHORT,   SHORT_V,           U_SHORT, U_SHORT_V,       
-		 INT,     INT_V,             U_INT,   U_INT_V,
-		 FLOAT,   FLOAT_V,           DOUBLE,  DOUBLE_V,
-		 LONG,    LONG_V,	     U_LONG,  U_LONG_V, 
-		 CHAR,    CHAR_V,            U_CHAR,  U_CHAR_V};
+  explicit ShallowTree(const edm::ParameterSet& iConfig);  // : pset(iConfig) {}
+
+  enum LEAFTYPE {
+    BOOL = 1,
+    BOOL_V,
+    SHORT,
+    SHORT_V,
+    U_SHORT,
+    U_SHORT_V,
+    INT,
+    INT_V,
+    U_INT,
+    U_INT_V,
+    FLOAT,
+    FLOAT_V,
+    DOUBLE,
+    DOUBLE_V,
+    LONG,
+    LONG_V,
+    U_LONG,
+    U_LONG_V,
+    CHAR,
+    CHAR_V,
+    U_CHAR,
+    U_CHAR_V
+  };
 };
 
 #endif

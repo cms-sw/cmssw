@@ -16,7 +16,10 @@
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02SD.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
 #include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -34,11 +37,11 @@
 //
 
 HcalTB02SD::HcalTB02SD(const std::string& name,
-                       const DDCompactView& cpv,
+                       const edm::EventSetup& es,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        const SimTrackManager* manager)
-    : CaloSD(name, cpv, clg, p, manager), numberingScheme(nullptr) {
+    : CaloSD(name, es, clg, p, manager), numberingScheme(nullptr) {
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk = m_SD.getUntrackedParameter<bool>("UseBirkLaw", false);
   birk1 = m_SD.getUntrackedParameter<double>("BirkC1", 0.013) * (g / (MeV * cm2));
@@ -72,7 +75,7 @@ HcalTB02SD::HcalTB02SD(const std::string& name,
                             << ", C2 = " << birk3;
 
   if (useWeight)
-    initMap(name, cpv);
+    initMap(name, es);
 }
 
 HcalTB02SD::~HcalTB02SD() {
@@ -113,10 +116,13 @@ void HcalTB02SD::setNumberingScheme(HcalTB02NumberingScheme* scheme) {
   }
 }
 
-void HcalTB02SD::initMap(const std::string& sd, const DDCompactView& cpv) {
+void HcalTB02SD::initMap(const std::string& sd, const edm::EventSetup& es) {
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, sd, 0)};
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*cpv, filter);
   fv.firstChild();
 
   bool dodet = true;

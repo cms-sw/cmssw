@@ -12,10 +12,9 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          edm::View<reco::Candidate>,
-          StringCutObjectSelector<reco::Candidate, true>,
-          edm::PtrVector<reco::Candidate>
-       > CandPtrSelector;
+typedef SingleObjectSelector<edm::View<reco::Candidate>,
+                             StringCutObjectSelector<reco::Candidate, true>,
+                             edm::PtrVector<reco::Candidate> >
+    CandPtrSelector;
 
 DEFINE_FWK_MODULE(CandPtrSelector);

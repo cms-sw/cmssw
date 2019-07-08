@@ -9,60 +9,47 @@
 
 class Line {
 public:
+  typedef GlobalPoint PositionType;
+  typedef GlobalVector DirectionType;
 
-typedef GlobalPoint           PositionType;
-typedef GlobalVector          DirectionType;
+  Line() {}
 
-Line(){}
+  //Line( const PositionType& pos, const  DirectionType& dir) :
+  Line(PositionType& pos, DirectionType& dir) : thePos(pos), theDir(dir.unit()) {}
 
-//Line( const PositionType& pos, const  DirectionType& dir) :
-Line(  PositionType& pos,  DirectionType& dir) :
-  thePos(pos), theDir(dir.unit()) {}
+  ~Line(){};
 
-~Line(){};
+  //const PositionType& position()   const { return thePos;}
+  //const DirectionType& direction() const { return theDir;}
+  PositionType position() const { return thePos; }
+  DirectionType direction() const { return theDir; }
 
-//const PositionType& position()   const { return thePos;}
-//const DirectionType& direction() const { return theDir;}
-PositionType position()   const  { return thePos;}
-DirectionType direction() const  { return theDir;}
+  GlobalPoint closerPointToLine(const Line& aLine) const {
+    GlobalPoint V = aLine.position();
+    GlobalVector J = aLine.direction();
+    GlobalVector Q = theDir - J.dot(theDir) * J;
+    double lambda = Q.dot(V - thePos) / Q.dot(theDir);
+    return thePos + lambda * theDir;
+  }
 
-GlobalPoint closerPointToLine( const Line & aLine) const {
+  GlobalVector distance(const Line& aLine) const {
+    GlobalPoint V = aLine.position();
+    GlobalVector J = aLine.direction();
+    GlobalVector P = (theDir.cross(J)).unit();
+    GlobalVector D;
+    D = P.dot(thePos - V) * P;
+    return D;
+  }
 
-GlobalPoint  V = aLine.position();
-GlobalVector J = aLine.direction();
-GlobalVector Q = theDir - J.dot(theDir) * J;
-double lambda = Q.dot(V-thePos)/Q.dot(theDir);
-return   thePos + lambda*theDir;
-}
-
-GlobalVector distance( const Line & aLine) const {
-
-GlobalPoint  V = aLine.position();
-GlobalVector J = aLine.direction();
-GlobalVector P = (theDir.cross(J)).unit();
-GlobalVector D;
-D= P.dot(thePos-V) * P;
-return D;
-}
-
-GlobalVector distance(const GlobalPoint & aPoint) const {
-
-GlobalVector P(aPoint.x(),aPoint.y(),aPoint.z());
-GlobalVector T0(thePos.x(),thePos.y(),thePos.z());
-return T0-P + theDir.dot(P-T0) * theDir;
-}
+  GlobalVector distance(const GlobalPoint& aPoint) const {
+    GlobalVector P(aPoint.x(), aPoint.y(), aPoint.z());
+    GlobalVector T0(thePos.x(), thePos.y(), thePos.z());
+    return T0 - P + theDir.dot(P - T0) * theDir;
+  }
 
 private:
-  PositionType  thePos;
-  DirectionType  theDir;
+  PositionType thePos;
+  DirectionType theDir;
 };
-  
 
-
-#endif // Geom_Line_H
-
-
-
-
-
-
+#endif  // Geom_Line_H

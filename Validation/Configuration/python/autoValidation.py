@@ -6,6 +6,7 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'bTagOnlyValidation' : ['prebTagSequenceMC','bTagPlotsMCbcl','bTagCollectorSequenceMCbcl'],
                    'JetMETOnlyValidation' : ['globalPrevalidationJetMETOnly','globalValidationJetMETonly','postValidation_JetMET'],
                    'electronOnlyValidation' : ['', 'electronValidationSequence', 'electronPostValidationSequence'],
+                   'tauOnlyValidation' : ['produceDenoms', 'pfTauRunDQMValidation', 'runTauEff'],
                    'hcalOnlyValidation' : ['globalPrevalidationHCAL','globalValidationHCAL','postValidation_HCAL'],
                    'baseValidation' : ['baseCommonPreValidation','baseCommonValidation','postValidation_common'],
                    'miniAODValidation' : ['prevalidationMiniAOD','validationMiniAOD','validationHarvestingMiniAOD'],
@@ -16,7 +17,7 @@ autoValidation = { 'liteTracking' : ['prevalidationLiteTracking','validationLite
                    'OuterTrackerValidation' : ['', 'globalValidationOuterTracker', 'postValidationOuterTracker'],
                  }
 
-_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation', 'electronOnlyValidation', 'bTagOnlyValidation','hcalOnlyValidation', 'HGCalValidation', 'MTDValidation', 'OuterTrackerValidation']
+_phase2_allowed = ['baseValidation','trackingValidation','muonOnlyValidation','JetMETOnlyValidation', 'electronOnlyValidation', 'bTagOnlyValidation', 'tauOnlyValidation', 'hcalOnlyValidation', 'HGCalValidation', 'MTDValidation', 'OuterTrackerValidation']
 autoValidation['phase2Validation'] = ['','','']
 for i in range(0,3):
     autoValidation['phase2Validation'][i] = '+'.join([_f for _f in [autoValidation[m][i] for m in _phase2_allowed] if _f])

@@ -1,12 +1,11 @@
 #ifndef RecoPixelVertexing_PixelLowPtUtilities_ClusterShapeHitFilterESProducer_H
 #define RecoPixelVertexing_PixelLowPtUtilities_ClusterShapeHitFilterESProducer_H
 
-
 // -*- C++ -*-
 //
 // Package:    ClusterShapeHitFilterESProducer
 // Class:      ClusterShapeHitFilterESProducer
-// 
+//
 /**\class ClusterShapeHitFilterESProducer ClusterShapeHitFilterESProducer.h
  * TrackingTools/ClusterShapeHitFilterESProducer/src/ClusterShapeHitFilterESProducer.cc
 
@@ -20,7 +19,6 @@
 //         Created:  Fri Sep 28 18:07:52 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,18 +35,17 @@
 // class decleration
 //
 
-class ClusterShapeHitFilterESProducer : public edm::ESProducer
-{
- public:
-  ClusterShapeHitFilterESProducer(const edm::ParameterSet&);
+class ClusterShapeHitFilterESProducer : public edm::ESProducer {
+public:
+  ClusterShapeHitFilterESProducer(const edm::ParameterSet &);
   ~ClusterShapeHitFilterESProducer() override;
 
   typedef std::unique_ptr<ClusterShapeHitFilter> ReturnType;
   ReturnType produce(const ClusterShapeHitFilter::Record &);
 
- private:
+private:
   const std::string pixelShapeFile;
-  const std::string pixelShapeFileL1; 
+  const std::string pixelShapeFileL1;
   bool cutOnPixelCharge_, cutOnStripCharge_;
   float minGoodPixelCharge_, minGoodStripCharge_;
   bool cutOnPixelShape_, cutOnStripShape_;

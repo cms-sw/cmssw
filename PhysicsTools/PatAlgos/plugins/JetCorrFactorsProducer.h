@@ -54,7 +54,6 @@
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
-
 namespace pat {
 
   class JetCorrFactorsProducer : public edm::stream::EDProducer<> {
@@ -68,7 +67,7 @@ namespace pat {
     /// default constructor
     explicit JetCorrFactorsProducer(const edm::ParameterSet& cfg);
     /// default destructor
-    ~JetCorrFactorsProducer() override {};
+    ~JetCorrFactorsProducer() override{};
     /// everything that needs to be done per event
     void produce(edm::Event& event, const edm::EventSetup& setup) override;
     /// description of configuration file parameters
@@ -76,9 +75,10 @@ namespace pat {
 
   private:
     /// return true if the jec levels contain at least one flavor dependent correction level
-    bool flavorDependent() const { return (levels_.size()>1); };
+    bool flavorDependent() const { return (levels_.size() > 1); };
     /// return the jec parameters as input to the FactorizedJetCorrector for different flavors
-    std::vector<JetCorrectorParameters> params(const JetCorrectorParametersCollection& parameters, const std::vector<std::string>& levels) const;
+    std::vector<JetCorrectorParameters> params(const JetCorrectorParametersCollection& parameters,
+                                               const std::vector<std::string>& levels) const;
     /// return an expanded version of correction levels for different flavors; the result should
     /// be of type ['L2Relative', 'L3Absolute', 'L5FLavor_gJ', 'L7Parton_gJ']; L7Parton_gT will
     /// result in an empty string as this correction level is not available
@@ -132,15 +132,14 @@ namespace pat {
     std::unique_ptr<FactorizedJetCorrector> extraJPTOffsetCorrector_;
   };
 
-  inline int
-  JetCorrFactorsProducer::numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices)
-  {
-    int npv=0;
-    for(std::vector<reco::Vertex>::const_iterator pv=primaryVertices->begin(); pv!=primaryVertices->end(); ++pv){
-      if(pv->ndof()>=4) ++npv;
+  inline int JetCorrFactorsProducer::numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices) {
+    int npv = 0;
+    for (std::vector<reco::Vertex>::const_iterator pv = primaryVertices->begin(); pv != primaryVertices->end(); ++pv) {
+      if (pv->ndof() >= 4)
+        ++npv;
     }
     return npv;
   }
-}
+}  // namespace pat
 
 #endif

@@ -21,8 +21,7 @@ using namespace muonisolation;
 MuIsoByTrackPt::MuIsoByTrackPt(const edm::ParameterSet& conf, edm::ConsumesCollector&& iC) {
   edm::ParameterSet extractorPSet = conf.getParameter<edm::ParameterSet>("ExtractorPSet");
   string extractorName = extractorPSet.getParameter<string>("ComponentName");
-  theExtractor = std::unique_ptr<reco::isodeposit::IsoDepositExtractor>(
-      IsoDepositExtractorFactoryFromHelper::get()->create(extractorName, extractorPSet, iC));
+  theExtractor = IsoDepositExtractorFactoryFromHelper::get()->create(extractorName, extractorPSet, iC);
 
   theCut = conf.getUntrackedParameter<double>("Threshold", 0.);
   float coneSize = conf.getUntrackedParameter<double>("ConeSize", 0.);

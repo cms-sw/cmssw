@@ -270,9 +270,9 @@ void FWRecoGeometryESProducer::addGEMGeometry(FWRecoGeometry& fwRecoGeometry) {
   //
   // GEM geometry
   //
-  DetId detId(DetId::Muon, 4);
 
   try {
+    DetId detId(DetId::Muon, 4);
     const GEMGeometry* gemGeom = (const GEMGeometry*)m_geomRecord->slaveGeometry(detId);
 
     // add in superChambers - gem Segments are based on superChambers
@@ -315,7 +315,7 @@ void FWRecoGeometryESProducer::addGEMGeometry(FWRecoGeometry& fwRecoGeometry) {
     fwRecoGeometry.extraDet.Add(new TNamed("GEM", "GEM muon detector"));
     try {
       GEMDetId id(1, 1, 2, 1, 1, 1);
-      m_geomRecord->slaveGeometry(detId);
+      m_geomRecord->slaveGeometry(id);
       fwRecoGeometry.extraDet.Add(new TNamed("GE2", "GEM endcap station 2"));
     } catch (std::runtime_error& e) {
       std::cerr << e.what() << std::endl;

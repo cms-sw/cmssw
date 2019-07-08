@@ -77,7 +77,24 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) {
       theHistos = std::make_shared<MaterialBudgetMtdHistos>(theData, theHistoMgr, saveToHistosFile);
       theData->setMtdmode(true);
     } else if (theHistoList == "HGCal") {
-      theHistos = std::make_shared<MaterialBudgetHGCalHistos>(theData, theHistoMgr, saveToHistosFile);
+      theHistos = std::make_shared<MaterialBudgetHGCalHistos>(theData,
+                                                              theHistoMgr,
+                                                              saveToHistosFile,
+                                                              m_Anal.getParameter<double>("minZ"),
+                                                              m_Anal.getParameter<double>("maxZ"),
+                                                              m_Anal.getParameter<int>("nintZ"),
+                                                              m_Anal.getParameter<double>("rMin"),
+                                                              m_Anal.getParameter<double>("rMax"),
+                                                              m_Anal.getParameter<int>("nrbin"),
+                                                              m_Anal.getParameter<double>("etaMin"),
+                                                              m_Anal.getParameter<double>("etaMax"),
+                                                              m_Anal.getParameter<int>("netabin"),
+                                                              m_Anal.getParameter<double>("phiMin"),
+                                                              m_Anal.getParameter<double>("phiMax"),
+                                                              m_Anal.getParameter<int>("nphibin"),
+                                                              m_Anal.getParameter<double>("RMin"),
+                                                              m_Anal.getParameter<double>("RMax"),
+                                                              m_Anal.getParameter<int>("nRbin"));
       //In HGCal mode, so tell data class
       theData->setHGCalmode(true);
     } else {

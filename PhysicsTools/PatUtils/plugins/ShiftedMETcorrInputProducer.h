@@ -22,35 +22,27 @@
 
 #include <string>
 
-class ShiftedMETcorrInputProducer : public edm::stream::EDProducer<>
-{
- public:
-
+class ShiftedMETcorrInputProducer : public edm::stream::EDProducer<> {
+public:
   explicit ShiftedMETcorrInputProducer(const edm::ParameterSet&);
   ~ShiftedMETcorrInputProducer() override;
 
- private:
-
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag src_;
   std::vector<edm::EDGetTokenT<CorrMETData> > srcTokens_;
 
-  struct binningEntryType
-  {
-    binningEntryType(double uncertainty)
-      : binLabel_(""),
-        binUncertainty_(uncertainty)
-    {}
+  struct binningEntryType {
+    binningEntryType(double uncertainty) : binLabel_(""), binUncertainty_(uncertainty) {}
     binningEntryType(const edm::ParameterSet& cfg)
-    : binLabel_(cfg.getParameter<std::string>("binLabel")),
-      binUncertainty_(cfg.getParameter<double>("binUncertainty"))
-    {}
-    std::string getInstanceLabel_full(const std::string& instanceLabel)
-    {
+        : binLabel_(cfg.getParameter<std::string>("binLabel")),
+          binUncertainty_(cfg.getParameter<double>("binUncertainty")) {}
+    std::string getInstanceLabel_full(const std::string& instanceLabel) {
       std::string retVal = instanceLabel;
-      if ( instanceLabel != "" && binLabel_ != "" ) retVal.append("#");
+      if (!instanceLabel.empty() && !binLabel_.empty())
+        retVal.append("#");
       retVal.append(binLabel_);
       return retVal;
     }
@@ -64,7 +56,3 @@ class ShiftedMETcorrInputProducer : public edm::stream::EDProducer<>
 };
 
 #endif
-
-
-
-

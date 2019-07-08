@@ -11,8 +11,8 @@
 //
 
 // system include files
-#include "FWCore/Utilities/interface/TypeWithDict.h"
-#include "FWCore/Utilities/interface/ObjectWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/ObjectWithDict.h"
 
 #include <cassert>
 #include <iostream>

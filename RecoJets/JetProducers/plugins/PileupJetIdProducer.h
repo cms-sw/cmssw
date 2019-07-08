@@ -5,7 +5,7 @@
 //
 // Package:    PileupJetIdProducer
 // Class:      PileupJetIdProducer
-// 
+//
 /**\class PileupJetIdProducer PileupJetIdProducer.cc CMGTools/PileupJetIdProducer/src/PileupJetIdProducer.cc
 
 Description: Produces a value map of jet --> pileup jet ID
@@ -18,7 +18,6 @@ Implementation:
 //         Created:  Wed Apr 18 15:48:47 CEST 2012
 //
 //
-
 
 // system include files
 #include <memory>
@@ -49,7 +48,6 @@ Implementation:
 
 class GBRForestsAndConstants {
 public:
-
   GBRForestsAndConstants(edm::ParameterSet const&);
 
   std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> const& vAlgoGBRForestsAndConstants() const {
@@ -66,7 +64,6 @@ public:
   bool usePuppi() const { return usePuppi_; }
 
 private:
-
   std::vector<PileupJetIdAlgo::AlgoGBRForestsAndConstants> vAlgoGBRForestsAndConstants_;
 
   bool runMvas_;
@@ -90,24 +87,22 @@ public:
     return std::make_unique<GBRForestsAndConstants>(pset);
   }
 
-  static void globalEndJob(GBRForestsAndConstants*) { }
+  static void globalEndJob(GBRForestsAndConstants*) {}
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-      
 
-  void initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData);
+  void initJetEnergyCorrector(const edm::EventSetup& iSetup, bool isData);
 
-  std::vector<std::pair<std::string, std::unique_ptr<PileupJetIdAlgo>> > algos_;
-	
+  std::vector<std::pair<std::string, std::unique_ptr<PileupJetIdAlgo>>> algos_;
+
   std::unique_ptr<FactorizedJetCorrector> jecCor_;
   std::vector<JetCorrectorParameters> jetCorPars_;
 
-  edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
+  edm::EDGetTokenT<edm::View<reco::Jet>> input_jet_token_;
   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
-  edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier> > input_vm_pujetid_token_;
+  edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier>> input_vm_pujetid_token_;
   edm::EDGetTokenT<double> input_rho_token_;
-
 };
 
 #endif

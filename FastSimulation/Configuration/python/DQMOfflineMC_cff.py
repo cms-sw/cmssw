@@ -15,7 +15,7 @@ DQMOfflinePrePOG = cms.Sequence(
     pvMonitor *
     bTagPlotsDATA *
     dqmPhysics *
-    produceDenoms *
+    produceDenomsData *
     pfTauRunDQMValidation
     
     )

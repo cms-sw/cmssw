@@ -5,6 +5,7 @@
 #include <string>
 
 //#define EDM_ML_DEBUG
+HGCalGeomTools::HGCalGeomTools() : factor_(1.0 / std::sqrt(3.0)) {}
 
 void HGCalGeomTools::radius(double zf,
                             double zb,
@@ -22,9 +23,9 @@ void HGCalGeomTools::radius(double zf,
   auto zf1 = std::lower_bound(zFront1.begin(), zFront1.end(), zf);
   if (zf1 != zFront1.begin())
     --zf1;
-  if (std::abs(*(zf1 + 1) - zf) < tol) {
+  if (std::abs(*(zf1 + 1) - zf) < tol_) {
     ++zf1;
-    dz1 = 2 * tol;
+    dz1 = 2 * tol_;
   }
   auto zf2 = std::lower_bound(zFront2.begin(), zFront2.end(), zf);
   if (zf2 != zFront2.begin())
@@ -32,9 +33,9 @@ void HGCalGeomTools::radius(double zf,
   auto zb1 = std::lower_bound(zFront1.begin(), zFront1.end(), zb);
   if (zb1 != zFront1.begin())
     --zb1;
-  if (std::abs(*zb1 - zb) < tol) {
+  if (std::abs(*zb1 - zb) < tol_) {
     --zb1;
-    dz2 = -2 * tol;
+    dz2 = -2 * tol_;
   }
   auto zb2 = std::lower_bound(zFront2.begin(), zFront2.end(), zb);
   if (zb2 != zFront2.begin())
@@ -61,10 +62,10 @@ void HGCalGeomTools::radius(double zf,
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
     rout.emplace_back(radius(zf, zFront2, rFront2, slope2));
-    if (slope(*zb2, zFront2, slope2) < tol) {
+    if (slope(*zb2, zFront2, slope2) < tol_) {
       zz.emplace_back(*zb2);
       rin.emplace_back(radius(*zb2, zFront1, rFront1, slope1));
-      rout.emplace_back(radius(*zb2 - tol, zFront2, rFront2, slope2));
+      rout.emplace_back(radius(*zb2 - tol_, zFront2, rFront2, slope2));
     }
     zz.emplace_back(*zb2);
     rin.emplace_back(radius(*zb2, zFront1, rFront1, slope1));
@@ -79,9 +80,9 @@ void HGCalGeomTools::radius(double zf,
     zz.emplace_back(zf);
     rin.emplace_back(radius(zf, zFront1, rFront1, slope1));
     rout.emplace_back(radius(zf, zFront2, rFront2, slope2));
-    if (slope(*zb1, zFront1, slope1) < tol) {
+    if (slope(*zb1, zFront1, slope1) < tol_) {
       zz.emplace_back(*zb1);
-      rin.emplace_back(radius(*zb1 - tol, zFront1, rFront1, slope1));
+      rin.emplace_back(radius(*zb1 - tol_, zFront1, rFront1, slope1));
       rout.emplace_back(radius(*zb1, zFront2, rFront2, slope2));
     }
     zz.emplace_back(*zb1);
@@ -129,7 +130,7 @@ double HGCalGeomTools::radius(double z,
   if (itrz != zFront.begin())
     --itrz;
   unsigned int ik = static_cast<unsigned int>(itrz - zFront.begin());
-  if (ik < zFront.size() && std::abs(z - zFront[ik + 1]) < tol)
+  if (ik < zFront.size() && std::abs(z - zFront[ik + 1]) < tol_)
     ++ik;
   double r = rFront[ik] + (z - zFront[ik]) * slope[ik];
 #ifdef EDM_ML_DEBUG
@@ -147,12 +148,12 @@ double HGCalGeomTools::radius(
   for (unsigned int k = 0; k < rFront.size(); ++k) {
     int k1 = layerf - layer0 + (int)(k);
     if (k1 < (int)(zFront.size())) {
+      if (z < zFront[k1] + tol_)
+        break;
       r = rFront[k];
 #ifdef EDM_ML_DEBUG
       ik = k;
 #endif
-      if (z < zFront[k1] + tol)
-        break;
     }
   }
 #ifdef EDM_ML_DEBUG
@@ -161,12 +162,38 @@ double HGCalGeomTools::radius(
   return r;
 }
 
+std::pair<double, double> HGCalGeomTools::shiftXY(int waferPosition, double waferSize) {
+  double dx(0), dy(0);
+  switch (waferPosition) {
+    case (CornerCenterYp): {
+      dy = factor_ * waferSize;
+      break;
+    }
+    case (CornerCenterYm): {
+      dy = -factor_ * waferSize;
+      break;
+    }
+    case (CornerCenterXp): {
+      dx = factor_ * waferSize;
+      break;
+    }
+    case (CornerCenterXm): {
+      dx = -factor_ * waferSize;
+      break;
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Shift for " << waferPosition << " is (" << dx << ":" << dy << ")";
+#endif
+  return std::make_pair(dx, dy);
+}
+
 double HGCalGeomTools::slope(double z, std::vector<double> const& zFront, std::vector<double> const& slope) {
   auto itrz = std::lower_bound(zFront.begin(), zFront.end(), z);
   if (itrz != zFront.begin())
     --itrz;
   unsigned int ik = static_cast<unsigned int>(itrz - zFront.begin());
-  //  if (ik < zFront.size() && std::abs(z-zFront[ik+1]) < tol) ++ik;
+  //  if (ik < zFront.size() && std::abs(z-zFront[ik+1]) < tol_) ++ik;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalGeomTools::slope:z " << z << " k " << ik << " Slope " << slope[ik];
 #endif
@@ -179,7 +206,7 @@ std::pair<double, double> HGCalGeomTools::zradius(double z1,
                                                   std::vector<double> const& rF) {
   double z(-1), r(-1);
   for (unsigned int k = 0; k < rF.size(); ++k) {
-    if ((z1 > zF[k] - tol) && (z2 < zF[k] + tol)) {
+    if ((z1 > zF[k] - tol_) && (z2 < zF[k] + tol_)) {
       z = zF[k];
       r = rF[k];
       break;

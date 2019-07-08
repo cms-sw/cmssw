@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 class JetCorrector;
@@ -27,24 +26,22 @@ class JetCorrectionESProducer : public edm::ESProducer {
 private:
   edm::ParameterSet mParameterSet;
   std::string mLevel;
-  std::string mAlgo;
+  edm::ESGetToken<JetCorrectorParametersCollection, JetCorrectionsRecord> mToken;
 
 public:
   JetCorrectionESProducer(edm::ParameterSet const& fConfig) : mParameterSet(fConfig) {
     std::string label = fConfig.getParameter<std::string>("@module_label");
     mLevel = fConfig.getParameter<std::string>("level");
-    mAlgo = fConfig.getParameter<std::string>("algorithm");
+    auto algo = fConfig.getParameter<std::string>("algorithm");
 
-    setWhatProduced(this, label);
+    setWhatProduced(this, label).setConsumes(mToken, edm::ESInputTag{"", algo});
   }
 
   ~JetCorrectionESProducer() override {}
 
   std::unique_ptr<JetCorrector> produce(JetCorrectionsRecord const& iRecord) {
-    edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-    iRecord.get(mAlgo, JetCorParColl);
-    JetCorrectorParameters const& JetCorPar = (*JetCorParColl)[mLevel];
-    return std::make_unique<Corrector>(JetCorPar, mParameterSet);
+    const auto& jetCorParColl = iRecord.get(mToken);
+    return std::make_unique<Corrector>(jetCorParColl[mLevel], mParameterSet);
   }
 };
 #endif

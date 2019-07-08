@@ -1,5 +1,6 @@
 #include "RecoJets/JetAssociationProducers/interface/TrackExtrapolator.h"
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
+#include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
 
 #include <vector>
 

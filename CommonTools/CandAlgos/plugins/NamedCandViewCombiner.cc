@@ -13,11 +13,10 @@
 #include "DataFormats/Candidate/interface/NamedCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 
-typedef reco::modules::CandCombiner<
-                         StringCutObjectSelector<reco::Candidate, true>,
-                         AnyPairSelector,
-                         combiner::helpers::NormalClone,
-                         reco::NamedCompositeCandidateCollection
-                       > NamedCandViewCombiner;
-      
+typedef reco::modules::CandCombiner<StringCutObjectSelector<reco::Candidate, true>,
+                                    AnyPairSelector,
+                                    combiner::helpers::NormalClone,
+                                    reco::NamedCompositeCandidateCollection>
+    NamedCandViewCombiner;
+
 DEFINE_FWK_MODULE(NamedCandViewCombiner);

@@ -14,16 +14,15 @@
 #include "CommonTools/Utils/src/ExpressionStack.h"
 
 namespace reco {
-  namespace parser {    
+  namespace parser {
     struct ExpressionSetter {
-      ExpressionSetter( ExpressionPtr & expr, ExpressionStack & exprStack ) :
-	expr_( expr ), exprStack_( exprStack ) { }
-      
-      void operator()( const char*, const char* ) const;
-      ExpressionPtr & expr_;
-      ExpressionStack & exprStack_;
+      ExpressionSetter(ExpressionPtr& expr, ExpressionStack& exprStack) : expr_(expr), exprStack_(exprStack) {}
+
+      void operator()(const char*, const char*) const;
+      ExpressionPtr& expr_;
+      ExpressionStack& exprStack_;
     };
-  }
- }
+  }  // namespace parser
+}  // namespace reco
 
 #endif

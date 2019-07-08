@@ -1,6 +1,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="DataFormats/DTDigi"/>
 <use   name="DataFormats/DTRecHit"/>
+<use   name="DataFormats/MuonReco"/>
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="Geometry/MuonNumbering"/>

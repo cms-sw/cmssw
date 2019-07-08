@@ -54,6 +54,8 @@ upgradeKeys[2023] = [
     '2023D41PU',
     '2023D42',
     '2023D42PU',
+    '2023D43',
+    '2023D43PU',
 ]
 
 # pre-generation of WF numbers
@@ -237,6 +239,24 @@ upgradeSteps['Premix'] = {
     'suffix': '_Premix',
     'offset': 0.97,
 }
+upgradeSteps['TICLOnly'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_TICLOnly',
+    'offset' : 0.51,
+}
+upgradeSteps['TICLFullReco'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_TICLFullReco',
+    'offset' : 0.52,
+}
 # Premix stage2 is derived from baseline+PU in relval_upgrade.py
 premixS2_offset = 0.98
 # Premix combined stage1+stage2 is derived for Premix+PU and baseline+PU in relval_upgrade.py
@@ -279,7 +299,7 @@ upgradeProperties[2017] = {
     '2021' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2021_realistic',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull','ALCAFull'],
@@ -287,7 +307,7 @@ upgradeProperties[2017] = {
     '2021Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2021_design',
-        'HLTmenu': '@relval2017',
+        'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
@@ -429,6 +449,13 @@ upgradeProperties[2023] = {
         'Era' : 'Phase2',
         'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
     },
+    '2023D43' : {
+        'Geom' : 'Extended2023D43',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic',
+        'Era' : 'Phase2C4_timing_layer_bar',
+        'ScenToRun' : ['GenSimHLBeamSpotFull','DigiFullTrigger','RecoFullGlobal', 'HARVESTFullGlobal'],
+    },
 }
 
 
@@ -468,6 +495,8 @@ upgradeProperties[2023]['2023D41PU'] = deepcopy(upgradeProperties[2023]['2023D41
 upgradeProperties[2023]['2023D41PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 upgradeProperties[2023]['2023D42PU'] = deepcopy(upgradeProperties[2023]['2023D42'])
 upgradeProperties[2023]['2023D42PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
+upgradeProperties[2023]['2023D43PU'] = deepcopy(upgradeProperties[2023]['2023D43'])
+upgradeProperties[2023]['2023D43PU']['ScenToRun'] = ['GenSimHLBeamSpotFull','DigiFullTriggerPU','RecoFullGlobalPU', 'HARVESTFullGlobalPU']
 
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
@@ -564,6 +593,8 @@ upgradeFragments=['FourMuPt_1_200_pythia8_cfi',
                   'SingleMuPt15Eta1p7_2p7_cfi',
                   'SingleGammaPt25Eta1p7_2p7_cfi',
                   'SingleElectronPt15Eta1p7_2p7_cfi',
+                  'ZTT_All_hadronic_14TeV_TuneCUETP8M1_cfi',
+                  'CloseByParticle_Photon_ERZRanges_cfi',
 ]
 
 howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
@@ -607,7 +638,7 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi':Kby(90,100),
            'WM_14TeV_TuneCUETP8M1_cfi':Kby(9,100),
            'ZMM_13TeV_TuneCUETP8M1_cfi':Kby(18,100),
-           'QCDForPF_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'QCDForPF_14TeV_TuneCUETP8M1_cfi':Kby(50,100),
            'DYToLL_M-50_14TeV_pythia8_cff':Kby(9,100),
            'DYToTauTau_M-50_14TeV_pythia8_tauola_cff':Kby(9,100),
            'TTbar_13TeV_TuneCUETP8M1_cfi':Kby(9,50),
@@ -658,6 +689,8 @@ howMuches={'FourMuPt_1_200_pythia8_cfi':Kby(10,100),
            'SingleMuPt15Eta1p7_2p7_cfi':Kby(9,100),
            'SingleGammaPt25Eta1p7_2p7_cfi':Kby(9,100),
            'SingleElectronPt15Eta1p7_2p7_cfi':Kby(9,100),
+           'ZTT_All_hadronic_14TeV_TuneCUETP8M1_cfi':Kby(9,50),
+           'CloseByParticle_Photon_ERZRanges_cfi':Kby(9,100),
 }
 
 upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
@@ -701,7 +734,7 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'MinBias_14TeV_pythia8_TuneCUETP8M1_cfi' : 'MinBias_14TeV',
                             'WM_14TeV_TuneCUETP8M1_cfi' : 'WM_14TeV',
                             'ZMM_13TeV_TuneCUETP8M1_cfi' : 'ZMM_13',
-                            'QCDForPF_14TeV_TuneCUETP8M1_cfi' : 'QCDForPF_14TeV',
+                            'QCDForPF_14TeV_TuneCUETP8M1_cfi' : 'QCD_FlatPt_15_3000HS_14',
                             'DYToLL_M-50_14TeV_pythia8_cff' : 'DYToLL_M_50_14TeV',
                             'DYToTauTau_M-50_14TeV_pythia8_tauola_cff' : 'DYtoTauTau_M_50_14TeV',
                             'TTbar_13TeV_TuneCUETP8M1_cfi' : 'TTbar_13',
@@ -752,4 +785,6 @@ upgradeDatasetFromFragment={'FourMuPt_1_200_pythia8_cfi': 'FourMuPt1_200',
                             'SingleMuPt15Eta1p7_2p7_cfi':'SingleMuPt15Eta1p7_2p7',
                             'SingleGammaPt25Eta1p7_2p7_cfi':'SingleGammaPt25Eta1p7_2p7',
                             'SingleElectronPt15Eta1p7_2p7_cfi':'SingleElectronPt15Eta1p7_2p7',
+                            'ZTT_All_hadronic_14TeV_TuneCUETP8M1_cfi': 'ZTT_14',
+                            'CloseByParticle_Photon_ERZRanges_cfi': 'CloseByParticleGun',
 }

@@ -60,7 +60,8 @@ namespace edm {
 
     void validate_(ParameterSet& pset, std::set<std::string>& validatedLabels, bool optional) const override;
 
-    void writeCfi_(std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) const override;
+    void writeCfi_(
+        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const override;
 
     bool partiallyExists_(ParameterSet const& pset) const override;
 

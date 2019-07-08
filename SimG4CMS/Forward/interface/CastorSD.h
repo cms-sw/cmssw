@@ -30,7 +30,7 @@
 class CastorSD : public CaloSD {
 public:
   CastorSD(const std::string &,
-           const DDCompactView &,
+           const edm::EventSetup &,
            const SensitiveDetectorCatalog &clg,
            edm::ParameterSet const &,
            const SimTrackManager *);

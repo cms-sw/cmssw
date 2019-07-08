@@ -5,21 +5,17 @@
 
 namespace reco {
   namespace modules {
-    
-    template<typename F>
+
+    template <typename F>
     struct ParameterAdapter<RangeObjectPairSelector<F> > {
-      static RangeObjectPairSelector<F> make( const edm::ParameterSet & cfg ) {
-	return RangeObjectPairSelector<F>( cfg.template getParameter<double>( "rangeMin" ),
-					   cfg.template getParameter<double>( "rangeMax" ),
-					   reco::modules::make<F>( cfg )
-					   );
+      static RangeObjectPairSelector<F> make(const edm::ParameterSet& cfg) {
+        return RangeObjectPairSelector<F>(cfg.template getParameter<double>("rangeMin"),
+                                          cfg.template getParameter<double>("rangeMax"),
+                                          reco::modules::make<F>(cfg));
       }
     };
-    
-  }
-}
 
-
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

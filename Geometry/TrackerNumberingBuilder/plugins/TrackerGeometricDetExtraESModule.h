@@ -8,24 +8,20 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDetExtra.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 
-class  TrackerGeometricDetExtraESModule: public edm::ESProducer {
+class TrackerGeometricDetExtraESModule : public edm::ESProducer {
+public:
+  TrackerGeometricDetExtraESModule(const edm::ParameterSet& p);
 
- public:
-  TrackerGeometricDetExtraESModule(const edm::ParameterSet & p);
+  std::unique_ptr<std::vector<GeometricDetExtra> > produce(const IdealGeometryRecord&);
 
-  std::unique_ptr<std::vector<GeometricDetExtra> > produce(const IdealGeometryRecord &);
-
- protected:
-
- private:
-  void putOne(std::vector<GeometricDetExtra> & gde, const GeometricDet* gd, const DDExpandedView& ev, int lev );
+protected:
+private:
+  void putOne(std::vector<GeometricDetExtra>& gde, const GeometricDet* gd, const DDExpandedView& ev, int lev);
 
   edm::ESGetToken<GeometricDet, IdealGeometryRecord> geometricDetToken_;
   edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
   edm::ESGetToken<PGeometricDetExtra, PGeometricDetExtraRcd> pgToken_;
   const bool fromDDD_;
-
 };
 
 #endif
-

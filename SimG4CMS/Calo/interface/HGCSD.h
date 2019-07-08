@@ -16,8 +16,6 @@
 #include <string>
 #include <TTree.h>
 
-class DDCompactView;
-class DDFilteredView;
 class G4LogicalVolume;
 class G4Material;
 class G4Step;
@@ -25,7 +23,7 @@ class G4Step;
 class HGCSD : public CaloSD, public Observer<const BeginOfJob *> {
 public:
   HGCSD(const std::string &,
-        const DDCompactView &,
+        const edm::EventSetup &,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);

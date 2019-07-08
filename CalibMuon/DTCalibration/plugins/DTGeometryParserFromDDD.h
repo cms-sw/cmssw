@@ -18,25 +18,25 @@
 
 class DTLayerId;
 
-class  DTGeometryParserFromDDD {
-
+class DTGeometryParserFromDDD {
 public:
-  
- /// Constructor
-  DTGeometryParserFromDDD(const DDCompactView* cview, const MuonDDDConstants& muonConstants,
-			  std::map<DTLayerId,std::pair<unsigned int,unsigned int> > &theLayerIdWiresMap);
+  /// Constructor
+  DTGeometryParserFromDDD(const DDCompactView* cview,
+                          const MuonDDDConstants& muonConstants,
+                          std::map<DTLayerId, std::pair<unsigned int, unsigned int> >& theLayerIdWiresMap);
 
-  /// Destructor 
+  /// Destructor
   ~DTGeometryParserFromDDD();
 
 protected:
-
 private:
   //Parse the DDD
-  void parseGeometry(DDFilteredView& fv, const MuonDDDConstants& muonConstants,
-		     std::map<DTLayerId,std::pair<unsigned int,unsigned int> >  &theLayerIdWiresMap );
+  void parseGeometry(DDFilteredView& fv,
+                     const MuonDDDConstants& muonConstants,
+                     std::map<DTLayerId, std::pair<unsigned int, unsigned int> >& theLayerIdWiresMap);
   //Fill the map
-  void buildLayer(DDFilteredView& fv, const MuonDDDConstants& muonConstants,
-		  std::map<DTLayerId,std::pair<unsigned int,unsigned int> > &theLayerIdWiresMap );
-  };
+  void buildLayer(DDFilteredView& fv,
+                  const MuonDDDConstants& muonConstants,
+                  std::map<DTLayerId, std::pair<unsigned int, unsigned int> >& theLayerIdWiresMap);
+};
 #endif

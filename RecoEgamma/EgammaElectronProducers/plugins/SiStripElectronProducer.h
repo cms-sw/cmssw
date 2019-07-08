@@ -4,7 +4,7 @@
 //
 // Package:     EgammaElectronProducers
 // Class  :     SiStripElectronProducer
-// 
+//
 /**\class SiStripElectronProducer SiStripElectronProducer.h RecoEgamma/EgammaElectronProducers/interface/SiStripElectronProducer.h
 
  Description: <one line class summary>
@@ -33,31 +33,29 @@
 // forward declarations
 
 class SiStripElectronProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit SiStripElectronProducer(const edm::ParameterSet&);
-      ~SiStripElectronProducer() override;
+public:
+  explicit SiStripElectronProducer(const edm::ParameterSet&);
+  ~SiStripElectronProducer() override;
 
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
-      std::string siHitProducer_;
-      std::string siRphiHitCollection_;
-      std::string siStereoHitCollection_;
-      std::string siMatchedHitCollection_;
-      std::string superClusterProducer_;
-      std::string superClusterCollection_;
-      std::string siStripElectronsLabel_;
-      std::string trackCandidatesLabel_;
+private:
+  // ----------member data ---------------------------
+  std::string siHitProducer_;
+  std::string siRphiHitCollection_;
+  std::string siStereoHitCollection_;
+  std::string siMatchedHitCollection_;
+  std::string superClusterProducer_;
+  std::string superClusterCollection_;
+  std::string siStripElectronsLabel_;
+  std::string trackCandidatesLabel_;
 
-      edm::EDGetTokenT<SiStripRecHit2DCollection> rphi_sistrips2dtag_;
-      edm::EDGetTokenT<SiStripRecHit2DCollection> stereo_sistrips2dtag_;
-      edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matched_sistrips2dtag_;
-      edm::EDGetTokenT<reco::SuperClusterCollection> superClustertag_;
-      
-      
+  edm::EDGetTokenT<SiStripRecHit2DCollection> rphi_sistrips2dtag_;
+  edm::EDGetTokenT<SiStripRecHit2DCollection> stereo_sistrips2dtag_;
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matched_sistrips2dtag_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> superClustertag_;
 
-      SiStripElectronAlgo* algo_p;
+  SiStripElectronAlgo* algo_p;
 };
 
 #endif

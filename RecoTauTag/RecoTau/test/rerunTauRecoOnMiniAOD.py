@@ -52,9 +52,8 @@ secFiles = cms.untracked.vstring()
 process.source = cms.Source(
     "PoolSource", fileNames=readFiles, secondaryFileNames=secFiles)
 
-process.maxEvents = cms.untracked.PSet(
-    input=cms.untracked.int32(maxEvents)
-)
+process.maxEvents.input=maxEvents
+
 print('\t Max events:', process.maxEvents.input.value())
 
 if runSignal:
@@ -108,14 +107,11 @@ if process.maxEvents.input.value() > 10000 or process.maxEvents.input.value() < 
     process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 #####
-process.options = cms.untracked.PSet(
+process.options = dict( numberOfThreads = 4,
+                      # numberOfThreads = 1,
+                        numberOfStreams = 0,
+                        wantSummary = True
 )
-process.options.numberOfThreads = cms.untracked.uint32(4)
-# process.options.numberOfThreads=cms.untracked.uint32(1)
-process.options.numberOfStreams = cms.untracked.uint32(0)
 print('\t No. of threads:', process.options.numberOfThreads.value(), ', no. of streams:', process.options.numberOfStreams.value())
 
-process.options = cms.untracked.PSet(
-    process.options,
-    wantSummary=cms.untracked.bool(True)
-)
+

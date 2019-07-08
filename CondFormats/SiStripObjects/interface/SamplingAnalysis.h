@@ -15,14 +15,12 @@
 */
 
 class SamplingAnalysis : public CommissioningAnalysis {
-  
- public:
-  
-  SamplingAnalysis( const uint32_t& key );
+public:
+  SamplingAnalysis(const uint32_t& key);
 
   SamplingAnalysis();
 
-  ~SamplingAnalysis() override {;}
+  ~SamplingAnalysis() override { ; }
 
   friend class SamplingAlgorithm;
 
@@ -33,22 +31,21 @@ class SamplingAnalysis : public CommissioningAnalysis {
   inline void setSoNcut(const float sOnCut) { sOnCut_ = sOnCut; }
 
   float getSoNcut() const { return sOnCut_; }
-  
-  void print( std::stringstream&, uint32_t not_used = 0 ) override;
-  
+
+  void print(std::stringstream&, uint32_t not_used = 0) override;
+
   void reset() override;
 
   float limit(float SoNcut) const;
 
-  float correctMeasurement(float mean, float SoNcut=3.) const;
+  float correctMeasurement(float mean, float SoNcut = 3.) const;
 
   sistrip::Granularity granularity() const { return granularity_; }
 
- private:
-
+private:
   /** s/n cut to be used */
   float sOnCut_;
-  
+
   /** Delay corresponding to the maximum of the pulse shape */
   float max_;
 
@@ -60,8 +57,6 @@ class SamplingAnalysis : public CommissioningAnalysis {
 
   /** granularity */
   sistrip::Granularity granularity_;
-  
 };
 
-#endif // CondFormats_SiStripObjects_SamplingAnalysis_H
-
+#endif  // CondFormats_SiStripObjects_SamplingAnalysis_H

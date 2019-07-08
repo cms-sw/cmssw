@@ -13,10 +13,8 @@ class HGCalTriggerGeometryHexImp1 : public HGCalTriggerGeometryGenericMapping {
 public:
   HGCalTriggerGeometryHexImp1(const edm::ParameterSet& conf);
 
-  void initialize(const edm::ESHandle<CaloGeometry>&) final;
-  void initialize(const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&) final;
+  void initialize(const CaloGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
 
 private:
   edm::FileInPath l1tCellsMapping_;
@@ -35,7 +33,7 @@ HGCalTriggerGeometryHexImp1::HGCalTriggerGeometryHexImp1(const edm::ParameterSet
 {}
 
 /*****************************************************************/
-void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry)
+void HGCalTriggerGeometryHexImp1::initialize(const CaloGeometry* calo_geometry)
 /*****************************************************************/
 {
   edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"
@@ -47,9 +45,9 @@ void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<CaloGeometry>& 
 }
 
 /*****************************************************************/
-void HGCalTriggerGeometryHexImp1::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
-                                             const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
-                                             const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry)
+void HGCalTriggerGeometryHexImp1::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                             const HGCalGeometry* hgc_hsi_geometry,
+                                             const HGCalGeometry* hgc_hsc_geometry)
 /*****************************************************************/
 {
   throw cms::Exception("BadGeometry")

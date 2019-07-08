@@ -17,24 +17,21 @@
  */
 
 class MatchJet {
-
- public:
+public:
   MatchJet() {}
   MatchJet(const edm::ParameterSet& pSet);
 
   void setThreshold(const double& energy) { threshold = energy; }
 
   /// match the collections
-  void matchCollections(const edm::RefToBaseVector<reco::Jet> & refJets,
-                        const edm::RefToBaseVector<reco::Jet> & recJets,
-			const reco::JetCorrector * corrector
-                        );
+  void matchCollections(const edm::RefToBaseVector<reco::Jet>& refJets,
+                        const edm::RefToBaseVector<reco::Jet>& recJets,
+                        const reco::JetCorrector* corrector);
 
   /// Returns the matched "reference" jet
-  edm::RefToBase<reco::Jet>
-  operator() (const edm::RefToBase<reco::Jet> & recJet) const;
+  edm::RefToBase<reco::Jet> operator()(const edm::RefToBase<reco::Jet>& recJet) const;
 
- private:
+private:
   std::vector<int> refToRec, recToRef;
   edm::RefToBaseVector<reco::Jet> refJets;
   edm::RefToBaseVector<reco::Jet> recJets;

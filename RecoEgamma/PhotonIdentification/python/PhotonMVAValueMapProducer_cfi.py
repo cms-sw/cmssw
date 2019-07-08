@@ -15,17 +15,6 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Fall17_94X_V2_cf
 mvaConfigsForPhoProducer.append( mvaPhoID_RunIIFall17_v2_producer_config )
 
 photonMVAValueMapProducer = cms.EDProducer('PhotonMVAValueMapProducer',
-                                           # The module automatically detects AOD vs miniAOD, so we configure both
-                                           #
-                                           # AOD case
-                                           #
-                                           src = cms.InputTag('gedPhotons'),
-                                           #
-                                           # miniAOD case
-                                           #
-                                           srcMiniAOD = cms.InputTag('slimmedPhotons',processName=cms.InputTag.skipCurrentProcess()),
-                                           #
-                                           # MVA configurations
-                                           #
+                                           src = cms.InputTag('slimmedPhotons'),
                                            mvaConfigurations = mvaConfigsForPhoProducer
                                            )

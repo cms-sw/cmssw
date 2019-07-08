@@ -15,9 +15,9 @@
 //  return energy() < otherCluster.energy();
 //}
 //
-//bool BasicCluster::operator==(const BasicCluster& rhs) const  
+//bool BasicCluster::operator==(const BasicCluster& rhs) const
 //{
-//  
+//
 //  float Ediff = fabs(rhs.energy() - energy());
 //  if (Ediff < 0.00000001) return true;
 //  else return false;

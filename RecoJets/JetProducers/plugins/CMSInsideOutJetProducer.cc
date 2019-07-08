@@ -16,7 +16,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -28,7 +27,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
-
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 
@@ -36,7 +34,6 @@
 #include "fastjet/CMSIterativeConePlugin.hh"
 #include "fastjet/ATLASConePlugin.hh"
 #include "fastjet/CDFMidPointPlugin.hh"
-
 
 #include <iostream>
 #include <memory>
@@ -46,54 +43,38 @@
 
 using namespace std;
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // construction / destruction
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
 CMSInsideOutJetProducer::CMSInsideOutJetProducer(const edm::ParameterSet& iConfig)
-  : VirtualJetProducer( iConfig ),
-    alg_( iConfig.getParameter<double>("seedObjectPt"),
-	  iConfig.getParameter<double>("growthParameter"), 
-	  iConfig.getParameter<double>("maxSize"), 
-	  iConfig.getParameter<double>("minSize") )
-{
-}
-
+    : VirtualJetProducer(iConfig),
+      alg_(iConfig.getParameter<double>("seedObjectPt"),
+           iConfig.getParameter<double>("growthParameter"),
+           iConfig.getParameter<double>("maxSize"),
+           iConfig.getParameter<double>("minSize")) {}
 
 //______________________________________________________________________________
-CMSInsideOutJetProducer::~CMSInsideOutJetProducer()
-{
-} 
-
+CMSInsideOutJetProducer::~CMSInsideOutJetProducer() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMSInsideOutJetProducer::produce( edm::Event & iEvent, const edm::EventSetup & iSetup )
-{
-  VirtualJetProducer::produce( iEvent, iSetup );
+void CMSInsideOutJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  VirtualJetProducer::produce(iEvent, iSetup);
 }
 
 //______________________________________________________________________________
-void CMSInsideOutJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iSetup)
-{
-
+void CMSInsideOutJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const& iSetup) {
   fjJets_.clear();
 
-  alg_.run( fjInputs_, fjJets_ );
+  alg_.run(fjInputs_, fjJets_);
 }
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // define as cmssw plugin
 ////////////////////////////////////////////////////////////////////////////////
 
 DEFINE_FWK_MODULE(CMSInsideOutJetProducer);
-
-
-

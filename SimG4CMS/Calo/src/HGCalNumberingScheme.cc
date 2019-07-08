@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/Calo/interface/HGCalNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include <iostream>
 
 //#define EDM_ML_DEBUG
@@ -76,15 +77,14 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
                              << ":" << iz << ":" << pos.x() << ":" << pos.y() << ":" << pos.z() << " ID " << std::hex
                              << index << std::dec << " wt " << wt;
   checkPosition(index, pos);
-}
 #endif
-return index;
+  return index;
 }
 
 void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& pos) const {
   std::pair<float, float> xy;
   bool ok(false);
-  double z1(0), drMax(10.0), dzMax(1.0);
+  double z1(0), tolR(12.0), tolZ(1.0);
   int lay(-1);
   if (index == 0) {
   } else if (DetId(index).det() == DetId::HGCalHSi) {
@@ -93,16 +93,16 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
     xy = hgcons_.locateCell(lay, id.waferU(), id.waferV(), id.cellU(), id.cellV(), false, true);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
-    drMax = 10.0;
-    dzMax = 1.0;
+    tolR = 12.0;
+    tolZ = 1.0;
   } else if (DetId(index).det() == DetId::HGCalHSc) {
     HGCScintillatorDetId id = HGCScintillatorDetId(index);
     lay = id.layer();
     xy = hgcons_.locateCellTrap(lay, id.ietaAbs(), id.iphi(), false);
     z1 = hgcons_.waferZ(lay, false);
     ok = true;
-    drMax = 50.0;
-    dzMax = 5.0;
+    tolR = 50.0;
+    tolZ = 5.0;
   }
   if (ok) {
     double r1 = std::sqrt(xy.first * xy.first + xy.second * xy.second);
@@ -110,11 +110,11 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
     double z2 = std::abs(pos.z());
     std::pair<double, double> zrange = hgcons_.rangeZ(false);
     std::pair<double, double> rrange = hgcons_.rangeR(z2, false);
-    bool match = (std::abs(r1 - r2) < drMax) && (std::abs(z1 - z2) < dzMax);
+    bool match = (std::abs(r1 - r2) < tolR) && (std::abs(z1 - z2) < tolZ);
     bool inok = ((r2 >= rrange.first) && (r2 <= rrange.second) && (z2 >= zrange.first) && (z2 <= zrange.second));
     bool outok = ((r1 >= rrange.first) && (r1 <= rrange.second) && (z1 >= zrange.first) && (z1 <= zrange.second));
-    std::string ck = (((r1 < rrange.first - 10.0) || (r1 > rrange.second + 10.0) || (z1 < zrange.first - 5.0) ||
-                       (z1 > zrange.second + 5.0))
+    std::string ck = (((r1 < rrange.first - tolR) || (r1 > rrange.second + tolR) || (z1 < zrange.first - tolZ) ||
+                       (z1 > zrange.second + tolZ))
                           ? "***** ERROR *****"
                           : "");
     if (!(match && inok && outok)) {

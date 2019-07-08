@@ -1,10 +1,9 @@
 #ifndef Geom_TkRotation_H
 #define Geom_TkRotation_H
 
-
 #include "DataFormats/Math/interface/SIMDVec.h"
 
-#if defined(USE_EXTVECT)  
+#if defined(USE_EXTVECT)
 #include "private/extTkRotation.h"
 #elif defined(USE_SSEVECT)
 #include "private/sseTkRotation.h"
@@ -12,5 +11,4 @@
 #include "private/oldTkRotation.h"
 #endif
 
-#endif // Geom_TkRotation_H
-
+#endif  // Geom_TkRotation_H

@@ -3,9 +3,8 @@
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType const * type, DetId id) : 
-  TrackerGeomDet(sp), theTopology(new ProxyPixelTopology(type, sp))
-{
+PixelGeomDetUnit::PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType const* type, DetId id)
+    : TrackerGeomDet(sp), theTopology(new ProxyPixelTopology(type, sp)) {
   setDetId(id);
 }
 
@@ -17,7 +16,6 @@ const Topology& PixelGeomDetUnit::topology() const { return *theTopology; }
 
 const PixelTopology& PixelGeomDetUnit::specificTopology() const { return *theTopology; }
 
-void PixelGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
-{
+void PixelGeomDetUnit::setSurfaceDeformation(const SurfaceDeformation* deformation) {
   theTopology->setSurfaceDeformation(deformation);
 }

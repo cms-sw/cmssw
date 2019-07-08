@@ -10,13 +10,12 @@
 
 #include "RecoPixelVertexing/PixelTriplets/interface/ThirdHitRZPredictionBase.h"
 
-template<class Propagator>
+template <class Propagator>
 class ThirdHitRZPrediction : public ThirdHitRZPredictionBase {
 public:
-
   ThirdHitRZPrediction() : ThirdHitRZPredictionBase(), thePropagator(nullptr) {}
-  ThirdHitRZPrediction(const Propagator *propagator, float tolerance, const DetLayer* layer = nullptr) :
-      ThirdHitRZPredictionBase(tolerance, layer), thePropagator(propagator) {}
+  ThirdHitRZPrediction(const Propagator *propagator, float tolerance, const DetLayer *layer = nullptr)
+      : ThirdHitRZPredictionBase(tolerance, layer), thePropagator(propagator) {}
 
   inline Range operator()(const DetLayer *layer = nullptr);
   inline Range operator()(float rORz) const { return (*this)(rORz, *thePropagator); }
@@ -25,28 +24,29 @@ public:
   void initPropagator(const Propagator *propagator) { thePropagator = propagator; }
 
 private:
-  float transform( const Propagator &propagator, float rOrZ) const
-  { return theBarrel ? propagator.zAtR(rOrZ) : propagator.rAtZ(rOrZ); }
+  float transform(const Propagator &propagator, float rOrZ) const {
+    return theBarrel ? propagator.zAtR(rOrZ) : propagator.rAtZ(rOrZ);
+  }
 
   const Propagator *thePropagator;
 };
 
-template<class Propagator>
-typename ThirdHitRZPrediction<Propagator>::Range
-ThirdHitRZPrediction<Propagator>::operator()(const DetLayer *layer)
-{
-  if (layer) initLayer(layer);
-  if (!theBarrel && !theForward) return Range(0., 0.);
+template <class Propagator>
+typename ThirdHitRZPrediction<Propagator>::Range ThirdHitRZPrediction<Propagator>::operator()(const DetLayer *layer) {
+  if (layer)
+    initLayer(layer);
+  if (!theBarrel && !theForward)
+    return Range(0., 0.);
   float v1 = transform(*thePropagator, theDetRange.min());
   float v2 = transform(*thePropagator, theDetRange.max());
-  if (v1 > v2) std::swap(v1, v2);
+  if (v1 > v2)
+    std::swap(v1, v2);
   return Range(v1 - theTolerance.left(), v2 + theTolerance.right());
 }
 
-template<class Propagator>
-typename ThirdHitRZPrediction<Propagator>::Range
-ThirdHitRZPrediction<Propagator>::operator()(float rOrZ, const Propagator &propagator) const
-{
+template <class Propagator>
+typename ThirdHitRZPrediction<Propagator>::Range ThirdHitRZPrediction<Propagator>::operator()(
+    float rOrZ, const Propagator &propagator) const {
   float v = transform(propagator, rOrZ);
   return Range(v - theTolerance.left(), v + theTolerance.right());
 }

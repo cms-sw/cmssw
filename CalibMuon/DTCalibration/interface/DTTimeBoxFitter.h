@@ -10,7 +10,6 @@
 
 #include <utility>
 
-
 class TH1F;
 class TFile;
 #include "TString.h"
@@ -26,51 +25,37 @@ public:
   // Operations
 
   /// Fit the rising edge of the time box returning mean value and sigma (first and second respectively)
-  std::pair<double, double> fitTimeBox(TH1F *hTimeBox);
+  std::pair<double, double> fitTimeBox(TH1F* hTimeBox);
 
-  
   /// Automatically compute the seeds the range to be used for time box fit
-  void getFitSeeds(TH1F *hTBox, double& mean, double& sigma, double& tBoxMax, double& xFitMin,
-		   double& xFitMax);
+  void getFitSeeds(TH1F* hTBox, double& mean, double& sigma, double& tBoxMax, double& xFitMin, double& xFitMax);
 
   /// Ask the user to provide the seeds
-  void getInteractiveFitSeeds(TH1F *hTBox, double& mean, double& sigma, double& tBoxMax,
-			      double& xFitMin, double& xFitMax);
-
+  void getInteractiveFitSeeds(
+      TH1F* hTBox, double& mean, double& sigma, double& tBoxMax, double& xFitMin, double& xFitMax);
 
   /// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
-  void setVerbosity(unsigned int lvl) {
-    theVerbosityLevel = lvl;
-  }
+  void setVerbosity(unsigned int lvl) { theVerbosityLevel = lvl; }
 
   /// Switch to interactive fit
-  void setInteractiveFit(bool isInteractive) {
-    interactiveFit = isInteractive;
-  }
+  void setInteractiveFit(bool isInteractive) { interactiveFit = isInteractive; }
 
- /// Set the rebin
-  void setRebinning(int reb) {
-    rebin = reb;
-  }
+  /// Set the rebin
+  void setRebinning(int reb) { rebin = reb; }
 
-  void setFitSigma(double sigma) {
-    theSigma = sigma;
-  }
+  void setFitSigma(double sigma) { theSigma = sigma; }
 
 protected:
-
 private:
-
-  TFile *hDebugFile;
+  TFile* hDebugFile;
 
   unsigned int theVerbosityLevel;
   bool interactiveFit;
   int rebin;
   double theSigma;
-
 };
 
 // Define the integral of the gaussian to be used in the fit
-double intGauss(double *x, double *par);
+double intGauss(double* x, double* par);
 
 #endif

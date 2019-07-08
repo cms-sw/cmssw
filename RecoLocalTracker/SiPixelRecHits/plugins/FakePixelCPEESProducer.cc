@@ -12,11 +12,8 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 
-
-
 #include <string>
 #include <memory>
-
 
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,29 +21,26 @@
 
 namespace {
 
-class  FakePixelCPEESProducer final : public edm::ESProducer{
-public:
+  class FakePixelCPEESProducer final : public edm::ESProducer {
+  public:
+    FakePixelCPEESProducer(const edm::ParameterSet &p) {
+      std::string myname = p.getParameter<std::string>("ComponentName");
+      setWhatProduced(this, myname);
+    }
 
-  FakePixelCPEESProducer(const edm::ParameterSet & p) {
-    std::string myname = p.getParameter<std::string>("ComponentName");
-    setWhatProduced(this,myname);
-  }
+    ~FakePixelCPEESProducer() override = default;
 
-  ~FakePixelCPEESProducer() = default; 
+    std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &) {
+      return std::make_unique<PixelFakeCPE>();
+    }
 
-  std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord &) {
-     return std::make_unique<PixelFakeCPE>();
-  }
+  private:
+  };
 
-private:
-
-};
-
-}
+}  // namespace
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(FakePixelCPEESProducer);
-

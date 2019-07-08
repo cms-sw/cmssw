@@ -154,7 +154,8 @@ namespace evf {
     edm::BranchIDLists const* bidlPtr = branchIDLists();
 
     std::unique_ptr<InitMsgBuilder> init_message =
-        jsonWriter_->streamerCommon_.serializeRegistry(*bidlPtr,
+        jsonWriter_->streamerCommon_.serializeRegistry(*jsonWriter_->streamerCommon_.getSerializerBuffer(),
+                                                       *bidlPtr,
                                                        *thinnedAssociationsHelper(),
                                                        OutputModule::processName(),
                                                        description().moduleLabel(),
@@ -186,7 +187,7 @@ namespace evf {
     fclose(src);
 
     //clear serialization buffers
-    jsonWriter_->streamerCommon_.clearSerializeDataBuffer();
+    jsonWriter_->streamerCommon_.getSerializerBuffer()->clearHeaderBuffer();
 
     //free output buffer needed only for the file write
     delete[] outBuf;
@@ -221,9 +222,8 @@ namespace evf {
 
     //auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));
     auto lumiWriter = luminosityBlockCache(e.getLuminosityBlock().index());
-
-    std::unique_ptr<EventMsgBuilder> msg =
-        jsonWriter_->streamerCommon_.serializeEvent(e, triggerResults, selectorConfig());
+    std::unique_ptr<EventMsgBuilder> msg = jsonWriter_->streamerCommon_.serializeEvent(
+        *jsonWriter_->streamerCommon_.getSerializerBuffer(), e, triggerResults, selectorConfig());
     lumiWriter->incAccepted();
     lumiWriter->doOutputEvent(*msg);  //msg is written and discarded at this point
   }

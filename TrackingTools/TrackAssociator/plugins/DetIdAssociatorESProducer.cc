@@ -2,7 +2,7 @@
 //
 // Package:    DetIdAssociatorESProducer
 // Class:      DetIdAssociatorESProducer
-// 
+//
 /**\class DetIdAssociatorESProducer TrackingTools/TrackAssociator/plugins/DetIdAssociatorESProducer.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 
@@ -26,9 +25,9 @@
 
 #include "TrackingTools/TrackAssociator/interface/DetIdAssociator.h"
 #include "DetIdAssociatorFactory.h"
+#include "DetIdAssociatorMaker.h"
 
 #include "TrackingTools/Records/interface/DetIdAssociatorRecord.h"
-
 
 //
 // class decleration
@@ -38,13 +37,14 @@ class DetIdAssociatorESProducer : public edm::ESProducer {
 public:
   DetIdAssociatorESProducer(const edm::ParameterSet&);
   ~DetIdAssociatorESProducer() override;
-  
+
   typedef std::unique_ptr<DetIdAssociator> ReturnType;
-  
+
   ReturnType produce(const DetIdAssociatorRecord&);
+
 private:
-  std::string cName;
-  edm::ParameterSet pSet;
+  const std::string cName;
+  std::unique_ptr<const DetIdAssociatorMaker> maker_;
 };
 
 //
@@ -59,34 +59,23 @@ private:
 // constructors and destructor
 //
 DetIdAssociatorESProducer::DetIdAssociatorESProducer(const edm::ParameterSet& iConfig)
-{
-  cName =iConfig.getParameter<std::string>("ComponentName");
-  pSet = iConfig;
-  setWhatProduced(this, cName);
-}
+    : cName{iConfig.getParameter<std::string>("ComponentName")},
+      maker_{DetIdAssociatorFactory::get()->create(cName, iConfig, setWhatProduced(this, cName))} {}
 
-
-DetIdAssociatorESProducer::~DetIdAssociatorESProducer()
-{
-}
-
+DetIdAssociatorESProducer::~DetIdAssociatorESProducer() {}
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-DetIdAssociatorESProducer::ReturnType
-DetIdAssociatorESProducer::produce(const DetIdAssociatorRecord& iRecord)
-{
-   using namespace edm::es;
-   LogTrace("TrackAssociator") << "Making DetIdAssociatorRecord with label: " << cName;
-   ReturnType dia(DetIdAssociatorFactory::get()->create(cName, pSet));
-   dia->setGeometry(iRecord);
-   dia->setConditions(iRecord);
-   dia->buildMap();
-   LogTrace("TrackAssociator") << "Map id built for DetIdAssociatorRecord with label: " << cName;
-   return dia;
+DetIdAssociatorESProducer::ReturnType DetIdAssociatorESProducer::produce(const DetIdAssociatorRecord& iRecord) {
+  using namespace edm::es;
+  LogTrace("TrackAssociator") << "Making DetIdAssociatorRecord with label: " << cName;
+  ReturnType dia = maker_->make(iRecord);
+  dia->buildMap();
+  LogTrace("TrackAssociator") << "Map id built for DetIdAssociatorRecord with label: " << cName;
+  return dia;
 }
 
 //define this as a plug-in

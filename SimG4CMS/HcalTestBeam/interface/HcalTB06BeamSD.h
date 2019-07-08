@@ -12,15 +12,14 @@
 
 #include <string>
 
-class DDCompactView;
-class DDFilteredView;
 class G4Step;
 class G4Material;
+class DDFilteredView;
 
 class HcalTB06BeamSD : public CaloSD {
 public:
   HcalTB06BeamSD(const std::string &,
-                 const DDCompactView &,
+                 const edm::EventSetup &,
                  const SensitiveDetectorCatalog &,
                  edm::ParameterSet const &,
                  const SimTrackManager *);

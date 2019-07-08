@@ -12,12 +12,9 @@
 
 namespace reco {
   namespace modules {
-    typedef SingleObjectSelector<
-              reco::CandidateCollection,
-              StringCutObjectSelector<reco::Candidate>
-            > CandSelector;
+    typedef SingleObjectSelector<reco::CandidateCollection, StringCutObjectSelector<reco::Candidate> > CandSelector;
 
-DEFINE_FWK_MODULE( CandSelector );
+    DEFINE_FWK_MODULE(CandSelector);
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco

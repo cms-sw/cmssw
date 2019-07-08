@@ -1000,7 +1000,7 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   iBooker.setCurrentFolder("EgammaV/" + fName_ + "/Photons");
 
   histname = "nOfflineVtx";
-  h_nRecoVtx_ = iBooker.book1D(histname, "# of Offline Vertices", 20, -0.5, 199.5);
+  h_nRecoVtx_ = iBooker.book1D(histname, "# of Offline Vertices", 200, -0.5, 199.5);
 
   h_phoEta_[0] = iBooker.book1D("phoEta", " Photon Eta ", etaBin, etaMin, etaMax);
   h_phoPhi_[0] = iBooker.book1D("phoPhi", " Photon  Phi ", phiBin, phiMin, phiMax);
@@ -1831,7 +1831,7 @@ void PhotonValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   p_eResVsNVtx_[2][1] =
       iBooker.bookProfile(histname + "unconvEndcap",
                           "Uncoverted photons  E/E_{true}  vs N_{vtx}: Endcap;  N_{vtx}; E}/E_{true} ",
-                         2080,
+                          2080,
                           -0.5,
                           199.5,
                           resBin,

@@ -1,7 +1,6 @@
 #ifndef SiStripElectronSeedProducer_h
 #define SiStripElectronSeedProducer_h
 
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -12,20 +11,18 @@
 
 class SiStripElectronSeedGenerator;
 
-class SiStripElectronSeedProducer : public edm::stream::EDProducer<>
-{
- public:
-
+class SiStripElectronSeedProducer : public edm::stream::EDProducer<> {
+public:
   explicit SiStripElectronSeedProducer(const edm::ParameterSet& conf);
 
   ~SiStripElectronSeedProducer() override;
 
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
- private:
+private:
   edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2];
   edm::ParameterSet conf_;
-  SiStripElectronSeedGenerator *matcher_;
-  };
+  SiStripElectronSeedGenerator* matcher_;
+};
 
 #endif

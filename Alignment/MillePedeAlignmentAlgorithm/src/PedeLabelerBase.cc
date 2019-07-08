@@ -14,6 +14,9 @@
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/IntegratedCalibrationBase.h"
 
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // NOTE: Changing '+14' makes older binary files unreadable...

@@ -5,7 +5,6 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
-<use   name="FWCore/Concurrency"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="DataFormats/HcalDetId"/>

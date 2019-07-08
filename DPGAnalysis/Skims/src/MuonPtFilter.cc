@@ -24,30 +24,27 @@ using namespace edm;
 /* ====================================================================== */
 
 /// Constructor
-MuonPtFilter::MuonPtFilter(const edm::ParameterSet& pset)
-{
+MuonPtFilter::MuonPtFilter(const edm::ParameterSet& pset) {
   // the name of the STA rec hits collection
   theSTAMuonLabel = pset.getParameter<std::string>("SALabel");
 
-  theMinPt = pset.getParameter<double>("minPt"); // pt min (GeV)
+  theMinPt = pset.getParameter<double>("minPt");  // pt min (GeV)
 
-  LogDebug("MuonPt") << " SALabel : " << theSTAMuonLabel 
-    << " Min Pt : " << theMinPt;
+  LogDebug("MuonPt") << " SALabel : " << theSTAMuonLabel << " Min Pt : " << theMinPt;
 }
 
 /// Destructor
-MuonPtFilter::~MuonPtFilter() {
-}
+MuonPtFilter::~MuonPtFilter() {}
 
-/* Operations */ 
+/* Operations */
 bool MuonPtFilter::filter(edm::Event& event, const edm::EventSetup& eventSetup) {
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
   event.getByLabel(theSTAMuonLabel, staTracks);
-  
+
   reco::TrackCollection::const_iterator staTrack;
-  
-  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){
+
+  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
     if (staTrack->pt() > theMinPt)
       return true;
   }

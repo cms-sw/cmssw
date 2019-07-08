@@ -34,14 +34,12 @@ public:
   // Operations
 
   /// Fill the maps with t0 (by channel)
-  void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /// Compute the mean and the RMS of the t0 from the maps and write them to the DB with channel granularity
   void endJob() override;
 
-
 protected:
-
 private:
   // Generate the histo name
   std::string getHistoName(const DTWireId& wId) const;
@@ -54,9 +52,9 @@ private:
   std::string digiLabel;
 
   // The root file which contain the histos per layer
-  TFile *theFile;
+  TFile* theFile;
   // The root file which will contain the histos per wire (for the given layer)
-  TFile *theOutputFile;
+  TFile* theOutputFile;
 
   //The event counter
   unsigned int nevents;
@@ -84,26 +82,26 @@ private:
   std::map<DTLayerId, TH1I*> theHistoLayerMap;
   //Histo with t0 mean per layer for all the sector
   TH1D* hT0SectorHisto;
-  
+
   //Layer with histos for each wire
   std::vector<DTWireId> wireIdWithHistos;
   std::vector<std::string> cellsWithHistos;
 
   //Maps with t0, sigma, number of digi per wire
-  std::map<DTWireId,double> theAbsoluteT0PerWire;
-  std::map<DTWireId,double> theRelativeT0PerWire;
-  std::map<DTWireId,double> theSigmaT0PerWire;
-  std::map<DTWireId,int> nDigiPerWire;
-  std::map<DTWireId,int> nDigiPerWire_ref;
-  std::map<DTWireId,double> mK;
-  std::map<DTWireId,double> mK_ref;
-  std::map<DTWireId,double> qK;
+  std::map<DTWireId, double> theAbsoluteT0PerWire;
+  std::map<DTWireId, double> theRelativeT0PerWire;
+  std::map<DTWireId, double> theSigmaT0PerWire;
+  std::map<DTWireId, int> nDigiPerWire;
+  std::map<DTWireId, int> nDigiPerWire_ref;
+  std::map<DTWireId, double> mK;
+  std::map<DTWireId, double> mK_ref;
+  std::map<DTWireId, double> qK;
   //Map with histo per wire for the chosen layer
-  std::map<DTWireId,TH1I*> theHistoWireMap;
-  std::map<DTWireId,TH1I*> theHistoWireMap_ref;
+  std::map<DTWireId, TH1I*> theHistoWireMap;
+  std::map<DTWireId, TH1I*> theHistoWireMap_ref;
   //Map with mean and RMS of t0 per layer
-  std::map<std::string,double> theT0LayerMap;
-  std::map<std::string,double> theSigmaT0LayerMap;
+  std::map<std::string, double> theT0LayerMap;
+  std::map<std::string, double> theSigmaT0LayerMap;
 
   //DTGeometry used to loop on the SL in the endJob
   edm::ESHandle<DTGeometry> dtGeom;

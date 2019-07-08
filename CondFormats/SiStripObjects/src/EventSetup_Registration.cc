@@ -2,4 +2,3 @@
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 TYPELOOKUP_DATA_REG(SiStripFedCabling);
-

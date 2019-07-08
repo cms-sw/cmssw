@@ -12,29 +12,29 @@
 #include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 #include "FWCore/Utilities/interface/RunningAverage.h"
 
-
 class TrackingRegion;
-namespace edm { class Event; class EventSetup; }
+namespace edm {
+  class Event;
+  class EventSetup;
+}  // namespace edm
 #include <vector>
 
 class MultiHitGenerator : public OrderedHitsGenerator {
 public:
+  MultiHitGenerator(unsigned int size = 400) : localRA(size) {}
+  MultiHitGenerator(MultiHitGenerator const& other) : localRA(other.localRA.mean()) {}
 
-  MultiHitGenerator(unsigned int size=400) : localRA(size){}
-  MultiHitGenerator( MultiHitGenerator const & other) : localRA(other.localRA.mean()){}
+  ~MultiHitGenerator() override {}
 
-
-  ~MultiHitGenerator() override { }
-
-  const OrderedMultiHits & run(
-    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) final;
+  const OrderedMultiHits& run(const TrackingRegion& region, const edm::Event& ev, const edm::EventSetup& es) final;
 
   // temporary interface, for bckwd compatibility
-  virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & prs,
-       const edm::EventSetup& es){}
+  virtual void hitSets(const TrackingRegion& reg, OrderedMultiHits& prs, const edm::EventSetup& es) {}
 
-  virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & prs,
-      const edm::Event & ev,  const edm::EventSetup& es) = 0;
+  virtual void hitSets(const TrackingRegion& reg,
+                       OrderedMultiHits& prs,
+                       const edm::Event& ev,
+                       const edm::EventSetup& es) = 0;
 
   void clear() override;
 
@@ -44,6 +44,5 @@ private:
 protected:
   edm::RunningAverage localRA;
 };
-
 
 #endif

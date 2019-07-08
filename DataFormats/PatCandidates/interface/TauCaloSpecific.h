@@ -14,29 +14,31 @@
 #include "DataFormats/TauReco/interface/CaloTau.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-namespace pat { namespace tau {
+namespace pat {
+  namespace tau {
 
-struct TauCaloSpecific {
-// dummy constructor for ROOT I/O
-    TauCaloSpecific() {}
-// constructor from CaloTau
-    TauCaloSpecific(const reco::CaloTau &tau) ;
-// datamembers 
-    reco::CaloTauTagInfoRef CaloTauTagInfoRef_;
-    float leadTracksignedSipt_;
-    float leadTrackHCAL3x3hitsEtSum_;
-    float leadTrackHCAL3x3hottesthitDEta_;
-    float signalTracksInvariantMass_;
-    float TracksInvariantMass_; 
-    float isolationTracksPtSum_;
-    float isolationECALhitsEtSum_;
-    float maximumHCALhitEt_;
-    reco::Candidate::LorentzVector p4Jet_;
-    float etaetaMoment_;
-    float phiphiMoment_;
-    float etaphiMoment_;
-};
+    struct TauCaloSpecific {
+      // dummy constructor for ROOT I/O
+      TauCaloSpecific() {}
+      // constructor from CaloTau
+      TauCaloSpecific(const reco::CaloTau &tau);
+      // datamembers
+      reco::CaloTauTagInfoRef CaloTauTagInfoRef_;
+      float leadTracksignedSipt_;
+      float leadTrackHCAL3x3hitsEtSum_;
+      float leadTrackHCAL3x3hottesthitDEta_;
+      float signalTracksInvariantMass_;
+      float TracksInvariantMass_;
+      float isolationTracksPtSum_;
+      float isolationECALhitsEtSum_;
+      float maximumHCALhitEt_;
+      reco::Candidate::LorentzVector p4Jet_;
+      float etaetaMoment_;
+      float phiphiMoment_;
+      float etaphiMoment_;
+    };
 
-} }
+  }  // namespace tau
+}  // namespace pat
 
 #endif

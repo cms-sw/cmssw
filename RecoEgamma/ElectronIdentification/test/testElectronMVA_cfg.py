@@ -30,8 +30,17 @@ from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 # DataFormat.AOD or DataFormat.MiniAOD, as appropriate
 if useAOD == True :
     dataFormat = DataFormat.AOD
+    input_tags = dict(
+        src = cms.InputTag("gedGsfElectrons"),
+        vertices = cms.InputTag("offlinePrimaryVertices"),
+        pileup = cms.InputTag("addPileupInfo"),
+        genParticles = cms.InputTag("genParticles"),
+        ebReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+        eeReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+    )
 else :
     dataFormat = DataFormat.MiniAOD
+    input_tags = dict()
 
 switchOnVIDElectronIdProducer(process, dataFormat)
 
@@ -122,7 +131,9 @@ process.ntuplizer = cms.EDAnalyzer('ElectronMVANtuplizer',
         ptThreshold = cms.double(5.0),
         #
         doEnergyMatrix = cms.bool(False), # disabled by default due to large size
-        energyMatrixSize = cms.int32(2) # corresponding to 5x5
+        energyMatrixSize = cms.int32(2), # corresponding to 5x5
+        #
+        **input_tags
         )
 """
 The energy matrix is for ecal driven electrons the n x n of raw

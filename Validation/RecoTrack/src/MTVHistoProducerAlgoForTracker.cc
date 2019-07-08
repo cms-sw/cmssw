@@ -31,6 +31,21 @@ namespace {
     axis->Set(bins, new_bins.data());
   }
 
+  void BinLogY(TH1 *h) {
+    TAxis *axis = h->GetYaxis();
+    int bins = axis->GetNbins();
+
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins+1, 0);
+
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins.data());
+  }
+
   template <typename... Args>
   ConcurrentMonitorElement make1DIfLogX(DQMStore::ConcurrentBooker& ibook, bool logx, Args&& ...args) {
     auto h = std::make_unique<TH1F>(std::forward<Args>(args)...);
@@ -51,6 +66,14 @@ namespace {
   ConcurrentMonitorElement make2DIfLogX(DQMStore::ConcurrentBooker& ibook, bool logx, Args&& ...args) {
     auto h = std::make_unique<TH2F>(std::forward<Args>(args)...);
     if(logx) BinLogX(h.get());
+    const auto& name = h->GetName();
+    return ibook.book2D(name, h.release());
+  }
+
+  template <typename... Args>
+  ConcurrentMonitorElement make2DIfLogY(DQMStore::ConcurrentBooker& ibook, bool logy, Args&& ...args) {
+    auto h = std::make_unique<TH2F>(std::forward<Args>(args)...);
+    if(logy) BinLogY(h.get());
     const auto& name = h->GetName();
     return ibook.book2D(name, h.release());
   }
@@ -373,6 +396,9 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::ConcurrentBook
   histograms.h_assocpT.push_back( make1DIfLogX(ibook, useLogPt, "num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintPt,minPt,maxPt) );
   histograms.h_simulpT.push_back( make1DIfLogX(ibook, useLogPt, "num_simul_pT","N of simulated tracks vs pT",nintPt,minPt,maxPt) );
 
+  histograms.h_assocpTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_assoc(simToReco)_pTvseta","N of associated tracks (simToReco) in (pT-eta) please",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+  histograms.h_simulpTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_simul_pTvseta","N of simulated tracks in (pT-eta) plane",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+
   histograms.h_assochit.push_back( ibook.book1D("num_assoc(simToReco)_hit","N of associated tracks (simToReco) vs hit",nintHit,minHit,maxHit) );
   histograms.h_simulhit.push_back( ibook.book1D("num_simul_hit","N of simulated tracks vs hit",nintHit,minHit,maxHit) );
 
@@ -498,6 +524,13 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::ConcurrentBooker& 
   if(!doSeedPlots_) histograms.h_misidpT.push_back( make1DIfLogX(ibook, useLogPt, "num_chargemisid_pT","N of associated (recoToSim) charge misIDed tracks vs pT",nintPt,minPt,maxPt) );
   histograms.h_pileuppT.push_back( make1DIfLogX(ibook, useLogPt, "num_pileup_pT","N of associated (recoToSim) pileup tracks vs pT",nintPt,minPt,maxPt) );
   //
+  histograms.h_recopTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_reco_pTvseta","N of reco track in (pT-eta) plane",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+  histograms.h_reco2pTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_reco2_pTvseta","N of selected reco track in (pT-eta) plane",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+  histograms.h_assoc2pTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_assoc(recoToSim)_pTvseta","N of associated (recoToSim) tracks in (pT-eta) plane",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+  histograms.h_looperpTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_duplicate_pTvseta","N of associated (recoToSim) duplicate tracks in (pT-eta) plane",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+  if(!doSeedPlots_) histograms.h_misidpTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_chargemisid_pTvseta","N of associated (recoToSim) charge misIDed tracks in (pT-eta) plane",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+  histograms.h_pileuppTvseta.push_back( make2DIfLogY(ibook, useLogPt, "num_pileup_pTvseta","N of associated (recoToSim) pileup tracks in (pT-eta) plane",nintEta,minEta,maxEta,nintPt,minPt,maxPt) );
+  //
   histograms.h_recohit.push_back( ibook.book1D("num_reco_hit","N of reco track vs hit",nintHit,minHit,maxHit) );
   histograms.h_assoc2hit.push_back( ibook.book1D("num_assoc(recoToSim)_hit","N of associated (recoToSim) tracks vs hit",nintHit,minHit,maxHit) );
   histograms.h_looperhit.push_back( ibook.book1D("num_duplicate_hit","N of associated (recoToSim) duplicate tracks vs hit",nintHit,minHit,maxHit) );
@@ -578,6 +611,12 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::ConcurrentBooker& 
   if(!doSeedPlots_) histograms.h_misidchi2.push_back( ibook.book1D("num_chargemisid_chi2","N of associated (recoToSim) charge misIDed tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
   histograms.h_pileupchi2.push_back( ibook.book1D("num_pileup_chi2","N of associated (recoToSim) pileup tracks vs normalized #chi^{2}",nintChi2,minChi2,maxChi2) );
 
+  histograms.h_recochi2prob.push_back( ibook.book1D("num_reco_chi2prob","N of reco track vs normalized #chi^{2}",100,0.,1.) );
+  histograms.h_assoc2chi2prob.push_back( ibook.book1D("num_assoc(recoToSim)_chi2prob","N of associated (recoToSim) tracks vs normalized #chi^{2}",100,0.,1.) );
+  histograms.h_looperchi2prob.push_back( ibook.book1D("num_duplicate_chi2prob","N of associated (recoToSim) looper tracks vs normalized #chi^{2}",100,0.,1.) );
+  if(!doSeedPlots_) histograms.h_misidchi2prob.push_back( ibook.book1D("num_chargemisid_chi2prob","N of associated (recoToSim) charge misIDed tracks vs normalized #chi^{2}",100,0.,1.) );
+  histograms.h_pileupchi2prob.push_back( ibook.book1D("num_pileup_chi2prob","N of associated (recoToSim) pileup tracks vs normalized #chi^{2}",100,0.,1.) );
+
 
   if(!seedingLayerSetNames.empty()) {
     const auto size = seedingLayerSetNames.size();
@@ -633,6 +672,9 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::ConcurrentBooker& 
 
   histograms.chi2_vs_eta.push_back( ibook.bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20, " " ));
   histograms.chi2_vs_phi.push_back( ibook.bookProfile("chi2mean_vs_phi","mean #chi^{2} vs #phi",nintPhi,minPhi,maxPhi, 200, 0, 20, " " ) );
+
+  histograms.assoc_chi2_vs_eta.push_back    ( ibook.bookProfile("assoc_chi2mean",       "mean #chi^{2} vs #eta",            nintEta,minEta,maxEta, 200, 0., 20., " " ));
+  histograms.assoc_chi2prob_vs_eta.push_back( ibook.bookProfile("assoc_chi2prob_vs_eta","mean #chi^{2} probability vs #eta",nintEta,minEta,maxEta, 100, 0.,  1., " " ));
 
   histograms.nhits_vs_eta.push_back( ibook.bookProfile("hits_eta","mean hits vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
   histograms.nPXBhits_vs_eta.push_back( ibook.bookProfile("PXBhits_vs_eta","mean # PXB its vs eta",nintEta,minEta,maxEta,nintHit,minHit,maxHit, " ") );
@@ -1090,6 +1132,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
   const auto vertxy = std::sqrt(refPointWrtBS.perp2());
   const auto vertz = refPointWrtBS.z();
   const auto chi2 = track.normalizedChi2();
+  const auto chi2prob = TMath::Prob(track.chi2(),(int)track.ndof());
   const bool fillSeedingLayerSets = !seedingLayerSetNames.empty();
   const unsigned int seedingLayerSetBin = fillSeedingLayerSets ? getSeedingLayerSetBin(track, ttopo) : 0;
   const auto simpvz = simPVPosition ? simPVPosition->z() : 0.0;
@@ -1100,9 +1143,11 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
     histograms.h_recoeta[count].fill(eta);
     histograms.h_recophi[count].fill(phi);
     histograms.h_recopT[count].fill(pt);
+    histograms.h_recopTvseta[count].fill(eta,pt);
     histograms.h_recodxy[count].fill(dxy);
     histograms.h_recodz[count].fill(dz);
     histograms.h_recochi2[count].fill(chi2);
+    histograms.h_recochi2prob[count].fill(chi2prob);
     histograms.h_recovertpos[count].fill(vertxy);
     histograms.h_recozpos[count].fill(vertz);
     histograms.h_recodr[count].fill(dR);
@@ -1127,6 +1172,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
     }
     if((*trackSelectorVsPt)(track, bsPosition)) {
       histograms.h_reco2pT[count].fill(pt);
+      histograms.h_reco2pTvseta[count].fill(eta,pt);
     }
   }
   histograms.h_recohit[count].fill(nhits);
@@ -1145,10 +1191,14 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.h_assoc2eta[count].fill(eta);
       histograms.h_assoc2phi[count].fill(phi);
       histograms.h_assoc2pT[count].fill(pt);
+      histograms.h_assoc2pTvseta[count].fill(eta,pt);
       histograms.h_assoc2dxy[count].fill(dxy);
       histograms.h_assoc2dz[count].fill(dz);
       histograms.h_assoc2hit[count].fill(nhits);
       histograms.h_assoc2chi2[count].fill(chi2);
+      histograms.h_assoc2chi2prob[count].fill(chi2prob);
+      histograms.assoc_chi2_vs_eta[count].fill(eta,chi2);
+      histograms.assoc_chi2prob_vs_eta[count].fill(eta,chi2prob);
       histograms.h_assoc2vertpos[count].fill(vertxy);
       histograms.h_assoc2zpos[count].fill(vertz);
       histograms.h_assoc2dr[count].fill(dR);
@@ -1186,6 +1236,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.h_misideta[count].fill(eta);
       histograms.h_misidphi[count].fill(phi);
       histograms.h_misidpT[count].fill(pt);
+      histograms.h_misidpTvseta[count].fill(eta,pt);
       histograms.h_misiddxy[count].fill(dxy);
       histograms.h_misiddz[count].fill(dz);
       histograms.h_misidhit[count].fill(nhits);
@@ -1194,6 +1245,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
       histograms.h_misid3Dlayer[count].fill(n3DLayers);
       histograms.h_misidpu[count].fill(numVertices);
       histograms.h_misidchi2[count].fill(chi2);
+      histograms.h_misidchi2prob[count].fill(chi2prob);
       if(pvPosition) {
         histograms.h_misiddxypv[count].fill(dxypv);
         histograms.h_misiddzpv[count].fill(dzpv);
@@ -1207,9 +1259,11 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
         histograms.h_loopereta[count].fill(eta);
         histograms.h_looperphi[count].fill(phi);
         histograms.h_looperpT[count].fill(pt);
+        histograms.h_looperpTvseta[count].fill(eta,pt);
         histograms.h_looperdxy[count].fill(dxy);
         histograms.h_looperdz[count].fill(dz);
         histograms.h_looperchi2[count].fill(chi2);
+        histograms.h_looperchi2prob[count].fill(chi2prob);
         histograms.h_loopervertpos[count].fill(vertxy);
         histograms.h_looperzpos[count].fill(vertz);
         histograms.h_looperdr[count].fill(dR);
@@ -1236,9 +1290,11 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(const Histogr
         histograms.h_pileupeta[count].fill(eta);
         histograms.h_pileupphi[count].fill(phi);
         histograms.h_pileuppT[count].fill(pt);
+        histograms.h_pileuppTvseta[count].fill(eta,pt);
         histograms.h_pileupdxy[count].fill(dxy);
         histograms.h_pileupdz[count].fill(dz);
         histograms.h_pileupchi2[count].fill(chi2);
+        histograms.h_pileupchi2prob[count].fill(chi2prob);
         histograms.h_pileupvertpos[count].fill(vertxy);
         histograms.h_pileupzpos[count].fill(vertz);
         histograms.h_pileupdr[count].fill(dR);
@@ -1615,7 +1671,11 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(const H
 
   if((*GpSelectorForEfficiencyVsPt)(tp)){
     histograms.h_simulpT[count].fill(getPt(sqrt(momentumTP.perp2())));
-    if (isMatched) histograms.h_assocpT[count].fill(getPt(sqrt(momentumTP.perp2())));
+    histograms.h_simulpTvseta[count].fill(getEta(momentumTP.eta()),getPt(sqrt(momentumTP.perp2())));
+    if (isMatched) {
+      histograms.h_assocpT[count].fill(getPt(sqrt(momentumTP.perp2())));
+      histograms.h_assocpTvseta[count].fill(getEta(momentumTP.eta()),getPt(sqrt(momentumTP.perp2())));
+    }
   }
 
   if((*GpSelectorForEfficiencyVsVTXR)(tp)){

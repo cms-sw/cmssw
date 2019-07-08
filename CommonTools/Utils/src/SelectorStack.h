@@ -17,6 +17,6 @@ namespace reco {
   namespace parser {
     typedef std::vector<SelectorPtr> SelectorStack;
   }
-}
+}  // namespace reco
 
 #endif
