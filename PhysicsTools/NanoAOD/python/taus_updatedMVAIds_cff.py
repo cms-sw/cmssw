@@ -539,7 +539,7 @@ antiElectronDiscrMVA6_version = "MVA6v1"
 ## Raw
 patTauDiscriminationByElectronRejectionMVA6Raw = patTauDiscriminationAgainstElectronMVA6.clone(
     Prediscriminants = noPrediscriminants, #already selected for MiniAOD
-    vetoEcalCracks = True, #keep tau candidates in EB-EE cracks
+    vetoEcalCracks = True, #don't keep tau candidates in EB-EE cracks for v1
     mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL',
     mvaName_NoEleMatch_wGwoGSF_EC = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_EC',
     mvaName_NoEleMatch_woGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_woGwoGSF_BL',
