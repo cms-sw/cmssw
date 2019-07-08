@@ -26,11 +26,13 @@ hfreco.digiTimeFromDB = False
 #
 # sequence CaloLocalReco and CaloGlobalReco
 #
-calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
+calolocalrecoTask = cms.Task(ecalLocalRecoTask,hcalLocalRecoTask)
+calolocalreco = cms.Sequence(calolocalrecoTask)
 caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
 
 #
 # R.Ofierzynski (29.Oct.2009): add NZS sequence
 #
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
-calolocalrecoNZS = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hcalLocalRecoSequenceNZS) 
+calolocalrecoTaskNZS = cms.Task(ecalLocalRecoTask,hcalLocalRecoTask,hcalLocalRecoTaskNZS) 
+calolocalrecoNZS = cms.Sequence(calolocalrecoTaskNZS) 

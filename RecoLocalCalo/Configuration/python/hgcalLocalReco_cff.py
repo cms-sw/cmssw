@@ -10,10 +10,11 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import *
 from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClusters
 
-hgcalLocalRecoSequence = cms.Sequence( HGCalUncalibRecHit+
-                                       HGCalRecHit+
-                                       hgcalLayerClusters+
-                                       hgcalMultiClusters+
-                                       particleFlowRecHitHGCSeq+
-                                       particleFlowClusterHGCal+
+hgcalLocalRecoTask = cms.Task( HGCalUncalibRecHit,
+                                       HGCalRecHit,
+                                       hgcalLayerClusters,
+                                       hgcalMultiClusters,
+                                       particleFlowRecHitHGCSeq,
+                                       particleFlowClusterHGCal,
                                        particleFlowClusterHGCalFromMultiCl )
+hgcalLocalRecoSequence = cms.Sequence(hgcalLocalRecoTask)
