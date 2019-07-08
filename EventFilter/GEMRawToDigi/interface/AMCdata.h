@@ -39,8 +39,9 @@ namespace gem {
     uint64_t word;
     struct {
       uint64_t ttsState : 4;  // GLIB TTS state at the moment when this event was built.
-      uint64_t
-          pType : 4;  // Payload type: can be one refering to different zero suppression schemes in normal data taking or calibration type. Note in calibration type the entire GCT (GEM Chamber Trailer) is skipped
+      uint64_t pType : 4;     // Payload type: can be one refering to different zero suppression schemes
+      // in normal data taking or calibration type.
+      // Note in calibration type the entire GCT (GEM Chamber Trailer) is skipped
       uint64_t pVer : 3;        // Version of the payload type
       uint64_t davCnt : 5;      // Number of chamber blocks in this event
       uint64_t buffState : 24;  // Buffer status, Always 0 in current fw
@@ -50,14 +51,14 @@ namespace gem {
   union EventTrailer {
     uint64_t word;
     struct {
-      uint64_t
-          BCL : 4;  // 1st bit, BC0 locked - If 0, this is a bad condition indicating a problem in the clock or TTC command stream (critical condition)
-      uint64_t DR : 1;  // DAQ Ready - If 0, this means that AMC13 is not ready to take data (critical condition)
-      uint64_t CL : 1;  // DAQ clock locked- If 0, this indicates a problem in the DAQ clock (critical condition)
-      uint64_t ML : 1;  // MMCM locked - Should always be 1
-      uint64_t BP : 1;  // Backpressure - If this is 1, it means that we are receiving backpressure from AMC13
-      uint64_t
-          oosGlib : 40;  // GLIB is out‐of‐sync (critical): L1A ID is different for different chambers in this event (1 bit)
+      uint64_t BCL : 4;  // 1st bit, BC0 locked - If 0, this is a bad condition indicating a
+      // problem in the clock or TTC command stream (critical condition)
+      uint64_t DR : 1;        // DAQ Ready - If 0, this means that AMC13 is not ready to take data (critical condition)
+      uint64_t CL : 1;        // DAQ clock locked- If 0, this indicates a problem in the DAQ clock (critical condition)
+      uint64_t ML : 1;        // MMCM locked - Should always be 1
+      uint64_t BP : 1;        // Backpressure - If this is 1, it means that we are receiving backpressure from AMC13
+      uint64_t oosGlib : 32;  // GLIB is out‐of‐sync (critical): L1A ID is different for
+      // different chambers in this event (1 bit)
       uint64_t linkTo : 24;  // Link timeout flags (one bit for each link indicating timeout condition)
     };
   };
