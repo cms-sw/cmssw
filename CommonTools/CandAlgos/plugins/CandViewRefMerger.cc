@@ -16,18 +16,23 @@
 
 class CandViewRefMerger : public edm::EDProducer {
 public:
-  explicit CandViewRefMerger(const edm::ParameterSet& cfg) :
-    srcTokens_(edm::vector_transform(cfg.getParameter<std::vector<edm::InputTag> >("src"), [this](edm::InputTag const & tag){return consumes<reco::CandidateView>(tag);})) {
+  explicit CandViewRefMerger(const edm::ParameterSet& cfg)
+      : srcTokens_(
+            edm::vector_transform(cfg.getParameter<std::vector<edm::InputTag> >("src"),
+                                  [this](edm::InputTag const& tag) { return consumes<reco::CandidateView>(tag); })) {
     produces<std::vector<reco::CandidateBaseRef> >();
   }
+
 private:
-  void produce(edm::Event & evt, const edm::EventSetup &) override {
+  void produce(edm::Event& evt, const edm::EventSetup&) override {
     std::unique_ptr<std::vector<reco::CandidateBaseRef> > out(new std::vector<reco::CandidateBaseRef>);
-    for(std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator i = srcTokens_.begin(); i != srcTokens_.end(); ++i) {
+    for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator i = srcTokens_.begin();
+         i != srcTokens_.end();
+         ++i) {
       edm::Handle<reco::CandidateView> src;
       evt.getByToken(*i, src);
-      for(size_t j = 0; j < src->size(); ++j)
-	out->push_back(src->refAt(j));
+      for (size_t j = 0; j < src->size(); ++j)
+        out->push_back(src->refAt(j));
     }
     evt.put(std::move(out));
   }

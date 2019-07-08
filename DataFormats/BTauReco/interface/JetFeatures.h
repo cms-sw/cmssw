@@ -3,17 +3,15 @@
 
 namespace btagbtvdeep {
 
-class JetFeatures {
-
+  class JetFeatures {
   public:
-
     float pt;
     float eta;
+    float phi;
     float mass;
     float energy;
+  };
 
-};
+}  // namespace btagbtvdeep
 
-}
-
-#endif //DataFormats_BTauReco_JetFeatures_h
+#endif  //DataFormats_BTauReco_JetFeatures_h

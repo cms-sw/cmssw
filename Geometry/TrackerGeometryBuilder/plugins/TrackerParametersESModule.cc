@@ -10,36 +10,30 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerParametersFromDD.h"
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 
-TrackerParametersESModule::TrackerParametersESModule( const edm::ParameterSet& )
-{
+TrackerParametersESModule::TrackerParametersESModule(const edm::ParameterSet&) {
   edm::LogInfo("TRACKER") << "TrackerParametersESModule::TrackerParametersESModule";
 
   setWhatProduced(this);
 }
 
-TrackerParametersESModule::~TrackerParametersESModule()
-{ 
-}
+TrackerParametersESModule::~TrackerParametersESModule() {}
 
-void
-TrackerParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
-{
+void TrackerParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add( "trackerParameters", desc );
+  descriptions.add("trackerParameters", desc);
 }
 
-TrackerParametersESModule::ReturnType
-TrackerParametersESModule::produce( const PTrackerParametersRcd& iRecord )
-{
-  edm::LogInfo("TrackerParametersESModule") <<  "TrackerParametersESModule::produce(const PTrackerParametersRcd& iRecord)" << std::endl;
+TrackerParametersESModule::ReturnType TrackerParametersESModule::produce(const PTrackerParametersRcd& iRecord) {
+  edm::LogInfo("TrackerParametersESModule")
+      << "TrackerParametersESModule::produce(const PTrackerParametersRcd& iRecord)" << std::endl;
   edm::ESTransientHandle<DDCompactView> cpv;
-  iRecord.getRecord<IdealGeometryRecord>().get( cpv );
-    
+  iRecord.getRecord<IdealGeometryRecord>().get(cpv);
+
   auto ptp = std::make_unique<PTrackerParameters>();
   TrackerParametersFromDD builder;
-  builder.build( &(*cpv), *ptp );
+  builder.build(&(*cpv), *ptp);
 
   return ptp;
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE( TrackerParametersESModule);
+DEFINE_FWK_EVENTSETUP_MODULE(TrackerParametersESModule);

@@ -17,7 +17,6 @@
 
 class EGRegressionModifierV1 : public ModifyObjectValueBase {
 public:
-
   EGRegressionModifierV1(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
 
   void setEvent(const edm::Event&) final;
@@ -31,7 +30,6 @@ public:
   void modifyObject(pat::Photon& pho) const final { modifyObject(static_cast<reco::Photon&>(pho)); }
 
 private:
-
   struct CondNames {
     std::vector<std::string> mean50ns;
     std::vector<std::string> sigma50ns;
@@ -53,9 +51,8 @@ private:
   int nVtx_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
   edm::Handle<reco::VertexCollection> vtxH_;
+  edm::ESHandle<CaloGeometry> caloGeomH_;
   const bool applyExtraHighEnergyProtection_;
-
-  const edm::EventSetup* iSetup_;
 
   std::vector<const GBRForestD*> phoForestsMean_;
   std::vector<const GBRForestD*> phoForestsSigma_;
@@ -67,41 +64,35 @@ private:
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory, EGRegressionModifierV1, "EGRegressionModifierV1");
 
 EGRegressionModifierV1::EGRegressionModifierV1(const edm::ParameterSet& conf, edm::ConsumesCollector& cc)
-  : ModifyObjectValueBase(conf)
-  , autoDetectBunchSpacing_(conf.getParameter<bool>("autoDetectBunchSpacing"))
-  , bunchspacing_(autoDetectBunchSpacing_ ? 450 : conf.getParameter<int>("manualBunchSpacing"))
-  , rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection")))
-  , vtxToken_(cc.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertexCollection")))
-  , applyExtraHighEnergyProtection_(conf.getParameter<bool>("applyExtraHighEnergyProtection"))
-{
+    : ModifyObjectValueBase(conf),
+      autoDetectBunchSpacing_(conf.getParameter<bool>("autoDetectBunchSpacing")),
+      bunchspacing_(autoDetectBunchSpacing_ ? 450 : conf.getParameter<int>("manualBunchSpacing")),
+      rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoCollection"))),
+      vtxToken_(cc.consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertexCollection"))),
+      applyExtraHighEnergyProtection_(conf.getParameter<bool>("applyExtraHighEnergyProtection")) {
   if (autoDetectBunchSpacing_)
     bunchSpacingToken_ = cc.consumes<unsigned int>(conf.getParameter<edm::InputTag>("bunchSpacingTag"));
 
   const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-  eleCondNames_ = CondNames {
-      .mean50ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_50ns"),
-      .sigma50ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_50ns"),
-      .mean25ns  = electrons.getParameter<std::vector<std::string> >("regressionKey_25ns"),
-      .sigma25ns = electrons.getParameter<std::vector<std::string> >("uncertaintyKey_25ns")
-  };
-  condNamesWeight50ns_  = electrons.getParameter<std::string>("combinationKey_50ns");
-  condNamesWeight25ns_  = electrons.getParameter<std::string>("combinationKey_25ns");
+  eleCondNames_ = CondNames{.mean50ns = electrons.getParameter<std::vector<std::string>>("regressionKey_50ns"),
+                            .sigma50ns = electrons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns"),
+                            .mean25ns = electrons.getParameter<std::vector<std::string>>("regressionKey_25ns"),
+                            .sigma25ns = electrons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns")};
+  condNamesWeight50ns_ = electrons.getParameter<std::string>("combinationKey_50ns");
+  condNamesWeight25ns_ = electrons.getParameter<std::string>("combinationKey_25ns");
 
   const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
-  phoCondNames_ = CondNames {
-      .mean50ns  = photons.getParameter<std::vector<std::string>>("regressionKey_50ns"),
-      .sigma50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns"),
-      .mean25ns  = photons.getParameter<std::vector<std::string>>("regressionKey_25ns"),
-      .sigma25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns")
-  };
+  phoCondNames_ = CondNames{.mean50ns = photons.getParameter<std::vector<std::string>>("regressionKey_50ns"),
+                            .sigma50ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_50ns"),
+                            .mean25ns = photons.getParameter<std::vector<std::string>>("regressionKey_25ns"),
+                            .sigma25ns = photons.getParameter<std::vector<std::string>>("uncertaintyKey_25ns")};
 }
 
-void EGRegressionModifierV1::setEvent(const edm::Event& evt)
-{
+void EGRegressionModifierV1::setEvent(const edm::Event& evt) {
   if (autoDetectBunchSpacing_) {
-      edm::Handle<unsigned int> bunchSpacingH;
-      evt.getByToken(bunchSpacingToken_,bunchSpacingH);
-      bunchspacing_ = *bunchSpacingH;
+    edm::Handle<unsigned int> bunchSpacingH;
+    evt.getByToken(bunchSpacingToken_, bunchSpacingH);
+    bunchspacing_ = *bunchSpacingH;
   }
 
   edm::Handle<double> rhoH;
@@ -112,18 +103,17 @@ void EGRegressionModifierV1::setEvent(const edm::Event& evt)
   nVtx_ = vtxH_->size();
 }
 
-void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs)
-{
-  iSetup_ = &evs;
+void EGRegressionModifierV1::setEventContent(const edm::EventSetup& evs) {
+  evs.get<CaloGeometryRecord>().get(caloGeomH_);
 
-  phoForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.mean25ns  : phoCondNames_.mean50ns);
-  phoForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.sigma25ns  : phoCondNames_.sigma50ns);
+  phoForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.mean25ns : phoCondNames_.mean50ns);
+  phoForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? phoCondNames_.sigma25ns : phoCondNames_.sigma50ns);
 
-  eleForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.mean25ns  : eleCondNames_.mean50ns);
-  eleForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.sigma25ns  : eleCondNames_.sigma50ns);
+  eleForestsMean_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.mean25ns : eleCondNames_.mean50ns);
+  eleForestsSigma_ = retrieveGBRForests(evs, (bunchspacing_ == 25) ? eleCondNames_.sigma25ns : eleCondNames_.sigma50ns);
 
   edm::ESHandle<GBRForest> forestEH;
-  const std::string ep_condnames_weight  = (bunchspacing_ == 25) ? condNamesWeight25ns_  : condNamesWeight50ns_;
+  const std::string ep_condnames_weight = (bunchspacing_ == 25) ? condNamesWeight25ns_ : condNamesWeight50ns_;
   evs.get<GBRWrapperRcd>().get(ep_condnames_weight, forestEH);
   epForest_ = forestEH.product();
 }
@@ -133,32 +123,33 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
 
   const reco::SuperClusterRef& superClus = ele.superCluster();
   const edm::Ptr<reco::CaloCluster>& theseed = superClus->seed();
-  const int numberOfClusters =  superClus->clusters().size();
-  const bool missing_clusters = !superClus->clusters()[numberOfClusters-1].isAvailable();
+  const int numberOfClusters = superClus->clusters().size();
+  const bool missing_clusters = !superClus->clusters()[numberOfClusters - 1].isAvailable();
 
-  if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
+  if (missing_clusters)
+    return;  // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
 
   std::array<float, 33> eval;
   const double rawEnergy = superClus->rawEnergy();
   const auto& ess = ele.showerShape();
 
   // SET INPUTS
-  eval[0]  = nVtx_;
-  eval[1]  = rawEnergy;
-  eval[2]  = superClus->eta();
-  eval[3]  = superClus->phi();
-  eval[4]  = superClus->etaWidth();
-  eval[5]  = superClus->phiWidth();
-  eval[6]  = ess.r9;
-  eval[7]  = theseed->energy()/rawEnergy;
-  eval[8]  = ess.eMax/rawEnergy;
-  eval[9]  = ess.e2nd/rawEnergy;
-  eval[10] = (ess.eLeft + ess.eRight != 0.f  ? (ess.eLeft-ess.eRight)/(ess.eLeft+ess.eRight) : 0.f);
-  eval[11] = (ess.eTop  + ess.eBottom != 0.f ? (ess.eTop-ess.eBottom)/(ess.eTop+ess.eBottom) : 0.f);
+  eval[0] = nVtx_;
+  eval[1] = rawEnergy;
+  eval[2] = superClus->eta();
+  eval[3] = superClus->phi();
+  eval[4] = superClus->etaWidth();
+  eval[5] = superClus->phiWidth();
+  eval[6] = ess.r9;
+  eval[7] = theseed->energy() / rawEnergy;
+  eval[8] = ess.eMax / rawEnergy;
+  eval[9] = ess.e2nd / rawEnergy;
+  eval[10] = (ess.eLeft + ess.eRight != 0.f ? (ess.eLeft - ess.eRight) / (ess.eLeft + ess.eRight) : 0.f);
+  eval[11] = (ess.eTop + ess.eBottom != 0.f ? (ess.eTop - ess.eBottom) / (ess.eTop + ess.eBottom) : 0.f);
   eval[12] = ess.sigmaIetaIeta;
   eval[13] = ess.sigmaIetaIphi;
   eval[14] = ess.sigmaIphiIphi;
-  eval[15] = std::max(0,numberOfClusters-1);
+  eval[15] = std::max(0, numberOfClusters - 1);
 
   // calculate sub-cluster variables
   std::vector<float> clusterRawEnergy;
@@ -167,7 +158,7 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   clusterDEtaToSeed.resize(std::max(3, numberOfClusters), 0);
   std::vector<float> clusterDPhiToSeed;
   clusterDPhiToSeed.resize(std::max(3, numberOfClusters), 0);
-  float clusterMaxDR     = 999.;
+  float clusterMaxDR = 999.;
   float clusterMaxDRDPhi = 999.;
   float clusterMaxDRDEta = 999.;
   float clusterMaxDRRawEnergy = 0.;
@@ -175,17 +166,16 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   size_t iclus = 0;
   float maxDR = 0;
   // loop over all clusters that aren't the seed
-  for (auto const& pclus : superClus->clusters())
-  {
-    if(theseed == pclus )
+  for (auto const& pclus : superClus->clusters()) {
+    if (theseed == pclus)
       continue;
-    clusterRawEnergy[iclus]  = pclus->energy();
-    clusterDPhiToSeed[iclus] = reco::deltaPhi(pclus->phi(),theseed->phi());
+    clusterRawEnergy[iclus] = pclus->energy();
+    clusterDPhiToSeed[iclus] = reco::deltaPhi(pclus->phi(), theseed->phi());
     clusterDEtaToSeed[iclus] = pclus->eta() - theseed->eta();
 
     // find cluster with max dR
     const auto the_dr = reco::deltaR(*pclus, *theseed);
-    if(the_dr > maxDR) {
+    if (the_dr > maxDR) {
       maxDR = the_dr;
       clusterMaxDR = maxDR;
       clusterMaxDRDPhi = clusterDPhiToSeed[iclus];
@@ -198,10 +188,10 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   eval[16] = clusterMaxDR;
   eval[17] = clusterMaxDRDPhi;
   eval[18] = clusterMaxDRDEta;
-  eval[19] = clusterMaxDRRawEnergy/rawEnergy;
-  eval[20] = clusterRawEnergy[0]/rawEnergy;
-  eval[21] = clusterRawEnergy[1]/rawEnergy;
-  eval[22] = clusterRawEnergy[2]/rawEnergy;
+  eval[19] = clusterMaxDRRawEnergy / rawEnergy;
+  eval[20] = clusterRawEnergy[0] / rawEnergy;
+  eval[21] = clusterRawEnergy[1] / rawEnergy;
+  eval[22] = clusterRawEnergy[2] / rawEnergy;
   eval[23] = clusterDPhiToSeed[0];
   eval[24] = clusterDPhiToSeed[1];
   eval[25] = clusterDPhiToSeed[2];
@@ -216,12 +206,10 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   int iEta;
   float cryPhi;
   float cryEta;
-  edm::ESHandle<CaloGeometry> caloGeometry;
-  iSetup_->get<CaloGeometryRecord>().get(caloGeometry); 
   if (ele.isEB())
-    egammaTools::localEcalClusterCoordsEB(*theseed, *caloGeometry, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEB(*theseed, *caloGeomH_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
   else
-    egammaTools::localEcalClusterCoordsEE(*theseed, *caloGeometry, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
+    egammaTools::localEcalClusterCoordsEE(*theseed, *caloGeomH_, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
 
   if (isEB) {
     eval[29] = cryEta;
@@ -229,20 +217,20 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
     eval[31] = iEta;
     eval[32] = iPhi;
   } else {
-    eval[29] = superClus->preshowerEnergy()/superClus->rawEnergy();
+    eval[29] = superClus->preshowerEnergy() / superClus->rawEnergy();
   }
 
   //magic numbers for MINUIT-like transformation of BDT output onto limited range
   //(These should be stored inside the conditions object in the future as well)
-  constexpr double meanlimlow  = 0.2;
+  constexpr double meanlimlow = 0.2;
   constexpr double meanlimhigh = 2.0;
-  constexpr double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
-  constexpr double meanscale   = 0.5*(meanlimhigh-meanlimlow);
+  constexpr double meanoffset = meanlimlow + 0.5 * (meanlimhigh - meanlimlow);
+  constexpr double meanscale = 0.5 * (meanlimhigh - meanlimlow);
 
-  constexpr double sigmalimlow  = 0.0002;
+  constexpr double sigmalimlow = 0.0002;
   constexpr double sigmalimhigh = 0.5;
-  constexpr double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-  constexpr double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);
+  constexpr double sigmaoffset = sigmalimlow + 0.5 * (sigmalimhigh - sigmalimlow);
+  constexpr double sigmascale = 0.5 * (sigmalimhigh - sigmalimlow);
 
   const int coridx = isEB ? 0 : 1;
 
@@ -251,15 +239,15 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   double rawsigma = eleForestsSigma_[coridx]->GetResponse(eval.data());
 
   //apply transformation to limited output range (matching the training)
-  double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
-  double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
+  double mean = meanoffset + meanscale * vdt::fast_sin(rawmean);
+  double sigma = sigmaoffset + sigmascale * vdt::fast_sin(rawsigma);
 
   //regression target is ln(Etrue/Eraw)
   //so corrected energy is ecor=exp(mean)*e, uncertainty is exp(mean)*eraw*sigma=ecor*sigma
-  double ecor = mean*(eval[1]);
+  double ecor = mean * (eval[1]);
   if (!isEB)
-    ecor = mean*(eval[1]+superClus->preshowerEnergy());
-  const double sigmacor = sigma*ecor;
+    ecor = mean * (eval[1] + superClus->preshowerEnergy());
+  const double sigmacor = sigma * ecor;
 
   ele.setCorrectedEcalEnergy(ecor);
   ele.setCorrectedEcalEnergyError(sigmacor);
@@ -268,20 +256,20 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
   std::array<float, 11> eval_ep;
 
   const float ep = ele.trackMomentumAtVtx().R();
-  const float tot_energy = superClus->rawEnergy()+superClus->preshowerEnergy();
+  const float tot_energy = superClus->rawEnergy() + superClus->preshowerEnergy();
   const float momentumError = ele.trackMomentumError();
-  const float trkMomentumRelError = ele.trackMomentumError()/ep;
-  const float eOverP = tot_energy*mean/ep;
-  eval_ep[0] = tot_energy*mean;
-  eval_ep[1] = sigma/mean;
+  const float trkMomentumRelError = ele.trackMomentumError() / ep;
+  const float eOverP = tot_energy * mean / ep;
+  eval_ep[0] = tot_energy * mean;
+  eval_ep[1] = sigma / mean;
   eval_ep[2] = ep;
   eval_ep[3] = trkMomentumRelError;
-  eval_ep[4] = sigma/mean/trkMomentumRelError;
-  eval_ep[5] = tot_energy*mean/ep;
-  eval_ep[6] = tot_energy*mean/ep*sqrt(sigma/mean*sigma/mean+trkMomentumRelError*trkMomentumRelError);
+  eval_ep[4] = sigma / mean / trkMomentumRelError;
+  eval_ep[5] = tot_energy * mean / ep;
+  eval_ep[6] = tot_energy * mean / ep * sqrt(sigma / mean * sigma / mean + trkMomentumRelError * trkMomentumRelError);
   eval_ep[7] = ele.ecalDriven();
   eval_ep[8] = ele.trackerDrivenSeed();
-  eval_ep[9] = int(ele.classification());//eleClass;
+  eval_ep[9] = int(ele.classification());  //eleClass;
   eval_ep[10] = isEB;
 
   // CODE FOR FUTURE SEMI_PARAMETRIC
@@ -292,22 +280,21 @@ void EGRegressionModifierV1::modifyObject(reco::GsfElectron& ele) const {
 
   // CODE FOR STANDARD BDT
   double weight = 0.;
-  if ( eOverP > 0.025 &&
-       std::abs(ep-ecor) < 15.*std::sqrt( momentumError*momentumError + sigmacor*sigmacor ) &&
-       (!applyExtraHighEnergyProtection_ || ((momentumError < 10.*ep) || (ecor < 200.)))
-       ) {
+  if (eOverP > 0.025 && std::abs(ep - ecor) < 15. * std::sqrt(momentumError * momentumError + sigmacor * sigmacor) &&
+      (!applyExtraHighEnergyProtection_ || ((momentumError < 10. * ep) || (ecor < 200.)))) {
     // protection against crazy track measurement
     weight = std::clamp(epForest_->GetResponse(eval_ep.data()), 0., 1.);
   }
 
-  double combinedMomentum = weight*ele.trackMomentumAtVtx().R() + (1.-weight)*ecor;
-  double combinedMomentumError = sqrt(weight*weight*ele.trackMomentumError()*ele.trackMomentumError() + (1.-weight)*(1.-weight)*sigmacor*sigmacor);
+  double combinedMomentum = weight * ele.trackMomentumAtVtx().R() + (1. - weight) * ecor;
+  double combinedMomentumError = sqrt(weight * weight * ele.trackMomentumError() * ele.trackMomentumError() +
+                                      (1. - weight) * (1. - weight) * sigmacor * sigmacor);
 
   math::XYZTLorentzVector oldMomentum = ele.p4();
-  math::XYZTLorentzVector newMomentum( oldMomentum.x()*combinedMomentum/oldMomentum.t(),
-                                       oldMomentum.y()*combinedMomentum/oldMomentum.t(),
-                                       oldMomentum.z()*combinedMomentum/oldMomentum.t(),
-                                       combinedMomentum );
+  math::XYZTLorentzVector newMomentum(oldMomentum.x() * combinedMomentum / oldMomentum.t(),
+                                      oldMomentum.y() * combinedMomentum / oldMomentum.t(),
+                                      oldMomentum.z() * combinedMomentum / oldMomentum.t(),
+                                      combinedMomentum);
 
   ele.correctMomentum(newMomentum, ele.trackMomentumError(), combinedMomentumError);
 }
@@ -319,77 +306,78 @@ void EGRegressionModifierV1::modifyObject(reco::Photon& pho) const {
   const reco::SuperClusterRef& superClus = pho.superCluster();
   const edm::Ptr<reco::CaloCluster>& theseed = superClus->seed();
 
-  const int numberOfClusters =  superClus->clusters().size();
-  const bool missing_clusters = !superClus->clusters()[numberOfClusters-1].isAvailable();
+  const int numberOfClusters = superClus->clusters().size();
+  const bool missing_clusters = !superClus->clusters()[numberOfClusters - 1].isAvailable();
 
-  if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
+  if (missing_clusters)
+    return;  // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
 
   const double rawEnergy = superClus->rawEnergy();
   const auto& ess = pho.showerShapeVariables();
 
   // SET INPUTS
-  eval[0]  = rawEnergy;
-  eval[1]  = pho.r9();
-  eval[2]  = superClus->etaWidth();
-  eval[3]  = superClus->phiWidth();
-  eval[4]  = std::max(0,numberOfClusters - 1);
-  eval[5]  = pho.hadronicOverEm();
-  eval[6]  = rhoValue_;
-  eval[7]  = nVtx_;
-  eval[8] = theseed->eta()-superClus->position().Eta();
-  eval[9] = reco::deltaPhi(theseed->phi(),superClus->position().Phi());
-  eval[10] = theseed->energy()/rawEnergy;
-  eval[11] = ess.e3x3/ess.e5x5;
+  eval[0] = rawEnergy;
+  eval[1] = pho.r9();
+  eval[2] = superClus->etaWidth();
+  eval[3] = superClus->phiWidth();
+  eval[4] = std::max(0, numberOfClusters - 1);
+  eval[5] = pho.hadronicOverEm();
+  eval[6] = rhoValue_;
+  eval[7] = nVtx_;
+  eval[8] = theseed->eta() - superClus->position().Eta();
+  eval[9] = reco::deltaPhi(theseed->phi(), superClus->position().Phi());
+  eval[10] = theseed->energy() / rawEnergy;
+  eval[11] = ess.e3x3 / ess.e5x5;
   eval[12] = ess.sigmaIetaIeta;
   eval[13] = ess.sigmaIphiIphi;
-  eval[14] = ess.sigmaIetaIphi/(ess.sigmaIphiIphi*ess.sigmaIetaIeta);
-  eval[15] = ess.maxEnergyXtal/ess.e5x5;
-  eval[16] = ess.e2nd/ess.e5x5;
-  eval[17] = ess.eTop/ess.e5x5;
-  eval[18] = ess.eBottom/ess.e5x5;
-  eval[19] = ess.eLeft/ess.e5x5;
-  eval[20] = ess.eRight/ess.e5x5;
-  eval[21] = ess.e2x5Max/ess.e5x5;
-  eval[22] = ess.e2x5Left/ess.e5x5;
-  eval[23] = ess.e2x5Right/ess.e5x5;
-  eval[24] = ess.e2x5Top/ess.e5x5;
-  eval[25] = ess.e2x5Bottom/ess.e5x5;
+  eval[14] = ess.sigmaIetaIphi / (ess.sigmaIphiIphi * ess.sigmaIetaIeta);
+  eval[15] = ess.maxEnergyXtal / ess.e5x5;
+  eval[16] = ess.e2nd / ess.e5x5;
+  eval[17] = ess.eTop / ess.e5x5;
+  eval[18] = ess.eBottom / ess.e5x5;
+  eval[19] = ess.eLeft / ess.e5x5;
+  eval[20] = ess.eRight / ess.e5x5;
+  eval[21] = ess.e2x5Max / ess.e5x5;
+  eval[22] = ess.e2x5Left / ess.e5x5;
+  eval[23] = ess.e2x5Right / ess.e5x5;
+  eval[24] = ess.e2x5Top / ess.e5x5;
+  eval[25] = ess.e2x5Bottom / ess.e5x5;
 
   const bool isEB = pho.isEB();
   if (isEB) {
     EBDetId ebseedid(theseed->seed());
-    eval[26] = pho.e5x5()/theseed->energy();
+    eval[26] = pho.e5x5() / theseed->energy();
     int ieta = ebseedid.ieta();
     int iphi = ebseedid.iphi();
     eval[27] = ieta;
     eval[28] = iphi;
-    int signieta = ieta > 0 ? +1 : -1; /// this is 1*abs(ieta)/ieta in original training
-    eval[29] = (ieta-signieta)%5;
-    eval[30] = (iphi-1)%2;
-    eval[31] = (abs(ieta)<=25)*((ieta-signieta)) + (abs(ieta)>25)*((ieta-26*signieta)%20);
-    eval[32] = (iphi-1)%20;
+    int signieta = ieta > 0 ? +1 : -1;  /// this is 1*abs(ieta)/ieta in original training
+    eval[29] = (ieta - signieta) % 5;
+    eval[30] = (iphi - 1) % 2;
+    eval[31] = (abs(ieta) <= 25) * ((ieta - signieta)) + (abs(ieta) > 25) * ((ieta - 26 * signieta) % 20);
+    eval[32] = (iphi - 1) % 20;
     eval[33] = ieta;  /// duplicated variables but this was trained like that
     eval[34] = iphi;  /// duplicated variables but this was trained like that
   } else {
     EEDetId eeseedid(theseed->seed());
-    eval[26] = superClus->preshowerEnergy()/rawEnergy;
-    eval[27] = superClus->preshowerEnergyPlane1()/rawEnergy;
-    eval[28] = superClus->preshowerEnergyPlane2()/rawEnergy;
+    eval[26] = superClus->preshowerEnergy() / rawEnergy;
+    eval[27] = superClus->preshowerEnergyPlane1() / rawEnergy;
+    eval[28] = superClus->preshowerEnergyPlane2() / rawEnergy;
     eval[29] = eeseedid.ix();
     eval[30] = eeseedid.iy();
   }
 
   //magic numbers for MINUIT-like transformation of BDT output onto limited range
   //(These should be stored inside the conditions object in the future as well)
-  const double meanlimlow  = 0.2;
+  const double meanlimlow = 0.2;
   const double meanlimhigh = 2.0;
-  const double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
-  const double meanscale   = 0.5*(meanlimhigh-meanlimlow);
+  const double meanoffset = meanlimlow + 0.5 * (meanlimhigh - meanlimlow);
+  const double meanscale = 0.5 * (meanlimhigh - meanlimlow);
 
-  const double sigmalimlow  = 0.0002;
+  const double sigmalimlow = 0.0002;
   const double sigmalimhigh = 0.5;
-  const double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-  const double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);
+  const double sigmaoffset = sigmalimlow + 0.5 * (sigmalimhigh - sigmalimlow);
+  const double sigmascale = 0.5 * (sigmalimhigh - sigmalimlow);
 
   const int coridx = isEB ? 0 : 1;
 
@@ -397,13 +385,13 @@ void EGRegressionModifierV1::modifyObject(reco::Photon& pho) const {
   const double rawmean = phoForestsMean_[coridx]->GetResponse(eval.data());
   const double rawsigma = phoForestsSigma_[coridx]->GetResponse(eval.data());
   //apply transformation to limited output range (matching the training)
-  const double mean = meanoffset + meanscale*vdt::fast_sin(rawmean);
-  const double sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
+  const double mean = meanoffset + meanscale * vdt::fast_sin(rawmean);
+  const double sigma = sigmaoffset + sigmascale * vdt::fast_sin(rawsigma);
 
   //regression target is ln(Etrue/Eraw)
   //so corrected energy is ecor=exp(mean)*e, uncertainty is exp(mean)*eraw*sigma=ecor*sigma
-  const double ecor = isEB ? mean*eval[0] : mean*(eval[0]+superClus->preshowerEnergy());
+  const double ecor = isEB ? mean * eval[0] : mean * (eval[0] + superClus->preshowerEnergy());
 
-  const double sigmacor = sigma*ecor;
+  const double sigmacor = sigma * ecor;
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, ecor, sigmacor, true);
 }

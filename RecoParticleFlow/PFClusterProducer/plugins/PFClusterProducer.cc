@@ -26,29 +26,28 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf)
   // setup seed finding
   const edm::ParameterSet& sfConf = conf.getParameterSet("seedFinder");
   const std::string& sfName = sfConf.getParameter<std::string>("algoName");
-  _seedFinder = std::unique_ptr<SeedFinderBase>{SeedFinderFactory::get()->create(sfName, sfConf)};
+  _seedFinder = SeedFinderFactory::get()->create(sfName, sfConf);
   //setup topo cluster builder
   const edm::ParameterSet& initConf = conf.getParameterSet("initialClusteringStep");
   const std::string& initName = initConf.getParameter<std::string>("algoName");
-  _initialClustering = std::unique_ptr<ICSB>{InitialClusteringStepFactory::get()->create(initName, initConf, sumes)};
+  _initialClustering = InitialClusteringStepFactory::get()->create(initName, initConf, sumes);
   //setup pf cluster builder if requested
   const edm::ParameterSet& pfcConf = conf.getParameterSet("pfClusterBuilder");
   if (!pfcConf.empty()) {
     const std::string& pfcName = pfcConf.getParameter<std::string>("algoName");
-    _pfClusterBuilder = std::unique_ptr<PFCBB>{PFClusterBuilderFactory::get()->create(pfcName, pfcConf)};
+    _pfClusterBuilder = PFClusterBuilderFactory::get()->create(pfcName, pfcConf);
   }
   //setup (possible) recalcuation of positions
   const edm::ParameterSet& pConf = conf.getParameterSet("positionReCalc");
   if (!pConf.empty()) {
     const std::string& pName = pConf.getParameter<std::string>("algoName");
-    _positionReCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(pName, pConf)};
+    _positionReCalc = PFCPositionCalculatorFactory::get()->create(pName, pConf);
   }
   // see if new need to apply corrections, setup if there.
   const edm::ParameterSet& cConf = conf.getParameterSet("energyCorrector");
   if (!cConf.empty()) {
     const std::string& cName = cConf.getParameter<std::string>("algoName");
-    _energyCorrector =
-        std::unique_ptr<PFClusterEnergyCorrectorBase>{PFClusterEnergyCorrectorFactory::get()->create(cName, cConf)};
+    _energyCorrector = PFClusterEnergyCorrectorFactory::get()->create(cName, cConf);
   }
 
   if (_prodInitClusters) {

@@ -13,7 +13,7 @@ class BscNumberingScheme;
 class BscSD : public TimingSD {
 public:
   BscSD(const std::string &,
-        const DDCompactView &,
+        const edm::EventSetup &,
         const SensitiveDetectorCatalog &,
         edm::ParameterSet const &,
         const SimTrackManager *);

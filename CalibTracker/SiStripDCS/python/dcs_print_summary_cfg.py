@@ -17,8 +17,6 @@ process.source = cms.Source("EmptySource",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
-
 process.load("CondCore.CondDB.CondDB_cfi")
 process.load("CalibTracker.SiStripDCS.siStripDetVOffPrinter_cfi")
 process.siStripDetVOffPrinter.tagName = "SiStripDetVOff_13hourDelay_v1_Validation"

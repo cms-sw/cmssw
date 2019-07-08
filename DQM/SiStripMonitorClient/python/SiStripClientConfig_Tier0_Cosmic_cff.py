@@ -54,4 +54,4 @@ SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*siSt
 
 
 # Services needed for TkHistoMap
-from CalibTracker.SiStripCommon.TkDetMap_cff import *
+from CalibTracker.SiStripCommon.TkDetMapESProducer_cfi import *

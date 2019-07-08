@@ -129,7 +129,8 @@ namespace edm {
       validatedLabels.insert(n.begin(), n.end());
     }
 
-    void writeCfi_(std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) const final {
+    void writeCfi_(
+        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const final {
       if (not defaultType_.empty()) {
         if (!edmplugin::PluginManager::isAvailable()) {
           auto conf = edmplugin::standard::config();

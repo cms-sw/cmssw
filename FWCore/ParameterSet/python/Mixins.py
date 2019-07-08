@@ -1,5 +1,5 @@
 from __future__ import print_function
-from builtins import range
+from builtins import range, object
 import inspect
 import six
 
@@ -162,6 +162,7 @@ class _Parameterizable(object):
     def __init__(self,*arg,**kargs):
         self.__dict__['_Parameterizable__parameterNames'] = []
         self.__dict__["_isFrozen"] = False
+        self.__dict__['_Parameterizable__validator'] = None
         """The named arguments are the 'parameters' which are added as 'python attributes' to the object"""
         if len(arg) != 0:
             #raise ValueError("unnamed arguments are not allowed. Please use the syntax 'name = value' when assigning arguments.")
@@ -228,8 +229,15 @@ class _Parameterizable(object):
         return result
 
     def __addParameter(self, name, value):
+        if name == 'allowAnyLabel_':
+            self.__validator = value
+            self._isModified = True
+            return
         if not isinstance(value,_ParameterTypeBase):
-            self.__raiseBadSetAttr(name)
+            if self.__validator is not None:
+                value = self.__validator.convert_(value)
+            else:
+                self.__raiseBadSetAttr(name)
         if name in self.__dict__:
             message = "Duplicate insert of member " + name
             message += "\nThe original parameters are:\n"
@@ -240,9 +248,14 @@ class _Parameterizable(object):
         self._isModified = True
 
     def __setParameters(self,parameters):
+        v = None
         for name,value in six.iteritems(parameters):
+            if name == 'allowAnyLabel_':
+                v = value
+                continue
             self.__addParameter(name, value)
-
+        if v is not None:
+            self.__validator=v
     def __setattr__(self,name,value):
         #since labels are not supposed to have underscores at the beginning
         # I will assume that if we have such then we are setting an internal variable

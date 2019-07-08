@@ -49,12 +49,16 @@ private:
   const CaloGeometry* geom_;
   const int mode_;
   int layerEE_, layerFH_, layerBH_;
+  int layerEE1000_, layerFH1000_, layerBH1000_;
 };
 
 HGCalTestRecHitTool::HGCalTestRecHitTool(const edm::ParameterSet& iC)
     : geomToken_{esConsumes<CaloGeometry, CaloGeometryRecord>(edm::ESInputTag{})},
       geom_(nullptr),
-      mode_(iC.getParameter<int>("Mode")) {}
+      mode_(iC.getParameter<int>("Mode")) {
+  layerEE_ = layerFH_ = layerBH_ = 0;
+  layerEE1000_ = layerFH1000_ = layerBH1000_ = 0;
+}
 
 HGCalTestRecHitTool::~HGCalTestRecHitTool() {}
 
@@ -66,11 +70,13 @@ void HGCalTestRecHitTool::analyze(const edm::Event&, const edm::EventSetup& iSet
                                 : static_cast<const HGCalGeometry*>(
                                       geom_->getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty)));
     layerEE_ = (geomEE->topology().dddConstants()).layers(true);
+    layerEE1000_ = (geomEE->topology().dddConstants()).getLayer(10000., true);
     auto geomFH = ((mode_ == 0) ? static_cast<const HGCalGeometry*>(
                                       geom_->getSubdetectorGeometry(DetId::Forward, ForwardSubdetector::HGCHEF))
                                 : static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(
                                       DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty)));
     layerFH_ = (geomFH->topology().dddConstants()).layers(true);
+    layerFH1000_ = (geomFH->topology().dddConstants()).getLayer(10000., true);
     if (mode_ == 0) {
       auto geomBH =
           static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal, HcalSubdetector::HcalEndcap));
@@ -79,8 +85,11 @@ void HGCalTestRecHitTool::analyze(const edm::Event&, const edm::EventSetup& iSet
       auto geomBH = static_cast<const HGCalGeometry*>(
           geom_->getSubdetectorGeometry(DetId::HGCalHSc, ForwardSubdetector::ForwardEmpty));
       layerBH_ = (geomBH->topology().dddConstants()).layers(true);
+      layerBH1000_ = (geomBH->topology().dddConstants()).getLayer(10000., true);
     }
-    edm::LogVerbatim("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ << ":" << layerBH_ << std::endl;
+    edm::LogVerbatim("HGCalGeom") << "Layers " << layerEE_ << ":" << layerFH_ << ":" << layerBH_
+                                  << "\nLayer # at 1000 cm " << layerEE1000_ << ":" << layerFH1000_ << ":"
+                                  << layerBH1000_;
     for (int layer = 1; layer <= layerEE_; ++layer)
       edm::LogVerbatim("HGCalGeom") << "EE Layer " << layer << " Wafers "
                                     << (geomEE->topology().dddConstants()).wafers(layer, 0) << ":"

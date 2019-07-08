@@ -4,7 +4,7 @@
 //
 // Package:    TrackSplittingMonitor
 // Class:      TrackSplittingMonitor
-// 
+//
 /**\class TrackSplittingMonitor TrackSplittingMonitor.cc DQM/TrackingMonitor/src/TrackSplittingMonitor.cc
  Monitoring source for general quantities related to tracks.
  */
@@ -32,87 +32,79 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-
-
 class DQMStore;
 class TProfile;
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-
-
 class TrackSplittingMonitor : public DQMEDAnalyzer {
 public:
-	explicit TrackSplittingMonitor(const edm::ParameterSet&);
-	~TrackSplittingMonitor() override;
-	
-	void analyze(const edm::Event&, const edm::EventSetup&) override;
-	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-	
+  explicit TrackSplittingMonitor(const edm::ParameterSet&);
+  ~TrackSplittingMonitor() override;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+
 private:
-	void doProfileX(TH2 * th2, MonitorElement* me);
-	void doProfileX(MonitorElement * th2m, MonitorElement* me);
-	
-	
-	// ----------member data ---------------------------
-	
-	//  unsigned int minTracks_;
-	
-	std::string histname;  //for naming the histograms according to algorithm used
-	
-	DQMStore * dqmStore_;
-	edm::ParameterSet conf_;
-	
-	edm::ESHandle<TrackerGeometry> theGeometry;
-	edm::ESHandle<MagneticField>   theMagField;
-	edm::ESHandle<DTGeometry>             dtGeometry;
-	edm::ESHandle<CSCGeometry>            cscGeometry;
-	edm::ESHandle<RPCGeometry>            rpcGeometry;
-	
-	edm::InputTag splitTracks_;
-	edm::InputTag splitMuons_;
-	edm::EDGetTokenT<std::vector<reco::Track> > splitTracksToken_;
-	edm::EDGetTokenT<std::vector<reco::Muon> > splitMuonsToken_;
-	
-	bool plotMuons_;
-	int pixelHitsPerLeg_;
-	int totalHitsPerLeg_;
-	double d0Cut_;
-	double dzCut_;
-	double ptCut_;
-	double norchiCut_;
-	
-	
-	// histograms
-	MonitorElement* ddxyAbsoluteResiduals_tracker_;
-	MonitorElement* ddzAbsoluteResiduals_tracker_;
-	MonitorElement* dphiAbsoluteResiduals_tracker_;
-	MonitorElement* dthetaAbsoluteResiduals_tracker_;
-	MonitorElement* dptAbsoluteResiduals_tracker_;
-	MonitorElement* dcurvAbsoluteResiduals_tracker_;
+  void doProfileX(TH2* th2, MonitorElement* me);
+  void doProfileX(MonitorElement* th2m, MonitorElement* me);
 
-	MonitorElement* ddxyNormalizedResiduals_tracker_;
-	MonitorElement* ddzNormalizedResiduals_tracker_;
-	MonitorElement* dphiNormalizedResiduals_tracker_;
-	MonitorElement* dthetaNormalizedResiduals_tracker_;
-	MonitorElement* dptNormalizedResiduals_tracker_;
-	MonitorElement* dcurvNormalizedResiduals_tracker_;
-	
-	MonitorElement* ddxyAbsoluteResiduals_global_;
-	MonitorElement* ddzAbsoluteResiduals_global_;
-	MonitorElement* dphiAbsoluteResiduals_global_;
-	MonitorElement* dthetaAbsoluteResiduals_global_;
-	MonitorElement* dptAbsoluteResiduals_global_;
-	MonitorElement* dcurvAbsoluteResiduals_global_;
-	
-	MonitorElement* ddxyNormalizedResiduals_global_;
-	MonitorElement* ddzNormalizedResiduals_global_;
-	MonitorElement* dphiNormalizedResiduals_global_;
-	MonitorElement* dthetaNormalizedResiduals_global_;
-	MonitorElement* dptNormalizedResiduals_global_;
-	MonitorElement* dcurvNormalizedResiduals_global_;
-	
+  // ----------member data ---------------------------
 
+  //  unsigned int minTracks_;
+
+  std::string histname;  //for naming the histograms according to algorithm used
+
+  DQMStore* dqmStore_;
+  edm::ParameterSet conf_;
+
+  edm::ESHandle<TrackerGeometry> theGeometry;
+  edm::ESHandle<MagneticField> theMagField;
+  edm::ESHandle<DTGeometry> dtGeometry;
+  edm::ESHandle<CSCGeometry> cscGeometry;
+  edm::ESHandle<RPCGeometry> rpcGeometry;
+
+  edm::InputTag splitTracks_;
+  edm::InputTag splitMuons_;
+  edm::EDGetTokenT<std::vector<reco::Track> > splitTracksToken_;
+  edm::EDGetTokenT<std::vector<reco::Muon> > splitMuonsToken_;
+
+  bool plotMuons_;
+  int pixelHitsPerLeg_;
+  int totalHitsPerLeg_;
+  double d0Cut_;
+  double dzCut_;
+  double ptCut_;
+  double norchiCut_;
+
+  // histograms
+  MonitorElement* ddxyAbsoluteResiduals_tracker_;
+  MonitorElement* ddzAbsoluteResiduals_tracker_;
+  MonitorElement* dphiAbsoluteResiduals_tracker_;
+  MonitorElement* dthetaAbsoluteResiduals_tracker_;
+  MonitorElement* dptAbsoluteResiduals_tracker_;
+  MonitorElement* dcurvAbsoluteResiduals_tracker_;
+
+  MonitorElement* ddxyNormalizedResiduals_tracker_;
+  MonitorElement* ddzNormalizedResiduals_tracker_;
+  MonitorElement* dphiNormalizedResiduals_tracker_;
+  MonitorElement* dthetaNormalizedResiduals_tracker_;
+  MonitorElement* dptNormalizedResiduals_tracker_;
+  MonitorElement* dcurvNormalizedResiduals_tracker_;
+
+  MonitorElement* ddxyAbsoluteResiduals_global_;
+  MonitorElement* ddzAbsoluteResiduals_global_;
+  MonitorElement* dphiAbsoluteResiduals_global_;
+  MonitorElement* dthetaAbsoluteResiduals_global_;
+  MonitorElement* dptAbsoluteResiduals_global_;
+  MonitorElement* dcurvAbsoluteResiduals_global_;
+
+  MonitorElement* ddxyNormalizedResiduals_global_;
+  MonitorElement* ddzNormalizedResiduals_global_;
+  MonitorElement* dphiNormalizedResiduals_global_;
+  MonitorElement* dthetaNormalizedResiduals_global_;
+  MonitorElement* dptNormalizedResiduals_global_;
+  MonitorElement* dcurvNormalizedResiduals_global_;
 };
 #endif

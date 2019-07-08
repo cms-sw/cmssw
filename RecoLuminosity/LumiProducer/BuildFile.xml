@@ -5,7 +5,7 @@
 <use name="RelationalAccess"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
-<use name="FWCore/Concurrency"/>
+<use name="Utilities/Xerces"/>
 <export>
    <lib name="1"/>
 </export>

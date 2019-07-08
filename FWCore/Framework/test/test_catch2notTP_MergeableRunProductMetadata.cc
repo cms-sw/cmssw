@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/MergeableRunProductProcesses.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/BranchType.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <memory>
 #include <string>

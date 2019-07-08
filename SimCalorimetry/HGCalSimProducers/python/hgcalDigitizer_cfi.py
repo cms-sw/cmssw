@@ -12,8 +12,10 @@ HGCAL_noise_fC = cms.PSet(
     values = cms.vdouble( [x*fC_per_ele for x in nonAgedNoises] ), #100,200,300 um
     )
 
-HGCAL_noise_MIP = cms.PSet(
-    value = cms.double(1.0/7.0)
+HGCAL_noise_heback = cms.PSet(
+    scaleByDose = cms.bool(False),
+    doseMap = cms.string(""), #empty dose map at begin-of-life
+    noise_MIP = cms.double(1./100.)
     )
 
 HGCAL_chargeCollectionEfficiencies = cms.PSet(
@@ -154,7 +156,7 @@ hgchefrontDigitizer = cms.PSet(
     )
 
 
-# HCAL back (CALICE-like version, no pulse shape)
+# HCAL back
 hgchebackDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
     hitCollection = cms.string("HcalHits"),
@@ -171,22 +173,26 @@ hgchebackDigitizer = cms.PSet(
     useAllChannels    = cms.bool(True),
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
-        keV2MIP           = cms.double(1./616.0),
-        noise_MIP         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_MIP")),
+        #0 empty digitizer, 1 calice digitizer, 2 realistic digitizer
+        algo          = cms.uint32(2),
+        scaleByArea   = cms.bool(True),
+        noise         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")), #scales both for scint raddam and sipm dark current
+        calibDigis    = cms.bool(True),
+        keV2MIP       = cms.double(1./500.0),
         doTimeSamples = cms.bool(False),
-        nPEperMIP = cms.double(11.0),
-        nTotalPE  = cms.double(1156), #1156 pixels => saturation ~600MIP
-        xTalk     = cms.double(0.25),
+        nPEperMIP = cms.double(21.0),
+        nTotalPE  = cms.double(7500),
+        xTalk     = cms.double(0.01),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
-            # n bits for the ADC
-            adcNbits        = cms.uint32(12),
+            # n bits for the ADC (same as the silicon ROC)
+            adcNbits        = cms.uint32(10),
             # ADC saturation : in this case we use the same variable but fC=MIP
-            adcSaturation_fC = cms.double(1024.0),
+            adcSaturation_fC = cms.double(68.5), #value chosen to have 1MIP at 15ADC
             # threshold for digi production : in this case we use the same variable but fC=MIP
-            adcThreshold_fC = cms.double(0.50),
+            adcThreshold_fC = cms.double(0.5),
             thresholdFollowsMIP = cms.bool(False)
             )
         )
@@ -201,7 +207,7 @@ hfnoseDigitizer = cms.PSet(
     bxTime            = cms.double(25),
     eVPerEleHolePair = cms.double(eV_per_eh_pair),
     tofDelay          = cms.double(5),
-    geometryType      = cms.uint32(0),
+    geometryType      = cms.uint32(1),
     digitizationType  = cms.uint32(0),
     makeDigiSimLinks  = cms.bool(False),
     premixStage1      = cms.bool(False),
@@ -273,8 +279,10 @@ def HGCal_setEndOfLifeNoise(process):
     process.HGCAL_chargeCollectionEfficiencies = cms.PSet(
         values = cms.vdouble(endOfLifeCCEs)
         )
-    process.HGCAL_noise_MIP = cms.PSet(
-        value = cms.double( 1.0/5.0 )
+    process.HGCAL_noise_heback = cms.PSet(
+        scaleByDose = cms.bool(True),
+        doseMap = cms.string("SimCalorimetry/HGCalSimProducers/data/doseParams_3000fb_fluka-3.5.15.9.txt"),
+        noise_MIP = cms.double(1./5.) #uses noise map
         )
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble([x for x in endOfLifeNoises])
@@ -285,9 +293,11 @@ def HGCal_disableNoise(process):
     process.HGCAL_noise_fC = cms.PSet(
         values = cms.vdouble(0,0,0), #100,200,300 um
     )
-    process.HGCAL_noise_MIP = cms.PSet(
-        value = cms.double(0)
-    )
+    process.HGCAL_noise_heback = cms.PSet(
+        scaleByDose = cms.bool(False),
+        doseMap = cms.string(""),
+        noise_MIP = cms.double(0.) #zero noise
+        )
     process.HGCAL_noises = cms.PSet(
         values = cms.vdouble(0,0,0)
     )

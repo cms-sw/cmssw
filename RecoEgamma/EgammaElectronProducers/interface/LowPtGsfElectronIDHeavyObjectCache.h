@@ -6,13 +6,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
-namespace reco { 
+namespace reco {
   class BeamSpot;
-  class PreId; 
-}
+  class PreId;
+}  // namespace reco
 
 namespace lowptgsfeleid {
-  
+
   class Features {
   public:
     // KF track
@@ -22,7 +22,7 @@ namespace lowptgsfeleid {
     // GSF track
     float gsf_nhits_ = -1.;
     float gsf_chi2red_ = -1.;
-    // SC 
+    // SC
     float sc_E_ = -1.;
     float sc_eta_ = -1.;
     float sc_etaWidth_ = -1.;
@@ -43,28 +43,25 @@ namespace lowptgsfeleid {
     float rho_ = -1.;
     float brem_frac_ = -1.;
     float ele_pt_ = -1.;
+
   public:
     std::vector<float> get();
-    void set( const reco::GsfElectronRef& ele, double rho );
+    void set(const reco::GsfElectronRef& ele, double rho);
   };
-  
+
   class HeavyObjectCache {
-
   public:
-
-    HeavyObjectCache( const edm::ParameterSet& );
+    HeavyObjectCache(const edm::ParameterSet&);
 
     std::vector<std::string> modelNames() const { return names_; }
 
-    double eval( const std::string& name, const reco::GsfElectronRef&, double rho ) const;
-    
+    double eval(const std::string& name, const reco::GsfElectronRef&, double rho) const;
+
   private:
-
     std::vector<std::string> names_;
-    std::vector< std::unique_ptr<const GBRForest> > models_;
+    std::vector<std::unique_ptr<const GBRForest> > models_;
     std::vector<double> thresholds_;
-
   };
-}
+}  // namespace lowptgsfeleid
 
-#endif // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronIDHeavyObjectCache_h
+#endif  // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronIDHeavyObjectCache_h

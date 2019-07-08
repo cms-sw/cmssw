@@ -8,15 +8,14 @@
 /* \brief description of the bit assigment
    [0:4]   u-coordinate of the cell (measured from the lower left
    [5:9]   v-coordinate of the cell  corner of the wafer)
-   [10:12] abs(u) of the wafer (u-axis points along -x axis)
-   [13:13] sign of u (0:+u; 1:-u) (u=0 is at the center of beam line)
-   [14:16] abs(v) of the wafer (v-axis points 60-degree wrt x-axis)
-   [17:17] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
-   [18:21] layer number 
-   [22:22] z-side (0 for +z; 1 for -z)
-   [23:24] Type (0 fine divisions of wafer with 120 mum thick silicon
-                 1 coarse divisions of wafer with 200 mum thick silicon
-                 2 coarse divisions of wafer with 300 mum thick silicon)
+   [10:13] abs(u) of the wafer (u-axis points along -x axis)
+   [14:14] sign of u (0:+u; 1:-u) (u=0 is at the center of beam line)
+   [15:18] abs(v) of the wafer (v-axis points 60-degree wrt x-axis)
+   [19:19] sign of v (0:+v; 1:-v) (v=0 is at the center of beam line)
+   [20:22] layer number - 1
+   [23:23] z-side (0 for +z; 1 for -z)
+   [24:24] Type (0 fine divisions of wafer with 120 mum thick silicon
+                 1 coarse divisions of wafer with 200 mum thick silicon)
    [25:27] Subdetector type (HFNose)
    [28:31] Detector type (Forward)
 */
@@ -52,7 +51,7 @@ public:
   int zside() const { return (((id_ >> kHFNoseZsideOffset) & kHFNoseZsideMask) ? -1 : 1); }
 
   /// get the layer #
-  int layer() const { return (id_ >> kHFNoseLayerOffset) & kHFNoseLayerMask; }
+  int layer() const { return ((id_ >> kHFNoseLayerOffset) & kHFNoseLayerMask) + 1; }
 
   /// get the cell #'s in u,v or in x,y
   int cellU() const { return (id_ >> kHFNoseCellUOffset) & kHFNoseCellUMask; }
@@ -96,19 +95,19 @@ private:
   static const int kHFNoseCellVOffset = 5;
   static const int kHFNoseCellVMask = 0x1F;
   static const int kHFNoseWaferUOffset = 10;
-  static const int kHFNoseWaferUMask = 0x7;
-  static const int kHFNoseWaferUSignOffset = 13;
+  static const int kHFNoseWaferUMask = 0xF;
+  static const int kHFNoseWaferUSignOffset = 14;
   static const int kHFNoseWaferUSignMask = 0x1;
-  static const int kHFNoseWaferVOffset = 14;
-  static const int kHFNoseWaferVMask = 0x7;
-  static const int kHFNoseWaferVSignOffset = 17;
+  static const int kHFNoseWaferVOffset = 15;
+  static const int kHFNoseWaferVMask = 0xF;
+  static const int kHFNoseWaferVSignOffset = 19;
   static const int kHFNoseWaferVSignMask = 0x1;
-  static const int kHFNoseLayerOffset = 18;
-  static const int kHFNoseLayerMask = 0xF;
-  static const int kHFNoseZsideOffset = 22;
+  static const int kHFNoseLayerOffset = 20;
+  static const int kHFNoseLayerMask = 0x7;
+  static const int kHFNoseZsideOffset = 23;
   static const int kHFNoseZsideMask = 0x1;
-  static const int kHFNoseTypeOffset = 23;
-  static const int kHFNoseTypeMask = 0x3;
+  static const int kHFNoseTypeOffset = 24;
+  static const int kHFNoseTypeMask = 0x1;
 };
 
 std::ostream& operator<<(std::ostream&, const HFNoseDetId& id);

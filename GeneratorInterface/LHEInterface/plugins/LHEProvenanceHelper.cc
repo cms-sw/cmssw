@@ -11,7 +11,7 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace edm {

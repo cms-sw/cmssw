@@ -8,8 +8,41 @@ const T& max(const T& a, const T& b) {
 
 MaterialBudgetHGCalHistos::MaterialBudgetHGCalHistos(std::shared_ptr<MaterialBudgetData> data,
                                                      std::shared_ptr<TestHistoMgr> mgr,
-                                                     const std::string& fileName)
-    : MaterialBudgetFormat(data), hmgr(mgr) {
+                                                     const std::string& fileName,
+                                                     double minZ,
+                                                     double maxZ,
+                                                     int nintZ,
+                                                     double rMin,
+                                                     double rMax,
+                                                     int nrbin,
+                                                     double etaMin,
+                                                     double etaMax,
+                                                     int netabin,
+                                                     double phiMin,
+                                                     double phiMax,
+                                                     int nphibin,
+                                                     double RMin,
+                                                     double RMax,
+                                                     int nRbin)
+    : MaterialBudgetFormat(data),
+      hmgr(mgr),
+      zMin_(minZ),
+      zMax_(maxZ),
+      nzbin_(nintZ),
+      rMin_(rMin),
+      rMax_(rMax),
+      nrbin_(nrbin),
+      etaMin_(etaMin),
+      etaMax_(etaMax),
+      netabin_(netabin),
+      phiMin_(phiMin),
+      phiMax_(phiMax),
+      nphibin_(nphibin),
+      RMin_(RMin),
+      RMax_(RMax),
+      nRbin_(nRbin)
+
+{
   theFileName = fileName;
   book();
 }
@@ -17,608 +50,702 @@ MaterialBudgetHGCalHistos::MaterialBudgetHGCalHistos(std::shared_ptr<MaterialBud
 void MaterialBudgetHGCalHistos::book() {
   std::cout << "=== booking user histos ===" << std::endl;
 
-  // Parameters for 2D histograms
-  // Make z 1mm per bin
-  int nzbin = 11000;
-  float zMax = 5500.;   //
-  float zMin = -5500.;  //
-  // Make r 1cm per bin
-  int nrbin = 345;
-  float rMin = -50.;
-  float rMax = 3400.;
-  // eta
-  int netabin = 250;
-  float etaMin = -5.;
-  float etaMax = 5.;
-  // phi
-  int nphibin = 180;
-  float phiMin = -3.2;
-  float phiMax = 3.2;
-  // R for profile histos
-  int nRbin = 300;
-  float RMin = 0.;
-  float RMax = 3000.;
-
   // total X0
-  hmgr->addHistoProf1(new TProfile("10", "MB prof Eta;#eta;x/X_{0} ", netabin, etaMin, etaMax));
-  hmgr->addHisto1(new TH1F("11", "Eta ", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("20", "MB prof Phi;#varphi [rad];x/X_{0} ", nphibin, phiMin, phiMax));
-  hmgr->addHisto1(new TH1F("21", "Phi ", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("10", "MB prof Eta;#eta;x/X_{0} ", netabin_, etaMin_, etaMax_));
+  hmgr->addHisto1(new TH1F("11", "Eta ", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("20", "MB prof Phi;#varphi [rad];x/X_{0} ", nphibin_, phiMin_, phiMax_));
+  hmgr->addHisto1(new TH1F("21", "Phi ", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "30", "MB prof Eta  Phi;#eta;#varphi;x/X_{0} ", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHisto2(new TH2F("31", "Eta vs Phi ", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("40", "MB prof R;R [mm];x/X_{0} ", nRbin_, RMin_, RMax_));
+  hmgr->addHisto1(new TH1F("41", "R ", nRbin_, RMin_, RMax_));
   hmgr->addHistoProf2(
-      new TProfile2D("30", "MB prof Eta  Phi;#eta;#varphi;x/X_{0} ", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHisto2(new TH2F("31", "Eta vs Phi ", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("40", "MB prof R;R [mm];x/X_{0} ", nRbin, RMin, RMax));
-  hmgr->addHisto1(new TH1F("41", "R ", nRbin, RMin, RMax));
+      new TProfile2D("50", "MB prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F("999", "Tot track length for MB", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F("51", "R vs z ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "52", "MB ortho prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(
+      new TH2F("60", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(
-      new TProfile2D("50", "MB prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(new TH2F("999", "Tot track length for MB", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(new TH2F("51", "R vs z ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("52", "MB ortho prof sum R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(new TH2F("60", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("70", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("72", "MB ortho prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      new TProfile2D("70", "MB prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "72", "MB ortho prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Copper
-  hmgr->addHistoProf1(new TProfile("110", "MB prof Eta [Copper];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("120", "MB prof Phi [Copper];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("110", "MB prof Eta [Copper];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("120", "MB prof Phi [Copper];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "130", "MB prof Eta  Phi [Copper];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("140", "MB prof R [Copper];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("150", "MB prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "130", "MB prof Eta  Phi [Copper];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("140", "MB prof R [Copper];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "152", "MB ortho prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("160", "MB prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "150", "MB prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "170", "MB prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "152", "MB ortho prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "160", "MB prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "172", "MB ortho prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "170", "MB prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "172", "MB ortho prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // H_Scintillator
-  hmgr->addHistoProf1(new TProfile("210", "MB prof Eta [Scintillator];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("220", "MB prof Phi [Scintillator];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("210", "MB prof Eta [Scintillator];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("220", "MB prof Phi [Scintillator];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("230",
+                                     "MB prof Eta  Phi [Scintillator];#eta;#varphi;x/X_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("240", "MB prof R [Scintillator];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "230", "MB prof Eta  Phi [Scintillator];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("240", "MB prof R [Scintillator];R [mm];x/X_{0}", nRbin, RMin, RMax));
+      "250", "MB prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "250", "MB prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "252", "MB ortho prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "252", "MB ortho prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHisto2(new TH2F(
-      "260", "MB prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "260", "MB prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "270", "MB prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "272", "MB ortho prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "270", "MB prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("272",
+                                     "MB ortho prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   // Cables
-  hmgr->addHistoProf1(new TProfile("310", "MB prof Eta [Cables];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("320", "MB prof Phi [Cables];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("310", "MB prof Eta [Cables];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("320", "MB prof Phi [Cables];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "330", "MB prof Eta  Phi [Cables];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("340", "MB prof R [Cables];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("350", "MB prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "330", "MB prof Eta  Phi [Cables];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("340", "MB prof R [Cables];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "352", "MB ortho prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("360", "MB prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "350", "MB prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "370", "MB prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "352", "MB ortho prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "360", "MB prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "372", "MB ortho prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "370", "MB prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "372", "MB ortho prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // HGC_G10_FR4
-  hmgr->addHistoProf1(new TProfile("410", "MB prof Eta [HGC_G10_FR4];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("420", "MB prof Phi [HGC_G10_FR4];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("410", "MB prof Eta [HGC_G10_FR4];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("420", "MB prof Phi [HGC_G10_FR4];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("430",
+                                     "MB prof Eta  Phi [HGC_G10_FR4];#eta;#varphi;x/X_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("440", "MB prof R [HGC_G10_FR4];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "430", "MB prof Eta  Phi [HGC_G10_FR4];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("440", "MB prof R [HGC_G10_FR4];R [mm];x/X_{0}", nRbin, RMin, RMax));
+      "450", "MB prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "450", "MB prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "452", "MB ortho prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "460", "MB prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "452", "MB ortho prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("460", "MB prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "470", "MB prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "472", "MB ortho prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "470", "MB prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("472",
+                                     "MB ortho prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   // Silicon
-  hmgr->addHistoProf1(new TProfile("510", "MB prof Eta [Silicon];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("520", "MB prof Phi [Silicon];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("510", "MB prof Eta [Silicon];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("520", "MB prof Phi [Silicon];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "530", "MB prof Eta  Phi [Silicon];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("540", "MB prof R [Silicon];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("550", "MB prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "530", "MB prof Eta  Phi [Silicon];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("540", "MB prof R [Silicon];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "552", "MB ortho prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("560", "MB prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "550", "MB prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "570", "MB prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "552", "MB ortho prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "560", "MB prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "572", "MB ortho prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "570", "MB prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "572", "MB ortho prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Other
-  hmgr->addHistoProf1(new TProfile("610", "MB prof Eta [Other];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("620", "MB prof Phi [Other];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("610", "MB prof Eta [Other];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("620", "MB prof Phi [Other];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "630", "MB prof Eta  Phi [Other];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("640", "MB prof R [Other];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("650", "MB prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "630", "MB prof Eta  Phi [Other];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("640", "MB prof R [Other];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "652", "MB ortho prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "650", "MB prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "652", "MB ortho prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHisto2(
-      new TH2F("660", "MB prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("670", "MB prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      new TH2F("660", "MB prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "672", "MB ortho prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "670", "MB prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "672", "MB ortho prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Air
-  hmgr->addHistoProf1(new TProfile("710", "MB prof Eta [Air];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("720", "MB prof Phi [Air];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("710", "MB prof Eta [Air];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("720", "MB prof Phi [Air];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "730", "MB prof Eta  Phi [Air];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("740", "MB prof R [Air];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("750", "MB prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "730", "MB prof Eta  Phi [Air];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("740", "MB prof R [Air];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "752", "MB ortho prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "750", "MB prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "752", "MB ortho prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHisto2(
-      new TH2F("760", "MB prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("770", "MB prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      new TH2F("760", "MB prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "772", "MB ortho prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "770", "MB prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "772", "MB ortho prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   //StainlessSteel
-  hmgr->addHistoProf1(new TProfile("810", "MB prof Eta [StainlessSteel];#eta;x/X_{0}", netabin, etaMin, etaMax));
+  hmgr->addHistoProf1(new TProfile("810", "MB prof Eta [StainlessSteel];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
   hmgr->addHistoProf1(
-      new TProfile("820", "MB prof Phi [StainlessSteel];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+      new TProfile("820", "MB prof Phi [StainlessSteel];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("830",
+                                     "MB prof Eta  Phi [StainlessSteel];#eta;#varphi;x/X_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("840", "MB prof R [StainlessSteel];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "830", "MB prof Eta  Phi [StainlessSteel];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("840", "MB prof R [StainlessSteel];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "850", "MB prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "852", "MB ortho prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "850", "MB prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("852",
+                                     "MB ortho prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
   hmgr->addHisto2(new TH2F(
-      "860", "MB prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "860", "MB prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "870", "MB prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "872", "MB ortho prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "870", "MB prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("872",
+                                     "MB ortho prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   //WCu
-  hmgr->addHistoProf1(new TProfile("910", "MB prof Eta [WCu];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("920", "MB prof Phi [WCu];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("910", "MB prof Eta [WCu];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("920", "MB prof Phi [WCu];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "930", "MB prof Eta  Phi [WCu];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("940", "MB prof R [WCu];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("950", "MB prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "930", "MB prof Eta  Phi [WCu];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("940", "MB prof R [WCu];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "952", "MB ortho prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "950", "MB prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "952", "MB ortho prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHisto2(
-      new TH2F("960", "MB prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("970", "MB prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      new TH2F("960", "MB prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "972", "MB ortho prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "970", "MB prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "972", "MB ortho prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Lead
-  hmgr->addHistoProf1(new TProfile("1010", "MB prof Eta [Lead];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("1020", "MB prof Phi [Lead];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("1010", "MB prof Eta [Lead];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("1020", "MB prof Phi [Lead];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1030", "MB prof Eta  Phi [Lead];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("1040", "MB prof R [Lead];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("1050", "MB prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1030", "MB prof Eta  Phi [Lead];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("1040", "MB prof R [Lead];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1052", "MB ortho prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1050", "MB prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1052", "MB ortho prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHisto2(
-      new TH2F("1060", "MB prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("1070", "MB prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      new TH2F("1060", "MB prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1072", "MB ortho prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1070", "MB prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1072", "MB ortho prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Epoxy
-  hmgr->addHistoProf1(new TProfile("1110", "MB prof Eta [Epoxy];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("1120", "MB prof Phi [Epoxy];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("1110", "MB prof Eta [Epoxy];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("1120", "MB prof Phi [Epoxy];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1130", "MB prof Eta  Phi [Epoxy];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("1140", "MB prof R [Epoxy];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("1150", "MB prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1130", "MB prof Eta  Phi [Epoxy];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("1140", "MB prof R [Epoxy];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1152", "MB ortho prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("1160", "MB prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1150", "MB prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1170", "MB prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1152", "MB ortho prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "1160", "MB prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1172", "MB ortho prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1170", "MB prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1172", "MB ortho prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Kapton
-  hmgr->addHistoProf1(new TProfile("1210", "MB prof Eta [Kapton];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("1220", "MB prof Phi [Kapton];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("1210", "MB prof Eta [Kapton];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile("1220", "MB prof Phi [Kapton];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1230", "MB prof Eta  Phi [Kapton];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("1240", "MB prof R [Kapton];R [mm];x/X_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("1250", "MB prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1230", "MB prof Eta  Phi [Kapton];#eta;#varphi;x/X_{0}", netabin_, etaMin_, etaMax_, nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf1(new TProfile("1240", "MB prof R [Kapton];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1252", "MB ortho prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("1260", "MB prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1250", "MB prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1270", "MB prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1252", "MB ortho prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "1260", "MB prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1272", "MB ortho prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1270", "MB prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "1272", "MB ortho prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Aluminium
-  hmgr->addHistoProf1(new TProfile("1310", "MB prof Eta [Aluminium];#eta;x/X_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("1320", "MB prof Phi [Aluminium];#varphi [rad];x/X_{0}", nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("1310", "MB prof Eta [Aluminium];#eta;x/X_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("1320", "MB prof Phi [Aluminium];#varphi [rad];x/X_{0}", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("1330",
+                                     "MB prof Eta  Phi [Aluminium];#eta;#varphi;x/X_{0}",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("1340", "MB prof R [Aluminium];R [mm];x/X_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1330", "MB prof Eta  Phi [Aluminium];#eta;#varphi;x/X_{0}", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
-  hmgr->addHistoProf1(new TProfile("1340", "MB prof R [Aluminium];R [mm];x/X_{0}", nRbin, RMin, RMax));
+      "1350", "MB prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1350", "MB prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1352", "MB ortho prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "1360", "MB prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1352", "MB ortho prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("1360", "MB prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1370", "MB prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "1370", "MB prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "1372", "MB ortho prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "1372", "MB ortho prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   //=========================================================================================================
   // total Lambda0
-  hmgr->addHistoProf1(new TProfile("10010", "IL prof Eta;#eta;#lambda/#lambda_{0} ", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(new TProfile("10020", "IL prof Phi;#varphi [rad];#lambda/#lambda_{0} ", nphibin, phiMin, phiMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10030", "IL prof Eta  Phi;#eta;#varphi;#lambda/#lambda_{0} ", netabin, etaMin, etaMax, nphibin, phiMin, phiMax));
+  hmgr->addHistoProf1(new TProfile("10010", "IL prof Eta;#eta;#lambda/#lambda_{0} ", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("10020", "IL prof Phi;#varphi [rad];#lambda/#lambda_{0} ", nphibin_, phiMin_, phiMax_));
+  hmgr->addHistoProf2(new TProfile2D("10030",
+                                     "IL prof Eta  Phi;#eta;#varphi;#lambda/#lambda_{0} ",
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
 
   // rr
-  hmgr->addHistoProf1(new TProfile("10040", "IL prof R;R [mm];#lambda/#lambda_{0} ", nRbin, RMin, RMax));
+  hmgr->addHistoProf1(new TProfile("10040", "IL prof R;R [mm];#lambda/#lambda_{0} ", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10050", "IL prof sum R  z;z [mm];R [mm];#lambda/#lambda_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10050", "IL prof sum R  z;z [mm];R [mm];#lambda/#lambda_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10052", "IL ortho prof sum R  z;z [mm];R [mm];#lambda/#lambda_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(new TH2F("1999", "Tot track length for l0", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(new TH2F("10060", "IL prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10052", "IL ortho prof sum R  z;z [mm];R [mm];#lambda/#lambda_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F("1999", "Tot track length for l0", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(
+      new TH2F("10060", "IL prof local R  z;z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10070", "IL prof local R  z;z [mm];R [mm];#lambda/#lambda_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10072", "IL ortho prof local R  z;z [mm];R [mm];#lambda/#lambda_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10070", "IL prof local R  z;z [mm];R [mm];#lambda/#lambda_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("10072",
+                                     "IL ortho prof local R  z;z [mm];R [mm];#lambda/#lambda_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   // Copper
-  hmgr->addHistoProf1(new TProfile("10110", "IL prof Eta [Copper];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
   hmgr->addHistoProf1(
-      new TProfile("10120", "IL prof Phi [Copper];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10110", "IL prof Eta [Copper];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("10120", "IL prof Phi [Copper];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10130",
                                      "IL prof Eta  Phi [Copper];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10140", "IL prof R [Copper];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("10140", "IL prof R [Copper];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10150", "IL prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10150", "IL prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10152", "IL ortho prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("10160", "IL prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10152", "IL ortho prof sum R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "10160", "IL prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10170", "IL prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10170", "IL prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10172", "IL ortho prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10172", "IL ortho prof local R  z [Copper];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // H_Scintillator
   hmgr->addHistoProf1(
-      new TProfile("10210", "IL prof Eta [Scintillator];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(
-      new TProfile("10220", "IL prof Phi [Scintillator];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10210", "IL prof Eta [Scintillator];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile(
+      "10220", "IL prof Phi [Scintillator];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10230",
                                      "IL prof Eta  Phi [Scintillator];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10240", "IL prof R [Scintillator];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(
+      new TProfile("10240", "IL prof R [Scintillator];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10250", "IL prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10252", "IL ortho prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10250", "IL prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("10252",
+                                     "IL ortho prof sum R  z [Scintillator];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
   hmgr->addHisto2(new TH2F(
-      "10260", "IL prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10260", "IL prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10270", "IL prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10272", "IL ortho prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10270", "IL prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("10272",
+                                     "IL ortho prof local R  z [Scintillator];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   // Cables
-  hmgr->addHistoProf1(new TProfile("10310", "IL prof Eta [Cables];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
   hmgr->addHistoProf1(
-      new TProfile("10320", "IL prof Phi [Cables];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10310", "IL prof Eta [Cables];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("10320", "IL prof Phi [Cables];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10330",
                                      "IL prof Eta  Phi [Cables];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10340", "IL prof R [Cables];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("10340", "IL prof R [Cables];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10350", "IL prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10350", "IL prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10352", "IL ortho prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("10360", "IL prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10352", "IL ortho prof sum R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "10360", "IL prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10370", "IL prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10370", "IL prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10372", "IL ortho prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10372", "IL ortho prof local R  z [Cables];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // HGC_G10_FR4
   hmgr->addHistoProf1(
-      new TProfile("10410", "IL prof Eta [HGC_G10_FR4];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
+      new TProfile("10410", "IL prof Eta [HGC_G10_FR4];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
   hmgr->addHistoProf1(
-      new TProfile("10420", "IL prof Phi [HGC_G10_FR4];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10420", "IL prof Phi [HGC_G10_FR4];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10430",
                                      "IL prof Eta  Phi [HGC_G10_FR4];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10440", "IL prof R [HGC_G10_FR4];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(
+      new TProfile("10440", "IL prof R [HGC_G10_FR4];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10450", "IL prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10452", "IL ortho prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10450", "IL prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("10452",
+                                     "IL ortho prof sum R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
   hmgr->addHisto2(new TH2F(
-      "10460", "IL prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10460", "IL prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10470", "IL prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10472", "IL ortho prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10470", "IL prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("10472",
+                                     "IL ortho prof local R  z [HGC_G10_FR4];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   // Silicon
-  hmgr->addHistoProf1(new TProfile("10510", "IL prof Eta [Silicon];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
   hmgr->addHistoProf1(
-      new TProfile("10520", "IL prof Phi [Silicon];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10510", "IL prof Eta [Silicon];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("10520", "IL prof Phi [Silicon];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10530",
                                      "IL prof Eta  Phi [Silicon];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10540", "IL prof R [Silicon];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("10540", "IL prof R [Silicon];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10550", "IL prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10550", "IL prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10552", "IL ortho prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("10560", "IL prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10552", "IL ortho prof sum R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "10560", "IL prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10570", "IL prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10570", "IL prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10572", "IL ortho prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10572", "IL ortho prof local R  z [Silicon];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Other
-  hmgr->addHistoProf1(new TProfile("10610", "IL prof Eta [Other];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
   hmgr->addHistoProf1(
-      new TProfile("10620", "IL prof Phi [Other];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10610", "IL prof Eta [Other];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("10620", "IL prof Phi [Other];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10630",
                                      "IL prof Eta  Phi [Other];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10640", "IL prof R [Other];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("10650", "IL prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("10640", "IL prof R [Other];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10652", "IL ortho prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("10660", "IL prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10650", "IL prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10670", "IL prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10652", "IL ortho prof sum R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "10660", "IL prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10672", "IL ortho prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10670", "IL prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "10672", "IL ortho prof local R  z [Other];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Air
-  hmgr->addHistoProf1(new TProfile("10710", "IL prof Eta [Air];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
+  hmgr->addHistoProf1(new TProfile("10710", "IL prof Eta [Air];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
   hmgr->addHistoProf1(
-      new TProfile("10720", "IL prof Phi [Air];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10720", "IL prof Phi [Air];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10730",
                                      "IL prof Eta  Phi [Air];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10740", "IL prof R [Air];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("10750", "IL prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("10740", "IL prof R [Air];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10752", "IL ortho prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10750", "IL prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "10752", "IL ortho prof sum R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHisto2(
-      new TH2F("10760", "IL prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("10770", "IL prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      new TH2F("10760", "IL prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10772", "IL ortho prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10770", "IL prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "10772", "IL ortho prof local R  z [Air];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   //StainlessSteel
   hmgr->addHistoProf1(
-      new TProfile("10810", "IL prof Eta [StainlessSteel];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
-  hmgr->addHistoProf1(
-      new TProfile("10820", "IL prof Phi [StainlessSteel];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10810", "IL prof Eta [StainlessSteel];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(new TProfile(
+      "10820", "IL prof Phi [StainlessSteel];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10830",
                                      "IL prof Eta  Phi [StainlessSteel];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
   hmgr->addHistoProf1(
-      new TProfile("10840", "IL prof R [StainlessSteel];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+      new TProfile("10840", "IL prof R [StainlessSteel];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10850", "IL prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10852", "IL ortho prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10850", "IL prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("10852",
+                                     "IL ortho prof sum R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
   hmgr->addHisto2(new TH2F(
-      "10860", "IL prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10860", "IL prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10870", "IL prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "10872", "IL ortho prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10870", "IL prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("10872",
+                                     "IL ortho prof local R  z [StainlessSteel];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   //WCu
-  hmgr->addHistoProf1(new TProfile("10910", "IL prof Eta [WCu];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
+  hmgr->addHistoProf1(new TProfile("10910", "IL prof Eta [WCu];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
   hmgr->addHistoProf1(
-      new TProfile("10920", "IL prof Phi [WCu];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("10920", "IL prof Phi [WCu];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("10930",
                                      "IL prof Eta  Phi [WCu];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("10940", "IL prof R [WCu];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("10950", "IL prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("10940", "IL prof R [WCu];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10952", "IL ortho prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10950", "IL prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "10952", "IL ortho prof sum R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHisto2(
-      new TH2F("10960", "IL prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("10970", "IL prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      new TH2F("10960", "IL prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "10972", "IL ortho prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "10970", "IL prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "10972", "IL ortho prof local R  z [WCu];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Lead
-  hmgr->addHistoProf1(new TProfile("11010", "IL prof Eta [Lead];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
+  hmgr->addHistoProf1(new TProfile("11010", "IL prof Eta [Lead];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
   hmgr->addHistoProf1(
-      new TProfile("11020", "IL prof Phi [Lead];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("11020", "IL prof Phi [Lead];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("11030",
                                      "IL prof Eta  Phi [Lead];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("11040", "IL prof R [Lead];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("11050", "IL prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("11040", "IL prof R [Lead];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11052", "IL ortho prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("11060", "IL prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11050", "IL prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11070", "IL prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11052", "IL ortho prof sum R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "11060", "IL prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11072", "IL ortho prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11070", "IL prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "11072", "IL ortho prof local R  z [Lead];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Epoxy
-  hmgr->addHistoProf1(new TProfile("11110", "IL prof Eta [Epoxy];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
   hmgr->addHistoProf1(
-      new TProfile("11120", "IL prof Phi [Epoxy];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("11110", "IL prof Eta [Epoxy];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("11120", "IL prof Phi [Epoxy];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("11130",
                                      "IL prof Eta  Phi [Epoxy];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("11140", "IL prof R [Epoxy];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
-  hmgr->addHistoProf2(
-      new TProfile2D("11150", "IL prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("11140", "IL prof R [Epoxy];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11152", "IL ortho prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("11160", "IL prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11150", "IL prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11170", "IL prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11152", "IL ortho prof sum R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "11160", "IL prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11172", "IL ortho prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11170", "IL prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D(
+      "11172", "IL ortho prof local R  z [Epoxy];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Kapton
-  hmgr->addHistoProf1(new TProfile("11210", "IL prof Eta [Kapton];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
   hmgr->addHistoProf1(
-      new TProfile("11220", "IL prof Phi [Kapton];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("11210", "IL prof Eta [Kapton];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
+  hmgr->addHistoProf1(
+      new TProfile("11220", "IL prof Phi [Kapton];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("11230",
                                      "IL prof Eta  Phi [Kapton];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("11240", "IL prof R [Kapton];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("11240", "IL prof R [Kapton];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11250", "IL prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11250", "IL prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11252", "IL ortho prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("11260", "IL prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11252", "IL ortho prof sum R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "11260", "IL prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11270", "IL prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11270", "IL prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11272", "IL ortho prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11272", "IL ortho prof local R  z [Kapton];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
 
   // Aluminium
   hmgr->addHistoProf1(
-      new TProfile("11310", "IL prof Eta [Aluminium];#eta;#lambda/#lambda_{0}", netabin, etaMin, etaMax));
+      new TProfile("11310", "IL prof Eta [Aluminium];#eta;#lambda/#lambda_{0}", netabin_, etaMin_, etaMax_));
   hmgr->addHistoProf1(
-      new TProfile("11320", "IL prof Phi [Aluminium];#varphi [rad];#lambda/#lambda_{0}", nphibin, phiMin, phiMax));
+      new TProfile("11320", "IL prof Phi [Aluminium];#varphi [rad];#lambda/#lambda_{0}", nphibin_, phiMin_, phiMax_));
   hmgr->addHistoProf2(new TProfile2D("11330",
                                      "IL prof Eta  Phi [Aluminium];#eta;#varphi;#lambda/#lambda_{0}",
-                                     netabin,
-                                     etaMin,
-                                     etaMax,
-                                     nphibin,
-                                     phiMin,
-                                     phiMax));
-  hmgr->addHistoProf1(new TProfile("11340", "IL prof R [Aluminium];R [mm];#lambda/#lambda_{0}", nRbin, RMin, RMax));
+                                     netabin_,
+                                     etaMin_,
+                                     etaMax_,
+                                     nphibin_,
+                                     phiMin_,
+                                     phiMax_));
+  hmgr->addHistoProf1(new TProfile("11340", "IL prof R [Aluminium];R [mm];#lambda/#lambda_{0}", nrbin_, RMin_, RMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11350", "IL prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11350", "IL prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11352", "IL ortho prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHisto2(
-      new TH2F("11360", "IL prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11352", "IL ortho prof sum R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHisto2(new TH2F(
+      "11360", "IL prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
   hmgr->addHistoProf2(new TProfile2D(
-      "11370", "IL prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
-  hmgr->addHistoProf2(new TProfile2D(
-      "11372", "IL ortho prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin, zMin, zMax, nrbin, rMin, rMax));
+      "11370", "IL prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ", nzbin_, zMin_, zMax_, nrbin_, rMin_, rMax_));
+  hmgr->addHistoProf2(new TProfile2D("11372",
+                                     "IL ortho prof local R  z [Aluminium];z [mm];R [mm];x/X_{0} ",
+                                     nzbin_,
+                                     zMin_,
+                                     zMax_,
+                                     nrbin_,
+                                     rMin_,
+                                     rMax_));
 
   std::cout << "=== booking user histos done ===" << std::endl;
 }

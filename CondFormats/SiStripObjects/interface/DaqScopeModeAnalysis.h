@@ -14,14 +14,12 @@
 */
 
 class DaqScopeModeAnalysis : public CommissioningAnalysis {
-  
- public:
-  
-  DaqScopeModeAnalysis( const uint32_t& key );
+public:
+  DaqScopeModeAnalysis(const uint32_t& key);
 
   DaqScopeModeAnalysis();
 
-  ~DaqScopeModeAnalysis() override {;}
+  ~DaqScopeModeAnalysis() override { ; }
 
   friend class DaqScopeModeAlgorithm;
 
@@ -30,15 +28,15 @@ class DaqScopeModeAnalysis : public CommissioningAnalysis {
   /** Identifies if tick mark is found or not. */
   bool foundTickMark() const;
   /** FED frame-finding threshold [ADC] (returns 65535 if invalid). */
-  uint16_t frameFindingThreshold() const; 
-      
+  uint16_t frameFindingThreshold() const;
+
   // Pedestal, noise and raw noise (128-strip vector per APV)
   inline const VVFloat& peds() const;
   inline const VVFloat& noise() const;
   inline const VVFloat& raw() const;
 
   // Dead and noisy strips (vector per APV)
-  inline const VVInt& dead() const; 
+  inline const VVInt& dead() const;
   inline const VVInt& noisy() const;
 
   // Mean and rms spread (value per APV)
@@ -51,46 +49,45 @@ class DaqScopeModeAnalysis : public CommissioningAnalysis {
 
   // Max and min values (value per APV)
   inline const VFloat& pedsMax() const;
-  inline const VFloat& pedsMin() const; 
+  inline const VFloat& pedsMin() const;
   inline const VFloat& noiseMax() const;
   inline const VFloat& noiseMin() const;
   inline const VFloat& rawMax() const;
   inline const VFloat& rawMin() const;
-     
+
   /** Height of tick mark [ADC]. */
   inline const float& height() const;
   /** Baseline level of tick mark [ADC]. */
-  inline const float& base() const; 
+  inline const float& base() const;
   /** Level of tick mark top [ADC]. */
-  inline const float& peak() const; 
+  inline const float& peak() const;
 
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t apv_number = 0 ) override;  
+  void print(std::stringstream&, uint32_t apv_number = 0) override;
 
-  /** Adds error codes for analysis (overrides private base). */ 
-  inline void addErrorCode( const std::string& error ) override;
+  /** Adds error codes for analysis (overrides private base). */
+  inline void addErrorCode(const std::string& error) override;
 
   /** Overrides base method. */
-  void summary( std::stringstream& ) const override;
-  
+  void summary(std::stringstream&) const override;
+
   /** Resets analysis member data. */
   void reset() override;
-  
+
   /** Threshold defining minimum tick mark height [ADC]. */
   static const float tickMarkHeightThreshold_;
-  
+
   /** Threshold for FED frame finding (fraction of tick height). */
   static const float frameFindingThreshold_;
-  
- private:
-  
+
+private:
   /** Height of tick mark [ADC]. */
   float height_;
   /** Baseline level of tick mark [ADC]. */
   float base_;
   /** Level of tick mark top [ADC]. */
-  float peak_;  
-  
+  float peak_;
+
   /** Peds values. */
   VVFloat peds_;
   /** Noise values. */
@@ -99,7 +96,7 @@ class DaqScopeModeAnalysis : public CommissioningAnalysis {
   VVFloat raw_;
 
   /** Dead strips. */
-  VVInt dead_; 
+  VVInt dead_;
   /** Noisy strips. */
   VVInt noisy_;
 
@@ -119,7 +116,7 @@ class DaqScopeModeAnalysis : public CommissioningAnalysis {
   /** Max peds value. */
   VFloat pedsMax_;
   /** Min peds value. */
-  VFloat pedsMin_; 
+  VFloat pedsMin_;
 
   /** Max noise value. */
   VFloat noiseMax_;
@@ -128,18 +125,16 @@ class DaqScopeModeAnalysis : public CommissioningAnalysis {
   /** Max raw noise value. */
   VFloat rawMax_;
   /** Min raw noise value. */
-  VFloat rawMin_;  
+  VFloat rawMin_;
   // true if legacy histogram naming is used
   bool legacy_;
-
-
 };
 
 const DaqScopeModeAnalysis::VVFloat& DaqScopeModeAnalysis::peds() const { return peds_; }
 const DaqScopeModeAnalysis::VVFloat& DaqScopeModeAnalysis::noise() const { return noise_; }
 const DaqScopeModeAnalysis::VVFloat& DaqScopeModeAnalysis::raw() const { return raw_; }
 
-const DaqScopeModeAnalysis::VVInt& DaqScopeModeAnalysis::dead() const { return dead_; } 
+const DaqScopeModeAnalysis::VVInt& DaqScopeModeAnalysis::dead() const { return dead_; }
 const DaqScopeModeAnalysis::VVInt& DaqScopeModeAnalysis::noisy() const { return noisy_; }
 
 const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::pedsMean() const { return pedsMean_; }
@@ -150,7 +145,7 @@ const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::rawMean() const { retu
 const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::rawSpread() const { return rawSpread_; }
 
 const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::pedsMax() const { return pedsMax_; }
-const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::pedsMin() const { return pedsMin_; } 
+const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::pedsMin() const { return pedsMin_; }
 const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::noiseMax() const { return noiseMax_; }
 const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::noiseMin() const { return noiseMin_; }
 const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::rawMax() const { return rawMax_; }
@@ -159,10 +154,6 @@ const DaqScopeModeAnalysis::VFloat& DaqScopeModeAnalysis::rawMin() const { retur
 const float& DaqScopeModeAnalysis::height() const { return height_; }
 const float& DaqScopeModeAnalysis::base() const { return base_; }
 const float& DaqScopeModeAnalysis::peak() const { return peak_; }
-void DaqScopeModeAnalysis::addErrorCode( const std::string& error ) { CommissioningAnalysis::addErrorCode(error) ;}
+void DaqScopeModeAnalysis::addErrorCode(const std::string& error) { CommissioningAnalysis::addErrorCode(error); }
 
-
-#endif // CondFormats_SiStripObjects_DaqScopeModeAnalysis_H
-
-
-
+#endif  // CondFormats_SiStripObjects_DaqScopeModeAnalysis_H

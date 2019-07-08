@@ -4,14 +4,11 @@
 
 #include "GsfElectronBaseProducer.h"
 
-class GsfElectronEcalDrivenProducer : public GsfElectronBaseProducer
- {
-  public:
-
-    explicit GsfElectronEcalDrivenProducer( const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache* ) ;
-    ~GsfElectronEcalDrivenProducer() override ;
-    void produce( edm::Event &, const edm::EventSetup & ) override ;
-
- } ;
+class GsfElectronEcalDrivenProducer : public GsfElectronBaseProducer {
+public:
+  explicit GsfElectronEcalDrivenProducer(const edm::ParameterSet &, const gsfAlgoHelpers::HeavyObjectCache *);
+  ~GsfElectronEcalDrivenProducer() override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
+};
 
 #endif

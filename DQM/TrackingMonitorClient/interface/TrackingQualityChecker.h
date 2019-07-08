@@ -18,48 +18,42 @@ class MonitorElement;
 class TrackingDetCabling;
 
 class TrackingQualityChecker {
-
- public:
-
-
+public:
   TrackingQualityChecker(edm::ParameterSet const& ps);
   virtual ~TrackingQualityChecker();
 
-
-  void bookGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);     
-  void bookLSStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);     
+  void bookGlobalStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
+  void bookLSStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
   void resetGlobalStatus();
   void resetLSStatus();
   void fillDummyGlobalStatus();
   void fillDummyLSStatus();
-  void fillGlobalStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
-  void fillLSStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
-  
- private:
+  void fillGlobalStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
+  void fillLSStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
 
-  struct TrackingMEs{
+private:
+  struct TrackingMEs {
     MonitorElement* TrackingFlag;
-    std::string     HistoDir;
-    std::string     HistoName;
+    std::string HistoDir;
+    std::string HistoName;
   };
 
-  struct TrackingLSMEs{
+  struct TrackingLSMEs {
     MonitorElement* TrackingFlag;
-    std::string     HistoLSDir;
-    std::string     HistoLSName;
-    float           HistoLSLowerCut;
-    float           HistoLSUpperCut; 
+    std::string HistoLSDir;
+    std::string HistoLSName;
+    float HistoLSLowerCut;
+    float HistoLSUpperCut;
   };
 
-  void fillTrackingStatus(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter); 
-  void fillTrackingStatusAtLumi(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
+  void fillTrackingStatus(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
+  void fillTrackingStatusAtLumi(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
 
   void fillStatusHistogram(MonitorElement*, int xbin, int ybin, float val);
 
-  
-  std::map<std::string, TrackingMEs>   TrackingMEsMap;
+  std::map<std::string, TrackingMEs> TrackingMEsMap;
   std::map<std::string, TrackingLSMEs> TrackingLSMEsMap;
-  
+
   MonitorElement* TrackGlobalSummaryReportMap;
   MonitorElement* TrackGlobalSummaryReportGlobal;
 
@@ -72,6 +66,5 @@ class TrackingQualityChecker {
   bool bookedTrackingLSStatus_;
 
   std::string TopFolderName_;
-
 };
 #endif

@@ -18,27 +18,31 @@
 using namespace pat;
 
 /// constructor
-TrackerIsolationPt::TrackerIsolationPt() {
-}
+TrackerIsolationPt::TrackerIsolationPt() {}
 
 /// destructor
-TrackerIsolationPt::~TrackerIsolationPt() {
-}
+TrackerIsolationPt::~TrackerIsolationPt() {}
 
 /// calculate the TrackIsoPt for the lepton object
-float TrackerIsolationPt::calculate(const Electron & theElectron, const edm::View<reco::Track> & theTracks, float isoConeElectron) const {
+float TrackerIsolationPt::calculate(const Electron& theElectron,
+                                    const edm::View<reco::Track>& theTracks,
+                                    float isoConeElectron) const {
   return this->calculate(*theElectron.gsfTrack(), theTracks, isoConeElectron);
 }
 
-float TrackerIsolationPt::calculate(const Muon & theMuon, const edm::View<reco::Track> & theTracks, float isoConeMuon) const {
+float TrackerIsolationPt::calculate(const Muon& theMuon,
+                                    const edm::View<reco::Track>& theTracks,
+                                    float isoConeMuon) const {
   return this->calculate(*theMuon.track(), theTracks, isoConeMuon);
 }
 
 /// calculate the TrackIsoPt for the lepton's track
-float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::View<reco::Track> & theTracks, float isoCone) const {
+float TrackerIsolationPt::calculate(const reco::Track& theTrack,
+                                    const edm::View<reco::Track>& theTracks,
+                                    float isoCone) const {
   // initialize some variables
   float isoPtLepton = 0;
-  const reco::Track * closestTrackDRPt = nullptr, * closestTrackDR = nullptr;
+  const reco::Track *closestTrackDRPt = nullptr, *closestTrackDR = nullptr;
   float closestDRPt = 10000, closestDR = 10000;
   // use all these pointless vector conversions because the momenta from tracks
   // are completely unusable; bah, these math-vectors are worthless!
@@ -50,7 +54,7 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::Vie
       isoPtLepton += track.perp();
       // find the closest matching track
       // FIXME: we could association by hits or chi2 to match
-      float pRatio = track.perp()/lepton.perp();
+      float pRatio = track.perp() / lepton.perp();
       if (dR < closestDRPt && pRatio > 0.5 && pRatio < 1.5) {
         closestDRPt = dR;
         closestTrackDRPt = &*itTrack;
@@ -69,8 +73,8 @@ float TrackerIsolationPt::calculate(const reco::Track & theTrack, const edm::Vie
     isoPtLepton -= closestTrackVector.perp();
   }
   // back to normal sum - S.L. 30/10/2007
-  if (isoPtLepton<0) isoPtLepton = 0;
+  if (isoPtLepton < 0)
+    isoPtLepton = 0;
   //  isoPtLepton <= 0.01 ? isoPtLepton = -1 : isoPtLepton = log(isoPtLepton);
   return isoPtLepton;
 }
-

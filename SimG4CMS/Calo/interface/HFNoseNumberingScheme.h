@@ -22,6 +22,8 @@ public:
   uint32_t getUnitID(int layer, int module, int cell, int iz, const G4ThreeVector& pos, double& wt);
 
 private:
+  void checkPosition(uint32_t index, const G4ThreeVector& pos) const;
+
   HFNoseNumberingScheme() = delete;
   const HGCalDDDConstants& hgcons_;
   const HGCalGeometryMode::GeometryMode mode_;

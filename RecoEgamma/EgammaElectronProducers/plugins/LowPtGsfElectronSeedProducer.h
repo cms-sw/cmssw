@@ -24,99 +24,91 @@
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
-class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::GlobalCache<lowptgsfeleseed::HeavyObjectCache> >
-{
-  
- public:
-  using TrackIndxMap = std::unordered_map<reco::TrackRef::key_type,size_t>;
-  explicit LowPtGsfElectronSeedProducer( const edm::ParameterSet&, 
-					 const lowptgsfeleseed::HeavyObjectCache* );
+class LowPtGsfElectronSeedProducer final
+    : public edm::stream::EDProducer<edm::GlobalCache<lowptgsfeleseed::HeavyObjectCache> > {
+public:
+  using TrackIndxMap = std::unordered_map<reco::TrackRef::key_type, size_t>;
+  explicit LowPtGsfElectronSeedProducer(const edm::ParameterSet&, const lowptgsfeleseed::HeavyObjectCache*);
 
   ~LowPtGsfElectronSeedProducer() override;
-  
-  static std::unique_ptr<lowptgsfeleseed::HeavyObjectCache> 
-    initializeGlobalCache( const edm::ParameterSet& conf ) {
+
+  static std::unique_ptr<lowptgsfeleseed::HeavyObjectCache> initializeGlobalCache(const edm::ParameterSet& conf) {
     return std::make_unique<lowptgsfeleseed::HeavyObjectCache>(lowptgsfeleseed::HeavyObjectCache(conf));
   }
-  
-  static void globalEndJob( lowptgsfeleseed::HeavyObjectCache const* ) {}
-  
-  void beginLuminosityBlock( edm::LuminosityBlock const&, 
-			     edm::EventSetup const& ) override;
 
-  void produce( edm::Event&, const edm::EventSetup& ) override;
-  
-  static void fillDescriptions( edm::ConfigurationDescriptions& );
-  
- private: // member functions
-  
-  template <typename T> void loop( const edm::Handle< std::vector<T> >& handle,
-				   edm::Handle<reco::PFClusterCollection>& hcalClusters,
-				   reco::ElectronSeedCollection& seeds,
-				   reco::PreIdCollection& ecalPreIds, 
-				   reco::PreIdCollection& hcalPreIds,
-				   TrackIndxMap& trksToPreIdIndx,
-				   edm::Event&,
-				   const edm::EventSetup& );
+  static void globalEndJob(lowptgsfeleseed::HeavyObjectCache const*) {}
+
+  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:  // member functions
+  template <typename T>
+  void loop(const edm::Handle<std::vector<T> >& handle,
+            edm::Handle<reco::PFClusterCollection>& hcalClusters,
+            reco::ElectronSeedCollection& seeds,
+            reco::PreIdCollection& ecalPreIds,
+            reco::PreIdCollection& hcalPreIds,
+            TrackIndxMap& trksToPreIdIndx,
+            edm::Event&,
+            const edm::EventSetup&);
 
   // Overloaded methods to retrieve reco::TrackRef
 
-  reco::TrackRef getBaseRef( edm::Handle< std::vector<reco::Track> > handle, int idx ) const;
-  reco::TrackRef getBaseRef( edm::Handle< std::vector<reco::PFRecTrack> > handle, int idx ) const;
+  reco::TrackRef getBaseRef(edm::Handle<std::vector<reco::Track> > handle, int idx) const;
+  reco::TrackRef getBaseRef(edm::Handle<std::vector<reco::PFRecTrack> > handle, int idx) const;
 
   // Overloaded methods to populate PreIds (using PF or KF tracks)
 
-  void propagateTrackToCalo( const reco::PFRecTrackRef& pfTrackRef,
-			     const edm::Handle<reco::PFClusterCollection>& ecalClusters,
-			     const edm::Handle<reco::PFClusterCollection>& hcalClusters,
-			     std::vector<int>& matchedEcalClusters,
-			     std::vector<int>& matchedHcalClusters,
-			     reco::PreId& ecalPreId, 
-			     reco::PreId& hcalPreId );
-  
-  void propagateTrackToCalo( const reco::PFRecTrackRef& pfTrackRef,
-			     const edm::Handle<reco::PFClusterCollection>& clusters, 
-			     std::vector<int>& matchedClusters,
-			     reco::PreId& preId,
-			     bool ecal );
+  void propagateTrackToCalo(const reco::PFRecTrackRef& pfTrackRef,
+                            const edm::Handle<reco::PFClusterCollection>& ecalClusters,
+                            const edm::Handle<reco::PFClusterCollection>& hcalClusters,
+                            std::vector<int>& matchedEcalClusters,
+                            std::vector<int>& matchedHcalClusters,
+                            reco::PreId& ecalPreId,
+                            reco::PreId& hcalPreId);
 
-  void propagateTrackToCalo( const reco::TrackRef& pfTrack,
-			     const edm::Handle<reco::PFClusterCollection>& ecalClusters,
-			     const edm::Handle<reco::PFClusterCollection>& hcalClusters,
-			     std::vector<int>& matchedEcalClusters,
-			     std::vector<int>& matchedHcalClusters,
-			     reco::PreId& ecalPreId, 
-			     reco::PreId& hcalPreId );
-  template<typename CollType>
-  void fillPreIdRefValueMap( edm::Handle<CollType> tracksHandle,
-			     const TrackIndxMap& trksToPreIdIndx,
-			     const edm::OrphanHandle<reco::PreIdCollection>& preIdHandle,
-			     edm::ValueMap<reco::PreIdRef>::Filler & filler);
+  void propagateTrackToCalo(const reco::PFRecTrackRef& pfTrackRef,
+                            const edm::Handle<reco::PFClusterCollection>& clusters,
+                            std::vector<int>& matchedClusters,
+                            reco::PreId& preId,
+                            bool ecal);
+
+  void propagateTrackToCalo(const reco::TrackRef& pfTrack,
+                            const edm::Handle<reco::PFClusterCollection>& ecalClusters,
+                            const edm::Handle<reco::PFClusterCollection>& hcalClusters,
+                            std::vector<int>& matchedEcalClusters,
+                            std::vector<int>& matchedHcalClusters,
+                            reco::PreId& ecalPreId,
+                            reco::PreId& hcalPreId);
+  template <typename CollType>
+  void fillPreIdRefValueMap(edm::Handle<CollType> tracksHandle,
+                            const TrackIndxMap& trksToPreIdIndx,
+                            const edm::OrphanHandle<reco::PreIdCollection>& preIdHandle,
+                            edm::ValueMap<reco::PreIdRef>::Filler& filler);
 
   // Overloaded methods to evaluate BDTs (using PF or KF tracks)
 
-  bool decision( const reco::PFRecTrackRef& pfTrackRef,
-		 reco::PreId& ecal, 
-		 reco::PreId& hcal,
-		 double rho,
-		 const reco::BeamSpot& spot,
-		 noZS::EcalClusterLazyTools& ecalTools );
-  
-  bool decision( const reco::TrackRef& kfTrackRef,
-		 reco::PreId& ecal, 
-		 reco::PreId& hcal,
-		 double rho,
-		 const reco::BeamSpot& spot,
-		 noZS::EcalClusterLazyTools& ecalTools );
+  bool decision(const reco::PFRecTrackRef& pfTrackRef,
+                reco::PreId& ecal,
+                reco::PreId& hcal,
+                double rho,
+                const reco::BeamSpot& spot,
+                noZS::EcalClusterLazyTools& ecalTools);
+
+  bool decision(const reco::TrackRef& kfTrackRef,
+                reco::PreId& ecal,
+                reco::PreId& hcal,
+                double rho,
+                const reco::BeamSpot& spot,
+                noZS::EcalClusterLazyTools& ecalTools);
 
   // Perform lightweight GSF tracking
-  bool lightGsfTracking( reco::PreId&,
-			 const reco::TrackRef&,
-			 const reco::ElectronSeed&,
-			 const edm::EventSetup& );
+  bool lightGsfTracking(reco::PreId&, const reco::TrackRef&, const reco::ElectronSeed&, const edm::EventSetup&);
 
- private: // member data
-  
+private:  // member data
   edm::ESHandle<MagneticField> field_;
   std::unique_ptr<TrajectoryFitter> fitterPtr_;
   std::unique_ptr<TrajectorySmoother> smootherPtr_;
@@ -137,10 +129,9 @@ class LowPtGsfElectronSeedProducer final : public edm::stream::EDProducer< edm::
   const double maxPtThreshold_;
 
   // pow( sinh(1.65), 2. )
-  static constexpr double boundary_ = 2.50746495928*2.50746495928;
+  static constexpr double boundary_ = 2.50746495928 * 2.50746495928;
   // pow( ele_mass, 2. )
-  static constexpr double mass_ = 0.000511*0.000511;
-
+  static constexpr double mass_ = 0.000511 * 0.000511;
 };
 
-#endif // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedProducer_h
+#endif  // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedProducer_h

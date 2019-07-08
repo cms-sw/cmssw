@@ -6,7 +6,7 @@
 #include <map>
 #include <utility>
 #include <regex>
-#include <xercesc/dom/DOM.hpp>
+#include "tinyxml2.h"
 
 namespace edm {
 
@@ -36,7 +36,7 @@ namespace edm {
 
     void init(std::string const& catUrl, bool fallback);
 
-    void parseRule(xercesc::DOMNode* ruleNode, ProtocolRules& rules);
+    void parseRule(tinyxml2::XMLElement* ruleNode, ProtocolRules& rules);
 
     std::string applyRules(ProtocolRules const& protocolRules,
                            std::string const& protocol,

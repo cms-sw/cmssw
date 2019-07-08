@@ -14,44 +14,53 @@ namespace btagbtvdeep {
   // the memory, so it is most performant to get the pointer to the first
   // value and use pointer arithmetic to iterate through the next pointers.
 
-  void jet_tensor_filler(tensorflow::Tensor & tensor,
+  void jet_tensor_filler(tensorflow::Tensor& tensor,
                          std::size_t jet_n,
-                         const btagbtvdeep::DeepFlavourFeatures & features) ;
+                         const btagbtvdeep::DeepFlavourFeatures& features);
 
+  void jet4vec_tensor_filler(tensorflow::Tensor& tensor,
+                             std::size_t jet_n,
+                             const btagbtvdeep::DeepFlavourFeatures& features);
 
-  void db_tensor_filler(tensorflow::Tensor & tensor,
-                         std::size_t jet_n,
-                         const btagbtvdeep::DeepDoubleXFeatures & features) ;
-  
-  void c_pf_tensor_filler(tensorflow::Tensor & tensor,
+  void db_tensor_filler(tensorflow::Tensor& tensor,
+                        std::size_t jet_n,
+                        const btagbtvdeep::DeepDoubleXFeatures& features);
+
+  void c_pf_tensor_filler(tensorflow::Tensor& tensor,
                           std::size_t jet_n,
                           std::size_t c_pf_n,
-                          const btagbtvdeep::ChargedCandidateFeatures & c_pf_features);
+                          const btagbtvdeep::ChargedCandidateFeatures& c_pf_features);
 
-  
-  void c_pf_reduced_tensor_filler(tensorflow::Tensor & tensor,
-                          std::size_t jet_n,
-                          std::size_t c_pf_n,
-                          const btagbtvdeep::ChargedCandidateFeatures & c_pf_features);
+  void c_pf_reduced_tensor_filler(tensorflow::Tensor& tensor,
+                                  std::size_t jet_n,
+                                  std::size_t c_pf_n,
+                                  const btagbtvdeep::ChargedCandidateFeatures& c_pf_features);
 
-
-  void n_pf_tensor_filler(tensorflow::Tensor & tensor,
+  void n_pf_tensor_filler(tensorflow::Tensor& tensor,
                           std::size_t jet_n,
                           std::size_t n_pf_n,
-                          const btagbtvdeep::NeutralCandidateFeatures & n_pf_features) ;
+                          const btagbtvdeep::NeutralCandidateFeatures& n_pf_features);
 
+  void sv_tensor_filler(tensorflow::Tensor& tensor,
+                        std::size_t jet_n,
+                        std::size_t sv_n,
+                        const btagbtvdeep::SecondaryVertexFeatures& sv_features);
 
-  void sv_tensor_filler(tensorflow::Tensor & tensor,
+  void sv_reduced_tensor_filler(tensorflow::Tensor& tensor,
+                                std::size_t jet_n,
+                                std::size_t sv_n,
+                                const btagbtvdeep::SecondaryVertexFeatures& sv_features);
+
+  void seed_tensor_filler(tensorflow::Tensor& tensor,
                           std::size_t jet_n,
-                          std::size_t sv_n,
-                          const btagbtvdeep::SecondaryVertexFeatures & sv_features) ;
+                          std::size_t seed_n,
+                          const btagbtvdeep::SeedingTrackFeatures& seed_features);
 
-  
-  void sv_reduced_tensor_filler(tensorflow::Tensor & tensor,
-                          std::size_t jet_n,
-                          std::size_t sv_n,
-                          const btagbtvdeep::SecondaryVertexFeatures & sv_features) ;
+  void neighbourTracks_tensor_filler(tensorflow::Tensor& tensor,
+                                     std::size_t jet_n,
+                                     std::size_t seed_n,
+                                     const btagbtvdeep::SeedingTrackFeatures& seed_features);
 
-}
+}  // namespace btagbtvdeep
 
 #endif

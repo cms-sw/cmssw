@@ -28,6 +28,7 @@ namespace cms {
   class DDCompactView {
   public:
     DDCompactView(const cms::DDDetector& det) : m_det(det) {}
+    const cms::DDDetector* detector() const { return &m_det; }
 
   private:
     const cms::DDDetector& m_det;

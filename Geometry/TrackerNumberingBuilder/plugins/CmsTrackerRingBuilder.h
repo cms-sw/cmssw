@@ -8,11 +8,9 @@
  * Class which constructs TID/TEC rings
  */
 class CmsTrackerRingBuilder : public CmsTrackerLevelBuilder {
-  
- private:
-  void sortNS(DDFilteredView& , GeometricDet*) override;
-  void buildComponent(DDFilteredView& , GeometricDet*, std::string) override;
-
+private:
+  void sortNS(DDFilteredView&, GeometricDet*) override;
+  void buildComponent(DDFilteredView&, GeometricDet*, std::string) override;
 };
 
 #endif

@@ -1,7 +1,6 @@
 #ifndef RecoJets_JetProducers_HTTTopJetProducer_h
 #define RecoJets_JetProducers_HTTTopJetProducer_h
 
-
 /* *********************************************************
 
 
@@ -40,9 +39,6 @@
 
  ************************************************************/
 
-
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/View.h"
@@ -73,77 +69,71 @@
 
 #include "fastjet/SISConePlugin.hh"
 
-
-namespace cms
-{
-  class HTTTopJetProducer : public FastjetJetProducer
-  {
+namespace cms {
+  class HTTTopJetProducer : public FastjetJetProducer {
   public:
-
     HTTTopJetProducer(const edm::ParameterSet& ps);
 
     ~HTTTopJetProducer() override {}
 
-    void produce( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    void runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup ) override;
+    void runAlgorithm(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
-						const edm::EventSetup& iSetup,
-						edm::OrphanHandle<reco::BasicJetCollection> & oh) override;
+    void addHTTTopJetTagInfoCollection(edm::Event& iEvent,
+                                       const edm::EventSetup& iSetup,
+                                       edm::OrphanHandle<reco::BasicJetCollection>& oh) override;
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    std::unique_ptr<fastjet::HEPTopTaggerV2>        fjHEPTopTagger_;
+    std::unique_ptr<fastjet::HEPTopTaggerV2> fjHEPTopTagger_;
 
-    // Below are all configurable options. 
+    // Below are all configurable options.
     // Parenthesis indicates if this is enforced by the tagger itself or by the producer
 
-    bool optimalR_; // Should the MultiR version of the tagger be used? (tagger)
-    bool qJets_; // Should Q-jets be used? (tagger/producer)
+    bool optimalR_;  // Should the MultiR version of the tagger be used? (tagger)
+    bool qJets_;     // Should Q-jets be used? (tagger/producer)
 
-    double minFatjetPt_; // Only process fatjets larger pT with the tagger [GeV] (producer)
-    double minSubjetPt_; // Minimal pT for subjets [GeV] (tagger)
-    double minCandPt_;   // Minimal pT to return a candidate [GeV] (tagger)
- 
-    double maxFatjetAbsEta_; // Only process fatjets with smaller |eta| with the tagger. (producer)
+    double minFatjetPt_;  // Only process fatjets larger pT with the tagger [GeV] (producer)
+    double minSubjetPt_;  // Minimal pT for subjets [GeV] (tagger)
+    double minCandPt_;    // Minimal pT to return a candidate [GeV] (tagger)
 
-    double subjetMass_; // Mass above which subjets are further unclustered (tagger)
-    double muCut_; // Mass drop threshold (tagger)
+    double maxFatjetAbsEta_;  // Only process fatjets with smaller |eta| with the tagger. (producer)
 
-    double filtR_; // maximal filtering radius
-    int filtN_; // number of filtered subjets to use
-    
+    double subjetMass_;  // Mass above which subjets are further unclustered (tagger)
+    double muCut_;       // Mass drop threshold (tagger)
+
+    double filtR_;  // maximal filtering radius
+    int filtN_;     // number of filtered subjets to use
+
     // HEPTopTagger Mode (tagger):
     // 0: do 2d-plane, return candidate with delta m_top minimal
     // 1: return candidate with delta m_top minimal IF passes 2d plane
     // 2: do 2d-plane, return candidate with max dj_sum
     // 3: return candidate with max dj_sum IF passes 2d plane
     // 4: return candidate built from leading three subjets after unclustering IF passes 2d plane
-    // Note: Original HTT was mode==1    
-    int mode_; 
+    // Note: Original HTT was mode==1
+    int mode_;
 
     // Top Quark mass window in GeV (tagger)
     double minCandMass_;
     double maxCandMass_;
-    
-    double massRatioWidth_; // One sided width of the A-shaped window around m_W/m_top in % (tagger)
-    double minM23Cut_; // minimal value of m23/m123 (tagger)
-    double minM13Cut_; // minimal value of atan(m13/m12) (tagger)
-    double maxM13Cut_; // maximal value of atan(m13/m12) (tagger)
 
-    double maxR_; // maximal fatjet size for MultiR tagger (tagger)
-    double minR_; // minimal fatjet size for MultiR tagger (tagger)
-        
-    bool rejectMinR_; // set Ropt to zero when the candidate never
-		      // leaves the window around the initial mass
+    double massRatioWidth_;  // One sided width of the A-shaped window around m_W/m_top in % (tagger)
+    double minM23Cut_;       // minimal value of m23/m123 (tagger)
+    double minM13Cut_;       // minimal value of atan(m13/m12) (tagger)
+    double maxM13Cut_;       // maximal value of atan(m13/m12) (tagger)
+
+    double maxR_;  // maximal fatjet size for MultiR tagger (tagger)
+    double minR_;  // minimal fatjet size for MultiR tagger (tagger)
+
+    bool rejectMinR_;  // set Ropt to zero when the candidate never
+                       // leaves the window around the initial mass
 
     bool verbose_;
-
   };
 
-}
-
+}  // namespace cms
 
 #endif

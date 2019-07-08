@@ -4,7 +4,7 @@
 //
 // Package:    TrackEfficiencyMonitor
 // Class:      TrackEfficiencyMonitor
-// 
+//
 /**\class TrackEfficiencyMonitor TrackEfficiencyMonitor.cc DQM/TrackerMonitorTrack/src/TrackEfficiencyMonitor.cc
 Monitoring source to measure the track efficiency
 */
@@ -32,99 +32,93 @@ Monitoring source to measure the track efficiency
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-
-
- 
- 
-
-namespace reco{class TransientTrack;}
+namespace reco {
+  class TransientTrack;
+}
 class NavigationSchool;
 
 class DQMStore;
 
 class TrackEfficiencyMonitor : public DQMEDAnalyzer {
-   public:
-      typedef reco::Track Track;
-      typedef reco::TrackCollection TrackCollection;
-      explicit TrackEfficiencyMonitor(const edm::ParameterSet&);
-      ~TrackEfficiencyMonitor() override;
-      void beginJob(void) override;
-      void endJob(void) override;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
+public:
+  typedef reco::Track Track;
+  typedef reco::TrackCollection TrackCollection;
+  explicit TrackEfficiencyMonitor(const edm::ParameterSet&);
+  ~TrackEfficiencyMonitor() override;
+  void beginJob(void) override;
+  void endJob(void) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-      enum SemiCylinder{Up,Down};
-      std::pair<TrajectoryStateOnSurface, const DetLayer*>  findNextLayer( TrajectoryStateOnSurface startTSOS, const std::vector< const DetLayer*>& trackCompatibleLayers , bool isUpMuon   );
-      SemiCylinder checkSemiCylinder(const Track&);
-      void testTrackerTracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks, const NavigationSchool& navigationSchool);
-      void testSTATracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks);
-      bool trackerAcceptance( TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ );
-      int  compatibleLayers(const NavigationSchool& navigationSchool, TrajectoryStateOnSurface theTSOS );
-  
-  
+  enum SemiCylinder { Up, Down };
+  std::pair<TrajectoryStateOnSurface, const DetLayer*> findNextLayer(
+      TrajectoryStateOnSurface startTSOS, const std::vector<const DetLayer*>& trackCompatibleLayers, bool isUpMuon);
+  SemiCylinder checkSemiCylinder(const Track&);
+  void testTrackerTracks(edm::Handle<TrackCollection> tkTracks,
+                         edm::Handle<TrackCollection> staTracks,
+                         const NavigationSchool& navigationSchool);
+  void testSTATracks(edm::Handle<TrackCollection> tkTracks, edm::Handle<TrackCollection> staTracks);
+  bool trackerAcceptance(TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ);
+  int compatibleLayers(const NavigationSchool& navigationSchool, TrajectoryStateOnSurface theTSOS);
 
-   private:
+private:
+  // ----------member data ---------------------------
 
- // ----------member data ---------------------------
+  std::string histname;  //for naming the histograms
 
-
-  std::string histname;  //for naming the histograms 
-  
-  DQMStore * dqmStore_;
+  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
-  
+
   double theRadius_;
   double theMaxZ_;
   bool isBFieldOff_;
-  bool trackEfficiency_;//1 if one wants to measure the tracking efficiency
-                        //0 if one wants to measure the muon reco efficiency
-		     
+  bool trackEfficiency_;  //1 if one wants to measure the tracking efficiency
+                          //0 if one wants to measure the muon reco efficiency
+
   edm::InputTag theTKTracksLabel_;
   edm::InputTag theSTATracksLabel_;
   edm::EDGetTokenT<reco::TrackCollection> theTKTracksToken_;
   edm::EDGetTokenT<reco::TrackCollection> theSTATracksToken_;
 
-
   int failedToPropagate;
   int nCompatibleLayers;
   bool findDetLayer;
 
-  MonitorElement * muonX  ; 
-  MonitorElement * muonY  ;
-  MonitorElement * muonZ  ; 
-  MonitorElement * muonEta; 
-  MonitorElement * muonPhi;
-  MonitorElement * muonD0;
-  MonitorElement * muonCompatibleLayers;
+  MonitorElement* muonX;
+  MonitorElement* muonY;
+  MonitorElement* muonZ;
+  MonitorElement* muonEta;
+  MonitorElement* muonPhi;
+  MonitorElement* muonD0;
+  MonitorElement* muonCompatibleLayers;
 
-  MonitorElement * trackX  ; 
-  MonitorElement * trackY  ;
-  MonitorElement * trackZ  ; 
-  MonitorElement * trackEta; 
-  MonitorElement * trackPhi;
-  MonitorElement * trackD0;
-  MonitorElement * trackCompatibleLayers;
- 
-  MonitorElement * deltaX    ;
-  MonitorElement * deltaY    ;
-  MonitorElement * signDeltaX;
-  MonitorElement * signDeltaY;
-  MonitorElement * GlobalMuonPtEtaPhiLowPt; 
-  MonitorElement * StandaloneMuonPtEtaPhiLowPt;
-  MonitorElement * GlobalMuonPtEtaPhiHighPt;
-  MonitorElement * StandaloneMuonPtEtaPhiHighPt;
-  const DirectTrackerNavigation* theNavigation;  
-  MuonServiceProxy *theMuonServiceProxy;
+  MonitorElement* trackX;
+  MonitorElement* trackY;
+  MonitorElement* trackZ;
+  MonitorElement* trackEta;
+  MonitorElement* trackPhi;
+  MonitorElement* trackD0;
+  MonitorElement* trackCompatibleLayers;
+
+  MonitorElement* deltaX;
+  MonitorElement* deltaY;
+  MonitorElement* signDeltaX;
+  MonitorElement* signDeltaY;
+  MonitorElement* GlobalMuonPtEtaPhiLowPt;
+  MonitorElement* StandaloneMuonPtEtaPhiLowPt;
+  MonitorElement* GlobalMuonPtEtaPhiHighPt;
+  MonitorElement* StandaloneMuonPtEtaPhiHighPt;
+  const DirectTrackerNavigation* theNavigation;
+  MuonServiceProxy* theMuonServiceProxy;
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
-  edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;  
+  edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
   edm::ESHandle<Propagator> thePropagator;
   edm::ESHandle<Propagator> thePropagatorCyl;
   edm::ESHandle<TransientTrackBuilder> theTTrackBuilder;
   edm::ESHandle<GeometricSearchTracker> theTracker;
-  edm::ESHandle<MagneticField> bField; 
-  
+  edm::ESHandle<MagneticField> bField;
+
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  
 };
 #endif

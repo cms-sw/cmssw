@@ -139,7 +139,8 @@ SiStripFineDelayHit::DeviceMask SiStripFineDelayHit::deviceMask(const StripSubde
       maskDetId = tkrTopo->tecDetId(3, 15, 0, 0, 0, 0, 0).rawId();
       break;
     }
-    default: break;
+    default:
+      break;
   }
   return std::make_pair(maskDetId, rootDetId);
 }

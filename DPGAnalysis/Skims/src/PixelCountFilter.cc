@@ -10,8 +10,6 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "CommonTools/UtilAlgos/interface/ObjectCountFilter.h"
 
- typedef ObjectCountFilter<
-           SiPixelClusterCollectionNew
-         >::type PixelCountFilter;
+typedef ObjectCountFilter<SiPixelClusterCollectionNew>::type PixelCountFilter;
 
-DEFINE_FWK_MODULE( PixelCountFilter );
+DEFINE_FWK_MODULE(PixelCountFilter);

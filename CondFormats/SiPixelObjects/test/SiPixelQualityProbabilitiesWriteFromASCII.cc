@@ -2,7 +2,7 @@
 //
 // Package:    CondFormats/SiPixelObjects
 // Class:      SiPixelQualityProbabilitiesTestWriter
-// 
+//
 /**\class SiPixelQualityProbabilitiesTestWriter SiPixelQualityProbabilitiesTestWriter.cc CondFormats/SiPixelObjects/plugins/SiPixelQualityProbabilitiesTestWriter.cc
  Description: class to build the SiPixel Quality probabilities 
 */
@@ -34,111 +34,97 @@
 // class declaration
 //
 
-class SiPixelQualityProbabilitiesWriteFromASCII : public edm::one::EDAnalyzer<>  {
-   public:
-      explicit SiPixelQualityProbabilitiesWriteFromASCII(const edm::ParameterSet&);
-      ~SiPixelQualityProbabilitiesWriteFromASCII();
+class SiPixelQualityProbabilitiesWriteFromASCII : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiPixelQualityProbabilitiesWriteFromASCII(const edm::ParameterSet&);
+  ~SiPixelQualityProbabilitiesWriteFromASCII();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+private:
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
 
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-
-      // ----------member data ---------------------------
-      const std::string m_ProbInputs;
-      const std::string m_record;
-      const bool printdebug_;
-      SiPixelQualityProbabilities* myProbabilities;
-
+  // ----------member data ---------------------------
+  const std::string m_ProbInputs;
+  const std::string m_record;
+  const bool printdebug_;
+  SiPixelQualityProbabilities* myProbabilities;
 };
 
 //
 // constructors and destructor
 //
-SiPixelQualityProbabilitiesWriteFromASCII::SiPixelQualityProbabilitiesWriteFromASCII(const edm::ParameterSet& iConfig):
-  m_ProbInputs(iConfig.getParameter<std::string>("probabilities")),
-  m_record(iConfig.getParameter<std::string>("record")),
-  printdebug_(iConfig.getUntrackedParameter<bool>("printDebug",false))
-{
+SiPixelQualityProbabilitiesWriteFromASCII::SiPixelQualityProbabilitiesWriteFromASCII(const edm::ParameterSet& iConfig)
+    : m_ProbInputs(iConfig.getParameter<std::string>("probabilities")),
+      m_record(iConfig.getParameter<std::string>("record")),
+      printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", false)) {
   //now do what ever initialization is needed
   myProbabilities = new SiPixelQualityProbabilities();
 }
 
-
-SiPixelQualityProbabilitiesWriteFromASCII::~SiPixelQualityProbabilitiesWriteFromASCII()
-{
-  delete myProbabilities;
-}
+SiPixelQualityProbabilitiesWriteFromASCII::~SiPixelQualityProbabilitiesWriteFromASCII() { delete myProbabilities; }
 
 //
 // member functions
 //
 
 // ------------ method called for each event  ------------
-void
-SiPixelQualityProbabilitiesWriteFromASCII::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-   using namespace edm;
-   std::ifstream myfile(m_ProbInputs); 
-   std::string line;
+void SiPixelQualityProbabilitiesWriteFromASCII::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
+  std::ifstream myfile(m_ProbInputs);
+  std::string line;
 
-   SiPixelQualityProbabilities::probabilityVec myProbVector;
+  SiPixelQualityProbabilities::probabilityVec myProbVector;
 
-   if (myfile.is_open()){
-     while (getline (myfile, line)) {
-       edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << line << std::endl;
-       std::istringstream iss (line);            
-       std::string scenario="";
-       float prob(0.);
-       iss >> scenario >> prob;
-       auto idAndProb = std::make_pair(scenario,prob);
-       myProbVector.push_back(idAndProb); 
-     }  
-     myProbabilities->setProbabilities(0,myProbVector);
-     myfile.close();
-   }
+  if (myfile.is_open()) {
+    while (getline(myfile, line)) {
+      edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << line << std::endl;
+      std::istringstream iss(line);
+      std::string scenario = "";
+      float prob(0.);
+      iss >> scenario >> prob;
+      auto idAndProb = std::make_pair(scenario, prob);
+      myProbVector.push_back(idAndProb);
+    }
+    myProbabilities->setProbabilities(0, myProbVector);
+    myfile.close();
+  }
 
-   if(printdebug_){
-     edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII")<<"Content of SiPixelQualityProbabilities "<<std::endl;
-     // use buil-in method in the CondFormat
-     myProbabilities->printAll();
-   }
+  if (printdebug_) {
+    edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << "Content of SiPixelQualityProbabilities " << std::endl;
+    // use buil-in method in the CondFormat
+    myProbabilities->printAll();
+  }
 }
-   
+
 // ------------ method called once each job just before starting event loop  ------------
-void 
-SiPixelQualityProbabilitiesWriteFromASCII::beginJob()
-{
-}
+void SiPixelQualityProbabilitiesWriteFromASCII::beginJob() {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SiPixelQualityProbabilitiesWriteFromASCII::endJob() 
-{
-
-  edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII")<<"Size of SiPixelQualityProbabilities object "<< myProbabilities->size() <<std::endl<<std::endl;
+void SiPixelQualityProbabilitiesWriteFromASCII::endJob() {
+  edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII")
+      << "Size of SiPixelQualityProbabilities object " << myProbabilities->size() << std::endl
+      << std::endl;
 
   // Form the data here
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( poolDbService.isAvailable() ){
-    cond::Time_t valid_time = poolDbService->currentTime(); 
+  if (poolDbService.isAvailable()) {
+    cond::Time_t valid_time = poolDbService->currentTime();
     // this writes the payload to begin in current run defined in cfg
-    poolDbService->writeOne(myProbabilities,valid_time, m_record);
-  } 
+    poolDbService->writeOne(myProbabilities, valid_time, m_record);
+  }
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-SiPixelQualityProbabilitiesWriteFromASCII::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelQualityProbabilitiesWriteFromASCII::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Writes payloads of type SiPixelQualityProbabilities");
-  desc.addUntracked<bool>("printDebug",true);
-  desc.add<std::string>("record","SiPixelStatusScenarioProbabilityRcd");
-  desc.add<std::string>("probabilities","");
-  descriptions.add("SiPixelQualityProbabilitiesWriteFromASCII",desc);
+  desc.addUntracked<bool>("printDebug", true);
+  desc.add<std::string>("record", "SiPixelStatusScenarioProbabilityRcd");
+  desc.add<std::string>("probabilities", "");
+  descriptions.add("SiPixelQualityProbabilitiesWriteFromASCII", desc);
 }
 
 //define this as a plug-in

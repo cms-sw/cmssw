@@ -69,8 +69,8 @@ public:
     if (mDebug)
       std::cout << "Parameter File: " << fileName << std::endl;
     edm::FileInPath fip(fileName);
-    JetCorrectorParameters* tmpJetCorPar = new JetCorrectorParameters(fip.fullPath(), mSection);
-    return std::make_unique<Corrector>(*tmpJetCorPar, mParameterSet);
+    JetCorrectorParameters tmpJetCorPar{fip.fullPath(), mSection};
+    return std::make_unique<Corrector>(tmpJetCorPar, mParameterSet);
   }
 
   void setIntervalFor(edm::eventsetup::EventSetupRecordKey const&,

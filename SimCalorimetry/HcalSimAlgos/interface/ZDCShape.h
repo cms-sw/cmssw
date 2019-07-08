@@ -1,9 +1,9 @@
 #ifndef HcalSimAlgos_ZDCShape_h
 #define HcalSimAlgos_ZDCShape_h
-#include<vector>
-  
+#include <vector>
+
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
-  
+
 /**
   
    \class ZDCShape
@@ -11,28 +11,22 @@
    \brief  shaper for ZDC
      
 */
-  
 
-class ZDCShape : public CaloVShape
-{
+class ZDCShape : public CaloVShape {
 public:
-  
   ZDCShape();
-  ZDCShape(const ZDCShape&d);
+  ZDCShape(const ZDCShape& d);
 
-  ~ZDCShape() override{}
-  
-  double operator () (double time) const override;
-  double       timeToRise()         const override  ;
+  ~ZDCShape() override {}
 
+  double operator()(double time) const override;
+  double timeToRise() const override;
 
- private:
+private:
   void computeShapeZDC();
-  
+
   int nbin_;
   std::vector<float> nt_;
-  
 };
 
 #endif
-  

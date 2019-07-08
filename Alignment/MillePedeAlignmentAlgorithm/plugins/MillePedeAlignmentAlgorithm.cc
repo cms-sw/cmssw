@@ -282,8 +282,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
     // Get trajectory factory. In case nothing found, FrameWork will throw...
     const edm::ParameterSet fctCfg(theConfig.getParameter<edm::ParameterSet>("TrajectoryFactory"));
     const std::string fctName(fctCfg.getParameter<std::string>("TrajectoryFactoryName"));
-    theTrajectoryFactory =
-        std::unique_ptr<TrajectoryFactoryBase>(TrajectoryFactoryPlugin::get()->create(fctName, fctCfg));
+    theTrajectoryFactory = TrajectoryFactoryPlugin::get()->create(fctName, fctCfg);
   }
 
   if (this->isMode(myPedeSteerBit)) {

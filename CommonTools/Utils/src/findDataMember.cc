@@ -15,7 +15,7 @@
 #include "TInterpreter.h"
 #include "TVirtualMutex.h"
 
-#include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Reflection/interface/BaseWithDict.h"
 
 // user include files
 #include "CommonTools/Utils/src/findDataMember.h"
@@ -27,42 +27,35 @@
 
 namespace reco {
 
-edm::
-MemberWithDict
-findDataMember(const edm::TypeWithDict& iType,
-               const std::string& iName,
-               int& oError)
-{
-  edm::MemberWithDict ret;
-  oError = parser::kNameDoesNotExist;
-  edm::TypeWithDict type = iType;
-  if (!bool(type)) {
-    return ret;
-  }
-  if (type.isPointer()) {
-    type = type.toType();
-  }
-  ret = type.dataMemberByName(iName);
-  if (!bool(ret)) {
-    // check base classes
-    edm::TypeBases bases(type);
-    for (auto const& B : bases) {
-      ret = findDataMember(edm::BaseWithDict(B).typeOf(), iName, oError);
-      //only stop if we found it or some other error happened
-      if (bool(ret) || (oError != parser::kNameDoesNotExist)) {
-        break;
+  edm::MemberWithDict findDataMember(const edm::TypeWithDict& iType, const std::string& iName, int& oError) {
+    edm::MemberWithDict ret;
+    oError = parser::kNameDoesNotExist;
+    edm::TypeWithDict type = iType;
+    if (!bool(type)) {
+      return ret;
+    }
+    if (type.isPointer()) {
+      type = type.toType();
+    }
+    ret = type.dataMemberByName(iName);
+    if (!bool(ret)) {
+      // check base classes
+      edm::TypeBases bases(type);
+      for (auto const& B : bases) {
+        ret = findDataMember(edm::BaseWithDict(B).typeOf(), iName, oError);
+        //only stop if we found it or some other error happened
+        if (bool(ret) || (oError != parser::kNameDoesNotExist)) {
+          break;
+        }
       }
     }
+    if (bool(ret) && !ret.isPublic()) {
+      ret = edm::MemberWithDict();
+      oError = parser::kIsNotPublic;
+    } else if (bool(ret)) {
+      oError = parser::kNoError;
+    }
+    return ret;
   }
-  if (bool(ret) && !ret.isPublic()) {
-    ret = edm::MemberWithDict();
-    oError = parser::kIsNotPublic;
-  }
-  else if (bool(ret)) {
-    oError = parser::kNoError;
-  }
-  return ret;
-}
 
-} // namespace reco
-
+}  // namespace reco

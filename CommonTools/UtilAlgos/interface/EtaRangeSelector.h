@@ -8,12 +8,10 @@
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<EtaRangeSelector> {
-      static EtaRangeSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return
-	  EtaRangeSelector( cfg.getParameter<double>( "etaMin" ),
-			    cfg.getParameter<double>( "etaMax" ) );
+      static EtaRangeSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return EtaRangeSelector(cfg.getParameter<double>("etaMin"), cfg.getParameter<double>("etaMax"));
       }
 
       static void fillPSetDescription(edm::ParameterSetDescription& desc) {
@@ -22,8 +20,7 @@ namespace reco {
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

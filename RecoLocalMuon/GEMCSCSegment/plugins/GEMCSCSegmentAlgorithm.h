@@ -25,17 +25,18 @@
 #include <map>
 
 class GEMCSCSegmentAlgorithm {
+public:
+  /// Constructor
+  explicit GEMCSCSegmentAlgorithm(const edm::ParameterSet&){};
+  /// Destructor
+  virtual ~GEMCSCSegmentAlgorithm(){};
+  /// Run the algorithm = build segments
+  virtual std::vector<GEMCSCSegment> run(const std::map<uint32_t, const CSCLayer*>& csclayermap,
+                                         const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,
+                                         const std::vector<const CSCSegment*>& cscsegments,
+                                         const std::vector<const GEMRecHit*>& gemrechits) = 0;
 
-    public:
-
-    /// Constructor
-    explicit GEMCSCSegmentAlgorithm(const edm::ParameterSet&) {};
-    /// Destructor
-    virtual ~GEMCSCSegmentAlgorithm() {};
-    /// Run the algorithm = build segments 
-    virtual std::vector<GEMCSCSegment> run(const std::map<uint32_t, const CSCLayer*>& csclayermap, const std::map<uint32_t, const GEMEtaPartition*>& gemrollmap,
-					   const std::vector<const CSCSegment*>& cscsegments, const std::vector<const GEMRecHit*>& gemrechits) = 0;
-    private:
+private:
 };
 
 #endif

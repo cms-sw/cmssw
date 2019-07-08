@@ -16,11 +16,11 @@
 #include <iostream>
 
 PltSD::PltSD(const std::string& name,
-             const DDCompactView& cpv,
+             const edm::EventSetup& es,
              const SensitiveDetectorCatalog& clg,
              edm::ParameterSet const& p,
              const SimTrackManager* manager)
-    : TimingSD(name, cpv, clg, p, manager) {
+    : TimingSD(name, es, clg, p, manager) {
   edm::ParameterSet m_TrackerSD = p.getParameter<edm::ParameterSet>("PltSD");
   energyCut =
       m_TrackerSD.getParameter<double>("EnergyThresholdForPersistencyInGeV") * CLHEP::GeV;  //default must be 0.5

@@ -14,10 +14,8 @@ class HGCalTriggerGeometryV9Imp1 : public HGCalTriggerGeometryBase {
 public:
   HGCalTriggerGeometryV9Imp1(const edm::ParameterSet& conf);
 
-  void initialize(const edm::ESHandle<CaloGeometry>&) final;
-  void initialize(const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&,
-                  const edm::ESHandle<HGCalGeometry>&) final;
+  void initialize(const CaloGeometry*) final;
+  void initialize(const HGCalGeometry*, const HGCalGeometry*, const HGCalGeometry*) final;
   void reset() final;
 
   unsigned getTriggerCellFromCell(const unsigned) const final;
@@ -141,14 +139,14 @@ void HGCalTriggerGeometryV9Imp1::reset() {
   trigger_cell_neighbors_sci_.clear();
 }
 
-void HGCalTriggerGeometryV9Imp1::initialize(const edm::ESHandle<CaloGeometry>& calo_geometry) {
+void HGCalTriggerGeometryV9Imp1::initialize(const CaloGeometry* calo_geometry) {
   throw cms::Exception("BadGeometry")
       << "HGCalTriggerGeometryV9Imp1 geometry cannot be initialized with the V7/V8 HGCAL geometry";
 }
 
-void HGCalTriggerGeometryV9Imp1::initialize(const edm::ESHandle<HGCalGeometry>& hgc_ee_geometry,
-                                            const edm::ESHandle<HGCalGeometry>& hgc_hsi_geometry,
-                                            const edm::ESHandle<HGCalGeometry>& hgc_hsc_geometry) {
+void HGCalTriggerGeometryV9Imp1::initialize(const HGCalGeometry* hgc_ee_geometry,
+                                            const HGCalGeometry* hgc_hsi_geometry,
+                                            const HGCalGeometry* hgc_hsc_geometry) {
   setEEGeometry(hgc_ee_geometry);
   setHSiGeometry(hgc_hsi_geometry);
   setHScGeometry(hgc_hsc_geometry);

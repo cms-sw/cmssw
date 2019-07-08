@@ -39,8 +39,6 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -79,10 +77,11 @@ private:
   void fillOccupancyMap(std::map<int, int>& OccupancyMap, int layer);
 
   // ----------member data ---------------------------
-  std::string nameDetector_;
+  const std::string nameDetector_;
   edm::EDGetToken recHitSource_;
-  bool ifHCAL_;
-  int verbosity_;
+  const bool ifNose_, ifHCAL_;
+  const int verbosity_, nbinR_, nbinZ_, nbinEta_;
+  const double rmin_, rmax_, zmin_, zmax_, etamin_, etamax_;
   unsigned int layers_;
   int firstLayer_;
   std::map<int, int> OccupancyMap_plus;
@@ -98,16 +97,26 @@ private:
 };
 
 HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
-    : nameDetector_(iConfig.getParameter<std::string>("DetectorName")),
-      ifHCAL_(iConfig.getParameter<bool>("ifHCAL")),
-      verbosity_(iConfig.getUntrackedParameter<int>("Verbosity", 0)),
+    : nameDetector_(iConfig.getParameter<std::string>("detectorName")),
+      ifNose_(iConfig.getUntrackedParameter<bool>("ifNose", false)),
+      ifHCAL_(iConfig.getUntrackedParameter<bool>("ifHCAL", false)),
+      verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
+      nbinR_(iConfig.getUntrackedParameter<int>("nBinR", 300)),
+      nbinZ_(iConfig.getUntrackedParameter<int>("nBinZ", 300)),
+      nbinEta_(iConfig.getUntrackedParameter<int>("nBinEta", 100)),
+      rmin_(iConfig.getUntrackedParameter<double>("rMin", 0.0)),
+      rmax_(iConfig.getUntrackedParameter<double>("rMax", 300.0)),
+      zmin_(iConfig.getUntrackedParameter<double>("zMin", 300.0)),
+      zmax_(iConfig.getUntrackedParameter<double>("zMax", 600.0)),
+      etamin_(iConfig.getUntrackedParameter<double>("etaMin", 1.2)),
+      etamax_(iConfig.getUntrackedParameter<double>("etaMax", 3.2)),
       layers_(0),
       firstLayer_(1) {
   usesResource(TFileService::kSharedResource);
 
-  auto temp = iConfig.getParameter<edm::InputTag>("RecHitSource");
-  if (nameDetector_ == "HGCalEESensitive" || nameDetector_ == "HGCalHESiliconSensitive" ||
-      nameDetector_ == "HGCalHEScintillatorSensitive") {
+  auto temp = iConfig.getParameter<edm::InputTag>("source");
+  if ((nameDetector_ == "HGCalEESensitive") || (nameDetector_ == "HGCalHESiliconSensitive") ||
+      (nameDetector_ == "HGCalHEScintillatorSensitive") || (nameDetector_ == "HGCalHFNoseSensitive")) {
     recHitSource_ = consumes<HGCRecHitCollection>(temp);
   } else if (nameDetector_ == "HCal") {
     if (ifHCAL_)
@@ -120,15 +129,25 @@ HGCalRecHitStudy::HGCalRecHitStudy(const edm::ParameterSet& iConfig)
                                                << "\"HGCalHEScintillatorSensitive\", or \"HCal\"!";
   }
   edm::LogVerbatim("HGCalValidation") << "Initialize HGCalRecHitStudy for " << nameDetector_ << " with i/p tag " << temp
-                                      << " Flag " << ifHCAL_ << ":" << verbosity_;
+                                      << " Flag " << ifHCAL_ << ":" << ifNose_ << ":" << verbosity_;
 }
 
 void HGCalRecHitStudy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("DetectorName", "HGCalEESensitive");
-  desc.add<edm::InputTag>("RecHitSource", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
-  desc.add<bool>("ifHCAL", false);
-  desc.addUntracked<int>("Verbosity", 0);
+  desc.add<std::string>("detectorName", "HGCalEESensitive");
+  desc.add<edm::InputTag>("source", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
+  desc.addUntracked<bool>("ifNose", false);
+  desc.addUntracked<bool>("ifHCAL", false);
+  desc.addUntracked<int>("verbosity", 0);
+  desc.addUntracked<int>("nBinR", 300);
+  desc.addUntracked<int>("nBinZ", 300);
+  desc.addUntracked<int>("nBinEta", 200);
+  desc.addUntracked<double>("rMin", 0.0);
+  desc.addUntracked<double>("rMax", 300.0);
+  desc.addUntracked<double>("zMin", 300.0);
+  desc.addUntracked<double>("zMax", 600.0);
+  desc.addUntracked<double>("etaMin", 1.0);
+  desc.addUntracked<double>("etaMax", 3.0);
   descriptions.add("hgcalRecHitStudyEE", desc);
 }
 
@@ -199,10 +218,11 @@ void HGCalRecHitStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         ntot++;
         nused++;
         DetId detId = it.id();
-        int layer =
-            ((detId.det() == DetId::Forward) ? HGCalDetId(detId).layer()
-                                             : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
-                                                                                 : HGCSiliconDetId(detId).layer()));
+        int layer = (ifNose_ ? HFNoseDetId(detId).layer()
+                             : ((detId.det() == DetId::Forward)
+                                    ? HGCalDetId(detId).layer()
+                                    : ((detId.det() == DetId::HGCalHSc) ? HGCScintillatorDetId(detId).layer()
+                                                                        : HGCSiliconDetId(detId).layer())));
         recHitValidation(detId, layer, geom0, &it);
       }
     } else {
@@ -303,9 +323,9 @@ void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) 
     HitOccupancy_Minus_.push_back(fs->make<TH1D>(histoname, "RecHitOccupancy_Minus", 100, 0, 10000));
 
     sprintf(histoname, "EtaPhi_Plus_Layer_%d", ilayer);
-    EtaPhi_Plus_.push_back(fs->make<TH2D>(histoname, "Occupancy", 31, 1.45, 3.0, 72, -CLHEP::pi, CLHEP::pi));
+    EtaPhi_Plus_.push_back(fs->make<TH2D>(histoname, "Occupancy", nbinEta_, etamin_, etamax_, 72, -M_PI, M_PI));
     sprintf(histoname, "EtaPhi_Minus_Layer_%d", ilayer);
-    EtaPhi_Minus_.push_back(fs->make<TH2D>(histoname, "Occupancy", 31, -3.0, -1.45, 72, -CLHEP::pi, CLHEP::pi));
+    EtaPhi_Minus_.push_back(fs->make<TH2D>(histoname, "Occupancy", nbinEta_, -etamax_, -etamin_, 72, -M_PI, M_PI));
 
     sprintf(histoname, "Energy_Layer_%d", ilayer);
     energy_.push_back(fs->make<TH1D>(histoname, "Energy", 1000, 0, 10.0));
@@ -319,10 +339,10 @@ void HGCalRecHitStudy::beginRun(edm::Run const&, edm::EventSetup const& iSetup) 
   char title[100];
   sprintf(histoname, "RZ_%s", nameDetector_.c_str());
   sprintf(title, "R vs Z for %s", nameDetector_.c_str());
-  h_RZ_ = fs->make<TH2D>(histoname, title, 600, 300., 600., 300, 0, 300.);
+  h_RZ_ = fs->make<TH2D>(histoname, title, nbinZ_, zmin_, zmax_, nbinR_, rmin_, rmax_);
   sprintf(histoname, "EtaPhi_%s", nameDetector_.c_str());
   sprintf(title, "#phi vs #eta for %s", nameDetector_.c_str());
-  h_EtaPhi_ = fs->make<TH2D>(histoname, title, 200, 1.0, 3.0, 200, -M_PI, M_PI);
+  h_EtaPhi_ = fs->make<TH2D>(histoname, title, nbinEta_, etamin_, etamax_, 72, -M_PI, M_PI);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

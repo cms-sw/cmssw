@@ -30,7 +30,7 @@ class EnergyResolutionVsLumi;
 class ECalSD : public CaloSD {
 public:
   ECalSD(const std::string &,
-         const DDCompactView &,
+         const edm::EventSetup &,
          const SensitiveDetectorCatalog &,
          edm::ParameterSet const &p,
          const SimTrackManager *);
@@ -44,7 +44,7 @@ protected:
   uint16_t getDepth(const G4Step *) override;
 
 private:
-  void initMap(const G4String &, const DDCompactView &);
+  void initMap(const G4String &, const edm::EventSetup &);
   uint16_t getRadiationLength(const G4StepPoint *hitPoint, const G4LogicalVolume *lv);
   uint16_t getLayerIDForTimeSim();
   double curve_LY(const G4LogicalVolume *);
@@ -56,9 +56,7 @@ private:
   std::vector<std::string> getStringArray(const std::string &, const DDsvalues_type &);
 
   // initialised before run
-  bool isEB;
-  bool isEE;
-  EcalNumberingScheme *numberingScheme;
+  EcalNumberingScheme *numberingScheme_;
   bool useWeight, storeTrack, storeRL, storeLayerTimeSim;
   bool useBirk, useBirkL3;
   double birk1, birk2, birk3, birkSlope, birkCut;
@@ -75,7 +73,6 @@ private:
   double crystalLength;
   double crystalDepth;
   uint16_t depth;
-
 #ifdef plotDebug
   TH2F *g2L_[4];
 #endif

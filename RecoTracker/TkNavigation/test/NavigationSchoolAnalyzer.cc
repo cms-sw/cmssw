@@ -67,7 +67,6 @@ void NavigationSchoolAnalyzer::print(std::ostream& os, const DetLayer* dl) {
   const std::vector<const GeomDet*>& bComponents = dl->basicComponents();
 
   if (bComponents.empty()) { /* t'es pas dans la merde */
-    ;
     return;
   }
 

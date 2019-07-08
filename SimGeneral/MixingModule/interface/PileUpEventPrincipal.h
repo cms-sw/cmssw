@@ -18,36 +18,25 @@ namespace edm {
 
 class PileUpEventPrincipal {
 public:
+  PileUpEventPrincipal(edm::EventPrincipal const& ep, edm::ModuleCallingContext const* mcc, int bcr)
+      : principal_(ep), mcc_(mcc), bunchCrossing_(bcr) {}
 
-  PileUpEventPrincipal(edm::EventPrincipal const& ep, edm::ModuleCallingContext const* mcc, int bcr) :
-    principal_(ep), mcc_(mcc), bunchCrossing_(bcr) {}
+  edm::EventPrincipal const& principal() { return principal_; }
 
-  edm::EventPrincipal const& principal() {
-    return principal_;
-  }
+  edm::EventPrincipal const& principal() const { return principal_; }
 
-  edm::EventPrincipal const& principal() const {
-    return principal_;
-  }
+  edm::ModuleCallingContext const* moduleCallingContext() const { return mcc_; }
 
-  edm::ModuleCallingContext const *moduleCallingContext() const {
-    return mcc_;
-  }
+  int bunchCrossing() const { return bunchCrossing_; }
 
-  int bunchCrossing() const {
-    return bunchCrossing_;
-  }
-
-
-  template<typename T>
-  bool
-  getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
+  template <typename T>
+  bool getByLabel(edm::InputTag const& tag, edm::Handle<T>& result) const {
     edm::BasicHandle bh = principal_.getByLabel(edm::PRODUCT_TYPE, edm::TypeID(typeid(T)), tag, nullptr, nullptr, mcc_);
     result = edm::convert_handle<T>(std::move(bh));
     return result.isValid();
   }
 
-private: 
+private:
   edm::EventPrincipal const& principal_;
   edm::ModuleCallingContext const* mcc_;
   int bunchCrossing_;

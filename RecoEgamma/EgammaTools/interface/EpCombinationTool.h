@@ -7,26 +7,25 @@
 #include <vector>
 #include <utility>
 
-namespace edm{
+namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
   class EventSetup;
-}
-namespace reco{
+}  // namespace edm
+namespace reco {
   class GsfElectron;
 }
 
-class EpCombinationTool
-{
+class EpCombinationTool {
 public:
   EpCombinationTool(const edm::ParameterSet& iConfig);
-  ~EpCombinationTool(){}
+  ~EpCombinationTool() {}
 
   static edm::ParameterSetDescription makePSetDescription();
 
   void setEventContent(const edm::EventSetup& iSetup);
   std::pair<float, float> combine(const reco::GsfElectron& electron) const;
-  std::pair<float, float> combine(const reco::GsfElectron& electron,float corrEcalEnergyErr) const;
+  std::pair<float, float> combine(const reco::GsfElectron& electron, float corrEcalEnergyErr) const;
 
 private:
   EgammaRegressionContainer ecalTrkEnergyRegress_;
@@ -35,8 +34,6 @@ private:
   float minEOverPForComb_;
   float maxEPDiffInSigmaForComb_;
   float maxRelTrkMomErrForComb_;
-  
 };
-
 
 #endif

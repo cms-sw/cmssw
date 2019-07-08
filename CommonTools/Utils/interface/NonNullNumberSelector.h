@@ -8,8 +8,8 @@
  */
 
 struct NonNullNumberSelector {
-  NonNullNumberSelector() { }
-  bool operator()( unsigned int number ) const { return number > 0; }
+  NonNullNumberSelector() {}
+  bool operator()(unsigned int number) const { return number > 0; }
 };
 
 #endif

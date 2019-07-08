@@ -10,7 +10,6 @@
 #include "ShiftTTrigDB.h"
 #include "FakeTTrig.h"
 
-
 DEFINE_FWK_MODULE(DumpDBToFile);
 DEFINE_FWK_MODULE(DumpFileToDB);
 DEFINE_FWK_MODULE(DTT0Analyzer);
@@ -18,4 +17,3 @@ DEFINE_FWK_MODULE(DTTTrigAnalyzer);
 DEFINE_FWK_MODULE(DTVDriftAnalyzer);
 DEFINE_FWK_MODULE(ShiftTTrigDB);
 DEFINE_FWK_MODULE(FakeTTrig);
-

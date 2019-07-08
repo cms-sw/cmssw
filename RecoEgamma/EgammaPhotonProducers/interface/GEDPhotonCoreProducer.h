@@ -21,16 +21,13 @@
 
 // GEDPhotonCoreProducer inherits from EDProducer, so it can be a module:
 class GEDPhotonCoreProducer : public edm::stream::EDProducer<> {
-
- public:
-
-  GEDPhotonCoreProducer (const edm::ParameterSet& ps);
+public:
+  GEDPhotonCoreProducer(const edm::ParameterSet& ps);
   ~GEDPhotonCoreProducer() override;
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
- private:
-
+private:
   std::string GEDPhotonCoreCollection_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfEgammaCandidates_;
   edm::EDGetTokenT<reco::ElectronSeedCollection> pixelSeedProducer_;
@@ -39,6 +36,5 @@ class GEDPhotonCoreProducer : public edm::stream::EDProducer<> {
   bool validConversions_;
   edm::ParameterSet conf_;
   bool validPixelSeeds_;
-
 };
 #endif

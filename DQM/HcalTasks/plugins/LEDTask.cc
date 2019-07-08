@@ -4,25 +4,23 @@
 using namespace hcaldqm;
 using namespace hcaldqm::constants;
 using namespace hcaldqm::filter;
+
 LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _nevents = ps.getUntrackedParameter<int>("nevents", 2000);
   //	tags
-  _tagHBHE = ps.getUntrackedParameter<edm::InputTag>("tagHBHE", edm::InputTag("hcalDigis"));
-  _tagHE = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
+  _tagQIE11 = ps.getUntrackedParameter<edm::InputTag>("tagHE", edm::InputTag("hcalDigis"));
   _tagHO = ps.getUntrackedParameter<edm::InputTag>("tagHO", edm::InputTag("hcalDigis"));
-  _tagHF = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
+  _tagQIE10 = ps.getUntrackedParameter<edm::InputTag>("tagHF", edm::InputTag("hcalDigis"));
   _tagTrigger = ps.getUntrackedParameter<edm::InputTag>("tagTrigger", edm::InputTag("tbunpacker"));
   _taguMN = ps.getUntrackedParameter<edm::InputTag>("taguMN", edm::InputTag("hcalDigis"));
-  _tokHBHE = consumes<HBHEDigiCollection>(_tagHBHE);
-  _tokHE = consumes<QIE11DigiCollection>(_tagHE);
+  _tokQIE11 = consumes<QIE11DigiCollection>(_tagQIE11);
   _tokHO = consumes<HODigiCollection>(_tagHO);
-  _tokHF = consumes<QIE10DigiCollection>(_tagHF);
+  _tokQIE10 = consumes<QIE10DigiCollection>(_tagQIE10);
   _tokTrigger = consumes<HcalTBTriggerData>(_tagTrigger);
   _tokuMN = consumes<HcalUMNioDigi>(_taguMN);
 
   //	constants
   _lowHBHE = ps.getUntrackedParameter<double>("lowHBHE", 20);
-  _lowHE = ps.getUntrackedParameter<double>("lowHE", 20);
   _lowHO = ps.getUntrackedParameter<double>("lowHO", 20);
   _lowHF = ps.getUntrackedParameter<double>("lowHF", 20);
 
@@ -225,7 +223,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   // Plots for LED in global
-  if (_ptype == fOnline) {
+  if (_ptype == fOnline || _ptype == fLocal) {
     _cADCvsTS_SubdetPM.initialize(_name,
                                   "ADCvsTS",
                                   hcaldqm::hashfunctions::fSubdetPM,
@@ -233,6 +231,8 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fQIE10ADC_256),
                                   new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),
                                   0);
+  }
+  if (_ptype == fOnline) {
     _cLowSignal_CrateSlot.initialize(_name,
                                      "LowSignal",
                                      new hcaldqm::quantity::ElectronicsQuantity(hcaldqm::quantity::fCrateuTCA),
@@ -307,8 +307,10 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _cMissing_FEDVME.book(ib, _emap, _filter_uTCA, _subsystem);
     _cMissing_FEDuTCA.book(ib, _emap, _filter_VME, _subsystem);
   }
-  if (_ptype == fOnline) {
+  if (_ptype == fOnline || _ptype == fLocal) {
     _cADCvsTS_SubdetPM.book(ib, _emap, _subsystem);
+  }
+  if (_ptype == fOnline) {
     _cLowSignal_CrateSlot.book(ib, _subsystem);
     _cSumQ_SubdetPM.book(ib, _emap, _subsystem);
     _cTDCTime_SubdetPM.book(ib, _emap, _subsystem);
@@ -401,62 +403,25 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
 }
 
 /* virtual */ void LEDTask::_process(edm::Event const& e, edm::EventSetup const& es) {
-  edm::Handle<HBHEDigiCollection> chbhe;
-  edm::Handle<HODigiCollection> cho;
-  edm::Handle<QIE10DigiCollection> chf;
-  edm::Handle<QIE11DigiCollection> che;
+  edm::Handle<HODigiCollection> c_ho;
+  edm::Handle<QIE10DigiCollection> c_QIE10;
+  edm::Handle<QIE11DigiCollection> c_QIE11;
 
-  if (!e.getByToken(_tokHBHE, chbhe))
-    _logger.dqmthrow("Collection HBHEDigiCollection isn't available " + _tagHBHE.label() + " " + _tagHBHE.instance());
-  if (!e.getByToken(_tokHO, cho))
+  if (!e.getByToken(_tokHO, c_ho))
     _logger.dqmthrow("Collection HODigiCollection isn't available " + _tagHO.label() + " " + _tagHO.instance());
-  if (!e.getByToken(_tokHF, chf))
-    _logger.dqmthrow("Collection QIE10DigiCollection isn't available " + _tagHF.label() + " " + _tagHF.instance());
-  if (!e.getByToken(_tokHE, che))
-    _logger.dqmthrow("Collection QIE11DigiCollection isn't available " + _tagHE.label() + " " + _tagHE.instance());
+  if (!e.getByToken(_tokQIE10, c_QIE10))
+    _logger.dqmthrow("Collection QIE10DigiCollection isn't available " + _tagQIE10.label() + " " +
+                     _tagQIE10.instance());
+  if (!e.getByToken(_tokQIE11, c_QIE11))
+    _logger.dqmthrow("Collection QIE11DigiCollection isn't available " + _tagQIE11.label() + " " +
+                     _tagQIE11.instance());
 
   //	int currentEvent = e.eventAuxiliary().id().event();
 
-  for (HBHEDigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
-    const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
-    HcalDetId did = digi.id();
-    HcalElectronicsId eid = digi.elecId();
-
-    // Get total charge and apply charge cut
-    CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, digi);
-    //double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(digi, 2.5, 0, digi.size()-1);
-    double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
-    if (sumQ >= _lowHBHE) {
-      //double aveTS = hcaldqm::utilities::aveTS<HBHEDataFrame>(digi, 2.5, 0,digi.size()-1);
-      double aveTS = hcaldqm::utilities::aveTSDB<HBHEDataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
-
-      _xSignalSum.get(did) += sumQ;
-      _xSignalSum2.get(did) += sumQ * sumQ;
-      _xTimingSum.get(did) += aveTS;
-      _xTimingSum2.get(did) += aveTS * aveTS;
-      _xEntries.get(did)++;
-
-      if (_ptype == fLocal) {  // hidefed2crate
-        for (int i = 0; i < digi.size(); i++) {
-          //_cShapeCut_FEDSlot.fill(eid, i, digi.sample(i).nominal_fC()-2.5);
-          _cShapeCut_FEDSlot.fill(
-              eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<HBHEDataFrame>(_dbService, digi_fC, did, digi, i));
-        }
-      }
-
-      if (_ptype == fOnline) {
-        for (int iTS = 0; iTS < digi.size(); ++iTS) {
-          _cADCvsTS_SubdetPM.fill(did, iTS, digi.sample(iTS).adc());
-        }
-        _cSumQ_SubdetPM.fill(did, sumQ);
-      }
-    }
-  }
-
-  for (QIE11DigiCollection::const_iterator it = che->begin(); it != che->end(); ++it) {
+  for (QIE11DigiCollection::const_iterator it = c_QIE11->begin(); it != c_QIE11->end(); ++it) {
     const QIE11DataFrame digi = static_cast<const QIE11DataFrame>(*it);
     HcalDetId const& did = digi.detid();
-    if (did.subdet() != HcalEndcap) {
+    if ((did.subdet() != HcalBarrel) && (did.subdet() != HcalEndcap)) {
       // LED monitoring from calibration channels
       if (did.subdet() == HcalOther) {
         HcalOtherDetId hodid(digi.detid());
@@ -471,10 +436,20 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
                     HcalDetId(HcalEndcap, 16, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
               }
             }
+          } else if (std::find(_ledCalibrationChannels[HcalBarrel].begin(),
+                               _ledCalibrationChannels[HcalBarrel].end(),
+                               did) != _ledCalibrationChannels[HcalBarrel].end()) {
+            for (int i = 0; i < digi.samples(); i++) {
+              if (_ptype == fOnline) {
+                _LED_ADCvsBX_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), e.bunchCrossing(), digi[i].adc());
+              } else if (_ptype == fLocal) {
+                _LED_ADCvsEvn_Subdet.fill(
+                    HcalDetId(HcalBarrel, 1, 1, 1), e.eventAuxiliary().id().event(), digi[i].adc());
+              }
+            }
           }
         }
       }
-
       continue;
     }
     uint32_t rawid = _ehashmap.lookup(did);
@@ -490,7 +465,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
     CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<QIE11DataFrame>(_dbService, did, digi);
     //double sumQ = hcaldqm::utilities::sumQ_v10<QIE11DataFrame>(digi, 2.5, 0, digi.samples()-1);
     double sumQ = hcaldqm::utilities::sumQDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples() - 1);
-    if (sumQ >= _lowHE) {
+    if (sumQ >= _lowHBHE) {
       //double aveTS = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
       double aveTS = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size() - 1);
 
@@ -507,9 +482,13 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
               eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE11DataFrame>(_dbService, digi_fC, did, digi, i));
         }
       }
-      if (_ptype == fOnline) {
+      if (_ptype == fOnline || _ptype == fLocal) {
         for (int iTS = 0; iTS < digi.samples(); ++iTS) {
           _cADCvsTS_SubdetPM.fill(did, iTS, digi[iTS].adc());
+        }
+      }
+      if (_ptype == fOnline) {
+        for (int iTS = 0; iTS < digi.samples(); ++iTS) {
           if (digi[iTS].tdc() < 50) {
             double time = iTS * 25. + (digi[iTS].tdc() / 2.);
             _cTDCTime_SubdetPM.fill(did, time);
@@ -532,7 +511,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
       }
     }
   }
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
+  for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
     HcalDetId did = digi.id();
     HcalElectronicsId eid = digi.elecId();
@@ -556,16 +535,18 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
               eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<HODataFrame>(_dbService, digi_fC, did, digi, i));
         }
       }
-      if (_ptype == fOnline) {
+      if (_ptype == fOnline || _ptype == fLocal) {
         for (int iTS = 0; iTS < digi.size(); ++iTS) {
           _cADCvsTS_SubdetPM.fill(did, iTS, digi.sample(iTS).adc());
         }
+      }
+      if (_ptype == fOnline) {
         _cSumQ_SubdetPM.fill(did, sumQ);
       }
     }
   }
 
-  for (QIE10DigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+  for (QIE10DigiCollection::const_iterator it = c_QIE10->begin(); it != c_QIE10->end(); ++it) {
     const QIE10DataFrame digi = static_cast<const QIE10DataFrame>(*it);
     HcalDetId did = digi.detid();
     if (did.subdet() != HcalForward) {
@@ -612,9 +593,13 @@ LEDTask::LEDTask(edm::ParameterSet const& ps) : DQTask(ps) {
               eid, i, hcaldqm::utilities::adc2fCDBMinusPedestal<QIE10DataFrame>(_dbService, digi_fC, did, digi, i));
         }
       }
-      if (_ptype == fOnline) {
+      if (_ptype == fOnline || _ptype == fLocal) {
         for (int iTS = 0; iTS < digi.samples(); ++iTS) {
           _cADCvsTS_SubdetPM.fill(did, iTS, digi[iTS].adc());
+        }
+      }
+      if (_ptype == fOnline) {
+        for (int iTS = 0; iTS < digi.samples(); ++iTS) {
           if (digi[iTS].le_tdc() < 50) {
             double time = iTS * 25. + (digi[iTS].le_tdc() / 2.);
             _cTDCTime_SubdetPM.fill(did, time);

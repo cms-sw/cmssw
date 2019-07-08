@@ -13,7 +13,7 @@ PFMultiDepthClusterizer::PFMultiDepthClusterizer(const edm::ParameterSet& conf) 
   if (conf.exists("allCellsPositionCalc")) {
     const edm::ParameterSet& acConf = conf.getParameterSet("allCellsPositionCalc");
     const std::string& algoac = acConf.getParameter<std::string>("algoName");
-    _allCellsPosCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(algoac, acConf)};
+    _allCellsPosCalc = PFCPositionCalculatorFactory::get()->create(algoac, acConf);
   }
 
   nSigmaEta_ = pow(conf.getParameter<double>("nSigmaEta"), 2);

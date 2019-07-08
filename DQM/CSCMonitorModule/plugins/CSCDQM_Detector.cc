@@ -151,6 +151,7 @@ namespace cscdqm {
     Address adr, iadr;
     adr.mask.side = adr.mask.station = adr.mask.ring = adr.mask.chamber = true;
     adr.mask.layer = adr.mask.cfeb = adr.mask.hv = false;
+    adr.layer = adr.cfeb = adr.hv = 0;
     adr.side = side;
     adr.station = station;
     adr.ring = ring;

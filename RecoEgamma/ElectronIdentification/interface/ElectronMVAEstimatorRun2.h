@@ -14,35 +14,33 @@
 #include <TMath.h>
 
 class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
-
- public:
-
+public:
   // Constructor and destructor
   ElectronMVAEstimatorRun2(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2() override {};
+  ~ElectronMVAEstimatorRun2() override{};
   // For use with FWLite/Python
   ElectronMVAEstimatorRun2(const std::string& mvaTag,
                            const std::string& mvaName,
                            int nCategories,
                            const std::string& variableDefinition,
                            const std::vector<std::string>& categoryCutStrings,
-                           const std::vector<std::string> &weightFileNames,
-                           bool debug=false );
-
-  // For use with FWLite/Python
-  static std::vector<float> getExtraVars(double rho)
-  {
-      return std::vector<float>{static_cast<float>(rho)};
-  }
+                           const std::vector<std::string>& weightFileNames,
+                           bool debug = false);
 
   // Calculation of the MVA value
-  float mvaValue( const reco::Candidate* candidate, std::vector<float> const& auxVariables, int &iCategory) const override;
+  float mvaValue(const reco::Candidate* candidate,
+                 std::vector<float> const& auxVariables,
+                 int& iCategory) const override;
 
-  int findCategory( const reco::Candidate* candidate) const override;
+  // for FWLite just passing rho
+  float mvaValue(const reco::Candidate* candidate, float rho, int& iCategory) const {
+    return mvaValue(candidate, std::vector<float>{rho}, iCategory);
+  }
 
- private:
+  int findCategory(const reco::Candidate* candidate) const override;
 
-  void init(const std::vector<std::string> &weightFileNames);
+private:
+  void init(const std::vector<std::string>& weightFileNames);
 
   int findCategory(reco::GsfElectron const& electron) const;
 
@@ -50,15 +48,13 @@ class ElectronMVAEstimatorRun2 : public AnyMVAEstimatorRun2Base {
   std::vector<int> nVariables_;
 
   // Data members
-  std::vector< std::unique_ptr<const GBRForest> > gbrForests_;
-
+  std::vector<std::unique_ptr<const GBRForest>> gbrForests_;
 
   // There might be different variables for each category, so the variables
   // names vector is itself a vector of length nCategories
   std::vector<std::vector<int>> variables_;
 
   MVAVariableManager<reco::GsfElectron> mvaVarMngr_;
-
 };
 
 #endif

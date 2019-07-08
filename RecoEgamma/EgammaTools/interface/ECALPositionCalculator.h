@@ -6,11 +6,12 @@
 
 class MagneticField;
 
-namespace egammaTools
-{
-    double ecalPhi(const MagneticField &magField, const math::XYZVector &momentum, const math::XYZPoint &vertex, const int charge);
-    double ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex);
-};
+namespace egammaTools {
+  double ecalPhi(const MagneticField &magField,
+                 const math::XYZVector &momentum,
+                 const math::XYZPoint &vertex,
+                 const int charge);
+  double ecalEta(const math::XYZVector &momentum, const math::XYZPoint &vertex);
+};  // namespace egammaTools
 
 #endif
-

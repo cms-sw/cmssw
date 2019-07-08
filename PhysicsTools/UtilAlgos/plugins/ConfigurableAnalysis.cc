@@ -90,14 +90,14 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) {
   edm::ParameterSet plotPset = iConfig.getParameter<edm::ParameterSet>("Plotter");
   if (!plotPset.empty()) {
     std::string plotterName = plotPset.getParameter<std::string>("ComponentName");
-    plotter_ = std::unique_ptr<Plotter>(PlotterFactory::get()->create(plotterName, plotPset));
+    plotter_ = PlotterFactory::get()->create(plotterName, plotPset);
   }
 
   //ntupling device
   edm::ParameterSet ntPset = iConfig.getParameter<edm::ParameterSet>("Ntupler");
   if (!ntPset.empty()) {
     std::string ntuplerName = ntPset.getParameter<std::string>("ComponentName");
-    ntupler_ = std::unique_ptr<NTupler>(NTuplerFactory::get()->create(ntuplerName, ntPset));
+    ntupler_ = NTuplerFactory::get()->create(ntuplerName, ntPset);
   }
 
   flows_ = iConfig.getParameter<std::vector<std::string>>("flows");

@@ -6,13 +6,16 @@
 
 #include <string>
 
-class TagInfoPlotterFactory  {
- public:
-     std::unique_ptr<BaseTagInfoPlotter> buildPlotter(const std::string& dataFormatType, const std::string & tagName,
-                    const EtaPtBin & etaPtBin, const edm::ParameterSet& pSet, 
-                    const std::string& folderName, unsigned int mc,
-                    bool wf, DQMStore::IBooker & ibook);
+class TagInfoPlotterFactory {
+public:
+  std::unique_ptr<BaseTagInfoPlotter> buildPlotter(const std::string& dataFormatType,
+                                                   const std::string& tagName,
+                                                   const EtaPtBin& etaPtBin,
+                                                   const edm::ParameterSet& pSet,
+                                                   const std::string& folderName,
+                                                   unsigned int mc,
+                                                   bool wf,
+                                                   DQMStore::IBooker& ibook);
 };
-
 
 #endif

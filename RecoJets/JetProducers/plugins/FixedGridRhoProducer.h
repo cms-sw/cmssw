@@ -7,21 +7,18 @@
 #include "RecoJets/JetAlgorithms/interface/FixedGridEnergyDensity.h"
 
 class FixedGridRhoProducer : public edm::stream::EDProducer<> {
-
- public:
+public:
   explicit FixedGridRhoProducer(const edm::ParameterSet& iConfig);
   ~FixedGridRhoProducer() override;
 
- private:
+private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::InputTag pfCandidatesTag_;
   FixedGridEnergyDensity::EtaRegion myEtaRegion;
-  FixedGridEnergyDensity* algo; 
+  FixedGridEnergyDensity* algo;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> input_pfcoll_token_;
-
 };
-
 
 #endif

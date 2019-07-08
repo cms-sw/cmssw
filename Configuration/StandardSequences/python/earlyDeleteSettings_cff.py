@@ -82,7 +82,8 @@ def customiseEarlyDelete(process):
             _hasInputTagModuleLabel(process, module, name, producers, result)
             for i in range(len(result)):
                 if result[i]:
-                    if hasattr(module, "mightGet"):
+                    #if it exists it might be optional or empty, both evaluate to False
+                    if hasattr(module, "mightGet") and module.mightGet:
                         module.mightGet.extend(branchesList[i])
                     else:
                         module.mightGet = cms.untracked.vstring(branchesList[i])

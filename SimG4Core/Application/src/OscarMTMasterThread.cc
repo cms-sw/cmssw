@@ -13,6 +13,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "HepPDT/ParticleDataTable.hh"
 #include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
@@ -21,7 +22,9 @@
 
 OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     : m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
+      m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
       m_pDD(nullptr),
+      m_pDD4hep(nullptr),
       m_pMF(nullptr),
       m_pTable(nullptr),
       m_masterThreadState(ThreadState::NotExist),
@@ -75,7 +78,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       if (m_masterThreadState == ThreadState::BeginRun) {
         // Initialize Geant4
         LogDebug("OscarMTMasterThread") << "Master thread: Initializing Geant4";
-        runManagerMaster->initG4(m_pDD, m_pMF, m_pTable);
+        runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pMF, m_pTable);
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {
         // Stop Geant4
@@ -205,9 +208,15 @@ void OscarMTMasterThread::readES(const edm::EventSetup& iSetup) const {
     return;
 
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get(pDD);
-  m_pDD = pDD.product();
+  if (m_pGeoFromDD4hep) {
+    edm::ESTransientHandle<cms::DDCompactView> pDD;
+    iSetup.get<IdealGeometryRecord>().get(pDD);
+    m_pDD4hep = pDD.product();
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    iSetup.get<IdealGeometryRecord>().get(pDD);
+    m_pDD = pDD.product();
+  }
 
   if (m_pUseMagneticField) {
     edm::ESHandle<MagneticField> pMF;

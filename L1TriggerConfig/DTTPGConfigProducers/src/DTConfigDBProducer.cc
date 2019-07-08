@@ -1,4 +1,40 @@
-#include "L1TriggerConfig/DTTPGConfigProducers/src/DTConfigDBProducer.h"
+// -*- C++ -*-
+//
+// Package:     DTTPGConfigProducers
+// Class:       DTConfigDBProducer
+//
+/**\class  DTConfigDBProducer  DTConfigDBProducer.h
+ L1TriggerConfig/DTTPGConfigProducers/interface/DTConfigDBProducer.h
+
+ Description: A Producer for the DT config, data retrieved from DB
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Sara Vanini
+//         Created:  September 2008
+//
+//
+// system include files
+#include <memory>
+#include <vector>
+#include <iomanip>
+#include <iostream>
+
+// user include files
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include "CondTools/DT/interface/DTKeyedConfigCache.h"
+
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManager.h"
+#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
@@ -11,16 +47,7 @@
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 #include "CondFormats/DataRecord/interface/DTTPGParametersRcd.h"
 
-#include "L1TriggerConfig/DTTPGConfig/interface/DTConfigManagerRcd.h"
 #include "L1TriggerConfig/DTTPGConfigProducers/src/DTPosNegType.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include <iomanip>
-#include <iostream>
 
 using std::cout;
 using std::endl;
@@ -28,12 +55,73 @@ using std::unique_ptr;
 using std::vector;
 
 //
+// class declaration
+//
+
+class DTConfigDBProducer : public edm::ESProducer {
+public:
+  //! Constructor
+  DTConfigDBProducer(const edm::ParameterSet &);
+
+  //! Destructor
+  ~DTConfigDBProducer() override;
+
+  //! ES produce method
+  std::unique_ptr<DTConfigManager> produce(const DTConfigManagerRcd &);
+
+private:
+  //! Read DTTPG pedestal configuration
+  void readDBPedestalsConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig);
+
+  //! Read CCB string configuration
+  int readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig);
+
+  //! SV for debugging purpose ONLY
+  void configFromCfg(DTConfigManager &dttpgConfig);
+
+  //! SV for debugging purpose ONLY
+  DTConfigPedestals buildTrivialPedestals();
+
+  //! 110629 SV function for CCB configuration check
+  int checkDTCCBConfig(DTConfigManager &dttpgConfig);
+
+  std::string mapEntryName(const DTChamberId &chambid) const;
+
+  // ----------member data ---------------------------
+  edm::ParameterSet m_ps;
+
+  edm::ESGetToken<DTTPGParameters, DTTPGParametersRcd> m_dttpgParamsToken;
+  edm::ESGetToken<DTT0, DTT0Rcd> m_t0iToken;
+  edm::ESGetToken<DTCCBConfig, DTCCBConfigRcd> m_ccb_confToken;
+
+  // debug flags
+  bool m_debugDB;
+  int m_debugBti;
+  int m_debugTraco;
+  bool m_debugTSP;
+  bool m_debugTST;
+  bool m_debugTU;
+  bool m_debugSC;
+  bool m_debugLUTs;
+  bool m_debugPed;
+
+  // general DB requests
+  bool m_UseT0;
+
+  bool cfgConfig;
+
+  bool flagDBBti, flagDBTraco, flagDBTSS, flagDBTSM, flagDBLUTS;
+
+  DTKeyedConfigCache cfgCache;
+};
+
+//
 // constructors and destructor
 //
 
 DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet &p) {
   // tell the framework what record is being produced
-  setWhatProduced(this, &DTConfigDBProducer::produce);
+  auto cc = setWhatProduced(this, &DTConfigDBProducer::produce);
 
   cfgConfig = p.getParameter<bool>("cfgConfig");
 
@@ -52,6 +140,13 @@ DTConfigDBProducer::DTConfigDBProducer(const edm::ParameterSet &p) {
   m_debugPed = p.getParameter<bool>("debugPed");
 
   m_UseT0 = p.getParameter<bool>("UseT0");  // CB check for a better way to do it
+
+  if (not cfgConfig) {
+    cc.setConsumes(m_dttpgParamsToken).setConsumes(m_ccb_confToken);
+    if (m_UseT0) {
+      cc.setConsumes(m_t0iToken);
+    }
+  }
 }
 
 DTConfigDBProducer::~DTConfigDBProducer() {}
@@ -108,23 +203,19 @@ std::unique_ptr<DTConfigManager> DTConfigDBProducer::produce(const DTConfigManag
 }
 
 void DTConfigDBProducer::readDBPedestalsConfig(const DTConfigManagerRcd &iRecord, DTConfigManager &dttpgConfig) {
-  edm::ESHandle<DTTPGParameters> dttpgParams;
-  iRecord.getRecord<DTTPGParametersRcd>().get(dttpgParams);
+  const auto &dttpgParams = iRecord.get(m_dttpgParamsToken);
 
   DTConfigPedestals pedestals;
   pedestals.setDebug(m_debugPed);
 
   if (m_UseT0) {
-    edm::ESHandle<DTT0> t0i;
-    iRecord.getRecord<DTT0Rcd>().get(t0i);
-
     pedestals.setUseT0(true);
-    pedestals.setES(dttpgParams.product(), t0i.product());
+    pedestals.setES(&dttpgParams, &iRecord.get(m_t0iToken));
     // cout << "checkDTCCBConfig CODE is " << checkDTCCBConfig() << endl;
 
   } else {
     pedestals.setUseT0(false);
-    pedestals.setES(dttpgParams.product());
+    pedestals.setES(&dttpgParams);
   }
 
   dttpgConfig.setDTConfigPedestals(pedestals);
@@ -247,14 +338,13 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
   dttpgConfig.setCCBConfigValidity(true);
 
   // get DTCCBConfigRcd from DTConfigManagerRcd (they are dependent records)
-  edm::ESHandle<DTCCBConfig> ccb_conf;
-  iRecord.getRecord<DTCCBConfigRcd>().get(ccb_conf);
-  int ndata = std::distance(ccb_conf->begin(), ccb_conf->end());
+  const auto &ccb_conf = iRecord.get(m_ccb_confToken);
+  int ndata = std::distance(ccb_conf.begin(), ccb_conf.end());
 
   const DTKeyedConfigListRcd &keyRecord = iRecord.getRecord<DTKeyedConfigListRcd>();
 
   if (m_debugDB) {
-    cout << ccb_conf->version() << endl;
+    cout << ccb_conf.version() << endl;
     cout << ndata << " data in the container" << endl;
   }
 
@@ -274,12 +364,12 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
   edm::ParameterSet conf_map = m_ps.getUntrackedParameter<edm::ParameterSet>("DTTPGMap");
 
   // loop over chambers
-  DTCCBConfig::ccb_config_map configKeys(ccb_conf->configKeyMap());
+  DTCCBConfig::ccb_config_map configKeys(ccb_conf.configKeyMap());
   DTCCBConfig::ccb_config_iterator iter = configKeys.begin();
   DTCCBConfig::ccb_config_iterator iend = configKeys.end();
 
   // 110628 SV check that number of CCB is equal to total number of chambers
-  if (ccb_conf->configKeyMap().size() != 250)  // check the number of chambers!!!
+  if (ccb_conf.configKeyMap().size() != 250)  // check the number of chambers!!!
     return -1;
 
   // read data from CCBConfig
@@ -723,3 +813,5 @@ DTConfigPedestals DTConfigDBProducer::buildTrivialPedestals() {
 
   return tpgPedestals;
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(DTConfigDBProducer);

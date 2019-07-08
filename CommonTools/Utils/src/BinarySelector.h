@@ -18,18 +18,18 @@
 namespace reco {
   namespace parser {
     struct BinarySelector : public SelectorBase {
-      BinarySelector( boost::shared_ptr<ExpressionBase> lhs,
-		      boost::shared_ptr<ComparisonBase> cmp,
-		      boost::shared_ptr<ExpressionBase> rhs ) :
-	lhs_( lhs ), cmp_( cmp ), rhs_( rhs ) { }
-      bool operator()( const edm::ObjectWithDict & o ) const override {
-	return cmp_->compare( lhs_->value( o ), rhs_->value( o ) );
+      BinarySelector(boost::shared_ptr<ExpressionBase> lhs,
+                     boost::shared_ptr<ComparisonBase> cmp,
+                     boost::shared_ptr<ExpressionBase> rhs)
+          : lhs_(lhs), cmp_(cmp), rhs_(rhs) {}
+      bool operator()(const edm::ObjectWithDict& o) const override {
+        return cmp_->compare(lhs_->value(o), rhs_->value(o));
       }
       boost::shared_ptr<ExpressionBase> lhs_;
       boost::shared_ptr<ComparisonBase> cmp_;
       boost::shared_ptr<ExpressionBase> rhs_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

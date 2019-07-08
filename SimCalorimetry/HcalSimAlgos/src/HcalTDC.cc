@@ -5,24 +5,21 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-HcalTDC::HcalTDC(unsigned int thresholdDAC) : theTDCParameters(), 
-					      theDbService(nullptr),
-					      theDAC(thresholdDAC),
-					      lsb(3.74) {}
+HcalTDC::HcalTDC(unsigned int thresholdDAC)
+    : theTDCParameters(), theDbService(nullptr), theDAC(thresholdDAC), lsb(3.74) {}
 
-HcalTDC::~HcalTDC() {
-}
+HcalTDC::~HcalTDC() {}
 
 template <class Digi>
 void HcalTDC::timing(const CaloSamples& lf, Digi& digi, CLHEP::HepRandomEngine* engine) const {
-
   float const TDC_Threshold(getThreshold(digi.id(), engine));
   float const TDC_Threshold_hyst(TDC_Threshold);
   bool risingReady(true), fallingReady(false);
   int tdcBins = theTDCParameters.nbins();
   // start with a loop over 10 samples
-  bool hasTDCValues=true;
-  if (lf.preciseSize()==0 ) hasTDCValues=false;
+  bool hasTDCValues = true;
+  if (lf.preciseSize() == 0)
+    hasTDCValues = false;
 
   // "AC" hysteresis from Tom:  There cannot be a second transition
   // within the QIE within 3ns
@@ -30,7 +27,7 @@ void HcalTDC::timing(const CaloSamples& lf, Digi& digi, CLHEP::HepRandomEngine* 
   int lastRisingEdge(0);
 
   // if (hasTDCValues)
-  //   std::cout << digi.id() 
+  //   std::cout << digi.id()
   // 	      << " threshold: " << TDC_Threshold
   // 	      << '\n';
   for (int ibin = 0; ibin < lf.size(); ++ibin) {
@@ -48,54 +45,50 @@ void HcalTDC::timing(const CaloSamples& lf, Digi& digi, CLHEP::HepRandomEngine* 
     TDC_FallingEdge=62.
     */
     // special codes
-    int TDC_RisingEdge = (risingReady) ? 
-      theTDCParameters.noTransitionCode() :
-      theTDCParameters.alreadyTransitionCode();
-    int TDC_FallingEdge = (fallingReady) ? 
-      theTDCParameters.alreadyTransitionCode() :
-      theTDCParameters.noTransitionCode();
+    int TDC_RisingEdge = (risingReady) ? theTDCParameters.noTransitionCode() : theTDCParameters.alreadyTransitionCode();
+    int TDC_FallingEdge =
+        (fallingReady) ? theTDCParameters.alreadyTransitionCode() : theTDCParameters.noTransitionCode();
     int preciseBegin = ibin * tdcBins;
     int preciseEnd = preciseBegin + tdcBins;
-    if ( hasTDCValues) {
+    if (hasTDCValues) {
       // std::cout << " alreadyOn: " << alreadyOn << '\n';
-      for(int i = preciseBegin; i < preciseEnd; ++i) { 
-      // 	std::cout << " preciseBin: " << i
-      // 			    << " preciseAt(i): " << lf.preciseAt(i);
-	if( (fallingReady) && (i%3 == 0) && (lf.preciseAt(i) < TDC_Threshold)) {
-	  fallingReady = false;
-	  TDC_FallingEdge = i-preciseBegin;
-	  // std::cout << " falling ";
-	}
-	if ((risingReady) && (lf.preciseAt(i) > TDC_Threshold)) {
-	  risingReady = false;
-	  TDC_RisingEdge = i-preciseBegin;
-	  lastRisingEdge = 0;
-	  // std::cout << " rising ";
-	}
-	// std::cout << '\n';
+      for (int i = preciseBegin; i < preciseEnd; ++i) {
+        // 	std::cout << " preciseBin: " << i
+        // 			    << " preciseAt(i): " << lf.preciseAt(i);
+        if ((fallingReady) && (i % 3 == 0) && (lf.preciseAt(i) < TDC_Threshold)) {
+          fallingReady = false;
+          TDC_FallingEdge = i - preciseBegin;
+          // std::cout << " falling ";
+        }
+        if ((risingReady) && (lf.preciseAt(i) > TDC_Threshold)) {
+          risingReady = false;
+          TDC_RisingEdge = i - preciseBegin;
+          lastRisingEdge = 0;
+          // std::cout << " rising ";
+        }
+        // std::cout << '\n';
 
-	//This is the place for hysteresis code.  Need to to arm the
-	//tdc by setting the risingReady or fallingReady to true.
+        //This is the place for hysteresis code.  Need to to arm the
+        //tdc by setting the risingReady or fallingReady to true.
 
-	if ((!fallingReady) && (lf.preciseAt(i) > TDC_Threshold)) {
-	  fallingReady = true;
-	  if (TDC_FallingEdge == theTDCParameters.alreadyTransitionCode())
-	    TDC_FallingEdge = theTDCParameters.noTransitionCode();
-	}
-	if ((!risingReady) && (lastRisingEdge > rising_ac_hysteresis) &&
-	    (lf.preciseAt(i) < TDC_Threshold_hyst)) {
-	  risingReady = true;
-	  if (TDC_RisingEdge == theTDCParameters.alreadyTransitionCode())
-	    TDC_RisingEdge = theTDCParameters.noTransitionCode();
-	}
-	++lastRisingEdge;
+        if ((!fallingReady) && (lf.preciseAt(i) > TDC_Threshold)) {
+          fallingReady = true;
+          if (TDC_FallingEdge == theTDCParameters.alreadyTransitionCode())
+            TDC_FallingEdge = theTDCParameters.noTransitionCode();
+        }
+        if ((!risingReady) && (lastRisingEdge > rising_ac_hysteresis) && (lf.preciseAt(i) < TDC_Threshold_hyst)) {
+          risingReady = true;
+          if (TDC_RisingEdge == theTDCParameters.alreadyTransitionCode())
+            TDC_RisingEdge = theTDCParameters.noTransitionCode();
+        }
+        ++lastRisingEdge;
       }
     }
     // change packing to allow for special codes
-    int packedTDC = TDC_RisingEdge + (tdcBins*2) * TDC_FallingEdge;
+    int packedTDC = TDC_RisingEdge + (tdcBins * 2) * TDC_FallingEdge;
     digi.setSample(ibin, digi.adc(ibin), packedTDC, true);
     // if ( hasTDCValues) {
-    //   std::cout << " sample: " << ibin 
+    //   std::cout << " sample: " << ibin
     // 		<< " adc: " << digi.adc(ibin)
     // 		<< " fC: " << digi[ibin].nominal_fC()
     // 		<< " risingEdge: " << TDC_RisingEdge
@@ -103,14 +96,14 @@ void HcalTDC::timing(const CaloSamples& lf, Digi& digi, CLHEP::HepRandomEngine* 
     // 		<< " packedTDC: " << packedTDC
     // 		<< std::endl;
     // }
-  } // loop over bunch crossing bins
+  }  // loop over bunch crossing bins
 }
 
-double HcalTDC::getThreshold(const HcalGenericDetId & detId, CLHEP::HepRandomEngine* engine) const {
+double HcalTDC::getThreshold(const HcalGenericDetId& detId, CLHEP::HepRandomEngine* engine) const {
   // subtract off pedestal and noise once
   double pedestal = theDbService->getHcalCalibrations(detId).pedestal(0);
   double pedestalWidth = theDbService->getHcalCalibrationWidths(detId).pedestal(0);
-  // here the TDCthreshold_ is a multiple of the least significant bit 
+  // here the TDCthreshold_ is a multiple of the least significant bit
   // for the TDC portion of the QIE.  The nominal reference is 40 uA which is
   // divided by an 8 bit DAC.  This means the least significant bit is 0.135 uA
   // in the TDC circuit or 3.74 uA at the input current.
@@ -118,18 +111,17 @@ double HcalTDC::getThreshold(const HcalGenericDetId & detId, CLHEP::HepRandomEng
   // the pedestal is assumed to be evenly distributed in time with some
   // random variation.
 
-  return lsb*theDAC - CLHEP::RandGaussQ::shoot(engine, pedestal,  pedestalWidth)/theTDCParameters.deltaT()/theTDCParameters.nbins();
+  return lsb * theDAC - CLHEP::RandGaussQ::shoot(engine, pedestal, pedestalWidth) / theTDCParameters.deltaT() /
+                            theTDCParameters.nbins();
 }
 
 double HcalTDC::getHysteresisThreshold(double nominal) const {
   // the TDC will "re-arm" when it crosses the threshold minus 2.5 mV.
   // the lsb is 44kOhm * (3.74 uA / 24) = 6.86 mV.  2.5 mV is 0.36 lsb.
-  // with the this means that the hysteresis it isn't far from the nominal 
+  // with the this means that the hysteresis it isn't far from the nominal
   // threshold
 
-  return nominal - 0.365*lsb;
+  return nominal - 0.365 * lsb;
 }
 
-void HcalTDC::setDbService(const HcalDbService * service) {
-  theDbService = service;
-}
+void HcalTDC::setDbService(const HcalDbService* service) { theDbService = service; }

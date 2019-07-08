@@ -165,7 +165,7 @@ def flatten_file(file, run_nr):
    return result
 
 def traverse_till_end(node, dirs_list, result, run_nr):
-   new_dir_list = dirs_list + [node.GetName()]
+   new_dir_list = dirs_list + [get_node_name(node)]
    if hasattr(node, 'GetListOfKeys'): 
       for key in node.GetListOfKeys():
          traverse_till_end(key.ReadObj(), new_dir_list, result, run_nr)

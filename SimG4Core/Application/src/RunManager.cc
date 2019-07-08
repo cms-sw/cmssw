@@ -234,7 +234,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
     // attach sensitive detector
 
     AttachSD attach;
-    auto sensDets = attach.create((*pDD), catalog_, m_p, m_trackManager.get(), m_registry);
+    auto sensDets = attach.create(es, catalog_, m_p, m_trackManager.get(), m_registry);
 
     m_sensTkDets.swap(sensDets.first);
     m_sensCaloDets.swap(sensDets.second);

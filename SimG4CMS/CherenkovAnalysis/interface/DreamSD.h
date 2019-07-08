@@ -15,7 +15,7 @@ class G4LogicalVolume;
 class DreamSD : public CaloSD {
 public:
   DreamSD(const std::string &,
-          const DDCompactView &,
+          const edm::EventSetup &,
           const SensitiveDetectorCatalog &,
           edm::ParameterSet const &,
           const SimTrackManager *);
@@ -31,7 +31,7 @@ private:
   typedef std::pair<double, double> Doubles;
   typedef std::map<G4LogicalVolume *, Doubles> DimensionMap;
 
-  void initMap(const std::string &, const DDCompactView &);
+  void initMap(const std::string &, const edm::EventSetup &);
   double curve_LY(const G4Step *, int);
   double crystalLength(G4LogicalVolume *) const;
   double crystalWidth(G4LogicalVolume *) const;

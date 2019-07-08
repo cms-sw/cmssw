@@ -47,8 +47,7 @@ HGCalTriggerDigiFEReproducer::HGCalTriggerDigiFEReproducer(const edm::ParameterS
   //setup FE codec
   const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
   const std::string& feCodecName = feCodecConfig.getParameter<std::string>("CodecName");
-  codec_ =
-      std::unique_ptr<HGCalTriggerFECodecBase>{HGCalTriggerFECodecFactory::get()->create(feCodecName, feCodecConfig)};
+  codec_ = HGCalTriggerFECodecFactory::get()->create(feCodecName, feCodecConfig);
   codec_->unSetDataPayload();
 
   produces<l1t::HGCFETriggerDigiCollection>();

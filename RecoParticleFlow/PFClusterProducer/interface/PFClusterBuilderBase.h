@@ -28,7 +28,7 @@ public:
     if (conf.exists("positionCalc")) {
       const edm::ParameterSet& pcConf = conf.getParameterSet("positionCalc");
       const std::string& algo = pcConf.getParameter<std::string>("algoName");
-      _positionCalc = std::unique_ptr<PosCalc>{PFCPositionCalculatorFactory::get()->create(algo, pcConf)};
+      _positionCalc = PFCPositionCalculatorFactory::get()->create(algo, pcConf);
     }
   }
   virtual ~PFClusterBuilderBase() = default;

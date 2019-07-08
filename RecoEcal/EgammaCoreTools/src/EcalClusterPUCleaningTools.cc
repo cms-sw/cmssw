@@ -48,9 +48,8 @@ reco::SuperCluster EcalClusterPUCleaningTools::CleanedSuperCluster(float xi,
   // seed basic cluster of initial SC: this will remain in the cleaned SC, by construction
   const reco::CaloClusterPtr &seed = scluster.seed();
 
-  float seedBCEnergy =
-      (scluster.seed())
-          ->energy();  // this should be replaced by the 5x5 around the seed; a good approx of how E_seed is defined
+  // this should be replaced by the 5x5 around the seed; a good approx of how E_seed is defined
+  float seedBCEnergy = (scluster.seed())->energy();
   float eSeed = 0.35;  // standard eSeed in EB ; see CMS IN-2010/008
   int numBcRemoved = 0;
 

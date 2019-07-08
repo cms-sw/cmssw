@@ -5,10 +5,13 @@
 
 #include "SimG4CMS/Calo/interface/CaloTrkProcessing.h"
 
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4EventManager.hh"
@@ -23,11 +26,11 @@
 //#define EDM_ML_DEBUG
 
 CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
-                                     const DDCompactView& cpv,
+                                     const edm::EventSetup& es,
                                      const SensitiveDetectorCatalog& clg,
                                      edm::ParameterSet const& p,
                                      const SimTrackManager* manager)
-    : SensitiveCaloDetector(name, cpv, clg, p), lastTrackID(-1), m_trackManager(manager) {
+    : SensitiveCaloDetector(name, es, clg, p), lastTrackID(-1), m_trackManager(manager) {
   //Initialise the parameter set
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("CaloTrkProcessing");
   testBeam = m_p.getParameter<bool>("TestBeam");
@@ -38,10 +41,13 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
                               << " MeV and"
                               << " History flag " << putHistory;
 
+  edm::ESTransientHandle<DDCompactView> cpv;
+  es.get<IdealGeometryRecord>().get(cpv);
+
   //Get the names
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, name, 0)};
-  DDFilteredView fv(cpv, filter);
+  DDFilteredView fv(*cpv, filter);
   fv.firstChild();
   DDsvalues_type sv(fv.mergedSpecifics());
 

@@ -7,5 +7,3 @@
 
 #include "DTTimeBoxFitter.h"
 #include "CalibMuon/DTCalibration/src/DTTimeBoxFitter.cc"
-
-

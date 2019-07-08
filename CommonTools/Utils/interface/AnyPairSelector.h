@@ -8,8 +8,10 @@
  */
 
 struct AnyPairSelector {
-  template<typename T1, typename T2>
-  bool operator()( const T1 &, const T2 & ) const { return true; }
+  template <typename T1, typename T2>
+  bool operator()(const T1 &, const T2 &) const {
+    return true;
+  }
 };
 
 #endif

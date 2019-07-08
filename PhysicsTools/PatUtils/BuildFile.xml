@@ -11,6 +11,7 @@
 <use   name="Utilities/General"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="root"/>
+<use   name="rootmlp"/>
 <export>
   <lib   name="1"/>
 </export>

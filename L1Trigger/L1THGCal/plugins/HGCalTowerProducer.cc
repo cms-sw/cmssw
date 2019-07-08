@@ -38,8 +38,7 @@ HGCalTowerProducer::HGCalTowerProducer(const edm::ParameterSet& conf)
   //setup TowerMap parameters
   const edm::ParameterSet& towerParamConfig = conf.getParameterSet("ProcessorParameters");
   const std::string& towerProcessorName = towerParamConfig.getParameter<std::string>("ProcessorName");
-  towersProcess_ =
-      std::unique_ptr<HGCalTowerProcessorBase>{HGCalTowerFactory::get()->create(towerProcessorName, towerParamConfig)};
+  towersProcess_ = HGCalTowerFactory::get()->create(towerProcessorName, towerParamConfig);
 
   produces<l1t::HGCalTowerBxCollection>(towersProcess_->name());
 }

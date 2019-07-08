@@ -18,6 +18,7 @@ from DQMOffline.Hcal.HcalDQMOfflinePostProcessor_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_cff import *
 from DQM.HcalTasks.OfflineHarvestingSequence_pp import *
 from PhysicsTools.NanoAOD.nanoDQM_cff import *
+from Validation.RecoParticleFlow.DQMForPF_MiniAOD_cff import *
 
 DQMOffline_SecondStep_PreDPG = cms.Sequence( dqmDcsInfoClient *
                                              ecal_dqm_client_offline *
@@ -146,7 +147,7 @@ DQMHarvestEGamma = cms.Sequence( egammaPostProcessing )
 
 DQMHarvestBTag = cms.Sequence( bTagCollectorSequenceDATA )
 
-DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD)
+DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF )
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
 
 # L1 trigger sequences
