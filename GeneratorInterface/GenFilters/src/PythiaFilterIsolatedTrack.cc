@@ -84,18 +84,22 @@ double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double e
 }
 
 PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet &iConfig,
-                                                     const PythiaFilterIsoTracks::Counters *counters) :
-  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel", edm::InputTag("generator", "unsmeared")))),
-  maxSeedEta_(iConfig.getUntrackedParameter<double>("maxSeedEta", 2.3)),
-  minSeedEta_(iConfig.getUntrackedParameter<double>("minSeedEta", 0.0)),
-  minSeedMom_(iConfig.getUntrackedParameter<double>("minSeedMom", 20.)),
-  minIsolTrackMom_(iConfig.getUntrackedParameter<double>("minIsolTrackMom", 2.0)),
-  isolCone_(iConfig.getUntrackedParameter<double>("isolCone", 40.0)),
-  onlyHadrons_(iConfig.getUntrackedParameter<bool>("onlyHadrons", true)),
-  nAll_(0), nGood_(0), ecDist_(317.0), ecRad_(129.0) {
+                                                     const PythiaFilterIsoTracks::Counters *counters)
+    : token_(consumes<edm::HepMCProduct>(
+          iConfig.getUntrackedParameter("moduleLabel", edm::InputTag("generator", "unsmeared")))),
+      maxSeedEta_(iConfig.getUntrackedParameter<double>("maxSeedEta", 2.3)),
+      minSeedEta_(iConfig.getUntrackedParameter<double>("minSeedEta", 0.0)),
+      minSeedMom_(iConfig.getUntrackedParameter<double>("minSeedMom", 20.)),
+      minIsolTrackMom_(iConfig.getUntrackedParameter<double>("minIsolTrackMom", 2.0)),
+      isolCone_(iConfig.getUntrackedParameter<double>("isolCone", 40.0)),
+      onlyHadrons_(iConfig.getUntrackedParameter<bool>("onlyHadrons", true)),
+      nAll_(0),
+      nGood_(0),
+      ecDist_(317.0),
+      ecRad_(129.0) {
   edm::LogVerbatim("PythiaFilter") << "PythiaFilterIsolatedTrack: Eta " << minSeedEta_ << ":" << maxSeedEta_ << " p > "
-				   << minSeedMom_ << " Isolation Cone " << isolCone_ << " with p > " << minIsolTrackMom_
-				   << " OnlyHadron " << onlyHadrons_;
+                                   << minSeedMom_ << " Isolation Cone " << isolCone_ << " with p > " << minIsolTrackMom_
+                                   << " OnlyHadron " << onlyHadrons_;
 }
 
 PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack() {}
@@ -195,5 +199,5 @@ void PythiaFilterIsolatedTrack::endStream() {
 
 void PythiaFilterIsolatedTrack::globalEndJob(const PythiaFilterIsoTracks::Counters *count) {
   edm::LogVerbatim("PythiaFilter") << "PythiaFilterIsolatedTrack::Accepts " << count->nGood_ << " events out of "
-				   << count->nAll_ << std::endl;
+                                   << count->nAll_ << std::endl;
 }
