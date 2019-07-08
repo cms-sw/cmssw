@@ -52,7 +52,7 @@
 /** @var DQMStore::qalgos_
     Set of all the available quality test algorithms. */
 
-namespace {
+namespace dqm::impl {
 
   //////////////////////////////////////////////////////////////////////
   /// name of global monitoring folder (containing all sources subdirectories)
@@ -119,7 +119,6 @@ namespace {
     m[T::getAlgoName()] = &makeQCriterion<T>;
   }
 
-}  // anonymous namespace
 
 /////////////////////////////////////////////////////////////
 fastmatch::fastmatch(std::string fastString) : fastString_{move(fastString)}, matching_{UseFull} {
@@ -3423,4 +3422,5 @@ void DQMStore::scaleElements() {
         continue;
     }
   }
+}
 }

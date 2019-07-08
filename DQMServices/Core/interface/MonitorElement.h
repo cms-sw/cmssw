@@ -29,14 +29,16 @@
 #endif
 
 class QCriterion;
+class DQMService;
 
 // tag for a special constructor, see below
 struct MonitorElementNoCloneTag {};
 
+namespace dqm::impl {
 /** The base class for all MonitorElements (ME) */
 class MonitorElement {
   friend class DQMStore;
-  friend class DQMService;
+  friend DQMService;
 
 public:
   struct Scalar {
@@ -382,5 +384,18 @@ public:
   const uint32_t lumi() const { return data_.lumi; }
   const uint32_t moduleId() const { return data_.moduleId; }
 };
+
+}
+
+// These will become distinct classes in the future.
+namespace dqm::legacy {
+  typedef dqm::impl::MonitorElement MonitorElement;
+}
+namespace dqm::reco {
+  typedef dqm::impl::MonitorElement MonitorElement;
+}
+namespace dqm::harvesting {
+  typedef dqm::impl::MonitorElement MonitorElement;
+}
 
 #endif  // DQMSERVICES_CORE_MONITOR_ELEMENT_H

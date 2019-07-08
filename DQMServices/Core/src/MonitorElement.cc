@@ -16,6 +16,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #endif
 
+namespace dqm::impl {
+
 static TH1 *checkRootObject(const std::string &name, TObject *tobj, const char *func, int reqdim) {
   if (!tobj)
     raiseDQMError("MonitorElement",
@@ -1353,4 +1355,6 @@ TProfile2D *MonitorElement::getRefTProfile2D() const {
   assert(kind() == DQM_KIND_TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();
   return static_cast<TProfile2D *>(checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 2));
+}
+
 }

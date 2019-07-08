@@ -36,6 +36,9 @@ Implementation:
 //
 class DQMReadFileExample : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit DQMReadFileExample(const edm::ParameterSet&);
   ~DQMReadFileExample() override;
 
