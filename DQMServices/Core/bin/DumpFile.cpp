@@ -11,6 +11,9 @@
 #define _NSIG NSIG
 #endif
 
+typedef dqm::legacy::DQMStore DQMStore;
+typedef dqm::legacy::MonitorElement MonitorElement;
+
 struct MEInfo {
   int runnr;
   std::string system;

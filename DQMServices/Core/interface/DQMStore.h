@@ -39,7 +39,6 @@ namespace dqmstorepb {
   class ROOTFilePB_Histo;
 }  // namespace dqmstorepb
 
-class MonitorElement;
 class QCriterion;
 class TFile;
 class TBufferFile;
@@ -56,6 +55,20 @@ class TH3F;
 class TProfile;
 class TProfile2D;
 class TNamed;
+
+// forward-declare all our friends
+class DQMService;
+class DQMNet;
+class DQMArchiver;
+class DQMStoreExample;  // for get{All,Matching}Contents -- sole user of this method!
+class DQMRootOutputModule;
+class DQMRootSource;
+class DQMFileSaver;
+class MEtoEDMConverter;
+
+namespace dqm::impl {
+
+class MonitorElement;
 
 /** Implements RegEx patterns which occur often in a high-performant
     mattern. For all other expressions, the full RegEx engine is used.
@@ -821,15 +834,28 @@ private:
 
   std::mutex book_mutex_;
 
-  friend class edm::DQMHttpSource;
-  friend class DQMService;
-  friend class DQMNet;
-  friend class DQMArchiver;
-  friend class DQMStoreExample;  // for get{All,Matching}Contents -- sole user of this method!
-  friend class DQMRootOutputModule;
-  friend class DQMRootSource;
-  friend class DQMFileSaver;
-  friend class MEtoEDMConverter;
+  friend DQMService;
+  friend DQMNet;
+  friend DQMArchiver;
+  friend DQMStoreExample;  // for get{All,Matching}Contents -- sole user of this method!
+  friend DQMRootOutputModule;
+  friend DQMRootSource;
+  friend DQMFileSaver;
+  friend MEtoEDMConverter;
 };
+
+}
+
+// These will become distinct classes in the future.
+namespace  dqm::legacy {
+  typedef dqm::impl::DQMStore DQMStore;
+}
+namespace  dqm::reco {
+  typedef dqm::impl::DQMStore DQMStore;
+}
+namespace  dqm::harvesting {
+  typedef dqm::impl::DQMStore DQMStore;
+}
+
 
 #endif  // DQMServices_Core_DQMStore_h

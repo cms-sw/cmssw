@@ -12,6 +12,9 @@
 #define _NSIG NSIG
 #endif
 
+typedef dqm::legacy::DQMStore DQMStore;
+typedef dqm::legacy::MonitorElement MonitorElement;
+
 static const int FATAL_OPTS = (lat::Signal::FATAL_DEFAULT & ~(lat::Signal::FATAL_ON_INT | lat::Signal::FATAL_ON_QUIT |
                                                               lat::Signal::FATAL_DUMP_CORE));
 
