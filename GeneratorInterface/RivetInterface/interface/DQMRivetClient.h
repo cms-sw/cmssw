@@ -10,7 +10,6 @@
 #include <vector>
 #include <TH1.h>
 
-
 class DQMRivetClient : public edm::EDAnalyzer {
 public:
   DQMRivetClient(const edm::ParameterSet& pset);

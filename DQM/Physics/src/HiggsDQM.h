@@ -39,7 +39,6 @@
 #include <vector>
 #include <map>
 
-
 class HiggsDQM : public DQMEDAnalyzer {
 public:
   HiggsDQM(const edm::ParameterSet& ps);

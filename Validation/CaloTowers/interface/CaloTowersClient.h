@@ -31,7 +31,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-
 class CaloTowersClient : public DQMEDHarvester {
 private:
   std::string outputFile_;

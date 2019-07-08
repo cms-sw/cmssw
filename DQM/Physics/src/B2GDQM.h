@@ -75,7 +75,6 @@
 #include <map>
 #include <cmath>
 
-
 class B2GDQM : public DQMEDAnalyzer {
 public:
   B2GDQM(const edm::ParameterSet& ps);

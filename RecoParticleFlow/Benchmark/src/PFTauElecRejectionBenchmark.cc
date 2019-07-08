@@ -20,7 +20,6 @@
 using namespace reco;
 using namespace std;
 
-
 PFTauElecRejectionBenchmark::PFTauElecRejectionBenchmark() : file_(nullptr) {}
 
 PFTauElecRejectionBenchmark::~PFTauElecRejectionBenchmark() {

@@ -74,7 +74,6 @@
 #include <set>
 #include <utility>
 
-
 class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
 public:
   explicit JetAnalyzer_HeavyIons_matching(const edm::ParameterSet &);

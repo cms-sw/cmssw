@@ -23,7 +23,6 @@
 #include "DataFormats/DTDigi/interface/DTControlData.h"
 #include "DataFormats/DTDigi/interface/DTuROSControlData.h"
 
-
 #include <fstream>
 #include <map>
 #include <string>

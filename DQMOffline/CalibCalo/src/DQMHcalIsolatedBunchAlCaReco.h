@@ -21,7 +21,6 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-
 class DQMHcalIsolatedBunchAlCaReco : public DQMEDAnalyzer {
 public:
   DQMHcalIsolatedBunchAlCaReco(const edm::ParameterSet &);

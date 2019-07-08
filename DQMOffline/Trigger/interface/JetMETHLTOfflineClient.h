@@ -46,7 +46,6 @@
 #include <fstream>
 #include <vector>
 
-
 class JetMETHLTOfflineClient : public DQMEDHarvester {
 private:
   edm::ParameterSet conf_;

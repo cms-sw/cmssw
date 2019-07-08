@@ -38,7 +38,6 @@
 #include <string>
 #include <vector>
 
-
 class SiStripBadComponentInfo : public DQMEDHarvester {
 public:
   /// Constructor

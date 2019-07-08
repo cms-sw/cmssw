@@ -22,7 +22,6 @@
 #include <cmath>
 #include <map>
 
-
 class BPhysicsOniaDQM : public DQMEDAnalyzer {
 public:
   /// Constructor

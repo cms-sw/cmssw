@@ -24,7 +24,6 @@
 #include <string>
 #include <vector>
 
-
 class DTPreCalibrationTask : public DQMEDAnalyzer {
 public:
   /// Constructor

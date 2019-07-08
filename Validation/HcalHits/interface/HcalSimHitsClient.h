@@ -30,7 +30,6 @@
 #include <iostream>
 #include <vector>
 
-
 class HcalSimHitsClient : public DQMEDHarvester {
 private:
   int SimHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);

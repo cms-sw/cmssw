@@ -11,7 +11,6 @@
 
 #include <map>
 
-
 namespace ecaldqm {
 
   class DBWriterWorker {

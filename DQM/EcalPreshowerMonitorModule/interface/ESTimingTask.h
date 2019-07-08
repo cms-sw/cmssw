@@ -16,7 +16,6 @@
 #include "TH1F.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 double fitf(double *x, double *par);
 
 class ESTimingTask : public DQMEDAnalyzer {

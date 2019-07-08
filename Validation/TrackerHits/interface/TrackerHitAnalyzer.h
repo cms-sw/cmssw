@@ -19,7 +19,6 @@
 
 #include <string>
 
-
 class TrackerHitAnalyzer : public DQMEDAnalyzer {
 public:
   /// Constructor

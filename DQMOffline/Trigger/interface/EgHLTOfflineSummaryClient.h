@@ -27,7 +27,6 @@
 #include <vector>
 #include <string>
 
-
 class EgHLTOfflineSummaryClient : public edm::EDAnalyzer {
 public:
   struct SumHistBinData {

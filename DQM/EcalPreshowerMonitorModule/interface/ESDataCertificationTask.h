@@ -6,7 +6,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class ESDataCertificationTask : public edm::EDAnalyzer {
 public:
   ESDataCertificationTask(const edm::ParameterSet& ps);

@@ -19,7 +19,6 @@
 #include <iostream>
 #include <string>
 
-
 //
 // class to describe Histo
 //

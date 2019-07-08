@@ -19,7 +19,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 class MonitorLTC : public DQMEDAnalyzer {

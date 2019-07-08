@@ -29,7 +29,6 @@
 #include <iostream>
 #include <vector>
 
-
 class HcalRecHitsClient : public DQMEDHarvester {
 private:
   std::string outputFile_;

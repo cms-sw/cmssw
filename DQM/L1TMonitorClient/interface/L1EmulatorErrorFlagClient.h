@@ -15,7 +15,6 @@
 #include <vector>
 #include <map>
 
-
 class L1EmulatorErrorFlagClient : public DQMEDHarvester {
 public:
   /// Constructor

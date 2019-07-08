@@ -25,7 +25,6 @@
 #include <TFile.h>
 #include <vector>
 
-
 class PFJetBenchmark {
 public:
   PFJetBenchmark();

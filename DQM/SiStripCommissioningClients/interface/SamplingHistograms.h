@@ -6,7 +6,6 @@
 #include "CondFormats/SiStripObjects/interface/SamplingAnalysis.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 class SamplingHistograms : virtual public CommissioningHistograms {
 public:
   SamplingHistograms(const edm::ParameterSet& pset, DQMStore*, const sistrip::RunType& task = sistrip::APV_LATENCY);

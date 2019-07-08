@@ -12,7 +12,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISchema.h"
