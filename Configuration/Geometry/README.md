@@ -21,6 +21,7 @@ Fast Timing system:
 * I5: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along z flat
 * I7: Fast Timing detector (LYSO barrel, silicon endcap), full description with passive materials, LYSO bars along phi flat
 * I9: Same as I7 but with ETL in the position defined in O3
+* I10: Same as I9 w/ material adjustments
 
 The script also handles the common and forward elements of the geometry:
 * O2: detailed cavern description
@@ -33,6 +34,6 @@ Several detector combinations have been generated:
 * D41 = T14+C8+M3+I9+O3+F2
 * D43 = T14+C4+M3+I7+O2+F2
 * D44 = T14+C6+M3+I7+O2+F2
-* D45 = T15+C8+M3+I9+O3+F2
+* D45 = T15+C8+M3+I10+O3+F2
 
 D35 is the baseline for the MTD TDR, and D41 is the baseline for the L1T TDR.
