@@ -95,6 +95,11 @@ class _OptionalParameter(_ProxyParameter):
         v = self.__dict__.get('_ProxyParameter__value', None)
         if v is not None:
             v.insertInto(parameterSet,myname)
+    def value(self):
+        v = self.__dict__.get('_ProxyParameter__value', None)
+        if v is not None:
+            return v.value()
+        return None
 
 class _ObsoleteParameter(_OptionalParameter):
     @staticmethod
