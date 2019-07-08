@@ -11,19 +11,15 @@ CondDB.connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS")
 siPixelLorentzAngleESSource = cms.ESSource("PoolDBESSource",
                                            CondDB,
                                            toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
-                                                                      tag = cms.string("SiPixelLorentzAngle_phase2_T5_v0_mc")
+                                                                      tag = cms.string("SiPixelLorentzAngle_phase2_T15_v0_mc")
                                                                   ),
                                                              cms.PSet(record = cms.string('SiPixelLorentzAngleSimRcd'),
-                                                                      tag = cms.string("SiPixelSimLorentzAngle_phase2_T5_v0_mc")
+                                                                      tag = cms.string("SiPixelSimLorentzAngle_phase2_T15_v0_mc")
                                                                   ),
                                                              cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
-                                                                      tag = cms.string("SiPixelLorentzAngle_phase2_forWidth_T5_v0_mc"),
+                                                                      tag = cms.string("SiPixelLorentzAngle_phase2_forWidth_T15_v0_mc"),
                                                                       label = cms.untracked.string("forWidth")
                                                                   )
                                                              )
                                             )
 es_prefer_lorentz = cms.ESPrefer("PoolDBESSource","siPixelLorentzAngleESSource")
-
-
-
-
