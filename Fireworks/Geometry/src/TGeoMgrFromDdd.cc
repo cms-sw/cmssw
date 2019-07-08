@@ -49,7 +49,7 @@
 TGeoMgrFromDdd::TGeoMgrFromDdd(const edm::ParameterSet& pset)
     : m_level(pset.getUntrackedParameter<int>("level", 10)),
       m_verbose(pset.getUntrackedParameter<bool>("verbose", false)),
-      m_fullname(pset.getUntrackedParameter<bool>("fullName",true)) {
+      m_fullname(pset.getUntrackedParameter<bool>("fullName", true)) {
   // The following line is needed to tell the framework what data is
   // being produced.
   setWhatProduced(this);
@@ -107,9 +107,8 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
     return std::unique_ptr<TGeoManager>();
   }
 
-  TGeoVolume* top = (m_fullname ? 
-		     createVolume(info.first.name().fullname(), info.first.solid(), info.first.material()) :
-		     createVolume(info.first.name().name(), info.first.solid(), info.first.material()));
+  TGeoVolume* top = (m_fullname ? createVolume(info.first.name().fullname(), info.first.solid(), info.first.material())
+                                : createVolume(info.first.name().name(), info.first.solid(), info.first.material()));
 
   if (top == nullptr) {
     return std::unique_ptr<TGeoManager>();
@@ -327,7 +326,7 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
         /* calculate the displacement of the tubs w.r.t. to the trap,
 	       determine the opening angle of the tubs */
         double delta = sqrt(r * r - x * x);
-	std::string name = m_fullname ? pt.name().fullname() : pt.name().name();
+        std::string name = m_fullname ? pt.name().fullname() : pt.name().name();
 
         if (r < 0 && std::abs(r) >= x) {
           intersec = true;                            // intersection solid
@@ -354,8 +353,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           throw cms::Exception("Check parameters of the PseudoTrap! name=" + name);
         }
 
-        std::unique_ptr<TGeoShape> trap(new TGeoTrd2(
-            name.c_str(), pt.x1() / cm, pt.x2() / cm, pt.y1() / cm, pt.y2() / cm, pt.halfZ() / cm));
+        std::unique_ptr<TGeoShape> trap(
+            new TGeoTrd2(name.c_str(), pt.x1() / cm, pt.x2() / cm, pt.y1() / cm, pt.y2() / cm, pt.halfZ() / cm));
 
         std::unique_ptr<TGeoShape> tubs(new TGeoTubeSeg(name.c_str(),
                                                         0.,
@@ -399,8 +398,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           throw cms::Exception("GeomConvert") << "conversion to DDBooleanSolid failed";
         }
 
-	std::string nameA = m_fullname ? boolSolid.solidA().name().fullname() : boolSolid.solidA().name().name();
-	std::string nameB = m_fullname ? boolSolid.solidB().name().fullname() : boolSolid.solidB().name().name();
+        std::string nameA = m_fullname ? boolSolid.solidA().name().fullname() : boolSolid.solidA().name().name();
+        std::string nameB = m_fullname ? boolSolid.solidB().name().fullname() : boolSolid.solidB().name().name();
         std::unique_ptr<TGeoShape> left(createShape(nameA, boolSolid.solidA()));
         std::unique_ptr<TGeoShape> right(createShape(nameB, boolSolid.solidB()));
         if (nullptr != left.get() && nullptr != right.get()) {
@@ -430,8 +429,7 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
 
         // check the parameters
         if (rIn <= 0 || rOut <= 0 || cutAtStart <= 0 || cutAtDelta <= 0) {
-          std::string s =
-              "TruncTubs " + name + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
+          std::string s = "TruncTubs " + name + ": 0 <= rIn,cutAtStart,rOut,cutAtDelta,rOut violated!";
           throw cms::Exception(s);
         }
         if (rIn >= rOut) {
@@ -490,8 +488,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           throw cms::Exception("GeomConvert") << "conversion to DDBooleanSolid failed";
         }
 
-	std::string nameA = m_fullname ? boolSolid.solidA().name().fullname() : boolSolid.solidA().name().name();
-	std::string nameB = m_fullname ? boolSolid.solidB().name().fullname() : boolSolid.solidB().name().name();
+        std::string nameA = m_fullname ? boolSolid.solidA().name().fullname() : boolSolid.solidA().name().name();
+        std::string nameB = m_fullname ? boolSolid.solidB().name().fullname() : boolSolid.solidB().name().name();
         std::unique_ptr<TGeoShape> left(createShape(nameA, boolSolid.solidA()));
         std::unique_ptr<TGeoShape> right(createShape(nameB, boolSolid.solidB()));
         //DEBUGGING
@@ -511,8 +509,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           throw cms::Exception("GeomConvert") << "conversion to DDBooleanSolid failed";
         }
 
-	std::string nameA = m_fullname ? boolSolid.solidA().name().fullname() : boolSolid.solidA().name().name();
-	std::string nameB = m_fullname ? boolSolid.solidB().name().fullname() : boolSolid.solidB().name().name();
+        std::string nameA = m_fullname ? boolSolid.solidA().name().fullname() : boolSolid.solidA().name().name();
+        std::string nameB = m_fullname ? boolSolid.solidB().name().fullname() : boolSolid.solidB().name().name();
         std::unique_ptr<TGeoShape> left(createShape(nameA, boolSolid.solidA()));
         std::unique_ptr<TGeoShape> right(createShape(nameB, boolSolid.solidB()));
         if (nullptr != left.get() && nullptr != right.get()) {
@@ -550,7 +548,8 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
 TGeoVolume* TGeoMgrFromDdd::createVolume(const std::string& iName, const DDSolid& iSolid, const DDMaterial& iMaterial) {
   TGeoVolume* v = nameToVolume_[iName];
   if (v == nullptr) {
-    TGeoShape* solid = m_fullname ? createShape(iSolid.name().fullname(), iSolid) : createShape(iSolid.name().name(), iSolid);
+    TGeoShape* solid =
+        m_fullname ? createShape(iSolid.name().fullname(), iSolid) : createShape(iSolid.name().name(), iSolid);
     std::string mat_name = m_fullname ? iMaterial.name().fullname() : iMaterial.name().name();
     TGeoMedium* geo_med = nameToMedium_[mat_name];
     if (geo_med == nullptr) {
