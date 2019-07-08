@@ -41,7 +41,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 

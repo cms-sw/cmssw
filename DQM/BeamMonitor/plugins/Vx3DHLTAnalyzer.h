@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"

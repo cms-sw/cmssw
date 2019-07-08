@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DataFormats/MuonDetId/interface/DTLayerId.h>
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
@@ -31,7 +31,6 @@ class DTChamberId;
 
 #include "TFile.h"
 #include "TNtuple.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 class DTOccupancyTest : public DQMEDHarvester {
 public:

@@ -8,7 +8,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"

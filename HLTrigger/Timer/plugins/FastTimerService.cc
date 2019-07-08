@@ -15,7 +15,6 @@
 
 // CMSSW headers
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"

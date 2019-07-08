@@ -62,7 +62,6 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <string>
 
@@ -210,7 +209,6 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <string>
 

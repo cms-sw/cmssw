@@ -1,7 +1,6 @@
 #ifndef DQMOffline_Trigger_TriggerDQMBase_H
 #define DQMOffline_Trigger_TriggerDQMBase_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 

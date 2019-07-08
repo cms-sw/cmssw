@@ -2,7 +2,7 @@
 #define SiOuterTrackerV_OuterTrackerMonitorTrackingParticles_h
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -17,7 +17,6 @@
 #include "SimTracker/TrackTriggerAssociation/interface/TTClusterAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTStubAssociationMap.h"
 #include "SimTracker/TrackTriggerAssociation/interface/TTTrackAssociationMap.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <memory>
 #include <string>
 #include <vector>

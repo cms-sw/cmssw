@@ -41,7 +41,6 @@
 //DQM
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class DQMDaqInfo : public edm::EDAnalyzer {
 public:

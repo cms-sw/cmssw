@@ -11,14 +11,13 @@
 
 // user include files
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 
 class SiStripMonitorFilter : public DQMEDAnalyzer {

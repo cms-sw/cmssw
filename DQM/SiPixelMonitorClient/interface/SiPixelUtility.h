@@ -9,7 +9,6 @@
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TH1.h"
 #include "TPaveText.h"
 #include <fstream>

@@ -6,7 +6,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"

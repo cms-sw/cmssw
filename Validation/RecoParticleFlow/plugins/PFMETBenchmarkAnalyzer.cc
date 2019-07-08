@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"

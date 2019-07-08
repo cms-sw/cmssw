@@ -19,14 +19,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>

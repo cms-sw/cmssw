@@ -1,7 +1,6 @@
 #ifndef _SiStripSummaryCreator_h_
 #define _SiStripSummaryCreator_h_
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <fstream>
 #include <map>

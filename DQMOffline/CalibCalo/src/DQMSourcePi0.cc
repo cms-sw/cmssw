@@ -5,7 +5,7 @@
 
 // DQM include files
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // work on collections
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -15,7 +15,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 #include "DQMOffline/CalibCalo/src/DQMSourcePi0.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"

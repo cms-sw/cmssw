@@ -4,10 +4,9 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TTree.h>
 #include <fstream>

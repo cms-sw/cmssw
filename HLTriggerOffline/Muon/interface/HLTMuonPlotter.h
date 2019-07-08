@@ -36,7 +36,6 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "boost/tuple/tuple.hpp"
 #include <algorithm>

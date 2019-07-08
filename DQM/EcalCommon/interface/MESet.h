@@ -4,7 +4,6 @@
 #include "DQM/EcalCommon/interface/MESetBinningUtils.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"

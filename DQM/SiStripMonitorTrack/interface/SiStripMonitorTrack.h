@@ -40,7 +40,6 @@
 
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 

@@ -10,7 +10,6 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/RunInfo/interface/RunSummary.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

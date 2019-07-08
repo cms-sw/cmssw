@@ -21,7 +21,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -36,7 +36,6 @@ class TProfile;
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 class TrackSplittingMonitor : public DQMEDAnalyzer {
 public:

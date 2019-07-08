@@ -4,7 +4,6 @@
 #include "CalibFormats/CastorObjects/interface/CastorDbRecord.h"
 #include "CalibFormats/CastorObjects/interface/CastorDbService.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

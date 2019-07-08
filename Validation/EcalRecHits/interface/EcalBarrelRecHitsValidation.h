@@ -29,7 +29,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>

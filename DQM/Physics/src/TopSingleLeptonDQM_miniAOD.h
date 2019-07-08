@@ -6,7 +6,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQM/Physics/interface/TopDQMHelpers.h"

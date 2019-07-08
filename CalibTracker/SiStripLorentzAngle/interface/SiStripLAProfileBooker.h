@@ -11,7 +11,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-//#include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/DetId/interface/DetId.h"

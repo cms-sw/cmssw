@@ -62,7 +62,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"

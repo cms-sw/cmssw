@@ -26,7 +26,6 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"

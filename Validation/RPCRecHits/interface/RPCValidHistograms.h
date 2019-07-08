@@ -2,7 +2,6 @@
 #define Validation_RPCRecHits_RPCValidHistograms_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
