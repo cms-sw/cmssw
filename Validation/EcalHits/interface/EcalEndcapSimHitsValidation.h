@@ -27,7 +27,6 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>

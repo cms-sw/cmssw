@@ -7,7 +7,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 HcalNoiseRatesClient::HcalNoiseRatesClient(const edm::ParameterSet &iConfig) : conf_(iConfig) {
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");

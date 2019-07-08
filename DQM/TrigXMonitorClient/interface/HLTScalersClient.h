@@ -47,7 +47,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 //#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 

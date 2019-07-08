@@ -17,7 +17,6 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 

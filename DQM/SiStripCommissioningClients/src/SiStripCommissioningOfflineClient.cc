@@ -17,7 +17,6 @@
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <boost/cstdint.hpp>

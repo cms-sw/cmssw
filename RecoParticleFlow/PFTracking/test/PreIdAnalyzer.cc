@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/ParticleFlowReco/interface/PreIdFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/Common/interface/ValueMap.h"

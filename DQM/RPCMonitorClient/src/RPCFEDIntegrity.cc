@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //DQM Services
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //EventFilter
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"

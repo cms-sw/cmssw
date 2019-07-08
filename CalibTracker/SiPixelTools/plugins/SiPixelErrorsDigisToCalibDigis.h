@@ -31,7 +31,6 @@ Description: Create monitorElements for the Errors in created in the reduction o
 #include "DataFormats/SiPixelDigi/interface/SiPixelCalibDigiError.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"

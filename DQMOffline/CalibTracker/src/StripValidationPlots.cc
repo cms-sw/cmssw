@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TH1F.h"
 #include "TFile.h"

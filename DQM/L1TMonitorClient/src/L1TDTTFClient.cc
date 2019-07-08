@@ -11,7 +11,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 L1TDTTFClient::L1TDTTFClient(const edm::ParameterSet &ps)

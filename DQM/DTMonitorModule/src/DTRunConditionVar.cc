@@ -27,7 +27,6 @@
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 

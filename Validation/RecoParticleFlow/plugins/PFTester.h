@@ -7,7 +7,6 @@
 // date: 11/7/2007
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"

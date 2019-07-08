@@ -15,7 +15,6 @@
 
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //---------------------------------------------------------------------------------------
 /// Function to fill an efficiency histograms with binomial errors

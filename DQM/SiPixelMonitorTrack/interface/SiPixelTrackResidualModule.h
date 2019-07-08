@@ -17,7 +17,6 @@
 #include <boost/cstdint.hpp>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 

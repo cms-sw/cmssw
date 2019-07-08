@@ -12,7 +12,7 @@
 //         Created:  Wed Feb  1 16:47:14 CET 2006
 #include <memory>
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -28,7 +28,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiStripDetCabling;
 class SiStripCluster;

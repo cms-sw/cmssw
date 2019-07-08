@@ -22,12 +22,11 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <sstream>

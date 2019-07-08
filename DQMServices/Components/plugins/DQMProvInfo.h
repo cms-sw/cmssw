@@ -10,7 +10,6 @@
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 
 #include <DataFormats/Scalers/interface/DcsStatus.h>
 

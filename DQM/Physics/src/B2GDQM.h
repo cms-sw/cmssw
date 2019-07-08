@@ -29,7 +29,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // ParticleFlow
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -67,7 +67,6 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>

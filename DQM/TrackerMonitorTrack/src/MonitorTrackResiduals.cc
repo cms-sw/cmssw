@@ -4,7 +4,6 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackResiduals.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"

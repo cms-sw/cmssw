@@ -9,7 +9,6 @@
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"

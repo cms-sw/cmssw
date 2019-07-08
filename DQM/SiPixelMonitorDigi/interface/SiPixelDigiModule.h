@@ -20,7 +20,7 @@
 //  Updated by: Lukas Wehrli
 //  for pixel offline DQM
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,6 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 
 #include "FWCore/Framework/interface/ESHandle.h"

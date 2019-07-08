@@ -30,7 +30,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <cstring>
 #include <map>

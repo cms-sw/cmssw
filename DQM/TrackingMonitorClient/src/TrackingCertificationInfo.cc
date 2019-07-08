@@ -3,7 +3,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/TrackingMonitorClient/interface/TrackingUtility.h"
 #include "DQM/TrackingMonitorClient/interface/TrackingCertificationInfo.h"
