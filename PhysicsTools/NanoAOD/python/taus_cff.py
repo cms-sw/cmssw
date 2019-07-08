@@ -83,11 +83,7 @@ _tauVarsBase = cms.PSet(P4Vars,
        puCorr = Var( "tauID('puCorrPtSum')", float, doc = "pileup correction", precision=10),
        photonsOutsideSignalCone = Var( "tauID('photonPtSumOutsideSignalCone')", float, doc = "sum of photons outside signal cone", precision=10),
 
-       rawAntiEle = Var("tauID('againstElectronMVA6Raw')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator", precision=10),
-       rawAntiEleCat = Var("tauID('againstElectronMVA6category')", int, doc="Anti-electron MVA discriminator V6 category"),
-
        idAntiMu = _tauId2WPMask("againstMuon%s3", doc= "Anti-muon discriminator V3: "),
-       idAntiEle = _tauId5WPMask("againstElectron%sMVA6", doc= "Anti-electron MVA discriminator V6"),
 
 #   isoCI3hit = Var(  "tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits")" doc="byCombinedIsolationDeltaBetaCorrRaw3Hits raw output discriminator"),
 #   photonOutsideSigCone = Var( "tauID("photonPtSumOutsideSignalCone")" doc="photonPtSumOutsideSignalCone raw output discriminator"),
@@ -122,6 +118,10 @@ _mvaAntiEVars2018 = cms.PSet(
        rawAntiEle2018 = Var("tauID('againstElectronMVA6Raw2018')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator (2018)", precision=10),
        rawAntiEleCat2018 = Var("tauID('againstElectronMVA6category2018')", int, doc="Anti-electron MVA discriminator V6 category (2018)"),
        idAntiEle2018 = _tauId5WPMask("againstElectron%sMVA62018", doc= "Anti-electron MVA discriminator V6 (2018)"),
+
+       rawAntiEle = Var("tauID('againstElectronMVA6Rawv1')", float, doc= "Anti-electron MVA discriminator V6 raw output discriminator", precision=10),
+       rawAntiEleCat = Var("tauID('againstElectronMVA6categoryv1')", int, doc="Anti-electron MVA discriminator V6 category"),
+       idAntiEle = _tauId5WPMask("againstElectron%sMVA6v1", doc= "Anti-electron MVA discriminator V6"),
 )
 _deepTauVars2017v2 = cms.PSet(
     rawDeepTau2017v2VSe = Var("tauID('byDeepTau2017v2VSeraw')", float, doc="byDeepTau2017v2VSe raw output discriminator (deepTau2017v2)", precision=10),
