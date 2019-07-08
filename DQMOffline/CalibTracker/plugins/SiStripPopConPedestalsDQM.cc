@@ -21,7 +21,7 @@ private:
   SiStripPedestals m_obj;
 };
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPopConPedestalsHandlerFromDQM::SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig)

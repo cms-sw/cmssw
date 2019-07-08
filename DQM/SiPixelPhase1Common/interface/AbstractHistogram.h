@@ -12,7 +12,7 @@
 // Original Author:  Marcel Schneider
 //
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelPhase1Common/interface/GeometryInterface.h"
 #include <vector>
 #include <utility>

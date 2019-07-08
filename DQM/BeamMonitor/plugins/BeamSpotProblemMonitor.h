@@ -16,7 +16,7 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //

@@ -1,5 +1,5 @@
 #include "DQM/TrackingMonitorClient/interface/TrackingUtility.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 //

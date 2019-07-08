@@ -29,7 +29,7 @@ private:
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPopConBadComponentsHandlerFromDQM::SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig)

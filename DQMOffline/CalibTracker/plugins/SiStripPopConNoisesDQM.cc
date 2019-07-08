@@ -20,7 +20,7 @@ private:
   SiStripNoises m_obj;
 };
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPopConNoisesHandlerFromDQM::SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig)

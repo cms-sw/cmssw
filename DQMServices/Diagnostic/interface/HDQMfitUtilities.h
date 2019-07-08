@@ -1,7 +1,7 @@
 #ifndef DQMServices_HDQMfitUtilities_H
 #define DQMServices_HDQMfitUtilities_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TF1.h"
 #include "TH1.h"

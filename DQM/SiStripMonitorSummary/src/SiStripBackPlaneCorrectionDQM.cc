@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBackPlaneCorrectionDQM.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TCanvas.h"

@@ -19,7 +19,7 @@
 #ifndef CSCMonitorObject_H
 #define CSCMonitorObject_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CSCDQM_MonitorObject.h"
 
 /**

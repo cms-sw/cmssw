@@ -23,7 +23,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
