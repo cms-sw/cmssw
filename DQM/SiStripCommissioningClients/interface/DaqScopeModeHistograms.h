@@ -2,8 +2,8 @@
 #define DQM_SiStripCommissioningClients_DaqScopeModeHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
 
 class DaqScopeModeHistograms : public virtual CommissioningHistograms {
 public:

@@ -27,8 +27,6 @@
 // Less than operator for sorting EcalRecHits according to energy.
 bool ecalRecHitGreater(EcalRecHit x, EcalRecHit y) { return (x.energy() > y.energy()); }
 
-class DQMStore;
-class MonitorElement;
 
 class DQMSourcePi0 : public DQMEDAnalyzer {
 public:

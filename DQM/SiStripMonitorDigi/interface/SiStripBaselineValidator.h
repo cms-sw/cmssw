@@ -26,7 +26,6 @@
 
 //using namespace reco;
 
-class DQMStore;
 class SiStripBaselineValidator : public DQMEDAnalyzer {
 public:
   explicit SiStripBaselineValidator(const edm::ParameterSet &);

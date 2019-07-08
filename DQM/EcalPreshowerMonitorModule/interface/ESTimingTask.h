@@ -14,8 +14,8 @@
 
 #include "TF1.h"
 #include "TH1F.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 
 double fitf(double *x, double *par);
 

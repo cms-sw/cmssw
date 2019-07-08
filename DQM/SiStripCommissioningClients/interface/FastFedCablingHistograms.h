@@ -2,8 +2,8 @@
 #define DQM_SiStripCommissioningClients_FastFedCablingHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
 
 class FastFedCablingHistograms : public virtual CommissioningHistograms {
 public:

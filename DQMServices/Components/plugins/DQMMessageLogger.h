@@ -14,7 +14,6 @@
 #include <string>
 #include <map>
 
-class MonitorElement;
 
 class DQMMessageLogger : public DQMEDAnalyzer {
 public:

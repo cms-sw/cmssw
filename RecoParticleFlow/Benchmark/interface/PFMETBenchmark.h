@@ -23,10 +23,10 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 #include <TFile.h>
 
-class DQMStore;
 
 class PFMETBenchmark {
 public:

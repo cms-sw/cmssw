@@ -29,8 +29,6 @@
 #include <vector>
 
 class DTGeometry;
-class DQMStore;
-class MonitorElement;
 class DTHVStatus;
 
 class DTDCSByLumiTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {

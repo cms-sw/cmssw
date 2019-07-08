@@ -18,10 +18,10 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "HistSpec.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 
-class MonitorElement;
 
 class EgammaSuperClusters : public DQMEDAnalyzer {
 public:

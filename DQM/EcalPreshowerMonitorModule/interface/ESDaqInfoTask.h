@@ -6,9 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/EcalMapping/interface/ESElectronicsMapper.h"  // definition in line 75
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
-class MonitorElement;
 
 class ESDaqInfoTask : public edm::EDAnalyzer {
 public:

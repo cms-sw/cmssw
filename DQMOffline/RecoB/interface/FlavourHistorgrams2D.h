@@ -21,7 +21,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-//class DQMStore;
 
 //
 // class to describe Histo

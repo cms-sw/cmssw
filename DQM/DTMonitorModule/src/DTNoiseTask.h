@@ -32,7 +32,6 @@ namespace edm {
   class Event;
 }  // namespace edm
 
-class DQMStore;
 class DTGeometry;
 
 //-class DTNoiseTask : public edm::EDAnalyzer {

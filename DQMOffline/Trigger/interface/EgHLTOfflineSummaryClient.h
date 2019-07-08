@@ -22,12 +22,11 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
 
 class EgHLTOfflineSummaryClient : public edm::EDAnalyzer {
 public:

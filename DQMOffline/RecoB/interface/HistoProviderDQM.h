@@ -3,7 +3,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 
 #include <string>
 
