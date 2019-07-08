@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/TrackReco/interface/Track.h"

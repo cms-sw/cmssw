@@ -9,7 +9,7 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"

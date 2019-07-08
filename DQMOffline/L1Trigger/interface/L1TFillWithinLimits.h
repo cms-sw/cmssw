@@ -1,7 +1,7 @@
 #ifndef DQMOFFLINE_L1TRIGGER_L1TFILLWITHINLIMITS_H
 #define DQMOFFLINE_L1TRIGGER_L1TFILLWITHINLIMITS_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace dqmoffline {
   namespace l1t {

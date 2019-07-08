@@ -9,7 +9,7 @@
 
 #include <TH2F.h>
 #include <TH1F.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 
 class FitSlicesYTool {
