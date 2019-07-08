@@ -7,6 +7,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TTree.h>
 #include <fstream>
@@ -15,10 +16,8 @@
 #include <string>
 #include <vector>
 
-class DQMStore;
 class TkDetMap;
 class TrackerTopology;
-class MonitorElement;
 namespace edm {
   class EventSetup;
 }

@@ -47,8 +47,6 @@
 #include <fstream>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
 
 class JetMETHLTOfflineClient : public DQMEDHarvester {
 private:

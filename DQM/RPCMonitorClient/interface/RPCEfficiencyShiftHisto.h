@@ -11,7 +11,6 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <string>
 
-class DQMStore;
 class RPCDetId;
 
 class RPCEfficiencyShiftHisto : public DQMEDHarvester {

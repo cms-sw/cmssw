@@ -10,11 +10,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 #include <vector>
 
-class DQMStore;
-class MonitorElement;
 class TrackerGeometry;
 class TH1F;
 class TH2F;

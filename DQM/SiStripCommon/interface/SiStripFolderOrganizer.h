@@ -19,10 +19,10 @@
 
 //
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 
-class DQMStore;
 class TrackerTopology;
 class SiStripFolderOrganizer {
 public:

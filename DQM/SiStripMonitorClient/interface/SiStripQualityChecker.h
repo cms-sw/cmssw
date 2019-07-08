@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -13,8 +14,6 @@
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
 class TkDetMap;
 class SiStripDetCabling;
 

@@ -33,9 +33,9 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // forward declarations
-class DQMStore;
 
 // class declaration
 class L1TEventInfoClient : public DQMEDHarvester {

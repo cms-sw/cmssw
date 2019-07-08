@@ -19,7 +19,6 @@
 #include <vector>
 #include <map>
 
-class MonitorElement;
 class CommissioningAnalysis;
 
 class CommissioningHistograms {

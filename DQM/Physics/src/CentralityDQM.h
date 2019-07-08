@@ -17,7 +17,6 @@
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
-class DQMStore;
 
 class CentralityDQM : public DQMEDAnalyzer {
 public:

@@ -36,7 +36,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 class TFile;
-class MonitorElement;
 
 //
 // class declaration

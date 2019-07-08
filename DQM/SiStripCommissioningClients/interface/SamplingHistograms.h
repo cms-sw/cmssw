@@ -4,8 +4,8 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
 #include "DQM/SiStripCommissioningSummary/interface/SamplingSummaryFactory.h"
 #include "CondFormats/SiStripObjects/interface/SamplingAnalysis.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
 
 class SamplingHistograms : virtual public CommissioningHistograms {
 public:

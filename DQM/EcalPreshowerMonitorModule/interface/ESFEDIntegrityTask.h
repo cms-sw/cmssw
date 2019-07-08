@@ -9,8 +9,8 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
 
 class ESFEDIntegrityTask : public DQMEDAnalyzer {
 public:

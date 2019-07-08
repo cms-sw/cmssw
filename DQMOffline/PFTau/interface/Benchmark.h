@@ -15,7 +15,6 @@ class TProfile;
 class TH2F;
 class TDirectory;
 
-class DQMStore;
 
 /// abstract base class
 class Benchmark {

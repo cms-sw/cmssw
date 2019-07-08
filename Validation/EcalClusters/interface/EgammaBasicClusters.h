@@ -16,10 +16,10 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
 #include "HistSpec.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 
-class MonitorElement;
 
 class EgammaBasicClusters : public DQMEDAnalyzer {
 public:

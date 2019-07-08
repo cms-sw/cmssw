@@ -2,13 +2,13 @@
 #define _SiStripSummaryCreator_h_
 
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <fstream>
 #include <map>
 #include <vector>
 #include <string>
 
 class SiStripConfigWriter;
-class DQMStore;
 
 class SiStripSummaryCreator {
 public:
