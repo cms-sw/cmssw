@@ -91,7 +91,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/ForwardCommonData/data/cmszdc.xml',
         'Geometry/MTDCommonData/data/btl.xml',
         'Geometry/MTDCommonData/data/etl/v2/etl.xml',
-        'Geometry/MTDCommonData/data/CrystalBarPhiFlat/v2/mtd.xml',
+        'Geometry/MTDCommonData/data/CrystalBarPhiFlat/v3/mtd.xml',
         'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdStructureTopology.xml',
         'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdParameters.xml',
     )+

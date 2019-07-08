@@ -682,6 +682,34 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer_bar",
     },
+    "I10" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl/v2/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/v3/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_bar",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
@@ -691,7 +719,7 @@ detectorVersionDict = {
     ("O3","T14","C8","M3","F2","I9") : "D41",
     ("O2","T14","C4","M3","F2","I7") : "D43",
     ("O2","T14","C6","M3","F2","I7") : "D44",
-    ("O3","T15","C8","M3","F2","I9") : "D45",
+    ("O3","T15","C8","M3","F2","I10") : "D45",
 }
 
 deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42" ])
