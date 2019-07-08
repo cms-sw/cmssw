@@ -748,7 +748,7 @@ private:
   MonitorElement* book_(std::string const& dir, std::string const& name, char const* context);
   template <class HISTO, class COLLATE>
   MonitorElement* book_(
-      std::string const& dir, std::string const& name, char const* context, int kind, HISTO* h, COLLATE collate);
+      std::string const& dir, std::string const& name, char const* context, MonitorElement::Kind const kind, HISTO* h, COLLATE collate);
 
   MonitorElement* bookInt_(std::string const& dir, std::string const& name);
   MonitorElement* bookFloat_(std::string const& dir, std::string const& name);

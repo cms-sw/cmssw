@@ -57,7 +57,7 @@ MonitorElement *MonitorElement::initialise(Kind kind) {
     case DQM_KIND_TPROFILE:
     case DQM_KIND_TPROFILE2D:
       data_.flags &= ~DQMNet::DQM_PROP_TYPE_MASK;
-      data_.flags |= kind;
+    data_.flags |= ((int)kind);
       break;
 
     default:
@@ -161,7 +161,7 @@ MonitorElement::MonitorElement() : object_(nullptr), reference_(nullptr), refval
   data_.streamId = 0;
   data_.moduleId = 0;
   data_.tag = 0;
-  data_.flags = DQM_KIND_INVALID | DQMNet::DQM_PROP_NEW;
+  data_.flags = ((int) Kind::INVALID) | DQMNet::DQM_PROP_NEW;
   scalar_.num = 0;
   scalar_.real = 0;
 }
@@ -176,7 +176,7 @@ MonitorElement::MonitorElement(const std::string *path, const std::string &name)
   data_.dirname = path;
   data_.objname = name;
   data_.tag = 0;
-  data_.flags = DQM_KIND_INVALID | DQMNet::DQM_PROP_NEW;
+  data_.flags = ((int) Kind::INVALID) | DQMNet::DQM_PROP_NEW;
   scalar_.num = 0;
   scalar_.real = 0;
 }
@@ -191,7 +191,7 @@ MonitorElement::MonitorElement(const std::string *path, const std::string &name,
   data_.dirname = path;
   data_.objname = name;
   data_.tag = 0;
-  data_.flags = DQM_KIND_INVALID | DQMNet::DQM_PROP_NEW;
+  data_.flags = ((int) Kind::INVALID) | DQMNet::DQM_PROP_NEW;
   scalar_.num = 0;
   scalar_.real = 0;
 }
