@@ -475,6 +475,17 @@ namespace {
     return Trap(
         nam, t.dz(), t.theta(), t.phi(), t.h1(), t.bl1(), t.tl1(), t.alp1(), t.h2(), t.bl2(), t.tl2(), t.alp2());
   }
+
+  TGeoCombiTrans* createPlacement(const Rotation3D& iRot, const Position& iTrans) {
+    double elements[9];
+    iRot.GetComponents(elements);
+    TGeoRotation r;
+    r.SetMatrix(elements);
+
+    TGeoTranslation t(iTrans.x() / cm, iTrans.y() / cm, iTrans.z() / cm);
+
+    return new TGeoCombiTrans(t, r);
+  }
 }  // namespace
 
 static long algorithm(dd4hep::Detector& /* description */,
@@ -1263,11 +1274,12 @@ static long algorithm(dd4hep::Detector& /* description */,
             myrot(ns, alvWedge.hawRName + "R", hawRform.getRotation()),
             Position(hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z())));
 
-    // FIXME: extrusion!
-    fawLog.placeVolume(
+    // FIXME: extrusion when using placeVolume,
+    // use TGeoCombiTrans instead
+    fawLog->AddNode(  //.placeVolume(
         hawRLog,
         copyTwo,
-        Transform3D(
+        createPlacement(
             Rotation3D(1., 0., 0., 0., 1., 0., 0., 0., -1.) * RotationY(-M_PI),  // rotate about Y after refl thru Z
             Position(-hawRform.getTranslation().x(), -hawRform.getTranslation().y(), -hawRform.getTranslation().z())));
 
@@ -1492,9 +1504,10 @@ static long algorithm(dd4hep::Detector& /* description */,
       clrLog.placeVolume(cryLog, copyOne, Position(0_mm, 0_mm, (rClr - fClr) / 2));
 
       if (0 != cap.here) {
-        bsiLog.placeVolume(aglLog, copyAGL, Position(0_mm, 0_mm, 0.5 * (-apd.aglThick + bSi.thick)));
-        bsiLog.placeVolume(andLog, copyAND, Position(0_mm, 0_mm, 0.5 * (-apd.andThick + bSi.thick)));
-        bsiLog.placeVolume(apdLog, copyAPD, Position(0_mm, 0_mm, 0.5 * (-apd.thick + bSi.thick)));
+        bsiLog.placeVolume(aglLog, copyAGL, Position(0_mm, 0_mm, -apd.aglThick / 2. + bSi.thick / 2.));
+        bsiLog.placeVolume(andLog, copyAND, Position(0_mm, 0_mm, -apd.andThick / 2. - apd.aglThick + bSi.thick / 2.));
+        bsiLog.placeVolume(
+            apdLog, copyAPD, Position(0_mm, 0_mm, -apd.thick / 2. - apd.andThick - apd.aglThick + bSi.thick / 2.));
         bsiLog.placeVolume(
             atjLog,
             copyATJ,
