@@ -312,7 +312,7 @@ private:
   class PlotsPerElement {
   public:
     PlotsPerElement() = default;
-    void book(DQMStore::ConcurrentBooker&,
+    void book(dqm::reco::DQMStore::ConcurrentBooker&,
               std::string const& name,
               std::string const& title,
               PlotRanges const& ranges,
@@ -338,7 +338,7 @@ private:
   class PlotsPerPath {
   public:
     PlotsPerPath() = default;
-    void book(DQMStore::ConcurrentBooker&,
+    void book(dqm::reco::DQMStore::ConcurrentBooker&,
               std::string const&,
               ProcessCallGraph const&,
               ProcessCallGraph::PathType const&,
@@ -371,7 +371,7 @@ private:
   class PlotsPerProcess {
   public:
     PlotsPerProcess(ProcessCallGraph::ProcessType const&);
-    void book(DQMStore::ConcurrentBooker&,
+    void book(dqm::reco::DQMStore::ConcurrentBooker&,
               ProcessCallGraph const&,
               ProcessCallGraph::ProcessType const&,
               PlotRanges const& event_ranges,
@@ -392,7 +392,7 @@ private:
   class PlotsPerJob {
   public:
     PlotsPerJob(ProcessCallGraph const& job, std::vector<GroupOfModules> const& groups);
-    void book(DQMStore::ConcurrentBooker&,
+    void book(dqm::reco::DQMStore::ConcurrentBooker&,
               ProcessCallGraph const&,
               std::vector<GroupOfModules> const&,
               PlotRanges const& event_ranges,
