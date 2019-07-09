@@ -32,44 +32,43 @@
 //brief Collection of code to convert TOTEM raw data into digi.
 
 class FEDRawData;
-class CTPPSTotemDigiToRaw;  
+class CTPPSTotemDigiToRaw;
 
 class CTPPSTotemDataFormatter {
+private:
+  typedef uint16_t Word16;
+  typedef uint32_t Word32;
+  typedef uint64_t Word64;
 
-  private:
-    typedef uint16_t Word16;
-    typedef uint32_t Word32;
-    typedef uint64_t Word64;
+  mutable int m_WordCounter;
+  mutable int m_DigiCounter;
 
-    mutable int m_WordCounter;
-    mutable int m_DigiCounter;
+public:
+  typedef std::unordered_map<int, FEDRawData> RawData;
+  typedef std::vector<TotemRPDigi> DetDigis;
+  typedef std::unordered_map<cms_uint32_t, DetDigis> Digis;
 
-  public:
+  CTPPSTotemDataFormatter(std::map<TotemFramePosition, TotemVFATInfo> const& mapping);
 
-    typedef std::unordered_map<int, FEDRawData> RawData;
-    typedef std::vector<TotemRPDigi> DetDigis;
-    typedef std::unordered_map<cms_uint32_t,DetDigis> Digis;
+  int nWords() const { return m_WordCounter; }
+  int nDigis() const { return m_DigiCounter; }
 
-    CTPPSTotemDataFormatter(std::map<TotemFramePosition, TotemVFATInfo> const &mapping);
+  struct PPSStripIndex {
+    uint32_t id;
+    unsigned int hwid;
+    short unsigned int fedid;
+    short unsigned int idxinfiber;
+    short unsigned int gohid;
+  };
 
-    int nWords() const { return m_WordCounter; }
-    int nDigis() const { return m_DigiCounter; }
+  void formatRawData(unsigned int lvl1_ID,
+                     RawData& fedRawData,
+                     const Digis& digis,
+                     std::vector<PPSStripIndex> v_iDdet2fed);
 
-    struct PPSStripIndex { 
-      uint32_t id; 
-      unsigned int hwid; 
-      short unsigned int fedid; 
-      short unsigned int idxinfiber; 
-      short unsigned int gohid; 
-    };
+  static bool compare(const PPSStripIndex& a, const PPSStripIndex& b) { return a.id < b.id; }
 
-    void formatRawData(unsigned int lvl1_ID, RawData & fedRawData, const Digis & digis, std::vector<PPSStripIndex> v_iDdet2fed ) ; 
-
-    static bool compare(const PPSStripIndex& a, const PPSStripIndex& b) {
-      return a.id < b.id; 
-    }
-
-    std::string print(const Word64 & word) const;
+  std::string print(const Word64& word) const;
 };
 
 #endif
