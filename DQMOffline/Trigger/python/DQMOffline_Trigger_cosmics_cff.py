@@ -43,7 +43,7 @@ from DQMOffline.Trigger.HLTMuonOfflineAnalyzer_cosmics_cff import *
 # Top
 #from DQMOffline.Trigger.QuadJetAna_cfi import *
 # Tau
-from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
+#from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 # TnP
@@ -57,7 +57,7 @@ offlineHLTSource = cms.Sequence(
     hltResults *
     egHLTOffDQMSource *
     hltMuonOfflineAnalyzers *
-    HLTTauDQMOffline *
+#    HLTTauDQMOffline *
     jetMETHLTOfflineSource *
     #TnPEfficiency *
     dqmEnvHLT)
