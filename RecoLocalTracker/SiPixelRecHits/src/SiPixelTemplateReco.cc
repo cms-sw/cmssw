@@ -157,8 +157,12 @@ int SiPixelTemplateReco::PixelTempReco1D(int id, float cotalpha, float cotbeta, 
    const float probQmin={1.e-5};
    
    // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
-   
-   const double mean1pix={0.100}, chi21min={0.160};
+   const double mean1pix={0.100};
+#ifdef SI_PIXEL_TEMPLATE_STANDALONE
+   const double chi21min = {0.};
+#else 
+   const double chi21min={0.160};
+#endif
    
    // First, interpolate the template needed to analyze this cluster
    // check to see of the track direction is in the physical range of the loaded template
