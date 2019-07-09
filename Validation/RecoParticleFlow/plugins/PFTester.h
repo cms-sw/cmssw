@@ -17,6 +17,9 @@
 
 class PFTester : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit PFTester(const edm::ParameterSet &);
   ~PFTester() override;
 

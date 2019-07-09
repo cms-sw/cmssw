@@ -41,6 +41,9 @@ class EcalSimHitsValidation : public edm::EDAnalyzer {
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor
   EcalSimHitsValidation(const edm::ParameterSet &ps);
 

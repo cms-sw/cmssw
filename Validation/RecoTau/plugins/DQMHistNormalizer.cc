@@ -30,6 +30,9 @@ using namespace std;
 
 class DQMHistNormalizer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit DQMHistNormalizer(const edm::ParameterSet&);
   ~DQMHistNormalizer() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;

@@ -12,19 +12,19 @@ HistoProviderDQM::HistoProviderDQM(const std::string& prefix, const std::string&
 
 void HistoProviderDQM::setDir(const std::string& name) { ibook_.setCurrentFolder(name); }
 
-MonitorElement* HistoProviderDQM::book1D(
+HistoProviderDQM::MonitorElement* HistoProviderDQM::book1D(
     const std::string& name, const std::string& title, const int& nchX, const double& lowX, const double& highX) {
   return ibook_.book1D(name, title, nchX, lowX, highX);
 }
 
-MonitorElement* HistoProviderDQM::book1D(const std::string& name,
+HistoProviderDQM::MonitorElement* HistoProviderDQM::book1D(const std::string& name,
                                          const std::string& title,
                                          const int& nchX,
                                          float* xbinsize) {
   return ibook_.book1D(name, title, nchX, xbinsize);
 }
 
-MonitorElement* HistoProviderDQM::book2D(const std::string& name,
+HistoProviderDQM::MonitorElement* HistoProviderDQM::book2D(const std::string& name,
                                          const std::string& title,
                                          const int& nchX,
                                          const double& lowX,
@@ -35,7 +35,7 @@ MonitorElement* HistoProviderDQM::book2D(const std::string& name,
   return ibook_.book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-MonitorElement* HistoProviderDQM::book2D(const std::string& name,
+HistoProviderDQM::MonitorElement* HistoProviderDQM::book2D(const std::string& name,
                                          const std::string& title,
                                          const int& nchX,
                                          float* xbinsize,
@@ -44,7 +44,7 @@ MonitorElement* HistoProviderDQM::book2D(const std::string& name,
   return ibook_.book2D(name, title, nchX, xbinsize, nchY, ybinsize);
 }
 
-MonitorElement* HistoProviderDQM::bookProfile(const std::string& name,
+HistoProviderDQM::MonitorElement* HistoProviderDQM::bookProfile(const std::string& name,
                                               const std::string& title,
                                               int nchX,
                                               double lowX,

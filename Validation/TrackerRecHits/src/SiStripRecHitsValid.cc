@@ -992,7 +992,7 @@ void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker& ibooker, std::strin
   SubDetMEsMap[label] = subdetMEs;
 }
 //------------------------------------------------------------------------------------------
-inline MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker& ibooker,
+inline SiStripRecHitsValid::MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker& ibooker,
                                                      const char* ParameterSetLabel,
                                                      const char* HistoName,
                                                      const char* HistoTitle) {

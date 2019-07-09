@@ -133,6 +133,8 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 
 class MTVHistoProducerAlgoForTracker {
  public:
+  typedef dqm::reco::DQMStore DQMStore; 
+
   MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots) ;
   ~MTVHistoProducerAlgoForTracker();
 

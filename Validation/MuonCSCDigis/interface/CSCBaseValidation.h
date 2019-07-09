@@ -14,6 +14,9 @@
 
 class CSCBaseValidation {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   CSCBaseValidation(const edm::InputTag &inputTag);
   virtual ~CSCBaseValidation() {}
   void setGeometry(const CSCGeometry *geom) { theCSCGeometry = geom; }

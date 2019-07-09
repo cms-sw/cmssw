@@ -22,6 +22,9 @@ TH2F * ## TYPE ## _dPt;
 
 class L1ValidatorHists {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   L1ValidatorHists();
   ~L1ValidatorHists();
 

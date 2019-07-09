@@ -10,7 +10,7 @@
 
 using namespace std;
 
-typedef MonitorElement *MEP;
+typedef RPCPointVsRecHit::MonitorElement *MEP;
 
 RPCPointVsRecHit::RPCPointVsRecHit(const edm::ParameterSet &pset) {
   refHitToken_ = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("refHit"));

@@ -15,6 +15,9 @@
 
 class BTagDifferentialPlot {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   enum ConstVarType { constPT, constETA };
 
   BTagDifferentialPlot(double bEff, const ConstVarType& constVariable, const std::string& tagName, unsigned int mc);

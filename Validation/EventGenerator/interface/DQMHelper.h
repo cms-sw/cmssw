@@ -14,6 +14,9 @@
 
 class DQMHelper {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   DQMHelper(DQMStore::IBooker *i);
   virtual ~DQMHelper();
 

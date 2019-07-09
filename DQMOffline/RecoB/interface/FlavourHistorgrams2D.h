@@ -27,6 +27,9 @@
 template <class T, class G>
 class FlavourHistograms2D {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   FlavourHistograms2D(TString baseNameTitle_,
                       TString baseNameDescription_,
                       int nBinsX_,

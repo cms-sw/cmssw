@@ -121,7 +121,7 @@ void ElectronDqmHarvesterBase::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::I
   finalize(iBooker, iGetter);
 }
 
-MonitorElement *ElectronDqmHarvesterBase::get(DQMStore::IGetter &iGetter, const std::string &name) {
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::get(DQMStore::IGetter &iGetter, const std::string &name) {
   const std::string *fullName = find(iGetter, name);
   if (fullName) {
     return iGetter.get(inputInternalPath_ + "/" + *fullName);
@@ -138,7 +138,7 @@ void ElectronDqmHarvesterBase::remove(DQMStore::IBooker &iBooker, DQMStore::IGet
   }
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBooker,
                                                           DQMStore::IGetter &iGetter,
                                                           const std::string &name,
                                                           const std::string &num,
@@ -149,7 +149,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBo
   return bookH1andDivide(iBooker, iGetter, name, get(iGetter, num), get(iGetter, denom), titleX, titleY, title);
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH2andDivide(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2andDivide(DQMStore::IBooker &iBooker,
                                                           DQMStore::IGetter &iGetter,
                                                           const std::string &name,
                                                           const std::string &num,
@@ -160,7 +160,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH2andDivide(DQMStore::IBooker &iBo
   return bookH2andDivide(iBooker, iGetter, name, get(iGetter, num), get(iGetter, denom), titleX, titleY, title);
 }
 
-MonitorElement *ElectronDqmHarvesterBase::cloneH1(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::cloneH1(DQMStore::IBooker &iBooker,
                                                   DQMStore::IGetter &iGetter,
                                                   const std::string &clone,
                                                   const std::string &original,
@@ -168,7 +168,7 @@ MonitorElement *ElectronDqmHarvesterBase::cloneH1(DQMStore::IBooker &iBooker,
   return cloneH1(iBooker, iGetter, clone, get(iGetter, original), title);
 }
 
-MonitorElement *ElectronDqmHarvesterBase::profileX(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::profileX(DQMStore::IBooker &iBooker,
                                                    DQMStore::IGetter &iGetter,
                                                    const std::string &me2d,
                                                    const std::string &title,
@@ -179,7 +179,7 @@ MonitorElement *ElectronDqmHarvesterBase::profileX(DQMStore::IBooker &iBooker,
   return profileX(iBooker, iGetter, get(iGetter, me2d), title, titleX, titleY, minimum, maximum);
 }
 
-MonitorElement *ElectronDqmHarvesterBase::profileY(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::profileY(DQMStore::IBooker &iBooker,
                                                    DQMStore::IGetter &iGetter,
                                                    const std::string &me2d,
                                                    const std::string &title,
@@ -190,7 +190,7 @@ MonitorElement *ElectronDqmHarvesterBase::profileY(DQMStore::IBooker &iBooker,
   return profileY(iBooker, iGetter, get(iGetter, me2d), title, titleX, titleY, minimum, maximum);
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH1(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1(DQMStore::IBooker &iBooker,
                                                  const std::string &name,
                                                  const std::string &title,
                                                  int nchX,
@@ -216,7 +216,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH1(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
                                                           const std::string &name,
                                                           const std::string &title,
                                                           int nchX,
@@ -243,7 +243,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH1withSumw2(DQMStore::IBooker &iBo
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH2(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2(DQMStore::IBooker &iBooker,
                                                  const std::string &name,
                                                  const std::string &title,
                                                  int nchX,
@@ -272,7 +272,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH2(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
                                                           const std::string &name,
                                                           const std::string &title,
                                                           int nchX,
@@ -302,7 +302,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH2withSumw2(DQMStore::IBooker &iBo
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookP1(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookP1(DQMStore::IBooker &iBooker,
                                                  const std::string &name,
                                                  const std::string &title,
                                                  int nchX,
@@ -330,7 +330,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookP1(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBooker,
                                                           DQMStore::IGetter &iGetter,
                                                           const std::string &name,
                                                           MonitorElement *num,
@@ -361,7 +361,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH1andDivide(DQMStore::IBooker &iBo
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::bookH2andDivide(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::bookH2andDivide(DQMStore::IBooker &iBooker,
                                                           DQMStore::IGetter &iGetter,
                                                           const std::string &name,
                                                           MonitorElement *num,
@@ -392,7 +392,7 @@ MonitorElement *ElectronDqmHarvesterBase::bookH2andDivide(DQMStore::IBooker &iBo
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::cloneH1(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::cloneH1(DQMStore::IBooker &iBooker,
                                                   DQMStore::IGetter &iGetter,
                                                   const std::string &name,
                                                   MonitorElement *original,
@@ -411,7 +411,7 @@ MonitorElement *ElectronDqmHarvesterBase::cloneH1(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::profileX(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::profileX(DQMStore::IBooker &iBooker,
                                                    DQMStore::IGetter &iGetter,
                                                    MonitorElement *me2d,
                                                    const std::string &title,
@@ -442,7 +442,7 @@ MonitorElement *ElectronDqmHarvesterBase::profileX(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ElectronDqmHarvesterBase::profileY(DQMStore::IBooker &iBooker,
+ElectronDqmHarvesterBase::MonitorElement *ElectronDqmHarvesterBase::profileY(DQMStore::IBooker &iBooker,
                                                    DQMStore::IGetter &iGetter,
                                                    MonitorElement *me2d,
                                                    const std::string &title,

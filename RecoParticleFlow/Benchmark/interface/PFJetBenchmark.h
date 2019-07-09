@@ -27,6 +27,9 @@
 
 class PFJetBenchmark {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   PFJetBenchmark();
   virtual ~PFJetBenchmark();
 

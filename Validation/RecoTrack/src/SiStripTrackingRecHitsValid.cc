@@ -2667,7 +2667,7 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker &i
   StereoAndMatchedMEsMap[label] = stereoandmatchedMEs;
 }
 //------------------------------------------------------------------------------------------
-inline MonitorElement *SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker &ibooker,
+inline SiStripTrackingRecHitsValid::MonitorElement *SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker &ibooker,
                                                              const char *ParameterSetLabel,
                                                              const char *HistoName,
                                                              const char *HistoTitle) {
@@ -2679,7 +2679,7 @@ inline MonitorElement *SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker &
                         Parameters.getParameter<double>("xmax"));
 }
 //------------------------------------------------------------------------------------------
-inline MonitorElement *SiStripTrackingRecHitsValid::bookMEProfile(DQMStore::IBooker &ibooker,
+inline SiStripTrackingRecHitsValid::MonitorElement *SiStripTrackingRecHitsValid::bookMEProfile(DQMStore::IBooker &ibooker,
                                                                   const char *ParameterSetLabel,
                                                                   const char *HistoName,
                                                                   const char *HistoTitle) {

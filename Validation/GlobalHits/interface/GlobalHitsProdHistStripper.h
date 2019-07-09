@@ -40,6 +40,9 @@
 
 class GlobalHitsProdHistStripper : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   // typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsProdHistStripper(const edm::ParameterSet &);

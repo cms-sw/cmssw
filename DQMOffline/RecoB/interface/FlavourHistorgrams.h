@@ -25,6 +25,9 @@
 template <class T>
 class FlavourHistograms {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   FlavourHistograms(const std::string& baseNameTitle_,
                     const std::string& baseNameDescription_,
                     const int& nBins_,

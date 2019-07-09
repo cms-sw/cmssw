@@ -35,6 +35,9 @@ using namespace edm;
 
 class recoBSVTagInfoValidationAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit recoBSVTagInfoValidationAnalyzer(const edm::ParameterSet &);
 
 private:
