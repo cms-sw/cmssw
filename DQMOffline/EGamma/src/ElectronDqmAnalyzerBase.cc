@@ -54,7 +54,7 @@ void ElectronDqmAnalyzerBase::bookHistograms(DQMStore::IBooker &ibooker_, edm::R
   edm::LogInfo("DQMAnalyzeBase::bookHistograms") << std::endl;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
                                                 const std::string &name,
                                                 const std::string &title,
                                                 int nchX,
@@ -80,7 +80,7 @@ MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
                                                          const std::string &name,
                                                          const std::string &title,
                                                          int nchX,
@@ -108,7 +108,7 @@ MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBoo
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
                                                 const std::string &name,
                                                 const std::string &title,
                                                 int nchX,
@@ -137,7 +137,7 @@ MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
                                                          const std::string &name,
                                                          const std::string &title,
                                                          int nchX,
@@ -168,7 +168,7 @@ MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBoo
   return me;
 }
 
-MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
+ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
                                                 const std::string &name,
                                                 const std::string &title,
                                                 int nchX,

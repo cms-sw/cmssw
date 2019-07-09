@@ -50,6 +50,9 @@ using namespace std;
 
 class PFMETBenchmarkAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit PFMETBenchmarkAnalyzer(const edm::ParameterSet &);
   ~PFMETBenchmarkAnalyzer() override;
 
@@ -71,7 +74,7 @@ string OutputFileName;
 bool pfmBenchmarkDebug;
 bool xplotAgainstReco;
 string xbenchmarkLabel_;
-DQMStore *xdbe_;
+dqm::legacy::DQMStore *xdbe_;
 //
 // constants, enums and typedefs
 //

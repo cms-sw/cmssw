@@ -9,6 +9,9 @@
 #include <string>
 
 struct RPCValidHistograms {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   typedef MonitorElement *MEP;
 
   RPCValidHistograms() { booked_ = false; };

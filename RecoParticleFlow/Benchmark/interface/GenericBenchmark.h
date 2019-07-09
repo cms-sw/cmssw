@@ -20,6 +20,9 @@ class BenchmarkTree;
 //COLIN: this class REALLY needs to be cleaned up and rationalized, on the model of PFCandidateBenchmark.
 class GenericBenchmark {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   GenericBenchmark();
   virtual ~GenericBenchmark() noexcept(false);
 

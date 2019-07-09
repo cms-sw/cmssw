@@ -97,7 +97,7 @@ string GEMBaseValidation::getStationLabel(int i) {
 
 GEMBaseValidation::~GEMBaseValidation() {}
 
-MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TString title, TString histname) {
+GEMBaseValidation::MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TString title, TString histname) {
   std::vector<double> xbins_vector;
   double station1_xmin = RangeZR_[0];
   double station1_xmax = RangeZR_[1];
@@ -114,7 +114,7 @@ MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TStri
   return simpleZR;
 }
 
-MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker,
+GEMBaseValidation::MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker,
                                             const GEMStation* station,
                                             TString title,
                                             TString histname) {
@@ -144,7 +144,7 @@ MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker,
   return dcEta;
 }
 
-MonitorElement* GEMBaseValidation::BookHistZR(DQMStore::IBooker& ibooker,
+GEMBaseValidation::MonitorElement* GEMBaseValidation::BookHistZR(DQMStore::IBooker& ibooker,
                                               const char* name,
                                               const char* label,
                                               unsigned int region_num,
@@ -179,7 +179,7 @@ MonitorElement* GEMBaseValidation::BookHistZR(DQMStore::IBooker& ibooker,
   return ibooker.book2D(hist_name, hist_title, xbin, xmin, xmax, ybin, ymin, ymax);
 }
 
-MonitorElement* GEMBaseValidation::BookHistXY(DQMStore::IBooker& ibooker,
+GEMBaseValidation::MonitorElement* GEMBaseValidation::BookHistXY(DQMStore::IBooker& ibooker,
                                               const char* name,
                                               const char* label,
                                               unsigned int region_num,

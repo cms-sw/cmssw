@@ -35,7 +35,10 @@
 #include <TH2F.h>
 
 class MuonTrackValidatorBase {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
 public:
+
   /// Constructor
   MuonTrackValidatorBase(const edm::ParameterSet& pset, edm::ConsumesCollector iC) : MuonTrackValidatorBase(pset) {
     bsSrc_Token = iC.consumes<reco::BeamSpot>(bsSrc);
