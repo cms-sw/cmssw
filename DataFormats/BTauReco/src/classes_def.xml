@@ -465,4 +465,9 @@
   <class name="reco::DeepBoostedJetTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepBoostedJetTagInfoCollection>" persistent="false"/>
 
+  <class name="reco::PixelClusterData"/>
+  <class name="reco::PixelClusterTagInfo"/>
+  <class name="reco::PixelClusterTagInfoCollection"/>
+  <class name="edm::Wrapper<reco::PixelClusterTagInfoCollection>"/>
+
 </lcgdict>
