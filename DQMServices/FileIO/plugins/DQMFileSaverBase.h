@@ -22,6 +22,9 @@ namespace dqm {
 
   class DQMFileSaverBase : public edm::global::EDAnalyzer<edm::RunCache<NoCache>, edm::LuminosityBlockCache<NoCache> > {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     DQMFileSaverBase(const edm::ParameterSet &ps);
     ~DQMFileSaverBase() override;
 

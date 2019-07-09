@@ -65,6 +65,9 @@
 #include "format.h"
 
 namespace {
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   //adapter functions
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1F* iHist) {
     //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
