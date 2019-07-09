@@ -58,6 +58,9 @@ struct EVTColContainer;
 
 class HLTHiggsSubAnalysis {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   enum { GEN, RECO };
 
   HLTHiggsSubAnalysis(const edm::ParameterSet &pset, const std::string &analysisname, edm::ConsumesCollector &&iC);

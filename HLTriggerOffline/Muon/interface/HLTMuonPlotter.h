@@ -51,6 +51,9 @@ const unsigned int kNull = (unsigned int)-1;
 
 class HLTMuonPlotter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HLTMuonPlotter(const edm::ParameterSet &,
                  std::string,
                  const std::vector<std::string> &,
