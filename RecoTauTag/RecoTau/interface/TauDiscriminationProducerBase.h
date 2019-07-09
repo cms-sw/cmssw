@@ -3,13 +3,13 @@
 
 /* class TauDiscriminationProducerBase
  *
- * Base classes for producing Calo and PFTau discriminators
+ * Base classes for producing PFTau and PatTau discriminators
  *
  * PFTaus   - inherit from PFTauDiscriminationProducerBase
- * CaloTaus - inherit from CaloTauDiscriminationProducerBase
+ * PatTaus - inherit from PatTauDiscriminationProducerBase
  *
- * The base class takes a (Calo/PF)Tau collection and a collection of
- * associated (Calo/PF)TauDiscriminators.  Each tau is required to pass the given
+ * The base class takes a (PF/PAT)Tau collection and a collection of
+ * associated (PF/PAT)TauDiscriminators.  Each tau is required to pass the given
  * set of prediscriminants.  Taus that pass these are then passed to the
  * pure virtual function
  *
@@ -46,9 +46,6 @@
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
-
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 
 template <class TauType, class TauDiscriminator>
 class TauDiscriminationProducerBase : public edm::stream::EDProducer<> {
@@ -113,7 +110,6 @@ private:
 // define our implementations
 typedef TauDiscriminationProducerBase<reco::PFTau, reco::PFTauDiscriminator> PFTauDiscriminationProducerBase;
 typedef TauDiscriminationProducerBase<pat::Tau, pat::PATTauDiscriminator> PATTauDiscriminationProducerBase;
-typedef TauDiscriminationProducerBase<reco::CaloTau, reco::CaloTauDiscriminator> CaloTauDiscriminationProducerBase;
 
 /// helper function retrieve the correct cfi getter string (ie PFTauProducer)
 //for this tau type
@@ -122,6 +118,6 @@ std::string getProducerString() {
   // this generic one shoudl never be called.
   // these are specialized in TauDiscriminationProducerBase.cc
   throw cms::Exception("TauDiscriminationProducerBase")
-      << "Unsupported TauType used. You must use either PFTau, PATTau or CaloTaus.";
+      << "Unsupported TauType used. You must use either PFTau or PATTau.";
 }
 #endif
