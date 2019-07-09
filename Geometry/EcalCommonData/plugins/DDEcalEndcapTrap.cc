@@ -1,4 +1,4 @@
-#include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
+#include "DDEcalEndcapTrap.h"
 
 // Implementation of DDEcalEndcapTrap class
 
