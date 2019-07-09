@@ -10,7 +10,6 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
 //#define EDM_ML_DEBUG
@@ -61,8 +60,13 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   firstLayer_ = (int)(nArgs["FirstLayer"]);
   absorbMode_ = (int)(nArgs["AbsorberMode"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "First Layere " << firstLayer_ << " and "
+  edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
                                 << "Absober mode " << absorbMode_;
+#endif
+  layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
+#ifdef EDM_ML_DEBUG
+  for (unsigned int i = 0; i < layerCenter_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
 #endif
   if (firstLayer_ > 0) {
     for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -112,7 +116,7 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   for (unsigned int i = 0; i < materialsBot_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesBot_[i] << " of thickness " << layerThickBot_[i]
                                   << " filled with " << materialsBot_[i] << " first copy number " << copyNumberBot_[i];
-  edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeBot_.size() << " layers in the top part";
+  edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeBot_.size() << " layers in the bottom part";
   for (unsigned int i = 0; i < layerTypeBot_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeBot_[i]
                                   << " sensitive class " << layerSenseBot_[i];
@@ -406,8 +410,13 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
                                   << glog1.name() << " at " << r1 << " with " << rot;
 #endif
-    if (layerSenseBot_[ly] != 0)
-      positionSensitive(glog2, rin, rmid, zz + zpos, layerSenseBot_[ly], cpv);
+    if (layerSenseBot_[ly] != 0) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: z " << (zz + zpos) << " Center " << copy << ":" << (copy - firstLayer_) 
+				    << ":" << layerCenter_[copy - firstLayer_];
+#endif
+      positionSensitive(glog2, rin, rmid, zz + zpos, layerSenseBot_[ly], layerCenter_[copy - firstLayer_], cpv);
+    }
     zpos += hthickl;
     ++copyNumberBot_[ii];
   }
@@ -423,17 +432,19 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
 }
 
 void DDHGCalHEAlgo::positionSensitive(
-    const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, DDCompactView& cpv) {
+    const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, int layercenter, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   double r = 0.5 * (waferSize_ + waferSepar_);
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;
   int N = (int)(0.5 * rout / r) + 2;
+  std::pair<double,double> xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog.ddname() << " rout " << rout << " N " << N
-                                << " for maximum u, v";
+                                << " for maximum u, v Offset; Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
+				<< (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
     int iu = std::abs(u);
@@ -441,8 +452,8 @@ void DDHGCalHEAlgo::positionSensitive(
       int iv = std::abs(v);
       int nr = 2 * v;
       int nc = -2 * u + v;
-      double xpos = nc * r;
-      double ypos = nr * dy;
+      double xpos = xyoff.first + nc * r;
+      double ypos = xyoff.second + nr * dy;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;
