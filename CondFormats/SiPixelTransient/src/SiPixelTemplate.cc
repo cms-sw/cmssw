@@ -1614,9 +1614,9 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    sxtwo_ = entry->sxtwo;
 
    chi2yminone_ = 0.f;
-   chi2yavgone_ = 0.f;
+   chi2yavgone_ = 0.1;
    chi2xminone_ = 0.f;
-   chi2xavgone_ = 0.f;
+   chi2xavgone_ = 0.1;
 
    
    for(int i=0; i<4 ; ++i) {
@@ -1629,15 +1629,15 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
       xavg_[i] = 0.f;
       yavg_[i] = 0.f;
 
-      chi2yavg_[i] = 0.f;
-      chi2xavg_[i] = 0.f;
+      chi2yavg_[i] = 0.1;
+      chi2xavg_[i] = 0.1;
 
       chi2xmin_[i] = 0.f;
       chi2ymin_[i] = 0.f;
 
       for(int j=0; j<6; j++){
-        yflparl_[i][j]  = yflparh_[i][j] = 0.;
-        xflparhh_[i][j] = xflparhl_[i][j] = xflparll_[i][j]  = xflparlh_[i][j] = 0.;
+        yflparl_[i][j]  = yflparh_[i][j] = entry->yflpar[i][j];
+        xflparhh_[i][j] = xflparhl_[i][j] = xflparll_[i][j]  = xflparlh_[i][j] = entry->xflpar[i][j];
       }
    }
 
