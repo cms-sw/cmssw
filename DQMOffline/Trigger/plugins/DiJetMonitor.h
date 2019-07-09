@@ -48,6 +48,9 @@ class GenericTriggerEventFlag;
 
 class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
   DiJetMonitor(const edm::ParameterSet &);
   ~DiJetMonitor() throw() override{};
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);

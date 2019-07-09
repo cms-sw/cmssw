@@ -65,8 +65,8 @@ struct MEbinning {
 };
 
 struct METME {
-  MonitorElement* numerator;
-  MonitorElement* denominator;
+  dqm::reco::MonitorElement* numerator;
+  dqm::reco::MonitorElement* denominator;
 };
 
 //

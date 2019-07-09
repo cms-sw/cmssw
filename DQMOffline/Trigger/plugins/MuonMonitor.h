@@ -48,8 +48,8 @@ struct MEbinning {
 };
 
 struct MuonME {
-  MonitorElement* numerator;
-  MonitorElement* denominator;
+  dqm::reco::MonitorElement* numerator;
+  dqm::reco::MonitorElement* denominator;
 };
 //
 // class declaration

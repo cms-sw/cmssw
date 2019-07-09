@@ -29,6 +29,9 @@
 
 class EgHLTOfflineSummaryClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+  
   struct SumHistBinData {
     std::string name;
     std::vector<std::string> qTestPatterns;

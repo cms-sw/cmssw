@@ -19,6 +19,9 @@
 
 class DQMOfflineHLTEventInfoClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+  
   /// Constructor
   DQMOfflineHLTEventInfoClient(const edm::ParameterSet& ps);
 

@@ -169,19 +169,19 @@ std::string SiPixelOfflineCalibAnalysisBase::translateDetIdToString(uint32_t det
   return output;
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
     uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX) {
   std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
   return daqBE_->book1D(hid, title, nchX, lowX, highX);
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
     uint32_t detid, std::string name, std::string title, int nchX, float* xbinsize) {
   std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
   return daqBE_->book1D(hid, title, nchX, xbinsize);
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(uint32_t detid,
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(uint32_t detid,
                                                                     std::string name,
                                                                     std::string title,
                                                                     int nchX,
@@ -194,7 +194,7 @@ MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(uint32_t det
   return daqBE_->book2D(hid, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistoPlaquetteSummary2D(uint32_t detid,
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistoPlaquetteSummary2D(uint32_t detid,
                                                                                 std::string name,
                                                                                 std::string title) {
   DetId detId(detid);

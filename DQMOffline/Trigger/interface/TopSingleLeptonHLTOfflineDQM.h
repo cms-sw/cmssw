@@ -45,7 +45,9 @@ namespace HLTOfflineDQMTopSingleLepton {
 
   class MonitorSingleLepton {
   public:
-  public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     /// default contructor
     MonitorSingleLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
     /// default destructor

@@ -8,6 +8,9 @@
 */
 class SiStripPopConNoisesHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripNoises> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+  
   explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConNoisesHandlerFromDQM() override;
   // interface methods: implemented in template

@@ -34,6 +34,9 @@ namespace dqmoffline {
 
     class L1TEfficiencyPlotHandler {
     public:
+      typedef dqm::legacy::DQMStore DQMStore;
+      typedef dqm::legacy::MonitorElement MonitorElement;
+      
       L1TEfficiencyPlotHandler(const edm::ParameterSet &ps, std::string plotName);
 
       L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);

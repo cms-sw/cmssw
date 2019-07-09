@@ -29,6 +29,8 @@ class TFile;
 
 class DTt0DBValidation : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   /// Constructor
   DTt0DBValidation(const edm::ParameterSet &pset);
 

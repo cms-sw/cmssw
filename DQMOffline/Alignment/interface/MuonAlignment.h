@@ -62,6 +62,8 @@ typedef std::vector<TrackingRecHit *> RecHitVector;
 
 class MuonAlignment : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   /// Constructor
   MuonAlignment(const edm::ParameterSet &);
 

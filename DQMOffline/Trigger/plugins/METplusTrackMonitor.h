@@ -48,6 +48,9 @@ class GenericTriggerEventFlag;
 
 class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+  
   METplusTrackMonitor(const edm::ParameterSet &);
   ~METplusTrackMonitor() noexcept(true) override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);

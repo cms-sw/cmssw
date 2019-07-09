@@ -15,6 +15,8 @@
 
 namespace APVGain {
 
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   int subdetectorId(uint32_t);
   int subdetectorId(const std::string&);
   int subdetectorSide(uint32_t, const TrackerTopology*);

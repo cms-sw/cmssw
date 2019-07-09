@@ -21,6 +21,9 @@ using vstring = std::vector<std::string>;
 
 class DQMGenericTnPClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   DQMGenericTnPClient(const edm::ParameterSet& pset);
   ~DQMGenericTnPClient() override;
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override{};

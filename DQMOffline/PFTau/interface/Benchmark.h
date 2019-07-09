@@ -18,6 +18,8 @@ class TDirectory;
 /// abstract base class
 class Benchmark {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  
   class PhaseSpace {
   public:
     int n;

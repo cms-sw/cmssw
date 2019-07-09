@@ -129,7 +129,7 @@ void SiPixelErrorsDigisToCalibDigis::endJob() {
 
 // ------------ helper functions ---------------------------------------------------------
 
-MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t detid,
+SiPixelErrorsDigisToCalibDigis::MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t detid,
                                                                    std::string name,
                                                                    std::string title,
                                                                    int nchX,
@@ -142,7 +142,7 @@ MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t deti
   return daqBE_->book2D(hid, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(uint32_t detid,
+SiPixelErrorsDigisToCalibDigis::MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(uint32_t detid,
                                                                                std::string name,
                                                                                std::string title) {
   DetId detId(detid);

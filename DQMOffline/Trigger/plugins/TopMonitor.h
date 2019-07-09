@@ -54,6 +54,9 @@ class GenericTriggerEventFlag;
 
 class TopMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+  
   TopMonitor(const edm::ParameterSet &);
   ~TopMonitor() throw() override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
