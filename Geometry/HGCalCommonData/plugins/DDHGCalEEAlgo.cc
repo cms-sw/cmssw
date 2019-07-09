@@ -226,7 +226,8 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << solid.name() << " Tubs made of " << matName << ":"
                                       << &matter << " of dimensions " << rinB << ", " << routF << ", " << hthick
-                                      << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":" << layerCenter_[copy - 1];
+                                      << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":"
+                                      << layerCenter_[copy - 1];
 #endif
         positionSensitive(glog, rinB, routF, zz, layerSense_[ly], layerCenter_[copy - 1], cpv);
       }
@@ -254,20 +255,25 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
   }  // End of loop over blocks
 }
 
-void DDHGCalEEAlgo::positionSensitive(
-    const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, int layercenter, DDCompactView& cpv) {
+void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
+                                      double rin,
+                                      double rout,
+                                      double zpos,
+                                      int layertype,
+                                      int layercenter,
+                                      DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   double r = 0.5 * (waferSize_ + waferSepar_);
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;
   int N = (int)(0.5 * rout / r) + 2;
-  std::pair<double,double> xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
+  std::pair<double, double> xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() << " rout " << rout << " N " << N
                                 << " for maximum u, v;  r " << r << " R " << R << " dy " << dy << " Shift "
-				<< xyoff.first << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
+                                << xyoff.first << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
     int iu = std::abs(u);
