@@ -64,6 +64,9 @@ struct EVTColContainer;
 /// of all HLT paths related to that analysis.
 class HLTExoticaSubAnalysis {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   enum class Level { GEN = 98, RECO = 99 };
 
   HLTExoticaSubAnalysis(const edm::ParameterSet &pset,

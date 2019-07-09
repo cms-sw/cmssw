@@ -42,6 +42,9 @@ struct EVTColContainer;
 
 class HLTExoticaPlotter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HLTExoticaPlotter(const edm::ParameterSet &pset,
                     const std::string &hltPath,
                     const std::vector<unsigned int> &objectsType);

@@ -45,6 +45,9 @@ struct EVTColContainer;
 
 class HLTHiggsPlotter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HLTHiggsPlotter(const edm::ParameterSet &pset,
                   const std::string &hltPath,
                   //const std::string & lastFilter,
