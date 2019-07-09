@@ -32,6 +32,8 @@ namespace geant_units {
     constexpr long double operator"" _m(long double length) { return length * 1000.; }
     constexpr long double operator"" _cm3(long double length) { return length * 1._cm * 1._cm * 1._cm; }
     constexpr long double operator"" _m3(long double length) { return length * 1._m * 1._m * 1._m; }
+    constexpr long double operator"" _mm(unsigned long long int length) { return length * 1; }
+    constexpr long double operator"" _cm(unsigned long long int length) { return length * 10; }
 
     // Time
     constexpr long double operator"" _s(long double x) { return x * seconds; }

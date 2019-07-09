@@ -49,6 +49,7 @@ namespace cms {
     std::vector<double> vecDble(const std::string& nam) const;
     std::vector<int> vecInt(const std::string& nam) const;
     std::vector<std::string> vecStr(const std::string& nam) const;
+    std::string resolveValue(const std::string& value) const;
 
   private:
     xml_h rawArgument(const std::string& name) const;
