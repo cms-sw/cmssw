@@ -35,6 +35,9 @@
 // class declaration
 //
 namespace {
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   class ReaderBase {
   public:
     virtual ~ReaderBase() = default;
