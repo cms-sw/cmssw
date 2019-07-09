@@ -1,4 +1,8 @@
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
 #include "CondFormats/SiPixelTransient/interface/SiPixelUtils.h"
+#else
+#include "SiPixelUtils.h"
+#endif
 
 #include <cmath>
 
