@@ -449,20 +449,15 @@ namespace {
     }
   };
 
-
   typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>
-  SiStripNoiseValueComparisonPerStripSingleTag;
-  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::APV_BASED>
-  SiStripNoiseValueComparisonPerAPVSingleTag;
+      SiStripNoiseValueComparisonPerStripSingleTag;
+  typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::APV_BASED> SiStripNoiseValueComparisonPerAPVSingleTag;
   typedef SiStripNoiseDistributionComparisonSingleTag<SiStripPI::MODULE_BASED>
-  SiStripNoiseValueComparisonPerModuleSingleTag;
+      SiStripNoiseValueComparisonPerModuleSingleTag;
 
-  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::STRIP_BASED>
-  SiStripNoiseValueComparisonPerStripTwoTags;
-  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::APV_BASED>
-  SiStripNoiseValueComparisonPerAPVTwoTags;
-  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::MODULE_BASED>
-  SiStripNoiseValueComparisonPerModuleTwoTags;
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::STRIP_BASED> SiStripNoiseValueComparisonPerStripTwoTags;
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::APV_BASED> SiStripNoiseValueComparisonPerAPVTwoTags;
+  typedef SiStripNoiseDistributionComparisonTwoTags<SiStripPI::MODULE_BASED> SiStripNoiseValueComparisonPerModuleTwoTags;
 
   /************************************************
     1d histogram comparison of SiStripNoises of 1 IOV 
@@ -1227,7 +1222,7 @@ namespace {
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader *reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);
@@ -1347,7 +1342,6 @@ namespace {
         : cond::payloadInspector::HistoryPlot<SiStripNoises, std::pair<double, double> >(
               "Average " + SiStripPI::getStringFromSubdet(sub) + " noise vs run number",
               "average " + SiStripPI::getStringFromSubdet(sub) + " Noise") {}
-
 
     std::pair<double, double> getFromPayload(SiStripNoises& payload) override {
       std::vector<uint32_t> detid;
