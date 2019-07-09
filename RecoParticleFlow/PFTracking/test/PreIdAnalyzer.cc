@@ -12,6 +12,9 @@
 
 class PreIdAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit PreIdAnalyzer(const edm::ParameterSet&);
   ~PreIdAnalyzer();
 

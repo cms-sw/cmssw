@@ -37,6 +37,9 @@
 
 class EcalLocalRecoTask : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor
   EcalLocalRecoTask(const edm::ParameterSet& ps);
 

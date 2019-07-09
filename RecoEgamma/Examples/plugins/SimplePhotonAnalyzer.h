@@ -33,6 +33,9 @@ class TFile;
 
 class SimplePhotonAnalyzer : public edm::one::EDAnalyzer<> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit SimplePhotonAnalyzer(const edm::ParameterSet&);
   ~SimplePhotonAnalyzer() override;
 

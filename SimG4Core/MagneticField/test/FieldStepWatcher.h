@@ -26,6 +26,9 @@ class FieldStepWatcher : public SimWatcher,
                          public Observer<const EndOfEvent *>,
                          public Observer<const G4Step *> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   FieldStepWatcher(edm::ParameterSet const &p);
   ~FieldStepWatcher() override;
 
