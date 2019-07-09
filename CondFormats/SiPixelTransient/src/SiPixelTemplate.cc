@@ -1546,7 +1546,6 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
 }
 
 
-
 // *************************************************************************************************************************************
 //! Load template info for single angle point to invoke template reco for template generation
 //! \param      entry - (input) pointer to template entry
@@ -1590,6 +1589,7 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    
    qavg_ = entry->qavg;
    qmin_ = 0.f;
+   qmin2_ = 0.f;
 
    pixmax_ = entry->pixmax;
    sxmax_ = entry->sxmax;
@@ -1603,22 +1603,20 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    delysig_ = 0.f;
 
    
-   dyone_ = 0.f;
-   syone_ = 0.f;
+   dyone_ = entry->dyone;
+   syone_ = entry->syone;
+   dytwo_ = entry->dytwo;
+   sytwo_ = entry->sytwo;
+   
+   dxone_ = entry->dxone;
+   sxone_ = entry->sxone;
+   dxtwo_ = entry->dxtwo;
+   sxtwo_ = entry->sxtwo;
 
    chi2yminone_ = 0.f;
    chi2yavgone_ = 0.f;
-
-   //chi2ymin_ = 0.f;
-   //yflcorr_ = 0.f;
-   //xflcorr_ = 0.f;
-   //xsigma2_ = 0.f;
-
-         // slice->costrk[0] = -cosy;
-         // slice->costrk[1] = -cosx;
-         // slice->costrk[2] = -cosz;
-         // slice->cotalpha = cosy/cosz;
-         // slice->cotbeta = cosx/cosz;
+   chi2xminone_ = 0.f;
+   chi2xavgone_ = 0.f;
 
    
    for(int i=0; i<4 ; ++i) {
@@ -1630,19 +1628,21 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
       yrms_[i] = 0.f;
       xavg_[i] = 0.f;
       yavg_[i] = 0.f;
+
       chi2yavg_[i] = 0.f;
       chi2xavg_[i] = 0.f;
+
+      chi2xmin_[i] = 0.f;
+      chi2ymin_[i] = 0.f;
+
+      for(int j=0; j<6; j++){
+        yflparl_[i][j]  = yflparh_[i][j] = 0.;
+        xflparhh_[i][j] = xflparhl_[i][j] = xflparll_[i][j]  = xflparlh_[i][j] = 0.;
+      }
    }
 
    sxparmax_ = entry->sxmax;
    syparmax_ = entry->symax;
-   // Fitted errors params
-   for(int i =0; i<2; i++){
-     for(int j=0; j<5; j++){
-       yparl_[i][j] = yparh_[i][j] = entry->ypar[i][j];
-       xparl_[i][j] = xparh_[i][j] = entry->xpar[i][j];
-     }
-   }
    
    // This works only for IP-related tracks
    
@@ -1679,11 +1679,11 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
 	 //#endif
    }
 
+
    //  Calculate signed quantities
 
    //	qxtempcor corrects the total charge to the actual track angles (not actually needed for the template fits, but useful for Guofan)
    // &&& What to do here?
-   // cotbeta0 =  thePixelTemp_[index_id_].entx[iyhigh][0].cotbeta;
    // qxtempcor=std::sqrt((1.f+cotbeta*cotbeta+cotalpha*cotalpha)/(1.f+cotbeta0*cotbeta0+cotalpha*cotalpha));
    float qxtempcor = 1.f;
    
@@ -1693,13 +1693,11 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
       xtemp_[i][BXM2] = 0.f;
       xtemp_[i][BXM1] = 0.f;
       for(int j=0; j<TXSIZE; ++j) {
-         //
          if(flip_x_) {
 	    xtemp_[8-i][BXM3-j] = qxtempcor*entry_sideloaded_->xtemp[i][j];
          } else {
 	    xtemp_[i][j+2]      = qxtempcor*entry_sideloaded_->xtemp[i][j];
          }
-        //
       }
    }
    
@@ -1722,35 +1720,28 @@ void SiPixelTemplate::sideload(SiPixelTemplateEntry* entry, int iDtype, float lo
    }
 
 
+   // Fitted errors params
+   for(int i =0; i<2; i++){
+     for(int j=0; j<5; j++){
+         if(flip_y_){
+            yparl_[1-i][j] = yparh_[1-i][j] = entry->ypar[i][j];
+         }
+         else{
+            yparl_[i][j] = yparh_[i][j] = entry->ypar[i][j];
+         }
 
+         if(flip_x_){
+        xpar0_[1-i][j] =  xparly0_[1-i][j] = xparhy0_[1-i][j] = xparl_[1-i][j] = xparh_[1-i][j] = entry->xpar[i][j];
+         }
+         else{
+        xpar0_[i][j] =  xparly0_[i][j] = xparhy0_[i][j] = xparl_[i][j] = xparh_[i][j] = entry->xpar[i][j];
+         }
+     }
+   }
 
-
-   // &&& Do we need these?
-   // lorydrift_ = lorywidth_/2.;
-   // if(flip_y_) lorydrift_ = -lorydrift_;
-   // lorxdrift_ = lorxwidth_/2.;
-   // if(flip_x_) lorxdrift_ = -lorxdrift_;
-   
-   // for(int i=0; i<2 ; ++i) {
-   //    for(int j=0; j<5 ; ++j) {
-   //       // Charge loss switches sides when cot(beta) changes sign
-   //       if(flip_y_) {
-   //          xypary0x0_[1-i][j] = (float)entry->xypar[i][j];
-   //          xypary1x0_[1-i][j] = (float)entry->xypar[i][j];
-   //          xypary0x1_[1-i][j] = (float)entry->xypar[i][j];
-   //          lanpar_[1-i][j] = entry->lanpar[i][j];
-   //       } else {
-   //          xypary0x0_[i][j] = (float)entry->xypar[i][j];
-   //          xypary1x0_[i][j] = (float)entry->xypar[i][j];
-   //          xypary0x1_[i][j] = (float)entry->xypar[i][j];
-   //          lanpar_[i][j] = entry->lanpar[i][j];
-   //       }
-   //    }
-   // }
    return;
 } // sideload
 #endif
-
 
 
 
