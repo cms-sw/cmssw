@@ -77,6 +77,7 @@
 //
 class TrackerOfflineValidation : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit TrackerOfflineValidation(const edm::ParameterSet&);
   ~TrackerOfflineValidation() override;
 

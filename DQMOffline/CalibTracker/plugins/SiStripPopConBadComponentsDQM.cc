@@ -9,6 +9,9 @@
 */
 class SiStripPopConBadComponentsHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripBadStrip> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConBadComponentsHandlerFromDQM() override;
   // interface methods: implemented in template
@@ -57,7 +60,7 @@ std::string SiStripPopConBadComponentsHandlerFromDQM::getMetaDataString() const 
 }
 
 namespace {
-  void getModuleFolderList(DQMStore::IGetter& getter, const std::string& pwd, std::vector<std::string>& mfolders) {
+  void getModuleFolderList(SiStripPopConBadComponentsHandlerFromDQM::DQMStore::IGetter& getter, const std::string& pwd, std::vector<std::string>& mfolders) {
     if (std::string::npos != pwd.find("module_")) {
       //    std::string mId = pwd.substr(pwd.find("module_")+7, 9);
       mfolders.push_back(pwd);

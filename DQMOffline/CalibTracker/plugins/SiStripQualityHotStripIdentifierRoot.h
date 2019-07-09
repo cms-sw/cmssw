@@ -35,6 +35,9 @@ class TrackerTopology;
 
 class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBadStrip> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+  
   explicit SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet&);
   ~SiStripQualityHotStripIdentifierRoot() override;
 

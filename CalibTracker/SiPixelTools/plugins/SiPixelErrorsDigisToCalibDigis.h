@@ -48,6 +48,8 @@ Description: Create monitorElements for the Errors in created in the reduction o
 
 class SiPixelErrorsDigisToCalibDigis : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiPixelErrorsDigisToCalibDigis(const edm::ParameterSet&);
   ~SiPixelErrorsDigisToCalibDigis() override;
 

@@ -87,6 +87,8 @@ struct stAPVGain {
 
 class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripGainFromData(const edm::ParameterSet&);
   ~SiStripGainFromData() override;
 

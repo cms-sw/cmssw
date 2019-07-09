@@ -43,6 +43,8 @@
 
 class SiPixelDQMRocLevelAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiPixelDQMRocLevelAnalyzer(const edm::ParameterSet &);
   ~SiPixelDQMRocLevelAnalyzer() override;
 

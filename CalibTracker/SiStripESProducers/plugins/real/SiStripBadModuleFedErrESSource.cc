@@ -41,6 +41,8 @@
 
 class SiStripBadModuleFedErrESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   SiStripBadModuleFedErrESSource(const edm::ParameterSet&);
   ~SiStripBadModuleFedErrESSource() override;
 

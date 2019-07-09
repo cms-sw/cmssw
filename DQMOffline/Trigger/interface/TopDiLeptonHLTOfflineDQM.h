@@ -45,6 +45,9 @@ namespace HLTOfflineDQMTopDiLepton {
 
   class MonitorDiLepton {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     /// make clear which LorentzVector to use
     /// for jet, electrons and muon buffering
     using LorentzVector = reco::LeafCandidate::LorentzVector;

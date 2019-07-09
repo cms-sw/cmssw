@@ -209,7 +209,7 @@ void EgHLTOfflineClient::createHLTvsOfflineHists(const std::string& filterName,
   }  //end loop over varNames
 }
 
-MonitorElement* EgHLTOfflineClient::FillHLTvsOfflineHist(const std::string& filter,
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::FillHLTvsOfflineHist(const std::string& filter,
                                                          const std::string& name,
                                                          const std::string& title,
                                                          const MonitorElement* numer,
@@ -488,7 +488,7 @@ void EgHLTOfflineClient::createLooseTightTrigEff(const std::vector<std::string>&
   }    //end loop over vsVarNames
 }
 //-----Morse-------
-MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::string& filterName,
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::string& filterName,
                                                                  const std::string& name,
                                                                  const std::string& title,
                                                                  const MonitorElement* pass,
@@ -516,7 +516,7 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndAll(const std::stri
   return eff;
 }
 
-MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(const std::string& filter,
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(const std::string& filter,
                                                                            const std::string& name,
                                                                            const std::string& title,
                                                                            const MonitorElement* passNotTag,
@@ -560,7 +560,7 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(const
   return eff;
 }
 
-MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter,
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter,
                                                        const std::string& name,
                                                        const std::string& title,
                                                        const MonitorElement* Leg1Eff,
@@ -612,7 +612,7 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter
 }
 
 //-----Morse-------
-MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFail(const std::string& filterName,
+EgHLTOfflineClient::MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFail(const std::string& filterName,
                                                                   const std::string& name,
                                                                   const std::string& title,
                                                                   const MonitorElement* pass,

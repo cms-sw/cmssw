@@ -64,6 +64,8 @@
 
 class SiPixelOfflineCalibAnalysisBase : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet&);
   ~SiPixelOfflineCalibAnalysisBase() override;
 

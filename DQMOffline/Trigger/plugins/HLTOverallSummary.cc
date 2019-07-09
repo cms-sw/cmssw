@@ -50,6 +50,9 @@ using namespace std;
 
 class HLTOverallSummary : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit HLTOverallSummary(const edm::ParameterSet& pset);
   ~HLTOverallSummary() override;
 

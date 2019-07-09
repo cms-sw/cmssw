@@ -6,6 +6,8 @@
 namespace dqmoffline {
   namespace l1t {
 
+    typedef dqm::legacy::MonitorElement MonitorElement;
+
     /**
  * Fills a given MonitorElement within the boundaries of the underlying histogram.
  * This means that underflow is filled into the first bin and overflow is filled into the last bin.

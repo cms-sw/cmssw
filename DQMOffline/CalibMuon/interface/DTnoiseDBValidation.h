@@ -27,6 +27,8 @@ class TFile;
 
 class DTnoiseDBValidation : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   /// Constructor
   DTnoiseDBValidation(const edm::ParameterSet &pset);
 

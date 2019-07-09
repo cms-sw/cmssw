@@ -11,6 +11,9 @@ class SiStripFedCabling;
 */
 class SiStripPopConFEDErrorsHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripBadStrip> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+  
   explicit SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConFEDErrorsHandlerFromDQM() override;
   // interface methods: implemented in template

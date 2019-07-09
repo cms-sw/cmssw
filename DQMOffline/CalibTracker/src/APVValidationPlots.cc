@@ -39,6 +39,9 @@
 
 class APVValidationPlots : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  
   explicit APVValidationPlots(const edm::ParameterSet&);
   ~APVValidationPlots() override;
 

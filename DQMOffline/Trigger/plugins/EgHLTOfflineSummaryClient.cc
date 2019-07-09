@@ -164,7 +164,7 @@ void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::stri
   }
 }
 
-MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_() {
+EgHLTOfflineSummaryClient::MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_() {
   MonitorElement* egHLTSumHist = dbe_->get(dirName_ + "/" + egHLTSumHistName_);
   if (egHLTSumHist == nullptr) {
     auto* hist = new TH2F(egHLTSumHistName_.c_str(),

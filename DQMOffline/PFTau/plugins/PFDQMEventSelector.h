@@ -7,6 +7,9 @@
 
 class PFDQMEventSelector : public edm::EDFilter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   PFDQMEventSelector(const edm::ParameterSet &);
   ~PFDQMEventSelector() override;
 

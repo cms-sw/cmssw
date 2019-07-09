@@ -9,6 +9,8 @@
 
 class SiStripDQMHistoryHelper {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  
   explicit SiStripDQMHistoryHelper(const edm::ParameterSet& pset)
       : m_useFullPath{pset.getUntrackedParameter<bool>("useFullPath", false)}, m_sep{"@"}, m_fitME{} {}
   virtual ~SiStripDQMHistoryHelper();

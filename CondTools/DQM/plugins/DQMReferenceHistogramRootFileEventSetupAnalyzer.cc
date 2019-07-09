@@ -20,6 +20,8 @@
 namespace edmtest {
   class DQMReferenceHistogramRootFileEventSetupAnalyzer : public edm::EDAnalyzer {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(const edm::ParameterSet& pset);
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(int i);
     ~DQMReferenceHistogramRootFileEventSetupAnalyzer() override;

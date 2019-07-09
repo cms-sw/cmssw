@@ -25,6 +25,8 @@ class TrackerTopology;
 
 class SiStripLAProfileBooker : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripLAProfileBooker(const edm::ParameterSet& conf);
 
   ~SiStripLAProfileBooker() override;
