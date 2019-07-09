@@ -219,20 +219,25 @@ namespace {
     MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) override {
       m_tree->GetEntry(iIndex);
       MonitorElement* element = iStore.get(*m_fullName);
-      if (nullptr == element) {
-        std::string path;
-        const char* name;
-        splitName(*m_fullName, path, name);
-        iStore.setCurrentFolder(path);
-        element = createElement(iStore, name, m_buffer);
-        if (iIsLumi) {
-          element->setLumiFlag();
+      try {
+        if (nullptr == element) {
+          std::string path;
+          const char* name;
+          splitName(*m_fullName, path, name);
+          iStore.setCurrentFolder(path);
+          element = createElement(iStore, name, m_buffer);
+          if (iIsLumi) {
+            element->setLumiFlag();
+          }
+        } else {
+          mergeWithElement(element, m_buffer);
         }
-      } else {
-        mergeWithElement(element, m_buffer);
-      }
-      if (0 != m_tag) {
-        iStore.tag(element, m_tag);
+        if (0 != m_tag) {
+          iStore.tag(element, m_tag);
+        }
+      } catch (cms::Exception& e) {
+        e.addContext(std::string("While reading element ") + *m_fullName);
+        e.raise();
       }
       return element;
     }
