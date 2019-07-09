@@ -85,14 +85,21 @@ double PythiaFilterIsolatedTrack::getDistInCM(double eta1, double phi1, double e
 
 PythiaFilterIsolatedTrack::PythiaFilterIsolatedTrack(const edm::ParameterSet &iConfig,
                                                      const PythiaFilterIsoTracks::Counters *counters)
-    : nAll_(0), nGood_(0), ecDist_(317.0), ecRad_(129.0) {
-  token_ = consumes<edm::HepMCProduct>(
-      iConfig.getUntrackedParameter("ModuleLabel", edm::InputTag("generator", "unsmeared")));
-  MaxSeedEta_ = iConfig.getUntrackedParameter<double>("MaxSeedEta", 2.3);
-  MinSeedMom_ = iConfig.getUntrackedParameter<double>("MinSeedMom", 20.);
-  MinIsolTrackMom_ = iConfig.getUntrackedParameter<double>("MinIsolTrackMom", 2.0);
-  IsolCone_ = iConfig.getUntrackedParameter<double>("IsolCone", 40.0);
-  onlyHadrons_ = iConfig.getUntrackedParameter<bool>("OnlyHadrons", true);
+    : token_(consumes<edm::HepMCProduct>(
+          iConfig.getUntrackedParameter("moduleLabel", edm::InputTag("generator", "unsmeared")))),
+      maxSeedEta_(iConfig.getUntrackedParameter<double>("maxSeedEta", 2.3)),
+      minSeedEta_(iConfig.getUntrackedParameter<double>("minSeedEta", 0.0)),
+      minSeedMom_(iConfig.getUntrackedParameter<double>("minSeedMom", 20.)),
+      minIsolTrackMom_(iConfig.getUntrackedParameter<double>("minIsolTrackMom", 2.0)),
+      isolCone_(iConfig.getUntrackedParameter<double>("isolCone", 40.0)),
+      onlyHadrons_(iConfig.getUntrackedParameter<bool>("onlyHadrons", true)),
+      nAll_(0),
+      nGood_(0),
+      ecDist_(317.0),
+      ecRad_(129.0) {
+  edm::LogVerbatim("PythiaFilter") << "PythiaFilterIsolatedTrack: Eta " << minSeedEta_ << ":" << maxSeedEta_ << " p > "
+                                   << minSeedMom_ << " Isolation Cone " << isolCone_ << " with p > " << minIsolTrackMom_
+                                   << " OnlyHadron " << onlyHadrons_;
 }
 
 PythiaFilterIsolatedTrack::~PythiaFilterIsolatedTrack() {}
@@ -108,10 +115,10 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
 
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
 
-  // all of the stable, charged particles with momentum>MinIsolTrackMom_ and |eta|<MaxSeedEta_+0.5
+  // all of the stable, charged particles with momentum>minIsolTrackMom_ and |eta|<maxSeedEta_+0.5
   std::vector<const HepMC::GenParticle *> chargedParticles;
 
-  // all of the stable, charged particles with momentum>MinSeedMom_ and |eta|<MaxSeedEta_
+  // all of the stable, charged particles with momentum>minSeedMom_ and minSeedEta_<=|eta|<maxSeedEta_
   std::vector<const HepMC::GenParticle *> seeds;
 
   // fill the vector of charged particles and seeds in the event
@@ -127,9 +134,9 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
     double abseta = fabs(p->momentum().eta());
 
     // only consider stable, charged particles
-    if (abs(charge3) == 3 && status == 1 && momentum > MinIsolTrackMom_ && abseta < MaxSeedEta_ + 0.5) {
+    if (abs(charge3) == 3 && status == 1 && momentum > minIsolTrackMom_ && abseta < maxSeedEta_ + 0.5) {
       chargedParticles.push_back(p);
-      if (momentum > MinSeedMom_ && abseta < MaxSeedEta_) {
+      if (momentum > minSeedMom_ && abseta < maxSeedEta_ && abseta >= minSeedEta_) {
         seeds.push_back(p);
       }
     }
@@ -166,7 +173,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
           // find out how far apart the particles are
           // if the seed fails the isolation requirement, try a different seed
           // occasionally allow a seed to pass to isolation requirement
-          if (getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < IsolCone_) {
+          if (getDistInCM(EtaPhi1.first, EtaPhi1.second, EtaPhi2.first, EtaPhi2.second) < isolCone_) {
             failsIso = true;
             break;
           }
@@ -191,6 +198,6 @@ void PythiaFilterIsolatedTrack::endStream() {
 }
 
 void PythiaFilterIsolatedTrack::globalEndJob(const PythiaFilterIsoTracks::Counters *count) {
-  edm::LogInfo("PythiaFilter") << "PythiaFilterIsolatedTrack::Accepts " << count->nGood_ << " events out of "
-                               << count->nAll_ << std::endl;
+  edm::LogVerbatim("PythiaFilter") << "PythiaFilterIsolatedTrack::Accepts " << count->nGood_ << " events out of "
+                                   << count->nAll_ << std::endl;
 }
