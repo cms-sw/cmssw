@@ -11,7 +11,6 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
 //#define EDM_ML_DEBUG
@@ -63,6 +62,11 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "First Layere " << firstLayer_ << " and "
                                 << "Absober mode " << absorbMode_;
+#endif
+  layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
+#ifdef EDM_ML_DEBUG
+  for (unsigned int i = 0; i < layerCenter_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
 #endif
   if (firstLayer_ > 0) {
     for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -222,9 +226,9 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << solid.name() << " Tubs made of " << matName << ":"
                                       << &matter << " of dimensions " << rinB << ", " << routF << ", " << hthick
-                                      << ", 0.0, 360.0 and position " << glog.name() << " number " << copy;
+                                      << ", 0.0, 360.0 and position " << glog.name() << " number " << copy << ":" << layerCenter_[copy - 1];
 #endif
-        positionSensitive(glog, rinB, routF, zz, layerSense_[ly], cpv);
+        positionSensitive(glog, rinB, routF, zz, layerSense_[ly], layerCenter_[copy - 1], cpv);
       }
       DDTranslation r1(0, 0, zz);
       DDRotation rot;
@@ -251,17 +255,19 @@ void DDHGCalEEAlgo::constructLayers(const DDLogicalPart& module, DDCompactView& 
 }
 
 void DDHGCalEEAlgo::positionSensitive(
-    const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, DDCompactView& cpv) {
+    const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, int layercenter, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   double r = 0.5 * (waferSize_ + waferSepar_);
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;
   int N = (int)(0.5 * rout / r) + 2;
+  std::pair<double,double> xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalEEAlgo: " << glog.ddname() << " rout " << rout << " N " << N
-                                << " for maximum u, v;  r " << r << " R " << R << " dy " << dy;
+                                << " for maximum u, v;  r " << r << " R " << R << " dy " << dy << " Shift "
+				<< xyoff.first << ":" << xyoff.second << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
     int iu = std::abs(u);
@@ -269,8 +275,8 @@ void DDHGCalEEAlgo::positionSensitive(
       int iv = std::abs(v);
       int nr = 2 * v;
       int nc = -2 * u + v;
-      double xpos = nc * r;
-      double ypos = nr * dy;
+      double xpos = xyoff.first + nc * r;
+      double ypos = xyoff.second + nr * dy;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;

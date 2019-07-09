@@ -617,6 +617,15 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int lay,
                                     << (ktr != hgpar_->cellCoarseIndex_.end());
 #endif
   }
+  if (all) {
+    int ll = lay - hgpar_->firstLayer_;
+    x += hgpar_->xLayerHex_[ll];
+    y += hgpar_->yLayerHex_[ll];
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":" 
+				  << hgpar_->yLayerHex_[ll];
+#endif
+  }
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
@@ -1121,8 +1130,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
 #endif
                                           ) const {
 
-  double xx(HGCalParameters::k_ScaleFromDDD * x);
-  double yy(HGCalParameters::k_ScaleFromDDD * y);
+  int ll = layer - hgpar_->firstLayer_;
+  double xx = HGCalParameters::k_ScaleFromDDD * x - hgpar_->xLayerHex_[ll];
+  double yy = HGCalParameters::k_ScaleFromDDD * y - hgpar_->yLayerHex_[ll];
   waferU = waferV = 1 + hgpar_->waferUVMax_;
   for (unsigned int k = 0; k < hgpar_->waferPosX_.size(); ++k) {
     double dx = std::abs(xx - hgpar_->waferPosX_[k]);

@@ -11,6 +11,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 class DDHGCalHEAlgo : public DDAlgorithm {
@@ -38,10 +39,16 @@ protected:
                    double routF,
                    double zz,
                    DDCompactView& cpv);
-  void positionSensitive(
-      const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, DDCompactView& cpv);
+  void positionSensitive(const DDLogicalPart& glog,
+			 double rin,
+			 double rout,
+			 double zpos, 
+			 int layertype, 
+			 int layercenter, 
+			 DDCompactView& cpv);
 
 private:
+  HGCalGeomTools geomTools_;
   std::unique_ptr<HGCalWaferType> waferType_;
 
   std::vector<std::string> wafers_;        // Wafers
@@ -67,6 +74,7 @@ private:
   std::vector<int> layerTypeBot_;          // Type of the bottom layers
   std::vector<int> copyNumberBot_;         // Initial copy numbers (bot section)
   std::vector<int> layerSenseBot_;         // Content of bottom layer (sensitive?)
+  std::vector<int> layerCenter_;           // Centering of the wafers
 
   double zMinBlock_;                 // Starting z-value of the block
   std::vector<double> rad100to200_;  // Parameters for 120-200mum trans.
