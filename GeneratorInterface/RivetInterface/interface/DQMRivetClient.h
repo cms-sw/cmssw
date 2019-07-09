@@ -12,6 +12,9 @@
 
 class DQMRivetClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   DQMRivetClient(const edm::ParameterSet& pset);
   ~DQMRivetClient() override{};
 
