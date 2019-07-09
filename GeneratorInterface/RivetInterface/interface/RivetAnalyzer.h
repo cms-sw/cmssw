@@ -19,6 +19,9 @@
 
 class RivetAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   RivetAnalyzer(const edm::ParameterSet &);
 
   ~RivetAnalyzer() override;

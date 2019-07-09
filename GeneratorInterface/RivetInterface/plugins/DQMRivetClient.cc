@@ -25,7 +25,7 @@
 using namespace std;
 using namespace edm;
 
-typedef MonitorElement ME;
+typedef DQMRivetClient::MonitorElement ME;
 
 TPRegexp metacharacters("[\\^\\$\\.\\*\\+\\?\\|\\(\\)\\{\\}\\[\\]]");
 
