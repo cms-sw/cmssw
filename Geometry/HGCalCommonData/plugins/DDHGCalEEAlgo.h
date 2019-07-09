@@ -29,12 +29,12 @@ public:
 protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
   void positionSensitive(const DDLogicalPart& glog,
-			 double rin, 
-			 double rout, 
-			 double zpos, 
-			 int layertype, 
-			 int layercenter,
-			 DDCompactView& cpv);
+                         double rin,
+                         double rout,
+                         double zpos,
+                         int layertype,
+                         int layercenter,
+                         DDCompactView& cpv);
 
 private:
   HGCalGeomTools geomTools_;

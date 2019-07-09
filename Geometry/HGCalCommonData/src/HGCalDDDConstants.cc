@@ -622,8 +622,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int lay,
     x += hgpar_->xLayerHex_[ll];
     y += hgpar_->yLayerHex_[ll];
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":" 
-				  << hgpar_->yLayerHex_[ll];
+    edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":"
+                                  << hgpar_->yLayerHex_[ll];
 #endif
   }
   if (!reco) {
