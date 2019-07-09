@@ -99,6 +99,7 @@ DQMOfflineExtraHLT = cms.Sequence(
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
+DQMOfflineFakeHLT.remove( triggerOfflineDQMSource )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
