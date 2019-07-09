@@ -175,7 +175,7 @@ namespace pat {
     };
     /// Scale energy and correspondingly adjust raw jec factors
     void scaleEnergy(double fScale) override { scaleEnergy(fScale, "scaled"); };
-    void scaleEnergy(double fScale, std::string level);
+    void scaleEnergy(double fScale, const std::string& level);
 
   private:
     /// index of the set of jec factors with given label; returns -1 if no set

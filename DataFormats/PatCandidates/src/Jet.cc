@@ -245,7 +245,7 @@ const reco::JetFlavourInfo& Jet::jetFlavourInfo() const { return jetFlavourInfo_
 /// ============= Jet Energy Correction methods ============
 
 /// Scale energy and correspondingly add jec factor
-void Jet::scaleEnergy(double fScale, std::string level) {
+void Jet::scaleEnergy(double fScale, const std::string& level) {
   if (jecSetsAvailable()) {
     std::vector<float> factors = {float(jec_[currentJECSet_].correction(currentJECLevel_, currentJECFlavor_) * fScale)};
     jec_[currentJECSet_].jec_.push_back(std::make_pair(level, factors));
