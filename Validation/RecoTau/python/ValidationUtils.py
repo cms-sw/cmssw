@@ -13,11 +13,7 @@ def CreatePlotEntry(analyzer, discriminatorLabel=None, step=True):
     ext = analyzer.ExtensionName.pythonValue()[1:-1]
     if discriminatorLabel == None:
         num = 'RecoTauV/%s%s_Matched/%sMatched_vs_#PAR#TauVisible'%(producer,ext,producer)
-        #out = 'RecoTauV/%s%s_Matched/PFJetMatchingEff#PAR#'%(producer,ext)
-        if producer.find('caloReco') != -1:
-            out = 'RecoTauV/%s%s_Matched/CaloJetMatchingEff#PAR#'%(producer,ext)
-        else:
-            out = 'RecoTauV/%s%s_Matched/PFJetMatchingEff#PAR#'%(producer,ext)
+        out = 'RecoTauV/%s%s_Matched/PFJetMatchingEff#PAR#'%(producer,ext)
     else:
         num = 'RecoTauV/%s%s_%s/%s_vs_#PAR#TauVisible'%(producer,ext,discriminatorLabel,discriminatorLabel)
         if discriminatorLabel.find('DiscriminationBy') != -1:
@@ -54,8 +50,6 @@ def NameVariable(analyzer, discriminatorLabel=None):
         first='HPS'
     elif analyzer.TauProducer.pythonValue()[1:-1] == 'hpsTancTaus':
         first='HPSTanc'+analyzer.ExtensionName.value()
-    elif analyzer.TauProducer.pythonValue()[1:-1] == 'caloRecoTauProducer':
-        first='CaloTau'
     else:
         #print 'Case not found check the available cases in Validation/RecoTau/python/ValidationUtils.py -- NameVariable'
         first=analyzer.TauProducer.pythonValue()[1:-1]+analyzer.ExtensionName.pythonValue()[1:-1]
