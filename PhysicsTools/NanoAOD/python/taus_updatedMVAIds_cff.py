@@ -4,6 +4,10 @@ import FWCore.ParameterSet.Config as cms
 # Used only in some eras
 from RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi import *
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import *
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
+from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
+from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv2_cff import run2_nanoAOD_94XMiniAODv2
+from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1
 
 ### MVAIso 2017v2
 ## DBoldDM
@@ -286,7 +290,7 @@ patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq = cms.Sequence(
 )
 
 
-### Define new anit-e discriminants
+### Define new anit-e discriminants (2018)
 antiElectronDiscrMVA6_version = "MVA6v3_noeveto"
 ## Raw
 from RecoTauTag.RecoTau.PATTauDiscriminationAgainstElectronMVA6_cfi import patTauDiscriminationAgainstElectronMVA6
@@ -534,10 +538,10 @@ patTauDiscriminationByVTightElectronRejectionMVA62018 = patTauDiscriminationByVL
         )
     )
 )
-### Define v1 anit-e discriminants
+### Define v1 anit-e discriminants (2015)
 antiElectronDiscrMVA6_version = "MVA6v1"
 ## Raw
-patTauDiscriminationByElectronRejectionMVA6Raw = patTauDiscriminationAgainstElectronMVA6.clone(
+patTauDiscriminationByElectronRejectionMVA62015Raw = patTauDiscriminationAgainstElectronMVA6.clone(
     Prediscriminants = noPrediscriminants, #already selected for MiniAOD
     vetoEcalCracks = True, #don't keep tau candidates in EB-EE cracks for v1
     mvaName_NoEleMatch_wGwoGSF_BL = 'RecoTauTag_antiElectron'+antiElectronDiscrMVA6_version+'_gbr_NoEleMatch_wGwoGSF_BL',
@@ -551,11 +555,11 @@ patTauDiscriminationByElectronRejectionMVA6Raw = patTauDiscriminationAgainstElec
 )
 ## anti-e v1 WPs
 # VLoose
-patTauDiscriminationByVLooseElectronRejectionMVA6 = patTauDiscriminantCutMultiplexer.clone(
-    PATTauProducer = patTauDiscriminationByElectronRejectionMVA6Raw.PATTauProducer,
-    Prediscriminants = patTauDiscriminationByElectronRejectionMVA6Raw.Prediscriminants,
-    toMultiplex = cms.InputTag("patTauDiscriminationByElectronRejectionMVA6Raw"),
-    key = cms.InputTag("patTauDiscriminationByElectronRejectionMVA6Raw","category"),
+patTauDiscriminationByVLooseElectronRejectionMVA62015 = patTauDiscriminantCutMultiplexer.clone(
+    PATTauProducer = patTauDiscriminationByElectronRejectionMVA62015Raw.PATTauProducer,
+    Prediscriminants = patTauDiscriminationByElectronRejectionMVA62015Raw.Prediscriminants,
+    toMultiplex = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62015Raw"),
+    key = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62015Raw","category"),
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -600,7 +604,7 @@ patTauDiscriminationByVLooseElectronRejectionMVA6 = patTauDiscriminantCutMultipl
     )
 )
 # Loose
-patTauDiscriminationByLooseElectronRejectionMVA6 = patTauDiscriminationByVLooseElectronRejectionMVA6.clone(
+patTauDiscriminationByLooseElectronRejectionMVA62015 = patTauDiscriminationByVLooseElectronRejectionMVA62015.clone(
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -645,7 +649,7 @@ patTauDiscriminationByLooseElectronRejectionMVA6 = patTauDiscriminationByVLooseE
     )
 )
 # Medium
-patTauDiscriminationByMediumElectronRejectionMVA6 = patTauDiscriminationByVLooseElectronRejectionMVA6.clone(
+patTauDiscriminationByMediumElectronRejectionMVA62015 = patTauDiscriminationByVLooseElectronRejectionMVA62015.clone(
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -690,7 +694,7 @@ patTauDiscriminationByMediumElectronRejectionMVA6 = patTauDiscriminationByVLoose
     )
 )
 # Tight
-patTauDiscriminationByTightElectronRejectionMVA6 = patTauDiscriminationByVLooseElectronRejectionMVA6.clone(
+patTauDiscriminationByTightElectronRejectionMVA62015 = patTauDiscriminationByVLooseElectronRejectionMVA62015.clone(
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -735,7 +739,7 @@ patTauDiscriminationByTightElectronRejectionMVA6 = patTauDiscriminationByVLooseE
     )
 )
 # VTight
-patTauDiscriminationByVTightElectronRejectionMVA6 = patTauDiscriminationByVLooseElectronRejectionMVA6.clone(
+patTauDiscriminationByVTightElectronRejectionMVA62015 = patTauDiscriminationByVLooseElectronRejectionMVA62015.clone(
     mapping = cms.VPSet(
         cms.PSet(
             category = cms.uint32(0),
@@ -780,20 +784,27 @@ patTauDiscriminationByVTightElectronRejectionMVA6 = patTauDiscriminationByVLoose
     )
 )
 ### Put all anti-e tau-IDs into a sequence
-patTauDiscriminationByElectronRejectionSeq = cms.Sequence(
+_patTauDiscriminationByElectronRejection2018Seq = cms.Sequence(
     patTauDiscriminationByElectronRejectionMVA62018Raw
     +patTauDiscriminationByVLooseElectronRejectionMVA62018
     +patTauDiscriminationByLooseElectronRejectionMVA62018
     +patTauDiscriminationByMediumElectronRejectionMVA62018
     +patTauDiscriminationByTightElectronRejectionMVA62018
     +patTauDiscriminationByVTightElectronRejectionMVA62018
-    +patTauDiscriminationByElectronRejectionMVA6Raw
-    +patTauDiscriminationByVLooseElectronRejectionMVA6
-    +patTauDiscriminationByLooseElectronRejectionMVA6
-    +patTauDiscriminationByMediumElectronRejectionMVA6
-    +patTauDiscriminationByTightElectronRejectionMVA6
-    +patTauDiscriminationByVTightElectronRejectionMVA6
 )
+_patTauDiscriminationByElectronRejection2015Seq = cms.Sequence(
+    patTauDiscriminationByElectronRejectionMVA62015Raw
+    +patTauDiscriminationByVLooseElectronRejectionMVA62015
+    +patTauDiscriminationByLooseElectronRejectionMVA62015
+    +patTauDiscriminationByMediumElectronRejectionMVA62015
+    +patTauDiscriminationByTightElectronRejectionMVA62015
+    +patTauDiscriminationByVTightElectronRejectionMVA62015
+)
+patTauDiscriminationByElectronRejectionSeq = _patTauDiscriminationByElectronRejection2015Seq.copy()
+for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
+    era.toReplaceWith(patTauDiscriminationByElectronRejectionSeq,
+                      _patTauDiscriminationByElectronRejection2018Seq)
+
 
 ### put all new MVA tau-Id stuff to one Sequence
 _patTauMVAIDsSeq2017v2 = cms.Sequence(
@@ -807,7 +818,6 @@ patTauMVAIDsSeq += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2015Seq
 
 _patTauMVAIDsSeqWith2017v1 = _patTauMVAIDsSeq2017v2.copy()
 _patTauMVAIDsSeqWith2017v1 += patTauDiscriminationByIsolationMVArun2v1DBoldDMwLT2017v1Seq
-from Configuration.Eras.Modifier_run2_nanoAOD_94XMiniAODv1_cff import run2_nanoAOD_94XMiniAODv1
 for era in [run2_nanoAOD_94XMiniAODv1,]:
     era.toReplaceWith(patTauMVAIDsSeq,_patTauMVAIDsSeqWith2017v1)
 
@@ -879,7 +889,7 @@ for era in [run2_nanoAOD_94XMiniAODv1,]:
                  tauIDSources = _tauIDSourcesWith2017v1
     )
 
-_antiETauIDSources = cms.PSet(
+_antiETauIDSources2018 = cms.PSet(
     againstElectronMVA6Raw2018 = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw"),
     againstElectronMVA6category2018 = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62018Raw","category"),
     againstElectronVLooseMVA62018 = cms.InputTag("patTauDiscriminationByVLooseElectronRejectionMVA62018"),
@@ -887,20 +897,29 @@ _antiETauIDSources = cms.PSet(
     againstElectronMediumMVA62018 = cms.InputTag("patTauDiscriminationByMediumElectronRejectionMVA62018"),
     againstElectronTightMVA62018 = cms.InputTag("patTauDiscriminationByTightElectronRejectionMVA62018"),
     againstElectronVTightMVA62018 = cms.InputTag("patTauDiscriminationByVTightElectronRejectionMVA62018"),
-    againstElectronMVA6Rawv1 = cms.InputTag("patTauDiscriminationByElectronRejectionMVA6Raw"),
-    againstElectronMVA6categoryv1 = cms.InputTag("patTauDiscriminationByElectronRejectionMVA6Raw","category"),
-    againstElectronVLooseMVA6v1 = cms.InputTag("patTauDiscriminationByVLooseElectronRejectionMVA6"),
-    againstElectronLooseMVA6v1 = cms.InputTag("patTauDiscriminationByLooseElectronRejectionMVA6"),
-    againstElectronMediumMVA6v1 = cms.InputTag("patTauDiscriminationByMediumElectronRejectionMVA6"),
-    againstElectronTightMVA6v1 = cms.InputTag("patTauDiscriminationByTightElectronRejectionMVA6"),
-    againstElectronVTightMVA6v1 = cms.InputTag("patTauDiscriminationByVTightElectronRejectionMVA6")
 )
-_tauIDSourcesWithAntiE = cms.PSet(
+_tauIDSourcesWithAntiE2018 = cms.PSet(
     slimmedTausUpdated.tauIDSources.clone(),
-    _antiETauIDSources
+    _antiETauIDSources2018
 )
-slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE
-
+_antiETauIDSources2015 = cms.PSet(
+    againstElectronMVA6Raw2015 = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62015Raw"),
+    againstElectronMVA6category2015 = cms.InputTag("patTauDiscriminationByElectronRejectionMVA62015Raw","category"),
+    againstElectronVLooseMVA62015 = cms.InputTag("patTauDiscriminationByVLooseElectronRejectionMVA62015"),
+    againstElectronLooseMVA62015 = cms.InputTag("patTauDiscriminationByLooseElectronRejectionMVA62015"),
+    againstElectronMediumMVA62015 = cms.InputTag("patTauDiscriminationByMediumElectronRejectionMVA62015"),
+    againstElectronTightMVA62015 = cms.InputTag("patTauDiscriminationByTightElectronRejectionMVA62015"),
+    againstElectronVTightMVA62015 = cms.InputTag("patTauDiscriminationByVTightElectronRejectionMVA62015")
+)
+_tauIDSourcesWithAntiE2015 = cms.PSet(
+    slimmedTausUpdated.tauIDSources.clone(),
+    _antiETauIDSources2015
+)
+slimmedTausUpdated.tauIDSources=_tauIDSourcesWithAntiE2015
+for era in [run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1]:
+    era.toModify(slimmedTausUpdated,
+                 tauIDSources = _tauIDSourcesWithAntiE2018
+    )
 
 
 patTauMVAIDsSeq += slimmedTausUpdated
