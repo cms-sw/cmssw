@@ -205,7 +205,7 @@ HcalHBHEMuonHighEtaAnalyzer::HcalHBHEMuonHighEtaAnalyzer(const edm::ParameterSet
   selectionParameter_.maxDxyPV = iConfig.getUntrackedParameter<double>("maxDxyPV");
   selectionParameter_.maxDzPV = iConfig.getUntrackedParameter<double>("maxDzPV");
   selectionParameter_.maxChi2 = iConfig.getUntrackedParameter<double>("maxChi2");
-  selectionParameter_.maxDpOverP = iConfig.getParameter<double>("maxDpOverP");
+  selectionParameter_.maxDpOverP = iConfig.getUntrackedParameter<double>("maxDpOverP");
   selectionParameter_.minOuterHit = selectionParameter_.minLayerCrossed = 0;
   selectionParameter_.maxInMiss = selectionParameter_.maxOutMiss = 2;
 
