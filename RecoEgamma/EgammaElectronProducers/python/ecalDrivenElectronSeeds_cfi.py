@@ -38,6 +38,10 @@ phase2_hgcal.toModify(
     SeedConfiguration = dict( allowHGCal = True )
 )
 
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(ecalDrivenElectronSeeds.SeedConfiguration
+                           LowPtThreshold =1.0,
+                           applyHOverECut = False) 
 
 # create ecal driven seeds for electron using HGCal Multiclusters
 ecalDrivenElectronSeedsFromMultiCl = ecalDrivenElectronSeeds.clone(

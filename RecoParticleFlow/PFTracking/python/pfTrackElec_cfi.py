@@ -41,5 +41,5 @@ pfTrackElec = cms.EDProducer("PFElecTkProducer",
     pf_convBremFinderID_mvaWeightFileEndcapsHighPt = cms.string('RecoParticleFlow/PFTracking/data/TMVAClassification_ConvBremFinder_Testetgt20absetagt1_479_BDT.weights.xml')
 )
 
-
-
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(pfTrackElec,MinSCEnergy = 1.0)

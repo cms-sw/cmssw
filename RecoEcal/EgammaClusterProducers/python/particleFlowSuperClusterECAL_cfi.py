@@ -159,3 +159,10 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False)
 pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterBarrel = 0.20)
 pp_on_AA_2018.toModify(particleFlowSuperClusterECAL, phiwidth_SuperClusterEndcap = 0.20)
+
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(particleFlowSuperClusterECAL,
+                           thresh_SCEt = 1.0,
+                           thresh_PFClusterSeedBarrel = 0.5,
+                           thresh_PFClusterSeedEndcap = 0.5)
+

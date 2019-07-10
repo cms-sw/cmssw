@@ -26,3 +26,6 @@ islandPhotonCore = photonCore.clone(
     scIslandEndcapProducer = "correctedIslandEndcapSuperClusters",
     minSCEt = 8.0
 )
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(photonCore,minSCEt=0) #
+lightByLightLowPt.toModify(islandPhotonCore,minSCEt = 1.0) #default 8

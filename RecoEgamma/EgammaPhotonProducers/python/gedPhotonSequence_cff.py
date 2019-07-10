@@ -29,5 +29,10 @@ gedPhotons.pfECALClusIsolation = cms.InputTag("photonEcalPFClusterIsolationProdu
 gedPhotons.pfHCALClusIsolation = cms.InputTag("photonHcalPFClusterIsolationProducer")
 gedPhotonSequence    = cms.Sequence(gedPhotons)
 
-
-
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(gedPhotons,
+                           minSCEtBarrel = 1.0,
+                           minSCEtEndcap = 1.0)
+lightByLightLowPt.toModify(gedPhotonsTmp,
+                           minSCEtBarrel = 1.0,
+                           minSCEtEndcap = 1.0)

@@ -190,3 +190,9 @@ phase2_timing.toModify(
     particleFlowBlock,
     elementImporters = _addTiming
 )
+
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(particleFlowBlock.elementImporters[2],
+                           minSuperClusterPt = 1.0,
+                           minPTforBypass = 0.0)
+

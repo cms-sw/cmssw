@@ -278,3 +278,6 @@ pf_badHcalMitigation.toModify(particleFlowTmp,
         electron_protectionsForBadHcal = dict(enableProtections = True),
         photon_protectionsForBadHcal   = dict(enableProtections = True))
 
+
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(particleFlowTmp,photon_MinEt = 1.)

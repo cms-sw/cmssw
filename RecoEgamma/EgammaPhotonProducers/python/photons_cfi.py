@@ -150,3 +150,13 @@ islandPhotons = cms.EDProducer("PhotonProducer",
     RecHitFlagToBeExcludedEE = multi5x5BasicClustersCleaned.RecHitFlagToBeExcluded,
     RecHitSeverityToBeExcludedEE = cleanedHybridSuperClusters.RecHitSeverityToBeExcluded,
 )
+
+
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+#check what these actually do
+lightByLightLowPt.toModify(photons,
+                           minSCEtBarrel = 1.0, #default 10
+                           minSCEtEndcap = 1.0) #default 10
+lightByLightLowPt.toModify(islandPhotons,
+                           minSCEtBarrel = 1.0, #default 5
+                           minSCEtEndcap = 1.0) #default 15
