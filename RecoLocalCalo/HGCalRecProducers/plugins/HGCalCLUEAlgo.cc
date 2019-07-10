@@ -274,12 +274,12 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsig
 	    if(distance(i, otherId, layerId, true) < delta_c_) {
 	      // need to round these numbers to 5 decimals to be able to compare floats
 	      float roundDec=100000.;
-	      float iPhi=round(cellsOnLayer.phi[i]*roundDec)/roundDec.;
+	      float iPhi=round(cellsOnLayer.phi[i]*roundDec)/roundDec;
 	      float otherPhi_=cellsOnLayer.phi[otherId];
 	      otherPhi_ += (otherPhi_*iPhi >= 0 || abs(iPhi) < 1.) ? 0. : iPhi > 0. ? 2*M_PI : -2*M_PI;
-	      float otherPhi = round(otherPhi_*roundDec)/roundDec.;
-	      float otherEta=round(cellsOnLayer.eta[otherId]*roundDec)/roundDec.;
-	      float iEta=round(cellsOnLayer.eta[i]*roundDec)/roundDec.;
+	      float otherPhi = round(otherPhi_*roundDec)/roundDec;
+	      float otherEta=round(cellsOnLayer.eta[otherId]*roundDec)/roundDec;
+	      float iEta=round(cellsOnLayer.eta[i]*roundDec)/roundDec;
 	      LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
 					<< "    cell: " << otherId
 					<< " energy: "<< cellsOnLayer.weight[otherId]
@@ -393,7 +393,6 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const u
 	    unsigned int otherId = lt[binId][j];
 	    if (cellsOnLayer.isSilic[otherId]) continue; //cells in the silicon cannot talk to cells in scintillator
 	    float dist = distance(i, otherId, layerId, true);
-	    //bool foundHigher = cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i];
 	    bool foundHigher = (cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i]) || (cellsOnLayer.rho[otherId] == cellsOnLayer.rho[i] && otherId > i);
 
           // if dist == i_delta, then last comer being the nearest higher
