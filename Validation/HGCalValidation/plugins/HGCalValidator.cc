@@ -193,12 +193,12 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
-  std::vector<CaloParticle> caloParticlesFromHardScat; 
-  for ( auto& it_caloPart : caloParticles) {
+  std::vector<CaloParticle> caloParticlesFromHardScat;
+  for (auto& it_caloPart : caloParticles) {
     if (it_caloPart.g4Tracks()[0].eventId().event() != 0 or it_caloPart.g4Tracks()[0].eventId().bunchCrossing() != 0) {
       LogDebug("HGCalValidator") << "Excluding CaloParticles from event: "
-				 << it_caloPart.g4Tracks()[0].eventId().event()
-				 << " with BX: " << it_caloPart.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
+                                 << it_caloPart.g4Tracks()[0].eventId().event()
+                                 << " with BX: " << it_caloPart.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
       continue;
     }
     caloParticlesFromHardScat.push_back(it_caloPart);
@@ -237,7 +237,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     clusters,
                                                     densities,
                                                     // caloParticles,
-						    caloParticlesFromHardScat,
+                                                    caloParticlesFromHardScat,
                                                     hitMap,
                                                     cummatbudg,
                                                     totallayers_to_monitor_,
@@ -250,11 +250,13 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   if (domulticlustersPlots_) {
     w++;
-    histoProducerAlgo_->fill_multi_cluster_histos(
-        histograms.histoProducerAlgo, w, multiClusters, 
-	// caloParticles, 
-	caloParticlesFromHardScat,
-	hitMap, totallayers_to_monitor_);
+    histoProducerAlgo_->fill_multi_cluster_histos(histograms.histoProducerAlgo,
+                                                  w,
+                                                  multiClusters,
+                                                  // caloParticles,
+                                                  caloParticlesFromHardScat,
+                                                  hitMap,
+                                                  totallayers_to_monitor_);
   }
 
   //General Info
