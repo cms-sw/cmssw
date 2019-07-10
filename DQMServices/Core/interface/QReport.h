@@ -10,7 +10,7 @@ class QCriterion;
 namespace dqm::impl {
   class MonitorElement;
   class DQMStore;
-}
+}  // namespace dqm::impl
 
 /** Class for reporting results of quality tests for Monitoring Elements */
 class QReport {

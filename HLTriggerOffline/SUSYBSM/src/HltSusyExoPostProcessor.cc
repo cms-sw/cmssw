@@ -615,8 +615,8 @@ void HltSusyExoPostProcessor::dqmEndJob(DQMStore::IBooker &iBooker_, DQMStore::I
 }
 
 HltSusyExoPostProcessor::MonitorElement *HltSusyExoPostProcessor::bookEffMEProfileFromTH1(TH1F *histo,
-                                                                 std::string name,
-                                                                 DQMStore::IBooker &iBooker_) {
+                                                                                          std::string name,
+                                                                                          DQMStore::IBooker &iBooker_) {
   MonitorElement *myEffME;
   if (name == "Eff") {
     myEffME = iBooker_.bookProfile((std::string)("Eff_" + ((std::string)histo->GetName())),

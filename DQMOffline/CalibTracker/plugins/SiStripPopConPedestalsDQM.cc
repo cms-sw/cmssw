@@ -11,7 +11,7 @@ class SiStripPopConPedestalsHandlerFromDQM : public SiStripDQMPopConSourceHandle
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
-  
+
   explicit SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConPedestalsHandlerFromDQM() override;
   // interface methods: implemented in template

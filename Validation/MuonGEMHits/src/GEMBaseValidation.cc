@@ -97,7 +97,9 @@ string GEMBaseValidation::getStationLabel(int i) {
 
 GEMBaseValidation::~GEMBaseValidation() {}
 
-GEMBaseValidation::MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TString title, TString histname) {
+GEMBaseValidation::MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker,
+                                                                  TString title,
+                                                                  TString histname) {
   std::vector<double> xbins_vector;
   double station1_xmin = RangeZR_[0];
   double station1_xmax = RangeZR_[1];
@@ -115,9 +117,9 @@ GEMBaseValidation::MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBoo
 }
 
 GEMBaseValidation::MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker,
-                                            const GEMStation* station,
-                                            TString title,
-                                            TString histname) {
+                                                               const GEMStation* station,
+                                                               TString title,
+                                                               TString histname) {
   if (station->rings().front()->superChambers().empty()) {
     LogDebug("MuonBaseValidation") << "+++ Error! can not get superChambers. Skip "
                                    << getSuffixTitle(station->region(), station->station()) << " on " << histname
@@ -145,11 +147,11 @@ GEMBaseValidation::MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker
 }
 
 GEMBaseValidation::MonitorElement* GEMBaseValidation::BookHistZR(DQMStore::IBooker& ibooker,
-                                              const char* name,
-                                              const char* label,
-                                              unsigned int region_num,
-                                              unsigned int station_num,
-                                              unsigned int layer_num) {
+                                                                 const char* name,
+                                                                 const char* label,
+                                                                 unsigned int region_num,
+                                                                 unsigned int station_num,
+                                                                 unsigned int layer_num) {
   string hist_name, hist_title;
   if (layer_num == 0 || layer_num == 1) {
     hist_name = name + string("_zr") + getSuffixName(region_num, station_num + 1, layer_num + 1);
@@ -180,11 +182,11 @@ GEMBaseValidation::MonitorElement* GEMBaseValidation::BookHistZR(DQMStore::IBook
 }
 
 GEMBaseValidation::MonitorElement* GEMBaseValidation::BookHistXY(DQMStore::IBooker& ibooker,
-                                              const char* name,
-                                              const char* label,
-                                              unsigned int region_num,
-                                              unsigned int station_num,
-                                              unsigned int layer_num) {
+                                                                 const char* name,
+                                                                 const char* label,
+                                                                 unsigned int region_num,
+                                                                 unsigned int station_num,
+                                                                 unsigned int layer_num) {
   string hist_name, hist_title;
   if (layer_num == 0 || layer_num == 1) {
     hist_name = name + string("_xy") + getSuffixName(region_num, station_num + 1, layer_num + 1);

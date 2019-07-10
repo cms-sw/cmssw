@@ -18,39 +18,39 @@ HistoProviderDQM::MonitorElement* HistoProviderDQM::book1D(
 }
 
 HistoProviderDQM::MonitorElement* HistoProviderDQM::book1D(const std::string& name,
-                                         const std::string& title,
-                                         const int& nchX,
-                                         float* xbinsize) {
+                                                           const std::string& title,
+                                                           const int& nchX,
+                                                           float* xbinsize) {
   return ibook_.book1D(name, title, nchX, xbinsize);
 }
 
 HistoProviderDQM::MonitorElement* HistoProviderDQM::book2D(const std::string& name,
-                                         const std::string& title,
-                                         const int& nchX,
-                                         const double& lowX,
-                                         const double& highX,
-                                         const int& nchY,
-                                         const double& lowY,
-                                         const double& highY) {
+                                                           const std::string& title,
+                                                           const int& nchX,
+                                                           const double& lowX,
+                                                           const double& highX,
+                                                           const int& nchY,
+                                                           const double& lowY,
+                                                           const double& highY) {
   return ibook_.book2D(name, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
 HistoProviderDQM::MonitorElement* HistoProviderDQM::book2D(const std::string& name,
-                                         const std::string& title,
-                                         const int& nchX,
-                                         float* xbinsize,
-                                         const int& nchY,
-                                         float* ybinsize) {
+                                                           const std::string& title,
+                                                           const int& nchX,
+                                                           float* xbinsize,
+                                                           const int& nchY,
+                                                           float* ybinsize) {
   return ibook_.book2D(name, title, nchX, xbinsize, nchY, ybinsize);
 }
 
 HistoProviderDQM::MonitorElement* HistoProviderDQM::bookProfile(const std::string& name,
-                                              const std::string& title,
-                                              int nchX,
-                                              double lowX,
-                                              double highX,
-                                              int nchY,
-                                              double lowY,
-                                              double highY) {
+                                                                const std::string& title,
+                                                                int nchX,
+                                                                double lowX,
+                                                                double highX,
+                                                                int nchY,
+                                                                double lowY,
+                                                                double highY) {
   return ibook_.bookProfile(name, title, nchX, lowX, highX, nchY, lowY, highY);
 }

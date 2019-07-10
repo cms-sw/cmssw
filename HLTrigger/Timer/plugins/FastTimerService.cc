@@ -872,7 +872,8 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
       };
 
       // book MonitorElements for this stream
-      edm::Service<dqm::legacy::DQMStore>()->bookConcurrentTransaction(bookTransactionCallback, gc.luminosityBlockID().run());
+      edm::Service<dqm::legacy::DQMStore>()->bookConcurrentTransaction(bookTransactionCallback,
+                                                                       gc.luminosityBlockID().run());
     }
   }
 }

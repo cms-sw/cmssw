@@ -55,14 +55,14 @@ void ElectronDqmAnalyzerBase::bookHistograms(DQMStore::IBooker &ibooker_, edm::R
 }
 
 ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStore::IBooker &iBooker,
-                                                const std::string &name,
-                                                const std::string &title,
-                                                int nchX,
-                                                double lowX,
-                                                double highX,
-                                                const std::string &titleX,
-                                                const std::string &titleY,
-                                                Option_t *option) {
+                                                                         const std::string &name,
+                                                                         const std::string &title,
+                                                                         int nchX,
+                                                                         double lowX,
+                                                                         double highX,
+                                                                         const std::string &titleX,
+                                                                         const std::string &titleY,
+                                                                         Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (!titleX.empty()) {
@@ -81,14 +81,14 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStor
 }
 
 ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw2(DQMStore::IBooker &iBooker,
-                                                         const std::string &name,
-                                                         const std::string &title,
-                                                         int nchX,
-                                                         double lowX,
-                                                         double highX,
-                                                         const std::string &titleX,
-                                                         const std::string &titleY,
-                                                         Option_t *option) {
+                                                                                  const std::string &name,
+                                                                                  const std::string &title,
+                                                                                  int nchX,
+                                                                                  double lowX,
+                                                                                  double highX,
+                                                                                  const std::string &titleX,
+                                                                                  const std::string &titleY,
+                                                                                  Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book1D(newName(name), title, nchX, lowX, highX);
   if (me->getTH1F()->GetSumw2N() == 0)
@@ -109,17 +109,17 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw
 }
 
 ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStore::IBooker &iBooker,
-                                                const std::string &name,
-                                                const std::string &title,
-                                                int nchX,
-                                                double lowX,
-                                                double highX,
-                                                int nchY,
-                                                double lowY,
-                                                double highY,
-                                                const std::string &titleX,
-                                                const std::string &titleY,
-                                                Option_t *option) {
+                                                                         const std::string &name,
+                                                                         const std::string &title,
+                                                                         int nchX,
+                                                                         double lowX,
+                                                                         double highX,
+                                                                         int nchY,
+                                                                         double lowY,
+                                                                         double highY,
+                                                                         const std::string &titleX,
+                                                                         const std::string &titleY,
+                                                                         Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (!titleX.empty()) {
@@ -138,17 +138,17 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStor
 }
 
 ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw2(DQMStore::IBooker &iBooker,
-                                                         const std::string &name,
-                                                         const std::string &title,
-                                                         int nchX,
-                                                         double lowX,
-                                                         double highX,
-                                                         int nchY,
-                                                         double lowY,
-                                                         double highY,
-                                                         const std::string &titleX,
-                                                         const std::string &titleY,
-                                                         Option_t *option) {
+                                                                                  const std::string &name,
+                                                                                  const std::string &title,
+                                                                                  int nchX,
+                                                                                  double lowX,
+                                                                                  double highX,
+                                                                                  int nchY,
+                                                                                  double lowY,
+                                                                                  double highY,
+                                                                                  const std::string &titleX,
+                                                                                  const std::string &titleY,
+                                                                                  Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.book2D(newName(name), title, nchX, lowX, highX, nchY, lowY, highY);
   if (me->getTH2F()->GetSumw2N() == 0)
@@ -169,16 +169,16 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw
 }
 
 ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStore::IBooker &iBooker,
-                                                const std::string &name,
-                                                const std::string &title,
-                                                int nchX,
-                                                double lowX,
-                                                double highX,
-                                                double lowY,
-                                                double highY,
-                                                const std::string &titleX,
-                                                const std::string &titleY,
-                                                Option_t *option) {
+                                                                         const std::string &name,
+                                                                         const std::string &title,
+                                                                         int nchX,
+                                                                         double lowX,
+                                                                         double highX,
+                                                                         double lowY,
+                                                                         double highY,
+                                                                         const std::string &titleX,
+                                                                         const std::string &titleY,
+                                                                         Option_t *option) {
   iBooker.setCurrentFolder(outputInternalPath_);
   MonitorElement *me = iBooker.bookProfile(newName(name), title, nchX, lowX, highX, lowY, highY, " ");
   if (!titleX.empty()) {

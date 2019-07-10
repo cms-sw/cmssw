@@ -37,7 +37,7 @@ class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBad
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
-  
+
   explicit SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet&);
   ~SiStripQualityHotStripIdentifierRoot() override;
 
