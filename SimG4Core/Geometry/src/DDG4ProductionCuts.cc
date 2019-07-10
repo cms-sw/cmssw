@@ -69,9 +69,9 @@ void DDG4ProductionCuts::initialize() {
     if (num != 1) {
       throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::initialize: Problem with Region tags.");
     }
-    if(regionName != curName) {
+    if (regionName != curName) {
       region = store->FindOrCreateRegion(regionName);
-      if(!region) {
+      if (!region) {
         throw cms::Exception("SimG4CoreGeometry", " DDG4ProductionCuts::initialize: Problem with Region tags.");
       }
       curName = regionName;
@@ -82,8 +82,7 @@ void DDG4ProductionCuts::initialize() {
     region->AddRootLogicalVolume(vv.first);
 
     if (verbosity_ > 0)
-      edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region "
-				   << region->GetName();
+      edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region " << region->GetName();
   }
 }
 
@@ -144,8 +143,6 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4Region* region
   if (verbosity_ > 0) {
     edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << region->GetName()
                                  << "\n    Electrons: " << electroncut << "\n    Positrons: " << positroncut
-                                 << "\n    Gamma    : " << gammacut
-                                 << "\n    Proton   : " << protoncut;
+                                 << "\n    Gamma    : " << gammacut << "\n    Proton   : " << protoncut;
   }
 }
-

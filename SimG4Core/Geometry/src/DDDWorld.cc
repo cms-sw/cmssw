@@ -20,8 +20,7 @@ DDDWorld::DDDWorld(const DDCompactView *cpv,
                    G4LogicalVolumeToDDLogicalPartMap &map,
                    SensitiveDetectorCatalog &catalog,
                    bool check) {
-  LogVerbatim("SimG4CoreApplication") 
-    << "DDDWorld: initialization of Geant4 geometry";
+  LogVerbatim("SimG4CoreApplication") << "DDDWorld: initialization of Geant4 geometry";
   std::unique_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
 
   DDGeometryReturnType ret = theBuilder->BuildGeometry();
@@ -30,13 +29,11 @@ DDDWorld::DDDWorld(const DDCompactView *cpv,
   m_world = new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld", nullptr, false, 0);
   map = ret.lvToDDLPMap();
   catalog = ret.sdCatalog();
-  LogVerbatim("SimG4CoreApplication") 
-    << "DDDWorld: initialization of Geant4 geometry is done.";
+  LogVerbatim("SimG4CoreApplication") << "DDDWorld: initialization of Geant4 geometry is done.";
 }
 
 DDDWorld::DDDWorld(const cms::DDDetector *ddd, dd4hep::sim::Geant4GeometryMaps::VolumeMap &map) {
-  LogVerbatim("SimG4CoreApplication") 
-    << "DD4hep_DDDWorld: initialization of Geant4 geometry";
+  LogVerbatim("SimG4CoreApplication") << "DD4hep_DDDWorld: initialization of Geant4 geometry";
 
   DetElement world = ddd->description()->world();
   const Detector &detector = *ddd->description();
@@ -45,8 +42,7 @@ DDDWorld::DDDWorld(const cms::DDDetector *ddd, dd4hep::sim::Geant4GeometryMaps::
   map = geometry->g4Volumes;
   m_world = geometry->world();
 
-  LogVerbatim("SimG4CoreApplication") 
-    << "DD4hep_DDDWorld: initialization of Geant4 geometry is done.";
+  LogVerbatim("SimG4CoreApplication") << "DD4hep_DDDWorld: initialization of Geant4 geometry is done.";
 }
 
 DDDWorld::~DDDWorld() {}
