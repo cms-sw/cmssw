@@ -159,7 +159,7 @@ class Hit {
 public:
   // id = (type, station, ring, endsec, fr, bx)
   using hit_id_t = std::array<int32_t, 6>;
-  hit_id_t id() const {
+  constexpr hit_id_t id() const {
     hit_id_t ret {{type, station, ring, endsec, fr, bx}};
     return ret;
   }
@@ -214,7 +214,7 @@ public:
 
   // id = (endcap, sector, ipt, ieta, iphi)
   using road_id_t = std::array<int32_t, 5>;
-  road_id_t id() const {
+  constexpr road_id_t id() const {
     road_id_t ret {{endcap, sector, ipt, ieta, iphi}};
     return ret;
   }
@@ -272,7 +272,7 @@ public:
 
   // id = (endcap, sector, ipt, ieta, iphi)
   using road_id_t = std::array<int32_t, 5>;
-  road_id_t id() const {
+  constexpr road_id_t id() const {
     road_id_t ret {{endcap, sector, ipt, ieta, iphi}};
     return ret;
   }
@@ -395,8 +395,8 @@ T my_median_sorted(const std::vector<T>& vec) {
 
 template<typename T>
 T my_median_unsorted(std::vector<T>& vec) {
-  std::sort(vec.begin(), vec.end());  // input vec will be sorted while finding median
   std::size_t middle = (vec.size() == 0) ? 0 : (vec.size() - 1)/2;
+  std::nth_element(vec.begin(), vec.begin() + middle, vec.end());  // input vec will be partially sorted while finding median
   return vec[middle];
 }
 
@@ -410,12 +410,12 @@ T my_median_unsorted(std::vector<T>& vec) {
 class Utility {
 public:
   // Constructor
-  explicit Utility() {
+  constexpr Utility() {
     // Initialize 3-D array
     for (size_t i=0; i<find_emtf_layer_lut.size(); i++) {
       for (size_t j=0; j<find_emtf_layer_lut[i].size(); j++) {
         for (size_t k=0; k<find_emtf_layer_lut[i][j].size(); k++) {
-          find_emtf_layer_lut[i][j][k] = _find_emtf_layer_lut[i][j][k];
+          find_emtf_layer_lut[i][j][k] = std::move(_find_emtf_layer_lut[i][j][k]);
         }
       }
     }
@@ -426,7 +426,7 @@ public:
         for (size_t k=0; k<find_emtf_zones_lut[i][j].size(); k++) {
           for (size_t l=0; l<find_emtf_zones_lut[i][j][k].size(); l++) {
             for (size_t m=0; m<find_emtf_zones_lut[i][j][k][l].size(); m++) {
-              find_emtf_zones_lut[i][j][k][l][m] = _find_emtf_zones_lut[i][j][k][l][m];
+              find_emtf_zones_lut[i][j][k][l][m] = std::move(_find_emtf_zones_lut[i][j][k][l][m]);
             }
           }
         }
@@ -440,7 +440,7 @@ public:
     if (subsystem == TriggerPrimitive::kCSC) {
       bool isOverlapping = !(station == 1 && ring == 3);
       // not overlapping means back
-      if(isOverlapping)
+      if (isOverlapping)
       {
         bool isEven = (chamber % 2 == 0);
         // odd chambers are bolted to the iron, which faces
@@ -801,27 +801,27 @@ public:
 private:
   // 3-D array of size [# types][# stations][# rings]
   using lut_5_5_5_t = std::array<std::array<std::array<int32_t, 5>, 5>, 5>;
-  lut_5_5_5_t find_emtf_layer_lut;
+  lut_5_5_5_t find_emtf_layer_lut {};
 
   // 5-D array of size [# types][# stations][# rings][# zones][low, high]
   using lut_5_5_5_7_2_t = std::array<std::array<std::array<std::array<std::array<int32_t, 2>, 7>, 5>, 5>, 5>;
-  lut_5_5_5_7_2_t find_emtf_zones_lut;
+  lut_5_5_5_7_2_t find_emtf_zones_lut {};
 };
 
-static const Utility util;
+constexpr Utility util;
 
 #include "patternbank.icc"
 
 class PatternBank {
 public:
   // Constructor
-  explicit PatternBank() {
+  constexpr PatternBank() {
     // Initialize 4-D array
     for (size_t i=0; i<x_array.size(); i++) {
       for (size_t j=0; j<x_array[i].size(); j++) {
         for (size_t k=0; k<x_array[i][j].size(); k++) {
           for (size_t l=0; l<x_array[i][j][k].size(); l++) {
-            x_array[i][j][k][l] = _patternbank[i][j][k][l];
+            x_array[i][j][k][l] = std::move(_patternbank[i][j][k][l]);
           }
         }
       }
@@ -834,10 +834,10 @@ public:
   using patternbank_t = std::array<std::array<std::array<std::array<int32_t, PATTERN_BANK_NPT>,
       PATTERN_BANK_NVARS>, PATTERN_BANK_NETA>, PATTERN_BANK_NLAYERS>;
 
-  patternbank_t x_array;
+  patternbank_t x_array {};
 };
 
-static const PatternBank bank;
+constexpr PatternBank bank;
 
 
 // _____________________________________________________________________________
@@ -902,7 +902,7 @@ public:
     // Apply patterns to the sector hits
     apply_patterns(endcap, sector, sector_hits, sector_roads);
 
-    auto sort_roads_f = [](const Road& lhs, const Road& rhs) {
+    constexpr auto sort_roads_f = [](const Road& lhs, const Road& rhs) {
       return lhs.id() < rhs.id();
     };
     std::sort(sector_roads.begin(), sector_roads.end(), sort_roads_f);
@@ -1011,9 +1011,8 @@ private:
         ((ieta == 6) && ((road_mode_mb1 == 3) || (road_mode_mb2 == 3) || (road_mode_me13 == 3))) )
     {
       std::vector<int32_t> road_hits_layers;
-      for (const auto& hit : road_hits) {
-        road_hits_layers.push_back(hit.emtf_layer);
-      }
+      std::transform(road_hits.begin(), road_hits.end(), std::back_inserter(road_hits_layers),
+          [](const auto& hit) -> int32_t { return hit.emtf_layer; });
 
       int32_t road_quality = util.find_emtf_road_quality(ipt);
       int32_t road_sort_code = util.find_emtf_road_sort_code(road_quality, road_hits_layers);
@@ -1144,10 +1143,10 @@ public:
 
     std::sort(road_ids.begin(), road_ids.end());
 
-    auto make_row_splits = [](auto first, auto last) {
+    constexpr auto make_row_splits = [](auto first, auto last) {
       // assume the input vector is sorted
 
-      auto is_adjacent = [](const Road::road_id_t& prev, const Road::road_id_t& curr) {
+      constexpr auto is_adjacent = [](const Road::road_id_t& prev, const Road::road_id_t& curr) {
         // adjacent if (x,y,z') == (x,y,z+1)
         return ((prev[0] == curr[0]) &&
                 (prev[1] == curr[1]) &&
@@ -1257,7 +1256,7 @@ public:
       if (keep) {
         using int32_t_pair = std::pair<int32_t, int32_t>;  // emtf_layer, emtf_phi
 
-        auto make_hit_set = [](const auto& hits) {
+        constexpr auto make_hit_set = [](const auto& hits) {
           std::set<int32_t_pair> s;
           for (const auto& hit : hits) {
             if ((hit.emtf_layer == 0) ||
@@ -1356,15 +1355,13 @@ public:
 
       // Find median phi and theta
       std::vector<int32_t> road_hits_phis;
-      std::vector<int32_t> road_hits_thetas;
-      for (const auto& hit : road.hits) {
-        int32_t hit_lay = hit.emtf_layer;
-        int32_t phi_offset = patterns_xc[hit_lay];
-        road_hits_phis.push_back(hit.emtf_phi - phi_offset);
-        road_hits_thetas.push_back(hit.emtf_theta);
-      }
-
+      std::transform(road.hits.begin(), road.hits.end(), std::back_inserter(road_hits_phis),
+          [&patterns_xc](const auto& hit) -> int32_t { return (hit.emtf_phi - patterns_xc[hit.emtf_layer]); });
       int32_t road_phi_median = my_median_unsorted(road_hits_phis);
+
+      std::vector<int32_t> road_hits_thetas;
+      std::transform(road.hits.begin(), road.hits.end(), std::back_inserter(road_hits_thetas),
+          [](const auto& hit) -> int32_t { return hit.emtf_theta; });
       int32_t road_theta_median = my_median_unsorted(road_hits_thetas);
 
       // Loop over all the emtf_layer's, select unique hit for each emtf_layer
@@ -1373,7 +1370,7 @@ public:
       using int32_t_tuple = std::tuple<int32_t, int32_t, int32_t, int32_t>;  // ihit, dphi, dtheta, neg_qual
       std::vector<int32_t_tuple> sort_criteria;  // for sorting hits
 
-      auto sort_criteria_f = [](const int32_t_tuple& lhs, const int32_t_tuple& rhs) {
+      constexpr auto sort_criteria_f = [](const int32_t_tuple& lhs, const int32_t_tuple& rhs) {
         // (max qual, min dtheta, min dphi, min ihit) is better
         auto [lhs0, lhs1, lhs2, lhs3] = lhs;
         auto [rhs0, rhs1, rhs2, rhs3] = rhs;
@@ -1400,7 +1397,7 @@ public:
 
         // Find the best hit, which is (max qual, min dtheta, min dphi)
         if (!sort_criteria.empty()) {
-          std::sort(sort_criteria.begin(), sort_criteria.end(), sort_criteria_f);
+          std::nth_element(sort_criteria.begin(), sort_criteria.begin() + 1, sort_criteria.end(), sort_criteria_f);  // only care about the best
           int32_t best_ihit = std::get<0>(sort_criteria.front());
           slim_road_hits.emplace_back(road.hits[best_ihit]);
         }
@@ -1425,7 +1422,7 @@ public:
 
 class PtAssignment {
 public:
-  PtAssignment() {
+  explicit PtAssignment() {
     std::string cmssw_base = std::getenv("CMSSW_BASE");
     //pbFileName = "/src/L1Trigger/L1TMuonEndCap/data/emtfpp_tf_graphs/model_graph.26.pb";
     pbFileName = "/src/L1Trigger/L1TMuonEndCap/data/emtfpp_tf_graphs/model_graph.27.pb";
@@ -1570,7 +1567,7 @@ private:
 
 class TrackProducer {
 public:
-  TrackProducer() {
+  constexpr TrackProducer() {
     discr_pt_cut_low = 4.;
     discr_pt_cut_med = 8.;
     discr_pt_cut_high = 14.;
@@ -1579,7 +1576,7 @@ public:
     s_max   = 60.;
     s_nbins = 120;
     s_step  = (s_max - s_min)/float(s_nbins);
-    s_lut   = {   2.4605,  2.0075,  1.9042,  2.0762,  2.4325,  2.9043,  3.4101,  3.9232,
+    s_lut   = {{  2.4605,  2.0075,  1.9042,  2.0762,  2.4325,  2.9043,  3.4101,  3.9232,
                   4.4403,  4.9856,  5.5775,  6.2036,  6.8515,  7.5126,  8.1807,  8.8570,
                   9.5343, 10.2031, 10.8651, 11.5340, 12.2164, 12.9187, 13.6537, 14.4093,
                  15.1559, 15.8731, 16.5513, 17.2402, 17.9719, 18.7379, 19.5292, 20.3469,
@@ -1593,7 +1590,7 @@ public:
                  65.6104, 66.3822, 67.1539, 67.9256, 68.6974, 69.4691, 70.2408, 71.0125,
                  71.7843, 72.5560, 73.3277, 74.0995, 74.8712, 75.6429, 76.4146, 77.1864,
                  77.9581, 78.7298, 79.5015, 80.2733, 81.0450, 81.8167, 82.5884, 83.3602,
-                 84.1319, 84.9036, 85.6754, 86.4471, 87.2188, 87.9905, 88.7623, 89.5340};
+                 84.1319, 84.9036, 85.6754, 86.4471, 87.2188, 87.9905, 88.7623, 89.5340}};
     assert(s_lut.size() == (size_t) s_nbins);
   }
 
@@ -1688,16 +1685,17 @@ public:
 
 private:
   // Used for pass_trigger()
-  float discr_pt_cut_low;
-  float discr_pt_cut_med;
-  float discr_pt_cut_high;
+  float discr_pt_cut_low {0.};
+  float discr_pt_cut_med {0.};
+  float discr_pt_cut_high {0.};
 
   // Used for get_trigger_pt()
-  float s_min;
-  float s_max;
-  int   s_nbins;
-  float s_step;
-  std::vector<float> s_lut;
+  float s_min {0.};
+  float s_max {0.};
+  int   s_nbins {0};
+  float s_step {0.};
+  //std::vector<float> s_lut;
+  std::array<float, 120> s_lut {};
 };
 
 // GhostBusting class remove ghost tracks.
@@ -1712,7 +1710,7 @@ public:
 
     // Sort by (zone, y_discr)
     // zone is reordered such that zone 6 has the lowest priority.
-    auto sort_tracks_f = [](const Track& lhs, const Track& rhs) {
+    constexpr auto sort_tracks_f = [](const Track& lhs, const Track& rhs) {
       // (max zone, max y_discr) is better
       auto lhs_zone = (lhs.zone+1) % 7;
       auto rhs_zone = (rhs.zone+1) % 7;
@@ -1729,7 +1727,7 @@ public:
       if (keep) {
         using int32_t_pair = std::pair<int32_t, int32_t>;  // emtf_layer, emtf_phi
 
-        auto make_hit_set = [](const auto& hits) {
+        constexpr auto make_hit_set = [](const auto& hits) {
           std::set<int32_t_pair> s;
           for (const auto& hit : hits) {
             if ((hit.emtf_layer == 0) ||
@@ -1796,6 +1794,7 @@ public:
 
       // Create the hit collection
       EMTFHitCollection emtf_track_hits;
+      emtf_track_hits.reserve(track.hits.size());
       for (const auto& hit : track.hits) {
         const EMTFHit& emtf_hit = conv_hits.at(hit.ref);
         emtf_track_hits.push_back(emtf_hit);
@@ -1876,13 +1875,13 @@ public:
   }
 };
 
-static const PatternRecognition recog;
-static const RoadCleaning clean;
-static const RoadSlimming slim;
-static const PtAssignment assig;
-static const TrackProducer trkprod;
-static const GhostBusting ghost;
-static const TrackConverter trkconv;
+constexpr PatternRecognition recog;
+constexpr RoadCleaning clean;
+constexpr RoadSlimming slim;
+static const PtAssignment assig;  // cannot use 'constexpr'
+constexpr TrackProducer trkprod;
+constexpr GhostBusting ghost;
+constexpr TrackConverter trkconv;
 
 
 // _____________________________________________________________________________

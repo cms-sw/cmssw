@@ -2,7 +2,7 @@
 //print find_emtf_layer.lut.shape
 //print np.array2string(find_emtf_layer.lut, separator=', ', threshold=999999, floatmode='fixed')
 
-int32_t _find_emtf_layer_lut[5][5][5] = {{{-99, -99, -99, -99, -99},
+constexpr int32_t _find_emtf_layer_lut[5][5][5] = {{{-99, -99, -99, -99, -99},
   {-99,  12, -99, -99, -99},
   {-99,  13, -99, -99, -99},
   {-99,  14, -99, -99, -99},
@@ -37,7 +37,7 @@ int32_t _find_emtf_layer_lut[5][5][5] = {{{-99, -99, -99, -99, -99},
 //print find_emtf_zones.lut.shape
 //print np.array2string(find_emtf_zones.lut, separator=', ', threshold=999999, floatmode='fixed')
 
-int32_t _find_emtf_zones_lut[5][5][5][7][2] = {{{{{-99, -99},
+constexpr int32_t _find_emtf_zones_lut[5][5][5][7][2] = {{{{{-99, -99},
     {-99, -99},
     {-99, -99},
     {-99, -99},
