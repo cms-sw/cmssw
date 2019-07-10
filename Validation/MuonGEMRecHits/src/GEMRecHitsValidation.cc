@@ -12,7 +12,7 @@ GEMRecHitsValidation::GEMRecHitsValidation(const edm::ParameterSet &cfg) : GEMBa
   detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 
-MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
+GEMRecHitsValidation::MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
                                                  const char *name,
                                                  const char *label,
                                                  unsigned int region_num,
@@ -26,7 +26,7 @@ MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
   return ibooker.book1D(hist_name, hist_label, Nbin, xMin, xMax);
 }
 
-MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
+GEMRecHitsValidation::MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
                                                  const char *name,
                                                  const char *label,
                                                  unsigned int region_num,
