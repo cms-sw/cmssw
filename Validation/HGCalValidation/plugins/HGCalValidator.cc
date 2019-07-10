@@ -236,7 +236,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     w,
                                                     clusters,
                                                     densities,
-                                                    caloParticles,
+                                                    // caloParticles,
+						    caloParticlesFromHardScat,
                                                     hitMap,
                                                     cummatbudg,
                                                     totallayers_to_monitor_,
@@ -250,7 +251,10 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   if (domulticlustersPlots_) {
     w++;
     histoProducerAlgo_->fill_multi_cluster_histos(
-        histograms.histoProducerAlgo, w, multiClusters, caloParticles, hitMap, totallayers_to_monitor_);
+        histograms.histoProducerAlgo, w, multiClusters, 
+	// caloParticles, 
+	caloParticlesFromHardScat,
+	hitMap, totallayers_to_monitor_);
   }
 
   //General Info
