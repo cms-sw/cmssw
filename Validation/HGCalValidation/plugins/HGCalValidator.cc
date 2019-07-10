@@ -192,6 +192,18 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     histoProducerAlgo_->fill_info_histos(histograms.histoProducerAlgo, totallayers_to_monitor_);
   }
 
+  //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
+  std::vector<CaloParticle> caloParticlesFromHardScat; 
+  for ( auto& it_caloPart : caloParticles) {
+    if (it_caloPart.g4Tracks()[0].eventId().event() != 0 or it_caloPart.g4Tracks()[0].eventId().bunchCrossing() != 0) {
+      LogDebug("HGCalValidator") << "Excluding CaloParticles from event: "
+				 << it_caloPart.g4Tracks()[0].eventId().event()
+				 << " with BX: " << it_caloPart.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
+      continue;
+    }
+    caloParticlesFromHardScat.push_back(it_caloPart);
+  }
+
   // ##############################################
   // fill caloparticles histograms
   // ##############################################
