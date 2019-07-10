@@ -32,7 +32,6 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
-#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataMerger.h"
@@ -59,7 +58,6 @@ namespace pat {
     edm::EDGetTokenT<edm::View<reco::BaseTau> > baseTauToken_;
     edm::EDGetTokenT<PFTauTIPAssociationByRef> tauTransverseImpactParameterToken_;
     edm::EDGetTokenT<reco::PFTauCollection> pfTauToken_;
-    edm::EDGetTokenT<reco::CaloTauCollection> caloTauToken_;
     edm::InputTag tauTransverseImpactParameterSrc_;
     bool embedIsolationTracks_;
     bool embedLeadTrack_;
@@ -90,7 +88,6 @@ namespace pat {
     bool addTauID_;
     typedef std::pair<std::string, edm::InputTag> NameTag;
     std::vector<NameTag> tauIDSrcs_;
-    std::vector<edm::EDGetTokenT<reco::CaloTauDiscriminator> > caloTauIDTokens_;
     std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > pfTauIDTokens_;
     bool skipMissingTauID_;
     // tools
