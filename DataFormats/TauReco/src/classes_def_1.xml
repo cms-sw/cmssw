@@ -18,17 +18,6 @@
   <class name="edm::RefProd<std::vector<reco::BaseTauTagInfo> >"/>
   <class name="edm::RefVector<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTauTagInfo>,reco::BaseTauTagInfo> >"/>
   
-  <class name="reco::CaloTauTagInfo" ClassVersion="12">
-   <version ClassVersion="10" checksum="3077166108"/>
-   <version ClassVersion="11" checksum="442155907"/>
-   <version ClassVersion="12" checksum="3608080402"/>
-  </class>
-  <class name="std::vector<reco::CaloTauTagInfo>"/>
-  <class name="edm::Wrapper<std::vector<reco::CaloTauTagInfo> >"/>
-  <class name="edm::Ref<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo> >"/>
-  <class name="edm::RefProd<std::vector<reco::CaloTauTagInfo> >"/>
-  <class name="edm::RefVector<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTauTagInfo>,reco::CaloTauTagInfo> >"/>
-
   <class name="reco::PFTauTagInfo" ClassVersion="13">
    <version ClassVersion="13" checksum="1453697092"/>
    <version ClassVersion="12" checksum="3598523528"/>
@@ -128,18 +117,6 @@ for(auto const& ref : onfile.PFGammaCands_) {
   <class name="edm::RefProd<std::vector<reco::BaseTau> >"/>
   <class name="edm::RefVector<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::BaseTau>,reco::BaseTau,edm::refhelper::FindUsingAdvance<std::vector<reco::BaseTau>,reco::BaseTau> > >" />
-  
-  <class name="reco::CaloTau" ClassVersion="12">
-   <version ClassVersion="12" checksum="106193771"/>
-   <version ClassVersion="10" checksum="1329876375"/>
-   <version ClassVersion="11" checksum="1065337651"/>
-  </class>
-  <class name="std::vector<reco::CaloTau>"/>
-  <class name="edm::Wrapper<std::vector<reco::CaloTau> >"/>
-  <class name="edm::Ref<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> >"/>
-  <class name="edm::RefProd<std::vector<reco::CaloTau> >"/>
-  <class name="edm::RefVector<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> >"/>
-  <class name="edm::reftobase::Holder<reco::BaseTau, edm::Ref<std::vector<reco::CaloTau>,reco::CaloTau,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloTau>,reco::CaloTau> > >" />
   
 
 </lcgdict>

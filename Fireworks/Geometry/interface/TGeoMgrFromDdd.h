@@ -70,8 +70,9 @@ private:
 
   // ---------- member data --------------------------------
 
-  int m_level;
-  bool m_verbose;
+  const int m_level;
+  const bool m_verbose;
+  const bool m_fullname;
   std::string m_TGeoName;
   std::string m_TGeoTitle;
 
