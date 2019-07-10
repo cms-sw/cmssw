@@ -71,6 +71,9 @@ void PhotosppInterface::init(){
     if(curSet=="deIgnoreParticlesOfStatus")        Photospp::Photos::deIgnoreParticlesOfStatus(fPSet->getParameter<int>(curSet));
     if(curSet=="setMomentumConservationThreshold") Photospp::Photos::setMomentumConservationThreshold(fPSet->getParameter<double>(curSet));
     if(curSet=="suppressAll")                      if(fPSet->getParameter<bool>(curSet)==true)Photospp::Photos::suppressAll();
+    if(curSet=="setPairEmission")                  Photospp::Photos::setPairEmission(fPSet->getParameter<bool>(curSet));
+    if(curSet=="setPhotonEmission")                Photospp::Photos::setPhotonEmission(fPSet->getParameter<bool>(curSet));
+    if(curSet=="setStopAtCriticalError")           Photospp::Photos::setStopAtCriticalError(fPSet->getParameter<bool>(curSet));
   
   // Now setup more complicated radiation/mass supression and forcing.
     if(curSet=="suppressBremForBranch"){
