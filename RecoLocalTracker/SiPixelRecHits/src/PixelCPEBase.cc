@@ -124,8 +124,9 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const& conf,
 //  Fill all variables which are constant for an event (geometry)
 //-----------------------------------------------------------------------------
 void PixelCPEBase::fillDetParams() {
-  // &&& PM: I have no idea what this code is doing, and what it is doing here!???
-  //
+  // MM: this code finds the last Pixel (Inner Tracker) DetUnit to loop upon when filling the det params, by looking the first detId which is from
+  // the Outer Tracker (Strips in case of the Phase-0/1 detector).
+
   auto const& dus = geom_.detUnits();
   unsigned m_detectors = dus.size();
   for (unsigned int i = 1; i < 7; ++i) {
@@ -133,12 +134,14 @@ void PixelCPEBase::fillDetParams() {
         << "Subdetector " << i << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i] << " offset "
         << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) << " is it strip? "
         << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size()
-                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()
+                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()
                 : false);
+
     if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() &&
-        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
-      if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors)
+        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()) {
+      if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors) {
         m_detectors = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
+      }
     }
   }
   LogDebug("LookingForFirstStrip") << " Chosen offset: " << m_detectors;
