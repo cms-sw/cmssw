@@ -409,6 +409,13 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   return ishalf;
 }
 
+bool RecHitTools::isSilicon( const DetId& id ) const {
+  bool isSilicon_ = false;
+  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) 
+    isSilicon_ = true;
+  return isSilicon_;
+}
+
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
   GlobalPoint corrected_position = GlobalPoint(position.x(), position.y(), position.z() - vertex_z);
   return corrected_position.eta();
