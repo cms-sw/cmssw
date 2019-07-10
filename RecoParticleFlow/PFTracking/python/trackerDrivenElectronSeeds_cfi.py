@@ -71,3 +71,6 @@ _fastSim_trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDriven
 _fastSim_trackerDrivenElectronSeeds.idCollection = cms.VInputTag("trackerDrivenElectronSeedsTmp:preid",)
 fastSim.toReplaceWith(trackerDrivenElectronSeeds,_fastSim_trackerDrivenElectronSeeds)
 
+
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(trackerDrivenElectronSeeds,MinPt = 1.0)
