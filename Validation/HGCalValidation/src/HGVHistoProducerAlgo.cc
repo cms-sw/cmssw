@@ -2156,54 +2156,6 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         }
       }  //end of loop through sim hits of current calo particle
 
-      LogDebug("HGCalValidator") << std::setw(8) << "LayerId:\t" << std::setw(12) << "caloparticle\t" << std::setw(15)
-                                 << "cp total energy\t" << std::setw(15) << "cpEnergyOnLayer\t" << std::setw(14)
-                                 << "CPNhitsOnLayer\t" << std::setw(18) << "mclWithMaxEnergyInCP\t" << std::setw(15)
-                                 << "maxEnergyMCLinCP\t" << std::setw(20) << "CPEnergyFractionInMCL"
-                                 << "\n";
-      LogDebug("HGCalValidator") << std::setw(8) << layerId << "\t" << std::setw(12) << cpId << "\t" << std::setw(15)
-                                 << cP[cpId].energy() << "\t" << std::setw(15) << CPenergy << "\t" << std::setw(14)
-                                 << CPNumberOfHits << "\t" << std::setw(18) << mclWithMaxEnergyInCP << "\t"
-                                 << std::setw(15) << maxEnergyMCLperlayerinCP << "\t" << std::setw(20)
-                                 << CPEnergyFractionInMCLperlayer << "\n";
-
-      for (unsigned int i = 0; i < CPNumberOfHits; ++i) {
-        auto& cp_hitDetId = cPOnLayer[cpId][layerId].hits_and_fractions[i].first;
-        auto& cpFraction = cPOnLayer[cpId][layerId].hits_and_fractions[i].second;
-
-        bool hitWithNoMCL = false;
-        if (cpFraction == 0.f)
-          continue;  //hopefully this should never happen
-        auto hit_find_in_MCL = detIdToMultiClusterId_Map.find(cp_hitDetId);
-        if (hit_find_in_MCL == detIdToMultiClusterId_Map.end())
-          hitWithNoMCL = true;
-        auto itcheck = hitMap.find(cp_hitDetId);
-        const HGCRecHit* hit = itcheck->second;
-        float hitEnergyWeight = hit->energy() * hit->energy();
-        for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
-          unsigned int multiClusterId = lcPair.first;
-          float mclFraction = 0.f;
-
-          if (!hitWithNoMCL) {
-            auto findHitIt = std::find(detIdToMultiClusterId_Map[cp_hitDetId].begin(),
-                                       detIdToMultiClusterId_Map[cp_hitDetId].end(),
-                                       HGVHistoProducerAlgo::detIdInfoInMultiCluster{multiClusterId, 0, 0.f});
-            if (findHitIt != detIdToMultiClusterId_Map[cp_hitDetId].end())
-              mclFraction = findHitIt->fraction;
-          }
-          if (mclFraction == 0.) {
-            mclFraction = -1.;
-          }
-          //Observe here that we do not divide as before by the layer cluster energy weight. We should sum first
-          //over all layers and divide with the total CP energy over all layers.
-          lcPair.second.second += (mclFraction - cpFraction) * (mclFraction - cpFraction) * hitEnergyWeight;
-          LogDebug("HGCalValidator") << "multiClusterId:\t" << multiClusterId << "\t"
-                                     << "mclfraction,cpfraction:\t" << mclFraction << ", " << cpFraction << "\t"
-                                     << "hitEnergyWeight:\t" << hitEnergyWeight << "\t"
-                                     << "currect score numerator:\t" << lcPair.second.second << "\n";
-        }
-      }  //end of loop through sim hits of current calo particle
-
       if (cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore.empty())
         LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id:\t-1 "
                                    << "\t layer \t " << layerId << " Sub score in \t -1"
