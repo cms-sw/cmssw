@@ -117,3 +117,11 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
 ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
   gsfElectronCoresTag = "ecalDrivenGsfElectronCoresFromMultiCl",
 )
+
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(gsfElectrons.preselection,
+                           minSCEtBarrel = 1.0, 
+                           minSCEtEndcaps = 1.0) 
+
+lightByLightLowPt.toModify(gedGsfElectronsTmp,
+                           applyPreselection = False) 

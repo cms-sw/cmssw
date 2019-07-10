@@ -36,5 +36,10 @@ gedPhotons.pfIsolCfg = cms.PSet(
 
 gedPhotonSequence    = cms.Sequence(gedPhotons)
 
-
-
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(gedPhotons,
+                           minSCEtBarrel = 1.0,
+                           minSCEtEndcap = 1.0)
+lightByLightLowPt.toModify(gedPhotonsTmp,
+                           minSCEtBarrel = 1.0,
+                           minSCEtEndcap = 1.0)
