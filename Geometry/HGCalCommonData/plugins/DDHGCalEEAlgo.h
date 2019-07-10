@@ -10,6 +10,7 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 class DDHGCalEEAlgo : public DDAlgorithm {
@@ -27,10 +28,16 @@ public:
 
 protected:
   void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
-  void positionSensitive(
-      const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, DDCompactView& cpv);
+  void positionSensitive(const DDLogicalPart& glog,
+                         double rin,
+                         double rout,
+                         double zpos,
+                         int layertype,
+                         int layercenter,
+                         DDCompactView& cpv);
 
 private:
+  HGCalGeomTools geomTools_;
   std::unique_ptr<HGCalWaferType> waferType_;
 
   std::vector<std::string> wafers_;     // Wafers
@@ -42,6 +49,7 @@ private:
   std::vector<double> layerThick_;      // Thickness of each section
   std::vector<int> layerType_;          // Type of the layer
   std::vector<int> layerSense_;         // Content of a layer (sensitive?)
+  std::vector<int> layerCenter_;        // Centering of the wafers
   int firstLayer_;                      // Copy # of the first sensitive layer
   int absorbMode_;                      // Absorber mode
   double zMinBlock_;                    // Starting z-value of the block
