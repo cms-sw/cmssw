@@ -80,7 +80,6 @@ void HGCalCLUEAlgo::makeClusters() {
   tbb::this_task_arena::isolate([&] {
     tbb::parallel_for(size_t(0), size_t(2 * maxlayer + 2), [&](size_t i) {
       prepareDataStructures(i);
-      //if (i!=91) return;
       HGCalLayerTiles lt;
       lt.clear();
       lt.fill(cells_[i].x,cells_[i].y, cells_[i].eta, cells_[i].phi, cells_[i].isSilic);
@@ -230,12 +229,11 @@ math::XYZPoint HGCalCLUEAlgo::calculatePosition(const std::vector<int> &v, const
   else return math::XYZPoint(0.f, 0.f, 0.f);
 }
 
-
-
 void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c, float delta_r)  
 {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
+  bool is2by2 = true;   // use 2x2 window for scitillator as default
   for(unsigned int i = 0; i < numberOfCells; i++) {
     float delta_c_(0);
     if (cellsOnLayer.isSilic[i]) {
@@ -274,13 +272,14 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsig
 	    unsigned int otherId = lt[binId][j];
 	    if (cellsOnLayer.isSilic[otherId]) continue; //cells in the silicon cannot talk to cells in scintillator
 	    if(distance(i, otherId, layerId, true) < delta_c_) {
-	      // need to round these numbers to 5 decimals so that the following comparisons can work properly
-	      float iPhi=round(cellsOnLayer.phi[i]*100000)/100000.;
+	      // need to round these numbers to 5 decimals to be able to compare floats
+	      float roundDec=100000.;
+	      float iPhi=round(cellsOnLayer.phi[i]*roundDec)/roundDec.;
 	      float otherPhi_=cellsOnLayer.phi[otherId];
 	      otherPhi_ += (otherPhi_*iPhi >= 0 || abs(iPhi) < 1.) ? 0. : iPhi > 0. ? 2*M_PI : -2*M_PI;
-	      float otherPhi = round(otherPhi_*100000)/100000.;
-	      float otherEta=round(cellsOnLayer.eta[otherId]*100000)/100000.;
-	      float iEta=round(cellsOnLayer.eta[i]*100000)/100000.;
+	      float otherPhi = round(otherPhi_*roundDec)/roundDec.;
+	      float otherEta=round(cellsOnLayer.eta[otherId]*roundDec)/roundDec.;
+	      float iEta=round(cellsOnLayer.eta[i]*roundDec)/roundDec.;
 	      LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
 					<< "    cell: " << otherId
 					<< " energy: "<< cellsOnLayer.weight[otherId]
@@ -307,12 +306,11 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt, const unsig
 	  }
 	}
       }
-      //float neighborsval = (std::max(northeast, northwest) > std::max(southeast, southwest)) ? std::max(northeast, northwest) : std::max(southeast, southwest);
-      //cellsOnLayer.rho[i] += neighborsval+static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/(neighborsval/100000)));
-      cellsOnLayer.rho[i] += all;
+      float neighborsval = (std::max(northeast, northwest) > std::max(southeast, southwest)) ? std::max(northeast, northwest) : std::max(southeast, southwest);
+      if (is2by2) cellsOnLayer.rho[i] += neighborsval;
+      else cellsOnLayer.rho[i] += all;
     }
     LogDebug("HGCalCLUEAlgo") << "Debugging calculateLocalDensity: \n"
-    //std::cout
 			      << "  cell: " << i
 			      << " isSilicon: " << cellsOnLayer.isSilic[i]
 			      << " eta: " <<  cellsOnLayer.eta[i]
@@ -421,7 +419,6 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt, const u
       }
     }
     LogDebug("HGCalCLUEAlgo") << "Debugging calculateDistanceToHigher: \n"
-    //std::cout << "Debugging calculateDistanceToHigher: \n"
 			      << "  cell: " << i
 			      << " isSilicon: " << cellsOnLayer.isSilic[i]
 			      << " eta: " << cellsOnLayer.eta[i]
@@ -447,7 +444,6 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
   for(unsigned int i = 0; i < numberOfCells; i++) {
     float rho_c = kappa_ * cellsOnLayer.sigmaNoise[i];
     float delta_c_ = 0;
-    //std::cout << "rho_c: " << rho_c << "\n";
     if (!cellsOnLayer.isSilic[i]) {
       delta_c_ = delta_r;
     } else {
@@ -512,20 +508,18 @@ void HGCalCLUEAlgo::computeThreshold() {
       thresholds_[ilayer - 1][ithick] = sigmaNoise * ecut_;
       v_sigmaNoise_[ilayer - 1][ithick] = sigmaNoise;
       LogDebug("HGCalCLUEAlgo") << "ilayer: " << ilayer
-	//std::cout << "ilayer: " << ilayer
-		<< " nonAgedNoises: " << nonAgedNoises_[ithick]
-		<< " fcPerEle: " << fcPerEle_
-		<< " fcPerMip: " << fcPerMip_[ithick]
-		<< " noiseMip: " << fcPerEle_ * nonAgedNoises_[ithick] / fcPerMip_[ithick]
-		<< " sigmaNoise: " << sigmaNoise << "\n";
+				<< " nonAgedNoises: " << nonAgedNoises_[ithick]
+				<< " fcPerEle: " << fcPerEle_
+				<< " fcPerMip: " << fcPerMip_[ithick]
+				<< " noiseMip: " << fcPerEle_ * nonAgedNoises_[ithick] / fcPerMip_[ithick]
+				<< " sigmaNoise: " << sigmaNoise << "\n";
     }
     float scintillators_sigmaNoise = 0.001f * noiseMip_ * dEdXweights_[ilayer];
     thresholds_[ilayer - 1][maxNumberOfThickIndices] = ecut_ * scintillators_sigmaNoise;
     v_sigmaNoise_[ilayer - 1][maxNumberOfThickIndices] = scintillators_sigmaNoise;
     LogDebug("HGCalCLUEAlgo") << "ilayer: " << ilayer
-    //std::cout << "ilayer: " << ilayer
-	      << " noiseMip: " << noiseMip_
-	      << " scintillators_sigmaNoise: " << scintillators_sigmaNoise << "\n";
+			      << " noiseMip: " << noiseMip_
+			      << " scintillators_sigmaNoise: " << scintillators_sigmaNoise << "\n";
   }
 }
 
