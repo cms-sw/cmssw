@@ -75,7 +75,10 @@ class _ProxyParameter(_ParameterTypeBase):
     def validate_(self,value):
         return isinstance(value,self.__type)
     def convert_(self,value):
-        return self.__type(value)
+        v = self.__type(value)
+        if not _ParameterTypeBase.isTracked(self):
+            v = untracked(v)
+        return v
 
 class _RequiredParameter(_ProxyParameter):
     @staticmethod
@@ -1615,6 +1618,13 @@ if __name__ == "__main__":
             self.failIf(p1.hasParameter(['allowAnyLabel_']))
             p1.foo = 3
             self.assertEqual(p1.foo.value(),3)
+            self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
+            self.assert_(p1.foo.isTracked())
+            p1 = PSet(allowAnyLabel_ = required.untracked.int32)
+            self.failIf(p1.hasParameter(['allowAnyLabel_']))
+            p1.foo = 3
+            self.assertEqual(p1.foo.value(),3)
+            self.failIf(p1.foo.isTracked())
             self.assertRaises(ValueError,setattr,p1, 'bar', 'bad')
         def testOptional(self):
             p1 = PSet(anInt = optional.int32)
