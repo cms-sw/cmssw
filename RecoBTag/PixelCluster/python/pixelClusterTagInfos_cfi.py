@@ -12,7 +12,8 @@ pixelClusterTagInfos = cms.ESProducer("PixelClusterTagInfoProducer",
     jetsAK8 = cms.InputTag("ak8PFJetsCHS"),
     vertices = cms.InputTag("offlinePrimaryVertices"),
     pixelhit = cms.InputTag("siPixelClusters"),
-    minJetPtCut = cms.double(100.),
+    pixelLayers = cms.uint32(4),
     minAdcCount = cms.uint32(0), # set to 0 to remove cut
+    minJetPtCut = cms.double(100.),
 )
 
