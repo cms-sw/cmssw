@@ -74,7 +74,8 @@
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver) : G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
+CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver) 
+: G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);
@@ -134,7 +135,7 @@ void CMSEmStandardPhysicsLPM::ConstructParticle() {
 }
 
 void CMSEmStandardPhysicsLPM::ConstructProcess() {
-  if (verbose > 0) {
+  if (verbose > 1) {
     G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
   }
 
@@ -171,7 +172,10 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
 
   G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
   G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
-
+  if (verbose > 1) {
+    G4cout << "CMSEmStandardPhysicsLPM: HcalRegion " << aRegion << G4endl;
+    G4cout << "CMSEmStandardPhysicsLPM: HGCalRegion " << bRegion << G4endl;
+  }
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();
   EmParticleList emList;
   for (const auto& particleName : emList.PartNames()) {
@@ -189,7 +193,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       G4UrbanMscModel* msc1 = new G4UrbanMscModel();
       G4WentzelVIModel* msc2 = new G4WentzelVIModel();
       G4UrbanMscModel* msc3 = new G4UrbanMscModel();
-      //--- VI: these line should be moved down
+      //---VI: these line should be moved down
       msc3->SetLocked(true);
       //---
       msc1->SetHighEnergyLimit(highEnergyLimit);
@@ -197,9 +201,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       msc3->SetHighEnergyLimit(highEnergyLimit);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
-      msc->AddEmModel(-1, msc3, aRegion);
-      if (bRegion)
-        msc->AddEmModel(-1, msc3, bRegion);
+      if (aRegion) { msc->AddEmModel(-1, msc3, aRegion); }
+      if (bRegion) { msc->AddEmModel(-1, msc3, bRegion); }
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
       G4CoulombScattering* ss = new G4CoulombScattering();
@@ -226,9 +229,8 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       msc3->SetLocked(true);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
-      msc->AddEmModel(-1, msc3, aRegion);
-      if (bRegion)
-        msc->AddEmModel(-1, msc3, bRegion);
+      if (aRegion) { msc->AddEmModel(-1, msc3, aRegion); }
+      if (bRegion) { msc->AddEmModel(-1, msc3, bRegion); }
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
       G4CoulombScattering* ss = new G4CoulombScattering();
@@ -312,16 +314,7 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       ph->RegisterProcess(pp, particle);
       ph->RegisterProcess(new G4CoulombScattering(), particle);
 
-    } else if (particleName == "B+" || particleName == "B-" || particleName == "D+" || particleName == "D-" ||
-               particleName == "Ds+" || particleName == "Ds-" || particleName == "anti_He3" ||
-               particleName == "anti_alpha" || particleName == "anti_deuteron" || particleName == "anti_lambda_c+" ||
-               particleName == "anti_omega-" || particleName == "anti_sigma_c+" || particleName == "anti_sigma_c++" ||
-               particleName == "anti_sigma+" || particleName == "anti_sigma-" || particleName == "anti_triton" ||
-               particleName == "anti_xi_c+" || particleName == "anti_xi-" || particleName == "deuteron" ||
-               particleName == "lambda_c+" || particleName == "omega-" || particleName == "sigma_c+" ||
-               particleName == "sigma_c++" || particleName == "sigma+" || particleName == "sigma-" ||
-               particleName == "tau+" || particleName == "tau-" || particleName == "triton" ||
-               particleName == "xi_c+" || particleName == "xi-") {
+    } else if (particle->GetPDGCharge() != 0.0) {
       if (nullptr == hmsc) {
         hmsc = new G4hMultipleScattering("ionmsc");
       }
@@ -329,4 +322,5 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       ph->RegisterProcess(new G4hIonisation(), particle);
     }
   }
+  G4cout << "CMSEmStandardPhysicsLPM: EM physics is instantiated " << G4endl;
 }

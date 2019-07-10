@@ -101,7 +101,8 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
         param->ActivateSecondaryBiasing("hIoni", rname[i], rrfact[i], energyLim);
         edm::LogVerbatim("SimG4CoreApplication")
             << "ParametrisedEMPhysics: Russian Roulette"
-            << " for e- Prob= " << rrfact[i] << " Elimit(MeV)= " << energyLim / CLHEP::MeV << " inside " << rname[i];
+            << " for e- Prob= " << rrfact[i] << " Elimit(MeV)= " 
+	    << energyLim / CLHEP::MeV << " inside " << rname[i];
       }
     }
   }
@@ -132,6 +133,9 @@ void ParametrisedEMPhysics::ConstructParticle() {
 }
 
 void ParametrisedEMPhysics::ConstructProcess() {
+
+  G4cout << "ParametrisedEMPhysics::ConstructProcess() " << G4endl;
+
   // GFlash part
   bool gem = theParSet.getParameter<bool>("GflashEcal");
   bool ghad = theParSet.getParameter<bool>("GflashHcal");
@@ -143,8 +147,9 @@ void ParametrisedEMPhysics::ConstructProcess() {
     if (!m_tpmod) {
       m_tpmod = new TLSmod;
     }
-    edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  "
-                                             << ghad << " for hadrons: " << gemHad << "  " << ghadHad;
+    edm::LogVerbatim("SimG4CoreApplication") 
+      << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  "
+      << ghad << " for hadrons: " << gemHad << "  " << ghadHad;
 
     m_tpmod->theFastSimulationManagerProcess.reset(new G4FastSimulationManagerProcess());
 
@@ -162,10 +167,10 @@ void ParametrisedEMPhysics::ConstructProcess() {
     }
 
     if (gem || gemHad) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion");
+      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion",false);
 
       if (!aRegion) {
-        edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess: "
+        edm::LogWarning("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess: "
                                                  << "EcalRegion is not defined, GFlash will not be enabled for ECAL!";
 
       } else {
@@ -181,9 +186,9 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }
     }
     if (ghad || ghadHad) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion");
+      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion",false);
       if (!aRegion) {
-        edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess: "
+        edm::LogWarning("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess: "
                                                  << "HcalRegion is not defined, GFlash will not be enabled for HCAL!";
 
       } else {
@@ -238,7 +243,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
         nlimitsH = (limitsH[i] > 0) ? 1 : 0;
         break;
       }
-      const G4Region* r = store->GetRegion(regnames[i]);
+      const G4Region* r = store->GetRegion(regnames[i],false);
       // apply for concrete G4Region
       if (r && (limitsE[i] > 0.0 || limitsH[i] > 0.0)) {
         reg.emplace_back(r);
@@ -302,6 +307,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
     ModifyTransportation(G4Positron::Positron(), nt, th1, th2);
     ModifyTransportation(G4Proton::Proton(), nt, th1, th2);
   }
+  G4cout << "ParametrisedEMPhysics::ConstructProcess() is done" << G4endl;
 }
 
 void ParametrisedEMPhysics::ModifyTransportation(const G4ParticleDefinition* part, int ntry, double th1, double th2) {
