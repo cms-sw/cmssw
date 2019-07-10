@@ -5,6 +5,8 @@ from Validation.EcalRecHits.ecalRecHitsValidation_cfi import *
 from Validation.EcalRecHits.ecalBarrelRecHitsValidation_cfi import *
 from Validation.EcalRecHits.ecalEndcapRecHitsValidation_cfi import *
 from Validation.EcalRecHits.ecalPreshowerRecHitsValidation_cfi import *
+
 ecalRecHitsValidationSequence = cms.Sequence(ecalRecHitsValidation*ecalBarrelRecHitsValidation*ecalEndcapRecHitsValidation*ecalPreshowerRecHitsValidation)
 
-
+ecalRecHitsValidationPhase2 = ecalRecHitsValidation.clone(enableEndcaps = False)
+ecalRecHitsValidationSequencePhase2 = cms.Sequence(ecalRecHitsValidationPhase2*ecalBarrelRecHitsValidation)
