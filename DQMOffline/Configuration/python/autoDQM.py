@@ -2,9 +2,17 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                         'PostDQMOffline',
                         'DQMHarvestCommon+DQMCertCommon+@L1TMon'],
 
+            'commonFakeHLT': ['DQMOfflineCommonFakeHLT+@L1TMon',
+                        'PostDQMOffline',
+                        'DQMHarvestCommonFakeHLT+DQMCertCommonFakeHLT+@L1TMon'],
+
             'commonSiStripZeroBias': ['DQMOfflineCommonSiStripZeroBias',
                                       'PostDQMOffline',
                                       'DQMHarvestCommonSiStripZeroBias+DQMCertCommon'],
+
+            'commonSiStripZeroBiasFakeHLT': ['DQMOfflineCommonSiStripZeroBiasFakeHLT',
+                                      'PostDQMOffline',
+                                      'DQMHarvestCommonSiStripZeroBiasFakeHLT+DQMCertCommonFakeHLT'],
 
             'trackingOnlyDQM': ['DQMOfflineTracking',
                                 'PostDQMOffline',
@@ -88,6 +96,10 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                                 'PostDQMOffline',
                                 '@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma'],
 
+            'rerecoZeroBiasFakeHLT' : ['@commonSiStripZeroBiasFakeHLT+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma',
+                                'PostDQMOffline',
+                                '@commonSiStripZeroBiasFakeHLT+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma'],
+
             'miniAODDQM': ['DQMOfflineMiniAOD',
                            'PostDQMOfflineMiniAOD',
                            'DQMHarvestMiniAOD'],
@@ -109,6 +121,10 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                          'dqmHarvestingExtraHLT'],
 
             'standardDQMFakeHLT': ['DQMOfflineFakeHLT',
+                                   'PostDQMOffline',
+                                   'dqmHarvestingFakeHLT'],
+
+            'standardDQMHIFakeHLT': ['DQMOfflineHeavyIonsFakeHLT',
                                    'PostDQMOffline',
                                    'dqmHarvestingFakeHLT'],
 
