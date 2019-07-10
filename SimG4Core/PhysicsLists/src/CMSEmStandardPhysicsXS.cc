@@ -192,6 +192,10 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
 
   G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
   G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
+  if (verbose > 1) {
+    G4cout << "CMSEmStandardPhysicsLPM: HcalRegion " << aRegion << G4endl;
+    G4cout << "CMSEmStandardPhysicsLPM: HGCalRegion " << bRegion << G4endl;
+  }
 
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();
   EmParticleList emList;
@@ -223,7 +227,8 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       msc3->SetLocked(true);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
-      msc->AddEmModel(-1, msc3, aRegion);
+      if (aRegion)
+        msc->AddEmModel(-1, msc3, aRegion);
       if (bRegion)
         msc->AddEmModel(-1, msc3, bRegion);
 
@@ -270,7 +275,8 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       msc3->SetLocked(true);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
-      msc->AddEmModel(-1, msc3, aRegion);
+      if (aRegion)
+        msc->AddEmModel(-1, msc3, aRegion);
       if (bRegion)
         msc->AddEmModel(-1, msc3, bRegion);
 
@@ -384,16 +390,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
       ph->RegisterProcess(pp, particle);
       ph->RegisterProcess(pss, particle);
 
-    } else if (particleName == "B+" || particleName == "B-" || particleName == "D+" || particleName == "D-" ||
-               particleName == "Ds+" || particleName == "Ds-" || particleName == "anti_He3" ||
-               particleName == "anti_alpha" || particleName == "anti_deuteron" || particleName == "anti_lambda_c+" ||
-               particleName == "anti_omega-" || particleName == "anti_sigma_c+" || particleName == "anti_sigma_c++" ||
-               particleName == "anti_sigma+" || particleName == "anti_sigma-" || particleName == "anti_triton" ||
-               particleName == "anti_xi_c+" || particleName == "anti_xi-" || particleName == "deuteron" ||
-               particleName == "lambda_c+" || particleName == "omega-" || particleName == "sigma_c+" ||
-               particleName == "sigma_c++" || particleName == "sigma+" || particleName == "sigma-" ||
-               particleName == "tau+" || particleName == "tau-" || particleName == "triton" ||
-               particleName == "xi_c+" || particleName == "xi-") {
+    } else if (particle->GetPDGCharge() != 0.0) {
       if (nullptr == hmsc) {
         hmsc = new G4hMultipleScattering("ionmsc");
       }

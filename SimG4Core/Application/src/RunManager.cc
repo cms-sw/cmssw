@@ -213,7 +213,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
       std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
   m_kernel->SetVerboseLevel(verb);
   auto cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
-  if(cuts) {
+  if (cuts) {
     DDG4ProductionCuts pcuts(map_, verb, m_pPhysics);
   }
 
@@ -290,7 +290,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
   edm::LogInfo("SimG4CoreApplication") << "RunManager: start initialisation of PhysicsList";
 
-  if(!cuts) {
+  if (!cuts) {
     m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
     m_physicsList->SetCutsWithDefault();
   }

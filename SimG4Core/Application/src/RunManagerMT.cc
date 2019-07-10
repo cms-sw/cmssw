@@ -104,15 +104,13 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
                           const cms::DDCompactView* pDD4hep,
                           const MagneticField* pMF,
                           const HepPDT::ParticleDataTable* fPDGTable) {
-  edm::LogWarning("SimG4CoreApplication") << "### RunManagerMT::initG4";   
+  edm::LogWarning("SimG4CoreApplication") << "### RunManagerMT::initG4";
   if (m_managerInitialized) {
-    edm::LogWarning("SimG4CoreApplication") 
-      << "RunManagerMT::initG4 was already done - exit";
+    edm::LogWarning("SimG4CoreApplication") << "RunManagerMT::initG4 was already done - exit";
     return;
   }
   auto geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
-  edm::LogVerbatim("SimG4CoreApplication") 
-    << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep;
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep;
 
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_lv;
@@ -122,27 +120,26 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   } else {
     m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
   }
-  G4VPhysicalVolume *world = m_world.get()->GetWorldVolume();
+  G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
 
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
-  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), 
-                      m_p.getParameter<int>("SteppingVerbosity"));
+  int verb =
+      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
   m_kernel->SetVerboseLevel(verb);
-  edm::LogVerbatim("SimG4CoreApplication") 
-    << "RunManagerMT: Define cuts: " << cuts << " Geant4 run manager verbosity: " << verb;
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "RunManagerMT: Define cuts: " << cuts << " Geant4 run manager verbosity: " << verb;
 
   if (cuts) {
     DDG4ProductionCuts pcuts(map_lv, verb, m_pPhysics);
   }
-  const G4RegionStore *regStore = G4RegionStore::GetInstance();
-  const G4PhysicalVolumeStore *pvs = G4PhysicalVolumeStore::GetInstance();
-  const G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
+  const G4RegionStore* regStore = G4RegionStore::GetInstance();
+  const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   unsigned int numPV = pvs->size();
   unsigned int numLV = lvs->size();
   unsigned int nn = regStore->size();
-  edm::LogVerbatim("SimG4CoreApplication") 
-    << "###RunManagerMT: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " 
-    << nn << " Regions.";
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "###RunManagerMT: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
 
   m_kernel->DefineWorldVolume(world, true);
   m_registry.dddWorldSignal_(m_world.get());
@@ -153,8 +150,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   std::unique_ptr<PhysicsListMakerBase> physicsMaker(
       PhysicsListFactory::get()->create(m_pPhysics.getParameter<std::string>("type")));
   if (physicsMaker.get() == nullptr) {
-    throw edm::Exception(edm::errors::Configuration) 
-      << "Unable to find the Physics list requested";
+    throw edm::Exception(edm::errors::Configuration) << "Unable to find the Physics list requested";
   }
   m_physicsList = physicsMaker->make(m_pPhysics, m_registry);
 
@@ -180,18 +176,16 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
-  edm::LogInfo("SimG4CoreApplication") 
-    << "RunManagerMT: start initialisation of PhysicsList for master";
+  edm::LogInfo("SimG4CoreApplication") << "RunManagerMT: start initialisation of PhysicsList for master";
 
-  if(!cuts) {
+  if (!cuts) {
     m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
     m_physicsList->SetCutsWithDefault();
   }
 
   m_kernel->SetPhysics(phys);
 
-  edm::LogInfo("SimG4CoreApplication") 
-    << "RunManagerMT: PhysicsList and cuts are defined";
+  edm::LogInfo("SimG4CoreApplication") << "RunManagerMT: PhysicsList and cuts are defined";
 
   // Geant4 UI commands before initialisation of physics
   if (!m_G4Commands.empty()) {
@@ -233,8 +227,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (verb > 1) {
     m_physicsList->DumpCutValuesTable();
   }
-  edm::LogVerbatim("SimG4CoreApplication") 
-    << "RunManagerMT: Physics is initilized, now initialise user actions";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Physics is initilized, now initialise user actions";
 
   initializeUserActions();
 

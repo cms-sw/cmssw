@@ -74,11 +74,11 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
       m_notifyMasterCv.wait(lk2, [&] { return m_masterCanProceed; });
 
       // Act according to the state
-      edm::LogInfo("OscarMTMasterThread") 
-	<< "Master thread: Woke up, state is " << static_cast<int>(m_masterThreadState);
+      edm::LogInfo("OscarMTMasterThread")
+          << "Master thread: Woke up, state is " << static_cast<int>(m_masterThreadState);
       if (m_masterThreadState == ThreadState::BeginRun) {
         // Initialize Geant4
-	edm::LogInfo("OscarMTMasterThread") << "Master thread: Initializing Geant4";
+        edm::LogInfo("OscarMTMasterThread") << "Master thread: Initializing Geant4";
         runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pMF, m_pTable);
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {

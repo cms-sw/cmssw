@@ -101,8 +101,7 @@ ParametrisedEMPhysics::ParametrisedEMPhysics(const std::string& name, const edm:
         param->ActivateSecondaryBiasing("hIoni", rname[i], rrfact[i], energyLim);
         edm::LogVerbatim("SimG4CoreApplication")
             << "ParametrisedEMPhysics: Russian Roulette"
-            << " for e- Prob= " << rrfact[i] << " Elimit(MeV)= " 
-	    << energyLim / CLHEP::MeV << " inside " << rname[i];
+            << " for e- Prob= " << rrfact[i] << " Elimit(MeV)= " << energyLim / CLHEP::MeV << " inside " << rname[i];
       }
     }
   }
@@ -133,7 +132,6 @@ void ParametrisedEMPhysics::ConstructParticle() {
 }
 
 void ParametrisedEMPhysics::ConstructProcess() {
-
   G4cout << "ParametrisedEMPhysics::ConstructProcess() " << G4endl;
 
   // GFlash part
@@ -147,9 +145,8 @@ void ParametrisedEMPhysics::ConstructProcess() {
     if (!m_tpmod) {
       m_tpmod = new TLSmod;
     }
-    edm::LogVerbatim("SimG4CoreApplication") 
-      << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  "
-      << ghad << " for hadrons: " << gemHad << "  " << ghadHad;
+    edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics: GFlash Construct for e+-: " << gem << "  "
+                                             << ghad << " for hadrons: " << gemHad << "  " << ghadHad;
 
     m_tpmod->theFastSimulationManagerProcess.reset(new G4FastSimulationManagerProcess());
 
@@ -167,11 +164,11 @@ void ParametrisedEMPhysics::ConstructProcess() {
     }
 
     if (gem || gemHad) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion",false);
+      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("EcalRegion", false);
 
       if (!aRegion) {
         edm::LogWarning("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess: "
-                                                 << "EcalRegion is not defined, GFlash will not be enabled for ECAL!";
+                                                << "EcalRegion is not defined, GFlash will not be enabled for ECAL!";
 
       } else {
         if (gem) {
@@ -186,10 +183,10 @@ void ParametrisedEMPhysics::ConstructProcess() {
       }
     }
     if (ghad || ghadHad) {
-      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion",false);
+      G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
       if (!aRegion) {
         edm::LogWarning("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess: "
-                                                 << "HcalRegion is not defined, GFlash will not be enabled for HCAL!";
+                                                << "HcalRegion is not defined, GFlash will not be enabled for HCAL!";
 
       } else {
         if (ghad) {
@@ -243,7 +240,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
         nlimitsH = (limitsH[i] > 0) ? 1 : 0;
         break;
       }
-      const G4Region* r = store->GetRegion(regnames[i],false);
+      const G4Region* r = store->GetRegion(regnames[i], false);
       // apply for concrete G4Region
       if (r && (limitsE[i] > 0.0 || limitsH[i] > 0.0)) {
         reg.emplace_back(r);

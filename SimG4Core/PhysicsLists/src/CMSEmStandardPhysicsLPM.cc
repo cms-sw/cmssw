@@ -74,8 +74,7 @@
 
 #include "G4SystemOfUnits.hh"
 
-CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver) 
-: G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
+CMSEmStandardPhysicsLPM::CMSEmStandardPhysicsLPM(G4int ver) : G4VPhysicsConstructor("CMSEmStandard_emm"), verbose(ver) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);
@@ -201,8 +200,12 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       msc3->SetHighEnergyLimit(highEnergyLimit);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
-      if (aRegion) { msc->AddEmModel(-1, msc3, aRegion); }
-      if (bRegion) { msc->AddEmModel(-1, msc3, bRegion); }
+      if (aRegion) {
+        msc->AddEmModel(-1, msc3, aRegion);
+      }
+      if (bRegion) {
+        msc->AddEmModel(-1, msc3, bRegion);
+      }
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
       G4CoulombScattering* ss = new G4CoulombScattering();
@@ -229,8 +232,12 @@ void CMSEmStandardPhysicsLPM::ConstructProcess() {
       msc3->SetLocked(true);
       msc->SetEmModel(msc1);
       msc->SetEmModel(msc2);
-      if (aRegion) { msc->AddEmModel(-1, msc3, aRegion); }
-      if (bRegion) { msc->AddEmModel(-1, msc3, bRegion); }
+      if (aRegion) {
+        msc->AddEmModel(-1, msc3, aRegion);
+      }
+      if (bRegion) {
+        msc->AddEmModel(-1, msc3, bRegion);
+      }
 
       G4eCoulombScatteringModel* ssm = new G4eCoulombScatteringModel();
       G4CoulombScattering* ss = new G4CoulombScattering();
