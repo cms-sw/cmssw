@@ -2668,9 +2668,9 @@ void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker &i
 }
 //------------------------------------------------------------------------------------------
 inline SiStripTrackingRecHitsValid::MonitorElement *SiStripTrackingRecHitsValid::bookME1D(DQMStore::IBooker &ibooker,
-                                                             const char *ParameterSetLabel,
-                                                             const char *HistoName,
-                                                             const char *HistoTitle) {
+                                                                                          const char *ParameterSetLabel,
+                                                                                          const char *HistoName,
+                                                                                          const char *HistoTitle) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book1D(HistoName,
                         HistoTitle,
@@ -2679,10 +2679,8 @@ inline SiStripTrackingRecHitsValid::MonitorElement *SiStripTrackingRecHitsValid:
                         Parameters.getParameter<double>("xmax"));
 }
 //------------------------------------------------------------------------------------------
-inline SiStripTrackingRecHitsValid::MonitorElement *SiStripTrackingRecHitsValid::bookMEProfile(DQMStore::IBooker &ibooker,
-                                                                  const char *ParameterSetLabel,
-                                                                  const char *HistoName,
-                                                                  const char *HistoTitle) {
+inline SiStripTrackingRecHitsValid::MonitorElement *SiStripTrackingRecHitsValid::bookMEProfile(
+    DQMStore::IBooker &ibooker, const char *ParameterSetLabel, const char *HistoName, const char *HistoTitle) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   //The number of channels in Y is disregarded in a profile plot.
   return ibooker.bookProfile(HistoName,

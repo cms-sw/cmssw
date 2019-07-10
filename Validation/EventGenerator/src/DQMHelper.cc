@@ -21,15 +21,15 @@ DQMHelper::MonitorElement* DQMHelper::book1dHisto(
 }
 
 DQMHelper::MonitorElement* DQMHelper::book2dHisto(std::string name,
-                                       std::string title,
-                                       int nx,
-                                       double xmin,
-                                       double xmax,
-                                       int ny,
-                                       double ymin,
-                                       double ymax,
-                                       std::string xaxis,
-                                       std::string yaxis) {
+                                                  std::string title,
+                                                  int nx,
+                                                  double xmin,
+                                                  double xmax,
+                                                  int ny,
+                                                  double ymin,
+                                                  double ymax,
+                                                  std::string xaxis,
+                                                  std::string yaxis) {
   MonitorElement* dqm = ibooker->book2D(name, title, nx, xmin, xmax, ny, ymin, ymax);
   dqm->getTH1()->Sumw2();
   dqm->setAxisTitle(xaxis, 1);
@@ -38,13 +38,13 @@ DQMHelper::MonitorElement* DQMHelper::book2dHisto(std::string name,
 }
 
 DQMHelper::MonitorElement* DQMHelper::book2dHisto(const std::string& name,
-                                       const std::string& title,
-                                       int nx,
-                                       double xmin,
-                                       double xmax,
-                                       int ny,
-                                       double ymin,
-                                       double ymax) {
+                                                  const std::string& title,
+                                                  int nx,
+                                                  double xmin,
+                                                  double xmax,
+                                                  int ny,
+                                                  double ymin,
+                                                  double ymax) {
   MonitorElement* dqm = ibooker->book2D(name, title, nx, xmin, xmax, ny, ymin, ymax);
   dqm->getTH1()->Sumw2();
   return dqm;

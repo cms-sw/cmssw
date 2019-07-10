@@ -18,7 +18,9 @@
 
 //---------------------------------------------------------------------------------------
 /// Function to fill an efficiency histograms with binomial errors
-inline void divide(dqm::legacy::MonitorElement *eff, const dqm::legacy::MonitorElement *numerator, const dqm::legacy::MonitorElement *denominator) {
+inline void divide(dqm::legacy::MonitorElement *eff,
+                   const dqm::legacy::MonitorElement *numerator,
+                   const dqm::legacy::MonitorElement *denominator) {
   TH1 *effH = eff->getTH1();
   TH1 *numH = numerator->getTH1();
   TH1 *denH = denominator->getTH1();

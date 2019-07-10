@@ -182,21 +182,20 @@ SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase
 }
 
 SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(uint32_t detid,
-                                                                    std::string name,
-                                                                    std::string title,
-                                                                    int nchX,
-                                                                    double lowX,
-                                                                    double highX,
-                                                                    int nchY,
-                                                                    double lowY,
-                                                                    double highY) {
+                                                                                                     std::string name,
+                                                                                                     std::string title,
+                                                                                                     int nchX,
+                                                                                                     double lowX,
+                                                                                                     double highX,
+                                                                                                     int nchY,
+                                                                                                     double lowY,
+                                                                                                     double highY) {
   std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
   return daqBE_->book2D(hid, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistoPlaquetteSummary2D(uint32_t detid,
-                                                                                std::string name,
-                                                                                std::string title) {
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistoPlaquetteSummary2D(
+    uint32_t detid, std::string name, std::string title) {
   DetId detId(detid);
   const TrackerGeometry& theTracker(*geom_);
   const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));

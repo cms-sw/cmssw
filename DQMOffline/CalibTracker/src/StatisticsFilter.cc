@@ -41,7 +41,7 @@ class StatisticsFilter : public edm::EDFilter {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
-  
+
   explicit StatisticsFilter(const edm::ParameterSet&);
   ~StatisticsFilter() override;
 

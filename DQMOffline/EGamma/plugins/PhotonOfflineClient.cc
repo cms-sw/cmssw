@@ -598,7 +598,9 @@ void PhotonOfflineClient::book3DHistoVector(DQMStore::IBooker& iBooker,
   }
 }
 
-PhotonOfflineClient::MonitorElement* PhotonOfflineClient::retrieveHisto(DQMStore::IGetter& iGetter, string dir, string name) {
+PhotonOfflineClient::MonitorElement* PhotonOfflineClient::retrieveHisto(DQMStore::IGetter& iGetter,
+                                                                        string dir,
+                                                                        string name) {
   //cout << "dir = " << dir << endl;
   //cout << "name = " << name << endl;
   vector<MonitorElement*> histoVector;

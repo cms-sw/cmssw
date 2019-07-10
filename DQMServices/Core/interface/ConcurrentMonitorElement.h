@@ -14,6 +14,7 @@
 class ConcurrentMonitorElement {
 public:
   typedef dqm::impl::MonitorElement MonitorElement;
+
 private:
   mutable MonitorElement* me_;
   mutable tbb::spin_mutex lock_;

@@ -41,7 +41,7 @@ class StripValidationPlots : public edm::EDAnalyzer {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
-  
+
   explicit StripValidationPlots(const edm::ParameterSet&);
   ~StripValidationPlots() override;
 

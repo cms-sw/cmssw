@@ -8,7 +8,7 @@ class TriggerDQMBase {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
-  
+
   TriggerDQMBase() = default;
   ;
   virtual ~TriggerDQMBase() = default;

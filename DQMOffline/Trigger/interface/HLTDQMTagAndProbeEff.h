@@ -60,7 +60,7 @@ class HLTDQMTagAndProbeEff {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
-  
+
   explicit HLTDQMTagAndProbeEff(const edm::ParameterSet& pset, edm::ConsumesCollector&& cc);
 
   static edm::ParameterSetDescription makePSetDescription();

@@ -35,7 +35,7 @@ class HLTDQMFilterEffHists {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
-  
+
   explicit HLTDQMFilterEffHists(const edm::ParameterSet& config, std::string baseHistName, std::string hltProcess);
 
   static edm::ParameterSetDescription makePSetDescription();

@@ -30,7 +30,7 @@ class HLTDQMFilterTnPEffHists {
 public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
-  
+
   HLTDQMFilterTnPEffHists(const edm::ParameterSet& config,
                           const std::string& baseHistName,
                           const std::string& hltProcess)

@@ -1967,7 +1967,8 @@ double EcalSelectiveReadoutValidation::frame2EnergyForTp(const T& frame, int off
   return acc;
 }
 
-EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::bookFloat(DQMStore::IBooker& ibook, const std::string& name) {
+EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::bookFloat(DQMStore::IBooker& ibook,
+                                                                                          const std::string& name) {
   if (!registerHist(name, ""))
     return nullptr;  //this histo is disabled
   MonitorElement* result = ibook.bookFloat(name);
@@ -1989,14 +1990,14 @@ EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::
 }
 
 EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::book2D(DQMStore::IBooker& ibook,
-                                                       const std::string& name,
-                                                       const std::string& title,
-                                                       int nxbins,
-                                                       double xmin,
-                                                       double xmax,
-                                                       int nybins,
-                                                       double ymin,
-                                                       double ymax) {
+                                                                                       const std::string& name,
+                                                                                       const std::string& title,
+                                                                                       int nxbins,
+                                                                                       double xmin,
+                                                                                       double xmax,
+                                                                                       int nybins,
+                                                                                       double ymin,
+                                                                                       double ymax) {
   if (!registerHist(name, title))
     return nullptr;  //this histo is disabled
   MonitorElement* result = ibook.book2D(name, title, nxbins, xmin, xmax, nybins, ymin, ymax);
@@ -2018,15 +2019,15 @@ EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::
 }
 
 EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::bookProfile2D(DQMStore::IBooker& ibook,
-                                                              const std::string& name,
-                                                              const std::string& title,
-                                                              int nbinx,
-                                                              double xmin,
-                                                              double xmax,
-                                                              int nbiny,
-                                                              double ymin,
-                                                              double ymax,
-                                                              const char* option) {
+                                                                                              const std::string& name,
+                                                                                              const std::string& title,
+                                                                                              int nbinx,
+                                                                                              double xmin,
+                                                                                              double xmax,
+                                                                                              int nbiny,
+                                                                                              double ymin,
+                                                                                              double ymax,
+                                                                                              const char* option) {
   if (!registerHist(name, title))
     return nullptr;  //this histo is disabled
   MonitorElement* result = ibook.bookProfile2D(name, title, nbinx, xmin, xmax, nbiny, ymin, ymax, 0, 0, 0, option);
