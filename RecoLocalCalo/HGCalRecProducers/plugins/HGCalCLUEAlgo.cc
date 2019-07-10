@@ -459,7 +459,7 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
     // initialize clusterIndex
     cellsOnLayer.clusterIndex[i] = -1;
     bool isSeed = (cellsOnLayer.delta[i] > delta_c_) && (cellsOnLayer.rho[i] >= rho_c);
-    bool isOutlier = (cellsOnLayer.delta[i] > outlierDeltaFactor_*delta_c_) && (cellsOnLayer.rho[i] < rho_c);
+    bool isOutlier = (cellsOnLayer.delta[i] > outlierDeltaFactor_ * delta_c_) && (cellsOnLayer.rho[i] < rho_c);
     if (isSeed) {
       cellsOnLayer.clusterIndex[i] = nClustersOnLayer;
       cellsOnLayer.isSeed[i] = true;
@@ -532,8 +532,8 @@ void HGCalCLUEAlgo::computeThreshold() {
 void HGCalCLUEAlgo::setDensity(const unsigned int layerId) {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
-  for (unsigned int i = 0; i< numberOfCells; ++i)
-    density_[cellsOnLayer.detid[i]] = cellsOnLayer.rho[i] ;
+  for (unsigned int i = 0; i < numberOfCells; ++i)
+    density_[cellsOnLayer.detid[i]] = cellsOnLayer.rho[i];
 }
 
 Density HGCalCLUEAlgo::getDensity() { return density_; }
