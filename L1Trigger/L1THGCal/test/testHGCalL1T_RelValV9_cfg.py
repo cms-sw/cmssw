@@ -74,9 +74,6 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 # load HGCAL TPG simulation
 process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-# To test V9Imp2
-#from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
-#process = custom_geometry_V9(process, implementation=2)
 
 
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
