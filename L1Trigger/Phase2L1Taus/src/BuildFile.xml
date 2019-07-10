@@ -6,6 +6,7 @@
 <use   name="DataFormats/L1CaloTrigger"/>
 <use   name="DataFormats/Phase2L1CaloTrig"/>
 <use   name="DataFormats/EcalDigi"/>
+<use   name="PhysicsTools/TensorFlow"/>
 <use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="TrackingTools/Records"/>
