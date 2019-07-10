@@ -31,7 +31,6 @@ commonDict = {
         ],
         "era" : "run2_common, run3_common, phase2_common",
     },
-
     "O3" : {
         1 : [
             'Geometry/CMSCommonData/data/materials.xml',
@@ -134,41 +133,6 @@ trackerDict = {
         ],
         "era" : "phase2_tracker, trackingPhase2PU140",
     },
-    "T11" : {
-        1 : [
-            'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
-            'Geometry/TrackerCommonData/data/pixfwdCommon.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixfwd.xml', 
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixbar.xml', 
-            'Geometry/TrackerCommonData/data/trackermaterial.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/otst.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/tracker.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/pixel.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerbar.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerfwd.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker404/trackerStructureTopology.xml',
-            'Geometry/TrackerCommonData/data/PhaseII/TiltedTracker405/pixelStructureTopology.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackersens.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelsens.xml',
-            'Geometry/TrackerRecoData/data/PhaseII/TiltedTracker404/trackerRecoMaterial.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/trackerProdCuts.xml',
-            'Geometry/TrackerSimData/data/PhaseII/TiltedTracker404/pixelProdCuts.xml',
-            'Geometry/TrackerSimData/data/trackerProdCutsBEAM.xml',
-        ],
-        "sim" : [
-            'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
-            'from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *',
-        ],
-        "reco" : [
-            'from Geometry.CommonDetUnit.globalTrackingGeometry_cfi import *',
-            'from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.trackerParameters_cfi import *',
-            'from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *',
-            'from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *',
-            'trackerGeometry.applyAlignment = cms.bool(False)',
-        ],
-        "era" : "phase2_tracker, trackingPhase2PU140",
-    },
     "T14" : {
         1 : [
             'Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml',
@@ -244,80 +208,7 @@ trackerDict = {
 caloDict = {
     "abbrev" : "C",
     "name" : "calo",
-    "default" : 3,
-    "C3" : {
-        1 : [
-            'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
-            'Geometry/EcalCommonData/data/ebalgo.xml',
-            'Geometry/EcalCommonData/data/ebcon.xml',
-            'Geometry/EcalCommonData/data/ebrot.xml',
-            'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
-            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
-            'Geometry/HcalCommonData/data/hcalrotations.xml',
-            'Geometry/HcalCommonData/data/hcal/HGCal/hcalalgo.xml',
-            'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
-            'Geometry/HcalCommonData/data/hcalendcap/SSAbsorber/hcalendcapalgo.xml',
-            'Geometry/HcalCommonData/data/hcalouteralgo.xml',
-            'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
-            'Geometry/HcalCommonData/data/hcalSimNumbering/2023/hcalSimNumbering.xml',
-            'Geometry/HcalCommonData/data/hcalRecNumbering/2023/hcalRecNumbering.xml',
-            'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
-            'Geometry/HGCalCommonData/data/hgcal/v8/hgcal.xml',
-            'Geometry/HGCalCommonData/data/hgcalEE/v8/hgcalEE.xml',
-            'Geometry/HGCalCommonData/data/hgcalHEsil/v8/hgcalHEsil.xml',
-            'Geometry/HGCalCommonData/data/hgcalwafer/v7/hgcalwafer.xml',
-            'Geometry/HGCalCommonData/data/hgcalCons/v8/hgcalCons.xml',
-        ],
-        3 : [
-            'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
-            'Geometry/HcalCommonData/data/hcalsens/HGCal/hcalsenspmf.xml',
-            'Geometry/HcalSimData/data/hf.xml',
-            'Geometry/HcalSimData/data/hfpmt.xml',
-            'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
-            'Geometry/HGCalSimData/data/hgcsensv8.xml',
-            'Geometry/HGCalSimData/data/hgccons.xml',
-            'Geometry/HGCalSimData/data/hgcProdCuts.xml',
-        ],
-        4 : [
-            'Geometry/HcalSimData/data/HcalProdCuts.xml',
-            'Geometry/EcalSimData/data/EcalProdCuts.xml',
-        ],
-        "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi      import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalV6NumberingInitialization_cfi import *'
-        ],
-        "reco" : [
-            'from Geometry.CaloEventSetup.HGCalV6Topology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalV6GeometryESProducer_cfi import *',
-            'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
-            'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
-            'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
-            '    SelectedCalos = cms.vstring("HCAL"                   ,',
-            '                                "ZDC"                    ,',
-            '                                "EcalBarrel"             ,',
-            '                                "TOWER"                  ,',
-            '                                "HGCalEESensitive"       ,',
-            '                                "HGCalHESiliconSensitive" ',
-            '    )',
-            ')',
-            'from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.HcalGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
-            'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
-            'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
-            'from Geometry.EcalMapping.EcalMapping_cfi import *',
-            'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
-        ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, hcalHardcodeConditions, hcalSkipPacker",
-    },
-
+    "default" : 4,
     "C4" : {
         1 : [
             'Geometry/EcalCommonData/data/ectkcable.xml',
@@ -392,82 +283,6 @@ caloDict = {
         ],
         "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker",
     },
-
-    "C5" : {
-        1 : [
-            'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
-            'Geometry/EcalCommonData/data/ebalgo.xml',
-            'Geometry/EcalCommonData/data/ebcon.xml',
-            'Geometry/EcalCommonData/data/ebrot.xml',
-            'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
-            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
-            'Geometry/HcalCommonData/data/hcalrotations.xml',
-            'Geometry/HcalCommonData/data/hcal/NoHE/hcalalgo.xml',
-            'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
-            'Geometry/HcalCommonData/data/hcalouteralgo.xml',
-            'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
-            'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
-            'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
-            'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
-            'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
-            'Geometry/HGCalCommonData/data/hgcal/v9/hgcal.xml',
-            'Geometry/HGCalCommonData/data/hgcalEE/v9/hgcalEE.xml',
-            'Geometry/HGCalCommonData/data/hgcalHEsil/v9/hgcalHEsil.xml',
-            'Geometry/HGCalCommonData/data/hgcalHEmix/v9/hgcalHEmix.xml',
-            'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
-            'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
-            'Geometry/HGCalCommonData/data/hgcalCons/v9p/hgcalCons.xml',
-        ],
-        3 : [
-            'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
-            'Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml',
-            'Geometry/HcalSimData/data/hf.xml',
-            'Geometry/HcalSimData/data/hfpmt.xml',
-            'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
-            'Geometry/HGCalSimData/data/hgcsensv9.xml',
-        ],
-        4 : [
-            'Geometry/HcalSimData/data/HcalProdCuts.xml',
-            'Geometry/EcalSimData/data/EcalProdCuts.xml',
-            'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
-        ],
-        "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi      import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
-        ],
-        "reco" : [
-            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
-            'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
-            'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
-            'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
-            '    SelectedCalos = cms.vstring("HCAL",',
-            '                                "ZDC",',
-            '                                "EcalBarrel",',
-            '                                "TOWER",',
-            '                                "HGCalEESensitive",',
-            '                                "HGCalHESiliconSensitive",',
-            '                                "HGCalHEScintillatorSensitive"',
-            '    )',
-            ')',
-            'from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.HcalGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
-            'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
-            'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
-            'from Geometry.EcalMapping.EcalMapping_cfi import *',
-            'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
-        ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker",
-    },
-
     "C6" : {
         1 : [
             'Geometry/EcalCommonData/data/ectkcable.xml',
@@ -553,82 +368,6 @@ caloDict = {
         ],
         "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker, phase2_hfnose",
     },
-
-    "C7" : {
-        1 : [
-            'Geometry/EcalCommonData/data/ectkcable.xml',
-            'Geometry/EcalCommonData/data/eregalgo/2023/v1/eregalgo.xml',
-            'Geometry/EcalCommonData/data/ebalgo.xml',
-            'Geometry/EcalCommonData/data/ebcon.xml',
-            'Geometry/EcalCommonData/data/ebrot.xml',
-            'Geometry/EcalCommonData/data/eecon.xml',
-            'Geometry/EcalCommonData/data/escon/2023/v1/escon.xml',
-            'Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml',
-            'Geometry/HcalCommonData/data/hcalrotations.xml',
-            'Geometry/HcalCommonData/data/hcal/NoHE/hcalalgo.xml',
-            'Geometry/HcalCommonData/data/hcalbarrelalgo.xml',
-            'Geometry/HcalCommonData/data/hcalouteralgo.xml',
-            'Geometry/HcalCommonData/data/hcalforwardalgo.xml',
-            'Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml',
-            'Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml',
-            'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
-            'Geometry/HGCalCommonData/data/hgcalMaterial/v1/hgcalMaterial.xml',
-            'Geometry/HGCalCommonData/data/hgcal/v9a/hgcal.xml',
-            'Geometry/HGCalCommonData/data/hgcalEE/v9a/hgcalEE.xml',
-            'Geometry/HGCalCommonData/data/hgcalHEsil/v9a/hgcalHEsil.xml',
-            'Geometry/HGCalCommonData/data/hgcalHEmix/v9a/hgcalHEmix.xml',
-            'Geometry/HGCalCommonData/data/hgcalwafer/v9/hgcalwafer.xml',
-            'Geometry/HGCalCommonData/data/hgcalcell/v9/hgcalcell.xml',
-            'Geometry/HGCalCommonData/data/hgcalCons/v9a/hgcalCons.xml',
-        ],
-        3 : [
-            'Geometry/EcalSimData/data/PhaseII/ecalsens.xml',
-            'Geometry/HcalCommonData/data/hcalsens/NoHE/hcalsenspmf.xml',
-            'Geometry/HcalSimData/data/hf.xml',
-            'Geometry/HcalSimData/data/hfpmt.xml',
-            'Geometry/HcalSimData/data/hffibrebundle.xml',
-            'Geometry/HcalSimData/data/CaloUtil.xml',
-            'Geometry/HGCalSimData/data/hgcsensv9.xml',
-        ],
-        4 : [
-            'Geometry/HcalSimData/data/HcalProdCuts.xml',
-            'Geometry/EcalSimData/data/EcalProdCuts.xml',
-            'Geometry/HGCalSimData/data/hgcProdCutsv9.xml',
-        ],
-        "sim" : [
-            'from Geometry.HcalCommonData.hcalParameters_cfi      import *',
-            'from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *',
-            'from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *'
-        ],
-        "reco" : [
-            'from Geometry.CaloEventSetup.HGCalV9Topology_cfi import *',
-            'from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *',
-            'from Geometry.CaloEventSetup.CaloTopology_cfi import *',
-            'from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *',
-            'CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",',
-            '    SelectedCalos = cms.vstring("HCAL",',
-            '                                "ZDC",',
-            '                                "EcalBarrel",',
-            '                                "TOWER",',
-            '                                "HGCalEESensitive",',
-            '                                "HGCalHESiliconSensitive",',
-            '                                "HGCalHEScintillatorSensitive"',
-            '    )',
-            ')',
-            'from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.HcalGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *',
-            'from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *',
-            'from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *',
-            'from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *',
-            'from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *',
-            'from Geometry.EcalMapping.EcalMapping_cfi import *',
-            'from Geometry.EcalMapping.EcalMappingRecord_cfi import *',
-        ],
-        "era" : "run2_HE_2017, run2_HF_2017, run2_HCAL_2017, run3_HB, phase2_hcal, phase2_hgcal, phase2_hgcalV9, hcalHardcodeConditions, hcalSkipPacker",
-    },
-
     "C8" : {
         1 : [
             'Geometry/EcalCommonData/data/eregalgo/2023/v2/eregalgo.xml',
@@ -751,7 +490,6 @@ muonDict = {
         ],
         "era" : "phase2_muon, run3_GEM",
     },
-
     "M3" : {
         1 : [
             'Geometry/MuonCommonData/data/mbCommon/2017/v2/mbCommon.xml',
@@ -826,7 +564,6 @@ forwardDict = {
             'from Geometry.ForwardGeometry.ForwardGeometry_cfi import *',
         ]
     },
-
     "F3" : {
         1 : [
             'Geometry/ForwardCommonData/data/forwardshield/2023/v1/forwardshield.xml',
@@ -860,86 +597,7 @@ forwardDict = {
 timingDict = {
     "abbrev" : "I",
     "name" : "timing",
-    "default" : 1,
-    "I1" : {},
-    "I2" : {
-        1 : [
-            'Geometry/HGCalCommonData/data/fastTimingBarrel.xml',
-            'Geometry/HGCalCommonData/data/fastTimingEndcap.xml',
-            'Geometry/HGCalCommonData/data/fastTimingElement.xml',
-            ],
-        3 : [
-            'Geometry/HGCalSimData/data/fasttimesens.xml'
-            ],
-        4 : [
-            'Geometry/HGCalSimData/data/fasttimeProdCuts.xml'
-            ],
-        "sim" : [
-            'from Geometry.HGCalCommonData.fastTimeParametersInitialization_cfi import *',
-            'from Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi import *',
-        ],
-        "reco" :[
-            'from Geometry.CaloEventSetup.FastTimeTopology_cfi import *',
-            'from Geometry.HGCalGeometry.FastTimeGeometryESProducer_cfi import *',
-        ],
-        "era" : "phase2_timing, phase2_timing_layer",
-    },
-    "I3" : {
-        1 : [
-            'Geometry/MTDCommonData/data/btl.xml',
-            'Geometry/MTDCommonData/data/etl.xml',
-            'Geometry/MTDCommonData/data/CrystalTile/mtd.xml',
-            'Geometry/MTDCommonData/data/CrystalTile/mtdStructureTopology.xml',
-            'Geometry/MTDCommonData/data/CrystalTile/mtdParameters.xml',
-            ],
-        3 : [
-            'Geometry/MTDSimData/data/CrystalTile/mtdsens.xml'
-            ],
-        4 : [
-            'Geometry/MTDSimData/data/CrystalTile/mtdProdCuts.xml'
-            ],
-        "sim" : [
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-        ],
-        "reco" :[
-            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-            'mtdGeometry.applyAlignment = cms.bool(False)'
-        ],
-        "era" : "phase2_timing, phase2_timing_layer_tile",
-    },
-    "I4" : {
-        1 : [
-            'Geometry/MTDCommonData/data/btl.xml',
-            'Geometry/MTDCommonData/data/etl.xml',
-            'Geometry/MTDCommonData/data/CrystalBar/mtd.xml',
-            'Geometry/MTDCommonData/data/CrystalBar/mtdStructureTopology.xml',
-            'Geometry/MTDCommonData/data/CrystalBar/mtdParameters.xml',
-            ],
-        3 : [
-            'Geometry/MTDSimData/data/CrystalBar/mtdsens.xml'
-            ],
-        4 : [
-            'Geometry/MTDSimData/data/CrystalBar/mtdProdCuts.xml'
-            ],
-        "sim" : [
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-        ],
-        "reco" :[
-            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-            'mtdGeometry.applyAlignment = cms.bool(False)'
-        ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
-    },
+    "default" : 5,
     "I5" : {
         1 : [
             'Geometry/MTDCommonData/data/btl.xml',
@@ -947,34 +605,6 @@ timingDict = {
             'Geometry/MTDCommonData/data/CrystalBarZflat/mtd.xml',
             'Geometry/MTDCommonData/data/CrystalBarZflat/mtdStructureTopology.xml',
             'Geometry/MTDCommonData/data/CrystalBarZflat/mtdParameters.xml',
-            ],
-        3 : [
-            'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
-            ],
-        4 : [
-            'Geometry/MTDSimData/data/CrystalBarZflat/mtdProdCuts.xml'
-            ],
-        "sim" : [
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-        ],
-        "reco" :[
-            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-            'mtdGeometry.applyAlignment = cms.bool(False)'
-        ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
-    },
-    "I6" : {
-        1 : [
-            'Geometry/MTDCommonData/data/btl.xml',
-            'Geometry/MTDCommonData/data/etl.xml',
-            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtd.xml',
-            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtdStructureTopology.xml',
-            'Geometry/MTDCommonData/data/CrystalBarZflatNOhole/mtdParameters.xml',
             ],
         3 : [
             'Geometry/MTDSimData/data/CrystalBarZflat/mtdsens.xml'
@@ -1024,35 +654,6 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer_bar",
     },
-    "I8" : {
-        1 : [
-            'Geometry/MTDCommonData/data/btl.xml',
-            'Geometry/MTDCommonData/data/etl.xml',
-            'Geometry/MTDCommonData/data/CrystalBarPhiFlatOldTh/mtd.xml',
-            'Geometry/MTDCommonData/data/CrystalBarPhiFlatOldTh/mtdStructureTopology.xml',
-            'Geometry/MTDCommonData/data/CrystalBarPhiFlatOldTh/mtdParameters.xml',
-            ],
-        3 : [
-            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdsens.xml'
-            ],
-        4 : [
-            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdProdCuts.xml'
-            ],
-        "sim" : [
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-        ],
-        "reco" :[
-            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
-            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
-            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
-            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
-            'mtdGeometry.applyAlignment = cms.bool(False)'
-        ],
-        "era" : "phase2_timing, phase2_timing_layer_bar",
-    },
-
     "I9" : {
         1 : [
             'Geometry/MTDCommonData/data/btl.xml',
@@ -1081,31 +682,45 @@ timingDict = {
         ],
         "era" : "phase2_timing, phase2_timing_layer_bar",
     },
+    "I10" : {
+        1 : [
+            'Geometry/MTDCommonData/data/btl.xml',
+            'Geometry/MTDCommonData/data/etl/v2/etl.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/v3/mtd.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdStructureTopology.xml',
+            'Geometry/MTDCommonData/data/CrystalBarPhiFlat/mtdParameters.xml',
+            ],
+        3 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdsens.xml'
+            ],
+        4 : [
+            'Geometry/MTDSimData/data/CrystalBarPhiFlat/mtdProdCuts.xml'
+            ],
+        "sim" : [
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+        ],
+        "reco" :[
+            'from RecoMTD.DetLayers.mtdDetLayerGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdParameters_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *',
+            'from Geometry.MTDNumberingBuilder.mtdTopology_cfi import *',
+            'from Geometry.MTDGeometryBuilder.mtdGeometry_cfi import *',
+            'from Geometry.MTDGeometryBuilder.idealForDigiMTDGeometry_cff import *',
+            'mtdGeometry.applyAlignment = cms.bool(False)'
+        ],
+        "era" : "phase2_timing, phase2_timing_layer_bar",
+    },
 }
 
 allDicts = [ commonDict, trackerDict, caloDict, muonDict, forwardDict, timingDict ]
 
 detectorVersionDict = {
-    ("O2","T5","C3","M2","F2","I1") : "D17",
-    ("O2","T5","C3","M2","F2","I2") : "D19",
-    ("O2","T6","C3","M2","F2","I1") : "D21",
-    ("O2","T6","C3","M2","F2","I3") : "D24",
-    ("O2","T6","C3","M2","F2","I4") : "D25",
-    ("O2","T6","C4","M2","F2","I1") : "D28",
-    ("O2","T11","C3","M2","F2","I1") : "D29",
-    ("O2","T6","C5","M2","F2","I1") : "D30",
-    ("O2","T6","C6","M2","F3","I1") : "D31",
-    ("O2","T6","C7","M2","F2","I1") : "D32",
-    ("O2","T6","C3","M2","F2","I5") : "D33",
-    ("O2","T6","C3","M2","F2","I6") : "D34",
     ("O2","T6","C4","M2","F2","I5") : "D35",
-    ("O2","T6","C4","M2","F2","I7") : "D38",
-    ("O2","T6","C4","M2","F2","I8") : "D39",
-    ("O2","T14","C3","M2","F2","I1") : "D40",
     ("O3","T14","C8","M3","F2","I9") : "D41",
-    ("O2","T15","C3","M2","F2","I1") : "D42",
     ("O2","T14","C4","M3","F2","I7") : "D43",
+    ("O2","T14","C6","M3","F2","I7") : "D44",
+    ("O3","T15","C8","M3","F2","I10") : "D45",
 }
 
-deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D18", "D20", "D22", "D23", "D26", "D27", "D36", "D37" ])
-deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T7", "T8", "T9", "T10", "T12", "T13", "C1", "C2", "M1", "O1", "F1" ])
+deprecatedDets = set([ "D1", "D2", "D3", "D5", "D6" , "D7", "D4", "D8" , "D9", "D12", "D13", "D15", "D10", "D11", "D14", "D16", "D17", "D18", "D19", "D20", "D21", "D22", "D23", "D24", "D25", "D26", "D27", "D28", "D29", "D30", "D31", "D32", "D33", "D34", "D36", "D37", "D38", "D39", "D40", "D42" ])
+deprecatedSubdets = set([ "T1", "T2" ,"T3", "T4", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "C1", "C2", "C3", "C5", "C7", "M1", "I1", "I2", "I3", "I4", "I6", "I8", "O1", "F1" ])
