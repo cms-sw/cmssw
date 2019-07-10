@@ -115,6 +115,9 @@ DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                     DQMOfflineHeavyIonsPrePOG *
                                     DQMMessageLogger )
 
+DQMOfflineHeavyIonsFakeHLT = cms.Sequence( DQMOffline )
+DQMOfflineHeavyIonsFakeHLT.remove( triggerOfflineDQMSource )
+
 #this is needed to have a light sequence for T0 processing
 liteDQMOfflineHeavyIons = cms.Sequence ( DQMOfflineHeavyIons )
 liteDQMOfflineHeavyIons.remove( SiStripMonitorCluster )
