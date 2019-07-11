@@ -174,7 +174,7 @@ namespace pat {
       return correctedJet(level, flavor, set).p4();
     };
     /// Scale energy and correspondingly adjust raw jec factors
-    void scaleEnergy(double fScale) override { scaleEnergy(fScale, "scaled"); };
+    void scaleEnergy(double fScale) override { scaleEnergy(fScale, "Unscaled"); };
     void scaleEnergy(double fScale, const std::string& level);
 
   private:
