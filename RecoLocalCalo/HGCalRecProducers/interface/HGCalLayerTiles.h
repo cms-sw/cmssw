@@ -15,34 +15,30 @@
 class HGCalLayerTiles {
 public:
   void fill(const std::vector<float>& x,
-	    const std::vector<float>& y,
-	    const std::vector<float>& eta,
-	    const std::vector<float>& phi,
-	    const std::vector<bool>& isSilic) {
+            const std::vector<float>& y,
+            const std::vector<float>& eta,
+            const std::vector<float>& phi,
+            const std::vector<bool>& isSilic) {
     auto cellsSize = x.size();
     for (unsigned int i = 0; i < cellsSize; ++i) {
       tiles_[getGlobalBin(x[i], y[i])].push_back(i);
       if (!isSilic[i]) {
-	tiles_[getGlobalBinEtaPhi(eta[i], phi[i])].push_back(i);
-	if (getPhiBin(phi[i]) == 1) {     // need to do this to handle cells at phi=+/-pi
-	  tiles_[getGlobalBinEtaPhi(eta[i], phi[i]+2*M_PI)].push_back(i);
-	  LogDebug("HGCalLayerTiles") << "Debugging fill for cells at phi=pi: \n"
-				      << "  fill: " << i 
-				      << " x: " << x[i]
-				      << " y: " << y[i]
-				      << " binXY: " << getGlobalBin(x[i], y[i])
-				      << " eta: " << eta[i]
-				      << " phi: " << phi[i]
-				      << " binEta: " << getEtaBin(eta[i])
-				      << " binPhi: " << getPhiBin(phi[i]) 
-				      << " binEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i])
-				      << " newPhi: " << phi[i]+2*M_PI
-				      << " binNewPhi: " << getPhiBin(phi[i]+2*M_PI)
-				      << " binNewEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i]+2*M_PI) << "\n";
-	}
-	if (getPhiBin(phi[i]) == 42) {
-	  tiles_[getGlobalBinEtaPhi(eta[i], phi[i]-2*M_PI)].push_back(i); 
-	}
+        tiles_[getGlobalBinEtaPhi(eta[i], phi[i])].push_back(i);
+        if (getPhiBin(phi[i]) == 1) {  // need to do this to handle cells at phi=+/-pi
+          tiles_[getGlobalBinEtaPhi(eta[i], phi[i] + 2 * M_PI)].push_back(i);
+          LogDebug("HGCalLayerTiles") << "Debugging fill for cells at phi=pi: \n"
+                                      << "  fill: " << i << " x: " << x[i] << " y: " << y[i]
+                                      << " binXY: " << getGlobalBin(x[i], y[i]) << " eta: " << eta[i]
+                                      << " phi: " << phi[i] << " binEta: " << getEtaBin(eta[i])
+                                      << " binPhi: " << getPhiBin(phi[i])
+                                      << " binEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i])
+                                      << " newPhi: " << phi[i] + 2 * M_PI
+                                      << " binNewPhi: " << getPhiBin(phi[i] + 2 * M_PI)
+                                      << " binNewEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i] + 2 * M_PI) << "\n";
+        }
+        if (getPhiBin(phi[i]) == 42) {
+          tiles_[getGlobalBinEtaPhi(eta[i], phi[i] - 2 * M_PI)].push_back(i);
+        }
       }
     }
   }
@@ -88,15 +84,13 @@ public:
   int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * hgcaltilesconstants::nColumns; }
 
   int getGlobalBinEtaPhi(float eta, float phi) const {
-    return hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows +
-      getEtaBin(eta) +
-      getPhiBin(phi) * hgcaltilesconstants::nColumnsEta;
+    return hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows + getEtaBin(eta) +
+           getPhiBin(phi) * hgcaltilesconstants::nColumnsEta;
   }
 
   int getGlobalBinByBinEtaPhi(int etaBin, int phiBin) const {
-    return hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows +
-      etaBin +
-      phiBin * hgcaltilesconstants::nColumnsEta;
+    return hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows + etaBin +
+           phiBin * hgcaltilesconstants::nColumnsEta;
   }
 
   std::array<int, 4> searchBox(float xMin, float xMax, float yMin, float yMax) const {
@@ -116,15 +110,17 @@ public:
   }
 
   void clear() {
-    for (auto& t : tiles_) t.clear();
+    for (auto& t : tiles_)
+      t.clear();
   }
 
   const std::vector<int>& operator[](int globalBinId) const { return tiles_[globalBinId]; }
 
 private:
   std::array<std::vector<int>,
-	     hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows +
-	     hgcaltilesconstants::nColumnsEta * hgcaltilesconstants::nRowsPhi > tiles_;
+             hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows +
+                 hgcaltilesconstants::nColumnsEta * hgcaltilesconstants::nRowsPhi>
+      tiles_;
 };
 
 #endif

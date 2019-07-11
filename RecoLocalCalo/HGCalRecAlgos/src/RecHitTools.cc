@@ -409,9 +409,9 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   return ishalf;
 }
 
-bool RecHitTools::isSilicon( const DetId& id ) const {
+bool RecHitTools::isSilicon(const DetId& id) const {
   bool isSilicon_ = false;
-  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi) 
+  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi)
     isSilicon_ = true;
   return isSilicon_;
 }
