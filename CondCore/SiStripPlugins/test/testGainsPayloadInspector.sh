@@ -21,44 +21,72 @@ mkdir $W_DIR/plots
 ####################
 getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsValuesComparator \
+    --plot plot_SiStripApvGainsValuesComparatorSingleTag \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
     --time_type Run \
     --iovs '{"start_iov": "302393", "end_iov": "305114"}' \
     --db Prep \
     --test;
 
-mv *.png $W_DIR/plots/G2_Value_update.png
+mv *.png $W_DIR/plots/G2_Value_update_ST.png
 
 getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsMaxDeviationRatio2sigmaTrackerMap \
+    --plot plot_SiStripApvGainsValuesComparatorTwoTags \
+    --tag SiStripApvGain_FromParticles_GR10_v1_express \
+    --tagtwo SiStripApvGain_FromParticles_GR10_v1_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "286042", "end_iov": "286042"}' \
+    --iovstwo '{"start_iov": "206037", "end_iov": "206037"}' \
+    --db Prod \
+    --test;
+
+
+mv *.png $W_DIR/plots/G2_Value_update_TT.png
+
+getPayloadData.py \
+    --plugin pluginSiStripApvGain_PayloadInspector \
+    --plot plot_SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapSingleTag \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
     --time_type Run \
     --iovs '{"start_iov": "302393", "end_iov": "305114"}' \
     --db Prep \
     --test;
 
-mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update.png
+mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update_ST.png
 
 getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsRatioComparatorByRegion \
+    --plot plot_SiStripApvGainsMaxDeviationRatio2sigmaTrackerMapTwoTags \
+    --tag SiStripApvGain_FromParticles_GR10_v1_express \
+    --tagtwo SiStripApvGain_FromParticles_GR10_v1_hlt \
+    --time_type Run \
+    --iovs '{"start_iov": "286042", "end_iov": "286042"}' \
+    --iovstwo '{"start_iov": "206037", "end_iov": "206037"}' \
+    --db Prod \
+    --test;
+
+
+mv *.png $W_DIR/plots/G2_MaxDeviatonRatio_update_TT.png
+
+getPayloadData.py \
+    --plugin pluginSiStripApvGain_PayloadInspector \
+    --plot plot_SiStripApvGainsRatioComparatorByRegionSingleTag \
     --tag SiStripApvGainAfterAbortGap_PCL_v0_prompt \
     --time_type Run \
     --iovs '{"start_iov": "280000", "end_iov": "305114"}' \
     --db Prep \
     --test;
 
-mv *.png $W_DIR/plots/G2_Ratio_update.png
+mv *.png $W_DIR/plots/G2_Ratio_update_ST.png
 
 getPayloadData.py \
     --plugin pluginSiStripApvGain_PayloadInspector \
-    --plot plot_SiStripApvGainsValuesComparator \
+    --plot plot_SiStripApvGainsValuesComparatorSingleTag \
     --tag SiStripApvGain_GR10_v1_hlt \
     --time_type Run \
     --iovs '{"start_iov": "302322", "end_iov": "306054"}' \
     --db Prod \
     --test;
 
-mv *.png $W_DIR/plots/G1_Value_update.png
+mv *.png $W_DIR/plots/G1_Value_update_ST.png
