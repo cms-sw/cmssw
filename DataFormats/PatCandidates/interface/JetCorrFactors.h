@@ -53,7 +53,7 @@ namespace pat {
     // constructor by value
     JetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec);
     // add correction factor
-    void addFactor(const CorrectionFactor& factor);
+    void insertFactor(const unsigned int& position, const CorrectionFactor& factor);
 
     // instance label of the jet energy corrections set
     std::string jecSet() const { return label_; }
