@@ -7,9 +7,9 @@ process.load('CondCore.CondDB.CondDB_cfi')
 # This will read all the little XML files and from
 # that fill the DDCompactView. The modules that fill
 # the reco part of the database need the DDCompactView.
-process.load('Configuration.Geometry.GeometryExtended2023D17_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
-process.load('Geometry.CaloEventSetup.CaloGeometry2023DBWriter_cfi')
+process.load('Geometry.CaloEventSetup.CaloGeometry2026DBWriter_cfi')
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -54,7 +54,7 @@ process.CondDB.timetype = cms.untracked.string('runnumber')
 process.CondDB.connect = cms.string('sqlite_file:myfile.db')
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'), tag = cms.string('XMLFILE_Geometry_TagXX_Extended2023D17_mc')),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('GeometryFileRcd'), tag = cms.string('XMLFILE_Geometry_TagXX_Extended2026D41_mc')),
                                                             cms.PSet(record = cms.string('IdealGeometryRecord'), tag = cms.string('TKRECO_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PGeometricDetExtraRcd'), tag = cms.string('TKExtra_Geometry_TagXX')),
                                                             cms.PSet(record = cms.string('PTrackerParametersRcd'), tag = cms.string('TKParameters_Geometry_TagXX')),
