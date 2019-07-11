@@ -115,7 +115,7 @@ DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                     DQMOfflineHeavyIonsPrePOG *
                                     DQMMessageLogger )
 
-DQMOfflineHeavyIonsFakeHLT = cms.Sequence( DQMOffline )
+DQMOfflineHeavyIonsFakeHLT = cms.Sequence( DQMOfflineHeavyIons )
 DQMOfflineHeavyIonsFakeHLT.remove( triggerOfflineDQMSource )
 
 #this is needed to have a light sequence for T0 processing
