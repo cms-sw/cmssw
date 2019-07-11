@@ -125,3 +125,5 @@ liteDQMOfflineHeavyIons.remove( jetMETDQMOfflineSource )
 
 
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
+
+PostDQMOfflineHI = cms.Sequence()
