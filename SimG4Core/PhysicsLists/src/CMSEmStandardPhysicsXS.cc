@@ -1,5 +1,8 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysicsXS.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4EmParameters.hh"
 #include "G4ParticleTable.hh"
 
@@ -153,7 +156,7 @@ void CMSEmStandardPhysicsXS::ConstructParticle() {
 
 void CMSEmStandardPhysicsXS::ConstructProcess() {
   if (verbose > 0) {
-    G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
+    edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " Construct Processes";
   }
 
   // This EM builder takes default models of Geant4 10 EMV.
@@ -193,8 +196,7 @@ void CMSEmStandardPhysicsXS::ConstructProcess() {
   G4Region* aRegion = G4RegionStore::GetInstance()->GetRegion("HcalRegion", false);
   G4Region* bRegion = G4RegionStore::GetInstance()->GetRegion("HGCalRegion", false);
   if (verbose > 1) {
-    G4cout << "CMSEmStandardPhysicsLPM: HcalRegion " << aRegion << G4endl;
-    G4cout << "CMSEmStandardPhysicsLPM: HGCalRegion " << bRegion << G4endl;
+    edm::LogVerbatim("PhysicsList") << "CMSEmStandardPhysicsLPM: HcalRegion " << aRegion << "; HGCalRegion " << bRegion;
   }
 
   G4ParticleTable* table = G4ParticleTable::GetParticleTable();

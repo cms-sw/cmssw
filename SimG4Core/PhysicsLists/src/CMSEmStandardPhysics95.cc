@@ -1,5 +1,8 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4EmParameters.hh"
 #include "G4ParticleTable.hh"
 
@@ -159,7 +162,7 @@ void CMSEmStandardPhysics95::ConstructProcess() {
   for (const auto& particleName : emList.PartNames()) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
     if (verbose > 1)
-      G4cout << "### " << GetPhysicsName() << " instantiates for " << particleName << G4endl;
+      edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " instantiates for " << particleName;
 
     if (particleName == "gamma") {
       ph->RegisterProcess(new G4PhotoElectricEffect(), particle);

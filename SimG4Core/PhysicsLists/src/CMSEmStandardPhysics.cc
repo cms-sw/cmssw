@@ -1,5 +1,8 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4EmParameters.hh"
 #include "G4ParticleTable.hh"
 
@@ -133,7 +136,7 @@ void CMSEmStandardPhysics::ConstructParticle() {
 
 void CMSEmStandardPhysics::ConstructProcess() {
   if (verbose > 0) {
-    G4cout << "### " << GetPhysicsName() << " Construct Processes " << G4endl;
+    edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " Construct Processes ";
   }
 
   // This EM builder takes default models of Geant4 10 EMV.
