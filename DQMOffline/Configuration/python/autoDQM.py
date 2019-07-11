@@ -125,11 +125,11 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                                    'dqmHarvestingFakeHLT'],
 
             'standardDQMHIFakeHLT': ['DQMOfflineHeavyIonsFakeHLT',
-                                   'PostDQMOffline',
+                                   'PostDQMOfflineHI',
                                    'dqmHarvestingFakeHLT'],
 
             'liteDQMHI': ['liteDQMOfflineHeavyIons',
-                          'PostDQMOffline',
+                          'PostDQMOfflineHI',
                           'dqmHarvesting'],
 
             'none': ['DQMNone',
