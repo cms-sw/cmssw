@@ -104,7 +104,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
                           const cms::DDCompactView* pDD4hep,
                           const MagneticField* pMF,
                           const HepPDT::ParticleDataTable* fPDGTable) {
-  edm::LogWarning("SimG4CoreApplication") << "### RunManagerMT::initG4";
   if (m_managerInitialized) {
     edm::LogWarning("SimG4CoreApplication") << "RunManagerMT::initG4 was already done - exit";
     return;
@@ -176,22 +175,19 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
-  edm::LogInfo("SimG4CoreApplication") << "RunManagerMT: start initialisation of PhysicsList for master";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialisation of PhysicsList for master";
 
-  if (!cuts) {
-    m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
-    m_physicsList->SetCutsWithDefault();
-  }
-
+  m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
+  m_physicsList->SetCutsWithDefault();
   m_kernel->SetPhysics(phys);
 
-  edm::LogInfo("SimG4CoreApplication") << "RunManagerMT: PhysicsList and cuts are defined";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: PhysicsList and cuts are defined";
 
   // Geant4 UI commands before initialisation of physics
   if (!m_G4Commands.empty()) {
-    G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
+    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Requested UI commands: ";
     for (const std::string& command : m_G4Commands) {
-      G4cout << "    " << command << G4endl;
+      edm::LogVerbatim("SimG4CoreApplication") << "    " << command;
       G4UImanager::GetUIpointer()->ApplyCommand(command);
     }
   }

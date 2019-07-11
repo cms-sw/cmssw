@@ -290,10 +290,8 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
   edm::LogInfo("SimG4CoreApplication") << "RunManager: start initialisation of PhysicsList";
 
-  if (!cuts) {
-    m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
-    m_physicsList->SetCutsWithDefault();
-  }
+  m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
+  m_physicsList->SetCutsWithDefault();
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 

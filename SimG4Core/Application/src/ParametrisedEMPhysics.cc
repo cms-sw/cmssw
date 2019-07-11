@@ -132,7 +132,7 @@ void ParametrisedEMPhysics::ConstructParticle() {
 }
 
 void ParametrisedEMPhysics::ConstructProcess() {
-  G4cout << "ParametrisedEMPhysics::ConstructProcess() " << G4endl;
+  edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess() started";
 
   // GFlash part
   bool gem = theParSet.getParameter<bool>("GflashEcal");
@@ -304,7 +304,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
     ModifyTransportation(G4Positron::Positron(), nt, th1, th2);
     ModifyTransportation(G4Proton::Proton(), nt, th1, th2);
   }
-  G4cout << "ParametrisedEMPhysics::ConstructProcess() is done" << G4endl;
+  edm::LogVerbatim("SimG4CoreApplication") << "ParametrisedEMPhysics::ConstructProcess() is done";
 }
 
 void ParametrisedEMPhysics::ModifyTransportation(const G4ParticleDefinition* part, int ntry, double th1, double th2) {
