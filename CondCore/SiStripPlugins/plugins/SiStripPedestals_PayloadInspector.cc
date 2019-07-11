@@ -252,13 +252,12 @@ namespace {
   *************************************************/
 
   // inherit from one of the predefined plot class: PlotImage
+
   template <SiStripPI::OpMode op_mode_>
-  class SiStripPedestalDistributionComparison : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalDistributionComparisonBase : public cond::payloadInspector::PlotImage<SiStripPedestals> {
   public:
-    SiStripPedestalDistributionComparison()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestal values comparison") {
-      setSingleIov(false);
-    }
+    SiStripPedestalDistributionComparisonBase()
+        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestal values comparison") {}
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> >& iovs) override {
       std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
@@ -433,9 +432,34 @@ namespace {
     }
   };
 
-  typedef SiStripPedestalDistributionComparison<SiStripPI::STRIP_BASED> SiStripPedestalValueComparisonPerStrip;
-  typedef SiStripPedestalDistributionComparison<SiStripPI::APV_BASED> SiStripPedestalValueComparisonPerAPV;
-  typedef SiStripPedestalDistributionComparison<SiStripPI::MODULE_BASED> SiStripPedestalValueComparisonPerModule;
+  template <SiStripPI::OpMode op_mode_>
+  class SiStripPedestalDistributionComparisonSingleTag : public SiStripPedestalDistributionComparisonBase<op_mode_> {
+  public:
+    SiStripPedestalDistributionComparisonSingleTag() : SiStripPedestalDistributionComparisonBase<op_mode_>() {
+      this->setSingleIov(false);
+    }
+  };
+
+  template <SiStripPI::OpMode op_mode_>
+  class SiStripPedestalDistributionComparisonTwoTags : public SiStripPedestalDistributionComparisonBase<op_mode_> {
+  public:
+    SiStripPedestalDistributionComparisonTwoTags() : SiStripPedestalDistributionComparisonBase<op_mode_>() {
+      this->setTwoTags(true);
+    }
+  };
+
+  typedef SiStripPedestalDistributionComparisonSingleTag<SiStripPI::STRIP_BASED>
+      SiStripPedestalValueComparisonPerStripSingleTag;
+  typedef SiStripPedestalDistributionComparisonSingleTag<SiStripPI::APV_BASED>
+      SiStripPedestalValueComparisonPerAPVSingleTag;
+  typedef SiStripPedestalDistributionComparisonSingleTag<SiStripPI::MODULE_BASED>
+      SiStripPedestalValueComparisonPerModuleSingleTag;
+
+  typedef SiStripPedestalDistributionComparisonTwoTags<SiStripPI::STRIP_BASED>
+      SiStripPedestalValueComparisonPerStripTwoTags;
+  typedef SiStripPedestalDistributionComparisonTwoTags<SiStripPI::APV_BASED> SiStripPedestalValueComparisonPerAPVTwoTags;
+  typedef SiStripPedestalDistributionComparisonTwoTags<SiStripPI::MODULE_BASED>
+      SiStripPedestalValueComparisonPerModuleTwoTags;
 
   /************************************************
     1d histogram of fraction of Zero SiStripPedestals of 1 IOV 
@@ -757,9 +781,12 @@ PAYLOAD_INSPECTOR_MODULE(SiStripPedestals) {
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValuePerStrip);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValuePerAPV);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValuePerModule);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerStrip);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerAPV);
-  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerModule);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerStripSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerAPVSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerModuleSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerStripTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerAPVTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalValueComparisonPerModuleTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripZeroPedestalsFraction_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMin_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsMax_TrackerMap);
