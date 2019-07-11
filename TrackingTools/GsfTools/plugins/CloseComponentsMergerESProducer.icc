@@ -16,12 +16,10 @@
 // #include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
 
 template <unsigned int N>
-CloseComponentsMergerESProducer<N>::CloseComponentsMergerESProducer(const edm::ParameterSet& p) {
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  //   std::cout << "CloseComponentsMergerESProducer (" << N << ") "
-  // 	    << myname << std::endl;
-  setWhatProduced(this, myname);
+CloseComponentsMergerESProducer<N>::CloseComponentsMergerESProducer(const edm::ParameterSet& p)
+    : maxComp_(p.getParameter<int>("MaxComponents")) {
+  setWhatProduced(this, p.getParameter<std::string>("ComponentName"))
+      .setConsumes(distToken_, edm::ESInputTag("", p.getParameter<std::string>("DistanceMeasure")));
 }
 
 template <unsigned int N>
@@ -44,11 +42,16 @@ CloseComponentsMergerESProducer<N>::~CloseComponentsMergerESProducer() {
 template <unsigned int N>
 typename std::unique_ptr<MultiGaussianStateMerger<N> > CloseComponentsMergerESProducer<N>::produce(
     const TrackingComponentsRecord& iRecord) {
-  int maxComp = pset_.getParameter<int>("MaxComponents");
-  std::string distName = pset_.getParameter<std::string>("DistanceMeasure");
+  return std::unique_ptr<MultiGaussianStateMerger<N> >(
+      new CloseComponentsMerger<N>(maxComp_, &iRecord.get(distToken_)));
+}
 
-  edm::ESHandle<DistanceBetweenComponents<N> > distProducer;
-  iRecord.get(distName, distProducer);
+template <unsigned int N>
+void CloseComponentsMergerESProducer<N>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName");
+  desc.add<int>("MaxComponents");
+  desc.add<std::string>("DistanceMeasure");
 
-  return std::unique_ptr<MultiGaussianStateMerger<N> >(new CloseComponentsMerger<N>(maxComp, distProducer.product()));
+  descriptions.addDefault(desc);
 }
