@@ -20,7 +20,7 @@ JetCorrFactors::JetCorrFactors(const std::string& label, const std::vector<Corre
 void JetCorrFactors::insertFactor(const unsigned int& position, const CorrectionFactor& corrFactor) {
   if (!isValid(corrFactor))
     invalidFactor();
-  jec_.insert(jec_.begin()+position, corrFactor);
+  jec_.insert(jec_.begin() + position, corrFactor);
 }
 
 std::string JetCorrFactors::jecFlavor(const Flavor& flavor) const {
