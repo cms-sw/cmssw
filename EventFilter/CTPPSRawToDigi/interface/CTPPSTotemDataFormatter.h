@@ -40,8 +40,8 @@ private:
   typedef uint32_t Word32;
   typedef uint64_t Word64;
 
-  mutable int m_WordCounter;
-  mutable int m_DigiCounter;
+  int m_WordCounter;
+  int m_DigiCounter;
 
 public:
   typedef std::unordered_map<int, FEDRawData> RawData;
