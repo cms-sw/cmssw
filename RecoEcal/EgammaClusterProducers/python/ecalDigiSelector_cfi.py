@@ -13,3 +13,8 @@ selectDigi = cms.EDProducer("EcalDigiSelector",
     selectedEcalEBDigiCollection = cms.string('selectedEcalEBDigiCollection'),
     selectedEcalEEDigiCollection = cms.string('selectedEcalEEDigiCollection')
 )
+
+from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
+lightByLightLowPt.toModify(selectDigi,
+                           cluster_pt_thresh = 1.0,
+                           single_cluster_thresh = 1.0)
