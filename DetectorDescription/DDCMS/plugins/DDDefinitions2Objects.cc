@@ -757,6 +757,7 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
   xml_dim_t translation = e.child(DD_CMU(Translation), false);
   xml_dim_t rotation = e.child(DD_CMU(Rotation), false);
   xml_dim_t refRotation = e.child(DD_CMU(rRotation), false);
+  xml_dim_t refReflectionRotation = e.child(DD_CMU(rReflectionRotation), false);
   Position pos;
   Rotation3D rot;
 
@@ -773,6 +774,12 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
     rot = RotationZYX(z, y, x);
   } else if (refRotation.ptr()) {
     string rotName = refRotation.nameStr();
+    if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
+      rotName = ns.name() + rotName;
+
+    rot = ns.rotation(rotName);
+  } else if (refReflectionRotation.ptr()) {
+    string rotName = refReflectionRotation.nameStr();
     if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
       rotName = ns.name() + rotName;
 

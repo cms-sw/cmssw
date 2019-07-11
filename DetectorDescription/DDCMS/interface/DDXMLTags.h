@@ -31,6 +31,7 @@ namespace cms {
   UNICODE(RotationByAxis);
   UNICODE(axis);
   UNICODE(rRotation);
+  UNICODE(rReflectionRotation);
   UNICODE(thetaX);
   UNICODE(phiX);
   UNICODE(thetaY);
