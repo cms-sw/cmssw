@@ -54,7 +54,7 @@ void DDG4ProductionCuts::initialize() {
     edm::LogVerbatim("Geometry") << " DDG4ProductionCuts : got " << vec_.size() << " region roots.\n"
                                  << " DDG4ProductionCuts : List of all roots:";
     for (auto const& vv : vec_)
-      edm::LogVerbatim("Physics") << "    " << vv.first->GetName() << " : " << vv.second.name();
+      edm::LogVerbatim("Geometry") << "    " << vv.first->GetName() << " : " << vv.second.name();
   }
 
   // Now generate all the regions

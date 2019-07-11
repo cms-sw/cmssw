@@ -1,5 +1,8 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmNoDeltaRay.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4EmParameters.hh"
 #include "G4ParticleTable.hh"
 
@@ -139,7 +142,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
     G4ProcessManager* pmanager = particle->GetProcessManager();
     if (verbose > 1)
-      G4cout << "### " << GetPhysicsName() << " instantiates for " << particleName << " at " << particle << G4endl;
+      edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " instantiates for " << particleName;
 
     if (particleName == "gamma") {
       pmanager->AddDiscreteProcess(new G4PhotoElectricEffect);
@@ -188,15 +191,7 @@ void CMSEmNoDeltaRay::ConstructProcess() {
       pmanager->AddProcess(new G4hBremsstrahlung(), -1, -3, 1);
       pmanager->AddProcess(new G4hPairProduction(), -1, -4, 2);
 
-    } else if (particleName == "B+" || particleName == "B-" || particleName == "D+" || particleName == "D-" ||
-               particleName == "Ds+" || particleName == "Ds-" || particleName == "anti_lambda_c+" ||
-               particleName == "anti_omega-" || particleName == "anti_proton" || particleName == "anti_sigma_c+" ||
-               particleName == "anti_sigma_c++" || particleName == "anti_sigma+" || particleName == "anti_sigma-" ||
-               particleName == "anti_xi_c+" || particleName == "anti_xi-" || particleName == "deuteron" ||
-               particleName == "lambda_c+" || particleName == "omega-" || particleName == "sigma_c+" ||
-               particleName == "sigma_c++" || particleName == "sigma+" || particleName == "sigma-" ||
-               particleName == "tau+" || particleName == "tau-" || particleName == "triton" ||
-               particleName == "xi_c+" || particleName == "xi-") {
+    } else if (particle->GetPDGCharge() != 0.0) {
       pmanager->AddProcess(new G4hMultipleScattering, -1, 1, -1);
       pmanager->AddProcess(new G4hhIonisation, -1, 2, -1);
     }
