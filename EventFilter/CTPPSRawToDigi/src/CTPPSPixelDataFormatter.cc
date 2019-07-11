@@ -194,15 +194,14 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
                                             std::vector<PPSPixelIndex> iDdet2fed) {
   std::map<int, vector<Word32> > words;
   // translate digis into 32-bit raw words and store in map indexed by Fed
+  m_hasDetDigis = 0;
+  m_allDetDigis = 0;
   for (auto const& im : digis) {
     m_allDetDigis++;
     cms_uint32_t rawId = im.first;
 
-    m_hasDetDigis++;
     const DetDigis& detDigis = im.second;
     for (auto const& it : detDigis) {
-      m_DigiCounter++;
-
       int nroc = 999, nlink = 999;
       int rocPixelRow = -1, rocPixelColumn = -1, rocID = -1;
       int modulePixelColumn = it.column();
@@ -221,13 +220,14 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
         nlink = iDdet2fed.at(i).fedch;
         nroc = iDdet2fed.at(i).rocch + 1;
 
-        CTPPSElectronicIndex cabling = {nlink, nroc, dcol, pxid};
+        ElectronicIndex cabling = {nlink, nroc, dcol, pxid};
 
         cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
                             (cabling.dcol << m_DCOL_shift) | (cabling.pxid << m_PXID_shift) | (it.adc() << m_ADC_shift);
 
         words[iDdet2fed.at(i).fedid].push_back(word);
         m_WordCounter++;
+        m_hasDetDigis++;
 
       }  // range
     }    // for DetDigis

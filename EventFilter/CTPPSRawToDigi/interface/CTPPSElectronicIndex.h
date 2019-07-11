@@ -2,7 +2,7 @@
 #define EventFilter_CTPPSRawToDigi_CTPPSElectronicIndex_H
 
 namespace ctppspixelobjects {
-  struct CTPPSElectronicIndex {
+  struct ElectronicIndex {
     int link;
     int roc;
     int dcol;
