@@ -33,7 +33,7 @@ Several detector combinations have been generated:
 * D35 = T6+C4+M2+I5+O2+F2 
 * D41 = T14+C8+M3+I9+O3+F2
 * D43 = T14+C4+M3+I7+O2+F2
-* D44 = T14+C6+M3+I7+O2+F2
+* D44 = T14+C6+M3+I7+O2+F3
 * D45 = T15+C8+M3+I10+O3+F2
 
 D35 is the baseline for the MTD TDR, and D41 is the baseline for the L1T TDR.
