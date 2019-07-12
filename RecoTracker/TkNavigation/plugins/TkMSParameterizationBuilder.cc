@@ -60,12 +60,15 @@ public:
   using ReturnType = std::unique_ptr<TkMSParameterization>;
   ReturnType produce(TkMSParameterizationRecord const&);
 
-  std::string theNavigationSchoolName;
+private:
+  edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> theNavSchoolToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken_;
 };
 
-TkMSParameterizationBuilder::TkMSParameterizationBuilder(edm::ParameterSet const& pset)
-    : theNavigationSchoolName(pset.getParameter<std::string>("navigationSchool")) {
-  setWhatProduced(this, "");
+TkMSParameterizationBuilder::TkMSParameterizationBuilder(edm::ParameterSet const& pset) {
+  setWhatProduced(this, "")
+      .setConsumes(theNavSchoolToken_, edm::ESInputTag("", pset.getParameter<std::string>("navigationSchool")))
+      .setConsumes(thePropagatorToken_, edm::ESInputTag("", "PropagatorWithMaterial"));
 }
 
 TkMSParameterizationBuilder::ReturnType TkMSParameterizationBuilder::produce(TkMSParameterizationRecord const& iRecord) {
@@ -76,16 +79,12 @@ TkMSParameterizationBuilder::ReturnType TkMSParameterizationBuilder::produce(TkM
   auto& msParam = *product;
 
   //
-  edm::ESHandle<NavigationSchool> navSchoolH;
-  iRecord.getRecord<NavigationSchoolRecord>().get(theNavigationSchoolName, navSchoolH);
-  TkNavigationSchool const& navSchool = *(TkNavigationSchool const*)navSchoolH.product();
+  TkNavigationSchool const& navSchool = dynamic_cast<TkNavigationSchool const&>(iRecord.get(theNavSchoolToken_));
   auto const& searchGeom = navSchool.searchTracker();
   auto const& magfield = navSchool.field();
 
   //
-  edm::ESHandle<Propagator> propagatorHandle;
-  iRecord.getRecord<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorHandle);
-  auto const& ANprop = *propagatorHandle;
+  auto const& ANprop = iRecord.get(thePropagatorToken_);
 
   // error (very very small)
   ROOT::Math::SMatrixIdentity id;
