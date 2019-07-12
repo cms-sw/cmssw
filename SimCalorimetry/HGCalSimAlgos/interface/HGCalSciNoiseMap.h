@@ -21,16 +21,22 @@ class HGCalSciNoiseMap : public HGCalRadiationMap {
   /**
      @short returns the signal scaling and the noise
   */
-  double scaleByArea(const HGCScintillatorDetId&, const std::array<double, 8>&);
+  double scaleByTileArea(const HGCScintillatorDetId&, const std::array<double, 8>&);
+  double scaleBySipmArea(const HGCScintillatorDetId&, const double&);
   std::pair<double, double> scaleByDose(const HGCScintillatorDetId&, const std::array<double, 8>&);
 
   std::array<double, 8> computeRadius(const HGCScintillatorDetId&);
+  void setSipmMap(const std::string&);
 
 
  private:
 
+  std::map<int, float> readSipmPars(const std::string&);
+
   //size of the reference scintillator tile
   const double refEdge_;
+  //sipm size boundaries
+  std::map<int, float> sipmMap_;
 
 };
 

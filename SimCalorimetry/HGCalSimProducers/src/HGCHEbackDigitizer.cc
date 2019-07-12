@@ -16,7 +16,9 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
 {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_ = cfg.getParameter<uint32_t>("algo");
-  scaleByArea_ = cfg.getParameter<bool>("scaleByArea");
+  scaleByTileArea_ = cfg.getParameter<bool>("scaleByTileArea");
+  scaleBySipmArea_ = cfg.getParameter<bool>("scaleBySipmArea");
+  sipmMapFile_     = cfg.getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
@@ -29,6 +31,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitiz
   sdPixels_ = cfg.getParameter<double>("sdPixels");
 
   scal_.setDoseMap(doseMapFile_);
+  scal_.setSipmMap(sipmMapFile_);
 }
 
 //
@@ -107,21 +110,31 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     float scaledPePerMip = nPEperMIP_;           //needed to scale according to tile geometry
     float tunedNoise = nPEperMIP_ * noise_MIP_;  //flat noise case
+    float sipmFactor = 1.;                       //standard 2 mm^2 sipm
 
     if (id.det() == DetId::HGCalHSc)  //skip those geometries that have HE used as BH
     {
       std::array<double, 8> radius;
-      if (scaleByArea_ or scaleByDose_)
+      if (scaleByTileArea_ or scaleByDose_)
         radius = scal_.computeRadius(id);
 
-      if (scaleByArea_)
-        scaledPePerMip *= scal_.scaleByArea(id, radius);
+      //take into account the tile size
+      if (scaleByTileArea_)
+        scaledPePerMip *= scal_.scaleByTileArea(id, radius);
 
       //take into account the darkening of the scintillator and SiPM dark current
       if (scaleByDose_) {
         auto dosePair = scal_.scaleByDose(id, radius);
         scaledPePerMip *= dosePair.first;
         tunedNoise = dosePair.second;
+      }
+
+      //take into account the sipm size
+      if (scaleBySipmArea_)
+      {
+        sipmFactor = scal_.scaleBySipmArea(id, radius[0]);
+        scaledPePerMip *= sipmFactor;
+        tunedNoise *= sqrt(sipmFactor);
       }
     }
 
@@ -142,10 +155,11 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       const uint32_t npe = npeS + npeN;
 
       //take into account SiPM saturation
-      const float x = vdt::fast_expf(-((float)npe) / nTotalPE_);
+      float nTotalPixels = nTotalPE_ * sipmFactor;
+      const float x = vdt::fast_expf(-((float)npe) / nTotalPixels);
       uint32_t nPixel(0);
       if (xTalk_ * x != 1)
-        nPixel = (uint32_t)std::max(nTotalPE_ * (1.f - x) / (1.f - xTalk_ * x), 0.f);
+        nPixel = (uint32_t)std::max(nTotalPixels * (1.f - x) / (1.f - xTalk_ * x), 0.f);
 
       //take into account the gain fluctuations of each pixel
       //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
@@ -167,7 +181,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine, calibDigis_ ? 1 : scaledPePerMip/nPEperMIP_);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
