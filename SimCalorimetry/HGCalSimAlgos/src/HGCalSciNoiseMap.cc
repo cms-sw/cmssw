@@ -1,9 +1,46 @@
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include <fstream>
 
 //
 HGCalSciNoiseMap::HGCalSciNoiseMap() :
   refEdge_(3.)
 {
+}
+
+//
+void HGCalSciNoiseMap::setSipmMap(const std::string& fullpath)
+{
+  sipmMap_ = readSipmPars(fullpath);
+}
+
+//
+std::map<int, float> HGCalSciNoiseMap::readSipmPars(const std::string& fullpath)
+{
+  std::map<int, float> result;
+  //no file means default sipm size
+  if(fullpath.empty())
+    return result;
+
+  edm::FileInPath fp(fullpath);
+  std::ifstream infile(fp.fullPath());
+  if(!infile.is_open())
+  {
+    throw cms::Exception("FileNotFound") << "Unable to open '" << fullpath << "'" << std::endl;
+  }
+  std::string line;
+  while(getline(infile,line))
+  {
+    int layer;
+    float boundary;
+
+    //space-separated
+    std::stringstream linestream(line);
+    linestream >> layer >> boundary;
+
+    result[layer] = boundary;
+  }
+  return result;
 }
 
 //
@@ -26,7 +63,7 @@ std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDet
   return std::make_pair(scaleFactor, noise);
 }
 
-double HGCalSciNoiseMap::scaleByArea(const HGCScintillatorDetId& cellId, const std::array<double, 8>& radius)
+double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, const std::array<double, 8>& radius)
 {
   double edge;
   if(cellId.type() == 0)
@@ -46,6 +83,18 @@ double HGCalSciNoiseMap::scaleByArea(const HGCScintillatorDetId& cellId, const s
   return scaleFactor;
 }
 
+double HGCalSciNoiseMap::scaleBySipmArea(const HGCScintillatorDetId& cellId, const double& radius)
+{
+  if (sipmMap_.empty())
+    return 1.;
+
+  int layer = cellId.layer();
+  if(radius < sipmMap_[layer])
+    return 2.;
+  else
+    return 1.;
+}
+
 std::array<double, 8> HGCalSciNoiseMap::computeRadius(const HGCScintillatorDetId& cellId)
 {
   GlobalPoint global = geom()->getPosition(cellId);
@@ -53,7 +102,7 @@ std::array<double, 8> HGCalSciNoiseMap::computeRadius(const HGCScintillatorDetId
   double radius2 = std::pow(global.x(), 2) + std::pow(global.y(), 2); //in cm
   double radius4 = std::pow(radius2, 2);
   double radius = sqrt(radius2);
-  double radius3 = radius2*radius2;
+  double radius3 = radius2*radius;
 
   double radius_m100 = radius-100;
   double radius_m100_2 = std::pow(radius_m100, 2);

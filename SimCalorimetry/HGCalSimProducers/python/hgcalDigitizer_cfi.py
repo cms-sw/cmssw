@@ -177,7 +177,9 @@ hgchebackDigitizer = cms.PSet(
     digiCfg = cms.PSet(
         #0 empty digitizer, 1 calice digitizer, 2 realistic digitizer
         algo          = cms.uint32(2),
-        scaleByArea   = cms.bool(True),
+        scaleByTileArea= cms.bool(True),
+        scaleBySipmArea= cms.bool(True),
+        sipmMap       = cms.string("SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt"),
         noise         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")), #scales both for scint raddam and sipm dark current
         calibDigis    = cms.bool(True),
         keV2MIP       = cms.double(1./675.0),
