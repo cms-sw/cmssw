@@ -2590,7 +2590,7 @@ steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'
 
 steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTDR1']])
 
-steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
+steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_data',
                    '--filetype':'DQM',
                    '--data':'',
@@ -2604,7 +2604,7 @@ steps['HARVESTDR2_REMINIAOD_data2016_HIPM']=merge([{'--era':'Run2_2016_HIPM,run2
 
 steps['HARVEST2017_REMINIAOD_data2017']=merge([{'--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTDR2_REMINIAOD_data2016']])
 
-steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
+steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
                    '--conditions':'auto:run1_data',
                    '--filetype':'DQM',
                    '--data':'',
@@ -2625,13 +2625,13 @@ steps['HARVEST']={'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHL
                    '--scenario':'pp'}
 
 
-steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
+steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvestingFakeHLT',
                      '--conditions':'auto:run1_mc',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
                      '--filetype':'DQM',
                      '--scenario':'cosmics'}
-steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
+steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvestingFakeHLT',
                      '--conditions':'auto:run2_mc',
                      '--mc'        :'',
                      '--filein'    :'file:step3_inDQM.root',
@@ -2640,7 +2640,7 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--filetype':'DQM',
                      '--era' : 'Run2_2016',
                      }
-steps['HARVESTCOS_UP15']={'-s'          :'HARVESTING:dqmHarvesting',
+steps['HARVESTCOS_UP15']={'-s'          :'HARVESTING:dqmHarvestingFakeHLT',
                           '--conditions':'auto:run2_mc_cosmics',
                           '--mc'        :'',
                           '--filein'    :'file:step3_inDQM.root',
@@ -2650,7 +2650,7 @@ steps['HARVESTCOS_UP15']={'-s'          :'HARVESTING:dqmHarvesting',
                           '--era' : 'Run2_2016',
                           }
 
-steps['HARVESTCOS_UP16']={'-s'          :'HARVESTING:dqmHarvesting',
+steps['HARVESTCOS_UP16']={'-s'          :'HARVESTING:dqmHarvestingFakeHLT',
                           '--conditions':'auto:run2_mc_cosmics',
                           '--mc'        :'',
                           '--filein'    :'file:step3_inDQM.root',
@@ -2660,7 +2660,7 @@ steps['HARVESTCOS_UP16']={'-s'          :'HARVESTING:dqmHarvesting',
                           '--era' : 'Run2_2016'
                           }
 
-steps['HARVESTCOS_UP17']={'-s'          :'HARVESTING:dqmHarvesting',
+steps['HARVESTCOS_UP17']={'-s'          :'HARVESTING:dqmHarvestingFakeHLT',
                           '--conditions':'auto:phase1_2017_cosmics',
                           '--mc'        :'',
                           '--filein'    :'file:step3_inDQM.root',
@@ -2670,7 +2670,7 @@ steps['HARVESTCOS_UP17']={'-s'          :'HARVESTING:dqmHarvesting',
                           '--era' : 'Run2_2017'
                           }
 
-steps['HARVESTCOS_UP18']={'-s'          :'HARVESTING:dqmHarvesting',
+steps['HARVESTCOS_UP18']={'-s'          :'HARVESTING:dqmHarvestingFakeHLT',
                           '--conditions':'auto:phase1_2018_cosmics',
                           '--mc'        :'',
                           '--filein'    :'file:step3_inDQM.root',
@@ -2696,31 +2696,31 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvesting',
                     '--fast':'',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
-steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                                            '--filein':'file:step3_inDQM.root', 
                                                            '--mc':'',
                                                            '--era' : 'Run2_2018_pp_on_AA',
                                                            '--filetype':'DQM'}])
 
-steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVESTHI2018']=merge([hiDefaults2018,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2017',
                     '--filetype':'DQM',
                     '--scenario':'HeavyIons'}])
-steps['HARVESTHI2017']=merge([hiDefaults2017,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVESTHI2017']=merge([hiDefaults2017,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2017_pp_on_XeXe',
                     '--filetype':'DQM'}])
-steps['HARVESTHI2015']=merge([hiDefaults2015,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVESTHI2015']=merge([hiDefaults2015,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2016,Run2_HI',
                     '--filetype':'DQM',
                     '--scenario':'HeavyIons'}])
-steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                               '--mc':'',
                                               '--filetype':'DQM'}])
 
-steps['HARVESTPPREF2017']=merge([ppRefDefaults2017,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
+steps['HARVESTPPREF2017']=merge([ppRefDefaults2017,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                     '--mc':'',
                     '--era' : 'Run2_2017_ppRef',
                     '--filetype':'DQM'}])
@@ -2736,7 +2736,7 @@ steps['HARVESTUP15']={
 steps['HARVESTUP15_L1TEgDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TEgamma'},steps['HARVESTUP15']])
 steps['HARVESTUP15_L1TMuDQM']=merge([{'-s':'HARVESTING:@standardValidationNoHLT+@standardDQMFakeHLT+@miniAODValidation+@miniAODDQM+@L1TMuon'},steps['HARVESTUP15']])
 
-steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvesting+dqmHarvesting'},steps['HARVESTUP15']])
+steps['HARVESTMINUP15']=merge([{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT'},steps['HARVESTUP15']])
 
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 steps['HARVESTUP15_PU25_L1TEgDQM']=steps['HARVESTUP15_L1TEgDQM']
@@ -2762,7 +2762,7 @@ steps['HARVESTDR2_REMINIAOD_mc2016']=merge([{'-s':'HARVESTING:@miniAODValidation
 steps['HARVESTUP17_REMINIAOD_mc2017']=merge([{'-s':'HARVESTING:@miniAODValidation+@miniAODDQM','--era':'Run2_2017,run2_miniAOD_94XFall17'},steps['HARVESTUP17']])
 
 # for Run1 PPb data workflow
-steps['HARVEST_PPbData']=merge([{'--conditions':'auto:run1_data','-s':'HARVESTING:dqmHarvesting','--scenario':'pp','--era':'Run1_pA' }, steps['HARVESTDHI']])
+steps['HARVEST_PPbData']=merge([{'--conditions':'auto:run1_data','-s':'HARVESTING:dqmHarvestingFakeHLT','--scenario':'pp','--era':'Run1_pA' }, steps['HARVESTDHI']])
 
 # for Run2 PPb MC workflow
 steps['HARVESTUP15_PPb']=merge([{'--conditions':'auto:run2_mc_pa','--era':'Run2_2016_pA'}, steps['HARVESTMINUP15']])
