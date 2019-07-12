@@ -28,8 +28,7 @@ void GEMNoiseModel::simulate(const GEMEtaPartition* roll,
   const int nstrips(roll->nstrips());
   double trStripArea(0.0);
   if (gemId.region() == 0) {
-    throw cms::Exception("Geometry")
-        << "GEMNoiseModel::simulate() - this GEM id is from barrel, which cannot happen.";
+    throw cms::Exception("Geometry") << "GEMNoiseModel::simulate() - this GEM id is from barrel, which cannot happen.";
   }
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float striplength(top_->stripLength());
