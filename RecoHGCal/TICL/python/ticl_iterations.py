@@ -54,7 +54,9 @@ def TICL_iterations_withReco(process):
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
-      min_cos_pointing = 0.7
+      min_cos_pointing = 0.7,
+      # TODO: change to released path
+      energy_ID_graph_path = cms.string("/afs/cern.ch/user/z/zichen/public/TICL/CMSSW_11_0_X_2019-07-02-2300/src/RecoHGCal/TICL/plugins/CNN.pb")
   )
 
   process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
@@ -108,7 +110,9 @@ def TICL_iterations(process):
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
-      min_cos_pointing = 0.7
+      min_cos_pointing = 0.7,
+      # TODO: change to released path
+      energy_ID_graph_path = cms.string("/afs/cern.ch/user/z/zichen/public/TICL/CMSSW_11_0_X_2019-07-02-2300/src/RecoHGCal/TICL/plugins/CNN.pb")
   )
 
   process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(

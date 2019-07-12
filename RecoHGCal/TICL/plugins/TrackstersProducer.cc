@@ -22,15 +22,31 @@
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+
+namespace tf = tensorflow;
+
 using namespace ticl;
 
-class TrackstersProducer : public edm::stream::EDProducer<> {
+// data structure hold by edm::GlobalCache to store the energy regression / ID graph
+struct TrackstersCache {
+  TrackstersCache() : energyIDGraphDef(nullptr) {
+  }
+
+  std::atomic<tf::GraphDef*> energyIDGraphDef;
+};
+
+class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache> > {
 public:
-  TrackstersProducer(const edm::ParameterSet&);
+  explicit TrackstersProducer(const edm::ParameterSet&, const TrackstersCache*);
   ~TrackstersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event&, const edm::EventSetup&) override;
+
+  // static methods for handling the global cache
+  static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet&);
+  static void globalEndJob(const TrackstersCache*);
 
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
@@ -39,12 +55,41 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> clustersTime_token_;
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
 
-  std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
+  // TODO: obviously not all classes inheriting from PatternRecognitionAlgoBase take a graphDef
+  // as a second constructor argument, so there should be some way of setting up an Algo with
+  // custom objects, so for the moment, limit myAlgo_ to PatternRecognitionbyCA
+  // probably it is enough to pass the cache object, but this depends on where algos are used
+  // std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
+  std::unique_ptr<PatternRecognitionbyCA> myAlgo_;
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
-    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps)) {
+std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(
+    const edm::ParameterSet& config) {
+  // this method is supposed to create, initialize and return a TrackstersCache instance
+  TrackstersCache* cache = new TrackstersCache();
+
+  // load the graph def and save it
+  std::string graphPath = config.getParameter<std::string>("energy_ID_graph_path");
+  if (!graphPath.empty()) {
+    cache->energyIDGraphDef = tf::loadGraphDef(graphPath);
+  }
+
+  // set some global configs, such as the TF log level
+  tf::setLogging("0");
+
+  return std::unique_ptr<TrackstersCache>(cache);
+}
+
+void TrackstersProducer::globalEndJob(const TrackstersCache* cache) {
+  // reset the energyIDGraphDef
+  if (cache->energyIDGraphDef != nullptr) {
+    delete cache->energyIDGraphDef;
+  }
+}
+
+TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
+    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps, cache->energyIDGraphDef)) {
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
   filtered_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"));
   original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
@@ -68,6 +113,7 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("missing_layers", 0);
   desc.add<int>("min_clusters_per_ntuplet", 10);
   desc.add<double>("max_delta_time", 0.09);
+  desc.add<std::string>("energy_ID_graph_path", "");
   descriptions.add("trackstersProducer", desc);
 }
 

@@ -24,6 +24,18 @@ namespace ticl {
     // the first element is on the inner layer and
     // the outer element is on the outer layer.
     std::vector<std::array<unsigned int, 2> > edges;
+
+    // trackster ID probabilities
+    // TODO: maybe store a vector here
+    float prob_photon;
+    float prob_electron;
+    float prob_muon;
+    float prob_charged_pion;
+
+    // TODO: convenience method to return most probable particle ID?
+
+    // regressed energy
+    float regressed_energy;
   };
 }  // namespace ticl
 #endif

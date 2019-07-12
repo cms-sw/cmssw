@@ -7,12 +7,16 @@
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 
+#include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+
+namespace tf = tensorflow;
+
 class HGCGraph;
 
 namespace ticl {
   class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
   public:
-    PatternRecognitionbyCA(const edm::ParameterSet& conf);
+    PatternRecognitionbyCA(const edm::ParameterSet& conf, tf::GraphDef* energyIDGraphDef);
     ~PatternRecognitionbyCA() override;
 
     void makeTracksters(const edm::Event& ev,
@@ -23,6 +27,9 @@ namespace ticl {
                         const TICLLayerTiles& tiles,
                         std::vector<Trackster>& result) override;
 
+    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
+       std::vector<Trackster>& result);
+
   private:
     hgcal::RecHitTools rhtools_;
     std::unique_ptr<HGCGraph> theGraph_;
@@ -31,6 +38,7 @@ namespace ticl {
     int missing_layers_;
     int min_clusters_per_ntuplet_;
     float max_delta_time_;
+    tf::Session* energyIDSession_;
   };
 }  // namespace ticl
 #endif
