@@ -1,14 +1,47 @@
-#include "SimMuon/GEMDigitizer/plugins/ME0PadDigiProducer.h"
+#ifndef SimMuon_GEMDigitizer_ME0PadDigiProducer_h
+#define SimMuon_GEMDigitizer_ME0PadDigiProducer_h
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GEMDigi/interface/ME0DigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+
 #include <set>
+
+/// \class ME0PadDigiProducer
+
+class ME0PadDigiProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ME0PadDigiProducer(const edm::ParameterSet &ps);
+
+  ~ME0PadDigiProducer() override;
+
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+private:
+  void buildPads(const ME0DigiCollection &digis, ME0PadDigiCollection &out_pads) const;
+
+  /// Name of input digi Collection
+  edm::EDGetTokenT<ME0DigiCollection> digi_token_;
+  edm::InputTag digis_;
+
+  const ME0Geometry *geometry_;
+};
 
 ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
@@ -62,3 +95,4 @@ void ME0PadDigiProducer::buildPads(const ME0DigiCollection& det_digis, ME0PadDig
 }
 
 DEFINE_FWK_MODULE(ME0PadDigiProducer);
+#endif

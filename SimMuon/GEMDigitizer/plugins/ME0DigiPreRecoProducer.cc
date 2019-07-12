@@ -1,13 +1,23 @@
+#ifndef SimMuon_GEMDigitizer_ME0DigiPreRecoProducer_h
+#define SimMuon_GEMDigitizer_ME0DigiPreRecoProducer_h
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
-#include "SimMuon/GEMDigitizer/plugins/ME0DigiPreRecoProducer.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModelFactory.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiPreRecoModel.h"
 
@@ -22,6 +32,24 @@
 namespace CLHEP {
   class HepRandomEngine;
 }
+
+class ME0DigiPreRecoProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ME0DigiPreRecoProducer(const edm::ParameterSet& ps);
+
+  ~ME0DigiPreRecoProducer() override;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  //Name of Collection used for create the XF
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+
+  std::string digiPreRecoModelString_;
+  std::unique_ptr<ME0DigiPreRecoModel> me0DigiPreRecoModel_;
+};
 
 ME0DigiPreRecoProducer::ME0DigiPreRecoProducer(const edm::ParameterSet& ps)
     : digiPreRecoModelString_(ps.getParameter<std::string>("digiPreRecoModelString")),
@@ -92,3 +120,4 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
 }
 
 DEFINE_FWK_MODULE(ME0DigiPreRecoProducer);
+#endif
