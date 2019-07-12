@@ -67,6 +67,8 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
+#include "TVector3.h"
+#include "TLorentzVector.h"
 
 
 //
@@ -94,10 +96,10 @@ class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
       // ----------member data ---------------------------
       edm::ParameterSet iConfig;
       
-      edm::EDGetTokenT< edm::View<reco::Jet> >                 m_jetsAK4;
-      edm::EDGetTokenT< edm::View<reco::Jet> >                 m_jetsAK8;
-      edm::EDGetTokenT< reco::VertexCollection >               m_vertices;
-      edm::EDGetTokenT< edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
+      edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jetsAK4;
+      edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jetsAK8;
+      edm::EDGetTokenT<reco::VertexCollection >               m_vertices;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
       unsigned int m_nLayers;
       unsigned int m_minADC;
       double m_minJetPt;
@@ -178,14 +180,21 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     edm::Handle<edm::View<reco::Jet> > collectionAK8;
     iEvent.getByToken( m_jetsAK8, collectionAK8);
 
-    edm::Handle<reco::VertexCollection> collectionPVs;
-    iEvent.getByToken( m_vertices, collectionPVs);
-    
     int nJets(0);
     for(auto jetIt = collectionAK4->begin(); jetIt != collectionAK4->end(); ++jetIt) {
         if(jetIt->pt() > m_minJetPt) nJets++;
     }
-    if(nJets <= 0) {
+    
+    edm::Handle<reco::VertexCollection> collectionPVs;
+    iEvent.getByToken( m_vertices, collectionPVs);
+    reco::VertexCollection::const_iterator firstPV = collectionPVs->begin();
+
+    for(reco::VertexCollection::const_iterator vtxIt = collectionPVs->begin(); vtxIt != collectionPVs->end(); ++vtxIt) {
+        firstPV = vtxIt;
+        break;
+    }
+    
+    if(collectionPVs->size() <= 0 || nJets <= 0) {
         iEvent.put(std::move(pixelTagInfo));
         return;
     }
@@ -202,11 +211,11 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     iSetup.get<TrackerTopologyRcd>().get(tTopoH);
     const TrackerTopology* tTopo = tTopoH.product();
 
-    std::vector<reco::Jet> jets;
     std::vector<reco::PixelClusterProperties> clusters;
     
-    std::cout << std::endl << std::endl << collectionClusters->size() << std::endl;
-    
+    std::cout << std::endl << "Event " << iEvent.eventAuxiliary().event() << std::endl;
+//    std::cout << std::endl << std::endl << collectionClusters->size() << std::endl;
+    double maxC = 0.;
     // Get vector of detunit ids and loop
     for(edmNew::DetSetVector<SiPixelCluster>::const_iterator detUnit = collectionClusters->begin(); detUnit != collectionClusters->end(); ++detUnit) {
         if(detUnit->size() <= 0) continue;
@@ -240,12 +249,13 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
             // get global position of the cluster
             LocalPoint lp = topol->localPosition(MeasurementPoint(clustIt->x(), clustIt->y()));
             GlobalPoint clustgp = theGeomDet->surface().toGlobal( lp );
-            reco::PixelClusterProperties cp = { clustgp.x(), clustgp.y(), clustgp.z(), clustIt->charge() };
+            reco::PixelClusterProperties cp = { clustgp.x(), clustgp.y(), clustgp.z(), clustIt->charge(), layer };
 //            clusterX.push_back(clustgp.x());
 //            clusterY.push_back(clustgp.y());
 //            clusterZ.push_back(clustgp.z());
 //            clusterC.push_back(clustIt->charge());
             clusters.push_back(cp);
+            if(clustIt->charge() > maxC) maxC = clustIt->charge() ;
         }
 //    if( numberOfClusters < 1.) continue;
 //    
@@ -264,18 +274,81 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 //    std::cout << clusterC.size() << std::endl;
    
     // Loop over jets
-    for(unsigned int i=0, nj=collectionAK4->size(); i<nj; i++) {
-        if(collectionAK4->at(i).pt() < m_minJetPt) continue;
+    for(unsigned int j = 0, nj = collectionAK4->size(); j < nj; j++) {
+        if(collectionAK4->at(j).pt() < m_minJetPt) continue;
 
-        edm::RefToBase<reco::Jet> jetRef = collectionAK4->refAt(i);
+        edm::RefToBase<reco::Jet> jetRef = collectionAK4->refAt(j);
         //std::cout << jetRef->pt() << std::endl;
         
         reco::PixelClusterTagInfo tagInfo;
+        reco::PixelClusterData data;
+        
+        char n004[4] = {0, 0, 0, 0};
+        char n006[4] = {0, 0, 0, 0};
+        char n008[4] = {0, 0, 0, 0};
+        char n010[4] = {0, 0, 0, 0};
+        char n016[4] = {0, 0, 0, 0};
+        char nVAR[4] = {0, 0, 0, 0};
+        unsigned int nVWT[4] = {0, 0, 0, 0};
+        
+        for(auto cluIt = clusters.begin(); cluIt != clusters.end(); ++cluIt) {
+            TVector3 c3(cluIt->x - firstPV->x(), cluIt->y - firstPV->y(), cluIt->z - firstPV->z());
+            TVector3 j3(jetRef->px(), jetRef->py(), jetRef->pz());
+            float dR = j3.DeltaR(c3);
+            float sC = 12. * 2. / (jetRef->pt()); // * jetRef->correctedP4(0).pt()
+            int l = cluIt->layer - 1; // start counting from 0
+            if(dR < 0.04) n004[l]++;
+            if(dR < 0.06) n006[l]++;
+            if(dR < 0.08) n008[l]++;
+            if(dR < 0.10) n010[l]++;
+            if(dR < 0.16) n016[l]++;
+            if(dR < sC) nVAR[l]++;
+            if(dR < sC) nVWT[l] += cluIt->charge;
+        }
+//        for(int l = 0; l < 4; l++) nVWG[l] = (cTot[l] != 0 ? nVWG[l]/cTot[l] : 0);
+//        for(int l = 0; l < 4; l++) std::cout << l << " - "<< (int)nVAR[l] << " : " << nVWG[l] << std::endl;
+
+        data.L1_R004 = n004[0];
+        data.L2_R004 = n004[1];
+        data.L3_R004 = n004[2];
+        data.L4_R004 = n004[3];
+        
+        data.L1_R006 = n006[0];
+        data.L2_R006 = n006[1];
+        data.L3_R006 = n006[2];
+        data.L4_R006 = n006[3];
+        
+        data.L1_R008 = n008[0];
+        data.L2_R008 = n008[1];
+        data.L3_R008 = n008[2];
+        data.L4_R008 = n008[3];
+        
+        data.L1_R010 = n010[0];
+        data.L2_R010 = n010[1];
+        data.L3_R010 = n010[2];
+        data.L4_R010 = n010[3];
+        
+        data.L1_R016 = n016[0];
+        data.L2_R016 = n016[1];
+        data.L3_R016 = n016[2];
+        data.L4_R016 = n016[3];
+        
+        data.L1_RVAR = nVAR[0];
+        data.L2_RVAR = nVAR[1];
+        data.L3_RVAR = nVAR[2];
+        data.L4_RVAR = nVAR[3];
+
+        data.L1_RVWT = nVWT[0];
+        data.L2_RVWT = nVWT[1];
+        data.L3_RVWT = nVWT[2];
+        data.L4_RVWT = nVWT[3];
+        
         tagInfo.setJetRef(jetRef);
-        
-        
+        tagInfo.setData(data);
 
         pixelTagInfo->push_back(tagInfo);
+        
+        std::cout << jetRef->pt() << " : " << (int)data.L1_R010 << ", " << (int)data.L2_R010 << ", " << (int)data.L3_R010 << ", " << (int)data.L4_R010 << std::endl;
     }
     
     // Put the TagInfo collection in the event
