@@ -18,17 +18,37 @@ loadPhase2InneTrackerConditions = cms.ESSource( "PoolDBESSource",
                                               )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class DBConfiguration():
     '''Helper class to store the  configuration object DB'''
-    def __init__(self,vGeometry=None,vLA=None,vLAwidth=None,vSimLA=None,vGenError=None,vTemplate1D=None,vTemplate2Dn=None,vTemplate2Dd=None):
-        self._vGeometry    = vGeometry
-        self._vLA          = vLA 
-        self._vLAwidth     = vLAwidth
-        self._vSimLA       = vSimLA
-        self._vGenError    = vGenError
-        self._vTemplate1D  = vTemplate1D 
-        self._vTemplate2Dn = vTemplate2Dn 
-        self._vTemplate2Dd = vTemplate2Dd 
+    def __init__(self,vGeometry=None,vLA=None,vLAwidth=None,vSimLA=None,vGenError=None,vTemplate1D=None,vTemplate2Dnum=None,vTemplate2Dden=None):
+        self._vGeometry      = vGeometry
+        self._vLA            = vLA 
+        self._vLAwidth       = vLAwidth
+        self._vSimLA         = vSimLA
+        self._vGenError      = vGenError
+        self._vTemplate1D    = vTemplate1D 
+        self._vTemplate2Dnum = vTemplate2Dnum 
+        self._vTemplate2Dden = vTemplate2Dden 
+
+    def retAssociations(self):
+
+        records = {
+            "SiPixelLorentzAngleSimRcd:"               : "SiPixelSimLorentzAngle_phase2_T%s_v%s_mc"       % (self.vGeometry,self.vSimLA),
+            "SiPixelLorentzAngleRcd:forWidth"          : "SiPixelLorentzAngle_phase2_forWidth_T%s_v%s_mc" % (self.vGeometry,self.vLAwidth),
+            "SiPixelLorentzAngleRcd:"                  : "SiPixelLorentzAngle_phase2_T%s_v%s_mc"          % (self.vGeometry,self.vLA),
+            #########################################
+            # Not yet implemented
+            #########################################
+            #"SiPixelGenErrorDBObjectRcd:"              : "SiPixelGenErrorDBObject_phase2_T%s_v%s_mc"      % (self.vGeometry,self.vGenError),
+            #"SiPixelTemplateDBObjectRcd:"              : "SiPixelTemplateDBObject_phase2_T%s_v%s_mc"      % (self.vGeometry,self.vTemplate1D),
+            #"SiPixel2DTemplateDBObjectRcd:denominator" : "SiPixel2DTemplateDBObject_phase2_T%s_v%s_den"   % (self.vGeometry,self.vTemplate2Dden),
+            #"SiPixel2DTemplateDBObjectRcd:numerator"   : "SiPixel2DTemplateDBObject_phase2_T%s_v%s_num"   % (self.vGeometry,self.vTemplate2Dnum)
+        }
+        
+        return records
 
     ###################################
     # Print version used
@@ -36,14 +56,14 @@ class DBConfiguration():
     def printConfig(self):
     
         associations = dict(
-            vGeometry    = None,
-            vLA          = 'SiPixelLorentzAngleRcd',
-            vLAwidth     = 'SiPixelLorentzAngleRcd (forWidth)',
-            vSimLA       = 'SiPixelLorentzAngleSimRcd', 
-            vGenError    = 'SiPixelGenErrorDBObjectRcd',  
-            vTemplate1D  = 'SiPixelTemplatedDBOjectRcd',
-            vTemplate2Dn = 'SiPixel2DTemplateDBObjectRcd (numerator)',
-            vTemplate2Dd = 'SiPixel2DTemplateDBObjectRcd (denominator)',
+            vGeometry      = None,
+            vLA            = 'SiPixelLorentzAngleRcd',
+            vLAwidth       = 'SiPixelLorentzAngleRcd (forWidth)',
+            vSimLA         = 'SiPixelLorentzAngleSimRcd', 
+            vGenError      = 'SiPixelGenErrorDBObjectRcd',  
+            vTemplate1D    = 'SiPixelTemplatedDBOjectRcd',
+            vTemplate2Dnum = 'SiPixel2DTemplateDBObjectRcd (numerator)',
+            vTemplate2Dden = 'SiPixel2DTemplateDBObjectRcd (denominator)',
         )    
 
         attrs = self.__dict__
@@ -56,7 +76,6 @@ class DBConfiguration():
     ###################################
     # Geometry version
     ###################################
-
     @property
     def vGeometry(self):
         """version of the Tracker Geometry."""
@@ -69,7 +88,6 @@ class DBConfiguration():
     ###################################
     # LorentzAngle version
     ###################################
-
     @property
     def vLA(self):
         """version of the Lorentz Angle payload."""
@@ -82,7 +100,6 @@ class DBConfiguration():
     ###################################
     # LorentzAngle width version
     ###################################
-
     @property
     def vLAwidth(self):
         """version of the Lorentz Angle width payload."""
@@ -95,7 +112,6 @@ class DBConfiguration():
     ###################################
     # Sim LA version
     ###################################
-
     @property
     def vSimLA(self):
         """version of the Simulation Lorentz Angle payload."""
@@ -108,7 +124,6 @@ class DBConfiguration():
     ###################################
     # Generic Errors version
     ###################################
-
     @property
     def vGenError(self):
         """version of the Generic Error payload."""
@@ -121,7 +136,6 @@ class DBConfiguration():
     ###################################
     # 1D Template version
     ###################################
-
     @property
     def vTemplate1D(self):
         """version of the Template 1D payload."""
@@ -134,29 +148,27 @@ class DBConfiguration():
     ###################################
     # 2D template (numerator) version
     ###################################
-
     @property
-    def vTemplate2Dn(self):
+    def vTemplate2Dnum(self):
         """version of the Template 2D (numerator) payload."""
-        return self._vTemplate2Dn
+        return self._vTemplate2Dnum
 
-    @vTemplate2Dn.setter
-    def vTemplate2Dn(self, value):
-        self._vTemplate2Dn = value  
+    @vTemplate2Dnum.setter
+    def vTemplate2Dnum(self, value):
+        self._vTemplate2Dnum = value  
 
     ###################################
     # 2D template (denominator) version
     ###################################
-
     @property
-    def vTemplate2Dd(self):
+    def vTemplate2Dden(self):
         """version of the Template 2D (denominator) payload."""
-        return self._vTemplate2Dd
+        return self._vTemplate2Dden
 
-    @vTemplate2Dd.setter
-    def vTemplate2Dd(self, value):
-        print("setter of vTemplate2Dd called")
-        self._vTemplate2Dd = value  
+    @vTemplate2Dden.setter
+    def vTemplate2Dden(self, value):
+        print("setter of vTemplate2Dden called")
+        self._vTemplate2Dden = value  
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 def appendConditions(DBConfig):
@@ -165,35 +177,21 @@ def appendConditions(DBConfig):
     if not hasattr(loadPhase2InneTrackerConditions ,'toGet'):
         loadPhase2InneTrackerConditions.toGet=cms.VPSet()
     
-    loadPhase2InneTrackerConditions.toGet.extend(cms.VPSet(cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
-                                                                    tag = cms.string("SiPixelLorentzAngle_phase2_T%s_v%s_mc" % (DBConfig.vGeometry,DBConfig.vLA))
-                                                                   ),
-                                                           cms.PSet(record = cms.string('SiPixelLorentzAngleSimRcd'),
-                                                                    tag = cms.string("SiPixelSimLorentzAngle_phase2_T%s_v%s_mc" % (DBConfig.vGeometry,DBConfig.vSimLA))
-                                                                   ),                                            
-                                                           cms.PSet(record = cms.string('SiPixelLorentzAngleRcd'),
-                                                                    tag = cms.string("SiPixelLorentzAngle_phase2_forWidth_T%s_v%s_mc" % (DBConfig.vGeometry,DBConfig.vLAwidth)),
-                                                                    label = cms.untracked.string("forWidth")
-                                                                   ),
-                                                           #
-                                                           # NOT YET IMPLEMENTED, BUT SOON TO BE INTRODUCED
-                                                           #
-                                                           # cms.PSet(record = cms.string('SiPixelGenErrorDBObjectRcd'),
-                                                           #          tag = cms.string("SiPixelGenErrorDBObject_phase2_T%s_v%s_mc" % (DBConfig.vGeometry,DBConfig.vGenError))
-                                                           #         ),
-                                                           # cms.PSet(record = cms.string('SiPixelTemplateDBObjectRcd'),
-                                                           #          tag = cms.string("SiPixelTemplateDBObject_phase2_T%s_v%s_mc" % (DBConfig.vGeometry,DBConfig.vTemplate1D))
-                                                           #         ),
-                                                           # cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-                                                           #          tag = cms.string("SiPixel2DTemplateDBObject_phase2_T%s_v%s_den" % (DBConfig.vGeometry,DBConfig.vTemplate2Dd) ),
-                                                           #          label = cms.untracked.string("denominator")
-                                                           #         ),                                            
-                                                           # cms.PSet(record = cms.string('SiPixel2DTemplateDBObjectRcd'),
-                                                           #          tag = cms.string("SiPixel2DTemplateDBObject_phase2_T%s_v%s_num" % (DBConfig.vGeometry,DBConfig.vTemplate2Dn) ),
-                                                           #          label = cms.untracked.string("numerator")
-                                                           #         )
-                                                           )
-                                                 )
-                                                 
+    toExtend=[]
+    for record,tag in DBConfig.retAssociations().iteritems():
+        rcd, label = tuple(record.split(':'))
+        toExtend.append(
+            cms.PSet(
+                record = cms.string(rcd),
+                tag    = cms.string(tag),
+                label = cms.untracked.string(label)
+                )
+        )
+    
+
+    print toExtend
+    loadPhase2InneTrackerConditions.toGet.extend(cms.VPSet(*toExtend))
+
+    
                                                  
     
