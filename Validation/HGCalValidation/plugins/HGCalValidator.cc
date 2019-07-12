@@ -192,17 +192,20 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
     histoProducerAlgo_->fill_info_histos(histograms.histoProducerAlgo, totallayers_to_monitor_);
   }
 
-  //Consider CaloParticles coming from the hard scatterer, excluding the PU contribution.
-  // std::vector<CaloParticle*> caloParticlesFromHardScat;
-  std::vector<CaloParticle> caloParticlesFromHardScat;
-  for (const auto& it_caloPart : caloParticles) {
-    if (it_caloPart.g4Tracks()[0].eventId().event() != 0 or it_caloPart.g4Tracks()[0].eventId().bunchCrossing() != 0) {
+  auto nCaloParticles = caloParticles.size();
+  std::vector<size_t> cPIndices;
+  //Consider CaloParticles coming from the hard scatterer
+  //excluding the PU contribution and save the indices.
+  for (unsigned int cpId = 0; cpId < nCaloParticles; ++cpId) {
+    if (caloParticles[cpId].g4Tracks()[0].eventId().event() != 0 or
+        caloParticles[cpId].g4Tracks()[0].eventId().bunchCrossing() != 0) {
       LogDebug("HGCalValidator") << "Excluding CaloParticles from event: "
-                                 << it_caloPart.g4Tracks()[0].eventId().event()
-                                 << " with BX: " << it_caloPart.g4Tracks()[0].eventId().bunchCrossing() << std::endl;
+                                 << caloParticles[cpId].g4Tracks()[0].eventId().event()
+                                 << " with BX: " << caloParticles[cpId].g4Tracks()[0].eventId().bunchCrossing()
+                                 << std::endl;
       continue;
     }
-    caloParticlesFromHardScat.emplace_back(it_caloPart);
+    cPIndices.emplace_back(cpId);
   }
 
   // ##############################################
@@ -237,8 +240,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
                                                     w,
                                                     clusters,
                                                     densities,
-                                                    // caloParticles,
-                                                    caloParticlesFromHardScat,
+                                                    caloParticles,
+                                                    cPIndices,
                                                     hitMap,
                                                     cummatbudg,
                                                     totallayers_to_monitor_,
@@ -251,13 +254,8 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
 
   if (domulticlustersPlots_) {
     w++;
-    histoProducerAlgo_->fill_multi_cluster_histos(histograms.histoProducerAlgo,
-                                                  w,
-                                                  multiClusters,
-                                                  // caloParticles,
-                                                  caloParticlesFromHardScat,
-                                                  hitMap,
-                                                  totallayers_to_monitor_);
+    histoProducerAlgo_->fill_multi_cluster_histos(
+        histograms.histoProducerAlgo, w, multiClusters, caloParticles, cPIndices, hitMap, totallayers_to_monitor_);
   }
 
   //General Info
