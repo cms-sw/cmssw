@@ -1,5 +1,8 @@
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "G4EmParameters.hh"
 #include "G4ParticleTable.hh"
 
@@ -159,7 +162,7 @@ void CMSEmStandardPhysics95::ConstructProcess() {
   for (const auto& particleName : emList.PartNames()) {
     G4ParticleDefinition* particle = table->FindParticle(particleName);
     if (verbose > 1)
-      G4cout << "### " << GetPhysicsName() << " instantiates for " << particleName << G4endl;
+      edm::LogVerbatim("PhysicsList") << "### " << GetPhysicsName() << " instantiates for " << particleName;
 
     if (particleName == "gamma") {
       ph->RegisterProcess(new G4PhotoElectricEffect(), particle);
@@ -240,16 +243,7 @@ void CMSEmStandardPhysics95::ConstructProcess() {
       ph->RegisterProcess(pb, particle);
       ph->RegisterProcess(pp, particle);
 
-    } else if (particleName == "B+" || particleName == "B-" || particleName == "D+" || particleName == "D-" ||
-               particleName == "Ds+" || particleName == "Ds-" || particleName == "anti_He3" ||
-               particleName == "anti_alpha" || particleName == "anti_deuteron" || particleName == "anti_lambda_c+" ||
-               particleName == "anti_omega-" || particleName == "anti_sigma_c+" || particleName == "anti_sigma_c++" ||
-               particleName == "anti_sigma+" || particleName == "anti_sigma-" || particleName == "anti_triton" ||
-               particleName == "anti_xi_c+" || particleName == "anti_xi-" || particleName == "deuteron" ||
-               particleName == "lambda_c+" || particleName == "omega-" || particleName == "sigma_c+" ||
-               particleName == "sigma_c++" || particleName == "sigma+" || particleName == "sigma-" ||
-               particleName == "tau+" || particleName == "tau-" || particleName == "triton" ||
-               particleName == "xi_c+" || particleName == "xi-") {
+    } else if (particle->GetPDGCharge() != 0.0) {
       if (nullptr == hmsc) {
         hmsc = new G4hMultipleScattering("ionmsc");
       }

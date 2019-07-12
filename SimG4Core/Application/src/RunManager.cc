@@ -144,7 +144,6 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
   G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler());
 
   m_physicsList.reset(nullptr);
-  m_prodCuts.reset(nullptr);
 
   m_check = p.getUntrackedParameter<bool>("CheckOverlap", false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML", "");
@@ -209,6 +208,14 @@ void RunManager::initG4(const edm::EventSetup& es) {
   SensitiveDetectorCatalog catalog_;
   const DDDWorld* world = new DDDWorld(&(*pDD), map_, catalog_, false);
   m_registry.dddWorldSignal_(world);
+
+  int verb =
+      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
+  m_kernel->SetVerboseLevel(verb);
+  auto cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
+  if (cuts) {
+    DDG4ProductionCuts pcuts(map_, verb, m_pPhysics);
+  }
 
   if (m_pUseMagneticField) {
     // setup the magnetic field
@@ -283,17 +290,8 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
   edm::LogInfo("SimG4CoreApplication") << "RunManager: start initialisation of PhysicsList";
 
-  int verb =
-      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
-  m_kernel->SetVerboseLevel(verb);
-
   m_physicsList->SetDefaultCutValue(m_pPhysics.getParameter<double>("DefaultCutValue") * CLHEP::cm);
   m_physicsList->SetCutsWithDefault();
-  if (m_pPhysics.getParameter<bool>("CutsPerRegion")) {
-    m_prodCuts.reset(new DDG4ProductionCuts(map_, verb, m_pPhysics));
-    m_prodCuts->update();
-  }
-
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 

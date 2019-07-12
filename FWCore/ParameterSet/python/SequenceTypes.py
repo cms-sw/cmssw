@@ -184,6 +184,20 @@ class _SequenceCollection(_Sequenceable):
         return self._collection.index(item)
     def insert(self,index,item):
         self._collection.insert(index,item)
+    def _replaceIfHeldDirectly(self,original,replacement):
+        didReplace = False
+        for i in self._collection:
+            if original == i:
+                self._collection[self._collection.index(original)] = replacement
+                didReplace = True
+            elif isinstance(i,_UnarySequenceOperator):
+                if i._replace(original, replacement):
+                    didReplace = True
+                    if replacement is None:
+                        self._collection[self._collection.index(i)] = None
+        if replacement is None:
+            self._collection = [ i for i in self._collection if i is not None]
+        return didReplace
 
 
 
@@ -364,6 +378,20 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             self._tasks.clear()
             self.associate(*v.result(self)[1])
         return v.didReplace()
+    def _replaceIfHeldDirectly(self,original,replacement):
+        """Only replaces an 'original' with 'replacement' if 'original' is directly held.
+            If another Sequence or Task holds 'original' it will not be replaced."""
+        didReplace = False
+        if original in self._tasks:
+            self._tasks.remove(original)
+            if replacement is not None:
+                self._tasks.add(replacement)
+            didReplace = True
+        if self._seq is not None:
+            didReplace |= self._seq._replaceIfHeldDirectly(original,replacement)
+        return didReplace
+    
+    
     def index(self,item):
         """Returns the index at which the item is found or raises an exception"""
         if self._seq is not None:
@@ -453,8 +481,8 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
     def _replace(self, original, replacement):
         if self._operand == original:
             self._operand = replacement
-        else:
-            self._operand._replace(original, replacement)
+            return True
+        return False
     def _remove(self, original):
         if (self._operand == original): return (None, True)
         (self._operand, found) = self._operand._remove(original)
@@ -1881,6 +1909,46 @@ if __name__=="__main__":
             t3 = Task(m5)
             t2.replace(m2,t3)
             self.assertTrue(t2.dumpPython(None) == "cms.Task(process.m1, process.m3, process.m5)\n")
+
+        def testReplaceIfHeldDirectly(self):
+            m1 = DummyModule("m1")
+            m2 = DummyModule("m2")
+            m3 = DummyModule("m3")
+            m4 = DummyModule("m4")
+            m5 = DummyModule("m5")
+            
+            s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
+            s1._replaceIfHeldDirectly(m2,m3)
+            self.assertEqual(s1.dumpPython()[:-1],
+                             "cms.Sequence(process.m1+~process.m3+process.m1+process.m3+cms.ignore(process.m3))")
+
+            s2 = Sequence(m1*m2)
+            l = []
+            s3 = Sequence(~m1*s2)
+            s3._replaceIfHeldDirectly(~m1, m2)
+            self.assertEqual(s3.dumpPython()[:-1],
+                             "cms.Sequence(process.m2+(process.m1+process.m2))")
+
+            m6 = DummyModule("m6")
+            m7 = DummyModule("m7")
+            m8 = DummyModule("m8")
+            m9 = DummyModule("m9")
+            t6 = Task(m6)
+            t7 = Task(m7)
+            t89 = Task(m8, m9)
+            
+            s1 = Sequence(m1+m2, t6)
+            s2 = Sequence(m3+m4, t7)
+            s3 = Sequence(s1+s2, t89)
+            s3._replaceIfHeldDirectly(m3,m5)
+            self.assertEqual(s3.dumpPython()[:-1], "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.Task(process.m6))+cms.Sequence(process.m3+process.m4, cms.Task(process.m7)), cms.Task(process.m8, process.m9))")
+            s2._replaceIfHeldDirectly(m3,m5)
+            self.assertEqual(s2.dumpPython()[:-1],"cms.Sequence(process.m5+process.m4, cms.Task(process.m7))")
+            self.assertEqual(s3.dumpPython()[:-1], "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.Task(process.m6))+cms.Sequence(process.m5+process.m4, cms.Task(process.m7)), cms.Task(process.m8, process.m9))")
+        
+            s1 = Sequence(t6)
+            s1._replaceIfHeldDirectly(t6,t7)
+            self.assertEqual(s1.dumpPython()[:-1],"cms.Sequence(cms.Task(process.m7))")
 
         def testIndex(self):
             m1 = DummyModule("a")
