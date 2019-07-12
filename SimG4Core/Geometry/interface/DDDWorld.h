@@ -20,8 +20,6 @@ public:
   G4VPhysicalVolume *GetWorldVolume() const { return m_world; }
 
 private:
-  void SetAsWorld(G4VPhysicalVolume *pv);
-
   G4VPhysicalVolume *m_world;
 };
 

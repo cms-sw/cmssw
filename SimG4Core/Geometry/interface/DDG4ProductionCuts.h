@@ -16,19 +16,12 @@ class DDG4ProductionCuts {
 public:
   DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap&, int, const edm::ParameterSet&);
   ~DDG4ProductionCuts();
-  void update();
-  void SetVerbosity(int verb) {
-    verbosity_ = verb;
-    return;
-  }
 
 private:
   void initialize();
-  void setProdCuts(const DDLogicalPart, G4LogicalVolume*);
-  G4Region* getRegion(const std::string&);
-  G4ProductionCuts* getProductionCuts(G4Region*);
+  void setProdCuts(const DDLogicalPart, G4Region*);
 
-  G4LogicalVolumeToDDLogicalPartMap map_;
+  const G4LogicalVolumeToDDLogicalPartMap& map_;
   // Legacy flag
   bool protonCut_;
   std::string keywordRegion_;
