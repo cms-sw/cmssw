@@ -20,6 +20,7 @@ GEMBkgModel::GEMBkgModel(const edm::ParameterSet& config)
       simulateElectronBkg_(config.getParameter<bool>("simulateElectronBkg")),
       instLumi_(config.getParameter<double>("instLumi")),
       rateFact_(config.getParameter<double>("rateFact")),
+      bxWidth_(config.getParameter<double>("bxWidth")),
       referenceInstLumi_(config.getParameter<double>("referenceInstLumi")),
       GE11ElecBkgParam0_(config.getParameter<double>("GE11ElecBkgParam0")),
       GE11ElecBkgParam1_(config.getParameter<double>("GE11ElecBkgParam1")),
@@ -47,7 +48,7 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll,
   double trStripArea(0.0);
   if (gemId.region() == 0) {
     throw cms::Exception("Geometry")
-        << "GEMSynchronizer::simulate() - this GEM id is from barrel, which cannot happen.";
+        << "GEMBkgModel::simulate() - this GEM id is from barrel, which cannot happen.";
   }
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float striplength(top_->stripLength());
@@ -74,9 +75,8 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll,
 
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
-    averageNoiseRatePerRoll *= instLumi_ * rateFact_ * 1.0 / referenceInstLumi_;
-  }
-  if (gemId.station() == 2) {
+    averageNoiseRatePerRoll *= instLumi_ * rateFact_ / referenceInstLumi_;
+  } else if (gemId.station() == 2) {
     //simulate neutral background for GE2/1
     averageNeutralNoiseRatePerRoll =
         (GE21ModNeuBkgParam0_ + GE21ModNeuBkgParam1_ * rollRadius + GE21ModNeuBkgParam2_ * rollRadius * rollRadius);
@@ -87,11 +87,11 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll,
 
     // Scale up/down for desired instantaneous lumi (reference is 5E34, double from config is in units of 1E34)
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
-    averageNoiseRatePerRoll *= instLumi_ * rateFact_ * 1.0 / referenceInstLumi_;
+    averageNoiseRatePerRoll *= instLumi_ * rateFact_ / referenceInstLumi_;
   }
 
   //simulate bkg contribution
-  const double averageNoise(averageNoiseRatePerRoll * nBxing * trArea * 25.0e-9);
+  const double averageNoise(averageNoiseRatePerRoll * nBxing * trArea * bxWidth_);
   CLHEP::RandPoissonQ randPoissonQ(*engine, averageNoise);
   const int n_hits(randPoissonQ.fire());
   for (int i = 0; i < n_hits; ++i) {
@@ -116,7 +116,7 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll,
       }
     }  //end simulateNoiseCLS_
     else {
-      strips_.emplace(std::make_pair(centralStrip, time_hit));
+      strips_.emplace(centralStrip, time_hit);
     }
   }
   return;

@@ -39,6 +39,7 @@ private:
   bool simulateElectronBkg_;
   double instLumi_;
   double rateFact_;
+  double bxWidth_;
   const double referenceInstLumi_;
   double resolutionX_;
 
