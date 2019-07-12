@@ -20,7 +20,7 @@ loadPhase2InneTrackerConditions = cms.ESSource( "PoolDBESSource",
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class DBConfiguration():
     '''Helper class to store the configuration object DB'''
-    def __init__(self,vGeometry=None,vLA=None,vLAwidth=None,vSimLA=None,vGenError=None,vTemplate1D=None,vTemplate2Dnum=None,vTemplate2Dden=None):
+    def __init__(self,vGeometry=None, vLA=None, vLAwidth=None, vSimLA=None, vGenError=None, vTemplate1D=None, vTemplate2Dnum=None, vTemplate2Dden=None):
         self._vGeometry      = vGeometry
         self._vLA            = vLA 
         self._vLAwidth       = vLAwidth
@@ -29,50 +29,31 @@ class DBConfiguration():
         self._vTemplate1D    = vTemplate1D 
         self._vTemplate2Dnum = vTemplate2Dnum 
         self._vTemplate2Dden = vTemplate2Dden 
+        self._records = {}
 
-    def retAssociations(self):
+    # define the (record,label) :tag matrix
+    def customizeRecords(self):
+        if self.vLA            is not None: self._records.update({"SiPixelLorentzAngleRcd:"                  : "SiPixelLorentzAngle_phase2_T%s_v%s_mc"          % (self.vGeometry,self.vLA)})
+        if self.vSimLA         is not None: self._records.update({"SiPixelLorentzAngleSimRcd:"               : "SiPixelSimLorentzAngle_phase2_T%s_v%s_mc"       % (self.vGeometry,self.vSimLA)})
+        if self.vLAwidth       is not None: self._records.update({"SiPixelLorentzAngleRcd:forWidth"          : "SiPixelLorentzAngle_phase2_forWidth_T%s_v%s_mc" % (self.vGeometry,self.vLAwidth)})
+        if self.vGenError      is not None: self._records.update({"SiPixelGenErrorDBObjectRcd:"              : "SiPixelGenErrorDBObject_phase2_T%s_v%s_mc"      % (self.vGeometry,self.vGenError)})
+        if self.vTemplate1D    is not None: self._records.update({"SiPixelTemplateDBObjectRcd:"              : "SiPixelTemplateDBObject_phase2_T%s_v%s_mc"      % (self.vGeometry,self.vTemplate1D)})
+        if self.vTemplate2Dden is not None: self._records.update({"SiPixel2DTemplateDBObjectRcd:denominator" : "SiPixel2DTemplateDBObject_phase2_T%s_v%s_den"   % (self.vGeometry,self.vTemplate2Dden)})
+        if self.vTemplate2Dnum is not None: self._records.update({"SiPixel2DTemplateDBObjectRcd:numerator"   : "SiPixel2DTemplateDBObject_phase2_T%s_v%s_num"   % (self.vGeometry,self.vTemplate2Dnum)})
 
-        records = {
-            "SiPixelLorentzAngleSimRcd:"               : "SiPixelSimLorentzAngle_phase2_T%s_v%s_mc"       % (self.vGeometry,self.vSimLA),
-            "SiPixelLorentzAngleRcd:forWidth"          : "SiPixelLorentzAngle_phase2_forWidth_T%s_v%s_mc" % (self.vGeometry,self.vLAwidth),
-            "SiPixelLorentzAngleRcd:"                  : "SiPixelLorentzAngle_phase2_T%s_v%s_mc"          % (self.vGeometry,self.vLA),
-            #########################################
-            # Not yet implemented
-            #########################################
-            #"SiPixelGenErrorDBObjectRcd:"              : "SiPixelGenErrorDBObject_phase2_T%s_v%s_mc"      % (self.vGeometry,self.vGenError),
-            #"SiPixelTemplateDBObjectRcd:"              : "SiPixelTemplateDBObject_phase2_T%s_v%s_mc"      % (self.vGeometry,self.vTemplate1D),
-            #"SiPixel2DTemplateDBObjectRcd:denominator" : "SiPixel2DTemplateDBObject_phase2_T%s_v%s_den"   % (self.vGeometry,self.vTemplate2Dden),
-            #"SiPixel2DTemplateDBObjectRcd:numerator"   : "SiPixel2DTemplateDBObject_phase2_T%s_v%s_num"   % (self.vGeometry,self.vTemplate2Dnum)
-        }
-        
-        return records
+        if(not self._records):
+            raise RuntimeError("No customization possible, not specified any custom record!")
 
-    ###################################
+        return self._records
+
     # Print version used
-    ###################################
     def printConfig(self):
-    
-        associations = dict(
-            vGeometry      = None,
-            vLA            = 'SiPixelLorentzAngleRcd',
-            vLAwidth       = 'SiPixelLorentzAngleRcd (forWidth)',
-            vSimLA         = 'SiPixelLorentzAngleSimRcd', 
-            vGenError      = 'SiPixelGenErrorDBObjectRcd',  
-            vTemplate1D    = 'SiPixelTemplatedDBOjectRcd',
-            vTemplate2Dnum = 'SiPixel2DTemplateDBObjectRcd (numerator)',
-            vTemplate2Dden = 'SiPixel2DTemplateDBObjectRcd (denominator)',
-        )    
-
-        attrs = self.__dict__
         print(" ===>>> Customization of Inner Tracker conditions for geometry T%s" % self.vGeometry)
-        for key,value in attrs.items():
-            if value is not None:
-                if associations[key] is not None:
-                    print (" Customizing %s with Tag version n. %s" % (associations[key],value))
+        for key,value in self._records.iteritems():
+            rcd, label = tuple(key.split(':'))
+            print (" Customizing %s (%s) with tag: %s " % (rcd,label,value))
             
-    ###################################
     # Geometry version
-    ###################################
     @property
     def vGeometry(self):
         """version of the Tracker Geometry."""
@@ -81,9 +62,7 @@ class DBConfiguration():
     def vGeometry(self, value):
         self._vGeometry = value       
 
-    ###################################
     # LorentzAngle version
-    ###################################
     @property
     def vLA(self):
         """version of the Lorentz Angle payload."""
@@ -92,9 +71,7 @@ class DBConfiguration():
     def vLA(self, value):
         self._vLA = value  
 
-    ###################################
-    # LorentzAngle width version
-    ###################################
+    # LorentzAngle forWidth version
     @property
     def vLAwidth(self):
         """version of the Lorentz Angle width payload."""
@@ -103,9 +80,7 @@ class DBConfiguration():
     def vLAwidth(self, value):
         self._vLAwidth = value  
     
-    ###################################
-    # Sim LA version
-    ###################################
+    # Sim Lorentz Angle version
     @property
     def vSimLA(self):
         """version of the Simulation Lorentz Angle payload."""
@@ -114,9 +89,7 @@ class DBConfiguration():
     def vSimLA(self, value):
         self._vSimLA = value  
 
-    ###################################
     # Generic Errors version
-    ###################################
     @property
     def vGenError(self):
         """version of the Generic Error payload."""
@@ -125,9 +98,7 @@ class DBConfiguration():
     def vGenError(self, value):
         self._vGenError = value  
 
-    ###################################
     # 1D Template version
-    ###################################
     @property
     def vTemplate1D(self):
         """version of the Template 1D payload."""
@@ -136,9 +107,7 @@ class DBConfiguration():
     def vTemplate1D(self, value):
         self._vTemplate1D = value  
 
-    ###################################
     # 2D template (numerator) version
-    ###################################
     @property
     def vTemplate2Dnum(self):
         """version of the Template 2D (numerator) payload."""
@@ -147,9 +116,7 @@ class DBConfiguration():
     def vTemplate2Dnum(self, value):
         self._vTemplate2Dnum = value  
 
-    ###################################
     # 2D template (denominator) version
-    ###################################
     @property
     def vTemplate2Dden(self):
         """version of the Template 2D (denominator) payload."""
@@ -165,8 +132,11 @@ def appendConditions(DBConfig):
     if not hasattr(loadPhase2InneTrackerConditions ,'toGet'):
         loadPhase2InneTrackerConditions.toGet=cms.VPSet()
     
+    recordMap = DBConfig.customizeRecords()
+    DBConfig.printConfig()
+
     toExtend=[]
-    for record,tag in DBConfig.retAssociations().iteritems():
+    for record,tag in recordMap.iteritems():
         rcd, label = tuple(record.split(':'))
         toExtend.append(
             cms.PSet(
@@ -175,6 +145,5 @@ def appendConditions(DBConfig):
                 label = cms.untracked.string(label)
                 )
         )
-        
     ### extend the list of Records to be changed
     loadPhase2InneTrackerConditions.toGet.extend(cms.VPSet(*toExtend))

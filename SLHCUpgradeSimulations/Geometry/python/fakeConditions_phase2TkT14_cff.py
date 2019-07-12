@@ -12,8 +12,6 @@ DBConfig.vGeometry = "14"
 DBConfig.vLA       = "0"
 DBConfig.vLAwidth  = "0"
 DBConfig.vSimLA    = "0"
-DBConfig.printConfig()
-
 appendConditions(DBConfig)
 es_prefer_ITconditions = cms.ESPrefer("PoolDBESSource","loadPhase2InneTrackerConditions")
 
