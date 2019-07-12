@@ -104,6 +104,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
 
   desc.add<double>("instLumi", 7.5);
   desc.add<double>("rateFact", 1.0);
+  desc.add<double>("bxWidth", 25E-9);
   desc.add<double>("referenceInstLumi", 5.);
   desc.add<double>("resolutionX", 0.03);
 
