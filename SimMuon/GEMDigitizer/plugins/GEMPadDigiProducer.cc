@@ -1,14 +1,52 @@
-#include "SimMuon/GEMDigitizer/plugins/GEMPadDigiProducer.h"
+#ifndef SimMuon_GEMDigitizer_GEMPadDigiProducer_h
+#define SimMuon_GEMDigitizer_GEMPadDigiProducer_h
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+
 #include <set>
+
+/// \class GEMPadDigiProducer
+/// producer for GEM-CSC trigger pads
+
+class GEMPadDigiProducer : public edm::stream::EDProducer<> {
+public:
+  //typedef GEMDigitizer::StripDigiSimLinks StripDigiSimLinks;
+
+  explicit GEMPadDigiProducer(const edm::ParameterSet &ps);
+
+  ~GEMPadDigiProducer() override;
+
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+
+  void produce(edm::Event &, const edm::EventSetup &) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
+  void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads) const;
+
+  /// Name of input digi Collection
+  edm::EDGetTokenT<GEMDigiCollection> digi_token_;
+  edm::InputTag digis_;
+
+  const GEMGeometry *geometry_;
+};
 
 GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
@@ -73,3 +111,4 @@ void GEMPadDigiProducer::buildPads(const GEMDigiCollection& det_digis, GEMPadDig
 }
 
 DEFINE_FWK_MODULE(GEMPadDigiProducer);
+#endif
