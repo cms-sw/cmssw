@@ -18,11 +18,8 @@ loadPhase2InneTrackerConditions = cms.ESSource( "PoolDBESSource",
                                               )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class DBConfiguration():
-    '''Helper class to store the  configuration object DB'''
+    '''Helper class to store the configuration object DB'''
     def __init__(self,vGeometry=None,vLA=None,vLAwidth=None,vSimLA=None,vGenError=None,vTemplate1D=None,vTemplate2Dnum=None,vTemplate2Dden=None):
         self._vGeometry      = vGeometry
         self._vLA            = vLA 
@@ -80,7 +77,6 @@ class DBConfiguration():
     def vGeometry(self):
         """version of the Tracker Geometry."""
         return self._vGeometry
-
     @vGeometry.setter
     def vGeometry(self, value):
         self._vGeometry = value       
@@ -92,7 +88,6 @@ class DBConfiguration():
     def vLA(self):
         """version of the Lorentz Angle payload."""
         return self._vLA
-
     @vLA.setter
     def vLA(self, value):
         self._vLA = value  
@@ -104,7 +99,6 @@ class DBConfiguration():
     def vLAwidth(self):
         """version of the Lorentz Angle width payload."""
         return self._vLAwidth
-
     @vLAwidth.setter
     def vLAwidth(self, value):
         self._vLAwidth = value  
@@ -116,7 +110,6 @@ class DBConfiguration():
     def vSimLA(self):
         """version of the Simulation Lorentz Angle payload."""
         return self._vSimLA
-
     @vSimLA.setter
     def vSimLA(self, value):
         self._vSimLA = value  
@@ -128,7 +121,6 @@ class DBConfiguration():
     def vGenError(self):
         """version of the Generic Error payload."""
         return self._vGenError
-
     @vGenError.setter
     def vGenError(self, value):
         self._vGenError = value  
@@ -140,7 +132,6 @@ class DBConfiguration():
     def vTemplate1D(self):
         """version of the Template 1D payload."""
         return self._vTemplate1D
-
     @vTemplate1D.setter
     def vTemplate1D(self, value):
         self._vTemplate1D = value  
@@ -152,7 +143,6 @@ class DBConfiguration():
     def vTemplate2Dnum(self):
         """version of the Template 2D (numerator) payload."""
         return self._vTemplate2Dnum
-
     @vTemplate2Dnum.setter
     def vTemplate2Dnum(self, value):
         self._vTemplate2Dnum = value  
@@ -164,10 +154,8 @@ class DBConfiguration():
     def vTemplate2Dden(self):
         """version of the Template 2D (denominator) payload."""
         return self._vTemplate2Dden
-
     @vTemplate2Dden.setter
     def vTemplate2Dden(self, value):
-        print("setter of vTemplate2Dden called")
         self._vTemplate2Dden = value  
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -187,11 +175,6 @@ def appendConditions(DBConfig):
                 label = cms.untracked.string(label)
                 )
         )
-    
-
-    print toExtend
+        
+    ### extend the list of Records to be changed
     loadPhase2InneTrackerConditions.toGet.extend(cms.VPSet(*toExtend))
-
-    
-                                                 
-    
