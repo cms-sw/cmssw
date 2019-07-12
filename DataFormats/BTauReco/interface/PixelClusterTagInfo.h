@@ -14,6 +14,7 @@ struct PixelClusterProperties {
     float y;
     float z;
     int charge;
+    int layer;
 };
 
 struct PixelClusterData {
@@ -47,10 +48,10 @@ struct PixelClusterData {
     char L3_RVAR;
     char L4_RVAR;
 
-    char L1_RVWT;
-    char L2_RVWT;
-    char L3_RVWT;
-    char L4_RVWT;
+    unsigned int L1_RVWT;
+    unsigned int L2_RVWT;
+    unsigned int L3_RVWT;
+    unsigned int L4_RVWT;
 };
 
 
@@ -61,7 +62,7 @@ class PixelClusterTagInfo : public BaseTagInfo {
       
         PixelClusterTagInfo() {}
 
-        PixelClusterTagInfo(const PixelClusterData & data, const edm::RefToBase<Jet>& jet_ref):
+        PixelClusterTagInfo(const PixelClusterData& data, const edm::RefToBase<Jet>& jet_ref):
           pixelClusters(data),
           jetRef(jet_ref) {}
 
@@ -72,10 +73,13 @@ class PixelClusterTagInfo : public BaseTagInfo {
 
 
         // method to set the jet RefToBase
-        void setJetRef( const edm::RefToBase<Jet>& jet_ref ) { jetRef = jet_ref; }
+        void setJetRef( const edm::RefToBase<Jet>& ref) { jetRef = ref; }
         
         // method to jet the jet RefToBase
         edm::RefToBase<Jet> jet() const override { return jetRef; }
+
+        // method to set the PixelClusterData
+        void setData(const PixelClusterData& data) { pixelClusters = data; }
 
         // method to get the PixelClusterData struct
         const PixelClusterData& data() const { return pixelClusters; }
