@@ -64,7 +64,7 @@ private:
   private:
     float middleDistanceFromBeam;                       // radiusOfMainPartitionInCenter;
     std::vector<TrapezoidalStripTopology*> stripTopos;  // vector of Topos, one for each part
-    std::vector<std::vector<double> > tofs;             //TOF to center of the partition:  [layer][part]
+    std::vector<std::vector<double>> tofs;              //TOF to center of the partition:  [layer][part]
     std::vector<float> partitionTops;                   //Top of each partition in the chamber's local coords
   };
 
@@ -120,7 +120,7 @@ private:
   bool useBuiltinGeo;
   const ME0Geometry* geometry;
   TemporaryGeometry* tempGeo;
-  std::vector<std::vector<double> > tofs;  //used for built in geo
+  std::vector<std::vector<double>> tofs;  //used for built in geo
 };
 
 ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geometry,

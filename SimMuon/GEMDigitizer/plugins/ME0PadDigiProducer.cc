@@ -25,22 +25,22 @@
 
 class ME0PadDigiProducer : public edm::stream::EDProducer<> {
 public:
-  explicit ME0PadDigiProducer(const edm::ParameterSet &ps);
+  explicit ME0PadDigiProducer(const edm::ParameterSet& ps);
 
   ~ME0PadDigiProducer() override;
 
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  void buildPads(const ME0DigiCollection &digis, ME0PadDigiCollection &out_pads) const;
+  void buildPads(const ME0DigiCollection& digis, ME0PadDigiCollection& out_pads) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<ME0DigiCollection> digi_token_;
   edm::InputTag digis_;
 
-  const ME0Geometry *geometry_;
+  const ME0Geometry* geometry_;
 };
 
 ME0PadDigiProducer::ME0PadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {

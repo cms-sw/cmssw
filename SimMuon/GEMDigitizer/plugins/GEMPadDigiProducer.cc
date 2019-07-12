@@ -28,24 +28,24 @@ class GEMPadDigiProducer : public edm::stream::EDProducer<> {
 public:
   //typedef GEMDigitizer::StripDigiSimLinks StripDigiSimLinks;
 
-  explicit GEMPadDigiProducer(const edm::ParameterSet &ps);
+  explicit GEMPadDigiProducer(const edm::ParameterSet& ps);
 
   ~GEMPadDigiProducer() override;
 
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads) const;
+  void buildPads(const GEMDigiCollection& digis, GEMPadDigiCollection& out_pads) const;
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMDigiCollection> digi_token_;
   edm::InputTag digis_;
 
-  const GEMGeometry *geometry_;
+  const GEMGeometry* geometry_;
 };
 
 GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {

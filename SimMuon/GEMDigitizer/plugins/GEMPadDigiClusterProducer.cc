@@ -11,7 +11,6 @@
  *  \author Sven Dildick (TAMU)
  */
 
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,18 +36,18 @@
 
 class GEMPadDigiClusterProducer : public edm::stream::EDProducer<> {
 public:
-  explicit GEMPadDigiClusterProducer(const edm::ParameterSet &ps);
+  explicit GEMPadDigiClusterProducer(const edm::ParameterSet& ps);
 
   ~GEMPadDigiClusterProducer() override;
 
-  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void buildClusters(const GEMPadDigiCollection &pads, GEMPadDigiClusterCollection &out_clusters);
+  void buildClusters(const GEMPadDigiCollection& pads, GEMPadDigiClusterCollection& out_clusters);
 
   /// Name of input digi Collection
   edm::EDGetTokenT<GEMPadDigiCollection> pad_token_;
@@ -57,7 +56,7 @@ private:
   unsigned int maxClusters_;
   unsigned int maxClusterSize_;
 
-  const GEMGeometry *geometry_;
+  const GEMGeometry* geometry_;
 };
 
 GEMPadDigiClusterProducer::GEMPadDigiClusterProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {

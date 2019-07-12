@@ -2,6 +2,7 @@
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
@@ -29,6 +30,7 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
                               DetectorHitMap& detectorHitMap_) {
   bool digiMuon = false;
   bool digiElec = false;
+  const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   for (const auto& hit : simHits) {
     if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_)
       continue;
@@ -53,7 +55,7 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
     if (!(digiMuon || digiElec))
       continue;
     const int bx(getSimHitBx(&hit, engine));
-    const std::vector<std::pair<int, int> >& cluster(simulateClustering(roll, &hit, bx, engine));
+    const std::vector<std::pair<int, int> >& cluster(simulateClustering(top, &hit, bx, engine));
     for (const auto& digi : cluster) {
       detectorHitMap_.emplace(digi, &hit);
       strips_.emplace(digi);
@@ -106,17 +108,15 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   bx = static_cast<int>(std::round((timeDifference) / 25.));
 
   // check time
-  const bool debug(false);
-  if (debug) {
-    std::cout << "checktime "
-              << "bx = " << bx << "\tdeltaT = " << timeDifference << "\tsimT =  " << simhitTime
-              << "\trefT =  " << referenceTime << "\ttof = " << tof << "\tavePropT =  " << averagePropagationTime
-              << "\taveRefPropT = " << halfStripLength / signalPropagationSpeedTrue << std::endl;
-  }
+  LogDebug("GEMDigiProducer") << "checktime "
+                              << "bx = " << bx << "\tdeltaT = " << timeDifference << "\tsimT =  " << simhitTime
+                              << "\trefT =  " << referenceTime << "\ttof = " << tof
+                              << "\tavePropT =  " << averagePropagationTime
+                              << "\taveRefPropT = " << halfStripLength / signalPropagationSpeedTrue << "\n";
   return bx;
 }
 
-std::vector<std::pair<int, int> > GEMSignalModel::simulateClustering(const GEMEtaPartition* roll,
+std::vector<std::pair<int, int> > GEMSignalModel::simulateClustering(const TrapezoidalStripTopology* top,
                                                                      const PSimHit* simHit,
                                                                      const int bx,
                                                                      CLHEP::HepRandomEngine* engine) {
@@ -139,8 +139,8 @@ std::vector<std::pair<int, int> > GEMSignalModel::simulateClustering(const GEMEt
   LocalPoint smeared_start_point(smeared_start_x, start_point.y(), start_point.z());
   LocalPoint smeared_end_point(smeared_end_x, end_point.y(), end_point.z());
 
-  int cluster_start = roll->strip(smeared_start_point);
-  int cluster_end = roll->strip(smeared_end_point);
+  int cluster_start = top->channel(smeared_start_point);
+  int cluster_end = top->channel(smeared_end_point);
 
   std::vector<std::pair<int, int> > cluster;
   for (int strip = cluster_start; strip <= cluster_end; strip++) {

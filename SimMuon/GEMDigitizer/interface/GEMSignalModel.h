@@ -15,6 +15,7 @@
 #include "SimMuon/GEMDigitizer/interface/GEMDigiModel.h"
 
 class GEMGeometry;
+class TrapezoidalStripTopology;
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -31,7 +32,7 @@ public:
 
   int getSimHitBx(const PSimHit*, CLHEP::HepRandomEngine*);
 
-  std::vector<std::pair<int, int> > simulateClustering(const GEMEtaPartition*,
+  std::vector<std::pair<int, int> > simulateClustering(const TrapezoidalStripTopology*,
                                                        const PSimHit*,
                                                        const int,
                                                        CLHEP::HepRandomEngine*);
