@@ -490,7 +490,7 @@ namespace {
   string_view mynamespace(string_view input) {
     string_view v = input;
     auto trim_pos = v.find(':');
-    if(trim_pos != v.npos)
+    if (trim_pos != v.npos)
       v.remove_suffix(v.size() - (trim_pos + 1));
     return v;
   }
@@ -505,7 +505,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   cms::DDAlgoArguments args(ctxt, e);
 
   // TRICK!
-  string myns{ mynamespace(args.parentName()).data(), mynamespace(args.parentName()).size()};
+  string myns{mynamespace(args.parentName()).data(), mynamespace(args.parentName()).size()};
 
   // Barrel volume
   // barrel parent volume

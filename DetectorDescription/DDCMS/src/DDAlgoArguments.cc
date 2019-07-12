@@ -41,7 +41,7 @@ dd4hep::Rotation3D cms::makeRotReflect(
   }
 
   dd4hep::Rotation3D rotation(x.x(), y.x(), z.x(), x.y(), y.y(), z.y(), x.z(), y.z(), z.z());
-  
+
   return rotation;
 }
 
