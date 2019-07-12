@@ -13,6 +13,7 @@
 GEMNoiseModel::GEMNoiseModel(const edm::ParameterSet& config)
     : GEMDigiModel(config),
       averageNoiseRate_(config.getParameter<double>("averageNoiseRate")),
+      bxWidth_(config.getParameter<double>("bxWidth")),
       minBunch_(config.getParameter<int>("minBunch")),
       maxBunch_(config.getParameter<int>("maxBunch")) {}
 
@@ -28,7 +29,7 @@ void GEMNoiseModel::simulate(const GEMEtaPartition* roll,
   double trStripArea(0.0);
   if (gemId.region() == 0) {
     throw cms::Exception("Geometry")
-        << "GEMSynchronizer::simulate() - this GEM id is from barrel, which cannot happen.";
+        << "GEMNoiseModel::simulate() - this GEM id is from barrel, which cannot happen.";
   }
   const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float striplength(top_->stripLength());
@@ -36,15 +37,14 @@ void GEMNoiseModel::simulate(const GEMEtaPartition* roll,
   float trArea(trStripArea * nstrips);
   const int nBxing(maxBunch_ - minBunch_ + 1);
   //simulate intrinsic noise
-  const double aveIntrinsicNoise(averageNoiseRate_ * nBxing * trArea * 25.0e-9);
+  const double aveIntrinsicNoise(averageNoiseRate_ * nBxing * trArea * bxWidth_);
   CLHEP::RandPoissonQ randPoissonQ(*engine, aveIntrinsicNoise);
   const int n_intrHits(randPoissonQ.fire());
 
   for (int k = 0; k < n_intrHits; k++) {
     const int centralStrip(static_cast<int>(CLHEP::RandFlat::shoot(engine, 1, nstrips)));
     const int time_hit(static_cast<int>(CLHEP::RandFlat::shoot(engine, nBxing)) + minBunch_);
-    std::pair<int, int> digi(centralStrip, time_hit);
-    strips_.emplace(digi);
+    strips_.emplace(centralStrip, time_hit);
   }
   //end simulate intrinsic noise
 
