@@ -855,7 +855,7 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     TGeoNode* n;
     TString nam_id = TString::Format("%s_%d", child->GetName(), copy);
     n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
-    if (n != 0) {
+    if (n != nullptr) {
       printout(ERROR, "PlacedVolume", "++ Attempt to add already exiting node %s", (const char*)nam_id);
     }
 
