@@ -13,7 +13,6 @@ DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& 
                                        const edm::ParameterSet& p)
     : map_(map), verbosity_(verb) {
   keywordRegion_ = "CMSCutsRegion";
-  // Legacy flag
   protonCut_ = p.getUntrackedParameter<bool>("CutsOnProton", true);
   initialize();
 }
@@ -44,15 +43,6 @@ bool dd_is_greater(const std::pair<G4LogicalVolume*, DDLogicalPart>& p1,
   return result;
 }
 
-void DDG4ProductionCuts::update() {
-  //
-  // Loop over all DDLP and provide the cuts for each region
-  //
-  for (auto const& tit : vec_) {
-    setProdCuts(tit.second, tit.first);
-  }
-}
-
 void DDG4ProductionCuts::initialize() {
   vec_ = map_.all(keywordRegion_);
   // sort all root volumes - to get the same sequence at every run of the application.
@@ -61,55 +51,50 @@ void DDG4ProductionCuts::initialize() {
   // higher (or lower) address when allocating an object of the same type ...
   sort(vec_.begin(), vec_.end(), &dd_is_greater);
   if (verbosity_ > 0) {
-    edm::LogVerbatim("Physics") << " DDG4ProductionCuts (New) : starting\n"
-                                << " DDG4ProductionCuts : Got " << vec_.size() << " region roots.\n"
-                                << " DDG4ProductionCuts : List of all roots:";
-    for (size_t jj = 0; jj < vec_.size(); ++jj)
-      edm::LogVerbatim("Physics") << "   DDG4ProductionCuts : root=" << vec_[jj].second.name();
+    edm::LogVerbatim("Geometry") << " DDG4ProductionCuts : got " << vec_.size() << " region roots.\n"
+                                 << " DDG4ProductionCuts : List of all roots:";
+    for (auto const& vv : vec_)
+      edm::LogVerbatim("Geometry") << "    " << vv.first->GetName() << " : " << vv.second.name();
   }
 
   // Now generate all the regions
-  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin(); tit != vec_.end(); tit++) {
-    std::string regionName;
-    unsigned int num = map_.toString(keywordRegion_, (*tit).second, regionName);
+  std::string curName = "";
+  std::string regionName = "";
+  G4Region* region = nullptr;
+  G4RegionStore* store = G4RegionStore::GetInstance();
+  for (auto const& vv : vec_) {
+    //for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin(); tit != vec_.end(); ++tit) {
+    unsigned int num = map_.toString(keywordRegion_, vv.second, regionName);
 
     if (num != 1) {
       throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::initialize: Problem with Region tags.");
     }
-    G4Region* region = getRegion(regionName);
-    region->AddRootLogicalVolume((*tit).first);
+    if (regionName != curName) {
+      region = store->FindOrCreateRegion(regionName);
+      if (!region) {
+        throw cms::Exception("SimG4CoreGeometry", " DDG4ProductionCuts::initialize: Problem with Region tags.");
+      }
+      curName = regionName;
+      edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : new G4Region " << vv.first->GetName();
+      setProdCuts(vv.second, region);
+    }
+
+    region->AddRootLogicalVolume(vv.first);
 
     if (verbosity_ > 0)
-      edm::LogVerbatim("Physics") << " MakeRegions: added " << ((*tit).first)->GetName() << " to region "
-                                  << region->GetName();
+      edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region " << region->GetName();
   }
 }
 
-void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume* lvol) {
-  if (verbosity_ > 0)
-    edm::LogVerbatim("Physics") << " DDG4ProductionCuts: inside setProdCuts";
-
-  G4Region* region = nullptr;
-
-  std::string regionName;
-  unsigned int num = map_.toString(keywordRegion_, lpart, regionName);
-
-  if (num != 1) {
-    throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::setProdCuts: Problem with Region tags.");
-  }
-  if (verbosity_ > 0)
-    edm::LogVerbatim("Physics") << "Using region " << regionName;
-
-  region = getRegion(regionName);
-
+void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4Region* region) {
   //
   // search for production cuts
   // you must have four of them: e+ e- gamma proton
   //
-  double gammacut;
-  double electroncut;
-  double positroncut;
-  double protoncut;
+  double gammacut = 0.0;
+  double electroncut = 0.0;
+  double positroncut = 0.0;
+  double protoncut = 0.0;
   int temp = map_.toDouble("ProdCutsForGamma", lpart, gammacut);
   if (temp != 1) {
     throw cms::Exception(
@@ -144,30 +129,20 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4LogicalVolume*
   }
 
   //
-  // For the moment I assume all of the four are set
+  // Create and fill production cuts
   //
-  G4ProductionCuts* prodCuts = getProductionCuts(region);
+  G4ProductionCuts* prodCuts = region->GetProductionCuts();
+  if (!prodCuts) {
+    prodCuts = new G4ProductionCuts();
+    region->SetProductionCuts(prodCuts);
+  }
   prodCuts->SetProductionCut(gammacut, idxG4GammaCut);
   prodCuts->SetProductionCut(electroncut, idxG4ElectronCut);
   prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
   prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
   if (verbosity_ > 0) {
-    edm::LogVerbatim("Physics") << "DDG4ProductionCuts : Setting cuts for " << regionName
-                                << "\n    Electrons: " << electroncut << "\n    Positrons: " << positroncut
-                                << "\n    Gamma    : " << gammacut;
+    edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << region->GetName()
+                                 << "\n    Electrons: " << electroncut << "\n    Positrons: " << positroncut
+                                 << "\n    Gamma    : " << gammacut << "\n    Proton   : " << protoncut;
   }
-}
-
-G4Region* DDG4ProductionCuts::getRegion(const std::string& regName) {
-  G4Region* reg = G4RegionStore::GetInstance()->FindOrCreateRegion(regName);
-  return reg;
-}
-
-G4ProductionCuts* DDG4ProductionCuts::getProductionCuts(G4Region* reg) {
-  G4ProductionCuts* prodCuts = reg->GetProductionCuts();
-  if (!prodCuts) {
-    prodCuts = new G4ProductionCuts();
-    reg->SetProductionCuts(prodCuts);
-  }
-  return prodCuts;
 }
