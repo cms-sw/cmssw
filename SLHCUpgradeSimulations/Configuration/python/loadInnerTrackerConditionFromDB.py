@@ -2,7 +2,7 @@ import socket
 from CondCore.CondDB.CondDB_cfi import *
 '''Helper procedure that loads phase-2 Inner Trackers Conditions from database'''
 
-CondDBPhase2ITConnection = CondDB.clone( connect = cms.string( 'frontier://FrontierPrep/CMS_CONDITIONS' ) )
+CondDBPhase2ITConnection = CondDB.clone( connect = cms.string( 'frontier://FrontierProd/CMS_CONDITIONS' ) )
 loadPhase2InneTrackerConditions = cms.ESSource( "PoolDBESSource",
                                                 CondDBPhase2ITConnection,
                                                 globaltag        = cms.string( '' ),
@@ -18,7 +18,7 @@ loadPhase2InneTrackerConditions = cms.ESSource( "PoolDBESSource",
                                               )
 
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-class DBConfiguration():
+class SiPhase2DBConfiguration():
     '''Helper class to store the configuration object DB'''
     def __init__(self,vGeometry=None, vLA=None, vLAwidth=None, vSimLA=None, vGenError=None, vTemplate1D=None, vTemplate2Dnum=None, vTemplate2Dden=None):
         self._vGeometry      = vGeometry
@@ -51,7 +51,7 @@ class DBConfiguration():
         print(" ===>>> Customization of Inner Tracker conditions for geometry T%s" % self.vGeometry)
         for key,value in self._records.iteritems():
             rcd, label = tuple(key.split(':'))
-            print (" Customizing %s (%s) with tag: %s " % (rcd,label,value))
+            print (" Customizing tag: %45s for record: %30s" % (value,rcd) + (" (%s)."%label if label is not None else ".") )
             
     # Geometry version
     @property
