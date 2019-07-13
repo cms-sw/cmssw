@@ -547,11 +547,11 @@ namespace reco::tau {
     return result;
   }
 
-  void RecoTauQualityCuts::setLeadTrack(const reco::Track& leadTrack) const { leadTrack_ = &leadTrack; }
+  void RecoTauQualityCuts::setLeadTrack(const reco::Track& leadTrack) { leadTrack_ = &leadTrack; }
 
-  void RecoTauQualityCuts::setLeadTrack(const reco::Candidate& leadCand) const { leadTrack_ = getTrack(leadCand); }
+  void RecoTauQualityCuts::setLeadTrack(const reco::Candidate& leadCand) { leadTrack_ = getTrack(leadCand); }
 
-  void RecoTauQualityCuts::setLeadTrack(const reco::CandidateRef& leadCand) const {
+  void RecoTauQualityCuts::setLeadTrack(const reco::CandidateRef& leadCand) {
     if (leadCand.isNonnull()) {
       leadTrack_ = getTrack(*leadCand);
     } else {
