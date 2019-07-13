@@ -46,12 +46,12 @@ namespace reco {
       void setPV(const reco::VertexRef& vtx) const { pv_ = vtx; }
 
       /// Update the leading track
-      void setLeadTrack(const reco::Track& leadTrack) const;
-      void setLeadTrack(const reco::Candidate& leadCand) const;
+      void setLeadTrack(const reco::Track& leadTrack);
+      void setLeadTrack(const reco::Candidate& leadCand);
 
       /// Update the leading track (using reference)
       /// If null, this will set the lead track ref null.
-      void setLeadTrack(const reco::CandidateRef& leadCand) const;
+      void setLeadTrack(const reco::CandidateRef& leadCand);
 
       /// Filter a single Track
       bool filterTrack(const reco::TrackBaseRef& track) const;
@@ -100,7 +100,7 @@ namespace reco {
       // The current primary vertex
       mutable reco::VertexRef pv_;
       // The current lead track references
-      mutable const reco::Track* leadTrack_;
+      const reco::Track* leadTrack_;
 
       double minTrackPt_;
       double maxTrackChi2_;
