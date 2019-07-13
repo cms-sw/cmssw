@@ -2078,21 +2078,25 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
   std::vector<std::vector<float>> mclsharedenergyfrac;
   mclsharedenergyfrac.resize(nCaloParticles);
 
+  for (unsigned int i = 0; i < nCaloParticles; ++i) {
+    score3d[i].resize(nMultiClusters);
+    mclsharedenergy[i].resize(nMultiClusters);
+    mclsharedenergyfrac[i].resize(nMultiClusters);
+    for (unsigned int j = 0; j < nMultiClusters; ++j) {
+      score3d[i][j] = 0.f;
+      mclsharedenergy[i][j] = 0.f;
+      mclsharedenergyfrac[i][j] = 0.f;
+    }
+  }
+
   //Loop though caloparticles
   for (const auto& cpId : cPIndices) {
-    for (unsigned int i = 0; i < nCaloParticles; ++i) {
-      score3d[i].resize(nMultiClusters);
-      mclsharedenergy[i].resize(nMultiClusters);
-      mclsharedenergyfrac[i].resize(nMultiClusters);
-      for (unsigned int j = 0; j < nMultiClusters; ++j) {
-        score3d[i][j] = 0.f;
-        mclsharedenergy[i][j] = 0.f;
-        mclsharedenergyfrac[i][j] = 0.f;
-      }
-    }
+    //We need to keep the multiclusters ids that are related to
+    //CaloParticle under study for the final filling of the score.
+    std::vector<unsigned int> cpId_mclId_related;
+    cpId_mclId_related.clear();
 
     float CPenergy = 0.f;
-
     for (unsigned int layerId = 0; layerId < layers * 2; ++layerId) {
       unsigned int CPNumberOfHits = cPOnLayer[cpId][layerId].hits_and_fractions.size();
       //Below gives the CP energy related to multicluster per layer.
@@ -2139,6 +2143,7 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
         float hitEnergyWeight = hit->energy() * hit->energy();
         for (auto& lcPair : cPOnLayer[cpId][layerId].layerClusterIdToEnergyAndScore) {
           unsigned int multiClusterId = lcPair.first;
+          cpId_mclId_related.emplace_back(multiClusterId);
           float mclFraction = 0.f;
 
           if (!hitWithNoMCL) {
@@ -2148,9 +2153,9 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
             if (findHitIt != detIdToMultiClusterId_Map[cp_hitDetId].end())
               mclFraction = findHitIt->fraction;
           }
-          if (mclFraction == 0.) {
-            mclFraction = -1.;
-          }
+          // if (mclFraction == 0.) {
+          //   mclFraction = -1.;
+          // }
           //Observe here that we do not divide as before by the layer cluster energy weight. We should sum first
           //over all layers and divide with the total CP energy over all layers.
           lcPair.second.second += (mclFraction - cpFraction) * (mclFraction - cpFraction) * hitEnergyWeight;
@@ -2175,13 +2180,14 @@ void HGVHistoProducerAlgo::multiClusters_to_CaloParticles(const Histograms& hist
 
     float invCPEnergyWeight = 1.f / (CPenergy * CPenergy);
 
-    //Loop through multiclusters here
-    for (unsigned int mclId = 0; mclId < nMultiClusters; ++mclId) {
+    //Loop through related multiclusters here
+    for (unsigned int i = 0; i < cpId_mclId_related.size(); ++i) {
+      unsigned int mclId = cpId_mclId_related[i];
       //Now time for the denominator
       score3d[cpId][mclId] = score3d[cpId][mclId] * invCPEnergyWeight;
       mclsharedenergyfrac[cpId][mclId] = (mclsharedenergy[cpId][mclId] / CPenergy);
 
-      LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id: \t" << mclId << "\t score \t"
+      LogDebug("HGCalValidator") << "CP Id: \t" << cpId << "\t MCL id: \t" << mclId << "\t score \t"  //
                                  << score3d[cpId][mclId] << "\t"
                                  << "invCPEnergyWeight \t" << invCPEnergyWeight << "\t"
                                  << "shared energy:\t" << mclsharedenergy[cpId][mclId] << "\t"
