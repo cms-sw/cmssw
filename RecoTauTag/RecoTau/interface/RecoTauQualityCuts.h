@@ -43,7 +43,7 @@ namespace reco {
       explicit RecoTauQualityCuts(const edm::ParameterSet& qcuts);
 
       /// Update the primary vertex
-      void setPV(const reco::VertexRef& vtx) const { pv_ = vtx; }
+      void setPV(const reco::VertexRef& vtx) { pv_ = vtx; }
 
       /// Update the leading track
       void setLeadTrack(const reco::Track& leadTrack);
@@ -98,7 +98,7 @@ namespace reco {
       bool filterCandByType(const reco::Candidate& cand) const;
 
       // The current primary vertex
-      mutable reco::VertexRef pv_;
+      reco::VertexRef pv_;
       // The current lead track references
       const reco::Track* leadTrack_;
 
