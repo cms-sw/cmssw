@@ -92,6 +92,8 @@ class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      
+//      virtual void fillData(reco::PixelClusterData*, float, float, int, int);
 
       // ----------member data ---------------------------
       edm::ParameterSet iConfig;
@@ -100,10 +102,12 @@ class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
       edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jetsAK8;
       edm::EDGetTokenT<reco::VertexCollection >               m_vertices;
       edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
-      unsigned int m_nLayers;
-      unsigned int m_minADC;
+      bool m_isPhase1;
+      bool m_addFPIX;
+      int m_minADC;
       double m_minJetPt;
-      bool isPhase1;
+      double m_maxJetEta;
+      int m_nLayers;
 };
 
 //
@@ -123,9 +127,11 @@ PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet
     m_jetsAK8  ( consumes<edm::View<reco::Jet>                >  (iConfig.getParameter<edm::InputTag>("jetsAK8")) ),
     m_vertices ( consumes<reco::VertexCollection              >  (iConfig.getParameter<edm::InputTag>("primaryVertex")) ),
     m_pixelhit ( consumes<edmNew::DetSetVector<SiPixelCluster> > (iConfig.getParameter<edm::InputTag>("pixels")) ),
-    m_nLayers  ( iConfig.getParameter<unsigned int>("pixelLayers") ),
-    m_minADC   ( iConfig.getParameter<unsigned int>("minAdcCount") ),
-    m_minJetPt ( iConfig.getParameter<double>("minJetPtCut") )
+    m_isPhase1 ( iConfig.getParameter<bool>("isPhase1") ),
+    m_addFPIX  ( iConfig.getParameter<bool>("addForward") ),
+    m_minADC   ( iConfig.getParameter<int>("minAdcCount") ),
+    m_minJetPt ( iConfig.getParameter<double>("minJetPtCut") ),
+    m_maxJetEta( iConfig.getParameter<double>("maxJetEtaCut") )
 {
    //register your products
 /* Examples
@@ -139,7 +145,7 @@ PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet
 */
   produces<reco::PixelClusterTagInfoCollection>();
   
-  isPhase1 = (m_nLayers == 4);
+  m_nLayers = (m_isPhase1 ? 4 : 3);
 }
 
 
@@ -235,14 +241,15 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         int layer = 0; // 1-4
         
         if(subid==1) {  // barrel
-            PixelBarrelName pbn(detid, tTopo, isPhase1);
+            PixelBarrelName pbn(detid, tTopo, m_isPhase1);
             layer = pbn.layerName();
         }
-//        else if(subid==2) {  // forward
-//            PixelEndcapName pen(detid, tTopo, isPhase1);
-//            layer = pen.bladeName();
+//        else if(m_addFPIX && subid==2) {  // forward
+//            PixelEndcapName pen(detid, tTopo, m_isPhase1);
+//            layer = pen.diskName();
+//            std::cout << layer << std::endl;
 //        }
-        if(layer == 0 || layer > 4) continue;
+        if(layer == 0 || layer > m_nLayers) continue;
 //        std::cout << layer << "\t" << detX << " : " << detUnit->x() << "\t" << detY << " : " << detUnit->y() << "\t" << detZ << " : " << detUnit->z() << std::endl;
         
         for(edmNew::DetSet<SiPixelCluster>::const_iterator clustIt = detUnit->begin(); clustIt != detUnit->end(); ++clustIt) {
@@ -278,82 +285,132 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         if(collectionAK4->at(j).pt() < m_minJetPt) continue;
 
         edm::RefToBase<reco::Jet> jetRef = collectionAK4->refAt(j);
-        //std::cout << jetRef->pt() << std::endl;
-        
-        reco::PixelClusterTagInfo tagInfo;
-        reco::PixelClusterData data;
-        
-        char n004[4] = {0, 0, 0, 0};
-        char n006[4] = {0, 0, 0, 0};
-        char n008[4] = {0, 0, 0, 0};
-        char n010[4] = {0, 0, 0, 0};
-        char n016[4] = {0, 0, 0, 0};
-        char nVAR[4] = {0, 0, 0, 0};
-        unsigned int nVWT[4] = {0, 0, 0, 0};
+        reco::PixelClusterData* data = new reco::PixelClusterData();
+        reco::PixelClusterTagInfo* tagInfo = new reco::PixelClusterTagInfo();
+
+//        reco::PixelClusterData data;
+//        reco::PixelClusterTagInfo tagInfo;
+
         
         for(auto cluIt = clusters.begin(); cluIt != clusters.end(); ++cluIt) {
             TVector3 c3(cluIt->x - firstPV->x(), cluIt->y - firstPV->y(), cluIt->z - firstPV->z());
             TVector3 j3(jetRef->px(), jetRef->py(), jetRef->pz());
             float dR = j3.DeltaR(c3);
             float sC = 12. * 2. / (jetRef->pt()); // * jetRef->correctedP4(0).pt()
-            int l = cluIt->layer - 1; // start counting from 0
-            if(dR < 0.04) n004[l]++;
-            if(dR < 0.06) n006[l]++;
-            if(dR < 0.08) n008[l]++;
-            if(dR < 0.10) n010[l]++;
-            if(dR < 0.16) n016[l]++;
-            if(dR < sC) nVAR[l]++;
-            if(dR < sC) nVWT[l] += cluIt->charge;
+//            fillData(data, dR, sC, cluIt->layer, cluIt->charge);
+            if(cluIt->layer == 1) {
+                if(dR < 0.04) data->L1_R004++;
+                if(dR < 0.06) data->L1_R006++;
+                if(dR < 0.08) data->L1_R008++;
+                if(dR < 0.10) data->L1_R010++;
+                if(dR < 0.16) data->L1_R016++;
+                if(dR < sC)   data->L1_RVAR++;
+                if(dR < sC)   data->L1_RVWT += cluIt->charge;
+            }
+            if(cluIt->layer == 2) {
+                if(dR < 0.04) data->L2_R004++;
+                if(dR < 0.06) data->L2_R006++;
+                if(dR < 0.08) data->L2_R008++;
+                if(dR < 0.10) data->L2_R010++;
+                if(dR < 0.16) data->L2_R016++;
+                if(dR < sC)   data->L2_RVAR++;
+                if(dR < sC)   data->L2_RVWT += cluIt->charge;
+            }
+            if(cluIt->layer == 3) {
+                if(dR < 0.04) data->L3_R004++;
+                if(dR < 0.06) data->L3_R006++;
+                if(dR < 0.08) data->L3_R008++;
+                if(dR < 0.10) data->L3_R010++;
+                if(dR < 0.16) data->L3_R016++;
+                if(dR < sC)   data->L3_RVAR++;
+                if(dR < sC)   data->L3_RVWT += cluIt->charge;
+            }
+            if(cluIt->layer == 4) {
+                if(dR < 0.04) data->L4_R004++;
+                if(dR < 0.06) data->L4_R006++;
+                if(dR < 0.08) data->L4_R008++;
+                if(dR < 0.10) data->L4_R010++;
+                if(dR < 0.16) data->L4_R016++;
+                if(dR < sC)   data->L4_RVAR++;
+                if(dR < sC)   data->L4_RVWT += cluIt->charge;
+            }
+
+
+
+
+
+
+//            if(cluIt->layer == 1) {
+//                if(dR < 0.04) data.L1_R004++;
+//                if(dR < 0.06) data.L1_R006++;
+//                if(dR < 0.08) data.L1_R008++;
+//                if(dR < 0.10) data.L1_R010++;
+//                if(dR < 0.16) data.L1_R016++;
+//                if(dR < sC)   data.L1_RVAR++;
+//                if(dR < sC)   data.L1_RVWT += cluIt->charge;
+//            }
+//            if(cluIt->layer == 2) {
+//                if(dR < 0.04) data.L2_R004++;
+//                if(dR < 0.06) data.L2_R006++;
+//                if(dR < 0.08) data.L2_R008++;
+//                if(dR < 0.10) data.L2_R010++;
+//                if(dR < 0.16) data.L2_R016++;
+//                if(dR < sC)   data.L2_RVAR++;
+//                if(dR < sC)   data.L2_RVWT += cluIt->charge;
+//            }
+//            if(cluIt->layer == 3) {
+//                if(dR < 0.04) data.L3_R004++;
+//                if(dR < 0.06) data.L3_R006++;
+//                if(dR < 0.08) data.L3_R008++;
+//                if(dR < 0.10) data.L3_R010++;
+//                if(dR < 0.16) data.L3_R016++;
+//                if(dR < sC)   data.L3_RVAR++;
+//                if(dR < sC)   data.L3_RVWT += cluIt->charge;
+//            }
+//            if(cluIt->layer == 4) {
+//                if(dR < 0.04) data.L4_R004++;
+//                if(dR < 0.06) data.L4_R006++;
+//                if(dR < 0.08) data.L4_R008++;
+//                if(dR < 0.10) data.L4_R010++;
+//                if(dR < 0.16) data.L4_R016++;
+//                if(dR < sC)   data.L4_RVAR++;
+//                if(dR < sC)   data.L4_RVWT += cluIt->charge;
+//            }
+
         }
-//        for(int l = 0; l < 4; l++) nVWG[l] = (cTot[l] != 0 ? nVWG[l]/cTot[l] : 0);
-//        for(int l = 0; l < 4; l++) std::cout << l << " - "<< (int)nVAR[l] << " : " << nVWG[l] << std::endl;
 
-        data.L1_R004 = n004[0];
-        data.L2_R004 = n004[1];
-        data.L3_R004 = n004[2];
-        data.L4_R004 = n004[3];
-        
-        data.L1_R006 = n006[0];
-        data.L2_R006 = n006[1];
-        data.L3_R006 = n006[2];
-        data.L4_R006 = n006[3];
-        
-        data.L1_R008 = n008[0];
-        data.L2_R008 = n008[1];
-        data.L3_R008 = n008[2];
-        data.L4_R008 = n008[3];
-        
-        data.L1_R010 = n010[0];
-        data.L2_R010 = n010[1];
-        data.L3_R010 = n010[2];
-        data.L4_R010 = n010[3];
-        
-        data.L1_R016 = n016[0];
-        data.L2_R016 = n016[1];
-        data.L3_R016 = n016[2];
-        data.L4_R016 = n016[3];
-        
-        data.L1_RVAR = nVAR[0];
-        data.L2_RVAR = nVAR[1];
-        data.L3_RVAR = nVAR[2];
-        data.L4_RVAR = nVAR[3];
+        pixelTagInfo->push_back(*tagInfo);
 
-        data.L1_RVWT = nVWT[0];
-        data.L2_RVWT = nVWT[1];
-        data.L3_RVWT = nVWT[2];
-        data.L4_RVWT = nVWT[3];
+        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)data->L1_R010 << ", " << (int)data->L2_R010 << ", " << (int)data->L3_R010 << ", " << (int)data->L4_R010 << std::endl;
         
-        tagInfo.setJetRef(jetRef);
-        tagInfo.setData(data);
+        
+        delete data;
+        delete tagInfo;
 
-        pixelTagInfo->push_back(tagInfo);
-        
-        std::cout << jetRef->pt() << " : " << (int)data.L1_R010 << ", " << (int)data.L2_R010 << ", " << (int)data.L3_R010 << ", " << (int)data.L4_R010 << std::endl;
+        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)tagInfo->data().L1_R010 << ", " << (int)tagInfo->data().L2_R010 << ", " << (int)tagInfo->data().L3_R010 << ", " << (int)tagInfo->data().L4_R010 << std::endl;
+
+
+
+
+//        tagInfo.setJetRef(jetRef);
+//        tagInfo.setData(data);
+
+//        pixelTagInfo->push_back(tagInfo);
+
+//        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)data.L1_R010 << ", " << (int)data.L2_R010 << ", " << (int)data.L3_R010 << ", " << (int)data.L4_R010 << std::endl;
+
+//        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)tagInfo.data().L1_R010 << ", " << (int)tagInfo.data().L2_R010 << ", " << (int)tagInfo.data().L3_R010 << ", " << (int)tagInfo.data().L4_R010 << std::endl;
     }
     
     // Put the TagInfo collection in the event
     iEvent.put(std::move(pixelTagInfo));
 }
+
+
+//void PixelClusterTagInfoProducer::fillData(reco::PixelClusterData* data, float dR, float sC, int layer, int charge) {
+//    
+//}
+
 
 // ------------ method called once each stream before processing any runs, lumis or events  ------------
 void
