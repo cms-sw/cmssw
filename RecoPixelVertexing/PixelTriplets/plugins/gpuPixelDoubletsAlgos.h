@@ -48,6 +48,9 @@ namespace gpuPixelDoubletsAlgos {
     constexpr int minYsizeB2 = 28;
     constexpr int maxDYsize12 = 28;
     constexpr int maxDYsize = 20;
+    constexpr int maxDYPred = 20;
+    constexpr float dzdrFact = 8*0.0285/0.015;  // from dz/dr to "DY"
+
     int16_t mes;
     bool isOuterLadder = ideal_cond;
 
@@ -110,15 +113,16 @@ namespace gpuPixelDoubletsAlgos {
         continue;
 
       if (doClusterCut) {
-        auto mes = hh.clusterSizeY(i);
-
         // if ideal treat inner ladder as outer
         auto mi = hh.detectorIndex(i);
         if (inner == 0)
           assert(mi < 96);
         isOuterLadder = ideal_cond ? true : 0 == (mi / 8) % 2;  // only for B1/B2/B3 B4 is opposite, FPIX:noclue...
 
-        if (inner == 0 && outer > 3 && isOuterLadder)  // B1 and F1
+        // in any case we always test mes>0 ...
+        mes = inner > 0 || isOuterLadder ? hh.clusterSizeY(i) : -1;
+
+        if (inner == 0 && outer > 3 )  // B1 and F1
           if (mes > 0 && mes < minYsizeB1)
             continue;                 // only long cluster  (5*8)
         if (inner == 1 && outer > 3)  // B2 and F1
@@ -128,6 +132,7 @@ namespace gpuPixelDoubletsAlgos {
       auto mep = hh.iphi(i);
       auto mer = hh.rGlobal(i);
 
+      // all cuts: true if fails
       constexpr float z0cut = 12.f;      // cm
       constexpr float hardPtCut = 0.5f;  // GeV
       constexpr float minRadius =
@@ -143,7 +148,6 @@ namespace gpuPixelDoubletsAlgos {
       };
       auto z0cutoff = [&](int j) {
         auto zo = hh.zGlobal(j);
-        ;
         auto ro = hh.rGlobal(j);
         auto dr = ro - mer;
         return dr > maxr[pairLayerId] || dr < 0 || std::abs((mez * ro - mer * zo)) > z0cut * dr;
@@ -152,8 +156,16 @@ namespace gpuPixelDoubletsAlgos {
       auto zsizeCut = [&](int j) {
         auto onlyBarrel = outer < 4;
         auto so = hh.clusterSizeY(j);
-        auto dy = inner == 0 ? (isOuterLadder ? maxDYsize12 : 100) : maxDYsize;
-        return onlyBarrel && mes > 0 && so > 0 && std::abs(so - mes) > dy;
+        auto dy = inner == 0 ? maxDYsize12  : maxDYsize;
+        // in the barrel cut on difference in size
+        // in the endcap on the prediction on the first layer (actually in the barrel only: happen to be safe for endcap as well)
+        // FIXME move pred cut to z0cutoff to optmize loading of and computaiton ...
+        auto zo = hh.zGlobal(j);
+        auto ro = hh.rGlobal(j);
+        return onlyBarrel ?
+                     mes > 0 && so > 0 && std::abs(so - mes) > dy :
+                     (inner<4) && mes>0 
+                     && std::abs(mes - int(std::abs((mez-zo)/(mer-ro))*dzdrFact+0.5f)) > maxDYPred;
       };
 
       auto iphicut = phicuts[pairLayerId];
