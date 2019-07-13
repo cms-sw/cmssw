@@ -88,6 +88,9 @@ aliases = {
 from Configuration.HLT.autoCondHLT import autoCondHLT
 autoCond = autoCondHLT(autoCond)
 
+from Configuration.AlCa.autoCondPhase2 import autoCondPhase2
+autoCond = autoCondPhase2(autoCond)
+
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector
 autoCond['mc']               = ( autoCond['run1_design'] )
