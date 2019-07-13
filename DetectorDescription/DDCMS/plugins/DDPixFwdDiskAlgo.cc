@@ -39,13 +39,14 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume mother = ns.volume(args.parentName());
   dd4hep::PlacedVolume pv;
 
-  startCopyNo = args.find("startCopyNo") ? args.value<int>("startCopyNo") : 1;
+  startCopyNo = args.find("startCopyNo") ? args.value<int>("StartCopyNo") : 1;
   nBlades = args.value<int>("NumberOfBlades");
   bladeAngle = args.value<double>("BladeAngle");
-  bladeTilt = args.value<double>("BladeCommonZ");
+  bladeTilt = args.value<double>("BladeTilt");
   zPlane = args.value<double>("BladeCommonZ");
-  bladeZShift = args.value<std::vector<double> >("BladeZShift");
   anchorR = args.value<double>("AnchorRadius");
+
+  bladeZShift = args.value<std::vector<double> >("BladeZShift");
 
   childName = args.value<std::string>("ChildName");
   rotName = args.value<std::string>("RotationName");
