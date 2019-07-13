@@ -103,7 +103,7 @@ for _entry in [hltvalidation_prod]:
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validation_prod,_validation_prod_fastsim)
 
-from SimGeneral.MixingModule.mixNoPU_cfi import mix
+from SimGeneral.MixingModule.mix_POISSON_average_cfi import mix
 from Validation.EcalClusters.ecalClustersValidationSequence_cff import ecalClustersValidationSequence
 from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from DQM.EcalMonitorTasks.EcalFEDMonitor_cfi import *
