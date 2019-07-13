@@ -56,7 +56,7 @@ namespace reco {
     class RecoTauBuilderPlugin : public RecoTauEventHolderPlugin {
     public:
       typedef boost::ptr_vector<reco::PFTau> output_type;
-      typedef std::auto_ptr<output_type> return_type;
+      typedef std::unique_ptr<output_type> return_type;
 
       explicit RecoTauBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
           : RecoTauEventHolderPlugin(pset),

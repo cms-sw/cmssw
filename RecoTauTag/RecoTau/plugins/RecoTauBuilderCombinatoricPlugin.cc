@@ -459,7 +459,7 @@ namespace reco {
                            boost::make_filter_iterator(pfNeutralJunk, regionalJunk.begin(), regionalJunk.end()),
                            boost::make_filter_iterator(pfNeutralJunk, regionalJunk.end(), regionalJunk.end()));
 
-            std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
+            std::unique_ptr<reco::PFTau> tauPtr = tau.get(true);
 
             // Set event vertex position for tau
             reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
@@ -489,7 +489,7 @@ namespace reco {
             //edm::LogPrint("RecoTauBuilderCombinatoricPlugin") << "bendCorrMass2 = " << sqrt(bendCorrMass2) << std::endl;
             tauPtr->setBendCorrMass(sqrt(bendCorrMass2));
 
-            output.push_back(tauPtr);
+            output.push_back(std::move(tauPtr));
           }
         }
       }

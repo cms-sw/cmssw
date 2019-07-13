@@ -408,7 +408,7 @@ namespace reco {
       // Put our built tau in the output - 'false' indicates don't build the
       // leading candidates, we already did that explicitly above.
 
-      std::auto_ptr<reco::PFTau> tauPtr = tau.get(false);
+      std::unique_ptr<reco::PFTau> tauPtr = tau.get(false);
 
       // Set event vertex position for tau
       reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
@@ -418,7 +418,7 @@ namespace reco {
       // Set missing tau quantities
       setTauQuantities(*tauPtr, minAbsPhotonSumPt_insideSignalCone_, minRelPhotonSumPt_insideSignalCone_);
 
-      output.push_back(tauPtr);
+      output.push_back(std::move(tauPtr));
       return output.release();
     }
   }  // namespace tau
