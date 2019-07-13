@@ -7,10 +7,10 @@ cms.FileInPath('SLHCUpgradeSimulations/Geometry/data/PhaseII/Tilted/EmptyPixelSk
 es_prefer_fake_gain = cms.ESPrefer("SiPixelFakeGainOfflineESSource","siPixelFakeGainOfflineESSource")
 
 from SLHCUpgradeSimulations.Configuration.loadInnerTrackerConditionFromDB import *
-DBConfig = DBConfiguration()
-DBConfig.vGeometry = "6"
-DBConfig.vLA       = "0"
-DBConfig.vLAwidth  = "0"
-DBConfig.vSimLA    = "0"
-appendConditions(DBConfig)
+SiPhase2DBConfig = SiPhase2DBConfiguration()
+SiPhase2DBConfig.vGeometry = "6"
+SiPhase2DBConfig.vLA       = "0" # uH = 0.106 everywhere
+SiPhase2DBConfig.vLAwidth  = "0" # empty payload
+SiPhase2DBConfig.vSimLA    = "0" # uH = 0.106 everywhere
+appendConditions(SiPhase2DBConfig)
 es_prefer_ITconditions = cms.ESPrefer("PoolDBESSource","loadPhase2InneTrackerConditions")
