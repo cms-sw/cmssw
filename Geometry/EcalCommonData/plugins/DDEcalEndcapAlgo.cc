@@ -16,7 +16,7 @@
 #include <CLHEP/Geometry/Transform3D.h>
 
 // Header files for endcap supercrystal geometry
-#include "DDEcalEndcapTrap.h"
+#include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
 
 #include <map>
 #include <string>

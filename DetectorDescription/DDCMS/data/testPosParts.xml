@@ -153,6 +153,11 @@
       <rChild name="testLogicalParts:V_1101"/>
       <Translation z="17.4299*m" y="0.*m" x="0."/>
     </PosPart>
+    <PosPart copyNumber="133">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:V_1101"/>
+      <rReflectionRotation name="testRotations:ReflectionY"/>
+    </PosPart>
     <PosPart copyNumber="22">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:YE1_b"/>
