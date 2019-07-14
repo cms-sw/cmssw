@@ -22,8 +22,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDG4Builder::DDG4Builder(const DDCompactView *cpv, G4LogicalVolumeToDDLogicalPartMap& lvmap, bool check)
-  : solidConverter_(new DDG4SolidConverter), compactView_(cpv), map_(lvmap), check_(check) {
+DDG4Builder::DDG4Builder(const DDCompactView *cpv, G4LogicalVolumeToDDLogicalPartMap &lvmap, bool check)
+    : solidConverter_(new DDG4SolidConverter), compactView_(cpv), map_(lvmap), check_(check) {
   theVectorOfDDG4Dispatchables_ = new DDG4DispContainer();
 }
 
@@ -97,7 +97,7 @@ G4Material *DDG4Builder::convertMaterial(const DDMaterial &material) {
   return result;
 }
 
-G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog& catalog) {
+G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
   G4ReflectionFactory *refFact = G4ReflectionFactory::Instance();
   refFact->SetScalePrecision(100. * refFact->GetScalePrecision());
 
