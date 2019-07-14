@@ -14,7 +14,7 @@ class DDG4SensitiveConverter {
 public:
   DDG4SensitiveConverter();
   virtual ~DDG4SensitiveConverter();
-  void upDate(const DDG4DispContainer &ddg4s, SensitiveDetectorCatalog&);
+  void upDate(const DDG4DispContainer &ddg4s, SensitiveDetectorCatalog &);
 
 private:
   std::string getString(const std::string &, const DDLogicalPart *);

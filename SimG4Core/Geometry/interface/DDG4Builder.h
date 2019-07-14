@@ -22,9 +22,9 @@ class SensitiveDetectorCatalog;
 
 class DDG4Builder {
 public:
-  DDG4Builder(const DDCompactView *, G4LogicalVolumeToDDLogicalPartMap&, bool check);
+  DDG4Builder(const DDCompactView *, G4LogicalVolumeToDDLogicalPartMap &, bool check);
   ~DDG4Builder();
-  G4LogicalVolume* BuildGeometry(SensitiveDetectorCatalog&);
+  G4LogicalVolume *BuildGeometry(SensitiveDetectorCatalog &);
 
 private:
   G4VSolid *convertSolid(const DDSolid &dSolid);
@@ -39,7 +39,7 @@ private:
   std::map<DDLogicalPart, G4LogicalVolume *> logs_;
 
   const DDCompactView *compactView_;
-  G4LogicalVolumeToDDLogicalPartMap& map_;
+  G4LogicalVolumeToDDLogicalPartMap &map_;
   DDG4DispContainer *theVectorOfDDG4Dispatchables_;
   bool check_;
 };
