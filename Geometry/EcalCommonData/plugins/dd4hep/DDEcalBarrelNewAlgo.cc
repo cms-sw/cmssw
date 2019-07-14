@@ -482,9 +482,17 @@ namespace {
     TGeoRotation r;
     r.SetMatrix(elements);
 
-    TGeoTranslation t(iTrans.x() / cm, iTrans.y() / cm, iTrans.z() / cm);
+    TGeoTranslation t(iTrans.x(), iTrans.y(), iTrans.z());
 
     return new TGeoCombiTrans(t, r);
+  }
+
+  string_view mynamespace(string_view input) {
+    string_view v = input;
+    auto trim_pos = v.find(':');
+    if (trim_pos != v.npos)
+      v.remove_suffix(v.size() - (trim_pos + 1));
+    return v;
   }
 }  // namespace
 
@@ -495,6 +503,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   BenchmarkGrd counter("DDEcalBarrelNewAlgo");
   cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
+
+  // TRICK!
+  string myns{mynamespace(args.parentName()).data(), mynamespace(args.parentName()).size()};
 
   // Barrel volume
   // barrel parent volume
@@ -1817,7 +1828,7 @@ static long algorithm(dd4hep::Detector& /* description */,
         thickVFE += backCool.vecBackVFELyrThick[iLyr];
       }
       Solid backVFESolid = Box(backCool.barHeight / 2., backCool.barWidth / 2., thickVFE / 2.);
-      Volume backVFELog = Volume(backCool.vFEName, backVFESolid, ns.material(backCool.vFEMat));
+      Volume backVFELog = ns.addVolumeNS(Volume(myns + backCool.vFEName, backVFESolid, ns.material(backCool.vFEMat)));
       Position offTra(0, 0, -thickVFE / 2);
       for (unsigned int iLyr(0); iLyr != backCool.vecBackVFELyrThick.size(); ++iLyr) {
         Solid backVFELyrSolid =
