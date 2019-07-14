@@ -25,7 +25,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref="DetectorDescription/DDCMS/data/testDDPixFwdDiskAlgorithm.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testDDPixFwdDiskAlgo.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
   </IncludeSection>
 
