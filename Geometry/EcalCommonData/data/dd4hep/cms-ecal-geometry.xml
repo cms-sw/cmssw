@@ -59,8 +59,8 @@
     <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eehier.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eefixed.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/escon/2023/v1/escon.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/esalgo/2021/v1/esalgo.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/trackermaterial.xml'/>
   </IncludeSection>
   
