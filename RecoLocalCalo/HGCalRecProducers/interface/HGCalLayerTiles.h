@@ -26,15 +26,6 @@ public:
         tiles_[getGlobalBinEtaPhi(eta[i], phi[i])].push_back(i);
         if (getPhiBin(phi[i]) == 1) {  // need to do this to handle cells at phi=+/-pi
           tiles_[getGlobalBinEtaPhi(eta[i], phi[i] + 2 * M_PI)].push_back(i);
-          LogDebug("HGCalLayerTiles") << "Debugging fill for cells at phi=pi: \n"
-                                      << "  fill: " << i << " x: " << x[i] << " y: " << y[i]
-                                      << " binXY: " << getGlobalBin(x[i], y[i]) << " eta: " << eta[i]
-                                      << " phi: " << phi[i] << " binEta: " << getEtaBin(eta[i])
-                                      << " binPhi: " << getPhiBin(phi[i])
-                                      << " binEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i])
-                                      << " newPhi: " << phi[i] + 2 * M_PI
-                                      << " binNewPhi: " << getPhiBin(phi[i] + 2 * M_PI)
-                                      << " binNewEtaPhi: " << getGlobalBinEtaPhi(eta[i], phi[i] + 2 * M_PI) << "\n";
         }
         if (getPhiBin(phi[i]) == 42) {
           tiles_[getGlobalBinEtaPhi(eta[i], phi[i] - 2 * M_PI)].push_back(i);
