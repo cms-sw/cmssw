@@ -18,20 +18,15 @@
   <ConstantsSection label="" eval="true">
     <Constant name="world_x" value="5*m"/>
     <Constant name="world_y" value="5*m"/>
+    <Constant name="fm"      value="1e-12*m"/> 
     <Constant name="world_z" value="5*m"/>
     <Constant name="Air"     value="materials:Air"     type="string"/>
     <Constant name="Vacuum"  value="materials:Vacuum"  type="string"/>
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref="DetectorDescription/DDCMS/data/testDDPixFwdDiskAlgo.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/testDDPixFwdDiskAlgorithm.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
   </IncludeSection>
 
-  <PosPartSection label="">
-    <PosPart copyNumber="1">
-      <rParent name="world_volume"/>
-      <rChild name="testDDPixFwdDiskAlgo:MotherOfAllBoxes"/>
-    </PosPart>
-  </PosPartSection>
 </DDDefinition>

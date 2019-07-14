@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.MessageLogger = cms.Service(
     "MessageLogger",
     statistics = cms.untracked.vstring('cout', 'testDDPixFwdAlgo'),
-    categories = cms.untracked.vstring('PixFwDGeom'),
+    categories = cms.untracked.vstring('PixFwdGeom'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
@@ -41,11 +41,11 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
     confGeomXMLFiles = cms.FileInPath(
         'DetectorDescription/DDCMS/data/cms-test-pixfwd-disk-algorithm.xml'
     ),
-    appendToDataLabel = cms.string('TestDDPixFwdDiskAlgo')
+                                            appendToDataLabel = cms.string('TestDDPixFwdDisk')
 )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-    DDDetector = cms.ESInputTag('TestDDPixFwdDiskAlgo')
+    DDDetector = cms.ESInputTag('TestDDPixFwdDisk')
 )
 
 process.p = cms.Path(process.testDump)
