@@ -221,7 +221,7 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     
     std::cout << std::endl << "Event " << iEvent.eventAuxiliary().event() << std::endl;
 //    std::cout << std::endl << std::endl << collectionClusters->size() << std::endl;
-    double maxC = 0.;
+    
     // Get vector of detunit ids and loop
     for(edmNew::DetSetVector<SiPixelCluster>::const_iterator detUnit = collectionClusters->begin(); detUnit != collectionClusters->end(); ++detUnit) {
         if(detUnit->size() <= 0) continue;
@@ -235,20 +235,19 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         // Get the geom-detector
         const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
         const PixelTopology* topol = &(theGeomDet->specificTopology());
-        double detX = theGeomDet->surface().position().x();
-        double detY = theGeomDet->surface().position().y();
-        double detZ = theGeomDet->surface().position().z();
+//        double detX = theGeomDet->surface().position().x();
+//        double detY = theGeomDet->surface().position().y();
+//        double detZ = theGeomDet->surface().position().z();
         int layer = 0; // 1-4
         
         if(subid==1) {  // barrel
             PixelBarrelName pbn(detid, tTopo, m_isPhase1);
             layer = pbn.layerName();
         }
-//        else if(m_addFPIX && subid==2) {  // forward
-//            PixelEndcapName pen(detid, tTopo, m_isPhase1);
-//            layer = pen.diskName();
-//            std::cout << layer << std::endl;
-//        }
+        else if(m_addFPIX && subid==2) {  // forward
+            PixelEndcapName pen(detid, tTopo, m_isPhase1);
+            layer = pen.diskName();
+        }
         if(layer == 0 || layer > m_nLayers) continue;
 //        std::cout << layer << "\t" << detX << " : " << detUnit->x() << "\t" << detY << " : " << detUnit->y() << "\t" << detZ << " : " << detUnit->z() << std::endl;
         
@@ -256,13 +255,13 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
             // get global position of the cluster
             LocalPoint lp = topol->localPosition(MeasurementPoint(clustIt->x(), clustIt->y()));
             GlobalPoint clustgp = theGeomDet->surface().toGlobal( lp );
+            if(m_minADC > 0  and clustIt->charge() < m_minADC) continue;
             reco::PixelClusterProperties cp = { clustgp.x(), clustgp.y(), clustgp.z(), clustIt->charge(), layer };
 //            clusterX.push_back(clustgp.x());
 //            clusterY.push_back(clustgp.y());
 //            clusterZ.push_back(clustgp.z());
 //            clusterC.push_back(clustIt->charge());
             clusters.push_back(cp);
-            if(clustIt->charge() > maxC) maxC = clustIt->charge() ;
         }
 //    if( numberOfClusters < 1.) continue;
 //    
@@ -285,11 +284,11 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         if(collectionAK4->at(j).pt() < m_minJetPt) continue;
 
         edm::RefToBase<reco::Jet> jetRef = collectionAK4->refAt(j);
-        reco::PixelClusterData* data = new reco::PixelClusterData();
-        reco::PixelClusterTagInfo* tagInfo = new reco::PixelClusterTagInfo();
+//        reco::PixelClusterData* data = new reco::PixelClusterData();
+//        reco::PixelClusterTagInfo* tagInfo = new reco::PixelClusterTagInfo();
 
-//        reco::PixelClusterData data;
-//        reco::PixelClusterTagInfo tagInfo;
+        reco::PixelClusterData data = {};
+        reco::PixelClusterTagInfo tagInfo = {};
 
         
         for(auto cluIt = clusters.begin(); cluIt != clusters.end(); ++cluIt) {
@@ -298,108 +297,107 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
             float dR = j3.DeltaR(c3);
             float sC = 12. * 2. / (jetRef->pt()); // * jetRef->correctedP4(0).pt()
 //            fillData(data, dR, sC, cluIt->layer, cluIt->charge);
-            if(cluIt->layer == 1) {
-                if(dR < 0.04) data->L1_R004++;
-                if(dR < 0.06) data->L1_R006++;
-                if(dR < 0.08) data->L1_R008++;
-                if(dR < 0.10) data->L1_R010++;
-                if(dR < 0.16) data->L1_R016++;
-                if(dR < sC)   data->L1_RVAR++;
-                if(dR < sC)   data->L1_RVWT += cluIt->charge;
-            }
-            if(cluIt->layer == 2) {
-                if(dR < 0.04) data->L2_R004++;
-                if(dR < 0.06) data->L2_R006++;
-                if(dR < 0.08) data->L2_R008++;
-                if(dR < 0.10) data->L2_R010++;
-                if(dR < 0.16) data->L2_R016++;
-                if(dR < sC)   data->L2_RVAR++;
-                if(dR < sC)   data->L2_RVWT += cluIt->charge;
-            }
-            if(cluIt->layer == 3) {
-                if(dR < 0.04) data->L3_R004++;
-                if(dR < 0.06) data->L3_R006++;
-                if(dR < 0.08) data->L3_R008++;
-                if(dR < 0.10) data->L3_R010++;
-                if(dR < 0.16) data->L3_R016++;
-                if(dR < sC)   data->L3_RVAR++;
-                if(dR < sC)   data->L3_RVWT += cluIt->charge;
-            }
-            if(cluIt->layer == 4) {
-                if(dR < 0.04) data->L4_R004++;
-                if(dR < 0.06) data->L4_R006++;
-                if(dR < 0.08) data->L4_R008++;
-                if(dR < 0.10) data->L4_R010++;
-                if(dR < 0.16) data->L4_R016++;
-                if(dR < sC)   data->L4_RVAR++;
-                if(dR < sC)   data->L4_RVWT += cluIt->charge;
-            }
-
-
-
-
-
-
 //            if(cluIt->layer == 1) {
-//                if(dR < 0.04) data.L1_R004++;
-//                if(dR < 0.06) data.L1_R006++;
-//                if(dR < 0.08) data.L1_R008++;
-//                if(dR < 0.10) data.L1_R010++;
-//                if(dR < 0.16) data.L1_R016++;
-//                if(dR < sC)   data.L1_RVAR++;
-//                if(dR < sC)   data.L1_RVWT += cluIt->charge;
+//                if(dR < 0.04) data->L1_R004++;
+//                if(dR < 0.06) data->L1_R006++;
+//                if(dR < 0.08) data->L1_R008++;
+//                if(dR < 0.10) data->L1_R010++;
+//                if(dR < 0.16) data->L1_R016++;
+//                if(dR < sC)   data->L1_RVAR++;
+//                if(dR < sC)   data->L1_RVWT += cluIt->charge;
 //            }
 //            if(cluIt->layer == 2) {
-//                if(dR < 0.04) data.L2_R004++;
-//                if(dR < 0.06) data.L2_R006++;
-//                if(dR < 0.08) data.L2_R008++;
-//                if(dR < 0.10) data.L2_R010++;
-//                if(dR < 0.16) data.L2_R016++;
-//                if(dR < sC)   data.L2_RVAR++;
-//                if(dR < sC)   data.L2_RVWT += cluIt->charge;
+//                if(dR < 0.04) data->L2_R004++;
+//                if(dR < 0.06) data->L2_R006++;
+//                if(dR < 0.08) data->L2_R008++;
+//                if(dR < 0.10) data->L2_R010++;
+//                if(dR < 0.16) data->L2_R016++;
+//                if(dR < sC)   data->L2_RVAR++;
+//                if(dR < sC)   data->L2_RVWT += cluIt->charge;
 //            }
 //            if(cluIt->layer == 3) {
-//                if(dR < 0.04) data.L3_R004++;
-//                if(dR < 0.06) data.L3_R006++;
-//                if(dR < 0.08) data.L3_R008++;
-//                if(dR < 0.10) data.L3_R010++;
-//                if(dR < 0.16) data.L3_R016++;
-//                if(dR < sC)   data.L3_RVAR++;
-//                if(dR < sC)   data.L3_RVWT += cluIt->charge;
+//                if(dR < 0.04) data->L3_R004++;
+//                if(dR < 0.06) data->L3_R006++;
+//                if(dR < 0.08) data->L3_R008++;
+//                if(dR < 0.10) data->L3_R010++;
+//                if(dR < 0.16) data->L3_R016++;
+//                if(dR < sC)   data->L3_RVAR++;
+//                if(dR < sC)   data->L3_RVWT += cluIt->charge;
 //            }
 //            if(cluIt->layer == 4) {
-//                if(dR < 0.04) data.L4_R004++;
-//                if(dR < 0.06) data.L4_R006++;
-//                if(dR < 0.08) data.L4_R008++;
-//                if(dR < 0.10) data.L4_R010++;
-//                if(dR < 0.16) data.L4_R016++;
-//                if(dR < sC)   data.L4_RVAR++;
-//                if(dR < sC)   data.L4_RVWT += cluIt->charge;
+//                if(dR < 0.04) data->L4_R004++;
+//                if(dR < 0.06) data->L4_R006++;
+//                if(dR < 0.08) data->L4_R008++;
+//                if(dR < 0.10) data->L4_R010++;
+//                if(dR < 0.16) data->L4_R016++;
+//                if(dR < sC)   data->L4_RVAR++;
+//                if(dR < sC)   data->L4_RVWT += cluIt->charge;
 //            }
 
+
+
+
+
+            if(cluIt->layer == 1) {
+                if(dR < 0.04) data.L1_R004++;
+                if(dR < 0.06) data.L1_R006++;
+                if(dR < 0.08) data.L1_R008++;
+                if(dR < 0.10) data.L1_R010++;
+                if(dR < 0.16) data.L1_R016++;
+                if(dR < sC)   data.L1_RVAR++;
+                if(dR < sC)   data.L1_RVWT += cluIt->charge;
+            }
+            if(cluIt->layer == 2) {
+                if(dR < 0.04) data.L2_R004++;
+                if(dR < 0.06) data.L2_R006++;
+                if(dR < 0.08) data.L2_R008++;
+                if(dR < 0.10) data.L2_R010++;
+                if(dR < 0.16) data.L2_R016++;
+                if(dR < sC)   data.L2_RVAR++;
+                if(dR < sC)   data.L2_RVWT += cluIt->charge;
+            }
+            if(cluIt->layer == 3) {
+                if(dR < 0.04) data.L3_R004++;
+                if(dR < 0.06) data.L3_R006++;
+                if(dR < 0.08) data.L3_R008++;
+                if(dR < 0.10) data.L3_R010++;
+                if(dR < 0.16) data.L3_R016++;
+                if(dR < sC)   data.L3_RVAR++;
+                if(dR < sC)   data.L3_RVWT += cluIt->charge;
+            }
+            if(cluIt->layer == 4) {
+                if(dR < 0.04) data.L4_R004++;
+                if(dR < 0.06) data.L4_R006++;
+                if(dR < 0.08) data.L4_R008++;
+                if(dR < 0.10) data.L4_R010++;
+                if(dR < 0.16) data.L4_R016++;
+                if(dR < sC)   data.L4_RVAR++;
+                if(dR < sC)   data.L4_RVWT += cluIt->charge;
+            }
+
         }
+//std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)data->L1_R010 << ", " << (int)data->L2_R010 << ", " << (int)data->L3_R010 << ", " << (int)data->L4_R010 << std::endl;
+//        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)(tagInfo->data().L1_R010) << ", " << (int)(tagInfo->data().L2_R010) << ", " << (int)(tagInfo->data().L3_R010) << ", " << (int)(tagInfo->data().L4_R010) << std::endl;
 
-        pixelTagInfo->push_back(*tagInfo);
+//        
+//        pixelTagInfo->push_back(*tagInfo);
+//        
+//        delete data;
+//        delete tagInfo;
 
-        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)data->L1_R010 << ", " << (int)data->L2_R010 << ", " << (int)data->L3_R010 << ", " << (int)data->L4_R010 << std::endl;
         
-        
-        delete data;
-        delete tagInfo;
-
-        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)tagInfo->data().L1_R010 << ", " << (int)tagInfo->data().L2_R010 << ", " << (int)tagInfo->data().L3_R010 << ", " << (int)tagInfo->data().L4_R010 << std::endl;
 
 
 
 
-//        tagInfo.setJetRef(jetRef);
-//        tagInfo.setData(data);
+        tagInfo.setJetRef(jetRef);
+        tagInfo.setData(data);
 
-//        pixelTagInfo->push_back(tagInfo);
+        pixelTagInfo->push_back(tagInfo);
 
-//        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)data.L1_R010 << ", " << (int)data.L2_R010 << ", " << (int)data.L3_R010 << ", " << (int)data.L4_R010 << std::endl;
+        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)data.L1_R010 << ", " << (int)data.L2_R010 << ", " << (int)data.L3_R010 << ", " << (int)data.L4_R010 << std::endl;
 
-//        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)tagInfo.data().L1_R010 << ", " << (int)tagInfo.data().L2_R010 << ", " << (int)tagInfo.data().L3_R010 << ", " << (int)tagInfo.data().L4_R010 << std::endl;
+        std::cout << jetRef->pt() << ", " << jetRef->eta() << " : " << (int)tagInfo.data().L1_R010 << ", " << (int)tagInfo.data().L2_R010 << ", " << (int)tagInfo.data().L3_R010 << ", " << (int)tagInfo.data().L4_R010 << std::endl;
     }
     
     // Put the TagInfo collection in the event
