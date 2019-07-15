@@ -130,7 +130,7 @@ double HGCalGeomTools::radius(double z,
   if (itrz != zFront.begin())
     --itrz;
   unsigned int ik = static_cast<unsigned int>(itrz - zFront.begin());
-  if (ik < zFront.size() && std::abs(z - zFront[ik + 1]) < tol_)
+  if ( (ik + 1) < zFront.size() && std::abs(z - zFront[ik + 1]) < tol_)
     ++ik;
   double r = rFront[ik] + (z - zFront[ik]) * slope[ik];
 #ifdef EDM_ML_DEBUG
