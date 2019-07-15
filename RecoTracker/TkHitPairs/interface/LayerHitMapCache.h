@@ -37,10 +37,10 @@ private:
         resize(other.theContainer.size());
 
       for (size_t i = 0, size = other.theContainer.size(); i != size; ++i) {
-        assert(get(i) == nullptr);               // We don't want to override any existing value
-        auto v = other.get(i);                   // pass by reference to denote that we don't own it
-        if(v) {
-          theContainer[i].reset(*(other.get(i)));  
+        assert(get(i) == nullptr);  // We don't want to override any existing value
+        auto v = other.get(i);      // pass by reference to denote that we don't own it
+        if (v) {
+          theContainer[i].reset(*(other.get(i)));
         } else {
           theContainer[i].reset();
         }
