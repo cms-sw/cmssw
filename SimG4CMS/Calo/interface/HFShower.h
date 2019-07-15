@@ -40,7 +40,6 @@ public:
   std::vector<Hit> getHits(const G4Step *aStep, bool forLibraryProducer, double zoffset);
 
 private:
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &, int &);
   bool applyFidCut;
 
 private:
