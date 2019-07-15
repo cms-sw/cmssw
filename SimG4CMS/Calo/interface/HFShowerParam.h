@@ -40,7 +40,6 @@ public:
   std::vector<Hit> getHits(const G4Step* aStep, double weight, bool& isKilled);
 
 private:
-
   HFShowerLibrary* showerLibrary;
   HFFibre* fibre;
   HFGflash* gflash;
