@@ -73,10 +73,20 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet& iConfig)
 
   //configure the dose map
   std::string doseMapURL( iConfig.getParameter<std::string>("doseMap") );
+  std::vector<double> ileakParam( iConfig.getParameter<std::vector<double> >("ileakParam"));
+  std::vector<double> cceParamFine( iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamFine"));
+  std::vector<double> cceParamThin( iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThin"));
+  std::vector<double> cceParamThick( iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThick"));
+
   noiseMaps_[DetId::HGCalEE]=new HGCalSiNoiseMap;
   noiseMaps_[DetId::HGCalEE]->setDoseMap( doseMapURL );
+  noiseMaps_[DetId::HGCalEE]->setIleakParam( ileakParam );
+  noiseMaps_[DetId::HGCalEE]->setCceParam( cceParamFine, cceParamThin, cceParamThick );
+
   noiseMaps_[DetId::HGCalHSi]=new HGCalSiNoiseMap;
   noiseMaps_[DetId::HGCalHSi]->setDoseMap( doseMapURL );
+  noiseMaps_[DetId::HGCalHSi]->setIleakParam( ileakParam );
+  noiseMaps_[DetId::HGCalHSi]->setCceParam( cceParamFine, cceParamThin, cceParamThick );
 
   double e2fc(1.60217646E-4);
   signalfC_[HGCSiliconDetId::waferType::HGCalFine]=67.*e2fc*120;

@@ -17,8 +17,9 @@ void HGCalRadiationMap::setDoseMap(const std::string& fullpath)
 //
 void HGCalRadiationMap::setGeometry(const CaloSubdetectorGeometry* geom)
 {
-  hgcalGeom_ = static_cast<const HGCalGeometry*>(geom);
-  hgcalDDD_  = &(hgcalGeom_->topology().dddConstants());
+  hgcalGeom_     = static_cast<const HGCalGeometry*>(geom);
+  hgcalTopology_ = &(hgcalGeom_->topology());
+  hgcalDDD_      = &(hgcalTopology_->dddConstants());
 
 }
 
