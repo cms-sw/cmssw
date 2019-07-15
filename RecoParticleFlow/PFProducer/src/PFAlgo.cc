@@ -309,7 +309,8 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
           }
         }
 
-        LogDebug("PFAlgo::egammaFilters") << "Creating PF electron: pt=" << myPFElectron.pt() << " eta=" << myPFElectron.eta() << " phi=" << myPFElectron.phi();
+        LogDebug("PFAlgo::egammaFilters") << "Creating PF electron: pt=" << myPFElectron.pt()
+                                          << " eta=" << myPFElectron.eta() << " phi=" << myPFElectron.phi();
         pfCandidates_->push_back(myPFElectron);
 
       } else {
@@ -343,7 +344,8 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
           active[eb.second] = false;
           LogDebug("PFAlgo::egammaFilters") << " Elements used " << eb.second;
         }
-        LogDebug("PFAlgo::egammaFilters") << "Creating PF photon: pt=" << myPFPhoton.pt() << " eta=" << myPFPhoton.eta() << " phi=" << myPFPhoton.phi();
+        LogDebug("PFAlgo::egammaFilters") << "Creating PF photon: pt=" << myPFPhoton.pt() << " eta=" << myPFPhoton.eta()
+                                          << " phi=" << myPFPhoton.phi();
         pfCandidates_->push_back(myPFPhoton);
 
       }  // end isSafe
@@ -843,7 +845,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          ElementIndices& inds,
                          std::vector<bool>& deadArea) {
-
   LogDebug("PFAlgo::elementLoop") << "start of function";
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
@@ -860,12 +861,11 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     unsigned iTrack = iEle;
     reco::MuonRef muonRef = elements[iTrack].muonRef();
     if (muonRef.isNonnull()) {
-      LogDebug("PFAlgo::elementLoop")
-        << "track " << iTrack << " has a valid muon reference. " << endl
-        << "   - isMuon: " << PFMuonAlgo::isMuon(muonRef) << endl
-        << "   - isGlobalTightMuon: " << PFMuonAlgo::isGlobalTightMuon(muonRef) << endl
-        << "   - isTrackerTightMuon: " << PFMuonAlgo::isTrackerTightMuon(muonRef) << endl
-        << "   - isIsolatedMuon: " << PFMuonAlgo::isIsolatedMuon(muonRef);
+      LogDebug("PFAlgo::elementLoop") << "track " << iTrack << " has a valid muon reference. " << endl
+                                      << "   - isMuon: " << PFMuonAlgo::isMuon(muonRef) << endl
+                                      << "   - isGlobalTightMuon: " << PFMuonAlgo::isGlobalTightMuon(muonRef) << endl
+                                      << "   - isTrackerTightMuon: " << PFMuonAlgo::isTrackerTightMuon(muonRef) << endl
+                                      << "   - isIsolatedMuon: " << PFMuonAlgo::isIsolatedMuon(muonRef);
     } else {
       LogDebug("PFAlgo::elementLoop") << "track has no valid muon reference";
     }
@@ -896,8 +896,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     LogDebug("PFAlgo::elementLoop") << "PFAlgo:processBlock"
                                     << " trackIs.size()=" << inds.trackIs.size()
                                     << " ecalIs.size()=" << inds.ecalIs.size()
-                                    << " hcalIs.size()=" << inds.hcalIs.size()
-                                    << " hoIs.size()=" << inds.hoIs.size();
+                                    << " hcalIs.size()=" << inds.hcalIs.size() << " hoIs.size()=" << inds.hoIs.size();
 
     // look for associated elements of all types
     //COLINFEB16
@@ -1125,7 +1124,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
       }
     }  //loop hcal elements
     LogDebug("PFAlgo::elementLoop") << "end of loop";
-  }    // end of loop 1 on elements iEle of any type
+  }  // end of loop 1 on elements iEle of any type
   LogDebug("PFAlgo::elementLoop") << "end of function";
 }
 
@@ -2057,13 +2056,15 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       // if tracking errors are large take weighted average
 
 #ifdef EDM_ML_DEBUG
-        LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tcase 1: COMPATIBLE "
-             << "|Calo Energy- total charged momentum| = " << abs(caloEnergy - totalChargedMomentum) << " < " << nsigma
-             << " x " << TotalError;
-        if (maxDPovP < 0.1)
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\t\tmax DP/P = " << maxDPovP << " less than 0.1: do nothing ";
-        else
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\t\tmax DP/P = " << maxDPovP << " >  0.1: take weighted averages ";
+      LogDebug("PFAlgo::createCandidatesHCAL")
+          << "\t\tcase 1: COMPATIBLE "
+          << "|Calo Energy- total charged momentum| = " << abs(caloEnergy - totalChargedMomentum) << " < " << nsigma
+          << " x " << TotalError;
+      if (maxDPovP < 0.1)
+        LogDebug("PFAlgo::createCandidatesHCAL") << "\t\t\tmax DP/P = " << maxDPovP << " less than 0.1: do nothing ";
+      else
+        LogDebug("PFAlgo::createCandidatesHCAL")
+            << "\t\t\tmax DP/P = " << maxDPovP << " >  0.1: take weighted averages ";
 #endif
 
       // if max DP/P < 10%  do nothing
@@ -2077,7 +2078,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
         double sigma2E = Caloresolution * Caloresolution;
         for (int i = 0; i < nrows; i++) {
           double sigma2i = hcalDP[i] * hcalDP[i];
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\t\ttrack associated to hcal " << i << " P = " << hcalP[i] << " +- " << hcalDP[i];
+          LogDebug("PFAlgo::createCandidatesHCAL")
+              << "\t\t\ttrack associated to hcal " << i << " P = " << hcalP[i] << " +- " << hcalDP[i];
           a(i, i) = 1. / sigma2i + 1. / sigma2E;
           b(i) = hcalP[i] / sigma2i + caloEnergy / sigma2E;
           for (int j = 0; j < nrows; j++) {
@@ -2106,7 +2108,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
             double rescaleFactor = x(i) / hcalP[i];
             (*pfCandidates_)[ich].rescaleMomentum(rescaleFactor);
 
-            LogDebug("PFAlgo::createCandidatesHCAL") << "\t\t\told p " << hcalP[i] << " new p " << x(i) << " rescale " << rescaleFactor;
+            LogDebug("PFAlgo::createCandidatesHCAL")
+                << "\t\t\told p " << hcalP[i] << " new p " << x(i) << " rescale " << rescaleFactor;
           }
         } else {
           edm::LogError("PFAlgo::createCandidatesHCAL") << "TDecompChol.Solve returned ok=false";
@@ -2141,20 +2144,21 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       // This is a fuzzy case, but it should be better than corrected twice under both egamma and hadron hypotheses.
 
 #ifdef EDM_ML_DEBUG
-        if (!sortedTracks.empty()) {
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tcase 2: NEUTRAL DETECTION " << caloEnergy << " > " << nsigma << "x" << TotalError << " + "
-               << totalChargedMomentum;
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tneutral activity detected: " << endl
-               << "\t\t\t           photon = " << ePhoton << endl
-               << "\t\t\tor neutral hadron = " << eNeutralHadron;
+      if (!sortedTracks.empty()) {
+        LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tcase 2: NEUTRAL DETECTION " << caloEnergy << " > " << nsigma
+                                                 << "x" << TotalError << " + " << totalChargedMomentum;
+        LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tneutral activity detected: " << endl
+                                                 << "\t\t\t           photon = " << ePhoton << endl
+                                                 << "\t\t\tor neutral hadron = " << eNeutralHadron;
 
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tphoton or hadron ?";
-        }
+        LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tphoton or hadron ?";
+      }
 
-        if (sortedTracks.empty())
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tno track -> hadron ";
-        else
-          LogDebug("PFAlgo::createCandidatesHCAL") << "\t\t" << sortedTracks.size() << " tracks -> check if the excess is photonic or hadronic";
+      if (sortedTracks.empty())
+        LogDebug("PFAlgo::createCandidatesHCAL") << "\t\tno track -> hadron ";
+      else
+        LogDebug("PFAlgo::createCandidatesHCAL")
+            << "\t\t" << sortedTracks.size() << " tracks -> check if the excess is photonic or hadronic";
 #endif
 
       double ratioMax = 0.;
@@ -2247,7 +2251,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           pivotalClusterRef.push_back(elements[std::get<0>(pae)].clusterRef());
           iPivotal.push_back(std::get<0>(pae));
         }
-      } // mergedPhotonEnergy > 0
+      }  // mergedPhotonEnergy > 0
 
       if (mergedNeutralHadronEnergy > 1.0) {
         // Split merged neutral hadrons according to directions of energetic ecal clusters (necessary for jet substructure reconstruction)
@@ -2274,7 +2278,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           pivotalClusterRef.push_back(hclusterref);
           iPivotal.push_back(iHcal);
         }
-      } //mergedNeutralHadronEnergy > 1.0
+      }  //mergedNeutralHadronEnergy > 1.0
 
       // reconstructing a merged neutral
       // the type of PFCandidate is known from the
@@ -2282,7 +2286,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
 
       for (unsigned iPivot = 0; iPivot < iPivotal.size(); ++iPivot) {
         if (particleEnergy[iPivot] < 0.)
-          edm::LogWarning("PFAlgo::createCandidatesHCAL") << "ALARM = Negative energy for iPivot=" << iPivot << ", " << particleEnergy[iPivot];
+          edm::LogWarning("PFAlgo::createCandidatesHCAL")
+              << "ALARM = Negative energy for iPivot=" << iPivot << ", " << particleEnergy[iPivot];
 
         const bool useDirection = true;
         auto& neutral = (*pfCandidates_)[reconstructCluster(*pivotalClusterRef[iPivot],
@@ -2786,7 +2791,9 @@ unsigned PFAlgo::reconstructTrack(const reco::PFBlockElement& elt, bool allowLoo
   reco::PFCandidate::ParticleType particleType = reco::PFCandidate::h;
 
   // Add it to the stack
-  LogDebug("PFAlgo::reconstructTrack") << "Creating PFCandidate charge=" << charge << ", type=" << particleType << ", pt=" << momentum.pt() << ", eta=" << momentum.eta() << ", phi=" << momentum.phi(); 
+  LogDebug("PFAlgo::reconstructTrack") << "Creating PFCandidate charge=" << charge << ", type=" << particleType
+                                       << ", pt=" << momentum.pt() << ", eta=" << momentum.eta()
+                                       << ", phi=" << momentum.phi();
   pfCandidates_->push_back(PFCandidate(charge, momentum, particleType));
   //Set vertex and stuff like this
   pfCandidates_->back().setVertexSource(PFCandidate::kTrkVertex);
@@ -2846,13 +2853,10 @@ unsigned PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
                                     double particleX,
                                     double particleY,
                                     double particleZ) {
-  
   LogDebug("PFAlgo::reconstructCluster") << "start of function, cluster=" << cluster
-    << "particleEnergy=" << particleEnergy
-    << "useDirection=" << useDirection
-    << "particleX=" << particleX
-    << "particleY=" << particleY
-    << "particleZ=" << particleZ;
+                                         << "particleEnergy=" << particleEnergy << "useDirection=" << useDirection
+                                         << "particleX=" << particleX << "particleY=" << particleY
+                                         << "particleZ=" << particleZ;
 
   reco::PFCandidate::ParticleType particleType = reco::PFCandidate::X;
 
@@ -2931,7 +2935,8 @@ unsigned PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   }
 
   // The pf candidate
-  LogDebug("PFAlgo::reconstructCluster") << "Creating PFCandidate charge=" << charge << ", type=" << particleType << ", pt=" << tmp.pt() << ", eta=" << tmp.eta() << ", phi=" << tmp.phi(); 
+  LogDebug("PFAlgo::reconstructCluster") << "Creating PFCandidate charge=" << charge << ", type=" << particleType
+                                         << ", pt=" << tmp.pt() << ", eta=" << tmp.eta() << ", phi=" << tmp.phi();
   pfCandidates_->push_back(PFCandidate(charge, tmp, particleType));
 
   // The position at ECAL entrance (well: watch out, it is not true
@@ -3181,18 +3186,18 @@ void PFAlgo::postCleaning() {
     //
     // The significance must be significantly reduced to indeed clean the candidates
     if (significance - significanceCor > minSignificanceReduction_ && significanceCor < maxSignificance_) {
-      edm::LogInfo("PFAlgo::postCleaning") << "Significance reduction = " << significance << " -> " << significanceCor << " = "
-                << significanceCor - significance;
+      edm::LogInfo("PFAlgo::postCleaning") << "Significance reduction = " << significance << " -> " << significanceCor
+                                           << " = " << significanceCor - significance;
       for (unsigned int toRemove : pfCandidatesToBeRemoved) {
-         edm::LogInfo("PFAlgo::postCleaning") << "Removed : " << (*pfCandidates_)[toRemove];
+        edm::LogInfo("PFAlgo::postCleaning") << "Removed : " << (*pfCandidates_)[toRemove];
         pfCleanedCandidates_.push_back((*pfCandidates_)[toRemove]);
         (*pfCandidates_)[toRemove].rescaleMomentum(1E-6);
         //reco::PFCandidate::ParticleType unknown = reco::PFCandidate::X;
         //(*pfCandidates_)[toRemove].setParticleType(unknown);
       }
     }
-  } //significance
-} //postCleaning
+  }  //significance
+}  //postCleaning
 
 void PFAlgo::checkCleaning(const reco::PFRecHitCollection& cleanedHits) {
   // No hits to recover, leave.
