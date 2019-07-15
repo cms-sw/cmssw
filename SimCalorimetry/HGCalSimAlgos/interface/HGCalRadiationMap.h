@@ -32,13 +32,16 @@ class HGCalRadiationMap
   double getFluenceValue(const int, const int, const std::array<double, 8>&,bool logVal=false);
 
   const HGCalGeometry *geom()    { return hgcalGeom_; }
+  const HGCalTopology *topo()    { return hgcalTopology_; }
   const HGCalDDDConstants *ddd() { return hgcalDDD_; }
+
   inline const std::map<std::pair<int,int>, DoseParameters> & getDoseMap() { return doseMap_; }
 
  private:
   std::map<std::pair<int,int>, DoseParameters> readDosePars(const std::string&);
 
   const HGCalGeometry *hgcalGeom_;
+  const HGCalTopology *hgcalTopology_;
   const HGCalDDDConstants *hgcalDDD_;
   std::map<std::pair<int,int>, DoseParameters> doseMap_;
   //conversion from grey to krad

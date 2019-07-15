@@ -26,6 +26,25 @@ class HGCalSiNoiseMap : public HGCalRadiationMap {
   ~HGCalSiNoiseMap() {};
 
   /**
+     @short set the ileak parameters to use
+  */
+  void setIleakParam(const std::vector<double>& pars)
+  {
+    ileakParam_ = pars;
+  }
+
+  /**
+     @short set the cce parameters to use
+  */
+  void setCceParam(const std::vector<double>& parsFine, const std::vector<double>& parsThin, const std::vector<double>& parsThick)
+  {
+    cceParam_[HGCSiliconDetId::waferType::HGCalFine]        = parsFine;      //120
+    cceParam_[HGCSiliconDetId::waferType::HGCalCoarseThin]  = parsThin;      //200
+    cceParam_[HGCSiliconDetId::waferType::HGCalCoarseThick] = parsThick;     //300
+  }
+
+
+  /**
      @short returns the charge collection efficiency and noise
   */
   SiCellOpCharacteristics getSiCellOpCharacteristics(SignalRange_t srange,const HGCSiliconDetId &did, bool ignoreFluence=false);

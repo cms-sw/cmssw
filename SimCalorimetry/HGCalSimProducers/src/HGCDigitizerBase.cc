@@ -10,7 +10,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDo
   bxTime_        = ps.getParameter<double>("bxTime");
   myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg");
   doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
-  
+
   if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");
   else                          keV2fC_   = 1.0;
 
@@ -33,6 +33,14 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDo
   } else {
     noise_fC_.resize(1, 1.f);
   }
+  if ( myCfg_.existsAs<std::vector<double> >("ileakParam")) {
+    scal_.setIleakParam(myCfg_.getParameter<std::vector<double> >("ileakParam"));
+  }
+  if ( myCfg_.existsAs<edm::ParameterSet>("cceParams")) {
+    scal_.setCceParam(myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamFine"),
+                      myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThin"),
+                      myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThick"));
+                    }
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
@@ -110,7 +118,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
         noise = (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]);
       }
 
-      //@discuss calibrated (S.cce+N) \approx S+N/cce, prefer to keep digi calibration here 
+      //@discuss calibrated (S.cce+N) \approx S+N/cce, prefer to keep digi calibration here
       totalCharge+=noise;
       if(totalCharge<0.f) totalCharge=0.f;
 
