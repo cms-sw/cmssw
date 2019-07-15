@@ -302,14 +302,15 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   // Save the final PFCandidate collection
   auto pOutputCandidateCollection = pfAlgo_.makeConnectedCandidates();
 
-  LogDebug("PFProducer") << "particle flow: putting products in the event" << endl;
-  if (verbose_)
-    std::cout << "particle flow: putting products in the event. Here the full list" << endl;
-  int nC = 0;
-  for (auto const& cand : pOutputCandidateCollection) {
-    nC++;
-    if (verbose_)
-      std::cout << nC << ")" << cand.particleId() << std::endl;
+  LogDebug("PFProducer") << "particle flow: putting products in the event";
+  if (verbose_) {
+    int nC = 0;
+    ostringstream ss;
+    for (auto const& cand : pOutputCandidateCollection) {
+      nC++;
+      ss << "  " << nC << ") pid=" << cand.particleId() << " pt=" << cand.pt() << endl;
+    }
+    LogDebug("PFProducer") << "Here the full list:"  << endl << ss.str();
   }
 
   // Write in the event
