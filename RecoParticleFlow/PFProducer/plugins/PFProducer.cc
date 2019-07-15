@@ -310,7 +310,7 @@ void PFProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       nC++;
       ss << "  " << nC << ") pid=" << cand.particleId() << " pt=" << cand.pt() << endl;
     }
-    LogDebug("PFProducer") << "Here the full list:"  << endl << ss.str();
+    LogDebug("PFProducer") << "Here the full list:" << endl << ss.str();
   }
 
   // Write in the event
