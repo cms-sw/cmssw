@@ -88,7 +88,8 @@ namespace pat {
     // check consistency of input vector
     bool flavorIndependent(const CorrectionFactor& jec) const { return (jec.second.size()==1); }
     // check consistency of input vector
-    bool isValid(const CorrectionFactor& jec) const { return (flavorDependent(jec) || flavorIndependent(jec)); }     void invalidFactor() const;   
+    bool isValid(const CorrectionFactor& jec) const { return (flavorDependent(jec) || flavorIndependent(jec)); }
+    void invalidFactor() const;
     
   private:
     // instance label of jet energy correction factors
