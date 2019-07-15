@@ -142,8 +142,8 @@ private:
  *   uint8_t [4] - id contanining 4 characters: 0x52, 0x41, 0x57, 0x5f  "RAW_"
  *   uint8_t [4] - version string 4 characters: 0x30, 0x30, 0x30, 0x31  "0001"
  *   uint16_t - header size: 24
- *   uint16_t - reserved (padding)
- *   uint32_t - number of events in the RAW file
+ *   uint16_t - number of events in the RAW file
+ *   uint32_t - lumisection
  *   uint64_t - total size of the raw file (including header)
  *
  * */
