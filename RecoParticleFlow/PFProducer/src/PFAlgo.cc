@@ -2435,9 +2435,7 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock& block,
                                           ElementIndices& inds,
                                           std::vector<bool>& deadArea) {
   // Processing the remaining HCAL clusters
-  if (debug_) {
-    edm::LogInfo("PFAlgo::createCandidatesHCALUnlinked") << "loop remaining HCAL" << endl;
-  }
+  LogDebug("PFAlgo::createCandidatesHCALUnlinked") << "start of function, hcalIs.size()=" << inds.hcalIs.size();
 
   for (unsigned iHcal : inds.hcalIs) {
     // Keep ECAL and HO elements for reference in the PFCandidate
@@ -2745,24 +2743,18 @@ void PFAlgo::processBlock(const reco::PFBlockRef& blockref,
   // vectors to store indices to ho, hcal and ecal elements
   ElementIndices inds;
 
-  LogDebug("PFAlgo::processBlock") << "calling elementLoop";
   elementLoop(block, linkData, elements, active, blockref, inds, deadArea);
-  LogDebug("PFAlgo::processBlock") << "after elementLoop, inds=" << inds;
 
   // deal with HF.
   if (!(inds.hfEmIs.empty() && inds.hfHadIs.empty())) {
     createCandidateHF(block, blockref, elements, inds);
   }
 
-  LogDebug("PFAlgo::processBlock") << "after createCandidateHF, inds=" << inds;
 
   createCandidatesHCAL(block, linkData, elements, active, blockref, inds, deadArea);
-  LogDebug("PFAlgo::processBlock") << "after createCandidatesHCAL, inds=" << inds;
   // COLINFEB16: now dealing with the HCAL elements that are not linked to any track
   createCandidatesHCALUnlinked(block, linkData, elements, active, blockref, inds, deadArea);
-  LogDebug("PFAlgo::processBlock") << "after createCandidatesHCALUnlinked, inds=" << inds;
   createCandidatesECAL(block, linkData, elements, active, blockref, inds, deadArea);
-  LogDebug("PFAlgo::processBlock") << "after createCandidatesHCALUnlinked, inds=" << inds;
 
   LogDebug("PFAlgo::processBlock") << "end of function";
 }  // end processBlock
