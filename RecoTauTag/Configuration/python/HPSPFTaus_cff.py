@@ -369,44 +369,20 @@ hpsPFTauDiscriminationByMVA6VLooseElectronRejection = recoTauDiscriminantCutMult
 )
 ## ByMVA6LooseElectronRejection
 hpsPFTauDiscriminationByMVA6LooseElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA6VLooseElectronRejection)
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[0].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL_WPeff90")
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[1].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_BL_WPeff90")
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[2].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_BL_WPeff90")
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[3].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_BL_WPeff90")
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[4].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_EC_WPeff90")
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[5].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_EC_WPeff90")
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[6].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_EC_WPeff90")
-hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping[7].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_EC_WPeff90")
+for m in hpsPFTauDiscriminationByMVA6LooseElectronRejection.mapping:
+    m.cut = m.cut.value().replace("WPeff98", "WPeff90")
 ## ByMVA6VMediumElectronRejection
 hpsPFTauDiscriminationByMVA6MediumElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA6VLooseElectronRejection)
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[0].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL_WPeff80")
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[1].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_BL_WPeff80")
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[2].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_BL_WPeff80")
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[3].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_BL_WPeff80")
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[4].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_EC_WPeff80")
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[5].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_EC_WPeff80")
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[6].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_EC_WPeff80")
-hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping[7].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_EC_WPeff80")
+for m in hpsPFTauDiscriminationByMVA6MediumElectronRejection.mapping:
+    m.cut = m.cut.value().replace("WPeff98", "WPeff80")
 ## ByMVA6TightElectronRejection
 hpsPFTauDiscriminationByMVA6TightElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA6VLooseElectronRejection)
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[0].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL_WPeff70")
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[1].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_BL_WPeff70")
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[2].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_BL_WPeff70")
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[3].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_BL_WPeff70")
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[4].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_EC_WPeff70")
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[5].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_EC_WPeff70")
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[6].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_EC_WPeff70")
-hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping[7].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_EC_WPeff70")
+for m in hpsPFTauDiscriminationByMVA6TightElectronRejection.mapping:
+    m.cut = m.cut.value().replace("WPeff98", "WPeff70")
 ## ByMVA6VTightElectronRejection
 hpsPFTauDiscriminationByMVA6VTightElectronRejection = copy.deepcopy(hpsPFTauDiscriminationByMVA6VLooseElectronRejection)
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[0].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_BL_WPeff60")
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[1].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_BL_WPeff60")
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[2].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_BL_WPeff60")
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[3].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_BL_WPeff60")
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[4].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_woGwoGSF_EC_WPeff60")
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[5].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_NoEleMatch_wGwoGSF_EC_WPeff60")
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[6].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_woGwGSF_EC_WPeff60")
-hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping[7].cut = cms.string("RecoTauTag_antiElectronMVA6v3_noeveto_gbr_wGwGSF_EC_WPeff60")
+for m in hpsPFTauDiscriminationByMVA6VTightElectronRejection.mapping:
+    m.cut = m.cut.value().replace("WPeff98", "WPeff60")
 
 # Define the HPS selection discriminator used in cleaning
 hpsSelectionDiscriminator.PFTauProducer = cms.InputTag("combinatoricRecoTaus")
