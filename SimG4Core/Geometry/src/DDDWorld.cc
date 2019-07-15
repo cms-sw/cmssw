@@ -17,18 +17,15 @@ using namespace dd4hep;
 using namespace dd4hep::sim;
 
 DDDWorld::DDDWorld(const DDCompactView *cpv,
-                   G4LogicalVolumeToDDLogicalPartMap &map,
+                   G4LogicalVolumeToDDLogicalPartMap &lvmap,
                    SensitiveDetectorCatalog &catalog,
                    bool check) {
   LogVerbatim("SimG4CoreApplication") << "DDDWorld: initialization of Geant4 geometry";
-  std::unique_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
+  std::unique_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, lvmap, check));
 
-  DDGeometryReturnType ret = theBuilder->BuildGeometry();
-  G4LogicalVolume *world = ret.logicalVolume();
+  G4LogicalVolume *world = theBuilder->BuildGeometry(catalog);
 
   m_world = new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld", nullptr, false, 0);
-  map = ret.lvToDDLPMap();
-  catalog = ret.sdCatalog();
   LogVerbatim("SimG4CoreApplication") << "DDDWorld: initialization of Geant4 geometry is done.";
 }
 

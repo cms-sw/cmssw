@@ -1,8 +1,9 @@
 #ifndef SimG4Core_DDDWorld_h
 #define SimG4Core_DDDWorld_h
 
+#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
+#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "G4VPhysicalVolume.hh"
-#include "SimG4Core/Geometry/interface/DDGeometryReturnType.h"
 #include "DDG4/Geant4GeometryInfo.h"
 
 class DDG4Builder;
@@ -14,7 +15,7 @@ namespace cms {
 
 class DDDWorld {
 public:
-  DDDWorld(const DDCompactView *, G4LogicalVolumeToDDLogicalPartMap &, SensitiveDetectorCatalog &, bool check = false);
+  DDDWorld(const DDCompactView *, G4LogicalVolumeToDDLogicalPartMap &, SensitiveDetectorCatalog &, bool check);
   DDDWorld(const cms::DDDetector *, dd4hep::sim::Geant4GeometryMaps::VolumeMap &);
   ~DDDWorld();
   G4VPhysicalVolume *GetWorldVolume() const { return m_world; }
