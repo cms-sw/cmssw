@@ -49,13 +49,30 @@ best_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcesso
                           )
 
 
+
+superTCCompression_proc = cms.PSet(exponentBits = cms.uint32(4),
+                                   mantissaBits = cms.uint32(5),
+                                   rounding = cms.bool(True),
+)
+
+coarseTCCompression_proc = cms.PSet(exponentBits = cms.uint32(4),
+                                    mantissaBits = cms.uint32(3),
+                                   rounding = cms.bool(True),
+)
+
+from L1Trigger.L1THGCal.hgcalVFEProducer_cfi import vfe_proc
 supertc_conc_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                              Method = cms.string('superTriggerCellSelect'),
                              type_energy_division = cms.string('superTriggerCell'),# superTriggerCell,oneBitFraction,equalShare
                              stcSize = cms.vuint32(4,16,16,16),
                              fixedDataSizePerHGCROC = cms.bool(False),
                              coarsenTriggerCells = cms.bool(False),
+                             superTCCompression = superTCCompression_proc.clone(),
+                             coarseTCCompression = superTCCompression_proc.clone(),
+                             superTCCalibration = vfe_proc.clone(),
                              )
+
+
 
 coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentratorProcessorSelection'),
                              Method = cms.string('superTriggerCellSelect'),
@@ -65,7 +82,10 @@ coarsetc_onebitfraction_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcen
                              coarsenTriggerCells = cms.bool(False),
                              oneBitFractionThreshold = cms.double(0.125),
                              oneBitFractionLowValue = cms.double(0.0625),
-                             oneBitFractionHighValue = cms.double(0.25)
+                             oneBitFractionHighValue = cms.double(0.25),
+                             superTCCompression = superTCCompression_proc.clone(),
+                             coarseTCCompression = superTCCompression_proc.clone(),
+                             superTCCalibration = vfe_proc.clone(),
                              )
 
 
@@ -75,6 +95,9 @@ coarsetc_equalshare_proc = cms.PSet(ProcessorName  = cms.string('HGCalConcentrat
                              stcSize = cms.vuint32(4,8,8,8),
                              fixedDataSizePerHGCROC = cms.bool(True),
                              coarsenTriggerCells = cms.bool(False),
+                             superTCCompression = superTCCompression_proc.clone(),
+                             coarseTCCompression = superTCCompression_proc.clone(),
+                             superTCCalibration = vfe_proc.clone(),
 )
 
 

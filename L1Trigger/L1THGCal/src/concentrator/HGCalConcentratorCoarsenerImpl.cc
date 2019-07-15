@@ -5,7 +5,9 @@ HGCalConcentratorCoarsenerImpl::HGCalConcentratorCoarsenerImpl(const edm::Parame
       coarseTCmapping_(std::vector<unsigned>{HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
                                              HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
                                              HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_,
-                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_}) {}
+                                             HGCalCoarseTriggerCellMapping::kCTCsizeVeryFine_}),
+      calibration_(conf.getParameterSet("superTCCalibration")),
+      vfeCompression_(conf.getParameterSet("coarseTCCompression")) {}
 
 void HGCalConcentratorCoarsenerImpl::updateCoarseTriggerCellMaps(const l1t::HGCalTriggerCell& tc, uint32_t ctcid) {
   auto& ctc = coarseTCs_[ctcid];
@@ -22,9 +24,13 @@ void HGCalConcentratorCoarsenerImpl::updateCoarseTriggerCellMaps(const l1t::HGCa
 
 void HGCalConcentratorCoarsenerImpl::assignCoarseTriggerCellEnergy(l1t::HGCalTriggerCell& tc,
                                                                    const CoarseTC& ctc) const {
-  tc.setHwPt(ctc.sumHwPt);
-  tc.setMipPt(ctc.sumMipPt);
-  tc.setPt(ctc.sumPt);
+  //Compress and recalibrate CTC energy
+  uint32_t code(0);
+  uint32_t compressed_value(0);
+  vfeCompression_.compressSingle(ctc.sumHwPt, code, compressed_value);
+
+  tc.setHwPt(compressed_value);
+  calibration_.calibrateInGeV(tc);
 }
 
 void HGCalConcentratorCoarsenerImpl::coarsen(const std::vector<l1t::HGCalTriggerCell>& trigCellVecInput,

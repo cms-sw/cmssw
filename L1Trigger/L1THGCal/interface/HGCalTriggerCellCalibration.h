@@ -16,9 +16,9 @@ class HGCalTriggerCellCalibration {
 public:
   HGCalTriggerCellCalibration(const edm::ParameterSet& conf);
   void eventSetup(const edm::EventSetup& es) { triggerTools_.eventSetup(es); }
-  void calibrateInMipT(l1t::HGCalTriggerCell&);
-  void calibrateMipTinGeV(l1t::HGCalTriggerCell&);
-  void calibrateInGeV(l1t::HGCalTriggerCell&);
+  void calibrateInMipT(l1t::HGCalTriggerCell&) const;
+  void calibrateMipTinGeV(l1t::HGCalTriggerCell&) const;
+  void calibrateInGeV(l1t::HGCalTriggerCell&) const;
   void print();
 
 private:
