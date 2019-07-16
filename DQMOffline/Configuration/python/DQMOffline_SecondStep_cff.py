@@ -99,6 +99,11 @@ DQMHarvestCommon = cms.Sequence(
                                  runTauEff *
                                  dqmFastTimerServiceClient
                                 )
+
+DQMHarvestCommonFakeHLT = cms.Sequence( DQMHarvestCommon )
+DQMHarvestCommonFakeHLT.remove( triggerOfflineDQMClient )
+DQMHarvestCommonFakeHLT.remove( hltOfflineDQMClient )
+
 DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                DQMMessageLoggerClientSeq *
                                                dqmDcsInfoClient *
@@ -113,6 +118,9 @@ DQMHarvestCommonSiStripZeroBias = cms.Sequence(
                                                runTauEff  *
                                                dqmFastTimerServiceClient
                                                )
+DQMHarvestCommonSiStripZeroBiasFakeHLT = cms.Sequence( DQMHarvestCommonSiStripZeroBias )
+DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( triggerOfflineDQMClient )
+DQMHarvestCommonSiStripZeroBiasFakeHLT.remove( hltOfflineDQMClient )
 
 DQMHarvestTracking = cms.Sequence( TrackingOfflineDQMClient *
                                    dqmFastTimerServiceClient )
