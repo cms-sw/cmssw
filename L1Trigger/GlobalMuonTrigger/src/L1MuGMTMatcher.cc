@@ -62,8 +62,8 @@ L1MuGMTMatcher::L1MuGMTMatcher(const L1MuGlobalMuonTrigger& gmt, int id)
       m_id(id),
       first(MaxMatch),
       second(MaxMatch),
-      matchQuality(MaxMatch, MaxMatch),
-      pairMatrix(MaxMatch, MaxMatch) {
+      matchQuality(MaxMatch, MaxMatch, 0),
+      pairMatrix(MaxMatch, MaxMatch, false) {
   first.reserve(MaxMatch);
   second.reserve(MaxMatch);
 }
@@ -89,8 +89,8 @@ void L1MuGMTMatcher::run() {
 // clear Matcher
 //
 void L1MuGMTMatcher::reset() {
-  matchQuality.init(0);
-  pairMatrix.init(false);
+  matchQuality.reset(0);
+  pairMatrix.reset(false);
 
   for (unsigned i = 0; i < MaxMatch; i++) {
     first[i] = nullptr;
@@ -183,10 +183,8 @@ void L1MuGMTMatcher::load() {
 // match muons
 //
 void L1MuGMTMatcher::match() {
-  L1MuGMTMatrix<bool> maxMatrix(MaxMatch, MaxMatch);
-  L1MuGMTMatrix<bool> disableMatrix(MaxMatch, MaxMatch);
-  maxMatrix.init(false);
-  disableMatrix.init(false);
+  L1MuGMTMatrix<bool> maxMatrix(MaxMatch, MaxMatch, false);
+  L1MuGMTMatrix<bool> disableMatrix(MaxMatch, MaxMatch, false);
 
   // loop over all combinations
 
