@@ -45,7 +45,7 @@ template <class T>
 class L1MuGMTMatrix {
 public:
   /// constructor
-  L1MuGMTMatrix(int r, int c);
+  L1MuGMTMatrix(int r, int c, T v);
 
   /// copy constructor
   L1MuGMTMatrix(const L1MuGMTMatrix<T>&);
@@ -61,8 +61,8 @@ public:
   ///
   const T& operator()(int r, int c) const;
 
-  /// initialize matrix
-  void init(T v = 0);
+  /// reset all elements
+  void reset(T v);
 
   /// set matrix element
   void set(int r, int c, T v);
@@ -105,7 +105,11 @@ private:
 };
 
 template <class T>
-L1MuGMTMatrix<T>::L1MuGMTMatrix(int r, int c) : r_size(r), c_size(c), p_(new T[r * c]) {}
+L1MuGMTMatrix<T>::L1MuGMTMatrix(int r, int c, T v) : r_size(r), c_size(c), p_(new T[r * c]) {
+  for (int i = 0; i < r_size * c_size; ++i) {
+    p_[i] = v;
+  }
+}
 
 // copy constructor
 
@@ -138,10 +142,10 @@ const T& L1MuGMTMatrix<T>::operator()(int r, int c) const {
 }
 
 //
-// initialize matrix
+// reset elements
 //
 template <class T>
-void L1MuGMTMatrix<T>::init(T v) {
+void L1MuGMTMatrix<T>::reset(T v) {
   for (int i = 0; i < r_size * c_size; ++i) {
     p_[i] = v;
   }

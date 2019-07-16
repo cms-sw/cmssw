@@ -19,19 +19,17 @@ namespace {
 
 TEST_CASE("Test L1MuGMTMatrix", "L1MuGMTMatrix") {
   SECTION("empty") {
-    L1MuGMTMatrix<int> m(2, 3);
-    m.init();
+    L1MuGMTMatrix<int> m(2, 3, 0);
     REQUIRE(compare<2, 3>(m, {{0, 0, 0, 0, 0, 0}}) == true);
   }
 
   SECTION("set all to 1") {
-    L1MuGMTMatrix<int> m(2, 3);
-    m.init(1);
+    L1MuGMTMatrix<int> m(2, 3, 1);
     REQUIRE(compare<2, 3>(m, {{1, 1, 1, 1, 1, 1}}) == true);
   }
 
   SECTION("set different values") {
-    L1MuGMTMatrix<int> m(2, 3);
+    L1MuGMTMatrix<int> m(2, 3, 0);
     m.set(0, 0, 0);
     m.set(0, 1, 1);
     m.set(0, 2, 2);
@@ -59,7 +57,7 @@ TEST_CASE("Test L1MuGMTMatrix", "L1MuGMTMatrix") {
   }
 
   SECTION("Copy and operator=") {
-    L1MuGMTMatrix<int> m(2, 3);
+    L1MuGMTMatrix<int> m(2, 3, 0);
     m.set(0, 0, 0);
     m.set(0, 1, 1);
     m.set(0, 2, 2);
@@ -72,15 +70,14 @@ TEST_CASE("Test L1MuGMTMatrix", "L1MuGMTMatrix") {
 
     REQUIRE(compare<2, 3>(cp, {{0, 1, 2, 3, 4, 5}}) == true);
 
-    L1MuGMTMatrix<int> opEq(2, 3);
-    opEq.init(0);
+    L1MuGMTMatrix<int> opEq(2, 3, 0);
     opEq = m;
 
     REQUIRE(compare<2, 3>(opEq, {{0, 1, 2, 3, 4, 5}}) == true);
   }
 
   SECTION("Arithmetics") {
-    L1MuGMTMatrix<int> m(2, 3);
+    L1MuGMTMatrix<int> m(2, 3, 0);
     m.set(0, 0, 0);
     m.set(0, 1, 1);
     m.set(0, 2, 2);
@@ -100,7 +97,7 @@ TEST_CASE("Test L1MuGMTMatrix", "L1MuGMTMatrix") {
   }
 
   SECTION("Look for non 0") {
-    L1MuGMTMatrix<int> m(2, 3);
+    L1MuGMTMatrix<int> m(2, 3, 0);
 
     m.set(0, 0, 0);
     m.set(0, 1, 0);

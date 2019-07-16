@@ -54,13 +54,11 @@ L1MuGMTPSB::L1MuGMTPSB(const L1MuGlobalMuonTrigger& gmt, edm::ConsumesCollector&
       m_RpcMuons(L1MuGMTConfig::MAXRPC),
       m_DtbxMuons(L1MuGMTConfig::MAXDTBX),
       m_CscMuons(L1MuGMTConfig::MAXCSC),
-      m_Isol(14, 18),
-      m_Mip(14, 18) {
+      m_Isol(14, 18, false),
+      m_Mip(14, 18, false) {
   m_RpcMuons.reserve(L1MuGMTConfig::MAXRPC);
   m_DtbxMuons.reserve(L1MuGMTConfig::MAXDTBX);
   m_CscMuons.reserve(L1MuGMTConfig::MAXCSC);
-  m_Isol.init(false);
-  m_Mip.init(false);
   iC.consumes<std::vector<L1MuRegionalCand> >(L1MuGMTConfig::getDTInputTag());
   iC.consumes<std::vector<L1MuRegionalCand> >(L1MuGMTConfig::getCSCInputTag());
   iC.consumes<std::vector<L1MuRegionalCand> >(L1MuGMTConfig::getRPCbInputTag());
@@ -204,8 +202,8 @@ void L1MuGMTPSB::reset() {
   while (iter != m_CscMuons.end())
     (*(iter++)).reset();
 
-  m_Isol.init(false);
-  m_Mip.init(false);
+  m_Isol.reset(false);
+  m_Mip.reset(false);
 }
 
 //
