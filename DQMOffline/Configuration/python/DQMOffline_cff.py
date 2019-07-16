@@ -99,6 +99,7 @@ DQMOfflineExtraHLT = cms.Sequence(
 
 DQMOfflineFakeHLT = cms.Sequence( DQMOffline )
 DQMOfflineFakeHLT.remove( HLTMonitoring )
+DQMOfflineFakeHLT.remove( triggerOfflineDQMSource )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
                                    bTagPlotsDATA *
@@ -138,6 +139,10 @@ DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
                                  produceDenomsData *
                                  pfTauRunDQMValidation
                                 )
+
+DQMOfflineCommonFakeHLT = cms.Sequence( DQMOfflineCommon )
+DQMOfflineCommonFakeHLT.remove( triggerOfflineDQMSource )
+
 DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  DQMMessageLogger *
                                  SiStripDQMTier0MinBias *
@@ -153,6 +158,10 @@ DQMOfflineCommonSiStripZeroBias = cms.Sequence( dqmDcsInfo *
                                  produceDenomsData *
                                  pfTauRunDQMValidation
                                  )
+
+DQMOfflineCommonSiStripZeroBiasFakeHLT = cms.Sequence( DQMOfflineCommonSiStripZeroBias )
+DQMOfflineCommonSiStripZeroBiasFakeHLT.remove( triggerOfflineDQMSource )
+
 DQMOfflineLumi = cms.Sequence ( zcounting )
 
 muonRecoAnalyzer.doMVA =         cms.bool( True )
