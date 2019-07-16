@@ -139,7 +139,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       double rIn(0), rOut(0), zHalf(0);
 
       // create the name
-      string ddname("esalgo:" + es.layName_[i]);  // namespace:name
+      string ddname(es.layName_[i]);  // namespace:name
 
       // cone dimensions
       rIn = es.rminVec[i];
@@ -147,8 +147,8 @@ static long algorithm(dd4hep::Detector& /* description */,
       zHalf = es.thickLayers_[i] / 2.;
 
       // create a logical part representing a single layer in the preshower
-      Solid solid = Tube(ddname, rIn, rOut, zHalf, 0., 360._deg);
-      Volume layer = Volume(ddname, solid, ns.material(es.materials_[i]));
+      Solid solid = ns.addSolid(ddname, Tube(ddname, rIn, rOut, zHalf, 0., 360._deg));
+      Volume layer = ns.addVolume(Volume(ddname, solid, ns.material(es.materials_[i])));
 
       // position the logical part w.r.t. the parent volume
       zpos += zHalf;
@@ -188,19 +188,17 @@ static long algorithm(dd4hep::Detector& /* description */,
         tmp_Alname_fin << es.layName_[i] << "LtmpAl" << absz - 1;
         string dd_Alname_fin("esalgo:" + tmp_Alname_fin.str());
 
-        Solid Outer_Al = ns.solid(dd_Alname_fin);
-        Volume layerFinOutAl = Volume(dd_tmp_name_f, Outer_Al, ns.material(es.materials_[i - 1]));
+        string dd_Alname_f(es.layName_[i] + "LOutAl");
+        string dd_Alname_g(es.layName_[i] + "LOutAl2");
+        string dd_Alname_h(es.layName_[i] + "LOutAltmp");
+        string dd_Alname_i(es.layName_[i] + "LOutAltmp2");
+        string dd_Alname_j(es.layName_[i] + "LOutAltmp3");
+        string dd_Alname_k(es.layName_[i] + "LOutAltmp4");
+        string dd_Alname_l(es.layName_[i] + "LOutAltmp5");
+        string dd_Alname_m(es.layName_[i] + "LOutAltmp6");
 
-        string dd_Alname_f("esalgo:" + es.layName_[i] + "LOutAl");
-        string dd_Alname_g("esalgo:" + es.layName_[i] + "LOutAl2");
-        string dd_Alname_h("esalgo:" + es.layName_[i] + "LOutAltmp");
-        string dd_Alname_i("esalgo:" + es.layName_[i] + "LOutAltmp2");
-        string dd_Alname_j("esalgo:" + es.layName_[i] + "LOutAltmp3");
-        string dd_Alname_k("esalgo:" + es.layName_[i] + "LOutAltmp4");
-        string dd_Alname_l("esalgo:" + es.layName_[i] + "LOutAltmp5");
-        string dd_Alname_m("esalgo:" + es.layName_[i] + "LOutAltmp6");
-
-        Solid Out_Al = Tube(dd_Alname_f, es.rMax_Abs_Al_ - 20_cm, es.rMax_Abs_Al_, zHalf - 0.1_mm, 0., 90._deg);
+        Solid Out_Al = ns.addSolid(
+            dd_Alname_f, Tube(dd_Alname_f, es.rMax_Abs_Al_ - 20_cm, es.rMax_Abs_Al_, zHalf - 0.1_mm, 0., 90._deg));
 
         outalbx = es.absAlX_X_ * 0.1;
         outalby = es.rMax_Abs_Al_ + 0.1_mm - es.absAlX_subtr1_Yshift_;
@@ -210,9 +208,10 @@ static long algorithm(dd4hep::Detector& /* description */,
           outalby = es.rMax_Abs_Al_ + 0.1_mm - es.absAlY_subtr1_Yshift_;
           shiftR = es.absAlY_subtr1_Xshift_;
         }
-        Solid OutAltmp = Box(dd_Alname_h, outalbx / 2 + 0.1_mm, outalby / 2 + 0.1_mm, zHalf);
-        Solid Out_Altmp3 =
-            SubtractionSolid(dd_Alname_j, Out_Al, OutAltmp, Position(outalbx / 2, outalby / 2 + shiftR, 0));
+        Solid OutAltmp = ns.addSolid(dd_Alname_h, Box(dd_Alname_h, outalbx / 2 + 0.1_mm, outalby / 2 + 0.1_mm, zHalf));
+        Solid Out_Altmp3 = ns.addSolid(
+            dd_Alname_j,
+            SubtractionSolid(dd_Alname_j, Out_Al, OutAltmp, Position(outalbx / 2, outalby / 2 + shiftR, 0)));
         outalby2 = es.absAlX_Y_ * 0.1;
         outalbx2 = es.rMax_Abs_Al_ + 0.1_mm - es.absAlX_subtr1_Xshift_;
         shiftR2 = es.absAlX_subtr1_Xshift_;
@@ -221,13 +220,20 @@ static long algorithm(dd4hep::Detector& /* description */,
           outalbx2 = es.rMax_Abs_Al_ + 0.1_mm - es.absAlY_subtr1_Xshift_;
           shiftR2 = es.absAlY_subtr1_Xshift_;
         }
-        Solid OutAltmp2 = Box(dd_Alname_i, outalbx2 / 2 + 0.1_mm, outalby2 / 2 + 0.1_mm, zHalf);
-        Solid Out_Altmp4 =
-            SubtractionSolid(dd_Alname_k, Out_Altmp3, OutAltmp2, Position(outalbx2 / 2 + shiftR2, outalby2 / 2, 0));
-        Solid Out_Altmp5 = UnionSolid(dd_Alname_l, Out_Altmp4, Out_Altmp4, ns.rotation("esalgo:RABS90"));
-        Solid Out_Altmp6 = UnionSolid(dd_Alname_m, Out_Altmp5, Out_Altmp4, ns.rotation("esalgo:RABS180B"));
-        /*Solid Out_Al2 = */
-        ns.addSolid(dd_Alname_g, UnionSolid(dd_Alname_g, Out_Altmp6, Out_Altmp4, ns.rotation("esalgo:R180")));
+        Solid OutAltmp2 =
+            ns.addSolid(dd_Alname_i, Box(dd_Alname_i, outalbx2 / 2 + 0.1_mm, outalby2 / 2 + 0.1_mm, zHalf));
+        Solid Out_Altmp4 = ns.addSolid(
+            dd_Alname_k,
+            SubtractionSolid(dd_Alname_k, Out_Altmp3, OutAltmp2, Position(outalbx2 / 2 + shiftR2, outalby2 / 2, 0)));
+        Solid Out_Altmp5 =
+            ns.addSolid(dd_Alname_l, UnionSolid(dd_Alname_l, Out_Altmp4, Out_Altmp4, ns.rotation("esalgo:RABS90")));
+        Solid Out_Altmp6 =
+            ns.addSolid(dd_Alname_m, UnionSolid(dd_Alname_m, Out_Altmp5, Out_Altmp4, ns.rotation("esalgo:RABS180B")));
+        Solid Out_Al2 =  //FIXME
+            ns.addSolid(dd_Alname_g, UnionSolid(dd_Alname_g, Out_Altmp6, Out_Altmp4, ns.rotation("esalgo:R180")));
+
+        // FIXME Solid Outer_Al = ns.solid(dd_Alname_fin);
+        Volume layerFinOutAl = Volume(dd_tmp_name_f, /* FIXME: Outer_Al */ Out_Al2, ns.material(es.materials_[i - 1]));
 
         for (int L = 0; L < absz; ++L) {
           int K = L;
@@ -246,13 +252,13 @@ static long algorithm(dd4hep::Detector& /* description */,
           tmp_FAl_name_d3 << es.layName_[i] << "LtmpAl" << K << "_3";
           tmp_FAl_name_d << es.layName_[i] << "LtmpAl" << K;
 
-          string dd_tmp_name_b("esalgo:" + tmp_name_b.str());
-          string dd_tmp_name_b2("esalgo:" + tmp_name_b2.str());
-          string dd_FAl_name_c("esalgo:" + tmp_FAl_name_c.str());
-          string dd_FAl_name_d1("esalgo:" + tmp_FAl_name_d1.str());
-          string dd_FAl_name_d2("esalgo:" + tmp_FAl_name_d2.str());
-          string dd_FAl_name_d3("esalgo:" + tmp_FAl_name_d3.str());
-          string dd_FAl_name_d("esalgo:" + tmp_FAl_name_d.str());
+          string dd_tmp_name_b(tmp_name_b.str());
+          string dd_tmp_name_b2(tmp_name_b2.str());
+          string dd_FAl_name_c(tmp_FAl_name_c.str());
+          string dd_FAl_name_d1(tmp_FAl_name_d1.str());
+          string dd_FAl_name_d2(tmp_FAl_name_d2.str());
+          string dd_FAl_name_d3(tmp_FAl_name_d3.str());
+          string dd_FAl_name_d(tmp_FAl_name_d.str());
 
           if (L == 0)
             bdx = abs(es.abs1stx[K]) / 2;
@@ -299,7 +305,8 @@ static long algorithm(dd4hep::Detector& /* description */,
 
           Solid solid_c = ns.solid(dd_FAl_name_c);
           Solid solid_d1 = UnionSolid(dd_FAl_name_d1, solid_c, solid_b2, Position(sdx, sdy, 0));
-          Solid solid_d2 = UnionSolid(dd_FAl_name_d, solid_d1, solid_b2, Position(-sdx, -sdy, 0));
+          Solid solid_d2 =
+              ns.addSolid(dd_FAl_name_d, UnionSolid(dd_FAl_name_d, solid_d1, solid_b2, Position(-sdx, -sdy, 0)));
 
           if (((es.abs1stx[K] < rIn + 30_cm) && I == 10) || ((es.abs2ndx[K] < rIn + 30_cm) && I == 20)) {
             layerFinOutAl.placeVolume(layer, 3, Position(sdx, -sdy, 0));
@@ -308,10 +315,10 @@ static long algorithm(dd4hep::Detector& /* description */,
             Solid solid_c = ns.solid(dd_FAl_name_c);
             Solid solid_d1 = UnionSolid(dd_FAl_name_d1, solid_c, solid_b2, Position(sdx, sdy, 0));
             /*Solid solid_d2 = */
-            ns.addSolidNS(dd_FAl_name_d2, UnionSolid(dd_FAl_name_d2, solid_d1, solid_b2, Position(sdx, -sdy, 0)));
+            ns.addSolid(dd_FAl_name_d2, UnionSolid(dd_FAl_name_d2, solid_d1, solid_b2, Position(sdx, -sdy, 0)));
             Solid solid_d3 = UnionSolid(dd_FAl_name_d3, solid_d2, solid_b2, Position(-sdx, sdy, 0));
             /*Solid solid_d4 = */
-            ns.addSolidNS(dd_FAl_name_d, UnionSolid(dd_FAl_name_d, solid_d3, solid_b2, Position(-sdx, -sdy, 0)));
+            ns.addSolid(dd_FAl_name_d, UnionSolid(dd_FAl_name_d, solid_d3, solid_b2, Position(-sdx, -sdy, 0)));
           }
         }
 
@@ -925,10 +932,10 @@ static long algorithm(dd4hep::Detector& /* description */,
   // place the slicon strips in active silicon wafers
   {
     double xpos(0), ypos(0);
-    Volume sfwxLog = ns.volume("SFWX");
-    Volume sfwyLog = ns.volume("SFWY");
-    Volume sfsxLog = ns.volume("SFSX");
-    Volume sfsyLog = ns.volume("SFSY");
+    Volume sfwxLog = ns.volume("esalgo:SFWX");
+    Volume sfwyLog = ns.volume("esalgo:SFWY");
+    Volume sfsxLog = ns.volume("esalgo:SFSX");
+    Volume sfsyLog = ns.volume("esalgo:SFSY");
 
     for (size_t i = 0; i < 32; ++i) {
       xpos = -es.waf_active / 2. + i * es.waf_active / 32. + es.waf_active / 64.;
