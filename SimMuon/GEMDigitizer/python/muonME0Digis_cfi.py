@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimMuon.GEMDigitizer.muonGEMDigis_cfi import gemDigiCommonParameters
-
 me0DigiCommonParameters = cms.PSet(
     signalPropagationSpeed = cms.double(0.66),
     timeResolution = cms.double(5),
