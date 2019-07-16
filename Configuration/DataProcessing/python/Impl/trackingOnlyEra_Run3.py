@@ -24,9 +24,9 @@ class trackingOnlyEra_Run3(trackingOnly):
         self.cbSc='pp'
         self.addEI=False
         self.eras=Run3
-        self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
-        self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_express_trackingOnly' ]
-        self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
+        self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3' ]
+        self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3_express_trackingOnly' ]
+        self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run3' ]
 
     """
     _trackingOnlyEra_Run3
