@@ -81,7 +81,7 @@ oldo = process._Process__outputmodules["FEVToutput"]
 del process._Process__outputmodules["FEVToutput"]
 
 process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
-    SelectEvents = oldo.SelectEvents,
+    #SelectEvents = oldo.SelectEvents,
     splitLevel = oldo.splitLevel,
     outputCommands = oldo.outputCommands,
     fileName = oldo.fileName,
