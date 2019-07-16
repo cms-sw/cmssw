@@ -93,9 +93,10 @@ associatePatAlgosToolsTask(process)
 
 # Customisation from command line
 
-from L1Trigger.Configuration.customiseUtils import L1TrackTriggerTracklet,L1TTurnOffHGCalTPs_v9
+from L1Trigger.Configuration.customiseUtils import L1TrackTriggerTracklet,L1TTurnOffHGCalTPs_v9,configureCSCLCTAsRun2
 process = L1TrackTriggerTracklet(process)
 #process = L1TTurnOffHGCalTPs_v9(process)
+process = configureCSCLCTAsRun2(process)
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

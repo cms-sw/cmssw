@@ -358,3 +358,44 @@ def appendGEMChamberAgingAtL1Trigger(process):
         process.SimL1TMuon.replace(process.simCscTriggerPrimitiveDigis, process.withAgedGEMDigiSequence)
 
     return process
+
+
+
+def configureCSCLCTAsRun2(process):
+
+    ## CSCTriggerPrimitives
+    ## - revert to the old (i.e. Run 2) CSC LCT reconstruction
+    ## - see L1Trigger/CSCTriggerPrimitives/python/cscTriggerPrimitiveDigis_cfi.py
+    if hasattr(process, 'simCscTriggerPrimitiveDigis'):
+        
+        print("L1T INFO:  configuring CSC LCT reconstruction as in Run-2")
+        process.simCscTriggerPrimitiveDigis.commonParam = cms.PSet(
+            # Master flag for SLHC studies
+            isSLHC = cms.bool(False),
+
+            # Debug
+            verbosity = cms.int32(0),
+
+            ## Whether or not to use the SLHC ALCT algorithm
+            enableAlctSLHC = cms.bool(False),
+
+            ## During Run-1, ME1a strips were triple-ganged
+            ## Effectively, this means there were only 16 strips
+            ## As of Run-2, ME1a strips are unganged,
+            ## which increased the number of strips to 48
+            gangedME1a = cms.bool(False),
+
+            # flags to optionally disable finding stubs in ME42 or ME1a
+            disableME1a = cms.bool(False),
+            disableME42 = cms.bool(False),
+
+            # offset between the ALCT and CLCT central BX in simulation
+            alctClctOffset = cms.uint32(1),
+
+            runME11Up = cms.bool(False),
+            runME21Up = cms.bool(False),
+            runME31Up = cms.bool(False),
+            runME41Up = cms.bool(False),
+        )
+
+    return process
