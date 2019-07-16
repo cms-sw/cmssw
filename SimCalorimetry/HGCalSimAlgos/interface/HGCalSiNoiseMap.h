@@ -15,11 +15,12 @@ class HGCalSiNoiseMap : public HGCalRadiationMap {
 
  public:
 
-  enum SignalRange_t {q80fC, q160fC, q320fC};
+  enum GainRange_t {q80fC, q160fC, q320fC, AUTO};
 
   struct SiCellOpCharacteristics{
-  SiCellOpCharacteristics() : lnfluence(0.), fluence(0.), ileak(0.), cce(1.), noise(0.) {}
-    double lnfluence,fluence,ileak,cce,noise;
+  SiCellOpCharacteristics() : lnfluence(0.), fluence(0.), ileak(0.), cce(1.), noise(0.), mipfC(0), gain(0), mipADC(0),thrADC(0) {}
+    double lnfluence,fluence,ileak,cce,noise,mipfC;
+    unsigned int gain,mipADC,thrADC;
   };
 
   HGCalSiNoiseMap();
@@ -46,13 +47,24 @@ class HGCalSiNoiseMap : public HGCalRadiationMap {
 
   /**
      @short returns the charge collection efficiency and noise
+     if gain range is set to auto, it will find the most appropriate gain to put the mip peak close to 10 ADC counts
   */
-  SiCellOpCharacteristics getSiCellOpCharacteristics(SignalRange_t srange,const HGCSiliconDetId &did, bool ignoreFluence=false);
+  SiCellOpCharacteristics getSiCellOpCharacteristics(const HGCSiliconDetId &did, GainRange_t gain=GainRange_t::AUTO, bool ignoreFluence=false, int aimMIPtoADC=10);
+
+  
+  std::map<HGCSiliconDetId::waferType,double> &getMipEqfC()                { return mipEqfC_;}
+  std::map<HGCSiliconDetId::waferType,double> &getCellCapacitance()        { return cellCapacitance_;}
+  std::map<HGCSiliconDetId::waferType,double> &getCellVolume()             { return cellVolume_;}
+  std::map<HGCSiliconDetId::waferType,std::vector<double> > &getCCEParam() { return cceParam_;}
+  std::vector<double> &getIleakParam()                                     { return ileakParam_; }
+  std::map<GainRange_t,std::vector<double> > & getENCsParam()              { return encsParam_; }
+  std::map<GainRange_t,double > & getLSBPerGain()                          { return lsbPerGain_; }
+
 
  private:
 
   //
-  std::map<HGCSiliconDetId::waferType,double> cellCapacitance_,cellVolume_;
+  std::map<HGCSiliconDetId::waferType,double> mipEqfC_,cellCapacitance_,cellVolume_;
   std::map<HGCSiliconDetId::waferType,std::vector<double> > cceParam_;
 
   //leakage current/volume vs fluence
@@ -65,10 +77,13 @@ class HGCalSiNoiseMap : public HGCalRadiationMap {
   const double encCommonNoiseSub_;
 
   //electron charge in fC
-  const double enc2fc_;
+  const double qe2fc_;
 
   //electronics noise (series+parallel) polynomial coeffs;
-  std::map<SignalRange_t,std::vector<double> > encsParam_;
+  std::map<GainRange_t,std::vector<double> > encsParam_;
+
+  //lsb
+  std::map<GainRange_t,double > lsbPerGain_;
 };
 
 #endif

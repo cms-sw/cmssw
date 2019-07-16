@@ -101,7 +101,7 @@ HGCFEElectronics<DFr>::HGCFEElectronics(const edm::ParameterSet& ps)
 
 //
 template <class DFr>
-void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& chargeColl, int thickness, float cce) {
+void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& chargeColl, int thickness, int thrADC, float lsbADC) {
   bool debug(false);
 
 #ifdef EDM_ML_DEBUG
@@ -113,7 +113,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& char
     edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << std::endl;
 
   //set new ADCs
-  const float adj_thresh = thresholdFollowsMIP_ ? thickness * adcThreshold_fC_ * cce : thickness * adcThreshold_fC_;
+  const float adj_thresh = thrADC>=0 ? thrADC : thickness * adcThreshold_fC_;
 
   for (int it = 0; it < (int)(chargeColl.size()); it++) {
     //brute force saturation, maybe could to better with an exponential like saturation
@@ -135,7 +135,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& char
 
 //
 template <class DFr>
-void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame, HGCSimHitData& chargeColl, int thickness, float cce) {
+void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame, HGCSimHitData& chargeColl, int thickness, int thrADC, float lsbADC) {
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
   bool debug(false);
@@ -168,7 +168,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr& dataFrame, HGCSimHitData& charg
   }
 
   //set new ADCs
-  const float adj_thresh = thresholdFollowsMIP_ ? thickness * adcThreshold_fC_ * cce : thickness * adcThreshold_fC_;
+  const float adj_thresh = thrADC>=0 ? thrADC : thickness * adcThreshold_fC_;
 
   for (int it = 0; it < (int)(newCharge.size()); it++) {
     //brute force saturation, maybe could to better with an exponential like saturation
@@ -196,7 +196,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
                                              HGCSimHitData& toaColl,
                                              int thickness,
                                              CLHEP::HepRandomEngine* engine,
-                                             float cce) {
+                                             int thrADC,
+                                             float lsbADC) {
   busyFlags.fill(false);
   totFlags.fill(false);
   toaFlags.fill(false);

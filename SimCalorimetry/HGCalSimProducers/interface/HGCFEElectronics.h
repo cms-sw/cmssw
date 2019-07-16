@@ -35,18 +35,19 @@ public:
                         hgc::HGCSimHitData& toa,
                         int thickness,
                         CLHEP::HepRandomEngine* engine,
-                        float cce = 1.0) {
+                        int thrADC=-1,
+                        float lsbADC=-1) {
     switch (fwVersion_) {
       case SIMPLE: {
-        runSimpleShaper(dataFrame, chargeColl, thickness, cce);
+        runSimpleShaper(dataFrame, chargeColl, thickness, thrADC, lsbADC);
         break;
       }
       case WITHTOT: {
-        runShaperWithToT(dataFrame, chargeColl, toa, thickness, engine, cce);
+        runShaperWithToT(dataFrame, chargeColl, toa, thickness, engine, thrADC, lsbADC);
         break;
       }
       default: {
-        runTrivialShaper(dataFrame, chargeColl, thickness, cce);
+        runTrivialShaper(dataFrame, chargeColl, thickness, thrADC, lsbADC);
         break;
       }
     }
@@ -77,12 +78,12 @@ public:
   /**
      @short converts charge to digis without pulse shape
    */
-  void runTrivialShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thickness, float cce = 1.0);
+  void runTrivialShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thickness, int thrADC, float lsbADC);
 
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
-  void runSimpleShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thickness, float cce = 1.0);
+  void runSimpleShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thickness, int thrADC, float lsbADC);
 
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
@@ -92,7 +93,8 @@ public:
                         hgc::HGCSimHitData& toa,
                         int thickness,
                         CLHEP::HepRandomEngine* engine,
-                        float cce = 1.0);
+                        int thrADC,
+                        float lsbADC);
 
   /**
      @short returns how ToT will be computed
