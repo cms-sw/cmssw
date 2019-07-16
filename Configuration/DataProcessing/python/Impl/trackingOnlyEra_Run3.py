@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-_trackingOnlyEra_Run3_2021
+_trackingOnlyEra_Run3
 
 Scenario supporting proton collisions and tracking only reconstruction for HP beamspot
 
@@ -15,11 +15,11 @@ from   Configuration.Eras.Era_Run3_cff import Run3
 
 from   Configuration.DataProcessing.Impl.pp import pp
 
-class trackingOnlyEra_Run3_2021(trackingOnly):
+class trackingOnlyEra_Run3(trackingOnly):
     def __init__(self):
         trackingOnly.__init__(self)
         # tracking only RECO is sufficient, to run high performance BS at PCL;
-        # some dedicated customization are required, though: customisePostEra_Run3_2021_trackingOnly
+        # some dedicated customization are required, though: customisePostEra_Run3_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
         self.addEI=False
@@ -29,7 +29,7 @@ class trackingOnlyEra_Run3_2021(trackingOnly):
         self.visCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]
 
     """
-    _trackingOnlyEra_Run3_2021
+    _trackingOnlyEra_Run3
 
     Implement configuration building for data processing for proton
     collision data taking for Run3, 2021 high performance beamspot
