@@ -12,6 +12,10 @@
 <use   name="hepmc"/>
 <use   name="root"/>
 <use   name="CLHEP"/>
+<bin file="test_*.cc" name="L1TriggerGlobalMuonTriggerTest">
+  <use name="catch2"/>
+  <use name="L1Trigger/GlobalMuonTrigger"/>
+</bin>
 <library   file="CruzetL1DTfilter.cc" name="CruzetL1DTfilter">
   <flags   EDM_PLUGIN="1"/>
 </library>

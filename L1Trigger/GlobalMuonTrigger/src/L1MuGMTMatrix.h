@@ -25,6 +25,7 @@
 #include <cassert>
 #include <string>
 #include <sstream>
+#include <memory>
 
 //----------------------
 // Base Class Headers --
@@ -49,8 +50,10 @@ public:
   /// copy constructor
   L1MuGMTMatrix(const L1MuGMTMatrix<T>&);
 
+  L1MuGMTMatrix(L1MuGMTMatrix<T>&&) = default;
+
   /// destructor
-  virtual ~L1MuGMTMatrix();
+  virtual ~L1MuGMTMatrix() = default;
 
   ///
   T& operator()(int r, int c);
@@ -92,49 +95,26 @@ public:
   void print() const;
 
 private:
+  T& get(int r, int c) { return p_[r * c_size + c]; }
+
+  T const& get(int r, int c) const { return p_[r * c_size + c]; }
+
   int r_size, c_size;
 
-  T** p;
+  std::unique_ptr<T[]> p_;
 };
 
 template <class T>
-L1MuGMTMatrix<T>::L1MuGMTMatrix(int r, int c) : r_size(r), c_size(c) {
-  p = new T*[r];
-
-  assert(p != nullptr);
-
-  for (int i = 0; i < r; i++) {
-    p[i] = new T[c];
-    assert(p[i] != nullptr);
-  }
-}
+L1MuGMTMatrix<T>::L1MuGMTMatrix(int r, int c) : r_size(r), c_size(c), p_(new T[r * c]) {}
 
 // copy constructor
 
 template <class T>
-L1MuGMTMatrix<T>::L1MuGMTMatrix(const L1MuGMTMatrix<T>& mat) : r_size(mat.r_size), c_size(mat.c_size) {
-  p = new T*[r_size];
-
-  assert(p != nullptr);
-
-  for (int i = 0; i < r_size; i++) {
-    p[i] = new T[c_size];
-    assert(p[i] != nullptr);
-    for (int j = 0; j < c_size; j++)
-      p[i][j] = mat.p[i][j];
+L1MuGMTMatrix<T>::L1MuGMTMatrix(const L1MuGMTMatrix<T>& mat)
+    : r_size(mat.r_size), c_size(mat.c_size), p_(new T[r_size * c_size]) {
+  for (int i = 0; i < r_size * c_size; ++i) {
+    p_[i] = mat.p_[i];
   }
-}
-
-//--------------
-// Destructor --
-//--------------
-template <class T>
-L1MuGMTMatrix<T>::~L1MuGMTMatrix() {
-  for (int i = 0; i < r_size; i++) {
-    delete[] p[i];
-  }
-
-  delete[] p;
 }
 
 //
@@ -144,7 +124,7 @@ template <class T>
 T& L1MuGMTMatrix<T>::operator()(int r, int c) {
   assert(r >= 0 && r < r_size && c >= 0 && c < c_size);
 
-  return p[r][c];
+  return get(r, c);
 }
 
 //
@@ -154,7 +134,7 @@ template <class T>
 const T& L1MuGMTMatrix<T>::operator()(int r, int c) const {
   assert(r >= 0 && r < r_size && c >= 0 && c < c_size);
 
-  return p[r][c];
+  return get(r, c);
 }
 
 //
@@ -162,9 +142,8 @@ const T& L1MuGMTMatrix<T>::operator()(int r, int c) const {
 //
 template <class T>
 void L1MuGMTMatrix<T>::init(T v) {
-  for (int r = 0; r < r_size; r++) {
-    for (int c = 0; c < c_size; c++)
-      p[r][c] = v;
+  for (int i = 0; i < r_size * c_size; ++i) {
+    p_[i] = v;
   }
 }
 
@@ -175,7 +154,7 @@ template <class T>
 void L1MuGMTMatrix<T>::set(int r, int c, T v) {
   assert(r >= 0 && r < r_size && c >= 0 && c < c_size);
 
-  p[r][c] = v;
+  get(r, c) = v;
 }
 
 //
@@ -186,9 +165,8 @@ L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator=(const L1MuGMTMatrix& m) {
   if (this != &m) {
     assert(m.c_size == c_size && m.r_size == r_size);
 
-    for (int r = 0; r < r_size; r++) {
-      for (int c = 0; c < c_size; c++)
-        p[r][c] = m.p[r][c];
+    for (int i = 0; i < r_size * c_size; ++i) {
+      p_[i] = m.p_[i];
     }
   }
 
@@ -202,10 +180,8 @@ template <class T>
 L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator+=(const L1MuGMTMatrix& m) {
   assert(m.c_size == c_size && m.r_size == r_size);
 
-  for (int r = 0; r < r_size; r++) {
-    for (int c = 0; c < c_size; c++) {
-      p[r][c] += m.p[r][c];
-    }
+  for (int i = 0; i < r_size * c_size; ++i) {
+    p_[i] += m.p_[i];
   }
 
   return *this;
@@ -216,9 +192,8 @@ L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator+=(const L1MuGMTMatrix& m) {
 //
 template <class T>
 L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator+=(const T& s) {
-  for (int r = 0; r < r_size; r++) {
-    for (int c = 0; c < c_size; c++)
-      p[r][c] += s;
+  for (int i = 0; i < r_size * c_size; ++i) {
+    p_[i] += s;
   }
 
   return *this;
@@ -229,9 +204,8 @@ L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator+=(const T& s) {
 //
 template <class T>
 L1MuGMTMatrix<T>& L1MuGMTMatrix<T>::operator*=(const T& s) {
-  for (int r = 0; r < r_size; r++) {
-    for (int c = 0; c < c_size; c++)
-      p[r][c] *= s;
+  for (int i = 0; i < r_size * c_size; ++i) {
+    p_[i] *= s;
   }
 
   return *this;
@@ -245,17 +219,17 @@ bool L1MuGMTMatrix<T>::isMax(int r, int c) const {
   bool max = true;
 
   for (int i = 0; i < c; i++) {
-    max = max && (this->p[r][c] > this->p[r][i]);
+    max = max && (this->get(r, c) > this->get(r, i));
   }
   for (int i = c + 1; i < c_size; i++) {
-    max = max && (this->p[r][c] >= this->p[r][i]);
+    max = max && (this->get(r, c) >= this->get(r, i));
   }
 
   for (int j = 0; j < r; j++) {
-    max = max && (this->p[r][c] > this->p[j][c]);
+    max = max && (this->get(r, c) > this->get(j, c));
   }
   for (int j = r + 1; j < r_size; j++) {
-    max = max && (this->p[r][c] >= this->p[j][c]);
+    max = max && (this->get(r, c) >= this->get(j, c));
   }
 
   return max;
@@ -268,10 +242,10 @@ template <class T>
 bool L1MuGMTMatrix<T>::isMin(int r, int c) const {
   bool min = true;
   for (int i = 0; i < c_size; i++) {
-    min = min && (this->p[r][c] <= this->p[r][i]);
+    min = min && (this->get(r, c) <= this->get(r, i));
   }
   for (int j = 0; j < r_size; j++) {
-    min = min && (this->p[r][c] <= this->p[j][c]);
+    min = min && (this->get(r, c) <= this->get(j, c));
   }
 
   return min;
@@ -284,7 +258,7 @@ template <class T>
 int L1MuGMTMatrix<T>::colAny(int c) const {
   int stat = -1;
   for (int i = 0; i < r_size; i++) {
-    if (this->p[i][c] > 0)
+    if (this->get(i, c) > 0)
       stat = i;
   }
 
@@ -298,7 +272,7 @@ template <class T>
 int L1MuGMTMatrix<T>::rowAny(int r) const {
   int stat = -1;
   for (int i = 0; i < c_size; i++) {
-    if (this->p[r][i] > 0)
+    if (this->get(r, i) > 0)
       stat = i;
   }
 
@@ -313,7 +287,7 @@ void L1MuGMTMatrix<T>::print() const {
   for (int r = 0; r < r_size; r++) {
     std::stringstream output;
     for (int c = 0; c < c_size; c++)
-      output << p[r][c] << "\t";
+      output << get(r, c) << "\t";
     edm::LogVerbatim("GMTMatrix_print") << output.str();
   }
   edm::LogVerbatim("GMTMatrix_print");
