@@ -863,7 +863,7 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker& ibooker) {
       histname = "DistanceOfClosestApproachToBSVsEta_";
       DistanceOfClosestApproachToBSVsEta = ibooker.bookProfile(
           histname + CategoryName, histname + CategoryName, EtaBin, EtaMin, EtaMax, DxyBin, DxyMin, DxyMax, "");
-      DistanceOfClosestApproachToBSVsEta->getTH1()->SetCanExtend(TH1::kAllAxes);
+      //      DistanceOfClosestApproachToBSVsEta->getTH1()->SetCanExtend(TH1::kAllAxes);   // causing issues with DQMIO merge
       DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track #eta", 1);
       DistanceOfClosestApproachToBSVsEta->setAxisTitle("Track d_{xy} wrt beam spot (cm)", 2);
     }
