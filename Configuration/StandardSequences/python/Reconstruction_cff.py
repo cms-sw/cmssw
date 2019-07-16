@@ -140,6 +140,11 @@ from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timi
 from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
 (phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco,_phase2_timing_layer_globalreco)
 
+_phase2_timing_layer_globalreco_tracking = globalreco_tracking.copy()
+_phase2_timing_layer_globalreco_tracking += fastTimingGlobalReco
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
+
+
 _fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
 _fastSim_globalreco.insert(0,newCombinedSeeds+trackExtrapolator+caloTowerForTrk+firstStepPrimaryVerticesUnsorted+ak4CaloJetsForTrk+initialStepTrackRefsForJets+firstStepPrimaryVertices)
