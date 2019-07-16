@@ -60,10 +60,7 @@ lowPtGsfElePfGsfTracks.useFifthStepForTrackerDrivenGsf = True
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSuperClusters_cfi import lowPtGsfElectronSuperClusters
 
 # Low pT electron cores
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cfi import lowPtGsfElectronCores
-
-from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(lowPtGsfElectronCores,ctfTracks = cms.InputTag("generalTracksBeforeMixing"))
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cff import lowPtGsfElectronCores
 
 # Low pT electrons
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *

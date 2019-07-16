@@ -13,8 +13,6 @@ LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer(const edm::ParameterS
       consumes<edm::ValueMap<reco::SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"));
 }
 
-LowPtGsfElectronCoreProducer::~LowPtGsfElectronCoreProducer() {}
-
 void LowPtGsfElectronCoreProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // Output collection
   auto electrons = std::make_unique<reco::GsfElectronCoreCollection>();
@@ -57,11 +55,7 @@ void LowPtGsfElectronCoreProducer::produce(edm::Event& event, const edm::EventSe
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 void LowPtGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag("lowPtGsfElePfGsfTracks"));
-  desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
-  desc.add<edm::InputTag>("ctfTracks", edm::InputTag("generalTracks"));
-  desc.add<bool>("useGsfPfRecTracks", true);
+  auto desc = makeBaseDescription("lowPtGsfElePfGsfTracks", "lowPtGsfEleGsfTracks");
   desc.add<edm::InputTag>("superClusters", edm::InputTag("lowPtGsfElectronSuperClusters"));
   descriptions.add("lowPtGsfElectronCores", desc);
 }

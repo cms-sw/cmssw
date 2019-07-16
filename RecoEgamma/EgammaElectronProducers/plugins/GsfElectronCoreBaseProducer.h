@@ -27,10 +27,10 @@ namespace edm {
 
 class GsfElectronCoreBaseProducer : public edm::stream::EDProducer<> {
 public:
-  static void fillDescription(edm::ParameterSetDescription&);
+  static edm::ParameterSetDescription makeBaseDescription(std::string const& gsfPfRecTracks,
+                                                          std::string const& gsfTracks);
 
   explicit GsfElectronCoreBaseProducer(const edm::ParameterSet& conf);
-  ~GsfElectronCoreBaseProducer() override;
 
 protected:
   // to be called by derived producers at the beginning of each new event
