@@ -89,7 +89,7 @@ process.endjob_step = cms.EndPath(process.endOfProcess)
 process.schedule = cms.Schedule(process.generation_step,
 				process.genfiltersummary_step,
 				process.simulation_step,
-				process.gunfilter_step,
+#				process.gunfilter_step,
 				process.endjob_step,
 				)
 # filter all path with the production filter sequence
