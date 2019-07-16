@@ -15,6 +15,9 @@ DQMCertCommon = cms.Sequence(siStripDaqInfo * sipixelDaqInfo *
                              egammaDataCertificationTask *
                              dqmOfflineTriggerCert)
 
+DQMCertCommonFakeHLT = cms.Sequence( DQMCertCommon )
+DQMCertCommonFakeHLT.remove( dqmOfflineTriggerCert )
+
 DQMCertMuon = cms.Sequence(dtDAQInfo * rpcDaqInfo * cscDaqInfo *
                            dtDCSByLumiSummary * rpcDCSSummary * cscDcsInfo *
                            dtCertificationSummary * rpcDataCertification * cscCertificationInfo)
