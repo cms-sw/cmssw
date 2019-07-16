@@ -98,8 +98,7 @@ class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
       // ----------member data ---------------------------
       edm::ParameterSet iConfig;
       
-      edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jetsAK4;
-      edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jetsAK8;
+      edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jets;
       edm::EDGetTokenT<reco::VertexCollection >               m_vertices;
       edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
       bool m_isPhase1;
@@ -123,10 +122,9 @@ class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
 // constructors and destructor
 //
 PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet& iConfig):
-    m_jetsAK4  ( consumes<edm::View<reco::Jet>                >  (iConfig.getParameter<edm::InputTag>("jetsAK4")) ),
-    m_jetsAK8  ( consumes<edm::View<reco::Jet>                >  (iConfig.getParameter<edm::InputTag>("jetsAK8")) ),
-    m_vertices ( consumes<reco::VertexCollection              >  (iConfig.getParameter<edm::InputTag>("primaryVertex")) ),
-    m_pixelhit ( consumes<edmNew::DetSetVector<SiPixelCluster> > (iConfig.getParameter<edm::InputTag>("pixels")) ),
+    m_jets     ( consumes<edm::View<reco::Jet> >                 (iConfig.getParameter<edm::InputTag>("jets")) ),
+    m_vertices ( consumes<reco::VertexCollection >               (iConfig.getParameter<edm::InputTag>("vertices")) ),
+    m_pixelhit ( consumes<edmNew::DetSetVector<SiPixelCluster> > (iConfig.getParameter<edm::InputTag>("pixelhit")) ),
     m_isPhase1 ( iConfig.getParameter<bool>("isPhase1") ),
     m_addFPIX  ( iConfig.getParameter<bool>("addForward") ),
     m_minADC   ( iConfig.getParameter<int>("minAdcCount") ),
@@ -180,33 +178,31 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   */
     // Get handles
     
-    edm::Handle<edm::View<reco::Jet> > collectionAK4;
-    iEvent.getByToken( m_jetsAK4, collectionAK4);
-    
-    edm::Handle<edm::View<reco::Jet> > collectionAK8;
-    iEvent.getByToken( m_jetsAK8, collectionAK8);
+    edm::Handle<edm::View<reco::Jet> > collectionJets;
+    iEvent.getByToken(m_jets, collectionJets);
 
     int nJets(0);
-    for(auto jetIt = collectionAK4->begin(); jetIt != collectionAK4->end(); ++jetIt) {
+    for(auto jetIt = collectionJets->begin(); jetIt != collectionJets->end(); ++jetIt) {
         if(jetIt->pt() > m_minJetPt) nJets++;
     }
     
     edm::Handle<reco::VertexCollection> collectionPVs;
-    iEvent.getByToken( m_vertices, collectionPVs);
+    iEvent.getByToken(m_vertices, collectionPVs);
     reco::VertexCollection::const_iterator firstPV = collectionPVs->begin();
 
     for(reco::VertexCollection::const_iterator vtxIt = collectionPVs->begin(); vtxIt != collectionPVs->end(); ++vtxIt) {
         firstPV = vtxIt;
         break;
     }
-    
+
+    // If no suitable Jet and PV is available, skip the event without opening pixel collection
     if(collectionPVs->size() <= 0 || nJets <= 0) {
         iEvent.put(std::move(pixelTagInfo));
         return;
     }
     
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > collectionClusters;
-    iEvent.getByToken( m_pixelhit, collectionClusters);
+    iEvent.getByToken(m_pixelhit, collectionClusters);
 
     edm::ESHandle<TrackerGeometry> geom;
     iSetup.get<TrackerDigiGeometryRecord>().get( geom );
@@ -280,14 +276,14 @@ PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 //    std::cout << clusterC.size() << std::endl;
    
     // Loop over jets
-    for(unsigned int j = 0, nj = collectionAK4->size(); j < nj; j++) {
-        if(collectionAK4->at(j).pt() < m_minJetPt) continue;
+    for(unsigned int j = 0, nj = collectionJets->size(); j < nj; j++) {
+        if(collectionJets->at(j).pt() < m_minJetPt) continue;
 
-        edm::RefToBase<reco::Jet> jetRef = collectionAK4->refAt(j);
+        edm::RefToBase<reco::Jet> jetRef = collectionJets->refAt(j);
 //        reco::PixelClusterData* data = new reco::PixelClusterData();
 //        reco::PixelClusterTagInfo* tagInfo = new reco::PixelClusterTagInfo();
 
-        reco::PixelClusterData data = {};
+        reco::PixelClusterData data = {}; // Initialize new Data to 0
         reco::PixelClusterTagInfo tagInfo = {};
 
         
