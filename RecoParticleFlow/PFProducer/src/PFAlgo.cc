@@ -132,7 +132,7 @@ void PFAlgo::reconstructParticles(const reco::PFBlockHandle& blockHandle, PFEGam
   // reset output collection
   pfCandidates_->clear();
 
-  LogDebug("PFAlgo::reconstructParticles") << "start of function";
+  LogDebug("PFAlgo::reconstructParticles") << "start of function, blocks.size()=" << blocks.size();
 
   // sort elements in three lists:
   std::list<reco::PFBlockRef> hcalBlockRefs;
@@ -210,6 +210,8 @@ void PFAlgo::reconstructParticles(const reco::PFBlockHandle& blockHandle, PFEGam
   //Add Missing muons
   if (muonHandle_.isValid())
     pfmu_->addMissingMuons(muonHandle_, pfCandidates_.get());
+
+  LogDebug("PFAlgo::reconstructParticles") << "end of function, pfCandidates_->size()=" << pfCandidates_->size();
 }
 
 void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
@@ -355,7 +357,7 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
 }
 
 void PFAlgo::conversionAlgo(const edm::OwnVector<reco::PFBlockElement>& elements, std::vector<bool>& active) {
-  LogDebug("PFAlgo::conversionAlgo") << "start of function";
+  LogDebug("PFAlgo::conversionAlgo") << "start of function, elements.size()=" << elements.size();
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
     if (type == PFBlockElement::TRACK) {
@@ -391,8 +393,8 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
                                unsigned int iTrack,
                                std::multimap<double, unsigned>& ecalElems,
                                reco::TrackRef& trackRef) {
-  LogDebug("PFAlgo::recoTracksNotHCAL") << "Now deals with tracks linked to no HCAL clusters. Was HCal active? "
-                                        << (!hasDeadHcal);
+  LogDebug("PFAlgo::recoTracksNotHCAL")
+      << "start of function, now dealing with tracks linked to no HCAL clusters. Was HCal active? " << (!hasDeadHcal);
   // vector<unsigned> elementIndices;
   // elementIndices.push_back(iTrack);
 
@@ -471,15 +473,15 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
     unsigned nHits = elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
     unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS);
 
-    if (debug_)
-      LogDebug("PFAlgo::recoTracksNotHCAL")
-          << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum << " / "
-          << elements[iTrack].trackRef()->pt() << " +/- " << Dpt << " / " << elements[iTrack].trackRef()->eta()
-          << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit
-          << ") hits (lost hits) has been cleaned";
+    LogDebug("PFAlgo::recoTracksNotHCAL")
+        << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum << " / "
+        << elements[iTrack].trackRef()->pt() << " +/- " << Dpt << " / " << elements[iTrack].trackRef()->eta()
+        << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit
+        << ") hits (lost hits) has been cleaned";
+
     active[iTrack] = false;
     return true;
-  }
+  }  //rejectTracks_Step45_ && ...
 
   tmpi.push_back(reconstructTrack(elements[iTrack]));
 
@@ -835,6 +837,7 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
       (*pfCandidates_)[tmpi[ic]].addElementInBlock(blockref, kTrack[ic]);
     }
   }
+  LogDebug("PFAlgo::recoTracksNotHCAL") << "end of function";
   return false;
 }
 
@@ -845,7 +848,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          ElementIndices& inds,
                          std::vector<bool>& deadArea) {
-  LogDebug("PFAlgo::elementLoop") << "start of function";
+  LogDebug("PFAlgo::elementLoop") << "start of function, elements.size()" << elements.size();
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
 
@@ -983,7 +986,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     // ECAL cluster and an HCAL cluster, link the track to the HCAL cluster for
     // later analysis
     if (hcalElems.empty() && !ecalElems.empty() && !hasDeadHcal) {
-      // debug_ = true;
       unsigned ntt = 1;
       unsigned index = ecalElems.begin()->second;
       std::multimap<double, unsigned> sortedTracks;
@@ -1123,7 +1125,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
         block.setLink(iTrack, index, -1., linkData, PFBlock::LINKTEST_RECHIT);
       }
     }  //loop hcal elements
-    LogDebug("PFAlgo::elementLoop") << "end of loop";
+    LogDebug("PFAlgo::elementLoop") << "end of loop over iEle";
   }  // end of loop 1 on elements iEle of any type
   LogDebug("PFAlgo::elementLoop") << "end of function";
 }
@@ -1156,31 +1158,27 @@ int PFAlgo::decideType(const edm::OwnVector<reco::PFBlockElement>& elements,
           return 1;  //continue
         }
         inds.hcalIs.push_back(iEle);
-        if (debug_)
-          LogDebug("PFAlgo::decideType") << "HCAL, stored index, continue";
+        LogDebug("PFAlgo::decideType") << "HCAL, stored index, continue";
       }
       return 1;  //continue
     case PFBlockElement::HO:
       if (useHO_) {
         if (active[iEle]) {
           inds.hoIs.push_back(iEle);
-          if (debug_)
-            LogDebug("PFAlgo::decideType") << "HO, stored index, continue";
+          LogDebug("PFAlgo::decideType") << "HO, stored index, continue";
         }
       }
       return 1;  //continue
     case PFBlockElement::HFEM:
       if (active[iEle]) {
         inds.hfEmIs.push_back(iEle);
-        if (debug_)
-          LogDebug("PFAlgo::decideType") << "HFEM, stored index, continue";
+        LogDebug("PFAlgo::decideType") << "HFEM, stored index, continue";
       }
       return 1;  //continue
     case PFBlockElement::HFHAD:
       if (active[iEle]) {
         inds.hfHadIs.push_back(iEle);
-        if (debug_)
-          LogDebug("PFAlgo::decideType") << "HFHAD, stored index, continue";
+        LogDebug("PFAlgo::decideType") << "HFHAD, stored index, continue";
       }
       return 1;  //continue
     default:
@@ -1424,10 +1422,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       }
 
       if (thisIsAMuon) {
-        if (debug_) {
-          LogDebug("PFAlgo::createCandidatesHCAL") << "This track is identified as a muon - remove it from the stack";
-          LogDebug("PFAlgo::createCandidatesHCAL") << elements[iTrack];
-        }
+        LogDebug("PFAlgo::createCandidatesHCAL") << "This track is identified as a muon - remove it from the stack";
+        LogDebug("PFAlgo::createCandidatesHCAL") << elements[iTrack];
 
         // Create a muon.
 
@@ -2035,16 +2031,16 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
     // The total uncertainty of the difference Calo-Track
     double TotalError = sqrt(sumpError2 + Caloresolution * Caloresolution);
 
-    if (debug_) {
-      LogDebug("PFAlgo::createCandidatesHCAL")
-          << "\tCompare Calo Energy to total charged momentum " << endl
-          << "\t\tsum p    = " << totalChargedMomentum << " +- " << sqrt(sumpError2) << endl
-          << "\t\tsum ecal = " << totalEcal << endl
-          << "\t\tsum hcal = " << totalHcal << endl
-          << "\t\t => Calo Energy = " << caloEnergy << " +- " << Caloresolution << endl
-          << "\t\t => Calo Energy- total charged momentum = " << caloEnergy - totalChargedMomentum << " +- "
-          << TotalError;
-    }
+#ifdef EDM_ML_DEBUG
+    LogDebug("PFAlgo::createCandidatesHCAL")
+        << "\tCompare Calo Energy to total charged momentum " << endl
+        << "\t\tsum p    = " << totalChargedMomentum << " +- " << sqrt(sumpError2) << endl
+        << "\t\tsum ecal = " << totalEcal << endl
+        << "\t\tsum hcal = " << totalHcal << endl
+        << "\t\t => Calo Energy = " << caloEnergy << " +- " << Caloresolution << endl
+        << "\t\t => Calo Energy- total charged momentum = " << caloEnergy - totalChargedMomentum << " +- "
+        << TotalError;
+#endif
 
     /* */
 
@@ -2090,12 +2086,6 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
         }    // end loop on i
 
         // solve ax = b
-        //if (debug_){// debug1
-        //cout<<" matrix a(i,j) "<<endl;
-        //a.Print();
-        //cout<<" vector b(i) "<<endl;
-        //b.Print();
-        //} // debug1
         TDecompChol decomp(a);
         bool ok = false;
         TVectorD x = decomp.Solve(b, ok);
@@ -2124,19 +2114,6 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       //there is an excess of energy in the calos
       //create a neutral hadron or a photon
 
-      /*
-      //If it's isolated don't create neutrals since the energy deposit is always coming from a showering muon
-      bool thisIsAnIsolatedMuon = false;
-      for(IE ie = sortedTracks.begin(); ie != sortedTracks.end(); ++ie ) {
-        unsigned iTrack = ie->second;
-	if(PFMuonAlgo::isIsolatedMuon(elements[iTrack].muonRef())) thisIsAnIsolatedMuon = true;
-      }
-
-      if(thisIsAnIsolatedMuon){
-	if(debug_)cout<<" Not looking for neutral b/c this is an isolated muon "<<endl;
-	break;
-      }
-      */
       double eNeutralHadron = caloEnergy - totalChargedMomentum;
       double ePhoton = (caloEnergy - totalChargedMomentum) /
                        slopeEcal;  // KH: this slopeEcal is computed based on ECAL energy under the hadron hypothesis,
@@ -2496,11 +2473,11 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock& block,
       if (!isClosest)
         continue;
 
-      if (debug_) {
-        LogDebug("PFAlgo::createCandidatesHCALUnlinked")
-            << "\telement " << elements[iEcal] << " linked with dist " << dist;
-        LogDebug("PFAlgo::createCandidatesHCALUnlinked") << "Added to HCAL cluster to form a neutral hadron";
-      }
+#ifdef EDM_ML_DEBUG
+      LogDebug("PFAlgo::createCandidatesHCALUnlinked")
+          << "\telement " << elements[iEcal] << " linked with dist " << dist;
+      LogDebug("PFAlgo::createCandidatesHCALUnlinked") << "Added to HCAL cluster to form a neutral hadron";
+#endif
 
       reco::PFClusterRef eclusterRef = elements[iEcal].clusterRef();
       assert(!eclusterRef.isNull());
@@ -2558,11 +2535,13 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock& block,
         if (!isClosest)
           continue;
 
-        if (debug_ && useHO_) {
+#ifdef EDM_ML_DEBUG
+        if (useHO_) {
           LogDebug("PFAlgo::createCandidatesHCALUnlinked")
               << "\telement " << elements[iHO] << " linked with dist " << dist;
           LogDebug("PFAlgo::createCandidatesHCALUnlinked") << "Added to HCAL cluster to form a neutral hadron";
         }
+#endif
 
         reco::PFClusterRef hoclusterRef = elements[iHO].clusterRef();
         assert(!hoclusterRef.isNull());
@@ -2688,7 +2667,6 @@ void PFAlgo::processBlock(const reco::PFBlockRef& blockref,
                           std::list<reco::PFBlockRef>& hcalBlockRefs,
                           std::list<reco::PFBlockRef>& ecalBlockRefs,
                           PFEGammaFilters const* pfegamma) {
-  // debug_ = false;
   assert(!blockref.isNull());
   const reco::PFBlock& block = *blockref;
 
@@ -2749,7 +2727,6 @@ void PFAlgo::processBlock(const reco::PFBlockRef& blockref,
   if (!(inds.hfEmIs.empty() && inds.hfHadIs.empty())) {
     createCandidateHF(block, blockref, elements, inds);
   }
-
 
   createCandidatesHCAL(block, linkData, elements, active, blockref, inds, deadArea);
   // COLINFEB16: now dealing with the HCAL elements that are not linked to any track
