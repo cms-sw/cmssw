@@ -8,10 +8,9 @@
 
 class GsfElectronCoreProducer : public GsfElectronCoreBaseProducer {
 public:
-  //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   explicit GsfElectronCoreProducer(const edm::ParameterSet &);
-  ~GsfElectronCoreProducer() override;
   void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:

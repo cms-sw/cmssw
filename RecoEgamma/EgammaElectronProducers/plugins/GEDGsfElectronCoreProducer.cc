@@ -21,11 +21,7 @@
 using namespace reco;
 
 void GEDGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag("pfTrackElec"));
-  desc.add<edm::InputTag>("gsfTracks", edm::InputTag("electronGsfTracks"));
-  desc.add<edm::InputTag>("ctfTracks", edm::InputTag("generalTracks"));
-  desc.add<bool>("useGsfPfRecTracks", true);
+  auto desc = makeBaseDescription("pfTrackElec", "electronGsfTracks");
   desc.add<edm::InputTag>("GEDEMUnbiased", edm::InputTag("particleFlowEGamma"));
   descriptions.add("gedGsfElectronCores", desc);
 }
@@ -88,5 +84,3 @@ void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pf
 
   delete eleCore;
 }
-
-GEDGsfElectronCoreProducer::~GEDGsfElectronCoreProducer() {}

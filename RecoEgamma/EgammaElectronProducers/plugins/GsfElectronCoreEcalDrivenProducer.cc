@@ -17,12 +17,10 @@
 
 using namespace reco;
 
-// void GsfElectronCoreEcalDrivenProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
-//  {
-//   edm::ParameterSetDescription desc ;
-//   GsfElectronCoreBaseProducer::fillDescriptions(desc) ;
-//   descriptions.add("produceEcalDrivenGsfElectronCores",desc) ;
-//  }
+void GsfElectronCoreEcalDrivenProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  auto desc = makeBaseDescription("pfTrackElec", "electronGsfTracks");
+  descriptions.add("ecalDrivenGsfElectronCores", desc);
+}
 
 GsfElectronCoreEcalDrivenProducer::GsfElectronCoreEcalDrivenProducer(const edm::ParameterSet& config)
     : GsfElectronCoreBaseProducer(config) {}
@@ -78,5 +76,3 @@ void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore(const GsfTrackRef&
 
   delete eleCore;
 }
-
-GsfElectronCoreEcalDrivenProducer::~GsfElectronCoreEcalDrivenProducer() {}
