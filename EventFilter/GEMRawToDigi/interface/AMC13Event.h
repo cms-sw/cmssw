@@ -10,8 +10,8 @@ namespace gem {
     struct {
       uint64_t fov : 8;        // not used
       uint64_t sourceId : 12;  // FED number assigned by CDAQ
-      uint64_t bxId : 12;      // Bunch crossing 0...3563
-      uint64_t lv1Id : 24;     // Level 1 ID (hardware event number)
+      uint64_t bxId : 12;      // BX number, Reset by BC0
+      uint64_t lv1Id : 24;     // L1A / event number, Reset by EC0
       uint64_t eventType : 4;  // Event Type (1 for normal, 2 for calibration)
       uint64_t cb5 : 4;        // 0x5
     };
@@ -33,7 +33,7 @@ namespace gem {
       uint64_t bxIdT : 12;  // bx id
       uint64_t lv1IdT : 8;  // level 1 id
       uint64_t blkN : 8;    // block number
-      uint64_t crc32 : 36;  // Overall CRC (first 34 bits)
+      uint64_t crc32 : 36;  // Overall CRC (first 32 bits)
     };
   };
   union CDFTrailer {
@@ -43,13 +43,14 @@ namespace gem {
       uint64_t evtStat : 4;     // event status
       uint64_t crcCDF : 20;     // CDF crc (first 16 bits)
       uint64_t evtLength : 24;  // event length
-      uint64_t cbA : 8;         // 0xA (first 4 bits)
+      uint64_t eventType : 4;   // Event Type
+      uint64_t cbA : 4;         // 0xA
     };
   };
 
   class AMC13Event {
   public:
-    AMC13Event() {}
+    AMC13Event() : cdfh_(0), amc13h_(0), amc13t_(0), cdft_(0) {}
     ~AMC13Event() {
       amcHeaders_.clear();
       amcs_.clear();
