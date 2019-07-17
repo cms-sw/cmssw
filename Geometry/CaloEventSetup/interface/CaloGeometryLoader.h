@@ -32,11 +32,13 @@ public:
 private:
   void makeGeometry(const D* cpv, T* geom, const Alignments* alignments, const Alignments* globals);
 
-  template <class F> void fillNamedParams(const F& fv, T* geom);
+  template <class F>
+  void fillNamedParams(const F& fv, T* geom);
 
   void fillGeom(T* geom, const ParmVec& pv, const HepGeom::Transform3D& tr, const DetId& id);
 
-  template <class F> unsigned int getDetIdForDDDNode(const F& fv);
+  template <class F>
+  unsigned int getDetIdForDDDNode(const F& fv);
 
   typename T::NumberingScheme m_scheme;
 };

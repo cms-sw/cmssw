@@ -30,13 +30,12 @@ template <class T, class D>
 const double CaloGeometryLoader<T, D>::k_ScaleFromDDDtoGeant(0.1);
 
 template <class T, class D>
-CaloGeometryLoader<T, D>::CaloGeometryLoader()
-{}
+CaloGeometryLoader<T, D>::CaloGeometryLoader() {}
 
 template <class T, class D>
 typename CaloGeometryLoader<T, D>::PtrType CaloGeometryLoader<T, D>::load(const D* cpv,
-                                   	                            const Alignments* alignments,
-                                                                    const Alignments* globals) {
+                                                                          const Alignments* alignments,
+                                                                          const Alignments* globals) {
   PtrType geom = std::make_unique<T>();
 
   makeGeometry(cpv, dynamic_cast<T*>(geom.get()), alignments, globals);
@@ -46,13 +45,12 @@ typename CaloGeometryLoader<T, D>::PtrType CaloGeometryLoader<T, D>::load(const 
 
 template <class T, class D>
 void CaloGeometryLoader<T, D>::makeGeometry(const D* cpv,
-                                         T* geom,
-                                         const Alignments* alignments,
-                                         const Alignments* globals) {
-
+                                            T* geom,
+                                            const Alignments* alignments,
+                                            const Alignments* globals) {
   DDAndFilter<DDSpecificsMatchesValueFilter, DDSpecificsMatchesValueFilter> filter(
-    DDSpecificsMatchesValueFilter{DDValue("SensitiveDetector", "EcalSensitiveDetector", 0)},
-    DDSpecificsMatchesValueFilter{DDValue("ReadOutName", T::hitString(), 0)});
+      DDSpecificsMatchesValueFilter{DDValue("SensitiveDetector", "EcalSensitiveDetector", 0)},
+      DDSpecificsMatchesValueFilter{DDValue("ReadOutName", T::hitString(), 0)});
 
   DDFilteredView fv0(*cpv, filter);
 
@@ -109,7 +107,7 @@ void CaloGeometryLoader<T, D>::makeGeometry(const D* cpv,
 }
 
 template <class T, class D>
-template<class F>
+template <class F>
 unsigned int CaloGeometryLoader<T, D>::getDetIdForDDDNode(const F& fv) {
   // perform some consistency checks
   // get the parents and grandparents of this node
