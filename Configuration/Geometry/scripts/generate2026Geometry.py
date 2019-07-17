@@ -4,7 +4,7 @@ import sys, os, operator
 from pprint import pprint
 import filecmp
 
-from Configuration.Geometry.dict2023Geometry import *
+from Configuration.Geometry.dict2026Geometry import *
 
 # define global
 detectorVersionDefault = 999
@@ -36,9 +36,9 @@ def generateGeom(detectorTuple, options):
             sys.exit(1)
         
     # create output files
-    xmlName = "cmsExtendedGeometry2023"+detectorVersion+"XML_cfi.py"
-    simName = "GeometryExtended2023"+detectorVersion+"_cff.py"
-    recoName = "GeometryExtended2023"+detectorVersion+"Reco_cff.py"
+    xmlName = "cmsExtendedGeometry2026"+detectorVersion+"XML_cfi.py"
+    simName = "GeometryExtended2026"+detectorVersion+"_cff.py"
+    recoName = "GeometryExtended2026"+detectorVersion+"Reco_cff.py"
 
     # check directories
     CMSSWBASE = os.getenv("CMSSW_BASE")
@@ -71,7 +71,7 @@ def generateGeom(detectorTuple, options):
 
     # common preamble
     preamble = "import FWCore.ParameterSet.Config as cms"+"\n"+"\n"
-    preamble += "# This config was generated automatically using generate2023Geometry.py"+"\n"
+    preamble += "# This config was generated automatically using generate2026Geometry.py"+"\n"
     preamble += "# If you notice a mistake, please update the generating script, not just this config"+"\n"+"\n"
 
     # create XML config
@@ -126,9 +126,9 @@ def generateGeom(detectorTuple, options):
         print(eraLine)
 
         # specify GeometryConf
-        if not 'Extended2023'+detectorVersion in GeometryConf.keys():
+        if not 'Extended2026'+detectorVersion in GeometryConf.keys():
             print("Please add this line in Configuration/StandardSequences/python/GeometryConf.py:")
-            print("    'Extended2023"+detectorVersion+"' : 'Extended2023"+detectorVersion+",Extended2023"+detectorVersion+"Reco',")
+            print("    'Extended2026"+detectorVersion+"' : 'Extended2026"+detectorVersion+",Extended2026"+detectorVersion+"Reco',")
 
     errorList = []
 
@@ -139,8 +139,8 @@ def generateGeom(detectorTuple, options):
         if not filecmp.cmp(recoName,os.path.join(simrecoDir,recoName)):
             errorList.append(recoName+" differs");
         # test for Configuration/StandardSequences
-        if not 'Extended2023'+detectorVersion in GeometryConf.keys():
-            errorList.append('Extended2023'+detectorVersion+" missing from GeometryConf")
+        if not 'Extended2026'+detectorVersion in GeometryConf.keys():
+            errorList.append('Extended2026'+detectorVersion+" missing from GeometryConf")
         # test for Geometry/CMSCommonData
         if not filecmp.cmp(xmlName,os.path.join(xmlDir,xmlName)):
             errorList.append(xmlName+" differs");
