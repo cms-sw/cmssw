@@ -188,13 +188,12 @@ void RunManager::initG4(const edm::EventSetup& es) {
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getUntrackedParameter<bool>("CutsOnProton", true);
-  int  verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), 
-                       m_p.getParameter<int>("SteppingVerbosity"));
-  edm::LogVerbatim("SimG4CoreApplication") 
+  int verb =
+      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
+  edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
-
 
   if (m_pUseMagneticField) {
     bool magChanged = idealMagRcdWatcher_.check(es);
@@ -253,10 +252,9 @@ void RunManager::initG4(const edm::EventSetup& es) {
   m_sensTkDets.swap(sensDets.first);
   m_sensCaloDets.swap(sensDets.second);
 
-  edm::LogVerbatim("SimG4CoreApplication") 
+  edm::LogVerbatim("SimG4CoreApplication")
       << " RunManager: Sensitive Detector "
-      << "building finished; found " << m_sensTkDets.size()
-      << " Tk type Producers, and " << m_sensCaloDets.size()
+      << "building finished; found " << m_sensTkDets.size() << " Tk type Producers, and " << m_sensCaloDets.size()
       << " Calo type producers ";
 
   edm::ESHandle<HepPDT::ParticleDataTable> fTable;

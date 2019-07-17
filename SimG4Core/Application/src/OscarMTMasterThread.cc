@@ -18,7 +18,7 @@
 #include "G4PhysicalVolumeStore.hh"
 
 OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
-   :  m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
+    : m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
       m_pDD(nullptr),
       m_pDD4hep(nullptr),
       m_pTable(nullptr),
