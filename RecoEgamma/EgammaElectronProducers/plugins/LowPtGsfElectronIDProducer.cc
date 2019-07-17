@@ -18,43 +18,42 @@
 
 namespace {
 
-  std::vector<float> getFeatures(const reco::GsfElectronRef& ele, double rho) {
+  std::vector<float> getFeatures(reco::GsfElectronRef const& ele, float rho) {
     // KF track
-    float trk_p_ = -1.;
-    float trk_nhits_ = -1.;
-    float trk_chi2red_ = -1.;
+    float trk_p = -1.;
+    float trk_nhits = -1.;
+    float trk_chi2red = -1.;
     // GSF track
-    float gsf_nhits_ = -1.;
-    float gsf_chi2red_ = -1.;
+    float gsf_nhits = -1.;
+    float gsf_chi2red = -1.;
     // SC
-    float sc_E_ = -1.;
-    float sc_eta_ = -1.;
-    float sc_etaWidth_ = -1.;
-    float sc_phiWidth_ = -1.;
+    float sc_E = -1.;
+    float sc_eta = -1.;
+    float sc_etaWidth = -1.;
+    float sc_phiWidth = -1.;
     // Track-cluster matching
-    float match_seed_dEta_ = -1.;
-    float match_eclu_EoverP_ = -1.;
-    float match_SC_EoverP_ = -1.;
-    float match_SC_dEta_ = -1.;
-    float match_SC_dPhi_ = -1.;
+    float match_seed_dEta = -1.;
+    float match_eclu_EoverP = -1.;
+    float match_SC_EoverP = -1.;
+    float match_SC_dEta = -1.;
+    float match_SC_dPhi = -1.;
     // Shower shape vars
-    float shape_full5x5_sigmaIetaIeta_ = -1.;
-    float shape_full5x5_sigmaIphiIphi_ = -1.;
-    float shape_full5x5_HoverE_ = -1.;
-    float shape_full5x5_r9_ = -1.;
-    float shape_full5x5_circularity_ = -1.;
+    float shape_full5x5_sigmaIetaIeta = -1.;
+    float shape_full5x5_sigmaIphiIphi = -1.;
+    float shape_full5x5_HoverE = -1.;
+    float shape_full5x5_r9 = -1.;
+    float shape_full5x5_circularity = -1.;
     // Misc
-    float rho_ = -1.;
-    float brem_frac_ = -1.;
-    float ele_pt_ = -1.;
+    float brem_frac = -1.;
+    float ele_pt = -1.;
 
     // KF tracks
     if (ele->core().isNonnull()) {
       reco::TrackRef trk = ele->core()->ctfTrack();  //@@ is this what we want?!
       if (trk.isNonnull()) {
-        trk_p_ = float(trk->p());
-        trk_nhits_ = float(trk->found());
-        trk_chi2red_ = float(trk->normalizedChi2());
+        trk_p = float(trk->p());
+        trk_nhits = float(trk->found());
+        trk_chi2red = float(trk->normalizedChi2());
       }
     }
 
@@ -62,8 +61,8 @@ namespace {
     if (ele->core().isNonnull()) {
       reco::GsfTrackRef gsf = ele->core()->gsfTrack();
       if (gsf.isNonnull()) {
-        gsf_nhits_ = gsf->found();
-        gsf_chi2red_ = gsf->normalizedChi2();
+        gsf_nhits = gsf->found();
+        gsf_chi2red = gsf->normalizedChi2();
       }
     }
 
@@ -71,63 +70,61 @@ namespace {
     if (ele->core().isNonnull()) {
       reco::SuperClusterRef sc = ele->core()->superCluster();
       if (sc.isNonnull()) {
-        sc_E_ = sc->energy();
-        sc_eta_ = sc->eta();
-        sc_etaWidth_ = sc->etaWidth();
-        sc_phiWidth_ = sc->phiWidth();
+        sc_E = sc->energy();
+        sc_eta = sc->eta();
+        sc_etaWidth = sc->etaWidth();
+        sc_phiWidth = sc->phiWidth();
       }
     }
 
     // Track-cluster matching
     if (ele.isNonnull()) {
-      match_seed_dEta_ = ele->deltaEtaSeedClusterTrackAtCalo();
-      match_eclu_EoverP_ = (1. / ele->ecalEnergy()) - (1. / ele->p());
-      match_SC_EoverP_ = ele->eSuperClusterOverP();
-      match_SC_dEta_ = ele->deltaEtaSuperClusterTrackAtVtx();
-      match_SC_dPhi_ = ele->deltaPhiSuperClusterTrackAtVtx();
+      match_seed_dEta = ele->deltaEtaSeedClusterTrackAtCalo();
+      match_eclu_EoverP = (1. / ele->ecalEnergy()) - (1. / ele->p());
+      match_SC_EoverP = ele->eSuperClusterOverP();
+      match_SC_dEta = ele->deltaEtaSuperClusterTrackAtVtx();
+      match_SC_dPhi = ele->deltaPhiSuperClusterTrackAtVtx();
     }
 
     // Shower shape vars
     if (ele.isNonnull()) {
-      shape_full5x5_sigmaIetaIeta_ = ele->full5x5_sigmaIetaIeta();
-      shape_full5x5_sigmaIphiIphi_ = ele->full5x5_sigmaIphiIphi();
-      shape_full5x5_HoverE_ = ele->full5x5_hcalOverEcal();
-      shape_full5x5_r9_ = ele->full5x5_r9();
-      shape_full5x5_circularity_ = 1. - ele->full5x5_e1x5() / ele->full5x5_e5x5();
+      shape_full5x5_sigmaIetaIeta = ele->full5x5_sigmaIetaIeta();
+      shape_full5x5_sigmaIphiIphi = ele->full5x5_sigmaIphiIphi();
+      shape_full5x5_HoverE = ele->full5x5_hcalOverEcal();
+      shape_full5x5_r9 = ele->full5x5_r9();
+      shape_full5x5_circularity = 1. - ele->full5x5_e1x5() / ele->full5x5_e5x5();
     }
 
     // Misc
-    rho_ = rho;
     if (ele.isNonnull()) {
-      brem_frac_ = ele->fbrem();
-      ele_pt_ = ele->pt();
+      brem_frac = ele->fbrem();
+      ele_pt = ele->pt();
     }
 
-    std::vector<float> output = {
-        rho_,
-        ele_pt_,
-        sc_eta_,
-        shape_full5x5_sigmaIetaIeta_,
-        shape_full5x5_sigmaIphiIphi_,
-        shape_full5x5_circularity_,
-        shape_full5x5_r9_,
-        sc_etaWidth_,
-        sc_phiWidth_,
-        shape_full5x5_HoverE_,
-        trk_nhits_,
-        trk_chi2red_,
-        gsf_chi2red_,
-        brem_frac_,
-        gsf_nhits_,
-        match_SC_EoverP_,
-        match_eclu_EoverP_,
-        match_SC_dEta_,
-        match_SC_dPhi_,
-        match_seed_dEta_,
-        sc_E_,
-        trk_p_,
+    return {
+        rho,
+        ele_pt,
+        sc_eta,
+        shape_full5x5_sigmaIetaIeta,
+        shape_full5x5_sigmaIphiIphi,
+        shape_full5x5_circularity,
+        shape_full5x5_r9,
+        sc_etaWidth,
+        sc_phiWidth,
+        shape_full5x5_HoverE,
+        trk_nhits,
+        trk_chi2red,
+        gsf_chi2red,
+        brem_frac,
+        gsf_nhits,
+        match_SC_EoverP,
+        match_eclu_EoverP,
+        match_SC_dEta,
+        match_SC_dPhi,
+        match_seed_dEta,
+        sc_E,
+        trk_p,
     };
-    return output;
   }
 
 }  // namespace
