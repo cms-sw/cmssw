@@ -19,10 +19,14 @@ using namespace edm;
 using namespace dd4hep;
 using namespace dd4hep::sim;
 
-DDDWorld::DDDWorld(const DDCompactView* pDD, const cms::DDCompactView* pDD4hep, 
-		   SensitiveDetectorCatalog &catalog, int verb, bool cuts, bool pcut) {
+DDDWorld::DDDWorld(const DDCompactView *pDD,
+                   const cms::DDCompactView *pDD4hep,
+                   SensitiveDetectorCatalog &catalog,
+                   int verb,
+                   bool cuts,
+                   bool pcut) {
   LogVerbatim("SimG4CoreApplication") << "DDDWorld: initialisation of Geant4 geometry";
-  if(pDD4hep) {
+  if (pDD4hep) {
     // DD4Hep
     const cms::DDDetector *det = pDD4hep->detector();
     dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;

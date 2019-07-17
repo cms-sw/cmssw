@@ -40,8 +40,8 @@ G4LogicalVolume *DDG4Builder::convertLV(const DDLogicalPart &part) {
     DDG4Dispatchable *disp = new DDG4Dispatchable(&part, result);
     theVectorOfDDG4Dispatchables_->push_back(disp);
     LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
-                                  << "\nDDG4Builder: newEvent: dd=" << part.ddname() 
-                                  << " g4=" << result->GetName() << "\n";
+                                  << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName()
+                                  << "\n";
     logs_[part] = result;  // DDD -> GEANT4
   }
   return result;
@@ -144,13 +144,12 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
           edm::LogVerbatim("SimG4CoreGeometry")
               << "DDG4Builder: Reflection: " << gra.edgeData(cit->second)->ddrot()
               << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname()
-              << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" 
-              << gra.edgeData(cit->second)->ddrot().ddname();
+              << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
         G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(),
                                gra.edgeData(cit->second)->trans().Y(),
                                gra.edgeData(cit->second)->trans().Z());
         G4Translate3D transl = tempTran;
-        CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z()); // matrix 
+        CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z());  // matrix
         CLHEP::HepRotation hr(temp);
 
         // G3 convention of defining rot-matrices ...
@@ -177,8 +176,8 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
       map_.insert(reflLogicalVolume, ddlv);
       DDG4Dispatchable *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      edm::LogVerbatim("SimG4CoreGeometry") << "DDG4Builder: dd=" << ddlv.ddname()
-                                            << " g4=" << reflLogicalVolume->GetName();
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();
     }
   }
 

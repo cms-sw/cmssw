@@ -99,9 +99,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getUntrackedParameter<bool>("CutsOnProton", true);
-  int  verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), 
-                       m_p.getParameter<int>("SteppingVerbosity"));
-  edm::LogVerbatim("SimG4CoreApplication") 
+  int verb =
+      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
+  edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
@@ -112,7 +112,6 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   m_kernel->SetVerboseLevel(verb);
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: Define cuts: " << cuts << " Geant4 run manager verbosity: " << verb;
-
 
   const G4RegionStore* regStore = G4RegionStore::GetInstance();
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();

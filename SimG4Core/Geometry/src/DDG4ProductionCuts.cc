@@ -11,9 +11,8 @@
 
 #include <algorithm>
 
-DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map,
-                                       int verb, bool pcut)
-  : map_(map), keywordRegion_("CMSCutsRegion"), verbosity_(verb), protonCut_(pcut) {
+DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb, bool pcut)
+    : map_(map), keywordRegion_("CMSCutsRegion"), verbosity_(verb), protonCut_(pcut) {
   initialize();
 }
 
