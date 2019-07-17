@@ -30,11 +30,6 @@ cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2015devCastorSys
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2015devXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2016XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2019XML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2023D35XML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2023D41XML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2023D43XML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2023D44XML_cfi"
-cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2023D45XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryGFlashXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryHFLibraryNoCastorXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryHFLibraryXML_cfi"
@@ -43,6 +38,12 @@ cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryNoCastorXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryTest2014XML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryXML_cfi"
 cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometryZeroMaterialXML_cfi"
+
+# automatically retrieve active phase 2 geometries
+read -a DETS <<< $(python -c 'from Configuration.Geometry.dict2026Geometry import detectorVersionDict; print " ".join(sorted([x[1] for x in detectorVersionDict.items()]))')
+for DET in ${DETS[@]}; do
+	cfiFiles="${cfiFiles} Geometry/CMSCommonData/cmsExtendedGeometry2026${DET}XML_cfi"
+done
 
 for cfiFile in ${cfiFiles}
 do
