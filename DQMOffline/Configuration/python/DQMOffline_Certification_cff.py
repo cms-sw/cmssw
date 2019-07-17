@@ -15,9 +15,6 @@ DQMCertCommon = cms.Sequence(siStripDaqInfo * sipixelDaqInfo *
                              egammaDataCertificationTask *
                              dqmOfflineTriggerCert)
 
-DQMCertCommonFakeHLT = cms.Sequence( DQMCertCommon )
-DQMCertCommonFakeHLT.remove( dqmOfflineTriggerCert )
-
 DQMCertMuon = cms.Sequence(dtDAQInfo * rpcDaqInfo * cscDaqInfo *
                            dtDCSByLumiSummary * rpcDCSSummary * cscDcsInfo *
                            dtCertificationSummary * rpcDataCertification * cscCertificationInfo)
@@ -34,3 +31,6 @@ from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toReplaceWith(DQMCertCommon, DQMCertCommon.copyAndExclude([ # FIXME
     sipixelCertification # segfaults when included
 ]))
+
+DQMCertCommonFakeHLT = cms.Sequence( DQMCertCommon )
+DQMCertCommonFakeHLT.remove( dqmOfflineTriggerCert )
