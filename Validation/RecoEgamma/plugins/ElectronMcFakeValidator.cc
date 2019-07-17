@@ -464,7 +464,7 @@ void ElectronMcFakeValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::Ru
   h1_recTrackNum_ = bookH1(iBooker, "recTrackNum", "# rec gsf tracks", 41, -0.5, 40.5, "N_{track}");
   h1_recSeedNum_ = bookH1(iBooker, "recSeedNum", "# rec electron seeds", 101, -0.5, 100.5, "N_{seed}");
   h1_recOfflineVertices_ = bookH1(
-      iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", 61, -0.5, 60.5, "N_{Vertices}");  // new 2015.04.02
+      iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", 81, -0.5, 161.5, "N_{Vertices}");  // new 2015.04.02
 
   // mc
   h1_matchingObjectEta =
