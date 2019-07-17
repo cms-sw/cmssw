@@ -53,13 +53,12 @@ private:
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
-HGCalWaferCheck::HGCalWaferCheck(const edm::ParameterSet& iC) :
-  nameSense_(iC.getParameter<std::string>("NameSense")),
-  nameDetector_(iC.getParameter<std::string>("NameDevice")),
-  reco_(iC.getParameter<bool>("Reco")),
-  dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})),
-  geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-
+HGCalWaferCheck::HGCalWaferCheck(const edm::ParameterSet& iC)
+    : nameSense_(iC.getParameter<std::string>("NameSense")),
+      nameDetector_(iC.getParameter<std::string>("NameDevice")),
+      reco_(iC.getParameter<bool>("Reco")),
+      dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})),
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
   std::cout << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag "
             << reco_ << std::endl;
 }
@@ -76,26 +75,26 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     for (int layer = 1; layer <= 2; ++layer) {
       for (int waferU = -12; waferU <= 12; ++waferU) {
-	int waferV(0);
-	int type = hgdc.waferType(layer, waferU, waferV);
-	int cell = (type == 0) ? 12 : 8;
-	HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
-	if (geom->topology().valid(id1))
-	  std::cout << " ID: " << id1 << " Position " << geom->getPosition(id1) << std::endl;
-	HGCSiliconDetId id2(det, -1, type, layer, waferU, waferV, cell, cell);
-	if (geom->topology().valid(id2))
-	  std::cout << " ID: " << id2 << " Position " << geom->getPosition(id2) << std::endl;
+        int waferV(0);
+        int type = hgdc.waferType(layer, waferU, waferV);
+        int cell = (type == 0) ? 12 : 8;
+        HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
+        if (geom->topology().valid(id1))
+          std::cout << " ID: " << id1 << " Position " << geom->getPosition(id1) << std::endl;
+        HGCSiliconDetId id2(det, -1, type, layer, waferU, waferV, cell, cell);
+        if (geom->topology().valid(id2))
+          std::cout << " ID: " << id2 << " Position " << geom->getPosition(id2) << std::endl;
       }
       for (int waferV = -12; waferV <= 12; ++waferV) {
-	int waferU(0);
-	int type = hgdc.waferType(layer, waferU, waferV);
-	int cell = (type == 0) ? 12 : 8;
-	HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
-	if (geom->topology().valid(id1))
-	  std::cout << " ID: " << id1 << " Position " << geom->getPosition(id1) << std::endl;
-	HGCSiliconDetId id2(det, -1, type, layer, waferU, waferV, cell, cell);
-	if (geom->topology().valid(id2))
-	  std::cout << " ID: " << id2 << " Position " << geom->getPosition(id2) << std::endl;
+        int waferU(0);
+        int type = hgdc.waferType(layer, waferU, waferV);
+        int cell = (type == 0) ? 12 : 8;
+        HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
+        if (geom->topology().valid(id1))
+          std::cout << " ID: " << id1 << " Position " << geom->getPosition(id1) << std::endl;
+        HGCSiliconDetId id2(det, -1, type, layer, waferU, waferV, cell, cell);
+        if (geom->topology().valid(id2))
+          std::cout << " ID: " << id2 << " Position " << geom->getPosition(id2) << std::endl;
       }
     }
   }
