@@ -45,6 +45,8 @@ supportedBtagInfos = [
   , 'pfDeepDoubleXTagInfos'
     # DeepBoostedJet tag infos
   , 'pfDeepBoostedJetTagInfos'
+    # Pixel Cluster tag infos
+  , 'pixelClusterTagInfos'
   ]
 # extend for "internal use" in PAT/MINIAOD (renaming)
 supportedBtagInfos.append( 'caTopTagInfosPAT' )
@@ -202,6 +204,8 @@ supportedBtagDiscr = {
   , 'pfMassIndependentDeepDoubleCvLJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfMassIndependentDeepDoubleCvBJetTags:probHbb'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
   , 'pfMassIndependentDeepDoubleCvBJetTags:probHcc'                     : [["pfDeepDoubleXTagInfos"], ['pfBoostedDoubleSVAK8TagInfos', "pfImpactParameterAK8TagInfos", 'pfInclusiveSecondaryVertexFinderAK8TagInfos']]
+  # Pixel Cluster tag infos
+  , 'pixelClusterBJetTags'                               : [['pixelClusterTagInfos']]
 }
 
 # meta-taggers are simple arithmetic on top of other taggers, they are stored here
