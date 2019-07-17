@@ -10,48 +10,48 @@
 namespace reco {
 
 struct PixelClusterProperties {
-    float x;
-    float y;
-    float z;
-    int charge;
-    int layer;
+    float x = 0;
+    float y = 0;
+    float z = 0;
+    int charge = 0;
+    int layer = 0;
 };
 
 struct PixelClusterData {
-    char L1_R004;
-    char L2_R004;
-    char L3_R004;
-    char L4_R004;
+    char L1_R004 = 0;
+    char L2_R004 = 0;
+    char L3_R004 = 0;
+    char L4_R004 = 0;
     
-    char L1_R006;
-    char L2_R006;
-    char L3_R006;
-    char L4_R006;
+    char L1_R006 = 0;
+    char L2_R006 = 0;
+    char L3_R006 = 0;
+    char L4_R006 = 0;
     
-    char L1_R008;
-    char L2_R008;
-    char L3_R008;
-    char L4_R008;
+    char L1_R008 = 0;
+    char L2_R008 = 0;
+    char L3_R008 = 0;
+    char L4_R008 = 0;
     
-    char L1_R010;
-    char L2_R010;
-    char L3_R010;
-    char L4_R010;
+    char L1_R010 = 0;
+    char L2_R010 = 0;
+    char L3_R010 = 0;
+    char L4_R010 = 0;
     
-    char L1_R016;
-    char L2_R016;
-    char L3_R016;
-    char L4_R016;
+    char L1_R016 = 0;
+    char L2_R016 = 0;
+    char L3_R016 = 0;
+    char L4_R016 = 0;
     
-    char L1_RVAR;
-    char L2_RVAR;
-    char L3_RVAR;
-    char L4_RVAR;
+    char L1_RVAR = 0;
+    char L2_RVAR = 0;
+    char L3_RVAR = 0;
+    char L4_RVAR = 0;
 
-    unsigned int L1_RVWT;
-    unsigned int L2_RVWT;
-    unsigned int L3_RVWT;
-    unsigned int L4_RVWT;
+    unsigned int L1_RVWT = 0;
+    unsigned int L2_RVWT = 0;
+    unsigned int L3_RVWT = 0;
+    unsigned int L4_RVWT = 0;
 };
 
 
