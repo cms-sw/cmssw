@@ -121,8 +121,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
               iConfig.getParameter<double>("pf_nsigma_HCAL"),
               pfEnergyCalibration_,
               pfEnergyCalibrationHF_,
-              iConfig,
-              iConfig.getUntrackedParameter<bool>("debug", false)) {
+              iConfig) {
   //Post cleaning of the muons
   inputTagMuons_ = consumes<reco::MuonCollection>(iConfig.getParameter<InputTag>("muons"));
   postMuonCleaning_ = iConfig.getParameter<bool>("postMuonCleaning");
