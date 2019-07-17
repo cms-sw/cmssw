@@ -19,9 +19,7 @@ public:
   using PtrType = typename LoaderType::PtrType;
 
   CaloGeometryEP<T, D>(const edm::ParameterSet& ps) : applyAlignment_(ps.getParameter<bool>("applyAlignment")) {
-    auto cc = setWhatProduced(this,
-                              &CaloGeometryEP<T, D>::produceAligned,
-                              edm::es::Label(T::producerTag()));
+    auto cc = setWhatProduced(this, &CaloGeometryEP<T, D>::produceAligned, edm::es::Label(T::producerTag()));
 
     if (applyAlignment_) {
       alignmentsToken_ = cc.template consumesFrom<Alignments, typename T::AlignmentRecord>(edm::ESInputTag{});
