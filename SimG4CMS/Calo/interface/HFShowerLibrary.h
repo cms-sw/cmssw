@@ -10,7 +10,6 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include "G4ThreeVector.hh"
 
@@ -58,7 +57,6 @@ protected:
   void interpolate(int, double);
   void extrapolate(int, double);
   void storePhoton(int j);
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &, int &);
 
 private:
   HFFibre *fibre;
