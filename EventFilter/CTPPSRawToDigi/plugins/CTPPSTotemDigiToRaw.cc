@@ -21,44 +21,37 @@ Implementation:
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
+#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
+#include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDigi/interface/TotemRPDigi.h"
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemDAQMapping.h"
-#include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+
 #include "EventFilter/CTPPSRawToDigi/interface/CTPPSTotemDataFormatter.h"
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
-#include "CondFormats/CTPPSReadoutObjects/interface/TotemFramePosition.h"
-
-#include "FWCore/PluginManager/interface/ModuleDef.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 //
 // class declaration
 //
@@ -79,7 +72,7 @@ private:
   int allDigiCounter_;
   int allWordCounter_;
   bool debug_;
-  edm::ESWatcher<TotemReadoutRcd> recordWatcher;
+  edm::ESWatcher<TotemReadoutRcd> recordWatcher_;
   edm::EDGetTokenT<edm::DetSetVector<TotemRPDigi>> tTotemRPDigi_;
   std::vector<CTPPSTotemDataFormatter::PPSStripIndex> v_iDdet2fed_;
   TotemFramePosition fPos_;
@@ -98,15 +91,11 @@ private:
 //
 // constructors and destructor
 //
-CTPPSTotemDigiToRaw::CTPPSTotemDigiToRaw(const edm::ParameterSet& iConfig) {
+CTPPSTotemDigiToRaw::CTPPSTotemDigiToRaw(const edm::ParameterSet& iConfig)
+    : eventCounter_(0), allDigiCounter_(0), allWordCounter_(0) {
   //register your products
   tTotemRPDigi_ = consumes<edm::DetSetVector<TotemRPDigi>>(iConfig.getParameter<edm::InputTag>("InputLabel"));
   produces<FEDRawDataCollection>();
-
-  // start the counters
-  eventCounter_ = 0;
-  allDigiCounter_ = 0;
-  allWordCounter_ = 0;
 }
 
 CTPPSTotemDigiToRaw::~CTPPSTotemDigiToRaw() {
@@ -137,7 +126,7 @@ void CTPPSTotemDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   allDigiCounter_ += digiCounter;
   edm::ESHandle<TotemDAQMapping> mapping;
   // label of the CTPPS sub-system
-  if (recordWatcher.check(iSetup)) {
+  if (recordWatcher_.check(iSetup)) {
     iSetup.get<TotemReadoutRcd>().get(mapping);
     for (const auto& p : mapping->VFATMapping) {
       //get TotemVFATInfo information
@@ -162,9 +151,9 @@ void CTPPSTotemDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   formatter.formatRawData(iEvent.id().event(), rawdata, digis, v_iDdet2fed_);
 
   // pack raw data into collection
-  for (auto it = fedIds_.begin(); it != fedIds_.end(); it++) {
-    FEDRawData& fedRawData = buffers->FEDData(*it);
-    CTPPSTotemDataFormatter::RawData::iterator fedbuffer = rawdata.find(*it);
+  for (auto it : fedIds_) {
+    FEDRawData& fedRawData = buffers->FEDData(it);
+    CTPPSTotemDataFormatter::RawData::iterator fedbuffer = rawdata.find(it);
     if (fedbuffer != rawdata.end())
       fedRawData = fedbuffer->second;
   }

@@ -93,17 +93,16 @@ private:
 //
 // constructors and destructor
 //
-CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig) {
+CTPPSPixelDigiToRaw::CTPPSPixelDigiToRaw(const edm::ParameterSet& iConfig)
+    : eventCounter_(0),
+      allDigiCounter_(0),
+      allWordCounter_(0),
+      mappingLabel_(iConfig.getParameter<std::string>("mappingLabel")) {
   //register your products
   tCTPPSPixelDigi_ = consumes<edm::DetSetVector<CTPPSPixelDigi>>(iConfig.getParameter<edm::InputTag>("InputLabel"));
 
   // Define EDProduct type
   produces<FEDRawDataCollection>();
-  mappingLabel_ = iConfig.getParameter<std::string>("mappingLabel");
-  // start the counters
-  eventCounter_ = 0;
-  allDigiCounter_ = 0;
-  allWordCounter_ = 0;
 }
 
 CTPPSPixelDigiToRaw::~CTPPSPixelDigiToRaw() {}

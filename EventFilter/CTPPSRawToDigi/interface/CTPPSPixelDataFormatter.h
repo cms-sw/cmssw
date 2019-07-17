@@ -39,7 +39,7 @@
 #include "EventFilter/CTPPSRawToDigi/interface/RPixErrorChecker.h"
 
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelIndices.h"
-#include "EventFilter/CTPPSRawToDigi/interface/CTPPSElectronicIndex.h"
+#include "EventFilter/CTPPSRawToDigi/interface/ElectronicIndex.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 
 #include <cstdint>
@@ -110,7 +110,7 @@ private:
   int m_DigiCounter;
   int m_allDetDigis;
   int m_hasDetDigis;
-  CTPPSPixelIndices theIndices;
+  CTPPSPixelIndices m_Indices;
 };
 
 #endif
