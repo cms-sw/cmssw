@@ -1062,7 +1062,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
       unsigned index = ecal.second;
       // Sanity checks and optional printout
       PFBlockElement::Type type = elements[index].type();
-#ifdef EDM_ML_LOGDEBUG
+#ifdef EDM_ML_DEBUG
       double dist = ecal.first;
       LogDebug("PFAlgo::elementLoop") << "\telement " << elements[index] << " linked with distance = " << dist;
       if (!active[index])
@@ -1102,7 +1102,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
 
       PFBlockElement::Type type = elements[index].type();
 
-#ifdef EDM_ML_LOGDEBUG
+#ifdef EDM_ML_DEBUG
       double dist = block.dist(iTrack, index, linkData, reco::PFBlock::LINKTEST_ALL);
       LogDebug("PFAlgo::elementLoop") << "\telement " << elements[index] << " linked with distance " << dist;
 #endif
