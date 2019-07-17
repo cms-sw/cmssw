@@ -16,15 +16,13 @@ PFAlgo::PFAlgo(double nSigmaECAL,
                double nSigmaHCAL,
                PFEnergyCalibration& calibration,
                PFEnergyCalibrationHF& thepfEnergyCalibrationHF,
-               const edm::ParameterSet& pset,
-               bool debug)
+               const edm::ParameterSet& pset)
     : pfCandidates_(new PFCandidateCollection),
       nSigmaECAL_(nSigmaECAL),
       nSigmaHCAL_(nSigmaHCAL),
       calibration_(calibration),
       thepfEnergyCalibrationHF_(thepfEnergyCalibrationHF),
-      debug_(debug),
-      connector_(debug) {
+      connector_() {
   pfmu_ = std::make_unique<PFMuonAlgo>(pset);
 
   // Muon parameters
