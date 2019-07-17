@@ -38,4 +38,10 @@
     <String  name="RotationName"    value="180D"/>
     <String  name="FlagString"      value="YYYYYYYYYYYYYYYYYYYYYY"/>
   </Algorithm>
+  <PosPartSection label="">
+    <PosPart copyNumber="2">
+      <rParent name=":world_volume"/>
+      <rChild name="MotherOfAllBoxes"/>
+    </PosPart>
+  </PosPartSection>
 </DDDefinition>
