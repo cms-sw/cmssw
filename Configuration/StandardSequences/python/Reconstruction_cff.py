@@ -135,15 +135,13 @@ _run3_globalreco = globalreco.copyAndExclude([CastorFullReco])
 run3_common.toReplaceWith(globalreco, _run3_globalreco)
 
 _phase2_timing_layer_globalreco = _run3_globalreco.copy()
-_phase2_timing_layer_globalreco += fastTimingGlobalReco
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco,_phase2_timing_layer_globalreco)
-
 _phase2_timing_layer_globalreco_tracking = globalreco_tracking.copy()
 _phase2_timing_layer_globalreco_tracking += fastTimingGlobalReco
+_phase2_timing_layer_globalreco.replace(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
 (phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
-
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco,_phase2_timing_layer_globalreco)
 
 _fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
