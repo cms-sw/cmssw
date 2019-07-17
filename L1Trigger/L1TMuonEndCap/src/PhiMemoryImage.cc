@@ -1,5 +1,4 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -149,8 +148,7 @@ void PhiMemoryImage::rotr(unsigned int n) {
 }
 
 unsigned int PhiMemoryImage::op_and(const PhiMemoryImage& other) const {
-  if (not(_layers == 4 && _units == 3))
-    { edm::LogError("L1T") << "_layers = " << _layers << ", _units = " << _units; return 0; }
+  static_assert((_layers == 4 && _units == 3), "This function assumes (_layers == 4 && _units == 3)");
 
   // Unroll
   bool b_st1 = (_buffer[0][0] & other._buffer[0][0]) ||

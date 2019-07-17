@@ -1,9 +1,10 @@
 <export>
-  <lib name="1"/>  
-  <use name="DataFormats/L1TMuon"/>   
-  <use name="root"/> 
+  <lib name="1"/>
+  <use name="DataFormats/L1TMuon"/>
+  <use name="root"/>
   <use name="xerces-c"/>
 </export>
+<flags ADD_SUBDIR="1"/>
 
 
 <use name="DataFormats/L1TMuon"/>
@@ -13,18 +14,25 @@
 <use name="FWCore/PluginManager"/>
 
 <use name="L1Trigger/L1TCommon"/>
-<use name="L1Trigger/CSCCommonTrigger"/>
-<use name="L1Trigger/CSCTrackFinder"/>
+<use name="Geometry/DTGeometry"/>
+<use name="DataFormats/L1DTTrackFinder"/>
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="L1Trigger/DTUtilities"/>
 <use name="L1Trigger/RPCTrigger"/>
 
 <use name="Geometry/Records"/>
 <use name="Geometry/CSCGeometry"/>
-<use name="Geometry/DTGeometry"/>
-<use name="Geometry/RPCGeometry"/>
+<use name="DataFormats/CSCDigi"/>
+<use name="L1Trigger/CSCCommonTrigger"/>
+<use name="L1Trigger/CSCTriggerPrimitives"/>
+<use name="L1Trigger/CSCTrackFinder"/>
+
+<use name="DataFormats/GEMDigi"/>
 <use name="Geometry/GEMGeometry"/>
 
+<use name="Geometry/RPCGeometry"/>
+<use name="FWCore/PluginManager"/>
+<use name="rootrflx"/>
 <use name="PhysicsTools/UtilAlgos"/>
 
 <use name="MagneticField/Engine"/>

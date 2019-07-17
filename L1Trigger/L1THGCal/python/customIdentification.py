@@ -57,3 +57,21 @@ def custom_identification_histomax(process,
             )
     parameters_c3d.EGIdentification = identification
     return process
+
+
+def custom_identification_histomax(process,
+        working_points=tight_wp
+        ):
+    if len(working_points)!=len(working_points_histomax):
+        raise RuntimeError('HGC TPG ID: Number of working points ({0}) not compatible with number of categories ({1})'.format(
+                    len(working_points), len(working_points_histomax)))
+    for wp,cat in zip(working_points,working_points_drnn_dbscan):
+        if not wp in cat:
+            raise KeyError('HGC TPG ID: Cannot find a cut corresponding to the working point {}'.format(wp))
+    parameters_c3d = process.hgcalBackEndLayer2Producer.ProcessorParameters.C3d_parameters
+    identification = egamma_identification_histomax.clone()
+    identification.WorkingPoints = cms.vdouble(
+            [wps[eff] for wps,eff in zip(working_points_histomax,working_points)]
+            )
+    parameters_c3d.EGIdentification = identification
+    return process

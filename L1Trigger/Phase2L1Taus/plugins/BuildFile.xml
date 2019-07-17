@@ -1,0 +1,9 @@
+<library file="*.cc" name="L1TriggerPhase2L1TausPlugins">
+ <use   name="DataFormats/Phase2L1ParticleFlow"/>
+ <use   name="L1Trigger/Phase2L1Taus"/>
+ <use   name="hepmc"/>
+ <use   name="root"/>
+ <use   name="boost"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>
+

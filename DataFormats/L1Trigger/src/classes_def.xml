@@ -1,4 +1,10 @@
 <lcgdict>
+  <class name="l1t::L1PFTau" ClassVersion="0">
+   <version ClassVersion="1" checksum="1146444428"/>
+  </class>
+  <class name="l1t::L1PFTauCollection"/>
+  <class name="edm::Wrapper<l1t::L1PFTauCollection>"/>
+  <class name="std::vector<l1t::L1PFTau>"/>
   <class name="l1t::L1Candidate" ClassVersion="12">
    <version ClassVersion="12" checksum="939575486"/>
    <version ClassVersion="11" checksum="2395983446"/>
@@ -99,6 +105,19 @@
   <class name="edm::Wrapper<l1t::MuonRefVector>"/>
   <class name="l1t::MuonVectorRef"/>
   <class name="edm::Wrapper<l1t::MuonVectorRef>"/>
+
+  <class name="l1t::MuonPhase2" ClassVersion="10">
+   <version ClassVersion="10" checksum="3306982079"/>
+  </class>
+  <class name="l1t::MuonPhase2BxCollection"/>
+  <class name="std::vector<l1t::MuonPhase2>"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2BxCollection>"/>
+  <class name="l1t::MuonPhase2Ref"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2Ref>"/>
+  <class name="l1t::MuonPhase2RefVector"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2RefVector>"/>
+  <class name="l1t::MuonPhase2VectorRef"/>
+  <class name="edm::Wrapper<l1t::MuonPhase2VectorRef>"/>
 
   <class name="l1t::CaloSpare" ClassVersion="13">
    <version ClassVersion="13" checksum="50826133"/>
@@ -261,4 +280,8 @@
   <class name="std::vector<l1t::L1DataEmulResult>"/>
   <class name="edm::Wrapper<l1t::L1DataEmulResultBxCollection>"/>
 
+  <class name="edm::Ptr<l1t::Muon>" />
+  <class name="edm::Ptr<l1t::L1Candidate>" />
+  <class name="std::pair<edm::Ptr<l1t::L1Candidate>, float>" />
+  <class name="std::vector<std::pair<edm::Ptr<l1t::L1Candidate>, float>>" />
 </lcgdict>

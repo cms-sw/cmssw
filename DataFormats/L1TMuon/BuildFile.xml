@@ -13,4 +13,6 @@
 <use name="DataFormats/Candidate"/>
 <use name="L1Trigger/DTTrackFinder"/>
 <use name="rootrflx"/>
+<use name="DataFormats/L1Trigger"/>
+<Use name="hepmc"/> <!-- for some reasons does not compile without this. Karol Bunkowski -->
 <flags ADD_SUBDIR="1"/>

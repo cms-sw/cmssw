@@ -4,6 +4,8 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 import os
 import sys
 import commands
+
+
 ##############################################################################
 # customisations for L1T utilities
 #
@@ -141,4 +143,259 @@ def L1TGtStage2ComparisonRAWvsEMU(process):
     process.load('L1Trigger.L1TCommon.l1tComparisonGtStage2RAWvsEMU_cfi')
     process.l1tgtstage2comparison = cms.Path(process.l1tComparisonGtStage2RAWvsEMU)
     process.schedule.append(process.l1tgtstage2comparison)
+    return process
+
+def DropDepricatedProducts(process):
+    print ("INPUT SOURCE: dropping products depricated from CMSSW_9_4_X on.")
+    print ("drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_HLT")
+    print ("drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT")
+    print ("drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT")
+    print ("drop l1tEMTFHit2016s_simEmtfDigis__HLT")
+    print ("drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT")
+    print ("drop l1tEMTFTrack2016s_simEmtfDigis__HLT")
+    process.source.inputCommands = cms.untracked.vstring("keep *" 
+        ,"drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_HLT"
+        ,"drop l1tEMTFHit2016Extras_simEmtfDigis_CSC_HLT"
+        ,"drop l1tEMTFHit2016Extras_simEmtfDigis_RPC_HLT"
+        ,"drop l1tEMTFHit2016s_simEmtfDigis__HLT"
+        ,"drop l1tEMTFTrack2016Extras_simEmtfDigis__HLT"
+        ,"drop l1tEMTFTrack2016s_simEmtfDigis__HLT"
+    )
+    return process
+
+def DropOutputProducts(process):
+    print ("OutputModule: dropping products.")
+    print ("drop TrackingParticles_mix_MergedTrackTruth_*")
+    print ("drop PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_Tracker_*")
+    print ("drop TrackingVertexs_mix_MergedTrackTruth_*")
+    print ("drop HGCalDetIdHGCSampleHGCDataFramesSorted_mix_HGCDigisEE_HLT")
+    print ("drop l1tHGCalTriggerCellBXVector_hgcalTriggerPrimitiveDigiProducer_calibratedTriggerCellsTower_L1")
+    print ("drop PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_Pixel_HLT")
+    print ("drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_L1")
+    print ("drop SimClusters_mix_MergedCaloTruth_HLT")
+    print ("drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusteredmNewDetSetVector_TTClustersFromPhase2TrackerDigis_ClusterInclusive_HLT")
+    print ("drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusterAssociationMap_TTClusterAssociatorFromPixelDigis_ClusterInclusive_HLT")
+    print ("drop PixelDigiedmDetSetVector_simSiPixelDigis_Pixel_HLT")
+    print ("drop Phase2TrackerDigiedmDetSetVector_mix_Tracker_HLT")
+    process.FEVTDEBUGHLToutput.outputCommands = cms.untracked.vstring('keep *' 
+              ,'drop TrackingParticles_mix_MergedTrackTruth_*'
+              ,'drop PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_Tracker_*'
+              ,'drop TrackingVertexs_mix_MergedTrackTruth_*'
+              ,'drop HGCalDetIdHGCSampleHGCDataFramesSorted_mix_HGCDigisEE_HLT'
+              ,'drop l1tHGCalTriggerCellBXVector_hgcalTriggerPrimitiveDigiProducer_calibratedTriggerCellsTower_L1'
+              ,'drop PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_Pixel_HLT'
+              ,'drop l1tHGCalTowerMapBXVector_hgcalTriggerPrimitiveDigiProducer_towerMap_L1'
+              ,'drop SimClusters_mix_MergedCaloTruth_HLT'
+              ,'drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusteredmNewDetSetVector_TTClustersFromPhase2TrackerDigis_ClusterInclusive_HLT'
+              ,'drop Phase2TrackerDigiedmDetSetVectorPhase2TrackerDigiPhase2TrackerDigiedmrefhelperFindForDetSetVectoredmRefTTClusterAssociationMap_TTClusterAssociatorFromPixelDigis_ClusterInclusive_HLT'
+              ,'drop PixelDigiedmDetSetVector_simSiPixelDigis_Pixel_HLT'
+              ,'drop Phase2TrackerDigiedmDetSetVector_mix_Tracker_HLT'
+              ,"drop l1tL1TkGlbMuonParticles_L1TkGlbMuons__REPR"
+    )
+    return process
+
+def L1TrackTriggerTracklet(process):
+    #print "L1T INFO:  run the L1TrackStep with Tracklet."
+    process.load('L1Trigger.TrackFindingTracklet.L1TrackletTracks_cff')
+    process.L1TrackTriggerTracklet_step = cms.Path(process.L1TrackletTracksWithAssociators)
+    process.schedule.insert(2,process.L1TrackTriggerTracklet_step)
+    return process
+
+def L1TrackTriggerTMTT(process):
+    #print "L1T INFO:  run the L1TrackStep with TMTT."
+    process.load('L1Trigger.TrackFindingTMTT.TMTrackProducer_Ultimate_cff')
+    process.TMTrackProducer.EnableMCtruth = cms.bool(False)
+    process.TMTrackProducer.EnableHistos    = cms.bool(False)
+    process.L1TrackTriggerTMTT_step = cms.Path(process.TMTrackProducer)
+    process.schedule.insert(2,process.L1TrackTriggerTMTT_step)
+    return process
+
+def L1TTurnOffHGCalTPs(process):
+    cutlist=['hgcalTriggerPrimitiveDigiProducer']
+    for b in cutlist:
+        process.SimL1Emulator.remove(getattr(process,b))
+    return process
+
+def L1TTurnOffHGCalTPs_v9(process):
+    cutlist=['hgcalVFE','hgcalConcentrator','hgcalBackEndLayer1','hgcalBackEndLayer2','hgcalTowerMap','hgcalTower']
+    for b in cutlist:
+        process.SimL1Emulator.remove(getattr(process,b))
+    return process
+
+def appendDTChamberAgingAtL1Trigger(process):
+# #############################################################################
+# This function adds aging producers for DT TPs 
+# by appending DTChamberMasker and the corresponding dtTriggerPrimitiveDigies 
+# #############################################################################
+
+    from SimMuon.DTDigitizer.dtChamberMasker_cfi import dtChamberMasker as _dtChamberMasker
+    from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import dtTriggerPrimitiveDigis as _dtTriggerPrimitiveDigis
+
+    if hasattr(process,'simDtTriggerPrimitiveDigis') and hasattr(process,'SimL1TMuonCommon') :
+
+        sys.stderr.write("[appendDTChamberMasker] : Found simDtTriggerPrimitivesDigis, appending producer for aged DTs and corresponding TriggerPrimitives producer\n")
+
+        process.simAgedDtTriggerDigis = _dtChamberMasker.clone()
+
+        process.simDtTriggerPrimitiveDigis = _dtTriggerPrimitiveDigis.clone()
+        process.simDtTriggerPrimitiveDigis.digiTag = "simAgedDtTriggerDigis"
+
+        process.withAgedDtTriggerSequence = cms.Sequence(process.simAgedDtTriggerDigis + process.simDtTriggerPrimitiveDigis)
+        process.SimL1TMuonCommon.replace(process.simDtTriggerPrimitiveDigis, process.withAgedDtTriggerSequence)
+
+        if hasattr(process,"RandomNumberGeneratorService") :
+            process.RandomNumberGeneratorService.simAgedDtTriggerDigis = cms.PSet(
+                 initialSeed = cms.untracked.uint32(789342),
+                 engineName = cms.untracked.string('TRandom3')
+                 )
+        else :
+            process.RandomNumberGeneratorService = cms.Service(
+                "RandomNumberGeneratorService",
+                simAgedDtTriggerDigis = cms.PSet(initialSeed = cms.untracked.uint32(789342))
+                )
+            
+    return process
+
+def appendCSCChamberAgingAtL1Trigger(process):
+# #############################################################################
+# This function adds aging producers for CSC TPs 
+# by appending CSCChamberMasker and the corresponding cscTriggerPrimitiveDigies 
+# #############################################################################
+
+    from SimMuon.CSCDigitizer.cscChamberMasker_cfi import cscChamberMasker as _cscChamberMasker
+    from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigis_cfi import cscTriggerPrimitiveDigis as _cscTriggerPrimitiveDigis
+
+    if hasattr(process,'simCscTriggerPrimitiveDigis') and hasattr(process,'SimL1TMuonCommon') :
+
+        sys.stderr.write("[appendCSCChamberMasker] : Found simCscTriggerPrimitivesDigis, appending producer for aged CSCs and corresponding TriggerPrimitives producer\n")
+
+        process.simAgedMuonCSCDigis = _cscChamberMasker.clone()
+        process.simAgedMuonCSCDigis.stripDigiTag = cms.InputTag("simMuonCSCDigis", "MuonCSCStripDigi")
+        process.simAgedMuonCSCDigis.wireDigiTag = cms.InputTag("simMuonCSCDigis", "MuonCSCWireDigi") 
+        process.simAgedMuonCSCDigis.comparatorDigiTag = cms.InputTag("simMuonCSCDigis", "MuonCSCComparatorDigi")
+        process.simAgedMuonCSCDigis.rpcDigiTag = cms.InputTag("simMuonCSCDigis", "MuonCSCRPCDigi") 
+        process.simAgedMuonCSCDigis.alctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis", "", \
+                                                        processName = cms.InputTag.skipCurrentProcess())
+        process.simAgedMuonCSCDigis.clctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis", "", \
+                                                        processName = cms.InputTag.skipCurrentProcess())
+
+        process.simCscTriggerPrimitiveDigis = _cscTriggerPrimitiveDigis.clone()
+        process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi' )
+        process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'simAgedMuonCSCDigis', 'MuonCSCWireDigi' )
+
+        process.withAgedCscTriggerSequence = cms.Sequence(process.simAgedMuonCSCDigis + process.simCscTriggerPrimitiveDigis)
+        process.SimL1TMuonCommon.replace(process.simCscTriggerPrimitiveDigis, process.withAgedCscTriggerSequence)
+
+        if hasattr(process,"RandomNumberGeneratorService") :
+            process.RandomNumberGeneratorService.simAgedMuonCSCDigis = cms.PSet(
+                 initialSeed = cms.untracked.uint32(789342),
+                 engineName = cms.untracked.string('TRandom3')
+                 )
+        else :
+            process.RandomNumberGeneratorService = cms.Service(
+                "RandomNumberGeneratorService",
+                simAgedMuonCSCDigis = cms.PSet(initialSeed = cms.untracked.uint32(789342))
+                )
+            
+    return process
+
+def appendRPCChamberAgingAtL1Trigger(process):
+# #############################################################################
+# This function adds aging producers for RPC Digis 
+# #############################################################################
+
+    from SimMuon.RPCDigitizer.rpcChamberMasker_cfi import rpcChamberMasker as _rpcChamberMasker
+
+    if hasattr(process,'simTwinMuxDigis') and hasattr(process,'SimL1TMuon') :
+
+        sys.stderr.write("[appendRPCChamberMasker] : Found simTwinMuxDigis, prepending producer for aged RPC\n")
+
+        process.simMuonRPCDigis = _rpcChamberMasker.clone()
+        process.simMuonRPCDigis.digiTag = cms.InputTag('simMuonRPCDigis', \
+                                                        processName = cms.InputTag.skipCurrentProcess())
+
+
+        process.withAgedRpcTriggerSequence = cms.Sequence(process.simMuonRPCDigis + process.simTwinMuxDigis )
+        process.SimL1TMuon.replace(process.simTwinMuxDigis, process.withAgedRpcTriggerSequence)
+
+        if hasattr(process,"RandomNumberGeneratorService") :
+            process.RandomNumberGeneratorService.simMuonRPCDigis = cms.PSet(
+                 initialSeed = cms.untracked.uint32(789342),
+                 engineName = cms.untracked.string('TRandom3')
+                 )
+        else :
+            process.RandomNumberGeneratorService = cms.Service(
+                "RandomNumberGeneratorService",
+                simMuonRPCDigis = cms.PSet(initialSeed = cms.untracked.uint32(789342))
+                )
+            
+    return process
+
+def appendGEMChamberAgingAtL1Trigger(process):
+# #############################################################################
+# This function adds aging producers for GEM Digis 
+# #############################################################################
+    from SimMuon.GEMDigitizer.gemChamberMasker_cfi import gemChamberMasker as _gemChamberMasker
+    from SimMuon.GEMDigitizer.muonGEMPadDigis_cfi import simMuonGEMPadDigis
+    from SimMuon.GEMDigitizer.muonGEMPadDigiClusters_cfi import simMuonGEMPadDigiClusters
+
+
+    if hasattr(process,'simCscTriggerPrimitiveDigis') and hasattr(process,'SimL1TMuon') :
+
+        sys.stderr.write("[appendGEMChamberMasker] : Found simCscTriggerPrimitiveDigis, prepending producer for aged GEM\n")
+
+        process.simMuonGEMPadDigis = simMuonGEMPadDigis.clone()
+        process.simMuonGEMPadDigiClusters = simMuonGEMPadDigiClusters.clone()
+        process.simMuonGEMDigis = _gemChamberMasker.clone()
+        process.simMuonGEMDigis.digiTag =  cms.InputTag("simMuonGEMDigis", \
+                                                        processName = cms.InputTag.skipCurrentProcess())
+
+        process.withAgedGEMDigiSequence = cms.Sequence( process.simMuonGEMDigis \
+                                                        + process.simMuonGEMPadDigis \
+                                                        + process.simMuonGEMPadDigiClusters \
+                                                        + process.simCscTriggerPrimitiveDigis)
+
+        process.SimL1TMuon.replace(process.simCscTriggerPrimitiveDigis, process.withAgedGEMDigiSequence)
+
+    return process
+
+
+
+def configureCSCLCTAsRun2(process):
+
+    ## CSCTriggerPrimitives
+    ## - revert to the old (i.e. Run 2) CSC LCT reconstruction
+    ## - see L1Trigger/CSCTriggerPrimitives/python/cscTriggerPrimitiveDigis_cfi.py
+    if hasattr(process, 'simCscTriggerPrimitiveDigis'):
+        
+        print("L1T INFO:  configuring CSC LCT reconstruction as in Run-2")
+        process.simCscTriggerPrimitiveDigis.commonParam = cms.PSet(
+            # Master flag for SLHC studies
+            isSLHC = cms.bool(False),
+
+            # Debug
+            verbosity = cms.int32(0),
+
+            ## Whether or not to use the SLHC ALCT algorithm
+            enableAlctSLHC = cms.bool(False),
+
+            ## During Run-1, ME1a strips were triple-ganged
+            ## Effectively, this means there were only 16 strips
+            ## As of Run-2, ME1a strips are unganged,
+            ## which increased the number of strips to 48
+            gangedME1a = cms.bool(False),
+
+            # flags to optionally disable finding stubs in ME42 or ME1a
+            disableME1a = cms.bool(False),
+            disableME42 = cms.bool(False),
+
+            # offset between the ALCT and CLCT central BX in simulation
+            alctClctOffset = cms.uint32(1),
+
+            runME11Up = cms.bool(False),
+            runME21Up = cms.bool(False),
+            runME31Up = cms.bool(False),
+            runME41Up = cms.bool(False),
+        )
+
     return process

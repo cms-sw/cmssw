@@ -7,10 +7,8 @@
 #include <vector>
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
-
 //#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.h"
 #include "L1Trigger/L1TMuonEndCap/interface/ConditionHelper.h"
-
 #include "L1Trigger/L1TMuonEndCap/interface/SectorProcessorLUT.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine.h"
 #include "L1Trigger/L1TMuonEndCap/interface/PtAssignmentEngine2016.h"
@@ -100,7 +98,7 @@ private:
 
   // For track building
   int thetaWindow_, thetaWindowZone0_;
-  bool useRPC_, useCPPF_, useSingleHits_;
+  bool useRPC_, useSingleHits_;
   bool bugSt2PhDiff_, bugME11Dupes_, bugAmbigThetaWin_, twoStationSameBX_;
 
   // For ghost cancellation

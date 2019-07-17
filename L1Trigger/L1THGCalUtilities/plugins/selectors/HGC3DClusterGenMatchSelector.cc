@@ -31,7 +31,7 @@ l1t::HGC3DClusterGenMatchSelector::HGC3DClusterGenMatchSelector(const edm::Param
 }
 
 void l1t::HGC3DClusterGenMatchSelector::produce(edm::Event &iEvent, const edm::EventSetup &) {
-  auto out = std::make_unique<l1t::HGCalMulticlusterBxCollection>();
+  std::unique_ptr<l1t::HGCalMulticlusterBxCollection> out(new l1t::HGCalMulticlusterBxCollection());
 
   edm::Handle<l1t::HGCalMulticlusterBxCollection> multiclusters;
   iEvent.getByToken(src_, multiclusters);

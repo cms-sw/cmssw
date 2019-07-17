@@ -27,8 +27,8 @@ maxPhi = 1.2*0.35/nStrips
 me0TriggerPseudoDigis.algo_psets[1].algo_pset.maxPhiAdditional = cms.double(maxPhi)
 me0TriggerPseudoDigis.algo_psets[1].algo_pset.maxPhiSeeds = cms.double(maxPhi)
 
-me0TriggerPseudoDigiTask = cms.Task(
-    simMuonME0PseudoReDigisCoarse,
-    me0RecHitsCoarse,
+me0TriggerPseudoDigiSequence = cms.Sequence(
+    simMuonME0PseudoReDigisCoarse *
+    me0RecHitsCoarse *
     me0TriggerPseudoDigis
 )

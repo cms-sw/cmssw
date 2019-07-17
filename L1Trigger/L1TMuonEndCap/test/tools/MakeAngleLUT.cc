@@ -31,13 +31,13 @@
 //#include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 
-#include "L1Trigger/L1TMuon/interface/GeometryTranslator.h"
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h"
-#include "L1Trigger/L1TMuon/interface/MuonTriggerPrimitiveFwd.h"
+#include "L1Trigger/L1TMuonEndCap/interface/GeometryTranslator.h"
+#include "L1Trigger/L1TMuonEndCap/interface/MuonTriggerPrimitive.h"
+#include "L1Trigger/L1TMuonEndCap/interface/MuonTriggerPrimitiveFwd.h"
 
-typedef L1TMuon::GeometryTranslator         GeometryTranslator;
-typedef L1TMuon::TriggerPrimitive           TriggerPrimitive;
-typedef L1TMuon::TriggerPrimitiveCollection TriggerPrimitiveCollection;
+typedef L1TMuonEndCap::GeometryTranslator         GeometryTranslator;
+typedef L1TMuonEndCap::TriggerPrimitive           TriggerPrimitive;
+typedef L1TMuonEndCap::TriggerPrimitiveCollection TriggerPrimitiveCollection;
 
 #include "helper.h"
 
@@ -119,8 +119,8 @@ void MakeAngleLUT::generateLUTs() {
 
   // Save z positions for ME1/1, ME1/2, ME1/3, ME2/2, ME3/2, ME4/2,
   //                      RE1/2, RE1/3, RE2/2, RE3/2, RE4/2,
-  //                      GE1/1, GE1/2,
-  std::vector<double> z_positions(13*2, 0.);
+  //                      GE1/1, GE1/2, RE3/1, RE4/1
+  std::vector<double> z_positions(15*2, 0.);
 
 
   // ___________________________________________________________________________
@@ -134,7 +134,7 @@ void MakeAngleLUT::generateLUTs() {
     const CSCDetId& cscDetId = chamber->id();
     //double zpos = chamber->surface().position().z();  // [cm]
     double zpos = chamber->layer(CSCConstants::KEY_ALCT_LAYER)->surface().position().z();  // [cm]
-    //std::cout << "CSC: " << cscDetId.endcap() << " " << cscDetId.station() << " " << cscDetId.ring() << " " << cscDetId.chamber() << " " << cscDetId.layer() << " " << zpos << std::endl;
+    //std::cout << "CSC: " << cscDetId.endcap() << " " << cscDetId.station() << " " << cscDetId.ring() << " " << cscDetId.chamber() << " " << layer->geometry()->numberOfStrips() << " " << layer->geometry()->numberOfWires() << " " << cscDetId.layer() << " " << zpos << std::endl;
 
     // Save the numbers
     if (cscDetId.endcap() == 1 && (cscDetId.chamber() == 1 || cscDetId.chamber() == 2)) {
@@ -193,7 +193,7 @@ void MakeAngleLUT::generateLUTs() {
     //if (rpcDetId.region() == 0 || (rpcDetId.station() <= 2 && rpcDetId.ring() == 3))  // skip barrel, RE1/3, RE2/3
     //  continue;
     double zpos = roll->surface().position().z();  // [cm]
-    //std::cout << "RPC: " << rpcDetId.region() << " " << rpcDetId.ring() << " " << rpcDetId.station() << " " << rpcDetId.sector() << " " << rpcDetId.layer() << " " << rpcDetId.subsector() << " " << rpcDetId.roll() << " " << zpos << std::endl;
+    //std::cout << "RPC: " << rpcDetId.region() << " " << rpcDetId.ring() << " " << rpcDetId.station() << " " << rpcDetId.sector() << " " << rpcDetId.layer() << " " << rpcDetId.subsector() << " " << rpcDetId.roll() << " " << roll->nstrips() << " " << zpos << std::endl;
 
     // Save the numbers
     if (rpcDetId.region() == 1 && rpcDetId.sector() == 1 && rpcDetId.roll() == 1 && (rpcDetId.subsector() == 1 || rpcDetId.subsector() == 2)) {
@@ -227,6 +227,18 @@ void MakeAngleLUT::generateLUTs() {
         } else if (rpcDetId.subsector() == 1) {  // rear
           z_positions[21] = zpos;
         }
+      } else if (rpcDetId.station() == 3 && rpcDetId.ring() == 1) {
+        if        (rpcDetId.subsector() == 1) {  // front
+          z_positions[26] = zpos;
+        } else if (rpcDetId.subsector() == 2) {  // rear
+          z_positions[27] = zpos;
+        }
+      } else if (rpcDetId.station() == 4 && rpcDetId.ring() == 1) {
+        if        (rpcDetId.subsector() == 1) {  // front
+          z_positions[28] = zpos;
+        } else if (rpcDetId.subsector() == 2) {  // rear
+          z_positions[29] = zpos;
+        }
       }
     }
   }  // end loop over RPC detUnits
@@ -243,8 +255,24 @@ void MakeAngleLUT::generateLUTs() {
     const GEMDetId& gemDetId = roll->id();
     if (gemDetId.region() == 0)  // skip barrel
       continue;
-    //double zpos = roll->surface().position().z();  // [cm]
-    //std::cout << "GEM: " << gemDetId.region() << " " << gemDetId.ring() << " " << gemDetId.station() << " " << gemDetId.layer() << " " << gemDetId.chamber() << " " << gemDetId.roll() << " " << zpos << std::endl;
+    double zpos = roll->surface().position().z();  // [cm]
+    //std::cout << "GEM: " << gemDetId.region() << " " << gemDetId.station() << " " << gemDetId.ring() << " " << gemDetId.layer() << " " << gemDetId.chamber() << " " << gemDetId.roll() << " " << roll->nstrips() << " " << zpos << std::endl;
+
+    if (gemDetId.region() == 1 && gemDetId.layer() == 1 && gemDetId.roll() == 1 && (gemDetId.chamber() == 1 || gemDetId.chamber() == 2)) {
+      if (gemDetId.station() == 1 && gemDetId.ring() == 1) {
+        if        (gemDetId.chamber() == 2) {  // front
+          z_positions[22] = zpos;
+        } else if (gemDetId.chamber() == 1) {  // rear
+          z_positions[23] = zpos;
+        }
+      } else if (gemDetId.station() == 2 && gemDetId.ring() == 1) {
+        if        (gemDetId.chamber() == 2) {  // front
+          z_positions[24] = zpos;
+        } else if (gemDetId.chamber() == 1) {  // rear
+          z_positions[25] = zpos;
+        }
+      }
+    }
   }  // end loop over GEM detUnits
 
 

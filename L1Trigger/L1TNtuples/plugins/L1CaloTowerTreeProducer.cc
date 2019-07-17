@@ -92,6 +92,7 @@ private:
   TTree * tree_;
 
   // EDM input tags
+  edm::EDGetTokenT<EcalEBTrigPrimDigiCollection> ecalEBToken_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalToken_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
   edm::EDGetTokenT<l1t::CaloTowerBxCollection> l1TowerToken_;
@@ -105,6 +106,7 @@ private:
 L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfig)
 {
 
+  ecalEBToken_ = consumes<EcalEBTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ecalEBToken"));
   ecalToken_ = consumes<EcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ecalToken"));
   hcalToken_ = consumes<HcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("hcalToken"));
   l1TowerToken_ = consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"));
@@ -160,11 +162,46 @@ L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::ESHandle<CaloTPGTranscoder> decoder;
   iSetup.get<CaloTPGRecord>().get(decoder);
 
+  edm::Handle<EcalEBTrigPrimDigiCollection> ecalEBTPs;
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
 
+  iEvent.getByToken(ecalEBToken_, ecalEBTPs);
   iEvent.getByToken(ecalToken_, ecalTPs);
   iEvent.getByToken(hcalToken_, hcalTPs);
+
+  if (ecalEBTPs.isValid()){ 
+
+    for ( auto itr : *(ecalEBTPs.product()) ) {
+
+      short ieta = (short) itr.id().ieta();
+      //      unsigned short absIeta = (unsigned short) abs(ieta);
+      //      short sign = ieta/absIeta;
+      
+      unsigned short cal_iphi = (unsigned short) itr.id().iphi();
+      //unsigned short iphi = (72 + 18 - cal_iphi) % 72;
+      unsigned short iphi = cal_iphi;
+      unsigned short encodEt = itr.encodedEt();
+      double et = ecalLSB_ * encodEt;
+      unsigned short spike = (unsigned short) itr.l1aSpike();
+      unsigned short time = (unsigned short) itr.time();
+
+      if (encodEt > 0) {
+	caloTPData_->ecalEBTPieta.push_back( ieta );
+	caloTPData_->ecalEBTPCaliphi.push_back( cal_iphi );
+	caloTPData_->ecalEBTPiphi.push_back( iphi );
+	caloTPData_->ecalEBTPet.push_back( et );
+	caloTPData_->ecalEBTPencodEt.push_back( encodEt );
+	caloTPData_->ecalEBTPspike.push_back( spike );
+	caloTPData_->ecalEBTPtime.push_back( time );
+	caloTPData_->nECALEBTP++;
+      }
+    }
+
+  }
+  else {
+    edm::LogWarning("L1TNtuple") << "ECAL EB TPs not found, branch will not be filled";
+  }
 
   if (ecalTPs.isValid()){ 
 

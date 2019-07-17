@@ -12,10 +12,11 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/RPCDigi/interface/RPCDigi.h"
-#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
-#include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
+//#include "DataFormats/GEMDigi/interface/GEMPadDigi.h"
+//#include "DataFormats/GEMDigi/interface/ME0PadDigi.h"
 #include "DataFormats/L1TMuon/interface/CPPFDigi.h"
 #include "DataFormats/L1TMuon/interface/EMTF/ME.h"
 
@@ -26,17 +27,16 @@ namespace l1t {
 
     EMTFHit() :
       rawDetId(0),
-      endcap(-99), station(-99), ring(-99), sector(-99), sector_RPC(-99), sector_idx(-99),
+      subsystem(-99), endcap(-99), station(-99), ring(-99), sector(-99), sector_RPC(-99), sector_idx(-99),
       subsector(-99), subsector_RPC(-99), chamber(-99), csc_ID(-99), csc_nID(-99), roll(-99),
       neighbor(-99), mpc_link(-99), pc_sector(-99), pc_station(-99), pc_chamber(-99), pc_segment(-99),
       wire(-99), strip(-99), strip_hi(-99), strip_low(-99), track_num(-99), quality(-99),
       pattern(-99), bend(-99), valid(-99), sync_err(-99), bc0(-99), bx(-99), stub_num(-99),
-      phi_fp(-99), theta_fp(-99), phzvl(-99), ph_hit(-99), zone_hit(-99), zone_code(-99),
+      phi_fp(-99), theta_fp(-99), zone_hit(-99), zone_code(-99),
       fs_segment(-99), fs_zone_code(-99), bt_station(-99), bt_segment(-99),
       phi_loc(-99), phi_glob(-999), theta(-99), eta(-99), time(-99),
       phi_sim(-999), theta_sim(-99), eta_sim(-99), rho_sim(-99), z_sim(-99),
-      alct_quality(-99), clct_quality(-99),
-      is_CSC(-99), is_RPC(-99), is_GEM(-99), subsystem(-99)
+      alct_quality(-99), clct_quality(-99)
       {};
 
     virtual ~EMTFHit() {};
@@ -70,6 +70,7 @@ namespace l1t {
     void SetRPCDetId   (const RPCDetId& id)                 { rawDetId = id.rawId(); }
     void SetGEMDetId   (const GEMDetId& id)                 { rawDetId = id.rawId(); }
     void SetME0DetId   (const ME0DetId& id)                 { rawDetId = id.rawId(); }
+    void SetDTDetId    (const DTChamberId& id)              { rawDetId = id.rawId(); }
 
     //CSCDetId CSC_DetId                          () const { return csc_DetId;    }
     //RPCDetId RPC_DetId                          () const { return rpc_DetId;    }
@@ -82,7 +83,9 @@ namespace l1t {
     RPCDetId RPC_DetId                          () const { return RPCDetId(rawDetId); }
     GEMDetId GEM_DetId                          () const { return GEMDetId(rawDetId); }
     ME0DetId ME0_DetId                          () const { return ME0DetId(rawDetId); }
+    DTChamberId DT_DetId                        () const { return DTChamberId(rawDetId); }
 
+    void set_subsystem    (int  bits) { subsystem    = bits; }
     void set_endcap       (int  bits) { endcap       = bits; }
     void set_station      (int  bits) { station      = bits; }
     void set_ring         (int  bits) { ring         = bits; }
@@ -116,8 +119,6 @@ namespace l1t {
     void set_stub_num     (int  bits) { stub_num     = bits; }
     void set_phi_fp       (int  bits) { phi_fp       = bits; }
     void set_theta_fp     (int  bits) { theta_fp     = bits; }
-    void set_phzvl        (int  bits) { phzvl        = bits; }
-    void set_ph_hit       (int  bits) { ph_hit       = bits; }
     void set_zone_hit     (int  bits) { zone_hit     = bits; }
     void set_zone_code    (int  bits) { zone_code    = bits; }
     void set_fs_segment   (int  bits) { fs_segment   = bits; }
@@ -136,11 +137,8 @@ namespace l1t {
     void set_z_sim        (float val) { z_sim        = val;  }
     void set_alct_quality (int  bits) { alct_quality = bits; }
     void set_clct_quality (int  bits) { clct_quality = bits; }
-    void set_is_CSC       (int  bits) { is_CSC       = bits; }
-    void set_is_RPC       (int  bits) { is_RPC       = bits; }
-    void set_is_GEM       (int  bits) { is_GEM       = bits; }
-    void set_subsystem    (int  bits) { subsystem    = bits; }
 
+    int   Subsystem    ()  const { return subsystem   ; }
     int   Endcap       ()  const { return endcap      ; }
     int   Station      ()  const { return station     ; }
     int   Ring         ()  const { return ring        ; }
@@ -174,8 +172,6 @@ namespace l1t {
     int   Stub_num     ()  const { return stub_num    ; }
     int   Phi_fp       ()  const { return phi_fp      ; }
     int   Theta_fp     ()  const { return theta_fp    ; }
-    int   Phzvl        ()  const { return phzvl       ; }
-    int   Ph_hit       ()  const { return ph_hit      ; }
     int   Zone_hit     ()  const { return zone_hit    ; }
     int   Zone_code    ()  const { return zone_code   ; }
     int   FS_segment   ()  const { return fs_segment  ; }
@@ -194,10 +190,14 @@ namespace l1t {
     float Z_sim        ()  const { return z_sim       ; }
     int   ALCT_quality ()  const { return alct_quality; }
     int   CLCT_quality ()  const { return clct_quality; }
-    int   Is_CSC       ()  const { return is_CSC      ; }
-    int   Is_RPC       ()  const { return is_RPC      ; }
-    int   Is_GEM       ()  const { return is_GEM      ; }
-    int   Subsystem    ()  const { return subsystem   ; }
+
+    // See L1Trigger/L1TMuon/interface/MuonTriggerPrimitive.h
+    enum subsystem_type{kDT,kCSC,kRPC,kGEM,kME0,kNSubsystems};
+    bool  Is_DT        ()  const { return subsystem == kDT ; }
+    bool  Is_CSC       ()  const { return subsystem == kCSC; }
+    bool  Is_RPC       ()  const { return subsystem == kRPC; }
+    bool  Is_GEM       ()  const { return subsystem == kGEM; }
+    bool  Is_ME0       ()  const { return subsystem == kME0; }
 
 
   private:
@@ -212,6 +212,7 @@ namespace l1t {
 
     uint32_t rawDetId;  // raw CMSSW DetId
 
+    int   subsystem   ; //  0 -  4.  0 for DT, 1 for CSC, 2 for RPC, 3 for GEM, 4 for ME0
     int   endcap      ; //    +/-1.  For ME+ and ME-.
     int   station     ; //  1 -  4.
     int   ring        ; //  1 -  4.  ME1/1a is denoted as "Ring 4".  Should check dependence on input CSCDetId convention. - AWB 02.03.17
@@ -245,8 +246,6 @@ namespace l1t {
     int   stub_num    ; //  0 or 1.  Only from unpacked data? - AWB 02.03.17
     int   phi_fp      ; //  0 - 4920
     int   theta_fp    ; //  0 - 127
-    int   phzvl       ; //  0 -  6.
-    int   ph_hit      ; //  2 - 43.  (Range? - AWB 02.03.17)
     int   zone_hit    ; //  4 - 156  (Range? - AWB 02.03.17)
     int   zone_code   ; //  0 - 12.  (Range? - AWB 02.03.17)
     int   fs_segment  ; //  0 - 13.  (Range? - AWB 02.03.17)
@@ -265,10 +264,6 @@ namespace l1t {
     float z_sim       ; //  ? -  ?.
     int   alct_quality; //  1 -  3.  For emulated CSC LCTs only, maps to number of ALCT layers (4 - 6).
     int   clct_quality; //  4 -  6.  For emulated CSC LCTs only, maps to number of CLCT layers (4 - 6).
-    int   is_CSC      ; //  0 or 1.
-    int   is_RPC      ; //  0 or 1.
-    int   is_GEM      ; //  0 or 1.
-    int   subsystem   ; //  1 or ?.  1 for CSC, 2 for RPC, 3 for GEM
 
   }; // End of class EMTFHit
 

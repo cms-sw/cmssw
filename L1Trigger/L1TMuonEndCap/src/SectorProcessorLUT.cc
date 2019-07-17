@@ -19,22 +19,22 @@ SectorProcessorLUT::~SectorProcessorLUT() {
 
 }
 
-void SectorProcessorLUT::read(bool pc_lut_data, int pc_lut_version) {
+void SectorProcessorLUT::read(bool is_data, int pc_lut_version) {
   if (version_ == pc_lut_version)  return;
 
   edm::LogInfo("L1T") << "EMTF using pc_lut_ver: " << pc_lut_version
-		      << ", configured for " << (pc_lut_data ? "data" : "MC");
+                      << ", configured for " << (is_data ? "data" : "MC");
 
   std::string coord_lut_dir = "";
   if      (pc_lut_version == 0)
     coord_lut_dir = "ph_lut_v1";       // All year 2016
   else if (pc_lut_version == 1)
     coord_lut_dir = "ph_lut_v2";       // Beginning of 2017, improved alignment from ideal CMS geometry (MC)
-  else if (pc_lut_version == 2 && pc_lut_data)
+  else if (pc_lut_version == 2 && is_data)
     coord_lut_dir = "ph_lut_v3_data";  // Update in September 2017 from ReReco alignment, data only
   else if (pc_lut_version == 2)
     coord_lut_dir = "ph_lut_v2";       // MC still uses ideal CMS aligment
-  else if (pc_lut_version == -1 && pc_lut_data)
+  else if (pc_lut_version == -1 && is_data)
     coord_lut_dir = "ph_lut_v3_data";  // September 2017 data LCT alignment, but use local CPPF LUTs for RPC
   else if (pc_lut_version == -1)
     coord_lut_dir = "ph_lut_v2";       // MC using ideal CMS LCT alignment, but use local CPPF LUTs for RPC
@@ -278,6 +278,7 @@ void SectorProcessorLUT::read_file(const std::string& filename, std::vector<uint
 }
 
 void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector<uint32_t>& vec1, std::vector<uint32_t>& vec2, bool local) {
+  // Extracted from "DataFormats/MuonDetId/interface/RPCDetId.h"
   auto get_rpc_region = [](uint32_t id) { return (static_cast<int>((id >> 0) & 0X3) + (-1)); };
   auto get_rpc_sector = [](uint32_t id) { return (static_cast<int>((id >> 7) & 0XF) + (1)); };
   auto get_rpc_ring = [](uint32_t id) { return (static_cast<int>((id >> 2) & 0X7) + (1)); };
@@ -321,15 +322,15 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector
       // On roughly every-other line, files in L1Trigger/L1TMuon/data/cppf have 0 in the first three columns
       // Skips a "0 0 0" line once every 192 lines
       if ((line_num % 2) == 1) {
-	buf1_prev = buf1;
-	buf2_prev = buf2;
+        buf1_prev = buf1;
+        buf2_prev = buf2;
       }
 
       if (local && (buf1 == 0 || buf2 == 0)) {
-	throw cms::Exception("SectorProcessorLUT") << "Expected non-0 values, got buf1 = " << buf1 << ", buf2 = " << buf2;
+        throw cms::Exception("SectorProcessorLUT") << "Expected non-0 values, got buf1 = " << buf1 << ", buf2 = " << buf2;
       }
       if (!local && (buf1_prev == 0 || buf2_prev == 0)) {
-	throw cms::Exception("SectorProcessorLUT") << "Expected non-0 values, got buf1_prev = " << buf1_prev << ", buf2_prev = " << buf2_prev;
+        throw cms::Exception("SectorProcessorLUT") << "Expected non-0 values, got buf1_prev = " << buf1_prev << ", buf2_prev = " << buf2_prev;
       }
 
       uint32_t id           = (local ? buf1 : buf1_prev);
@@ -342,9 +343,9 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector
 
       // Offset into halfstrips from centrally-provided LUTs
       if ( buf2_prev*2 > halfstrip_prev + 8 ||
-	   buf2_prev*2 < halfstrip_prev - 8 ) { // Starting a new series of strips
-	if (buf2_prev == 1) count_dir = +1; // Starting from a low number, counting up
-	else                count_dir = -1; // Starting from a high number, counting down
+           buf2_prev*2 < halfstrip_prev - 8 ) { // Starting a new series of strips
+        if (buf2_prev == 1) count_dir = +1; // Starting from a low number, counting up
+        else                count_dir = -1; // Starting from a high number, counting down
       }
       if (count_dir == -1) dStrip = (buf2_prev*2 == halfstrip_prev     ? 1 : 0);
       if (count_dir == +1) dStrip = (buf2_prev*2 == halfstrip_prev + 2 ? 1 : 0);
@@ -361,7 +362,7 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector
       size_t ph_index       = (th_index * 64) + (halfstrip - 1);
 
       // std::cout << id << " " << rpc_region << " " << rpc_sector << " " << rpc_station << " " << rpc_ring << " "
-      // 		<< rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
+      //           << rpc_subsector << " " << rpc_roll << " " << halfstrip << " " << th_index << " " << ph_index << std::endl;
 
       vec1.at(ph_index) = ph;
       if (halfstrip == 1)
@@ -369,7 +370,7 @@ void SectorProcessorLUT::read_cppf_file(const std::string& filename, std::vector
 
       // Fill gap in centrally-provided LUTs once every 192 lines
       if (!local && (line_num % 192) == 191)
-	vec1.at(ph_index+1) = ph;
+        vec1.at(ph_index+1) = ph;
 
     } // End while ((infile >> buf1) && ... && (infile >> buf6))
     infile.close();

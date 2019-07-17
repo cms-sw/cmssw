@@ -7,7 +7,7 @@ simGmtCaloSumDigis = cms.EDProducer('L1TMuonCaloSumProducer',
 )
 
 simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
-    barrelTFInput  = cms.InputTag("simBmtfDigis", "BMTF"),
+    barrelTFInput  = cms.InputTag("simKBmtfDigis", "BMTF"),
     overlapTFInput = cms.InputTag("simOmtfDigis", "OMTF"),
     forwardTFInput = cms.InputTag("simEmtfDigis", "EMTF"),
     #triggerTowerInput = cms.InputTag("simGmtCaloSumDigis", "TriggerTower2x2s"),
@@ -16,7 +16,8 @@ simGmtStage2Digis = cms.EDProducer('L1TMuonProducer',
     bxMin = cms.int32(-2),
     bxMax = cms.int32(2),
     autoCancelMode = cms.bool(False), # if True the cancel out methods are configured depending on the FW version number and 'emtfCancelMode' is ignored
-    emtfCancelMode = cms.string("coordinate") # 'tracks' or 'coordinate'
+    emtfCancelMode = cms.string("coordinate"), # 'tracks' or 'coordinate'
+    runPhase2 = cms.bool(False)
 )
 
 from CondCore.CondDB.CondDB_cfi import CondDB
@@ -30,3 +31,6 @@ l1ugmtdb = cms.ESSource("PoolDBESSource",
             )
        )
 )
+
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+phase2_muon.toModify( simGmtStage2Digis, runPhase2 =cms.bool(True) )

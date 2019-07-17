@@ -3,6 +3,10 @@
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/Phase2TrackerDigi"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="boost"/>
+<use   name="rootrflx"/>
+<use   name="clhep"/>
 <export>
   <lib   name="1"/>
 </export>

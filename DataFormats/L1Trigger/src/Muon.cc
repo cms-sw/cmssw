@@ -53,7 +53,7 @@ l1t::Muon::Muon( const LorentzVector& p4,
     etaAtVtx_(etaAtVtx),
     phiAtVtx_(phiAtVtx)
 {
-  
+
 }
 
 l1t::Muon::Muon( const PolarLorentzVector& p4,
@@ -90,10 +90,28 @@ l1t::Muon::Muon( const PolarLorentzVector& p4,
     etaAtVtx_(etaAtVtx),
     phiAtVtx_(phiAtVtx)
 {
-  
+
 }
 
-l1t::Muon::~Muon() 
+l1t::Muon::Muon( const l1t::Muon& muon) :
+  l1t::L1Candidate(muon)
+{
+  hwCharge_ = muon.hwCharge();
+  hwChargeValid_ = muon.hwChargeValid();
+  tfMuonIndex_ = muon.tfMuonIndex();
+  hwTag_ = muon.hwTag();
+  hwEtaAtVtx_ = muon.hwEtaAtVtx();
+  hwPhiAtVtx_ = muon.hwPhiAtVtx();
+  etaAtVtx_ = muon.etaAtVtx();
+  phiAtVtx_ = muon.phiAtVtx();
+  hwIsoSum_ = muon.hwIsoSum();
+  hwDPhiExtra_ = muon.hwDPhiExtra();
+  hwDEtaExtra_ = muon.hwDEtaExtra();
+  hwRank_ = muon.hwRank();
+  debug_ = muon.debug();
+}
+
+l1t::Muon::~Muon()
 {
 
 }

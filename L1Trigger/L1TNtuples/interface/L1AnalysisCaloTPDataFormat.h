@@ -33,6 +33,14 @@ namespace L1Analysis
       ecalTPet.clear();
       ecalTPcompEt.clear();
       ecalTPfineGrain.clear();
+      nECALEBTP = 0;
+      ecalEBTPieta.clear();
+      ecalEBTPiphi.clear();
+      ecalEBTPCaliphi.clear();
+      ecalEBTPet.clear();
+      ecalEBTPencodEt.clear();
+      ecalEBTPspike.clear();
+      ecalEBTPtime.clear();
     }
     
     void Init() {
@@ -55,6 +63,16 @@ namespace L1Analysis
     std::vector<float> ecalTPet;
     std::vector<short> ecalTPcompEt;
     std::vector<short> ecalTPfineGrain;
+
+    short nECALEBTP;
+    std::vector<short> ecalEBTPieta;
+    std::vector<short> ecalEBTPiphi;
+    std::vector<short> ecalEBTPCaliphi;
+    std::vector<float> ecalEBTPet;
+    std::vector<short> ecalEBTPencodEt;
+    std::vector<short> ecalEBTPspike;
+    std::vector<short> ecalEBTPtime;
+    
     
   }; 
 } 

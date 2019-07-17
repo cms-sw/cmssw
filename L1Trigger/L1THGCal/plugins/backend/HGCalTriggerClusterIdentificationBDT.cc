@@ -75,8 +75,12 @@ void HGCalTriggerClusterIdentificationBDT::initialize(const edm::ParameterSet& c
     edm::LogWarning("HGCalTriggerClusterIdentificationBDT|Initialization") << "BDTs already initialized.";
     return;
   }
-  input_variables_ = conf.getParameter<std::vector<std::string>>("Inputs");
-  std::vector<std::string> bdt_files = conf.getParameter<std::vector<std::string>>("Weights");
+  categories_.clear();
+  bdts_.clear();
+  working_points_.clear();
+  input_variables_.clear();
+  input_variables_ = conf.getParameter< std::vector<std::string> >("Inputs");
+  std::vector<std::string> bdt_files = conf.getParameter< std::vector<std::string> >("Weights");
   std::vector<double> categories_etamin = conf.getParameter<std::vector<double>>("CategoriesEtaMin");
   std::vector<double> categories_etamax = conf.getParameter<std::vector<double>>("CategoriesEtaMax");
   std::vector<double> categories_ptmin = conf.getParameter<std::vector<double>>("CategoriesPtMin");

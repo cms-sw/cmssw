@@ -8,6 +8,16 @@
     <use name="L1Trigger/L1TMuonEndCap"/>
     <use name="cppunit"/>
   </bin>
+
+  <bin name="TestRPCDetID" file="unittests/TestRPCDetID.cpp">
+    <use name="DataFormats/MuonDetId"/>
+    <use name="cppunit"/>
+  </bin>
+
+  <bin name="TestTensorFlow" file="unittests/TestTensorFlow.cpp">
+    <use name="PhysicsTools/TensorFlow"/>
+    <use name="cppunit"/>
+  </bin>
 </environment>
 
 

@@ -1,5 +1,4 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PtLUTWriter.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <fstream>
 #include <iostream>
@@ -22,8 +21,7 @@ PtLUTWriter::~PtLUTWriter() {
 
 void PtLUTWriter::write(const std::string& lut_full_path, const uint16_t num_, const uint16_t denom_) const {
   //if (ok_)  return;
-  if (not(denom_ == 64)) // Check consistency for temporary hack - AWB 24.05.17
-    { edm::LogError("L1T") << "denom_ = " << denom_; return; }
+  assert(denom_ == 64); // Check consistency for temporary hack - AWB 24.05.17
 
   std::cout << "Writing LUT, this might take a while..." << std::endl;
 

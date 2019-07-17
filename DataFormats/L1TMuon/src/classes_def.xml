@@ -107,5 +107,12 @@
   <class name="l1t::RegionalMuonCandRefPairBxCollection"/>
   <class name="edm::Wrapper<l1t::RegionalMuonCandRefPairBxCollection>"/>
 
+  <class name="l1t::BayesMuCorrelatorTrack" />
+  <class name="l1t::BayesMuCorrTrackCollection"/>
+  <class name="edm::Wrapper<l1t::BayesMuCorrTrackCollection>"/>
+  
+  <class name="l1t::BayesMuCorrTrackBxCollection" />
+  <class name="edm::Wrapper<l1t::BayesMuCorrTrackBxCollection>" />
+  
  </selection>
 </lcgdict>

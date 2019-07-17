@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 simKBmtfStubs = cms.EDProducer("L1TMuonBarrelKalmanStubProducer",
     verbose = cms.int32(0),
     srcPhi = cms.InputTag("simTwinMuxDigis"),
-    srcTheta = cms.InputTag("simDtTriggerPrimitiveDigis"),
+    srcTheta = cms.InputTag("simTwinMuxDigis"),
     minPhiQuality = cms.int32(0),
     minThetaQuality = cms.int32(0),
     minBX = cms.int32(-2),                           

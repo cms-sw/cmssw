@@ -2,15 +2,9 @@
 #define __L1Trigger_L1THGCal_HGCalConcentratorSuperTriggerCellImpl_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
-
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
-#include "DataFormats/L1THGCal/interface/HGCalTriggerSums.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetIdToROC.h"
-
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
-
-#include <array>
 #include <vector>
 
 class HGCalConcentratorSuperTriggerCellImpl {

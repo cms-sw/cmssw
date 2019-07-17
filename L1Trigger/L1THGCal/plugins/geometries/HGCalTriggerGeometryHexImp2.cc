@@ -32,6 +32,9 @@ public:
 
   geom_set getNeighborsFromTriggerCell(const unsigned) const final;
 
+  unsigned getLinksInModule(const unsigned module_id) const final;
+  unsigned getModuleSize(const unsigned module_id) const final;
+
   GlobalPoint getTriggerCellPosition(const unsigned) const final;
   GlobalPoint getModulePosition(const unsigned) const final;
 
@@ -485,6 +488,10 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryHexImp2::getNeighborsFrom
   }
   return neighbor_detids;
 }
+
+unsigned HGCalTriggerGeometryHexImp2::getLinksInModule(const unsigned module_id) const { return 1; }
+
+unsigned HGCalTriggerGeometryHexImp2::getModuleSize(const unsigned module_id) const { return 1; }
 
 GlobalPoint HGCalTriggerGeometryHexImp2::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
   // Position: barycenter of the trigger cell.

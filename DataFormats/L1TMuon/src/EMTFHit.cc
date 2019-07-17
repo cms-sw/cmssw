@@ -31,7 +31,7 @@ namespace l1t {
 
   CPPFDigi EMTFHit::CreateCPPFDigi() const {
 
-    if (is_RPC != 1) return CPPFDigi();
+    if (!Is_RPC()) return CPPFDigi();
 
     int board_   = 1 + ((chamber % 36) / 9);  // RPC chamber to CPPF board mapping
     int channel_ = (chamber % 9);             // RPC chamber to CPPF output link mapping

@@ -14,6 +14,8 @@ class Node
     public:
         Node();
         Node(std::string cName);
+        Node(const Node &) = delete;
+        Node& operator=(const Node &) = delete;
         ~Node();
 
         Node(Node &&) = default;
@@ -61,9 +63,6 @@ class Node
         void theMiracleOfChildBirth();
 
     private:
-        Node(const Node &) = delete;
-        Node& operator=(const Node &) = delete;
-
         std::string name;
 
         Node *leftDaughter;
