@@ -12,9 +12,7 @@
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
-#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 #include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
-#include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
@@ -187,6 +185,17 @@ void RunManager::initG4(const edm::EventSetup& es) {
                                       << "The Geometry configuration is changed during the job execution\n"
                                       << "this is not allowed, the geometry must stay unchanged\n";
   }
+  bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
+  bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
+  bool protonCut = m_pPhysics.getUntrackedParameter<bool>("CutsOnProton", true);
+  int  verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), 
+                       m_p.getParameter<int>("SteppingVerbosity"));
+  edm::LogVerbatim("SimG4CoreApplication") 
+      << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
+      << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
+      << "              G4 verbosity: " << verb;
+
+
   if (m_pUseMagneticField) {
     bool magChanged = idealMagRcdWatcher_.check(es);
     if (magChanged && (!firstRun)) {
@@ -200,22 +209,22 @@ void RunManager::initG4(const edm::EventSetup& es) {
   if (m_managerInitialized)
     return;
 
-  // DDDWorld: get the DDCV from the ES and use it to build the World
-  edm::ESTransientHandle<DDCompactView> pDD;
-  es.get<IdealGeometryRecord>().get(pDD);
-
-  G4LogicalVolumeToDDLogicalPartMap map_;
-  SensitiveDetectorCatalog catalog_;
-  const DDDWorld* world = new DDDWorld(&(*pDD), map_, catalog_, false);
-  m_registry.dddWorldSignal_(world);
-
-  int verb =
-      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
-  m_kernel->SetVerboseLevel(verb);
-  auto cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
-  if (cuts) {
-    DDG4ProductionCuts pcuts(map_, verb, m_pPhysics);
+  // initialise geometry
+  const DDCompactView* pDD = nullptr;
+  const cms::DDCompactView* pDD4hep = nullptr;
+  if (geoFromDD4hep) {
+    edm::ESTransientHandle<cms::DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+    pDD4hep = pDD.product();
+  } else {
+    edm::ESTransientHandle<DDCompactView> pDD;
+    es.get<IdealGeometryRecord>().get(pDD);
+    pDD = pDD.product();
   }
+  SensitiveDetectorCatalog catalog;
+  const DDDWorld* world = new DDDWorld(pDD, pDD4hep, catalog, verb, cuts, protonCut);
+  G4VPhysicalVolume* pworld = world->GetWorldVolume();
+  m_registry.dddWorldSignal_(world);
 
   if (m_pUseMagneticField) {
     // setup the magnetic field
@@ -237,20 +246,18 @@ void RunManager::initG4(const edm::EventSetup& es) {
   // we need the track manager now
   m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
 
-  {
-    // attach sensitive detector
+  // attach sensitive detector
+  AttachSD attach;
+  auto sensDets = attach.create(es, catalog, m_p, m_trackManager.get(), m_registry);
 
-    AttachSD attach;
-    auto sensDets = attach.create(es, catalog_, m_p, m_trackManager.get(), m_registry);
+  m_sensTkDets.swap(sensDets.first);
+  m_sensCaloDets.swap(sensDets.second);
 
-    m_sensTkDets.swap(sensDets.first);
-    m_sensCaloDets.swap(sensDets.second);
-  }
-
-  edm::LogInfo("SimG4CoreApplication") << " RunManager: Sensitive Detector "
-                                       << "building finished; found " << m_sensTkDets.size()
-                                       << " Tk type Producers, and " << m_sensCaloDets.size()
-                                       << " Calo type producers ";
+  edm::LogVerbatim("SimG4CoreApplication") 
+      << " RunManager: Sensitive Detector "
+      << "building finished; found " << m_sensTkDets.size()
+      << " Tk type Producers, and " << m_sensCaloDets.size()
+      << " Calo type producers ";
 
   edm::ESHandle<HepPDT::ParticleDataTable> fTable;
   es.get<PDTRecord>().get(fTable);
@@ -337,7 +344,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
     G4GDMLParser gdml;
     gdml.SetRegionExport(true);
     gdml.SetEnergyCutsExport(true);
-    gdml.Write(m_WriteFile, world->GetWorldVolume(), true);
+    gdml.Write(m_WriteFile, pworld, true);
   }
 
   if (!m_RegionFile.empty()) {

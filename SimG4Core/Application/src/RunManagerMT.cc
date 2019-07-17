@@ -1,3 +1,4 @@
+
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/PrimaryTransformer.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
@@ -7,21 +8,12 @@
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
-#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
-#include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
-
-#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CMSExoticaPhysics.h"
 
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
-#include "SimG4Core/MagneticField/interface/FieldBuilder.h"
-#include "SimG4Core/MagneticField/interface/Field.h"
-#include "SimG4Core/MagneticField/interface/CMSFieldManager.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
@@ -60,8 +52,6 @@
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
 
-#include "DDG4/Geant4Mapping.h"
-
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -72,7 +62,6 @@
 RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
     : m_managerInitialized(false),
       m_runTerminated(false),
-      m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
@@ -102,35 +91,29 @@ RunManagerMT::~RunManagerMT() { stopG4(); }
 
 void RunManagerMT::initG4(const DDCompactView* pDD,
                           const cms::DDCompactView* pDD4hep,
-                          const MagneticField* pMF,
                           const HepPDT::ParticleDataTable* fPDGTable) {
   if (m_managerInitialized) {
     edm::LogWarning("SimG4CoreApplication") << "RunManagerMT::initG4 was already done - exit";
     return;
   }
-  auto geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep;
+  bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
+  bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
+  bool protonCut = m_pPhysics.getUntrackedParameter<bool>("CutsOnProton", true);
+  int  verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), 
+                       m_p.getParameter<int>("SteppingVerbosity"));
+  edm::LogVerbatim("SimG4CoreApplication") 
+      << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
+      << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
+      << "              G4 verbosity: " << verb;
 
-  // DDDWorld: get the DDCV from the ES and use it to build the World
-  G4LogicalVolumeToDDLogicalPartMap map_lv;
-  dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
-  if (geoFromDD4hep) {
-    m_world.reset(new DDDWorld(pDD4hep->detector(), lvMap));
-  } else {
-    m_world.reset(new DDDWorld(pDD, map_lv, m_catalog, false));
-  }
+  m_world.reset(new DDDWorld(pDD, pDD4hep, m_catalog, verb, cuts, protonCut));
   G4VPhysicalVolume* world = m_world.get()->GetWorldVolume();
 
-  bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
-  int verb =
-      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
   m_kernel->SetVerboseLevel(verb);
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: Define cuts: " << cuts << " Geant4 run manager verbosity: " << verb;
 
-  if (cuts) {
-    DDG4ProductionCuts pcuts(map_lv, verb, m_pPhysics);
-  }
+
   const G4RegionStore* regStore = G4RegionStore::GetInstance();
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
