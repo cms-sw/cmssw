@@ -273,12 +273,15 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             task.add(process.combinedMVATask)
             process.load("RecoBTag.CTagging.cTagging_cff")
             task.add(process.cTaggingTask)
+            process.load("RecoBTag.PixelCluster.pixelCluster_cff")
+            task.add(process.pixelClusterTask)
         else: # to prevent loading of modules already run in the standard reconstruction
             process.load("RecoBTag.ImpactParameter.impactParameter_EventSetup_cff")
             process.load("RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff")
             process.load("RecoBTag.SoftLepton.softLepton_EventSetup_cff")
             process.load("RecoBTag.Combined.combinedMVA_EventSetup_cff")
             process.load("RecoBTag.CTagging.cTagging_EventSetup_cff")
+            process.load("RecoBTag.PixelCluster.pixelCluster_EventSetup_cff")
     import RecoBTag.Configuration.RecoBTag_cff as btag
     import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
@@ -591,6 +594,10 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             if btagInfo == 'softPFElectronsTagInfos':
                 addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
                                     btag.softPFElectronsTagInfos.clone(jets = jetSource, primaryVertex=pvSource, electrons=elSource),
+                                    process, task)
+            if btagInfo == 'pixelClusterTagInfos':
+                addToProcessAndTask(btagPrefix+btagInfo+labelName+postfix,
+                                    btag.pixelClusterTagInfos.clone(jets = jetSource, vertices=pvSource),
                                     process, task)
 
             if 'DeepFlavourTagInfos' in btagInfo:
