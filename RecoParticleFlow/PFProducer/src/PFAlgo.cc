@@ -359,7 +359,7 @@ void PFAlgo::conversionAlgo(const edm::OwnVector<reco::PFBlockElement>& elements
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
     if (type == PFBlockElement::TRACK) {
-      LogDebug("PFAlgo::conversionAlgo") << "elements[" << iEle << "].type() == TRACK, active[iEle]=" << active[iEle];
+      LogDebug("PFAlgo::conversionAlgo") << "elements[" << iEle << "].type() == TRACK, active[" << iEle << "]=" << active[iEle];
       if (elements[iEle].trackRef()->algo() == reco::TrackBase::conversionStep) {
         active[iEle] = false;
       }
@@ -375,7 +375,7 @@ void PFAlgo::conversionAlgo(const edm::OwnVector<reco::PFBlockElement>& elements
       if (!elements[iEle].convRefs().empty()) {
         active[iEle] = false;
       }
-      LogDebug("PFAlgo::conversionAlgo") << "active[iEle]=" << active[iEle];
+      LogDebug("PFAlgo::conversionAlgo") << "active[iEle=" << iEle << "]=" << active[iEle];
     }
   }
   LogDebug("PFAlgo::conversionAlgo") << "end of function";
