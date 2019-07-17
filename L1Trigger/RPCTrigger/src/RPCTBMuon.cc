@@ -18,6 +18,8 @@ RPCTBMuon::RPCTBMuon() : RPCMuon() {
 
   m_EtaAddress = 0;
   m_PhiAddress = 0;
+
+  m_muonBitsType = mbtUnset;
 }
 //---------------------------------------------------------------------------
 RPCTBMuon::RPCTBMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes)
