@@ -170,7 +170,7 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   type = hgpar_->scintType(layer);
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
   irad = (int)(ir - hgpar_->radiusLayer_[type].begin());
-  irad = std::min(std::max(irad, hgpar_->iradMinBH_[indx.first]), hgpar_->iradMaxBH_[indx.first]);
+  irad = std::clamp(irad, hgpar_->iradMinBH_[indx.first], hgpar_->iradMaxBH_[indx.first]);
   iphi = 1 + (int)(phi / indx.second);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "assignCellTrap Input " << x << ":" << y << ":" << z << ":" << layer << ":" << reco
@@ -328,7 +328,7 @@ double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
   // Take the smaller value
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
   int irad = (int)(ir - hgpar_->radiusLayer_[type].begin());
-  irad = std::min(std::max(irad, hgpar_->iradMinBH_[indx]), hgpar_->iradMaxBH_[indx]);
+  irad = std::clamp(irad, hgpar_->iradMinBH_[indx], hgpar_->iradMaxBH_[indx]);
   int iphi = 1 + (int)(phi / cell);
   double dphi = std::max(0.0, (0.5 * cell - std::abs(phi - (iphi - 0.5) * cell)));
   double dist = std::min((r - hgpar_->radiusLayer_[type][irad - 1]), (hgpar_->radiusLayer_[type][irad] - r));
