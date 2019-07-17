@@ -15,7 +15,6 @@
 
 using namespace edm;
 using namespace std;
-using namespace ctppspixelobjects;
 
 namespace {
   constexpr int m_LINK_bits = 6;
@@ -194,8 +193,8 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
                                             std::vector<PPSPixelIndex> iDdet2fed) {
   std::map<int, vector<Word32> > words;
   // translate digis into 32-bit raw words and store in map indexed by Fed
-  m_hasDetDigis = 0;
   m_allDetDigis = 0;
+  m_hasDetDigis = 0;
   for (auto const& im : digis) {
     m_allDetDigis++;
     cms_uint32_t rawId = im.first;
@@ -207,8 +206,8 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
       int modulePixelColumn = it.column();
       int modulePixelRow = it.row();
 
-      theIndices.transformToROC(modulePixelColumn, modulePixelRow, rocID, rocPixelColumn, rocPixelRow);
-      const int dcol = theIndices.DColumn(rocPixelColumn);
+      m_Indices.transformToROC(modulePixelColumn, modulePixelRow, rocID, rocPixelColumn, rocPixelRow);
+      const int dcol = m_Indices.DColumn(rocPixelColumn);
       const int pxid = 2 * (ROCSizeInX - rocPixelRow) + (rocPixelColumn % 2);
 
       unsigned int urocID = rocID;
@@ -220,7 +219,7 @@ void CTPPSPixelDataFormatter::formatRawData(unsigned int lvl1_ID,
         nlink = iDdet2fed.at(i).fedch;
         nroc = iDdet2fed.at(i).rocch + 1;
 
-        ElectronicIndex cabling = {nlink, nroc, dcol, pxid};
+        ctppspixelobjects::ElectronicIndex cabling = {nlink, nroc, dcol, pxid};
 
         cms_uint32_t word = (cabling.link << m_LINK_shift) | (cabling.roc << m_ROC_shift) |
                             (cabling.dcol << m_DCOL_shift) | (cabling.pxid << m_PXID_shift) | (it.adc() << m_ADC_shift);
