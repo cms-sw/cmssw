@@ -5,9 +5,6 @@
 
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -585,37 +582,4 @@ void HFShowerLibrary::storePhoton(int j) {
   edm::LogVerbatim("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " << npe << " " << pe[npe];
 #endif
   npe++;
-}
-
-std::vector<double> HFShowerLibrary::getDDDArray(const std::string& str, const DDsvalues_type& sv, int& nmin) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary:getDDDArray called for " << str << " with nMin " << nmin;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << value;
-#endif
-    const std::vector<double>& fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-        edm::LogError("HFShower") << "HFShowerLibrary : # of " << str << " bins " << nval << " < " << nmin
-                                  << " ==> illegal";
-        throw cms::Exception("Unknown", "HFShowerLibrary") << "nval < nmin for array " << str << "\n";
-      }
-    } else {
-      if (nval < 2) {
-        edm::LogError("HFShower") << "HFShowerLibrary : # of " << str << " bins " << nval << " < 2 ==> illegal"
-                                  << " (nmin=" << nmin << ")";
-        throw cms::Exception("Unknown", "HFShowerLibrary") << "nval < 2 for array " << str << "\n";
-      }
-    }
-    nmin = nval;
-
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShowerLibrary : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShowerLibrary") << "cannot get array " << str << "\n";
-  }
 }
