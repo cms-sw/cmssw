@@ -49,7 +49,7 @@ void DDG4ProductionCuts::initialize() {
   // involved objects, because 'new' does no guarantee that you allways get a
   // higher (or lower) address when allocating an object of the same type ...
   sort(vec_.begin(), vec_.end(), &dd_is_greater);
-  if (verbosity_ > -1) {
+  if (verbosity_ > 0) {
     edm::LogVerbatim("Geometry") << " DDG4ProductionCuts : got " << vec_.size() << " region roots.\n"
                                  << " DDG4ProductionCuts : List of all roots:";
     for (auto const& vv : vec_)
@@ -82,7 +82,7 @@ void DDG4ProductionCuts::initialize() {
 
     region->AddRootLogicalVolume(vv.first);
 
-    if (verbosity_ > -1)
+    if (verbosity_ > 0)
       edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region " << region->GetName();
   }
 }
@@ -141,7 +141,7 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4Region* region
   prodCuts->SetProductionCut(electroncut, idxG4ElectronCut);
   prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
   prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
-  if (verbosity_ > -1) {
+  if (verbosity_ > 0) {
     edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << region->GetName()
                                  << "\n    Electrons: " << electroncut << "\n    Positrons: " << positroncut
                                  << "\n    Gamma    : " << gammacut << "\n    Proton   : " << protoncut;
