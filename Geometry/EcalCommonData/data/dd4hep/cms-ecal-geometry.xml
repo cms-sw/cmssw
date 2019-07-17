@@ -41,8 +41,8 @@
     <Include ref='Geometry/CMSCommonData/data/muonBase/2018/v1/muonBase.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cmsMuon.xml'/>
     <Include ref='Geometry/CMSCommonData/data/mgnt.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/beampipe/2023/v1/beampipe.xml'/>
-    <Include ref='Geometry/CMSCommonData/data/cmsBeam/2023/v1/cmsBeam.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/beampipe/2017/v1/beampipe.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/cmsBeam.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonMB.xml'/>
     <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavern/2017/v2/cavern.xml'/>
@@ -59,8 +59,8 @@
     <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eehier.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eefixed.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/escon/2023/v1/escon.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/esalgo/2023/v1/esalgo.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/esalgo/2021/v1/esalgo.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/trackermaterial.xml'/>
   </IncludeSection>
   
