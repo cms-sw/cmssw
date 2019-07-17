@@ -53,8 +53,8 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
       subdet = HGCHEB;
     else
       subdet = HGCEE;
-    std::cout << "Perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":" << subdet
-              << " Mode " << mode << std::endl;
+    std::cout << "Perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":" << subdet << " Mode "
+              << mode << std::endl;
     doTest(geom, subdet);
   } else {
     DetId::Detector det;
