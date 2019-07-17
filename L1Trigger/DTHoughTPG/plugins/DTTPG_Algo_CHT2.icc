@@ -1,0 +1,390 @@
+void DTTPG::RunCHTTwoSL( WireShift_t corrFirstWire1,
+                         WireShift_t corrFirstWire3,
+                         TimeMMT_t vecHits1[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                         TimeMMT_t vecHits3[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ], 
+                         Qual_t vecQuality1[ MAX_MACROCELLS ],
+                         Qual_t vecQuality3[ MAX_MACROCELLS ],
+                         Qual_t vecQualityComb[ MAX_MACROCELLS ][ 10 ],
+                         BOOL_t isMB1,
+                         BOOL_t isPositiveWheel,
+                         CHTBitset_t vecBitset1[ MAX_MACROCELLS ],
+                         CHTBitset_t vecBitset3[ MAX_MACROCELLS ],
+                         TimeMMT_t timePMCell1[ MAX_MACROCELLS ],
+                         TimeMMT_t timePMCell3[ MAX_MACROCELLS ],
+                         MCellPos_t centralMCellCoord[ MAX_MACROCELLS ],
+                         b9_Idx_t aChamberIdx,
+                         TanPhi_t twoTanPhiMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ],
+                         MCellPos_t x0MCell1[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ],
+                         MCellPos_t x0MCell3[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ] ) const
+{
+  MCellPos_t thisMB1Corr = static_cast< MCellPos_t >( isMB1 ) * ( 512 - static_cast< MCellPos_t >( isPositiveWheel ) * 1024 );
+  for ( MCellIdx_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    for ( b5_Idx_t iRes = 0; iRes < MAX_TANPHI_CLUSTERS * 10; ++iRes )
+    {
+      twoTanPhiMCell[ iMacroCell ][ iRes ] = DEF_TanPhi;
+      x0MCell1[ iMacroCell ][ iRes ] = DEF_MCellPos;
+      x0MCell3[ iMacroCell ][ iRes ] = DEF_MCellPos;
+    }
+    for ( b5_Idx_t iRes = 0; iRes < 10; ++iRes )
+      vecQualityComb[ iMacroCell ][ iRes ] = qDummy;
+    MCellIdx_t firstMacroCell = iMacroCell - 2;
+    MCellIdx_t lastMacroCell = iMacroCell + 2;
+    firstMacroCell = ( firstMacroCell > 0 ) ? firstMacroCell : MCellIdx_t(0);
+    lastMacroCell = ( lastMacroCell >= MAX_MACROCELLS ) ? MCellIdx_t( MAX_MACROCELLS - 1 ) : lastMacroCell;
+    TimeMMT_t thisTimePMCell1 = timePMCell1[ iMacroCell ];
+    for ( MCellIdx_t iShiftedCell = firstMacroCell; iShiftedCell <= lastMacroCell; ++iShiftedCell )
+    {
+      MCellPos_t thisMCellXDiff = 2048 * ( iShiftedCell - iMacroCell ) + thisMB1Corr;
+      TimeMMT_t thisTimePMCell3 = timePMCell3[ iShiftedCell ];
+      if ( thisTimePMCell1 != DEF_TimeMMT )
+      {
+        CHTBitset_t bitSetResult = this->RunCHTTwoMC( thisMCellXDiff,
+                                                      vecHits1[ iMacroCell ],
+                                                      vecHits3[ iShiftedCell ],
+                                                      thisTimePMCell1 );
+        Qual_t tmpQual1 = vecQuality1[ iMacroCell ];
+        Qual_t tmpQual3 = vecQuality3[ iShiftedCell ];
+        CHTBitset_t bitSet1 = vecBitset1[ iMacroCell ];
+        CHTBitset_t bitSet3 = ( thisTimePMCell1 == thisTimePMCell3 ) ? vecBitset3[ iShiftedCell ]
+                                                                     : this->RunCHTOneMC( vecHits3[ iShiftedCell ],
+                                                                                          &tmpQual3,
+                                                                                          thisTimePMCell1 );
+        CHTBitset_t bitSetResultComb1(0);
+        CHTBitset_t bitSetResultComb3(0);
+        CHTBitset_t bitSetResultComb(0);
+        bitSetResultComb1 = bitSetResult & bitSet1 ;
+        bitSetResultComb3 = bitSetResult & bitSet3;
+        bitSetResultComb = bitSetResultComb1 & bitSetResultComb3;
+        if ( bitSetResultComb == 0 )
+        {
+          if ( bitSetResultComb1 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb1;
+            tmpQual3 = qDummy;
+          }
+          else if ( bitSetResultComb3 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb3;
+            tmpQual1 = qDummy;
+          }
+        }
+        bool canBeDoubleTight8 = ( tmpQual1 == qSingle && tmpQual3 == qSingle );
+        bool canBeDoubleTight7 = ( tmpQual1 == qSingle && tmpQual3 == qSinglePoor ) ||
+                                 ( tmpQual1 == qSinglePoor && tmpQual3 == qSingle );
+        bool canBeDoubleLoose  = ( tmpQual1 == qSinglePoor && tmpQual3 == qSinglePoor );
+        bool canBeDoubleTight6 = ( tmpQual1 == qSingle || tmpQual3 == qSingle );
+        bool canBeDoublePoor   = ( tmpQual1 == qSinglePoor || tmpQual3 == qSinglePoor );
+        b2_Idx_t checkNonZeroSizeComb = 0;
+        for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
+        {
+          BOOL_t bitComb = ( bitSetResultComb[iBin] ) & 1;
+          if ( bitComb )
+            checkNonZeroSizeComb = ( checkNonZeroSizeComb << 1 ) + 1;
+        }
+        Qual_t qualComb = qDummy;
+        if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight8 )
+          qualComb = qDoubleTight8; /// 4/4 + 4/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight7 )
+          qualComb = qDoubleTight7; /// 4/4 + 3/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight6 )
+          qualComb = qDoubleTight6; /// 4/4 + 2/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleLoose )
+          qualComb = qDoubleLoose;  /// 3/4 + 3/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoublePoor )
+          qualComb = qDoublePoor;  /// 3/4 + 2/4
+        b5_Idx_t iCombin = 2 * ( iShiftedCell - firstMacroCell );
+        vecQualityComb[ iMacroCell ][ iCombin ] = qualComb;
+        if ( qualComb > qDummy )
+        {
+          TanPhi_t res2TanPhi1[ MAX_TANPHI_CLUSTERS ];
+          TanPhi_t res2TanPhi3[ MAX_TANPHI_CLUSTERS ];
+          MCellPos_t resX01[ MAX_TANPHI_CLUSTERS ];
+          MCellPos_t resX03[ MAX_TANPHI_CLUSTERS ];
+          for ( b3_Idx_t iCluster = 0; iCluster < MAX_TANPHI_CLUSTERS; ++iCluster )
+          {
+            res2TanPhi1[ iCluster ] = DEF_TanPhi;
+            res2TanPhi3[ iCluster ] = DEF_TanPhi;
+            resX01[ iCluster ] = DEF_MCellPos;
+            resX03[ iCluster ] = DEF_MCellPos;
+          }
+          this->UnpackCHTOneMC( vecHits1[ iMacroCell ],
+                                thisTimePMCell1,
+                                centralMCellCoord[ iMacroCell ],
+                                bitSetResultComb,
+                                aChamberIdx,
+                                isMB1,
+                                isPositiveWheel,
+                                res2TanPhi1,
+                                resX01 );
+          this->UnpackCHTOneMC( vecHits3[ iShiftedCell ],
+                                thisTimePMCell1,
+                                centralMCellCoord[ iShiftedCell ],
+                                bitSetResultComb,
+                                aChamberIdx,
+                                isMB1,
+                                isPositiveWheel,
+                                res2TanPhi3,
+                                resX03 );
+          for ( b5_Idx_t iCluster = 0; iCluster < MAX_TANPHI_CLUSTERS; ++iCluster )
+          {
+            TanPhi_t twoTanPhi = res2TanPhi1[ iCluster ];
+            if ( twoTanPhi != res2TanPhi3[ iCluster ] )
+            {
+              std::cerr << "(A) FATAL ERROR IN 2TAN PHI ASSIGNMENT " << (int)(iCluster) << " " << (int)(twoTanPhi) << " " << (int)(res2TanPhi3[ iCluster ]) << std::endl;
+              exit( EXIT_FAILURE );
+            }
+            twoTanPhiMCell[ iMacroCell ][ iCombin + 10 * iCluster ] = twoTanPhi;
+            x0MCell1[ iMacroCell ][ iCombin + 10 * iCluster ] = resX01[ iCluster ];
+            x0MCell3[ iMacroCell ][ iCombin + 10 * iCluster ] = resX03[ iCluster ] + thisMCellXDiff;
+
+          }
+        }
+      }
+      if ( thisTimePMCell3 != DEF_TimeMMT )
+      {
+        CHTBitset_t bitSetResult = this->RunCHTTwoMC( thisMCellXDiff,
+                                                      vecHits1[ iMacroCell ],
+                                                      vecHits3[ iShiftedCell ],
+                                                      thisTimePMCell3 );
+        Qual_t tmpQual1 = vecQuality1[ iMacroCell ];
+        Qual_t tmpQual3 = vecQuality3[ iShiftedCell ];
+        CHTBitset_t bitSet3 = vecBitset3[ iShiftedCell ];
+        CHTBitset_t bitSet1 = ( thisTimePMCell1 == thisTimePMCell3 ) ? vecBitset1[ iMacroCell ]
+                                                                     : this->RunCHTOneMC( vecHits1[ iMacroCell ],
+                                                                                          &tmpQual1,
+                                                                                          thisTimePMCell3 );
+        CHTBitset_t bitSetResultComb1(0);
+        CHTBitset_t bitSetResultComb3(0);
+        CHTBitset_t bitSetResultComb(0);
+        bitSetResultComb1 = bitSetResult & bitSet1 ;
+        bitSetResultComb3 = bitSetResult & bitSet3;
+        bitSetResultComb = bitSetResultComb1 & bitSetResultComb3;
+        if ( bitSetResultComb == 0 )
+        {
+          if ( bitSetResultComb1 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb1;
+            tmpQual3 = qDummy;
+          }
+          else if ( bitSetResultComb3 != 0 )
+          {
+            bitSetResultComb = bitSetResultComb3;
+            tmpQual1 = qDummy;
+          }
+        }
+        bool canBeDoubleTight8 = ( tmpQual1 == qSingle && tmpQual3 == qSingle );
+        bool canBeDoubleTight7 = ( tmpQual1 == qSingle && tmpQual3 == qSinglePoor ) ||
+                                 ( tmpQual1 == qSinglePoor && tmpQual3 == qSingle );
+        bool canBeDoubleLoose  = ( tmpQual1 == qSinglePoor && tmpQual3 == qSinglePoor );
+        bool canBeDoubleTight6 = ( tmpQual1 == qSingle || tmpQual3 == qSingle );
+        bool canBeDoublePoor   = ( tmpQual1 == qSinglePoor || tmpQual3 == qSinglePoor );
+        b2_Idx_t checkNonZeroSizeComb = 0;
+        for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
+        {
+          BOOL_t bitComb = ( bitSetResultComb[iBin] ) & 1;
+          if ( bitComb )
+            checkNonZeroSizeComb = ( checkNonZeroSizeComb << 1 ) + 1;
+        }
+        Qual_t qualComb = qDummy;
+        if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight8 )
+          qualComb = qDoubleTight8; /// 4/4 + 4/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight7 )
+          qualComb = qDoubleTight7; /// 4/4 + 3/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleTight6 )
+          qualComb = qDoubleTight6; /// 4/4 + 2/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoubleLoose )
+          qualComb = qDoubleLoose;  /// 3/4 + 3/4
+        else if ( checkNonZeroSizeComb >= 3 && canBeDoublePoor )
+          qualComb = qDoublePoor;  /// 3/4 + 2/4
+        b5_Idx_t iCombin = 2 * ( iShiftedCell - firstMacroCell ) + 1;
+        vecQualityComb[ iMacroCell ][ iCombin ] = qualComb;
+        if ( qualComb > qDummy )
+        {
+          TanPhi_t res2TanPhi1[ MAX_TANPHI_CLUSTERS ];
+          TanPhi_t res2TanPhi3[ MAX_TANPHI_CLUSTERS ];
+          MCellPos_t resX01[ MAX_TANPHI_CLUSTERS ];
+          MCellPos_t resX03[ MAX_TANPHI_CLUSTERS ];
+          for ( b3_Idx_t iCluster = 0; iCluster < MAX_TANPHI_CLUSTERS; ++iCluster )
+          {
+            res2TanPhi1[ iCluster ] = DEF_TanPhi;
+            res2TanPhi3[ iCluster ] = DEF_TanPhi;
+            resX01[ iCluster ] = DEF_MCellPos;
+            resX03[ iCluster ] = DEF_MCellPos;
+          }
+          this->UnpackCHTOneMC( vecHits1[ iMacroCell ],
+                                thisTimePMCell3,
+                                centralMCellCoord[ iMacroCell ],
+                                bitSetResultComb,
+                                aChamberIdx,
+                                isMB1,
+                                isPositiveWheel,
+                                res2TanPhi1,
+                                resX01 );
+          this->UnpackCHTOneMC( vecHits3[ iShiftedCell ],
+                                thisTimePMCell3,
+                                centralMCellCoord[ iShiftedCell ],
+                                bitSetResultComb,
+                                aChamberIdx,
+                                isMB1,
+                                isPositiveWheel,
+                                res2TanPhi3,
+                                resX03 );
+          for ( b5_Idx_t iCluster = 0; iCluster < MAX_TANPHI_CLUSTERS; ++iCluster )
+          {
+            TanPhi_t twoTanPhi = res2TanPhi1[ iCluster ];
+            if ( twoTanPhi != res2TanPhi3[ iCluster ] )
+            {
+              std::cerr << "(B) FATAL ERROR IN 2TAN PHI ASSIGNMENT " << std::endl;
+              exit( EXIT_FAILURE );
+            }
+            twoTanPhiMCell[ iMacroCell ][ iCombin + 10 * iCluster ] = twoTanPhi;
+            x0MCell1[ iMacroCell ][ iCombin + 10 * iCluster ] = resX01[ iCluster ];
+            x0MCell3[ iMacroCell ][ iCombin + 10 * iCluster ] = resX03[ iCluster ] + thisMCellXDiff;
+          }
+        }
+      }
+    }
+  }
+}
+
+CHTBitset_t DTTPG::RunCHTTwoMC( MCellPos_t aMCellXDiff,
+                                TimeMMT_t vecHits1[ NUM_MACROCELLWIRES ],
+                                TimeMMT_t vecHits3[ NUM_MACROCELLWIRES ],
+                                TimeMMT_t aTimeP ) const
+{
+  CHTHist_t tempHist[ BINNUM_TANPHI ];
+  for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI ; ++iBin )
+    tempHist[ iBin ] = 0;
+  CompMMT_t timeByPlace1[ NUM_MACROCELLWIRES ];
+  CompMMT_t timeByPlace3[ NUM_MACROCELLWIRES ];
+  b5_Idx_t checkCnt1 = 0;
+  b5_Idx_t checkCnt3 = 0;
+  for ( b4_Idx_t iPlace = 0; iPlace < NUM_MACROCELLWIRES; ++iPlace )
+  {
+    timeByPlace1[ iPlace ] = static_cast< CompMMT_t >( vecHits1[ iPlace ] );
+    timeByPlace3[ iPlace ] = static_cast< CompMMT_t >( vecHits3[ iPlace ] );
+    checkCnt1 += (timeByPlace1[ iPlace ] > 0);
+    checkCnt3 += (timeByPlace3[ iPlace ] > 0);
+  }
+  if ( checkCnt1 < 3 && checkCnt3 < 3 )
+    return 0;
+  if ( checkCnt1 + checkCnt3 < 6 )
+    return 0;
+  this->FillCHTHist( 3, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 543, 14,  chtWinCorr[6], 13, tempHist, aTimeP );
+  this->FillCHTHist( 2, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 255, 13,  chtWinCorr[7], 13, tempHist, aTimeP );
+  this->FillCHTHist( 3, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 2, 4, 255, 13,  chtWinCorr[8], 13, tempHist, aTimeP );
+  this->FillCHTHist( 1, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  15,  9,  chtWinCorr[9], 16, tempHist, aTimeP );
+  this->FillCHTHist( 2, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  15,  9, chtWinCorr[10], 16, tempHist, aTimeP );
+  this->FillCHTHist( 3, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  15,  9, chtWinCorr[11], 16, tempHist, aTimeP );
+  this->FillCHTHist( 0, 0, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[12], 15, tempHist, aTimeP );
+  this->FillCHTHist( 1, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[13], 15, tempHist, aTimeP );
+  this->FillCHTHist( 2, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[14], 15, tempHist, aTimeP );
+  this->FillCHTHist( 3, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 453, 14, chtWinCorr[15], 15, tempHist, aTimeP );
+  this->FillCHTHist( 0, 1, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, chtWinCorr[16], 13, tempHist, aTimeP );
+  this->FillCHTHist( 1, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, chtWinCorr[17], 13, tempHist, aTimeP );
+  this->FillCHTHist( 2, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 429, 14, chtWinCorr[18], 13, tempHist, aTimeP );
+  this->FillCHTHist( 0, 2, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  51, 11, chtWinCorr[19], 16, tempHist, aTimeP );
+  this->FillCHTHist( 1, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1,  51, 11, chtWinCorr[20], 16, tempHist, aTimeP );
+  this->FillCHTHist( 0, 3, timeByPlace1, timeByPlace3, aMCellXDiff, 1, 1, 389, 14, chtWinCorr[21], 11, tempHist, aTimeP );
+  CHTBitset_t bitSet68(0);
+  for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
+  {
+    BOOL_t bit68 = static_cast< BOOL_t >( ( tempHist[ iBin ] >> 5 ) & 1 ); // > 5, min 6 for 5/8, WAS > 6, min 7
+    bitSet68.set(iBin, bitSet68[iBin] || bit68);
+  }
+  return bitSet68;
+}
+
+void DTTPG::FillCHTHist( b3_Idx_t anInnerLayer,
+                         b3_Idx_t anOuterLayer,
+                         CompMMT_t aTimeListByPlace1[ NUM_MACROCELLWIRES ],
+                         CompMMT_t aTimeListByPlace3[ NUM_MACROCELLWIRES ],
+                         MCellPos_t aMCellXDiff,
+                         CHTBin_t aHalfFillWidth,
+                         CHTBin_t aHalfFillWidth2,
+                         CompBin_t aNumZLayerDiff,
+                         CHTBin_t aDenZLayerDiff,
+                         CompBin_t aNumCorrZLayerDiff,
+                         CHTBin_t aDenCorrZLayerDiff,
+                         CHTHist_t aCHTHist[ BINNUM_TANPHI ],
+                         TimeMMT_t aTimeP ) const
+{
+  b5_Idx_t iPlaceMin = 0;
+  b5_Idx_t iPlaceMax = 0;
+  b5_Idx_t jPlaceMin = 0;
+  b5_Idx_t jPlaceMax = 0;
+  if ( anInnerLayer == 0 )
+  {
+    iPlaceMin = 3;
+    iPlaceMax = 15;
+  }
+  else if ( anInnerLayer == 1 )
+  {
+    iPlaceMin = 1;
+    iPlaceMax = 17;
+  }
+  else if ( anInnerLayer == 2 )
+  {
+    iPlaceMin = 2;
+    iPlaceMax = 14;
+  }
+  else if ( anInnerLayer == 3 )
+  {
+    iPlaceMin = 0;
+    iPlaceMax = 16;
+  }
+  if ( anOuterLayer == 0 )
+  {
+    jPlaceMin = 3;
+    jPlaceMax = 15;
+  }
+  else if ( anOuterLayer == 1 )
+  {
+    jPlaceMin = 1;
+    jPlaceMax = 17;
+  }
+  else if ( anOuterLayer == 2 )
+  {
+    jPlaceMin = 2;
+    jPlaceMax = 14;
+  }
+  else if ( anOuterLayer == 3 )
+  {
+    jPlaceMin = 0;
+    jPlaceMax = 16;
+  }
+  for ( b5_Idx_t iPlace = iPlaceMin; iPlace < iPlaceMax; iPlace += 4 )
+  {
+    if ( aTimeListByPlace1[ iPlace ] == 0
+         || ( static_cast< CompTDC_t >( aTimeP ) > aTimeListByPlace1[ iPlace ] + 8 ) )
+      continue;
+    for ( b5_Idx_t jPlace = jPlaceMin; jPlace < jPlaceMax; jPlace += 4 )
+    {
+      if ( aTimeListByPlace3[ jPlace ] == 0
+           || ( static_cast< CompTDC_t >( aTimeP ) > aTimeListByPlace3[ jPlace ] + 8 ) )
+        continue;
+      CompTDC_t driftTimeSum = ( aTimeListByPlace1[ iPlace ] + aTimeListByPlace3[ jPlace ] - 2 * aTimeP ) * defVDrift >> 8;
+      CompTDC_t driftTimeDiff = ( aTimeListByPlace1[ iPlace ] - aTimeListByPlace3[ jPlace ] ) * defVDrift;
+      driftTimeDiff = ( driftTimeDiff >> 8 ) + ( ( driftTimeDiff & 1 ) && ( driftTimeDiff < 0 ) );
+      MCellPos_t xWireDiff = idxToCoordMap[ jPlace ] - idxToCoordMap[ iPlace ] + aMCellXDiff;
+      MCellPos_t xMCellDiff[4] = { xWireDiff + static_cast< MCellPos_t >( driftTimeDiff ),
+                                   xWireDiff + static_cast< MCellPos_t >( driftTimeSum ),
+                                   xWireDiff - static_cast< MCellPos_t >( driftTimeSum ),
+                                   xWireDiff - static_cast< MCellPos_t >( driftTimeDiff ) };
+      for ( b3_Idx_t iPair = 0; iPair < 4; ++iPair )
+      {
+        CompBin_t tempBin0 = static_cast< CompBin_t >( xMCellDiff[ iPair ] ) * 207 * aNumZLayerDiff;
+        tempBin0 = ( tempBin0 >> aDenZLayerDiff ) + ( ( tempBin0 & 1 ) && ( tempBin0 < 0 ) );
+        CHTBin_t tempBin = static_cast< CHTBin_t >( ( ( 256 * BINNUM_HALF_TANPHI - tempBin0 ) + 128 ) >> 8 );
+        CHTBin_t aHalfFillWidthCorr = this->CorrectCHTWindow( &tempBin, aHalfFillWidth, aHalfFillWidth2, iPair, aNumCorrZLayerDiff, aDenCorrZLayerDiff );
+        CHTBin_t tempBinMin = tempBin - aHalfFillWidthCorr;
+        CHTBin_t tempBinMax = tempBin + aHalfFillWidthCorr;
+        tempBinMin = ( tempBinMin > 0 ) ? tempBinMin : CHTBin_t(0);
+        tempBinMax = ( tempBinMax < BINNUM_TANPHI ) ? tempBinMax : CHTBin_t(BINNUM_TANPHI - 1);
+        for ( CHTBin_t iBin = tempBinMin; iBin <= tempBinMax; ++iBin )
+          aCHTHist[ iBin ] = ( aCHTHist[ iBin ] << 1 ) + 1;
+      }
+    }
+  }
+}

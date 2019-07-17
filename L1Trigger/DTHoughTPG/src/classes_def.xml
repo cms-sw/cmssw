@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="DTHough< RefDTDigi_t >"/>
+  <class name="std::vector< DTHough< RefDTDigi_t > >"/>
+  <class name="edm::Wrapper< std::vector< DTHough< RefDTDigi_t > > >"/>
+</lcgdict>
+
+

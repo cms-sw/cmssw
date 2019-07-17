@@ -1,0 +1,175 @@
+void DTTPG::DriveHits( b2_Idx_t aSuperLayer,
+                       NHitPerChmb_t aHitCounter,
+                       WireShift_t numWireShift,
+                       InputBMask_t vecEncodedHits[ MAX_CHAMBERHITS ],
+                       TimeMMT_t vecMCellHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                       uint32_t vecMCellCMSSWHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                       uint32_t vecIdxCMSSWHits[ MAX_CHAMBERHITS ] ) const
+{
+  for ( MCellIdx_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    for ( b4_Idx_t iPlace = 0; iPlace < NUM_MACROCELLWIRES; ++iPlace )
+    {
+      vecMCellHits[ iMacroCell ][ iPlace ] = 0;
+      vecMCellCMSSWHits[ iMacroCell ][ iPlace ] = 0xFFFFFFFF;
+    }
+  }
+  for ( NHitPerChmb_t iHit = 0; iHit < aHitCounter; ++iHit )
+  {
+    InputBMask_t uHitCode = vecEncodedHits[ iHit ];
+    b2_Idx_t thisWireSL = static_cast< b2_Idx_t >( ( uHitCode & bmaskSL ) >> bit1SL );
+    if ( thisWireSL != aSuperLayer )
+      continue;
+    b9_Idx_t thisChannel = static_cast< b9_Idx_t >( ( uHitCode & bmaskCh ) >> bit1Ch );
+    TimeMMT_t uTime = static_cast< TimeMMT_t >( ( uHitCode & bmaskBXTDC ) >> 2 );
+    if ( numWireShift > 0 && thisWireSL == 3 )
+      thisChannel += 4 * static_cast< b9_Idx_t >( numWireShift );
+    else if ( numWireShift < 0 && thisWireSL == 1 )
+      thisChannel += 4 * static_cast< b9_Idx_t >( abs( numWireShift ) );
+    MCellIdx_t thisMacroCell = 2 * static_cast< MCellIdx_t >( ( thisChannel - 1 ) / 16 );
+    b4_Idx_t thisIndex = static_cast< b4_Idx_t >( thisChannel - 8 * static_cast< b9_Idx_t >( thisMacroCell ) ) - 1;
+    MCellIdx_t alsoMacroCell = -1;
+    b4_Idx_t alsoIndex = 0;
+    if ( thisChannel > 8 )
+    {
+      if ( thisIndex > 7 )
+      {
+        alsoMacroCell = thisMacroCell + 1;
+        alsoIndex = thisIndex - 8;
+      }
+      else
+      {
+        alsoMacroCell = thisMacroCell - 1;
+        alsoIndex = thisIndex + 8;
+      }
+    }
+    if ( thisIndex < NUM_MACROCELLWIRES )
+    {
+      vecMCellHits[ thisMacroCell ][ thisIndex ] = uTime;
+      vecMCellCMSSWHits[ thisMacroCell ][ thisIndex ] = vecIdxCMSSWHits[ iHit ];
+    }
+    if ( alsoMacroCell > -1 && alsoIndex < NUM_MACROCELLWIRES )
+    {
+      vecMCellHits[ alsoMacroCell ][ alsoIndex ] = uTime;
+      vecMCellCMSSWHits[ alsoMacroCell ][ alsoIndex ] = vecIdxCMSSWHits[ iHit ];
+    }
+  }
+}
+
+void DTTPG::FindTanPhiClusters( TanPhiClu_t clustCentroids2TanPhi128[ MAX_TANPHI_CLUSTERS ],
+                                b3_Idx_t *cntStoredClusters, CHTBitset_t tanPhiBitSet ) const
+{
+  TanPhiClu_t clusters2TanPhi128[ MAX_TANPHI_CLUSTERS ] = {0x0000};
+  for ( b3_Idx_t iCluster = 0; iCluster < MAX_TANPHI_CLUSTERS; ++iCluster )
+    clustCentroids2TanPhi128[ iCluster ] = 0xFFFF;
+  CHTBin_t lastNonZeroBin = 0;
+  TanPhiClu_t tempCluster = 0xFFFF;
+  for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
+  {
+    if ( ( tanPhiBitSet[iBin] & 1 ) == 0 )
+     continue;
+    if ( tempCluster == 0xFFFF || ( iBin - lastNonZeroBin ) > 3 )
+    {
+      if ( tempCluster != 0xFFFF )
+      {
+        TanPhiClu_t tempSize = ( tempCluster & 0xFC00 ) >> 10;
+        if ( tempSize > 0 )
+        {
+          b3_Idx_t fillInPosition = MAX_TANPHI_CLUSTERS;
+          for ( b3_Idx_t iCluster = 0; iCluster < MAX_TANPHI_CLUSTERS && fillInPosition == MAX_TANPHI_CLUSTERS; ++iCluster )
+          {
+            if ( tempCluster >= clusters2TanPhi128[ iCluster ] )
+              fillInPosition = iCluster;
+          }
+          if ( fillInPosition < MAX_TANPHI_CLUSTERS )
+          {
+            for ( b3_Idx_t iCluster = MAX_TANPHI_CLUSTERS - 1; iCluster > fillInPosition; --iCluster )
+              clusters2TanPhi128[ iCluster ] = clusters2TanPhi128[ iCluster - 1 ];
+
+            clusters2TanPhi128[ fillInPosition ] = tempCluster;
+          }
+          ++(*cntStoredClusters);
+        }
+      }
+      tempCluster = 0x0000 | ( iBin ) << 0;
+    }
+    else
+    {
+      TanPhiClu_t tempFirst = ( tempCluster & 0x03FF ) >> 0;
+      TanPhiClu_t newSize = iBin - tempFirst;
+      tempCluster = 0x0000 | ( newSize ) << bit1Size | ( tempFirst ) << 0;
+    }
+    lastNonZeroBin = iBin;
+  }
+  TanPhiClu_t tempSize = ( tempCluster & 0xFC00 ) >> 10;
+  if ( tempSize > 0 )
+  {
+    b3_Idx_t fillInPosition = MAX_TANPHI_CLUSTERS;
+    for ( b3_Idx_t iCluster = 0; iCluster < MAX_TANPHI_CLUSTERS && fillInPosition == MAX_TANPHI_CLUSTERS; ++iCluster )
+    {
+      if ( tempCluster >= clusters2TanPhi128[ iCluster ] )
+        fillInPosition = iCluster;
+    }
+    if ( fillInPosition < MAX_TANPHI_CLUSTERS )
+    {
+      for ( b3_Idx_t iCluster = MAX_TANPHI_CLUSTERS - 1; iCluster > fillInPosition; --iCluster )
+        clusters2TanPhi128[ iCluster ] = clusters2TanPhi128[ iCluster - 1 ];
+      clusters2TanPhi128[ fillInPosition ] = tempCluster;
+    }
+    ++(*cntStoredClusters);
+  }
+  (*cntStoredClusters) = ( *cntStoredClusters < MAX_TANPHI_CLUSTERS ) ? *cntStoredClusters : b3_Idx_t(MAX_TANPHI_CLUSTERS);
+  for ( b3_Idx_t iCluster = 0; iCluster < *cntStoredClusters; ++iCluster )
+  {
+    TanPhiClu_t tempCluster = clusters2TanPhi128[ iCluster ];
+    TanPhiClu_t tempFirst = ( tempCluster & 0x03FF ) >> 0;
+    TanPhiClu_t tempSize = ( tempCluster & 0xFC00 ) >> 10;
+    clustCentroids2TanPhi128[ iCluster ] = 2 * tempFirst + tempSize;
+  }
+}
+
+CHTBin_t DTTPG::CorrectCHTWindow( CHTBin_t *aBin, CHTBin_t aHalfWidth, CHTBin_t aHalfWidth2, b3_Idx_t aPair,
+                                  CHTBin_t aNumCorrZLayerDiff, CHTBin_t aDenCorrZLayerDiff ) const
+{
+  CompBin_t tempTanPhi128 = *aBin - BINNUM_HALF_TANPHI;
+  CHTBin_t corrFactor = static_cast< CHTBin_t >( aPair == 2 ) - static_cast< CHTBin_t >( aPair == 1 );
+  CompBin_t tempCorr0 = aHalfWidth * tempTanPhi128 * aNumCorrZLayerDiff;
+  tempCorr0 = ( tempCorr0 >> aDenCorrZLayerDiff ) + ( ( tempCorr0 & 1 ) && ( tempCorr0 < 0 ) );
+  tempCorr0 = ( tempCorr0 >> 6 ) + ( ( tempCorr0 & 1 ) && ( tempCorr0 < 0 ) );
+  tempTanPhi128 += static_cast< CompBin_t >( corrFactor ) * ( ( ( tempTanPhi128 * tempTanPhi128 + static_cast< CompBin_t >(aHalfWidth2) ) * aNumCorrZLayerDiff >> aDenCorrZLayerDiff ) >> 7 );
+  *aBin = tempTanPhi128 + BINNUM_HALF_TANPHI;  
+  return aHalfWidth + corrFactor * static_cast< CHTBin_t >(tempCorr0);
+}
+
+TimeTDC_t DTTPG::CorrectDriftTime( TanPhi_t a2TanPhi128 ) const
+{
+  TimeMMT_t normTimeDiff = static_cast< TimeMMT_t >( abs( a2TanPhi128 ) * defSlopeToTime + 128 ) >> 8;
+  if ( normTimeDiff > 115 )
+    normTimeDiff = 115;
+  return mmtNonLinCorr[ normTimeDiff ];
+}
+
+BOOL_t DTTPG::CheckPositiveWheel( DTChamberId aChambId ) const
+{
+  int32_t tmpWheel = aChambId.wheel();
+  int32_t tmpSector = aChambId.sector();
+  return ( tmpWheel > 0 ) ||
+         ( tmpWheel == 0 && ( tmpSector == 2 || tmpSector == 3 || tmpSector == 6 || tmpSector == 7 ||
+                              tmpSector == 10 || tmpSector == 11 || tmpSector == 14 ) );
+}
+
+unsigned int DTTPG::BuildFiredSuperLayers( Qual_t aQuality, MCellPos_t aX1, MCellPos_t aX3 ) const
+{
+  if ( aQuality == qDoubleTight8 || aQuality == qDoubleTight7 || aQuality == qDoubleLoose )
+    return 4;
+  else if ( aQuality == qDoubleTight6 || aQuality == qDoublePoor )
+  {
+    if ( aX1 == DEF_MCellPos )
+      return 3;
+    else if ( aX3 == DEF_MCellPos )
+      return 1;
+    else
+      return 4;
+  }
+  return 0;
+}

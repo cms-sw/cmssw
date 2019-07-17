@@ -1,0 +1,1171 @@
+std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > > DTTPG::RetrieveDigis( const edm::Event& anEvent ) const
+{
+  std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > > tempMapDigisByChamber;
+  DTDigiCollection::DigiRangeIterator iterDTLayer;
+  for ( iterDTLayer = DTDigiHandle->begin();
+        iterDTLayer != DTDigiHandle->end();
+        ++iterDTLayer )
+  {
+    const DTLayerId& thisLayerId = (*iterDTLayer).first;
+    const DTDigiCollection::Range& thisDigiRange = (*iterDTLayer).second;
+    DTChamberId tempChambId( thisLayerId.chamberId() );
+    int thisWireSL = thisLayerId.superlayerId().superlayer();
+    int thisWireLayer = thisLayerId.layer();
+    uint32_t uThisWireSL = static_cast< uint32_t >( abs(thisWireSL) );
+    uint32_t uThisWireLayer = static_cast< uint32_t >( abs(thisWireLayer) );
+    uint32_t uLayerCode = 0x00000000 |
+                          ( uThisWireSL ) << bit1SuperLayer |
+                          ( uThisWireLayer ) << bit1Layer;
+    DTDigiCollection::const_iterator iterDigi;
+    for ( iterDigi = thisDigiRange.first;
+          iterDigi != thisDigiRange.second;
+          ++iterDigi )
+    {
+      edm::Ref< DTDigiCollection, DTDigi > thisDigiRef = makeRefToMuons( DTDigiHandle, thisLayerId, iterDigi );
+      int thisDTDigiWire = thisDigiRef->wire();
+      int thisDTDigiNumber = thisDigiRef->number();
+      uint32_t thisDTDigiTDC = thisDigiRef->countsTDC();
+        if ( tempMapDigisByChamber.find( tempChambId ) == tempMapDigisByChamber.end() )
+        {
+          std::vector< std::pair< uint32_t, RefDTDigi_t > > tempVec0;
+          tempMapDigisByChamber[ tempChambId ] = tempVec0;
+        }
+        bool flagSwap = false;
+        for ( unsigned int jHit = 0; jHit < tempMapDigisByChamber[ tempChambId ].size(); ++jHit )
+        {
+          uint32_t tempLayerCode = tempMapDigisByChamber[ tempChambId ].at( jHit ).first;
+          RefDTDigi_t tempDigiRef = tempMapDigisByChamber[ tempChambId ].at( jHit ).second;
+          if ( tempLayerCode == uLayerCode &&
+               tempDigiRef->wire() == thisDTDigiWire &&
+               tempDigiRef->number() != thisDTDigiNumber )
+          {
+            flagSwap = true;
+            if ( thisDTDigiTDC < tempDigiRef->countsTDC() )
+              tempMapDigisByChamber[ tempChambId ].at( jHit ) = std::make_pair( uLayerCode, thisDigiRef );
+          }
+        }
+        if ( flagSwap == false )
+          tempMapDigisByChamber[ tempChambId ].push_back( std::make_pair( uLayerCode, thisDigiRef ) );
+    }
+  }
+  std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > >::iterator iterMapDigisByChamber;
+  for ( iterMapDigisByChamber = tempMapDigisByChamber.begin();
+        iterMapDigisByChamber != tempMapDigisByChamber.end();
+        ++iterMapDigisByChamber )
+  {
+    DTChamberId tempChambId = iterMapDigisByChamber->first;
+    std::vector< std::pair< uint32_t, RefDTDigi_t > > tempVec0 = iterMapDigisByChamber->second;
+    std::sort( tempVec0.begin(), tempVec0.end(), DTTPG::TimeSortDigis );
+    tempMapDigisByChamber[ tempChambId ] = tempVec0;
+  }
+  return tempMapDigisByChamber;
+}
+
+bool DTTPG::TimeSortDigis( const std::pair< uint32_t, RefDTDigi_t > firstDigiRef,
+                           const std::pair< uint32_t, RefDTDigi_t > secondDigiRef )
+{
+  uint32_t firstTime = firstDigiRef.second->countsTDC();
+  uint32_t secondTime = secondDigiRef.second->countsTDC();
+  return ( firstTime > secondTime );
+}
+
+InputBMask_t DTTPG::ConvertHit( int32_t localZeroTime, const std::pair< uint32_t, RefDTDigi_t > aDigiRef ) const
+{
+  DTDigi thisHit = *(aDigiRef.second);
+  uint32_t thisEncodedLayer = aDigiRef.first;
+  uint32_t uThisWireSL = ( thisEncodedLayer & bmaskSuperLayer ) >> bit1SuperLayer;
+  uint32_t uThisWireLayer = ( thisEncodedLayer & bmaskLayer ) >> bit1Layer;
+  uint32_t uWireIndex = static_cast< uint32_t >( abs( thisHit.wire() ) );
+  double driftTime = ( thisHit.time() - localZeroTime*25./32. ) * ( 0x1 << 5 ) / 25.0; /// Convoluted, but would be misleading otherwise
+  uint32_t uTime = static_cast< uint32_t >( fabs( driftTime + localZeroTime ) );
+  if ( uTime > bmaskTime )
+  {
+    std::cerr << "* * * * * * * * * * * * * * * UNPHYSICAL TIME * * * * * * * * * * * * * * * * * *" << std::endl;
+    exit( EXIT_FAILURE );
+  }
+  uint32_t uChannel = 2 - uThisWireLayer / 2 + uThisWireLayer % 2 + 4 * ( uWireIndex - 1 ) + 1;
+  uint32_t uBX = uTime / 32;
+  uint32_t uTDC = uTime % 32;
+  return 0x00000000 | ( ( uThisWireSL << bit1SL ) & bmaskSL ) |
+                      ( ( uChannel << bit1Ch ) & bmaskCh ) |
+                      ( ( uBX << bit1BXi ) & bmaskBXi ) |
+                      ( ( uTDC << bit1TDC ) & bmaskTDC );
+}
+
+bool DTTPG::PhiBQualSortDTHough( const DTHough< RefDTDigi_t > firstDTHough,
+                                 const DTHough< RefDTDigi_t > secondDTHough )
+{
+
+  uint32_t firstQual = firstDTHough.GetQuality();
+  uint32_t secondQual = secondDTHough.GetQuality();
+
+  double firstBend = firstDTHough.GetBendingPhi();
+  double secondBend = secondDTHough.GetBendingPhi();
+
+  if ( firstQual == secondQual )
+    return ( fabs( firstBend ) < fabs( secondBend ) );
+
+  return ( firstQual > secondQual );
+}
+
+void DTTPG::StoreTempOutput( DTChamberId aChambId,
+                             uint32_t superLayer,
+                             int32_t localZeroTime,
+                             WiBits_t wireBitsMCell[ MAX_MACROCELLS ],
+                             unsigned int vecMCellCMSSWHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                             TimeMMT_t timeVec[ MAX_MACROCELLS ],
+                             double centralMCellCoord[ MAX_MACROCELLS ],
+                             std::vector< std::pair< uint32_t, RefDTDigi_t > > thisChamberHits,
+                             BOOL_t qualityFlag[ MAX_MACROCELLS ],
+                             std::vector< DTHough< RefDTDigi_t > > *tempOutVector ) const
+{
+  for ( uint8_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    TimeMMT_t tempTimeP = timeVec[ iMacroCell ];
+    if ( tempTimeP == DEF_TimeMMT )
+      continue;
+    DTHough< RefDTDigi_t > tempDTHough = DTHough< RefDTDigi_t >();
+    tempDTHough.SetDTChamberId( aChambId );
+    tempDTHough.SetFiredSuperLayers( superLayer );
+    unsigned int tempQuality = ( ( superLayer == 2 ) ? qLongPoor : qSinglePoor ) + qualityFlag[ iMacroCell ];
+    tempDTHough.SetQuality( tempQuality );
+    uint32_t tempWireWord = static_cast< uint32_t >( wireBitsMCell[ iMacroCell ] );
+    tempDTHough.SetWireWord( tempWireWord );
+    double trigTimeDiff = static_cast< double >( ( ( ( static_cast< int32_t >( tempTimeP ) << 2 ) - localZeroTime ) * 25 ) >> 5 );
+    tempDTHough.SetTrigTimeDiff( trigTimeDiff );
+    tempDTHough.SetBXTime( static_cast< int32_t >( tempTimeP ) << 2 );
+    tempDTHough.Set2TanPhi128( 0 );
+    tempDTHough.SetMCellCentralCoordinate( centralMCellCoord[ iMacroCell ] );
+    switch( superLayer )
+    {
+      case 1 :
+        tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) );
+        break;
+      case 2 :
+        tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) * 128 );
+        break;
+      case 3 :
+        tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) * 16384 );
+        break;
+      default :
+        {
+          std::cerr << "FATAL ERROR IN SETTING WIRE BITS!! " << superLayer << std::endl;
+          exit( EXIT_FAILURE );
+        }
+        break;
+    }
+    std::vector< RefDTDigi_t > tempHitVec;
+    std::vector< uint8_t > tempHitLayerVec;
+    for ( uint16_t qHit = 0; qHit < NUM_MACROCELLWIRES; ++qHit )
+    {
+      if ( vecMCellCMSSWHits[ iMacroCell ][ qHit ] != 0xFFFFFFFF )
+      {
+        tempHitVec.push_back( thisChamberHits.at( vecMCellCMSSWHits[ iMacroCell ][ qHit ] ).second );
+        tempHitLayerVec.push_back( thisChamberHits.at( vecMCellCMSSWHits[ iMacroCell ][ qHit ] ).first >> 27 );
+      }
+    }
+    tempDTHough.SetHits( tempHitVec );
+    tempDTHough.SetHitLayers( tempHitLayerVec );
+    tempOutVector->push_back( tempDTHough );
+  }
+}
+
+void DTTPG::StoreTempOutput( DTChamberId aChambId,
+                             uint32_t superLayer,
+                             int32_t localZeroTime,
+                             WiBits_t wireBitsMCell[ MAX_MACROCELLS ],
+                             unsigned int vecMCellCMSSWHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                             TimeMMT_t timeVec[ MAX_MACROCELLS ],
+                             double centralMCellCoord[ MAX_MACROCELLS ],
+                             std::vector< std::pair< uint32_t, RefDTDigi_t > > thisChamberHits,
+                             TanPhi_t twoTanPhiMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ],
+                             MCellPos_t xZeroMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ],
+                             Qual_t qualCHTMCell[ MAX_MACROCELLS ],
+                             std::vector< DTHough< RefDTDigi_t > > *tempOutVector ) const
+{
+  const DTChamber* tmpChamber = DTGeometryHandle->chamber( aChambId );
+  const DTSuperLayer *superLay1 = tmpChamber->superLayer( DTSuperLayerId( aChambId, 1 ) );
+  const DTSuperLayer *superLay3 = tmpChamber->superLayer( DTSuperLayerId( aChambId, 3 ) );
+  double zMidPlane = 0.5 * ( tmpChamber->surface().toLocal( superLay1->position() ).z() + tmpChamber->surface().toLocal( superLay3->position() ).z() );
+  BOOL_t isPositiveWheel = this->CheckPositiveWheel( aChambId );
+  int32_t tmpSector = aChambId.sector();
+  if ( tmpSector == 13 ) tmpSector = 4;
+  else if ( tmpSector == 14 ) tmpSector = 10;
+  tmpSector -= 1;
+  for ( uint8_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    TimeMMT_t tempTimeP = timeVec[ iMacroCell ];
+    if ( tempTimeP == DEF_TimeMMT )
+      continue;
+    for ( uint8_t iRes = 0; iRes < MAX_TANPHI_CLUSTERS; ++iRes )
+    {
+      if ( xZeroMCell[ iMacroCell ][ iRes ] == DEF_MCellPos )
+        continue;
+      DTHough< RefDTDigi_t > tempDTHough = DTHough< RefDTDigi_t >();
+      tempDTHough.SetDTChamberId( aChambId );
+      tempDTHough.SetFiredSuperLayers( superLayer );
+      unsigned int tempQuality = qualCHTMCell[ iMacroCell ] + ( ( superLayer == 2 ) ? -2 : 0 );
+      tempDTHough.SetQuality( tempQuality );
+      uint32_t tempWireWord = static_cast< uint32_t >( wireBitsMCell[ iMacroCell ] );
+      tempDTHough.SetWireWord( tempWireWord );
+      double trigTimeDiff = static_cast< double >( ( ( ( static_cast< int32_t >( tempTimeP ) << 2 ) - localZeroTime ) * 25 ) >> 5 );
+      tempDTHough.SetTrigTimeDiff( trigTimeDiff );
+      tempDTHough.SetBXTime( static_cast< int32_t >( tempTimeP ) << 2 );
+      tempDTHough.SetXMCell( static_cast< int32_t >( xZeroMCell[ iMacroCell ][ iRes ] ), superLayer );
+      tempDTHough.Set2TanPhi128( static_cast< int32_t >( twoTanPhiMCell[ iMacroCell ][ iRes ] ) );
+      tempDTHough.SetMCellCentralCoordinate( centralMCellCoord[ iMacroCell ] );
+      switch( superLayer )
+      {
+        case 1 :
+          tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) );
+          break;
+        case 2 :
+          tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) * 128 );
+          break;
+        case 3 :
+          tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) * 16384 );
+          break;
+        default :
+          {
+            std::cerr << "FATAL ERROR IN SETTING WIRE BITS!! " << superLayer << std::endl;
+            exit( EXIT_FAILURE );
+          }
+          break;
+      }
+      std::vector< RefDTDigi_t > tempHitVec;
+      std::vector< uint8_t > tempHitLayerVec;
+      for ( uint16_t qHit = 0; qHit < NUM_MACROCELLWIRES; ++qHit )
+      {
+        if ( vecMCellCMSSWHits[ iMacroCell ][ qHit ] != 0xFFFFFFFF )
+        {
+          tempHitVec.push_back( thisChamberHits.at( vecMCellCMSSWHits[ iMacroCell ][ qHit ] ).second );
+          tempHitLayerVec.push_back( thisChamberHits.at( vecMCellCMSSWHits[ iMacroCell ][ qHit ] ).first >> 27 );
+        }
+      }
+      tempDTHough.SetHits( tempHitVec );
+      tempDTHough.SetHitLayers( tempHitLayerVec );
+      if ( superLayer != 2 )
+      {
+        GlobalPoint globalTrigPos = tmpChamber->toGlobal( LocalPoint( tempDTHough.GetTrigX0(), 0, zMidPlane ) );
+        double tmpGlobalPhi = globalTrigPos.phi();
+        tempDTHough.SetGlobalPhi( tmpGlobalPhi );
+        tmpGlobalPhi += ( tmpGlobalPhi < 0 ) ? 2*M_PI : 0;
+        tmpGlobalPhi -= tmpSector * M_PI/6.;
+        tmpGlobalPhi -= ( tmpGlobalPhi > M_PI ) ? 2*M_PI : 0;
+        tempDTHough.SetSectorPhi( tmpGlobalPhi + isPositiveWheel * 4.*M_PI );
+
+        double zSuperLayer = 0;
+        if ( superLayer == 1 )
+          zSuperLayer = tmpChamber->surface().toLocal( superLay1->position() ).z();
+        else if ( superLayer == 3 )
+          zSuperLayer = tmpChamber->surface().toLocal( superLay3->position() ).z();
+        GlobalPoint globalTrigPosSL = tmpChamber->toGlobal( LocalPoint( tempDTHough.GetUnprojectedTrigX0(), 0, zSuperLayer ) );
+        double tmpGlobalPhiSL = globalTrigPosSL.phi();
+        tempDTHough.SetGlobalPhiSL( tmpGlobalPhiSL );
+        tmpGlobalPhiSL += ( tmpGlobalPhiSL < 0 ) ? 2*M_PI : 0;
+        tmpGlobalPhiSL -= tmpSector * M_PI/6.;
+        tmpGlobalPhiSL -= ( tmpGlobalPhiSL > M_PI ) ? 2*M_PI : 0;
+        tempDTHough.SetSectorPhiSL( tmpGlobalPhiSL + isPositiveWheel * 4.*M_PI );
+      }
+      else
+      {
+        GlobalPoint globalTrigPos = tmpChamber->toGlobal( LocalPoint( 0, tempDTHough.GetTrigX0(), zMidPlane ) );
+        tempDTHough.SetGlobalTheta( globalTrigPos.theta() );
+      }
+      tempOutVector->push_back( tempDTHough );
+    }
+  }
+}
+
+void DTTPG::StoreTempOutput( DTChamberId aChambId,
+                             int32_t localZeroTime,
+                             WiBits_t wireBitsMCell1[ MAX_MACROCELLS ],
+                             WiBits_t wireBitsMCell3[ MAX_MACROCELLS ],
+                             unsigned int vecMCellCMSSWHits1[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                             unsigned int vecMCellCMSSWHits3[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                             TimeMMT_t timeVec1[ MAX_MACROCELLS ],
+                             TimeMMT_t timeVec3[ MAX_MACROCELLS ],
+                             double centralMCellCoord[ MAX_MACROCELLS ],
+                             std::vector< std::pair< uint32_t, RefDTDigi_t > > thisChamberHits,
+                             TanPhi_t twoTanPhiMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ],
+                             MCellPos_t xZeroMCell1[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ],
+                             MCellPos_t xZeroMCell3[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS * 10 ],
+                             Qual_t qualCHTMCell[ MAX_MACROCELLS ][ 10 ],
+                             std::vector< DTHough< RefDTDigi_t > > *tempOutVector ) const
+{
+  const DTChamber* tmpChamber = DTGeometryHandle->chamber( aChambId );
+  const DTSuperLayer *superLay1 = tmpChamber->superLayer( DTSuperLayerId( aChambId, 1 ) );
+  const DTSuperLayer *superLay3 = tmpChamber->superLayer( DTSuperLayerId( aChambId, 3 ) );
+  double zMidPlane = 0.5 * ( tmpChamber->surface().toLocal( superLay1->position() ).z() + tmpChamber->surface().toLocal( superLay3->position() ).z() );
+  BOOL_t isPositiveWheel = this->CheckPositiveWheel( aChambId );
+  int32_t tmpSector = aChambId.sector();
+  if ( tmpSector == 13 ) tmpSector = 4;
+  else if ( tmpSector == 14 ) tmpSector = 10;
+  tmpSector -= 1;
+  for ( int8_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    int8_t firstMacroCell = iMacroCell - 2;
+    int8_t lastMacroCell = iMacroCell + 2;
+    firstMacroCell = ( firstMacroCell > 0 ) ? firstMacroCell : 0;
+    lastMacroCell = ( lastMacroCell >= MAX_MACROCELLS ) ? ( MAX_MACROCELLS - 1 ) : lastMacroCell;
+    for ( int8_t iShiftedCell = firstMacroCell; iShiftedCell <= lastMacroCell; ++iShiftedCell )
+    {
+      TimeMMT_t tempTimeP = timeVec1[ iMacroCell ];
+      if ( tempTimeP == DEF_TimeMMT )
+        continue;
+      int8_t iCombin = 2 * ( iShiftedCell - firstMacroCell );
+      for ( uint8_t iRes = 0; iRes < MAX_TANPHI_CLUSTERS; ++iRes )
+      {
+        TanPhi_t twoTanPhi = twoTanPhiMCell[ iMacroCell ][ iCombin + 10 * iRes ];
+        if ( twoTanPhi == DEF_TanPhi )
+          continue;
+        DTHough< RefDTDigi_t > tempDTHough = DTHough< RefDTDigi_t >();
+        tempDTHough.SetDTChamberId( aChambId );
+        Qual_t tempQuality = qualCHTMCell[ iMacroCell ][ iCombin ];
+        tempDTHough.SetQuality( tempQuality );
+        MCellPos_t tempX1 = xZeroMCell1[ iMacroCell ][ iCombin + 10 * iRes ];
+        MCellPos_t tempX3 = xZeroMCell3[ iMacroCell ][ iCombin + 10 * iRes ];
+        unsigned int tempFiredSuperLayers = this->BuildFiredSuperLayers( tempQuality, tempX1, tempX3 );
+        if ( tempFiredSuperLayers == 0 )
+          continue;
+        tempDTHough.SetFiredSuperLayers( tempFiredSuperLayers );
+        tempDTHough.SetXMCell( static_cast< int32_t >( tempX1 ), 1 );
+        tempDTHough.SetXMCell( static_cast< int32_t >( tempX3 ), 3 );
+        tempDTHough.Set2TanPhi128( static_cast< int32_t >( twoTanPhi ) );
+        tempDTHough.SetMCellCentralCoordinate( centralMCellCoord[ iMacroCell ] );
+        tempDTHough.SetWireWord( static_cast< uint32_t >( wireBitsMCell1[ iMacroCell ] ) );
+        tempDTHough.ModWireWord( static_cast< uint32_t >( wireBitsMCell3[ iShiftedCell ] ) );
+        double trigTimeDiff = static_cast< double >( ( ( ( static_cast< int32_t >( tempTimeP ) << 2 ) - localZeroTime ) * 25 ) >> 5 );
+        tempDTHough.SetTrigTimeDiff( trigTimeDiff );
+        tempDTHough.SetBXTime( static_cast< int32_t >( tempTimeP ) << 2 );
+        tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) + 16384 * static_cast< uint32_t >(iShiftedCell) );
+        tempDTHough.SetMCellCentralCoordinate( centralMCellCoord[ iMacroCell ] );
+        std::vector< RefDTDigi_t > tempHitVec;
+        std::vector< uint8_t > tempHitLayerVec;
+        for ( uint16_t qHit = 0; qHit < NUM_MACROCELLWIRES; ++qHit )
+        {
+          if ( vecMCellCMSSWHits1[ iMacroCell ][ qHit ] != 0xFFFFFFFF )
+          {
+            tempHitVec.push_back( thisChamberHits.at( vecMCellCMSSWHits1[ iMacroCell ][ qHit ] ).second );
+            tempHitLayerVec.push_back( thisChamberHits.at( vecMCellCMSSWHits1[ iMacroCell ][ qHit ] ).first >> 27 );
+          }
+          if ( vecMCellCMSSWHits3[ iShiftedCell ][ qHit ] != 0xFFFFFFFF )
+          {
+            tempHitVec.push_back( thisChamberHits.at( vecMCellCMSSWHits3[ iShiftedCell ][ qHit ] ).second );
+            tempHitLayerVec.push_back( thisChamberHits.at( vecMCellCMSSWHits3[ iShiftedCell ][ qHit ] ).first >> 27 );
+          }
+        }
+        tempDTHough.SetHits( tempHitVec );
+        tempDTHough.SetHitLayers( tempHitLayerVec );
+        GlobalPoint globalTrigPos = tmpChamber->toGlobal( LocalPoint( tempDTHough.GetTrigX0(), 0, zMidPlane ) );
+        double tmpGlobalPhi = globalTrigPos.phi();
+        tempDTHough.SetGlobalPhi( tmpGlobalPhi );
+        if ( tempFiredSuperLayers == 4 )
+          tempDTHough.SetGlobalPhiSL( tmpGlobalPhi );
+        tmpGlobalPhi += ( tmpGlobalPhi < 0 ) ? 2*M_PI : 0;
+        tmpGlobalPhi -= tmpSector * M_PI/6.;
+        tmpGlobalPhi -= ( tmpGlobalPhi > M_PI ) ? 2*M_PI : 0;
+        tempDTHough.SetSectorPhi( tmpGlobalPhi + isPositiveWheel * 4.*M_PI );
+        if ( tempFiredSuperLayers == 4 )
+          tempDTHough.SetSectorPhiSL( tmpGlobalPhi + isPositiveWheel * 4.*M_PI );
+
+        if ( tempFiredSuperLayers != 4 )
+        {
+          double zSuperLayer = 0;
+          if ( tempFiredSuperLayers == 1 )
+            zSuperLayer = tmpChamber->surface().toLocal( superLay1->position() ).z();
+          else if ( tempFiredSuperLayers == 3 )
+            zSuperLayer = tmpChamber->surface().toLocal( superLay3->position() ).z();
+          GlobalPoint globalTrigPosSL = tmpChamber->toGlobal( LocalPoint( tempDTHough.GetUnprojectedTrigX0(), 0, zSuperLayer ) );
+          double tmpGlobalPhiSL = globalTrigPosSL.phi();
+          tempDTHough.SetGlobalPhiSL( tmpGlobalPhiSL );
+          tmpGlobalPhiSL += ( tmpGlobalPhiSL < 0 ) ? 2*M_PI : 0;
+          tmpGlobalPhiSL -= tmpSector * M_PI/6.;
+          tmpGlobalPhiSL -= ( tmpGlobalPhiSL > M_PI ) ? 2*M_PI : 0;
+          tempDTHough.SetSectorPhiSL( tmpGlobalPhiSL + isPositiveWheel * 4.*M_PI );
+        }
+        tempOutVector->push_back( tempDTHough );
+      }
+    }
+    for ( int8_t iShiftedCell = firstMacroCell; iShiftedCell <= lastMacroCell; ++iShiftedCell )
+    {
+      TimeMMT_t tempTimeP = timeVec3[ iShiftedCell ];
+      if ( tempTimeP == DEF_TimeMMT )
+        continue;
+      int8_t iCombin = 2 * ( iShiftedCell - firstMacroCell ) + 1;
+      for ( uint8_t iRes = 0; iRes < MAX_TANPHI_CLUSTERS; ++iRes )
+      {
+        TanPhi_t twoTanPhi = twoTanPhiMCell[ iMacroCell ][ iCombin + 10 * iRes ];
+        if ( twoTanPhi == DEF_TanPhi )
+          continue;
+        DTHough< RefDTDigi_t > tempDTHough = DTHough< RefDTDigi_t >();
+        tempDTHough.SetDTChamberId( aChambId );
+        Qual_t tempQuality = qualCHTMCell[ iMacroCell ][ iCombin ];
+        tempDTHough.SetQuality( tempQuality );
+        MCellPos_t tempX1 = xZeroMCell1[ iMacroCell ][ iCombin + 10 * iRes ];
+        MCellPos_t tempX3 = xZeroMCell3[ iMacroCell ][ iCombin + 10 * iRes ];
+        unsigned int tempFiredSuperLayers = this->BuildFiredSuperLayers( tempQuality, tempX1, tempX3 );
+        if ( tempFiredSuperLayers == 0 )
+          continue;
+        tempDTHough.SetFiredSuperLayers( tempFiredSuperLayers );
+        tempDTHough.SetXMCell( static_cast< int32_t >( tempX1 ), 1 );
+        tempDTHough.SetXMCell( static_cast< int32_t >( tempX3 ), 3 );
+        tempDTHough.Set2TanPhi128( static_cast< int32_t >( twoTanPhi ) );
+        tempDTHough.SetMCellCentralCoordinate( centralMCellCoord[ iMacroCell ] );
+        tempDTHough.SetWireWord( static_cast< uint32_t >( wireBitsMCell1[ iMacroCell ] ) );
+        tempDTHough.ModWireWord( static_cast< uint32_t >( wireBitsMCell3[ iShiftedCell ] ) );
+        double trigTimeDiff = static_cast< double >( ( ( ( static_cast< int32_t >( tempTimeP ) << 2 ) - localZeroTime ) * 25 ) >> 5 );
+        tempDTHough.SetTrigTimeDiff( trigTimeDiff );
+        tempDTHough.SetBXTime( static_cast< int32_t >( tempTimeP ) << 2 );
+        tempDTHough.SetMacroCellCode( static_cast< uint32_t >(iMacroCell) + 16384 * static_cast< uint32_t >(iShiftedCell) );
+        tempDTHough.SetMCellCentralCoordinate( centralMCellCoord[ iMacroCell ] );
+        std::vector< RefDTDigi_t > tempHitVec;
+        std::vector< uint8_t > tempHitLayerVec;
+        for ( uint16_t qHit = 0; qHit < NUM_MACROCELLWIRES; ++qHit )
+        {
+          if ( vecMCellCMSSWHits1[ iMacroCell ][ qHit ] != 0xFFFFFFFF )
+          {
+            tempHitVec.push_back( thisChamberHits.at( vecMCellCMSSWHits1[ iMacroCell ][ qHit ] ).second );
+            tempHitLayerVec.push_back( thisChamberHits.at( vecMCellCMSSWHits1[ iMacroCell ][ qHit ] ).first >> 27 );
+          }
+          if ( vecMCellCMSSWHits3[ iShiftedCell ][ qHit ] != 0xFFFFFFFF )
+          {
+            tempHitVec.push_back( thisChamberHits.at( vecMCellCMSSWHits3[ iShiftedCell ][ qHit ] ).second );
+            tempHitLayerVec.push_back( thisChamberHits.at( vecMCellCMSSWHits3[ iShiftedCell ][ qHit ] ).first >> 27 );
+          }
+        }
+        tempDTHough.SetHits( tempHitVec );
+        tempDTHough.SetHitLayers( tempHitLayerVec );
+        GlobalPoint globalTrigPos = tmpChamber->toGlobal( LocalPoint( tempDTHough.GetTrigX0(), 0, zMidPlane ) );
+        double tmpGlobalPhi = globalTrigPos.phi();
+        tempDTHough.SetGlobalPhi( tmpGlobalPhi );
+        if ( tempFiredSuperLayers == 4 )
+          tempDTHough.SetGlobalPhiSL( tmpGlobalPhi );
+        tmpGlobalPhi += ( tmpGlobalPhi < 0 ) ? 2*M_PI : 0;
+        tmpGlobalPhi -= tmpSector * M_PI/6.;
+        tmpGlobalPhi -= ( tmpGlobalPhi > M_PI ) ? 2*M_PI : 0;
+        tempDTHough.SetSectorPhi( tmpGlobalPhi + isPositiveWheel * 4.*M_PI );
+        if ( tempFiredSuperLayers == 4 )
+          tempDTHough.SetSectorPhiSL( tmpGlobalPhi + isPositiveWheel * 4.*M_PI );
+
+        if ( tempFiredSuperLayers != 4 )
+        {
+          double zSuperLayer = 0;
+          if ( tempFiredSuperLayers == 1 )
+            zSuperLayer = tmpChamber->surface().toLocal( superLay1->position() ).z();
+          else if ( tempFiredSuperLayers == 3 )
+            zSuperLayer = tmpChamber->surface().toLocal( superLay3->position() ).z();
+          GlobalPoint globalTrigPosSL = tmpChamber->toGlobal( LocalPoint( tempDTHough.GetUnprojectedTrigX0(), 0, zSuperLayer ) );
+          double tmpGlobalPhiSL = globalTrigPosSL.phi();
+          tempDTHough.SetGlobalPhiSL( tmpGlobalPhiSL );
+          tmpGlobalPhiSL += ( tmpGlobalPhiSL < 0 ) ? 2*M_PI : 0;
+          tmpGlobalPhiSL -= tmpSector * M_PI/6.;
+          tmpGlobalPhiSL -= ( tmpGlobalPhiSL > M_PI ) ? 2*M_PI : 0;
+          tempDTHough.SetSectorPhiSL( tmpGlobalPhiSL + isPositiveWheel * 4.*M_PI );
+        }
+        tempOutVector->push_back( tempDTHough );
+      }
+    }
+  }
+}
+
+void DTTPG::RemoveDuplicates( std::vector< DTHough< RefDTDigi_t > > *tempDTHoughStorage,
+                              std::vector< DTHough< RefDTDigi_t > > *outputHoughTrig ) const
+{
+  std::vector< bool > markForCleaning( tempDTHoughStorage->size(), false );
+  for ( unsigned int iTrig = 0; iTrig < tempDTHoughStorage->size(); ++iTrig )
+  {
+    DTHough< RefDTDigi_t > tempDTHT1 = tempDTHoughStorage->at( iTrig );
+    unsigned int qualCode1 = tempDTHT1.GetQuality();
+    unsigned int mcCode1 = tempDTHT1.GetMacroCellCode();
+    unsigned int superLayer1 = tempDTHT1.GetFiredSuperLayers();
+    uint32_t wireWord1 = tempDTHT1.GetWireWord();
+    int mcCode1SL1 = mcCode1 % 128;
+    int mcCode1SL2 = ( mcCode1 % 16384 ) / 128;
+    int mcCode1SL3 = mcCode1 / 16384;
+    int32_t timeBX1 = tempDTHT1.GetBXTime();
+    for ( unsigned int jTrig = iTrig + 1;
+          jTrig < tempDTHoughStorage->size() && markForCleaning[ iTrig ] == false;
+          ++jTrig )
+    {
+      if ( markForCleaning[ jTrig ] )
+        continue;
+      DTHough< RefDTDigi_t > tempDTHT2 = tempDTHoughStorage->at( jTrig );
+      unsigned int qualCode2 = tempDTHT2.GetQuality();
+      unsigned int mcCode2 = tempDTHT2.GetMacroCellCode();
+      unsigned int superLayer2 = tempDTHT2.GetFiredSuperLayers();
+      uint32_t wireWord2 = tempDTHT2.GetWireWord();
+      if ( qualCode1 < qDoublePoor && qualCode2 < qDoublePoor && superLayer1 != superLayer2 )
+        continue;
+      int mcCode2SL1 = mcCode2 % 128;
+      int mcCode2SL2 = ( mcCode2 % 16384 ) / 128;
+      int mcCode2SL3 = mcCode2 / 16384;
+      int32_t timeBX2 = tempDTHT2.GetBXTime();
+      if ( timeBX1 != timeBX2 )
+        continue;
+      uint32_t cntSL1 = 0;
+      uint32_t cntSL2 = 0;
+      uint32_t cntSL3 = 0;
+      bool qualCode1BothSL = ( superLayer1 == 4 );
+      bool qualCode2BothSL = ( superLayer2 == 4 );
+      if ( qualCode1BothSL && qualCode2BothSL )
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      else if ( qualCode1BothSL && !qualCode2BothSL )
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      else if ( !qualCode1BothSL && qualCode2BothSL )
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      else
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = wireWord1 & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( wireWord1 >> 8 ) & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( wireWord2 >> 8 ) & wireWord1 & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL2 > 0 && mcCode2SL2 > 0 )
+        {
+          if ( mcCode1SL2 == mcCode2SL2 )
+            tempWireWord = wireWord1 & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL2 + 1 == mcCode2SL2 )
+            tempWireWord = ( wireWord1 >> 8 ) & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL2 == mcCode2SL2 + 1 )
+            tempWireWord = ( wireWord2 >> 8 ) & wireWord1 & 0x3FFF;
+          cntSL2 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = wireWord1 & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 >> 8 ) & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( wireWord2 >> 8 ) & wireWord1 & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      if ( cntSL1 + cntSL2 + cntSL3 < 3 )
+        continue;
+      if ( qualCode1 == qualCode2 )
+      {
+        if ( ( mcCode1SL1 + mcCode1SL2 + mcCode1SL3 + mcCode2SL1 + mcCode2SL2 + mcCode2SL3 ) % 2 == 0 )
+          markForCleaning[ jTrig ] = true;
+        else
+          markForCleaning[ iTrig ] = true;
+      }
+      else if ( qualCode1 > qualCode2 )
+        markForCleaning[ jTrig ] = true;
+      else
+        markForCleaning[ iTrig ] = true;
+    }
+  }
+  for ( unsigned int iTrig = 0; iTrig < tempDTHoughStorage->size(); ++iTrig )
+  {
+    if ( markForCleaning[ iTrig ] )
+      continue;
+
+    outputHoughTrig->push_back( tempDTHoughStorage->at( iTrig ) );
+  }
+}
+
+/// Same that also stores output for KFTF
+void DTTPG::RemoveDuplicates( std::vector< DTHough< RefDTDigi_t > > *tempDTHoughStorage,
+                              std::vector< DTHough< RefDTDigi_t > > *outputHoughTrig,
+                              std::vector< L1MuDTChambPhDigi > *outputPhiTrigger,
+                              std::vector< L1Phase2MuDTPhDigi > *outputPhiTrigger2,
+                              std::vector< L1Phase2MuDTPhDigi > *outputPhiTrigger2slRF ) const
+{
+  std::sort( tempDTHoughStorage->begin(), tempDTHoughStorage->end(), DTTPG::PhiBQualSortDTHough );
+
+  std::vector< bool > markForCleaning( tempDTHoughStorage->size(), false );
+  for ( unsigned int iTrig = 0; iTrig < tempDTHoughStorage->size(); ++iTrig )
+  {
+    DTHough< RefDTDigi_t > tempDTHT1 = tempDTHoughStorage->at( iTrig );
+    unsigned int qualCode1 = tempDTHT1.GetQuality();
+    unsigned int mcCode1 = tempDTHT1.GetMacroCellCode();
+    unsigned int superLayer1 = tempDTHT1.GetFiredSuperLayers();
+    uint32_t wireWord1 = tempDTHT1.GetWireWord();
+    int mcCode1SL1 = mcCode1 % 128;
+    int mcCode1SL2 = ( mcCode1 % 16384 ) / 128;
+    int mcCode1SL3 = mcCode1 / 16384;
+    int32_t timeBX1 = tempDTHT1.GetBXTime();
+    for ( unsigned int jTrig = iTrig + 1;
+          jTrig < tempDTHoughStorage->size() && markForCleaning[ iTrig ] == false;
+          ++jTrig )
+    {
+      if ( markForCleaning[ jTrig ] )
+        continue;
+      DTHough< RefDTDigi_t > tempDTHT2 = tempDTHoughStorage->at( jTrig );
+      unsigned int qualCode2 = tempDTHT2.GetQuality();
+      unsigned int mcCode2 = tempDTHT2.GetMacroCellCode();
+      unsigned int superLayer2 = tempDTHT2.GetFiredSuperLayers();
+      uint32_t wireWord2 = tempDTHT2.GetWireWord();
+      if ( qualCode1 < qDoublePoor && qualCode2 < qDoublePoor && superLayer1 != superLayer2 )
+        continue;
+      int mcCode2SL1 = mcCode2 % 128;
+      int mcCode2SL2 = ( mcCode2 % 16384 ) / 128;
+      int mcCode2SL3 = mcCode2 / 16384;
+      int32_t timeBX2 = tempDTHT2.GetBXTime();
+      if ( timeBX1 != timeBX2 )
+        continue;
+      uint32_t cntSL1 = 0;
+      uint32_t cntSL2 = 0;
+      uint32_t cntSL3 = 0;
+      bool qualCode1BothSL = ( superLayer1 == 4 );
+      bool qualCode2BothSL = ( superLayer2 == 4 );
+      if ( qualCode1BothSL && qualCode2BothSL )
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      else if ( qualCode1BothSL && !qualCode2BothSL )
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( ( wireWord1 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      else if ( !qualCode1BothSL && qualCode2BothSL )
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( ( ( wireWord2 & 0xFFFF0000 ) >> 16 ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 & 0xFFFF ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( ( wireWord1 & 0xFFFF ) >> 8 ) & ( wireWord2 & 0xFFFF ) & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( ( wireWord2 & 0xFFFF ) >> 8 ) & ( wireWord1 & 0xFFFF ) & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      else
+      {
+        uint32_t tempWireWord = 0;
+        if ( mcCode1SL1 > 0 && mcCode2SL1 > 0 )
+        {
+          if ( mcCode1SL1 == mcCode2SL1 )
+            tempWireWord = wireWord1 & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL1 + 1 == mcCode2SL1 )
+            tempWireWord = ( wireWord1 >> 8 ) & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL1 == mcCode2SL1 + 1 )
+            tempWireWord = ( wireWord2 >> 8 ) & wireWord1 & 0x3FFF;
+          cntSL1 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL2 > 0 && mcCode2SL2 > 0 )
+        {
+          if ( mcCode1SL2 == mcCode2SL2 )
+            tempWireWord = wireWord1 & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL2 + 1 == mcCode2SL2 )
+            tempWireWord = ( wireWord1 >> 8 ) & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL2 == mcCode2SL2 + 1 )
+            tempWireWord = ( wireWord2 >> 8 ) & wireWord1 & 0x3FFF;
+          cntSL2 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+        if ( mcCode1SL3 > 0 && mcCode2SL3 > 0 )
+        {
+          if ( mcCode1SL3 == mcCode2SL3 )
+            tempWireWord = wireWord1 & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL3 + 1 == mcCode2SL3 )
+            tempWireWord = ( wireWord1 >> 8 ) & wireWord2 & 0x3FFF;
+          else if ( mcCode1SL3 == mcCode2SL3 + 1 )
+            tempWireWord = ( wireWord2 >> 8 ) & wireWord1 & 0x3FFF;
+          cntSL3 = tempWireWord - ( tempWireWord >> 1 ) - ( tempWireWord >> 2 ) - ( tempWireWord >> 3 )
+                                - ( tempWireWord >> 4 ) - ( tempWireWord >> 5 ) - ( tempWireWord >> 6 )
+                                - ( tempWireWord >> 7 ) - ( tempWireWord >> 8 ) - ( tempWireWord >> 9 )
+                                - ( tempWireWord >> 10 ) - ( tempWireWord >> 11 ) - ( tempWireWord >> 12 )
+                                - ( tempWireWord >> 13 );
+        }
+      }
+      if ( cntSL1 + cntSL2 + cntSL3 < 3 )
+        continue;
+      if ( qualCode1 == qualCode2 )
+      {
+        if ( ( mcCode1SL1 + mcCode1SL2 + mcCode1SL3 + mcCode2SL1 + mcCode2SL2 + mcCode2SL3 ) % 2 == 0 )
+          markForCleaning[ jTrig ] = true;
+        else
+          markForCleaning[ iTrig ] = true;
+      }
+      else if ( qualCode1 > qualCode2 )
+        markForCleaning[ jTrig ] = true;
+      else
+        markForCleaning[ iTrig ] = true;
+    }
+  }
+
+  /// Phase 2 Data Format
+  std::vector< DTHough< RefDTDigi_t > > *tmpOutput = new std::vector< DTHough< RefDTDigi_t > >();
+  for ( unsigned int iTrig = 0; iTrig < tempDTHoughStorage->size(); ++iTrig )
+  {
+    if ( markForCleaning[ iTrig ] )
+      continue;
+    outputHoughTrig->push_back( tempDTHoughStorage->at( iTrig ) );
+    tmpOutput->push_back( tempDTHoughStorage->at( iTrig ) );
+
+    DTChamberId tmpId = tempDTHoughStorage->at( iTrig ).GetDTChamberId();
+    int secCollSector = tmpId.sector();
+    if ( secCollSector == 13 ) secCollSector = 4;
+    else if ( secCollSector == 14 ) secCollSector = 10;
+    --secCollSector;
+
+    /// All projected to the chamber reference frame
+    outputPhiTrigger2->push_back( L1Phase2MuDTPhDigi( static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetBXTime()/32 ) ),
+                                                      tmpId.wheel(), secCollSector, tmpId.station(),
+                                                      tempDTHoughStorage->at( iTrig ).GetFiredSuperLayers(),
+                                                      static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetSectorPhi() * 65536 / 0.8 ) ),
+                                                      static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetBendingPhi() * 2048 / 1.4 ) ),
+                                                      tempDTHoughStorage->at( iTrig ).GetQuality(),
+                                                      iTrig+1,
+                                                      static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetBXTime() ) ),
+                                                      1, /// Default chi2
+                                                      -10 /// Default rpc
+                                                      ) );
+
+    /// TP aligned to super-layer reference frame when needed
+    outputPhiTrigger2slRF->push_back( L1Phase2MuDTPhDigi( static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetBXTime()/32 ) ),
+                                                          tmpId.wheel(), secCollSector, tmpId.station(),
+                                                          tempDTHoughStorage->at( iTrig ).GetFiredSuperLayers(),
+                                                          static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetSectorPhiSL() * 65536 / 0.8 ) ),
+                                                          static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetBendingPhiSL() * 2048 / 1.4 ) ),
+                                                          tempDTHoughStorage->at( iTrig ).GetQuality(),
+                                                          iTrig,
+                                                          static_cast< int >( std::round( tempDTHoughStorage->at( iTrig ).GetBXTime() ) ),
+                                                          1, /// Default chi2
+                                                          -10 /// Default rpc
+                                                          ) );
+    
+  }
+
+  /// Phase 1 Data Format, only best 2 candidates
+  unsigned int idxBest = 0;
+  unsigned int idxSecond = 0;
+  unsigned int qualBest = 0;
+  unsigned int qualSecond = 0;
+  for ( unsigned int iTrig = 0; iTrig < tmpOutput->size(); ++iTrig )
+  {
+    if ( (*tmpOutput)[iTrig].GetQuality() > qualBest )
+    {
+      qualSecond = qualBest;
+      idxSecond = idxBest;
+      qualBest = (*tmpOutput)[iTrig].GetQuality();
+      idxBest = iTrig;
+    }
+    else if ( (*tmpOutput)[iTrig].GetQuality() > qualSecond )
+    {
+      qualSecond = (*tmpOutput)[iTrig].GetQuality();
+      idxSecond = iTrig;
+    }
+  }
+  if ( qualBest > 2 ) /// Only phi
+  {
+    DTChamberId tmpId = (*tmpOutput)[idxBest].GetDTChamberId();
+    int secCollSector = tmpId.sector();
+    if ( secCollSector == 13 ) secCollSector = 4;
+    else if ( secCollSector == 14 ) secCollSector = 10;
+    --secCollSector;
+    outputPhiTrigger->push_back( L1MuDTChambPhDigi( static_cast< int >( std::round( (*tmpOutput)[idxBest].GetTrigTimeDiff()/25.) ),
+                                                    tmpId.wheel(), secCollSector, tmpId.station(),
+                                                    static_cast< int >( std::round( (*tmpOutput)[idxBest].GetSectorPhi() * 65536 / 0.8 ) ),
+                                                    static_cast< int >( std::round( (*tmpOutput)[idxBest].GetBendingPhi() * 2048 / 1.4 ) ),
+                                                    (*tmpOutput)[idxBest].GetQuality(), 0,
+                                                    static_cast< int >( (*tmpOutput)[idxBest].GetBXTime()/32 ) ) ); /// BxCnt used for absolute BX
+  }
+  if ( qualSecond > 2 ) /// Only phi
+  {
+    DTChamberId tmpId = (*tmpOutput)[idxSecond].GetDTChamberId();
+    int secCollSector = tmpId.sector();
+    if ( secCollSector == 13 ) secCollSector = 4;
+    else if ( secCollSector == 14 ) secCollSector = 10;
+    --secCollSector;
+    outputPhiTrigger->push_back( L1MuDTChambPhDigi( static_cast< int >( std::round( (*tmpOutput)[idxSecond].GetTrigTimeDiff()/25.) ),
+                                                    tmpId.wheel(), secCollSector, tmpId.station(),
+                                                    static_cast< int >( std::round( (*tmpOutput)[idxSecond].GetSectorPhi() * 65536 / 0.8 ) ),
+                                                    static_cast< int >( std::round( (*tmpOutput)[idxSecond].GetBendingPhi() * 2048 / 1.4 ) ),
+                                                    (*tmpOutput)[idxBest].GetQuality(), 1,
+                                                    static_cast< int >( (*tmpOutput)[idxBest].GetBXTime()/32 ) ) ); /// BxCnt used for absolute BX
+  }
+}
+
+void DTTPG::RunAlgorithm( int32_t localZeroTime, bool isData,
+                          std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > > aMapDigisByChamber,
+                          std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigMMTOnly,
+                          std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigCHT1SL,
+                          std::vector< DTHough< RefDTDigi_t > > *anOutputHoughTrigCHT2SL,
+                          std::vector< L1MuDTChambPhDigi > *anOutputPhiTrigger,
+                          std::vector< L1Phase2MuDTPhDigi > *anOutputPhiTrigger2,
+                          std::vector< L1Phase2MuDTPhDigi > *anOutputPhiTrigger2slRF )
+{
+  std::map< DTChamberId, std::vector< std::pair< uint32_t, RefDTDigi_t > > >::const_iterator iterMapDigisByChamber;
+  for ( iterMapDigisByChamber = aMapDigisByChamber.begin();
+        iterMapDigisByChamber != aMapDigisByChamber.end();
+        ++iterMapDigisByChamber )
+  {
+    DTChamberId thisChambId = iterMapDigisByChamber->first;
+    uint32_t idxWheel = static_cast< uint32_t >( thisChambId.wheel() + 2 );
+    uint32_t idxSector = static_cast< uint32_t >( thisChambId.sector() - 1 );
+    uint32_t idxStation = static_cast< uint32_t >( thisChambId.station() - 1 );
+    uint32_t idxChamber = idxWheel * 14 * 4 + idxSector * 4 + idxStation;
+    BOOL_t isPositiveWheel = this->CheckPositiveWheel( thisChambId );
+    if ( isData )
+    {
+      if ( idxStation == 0 && ( idxWheel == 0 || idxWheel == 4 ) )
+      {
+        defMaxDriftTime = vDefMaxDriftTime[3];
+        defVDrift = vDefVDrift[3];
+        defSlopeToTime = vDefSlopeToTime[3];
+        mmtNonLinCorr = &(vMmtNonLinCorr[3*116]);
+      }
+      else
+      {
+        defMaxDriftTime = vDefMaxDriftTime[1];
+        defVDrift = vDefVDrift[1];
+        defSlopeToTime = vDefSlopeToTime[1];
+        mmtNonLinCorr = &(vMmtNonLinCorr[1*116]);
+      }
+    }
+    else
+    {
+      if ( idxStation == 0 && ( idxWheel == 0 || idxWheel == 4 ) )
+      {
+        defMaxDriftTime = vDefMaxDriftTime[2];
+        defVDrift = vDefVDrift[2];
+        defSlopeToTime = vDefSlopeToTime[2];
+        mmtNonLinCorr = &(vMmtNonLinCorr[2*116]);
+      }
+      else
+      {
+        defMaxDriftTime = vDefMaxDriftTime[0];
+        defVDrift = vDefVDrift[0];
+        defSlopeToTime = vDefSlopeToTime[0];
+        mmtNonLinCorr = &(vMmtNonLinCorr[0*116]);
+      }
+    }
+    std::vector< std::pair< uint32_t, RefDTDigi_t > > thisChamberHits = iterMapDigisByChamber->second;
+    InputBMask_t vecEncodedHits[ MAX_CHAMBERHITS ] = {0};
+    uint32_t vecIdxCMSSWHits[ MAX_CHAMBERHITS ] = {0};
+    uint32_t cntHits = 0;
+    uint32_t numChamberHits = std::min( static_cast< uint32_t >(MAX_CHAMBERHITS), static_cast< uint32_t >(thisChamberHits.size()) );
+    for ( unsigned int iHit = 0; iHit < numChamberHits; ++iHit )
+    {
+      std::pair< uint32_t, RefDTDigi_t > thisDigiRef = thisChamberHits.at( iHit );
+      InputBMask_t uHitCode = this->ConvertHit( localZeroTime, thisDigiRef );
+      vecIdxCMSSWHits[ cntHits ] = iHit;
+      vecEncodedHits[ cntHits++ ] = uHitCode;
+    }
+#include "./DTTPG_Run.icc"
+    std::vector< DTHough< RefDTDigi_t > > *tempDTHoughStorageMMTOnly = new std::vector< DTHough< RefDTDigi_t > >();
+    this->StoreTempOutput( thisChambId,
+                           1,
+                           localZeroTime,
+                           wireBitsInnerMCell,
+                           vecInnerMCellCMSSWHits,
+                           timePInnerMCell,
+                           centralMCellCoord,
+                           thisChamberHits,
+                           qualityInnerMCell,
+                           tempDTHoughStorageMMTOnly );
+    this->StoreTempOutput( thisChambId,
+                           3,
+                           localZeroTime,
+                           wireBitsOuterMCell,
+                           vecOuterMCellCMSSWHits,
+                           timePOuterMCell,
+                           centralMCellCoord,
+                           thisChamberHits,
+                           qualityOuterMCell,
+                           tempDTHoughStorageMMTOnly );
+#ifdef ALSO_THETA
+    this->StoreTempOutput( thisChambId,
+                           2,
+                           localZeroTime,
+                           wireBitsLongMCell,
+                           vecLongMCellCMSSWHits,
+                           timePLongMCell,
+                           longMCellCoord,
+                           thisChamberHits,
+                           qualityLongMCell,
+                           tempDTHoughStorageMMTOnly );
+#endif
+    std::vector< DTHough< RefDTDigi_t > > *tempDTHoughStorageCHT1SL = new std::vector< DTHough< RefDTDigi_t > >();
+    this->StoreTempOutput( thisChambId,
+                           1,
+                           localZeroTime,
+                           wireBitsInnerMCell,
+                           vecInnerMCellCMSSWHits,
+                           timePInnerMCell,
+                           centralMCellCoord,
+                           thisChamberHits,
+                           twoTanPhiInnerMCell,
+                           xZeroInnerMCell,
+                           qualCHTInnerMCell,
+                           tempDTHoughStorageCHT1SL );
+    this->StoreTempOutput( thisChambId,
+                           3,
+                           localZeroTime,
+                           wireBitsOuterMCell, 
+                           vecOuterMCellCMSSWHits,
+                           timePOuterMCell, 
+                           centralMCellCoord, 
+                           thisChamberHits,
+                           twoTanPhiOuterMCell, 
+                           xZeroOuterMCell,
+                           qualCHTOuterMCell, 
+                           tempDTHoughStorageCHT1SL );
+#ifdef ALSO_THETA
+    this->StoreTempOutput( thisChambId, 
+                           2, 
+                           localZeroTime,
+                           wireBitsLongMCell, 
+                           vecLongMCellCMSSWHits,
+                           timePLongMCell, 
+                           longMCellCoord, 
+                           thisChamberHits,
+                           twoTanPhiLongMCell, 
+                           xZeroLongMCell,
+                           qualCHTLongMCell, 
+                           tempDTHoughStorageCHT1SL );
+#endif
+    std::vector< DTHough< RefDTDigi_t > > *tempDTHoughStorageCHT2SL = new std::vector< DTHough< RefDTDigi_t > >();
+    this->StoreTempOutput( thisChambId,
+                           localZeroTime,
+                           wireBitsInnerMCell,
+                           wireBitsOuterMCell,
+                           vecInnerMCellCMSSWHits,
+                           vecOuterMCellCMSSWHits,
+                           timePInnerMCell,
+                           timePOuterMCell,
+                           centralMCellCoord,
+                           thisChamberHits,
+                           twoTanPhiCombMCell,
+                           xZeroInnerCombMCell,
+                           xZeroOuterCombMCell,
+                           qualCombMCell,
+                           tempDTHoughStorageCHT2SL );
+    this->StoreTempOutput( thisChambId,
+                           1,
+                           localZeroTime,
+                           wireBitsInnerMCell,
+                           vecInnerMCellCMSSWHits,
+                           timePInnerMCell,
+                           centralMCellCoord,
+                           thisChamberHits,
+                           twoTanPhiInnerMCell,
+                           xZeroInnerMCell,
+                           qualCHTInnerMCell,
+                           tempDTHoughStorageCHT2SL );
+    this->StoreTempOutput( thisChambId,
+                           3, 
+                           localZeroTime, 
+                           wireBitsOuterMCell, 
+                           vecOuterMCellCMSSWHits,
+                           timePOuterMCell, 
+                           centralMCellCoord, 
+                           thisChamberHits,
+                           twoTanPhiOuterMCell, 
+                           xZeroOuterMCell,
+                           qualCHTOuterMCell, 
+                           tempDTHoughStorageCHT2SL );
+#ifdef ALSO_THETA
+    this->StoreTempOutput( thisChambId,
+                           2, 
+                           localZeroTime, 
+                           wireBitsLongMCell, 
+                           vecLongMCellCMSSWHits,
+                           timePLongMCell, 
+                           longMCellCoord, 
+                           thisChamberHits,
+                           twoTanPhiLongMCell, 
+                           xZeroLongMCell,
+                           qualCHTLongMCell, 
+                           tempDTHoughStorageCHT2SL );
+#endif
+    this->RemoveDuplicates( tempDTHoughStorageMMTOnly, anOutputHoughTrigMMTOnly );
+    this->RemoveDuplicates( tempDTHoughStorageCHT1SL, anOutputHoughTrigCHT1SL );
+    //this->RemoveDuplicates( tempDTHoughStorageCHT2SL, anOutputHoughTrigCHT2SL );
+    this->RemoveDuplicates( tempDTHoughStorageCHT2SL, anOutputHoughTrigCHT2SL, anOutputPhiTrigger, anOutputPhiTrigger2, anOutputPhiTrigger2slRF );
+  }
+}

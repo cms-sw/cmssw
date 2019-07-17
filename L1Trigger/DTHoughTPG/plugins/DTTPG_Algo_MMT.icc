@@ -1,0 +1,199 @@
+void DTTPG::RunMMTOneSL( TimeMMT_t vecMCellHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                         WiBits_t wireBits[ MAX_MACROCELLS ],
+                         BOOL_t qualityFlag[ MAX_MACROCELLS ],
+                         TimeMMT_t timePMCell[ MAX_MACROCELLS ] ) const
+{
+  for ( MCellIdx_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    wireBits[ iMacroCell ] = 0;
+    timePMCell[ iMacroCell ] = DEF_TimeMMT;
+    timePMCell[ iMacroCell ] = this->RunMMTOneMC( vecMCellHits[ iMacroCell ],
+                                                  &( wireBits[ iMacroCell ] ),
+                                                  &( qualityFlag[ iMacroCell ] ) );
+  }
+}
+
+TimeMMT_t DTTPG::RunMMTOneMC( TimeMMT_t vecHits[ NUM_MACROCELLWIRES ],
+                              WiBits_t *tempWireBit,
+                              BOOL_t *qualityFlag ) const
+{
+  *tempWireBit = 0;
+  TimeMMT_t mostRecentTime = 0;
+  TimeMMT_t lessRecentTime = DEF_TimeMMT;
+  b4_Idx_t cntHits = 0;
+  for ( b4_Idx_t jHit = 0; jHit < NUM_MACROCELLWIRES; ++jHit )
+  {
+    TimeMMT_t thisTime = vecHits[ jHit ]; 
+    if ( thisTime == 0 )
+      continue;
+    *tempWireBit |= ( 1 << jHit );
+    mostRecentTime = ( thisTime > mostRecentTime ) ? thisTime : mostRecentTime;
+    lessRecentTime = ( thisTime < lessRecentTime ) ? thisTime : lessRecentTime;
+    ++cntHits;
+  }
+  if ( cntHits < 3 )
+    return DEF_TimeMMT;
+  BX_t mostRecentBX = static_cast< BX_t >( mostRecentTime >> 3 );
+  TimeMMT_t timeLowerBound = static_cast< TimeMMT_t >( mostRecentBX - BINNUM_TIME ) << 3;
+  TimeMMT_t timeUpperBound = ( ( lessRecentTime >> 3 ) + 1 ) << 3;
+  return this->RunMMTEquations( timeLowerBound,
+                                timeUpperBound,
+                                vecHits,
+                                qualityFlag );
+}
+
+TimeMMT_t DTTPG::RunMMTEquations( TimeMMT_t lowerBound,
+                                  TimeMMT_t upperBound,
+                                  TimeMMT_t vecHits[ NUM_MACROCELLWIRES ],
+                                  BOOL_t *qualityFlag ) const
+{
+  MMTHist_t mmtHist[ BINNUM_TIME ] = {0};
+  for ( b5_Idx_t iBin = 0; iBin < BINNUM_TIME; ++iBin )
+    mmtHist[ iBin ] = 0;
+  CompMMT_t timeByPlace[ NUM_MACROCELLWIRES ];
+  for ( b4_Idx_t iPlace = 0; iPlace < NUM_MACROCELLWIRES; ++iPlace )
+    timeByPlace[ iPlace ] = static_cast< CompMMT_t >( vecHits[ iPlace ] );
+  TimeMMT_t timeList3[ 128 ];
+  MMTBin_t histBins[ 128 ];
+#include "DTTPG_MMTEq.icc"
+#include "DTTPG_MMTCor.icc"
+#include "DTTPG_MMTBins.icc"
+  BOOL_t enabBits[ 128 ];
+#include "DTTPG_MMTQuad.icc"
+  for ( b8_Idx_t j3 = 0; j3 < 128; ++j3 )
+  {
+    if ( enabBits[ j3 ] )
+    {
+      mmtHist[ histBins[ j3 ] ] = ( mmtHist[ histBins[ j3 ] ] << 1 ) | 1;
+    }
+  }
+  MMTBin_t maxBin = DEF_MMTBin;
+  MMTHist_t maxCount = 0;
+  for ( MMTBin_t iBin = 0; iBin < BINNUM_TIME; ++iBin )
+  {
+    if ( mmtHist[ iBin ] >= maxCount )
+    {
+      maxCount = mmtHist[ iBin ];
+      maxBin = iBin;
+    }
+  }
+  *qualityFlag = *qualityFlag || ( static_cast< BOOL_t >( maxCount & 2 ) ); /// Correct only because of unary coding
+  if ( maxCount > ZERO_MMTHist ) 
+    return ( static_cast< TimeMMT_t >( maxBin ) << 3 ) + lowerBound;
+  else
+    return DEF_TimeMMT;
+}
+
+TimeMMT_t DTTPG::ComputeEquation( b4_Idx_t eqNumber,
+                                  CompMMT_t hitTimeA,
+                                  CompMMT_t hitTimeB,
+                                  CompMMT_t hitTimeC ) const
+{
+  if ( hitTimeA == 0 || hitTimeB == 0 || hitTimeC == 0 )
+    return DEF_TimeMMT;
+  CompMMT_t grossTime = 0;
+  switch( eqNumber )
+  {
+    case 0 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeB + hitTimeB + hitTimeC - defMaxDriftTime - defMaxDriftTime ) >> 2 );
+    case 1 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeB + hitTimeB - hitTimeC - defMaxDriftTime - defMaxDriftTime ) >> 1 );
+    case 2 :
+      grossTime = hitTimeA + hitTimeA + hitTimeB + hitTimeB + hitTimeB + hitTimeC - defMaxDriftTime - defMaxDriftTime;
+      return static_cast< TimeMMT_t >( 0
+        + ( grossTime >> 3 )
+        + ( grossTime >> 5 )
+        + ( grossTime >> 7 )
+        + ( grossTime >> 9 )
+        + ( grossTime >> 11 )
+        + ( grossTime >> 13 )
+        + ( grossTime >> 15 )
+          );
+    case 3 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeB + hitTimeB + hitTimeB - hitTimeC - hitTimeC - defMaxDriftTime - defMaxDriftTime ) >> 1 );
+    case 4 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeA + hitTimeB + hitTimeB + hitTimeB - hitTimeC - defMaxDriftTime - defMaxDriftTime ) >> 2 );
+    case 5 :
+      grossTime = ( hitTimeA + hitTimeA + hitTimeB + hitTimeB + hitTimeB + hitTimeC - defMaxDriftTime - defMaxDriftTime - defMaxDriftTime - defMaxDriftTime );
+      return static_cast< TimeMMT_t >( 0
+        + ( grossTime >> 3 )
+        + ( grossTime >> 5 )
+        + ( grossTime >> 7 )
+        + ( grossTime >> 9 )
+        + ( grossTime >> 11 )
+        + ( grossTime >> 13 )
+        + ( grossTime >> 15 )
+          );
+    case 6 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeA + hitTimeB + hitTimeB + hitTimeB - hitTimeC - defMaxDriftTime - defMaxDriftTime - defMaxDriftTime - defMaxDriftTime ) >> 2 );
+    case 7 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeB + hitTimeB - hitTimeC ) >> 1 );
+    case 8 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeB + hitTimeB + hitTimeB - hitTimeC - hitTimeC ) >> 1 );
+    case 9 :
+      return static_cast< TimeMMT_t >( ( hitTimeA + hitTimeA + hitTimeB + hitTimeB + hitTimeB - hitTimeC ) >> 2 );
+    default :
+      return DEF_TimeMMT;
+  }
+}
+
+TimeMMT_t DTTPG::ComputeCorrection( b2_Idx_t corrNumber,
+                                    CompMMT_t hitTime1,
+                                    CompMMT_t hitTime2 ) const
+{
+  if ( hitTime1 == 0 || hitTime2 == 0 )
+    return 0;
+  CompMMT_t normTimeDiff = 0;
+  switch( corrNumber )
+  {
+    case 0 :
+      if ( hitTime1 > hitTime2 )
+        normTimeDiff = ( hitTime1 - hitTime2 ) >> 1;
+      else
+        normTimeDiff = ( hitTime2 - hitTime1 ) >> 1;
+      break;
+    case 1 :
+      if ( hitTime1 > hitTime2 + defMaxDriftTime )
+        normTimeDiff = hitTime1 - hitTime2 - defMaxDriftTime;
+      else
+        normTimeDiff = hitTime2 - hitTime1 + defMaxDriftTime;
+      break;
+    case 2 :
+      if ( hitTime1 > hitTime2 + defMaxDriftTime )
+        normTimeDiff = hitTime1 - hitTime2 - defMaxDriftTime;
+      else
+        normTimeDiff = hitTime2 - hitTime1 + defMaxDriftTime;
+      normTimeDiff = 0
+        + ( normTimeDiff >> 2 )
+        + ( normTimeDiff >> 4 )
+        + ( normTimeDiff >> 6 )
+        + ( normTimeDiff >> 8 )
+        + ( normTimeDiff >> 10 )
+        + ( normTimeDiff >> 12 )
+        + ( normTimeDiff >> 14 )
+          ;
+      break;
+    case 3 :
+      if ( hitTime1 > hitTime2 + defMaxDriftTime + defMaxDriftTime )
+        normTimeDiff = ( hitTime1 - hitTime2 - defMaxDriftTime - defMaxDriftTime ) >> 1;
+      else
+        normTimeDiff = ( hitTime2 - hitTime1 + defMaxDriftTime + defMaxDriftTime ) >> 1;
+      break;
+    default :
+      return 0;
+  }
+
+  if ( normTimeDiff > 115 )
+    normTimeDiff = 115;
+  return mmtNonLinCorr[ normTimeDiff ];
+}
+
+MMTBin_t DTTPG::FindMMTBin( TimeMMT_t aTimeP, TimeMMT_t aLowerBound, TimeMMT_t anUpperBound ) const
+{
+  if ( aTimeP < aLowerBound || aTimeP > anUpperBound || aTimeP == DEF_TimeMMT )
+    return DEF_MMTBin;
+  MMTBin_t findBin = static_cast< MMTBin_t >( ( aTimeP - aLowerBound + ( 1 << ( 3 - 1 ) ) ) >> 3 );
+  if ( findBin < 0 || findBin >= static_cast< MMTBin_t >( BINNUM_TIME ) )
+    return DEF_MMTBin;
+  return findBin;
+}

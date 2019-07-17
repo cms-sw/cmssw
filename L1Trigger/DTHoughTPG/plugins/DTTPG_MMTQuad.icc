@@ -1,0 +1,712 @@
+  enabBits[ 0 ] = ( histBins[ 0 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 0 ] == histBins[ 78 ] ) ||
+                                                          ( histBins[ 0 ] == histBins[ 106 ] ) ||
+                                                          ( histBins[ 0 ] == histBins[ 36 ] ) ||
+                                                          ( histBins[ 0 ] == histBins[ 28 ] ) ||
+                                                          ( histBins[ 0 ] == histBins[ 38 ] ) ||
+                                                          ( histBins[ 0 ] == histBins[ 56 ] ) ||
+                                                          ( histBins[ 0 ] == histBins[ 27 ] ) );
+  enabBits[ 1 ] = ( histBins[ 1 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 1 ] == histBins[ 78 ] ) ||
+                                                          ( histBins[ 1 ] == histBins[ 63 ] ) ||
+                                                          ( histBins[ 1 ] == histBins[ 107 ] ) ||
+                                                          ( histBins[ 1 ] == histBins[ 79 ] ) ||
+                                                          ( histBins[ 1 ] == histBins[ 64 ] ) );
+  enabBits[ 2 ] = ( histBins[ 2 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 2 ] == histBins[ 37 ] ) ||
+                                                          ( histBins[ 2 ] == histBins[ 55 ] ) ||
+                                                          ( histBins[ 2 ] == histBins[ 28 ] ) ||
+                                                          ( histBins[ 2 ] == histBins[ 54 ] ) ||
+                                                          ( histBins[ 2 ] == histBins[ 27 ] ) );
+  enabBits[ 3 ] = ( histBins[ 3 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 3 ] == histBins[ 80 ] ) ||
+                                                          ( histBins[ 3 ] == histBins[ 108 ] ) ||
+                                                          ( histBins[ 3 ] == histBins[ 39 ] ) ||
+                                                          ( histBins[ 3 ] == histBins[ 31 ] ) ||
+                                                          ( histBins[ 3 ] == histBins[ 41 ] ) ||
+                                                          ( histBins[ 3 ] == histBins[ 59 ] ) ||
+                                                          ( histBins[ 3 ] == histBins[ 30 ] ) );
+  enabBits[ 4 ] = ( histBins[ 4 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 4 ] == histBins[ 80 ] ) ||
+                                                          ( histBins[ 4 ] == histBins[ 66 ] ) ||
+                                                          ( histBins[ 4 ] == histBins[ 109 ] ) ||
+                                                          ( histBins[ 4 ] == histBins[ 81 ] ) ||
+                                                          ( histBins[ 4 ] == histBins[ 67 ] ) );
+  enabBits[ 5 ] = ( histBins[ 5 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 5 ] == histBins[ 40 ] ) ||
+                                                          ( histBins[ 5 ] == histBins[ 58 ] ) ||
+                                                          ( histBins[ 5 ] == histBins[ 31 ] ) ||
+                                                          ( histBins[ 5 ] == histBins[ 57 ] ) ||
+                                                          ( histBins[ 5 ] == histBins[ 30 ] ) );
+  enabBits[ 6 ] = ( histBins[ 6 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 6 ] == histBins[ 82 ] ) ||
+                                                          ( histBins[ 6 ] == histBins[ 110 ] ) ||
+                                                          ( histBins[ 6 ] == histBins[ 42 ] ) ||
+                                                          ( histBins[ 6 ] == histBins[ 34 ] ) ||
+                                                          ( histBins[ 6 ] == histBins[ 44 ] ) ||
+                                                          ( histBins[ 6 ] == histBins[ 62 ] ) ||
+                                                          ( histBins[ 6 ] == histBins[ 33 ] ) );
+  enabBits[ 7 ] = ( histBins[ 7 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 7 ] == histBins[ 82 ] ) ||
+                                                          ( histBins[ 7 ] == histBins[ 69 ] ) ||
+                                                          ( histBins[ 7 ] == histBins[ 111 ] ) ||
+                                                          ( histBins[ 7 ] == histBins[ 83 ] ) ||
+                                                          ( histBins[ 7 ] == histBins[ 70 ] ) );
+  enabBits[ 8 ] = ( histBins[ 8 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 8 ] == histBins[ 43 ] ) ||
+                                                          ( histBins[ 8 ] == histBins[ 61 ] ) ||
+                                                          ( histBins[ 8 ] == histBins[ 34 ] ) ||
+                                                          ( histBins[ 8 ] == histBins[ 60 ] ) ||
+                                                          ( histBins[ 8 ] == histBins[ 33 ] ) );
+  enabBits[ 9 ] = ( histBins[ 9 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 9 ] == histBins[ 93 ] ) ||
+                                                            ( histBins[ 9 ] == histBins[ 84 ] ) ||
+                                                            ( histBins[ 9 ] == histBins[ 20 ] ) ||
+                                                            ( histBins[ 9 ] == histBins[ 63 ] ) ||
+                                                            ( histBins[ 9 ] == histBins[ 47 ] ) ||
+                                                            ( histBins[ 9 ] == histBins[ 65 ] ) ||
+                                                            ( histBins[ 9 ] == histBins[ 18 ] ) );
+  enabBits[ 10 ] = ( histBins[ 10 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 10 ] == histBins[ 18 ] ) ||
+                                                            ( histBins[ 10 ] == histBins[ 45 ] ) ||
+                                                            ( histBins[ 10 ] == histBins[ 46 ] ) ||
+                                                            ( histBins[ 10 ] == histBins[ 64 ] ) ||
+                                                            ( histBins[ 10 ] == histBins[ 20 ] ) );
+  enabBits[ 11 ] = ( histBins[ 11 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 11 ] == histBins[ 84 ] ) ||
+                                                            ( histBins[ 11 ] == histBins[ 92 ] ) ||
+                                                            ( histBins[ 11 ] == histBins[ 39 ] ) ||
+                                                            ( histBins[ 11 ] == histBins[ 40 ] ) ||
+                                                            ( histBins[ 11 ] == histBins[ 85 ] ) );
+  enabBits[ 12 ] = ( histBins[ 12 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 12 ] == histBins[ 95 ] ) ||
+                                                            ( histBins[ 12 ] == histBins[ 86 ] ) ||
+                                                            ( histBins[ 12 ] == histBins[ 23 ] ) ||
+                                                            ( histBins[ 12 ] == histBins[ 66 ] ) ||
+                                                            ( histBins[ 12 ] == histBins[ 50 ] ) ||
+                                                            ( histBins[ 12 ] == histBins[ 68 ] ) ||
+                                                            ( histBins[ 12 ] == histBins[ 21 ] ) );
+  enabBits[ 13 ] = ( histBins[ 13 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 13 ] == histBins[ 21 ] ) ||
+                                                            ( histBins[ 13 ] == histBins[ 48 ] ) ||
+                                                            ( histBins[ 13 ] == histBins[ 49 ] ) ||
+                                                            ( histBins[ 13 ] == histBins[ 67 ] ) ||
+                                                            ( histBins[ 13 ] == histBins[ 23 ] ) );
+  enabBits[ 14 ] = ( histBins[ 14 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 14 ] == histBins[ 86 ] ) ||
+                                                            ( histBins[ 14 ] == histBins[ 94 ] ) ||
+                                                            ( histBins[ 14 ] == histBins[ 42 ] ) ||
+                                                            ( histBins[ 14 ] == histBins[ 43 ] ) ||
+                                                            ( histBins[ 14 ] == histBins[ 87 ] ) );
+  enabBits[ 15 ] = ( histBins[ 15 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 15 ] == histBins[ 26 ] ) ||
+                                                            ( histBins[ 15 ] == histBins[ 69 ] ) ||
+                                                            ( histBins[ 15 ] == histBins[ 53 ] ) ||
+                                                            ( histBins[ 15 ] == histBins[ 71 ] ) ||
+                                                            ( histBins[ 15 ] == histBins[ 24 ] ) );
+  enabBits[ 16 ] = ( histBins[ 16 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 16 ] == histBins[ 24 ] ) ||
+                                                            ( histBins[ 16 ] == histBins[ 51 ] ) ||
+                                                            ( histBins[ 16 ] == histBins[ 52 ] ) ||
+                                                            ( histBins[ 16 ] == histBins[ 70 ] ) ||
+                                                            ( histBins[ 16 ] == histBins[ 26 ] ) );
+  enabBits[ 17 ] = 0;
+  enabBits[ 18 ] = ( histBins[ 18 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 18 ] == histBins[ 45 ] ) ||
+                                                            ( histBins[ 18 ] == histBins[ 10 ] ) ||
+                                                            ( histBins[ 18 ] == histBins[ 47 ] ) ||
+                                                            ( histBins[ 18 ] == histBins[ 65 ] ) ||
+                                                            ( histBins[ 18 ] == histBins[ 9 ] ) ||
+                                                            ( histBins[ 18 ] == histBins[ 72 ] ) ||
+                                                            ( histBins[ 18 ] == histBins[ 96 ] ) );
+  enabBits[ 19 ] = ( histBins[ 19 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 19 ] == histBins[ 72 ] ) ||
+                                                            ( histBins[ 19 ] == histBins[ 54 ] ) ||
+                                                            ( histBins[ 19 ] == histBins[ 97 ] ) ||
+                                                            ( histBins[ 19 ] == histBins[ 73 ] ) ||
+                                                            ( histBins[ 19 ] == histBins[ 55 ] ) );
+  enabBits[ 20 ] = ( histBins[ 20 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 20 ] == histBins[ 46 ] ) ||
+                                                            ( histBins[ 20 ] == histBins[ 64 ] ) ||
+                                                            ( histBins[ 20 ] == histBins[ 10 ] ) ||
+                                                            ( histBins[ 20 ] == histBins[ 63 ] ) ||
+                                                            ( histBins[ 20 ] == histBins[ 9 ] ) );
+  enabBits[ 21 ] = ( histBins[ 21 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 21 ] == histBins[ 48 ] ) ||
+                                                            ( histBins[ 21 ] == histBins[ 13 ] ) ||
+                                                            ( histBins[ 21 ] == histBins[ 50 ] ) ||
+                                                            ( histBins[ 21 ] == histBins[ 68 ] ) ||
+                                                            ( histBins[ 21 ] == histBins[ 12 ] ) ||
+                                                            ( histBins[ 21 ] == histBins[ 74 ] ) ||
+                                                            ( histBins[ 21 ] == histBins[ 98 ] ) );
+  enabBits[ 22 ] = ( histBins[ 22 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 22 ] == histBins[ 74 ] ) ||
+                                                            ( histBins[ 22 ] == histBins[ 57 ] ) ||
+                                                            ( histBins[ 22 ] == histBins[ 99 ] ) ||
+                                                            ( histBins[ 22 ] == histBins[ 75 ] ) ||
+                                                            ( histBins[ 22 ] == histBins[ 58 ] ) );
+  enabBits[ 23 ] = ( histBins[ 23 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 23 ] == histBins[ 49 ] ) ||
+                                                            ( histBins[ 23 ] == histBins[ 67 ] ) ||
+                                                            ( histBins[ 23 ] == histBins[ 13 ] ) ||
+                                                            ( histBins[ 23 ] == histBins[ 66 ] ) ||
+                                                            ( histBins[ 23 ] == histBins[ 12 ] ) );
+  enabBits[ 24 ] = ( histBins[ 24 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 24 ] == histBins[ 76 ] ) ||
+                                                            ( histBins[ 24 ] == histBins[ 100 ] ) ||
+                                                            ( histBins[ 24 ] == histBins[ 51 ] ) ||
+                                                            ( histBins[ 24 ] == histBins[ 16 ] ) ||
+                                                            ( histBins[ 24 ] == histBins[ 53 ] ) ||
+                                                            ( histBins[ 24 ] == histBins[ 71 ] ) ||
+                                                            ( histBins[ 24 ] == histBins[ 15 ] ) );
+  enabBits[ 25 ] = ( histBins[ 25 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 25 ] == histBins[ 76 ] ) ||
+                                                            ( histBins[ 25 ] == histBins[ 60 ] ) ||
+                                                            ( histBins[ 25 ] == histBins[ 101 ] ) ||
+                                                            ( histBins[ 25 ] == histBins[ 77 ] ) ||
+                                                            ( histBins[ 25 ] == histBins[ 61 ] ) );
+  enabBits[ 26 ] = ( histBins[ 26 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 26 ] == histBins[ 52 ] ) ||
+                                                            ( histBins[ 26 ] == histBins[ 70 ] ) ||
+                                                            ( histBins[ 26 ] == histBins[ 16 ] ) ||
+                                                            ( histBins[ 26 ] == histBins[ 69 ] ) ||
+                                                            ( histBins[ 26 ] == histBins[ 15 ] ) );
+  enabBits[ 27 ] = ( histBins[ 27 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 27 ] == histBins[ 2 ] ) ||
+                                                            ( histBins[ 27 ] == histBins[ 54 ] ) ||
+                                                            ( histBins[ 27 ] == histBins[ 38 ] ) ||
+                                                            ( histBins[ 27 ] == histBins[ 56 ] ) ||
+                                                            ( histBins[ 27 ] == histBins[ 0 ] ) );
+  enabBits[ 28 ] = ( histBins[ 28 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 28 ] == histBins[ 0 ] ) ||
+                                                            ( histBins[ 28 ] == histBins[ 36 ] ) ||
+                                                            ( histBins[ 28 ] == histBins[ 37 ] ) ||
+                                                            ( histBins[ 28 ] == histBins[ 55 ] ) ||
+                                                            ( histBins[ 28 ] == histBins[ 2 ] ) );
+  enabBits[ 29 ] = 0;
+  enabBits[ 30 ] = ( histBins[ 30 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 30 ] == histBins[ 103 ] ) ||
+                                                            ( histBins[ 30 ] == histBins[ 88 ] ) ||
+                                                            ( histBins[ 30 ] == histBins[ 5 ] ) ||
+                                                            ( histBins[ 30 ] == histBins[ 57 ] ) ||
+                                                            ( histBins[ 30 ] == histBins[ 41 ] ) ||
+                                                            ( histBins[ 30 ] == histBins[ 59 ] ) ||
+                                                            ( histBins[ 30 ] == histBins[ 3 ] ) );
+  enabBits[ 31 ] = ( histBins[ 31 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 31 ] == histBins[ 3 ] ) ||
+                                                            ( histBins[ 31 ] == histBins[ 39 ] ) ||
+                                                            ( histBins[ 31 ] == histBins[ 40 ] ) ||
+                                                            ( histBins[ 31 ] == histBins[ 58 ] ) ||
+                                                            ( histBins[ 31 ] == histBins[ 5 ] ) );
+  enabBits[ 32 ] = ( histBins[ 32 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 32 ] == histBins[ 88 ] ) ||
+                                                            ( histBins[ 32 ] == histBins[ 102 ] ) ||
+                                                            ( histBins[ 32 ] == histBins[ 45 ] ) ||
+                                                            ( histBins[ 32 ] == histBins[ 46 ] ) ||
+                                                            ( histBins[ 32 ] == histBins[ 89 ] ) );
+  enabBits[ 33 ] = ( histBins[ 33 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 33 ] == histBins[ 105 ] ) ||
+                                                            ( histBins[ 33 ] == histBins[ 90 ] ) ||
+                                                            ( histBins[ 33 ] == histBins[ 44 ] ) ||
+                                                            ( histBins[ 33 ] == histBins[ 62 ] ) ||
+                                                            ( histBins[ 33 ] == histBins[ 6 ] ) ||
+                                                            ( histBins[ 33 ] == histBins[ 8 ] ) ||
+                                                            ( histBins[ 33 ] == histBins[ 60 ] ) );
+  enabBits[ 34 ] = ( histBins[ 34 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 34 ] == histBins[ 43 ] ) ||
+                                                            ( histBins[ 34 ] == histBins[ 61 ] ) ||
+                                                            ( histBins[ 34 ] == histBins[ 8 ] ) ||
+                                                            ( histBins[ 34 ] == histBins[ 6 ] ) ||
+                                                            ( histBins[ 34 ] == histBins[ 42 ] ) );
+  enabBits[ 35 ] = ( histBins[ 35 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 35 ] == histBins[ 90 ] ) ||
+                                                            ( histBins[ 35 ] == histBins[ 104 ] ) ||
+                                                            ( histBins[ 35 ] == histBins[ 48 ] ) ||
+                                                            ( histBins[ 35 ] == histBins[ 49 ] ) ||
+                                                            ( histBins[ 35 ] == histBins[ 91 ] ) );
+  enabBits[ 36 ] = ( histBins[ 36 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 36 ] == histBins[ 0 ] ) ||
+                                                            ( histBins[ 36 ] == histBins[ 28 ] ) );
+  enabBits[ 37 ] = ( histBins[ 37 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 37 ] == histBins[ 2 ] ) ||
+                                                            ( histBins[ 37 ] == histBins[ 55 ] ) ||
+                                                            ( histBins[ 37 ] == histBins[ 28 ] ) );
+  enabBits[ 38 ] = ( histBins[ 38 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 38 ] == histBins[ 0 ] ) ||
+                                                            ( histBins[ 38 ] == histBins[ 56 ] ) ||
+                                                            ( histBins[ 38 ] == histBins[ 27 ] ) );
+  enabBits[ 39 ] = ( histBins[ 39 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 39 ] == histBins[ 84 ] ) ||
+                                                            ( histBins[ 39 ] == histBins[ 11 ] ) ||
+                                                            ( histBins[ 39 ] == histBins[ 92 ] ) ||
+                                                            ( histBins[ 39 ] == histBins[ 3 ] ) ||
+                                                            ( histBins[ 39 ] == histBins[ 31 ] ) );
+  enabBits[ 40 ] = ( histBins[ 40 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 40 ] == histBins[ 85 ] ) ||
+                                                            ( histBins[ 40 ] == histBins[ 11 ] ) ||
+                                                            ( histBins[ 40 ] == histBins[ 5 ] ) ||
+                                                            ( histBins[ 40 ] == histBins[ 58 ] ) ||
+                                                            ( histBins[ 40 ] == histBins[ 31 ] ) );
+  enabBits[ 41 ] = ( histBins[ 41 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 41 ] == histBins[ 3 ] ) ||
+                                                            ( histBins[ 41 ] == histBins[ 59 ] ) ||
+                                                            ( histBins[ 41 ] == histBins[ 30 ] ) );
+  enabBits[ 42 ] = ( histBins[ 42 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 42 ] == histBins[ 86 ] ) ||
+                                                            ( histBins[ 42 ] == histBins[ 14 ] ) ||
+                                                            ( histBins[ 42 ] == histBins[ 94 ] ) ||
+                                                            ( histBins[ 42 ] == histBins[ 6 ] ) ||
+                                                            ( histBins[ 42 ] == histBins[ 34 ] ) );
+  enabBits[ 43 ] = ( histBins[ 43 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 43 ] == histBins[ 87 ] ) ||
+                                                            ( histBins[ 43 ] == histBins[ 14 ] ) ||
+                                                            ( histBins[ 43 ] == histBins[ 8 ] ) ||
+                                                            ( histBins[ 43 ] == histBins[ 61 ] ) ||
+                                                            ( histBins[ 43 ] == histBins[ 34 ] ) );
+  enabBits[ 44 ] = ( histBins[ 44 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 44 ] == histBins[ 6 ] ) ||
+                                                            ( histBins[ 44 ] == histBins[ 62 ] ) ||
+                                                            ( histBins[ 44 ] == histBins[ 33 ] ) );
+  enabBits[ 45 ] = ( histBins[ 45 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 45 ] == histBins[ 88 ] ) ||
+                                                            ( histBins[ 45 ] == histBins[ 32 ] ) ||
+                                                            ( histBins[ 45 ] == histBins[ 102 ] ) ||
+                                                            ( histBins[ 45 ] == histBins[ 18 ] ) ||
+                                                            ( histBins[ 45 ] == histBins[ 10 ] ) );
+  enabBits[ 46 ] = ( histBins[ 46 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 46 ] == histBins[ 89 ] ) ||
+                                                            ( histBins[ 46 ] == histBins[ 32 ] ) ||
+                                                            ( histBins[ 46 ] == histBins[ 20 ] ) ||
+                                                            ( histBins[ 46 ] == histBins[ 64 ] ) ||
+                                                            ( histBins[ 46 ] == histBins[ 10 ] ) );
+  enabBits[ 47 ] = ( histBins[ 47 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 47 ] == histBins[ 18 ] ) ||
+                                                            ( histBins[ 47 ] == histBins[ 65 ] ) ||
+                                                            ( histBins[ 47 ] == histBins[ 9 ] ) );
+  enabBits[ 48 ] = ( histBins[ 48 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 48 ] == histBins[ 90 ] ) ||
+                                                            ( histBins[ 48 ] == histBins[ 35 ] ) ||
+                                                            ( histBins[ 48 ] == histBins[ 104 ] ) ||
+                                                            ( histBins[ 48 ] == histBins[ 21 ] ) ||
+                                                            ( histBins[ 48 ] == histBins[ 13 ] ) );
+  enabBits[ 49 ] = ( histBins[ 49 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 49 ] == histBins[ 91 ] ) ||
+                                                            ( histBins[ 49 ] == histBins[ 35 ] ) ||
+                                                            ( histBins[ 49 ] == histBins[ 23 ] ) ||
+                                                            ( histBins[ 49 ] == histBins[ 67 ] ) ||
+                                                            ( histBins[ 49 ] == histBins[ 13 ] ) );
+  enabBits[ 50 ] = ( histBins[ 50 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 50 ] == histBins[ 21 ] ) ||
+                                                            ( histBins[ 50 ] == histBins[ 68 ] ) ||
+                                                            ( histBins[ 50 ] == histBins[ 12 ] ) );
+  enabBits[ 51 ] = ( histBins[ 51 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 51 ] == histBins[ 24 ] ) ||
+                                                            ( histBins[ 51 ] == histBins[ 16 ] ) );
+  enabBits[ 52 ] = ( histBins[ 52 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 52 ] == histBins[ 26 ] ) ||
+                                                            ( histBins[ 52 ] == histBins[ 70 ] ) ||
+                                                            ( histBins[ 52 ] == histBins[ 16 ] ) );
+  enabBits[ 53 ] = ( histBins[ 53 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 53 ] == histBins[ 24 ] ) ||
+                                                            ( histBins[ 53 ] == histBins[ 71 ] ) ||
+                                                            ( histBins[ 53 ] == histBins[ 15 ] ) );
+  enabBits[ 54 ] = ( histBins[ 54 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 54 ] == histBins[ 2 ] ) ||
+                                                            ( histBins[ 54 ] == histBins[ 27 ] ) ||
+                                                            ( histBins[ 54 ] == histBins[ 72 ] ) ||
+                                                            ( histBins[ 54 ] == histBins[ 19 ] ) ||
+                                                            ( histBins[ 54 ] == histBins[ 97 ] ) );
+  enabBits[ 55 ] = ( histBins[ 55 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 55 ] == histBins[ 19 ] ) ||
+                                                            ( histBins[ 55 ] == histBins[ 73 ] ) ||
+                                                            ( histBins[ 55 ] == histBins[ 37 ] ) ||
+                                                            ( histBins[ 55 ] == histBins[ 2 ] ) ||
+                                                            ( histBins[ 55 ] == histBins[ 28 ] ) );
+  enabBits[ 56 ] = ( histBins[ 56 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 56 ] == histBins[ 38 ] ) ||
+                                                            ( histBins[ 56 ] == histBins[ 0 ] ) ||
+                                                            ( histBins[ 56 ] == histBins[ 27 ] ) );
+  enabBits[ 57 ] = ( histBins[ 57 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 57 ] == histBins[ 5 ] ) ||
+                                                            ( histBins[ 57 ] == histBins[ 30 ] ) ||
+                                                            ( histBins[ 57 ] == histBins[ 74 ] ) ||
+                                                            ( histBins[ 57 ] == histBins[ 22 ] ) ||
+                                                            ( histBins[ 57 ] == histBins[ 99 ] ) );
+  enabBits[ 58 ] = ( histBins[ 58 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 58 ] == histBins[ 22 ] ) ||
+                                                            ( histBins[ 58 ] == histBins[ 75 ] ) ||
+                                                            ( histBins[ 58 ] == histBins[ 40 ] ) ||
+                                                            ( histBins[ 58 ] == histBins[ 5 ] ) ||
+                                                            ( histBins[ 58 ] == histBins[ 31 ] ) );
+  enabBits[ 59 ] = ( histBins[ 59 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 59 ] == histBins[ 41 ] ) ||
+                                                            ( histBins[ 59 ] == histBins[ 3 ] ) ||
+                                                            ( histBins[ 59 ] == histBins[ 30 ] ) );
+  enabBits[ 60 ] = ( histBins[ 60 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 60 ] == histBins[ 76 ] ) ||
+                                                            ( histBins[ 60 ] == histBins[ 25 ] ) ||
+                                                            ( histBins[ 60 ] == histBins[ 101 ] ) ||
+                                                            ( histBins[ 60 ] == histBins[ 8 ] ) ||
+                                                            ( histBins[ 60 ] == histBins[ 33 ] ) );
+  enabBits[ 61 ] = ( histBins[ 61 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 61 ] == histBins[ 25 ] ) ||
+                                                            ( histBins[ 61 ] == histBins[ 77 ] ) ||
+                                                            ( histBins[ 61 ] == histBins[ 43 ] ) ||
+                                                            ( histBins[ 61 ] == histBins[ 8 ] ) ||
+                                                            ( histBins[ 61 ] == histBins[ 34 ] ) );
+  enabBits[ 62 ] = ( histBins[ 62 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 62 ] == histBins[ 44 ] ) ||
+                                                            ( histBins[ 62 ] == histBins[ 6 ] ) ||
+                                                            ( histBins[ 62 ] == histBins[ 33 ] ) );
+  enabBits[ 63 ] = ( histBins[ 63 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 63 ] == histBins[ 78 ] ) ||
+                                                            ( histBins[ 63 ] == histBins[ 1 ] ) ||
+                                                            ( histBins[ 63 ] == histBins[ 107 ] ) ||
+                                                            ( histBins[ 63 ] == histBins[ 20 ] ) ||
+                                                            ( histBins[ 63 ] == histBins[ 9 ] ) );
+  enabBits[ 64 ] = ( histBins[ 64 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 64 ] == histBins[ 1 ] ) ||
+                                                            ( histBins[ 64 ] == histBins[ 79 ] ) ||
+                                                            ( histBins[ 64 ] == histBins[ 46 ] ) ||
+                                                            ( histBins[ 64 ] == histBins[ 20 ] ) ||
+                                                            ( histBins[ 64 ] == histBins[ 10 ] ) );
+  enabBits[ 65 ] = ( histBins[ 65 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 65 ] == histBins[ 47 ] ) ||
+                                                            ( histBins[ 65 ] == histBins[ 18 ] ) ||
+                                                            ( histBins[ 65 ] == histBins[ 9 ] ) );
+  enabBits[ 66 ] = ( histBins[ 66 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 66 ] == histBins[ 80 ] ) ||
+                                                            ( histBins[ 66 ] == histBins[ 4 ] ) ||
+                                                            ( histBins[ 66 ] == histBins[ 109 ] ) ||
+                                                            ( histBins[ 66 ] == histBins[ 23 ] ) ||
+                                                            ( histBins[ 66 ] == histBins[ 12 ] ) );
+  enabBits[ 67 ] = ( histBins[ 67 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 67 ] == histBins[ 4 ] ) ||
+                                                            ( histBins[ 67 ] == histBins[ 81 ] ) ||
+                                                            ( histBins[ 67 ] == histBins[ 49 ] ) ||
+                                                            ( histBins[ 67 ] == histBins[ 23 ] ) ||
+                                                            ( histBins[ 67 ] == histBins[ 13 ] ) );
+  enabBits[ 68 ] = ( histBins[ 68 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 68 ] == histBins[ 50 ] ) ||
+                                                            ( histBins[ 68 ] == histBins[ 21 ] ) ||
+                                                            ( histBins[ 68 ] == histBins[ 12 ] ) );
+  enabBits[ 69 ] = ( histBins[ 69 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 69 ] == histBins[ 82 ] ) ||
+                                                            ( histBins[ 69 ] == histBins[ 7 ] ) ||
+                                                            ( histBins[ 69 ] == histBins[ 111 ] ) ||
+                                                            ( histBins[ 69 ] == histBins[ 26 ] ) ||
+                                                            ( histBins[ 69 ] == histBins[ 15 ] ) );
+  enabBits[ 70 ] = ( histBins[ 70 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 70 ] == histBins[ 52 ] ) ||
+                                                            ( histBins[ 70 ] == histBins[ 26 ] ) ||
+                                                            ( histBins[ 70 ] == histBins[ 16 ] ) ||
+                                                            ( histBins[ 70 ] == histBins[ 7 ] ) ||
+                                                            ( histBins[ 70 ] == histBins[ 83 ] ) );
+  enabBits[ 71 ] = ( histBins[ 71 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 71 ] == histBins[ 53 ] ) ||
+                                                            ( histBins[ 71 ] == histBins[ 24 ] ) ||
+                                                            ( histBins[ 71 ] == histBins[ 15 ] ) );
+  enabBits[ 72 ] = ( histBins[ 72 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 72 ] == histBins[ 18 ] ) ||
+                                                            ( histBins[ 72 ] == histBins[ 96 ] ) ||
+                                                            ( histBins[ 72 ] == histBins[ 19 ] ) ||
+                                                            ( histBins[ 72 ] == histBins[ 54 ] ) ||
+                                                            ( histBins[ 72 ] == histBins[ 97 ] ) );
+  enabBits[ 73 ] = ( histBins[ 73 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 73 ] == histBins[ 19 ] ) ||
+                                                            ( histBins[ 73 ] == histBins[ 55 ] ) );
+  enabBits[ 74 ] = ( histBins[ 74 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 74 ] == histBins[ 21 ] ) ||
+                                                            ( histBins[ 74 ] == histBins[ 98 ] ) ||
+                                                            ( histBins[ 74 ] == histBins[ 22 ] ) ||
+                                                            ( histBins[ 74 ] == histBins[ 57 ] ) ||
+                                                            ( histBins[ 74 ] == histBins[ 99 ] ) );
+  enabBits[ 75 ] = ( histBins[ 75 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 75 ] == histBins[ 22 ] ) ||
+                                                            ( histBins[ 75 ] == histBins[ 58 ] ) );
+  enabBits[ 76 ] = ( histBins[ 76 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 76 ] == histBins[ 24 ] ) ||
+                                                              ( histBins[ 76 ] == histBins[ 100 ] ) ||
+                                                              ( histBins[ 76 ] == histBins[ 25 ] ) ||
+                                                              ( histBins[ 76 ] == histBins[ 60 ] ) ||
+                                                              ( histBins[ 76 ] == histBins[ 101 ] ) );
+  enabBits[ 77 ] = ( histBins[ 77 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 77 ] == histBins[ 25 ] ) ||
+                                                              ( histBins[ 77 ] == histBins[ 61 ] ) );
+  enabBits[ 78 ] = ( histBins[ 78 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 78 ] == histBins[ 0 ] ) ||
+                                                              ( histBins[ 78 ] == histBins[ 106 ] ) ||
+                                                              ( histBins[ 78 ] == histBins[ 1 ] ) ||
+                                                              ( histBins[ 78 ] == histBins[ 63 ] ) ||
+                                                              ( histBins[ 78 ] == histBins[ 107 ] ) );
+  enabBits[ 79 ] = ( histBins[ 79 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 79 ] == histBins[ 1 ] ) ||
+                                                              ( histBins[ 79 ] == histBins[ 64 ] ) );
+  enabBits[ 80 ] = ( histBins[ 80 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 80 ] == histBins[ 3 ] ) ||
+                                                              ( histBins[ 80 ] == histBins[ 108 ] ) ||
+                                                              ( histBins[ 80 ] == histBins[ 4 ] ) ||
+                                                              ( histBins[ 80 ] == histBins[ 66 ] ) ||
+                                                              ( histBins[ 80 ] == histBins[ 109 ] ) );
+  enabBits[ 81 ] = ( histBins[ 81 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 81 ] == histBins[ 4 ] ) ||
+                                                              ( histBins[ 81 ] == histBins[ 67 ] ) );
+  enabBits[ 82 ] = ( histBins[ 82 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 82 ] == histBins[ 6 ] ) ||
+                                                              ( histBins[ 82 ] == histBins[ 110 ] ) ||
+                                                              ( histBins[ 82 ] == histBins[ 7 ] ) ||
+                                                              ( histBins[ 82 ] == histBins[ 69 ] ) ||
+                                                              ( histBins[ 82 ] == histBins[ 111 ] ) );
+  enabBits[ 83 ] = ( histBins[ 83 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 83 ] == histBins[ 7 ] ) ||
+                                                              ( histBins[ 83 ] == histBins[ 70 ] ) );
+  enabBits[ 84 ] = ( histBins[ 84 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 84 ] == histBins[ 92 ] ) ||
+                                                              ( histBins[ 84 ] == histBins[ 11 ] ) ||
+                                                              ( histBins[ 84 ] == histBins[ 39 ] ) ||
+                                                              ( histBins[ 84 ] == histBins[ 93 ] ) ||
+                                                              ( histBins[ 84 ] == histBins[ 9 ] ) );
+  enabBits[ 85 ] = ( histBins[ 85 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 85 ] == histBins[ 40 ] ) ||
+                                                              ( histBins[ 85 ] == histBins[ 11 ] ) );
+  enabBits[ 86 ] = ( histBins[ 86 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 86 ] == histBins[ 94 ] ) ||
+                                                              ( histBins[ 86 ] == histBins[ 14 ] ) ||
+                                                              ( histBins[ 86 ] == histBins[ 42 ] ) ||
+                                                              ( histBins[ 86 ] == histBins[ 95 ] ) ||
+                                                              ( histBins[ 86 ] == histBins[ 12 ] ) );
+  enabBits[ 87 ] = ( histBins[ 87 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 87 ] == histBins[ 43 ] ) ||
+                                                              ( histBins[ 87 ] == histBins[ 14 ] ) );
+  enabBits[ 88 ] = ( histBins[ 88 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 88 ] == histBins[ 102 ] ) ||
+                                                              ( histBins[ 88 ] == histBins[ 32 ] ) ||
+                                                              ( histBins[ 88 ] == histBins[ 45 ] ) ||
+                                                              ( histBins[ 88 ] == histBins[ 103 ] ) ||
+                                                              ( histBins[ 88 ] == histBins[ 30 ] ) );
+  enabBits[ 89 ] = ( histBins[ 89 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 89 ] == histBins[ 46 ] ) ||
+                                                              ( histBins[ 89 ] == histBins[ 32 ] ) );
+  enabBits[ 90 ] = ( histBins[ 90 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 90 ] == histBins[ 104 ] ) ||
+                                                              ( histBins[ 90 ] == histBins[ 35 ] ) ||
+                                                              ( histBins[ 90 ] == histBins[ 48 ] ) ||
+                                                              ( histBins[ 90 ] == histBins[ 105 ] ) ||
+                                                              ( histBins[ 90 ] == histBins[ 33 ] ) );
+  enabBits[ 91 ] = ( histBins[ 91 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 91 ] == histBins[ 49 ] ) ||
+                                                              ( histBins[ 91 ] == histBins[ 35 ] ) );
+  enabBits[ 92 ] = ( histBins[ 92 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 92 ] == histBins[ 84 ] ) ||
+                                                              ( histBins[ 92 ] == histBins[ 11 ] ) ||
+                                                              ( histBins[ 92 ] == histBins[ 39 ] ) ||
+                                                              ( histBins[ 92 ] == histBins[ 113 ] ) ||
+                                                              ( histBins[ 92 ] == histBins[ 120 ] ) );
+  enabBits[ 93 ] = ( histBins[ 93 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 93 ] == histBins[ 84 ] ) ||
+                                                              ( histBins[ 93 ] == histBins[ 9 ] ) ||
+                                                              ( histBins[ 93 ] == histBins[ 120 ] ) ||
+                                                              ( histBins[ 93 ] == histBins[ 96 ] ) ||
+                                                              ( histBins[ 93 ] == histBins[ 112 ] ) );
+  enabBits[ 94 ] = ( histBins[ 94 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 94 ] == histBins[ 86 ] ) ||
+                                                              ( histBins[ 94 ] == histBins[ 14 ] ) ||
+                                                              ( histBins[ 94 ] == histBins[ 42 ] ) ||
+                                                              ( histBins[ 94 ] == histBins[ 115 ] ) ||
+                                                              ( histBins[ 94 ] == histBins[ 122 ] ) );
+  enabBits[ 95 ] = ( histBins[ 95 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 95 ] == histBins[ 86 ] ) ||
+                                                              ( histBins[ 95 ] == histBins[ 12 ] ) ||
+                                                              ( histBins[ 95 ] == histBins[ 122 ] ) ||
+                                                              ( histBins[ 95 ] == histBins[ 98 ] ) ||
+                                                              ( histBins[ 95 ] == histBins[ 114 ] ) );
+  enabBits[ 96 ] = ( histBins[ 96 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 96 ] == histBins[ 120 ] ) ||
+                                                              ( histBins[ 96 ] == histBins[ 93 ] ) ||
+                                                              ( histBins[ 96 ] == histBins[ 112 ] ) ||
+                                                              ( histBins[ 96 ] == histBins[ 18 ] ) ||
+                                                              ( histBins[ 96 ] == histBins[ 72 ] ) );
+  enabBits[ 97 ] = ( histBins[ 97 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 97 ] == histBins[ 112 ] ) ||
+                                                              ( histBins[ 97 ] == histBins[ 121 ] ) ||
+                                                              ( histBins[ 97 ] == histBins[ 72 ] ) ||
+                                                              ( histBins[ 97 ] == histBins[ 54 ] ) ||
+                                                              ( histBins[ 97 ] == histBins[ 19 ] ) );
+  enabBits[ 98 ] = ( histBins[ 98 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 98 ] == histBins[ 122 ] ) ||
+                                                              ( histBins[ 98 ] == histBins[ 95 ] ) ||
+                                                              ( histBins[ 98 ] == histBins[ 114 ] ) ||
+                                                              ( histBins[ 98 ] == histBins[ 21 ] ) ||
+                                                              ( histBins[ 98 ] == histBins[ 74 ] ) );
+  enabBits[ 99 ] = ( histBins[ 99 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 99 ] == histBins[ 114 ] ) ||
+                                                              ( histBins[ 99 ] == histBins[ 123 ] ) ||
+                                                              ( histBins[ 99 ] == histBins[ 74 ] ) ||
+                                                              ( histBins[ 99 ] == histBins[ 57 ] ) ||
+                                                              ( histBins[ 99 ] == histBins[ 22 ] ) );
+  enabBits[ 100 ] = ( histBins[ 100 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 100 ] == histBins[ 24 ] ) ||
+                                                              ( histBins[ 100 ] == histBins[ 76 ] ) );
+  enabBits[ 101 ] = ( histBins[ 101 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 101 ] == histBins[ 76 ] ) ||
+                                                              ( histBins[ 101 ] == histBins[ 60 ] ) ||
+                                                              ( histBins[ 101 ] == histBins[ 25 ] ) );
+  enabBits[ 102 ] = ( histBins[ 102 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 102 ] == histBins[ 88 ] ) ||
+                                                              ( histBins[ 102 ] == histBins[ 32 ] ) ||
+                                                              ( histBins[ 102 ] == histBins[ 45 ] ) ||
+                                                              ( histBins[ 102 ] == histBins[ 117 ] ) ||
+                                                              ( histBins[ 102 ] == histBins[ 124 ] ) );
+  enabBits[ 103 ] = ( histBins[ 103 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 103 ] == histBins[ 88 ] ) ||
+                                                              ( histBins[ 103 ] == histBins[ 30 ] ) ||
+                                                              ( histBins[ 103 ] == histBins[ 124 ] ) ||
+                                                              ( histBins[ 103 ] == histBins[ 108 ] ) ||
+                                                              ( histBins[ 103 ] == histBins[ 116 ] ) );
+  enabBits[ 104 ] = ( histBins[ 104 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 104 ] == histBins[ 90 ] ) ||
+                                                              ( histBins[ 104 ] == histBins[ 35 ] ) ||
+                                                              ( histBins[ 104 ] == histBins[ 48 ] ) ||
+                                                              ( histBins[ 104 ] == histBins[ 119 ] ) ||
+                                                              ( histBins[ 104 ] == histBins[ 126 ] ) );
+  enabBits[ 105 ] = ( histBins[ 105 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 105 ] == histBins[ 90 ] ) ||
+                                                              ( histBins[ 105 ] == histBins[ 33 ] ) ||
+                                                              ( histBins[ 105 ] == histBins[ 126 ] ) ||
+                                                              ( histBins[ 105 ] == histBins[ 110 ] ) ||
+                                                              ( histBins[ 105 ] == histBins[ 118 ] ) );
+  enabBits[ 106 ] = ( histBins[ 106 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 106 ] == histBins[ 0 ] ) ||
+                                                              ( histBins[ 106 ] == histBins[ 78 ] ) );
+  enabBits[ 107 ] = ( histBins[ 107 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 107 ] == histBins[ 78 ] ) ||
+                                                              ( histBins[ 107 ] == histBins[ 63 ] ) ||
+                                                              ( histBins[ 107 ] == histBins[ 1 ] ) );
+  enabBits[ 108 ] = ( histBins[ 108 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 108 ] == histBins[ 124 ] ) ||
+                                                              ( histBins[ 108 ] == histBins[ 103 ] ) ||
+                                                              ( histBins[ 108 ] == histBins[ 116 ] ) ||
+                                                              ( histBins[ 108 ] == histBins[ 3 ] ) ||
+                                                              ( histBins[ 108 ] == histBins[ 80 ] ) );
+  enabBits[ 109 ] = ( histBins[ 109 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 109 ] == histBins[ 80 ] ) ||
+                                                              ( histBins[ 109 ] == histBins[ 66 ] ) ||
+                                                              ( histBins[ 109 ] == histBins[ 4 ] ) ||
+                                                              ( histBins[ 109 ] == histBins[ 116 ] ) ||
+                                                              ( histBins[ 109 ] == histBins[ 125 ] ) );
+  enabBits[ 110 ] = ( histBins[ 110 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 110 ] == histBins[ 126 ] ) ||
+                                                              ( histBins[ 110 ] == histBins[ 105 ] ) ||
+                                                              ( histBins[ 110 ] == histBins[ 118 ] ) ||
+                                                              ( histBins[ 110 ] == histBins[ 6 ] ) ||
+                                                              ( histBins[ 110 ] == histBins[ 82 ] ) );
+  enabBits[ 111 ] = ( histBins[ 111 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 111 ] == histBins[ 82 ] ) ||
+                                                              ( histBins[ 111 ] == histBins[ 69 ] ) ||
+                                                              ( histBins[ 111 ] == histBins[ 7 ] ) ||
+                                                              ( histBins[ 111 ] == histBins[ 118 ] ) ||
+                                                              ( histBins[ 111 ] == histBins[ 127 ] ) );
+  enabBits[ 112 ] = ( histBins[ 112 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 112 ] == histBins[ 120 ] ) ||
+                                                              ( histBins[ 112 ] == histBins[ 96 ] ) ||
+                                                              ( histBins[ 112 ] == histBins[ 93 ] ) ||
+                                                              ( histBins[ 112 ] == histBins[ 121 ] ) ||
+                                                              ( histBins[ 112 ] == histBins[ 97 ] ) );
+  enabBits[ 113 ] = ( histBins[ 113 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 113 ] == histBins[ 92 ] ) ||
+                                                              ( histBins[ 113 ] == histBins[ 120 ] ) );
+  enabBits[ 114 ] = ( histBins[ 114 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 114 ] == histBins[ 122 ] ) ||
+                                                              ( histBins[ 114 ] == histBins[ 98 ] ) ||
+                                                              ( histBins[ 114 ] == histBins[ 95 ] ) ||
+                                                              ( histBins[ 114 ] == histBins[ 123 ] ) ||
+                                                              ( histBins[ 114 ] == histBins[ 99 ] ) );
+  enabBits[ 115 ] = ( histBins[ 115 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 115 ] == histBins[ 94 ] ) ||
+                                                              ( histBins[ 115 ] == histBins[ 122 ] ) );
+  enabBits[ 116 ] = ( histBins[ 116 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 116 ] == histBins[ 124 ] ) ||
+                                                              ( histBins[ 116 ] == histBins[ 108 ] ) ||
+                                                              ( histBins[ 116 ] == histBins[ 103 ] ) ||
+                                                              ( histBins[ 116 ] == histBins[ 125 ] ) ||
+                                                              ( histBins[ 116 ] == histBins[ 109 ] ) );
+  enabBits[ 117 ] = ( histBins[ 117 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 117 ] == histBins[ 102 ] ) ||
+                                                              ( histBins[ 117 ] == histBins[ 124 ] ) );
+  enabBits[ 118 ] = ( histBins[ 118 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 118 ] == histBins[ 126 ] ) ||
+                                                              ( histBins[ 118 ] == histBins[ 110 ] ) ||
+                                                              ( histBins[ 118 ] == histBins[ 105 ] ) ||
+                                                              ( histBins[ 118 ] == histBins[ 127 ] ) ||
+                                                              ( histBins[ 118 ] == histBins[ 111 ] ) );
+  enabBits[ 119 ] = ( histBins[ 119 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 119 ] == histBins[ 104 ] ) ||
+                                                              ( histBins[ 119 ] == histBins[ 126 ] ) );
+  enabBits[ 120 ] = ( histBins[ 120 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 120 ] == histBins[ 92 ] ) ||
+                                                              ( histBins[ 120 ] == histBins[ 113 ] ) ||
+                                                              ( histBins[ 120 ] == histBins[ 93 ] ) ||
+                                                              ( histBins[ 120 ] == histBins[ 96 ] ) ||
+                                                              ( histBins[ 120 ] == histBins[ 112 ] ) );
+  enabBits[ 121 ] = ( histBins[ 121 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 121 ] == histBins[ 112 ] ) ||
+                                                              ( histBins[ 121 ] == histBins[ 97 ] ) );
+  enabBits[ 122 ] = ( histBins[ 122 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 122 ] == histBins[ 94 ] ) ||
+                                                              ( histBins[ 122 ] == histBins[ 115 ] ) ||
+                                                              ( histBins[ 122 ] == histBins[ 95 ] ) ||
+                                                              ( histBins[ 122 ] == histBins[ 98 ] ) ||
+                                                              ( histBins[ 122 ] == histBins[ 114 ] ) );
+  enabBits[ 123 ] = ( histBins[ 123 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 123 ] == histBins[ 114 ] ) ||
+                                                              ( histBins[ 123 ] == histBins[ 99 ] ) );
+  enabBits[ 124 ] = ( histBins[ 124 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 124 ] == histBins[ 102 ] ) ||
+                                                              ( histBins[ 124 ] == histBins[ 117 ] ) ||
+                                                              ( histBins[ 124 ] == histBins[ 103 ] ) ||
+                                                              ( histBins[ 124 ] == histBins[ 108 ] ) ||
+                                                              ( histBins[ 124 ] == histBins[ 116 ] ) );
+  enabBits[ 125 ] = ( histBins[ 125 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 125 ] == histBins[ 116 ] ) ||
+                                                              ( histBins[ 125 ] == histBins[ 109 ] ) );
+  enabBits[ 126 ] = ( histBins[ 126 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 126 ] == histBins[ 104 ] ) ||
+                                                              ( histBins[ 126 ] == histBins[ 119 ] ) ||
+                                                              ( histBins[ 126 ] == histBins[ 105 ] ) ||
+                                                              ( histBins[ 126 ] == histBins[ 110 ] ) ||
+                                                              ( histBins[ 126 ] == histBins[ 118 ] ) );
+  enabBits[ 127 ] = ( histBins[ 127 ] == DEF_MMTBin ) ? 0 : ( ( histBins[ 127 ] == histBins[ 118 ] ) ||
+                                                              ( histBins[ 127 ] == histBins[ 111 ] ) );
+  BOOL_t someFound4 =
+    enabBits[ 0 ] || enabBits[ 1 ] || enabBits[ 2 ] || enabBits[ 3 ] || enabBits[ 4 ] ||
+    enabBits[ 5 ] || enabBits[ 6 ] || enabBits[ 7 ] || enabBits[ 8 ] || enabBits[ 9 ] ||
+    enabBits[ 10 ] || enabBits[ 11 ] || enabBits[ 12 ] || enabBits[ 13 ] || enabBits[ 14 ] ||
+    enabBits[ 15 ] || enabBits[ 16 ] || enabBits[ 17 ] || enabBits[ 18 ] || enabBits[ 19 ] ||
+    enabBits[ 20 ] || enabBits[ 21 ] || enabBits[ 22 ] || enabBits[ 23 ] || enabBits[ 24 ] ||
+    enabBits[ 25 ] || enabBits[ 26 ] || enabBits[ 27 ] || enabBits[ 28 ] || enabBits[ 29 ] ||
+    enabBits[ 30 ] || enabBits[ 31 ] || enabBits[ 32 ] || enabBits[ 33 ] || enabBits[ 34 ] ||
+    enabBits[ 35 ] || enabBits[ 36 ] || enabBits[ 37 ] || enabBits[ 38 ] || enabBits[ 39 ] ||
+    enabBits[ 40 ] || enabBits[ 41 ] || enabBits[ 42 ] || enabBits[ 43 ] || enabBits[ 44 ] ||
+    enabBits[ 45 ] || enabBits[ 46 ] || enabBits[ 47 ] || enabBits[ 48 ] || enabBits[ 49 ] ||
+    enabBits[ 50 ] || enabBits[ 51 ] || enabBits[ 52 ] || enabBits[ 53 ] || enabBits[ 54 ] ||
+    enabBits[ 55 ] || enabBits[ 56 ] || enabBits[ 57 ] || enabBits[ 58 ] || enabBits[ 59 ] ||
+    enabBits[ 60 ] || enabBits[ 61 ] || enabBits[ 62 ] || enabBits[ 63 ] || enabBits[ 64 ] ||
+    enabBits[ 65 ] || enabBits[ 66 ] || enabBits[ 67 ] || enabBits[ 68 ] || enabBits[ 69 ] ||
+    enabBits[ 70 ] || enabBits[ 71 ] || enabBits[ 72 ] || enabBits[ 73 ] || enabBits[ 74 ] ||
+    enabBits[ 75 ] || enabBits[ 76 ] || enabBits[ 77 ] || enabBits[ 78 ] || enabBits[ 79 ] ||
+    enabBits[ 80 ] || enabBits[ 81 ] || enabBits[ 82 ] || enabBits[ 83 ] || enabBits[ 84 ] ||
+    enabBits[ 85 ] || enabBits[ 86 ] || enabBits[ 87 ] || enabBits[ 88 ] || enabBits[ 89 ] ||
+    enabBits[ 90 ] || enabBits[ 91 ] || enabBits[ 92 ] || enabBits[ 93 ] || enabBits[ 94 ] ||
+    enabBits[ 95 ] || enabBits[ 96 ] || enabBits[ 97 ] || enabBits[ 98 ] || enabBits[ 99 ] ||
+    enabBits[ 100 ] || enabBits[ 101 ] || enabBits[ 102 ] || enabBits[ 103 ] || enabBits[ 104 ] ||
+    enabBits[ 105 ] || enabBits[ 106 ] || enabBits[ 107 ] || enabBits[ 108 ] || enabBits[ 109 ] ||
+    enabBits[ 110 ] || enabBits[ 111 ] || enabBits[ 112 ] || enabBits[ 113 ] || enabBits[ 114 ] ||
+    enabBits[ 115 ] || enabBits[ 116 ] || enabBits[ 117 ] || enabBits[ 118 ] || enabBits[ 119 ] ||
+    enabBits[ 120 ] || enabBits[ 121 ] || enabBits[ 122 ] || enabBits[ 123 ] || enabBits[ 124 ] ||
+    enabBits[ 125 ] || enabBits[ 126 ] || enabBits[ 127 ];
+  BOOL_t fillWith4 = someFound4;
+  BOOL_t fillWith3 = !fillWith4;
+  *qualityFlag = fillWith4;
+  enabBits[ 0 ] = ( fillWith4 && enabBits[ 0 ] ) || ( fillWith3 && ( histBins[ 0 ] != DEF_MMTBin ) );
+  enabBits[ 1 ] = ( fillWith4 && enabBits[ 1 ] ) || ( fillWith3 && ( histBins[ 1 ] != DEF_MMTBin ) );
+  enabBits[ 2 ] = ( fillWith4 && enabBits[ 2 ] ) || ( fillWith3 && ( histBins[ 2 ] != DEF_MMTBin ) );
+  enabBits[ 3 ] = ( fillWith4 && enabBits[ 3 ] ) || ( fillWith3 && ( histBins[ 3 ] != DEF_MMTBin ) );
+  enabBits[ 4 ] = ( fillWith4 && enabBits[ 4 ] ) || ( fillWith3 && ( histBins[ 4 ] != DEF_MMTBin ) );
+  enabBits[ 5 ] = ( fillWith4 && enabBits[ 5 ] ) || ( fillWith3 && ( histBins[ 5 ] != DEF_MMTBin ) );
+  enabBits[ 6 ] = ( fillWith4 && enabBits[ 6 ] ) || ( fillWith3 && ( histBins[ 6 ] != DEF_MMTBin ) );
+  enabBits[ 7 ] = ( fillWith4 && enabBits[ 7 ] ) || ( fillWith3 && ( histBins[ 7 ] != DEF_MMTBin ) );
+  enabBits[ 8 ] = ( fillWith4 && enabBits[ 8 ] ) || ( fillWith3 && ( histBins[ 8 ] != DEF_MMTBin ) );
+  enabBits[ 9 ] = ( fillWith4 && enabBits[ 9 ] ) || ( fillWith3 && ( histBins[ 9 ] != DEF_MMTBin ) );
+  enabBits[ 10 ] = ( fillWith4 && enabBits[ 10 ] ) || ( fillWith3 && ( histBins[ 10 ] != DEF_MMTBin ) );
+  enabBits[ 11 ] = ( fillWith4 && enabBits[ 11 ] ) || ( fillWith3 && ( histBins[ 11 ] != DEF_MMTBin ) );
+  enabBits[ 12 ] = ( fillWith4 && enabBits[ 12 ] ) || ( fillWith3 && ( histBins[ 12 ] != DEF_MMTBin ) );
+  enabBits[ 13 ] = ( fillWith4 && enabBits[ 13 ] ) || ( fillWith3 && ( histBins[ 13 ] != DEF_MMTBin ) );
+  enabBits[ 14 ] = ( fillWith4 && enabBits[ 14 ] ) || ( fillWith3 && ( histBins[ 14 ] != DEF_MMTBin ) );
+  enabBits[ 15 ] = ( fillWith4 && enabBits[ 15 ] ) || ( fillWith3 && ( histBins[ 15 ] != DEF_MMTBin ) );
+  enabBits[ 16 ] = ( fillWith4 && enabBits[ 16 ] ) || ( fillWith3 && ( histBins[ 16 ] != DEF_MMTBin ) );
+  enabBits[ 17 ] = ( fillWith4 && enabBits[ 17 ] ) || ( fillWith3 && ( histBins[ 17 ] != DEF_MMTBin ) );
+  enabBits[ 18 ] = ( fillWith4 && enabBits[ 18 ] ) || ( fillWith3 && ( histBins[ 18 ] != DEF_MMTBin ) );
+  enabBits[ 19 ] = ( fillWith4 && enabBits[ 19 ] ) || ( fillWith3 && ( histBins[ 19 ] != DEF_MMTBin ) );
+  enabBits[ 20 ] = ( fillWith4 && enabBits[ 20 ] ) || ( fillWith3 && ( histBins[ 20 ] != DEF_MMTBin ) );
+  enabBits[ 21 ] = ( fillWith4 && enabBits[ 21 ] ) || ( fillWith3 && ( histBins[ 21 ] != DEF_MMTBin ) );
+  enabBits[ 22 ] = ( fillWith4 && enabBits[ 22 ] ) || ( fillWith3 && ( histBins[ 22 ] != DEF_MMTBin ) );
+  enabBits[ 23 ] = ( fillWith4 && enabBits[ 23 ] ) || ( fillWith3 && ( histBins[ 23 ] != DEF_MMTBin ) );
+  enabBits[ 24 ] = ( fillWith4 && enabBits[ 24 ] ) || ( fillWith3 && ( histBins[ 24 ] != DEF_MMTBin ) );
+  enabBits[ 25 ] = ( fillWith4 && enabBits[ 25 ] ) || ( fillWith3 && ( histBins[ 25 ] != DEF_MMTBin ) );
+  enabBits[ 26 ] = ( fillWith4 && enabBits[ 26 ] ) || ( fillWith3 && ( histBins[ 26 ] != DEF_MMTBin ) );
+  enabBits[ 27 ] = ( fillWith4 && enabBits[ 27 ] ) || ( fillWith3 && ( histBins[ 27 ] != DEF_MMTBin ) );
+  enabBits[ 28 ] = ( fillWith4 && enabBits[ 28 ] ) || ( fillWith3 && ( histBins[ 28 ] != DEF_MMTBin ) );
+  enabBits[ 29 ] = ( fillWith4 && enabBits[ 29 ] ) || ( fillWith3 && ( histBins[ 29 ] != DEF_MMTBin ) );
+  enabBits[ 30 ] = ( fillWith4 && enabBits[ 30 ] ) || ( fillWith3 && ( histBins[ 30 ] != DEF_MMTBin ) );
+  enabBits[ 31 ] = ( fillWith4 && enabBits[ 31 ] ) || ( fillWith3 && ( histBins[ 31 ] != DEF_MMTBin ) );
+  enabBits[ 32 ] = ( fillWith4 && enabBits[ 32 ] ) || ( fillWith3 && ( histBins[ 32 ] != DEF_MMTBin ) );
+  enabBits[ 33 ] = ( fillWith4 && enabBits[ 33 ] ) || ( fillWith3 && ( histBins[ 33 ] != DEF_MMTBin ) );
+  enabBits[ 34 ] = ( fillWith4 && enabBits[ 34 ] ) || ( fillWith3 && ( histBins[ 34 ] != DEF_MMTBin ) );
+  enabBits[ 35 ] = ( fillWith4 && enabBits[ 35 ] ) || ( fillWith3 && ( histBins[ 35 ] != DEF_MMTBin ) );
+  enabBits[ 36 ] = ( fillWith4 && enabBits[ 36 ] ) || ( fillWith3 && ( histBins[ 36 ] != DEF_MMTBin ) );
+  enabBits[ 37 ] = ( fillWith4 && enabBits[ 37 ] ) || ( fillWith3 && ( histBins[ 37 ] != DEF_MMTBin ) );
+  enabBits[ 38 ] = ( fillWith4 && enabBits[ 38 ] ) || ( fillWith3 && ( histBins[ 38 ] != DEF_MMTBin ) );
+  enabBits[ 39 ] = ( fillWith4 && enabBits[ 39 ] ) || ( fillWith3 && ( histBins[ 39 ] != DEF_MMTBin ) );
+  enabBits[ 40 ] = ( fillWith4 && enabBits[ 40 ] ) || ( fillWith3 && ( histBins[ 40 ] != DEF_MMTBin ) );
+  enabBits[ 41 ] = ( fillWith4 && enabBits[ 41 ] ) || ( fillWith3 && ( histBins[ 41 ] != DEF_MMTBin ) );
+  enabBits[ 42 ] = ( fillWith4 && enabBits[ 42 ] ) || ( fillWith3 && ( histBins[ 42 ] != DEF_MMTBin ) );
+  enabBits[ 43 ] = ( fillWith4 && enabBits[ 43 ] ) || ( fillWith3 && ( histBins[ 43 ] != DEF_MMTBin ) );
+  enabBits[ 44 ] = ( fillWith4 && enabBits[ 44 ] ) || ( fillWith3 && ( histBins[ 44 ] != DEF_MMTBin ) );
+  enabBits[ 45 ] = ( fillWith4 && enabBits[ 45 ] ) || ( fillWith3 && ( histBins[ 45 ] != DEF_MMTBin ) );
+  enabBits[ 46 ] = ( fillWith4 && enabBits[ 46 ] ) || ( fillWith3 && ( histBins[ 46 ] != DEF_MMTBin ) );
+  enabBits[ 47 ] = ( fillWith4 && enabBits[ 47 ] ) || ( fillWith3 && ( histBins[ 47 ] != DEF_MMTBin ) );
+  enabBits[ 48 ] = ( fillWith4 && enabBits[ 48 ] ) || ( fillWith3 && ( histBins[ 48 ] != DEF_MMTBin ) );
+  enabBits[ 49 ] = ( fillWith4 && enabBits[ 49 ] ) || ( fillWith3 && ( histBins[ 49 ] != DEF_MMTBin ) );
+  enabBits[ 50 ] = ( fillWith4 && enabBits[ 50 ] ) || ( fillWith3 && ( histBins[ 50 ] != DEF_MMTBin ) );
+  enabBits[ 51 ] = ( fillWith4 && enabBits[ 51 ] ) || ( fillWith3 && ( histBins[ 51 ] != DEF_MMTBin ) );
+  enabBits[ 52 ] = ( fillWith4 && enabBits[ 52 ] ) || ( fillWith3 && ( histBins[ 52 ] != DEF_MMTBin ) );
+  enabBits[ 53 ] = ( fillWith4 && enabBits[ 53 ] ) || ( fillWith3 && ( histBins[ 53 ] != DEF_MMTBin ) );
+  enabBits[ 54 ] = ( fillWith4 && enabBits[ 54 ] ) || ( fillWith3 && ( histBins[ 54 ] != DEF_MMTBin ) );
+  enabBits[ 55 ] = ( fillWith4 && enabBits[ 55 ] ) || ( fillWith3 && ( histBins[ 55 ] != DEF_MMTBin ) );
+  enabBits[ 56 ] = ( fillWith4 && enabBits[ 56 ] ) || ( fillWith3 && ( histBins[ 56 ] != DEF_MMTBin ) );
+  enabBits[ 57 ] = ( fillWith4 && enabBits[ 57 ] ) || ( fillWith3 && ( histBins[ 57 ] != DEF_MMTBin ) );
+  enabBits[ 58 ] = ( fillWith4 && enabBits[ 58 ] ) || ( fillWith3 && ( histBins[ 58 ] != DEF_MMTBin ) );
+  enabBits[ 59 ] = ( fillWith4 && enabBits[ 59 ] ) || ( fillWith3 && ( histBins[ 59 ] != DEF_MMTBin ) );
+  enabBits[ 60 ] = ( fillWith4 && enabBits[ 60 ] ) || ( fillWith3 && ( histBins[ 60 ] != DEF_MMTBin ) );
+  enabBits[ 61 ] = ( fillWith4 && enabBits[ 61 ] ) || ( fillWith3 && ( histBins[ 61 ] != DEF_MMTBin ) );
+  enabBits[ 62 ] = ( fillWith4 && enabBits[ 62 ] ) || ( fillWith3 && ( histBins[ 62 ] != DEF_MMTBin ) );
+  enabBits[ 63 ] = ( fillWith4 && enabBits[ 63 ] ) || ( fillWith3 && ( histBins[ 63 ] != DEF_MMTBin ) );
+  enabBits[ 64 ] = ( fillWith4 && enabBits[ 64 ] ) || ( fillWith3 && ( histBins[ 64 ] != DEF_MMTBin ) );
+  enabBits[ 65 ] = ( fillWith4 && enabBits[ 65 ] ) || ( fillWith3 && ( histBins[ 65 ] != DEF_MMTBin ) );
+  enabBits[ 66 ] = ( fillWith4 && enabBits[ 66 ] ) || ( fillWith3 && ( histBins[ 66 ] != DEF_MMTBin ) );
+  enabBits[ 67 ] = ( fillWith4 && enabBits[ 67 ] ) || ( fillWith3 && ( histBins[ 67 ] != DEF_MMTBin ) );
+  enabBits[ 68 ] = ( fillWith4 && enabBits[ 68 ] ) || ( fillWith3 && ( histBins[ 68 ] != DEF_MMTBin ) );
+  enabBits[ 69 ] = ( fillWith4 && enabBits[ 69 ] ) || ( fillWith3 && ( histBins[ 69 ] != DEF_MMTBin ) );
+  enabBits[ 70 ] = ( fillWith4 && enabBits[ 70 ] ) || ( fillWith3 && ( histBins[ 70 ] != DEF_MMTBin ) );
+  enabBits[ 71 ] = ( fillWith4 && enabBits[ 71 ] ) || ( fillWith3 && ( histBins[ 71 ] != DEF_MMTBin ) );
+  enabBits[ 72 ] = ( fillWith4 && enabBits[ 72 ] ) || ( fillWith3 && ( histBins[ 72 ] != DEF_MMTBin ) );
+  enabBits[ 73 ] = ( fillWith4 && enabBits[ 73 ] ) || ( fillWith3 && ( histBins[ 73 ] != DEF_MMTBin ) );
+  enabBits[ 74 ] = ( fillWith4 && enabBits[ 74 ] ) || ( fillWith3 && ( histBins[ 74 ] != DEF_MMTBin ) );
+  enabBits[ 75 ] = ( fillWith4 && enabBits[ 75 ] ) || ( fillWith3 && ( histBins[ 75 ] != DEF_MMTBin ) );
+  enabBits[ 76 ] = ( fillWith4 && enabBits[ 76 ] ) || ( fillWith3 && ( histBins[ 76 ] != DEF_MMTBin ) );
+  enabBits[ 77 ] = ( fillWith4 && enabBits[ 77 ] ) || ( fillWith3 && ( histBins[ 77 ] != DEF_MMTBin ) );
+  enabBits[ 78 ] = ( fillWith4 && enabBits[ 78 ] ) || ( fillWith3 && ( histBins[ 78 ] != DEF_MMTBin ) );
+  enabBits[ 79 ] = ( fillWith4 && enabBits[ 79 ] ) || ( fillWith3 && ( histBins[ 79 ] != DEF_MMTBin ) );
+  enabBits[ 80 ] = ( fillWith4 && enabBits[ 80 ] ) || ( fillWith3 && ( histBins[ 80 ] != DEF_MMTBin ) );
+  enabBits[ 81 ] = ( fillWith4 && enabBits[ 81 ] ) || ( fillWith3 && ( histBins[ 81 ] != DEF_MMTBin ) );
+  enabBits[ 82 ] = ( fillWith4 && enabBits[ 82 ] ) || ( fillWith3 && ( histBins[ 82 ] != DEF_MMTBin ) );
+  enabBits[ 83 ] = ( fillWith4 && enabBits[ 83 ] ) || ( fillWith3 && ( histBins[ 83 ] != DEF_MMTBin ) );
+  enabBits[ 84 ] = ( fillWith4 && enabBits[ 84 ] ) || ( fillWith3 && ( histBins[ 84 ] != DEF_MMTBin ) );
+  enabBits[ 85 ] = ( fillWith4 && enabBits[ 85 ] ) || ( fillWith3 && ( histBins[ 85 ] != DEF_MMTBin ) );
+  enabBits[ 86 ] = ( fillWith4 && enabBits[ 86 ] ) || ( fillWith3 && ( histBins[ 86 ] != DEF_MMTBin ) );
+  enabBits[ 87 ] = ( fillWith4 && enabBits[ 87 ] ) || ( fillWith3 && ( histBins[ 87 ] != DEF_MMTBin ) );
+  enabBits[ 88 ] = ( fillWith4 && enabBits[ 88 ] ) || ( fillWith3 && ( histBins[ 88 ] != DEF_MMTBin ) );
+  enabBits[ 89 ] = ( fillWith4 && enabBits[ 89 ] ) || ( fillWith3 && ( histBins[ 89 ] != DEF_MMTBin ) );
+  enabBits[ 90 ] = ( fillWith4 && enabBits[ 90 ] ) || ( fillWith3 && ( histBins[ 90 ] != DEF_MMTBin ) );
+  enabBits[ 91 ] = ( fillWith4 && enabBits[ 91 ] ) || ( fillWith3 && ( histBins[ 91 ] != DEF_MMTBin ) );
+  enabBits[ 92 ] = ( fillWith4 && enabBits[ 92 ] ) || ( fillWith3 && ( histBins[ 92 ] != DEF_MMTBin ) );
+  enabBits[ 93 ] = ( fillWith4 && enabBits[ 93 ] ) || ( fillWith3 && ( histBins[ 93 ] != DEF_MMTBin ) );
+  enabBits[ 94 ] = ( fillWith4 && enabBits[ 94 ] ) || ( fillWith3 && ( histBins[ 94 ] != DEF_MMTBin ) );
+  enabBits[ 95 ] = ( fillWith4 && enabBits[ 95 ] ) || ( fillWith3 && ( histBins[ 95 ] != DEF_MMTBin ) );
+  enabBits[ 96 ] = ( fillWith4 && enabBits[ 96 ] ) || ( fillWith3 && ( histBins[ 96 ] != DEF_MMTBin ) );
+  enabBits[ 97 ] = ( fillWith4 && enabBits[ 97 ] ) || ( fillWith3 && ( histBins[ 97 ] != DEF_MMTBin ) );
+  enabBits[ 98 ] = ( fillWith4 && enabBits[ 98 ] ) || ( fillWith3 && ( histBins[ 98 ] != DEF_MMTBin ) );
+  enabBits[ 99 ] = ( fillWith4 && enabBits[ 99 ] ) || ( fillWith3 && ( histBins[ 99 ] != DEF_MMTBin ) );
+  enabBits[ 100 ] = ( fillWith4 && enabBits[ 100 ] ) || ( fillWith3 && ( histBins[ 100 ] != DEF_MMTBin ) );
+  enabBits[ 101 ] = ( fillWith4 && enabBits[ 101 ] ) || ( fillWith3 && ( histBins[ 101 ] != DEF_MMTBin ) );
+  enabBits[ 102 ] = ( fillWith4 && enabBits[ 102 ] ) || ( fillWith3 && ( histBins[ 102 ] != DEF_MMTBin ) );
+  enabBits[ 103 ] = ( fillWith4 && enabBits[ 103 ] ) || ( fillWith3 && ( histBins[ 103 ] != DEF_MMTBin ) );
+  enabBits[ 104 ] = ( fillWith4 && enabBits[ 104 ] ) || ( fillWith3 && ( histBins[ 104 ] != DEF_MMTBin ) );
+  enabBits[ 105 ] = ( fillWith4 && enabBits[ 105 ] ) || ( fillWith3 && ( histBins[ 105 ] != DEF_MMTBin ) );
+  enabBits[ 106 ] = ( fillWith4 && enabBits[ 106 ] ) || ( fillWith3 && ( histBins[ 106 ] != DEF_MMTBin ) );
+  enabBits[ 107 ] = ( fillWith4 && enabBits[ 107 ] ) || ( fillWith3 && ( histBins[ 107 ] != DEF_MMTBin ) );
+  enabBits[ 108 ] = ( fillWith4 && enabBits[ 108 ] ) || ( fillWith3 && ( histBins[ 108 ] != DEF_MMTBin ) );
+  enabBits[ 109 ] = ( fillWith4 && enabBits[ 109 ] ) || ( fillWith3 && ( histBins[ 109 ] != DEF_MMTBin ) );
+  enabBits[ 110 ] = ( fillWith4 && enabBits[ 110 ] ) || ( fillWith3 && ( histBins[ 110 ] != DEF_MMTBin ) );
+  enabBits[ 111 ] = ( fillWith4 && enabBits[ 111 ] ) || ( fillWith3 && ( histBins[ 111 ] != DEF_MMTBin ) );
+  enabBits[ 112 ] = ( fillWith4 && enabBits[ 112 ] ) || ( fillWith3 && ( histBins[ 112 ] != DEF_MMTBin ) );
+  enabBits[ 113 ] = ( fillWith4 && enabBits[ 113 ] ) || ( fillWith3 && ( histBins[ 113 ] != DEF_MMTBin ) );
+  enabBits[ 114 ] = ( fillWith4 && enabBits[ 114 ] ) || ( fillWith3 && ( histBins[ 114 ] != DEF_MMTBin ) );
+  enabBits[ 115 ] = ( fillWith4 && enabBits[ 115 ] ) || ( fillWith3 && ( histBins[ 115 ] != DEF_MMTBin ) );
+  enabBits[ 116 ] = ( fillWith4 && enabBits[ 116 ] ) || ( fillWith3 && ( histBins[ 116 ] != DEF_MMTBin ) );
+  enabBits[ 117 ] = ( fillWith4 && enabBits[ 117 ] ) || ( fillWith3 && ( histBins[ 117 ] != DEF_MMTBin ) );
+  enabBits[ 118 ] = ( fillWith4 && enabBits[ 118 ] ) || ( fillWith3 && ( histBins[ 118 ] != DEF_MMTBin ) );
+  enabBits[ 119 ] = ( fillWith4 && enabBits[ 119 ] ) || ( fillWith3 && ( histBins[ 119 ] != DEF_MMTBin ) );
+  enabBits[ 120 ] = ( fillWith4 && enabBits[ 120 ] ) || ( fillWith3 && ( histBins[ 120 ] != DEF_MMTBin ) );
+  enabBits[ 121 ] = ( fillWith4 && enabBits[ 121 ] ) || ( fillWith3 && ( histBins[ 121 ] != DEF_MMTBin ) );
+  enabBits[ 122 ] = ( fillWith4 && enabBits[ 122 ] ) || ( fillWith3 && ( histBins[ 122 ] != DEF_MMTBin ) );
+  enabBits[ 123 ] = ( fillWith4 && enabBits[ 123 ] ) || ( fillWith3 && ( histBins[ 123 ] != DEF_MMTBin ) );
+  enabBits[ 124 ] = ( fillWith4 && enabBits[ 124 ] ) || ( fillWith3 && ( histBins[ 124 ] != DEF_MMTBin ) );
+  enabBits[ 125 ] = ( fillWith4 && enabBits[ 125 ] ) || ( fillWith3 && ( histBins[ 125 ] != DEF_MMTBin ) );
+  enabBits[ 126 ] = ( fillWith4 && enabBits[ 126 ] ) || ( fillWith3 && ( histBins[ 126 ] != DEF_MMTBin ) );
+  enabBits[ 127 ] = ( fillWith4 && enabBits[ 127 ] ) || ( fillWith3 && ( histBins[ 127 ] != DEF_MMTBin ) );

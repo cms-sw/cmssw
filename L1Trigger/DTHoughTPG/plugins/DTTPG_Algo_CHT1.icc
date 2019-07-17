@@ -1,0 +1,527 @@
+void DTTPG::RunCHTOneSL( WireShift_t corrFirstWire,
+                         TimeMMT_t vecHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                         Qual_t vecQuality[ MAX_MACROCELLS ],
+                         BOOL_t isMB1,
+                         BOOL_t isPositiveWheel,
+                         TimeMMT_t timePMCell[ MAX_MACROCELLS ],
+                         MCellPos_t centralMCellCoord[ MAX_MACROCELLS ],
+                         b9_Idx_t aChamberIdx,
+                         TanPhi_t twoTanPhiMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ],
+                         MCellPos_t x0MCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ] ) const
+{
+  for ( MCellIdx_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    vecQuality[ iMacroCell ] = qDummy;
+    for ( b3_Idx_t iRes = 0; iRes < MAX_TANPHI_CLUSTERS; ++iRes )
+    {
+      twoTanPhiMCell[ iMacroCell ][ iRes ] = DEF_TanPhi;
+      x0MCell[ iMacroCell ][ iRes ] = DEF_MCellPos;
+    }
+    TimeMMT_t thisTimePMCell = timePMCell[ iMacroCell ];
+    if ( thisTimePMCell == DEF_TimeMMT )
+      continue;
+    CHTBitset_t bitSetResult = this->RunCHTOneMC( vecHits[ iMacroCell ],
+                                                  &vecQuality[ iMacroCell ],
+                                                  thisTimePMCell );
+    this->UnpackCHTOneMC( vecHits[ iMacroCell ],
+                          thisTimePMCell,
+                          centralMCellCoord[ iMacroCell ],
+                          bitSetResult,
+                          aChamberIdx,
+                          isMB1,
+                          isPositiveWheel,
+                          twoTanPhiMCell[ iMacroCell ],
+                          x0MCell[ iMacroCell ] );
+  }
+}
+
+void DTTPG::RunCHTOneSL( WireShift_t corrFirstWire,
+                         TimeMMT_t vecHits[ MAX_MACROCELLS ][ NUM_MACROCELLWIRES ],
+                         Qual_t vecQuality[ MAX_MACROCELLS ],
+                         BOOL_t isMB1,
+                         BOOL_t isPositiveWheel,
+                         CHTBitset_t vecBitset[ MAX_MACROCELLS ],
+                         TimeMMT_t timePMCell[ MAX_MACROCELLS ],
+                         MCellPos_t centralMCellCoord[ MAX_MACROCELLS ],
+                         b9_Idx_t aChamberIdx,
+                         TanPhi_t twoTanPhiMCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ],
+                         MCellPos_t x0MCell[ MAX_MACROCELLS ][ MAX_TANPHI_CLUSTERS ] ) const
+{
+  for ( MCellIdx_t iMacroCell = 0; iMacroCell < MAX_MACROCELLS; ++iMacroCell )
+  {
+    vecBitset[ iMacroCell ] = 0;
+    vecQuality[ iMacroCell ] = qDummy; 
+    for ( b3_Idx_t iRes = 0; iRes < MAX_TANPHI_CLUSTERS; ++iRes )
+    {
+      twoTanPhiMCell[ iMacroCell ][ iRes ] = DEF_TanPhi;
+      x0MCell[ iMacroCell ][ iRes ] = DEF_MCellPos;
+    }
+    TimeMMT_t thisTimePMCell = timePMCell[ iMacroCell ];
+    if ( thisTimePMCell == DEF_TimeMMT )
+      continue;
+    vecBitset[ iMacroCell ] = this->RunCHTOneMC( vecHits[ iMacroCell ],
+                                                 &vecQuality[ iMacroCell ],
+                                                 thisTimePMCell );
+    this->UnpackCHTOneMC( vecHits[ iMacroCell ],
+                          thisTimePMCell,
+                          centralMCellCoord[ iMacroCell ],
+                          vecBitset[ iMacroCell ],
+                          aChamberIdx,
+                          isMB1,
+                          isPositiveWheel,
+                          twoTanPhiMCell[ iMacroCell ],
+                          x0MCell[ iMacroCell ] );
+  }
+}
+
+CHTBitset_t DTTPG::RunCHTOneMC( TimeMMT_t vecHits[ NUM_MACROCELLWIRES ],
+                                Qual_t *aQuality,
+                                TimeMMT_t aTimeP ) const
+{
+  CHTHist_t tempHist[ BINNUM_TANPHI ];
+  for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI ; ++iBin )
+    tempHist[ iBin ] = 0;
+  CompMMT_t timeByPlace[ NUM_MACROCELLWIRES ];
+  for ( b4_Idx_t iPlace = 0; iPlace < NUM_MACROCELLWIRES; ++iPlace )
+    timeByPlace[ iPlace ] = static_cast< CompMMT_t >( vecHits[ iPlace ] );
+  this->FillCHTHist( 0, 1, timeByPlace, 13, 169,    1,  1, chtWinCorr[0], 10, tempHist, aTimeP );
+  this->FillCHTHist( 1, 2, timeByPlace, 13, 169,    1,  1, chtWinCorr[1], 10, tempHist, aTimeP );
+  this->FillCHTHist( 2, 3, timeByPlace, 13, 169,    1,  1, chtWinCorr[2], 10, tempHist, aTimeP );
+  this->FillCHTHist( 0, 2, timeByPlace,  7,  49,    1,  2, chtWinCorr[3], 11, tempHist, aTimeP );
+  this->FillCHTHist( 1, 3, timeByPlace,  7,  49,    1,  2, chtWinCorr[4], 11, tempHist, aTimeP );
+  this->FillCHTHist( 0, 3, timeByPlace,  4,  16, 2731, 14, chtWinCorr[5], 14, tempHist, aTimeP );
+  CHTBitset_t bitSet44(0);
+  CHTBitset_t bitSet34(0);
+  b2_Idx_t checkNonZeroSize44 = 0;
+  b2_Idx_t checkNonZeroSize34 = 0;
+  for ( CHTBin_t iBin = 0; iBin < BINNUM_TANPHI; ++iBin )
+  {
+    BOOL_t bit44 = static_cast< BOOL_t >( ( tempHist[ iBin ] >> 5 ) & 1 ); // > 5, min 6
+    BOOL_t bit34 = static_cast< BOOL_t >( ( tempHist[ iBin ] >> 2 ) & 1 ); // > 2, min 3
+    bitSet44.set(iBin, bitSet44[iBin] || bit44);
+    bitSet34.set(iBin, bitSet34[iBin] || bit34);
+    if ( bit44 )
+      checkNonZeroSize44 = ( checkNonZeroSize44 << 1 ) + 1;
+    if ( bit34 )
+      checkNonZeroSize34 = ( checkNonZeroSize34 << 1 ) + 1;
+  }
+  *aQuality = qDummy;
+  if ( checkNonZeroSize44 >= 3 )
+  {
+    *aQuality = qSingle;
+    return bitSet44;
+  }
+  else if ( checkNonZeroSize34 >= 3 )
+  {
+    *aQuality = qSinglePoor;
+    return bitSet34; 
+  }
+  else
+    return 0;
+}
+
+void DTTPG::FillCHTHist( b3_Idx_t anInnerLayer,
+                         b3_Idx_t anOuterLayer,
+                         CompMMT_t aTimeListByPlace[ NUM_MACROCELLWIRES ],
+                         CHTBin_t aHalfFillWidth,
+                         CHTBin_t aHalfFillWidth2,
+                         CompBin_t aNumZLayerDiff,
+                         CHTBin_t aDenZLayerDiff,
+                         CompBin_t aNumCorrZLayerDiff,
+                         CHTBin_t aDenCorrZLayerDiff,
+                         CHTHist_t aCHTHist[ BINNUM_TANPHI ],
+                         TimeMMT_t aTimeP ) const
+{
+  b5_Idx_t iPlaceMin = 0;
+  b5_Idx_t iPlaceMax = 0;
+  b5_Idx_t jPlaceMin = 0;
+  b5_Idx_t jPlaceMax = 0;
+  if ( anInnerLayer == 0 )
+  {
+    iPlaceMin = 3;
+    iPlaceMax = 15;
+  }
+  else if ( anInnerLayer == 1 )
+  {
+    iPlaceMin = 1;
+    iPlaceMax = 17;
+  }
+  else if ( anInnerLayer == 2 )
+  {
+    iPlaceMin = 2;
+    iPlaceMax = 14;
+  }
+  if ( anOuterLayer == 1 )
+  {
+    jPlaceMin = 1;
+    jPlaceMax = 17;
+  }
+  else if ( anOuterLayer == 2 )
+  {
+    jPlaceMin = 2;
+    jPlaceMax = 14;
+  }
+  else if ( anOuterLayer == 3 )
+  {
+    jPlaceMin = 0;
+    jPlaceMax = 16;
+  }
+  for ( b5_Idx_t iPlace = iPlaceMin; iPlace < iPlaceMax; iPlace += 4 )
+  {
+    if ( aTimeListByPlace[ iPlace ] == 0
+         || ( static_cast< CompTDC_t >( aTimeP ) > aTimeListByPlace[ iPlace ] + 8 ) )
+      continue;
+    for ( b5_Idx_t jPlace = jPlaceMin; jPlace < jPlaceMax; jPlace += 4 )
+    {
+      if ( aTimeListByPlace[ jPlace ] == 0
+           || ( static_cast< CompTDC_t >( aTimeP ) > aTimeListByPlace[ jPlace ] + 8 ) )        
+        continue;
+      CompTDC_t driftTimeSum = ( aTimeListByPlace[ iPlace ] + aTimeListByPlace[ jPlace ] - 2 * static_cast< CompTDC_t >( aTimeP ) ) * defVDrift >> 8;
+      CompTDC_t driftTimeDiff = ( aTimeListByPlace[ iPlace ] - aTimeListByPlace[ jPlace ] ) * defVDrift;
+      driftTimeDiff = ( driftTimeDiff >> 8 ) + ( ( driftTimeDiff & 1 ) && ( driftTimeDiff < 0 ) );
+      MCellPos_t xWireDiff = idxToCoordMap[ jPlace ] - idxToCoordMap[ iPlace ];
+      MCellPos_t xMCellDiff[4] = { xWireDiff + static_cast< MCellPos_t >( driftTimeDiff ),
+                                   xWireDiff + static_cast< MCellPos_t >( driftTimeSum ),
+                                   xWireDiff - static_cast< MCellPos_t >( driftTimeSum ),
+                                   xWireDiff - static_cast< MCellPos_t >( driftTimeDiff ) };
+      for ( b3_Idx_t iPair = 0; iPair < 4; ++iPair )
+      {
+        CompBin_t tempBin0 = static_cast< CompBin_t >( xMCellDiff[ iPair ] ) * 207 * aNumZLayerDiff;
+        tempBin0 = ( tempBin0 >> aDenZLayerDiff ) + ( ( tempBin0 & 1 ) && ( tempBin0 < 0 ) );
+        CHTBin_t tempBin = static_cast< CHTBin_t >( ( ( 256 * BINNUM_HALF_TANPHI - tempBin0 ) + 128 ) >> 8 );
+        CHTBin_t aHalfFillWidthCorr = this->CorrectCHTWindow( &tempBin, aHalfFillWidth, aHalfFillWidth2, iPair, aNumCorrZLayerDiff, aDenCorrZLayerDiff );
+        CHTBin_t tempBinMin = tempBin - aHalfFillWidthCorr;
+        CHTBin_t tempBinMax = tempBin + aHalfFillWidthCorr;
+        tempBinMin = ( tempBinMin > 0 ) ? tempBinMin : CHTBin_t(0);
+        tempBinMax = ( tempBinMax < BINNUM_TANPHI ) ? tempBinMax : CHTBin_t(BINNUM_TANPHI - 1);
+        for ( CHTBin_t iBin = tempBinMin; iBin <= tempBinMax; ++iBin )
+          aCHTHist[ iBin ] = ( aCHTHist[ iBin ] << 1 ) + 1;
+      }
+    }
+  }
+}
+
+void DTTPG::UnpackCHTOneMC( TimeMMT_t vecHits[ NUM_MACROCELLWIRES ],
+                            TimeMMT_t aTimeP,
+                            MCellPos_t aCentralMCellCoord,
+                            CHTBitset_t aBitSet,
+                            b9_Idx_t aChamberIdx,
+                            BOOL_t isMB1,
+                            BOOL_t isPositiveWheel,
+                            TanPhi_t res2TanPhi[ MAX_TANPHI_CLUSTERS ],
+                            MCellPos_t resX0[ MAX_TANPHI_CLUSTERS ] ) const
+{
+  if ( aBitSet == 0 )
+    return;
+  TanPhiClu_t centroids2TanPhi128[ MAX_TANPHI_CLUSTERS ];
+  b3_Idx_t storedClusters = 0;
+  this->FindTanPhiClusters( centroids2TanPhi128, &storedClusters, aBitSet );
+  for ( b3_Idx_t iCluster = 0; iCluster < storedClusters; ++iCluster )
+  {
+    TanPhi_t temp2TanPhi128 = static_cast< TanPhi_t >( centroids2TanPhi128[ iCluster ] );
+    if ( temp2TanPhi128 == 0xFFFF )
+      continue;
+    temp2TanPhi128 -= BINNUM_TANPHI;
+    res2TanPhi[ iCluster ] = temp2TanPhi128;
+    X0Hist_t tempHist[ BINNUM_X0 ];
+    for ( X0Bin_t kBin = 0; kBin < BINNUM_X0; ++kBin )
+      tempHist[ kBin ] = 0;
+    MCellPos_t tempX0 = DEF_MCellPos;
+    for ( b4_Idx_t jHit = 0; jHit < NUM_MACROCELLWIRES; ++jHit )      
+    {
+      if ( ( static_cast< CompTDC_t >( aTimeP ) > vecHits[ jHit ] + 8 ) )
+        continue;
+      b3_Idx_t thisWireLayer = idxToLayerMap[ jHit ];
+      TimeMMT_t driftTime = vecHits[ jHit ] - aTimeP;
+      MCellPos_t wireCoordinate = idxToCoordMap[ jHit ];
+      driftTime += this->CorrectDriftTime( temp2TanPhi128 );
+      MCellPos_t recoDrift = static_cast< MCellPos_t >( static_cast< CompTDC_t >( driftTime ) * defVDrift >> 8 );
+      MCellPos_t xLeft = wireCoordinate - recoDrift;
+      MCellPos_t xRight = wireCoordinate + recoDrift;
+      ZLocSL_t zLayer = 2 * thisWireLayer - 5;
+      CompPos_t tempExpX0 = temp2TanPhi128 * zLayer * 317;
+      tempExpX0 = ( tempExpX0 >> 8 ) + ( ( tempExpX0 & 1 ) && ( tempExpX0 < 0 ) );
+      CompPos_t expX0Left = 2 * xLeft + tempExpX0;
+      expX0Left = ( expX0Left >> 1 ) + ( ( expX0Left & 1 ) && ( expX0Left < 0 ) );
+      CompPos_t expX0Right = 2 * xRight + tempExpX0;
+      expX0Right = ( expX0Right >> 1 ) + ( ( expX0Right & 1 ) && ( expX0Right < 0 ) );
+      X0Bin_t findTheBinLeft = static_cast< X0Bin_t >( ( expX0Left + HISTLOW_X0 + BINSIZE_X0_1 ) >> BINSIZE_X0_1_DIV ) - 1;
+      X0Bin_t findTheBinRight = static_cast< X0Bin_t >( ( expX0Right + HISTLOW_X0 + BINSIZE_X0_1 ) >> BINSIZE_X0_1_DIV ) - 1; 
+      if ( findTheBinLeft >= 0 && findTheBinLeft < BINNUM_X0 )
+        tempHist[ findTheBinLeft ] = ( tempHist[ findTheBinLeft ] << 1 ) + 1;
+      if ( findTheBinRight >= 0 && findTheBinRight < BINNUM_X0 )
+        tempHist[ findTheBinRight ] = ( tempHist[ findTheBinRight ] << 1 ) + 1;
+    }
+    X0Clu_t maxCount = 0;
+    {
+      X0Bin_t maxMinIdx[ 127 ];
+      X0Bin_t maxMaxIdx[ 127 ];
+      maxMinIdx[ 0x00 ] = ( tempHist[ 0x00 ] < tempHist[ 0x01 ] ) ? 0x01 : 0x00;
+      maxMaxIdx[ 0x00 ] = ( tempHist[ 0x00 ] > tempHist[ 0x01 ] ) ? 0x00 : 0x01;
+      maxMinIdx[ 0x01 ] = ( tempHist[ 0x02 ] < tempHist[ 0x03 ] ) ? 0x03 : 0x02;
+      maxMaxIdx[ 0x01 ] = ( tempHist[ 0x02 ] > tempHist[ 0x03 ] ) ? 0x02 : 0x03;
+      maxMinIdx[ 0x02 ] = ( tempHist[ 0x04 ] < tempHist[ 0x05 ] ) ? 0x05 : 0x04;
+      maxMaxIdx[ 0x02 ] = ( tempHist[ 0x04 ] > tempHist[ 0x05 ] ) ? 0x04 : 0x05;
+      maxMinIdx[ 0x03 ] = ( tempHist[ 0x06 ] < tempHist[ 0x07 ] ) ? 0x07 : 0x06;
+      maxMaxIdx[ 0x03 ] = ( tempHist[ 0x06 ] > tempHist[ 0x07 ] ) ? 0x06 : 0x07;
+      maxMinIdx[ 0x04 ] = ( tempHist[ 0x08 ] < tempHist[ 0x09 ] ) ? 0x09 : 0x08;
+      maxMaxIdx[ 0x04 ] = ( tempHist[ 0x08 ] > tempHist[ 0x09 ] ) ? 0x08 : 0x09;
+      maxMinIdx[ 0x05 ] = ( tempHist[ 0x0A ] < tempHist[ 0x0B ] ) ? 0x0B : 0x0A;
+      maxMaxIdx[ 0x05 ] = ( tempHist[ 0x0A ] > tempHist[ 0x0B ] ) ? 0x0A : 0x0B;
+      maxMinIdx[ 0x06 ] = ( tempHist[ 0x0C ] < tempHist[ 0x0D ] ) ? 0x0D : 0x0C;
+      maxMaxIdx[ 0x06 ] = ( tempHist[ 0x0C ] > tempHist[ 0x0D ] ) ? 0x0C : 0x0D;
+      maxMinIdx[ 0x07 ] = ( tempHist[ 0x0E ] < tempHist[ 0x0F ] ) ? 0x0F : 0x0E;
+      maxMaxIdx[ 0x07 ] = ( tempHist[ 0x0E ] > tempHist[ 0x0F ] ) ? 0x0E : 0x0F;
+      maxMinIdx[ 0x08 ] = ( tempHist[ 0x10 ] < tempHist[ 0x11 ] ) ? 0x11 : 0x10;
+      maxMaxIdx[ 0x08 ] = ( tempHist[ 0x10 ] > tempHist[ 0x11 ] ) ? 0x10 : 0x11;
+      maxMinIdx[ 0x09 ] = ( tempHist[ 0x12 ] < tempHist[ 0x13 ] ) ? 0x13 : 0x12;
+      maxMaxIdx[ 0x09 ] = ( tempHist[ 0x12 ] > tempHist[ 0x13 ] ) ? 0x12 : 0x13;
+      maxMinIdx[ 0x0A ] = ( tempHist[ 0x14 ] < tempHist[ 0x15 ] ) ? 0x15 : 0x14;
+      maxMaxIdx[ 0x0A ] = ( tempHist[ 0x14 ] > tempHist[ 0x15 ] ) ? 0x14 : 0x15;
+      maxMinIdx[ 0x0B ] = ( tempHist[ 0x16 ] < tempHist[ 0x17 ] ) ? 0x17 : 0x16;
+      maxMaxIdx[ 0x0B ] = ( tempHist[ 0x16 ] > tempHist[ 0x17 ] ) ? 0x16 : 0x17;
+      maxMinIdx[ 0x0C ] = ( tempHist[ 0x18 ] < tempHist[ 0x19 ] ) ? 0x19 : 0x18;
+      maxMaxIdx[ 0x0C ] = ( tempHist[ 0x18 ] > tempHist[ 0x19 ] ) ? 0x18 : 0x19;
+      maxMinIdx[ 0x0D ] = ( tempHist[ 0x1A ] < tempHist[ 0x1B ] ) ? 0x1B : 0x1A;
+      maxMaxIdx[ 0x0D ] = ( tempHist[ 0x1A ] > tempHist[ 0x1B ] ) ? 0x1A : 0x1B;
+      maxMinIdx[ 0x0E ] = ( tempHist[ 0x1C ] < tempHist[ 0x1D ] ) ? 0x1D : 0x1C;
+      maxMaxIdx[ 0x0E ] = ( tempHist[ 0x1C ] > tempHist[ 0x1D ] ) ? 0x1C : 0x1D;
+      maxMinIdx[ 0x0F ] = ( tempHist[ 0x1E ] < tempHist[ 0x1F ] ) ? 0x1F : 0x1E;
+      maxMaxIdx[ 0x0F ] = ( tempHist[ 0x1E ] > tempHist[ 0x1F ] ) ? 0x1E : 0x1F;
+      maxMinIdx[ 0x10 ] = ( tempHist[ 0x20 ] < tempHist[ 0x21 ] ) ? 0x21 : 0x20;
+      maxMaxIdx[ 0x10 ] = ( tempHist[ 0x20 ] > tempHist[ 0x21 ] ) ? 0x20 : 0x21;
+      maxMinIdx[ 0x11 ] = ( tempHist[ 0x22 ] < tempHist[ 0x23 ] ) ? 0x23 : 0x22;
+      maxMaxIdx[ 0x11 ] = ( tempHist[ 0x22 ] > tempHist[ 0x23 ] ) ? 0x22 : 0x23;
+      maxMinIdx[ 0x12 ] = ( tempHist[ 0x24 ] < tempHist[ 0x25 ] ) ? 0x25 : 0x24;
+      maxMaxIdx[ 0x12 ] = ( tempHist[ 0x24 ] > tempHist[ 0x25 ] ) ? 0x24 : 0x25;
+      maxMinIdx[ 0x13 ] = ( tempHist[ 0x26 ] < tempHist[ 0x27 ] ) ? 0x27 : 0x26;
+      maxMaxIdx[ 0x13 ] = ( tempHist[ 0x26 ] > tempHist[ 0x27 ] ) ? 0x26 : 0x27;
+      maxMinIdx[ 0x14 ] = ( tempHist[ 0x28 ] < tempHist[ 0x29 ] ) ? 0x29 : 0x28;
+      maxMaxIdx[ 0x14 ] = ( tempHist[ 0x28 ] > tempHist[ 0x29 ] ) ? 0x28 : 0x29;
+      maxMinIdx[ 0x15 ] = ( tempHist[ 0x2A ] < tempHist[ 0x2B ] ) ? 0x2B : 0x2A;
+      maxMaxIdx[ 0x15 ] = ( tempHist[ 0x2A ] > tempHist[ 0x2B ] ) ? 0x2A : 0x2B;
+      maxMinIdx[ 0x16 ] = ( tempHist[ 0x2C ] < tempHist[ 0x2D ] ) ? 0x2D : 0x2C;
+      maxMaxIdx[ 0x16 ] = ( tempHist[ 0x2C ] > tempHist[ 0x2D ] ) ? 0x2C : 0x2D;
+      maxMinIdx[ 0x17 ] = ( tempHist[ 0x2E ] < tempHist[ 0x2F ] ) ? 0x2F : 0x2E;
+      maxMaxIdx[ 0x17 ] = ( tempHist[ 0x2E ] > tempHist[ 0x2F ] ) ? 0x2E : 0x2F;
+      maxMinIdx[ 0x18 ] = ( tempHist[ 0x30 ] < tempHist[ 0x31 ] ) ? 0x31 : 0x30;
+      maxMaxIdx[ 0x18 ] = ( tempHist[ 0x30 ] > tempHist[ 0x31 ] ) ? 0x30 : 0x31;
+      maxMinIdx[ 0x19 ] = ( tempHist[ 0x32 ] < tempHist[ 0x33 ] ) ? 0x33 : 0x32;
+      maxMaxIdx[ 0x19 ] = ( tempHist[ 0x32 ] > tempHist[ 0x33 ] ) ? 0x32 : 0x33;
+      maxMinIdx[ 0x1A ] = ( tempHist[ 0x34 ] < tempHist[ 0x35 ] ) ? 0x35 : 0x34;
+      maxMaxIdx[ 0x1A ] = ( tempHist[ 0x34 ] > tempHist[ 0x35 ] ) ? 0x34 : 0x35;
+      maxMinIdx[ 0x1B ] = ( tempHist[ 0x36 ] < tempHist[ 0x37 ] ) ? 0x37 : 0x36;
+      maxMaxIdx[ 0x1B ] = ( tempHist[ 0x36 ] > tempHist[ 0x37 ] ) ? 0x36 : 0x37;
+      maxMinIdx[ 0x1C ] = ( tempHist[ 0x38 ] < tempHist[ 0x39 ] ) ? 0x39 : 0x38;
+      maxMaxIdx[ 0x1C ] = ( tempHist[ 0x38 ] > tempHist[ 0x39 ] ) ? 0x38 : 0x39;
+      maxMinIdx[ 0x1D ] = ( tempHist[ 0x3A ] < tempHist[ 0x3B ] ) ? 0x3B : 0x3A;
+      maxMaxIdx[ 0x1D ] = ( tempHist[ 0x3A ] > tempHist[ 0x3B ] ) ? 0x3A : 0x3B;
+      maxMinIdx[ 0x1E ] = ( tempHist[ 0x3C ] < tempHist[ 0x3D ] ) ? 0x3D : 0x3C;
+      maxMaxIdx[ 0x1E ] = ( tempHist[ 0x3C ] > tempHist[ 0x3D ] ) ? 0x3C : 0x3D;
+      maxMinIdx[ 0x1F ] = ( tempHist[ 0x3E ] < tempHist[ 0x3F ] ) ? 0x3F : 0x3E;
+      maxMaxIdx[ 0x1F ] = ( tempHist[ 0x3E ] > tempHist[ 0x3F ] ) ? 0x3E : 0x3F;
+      maxMinIdx[ 0x20 ] = ( tempHist[ 0x40 ] < tempHist[ 0x41 ] ) ? 0x41 : 0x40;
+      maxMaxIdx[ 0x20 ] = ( tempHist[ 0x40 ] > tempHist[ 0x41 ] ) ? 0x40 : 0x41;
+      maxMinIdx[ 0x21 ] = ( tempHist[ 0x42 ] < tempHist[ 0x43 ] ) ? 0x43 : 0x42;
+      maxMaxIdx[ 0x21 ] = ( tempHist[ 0x42 ] > tempHist[ 0x43 ] ) ? 0x42 : 0x43;
+      maxMinIdx[ 0x22 ] = ( tempHist[ 0x44 ] < tempHist[ 0x45 ] ) ? 0x45 : 0x44;
+      maxMaxIdx[ 0x22 ] = ( tempHist[ 0x44 ] > tempHist[ 0x45 ] ) ? 0x44 : 0x45;
+      maxMinIdx[ 0x23 ] = ( tempHist[ 0x46 ] < tempHist[ 0x47 ] ) ? 0x47 : 0x46;
+      maxMaxIdx[ 0x23 ] = ( tempHist[ 0x46 ] > tempHist[ 0x47 ] ) ? 0x46 : 0x47;
+      maxMinIdx[ 0x24 ] = ( tempHist[ 0x48 ] < tempHist[ 0x49 ] ) ? 0x49 : 0x48;
+      maxMaxIdx[ 0x24 ] = ( tempHist[ 0x48 ] > tempHist[ 0x49 ] ) ? 0x48 : 0x49;
+      maxMinIdx[ 0x25 ] = ( tempHist[ 0x4A ] < tempHist[ 0x4B ] ) ? 0x4B : 0x4A;
+      maxMaxIdx[ 0x25 ] = ( tempHist[ 0x4A ] > tempHist[ 0x4B ] ) ? 0x4A : 0x4B;
+      maxMinIdx[ 0x26 ] = ( tempHist[ 0x4C ] < tempHist[ 0x4D ] ) ? 0x4D : 0x4C;
+      maxMaxIdx[ 0x26 ] = ( tempHist[ 0x4C ] > tempHist[ 0x4D ] ) ? 0x4C : 0x4D;
+      maxMinIdx[ 0x27 ] = ( tempHist[ 0x4E ] < tempHist[ 0x4F ] ) ? 0x4F : 0x4E;
+      maxMaxIdx[ 0x27 ] = ( tempHist[ 0x4E ] > tempHist[ 0x4F ] ) ? 0x4E : 0x4F;
+      maxMinIdx[ 0x28 ] = ( tempHist[ 0x50 ] < tempHist[ 0x51 ] ) ? 0x51 : 0x50;
+      maxMaxIdx[ 0x28 ] = ( tempHist[ 0x50 ] > tempHist[ 0x51 ] ) ? 0x50 : 0x51;
+      maxMinIdx[ 0x29 ] = ( tempHist[ 0x52 ] < tempHist[ 0x53 ] ) ? 0x53 : 0x52;
+      maxMaxIdx[ 0x29 ] = ( tempHist[ 0x52 ] > tempHist[ 0x53 ] ) ? 0x52 : 0x53;
+      maxMinIdx[ 0x2A ] = ( tempHist[ 0x54 ] < tempHist[ 0x55 ] ) ? 0x55 : 0x54;
+      maxMaxIdx[ 0x2A ] = ( tempHist[ 0x54 ] > tempHist[ 0x55 ] ) ? 0x54 : 0x55;
+      maxMinIdx[ 0x2B ] = ( tempHist[ 0x56 ] < tempHist[ 0x57 ] ) ? 0x57 : 0x56;
+      maxMaxIdx[ 0x2B ] = ( tempHist[ 0x56 ] > tempHist[ 0x57 ] ) ? 0x56 : 0x57;
+      maxMinIdx[ 0x2C ] = ( tempHist[ 0x58 ] < tempHist[ 0x59 ] ) ? 0x59 : 0x58;
+      maxMaxIdx[ 0x2C ] = ( tempHist[ 0x58 ] > tempHist[ 0x59 ] ) ? 0x58 : 0x59;
+      maxMinIdx[ 0x2D ] = ( tempHist[ 0x5A ] < tempHist[ 0x5B ] ) ? 0x5B : 0x5A;
+      maxMaxIdx[ 0x2D ] = ( tempHist[ 0x5A ] > tempHist[ 0x5B ] ) ? 0x5A : 0x5B;
+      maxMinIdx[ 0x2E ] = ( tempHist[ 0x5C ] < tempHist[ 0x5D ] ) ? 0x5D : 0x5C;
+      maxMaxIdx[ 0x2E ] = ( tempHist[ 0x5C ] > tempHist[ 0x5D ] ) ? 0x5C : 0x5D;
+      maxMinIdx[ 0x2F ] = ( tempHist[ 0x5E ] < tempHist[ 0x5F ] ) ? 0x5F : 0x5E;
+      maxMaxIdx[ 0x2F ] = ( tempHist[ 0x5E ] > tempHist[ 0x5F ] ) ? 0x5E : 0x5F;
+      maxMinIdx[ 0x30 ] = ( tempHist[ 0x60 ] < tempHist[ 0x61 ] ) ? 0x61 : 0x60;
+      maxMaxIdx[ 0x30 ] = ( tempHist[ 0x60 ] > tempHist[ 0x61 ] ) ? 0x60 : 0x61;
+      maxMinIdx[ 0x31 ] = ( tempHist[ 0x62 ] < tempHist[ 0x63 ] ) ? 0x63 : 0x62;
+      maxMaxIdx[ 0x31 ] = ( tempHist[ 0x62 ] > tempHist[ 0x63 ] ) ? 0x62 : 0x63;
+      maxMinIdx[ 0x32 ] = ( tempHist[ 0x64 ] < tempHist[ 0x65 ] ) ? 0x65 : 0x64;
+      maxMaxIdx[ 0x32 ] = ( tempHist[ 0x64 ] > tempHist[ 0x65 ] ) ? 0x64 : 0x65;
+      maxMinIdx[ 0x33 ] = ( tempHist[ 0x66 ] < tempHist[ 0x67 ] ) ? 0x67 : 0x66;
+      maxMaxIdx[ 0x33 ] = ( tempHist[ 0x66 ] > tempHist[ 0x67 ] ) ? 0x66 : 0x67;
+      maxMinIdx[ 0x34 ] = ( tempHist[ 0x68 ] < tempHist[ 0x69 ] ) ? 0x69 : 0x68;
+      maxMaxIdx[ 0x34 ] = ( tempHist[ 0x68 ] > tempHist[ 0x69 ] ) ? 0x68 : 0x69;
+      maxMinIdx[ 0x35 ] = ( tempHist[ 0x6A ] < tempHist[ 0x6B ] ) ? 0x6B : 0x6A;
+      maxMaxIdx[ 0x35 ] = ( tempHist[ 0x6A ] > tempHist[ 0x6B ] ) ? 0x6A : 0x6B;
+      maxMinIdx[ 0x36 ] = ( tempHist[ 0x6C ] < tempHist[ 0x6D ] ) ? 0x6D : 0x6C;
+      maxMaxIdx[ 0x36 ] = ( tempHist[ 0x6C ] > tempHist[ 0x6D ] ) ? 0x6C : 0x6D;
+      maxMinIdx[ 0x37 ] = ( tempHist[ 0x6E ] < tempHist[ 0x6F ] ) ? 0x6F : 0x6E;
+      maxMaxIdx[ 0x37 ] = ( tempHist[ 0x6E ] > tempHist[ 0x6F ] ) ? 0x6E : 0x6F;
+      maxMinIdx[ 0x38 ] = ( tempHist[ 0x70 ] < tempHist[ 0x71 ] ) ? 0x71 : 0x70;
+      maxMaxIdx[ 0x38 ] = ( tempHist[ 0x70 ] > tempHist[ 0x71 ] ) ? 0x70 : 0x71;
+      maxMinIdx[ 0x39 ] = ( tempHist[ 0x72 ] < tempHist[ 0x73 ] ) ? 0x73 : 0x72;
+      maxMaxIdx[ 0x39 ] = ( tempHist[ 0x72 ] > tempHist[ 0x73 ] ) ? 0x72 : 0x73;
+      maxMinIdx[ 0x3A ] = ( tempHist[ 0x74 ] < tempHist[ 0x75 ] ) ? 0x75 : 0x74;
+      maxMaxIdx[ 0x3A ] = ( tempHist[ 0x74 ] > tempHist[ 0x75 ] ) ? 0x74 : 0x75;
+      maxMinIdx[ 0x3B ] = ( tempHist[ 0x76 ] < tempHist[ 0x77 ] ) ? 0x77 : 0x76;
+      maxMaxIdx[ 0x3B ] = ( tempHist[ 0x76 ] > tempHist[ 0x77 ] ) ? 0x76 : 0x77;
+      maxMinIdx[ 0x3C ] = ( tempHist[ 0x78 ] < tempHist[ 0x79 ] ) ? 0x79 : 0x78;
+      maxMaxIdx[ 0x3C ] = ( tempHist[ 0x78 ] > tempHist[ 0x79 ] ) ? 0x78 : 0x79;
+      maxMinIdx[ 0x3D ] = ( tempHist[ 0x7A ] < tempHist[ 0x7B ] ) ? 0x7B : 0x7A;
+      maxMaxIdx[ 0x3D ] = ( tempHist[ 0x7A ] > tempHist[ 0x7B ] ) ? 0x7A : 0x7B;
+      maxMinIdx[ 0x3E ] = ( tempHist[ 0x7C ] < tempHist[ 0x7D ] ) ? 0x7D : 0x7C;
+      maxMaxIdx[ 0x3E ] = ( tempHist[ 0x7C ] > tempHist[ 0x7D ] ) ? 0x7C : 0x7D;
+      maxMinIdx[ 0x3F ] = ( tempHist[ 0x7E ] < tempHist[ 0x7F ] ) ? 0x7F : 0x7E;
+      maxMaxIdx[ 0x3F ] = ( tempHist[ 0x7E ] > tempHist[ 0x7F ] ) ? 0x7E : 0x7F;
+      maxMinIdx[ 0x40 ] = ( tempHist[ maxMinIdx[ 0x00 ] ] < tempHist[ maxMinIdx[ 0x01 ] ] ) ? maxMinIdx[ 0x01 ] : maxMinIdx[ 0x00 ];
+      maxMaxIdx[ 0x40 ] = ( tempHist[ maxMaxIdx[ 0x00 ] ] > tempHist[ maxMaxIdx[ 0x01 ] ] ) ? maxMaxIdx[ 0x00 ] : maxMaxIdx[ 0x01 ];
+      maxMinIdx[ 0x41 ] = ( tempHist[ maxMinIdx[ 0x02 ] ] < tempHist[ maxMinIdx[ 0x03 ] ] ) ? maxMinIdx[ 0x03 ] : maxMinIdx[ 0x02 ];
+      maxMaxIdx[ 0x41 ] = ( tempHist[ maxMaxIdx[ 0x02 ] ] > tempHist[ maxMaxIdx[ 0x03 ] ] ) ? maxMaxIdx[ 0x02 ] : maxMaxIdx[ 0x03 ];
+      maxMinIdx[ 0x42 ] = ( tempHist[ maxMinIdx[ 0x04 ] ] < tempHist[ maxMinIdx[ 0x05 ] ] ) ? maxMinIdx[ 0x05 ] : maxMinIdx[ 0x04 ];
+      maxMaxIdx[ 0x42 ] = ( tempHist[ maxMaxIdx[ 0x04 ] ] > tempHist[ maxMaxIdx[ 0x05 ] ] ) ? maxMaxIdx[ 0x04 ] : maxMaxIdx[ 0x05 ];
+      maxMinIdx[ 0x43 ] = ( tempHist[ maxMinIdx[ 0x06 ] ] < tempHist[ maxMinIdx[ 0x07 ] ] ) ? maxMinIdx[ 0x07 ] : maxMinIdx[ 0x06 ];
+      maxMaxIdx[ 0x43 ] = ( tempHist[ maxMaxIdx[ 0x06 ] ] > tempHist[ maxMaxIdx[ 0x07 ] ] ) ? maxMaxIdx[ 0x06 ] : maxMaxIdx[ 0x07 ];
+      maxMinIdx[ 0x44 ] = ( tempHist[ maxMinIdx[ 0x08 ] ] < tempHist[ maxMinIdx[ 0x09 ] ] ) ? maxMinIdx[ 0x09 ] : maxMinIdx[ 0x08 ];
+      maxMaxIdx[ 0x44 ] = ( tempHist[ maxMaxIdx[ 0x08 ] ] > tempHist[ maxMaxIdx[ 0x09 ] ] ) ? maxMaxIdx[ 0x08 ] : maxMaxIdx[ 0x09 ];
+      maxMinIdx[ 0x45 ] = ( tempHist[ maxMinIdx[ 0x0A ] ] < tempHist[ maxMinIdx[ 0x0B ] ] ) ? maxMinIdx[ 0x0B ] : maxMinIdx[ 0x0A ];
+      maxMaxIdx[ 0x45 ] = ( tempHist[ maxMaxIdx[ 0x0A ] ] > tempHist[ maxMaxIdx[ 0x0B ] ] ) ? maxMaxIdx[ 0x0A ] : maxMaxIdx[ 0x0B ];
+      maxMinIdx[ 0x46 ] = ( tempHist[ maxMinIdx[ 0x0C ] ] < tempHist[ maxMinIdx[ 0x0D ] ] ) ? maxMinIdx[ 0x0D ] : maxMinIdx[ 0x0C ];
+      maxMaxIdx[ 0x46 ] = ( tempHist[ maxMaxIdx[ 0x0C ] ] > tempHist[ maxMaxIdx[ 0x0D ] ] ) ? maxMaxIdx[ 0x0C ] : maxMaxIdx[ 0x0D ];
+      maxMinIdx[ 0x47 ] = ( tempHist[ maxMinIdx[ 0x0E ] ] < tempHist[ maxMinIdx[ 0x0F ] ] ) ? maxMinIdx[ 0x0F ] : maxMinIdx[ 0x0E ];
+      maxMaxIdx[ 0x47 ] = ( tempHist[ maxMaxIdx[ 0x0E ] ] > tempHist[ maxMaxIdx[ 0x0F ] ] ) ? maxMaxIdx[ 0x0E ] : maxMaxIdx[ 0x0F ];
+      maxMinIdx[ 0x48 ] = ( tempHist[ maxMinIdx[ 0x10 ] ] < tempHist[ maxMinIdx[ 0x11 ] ] ) ? maxMinIdx[ 0x11 ] : maxMinIdx[ 0x10 ];
+      maxMaxIdx[ 0x48 ] = ( tempHist[ maxMaxIdx[ 0x10 ] ] > tempHist[ maxMaxIdx[ 0x11 ] ] ) ? maxMaxIdx[ 0x10 ] : maxMaxIdx[ 0x11 ];
+      maxMinIdx[ 0x49 ] = ( tempHist[ maxMinIdx[ 0x12 ] ] < tempHist[ maxMinIdx[ 0x13 ] ] ) ? maxMinIdx[ 0x13 ] : maxMinIdx[ 0x12 ];
+      maxMaxIdx[ 0x49 ] = ( tempHist[ maxMaxIdx[ 0x12 ] ] > tempHist[ maxMaxIdx[ 0x13 ] ] ) ? maxMaxIdx[ 0x12 ] : maxMaxIdx[ 0x13 ];
+      maxMinIdx[ 0x4A ] = ( tempHist[ maxMinIdx[ 0x14 ] ] < tempHist[ maxMinIdx[ 0x15 ] ] ) ? maxMinIdx[ 0x15 ] : maxMinIdx[ 0x14 ];
+      maxMaxIdx[ 0x4A ] = ( tempHist[ maxMaxIdx[ 0x14 ] ] > tempHist[ maxMaxIdx[ 0x15 ] ] ) ? maxMaxIdx[ 0x14 ] : maxMaxIdx[ 0x15 ];
+      maxMinIdx[ 0x4B ] = ( tempHist[ maxMinIdx[ 0x16 ] ] < tempHist[ maxMinIdx[ 0x17 ] ] ) ? maxMinIdx[ 0x17 ] : maxMinIdx[ 0x16 ];
+      maxMaxIdx[ 0x4B ] = ( tempHist[ maxMaxIdx[ 0x16 ] ] > tempHist[ maxMaxIdx[ 0x17 ] ] ) ? maxMaxIdx[ 0x16 ] : maxMaxIdx[ 0x17 ];
+      maxMinIdx[ 0x4C ] = ( tempHist[ maxMinIdx[ 0x18 ] ] < tempHist[ maxMinIdx[ 0x19 ] ] ) ? maxMinIdx[ 0x19 ] : maxMinIdx[ 0x18 ];
+      maxMaxIdx[ 0x4C ] = ( tempHist[ maxMaxIdx[ 0x18 ] ] > tempHist[ maxMaxIdx[ 0x19 ] ] ) ? maxMaxIdx[ 0x18 ] : maxMaxIdx[ 0x19 ];
+      maxMinIdx[ 0x4D ] = ( tempHist[ maxMinIdx[ 0x1A ] ] < tempHist[ maxMinIdx[ 0x1B ] ] ) ? maxMinIdx[ 0x1B ] : maxMinIdx[ 0x1A ];
+      maxMaxIdx[ 0x4D ] = ( tempHist[ maxMaxIdx[ 0x1A ] ] > tempHist[ maxMaxIdx[ 0x1B ] ] ) ? maxMaxIdx[ 0x1A ] : maxMaxIdx[ 0x1B ];
+      maxMinIdx[ 0x4E ] = ( tempHist[ maxMinIdx[ 0x1C ] ] < tempHist[ maxMinIdx[ 0x1D ] ] ) ? maxMinIdx[ 0x1D ] : maxMinIdx[ 0x1C ];
+      maxMaxIdx[ 0x4E ] = ( tempHist[ maxMaxIdx[ 0x1C ] ] > tempHist[ maxMaxIdx[ 0x1D ] ] ) ? maxMaxIdx[ 0x1C ] : maxMaxIdx[ 0x1D ];
+      maxMinIdx[ 0x4F ] = ( tempHist[ maxMinIdx[ 0x1E ] ] < tempHist[ maxMinIdx[ 0x1F ] ] ) ? maxMinIdx[ 0x1F ] : maxMinIdx[ 0x1E ];
+      maxMaxIdx[ 0x4F ] = ( tempHist[ maxMaxIdx[ 0x1E ] ] > tempHist[ maxMaxIdx[ 0x1F ] ] ) ? maxMaxIdx[ 0x1E ] : maxMaxIdx[ 0x1F ];
+      maxMinIdx[ 0x50 ] = ( tempHist[ maxMinIdx[ 0x20 ] ] < tempHist[ maxMinIdx[ 0x21 ] ] ) ? maxMinIdx[ 0x21 ] : maxMinIdx[ 0x20 ];
+      maxMaxIdx[ 0x50 ] = ( tempHist[ maxMaxIdx[ 0x20 ] ] > tempHist[ maxMaxIdx[ 0x21 ] ] ) ? maxMaxIdx[ 0x20 ] : maxMaxIdx[ 0x21 ];
+      maxMinIdx[ 0x51 ] = ( tempHist[ maxMinIdx[ 0x22 ] ] < tempHist[ maxMinIdx[ 0x23 ] ] ) ? maxMinIdx[ 0x23 ] : maxMinIdx[ 0x22 ];
+      maxMaxIdx[ 0x51 ] = ( tempHist[ maxMaxIdx[ 0x22 ] ] > tempHist[ maxMaxIdx[ 0x23 ] ] ) ? maxMaxIdx[ 0x22 ] : maxMaxIdx[ 0x23 ];
+      maxMinIdx[ 0x52 ] = ( tempHist[ maxMinIdx[ 0x24 ] ] < tempHist[ maxMinIdx[ 0x25 ] ] ) ? maxMinIdx[ 0x25 ] : maxMinIdx[ 0x24 ];
+      maxMaxIdx[ 0x52 ] = ( tempHist[ maxMaxIdx[ 0x24 ] ] > tempHist[ maxMaxIdx[ 0x25 ] ] ) ? maxMaxIdx[ 0x24 ] : maxMaxIdx[ 0x25 ];
+      maxMinIdx[ 0x53 ] = ( tempHist[ maxMinIdx[ 0x26 ] ] < tempHist[ maxMinIdx[ 0x27 ] ] ) ? maxMinIdx[ 0x27 ] : maxMinIdx[ 0x26 ];
+      maxMaxIdx[ 0x53 ] = ( tempHist[ maxMaxIdx[ 0x26 ] ] > tempHist[ maxMaxIdx[ 0x27 ] ] ) ? maxMaxIdx[ 0x26 ] : maxMaxIdx[ 0x27 ];
+      maxMinIdx[ 0x54 ] = ( tempHist[ maxMinIdx[ 0x28 ] ] < tempHist[ maxMinIdx[ 0x29 ] ] ) ? maxMinIdx[ 0x29 ] : maxMinIdx[ 0x28 ];
+      maxMaxIdx[ 0x54 ] = ( tempHist[ maxMaxIdx[ 0x28 ] ] > tempHist[ maxMaxIdx[ 0x29 ] ] ) ? maxMaxIdx[ 0x28 ] : maxMaxIdx[ 0x29 ];
+      maxMinIdx[ 0x55 ] = ( tempHist[ maxMinIdx[ 0x2A ] ] < tempHist[ maxMinIdx[ 0x2B ] ] ) ? maxMinIdx[ 0x2B ] : maxMinIdx[ 0x2A ];
+      maxMaxIdx[ 0x55 ] = ( tempHist[ maxMaxIdx[ 0x2A ] ] > tempHist[ maxMaxIdx[ 0x2B ] ] ) ? maxMaxIdx[ 0x2A ] : maxMaxIdx[ 0x2B ];
+      maxMinIdx[ 0x56 ] = ( tempHist[ maxMinIdx[ 0x2C ] ] < tempHist[ maxMinIdx[ 0x2D ] ] ) ? maxMinIdx[ 0x2D ] : maxMinIdx[ 0x2C ];
+      maxMaxIdx[ 0x56 ] = ( tempHist[ maxMaxIdx[ 0x2C ] ] > tempHist[ maxMaxIdx[ 0x2D ] ] ) ? maxMaxIdx[ 0x2C ] : maxMaxIdx[ 0x2D ];
+      maxMinIdx[ 0x57 ] = ( tempHist[ maxMinIdx[ 0x2E ] ] < tempHist[ maxMinIdx[ 0x2F ] ] ) ? maxMinIdx[ 0x2F ] : maxMinIdx[ 0x2E ];
+      maxMaxIdx[ 0x57 ] = ( tempHist[ maxMaxIdx[ 0x2E ] ] > tempHist[ maxMaxIdx[ 0x2F ] ] ) ? maxMaxIdx[ 0x2E ] : maxMaxIdx[ 0x2F ];
+      maxMinIdx[ 0x58 ] = ( tempHist[ maxMinIdx[ 0x30 ] ] < tempHist[ maxMinIdx[ 0x31 ] ] ) ? maxMinIdx[ 0x31 ] : maxMinIdx[ 0x30 ];
+      maxMaxIdx[ 0x58 ] = ( tempHist[ maxMaxIdx[ 0x30 ] ] > tempHist[ maxMaxIdx[ 0x31 ] ] ) ? maxMaxIdx[ 0x30 ] : maxMaxIdx[ 0x31 ];
+      maxMinIdx[ 0x59 ] = ( tempHist[ maxMinIdx[ 0x32 ] ] < tempHist[ maxMinIdx[ 0x33 ] ] ) ? maxMinIdx[ 0x33 ] : maxMinIdx[ 0x32 ];
+      maxMaxIdx[ 0x59 ] = ( tempHist[ maxMaxIdx[ 0x32 ] ] > tempHist[ maxMaxIdx[ 0x33 ] ] ) ? maxMaxIdx[ 0x32 ] : maxMaxIdx[ 0x33 ];
+      maxMinIdx[ 0x5A ] = ( tempHist[ maxMinIdx[ 0x34 ] ] < tempHist[ maxMinIdx[ 0x35 ] ] ) ? maxMinIdx[ 0x35 ] : maxMinIdx[ 0x34 ];
+      maxMaxIdx[ 0x5A ] = ( tempHist[ maxMaxIdx[ 0x34 ] ] > tempHist[ maxMaxIdx[ 0x35 ] ] ) ? maxMaxIdx[ 0x34 ] : maxMaxIdx[ 0x35 ];
+      maxMinIdx[ 0x5B ] = ( tempHist[ maxMinIdx[ 0x36 ] ] < tempHist[ maxMinIdx[ 0x37 ] ] ) ? maxMinIdx[ 0x37 ] : maxMinIdx[ 0x36 ];
+      maxMaxIdx[ 0x5B ] = ( tempHist[ maxMaxIdx[ 0x36 ] ] > tempHist[ maxMaxIdx[ 0x37 ] ] ) ? maxMaxIdx[ 0x36 ] : maxMaxIdx[ 0x37 ];
+      maxMinIdx[ 0x5C ] = ( tempHist[ maxMinIdx[ 0x38 ] ] < tempHist[ maxMinIdx[ 0x39 ] ] ) ? maxMinIdx[ 0x39 ] : maxMinIdx[ 0x38 ];
+      maxMaxIdx[ 0x5C ] = ( tempHist[ maxMaxIdx[ 0x38 ] ] > tempHist[ maxMaxIdx[ 0x39 ] ] ) ? maxMaxIdx[ 0x38 ] : maxMaxIdx[ 0x39 ];
+      maxMinIdx[ 0x5D ] = ( tempHist[ maxMinIdx[ 0x3A ] ] < tempHist[ maxMinIdx[ 0x3B ] ] ) ? maxMinIdx[ 0x3B ] : maxMinIdx[ 0x3A ];
+      maxMaxIdx[ 0x5D ] = ( tempHist[ maxMaxIdx[ 0x3A ] ] > tempHist[ maxMaxIdx[ 0x3B ] ] ) ? maxMaxIdx[ 0x3A ] : maxMaxIdx[ 0x3B ];
+      maxMinIdx[ 0x5E ] = ( tempHist[ maxMinIdx[ 0x3C ] ] < tempHist[ maxMinIdx[ 0x3D ] ] ) ? maxMinIdx[ 0x3D ] : maxMinIdx[ 0x3C ];
+      maxMaxIdx[ 0x5E ] = ( tempHist[ maxMaxIdx[ 0x3C ] ] > tempHist[ maxMaxIdx[ 0x3D ] ] ) ? maxMaxIdx[ 0x3C ] : maxMaxIdx[ 0x3D ];
+      maxMinIdx[ 0x5F ] = ( tempHist[ maxMinIdx[ 0x3E ] ] < tempHist[ maxMinIdx[ 0x3F ] ] ) ? maxMinIdx[ 0x3F ] : maxMinIdx[ 0x3E ];
+      maxMaxIdx[ 0x5F ] = ( tempHist[ maxMaxIdx[ 0x3E ] ] > tempHist[ maxMaxIdx[ 0x3F ] ] ) ? maxMaxIdx[ 0x3E ] : maxMaxIdx[ 0x3F ];
+      maxMinIdx[ 0x60 ] = ( tempHist[ maxMinIdx[ 0x40 ] ] < tempHist[ maxMinIdx[ 0x41 ] ] ) ? maxMinIdx[ 0x41 ] : maxMinIdx[ 0x40 ];
+      maxMaxIdx[ 0x60 ] = ( tempHist[ maxMaxIdx[ 0x40 ] ] > tempHist[ maxMaxIdx[ 0x41 ] ] ) ? maxMaxIdx[ 0x40 ] : maxMaxIdx[ 0x41 ];
+      maxMinIdx[ 0x61 ] = ( tempHist[ maxMinIdx[ 0x42 ] ] < tempHist[ maxMinIdx[ 0x43 ] ] ) ? maxMinIdx[ 0x43 ] : maxMinIdx[ 0x42 ];
+      maxMaxIdx[ 0x61 ] = ( tempHist[ maxMaxIdx[ 0x42 ] ] > tempHist[ maxMaxIdx[ 0x43 ] ] ) ? maxMaxIdx[ 0x42 ] : maxMaxIdx[ 0x43 ];
+      maxMinIdx[ 0x62 ] = ( tempHist[ maxMinIdx[ 0x44 ] ] < tempHist[ maxMinIdx[ 0x45 ] ] ) ? maxMinIdx[ 0x45 ] : maxMinIdx[ 0x44 ];
+      maxMaxIdx[ 0x62 ] = ( tempHist[ maxMaxIdx[ 0x44 ] ] > tempHist[ maxMaxIdx[ 0x45 ] ] ) ? maxMaxIdx[ 0x44 ] : maxMaxIdx[ 0x45 ];
+      maxMinIdx[ 0x63 ] = ( tempHist[ maxMinIdx[ 0x46 ] ] < tempHist[ maxMinIdx[ 0x47 ] ] ) ? maxMinIdx[ 0x47 ] : maxMinIdx[ 0x46 ];
+      maxMaxIdx[ 0x63 ] = ( tempHist[ maxMaxIdx[ 0x46 ] ] > tempHist[ maxMaxIdx[ 0x47 ] ] ) ? maxMaxIdx[ 0x46 ] : maxMaxIdx[ 0x47 ];
+      maxMinIdx[ 0x64 ] = ( tempHist[ maxMinIdx[ 0x48 ] ] < tempHist[ maxMinIdx[ 0x49 ] ] ) ? maxMinIdx[ 0x49 ] : maxMinIdx[ 0x48 ];
+      maxMaxIdx[ 0x64 ] = ( tempHist[ maxMaxIdx[ 0x48 ] ] > tempHist[ maxMaxIdx[ 0x49 ] ] ) ? maxMaxIdx[ 0x48 ] : maxMaxIdx[ 0x49 ];
+      maxMinIdx[ 0x65 ] = ( tempHist[ maxMinIdx[ 0x4A ] ] < tempHist[ maxMinIdx[ 0x4B ] ] ) ? maxMinIdx[ 0x4B ] : maxMinIdx[ 0x4A ];
+      maxMaxIdx[ 0x65 ] = ( tempHist[ maxMaxIdx[ 0x4A ] ] > tempHist[ maxMaxIdx[ 0x4B ] ] ) ? maxMaxIdx[ 0x4A ] : maxMaxIdx[ 0x4B ];
+      maxMinIdx[ 0x66 ] = ( tempHist[ maxMinIdx[ 0x4C ] ] < tempHist[ maxMinIdx[ 0x4D ] ] ) ? maxMinIdx[ 0x4D ] : maxMinIdx[ 0x4C ];
+      maxMaxIdx[ 0x66 ] = ( tempHist[ maxMaxIdx[ 0x4C ] ] > tempHist[ maxMaxIdx[ 0x4D ] ] ) ? maxMaxIdx[ 0x4C ] : maxMaxIdx[ 0x4D ];
+      maxMinIdx[ 0x67 ] = ( tempHist[ maxMinIdx[ 0x4E ] ] < tempHist[ maxMinIdx[ 0x4F ] ] ) ? maxMinIdx[ 0x4F ] : maxMinIdx[ 0x4E ];
+      maxMaxIdx[ 0x67 ] = ( tempHist[ maxMaxIdx[ 0x4E ] ] > tempHist[ maxMaxIdx[ 0x4F ] ] ) ? maxMaxIdx[ 0x4E ] : maxMaxIdx[ 0x4F ];
+      maxMinIdx[ 0x68 ] = ( tempHist[ maxMinIdx[ 0x50 ] ] < tempHist[ maxMinIdx[ 0x51 ] ] ) ? maxMinIdx[ 0x51 ] : maxMinIdx[ 0x50 ];
+      maxMaxIdx[ 0x68 ] = ( tempHist[ maxMaxIdx[ 0x50 ] ] > tempHist[ maxMaxIdx[ 0x51 ] ] ) ? maxMaxIdx[ 0x50 ] : maxMaxIdx[ 0x51 ];
+      maxMinIdx[ 0x69 ] = ( tempHist[ maxMinIdx[ 0x52 ] ] < tempHist[ maxMinIdx[ 0x53 ] ] ) ? maxMinIdx[ 0x53 ] : maxMinIdx[ 0x52 ];
+      maxMaxIdx[ 0x69 ] = ( tempHist[ maxMaxIdx[ 0x52 ] ] > tempHist[ maxMaxIdx[ 0x53 ] ] ) ? maxMaxIdx[ 0x52 ] : maxMaxIdx[ 0x53 ];
+      maxMinIdx[ 0x6A ] = ( tempHist[ maxMinIdx[ 0x54 ] ] < tempHist[ maxMinIdx[ 0x55 ] ] ) ? maxMinIdx[ 0x55 ] : maxMinIdx[ 0x54 ];
+      maxMaxIdx[ 0x6A ] = ( tempHist[ maxMaxIdx[ 0x54 ] ] > tempHist[ maxMaxIdx[ 0x55 ] ] ) ? maxMaxIdx[ 0x54 ] : maxMaxIdx[ 0x55 ];
+      maxMinIdx[ 0x6B ] = ( tempHist[ maxMinIdx[ 0x56 ] ] < tempHist[ maxMinIdx[ 0x57 ] ] ) ? maxMinIdx[ 0x57 ] : maxMinIdx[ 0x56 ];
+      maxMaxIdx[ 0x6B ] = ( tempHist[ maxMaxIdx[ 0x56 ] ] > tempHist[ maxMaxIdx[ 0x57 ] ] ) ? maxMaxIdx[ 0x56 ] : maxMaxIdx[ 0x57 ];
+      maxMinIdx[ 0x6C ] = ( tempHist[ maxMinIdx[ 0x58 ] ] < tempHist[ maxMinIdx[ 0x59 ] ] ) ? maxMinIdx[ 0x59 ] : maxMinIdx[ 0x58 ];
+      maxMaxIdx[ 0x6C ] = ( tempHist[ maxMaxIdx[ 0x58 ] ] > tempHist[ maxMaxIdx[ 0x59 ] ] ) ? maxMaxIdx[ 0x58 ] : maxMaxIdx[ 0x59 ];
+      maxMinIdx[ 0x6D ] = ( tempHist[ maxMinIdx[ 0x5A ] ] < tempHist[ maxMinIdx[ 0x5B ] ] ) ? maxMinIdx[ 0x5B ] : maxMinIdx[ 0x5A ];
+      maxMaxIdx[ 0x6D ] = ( tempHist[ maxMaxIdx[ 0x5A ] ] > tempHist[ maxMaxIdx[ 0x5B ] ] ) ? maxMaxIdx[ 0x5A ] : maxMaxIdx[ 0x5B ];
+      maxMinIdx[ 0x6E ] = ( tempHist[ maxMinIdx[ 0x5C ] ] < tempHist[ maxMinIdx[ 0x5D ] ] ) ? maxMinIdx[ 0x5D ] : maxMinIdx[ 0x5C ];
+      maxMaxIdx[ 0x6E ] = ( tempHist[ maxMaxIdx[ 0x5C ] ] > tempHist[ maxMaxIdx[ 0x5D ] ] ) ? maxMaxIdx[ 0x5C ] : maxMaxIdx[ 0x5D ];
+      maxMinIdx[ 0x6F ] = ( tempHist[ maxMinIdx[ 0x5E ] ] < tempHist[ maxMinIdx[ 0x5F ] ] ) ? maxMinIdx[ 0x5F ] : maxMinIdx[ 0x5E ];
+      maxMaxIdx[ 0x6F ] = ( tempHist[ maxMaxIdx[ 0x5E ] ] > tempHist[ maxMaxIdx[ 0x5F ] ] ) ? maxMaxIdx[ 0x5E ] : maxMaxIdx[ 0x5F ];
+      maxMinIdx[ 0x70 ] = ( tempHist[ maxMinIdx[ 0x60 ] ] < tempHist[ maxMinIdx[ 0x61 ] ] ) ? maxMinIdx[ 0x61 ] : maxMinIdx[ 0x60 ];
+      maxMaxIdx[ 0x70 ] = ( tempHist[ maxMaxIdx[ 0x60 ] ] > tempHist[ maxMaxIdx[ 0x61 ] ] ) ? maxMaxIdx[ 0x60 ] : maxMaxIdx[ 0x61 ];
+      maxMinIdx[ 0x71 ] = ( tempHist[ maxMinIdx[ 0x62 ] ] < tempHist[ maxMinIdx[ 0x63 ] ] ) ? maxMinIdx[ 0x63 ] : maxMinIdx[ 0x62 ];
+      maxMaxIdx[ 0x71 ] = ( tempHist[ maxMaxIdx[ 0x62 ] ] > tempHist[ maxMaxIdx[ 0x63 ] ] ) ? maxMaxIdx[ 0x62 ] : maxMaxIdx[ 0x63 ];
+      maxMinIdx[ 0x72 ] = ( tempHist[ maxMinIdx[ 0x64 ] ] < tempHist[ maxMinIdx[ 0x65 ] ] ) ? maxMinIdx[ 0x65 ] : maxMinIdx[ 0x64 ];
+      maxMaxIdx[ 0x72 ] = ( tempHist[ maxMaxIdx[ 0x64 ] ] > tempHist[ maxMaxIdx[ 0x65 ] ] ) ? maxMaxIdx[ 0x64 ] : maxMaxIdx[ 0x65 ];
+      maxMinIdx[ 0x73 ] = ( tempHist[ maxMinIdx[ 0x66 ] ] < tempHist[ maxMinIdx[ 0x67 ] ] ) ? maxMinIdx[ 0x67 ] : maxMinIdx[ 0x66 ];
+      maxMaxIdx[ 0x73 ] = ( tempHist[ maxMaxIdx[ 0x66 ] ] > tempHist[ maxMaxIdx[ 0x67 ] ] ) ? maxMaxIdx[ 0x66 ] : maxMaxIdx[ 0x67 ];
+      maxMinIdx[ 0x74 ] = ( tempHist[ maxMinIdx[ 0x68 ] ] < tempHist[ maxMinIdx[ 0x69 ] ] ) ? maxMinIdx[ 0x69 ] : maxMinIdx[ 0x68 ];
+      maxMaxIdx[ 0x74 ] = ( tempHist[ maxMaxIdx[ 0x68 ] ] > tempHist[ maxMaxIdx[ 0x69 ] ] ) ? maxMaxIdx[ 0x68 ] : maxMaxIdx[ 0x69 ];
+      maxMinIdx[ 0x75 ] = ( tempHist[ maxMinIdx[ 0x6A ] ] < tempHist[ maxMinIdx[ 0x6B ] ] ) ? maxMinIdx[ 0x6B ] : maxMinIdx[ 0x6A ];
+      maxMaxIdx[ 0x75 ] = ( tempHist[ maxMaxIdx[ 0x6A ] ] > tempHist[ maxMaxIdx[ 0x6B ] ] ) ? maxMaxIdx[ 0x6A ] : maxMaxIdx[ 0x6B ];
+      maxMinIdx[ 0x76 ] = ( tempHist[ maxMinIdx[ 0x6C ] ] < tempHist[ maxMinIdx[ 0x6D ] ] ) ? maxMinIdx[ 0x6D ] : maxMinIdx[ 0x6C ];
+      maxMaxIdx[ 0x76 ] = ( tempHist[ maxMaxIdx[ 0x6C ] ] > tempHist[ maxMaxIdx[ 0x6D ] ] ) ? maxMaxIdx[ 0x6C ] : maxMaxIdx[ 0x6D ];
+      maxMinIdx[ 0x77 ] = ( tempHist[ maxMinIdx[ 0x6E ] ] < tempHist[ maxMinIdx[ 0x6F ] ] ) ? maxMinIdx[ 0x6F ] : maxMinIdx[ 0x6E ];
+      maxMaxIdx[ 0x77 ] = ( tempHist[ maxMaxIdx[ 0x6E ] ] > tempHist[ maxMaxIdx[ 0x6F ] ] ) ? maxMaxIdx[ 0x6E ] : maxMaxIdx[ 0x6F ];
+      maxMinIdx[ 0x78 ] = ( tempHist[ maxMinIdx[ 0x70 ] ] < tempHist[ maxMinIdx[ 0x71 ] ] ) ? maxMinIdx[ 0x71 ] : maxMinIdx[ 0x70 ];
+      maxMaxIdx[ 0x78 ] = ( tempHist[ maxMaxIdx[ 0x70 ] ] > tempHist[ maxMaxIdx[ 0x71 ] ] ) ? maxMaxIdx[ 0x70 ] : maxMaxIdx[ 0x71 ];
+      maxMinIdx[ 0x79 ] = ( tempHist[ maxMinIdx[ 0x72 ] ] < tempHist[ maxMinIdx[ 0x73 ] ] ) ? maxMinIdx[ 0x73 ] : maxMinIdx[ 0x72 ];
+      maxMaxIdx[ 0x79 ] = ( tempHist[ maxMaxIdx[ 0x72 ] ] > tempHist[ maxMaxIdx[ 0x73 ] ] ) ? maxMaxIdx[ 0x72 ] : maxMaxIdx[ 0x73 ];
+      maxMinIdx[ 0x7A ] = ( tempHist[ maxMinIdx[ 0x74 ] ] < tempHist[ maxMinIdx[ 0x75 ] ] ) ? maxMinIdx[ 0x75 ] : maxMinIdx[ 0x74 ];
+      maxMaxIdx[ 0x7A ] = ( tempHist[ maxMaxIdx[ 0x74 ] ] > tempHist[ maxMaxIdx[ 0x75 ] ] ) ? maxMaxIdx[ 0x74 ] : maxMaxIdx[ 0x75 ];
+      maxMinIdx[ 0x7B ] = ( tempHist[ maxMinIdx[ 0x76 ] ] < tempHist[ maxMinIdx[ 0x77 ] ] ) ? maxMinIdx[ 0x77 ] : maxMinIdx[ 0x76 ];
+      maxMaxIdx[ 0x7B ] = ( tempHist[ maxMaxIdx[ 0x76 ] ] > tempHist[ maxMaxIdx[ 0x77 ] ] ) ? maxMaxIdx[ 0x76 ] : maxMaxIdx[ 0x77 ];
+      maxMinIdx[ 0x7C ] = ( tempHist[ maxMinIdx[ 0x78 ] ] < tempHist[ maxMinIdx[ 0x79 ] ] ) ? maxMinIdx[ 0x79 ] : maxMinIdx[ 0x78 ];
+      maxMaxIdx[ 0x7C ] = ( tempHist[ maxMaxIdx[ 0x78 ] ] > tempHist[ maxMaxIdx[ 0x79 ] ] ) ? maxMaxIdx[ 0x78 ] : maxMaxIdx[ 0x79 ];
+      maxMinIdx[ 0x7D ] = ( tempHist[ maxMinIdx[ 0x7A ] ] < tempHist[ maxMinIdx[ 0x7B ] ] ) ? maxMinIdx[ 0x7B ] : maxMinIdx[ 0x7A ];
+      maxMaxIdx[ 0x7D ] = ( tempHist[ maxMaxIdx[ 0x7A ] ] > tempHist[ maxMaxIdx[ 0x7B ] ] ) ? maxMaxIdx[ 0x7A ] : maxMaxIdx[ 0x7B ];
+      maxMinIdx[ 0x7E ] = ( tempHist[ maxMinIdx[ 0x7C ] ] < tempHist[ maxMinIdx[ 0x7D ] ] ) ? maxMinIdx[ 0x7D ] : maxMinIdx[ 0x7C ];
+      maxMaxIdx[ 0x7E ] = ( tempHist[ maxMaxIdx[ 0x7C ] ] > tempHist[ maxMaxIdx[ 0x7D ] ] ) ? maxMaxIdx[ 0x7C ] : maxMaxIdx[ 0x7D ];
+      maxCount = tempHist[ maxMinIdx[ 0x7E ] ];
+      if ( maxCount == tempHist[ maxMaxIdx[ 0x7E ] ] &&
+           ( maxCount & 0x02 ) )
+      {
+        X0Bin_t newSize = static_cast< X0Bin_t >( maxMaxIdx[ 0x7E ] - maxMinIdx[ 0x7E ] );
+        X0Bin_t theAvg2Idx = 2 * static_cast< X0Bin_t >( maxMinIdx[ 0x7E ] ) + newSize;
+        tempX0 = BINSIZE_HALF_X0_1 + ( theAvg2Idx - BINNUM_X0 ) * BINSIZE_HALF_X0_1;
+      }
+    }
+    if ( tempX0 == DEF_MCellPos )
+      continue;
+    MCellPos_t thisMB1Corr = static_cast< MCellPos_t >( isMB1 ) * ( 512 - static_cast< MCellPos_t >( !isPositiveWheel ) * 1024 );
+    resX0[ iCluster ] = tempX0 + thisMB1Corr;
+  }
+}
