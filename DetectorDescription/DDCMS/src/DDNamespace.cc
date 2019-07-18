@@ -62,7 +62,7 @@ DDNamespace::~DDNamespace() {
 }
 
 string DDNamespace::prepend(const string& n) const {
-  if(strchr(n.c_str(), NAMESPACE_SEP) == nullptr)
+  if (strchr(n.c_str(), NAMESPACE_SEP) == nullptr)
     return m_name + n;
   else
     return n;
@@ -175,7 +175,7 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
                    "DD4CMS",
                    "+++ Add volume:%-38s as [%s] Solid:%-26s[%-16s] Material:%s",
                    vol.name(),
-		   n.c_str(),
+                   n.c_str(),
                    s.name(),
                    s.type(),
                    m.name());
