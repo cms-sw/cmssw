@@ -2086,7 +2086,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       }
 
       if (iTrack == corrTrack) {
-	if (corrFact<0.) corrFact=0.; // protect against negative scaling
+        if (corrFact < 0.)
+          corrFact = 0.;  // protect against negative scaling
         (*pfCandidates_)[tmpi].rescaleMomentum(corrFact);
         trackMomentum *= corrFact;
       }
@@ -2173,7 +2174,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
             //      unsigned iTrack = trackInfos[i].index;
             unsigned ich = chargedHadronsIndices[i];
             double rescaleFactor = x(i) / hcalP[i];
-	    if (rescaleFactor<0.) rescaleFactor=0.; // protect against negative scaling
+            if (rescaleFactor < 0.)
+              rescaleFactor = 0.;  // protect against negative scaling
             (*pfCandidates_)[ich].rescaleMomentum(rescaleFactor);
 
             if (debug_) {
@@ -2313,7 +2315,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           particleDirection.push_back(std::get<1>(pae));
           ecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated / sumEcalClusters);
           hcalEnergy.push_back(0.);
-          rawecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated / sumEcalClusters); // "raw" not well defined. use the corrected value.
+          rawecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated /
+                                  sumEcalClusters);  // "raw" not well defined. use the corrected value.
           rawhcalEnergy.push_back(0.);
           pivotalClusterRef.push_back(elements[std::get<0>(pae)].clusterRef());
           iPivotal.push_back(std::get<0>(pae));
@@ -2341,7 +2344,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           ecalEnergy.push_back(0.);
           hcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated / sumEcalClusters);
           rawecalEnergy.push_back(0.);
-          rawhcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated / sumEcalClusters); // "raw" not well defined. use the corrected value.
+          rawhcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated /
+                                  sumEcalClusters);  // "raw" not well defined. use the corrected value.
           pivotalClusterRef.push_back(hclusterref);
           iPivotal.push_back(iHcal);
         }
