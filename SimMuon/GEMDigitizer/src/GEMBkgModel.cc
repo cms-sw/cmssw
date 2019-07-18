@@ -12,6 +12,7 @@
 
 GEMBkgModel::GEMBkgModel(const edm::ParameterSet& config)
     : GEMDigiModel(config),
+      clusterSizeCut(0.53),
       averageEfficiency_(config.getParameter<double>("averageEfficiency")),
       minBunch_(config.getParameter<int>("minBunch")),
       maxBunch_(config.getParameter<int>("maxBunch")),
@@ -100,7 +101,7 @@ void GEMBkgModel::simulate(const GEMEtaPartition* roll,
       std::vector<std::pair<int, int> > cluster_;
       cluster_.clear();
       cluster_.emplace_back(centralStrip, time_hit);
-      int clusterSize((CLHEP::RandFlat::shoot(engine)) <= 0.53 ? 1 : 2);
+      int clusterSize((CLHEP::RandFlat::shoot(engine)) <= clusterSizeCut ? 1 : 2);
       if (clusterSize == 2) {
         if (CLHEP::RandFlat::shoot(engine) < 0.5) {
           if (CLHEP::RandFlat::shoot(engine) < averageEfficiency_ && (centralStrip - 1 > 0))
