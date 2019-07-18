@@ -27,6 +27,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <atomic>
 
 using reco::tau::format_vint;
 
@@ -56,7 +57,6 @@ namespace {
       maxNumberOfRPCMuons_ = cfg.getParameter<int>("maxNumberOfRPCMuons");
 
       numWarnings_ = 0;
-      maxWarnings_ = 3;
       verbosity_ = cfg.exists("verbosity") ? cfg.getParameter<int>("verbosity") : 0;
     }
     ~PFRecoTauDiscriminationAgainstMuonSimple() override {}
@@ -86,8 +86,8 @@ namespace {
     std::vector<int> maskHitsRPC_;
     int maxNumberOfSTAMuons_, maxNumberOfRPCMuons_;
 
-    mutable int numWarnings_;
-    int maxWarnings_;
+    mutable std::atomic<unsigned int> numWarnings_;
+    static constexpr unsigned int maxWarnings_ = 3;
     int verbosity_;
   };
 

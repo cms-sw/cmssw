@@ -29,6 +29,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <atomic>
 
 using reco::tau::format_vint;
 
@@ -69,7 +70,6 @@ namespace {
       maskHitsCSC_ = cfg.getParameter<vint>("maskHitsCSC");
       maskHitsRPC_ = cfg.getParameter<vint>("maskHitsRPC");
       numWarnings_ = 0;
-      maxWarnings_ = 3;
       verbosity_ = cfg.getParameter<int>("verbosity");
     }
     ~PFRecoTauDiscriminationAgainstMuon2() override {}
@@ -99,8 +99,8 @@ namespace {
     std::vector<int> maskHitsDT_;
     std::vector<int> maskHitsCSC_;
     std::vector<int> maskHitsRPC_;
-    mutable int numWarnings_;
-    int maxWarnings_;
+    mutable std::atomic<unsigned int> numWarnings_;
+    static constexpr unsigned int maxWarnings_ = 3;
     int verbosity_;
   };
 
