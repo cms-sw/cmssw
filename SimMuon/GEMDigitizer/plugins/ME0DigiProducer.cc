@@ -1,16 +1,27 @@
+#ifndef SimMuon_GEMDigitizer_ME0DigiProducer_h
+#define SimMuon_GEMDigitizer_ME0DigiProducer_h
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/GEMDigiSimLink/interface/ME0DigiSimLink.h"
 
-#include "SimMuon/GEMDigitizer/interface/ME0DigiProducer.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiModelFactory.h"
 #include "SimMuon/GEMDigitizer/interface/ME0DigiModel.h"
 
@@ -25,6 +36,27 @@
 namespace CLHEP {
   class HepRandomEngine;
 }
+
+class ME0DigiProducer : public edm::stream::EDProducer<> {
+public:
+  typedef edm::DetSetVector<StripDigiSimLink> StripDigiSimLinks;
+
+  typedef edm::DetSetVector<ME0DigiSimLink> ME0DigiSimLinks;
+
+  explicit ME0DigiProducer(const edm::ParameterSet& ps);
+
+  ~ME0DigiProducer() override;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  //Name of Collection used for create the XF
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+
+  std::unique_ptr<ME0DigiModel> ME0DigiModel_;
+};
 
 ME0DigiProducer::ME0DigiProducer(const edm::ParameterSet& ps)
     : ME0DigiModel_{
@@ -99,3 +131,6 @@ void ME0DigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   e.put(std::move(stripDigiSimLinks), "ME0");
   e.put(std::move(me0DigiSimLinks), "ME0");
 }
+
+DEFINE_FWK_MODULE(ME0DigiProducer);
+#endif
