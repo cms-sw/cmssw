@@ -890,7 +890,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     }
 
     //Check if the track is a primary track of a secondary interaction
-    //If that is the case reconstruct a charged hadron noly using that
+    //If that is the case reconstruct a charged hadron only using that
     //track
     if (active[iTrack] && isFromSecInt(elements[iEle], "primary")) {
       bool isPrimaryTrack =
@@ -1605,7 +1605,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
         nMuons += 1;
 
       // ... and keep anyway the pt error for possible fake rejection
-      // ... blow up errors of 5th anf 4th iteration, to reject those
+      // ... blow up errors of 5th and 4th iteration, to reject those
       // ... tracks first (in case it's needed)
       double Dpt = trackRef->ptError();
       double blowError = PFTrackAlgoTools::errorScale(trackRef->algo(), factors45_);
@@ -2086,6 +2086,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       }
 
       if (iTrack == corrTrack) {
+	if (corrFact<0.) corrFact=0.; // protect against negative scaling
         (*pfCandidates_)[tmpi].rescaleMomentum(corrFact);
         trackMomentum *= corrFact;
       }
@@ -2172,6 +2173,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
             //      unsigned iTrack = trackInfos[i].index;
             unsigned ich = chargedHadronsIndices[i];
             double rescaleFactor = x(i) / hcalP[i];
+	    if (rescaleFactor<0.) rescaleFactor=0.; // protect against negative scaling
             (*pfCandidates_)[ich].rescaleMomentum(rescaleFactor);
 
             if (debug_) {
@@ -2311,8 +2313,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           particleDirection.push_back(std::get<1>(pae));
           ecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated / sumEcalClusters);
           hcalEnergy.push_back(0.);
-          rawecalEnergy.push_back(totalEcal);
-          rawhcalEnergy.push_back(totalHcal);
+          rawecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated / sumEcalClusters); // "raw" not well defined. use the corrected value.
+          rawhcalEnergy.push_back(0.);
           pivotalClusterRef.push_back(elements[std::get<0>(pae)].clusterRef());
           iPivotal.push_back(std::get<0>(pae));
         }
@@ -2338,8 +2340,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           particleDirection.push_back(std::get<1>(pae));
           ecalEnergy.push_back(0.);
           hcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated / sumEcalClusters);
-          rawecalEnergy.push_back(totalEcal);
-          rawhcalEnergy.push_back(totalHcal);
+          rawecalEnergy.push_back(0.);
+          rawhcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated / sumEcalClusters); // "raw" not well defined. use the corrected value.
           pivotalClusterRef.push_back(hclusterref);
           iPivotal.push_back(iHcal);
         }
@@ -2373,7 +2375,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
         neutral.setPs1Energy(0.);
         neutral.setPs2Energy(0.);
         neutral.set_mva_nothing_gamma(-1.);
-        //       neutral.addElement(&elements[iPivotal]);
+        // neutral.addElement(&elements[iPivotal]);
         // neutral.addElementInBlock(blockref, iPivotal[iPivot]);
         neutral.addElementInBlock(blockref, iHcal);
         for (unsigned iTrack : chargedHadronsInBlock) {
@@ -2398,25 +2400,14 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
     // will now share the hcal energy between the various charged hadron
     // candidates, taking into account the potential neutral hadrons
 
-    double totalHcalEnergyCalibrated = calibHcal;
-    double totalEcalEnergyCalibrated = calibEcal;
     //JB: The question is: we've resolved the merged photons cleanly, but how should
     //the remaining hadrons be assigned the remaining ecal energy?
     //*Temporary solution*: follow HCAL example with fractions...
 
-    /*
-    if(totalEcal>0) {
-      // removing ecal energy from abc calibration
-      totalHcalEnergyCalibrated  -= calibEcal;
-      // totalHcalEnergyCalibrated -= calibration_.paramECALplusHCAL_slopeECAL() * totalEcal;
-    }
-    */
-    // else caloEnergy = hcal only calibrated energy -> ok.
-
     // remove the energy of the potential neutral hadron
-    totalHcalEnergyCalibrated -= mergedNeutralHadronEnergy;
+    double totalHcalEnergyCalibrated = std::max(calibHcal - mergedNeutralHadronEnergy, 0.);
     // similarly for the merged photons
-    totalEcalEnergyCalibrated -= mergedPhotonEnergy;
+    double totalEcalEnergyCalibrated = std::max(calibEcal - mergedPhotonEnergy, 0.);
     // share between the charged hadrons
 
     //COLIN can compute this before
