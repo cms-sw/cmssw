@@ -7,6 +7,7 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include <cmath>
 #include <utility>
 #include <map>
@@ -19,7 +20,17 @@ GEMSignalModel::GEMSignalModel(const edm::ParameterSet& config)
       timeJitter_(config.getParameter<double>("timeJitter")),
       signalPropagationSpeed_(config.getParameter<double>("signalPropagationSpeed")),
       digitizeOnlyMuons_(config.getParameter<bool>("digitizeOnlyMuons")),
-      resolutionX_(config.getParameter<double>("resolutionX")) {}
+      resolutionX_(config.getParameter<double>("resolutionX")),
+      muonPdgId(13),
+      cspeed(CLHEP::c_light),
+      momConvFact(1000.),
+      elecMomCut1(1.96e-03),
+      elecMomCut2(10.e-03),
+      elecEffLowCoeff(1.7e-05),
+      elecEffLowParam0(2.1),
+      elecEffMidCoeff(1.34),
+      elecEffMidParam0(-5.75e-01),
+      elecEffMidParam1(7.96e-01) {}
 
 GEMSignalModel::~GEMSignalModel() {}
 
@@ -80,7 +91,6 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
     throw cms::Exception("Geometry")
         << "GEMSignalModel::getSimHitBx() - this GEM id is from barrel, which cannot happen: " << roll->id() << "\n";
   }
-  const double cspeed = 299792458;  // signal propagation speed in vacuum in [m/s]
   const int nstrips = roll->nstrips();
   float middleStrip = nstrips / 2.;
   const LocalPoint& middleOfRoll = roll->centreOfStrip(middleStrip);

@@ -30,6 +30,7 @@ public:
       const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine*, Strips&, DetectorHitMap&) override;
 
 private:
+  const double clusterSizeCut;
   double averageEfficiency_;
   int minBunch_;
   int maxBunch_;
