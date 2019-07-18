@@ -1,0 +1,23 @@
+<use   name="SimDataFormats/TrackingHit"/>
+<use   name="SimGeneral/NoiseGenerators"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/CTPPSDigi"/>
+<use   name="SimDataFormats/CrossingFrame"/>
+<use   name="SimTracker/Common"/>
+<use   name="Geometry/VeryForwardGeometry"/>
+<use   name="Geometry/VeryForwardGeometryBuilder"/>
+<use   name="clhep"/>
+<use   name="Mixing/Base"/>
+<use   name="gsl"/>
+<use   name="boost"/>
+<use   name="geant4"/>
+<use   name="DataFormats/CTPPSDetId"/>
+<use   name="RecoCTPPS/PixelLocal"/>
+<use   name="SimPPS/PPSPixelDigiProducer"/>
+
+<library name="SimPPSPixelDigiProducerPlugins" file="*.cc">
+<flags   EDM_PLUGIN="1"/>
+</library>
