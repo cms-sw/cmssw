@@ -103,7 +103,28 @@ for _entry in [hltvalidation_prod]:
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(validation_prod,_validation_prod_fastsim)
 
-from SimGeneral.MixingModule.mix_POISSON_average_cfi import mix
+from SimGeneral.MixingModule.mixObjects_cfi import theMixObjects
+from SimGeneral.MixingModule.mixPoolSource_cfi import *
+from SimGeneral.MixingModule.digitizers_cfi import *
+
+mixNoPileUp = cms.EDProducer("MixingModule",
+    digitizers = cms.PSet(theDigitizers),
+    LabelPlayback = cms.string(''),
+    maxBunch = cms.int32(3),
+    minBunch = cms.int32(-5), ## in terms of 25 ns
+
+    bunchspace = cms.int32(450),
+    mixProdStep1 = cms.bool(False),
+    mixProdStep2 = cms.bool(False),
+
+    playback = cms.untracked.bool(False),
+    useCurrentProcessOnly = cms.bool(False),
+    mixObjects = cms.PSet(theMixObjects)
+)
+
+from IOMC.RandomEngine.IOMC_cff import RandomNumberGeneratorService
+RandomNumberGeneratorService.mixNoPileUp = RandomNumberGeneratorService.mix.clone()
+
 from Validation.EcalClusters.ecalClustersValidationSequence_cff import ecalClustersValidationSequence
 from DQM.EcalMonitorTasks.EcalMonitorTask_cfi import *
 from DQM.EcalMonitorTasks.EcalFEDMonitor_cfi import *
@@ -119,7 +140,7 @@ ecalDQMSequencePhase2 = cms.Sequence(
 
 validationECALPhase2 = cms.Sequence(
     ecalSimHitsValidationSequence*
-    mix*
+    mixNoPileUp*
     ecalDigisValidationSequence*
     ecalRecHitsValidationSequencePhase2*
     ecalClustersValidationSequence*
