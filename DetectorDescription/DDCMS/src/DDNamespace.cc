@@ -61,7 +61,12 @@ DDNamespace::~DDNamespace() {
   }
 }
 
-string DDNamespace::prepend(const string& n) const { return m_name + n; }
+string DDNamespace::prepend(const string& n) const {
+  if(strchr(n.c_str(), NAMESPACE_SEP) == nullptr)
+    return m_name + n;
+  else
+    return n;
+}
 
 string DDNamespace::realName(const string& v) const {
   size_t idx, idq, idp;
@@ -168,8 +173,9 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   m_context->volumes[n] = vol;
   dd4hep::printout(m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG,
                    "DD4CMS",
-                   "+++ Add volume:%-38s Solid:%-26s[%-16s] Material:%s",
+                   "+++ Add volume:%-38s as [%s] Solid:%-26s[%-16s] Material:%s",
                    vol.name(),
+		   n.c_str(),
                    s.name(),
                    s.type(),
                    m.name());
