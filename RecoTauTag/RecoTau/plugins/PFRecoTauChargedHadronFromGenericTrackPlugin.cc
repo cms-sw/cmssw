@@ -47,6 +47,7 @@
 #include <memory>
 #include <cmath>
 #include <algorithm>
+#include <atomic>
 
 namespace reco {
   namespace tau {
@@ -81,8 +82,8 @@ namespace reco {
 
       math::XYZVector magneticFieldStrength_;
 
-      mutable int numWarnings_;
-      int maxWarnings_;
+      mutable std::atomic<unsigned int> numWarnings_;
+      static constexpr unsigned int maxWarnings_ = 3;
 
       int verbosity_;
     };
@@ -105,8 +106,6 @@ namespace reco {
       dRmergePhoton_ = pset.getParameter<double>("dRmergePhoton");
 
       numWarnings_ = 0;
-      maxWarnings_ = 3;
-
       verbosity_ = pset.getParameter<int>("verbosity");
     }
 
