@@ -90,22 +90,26 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("timeJitter", 1.0);
   desc.add<double>("averageShapingTime", 50.0);
   desc.add<double>("averageEfficiency", 0.98);
-  desc.add<double>("averageNoiseRate", 0.001); // intrinsic noise rate (Hz/cm^2)
+  desc.add<double>("averageNoiseRate", 0.001);  // intrinsic noise rate (Hz/cm^2)
 
-  desc.add<int>("minBunch", -5); // in terms of 25 ns
+  desc.add<int>("minBunch", -5);  // in terms of 25 ns
   desc.add<int>("maxBunch", 3);
 
-  desc.add<bool>("fixedRollRadius", true); // Uses fixed radius in the center of the roll
+  desc.add<bool>("fixedRollRadius", true);  // Uses fixed radius in the center of the roll
   desc.add<bool>("digitizeOnlyMuons", false);
-  desc.add<bool>("simulateBkgNoise", false); // false == No background simulation
+  desc.add<bool>("simulateBkgNoise", false);  // false == No background simulation
   desc.add<bool>("simulateNoiseCLS", true);
-  desc.add<bool>("simulateElectronBkg", true); // flase == simulate only neutral bkg
+  desc.add<bool>("simulateElectronBkg", true);  // flase == simulate only neutral bkg
   desc.add<bool>("simulateIntrinsicNoise", false);
 
-  desc.add<double>("instLumi", 7.5); // in units of 1E34 cm^-2 s^-1. Internally the background is parmetrized from FLUKA+GEANT result at 5E+34 (PU 140). We are adding a 1.5 factor for PU 200
-  desc.add<double>("rateFact", 1.0); // We are adding also a safety factor of 2 to tak into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizer
+  desc.add<double>(
+      "instLumi",
+      7.5);  // in units of 1E34 cm^-2 s^-1. Internally the background is parmetrized from FLUKA+GEANT result at 5E+34 (PU 140). We are adding a 1.5 factor for PU 200
+  desc.add<double>(
+      "rateFact",
+      1.0);  // We are adding also a safety factor of 2 to tak into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizer
   desc.add<double>("bxWidth", 25E-9);
-  desc.add<double>("referenceInstLumi", 5.); // referecne inst. luminosity 5E+34 cm^-2s^-1
+  desc.add<double>("referenceInstLumi", 5.);  // referecne inst. luminosity 5E+34 cm^-2s^-1
   desc.add<double>("resolutionX", 0.03);
 
   // The follwing parameters are needed to model the background contribution
