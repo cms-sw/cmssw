@@ -757,7 +757,7 @@ void Converter<DDLLogicalPart>::operator()(xml_h element) const {
   xml_dim_t e(element);
   string sol = e.child(DD_CMU(rSolid)).attr<string>(_U(name));
   string mat = e.child(DD_CMU(rMaterial)).attr<string>(_U(name));
-  string volName = e.attr<string>(_U(name));//.nameStr();
+  string volName = e.attr<string>(_U(name));
   Solid solid = ns.solid(sol);
   Material material = ns.material(mat);
   Volume volume = ns.addVolume(Volume(volName, solid, material));
@@ -766,11 +766,11 @@ void Converter<DDLLogicalPart>::operator()(xml_h element) const {
            "+++ %s Volume: %-24s [%s] Shape: %-32s [%s] Material: %-40s [%s]",
            e.tag().c_str(),
            volName.c_str(),
-  	   volume.isValid() ? "VALID" : "INVALID",
+           volume.isValid() ? "VALID" : "INVALID",
            sol.c_str(),
            solid.isValid() ? "VALID" : "INVALID",
            mat.c_str(),
-	   material.isValid() ? "VALID" : "INVALID");
+           material.isValid() ? "VALID" : "INVALID");
 }
 
 /// Helper converter
@@ -828,7 +828,7 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
            "+++ %s Parent: %-24s [%s] Child: %-32s [%s] copy:%d",
            e.tag().c_str(),
            parentName.c_str(),
-	   parent.isValid() ? "VALID" : "INVALID",
+           parent.isValid() ? "VALID" : "INVALID",
            childName.c_str(),
            child.isValid() ? "VALID" : "INVALID",
            copy);
