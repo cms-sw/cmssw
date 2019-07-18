@@ -37,15 +37,18 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet &ps) {
   EBrechitCollection_Token_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBrechitCollection"));
   EBuncalibrechitCollection_Token_ =
       consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
-  
+
   EBHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
       edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
   if (enableEndcaps_) {
     EErechitCollection_Token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
     ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
-    EEuncalibrechitCollection_Token_ = consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
-    EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
-    ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
+    EEuncalibrechitCollection_Token_ =
+        consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
+    EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
+        edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+    ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
+        edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
   }
 
   // ----------------------
@@ -180,7 +183,6 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
                                                        100,
                                                        0.,
                                                        1.);
-  
 
   histo = "EB Occupancy Flag=5 6";
   meEBRecHitsOccupancyFlag5_6_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
@@ -232,8 +234,10 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
     histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
     meEEe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
-    meEERecHitLog10Energy_ = ibooker.book1D("EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
-    meESRecHitLog10Energy_ = ibooker.book1D("EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4.);
+    meEERecHitLog10Energy_ =
+        ibooker.book1D("EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
+    meESRecHitLog10Energy_ =
+        ibooker.book1D("EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4.);
 
     meEERecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Endcap Log10En vs Hit Contribution",
                                                       "EcalRecHits Endcap Log10En vs Hit Contribution",
@@ -272,14 +276,13 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
 
     histo = "EcalRecHitsTask Endcap Reco Flags";
     meEERecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
-  
-    
+
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6";
     meEERecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
-  
+
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=6";
     meEERecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-    
+
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=7";
     meEERecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
   }
@@ -326,8 +329,8 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     } else {
       skipEndcap = true;
     }
-  }
-  else skipEndcap = true;
+  } else
+    skipEndcap = true;
 
   const EBRecHitCollection *EBRecHit = nullptr;
   Handle<EBRecHitCollection> EcalRecHitEB;
@@ -359,8 +362,8 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     } else {
       skipPreshower = true;
     }
-  }
-  else skipPreshower = true;
+  } else
+    skipPreshower = true;
 
   // ----------------------
   // gun
