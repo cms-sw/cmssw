@@ -68,22 +68,19 @@ reco::PFCandidateCollection PFCandConnector::connect(PFCandidateCollection& pfCa
   std::vector<bool> bMask;
   bMask.resize(pfCand.size(), false);
 
-  // debug_ = true;
-
   // loop on primary
   if (bCorrect_) {
     LogDebug("PFCandConnector::connect") << "pfCand.size()=" << pfCand.size() << "bCalibPrimary_=" << bCalibPrimary_;
 
     for (unsigned int ce1 = 0; ce1 < pfCand.size(); ++ce1) {
       if (isPrimaryNucl(pfCand.at(ce1))) {
-        if (debug_)
-          LogDebug("PFCandConnector::connect")
-              << "" << endl
-              << "Nuclear Interaction w Primary Candidate " << ce1 << " " << pfCand.at(ce1) << endl
-              << " based on the Track " << pfCand.at(ce1).trackRef().key()
-              << " w pT = " << pfCand.at(ce1).trackRef()->pt() << " #pm "
-              << pfCand.at(ce1).trackRef()->ptError() / pfCand.at(ce1).trackRef()->pt() * 100 << " %"
-              << " ECAL = " << pfCand.at(ce1).ecalEnergy() << " HCAL = " << pfCand.at(ce1).hcalEnergy() << endl;
+        LogDebug("PFCandConnector::connect")
+            << "" << endl
+            << "Nuclear Interaction w Primary Candidate " << ce1 << " " << pfCand.at(ce1) << endl
+            << " based on the Track " << pfCand.at(ce1).trackRef().key()
+            << " w pT = " << pfCand.at(ce1).trackRef()->pt() << " #pm "
+            << pfCand.at(ce1).trackRef()->ptError() / pfCand.at(ce1).trackRef()->pt() * 100 << " %"
+            << " ECAL = " << pfCand.at(ce1).ecalEnergy() << " HCAL = " << pfCand.at(ce1).hcalEnergy() << endl;
 
 #ifdef EDM_ML_DEBUG
         (pfCand.at(ce1)).displacedVertexRef(fT_TO_DISP_)->Dump();
