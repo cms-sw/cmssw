@@ -55,15 +55,9 @@ private:
 
   std::vector<std::unique_ptr<GEMDigiModel> > models;
 
-  typedef std::set<std::pair<int, int> > Strips;
-
   /// creates links from Digi to SimTrack
   void addLinks(unsigned int strip, int bx);
   void addLinksWithPartId(unsigned int strip, int bx);
-
-  // keeps track of which hits contribute to which channels
-  typedef std::multimap<std::pair<unsigned int, int>, const PSimHit*, std::less<std::pair<unsigned int, int> > >
-      DetectorHitMap;
 
   Strips strips_;
   DetectorHitMap detectorHitMap_;

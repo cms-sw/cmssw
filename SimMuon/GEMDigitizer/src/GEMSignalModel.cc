@@ -32,22 +32,22 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
   bool digiElec = false;
   const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   for (const auto& hit : simHits) {
-    if (std::abs(hit.particleType()) != 13 && digitizeOnlyMuons_)
+    if (std::abs(hit.particleType()) != muonPdgId && digitizeOnlyMuons_)
       continue;
     double elecEff = 0.;
     double partMom = hit.pabs();
     double checkMuonEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
     double checkElecEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
-    if (std::abs(hit.particleType()) == 13 && checkMuonEff < averageEfficiency_)
+    if (std::abs(hit.particleType()) == muonPdgId && checkMuonEff < averageEfficiency_)
       digiMuon = true;
-    if (std::abs(hit.particleType()) != 13)  //consider all non muon particles with gem efficiency to electrons
+    if (std::abs(hit.particleType()) != muonPdgId)  //consider all non muon particles with gem efficiency to electrons
     {
-      if (partMom <= 1.95e-03)
-        elecEff = 1.7e-05 * std::exp(2.1 * partMom * 1000.);
-      if (partMom > 1.95e-03 && partMom < 10.e-03)
-        elecEff =
-            1.34 * log(7.96e-01 * partMom * 1000. - 5.75e-01) / (1.34 + log(7.96e-01 * partMom * 1000. - 5.75e-01));
-      if (partMom > 10.e-03)
+      if (partMom <= elecMomCut1)
+        elecEff = elecEffLowCoeff * std::exp(elecEffLowParam0 * partMom * momConvFact);
+      if (partMom > elecMomCut1 && partMom < elecMomCut2)
+        elecEff = elecEffMidCoeff * log(elecEffMidParam1 * partMom * momConvFact - elecEffMidParam0) /
+                  (elecEffMidCoeff + log(elecEffMidParam1 * partMom * momConvFact - elecEffMidParam0));
+      if (partMom > elecMomCut2)
         elecEff = 1.;
       if (checkElecEff < elecEff)
         digiElec = true;

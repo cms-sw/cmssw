@@ -141,9 +141,9 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   MixCollection<PSimHit> hits{cf.product()};
 
   // Create empty output
-  std::unique_ptr<GEMDigiCollection> digis(new GEMDigiCollection());
-  std::unique_ptr<StripDigiSimLinks> stripDigiSimLinks(new StripDigiSimLinks());
-  std::unique_ptr<GEMDigiSimLinks> gemDigiSimLinks(new GEMDigiSimLinks());
+  auto digis = std::make_unique<GEMDigiCollection>();
+  auto stripDigiSimLinks = std::make_unique<StripDigiSimLinks>();
+  auto gemDigiSimLinks = std::make_unique<GEMDigiSimLinks>();
 
   // arrange the hits by eta partition
   std::map<uint32_t, edm::PSimHitContainer> hitMap;
