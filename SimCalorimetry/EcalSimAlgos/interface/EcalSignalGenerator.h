@@ -93,10 +93,13 @@ public:
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
+ 
+    //----
     // Ecal LaserCorrection Constants for laser correction ratio
     edm::ESHandle<EcalLaserDbService> laser;
     eventSetup->get<EcalLaserDbRecord>().get(laser);
-//     const edm::TimeValue_t eventTimeValue = event.time().value();
+    const edm::TimeValue_t eventTimeValue = theEvent->time().value();
+    m_iTime = eventTimeValue;
     m_lasercals = laser.product();
 
     edm::ESHandle<EcalLaserDbService> laser_prime;
@@ -104,8 +107,10 @@ public:
     //     const edm::TimeValue_t eventTimeValue = event.time().value();
     m_lasercals_prime = laser_prime.product();
     
-//     m_EBResponse->setEventTime(eventTimeValue);
-    
+    //clear the laser cache for each event time
+    CalibCache().swap(m_valueLCCache_LC);
+    //----
+
     
     eventSetup->get<EcalIntercalibConstantsMCRcd>().get(pIcal);
     ical = pIcal.product();
@@ -224,7 +229,8 @@ private:
     
 //     return 1.0;
     
-    int m_iTime = 0; //---- FIXME
+//     const edm::TimeValue_t m_iTime = event.time().value();
+//     int m_iTime = 0; //---- FIXME
     const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
     return (m_lasercals->getLaserCorrection(detId, evtTimeStamp));
     
@@ -234,11 +240,11 @@ private:
   //---- FIXME
   double findLaserConstant_LC_prime(const DetId& detId) const {
     
-    return 1.0;
+//     return 1.0;
     
-    int m_iTime = 0; //---- FIXME
-    const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
-    //   return (m_lasercals_prime->getLaserCorrection(detId, evtTimeStamp));
+    int temp_iTime = 0; //---- Correct to set the time to 0 --> the "LC'" is the first IOV of the tag MC to be used
+    const edm::Timestamp& evtTimeStamp = edm::Timestamp(temp_iTime);
+    return (m_lasercals_prime->getLaserCorrection(detId, evtTimeStamp));
     
   }
   
