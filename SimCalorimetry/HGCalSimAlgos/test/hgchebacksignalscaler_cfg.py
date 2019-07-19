@@ -13,7 +13,7 @@ options.parseArguments()
 process = cms.Process("demo",eras.Phase2C8)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 

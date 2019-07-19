@@ -77,9 +77,9 @@ private:
 // constructors and destructor
 //
 HGCHEbackSignalScalerAnalyzer::HGCHEbackSignalScalerAnalyzer(const edm::ParameterSet& iConfig)
-: doseMap_(iConfig.getParameter<std::string>("doseMap")),
-  sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
-  nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")) {
+    : doseMap_(iConfig.getParameter<std::string>("doseMap")),
+      sipmMap_(iConfig.getParameter<std::string>("sipmMap")),
+      nPEperMIP_(iConfig.getParameter<uint32_t>("nPEperMIP")) {
   usesResource("TFileService");
   fs->file().cd();
 }
@@ -91,14 +91,11 @@ HGCHEbackSignalScalerAnalyzer::~HGCHEbackSignalScalerAnalyzer() {}
 //
 
 // ------------ method called on each new Event  ------------
-void
-HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //get geometry
   edm::ESHandle<HGCalGeometry> geomhandle;
   iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", geomhandle);
-  if(!geomhandle.isValid())
-  {
+  if (!geomhandle.isValid()) {
     edm::LogError("HGCHEbackSignalScalerAnalyzer") << "Cannot get valid HGCalGeometry Object";
     return;
   }
@@ -108,46 +105,64 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
   //get ddd constants
   edm::ESHandle<HGCalDDDConstants> dddhandle;
-  iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive",dddhandle);
+  iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", dddhandle);
   if (!dddhandle.isValid()) {
     edm::LogError("HGCHEbackSignalScalerAnalyzer") << "Cannot initiate HGCalDDDConstants";
     return;
   }
   hgcCons_ = dddhandle.product();
 
-
   //setup maps
   createBinning(detIdVec);
   printBoundaries();
   //instantiate binning array
   std::vector<double> tmpVec;
-  for(auto elem : layerMap_)
+  for (auto elem : layerMap_)
     tmpVec.push_back(elem.second);
 
   double* zBins = tmpVec.data();
   int nzBins = tmpVec.size() - 1;
 
-  TProfile2D* doseMap = fs->make<TProfile2D>("doseMap","doseMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* fluenceMap = fs->make<TProfile2D>("fluenceMap","fluenceMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* scaleByDoseMap = fs->make<TProfile2D>("scaleByDoseMap","scaleByDoseMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* scaleByTileAreaMap = fs->make<TProfile2D>("scaleByTileAreaMap","scaleByTileAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* scaleByDoseAreaMap = fs->make<TProfile2D>("scaleByDoseAreaMap","scaleByDoseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* noiseByFluenceMap = fs->make<TProfile2D>("noiseByFluenceMap","noiseByFluenceMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* probNoiseAboveHalfMip = fs->make<TProfile2D>("probNoiseAboveHalfMip","probNoiseAboveHalfMip", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* doseMap = fs->make<TProfile2D>("doseMap", "doseMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* fluenceMap =
+      fs->make<TProfile2D>("fluenceMap", "fluenceMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* scaleByDoseMap =
+      fs->make<TProfile2D>("scaleByDoseMap", "scaleByDoseMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* scaleByTileAreaMap = fs->make<TProfile2D>(
+      "scaleByTileAreaMap", "scaleByTileAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* scaleByDoseAreaMap = fs->make<TProfile2D>(
+      "scaleByDoseAreaMap", "scaleByDoseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* noiseByFluenceMap = fs->make<TProfile2D>(
+      "noiseByFluenceMap", "noiseByFluenceMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* probNoiseAboveHalfMip = fs->make<TProfile2D>(
+      "probNoiseAboveHalfMip", "probNoiseAboveHalfMip", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
 
-  TProfile2D* signalToNoiseFlatAreaMap = fs->make<TProfile2D>("signalToNoiseFlatAreaMap","signalToNoiseFlatAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* signalToNoiseDoseMap = fs->make<TProfile2D>("signalToNoiseDoseMap","signalToNoiseDoseMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* signalToNoiseAreaMap = fs->make<TProfile2D>("signalToNoiseAreaMap","signalToNoiseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* signalToNoiseDoseAreaMap = fs->make<TProfile2D>("signalToNoiseDoseAreaMap","signalToNoiseDoseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
-  TProfile2D* signalToNoiseDoseAreaSipmMap = fs->make<TProfile2D>("signalToNoiseDoseAreaSipmMap","signalToNoiseDoseAreaSipmMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* signalToNoiseFlatAreaMap = fs->make<TProfile2D>(
+      "signalToNoiseFlatAreaMap", "signalToNoiseFlatAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* signalToNoiseDoseMap = fs->make<TProfile2D>(
+      "signalToNoiseDoseMap", "signalToNoiseDoseMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* signalToNoiseAreaMap = fs->make<TProfile2D>(
+      "signalToNoiseAreaMap", "signalToNoiseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* signalToNoiseDoseAreaMap = fs->make<TProfile2D>(
+      "signalToNoiseDoseAreaMap", "signalToNoiseDoseAreaMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* signalToNoiseDoseAreaSipmMap = fs->make<TProfile2D>("signalToNoiseDoseAreaSipmMap",
+                                                                  "signalToNoiseDoseAreaSipmMap",
+                                                                  nzBins,
+                                                                  zBins,
+                                                                  radiusBins_,
+                                                                  radiusMin_,
+                                                                  radiusMax_);
 
-  TProfile2D* saturationMap = fs->make<TProfile2D>("saturationMap","saturationMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
+  TProfile2D* saturationMap =
+      fs->make<TProfile2D>("saturationMap", "saturationMap", nzBins, zBins, radiusBins_, radiusMin_, radiusMax_);
 
   //book per layer plots
   std::map<int, TH1D*> probNoiseAboveHalfMip_layerMap;
-  for(auto lay : layerRadiusMap_)
-    probNoiseAboveHalfMip_layerMap[lay.first] = fs->make<TH1D>(Form("probNoiseAboveHalfMip_layer%d",lay.first),"", hgcrocMap_[lay.first].size()-1, hgcrocMap_[lay.first].data());
-
+  for (auto lay : layerRadiusMap_)
+    probNoiseAboveHalfMip_layerMap[lay.first] = fs->make<TH1D>(Form("probNoiseAboveHalfMip_layer%d", lay.first),
+                                                               "",
+                                                               hgcrocMap_[lay.first].size() - 1,
+                                                               hgcrocMap_[lay.first].data());
 
   //instantiate scaler
   HGCalSciNoiseMap scal;
@@ -157,8 +172,7 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
   //loop over valid detId from the HGCHEback
   LogDebug("HGCHEbackSignalScalerAnalyzer") << "Total number of DetIDs: " << detIdVec.size();
-  for(std::vector<DetId>::const_iterator myId = detIdVec.begin(); myId != detIdVec.end(); ++myId)
-  {
+  for (std::vector<DetId>::const_iterator myId = detIdVec.begin(); myId != detIdVec.end(); ++myId) {
     HGCScintillatorDetId scId(myId->rawId());
 
     int layer = scId.layer();
@@ -173,69 +187,79 @@ HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
     float noiseByFluence = dosePair.second;
     float expNoise = noiseByFluence * sqrt(scaleFactorBySipmArea);
 
-
-    TF1 mypois("mypois","TMath::Poisson(x+[0],[0])",0,10000); //subtract ped mean
-    mypois.SetParameter(0, std::pow(expNoise,2));
-    double prob = mypois.Integral(nPEperMIP_ * scaleFactorByTileArea * scaleFactorBySipmArea * scaleFactorByDose * 0.5, 10000);
+    TF1 mypois("mypois", "TMath::Poisson(x+[0],[0])", 0, 10000);  //subtract ped mean
+    mypois.SetParameter(0, std::pow(expNoise, 2));
+    double prob =
+        mypois.Integral(nPEperMIP_ * scaleFactorByTileArea * scaleFactorBySipmArea * scaleFactorByDose * 0.5, 10000);
 
     int ilayer = scId.layer();
     int iradius = scId.iradiusAbs();
-    std::pair<double,double> cellSize = hgcCons_->cellSizeTrap(scId.type(), scId.iradiusAbs());
+    std::pair<double, double> cellSize = hgcCons_->cellSizeTrap(scId.type(), scId.iradiusAbs());
     float inradius = cellSize.first;
 
     GlobalPoint global = gHGCal_->getPosition(scId);
     float zpos = std::abs(global.z());
 
-
     int bin = doseMap->GetYaxis()->FindBin(inradius);
-    while(scaleByDoseMap->GetYaxis()->GetBinLowEdge(bin) < layerRadiusMap_[ilayer][iradius+1])
-    {
-      LogDebug("HGCHEbackSignalScalerAnalyzer") << "rIN = " << layerRadiusMap_[ilayer][iradius] << " rIN+1 = " << layerRadiusMap_[ilayer][iradius+1] << " inradius = " << inradius << " type = " << scId.type() << " ilayer = " << scId.layer();
+    while (scaleByDoseMap->GetYaxis()->GetBinLowEdge(bin) < layerRadiusMap_[ilayer][iradius + 1]) {
+      LogDebug("HGCHEbackSignalScalerAnalyzer")
+          << "rIN = " << layerRadiusMap_[ilayer][iradius] << " rIN+1 = " << layerRadiusMap_[ilayer][iradius + 1]
+          << " inradius = " << inradius << " type = " << scId.type() << " ilayer = " << scId.layer();
 
       doseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), dose);
       fluenceMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), fluence);
       scaleByDoseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose);
       scaleByTileAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByTileArea);
-      scaleByDoseAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose * scaleFactorByTileArea);
+      scaleByDoseAreaMap->Fill(
+          zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), scaleFactorByDose * scaleFactorByTileArea);
       noiseByFluenceMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), noiseByFluence);
       probNoiseAboveHalfMip->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), prob);
 
-      signalToNoiseFlatAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), 100 * scaleFactorByTileArea * scaleFactorBySipmArea / expNoise);
-      signalToNoiseDoseMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByDose / noiseByFluence);
-      signalToNoiseAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByTileArea / noiseByFluence);
-      signalToNoiseDoseAreaMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose / noiseByFluence);
-      signalToNoiseDoseAreaSipmMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose * scaleFactorBySipmArea / expNoise);
-      saturationMap->Fill(zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose * scaleFactorBySipmArea + std::pow(expNoise, 2));
+      signalToNoiseFlatAreaMap->Fill(zpos,
+                                     scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
+                                     100 * scaleFactorByTileArea * scaleFactorBySipmArea / expNoise);
+      signalToNoiseDoseMap->Fill(
+          zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByDose / noiseByFluence);
+      signalToNoiseAreaMap->Fill(
+          zpos, scaleByDoseMap->GetYaxis()->GetBinCenter(bin), nPEperMIP_ * scaleFactorByTileArea / noiseByFluence);
+      signalToNoiseDoseAreaMap->Fill(zpos,
+                                     scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
+                                     nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose / noiseByFluence);
+      signalToNoiseDoseAreaSipmMap->Fill(
+          zpos,
+          scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
+          nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose * scaleFactorBySipmArea / expNoise);
+      saturationMap->Fill(
+          zpos,
+          scaleByDoseMap->GetYaxis()->GetBinCenter(bin),
+          nPEperMIP_ * scaleFactorByTileArea * scaleFactorByDose * scaleFactorBySipmArea + std::pow(expNoise, 2));
 
       ++bin;
     }
 
     //fill per layer plots
     //float rpos = sqrt(global.x()*global.x() + global.y()*global.y());
-    int rocbin = probNoiseAboveHalfMip_layerMap[ilayer]->FindBin(radius[0]*10);
-    double scaleValue = prob / 72. / hgcrocNcellsMap_[ilayer][rocbin-1];
-    probNoiseAboveHalfMip_layerMap[ilayer]->Fill(radius[0]*10, scaleValue);
+    int rocbin = probNoiseAboveHalfMip_layerMap[ilayer]->FindBin(radius[0] * 10);
+    double scaleValue = prob / 72. / hgcrocNcellsMap_[ilayer][rocbin - 1];
+    probNoiseAboveHalfMip_layerMap[ilayer]->Fill(radius[0] * 10, scaleValue);
   }
 
   //print boundaries for S/N < 5 --> define where sipms get more area
   std::cout << std::endl;
   std::cout << "S/N > 5 boundaries" << std::endl;
   std::cout << std::setw(5) << "layer" << std::setw(15) << "boundary" << std::endl;
-  for(int xx=1; xx<signalToNoiseDoseAreaMap->GetNbinsX()+1; ++xx)
-  {
-    bool print=true;
+  for (int xx = 1; xx < signalToNoiseDoseAreaMap->GetNbinsX() + 1; ++xx) {
+    bool print = true;
     float SoN = 0;
-    for(int yy=1; yy<signalToNoiseDoseAreaMap->GetNbinsY()+1; ++yy)
-    {
-      SoN=signalToNoiseDoseAreaMap->GetBinContent(xx,yy);
-      if(SoN>5 && print==true)
-      {
-        std::cout << std::setprecision(5) << std::setw(5) << xx+8 << std::setw(15) << signalToNoiseDoseAreaMap->GetYaxis()->GetBinLowEdge(yy) << std::endl;
+    for (int yy = 1; yy < signalToNoiseDoseAreaMap->GetNbinsY() + 1; ++yy) {
+      SoN = signalToNoiseDoseAreaMap->GetBinContent(xx, yy);
+      if (SoN > 5 && print == true) {
+        std::cout << std::setprecision(5) << std::setw(5) << xx + 8 << std::setw(15)
+                  << signalToNoiseDoseAreaMap->GetYaxis()->GetBinLowEdge(yy) << std::endl;
         print = false;
       }
     }
   }
-
 }
 
 void HGCHEbackSignalScalerAnalyzer::createBinning(const std::vector<DetId>& detIdVec) {
@@ -263,7 +287,7 @@ void HGCHEbackSignalScalerAnalyzer::createBinning(const std::vector<DetId>& detI
   for (int lay = firstLayer_; lay <= lastLayer_; ++lay) {
     auto lastr = std::prev((layerRadiusMap_[lay]).end(), 1);
     layerRadiusMap_[lay][lastr->first + 1] =
-    (hgcCons_->cellSizeTrap(hgcCons_->getTypeTrap(lay), lastr->first)).second;  //external radius
+        (hgcCons_->cellSizeTrap(hgcCons_->getTypeTrap(lay), lastr->first)).second;  //external radius
   }
 
   //implement by hand the approximate hgcroc boundaries
@@ -330,7 +354,7 @@ void HGCHEbackSignalScalerAnalyzer::printBoundaries() {
   std::cout << "z boundaries" << std::endl;
   std::cout << std::setw(5) << "layer" << std::setw(15) << "z-position" << std::endl;
   for (auto elem : layerMap_)
-  std::cout << std::setprecision(5) << std::setw(5) << elem.first << std::setw(15) << elem.second << std::endl;
+    std::cout << std::setprecision(5) << std::setw(5) << elem.first << std::setw(15) << elem.second << std::endl;
 
   std::cout << std::endl;
   std::cout << "r boundaries" << std::endl;
@@ -339,7 +363,7 @@ void HGCHEbackSignalScalerAnalyzer::printBoundaries() {
     auto rMin = (elem.second).begin();
     auto rMax = (elem.second).rbegin();
     std::cout << std::setprecision(5) << std::setw(5) << elem.first << std::setw(10) << rMin->second << std::setw(10)
-    << rMax->second << std::endl;
+              << rMax->second << std::endl;
   }
 }
 

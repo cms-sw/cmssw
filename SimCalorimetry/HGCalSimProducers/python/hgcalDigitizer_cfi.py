@@ -84,6 +84,7 @@ hgceeDigitizer = cms.PSet(
         chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
         noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
         doTimeSamples    = cms.bool(False),
+        thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion         = cms.uint32(2),
@@ -108,7 +109,6 @@ hgceeDigitizer = cms.PSet(
             # raise threshold flag (~MIP/2) this is scaled
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
-            thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60),
             # raise usage of TDC for TOA only
@@ -150,6 +150,7 @@ hgchefrontDigitizer = cms.PSet(
         chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
         noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
         doTimeSamples    = cms.bool(False),
+        thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion         = cms.uint32(2),
@@ -173,7 +174,6 @@ hgchefrontDigitizer = cms.PSet(
             # raise threshold flag (~MIP/2) this is scaled
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
-            thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60),
             # raise usage of TDC for TOA only
@@ -223,6 +223,7 @@ hgchebackDigitizer = cms.PSet(
         nTotalPE  = cms.double(7500),
         xTalk     = cms.double(0.01),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
+        thresholdFollowsMIP = cms.bool(False),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
@@ -232,7 +233,6 @@ hgchebackDigitizer = cms.PSet(
             adcSaturation_fC = cms.double(550.0), #value chosen to have 1MIP at 15ADC
             # threshold for digi production : in this case we use the same variable but fC=MIP
             adcThreshold_fC = cms.double(0.5),
-            thresholdFollowsMIP = cms.bool(False)
             )
         )
     )
@@ -261,6 +261,7 @@ hfnoseDigitizer = cms.PSet(
         chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
         noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
         doTimeSamples    = cms.bool(False),
+        thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion         = cms.uint32(2),
@@ -285,7 +286,6 @@ hfnoseDigitizer = cms.PSet(
             # raise threshold flag (~MIP/2) this is scaled
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
-            thresholdFollowsMIP        = cms.bool(thresholdTracksMIP),
             # raise usage of TDC and mode flag (from J. Kaplon)
             tdcOnset_fC       = cms.double(60),
             # raise usage of TDC for TOA only

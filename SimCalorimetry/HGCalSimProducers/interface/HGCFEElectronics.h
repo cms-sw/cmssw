@@ -33,21 +33,22 @@ public:
   inline void runShaper(DFr& dataFrame,
                         hgc::HGCSimHitData& chargeColl,
                         hgc::HGCSimHitData& toa,
-                        int thickness,
                         CLHEP::HepRandomEngine* engine,
-                        int thrADC=-1,
-                        float lsbADC=-1) {
+                        int thrADC = -1,
+                        float lsbADC = -1,
+                        float maxADC = -1,
+                        int thickness = 1) {
     switch (fwVersion_) {
       case SIMPLE: {
-        runSimpleShaper(dataFrame, chargeColl, thickness, thrADC, lsbADC);
+        runSimpleShaper(dataFrame, chargeColl, thrADC, lsbADC, maxADC);
         break;
       }
       case WITHTOT: {
-        runShaperWithToT(dataFrame, chargeColl, toa, thickness, engine, thrADC, lsbADC);
+        runShaperWithToT(dataFrame, chargeColl, toa, engine, thrADC, lsbADC, maxADC, thickness);
         break;
       }
       default: {
-        runTrivialShaper(dataFrame, chargeColl, thickness, thrADC, lsbADC);
+        runTrivialShaper(dataFrame, chargeColl, thrADC, lsbADC, maxADC);
         break;
       }
     }
@@ -78,12 +79,12 @@ public:
   /**
      @short converts charge to digis without pulse shape
    */
-  void runTrivialShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thickness, int thrADC, float lsbADC);
+  void runTrivialShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thrADC, float lsbADC, float maxADC);
 
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
-  void runSimpleShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thickness, int thrADC, float lsbADC);
+  void runSimpleShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thrADC, float lsbADC, float maxADC);
 
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
@@ -91,10 +92,11 @@ public:
   void runShaperWithToT(DFr& dataFrame,
                         hgc::HGCSimHitData& chargeColl,
                         hgc::HGCSimHitData& toa,
-                        int thickness,
                         CLHEP::HepRandomEngine* engine,
                         int thrADC,
-                        float lsbADC);
+                        float lsbADC,
+                        float maxADC,
+                        int thickness);
 
   /**
      @short returns how ToT will be computed

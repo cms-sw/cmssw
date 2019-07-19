@@ -12,13 +12,12 @@ using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
 //
-HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
-{
+HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps) {
   edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
   algo_ = cfg.getParameter<uint32_t>("algo");
   scaleByTileArea_ = cfg.getParameter<bool>("scaleByTileArea");
   scaleBySipmArea_ = cfg.getParameter<bool>("scaleBySipmArea");
-  sipmMapFile_     = cfg.getParameter<std::string>("sipmMap");
+  sipmMapFile_ = cfg.getParameter<std::string>("sipmMap");
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
@@ -77,7 +76,7 @@ void HGCHEbackDigitizer::runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>&
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
@@ -180,7 +179,8 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine, calibDigis_ ? 1 : scaledPePerMip/nPEperMIP_);
+    int thrADC(calibDigis_ ? 1 : std::floor(0.5 * scaledPePerMip / nPEperMIP_));
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
@@ -247,7 +247,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, 1, engine);
+    this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine);
 
     //prepare the output
     this->updateOutput(digiColl, newDataFrame);
