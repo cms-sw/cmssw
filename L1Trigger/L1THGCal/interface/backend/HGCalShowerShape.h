@@ -28,9 +28,15 @@ public:
   }  //in number of layers
   // Maximum number of consecutive layers in the cluster
   int coreShowerLength(const l1t::HGCalMulticluster& c3d, const HGCalTriggerGeometryBase& triggerGeometry) const;
+  float percentileLayer(const l1t::HGCalMulticluster& c3d,
+                        const HGCalTriggerGeometryBase& triggerGeometry,
+                        float quantile = 0.5) const;
+
+  float percentileTriggerCells(const l1t::HGCalMulticluster& c3d, float quantile = 0.5) const;
 
   float eMax(const l1t::HGCalMulticluster& c3d) const;
 
+  float meanZ(const l1t::HGCalMulticluster& c3d) const;
   float sigmaZZ(const l1t::HGCalMulticluster& c3d) const;
 
   float sigmaEtaEtaTot(const l1t::HGCalMulticluster& c3d) const;
