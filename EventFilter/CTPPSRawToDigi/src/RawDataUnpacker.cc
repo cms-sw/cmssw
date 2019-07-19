@@ -11,18 +11,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace std;
 using namespace edm;
 using namespace ctpps;
 
-//----------------------------------------------------------------------------------------------------
-
 RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet &iConfig)
     : verbosity(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0)) {}
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::run(int fedId,
                          const FEDRawData &data,
@@ -40,8 +34,6 @@ int RawDataUnpacker::run(int fedId,
 
   return processOptoRxFrame((const word *)data.data(), size_in_words, fedInfoColl.back(), &coll);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processOptoRxFrame(const word *buf,
                                         unsigned int frameSize,
@@ -104,8 +96,6 @@ int RawDataUnpacker::processOptoRxFrame(const word *buf,
 
   return 0;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processOptoRxFrameSerial(const word *buf,
                                               unsigned int frameSize,
@@ -185,8 +175,6 @@ int RawDataUnpacker::processOptoRxFrameSerial(const word *buf,
   return errorCounter;
 }
 
-//----------------------------------------------------------------------------------------------------
-
 int RawDataUnpacker::processOptoRxFrameParallel(const word *buf,
                                                 unsigned int frameSize,
                                                 TotemFEDInfo &fedInfo,
@@ -214,8 +202,6 @@ int RawDataUnpacker::processOptoRxFrameParallel(const word *buf,
 
   return 0;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processVFATDataParallel(const uint16_t *buf,
                                              unsigned int maxWords,
@@ -425,8 +411,6 @@ int RawDataUnpacker::processVFATDataParallel(const uint16_t *buf,
 
   return wordsProcessed;
 }
-
-//----------------------------------------------------------------------------------------------------
 
 int RawDataUnpacker::processOptoRxFrameSampic(const word *buf,
                                               unsigned int frameSize,

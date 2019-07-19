@@ -51,7 +51,7 @@ namespace reco {
       void beginEvent() override;
 
     private:
-      RecoTauQualityCuts qcuts_;
+      std::unique_ptr<RecoTauQualityCuts> qcuts_;
       RecoTauVertexAssociator vertexAssociator_;
 
       std::vector<int> inputParticleIds_;  //type of candidates to clusterize
@@ -68,7 +68,7 @@ namespace reco {
 
     RecoTauPiZeroStripPlugin::RecoTauPiZeroStripPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
         : RecoTauPiZeroBuilderPlugin(pset, std::move(iC)),
-          qcuts_(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts")),
+          qcuts_(new RecoTauQualityCuts(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
           vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)) {
       inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
       etaAssociationDistance_ = pset.getParameter<double>("stripEtaAssociationDistance");
@@ -90,9 +90,9 @@ namespace reco {
       PiZeroVector output;
 
       // Get the candidates passing our quality cuts
-      qcuts_.setPV(vertexAssociator_.associatedVertex(jet));
-      CandPtrs candsVector = qcuts_.filterCandRefs(pfCandidates(jet, inputParticleIds_));
-      //PFCandPtrs candsVector = qcuts_.filterCandRefs(pfGammas(jet));
+      qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
+      CandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputParticleIds_));
+      //PFCandPtrs candsVector = qcuts_->filterCandRefs(pfGammas(jet));
 
       // Convert to stl::list to allow fast deletions
       typedef std::list<reco::CandidatePtr> CandPtrList;

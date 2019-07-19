@@ -35,8 +35,6 @@
 
 #include <string>
 
-//----------------------------------------------------------------------------------------------------
-
 class TotemVFATRawToDigi : public edm::stream::EDProducer<> {
 public:
   explicit TotemVFATRawToDigi(const edm::ParameterSet &);
@@ -61,12 +59,8 @@ private:
   void run(edm::Event &, const edm::EventSetup &);
 };
 
-//----------------------------------------------------------------------------------------------------
-
 using namespace edm;
 using namespace std;
-
-//----------------------------------------------------------------------------------------------------
 
 TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
     : subSystemName(conf.getParameter<string>("subSystem")),
@@ -127,11 +121,7 @@ TotemVFATRawToDigi::TotemVFATRawToDigi(const edm::ParameterSet &conf)
   produces<DetSetVector<TotemVFATStatus>>(subSystemName);
 }
 
-//----------------------------------------------------------------------------------------------------
-
 TotemVFATRawToDigi::~TotemVFATRawToDigi() {}
-
-//----------------------------------------------------------------------------------------------------
 
 void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
   if (subSystem == ssTrackingStrip)
@@ -143,8 +133,6 @@ void TotemVFATRawToDigi::produce(edm::Event &event, const edm::EventSetup &es) {
   else if (subSystem == ssTotemTiming)
     run<DetSetVector<TotemTimingDigi>>(event, es);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 template <typename DigiType>
 void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
@@ -181,8 +169,6 @@ void TotemVFATRawToDigi::run(edm::Event &event, const edm::EventSetup &es) {
   event.put(make_unique<DigiType>(digi), subSystemName);
   event.put(make_unique<DetSetVector<TotemVFATStatus>>(conversionStatus), subSystemName);
 }
-
-//----------------------------------------------------------------------------------------------------
 
 void TotemVFATRawToDigi::endStream() { rawToDigiConverter.printSummaries(); }
 

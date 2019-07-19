@@ -84,10 +84,10 @@ private:
   builderList builders_;
   rankerList rankers_;
 
-  std::auto_ptr<ChargedHadronPredicate> predicate_;
+  std::unique_ptr<ChargedHadronPredicate> predicate_;
 
   // output selector
-  std::auto_ptr<StringCutObjectSelector<reco::PFRecoTauChargedHadron>> outputSelector_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFRecoTauChargedHadron>> outputSelector_;
 
   // flag to enable/disable debug print-out
   int verbosity_;
@@ -121,7 +121,7 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   }
 
   // build the sorting predicate
-  predicate_ = std::auto_ptr<ChargedHadronPredicate>(new ChargedHadronPredicate(rankers_));
+  predicate_ = std::unique_ptr<ChargedHadronPredicate>(new ChargedHadronPredicate(rankers_));
 
   // check if we want to apply a final output selection
   std::string selection = cfg.getParameter<std::string>("outputSelection");
@@ -202,7 +202,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
 
     while (!uncleanedChargedHadrons.empty()) {
       // get next best ChargedHadron candidate
-      std::auto_ptr<reco::PFRecoTauChargedHadron> nextChargedHadron(uncleanedChargedHadrons.pop_front().release());
+      std::unique_ptr<reco::PFRecoTauChargedHadron> nextChargedHadron(uncleanedChargedHadrons.pop_front().release());
       if (verbosity_) {
         edm::LogPrint("PFRecoTauChHProducer") << "processing nextChargedHadron:";
         edm::LogPrint("PFRecoTauChHProducer") << (*nextChargedHadron);
@@ -303,7 +303,7 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
           edm::LogPrint("PFRecoTauChHProducer") << "--> removing non-unique neutral PFCandidates and reinserting "
                                                    "nextChargedHadron in uncleaned collection.";
         }
-        uncleanedChargedHadrons.insert(insertionPoint, nextChargedHadron);
+        uncleanedChargedHadrons.insert(insertionPoint, std::move(nextChargedHadron));
       }
     }
 
