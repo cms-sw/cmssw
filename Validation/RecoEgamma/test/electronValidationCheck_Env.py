@@ -18,8 +18,9 @@ class env:
                 quit()
 
     def beginTag(self):
-	beginTag = 'Phase2'
-#	beginTag = 'Run2_2017'
+#	beginTag = 'Phase2'
+	beginTag = 'Run2_2017'
+#    beginTag = 'upgrade2018'
 	return beginTag
 
     def dd_tier(self):
@@ -27,7 +28,7 @@ class env:
         return dd_tier 
 
     def tag_startup(self):
-        tag_startup = '93X_upgrade2023_realistic_v2_2023D17noPU'
+        tag_startup = '106X_upgrade2018_realistic_v6'
 #        tag_startup = '93X_upgrade2023_realistic_v2_2023D17PU140'
 #        tag_startup = '93X_upgrade2023_realistic_v0_D17PU200'
 #        tag_startup = '92X_upgrade2023_realistic_v2_2023D17noPU' 

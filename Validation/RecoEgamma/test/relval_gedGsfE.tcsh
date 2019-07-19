@@ -52,7 +52,9 @@ then
 	CHOIX_INTERACTION="./electronBsub ${CHOIX_JOB} /afs/cern.ch/cms/utils/oval run ${CHOIX_ETAPE}.Val"
 else
 	echo "interaction"
-	CHOIX_INTERACTION="/afs/cern.ch/cms/utils/oval run ${CHOIX_ETAPE}.Val"
+	#CHOIX_INTERACTION="/afs/cern.ch/cms/utils/oval run ${CHOIX_ETAPE}.Val"
+    #CHOIX_INTERACTION="/afs/cern.ch/user/a/archiron/lbin/OVAL/5_11_4/bin/oval run ${CHOIX_ETAPE}.Val"
+    CHOIX_INTERACTION="/home/llr/info/chiron_u/OVAL/5_11_4/bin/oval run ${CHOIX_ETAPE}.Val"
 fi
 
 echo "*** CHOIX_INTERACTION : " $2 $CHOIX_INTERACTION
@@ -112,9 +114,9 @@ else
 #    list="Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 "
 #    list="Pt10Startup Pt1000Startup Pt35Startup TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13"
 #	list="TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13"
-	list="TTbarStartup_13 ZEEStartup_13 Pt10Startup"
+#	list="TTbarStartup_13 ZEEStartup_13 Pt10Startup"
 #	list="Pt1000Startup_UP15 "
-#	list="TTbarStartup_13 "
+	list="ZEEStartup_13 "
     for element in $list    
     do   
         echo "element =" $element   

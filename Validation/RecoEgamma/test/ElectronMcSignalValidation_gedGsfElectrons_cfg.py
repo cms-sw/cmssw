@@ -34,12 +34,12 @@ max_number = -1 # 10 # number of events
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(max_number))
 #process.source = cms.Source ("PoolSource",skipEvents = cms.untracked.uint32(max_skipped), fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
 
-process.source = cms.Source ("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring()) # std value
-process.source.fileNames.extend(dd.search())  # to be commented for local run only
+#process.source = cms.Source ("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring()) # std value
+#process.source.fileNames.extend(dd.search())  # to be commented for local run only
 
-#process.source = cms.Source ("PoolSource",
-#    fileNames = cms.untracked.vstring(
-#    [
+process.source = cms.Source ("PoolSource",
+    fileNames = cms.untracked.vstring(
+    [
     #'file:/eos/user/a/archiron/HGCal_Shares/step3_A8F750A4-6D87-E711-A476-0CC47A4D7600.root',
     #'file:/eos/user/a/archiron/HGCal_Shares/step3_AE79E794-7287-E711-9D2A-0CC47A78A3EE.root',
     #'file:/eos/user/a/archiron/HGCal_Shares/step3_D801BDAF-7087-E711-AEF8-0CC47A7C354A.root',
@@ -47,9 +47,11 @@ process.source.fileNames.extend(dd.search())  # to be commented for local run on
     #'file:/eos/user/r/rovere/www/shared/step3.root',
 
     #'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_3_2/RelValQCD_Pt-15To7000_Flat_14TeV/GEN-SIM-RECO/93X_upgrade2023_realistic_v2_2023D17noPU-v1/10000/00FF6760-F8A6-E711-AA68-0025905A60D6.root',
-#    ]
-#    )
-#)  # for local run only
+    '/store/relval/CMSSW_11_0_0_pre2/RelValZEE_13/GEN-SIM-RECO/106X_upgrade2018_realistic_v6-v1/10000/1144EDB9-5DEF-114A-B9F7-32A7472BD9AC.root',
+    '/store/relval/CMSSW_11_0_0_pre2/RelValZEE_13/GEN-SIM-RECO/106X_upgrade2018_realistic_v6-v1/10000/B3E09A3C-DB50-FC42-A4EE-02A5AA6D54EE.root',
+    ]
+    )
+)  # for local run only
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -66,9 +68,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG'] + '::All'
-process.GlobalTag.globaltag = '93X_upgrade2023_realistic_v2'
-#process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
-#process.GlobalTag.globaltag = '92X_upgrade2017_realistic_v10'
+process.GlobalTag.globaltag = '106X_upgrade2018_realistic_v6'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
 # CONFIGURATION

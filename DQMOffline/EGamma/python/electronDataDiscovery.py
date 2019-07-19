@@ -31,7 +31,7 @@ from __future__ import print_function
 #===================================================================
 
 #import httplib, urllib, urllib2, types, string, os, sys
-import os, sys, re, das_client
+import os, sys, re#, das_client
 
 if 'DD_SOURCE' not in os.environ:
   os.environ['DD_SOURCE'] = 'das'
