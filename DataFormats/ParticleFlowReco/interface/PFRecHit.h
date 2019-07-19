@@ -126,7 +126,7 @@ namespace reco {
     bool operator<(const PFRecHit& rhs) const { return (energy_ < rhs.energy_); }
 
   private:
-    Neighbours buildNeighbours(unsigned int n) const { return Neighbours(&neighbours_.front(), n); }
+    Neighbours buildNeighbours(unsigned int n) const { return Neighbours(neighbours_.data(), n); }
 
     /// cell geometry
     std::shared_ptr<const CaloCellGeometry> caloCell_ = nullptr;
