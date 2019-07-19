@@ -6,10 +6,8 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
 
-class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame>
-{
- public:
-
+class HGCHEbackDigitizer : public HGCDigitizerBase<HGCalDataFrame> {
+public:
   HGCHEbackDigitizer(const edm::ParameterSet& ps);
   void runDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
                     hgc::HGCSimHitDataAccumulator& simData,
@@ -28,8 +26,10 @@ private:
   std::string doseMapFile_, sipmMapFile_;
   HGCalSciNoiseMap scal_;
 
-  void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection> &digiColl,hgc::HGCSimHitDataAccumulator &simData,
-                         const CaloSubdetectorGeometry* theGeom, const std::unordered_set<DetId>& validIds,
+  void runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,
+                         hgc::HGCSimHitDataAccumulator& simData,
+                         const CaloSubdetectorGeometry* theGeom,
+                         const std::unordered_set<DetId>& validIds,
                          CLHEP::HepRandomEngine* engine);
 
   void runRealisticDigitizer(std::unique_ptr<HGCalDigiCollection>& digiColl,

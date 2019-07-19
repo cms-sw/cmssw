@@ -5,57 +5,66 @@
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
-template<class DFr>
+template <class DFr>
 HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDose_(false) {
-  bxTime_        = ps.getParameter<double>("bxTime");
-  myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg");
-  doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
+  bxTime_ = ps.getParameter<double>("bxTime");
+  myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
+  doTimeSamples_ = myCfg_.getParameter<bool>("doTimeSamples");
+  thresholdFollowsMIP_ = myCfg_.getParameter<bool>("thresholdFollowsMIP");
 
-  if(myCfg_.exists("keV2fC"))   keV2fC_   = myCfg_.getParameter<double>("keV2fC");
-  else                          keV2fC_   = 1.0;
+  if (myCfg_.exists("keV2fC"))
+    keV2fC_ = myCfg_.getParameter<double>("keV2fC");
+  else
+    keV2fC_ = 1.0;
 
-  if( myCfg_.existsAs<edm::ParameterSet>( "chargeCollectionEfficiencies" ) ) {
-    cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies").template getParameter<std::vector<double>>("values");
+  if (myCfg_.existsAs<edm::ParameterSet>("chargeCollectionEfficiencies")) {
+    cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies")
+               .template getParameter<std::vector<double>>("values");
   }
 
   if (myCfg_.existsAs<double>("noise_fC")) {
     noise_fC_.reserve(1);
     noise_fC_.push_back(myCfg_.getParameter<double>("noise_fC"));
-  } else if ( myCfg_.existsAs<std::vector<double> >("noise_fC") ) {
-    const auto& noises = myCfg_.getParameter<std::vector<double> >("noise_fC");
-    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
-  } else if(myCfg_.existsAs<edm::ParameterSet>("noise_fC")) {
-    const auto& noises = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double> >("values");
-    noise_fC_ = std::vector<float>(noises.begin(),noises.end());
+  } else if (myCfg_.existsAs<std::vector<double>>("noise_fC")) {
+    const auto& noises = myCfg_.getParameter<std::vector<double>>("noise_fC");
+    noise_fC_ = std::vector<float>(noises.begin(), noises.end());
+  } else if (myCfg_.existsAs<edm::ParameterSet>("noise_fC")) {
+    const auto& noises =
+        myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::vector<double>>("values");
+    noise_fC_ = std::vector<float>(noises.begin(), noises.end());
     scaleByDose_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<bool>("scaleByDose");
     doseMapFile_ = myCfg_.getParameter<edm::ParameterSet>("noise_fC").template getParameter<std::string>("doseMap");
     scal_.setDoseMap(doseMapFile_);
   } else {
     noise_fC_.resize(1, 1.f);
   }
-  if ( myCfg_.existsAs<std::vector<double> >("ileakParam")) {
-    scal_.setIleakParam(myCfg_.getParameter<std::vector<double> >("ileakParam"));
+  if (myCfg_.existsAs<std::vector<double>>("ileakParam")) {
+    scal_.setIleakParam(myCfg_.getParameter<std::vector<double>>("ileakParam"));
   }
-  if ( myCfg_.existsAs<edm::ParameterSet>("cceParams")) {
-    scal_.setCceParam(myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamFine"),
-                      myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThin"),
-                      myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThick"));
-                    }
+  if (myCfg_.existsAs<edm::ParameterSet>("cceParams")) {
+    scal_.setCceParam(
+        myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamFine"),
+        myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThin"),
+        myCfg_.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
+  }
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
 }
 
-template<class DFr>
-void HGCDigitizerBase<DFr>::run( std::unique_ptr<HGCDigitizerBase::DColl> &digiColl,
-				 HGCSimHitDataAccumulator &simData,
-				 const CaloSubdetectorGeometry* theGeom,
-				 const std::unordered_set<DetId>& validIds,
-				 uint32_t digitizationType,
-				 CLHEP::HepRandomEngine* engine) {
-  if(scaleByDose_)  scal_.setGeometry(theGeom);
-  if(digitizationType==0) runSimple(digiColl,simData,theGeom,validIds,engine);
-  else                    runDigitizer(digiColl,simData,theGeom,validIds,digitizationType,engine);
+template <class DFr>
+void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
+                                HGCSimHitDataAccumulator& simData,
+                                const CaloSubdetectorGeometry* theGeom,
+                                const std::unordered_set<DetId>& validIds,
+                                uint32_t digitizationType,
+                                CLHEP::HepRandomEngine* engine) {
+  if (scaleByDose_)
+    scal_.setGeometry(theGeom);
+  if (digitizationType == 0)
+    runSimple(digiColl, simData, theGeom, validIds, engine);
+  else
+    runDigitizer(digiColl, simData, theGeom, validIds, digitizationType, engine);
 }
 
 template <class DFr>
@@ -78,25 +87,30 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
 
-    //set the noise,cce, LSB and threshold to be used     
-    float cce(1.f),noiseWidth(0.f),lsbADC(-1.f);
+    //set the noise,cce, LSB and threshold to be used
+    float cce(1.f), noiseWidth(0.f), lsbADC(-1.f), maxADC(-1.f);
     int thrADC(5);
-    if(scaleByDose_){
+    if (scaleByDose_) {
       HGCSiliconDetId detId(id);
-      HGCalSiNoiseMap::SiCellOpCharacteristics siop=scal_.getSiCellOpCharacteristics(detId,HGCalSiNoiseMap::AUTO);
-      cce        = siop.cce;
-      noiseWidth = siop.noise 
-      lsbADC     = scal_.getLSBPerGain()[siop.gain];
-      if(thresholdFollowsMIP_) thrADC = siop.thrADC;
-    }
-    else if (noise_fC_[cell.thickness-1] != 0) {
-      cce        = (cce_.empty() ? 1.f : cce_[cell.thickness-1]);
-      noiseWidth = cell.size*noise_fC_[cell.thickness-1];
-      //FIXMEthreshold follows mip for this case...
+      HGCalSiNoiseMap::SiCellOpCharacteristics siop = scal_.getSiCellOpCharacteristics(detId, HGCalSiNoiseMap::AUTO);
+      cce = siop.cce;
+      noiseWidth = siop.noise;
+      lsbADC = scal_.getLSBPerGain()[(HGCalSiNoiseMap::GainRange_t)siop.gain];
+      maxADC = scal_.getMaxADCPerGain()[(HGCalSiNoiseMap::GainRange_t)siop.gain];
+      if (thresholdFollowsMIP_)
+        thrADC = siop.thrADC;
+    } else if (noise_fC_[cell.thickness - 1] != 0) {
+      //this is kept for legacy compatibility with the TDR simulation
+      //probably should simply be removed in a future iteration
+      cce = (cce_.empty() ? 1.f : cce_[cell.thickness - 1]);
+      noiseWidth = cell.size * noise_fC_[cell.thickness - 1];
+      if (thresholdFollowsMIP_) {
+        thrADC = cell.thickness * cce * myFEelectronics_->getADCThreshold();
+      }
     }
 
     //loop over time samples and add noise
-    for(size_t i=0; i<cell.hit_info[0].size(); i++) {
+    for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
 
       //time of arrival
@@ -105,15 +119,16 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
         toa[i] = cell.hit_info[1][i] / rawCharge;
 
       //final charge estimation
-      float noise=(float)CLHEP::RandGaussQ::shoot(engine,0.0,noiseWidth);
-      float totalCharge(rawCharge*cce+noise);
-      if(totalCharge<0.f) totalCharge=0.f;
-      chargeColl[i]=totalCharge;
+      float noise = (float)CLHEP::RandGaussQ::shoot(engine, 0.0, noiseWidth);
+      float totalCharge(rawCharge * cce + noise);
+      if (totalCharge < 0.f)
+        totalCharge = 0.f;
+      chargeColl[i] = totalCharge;
     }
 
     //run the shaper to create a new data frame
-    DFr rawDataFrame( id );
-    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, thrADC, lsbADC);
+    DFr rawDataFrame(id);
+    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, engine, thrADC, lsbADC, maxADC, cell.thickness);
 
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);

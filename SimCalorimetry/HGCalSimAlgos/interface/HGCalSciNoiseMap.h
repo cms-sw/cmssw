@@ -6,17 +6,14 @@
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include <string>
 
-
 /**
    @class HGCalSciNoiseMap
    @short derives from HGCalRadiation map to parse fluence parameters, provides Sci-specific functions
 */
 class HGCalSciNoiseMap : public HGCalRadiationMap {
-
- public:
-
+public:
   HGCalSciNoiseMap();
-  ~HGCalSciNoiseMap() {};
+  ~HGCalSciNoiseMap(){};
 
   /**
      @short returns the signal scaling and the noise
@@ -28,16 +25,13 @@ class HGCalSciNoiseMap : public HGCalRadiationMap {
   std::array<double, 8> computeRadius(const HGCScintillatorDetId&);
   void setSipmMap(const std::string&);
 
-
- private:
-
+private:
   std::map<int, float> readSipmPars(const std::string&);
 
   //size of the reference scintillator tile
   const double refEdge_;
   //sipm size boundaries
   std::map<int, float> sipmMap_;
-
 };
 
 #endif

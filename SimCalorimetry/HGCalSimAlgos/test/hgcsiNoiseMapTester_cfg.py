@@ -11,18 +11,18 @@ options.parseArguments()
 process = cms.Process("demo",eras.Phase2C8)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.source = cms.Source("EmptySource")
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import ileakParam_toUse, cceParams_toUse
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import ileakParam_toUse, HGCAL_cceParams_toUse
 process.plotter_eol = cms.EDAnalyzer("HGCSiNoiseMapAnalyzer",
                                      doseMap            = cms.string( options.doseMap ),
                                      ileakParam         = cms.vdouble( ileakParam_toUse ),
-                                     cceParams          = cceParams_toUse,
+                                     cceParams          = HGCAL_cceParams_toUse,
                                      aimMIPtoADC        = cms.int32(10),
                                      ignoreGainSettings = cms.bool(False),
                                      ignoreFluence      = cms.bool(False)
