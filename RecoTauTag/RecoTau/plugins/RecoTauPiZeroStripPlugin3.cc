@@ -56,7 +56,7 @@ namespace reco {
     public:
       explicit RecoTauPiZeroStripPlugin3(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
       ~RecoTauPiZeroStripPlugin3() override;
-      // Return type is auto_ptr<PiZeroVector>
+      // Return type is unique_ptr<PiZeroVector>
       return_type operator()(const reco::Jet&) const override;
       // Hook to update PV information
       void beginEvent() override;
@@ -285,7 +285,7 @@ namespace reco {
         seedCandIdsCurrentStrip.clear();
         addCandIdsCurrentStrip.clear();
 
-        std::auto_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seedCands[idxSeed], RecoTauPiZero::kStrips));
+        std::unique_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seedCands[idxSeed], RecoTauPiZero::kStrips));
         strip->addDaughter(seedCands[idxSeed]);
         seedCandIdsCurrentStrip.insert(idxSeed);
 
@@ -313,7 +313,7 @@ namespace reco {
           // Update the vertex
           if (strip->daughterPtr(0).isNonnull())
             strip->setVertex(strip->daughterPtr(0)->vertex());
-          output.push_back(strip);
+          output.push_back(std::move(strip));
 
           // Mark daughters as being part of this strip
           markCandsInStrip(seedCandFlags, seedCandIdsCurrentStrip);
@@ -349,7 +349,7 @@ namespace reco {
             secondP4 = applyMassConstraint(secondP4, combinatoricStripMassHypo_);
             Candidate::LorentzVector totalP4 = firstP4 + secondP4;
             // Make our new combined strip
-            std::auto_ptr<RecoTauPiZero> combinedStrips(
+            std::unique_ptr<RecoTauPiZero> combinedStrips(
                 new RecoTauPiZero(0,
                                   totalP4,
                                   Candidate::Point(0, 0, 0),
@@ -372,7 +372,7 @@ namespace reco {
             }
 
             // Add to our collection of combined strips
-            stripCombinations.push_back(combinedStrips);
+            stripCombinations.push_back(std::move(combinedStrips));
           }
         }
         // When done doing all the combinations, add the combined strips to the
