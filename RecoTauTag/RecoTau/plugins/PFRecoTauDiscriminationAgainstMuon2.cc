@@ -69,7 +69,6 @@ namespace {
       maskHitsDT_ = cfg.getParameter<vint>("maskHitsDT");
       maskHitsCSC_ = cfg.getParameter<vint>("maskHitsCSC");
       maskHitsRPC_ = cfg.getParameter<vint>("maskHitsRPC");
-      numWarnings_ = 0;
       verbosity_ = cfg.getParameter<int>("verbosity");
     }
     ~PFRecoTauDiscriminationAgainstMuon2() override {}
@@ -99,10 +98,12 @@ namespace {
     std::vector<int> maskHitsDT_;
     std::vector<int> maskHitsCSC_;
     std::vector<int> maskHitsRPC_;
-    mutable std::atomic<unsigned int> numWarnings_;
+    static std::atomic<unsigned int> numWarnings_;
     static constexpr unsigned int maxWarnings_ = 3;
     int verbosity_;
   };
+
+  std::atomic<unsigned int> PFRecoTauDiscriminationAgainstMuon2::numWarnings_{0};
 
   void PFRecoTauDiscriminationAgainstMuon2::beginEvent(const edm::Event& evt, const edm::EventSetup& es) {
     if (!srcMuons_.label().empty()) {
