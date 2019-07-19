@@ -9,7 +9,7 @@
       <rSolid name="MotherOfAllBoxes"/>
     </LogicalPart> 
   </LogicalPartSection>
-  <Algorithm name="tracker:DDCutTubsFromPointsAlgo">
+  <Algorithm name="tracker:DDCutTubsFromPoints">
     <rParent name="testDDCutTubsFromPointsAlgorithm:MotherOfAllBoxes"/>
     <String name="SolidName" value="cutTubFromPoints"/>
     <String name="Material" value="materials:Air"/>
