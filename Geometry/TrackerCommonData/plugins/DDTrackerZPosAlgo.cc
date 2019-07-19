@@ -30,13 +30,13 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  vector<double> zvec;         //Z positions
+  vector<double> zvec;    //Z positions
   vector<string> rotMat;  //Names of rotation matrices
 
   string idNameSpace;  //Namespace of this and ALL sub-parts
   string childName;    //Child name
-  int startCopyNo;          //Start Copy number
-  int incrCopyNo;           //Increment in Copy number
+  int startCopyNo;     //Start Copy number
+  int incrCopyNo;      //Increment in Copy number
 };
 
 DDTrackerZPosAlgo::DDTrackerZPosAlgo() { LogDebug("TrackerGeom") << "DDTrackerZPosAlgo info: Creating an instance"; }

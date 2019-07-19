@@ -56,81 +56,81 @@ private:
   int ringNo;
   bool isStereo;
   bool isRing6;
-  double rPos;                //Position in R relativ to the center of the TEC ( this is the coord-sys of Tubs)
-  double posCorrectionPhi;    // the Phi position of the stereo Modules has to be corrected
-  string standardRot;    //Rotation that aligns the mother(Tub ) coordinate System with the components
-  string idNameSpace;    //Namespace of this and ALL parts
-  string genMat;         //General material name
-  double moduleThick;         //Module thickness
-  double detTilt;             //Tilt of stereo detector
-  double fullHeight;          //Height
-  double dlTop;               //Width at top of wafer
-  double dlBottom;            //Width at bottom of wafer
-  double dlHybrid;            //Width at the hybrid end
-  double frameWidth;          //Frame         width
-  double frameThick;          //              thickness
-  double frameOver;           //              overlap (on sides)
-  string topFrameMat;    //Top frame     material
-  double topFrameHeight;      //              height
-  double topFrameThick;       //              thickness
-  double topFrameTopWidth;    //             Width at the top
-  double topFrameBotWidth;    //             Width at the bottom
-  double topFrame2Width;      //  Stereo:2ndPart   Width
-  double topFrame2LHeight;    //             left  height
-  double topFrame2RHeight;    //             right height
-  double topFrameZ;           //              z-positions
-  string sideFrameMat;   //Side frame    material
-  double sideFrameThick;      //              thickness
-  double sideFrameLWidth;     //    Left     Width (for stereo modules upper one)
-  double sideFrameLWidthLow;  //           Width (only for stereo modules: lower Width)
-  double sideFrameLHeight;    //             Height
-  double sideFrameLtheta;     //              angle of the trapezoid shift
-  double sideFrameRWidth;     //    Right    Width (for stereo modules upper one)
-  double sideFrameRWidthLow;  //           Width (only for stereo modules: lower Width)
-  double sideFrameRHeight;    //             Height
-  double sideFrameRtheta;     //              angle of the trapezoid shift
+  double rPos;                       //Position in R relativ to the center of the TEC ( this is the coord-sys of Tubs)
+  double posCorrectionPhi;           // the Phi position of the stereo Modules has to be corrected
+  string standardRot;                //Rotation that aligns the mother(Tub ) coordinate System with the components
+  string idNameSpace;                //Namespace of this and ALL parts
+  string genMat;                     //General material name
+  double moduleThick;                //Module thickness
+  double detTilt;                    //Tilt of stereo detector
+  double fullHeight;                 //Height
+  double dlTop;                      //Width at top of wafer
+  double dlBottom;                   //Width at bottom of wafer
+  double dlHybrid;                   //Width at the hybrid end
+  double frameWidth;                 //Frame         width
+  double frameThick;                 //              thickness
+  double frameOver;                  //              overlap (on sides)
+  string topFrameMat;                //Top frame     material
+  double topFrameHeight;             //              height
+  double topFrameThick;              //              thickness
+  double topFrameTopWidth;           //             Width at the top
+  double topFrameBotWidth;           //             Width at the bottom
+  double topFrame2Width;             //  Stereo:2ndPart   Width
+  double topFrame2LHeight;           //             left  height
+  double topFrame2RHeight;           //             right height
+  double topFrameZ;                  //              z-positions
+  string sideFrameMat;               //Side frame    material
+  double sideFrameThick;             //              thickness
+  double sideFrameLWidth;            //    Left     Width (for stereo modules upper one)
+  double sideFrameLWidthLow;         //           Width (only for stereo modules: lower Width)
+  double sideFrameLHeight;           //             Height
+  double sideFrameLtheta;            //              angle of the trapezoid shift
+  double sideFrameRWidth;            //    Right    Width (for stereo modules upper one)
+  double sideFrameRWidthLow;         //           Width (only for stereo modules: lower Width)
+  double sideFrameRHeight;           //             Height
+  double sideFrameRtheta;            //              angle of the trapezoid shift
   vector<double> siFrSuppBoxWidth;   //    Supp.Box Width
   vector<double> siFrSuppBoxHeight;  //            Height
   vector<double> siFrSuppBoxYPos;    //              y-position of the supplies box (with HV an thermal sensor...)
-  double sideFrameZ;                      //              z-positions
-  double siFrSuppBoxThick;                //             thickness
+  double sideFrameZ;                 //              z-positions
+  double siFrSuppBoxThick;           //             thickness
   string siFrSuppBoxMat;             //              material
   string waferMat;                   //Wafer         material
-  double waferPosition;     //              position of the wafer (was formaly done by adjusting topFrameHeigt)
-  double sideWidthTop;      //              widths on the side Top
-  double sideWidthBottom;   //                                 Bottom
-  string waferRot;     //              rotation matrix
-  string activeMat;    //Sensitive     material
-  double activeHeight;      //              height
-  double waferThick;        //              wafer thickness (active = wafer - backplane)
-  string activeRot;    //              Rotation matrix
-  double activeZ;           //              z-positions
-  double backplaneThick;    //              thickness
-  double inactiveDy;        //InactiveStrip  Hight of ( rings > 3)
-  double inactivePos;       //               y-Position
-  string inactiveMat;  //               material
-  string hybridMat;    //Hybrid        material
-  double hybridHeight;      //              height
-  double hybridWidth;       //              width
-  double hybridThick;       //              thickness
-  double hybridZ;           //              z-positions
-  string pitchMat;     //Pitch adapter material
-  double pitchWidth;        //              width
-  double pitchHeight;       //              height
-  double pitchThick;        //              thickness
-  double pitchZ;            //              z-positions
-  string pitchRot;     //              rotation matrix
-  string bridgeMat;    //Bridge        material
-  double bridgeWidth;       //              width
-  double bridgeThick;       //              thickness
-  double bridgeHeight;      //              height
-  double bridgeSep;         //              separation
+  double waferPosition;              //              position of the wafer (was formaly done by adjusting topFrameHeigt)
+  double sideWidthTop;               //              widths on the side Top
+  double sideWidthBottom;            //                                 Bottom
+  string waferRot;                   //              rotation matrix
+  string activeMat;                  //Sensitive     material
+  double activeHeight;               //              height
+  double waferThick;                 //              wafer thickness (active = wafer - backplane)
+  string activeRot;                  //              Rotation matrix
+  double activeZ;                    //              z-positions
+  double backplaneThick;             //              thickness
+  double inactiveDy;                 //InactiveStrip  Hight of ( rings > 3)
+  double inactivePos;                //               y-Position
+  string inactiveMat;                //               material
+  string hybridMat;                  //Hybrid        material
+  double hybridHeight;               //              height
+  double hybridWidth;                //              width
+  double hybridThick;                //              thickness
+  double hybridZ;                    //              z-positions
+  string pitchMat;                   //Pitch adapter material
+  double pitchWidth;                 //              width
+  double pitchHeight;                //              height
+  double pitchThick;                 //              thickness
+  double pitchZ;                     //              z-positions
+  string pitchRot;                   //              rotation matrix
+  string bridgeMat;                  //Bridge        material
+  double bridgeWidth;                //              width
+  double bridgeThick;                //              thickness
+  double bridgeHeight;               //              height
+  double bridgeSep;                  //              separation
   vector<double> siReenforceHeight;  // SiReenforcement Height
   vector<double> siReenforceWidth;   //             Width
   vector<double> siReenforceYPos;    //              Y - Position
   //  double                   siReenforceZPos;//              Z - Position done by the side frames Z Position an t
-  double siReenforceThick;     //             Thick
-  string siReenforceMat;  //             Materieal
+  double siReenforceThick;  //             Thick
+  string siReenforceMat;    //             Materieal
   //double                   posCorrectionR;  //  Correct Positions of the Stereo Modules radial coordinate
 };
 

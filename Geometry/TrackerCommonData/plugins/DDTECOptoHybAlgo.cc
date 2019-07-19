@@ -37,11 +37,11 @@ public:
 private:
   string idNameSpace;     //Namespace of this and ALL parts
   string childName;       //Child name
-  double rpos;                 //r Position
-  double zpos;                 //Z position of the OptoHybrid
-  double optoHeight;           // Height of the OptoHybrid
-  double optoWidth;            // Width of the OptoHybrid
-  int startCopyNo;             //Start copy number
+  double rpos;            //r Position
+  double zpos;            //Z position of the OptoHybrid
+  double optoHeight;      // Height of the OptoHybrid
+  double optoWidth;       // Width of the OptoHybrid
+  int startCopyNo;        //Start copy number
   vector<double> angles;  //Angular position of Hybrid
 };
 

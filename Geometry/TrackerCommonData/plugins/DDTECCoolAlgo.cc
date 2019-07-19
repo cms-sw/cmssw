@@ -39,11 +39,11 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  string idNameSpace;              //Namespace of this and ALL parts
-  int startCopyNo;                      //Start copy number
-  double rPosition;                     // Position of the Inserts in R
-  vector<double> phiPosition;      // Position of the Inserts in Phi
-  vector<string> coolInsert;  //Name of cooling pieces
+  string idNameSpace;          //Namespace of this and ALL parts
+  int startCopyNo;             //Start copy number
+  double rPosition;            // Position of the Inserts in R
+  vector<double> phiPosition;  // Position of the Inserts in Phi
+  vector<string> coolInsert;   //Name of cooling pieces
 };
 
 DDTECCoolAlgo::DDTECCoolAlgo() : phiPosition(0), coolInsert(0) {
@@ -100,4 +100,3 @@ void DDTECCoolAlgo::execute(DDCompactView& cpv) {
 }
 
 DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTECCoolAlgo, "track:DDTECCoolAlgo");
-

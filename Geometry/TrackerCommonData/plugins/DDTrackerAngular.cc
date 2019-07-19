@@ -32,14 +32,14 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  int n;                       //Number of copies
-  int startCopyNo;             //Start Copy number
-  int incrCopyNo;              //Increment in Copy number
-  double rangeAngle;           //Range in angle
-  double startAngle;           //Start anle
-  double radius;               //Radius
+  int n;                  //Number of copies
+  int startCopyNo;        //Start Copy number
+  int incrCopyNo;         //Increment in Copy number
+  double rangeAngle;      //Range in angle
+  double startAngle;      //Start anle
+  double radius;          //Radius
   vector<double> center;  //Phi values
-  double delta;                //Increment in phi
+  double delta;           //Increment in phi
 
   string idNameSpace;  //Namespace of this and ALL sub-parts
   string childName;    //Child name

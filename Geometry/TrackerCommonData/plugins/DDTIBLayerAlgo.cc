@@ -38,28 +38,28 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  string idNameSpace;  //Namespace of this and ALL parts
-  string genMat;       //General material name
-  double detectorTilt;      //Detector Tilt
-  double layerL;            //Length of the layer
+  string idNameSpace;   //Namespace of this and ALL parts
+  string genMat;        //General material name
+  double detectorTilt;  //Detector Tilt
+  double layerL;        //Length of the layer
 
-  double radiusLo;         //Radius for detector at lower level
-  double phioffLo;         //Phi offset             ......
-  int stringsLo;           //Number of strings      ......
+  double radiusLo;    //Radius for detector at lower level
+  double phioffLo;    //Phi offset             ......
+  int stringsLo;      //Number of strings      ......
   string detectorLo;  //Detector string name   ......
 
-  double radiusUp;         //Radius for detector at upper level
-  double phioffUp;         //Phi offset             ......
-  int stringsUp;           //Number of strings      ......
+  double radiusUp;    //Radius for detector at upper level
+  double phioffUp;    //Phi offset             ......
+  int stringsUp;      //Number of strings      ......
   string detectorUp;  //Detector string name   ......
 
-  double cylinderT;          //Cylinder thickness
-  double cylinderInR;        //Cylinder inner radius
+  double cylinderT;     //Cylinder thickness
+  double cylinderInR;   //Cylinder inner radius
   string cylinderMat;   //Cylinder material
-  double MFRingInR;          //Inner Manifold Ring Inner Radius
-  double MFRingOutR;         //Outer Manifold Ring Outer Radius
-  double MFRingT;            //Manifold Ring Thickness
-  double MFRingDz;           //Manifold Ring Half Lenght
+  double MFRingInR;     //Inner Manifold Ring Inner Radius
+  double MFRingOutR;    //Outer Manifold Ring Outer Radius
+  double MFRingT;       //Manifold Ring Thickness
+  double MFRingDz;      //Manifold Ring Half Lenght
   string MFIntRingMat;  //Manifold Ring Material
   string MFExtRingMat;  //Manifold Ring Material
 
@@ -70,7 +70,7 @@ private:
   vector<double> centRing2par;  //Central rings parameters
 
   string fillerMat;  //Filler material
-  double fillerDz;        //Filler Half Length
+  double fillerDz;   //Filler Half Length
 
   string ribMat;          //Rib material
   vector<double> ribW;    //Rib width
@@ -81,14 +81,14 @@ private:
 
   double dohmtoMF;           //DOHM Distance to MF
   double dohmCarrierPhiOff;  //DOHM Carrier Phi offset wrt horizontal
-  string dohmPrimName;  //DOHM Primary Logical Volume name
-  string dohmAuxName;   //DOHM Auxiliary Logical Volume name
+  string dohmPrimName;       //DOHM Primary Logical Volume name
+  string dohmAuxName;        //DOHM Auxiliary Logical Volume name
 
   string dohmCarrierMaterial;  //DOHM Carrier Material
   string dohmCableMaterial;    //DOHM Cable Material
-  double dohmPrimL;                 //DOHM PRIMary Length
+  double dohmPrimL;            //DOHM PRIMary Length
   string dohmPrimMaterial;     //DOHM PRIMary Material
-  double dohmAuxL;                  //DOHM AUXiliary Length
+  double dohmAuxL;             //DOHM AUXiliary Length
   string dohmAuxMaterial;      //DOHM AUXiliary Material
 
   string pillarMaterial;  //Pillar Material

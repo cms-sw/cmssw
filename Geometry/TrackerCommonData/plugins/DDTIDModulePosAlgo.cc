@@ -31,53 +31,52 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  int detectorN;                  //Number of detectors
-  double detTilt;                 //Tilt of stereo detector
-  double fullHeight;              //Height
+  int detectorN;             //Number of detectors
+  double detTilt;            //Tilt of stereo detector
+  double fullHeight;         //Height
   string boxFrameName;       //Top frame Name
-  double boxFrameHeight;          //          height
-  double boxFrameWidth;           //          width
-  double dlTop;                   //Width at top of wafer
-  double dlBottom;                //Width at bottom of wafer
-  double dlHybrid;                //Width at the hybrid end
+  double boxFrameHeight;     //          height
+  double boxFrameWidth;      //          width
+  double dlTop;              //Width at top of wafer
+  double dlBottom;           //Width at bottom of wafer
+  double dlHybrid;           //Width at the hybrid end
   vector<double> boxFrameZ;  //              z-positions
-  double bottomFrameHeight;       //Bottom of the frame
-  double bottomFrameOver;         //              overlap
-  double topFrameHeight;          //Top    of the frame
-  double topFrameOver;            //              overlap
+  double bottomFrameHeight;  //Bottom of the frame
+  double bottomFrameOver;    //              overlap
+  double topFrameHeight;     //Top    of the frame
+  double topFrameOver;       //              overlap
 
   vector<string> sideFrameName;  //Side Frame    name
-  vector<double> sideFrameZ;          //              z-positions
+  vector<double> sideFrameZ;     //              z-positions
   vector<string>
       sideFrameRot;       //              rotation matrix (required for correct positiong of the hole in the StereoR)
   double sideFrameWidth;  //              width
   double sideFrameOver;   //              overlap (wrt wafer)
 
   vector<string> kaptonName;  //Kapton Circuit    name
-  vector<double> kaptonZ;          //              z-positions
-  vector<string>
-      kaptonRot;  //              rotation matrix (required for correct positiong of the hole in the StereoR)
+  vector<double> kaptonZ;     //              z-positions
+  vector<string> kaptonRot;  //              rotation matrix (required for correct positiong of the hole in the StereoR)
   vector<string> waferName;  //Wafer         name
-  vector<double> waferZ;          //              z-positions
+  vector<double> waferZ;     //              z-positions
   vector<string> waferRot;   //              rotation matrix
-  string hybridName;              //Hybrid        name
-  double hybridHeight;                 //              height
-  vector<double> hybridZ;         //              z-positions
+  string hybridName;         //Hybrid        name
+  double hybridHeight;       //              height
+  vector<double> hybridZ;    //              z-positions
   vector<string> pitchName;  //Pitch adapter rotation matrix
-  double pitchHeight;                  //              height
-  vector<double> pitchZ;          //              z-positions
+  double pitchHeight;        //              height
+  vector<double> pitchZ;     //              z-positions
   vector<string> pitchRot;   //              rotation matrix
-  string coolName;                //Cool Insert   name
-  double coolHeight;                   //              height
-  double coolZ;                        //              z-position
-  double coolWidth;                    //              width
-  vector<double> coolRadShift;    //
+  string coolName;           //Cool Insert   name
+  double coolHeight;         //              height
+  double coolZ;              //              z-position
+  double coolWidth;          //              width
+  vector<double> coolRadShift;  //
 
-  bool doSpacers;              //Spacers (alumina) to be made (Should be "Yes" for DS modules only)
-  string botSpacersName;  // Spacers at the "bottom" of the module
-  double botSpacersHeight;     //
-  double botSpacersZ;          //              z-position
-  string sidSpacersName;  //Spacers at the "sides" of the module
+  bool doSpacers;           //Spacers (alumina) to be made (Should be "Yes" for DS modules only)
+  string botSpacersName;    // Spacers at the "bottom" of the module
+  double botSpacersHeight;  //
+  double botSpacersZ;       //              z-position
+  string sidSpacersName;    //Spacers at the "sides" of the module
   double sidSpacersHeight;
   double sidSpacersZ;         //              z-position
   double sidSpacersWidth;     //              width

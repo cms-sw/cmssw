@@ -35,7 +35,7 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  string genMat;  //General material name
+  string genMat;       //General material name
   int detectorN;       //Detector planes
   double moduleThick;  //Module thickness
   double detTilt;      //Tilt of stereo detector
@@ -45,56 +45,56 @@ private:
   double dlHybrid;     //Width at the hybrid end
   bool doComponents;   //Components to be made
 
-  string boxFrameName;                //Top frame     name
-  string boxFrameMat;                 //              material
-  double boxFrameHeight;                   //              height
-  double boxFrameThick;                    //              thickness
-  double boxFrameWidth;                    //              extra width
-  double bottomFrameHeight;                //Bottom of the frame
-  double bottomFrameOver;                  //              overlap
-  double topFrameHeight;                   //Top    of the frame
-  double topFrameOver;                     //              overlap
+  string boxFrameName;           //Top frame     name
+  string boxFrameMat;            //              material
+  double boxFrameHeight;         //              height
+  double boxFrameThick;          //              thickness
+  double boxFrameWidth;          //              extra width
+  double bottomFrameHeight;      //Bottom of the frame
+  double bottomFrameOver;        //              overlap
+  double topFrameHeight;         //Top    of the frame
+  double topFrameOver;           //              overlap
   vector<string> sideFrameName;  //Side frame    name
-  string sideFrameMat;                //              material
-  double sideFrameWidth;                   //              width
-  double sideFrameThick;                   //              thickness
-  double sideFrameOver;                    //              overlap (wrt wafer)
+  string sideFrameMat;           //              material
+  double sideFrameWidth;         //              width
+  double sideFrameThick;         //              thickness
+  double sideFrameOver;          //              overlap (wrt wafer)
   vector<string> holeFrameName;  //Hole in the frame   name
   vector<string> holeFrameRot;   //              Rotation matrix
 
   vector<string> kaptonName;  //Kapton circuit name
-  string kaptonMat;                //               material
+  string kaptonMat;           //               material
   //  double                   kaptonWidth;   //               width -> computed internally from sideFrameWidth and kaptonOver
-  double kaptonThick;                       //               thickness
-  double kaptonOver;                        //               overlap (wrt Wafer)
+  double kaptonThick;             //               thickness
+  double kaptonOver;              //               overlap (wrt Wafer)
   vector<string> holeKaptonName;  //Hole in the kapton circuit name
   vector<string> holeKaptonRot;   //              Rotation matrix
 
-  vector<string> waferName;   //Wafer         name
-  string waferMat;                 //              material
-  double sideWidthTop;                  //              width on the side Top
-  double sideWidthBottom;               //                                Bottom
-  vector<string> activeName;  //Sensitive     name
-  string activeMat;                //              material
-  double activeHeight;                  //              height
-  vector<double> waferThick;       //              wafer thickness (active = wafer - backplane)
-  string activeRot;                //              Rotation matrix
-  vector<double> backplaneThick;   //              thickness
-  string hybridName;               //Hybrid        name
-  string hybridMat;                //              material
-  double hybridHeight;                  //              height
-  double hybridWidth;                   //              width
-  double hybridThick;                   //              thickness
-  vector<string> pitchName;   //Pitch adapter name
-  string pitchMat;                 //              material
-  double pitchHeight;                   //              height
-  double pitchThick;                    //              thickness
-  double pitchStereoTol;                //              tolerance in dimensions of the stereo
-  string coolName;                 // Cool insert name
-  string coolMat;                  //              material
-  double coolHeight;                    //              height
-  double coolThick;                     //              thickness
-  double coolWidth;                     //              width
+  vector<string> waferName;       //Wafer         name
+  string waferMat;                //              material
+  double sideWidthTop;            //              width on the side Top
+  double sideWidthBottom;         //                                Bottom
+  vector<string> activeName;      //Sensitive     name
+  string activeMat;               //              material
+  double activeHeight;            //              height
+  vector<double> waferThick;      //              wafer thickness (active = wafer - backplane)
+  string activeRot;               //              Rotation matrix
+  vector<double> backplaneThick;  //              thickness
+  string hybridName;              //Hybrid        name
+  string hybridMat;               //              material
+  double hybridHeight;            //              height
+  double hybridWidth;             //              width
+  double hybridThick;             //              thickness
+  vector<string> pitchName;       //Pitch adapter name
+  string pitchMat;                //              material
+  double pitchHeight;             //              height
+  double pitchThick;              //              thickness
+  double pitchStereoTol;          //              tolerance in dimensions of the stereo
+  string coolName;                // Cool insert name
+  string coolMat;                 //              material
+  double coolHeight;              //              height
+  double coolThick;               //              thickness
+  double coolWidth;               //              width
 };
 
 DDTIDModuleAlgo::DDTIDModuleAlgo() { LogDebug("TIDGeom") << "DDTIDModuleAlgo info: Creating an instance"; }

@@ -40,17 +40,17 @@ public:
 private:
   string idNameSpace;          //Namespace of this and ALL sub-parts
   string genMat;               //Name of general material
-  int number;                       //Number of ladders in phi
-  double layerDz;                   //Length of the layer
-  double sensorEdge;                //Distance from edge for a half sensor
-  double coolDz;                    //Length of the cooling piece
-  double coolWidth;                 //Width
-  double coolSide;                  //Side length
-  double coolThick;                 //Thickness of the shell
-  double coolDist;                  //Radial distance between centres of 2
+  int number;                  //Number of ladders in phi
+  double layerDz;              //Length of the layer
+  double sensorEdge;           //Distance from edge for a half sensor
+  double coolDz;               //Length of the cooling piece
+  double coolWidth;            //Width
+  double coolSide;             //Side length
+  double coolThick;            //Thickness of the shell
+  double coolDist;             //Radial distance between centres of 2
   string coolMat;              //Cooling fluid material name
   string tubeMat;              //Cooling piece material name
-  vector<string> ladder;  //Names     of ladders
+  vector<string> ladder;       //Names     of ladders
   vector<double> ladderWidth;  //Widths         ...
   vector<double> ladderThick;  //Thickness      ...
 };
