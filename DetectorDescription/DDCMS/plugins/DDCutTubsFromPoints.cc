@@ -4,15 +4,13 @@
 
 #include "DataFormats/Math/interface/GeantUnits.h"
 
-using namespace geant_units::operators; // _deg and convertRadToDeg
+using namespace geant_units::operators;  // _deg and convertRadToDeg
 
 static long algorithm(dd4hep::Detector& /* description */,
-                       cms::DDParsingContext& ctxt,
-                       xml_h e,
-                       dd4hep::SensitiveDetector& /* sens */)
-{
-
-  cms::DDNamespace ns(ctxt,e,true);
+                      cms::DDParsingContext& ctxt,
+                      xml_h e,
+                      dd4hep::SensitiveDetector& /* sens */) {
+  cms::DDNamespace ns(ctxt, e, true);
   cms::DDAlgoArguments args(ctxt, e);
 
   dd4hep::Volume mother = ns.volume(args.parentName());
@@ -41,15 +39,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   assert(phis.size() == z_ts.size());
 
   for (unsigned i = 0; i < phis.size(); i++) {
-
-    Section s = {
-      dd4hep::_toDouble(phis[i]),
-      dd4hep::_toDouble(z_ls[i]),
-      dd4hep::_toDouble(z_ts[i])
-    };
+    Section s = {dd4hep::_toDouble(phis[i]), dd4hep::_toDouble(z_ls[i]), dd4hep::_toDouble(z_ts[i])};
 
     sections.emplace_back(s);
-
   }
 
   assert(!sections.empty());
@@ -58,11 +50,8 @@ static long algorithm(dd4hep::Detector& /* description */,
   // non-zero phi distance. Sections with zero phi distance can be used to
   // create sharp jumps.
 
-  LogDebug("TrackerGeom") << "DDCutTubsFromPoints debug: Parent " 
-                          << args.parentName()
-                          << "\tSolid " << solidOutput
-                          << " NameSpace " << ns.name()
-                          << "\tnumber of sections " << sections.size();
+  LogDebug("TrackerGeom") << "DDCutTubsFromPoints debug: Parent " << args.parentName() << "\tSolid " << solidOutput
+                          << " NameSpace " << ns.name() << "\tnumber of sections " << sections.size();
 
   // radius for plane calculations
   // We use r_max here, since P3 later has a Z that is always more inside
@@ -137,7 +126,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 
       // ... normalized.
       // flip the sign here (but not for t) since root wants it like that.
-      double norm = -sqrt(n_x_l*n_x_l + n_y_l*n_y_l + n_z_l * n_z_l);
+      double norm = -sqrt(n_x_l * n_x_l + n_y_l * n_y_l + n_z_l * n_z_l);
       n_x_l /= norm;
       n_y_l /= norm;
       n_z_l /= norm;
@@ -150,7 +139,7 @@ static long algorithm(dd4hep::Detector& /* description */,
       double n_y_t = (D1_z_t * P2_x_t) - (P1_x_t * D2_z_t);
       double n_z_t = (P1_x_t * P2_y_t) - (P1_y_t * P2_x_t);
 
-      norm = sqrt(n_x_t*n_x_t + n_y_t*n_y_t + n_z_t*n_z_t);
+      norm = sqrt(n_x_t * n_x_t + n_y_t * n_y_t + n_z_t * n_z_t);
       n_x_t /= norm;
       n_y_t /= norm;
       n_z_t /= norm;
@@ -158,17 +147,13 @@ static long algorithm(dd4hep::Detector& /* description */,
       // the cuttubs wants a delta phi
       double dphi = phi2 - phi1;
 
-      auto seg = dd4hep::CutTube(r_min, r_max, dz,
-                                 phi1, dphi,
-                                 n_x_l, n_y_l, n_z_l,
-                                 n_x_t, n_y_t, n_z_t);
+      auto seg = dd4hep::CutTube(r_min, r_max, dz, phi1, dphi, n_x_l, n_y_l, n_z_l, n_x_t, n_y_t, n_z_t);
 
       segments.emplace_back(seg);
       offsets.emplace_back(offset);
     }
 
     s1 = s2;
-
   }
 
   assert(segments.size() >= 2);  // less would be special cases
@@ -179,36 +164,29 @@ static long algorithm(dd4hep::Detector& /* description */,
   double shift = offsets[0];
 
   for (unsigned i = 1; i < segments.size() - 1; i++) {
-    // each sub-union needs a name. 
-    std::string unionname = solidOutput + "_uni" + std::to_string(i+1);
+    // each sub-union needs a name.
+    std::string unionname = solidOutput + "_uni" + std::to_string(i + 1);
 
-    solid = ns.addSolid(unionname,
-                        dd4hep::UnionSolid(unionname,
-                                           solid, segments[i],
-                                           dd4hep::Position( 0., 0., offsets[i] - shift)));
+    solid = ns.addSolid(
+        unionname, dd4hep::UnionSolid(unionname, solid, segments[i], dd4hep::Position(0., 0., offsets[i] - shift)));
   }
 
   solid = ns.addSolid(solidOutput,
-                   dd4hep::UnionSolid(solidOutput,
-                                      solid,
-                                      segments[segments.size() - 1],
-                                      dd4hep::Position(0. ,0. ,
-                                                       offsets[segments.size() - 1] - shift)));
+                      dd4hep::UnionSolid(solidOutput,
+                                         solid,
+                                         segments[segments.size() - 1],
+                                         dd4hep::Position(0., 0., offsets[segments.size() - 1] - shift)));
 
   // remove the common offset from the input, to get sth. aligned at z=0.
   double offset = -shift + (min_z + (max_z - min_z) / 2.);
 
-  auto logical = ns.addVolume(dd4hep::Volume(solidOutput,
-                                             solid, ns.material(material)));
+  auto logical = ns.addVolume(dd4hep::Volume(solidOutput, solid, ns.material(material)));
 
   int nCopy = 1;
   auto pos = dd4hep::Position(0., 0., z_pos - offset);
-  mother.placeVolume(logical, nCopy,
-                     dd4hep::Transform3D(dd4hep::Rotation3D(), pos));
+  mother.placeVolume(logical, nCopy, dd4hep::Transform3D(dd4hep::Rotation3D(), pos));
 
-  mother.placeVolume(logical, nCopy+1,
-                     dd4hep::Transform3D(ns.rotation("pixfwdCommon:Z180"), pos));
+  mother.placeVolume(logical, nCopy + 1, dd4hep::Transform3D(ns.rotation("pixfwdCommon:Z180"), pos));
 
   return cms::s_executed;
-
 }
