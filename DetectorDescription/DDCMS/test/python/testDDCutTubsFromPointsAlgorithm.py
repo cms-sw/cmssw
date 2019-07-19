@@ -9,7 +9,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 process.MessageLogger = cms.Service(
     "MessageLogger",
     statistics = cms.untracked.vstring('cout', 'testCutTubsFromPointsAlgo'),
-    categories = cms.untracked.vstring('testCutTubs'),
+    categories = cms.untracked.vstring('TrackerGeom'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
@@ -28,7 +28,7 @@ process.MessageLogger = cms.Service(
             limit = cms.untracked.int32(0)
         ),
         threshold = cms.untracked.string('DEBUG'),
-        testCutTubs = cms.untracked.PSet(
+        TrackerGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         )
     ),
