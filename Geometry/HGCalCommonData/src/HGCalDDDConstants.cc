@@ -170,7 +170,7 @@ std::array<int, 3> HGCalDDDConstants::assignCellTrap(float x, float y, float z, 
   type = hgpar_->scintType(layer);
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
   irad = (int)(ir - hgpar_->radiusLayer_[type].begin());
-  irad = std::min(std::max(irad, hgpar_->iradMinBH_[indx.first]), hgpar_->iradMaxBH_[indx.first]);
+  irad = std::clamp(irad, hgpar_->iradMinBH_[indx.first], hgpar_->iradMaxBH_[indx.first]);
   iphi = 1 + (int)(phi / indx.second);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "assignCellTrap Input " << x << ":" << y << ":" << z << ":" << layer << ":" << reco
@@ -328,10 +328,7 @@ double HGCalDDDConstants::distFromEdgeTrap(double x, double y, double z) const {
   // Take the smaller value
   auto ir = std::lower_bound(hgpar_->radiusLayer_[type].begin(), hgpar_->radiusLayer_[type].end(), r);
   int irad = (int)(ir - hgpar_->radiusLayer_[type].begin());
-  if (irad < hgpar_->iradMinBH_[indx])
-    irad = hgpar_->iradMinBH_[indx];
-  else if (irad > hgpar_->iradMaxBH_[indx])
-    irad = hgpar_->iradMaxBH_[indx];
+  irad = std::clamp(irad, hgpar_->iradMinBH_[indx], hgpar_->iradMaxBH_[indx]);
   int iphi = 1 + (int)(phi / cell);
   double dphi = std::max(0.0, (0.5 * cell - std::abs(phi - (iphi - 0.5) * cell)));
   double dist = std::min((r - hgpar_->radiusLayer_[type][irad - 1]), (hgpar_->radiusLayer_[type][irad] - r));
@@ -617,15 +614,14 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int lay,
                                     << (ktr != hgpar_->cellCoarseIndex_.end());
 #endif
   }
-  if (all) {
-    int ll = lay - hgpar_->firstLayer_;
-    x += hgpar_->xLayerHex_[ll];
-    y += hgpar_->yLayerHex_[ll];
+  int ll = lay - hgpar_->firstLayer_;
+  x += hgpar_->xLayerHex_[ll];
+  y += hgpar_->yLayerHex_[ll];
 #ifdef EDM_ML_DEBUG
+  if (debug)
     edm::LogVerbatim("HGCalGeom") << "Layer " << lay << ":" << ll << " Shift " << hgpar_->xLayerHex_[ll] << ":"
                                   << hgpar_->yLayerHex_[ll];
 #endif
-  }
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
     y *= HGCalParameters::k_ScaleToDDD;
@@ -668,6 +664,12 @@ std::pair<float, float> HGCalDDDConstants::locateCellTrap(int lay, int irad, int
     double z = hgpar_->zLayerHex_[indx.first];
     double r = 0.5 * (hgpar_->radiusLayer_[type][ir - 1] + hgpar_->radiusLayer_[type][ir]);
     std::pair<double, double> range = rangeR(z, true);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "locateCellTrap:: Input " << lay << ":" << irad << ":" << iphi << ":" << reco
+                                  << " IR " << ir << ":" << hgpar_->iradMinBH_[indx.first] << ":"
+                                  << hgpar_->iradMaxBH_[indx.first] << " Type " << type << " Z " << indx.first << ":"
+                                  << z << " phi " << phi << " R " << r << ":" << range.first << ":" << range.second;
+#endif
     r = std::max(range.first, std::min(r, range.second));
     x = r * std::cos(phi);
     y = r * std::sin(phi);
@@ -1129,7 +1131,6 @@ void HGCalDDDConstants::waferFromPosition(const double x,
                                               debug
 #endif
                                           ) const {
-
   int ll = layer - hgpar_->firstLayer_;
   double xx = HGCalParameters::k_ScaleFromDDD * x - hgpar_->xLayerHex_[ll];
   double yy = HGCalParameters::k_ScaleFromDDD * y - hgpar_->yLayerHex_[ll];
@@ -1145,7 +1146,9 @@ void HGCalDDDConstants::waferFromPosition(const double x,
         celltype = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
 #ifdef EDM_ML_DEBUG
         if (debug)
-          edm::LogVerbatim("HGCalGeom") << "WaferFromPosition:: Input " << xx << ":" << yy << " compared with "
+          edm::LogVerbatim("HGCalGeom") << "WaferFromPosition:: Input " << layer << ":" << ll << ":"
+                                        << hgpar_->firstLayer_ << ":" << x << ":" << y << ":" << hgpar_->xLayerHex_[ll]
+                                        << ":" << hgpar_->yLayerHex_[ll] << ":" << xx << ":" << yy << " compared with "
                                         << hgpar_->waferPosX_[k] << ":" << hgpar_->waferPosY_[k] << " difference " << dx
                                         << ":" << dy << ":" << dx * tan30deg_ << ":" << (hexside_ - dy)
                                         << " comparator " << rmax_ << ":" << hexside_ << " wafer " << waferU << ":"
