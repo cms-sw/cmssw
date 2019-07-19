@@ -66,17 +66,17 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  int n;                       //Number of copies
-  int startCopyNo;             //Start Copy number
-  int incrCopyNo;              //Increment in Copy number
-  double rangeAngle;           //Range in Phi angle
-  double startAngle;           //Start Phi angle
-  double radius;               //Radius
+  int n;                  //Number of copies
+  int startCopyNo;        //Start Copy number
+  int incrCopyNo;         //Increment in Copy number
+  double rangeAngle;      //Range in Phi angle
+  double startAngle;      //Start Phi angle
+  double radius;          //Radius
   vector<double> center;  //Phi values
-  bool isZPlus;                //Is Z positive ?
-  double tiltAngle;            //Module's tilt angle (absolute value)
-  bool isFlipped;              //Is the module flipped ?
-  double delta;                //Increment in Phi
+  bool isZPlus;           //Is Z positive ?
+  double tiltAngle;       //Module's tilt angle (absolute value)
+  bool isFlipped;         //Is the module flipped ?
+  double delta;           //Increment in Phi
 
   string idNameSpace;  //Namespace of this and ALL sub-parts
   string childName;    //Child name
@@ -211,8 +211,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     }
 
     // globalRot def
-    string globalRotstr =
-        rotstr + "Phi" + to_string(phideg * 10.) + "Tilt" + to_string(tiltAngle / CLHEP::deg);
+    string globalRotstr = rotstr + "Phi" + to_string(phideg * 10.) + "Tilt" + to_string(tiltAngle / CLHEP::deg);
     if (isZPlus) {
       globalRotstr += "ZPlus";
       if (isFlipped) {

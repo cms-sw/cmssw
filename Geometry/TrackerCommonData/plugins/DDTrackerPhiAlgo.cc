@@ -32,8 +32,8 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  double radius;             //Radius
-  double tilt;               //Tilt angle
+  double radius;        //Radius
+  double tilt;          //Tilt angle
   vector<double> phi;   //Phi values
   vector<double> zpos;  //Z positions
 

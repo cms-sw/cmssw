@@ -119,7 +119,7 @@ private:
 
   vector<double> childTranslationVector;  // Child translation with respect to "blade frame"
   string childRotationName;               // Child rotation with respect to "blade frame"
-  string idNameSpace;  //Namespace of this and ALL sub-parts
+  string idNameSpace;                     //Namespace of this and ALL sub-parts
 
   map<string, int> copyNumbers;
 
@@ -291,14 +291,14 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
       rotMatrix *= childRotMatrix;
       rotation = DDrot(DDName(rotstr, idNameSpace),
                        make_unique<DDRotationMatrix>(rotMatrix.xx(),
-                                                          rotMatrix.xy(),
-                                                          rotMatrix.xz(),
-                                                          rotMatrix.yx(),
-                                                          rotMatrix.yy(),
-                                                          rotMatrix.yz(),
-                                                          rotMatrix.zx(),
-                                                          rotMatrix.zy(),
-                                                          rotMatrix.zz()));
+                                                     rotMatrix.xy(),
+                                                     rotMatrix.xz(),
+                                                     rotMatrix.yx(),
+                                                     rotMatrix.yy(),
+                                                     rotMatrix.yz(),
+                                                     rotMatrix.zx(),
+                                                     rotMatrix.zy(),
+                                                     rotMatrix.zz()));
     }
     // position the child :
 

@@ -39,13 +39,13 @@ private:
   string childName;            //Child name
   string rotName;              //Name of the base rotation matrix
   string flagString;           //Flag if a blade is present
-  int nBlades;                      //Number of blades
-  int startCopyNo;                  //Start Copy number
-  double bladeAngle;                //Angle of blade rotation aroung y-axis
-  double zPlane;                    //Common shift in z for all blades
+  int nBlades;                 //Number of blades
+  int startCopyNo;             //Start Copy number
+  double bladeAngle;           //Angle of blade rotation aroung y-axis
+  double zPlane;               //Common shift in z for all blades
   vector<double> bladeZShift;  //Shift in Z of individual blades
-  double anchorR;                   //Distance of beam line to anchor point
-  double bladeTilt;                 //Tilt of the blade around x-axis
+  double anchorR;              //Distance of beam line to anchor point
+  double bladeTilt;            //Tilt of the blade around x-axis
 };
 
 DDPixFwdDiskAlgo::DDPixFwdDiskAlgo() { LogDebug("TrackerGeom") << "DDPixFwdDiskAlgo info: Creating an instance"; }
@@ -97,13 +97,11 @@ void DDPixFwdDiskAlgo::execute(DDCompactView& cpv) {
       //      double phi  = (iBlade+0.5)*deltaPhi - 90.*CLHEP::deg;
       double phix = atan2(sin(phi) * cos(bladeAngle), cos(phi) * cos(bladeAngle));
       double thetx = acos(-sin(bladeAngle));
-      double phiy = atan2(
-          (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt)),
-          (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt)));
+      double phiy = atan2((cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt)),
+                          (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt)));
       double thety = acos(cos(bladeAngle) * sin(bladeTilt));
-      double phiz = atan2(
-          (-cos(phi) * sin(bladeTilt) + sin(phi) * sin(bladeAngle) * cos(bladeTilt)),
-          (sin(phi) * sin(bladeTilt) + cos(phi) * sin(bladeAngle) * cos(bladeTilt)));
+      double phiz = atan2((-cos(phi) * sin(bladeTilt) + sin(phi) * sin(bladeAngle) * cos(bladeTilt)),
+                          (sin(phi) * sin(bladeTilt) + cos(phi) * sin(bladeAngle) * cos(bladeTilt)));
       double thetz = acos(cos(bladeAngle) * cos(bladeTilt));
       DDRotation rot = DDRotation(DDName(rotstr, rotns));
       if (!rot) {
@@ -111,24 +109,19 @@ void DDPixFwdDiskAlgo::execute(DDCompactView& cpv) {
                                 << "rotation: " << rotstr << "\t" << thetx / CLHEP::deg << ", " << phix / CLHEP::deg
                                 << ", " << thety / CLHEP::deg << ", " << phiy / CLHEP::deg << ", " << thetz / CLHEP::deg
                                 << ", " << phiz / CLHEP::deg;
-        LogDebug("TrackerGeom")
-            << "Rotation Matrix (" << phi / CLHEP::deg << ", " << bladeAngle / CLHEP::deg << ", "
-            << bladeTilt / CLHEP::deg << ") " << cos(phi) * cos(bladeAngle) << ", "
-            << (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt))
-            << ", "
-            << (sin(phi) * sin(bladeTilt) + cos(phi) * sin(bladeAngle) * cos(bladeTilt))
-            << ", " << sin(phi) * cos(bladeAngle) << ", "
-            << (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt))
-            << ", "
-            << (-cos(phi) * sin(bladeTilt) + sin(phi) * sin(bladeAngle) * cos(bladeTilt))
-            << ", " << -sin(bladeAngle) << ", " << cos(bladeAngle) * sin(bladeTilt) << ", "
-            << cos(bladeAngle) * cos(bladeTilt);
+        LogDebug("TrackerGeom") << "Rotation Matrix (" << phi / CLHEP::deg << ", " << bladeAngle / CLHEP::deg << ", "
+                                << bladeTilt / CLHEP::deg << ") " << cos(phi) * cos(bladeAngle) << ", "
+                                << (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt)) << ", "
+                                << (sin(phi) * sin(bladeTilt) + cos(phi) * sin(bladeAngle) * cos(bladeTilt)) << ", "
+                                << sin(phi) * cos(bladeAngle) << ", "
+                                << (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt)) << ", "
+                                << (-cos(phi) * sin(bladeTilt) + sin(phi) * sin(bladeAngle) * cos(bladeTilt)) << ", "
+                                << -sin(bladeAngle) << ", " << cos(bladeAngle) * sin(bladeTilt) << ", "
+                                << cos(bladeAngle) * cos(bladeTilt);
         rot = DDrot(DDName(rotstr, rotns), thetx, phix, thety, phiy, thetz, phiz);
       }
-      double xpos =
-          anchorR * (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt));
-      double ypos =
-          anchorR * (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt));
+      double xpos = anchorR * (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt));
+      double ypos = anchorR * (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt));
       double zpos = anchorR * (cos(bladeAngle) * sin(bladeTilt)) + zPlane + bladeZShift[iBlade];
       DDTranslation tran(xpos, ypos, zpos);
       cpv.position(child, mother, copy, tran, rot);

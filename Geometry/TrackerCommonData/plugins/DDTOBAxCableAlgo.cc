@@ -39,11 +39,11 @@ private:
 
   vector<string> sectorNumber;  // Id. Number of the sectors
 
-  double sectorRin;                           // Inner radius of service sectors
-  double sectorRout;                          // Outer radius of service sectors
-  double sectorDz;                            // Sector half-length
-  double sectorDeltaPhi_B;                    // Sector B phi width [A=C=0.5*(360/sectors)]
-  vector<double> sectorStartPhi;         // Starting phi for the service sectors
+  double sectorRin;                 // Inner radius of service sectors
+  double sectorRout;                // Outer radius of service sectors
+  double sectorDz;                  // Sector half-length
+  double sectorDeltaPhi_B;          // Sector B phi width [A=C=0.5*(360/sectors)]
+  vector<double> sectorStartPhi;    // Starting phi for the service sectors
   vector<string> sectorMaterial_A;  // Material for the A sectors
   vector<string> sectorMaterial_B;  // Material for the B sectors
   vector<string> sectorMaterial_C;  // Material for the C sectors

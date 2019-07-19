@@ -34,16 +34,16 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  string idNameSpace;              //Namespace of this & ALL subparts
+  string idNameSpace;         //Namespace of this & ALL subparts
   vector<string> moduleName;  //Name of the module
-  string iccName;                  //Name of the ICC
+  string iccName;             //Name of the ICC
 
-  int number;                   //Number of copies
-  double startAngle;            //Phi offset
-  double rModule;               //Location of module in R
+  int number;              //Number of copies
+  double startAngle;       //Phi offset
+  double rModule;          //Location of module in R
   vector<double> zModule;  //                   in Z
-  double rICC;                  //Location of ICC    in R
-  double sICC;                  //Shift of ICC       per to R
+  double rICC;             //Location of ICC    in R
+  double sICC;             //Shift of ICC       per to R
   vector<double> zICC;     //                   in Z
 };
 

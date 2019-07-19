@@ -33,20 +33,20 @@ private:
   string central;      // Name of the central piece
   string idNameSpace;  // Namespace of this and ALL sub-parts
 
-  double shift;                      // Shift in z
-  vector<string> sideRod;  // Name of the Side Rod
-  vector<double> sideRodX;      // x-positions
-  vector<double> sideRodY;      // y-positions
-  vector<double> sideRodZ;      // z-positions
-  string endRod1;               // Name of the End Rod of type 1
-  vector<double> endRod1Y;      // y-positions
-  vector<double> endRod1Z;      // z-positions
-  string endRod2;               // Name of the End Rod of type 2
-  double endRod2Y;                   // y-position
-  double endRod2Z;                   // z-position
+  double shift;             // Shift in z
+  vector<string> sideRod;   // Name of the Side Rod
+  vector<double> sideRodX;  // x-positions
+  vector<double> sideRodY;  // y-positions
+  vector<double> sideRodZ;  // z-positions
+  string endRod1;           // Name of the End Rod of type 1
+  vector<double> endRod1Y;  // y-positions
+  vector<double> endRod1Z;  // z-positions
+  string endRod2;           // Name of the End Rod of type 2
+  double endRod2Y;          // y-position
+  double endRod2Z;          // z-position
 
-  string cable;  // Name of the Mother cable
-  double cableZ;      // z-position
+  string cable;   // Name of the Mother cable
+  double cableZ;  // z-position
 
   string clamp;              // Name of the clamp
   vector<double> clampX;     // x-positions
@@ -57,8 +57,8 @@ private:
   vector<double> sideCoolZ;  // z-positions
   string endCool;            // Name of the End Cooling Tube
   string endCoolRot;         // Rotation matrix name for end cool
-  double endCoolY;                // y-position to avoid overlap with the module
-  double endCoolZ;                // z-position
+  double endCoolY;           // y-position to avoid overlap with the module
+  double endCoolZ;           // z-position
 
   string optFibre;           // Name of the Optical Fibre
   vector<double> optFibreX;  // x-positions
@@ -70,13 +70,13 @@ private:
   string sideClamp2;            // Name of the side clamp of type 2
   vector<double> sideClamp2DZ;  // Delta(z)-positions
 
-  string module;                  // Name of the detector modules
+  string module;             // Name of the detector modules
   vector<string> moduleRot;  // Rotation matrix name for module
-  vector<double> moduleY;         // y-positions
-  vector<double> moduleZ;         // z-positions
+  vector<double> moduleY;    // y-positions
+  vector<double> moduleZ;    // z-positions
   vector<string> connect;    // Name of the connectors
-  vector<double> connectY;        // y-positions
-  vector<double> connectZ;        // z-positions
+  vector<double> connectY;   // y-positions
+  vector<double> connectZ;   // z-positions
 
   string aohName;            // AOH name
   vector<double> aohCopies;  // AOH copies to be positioned on each ICC
