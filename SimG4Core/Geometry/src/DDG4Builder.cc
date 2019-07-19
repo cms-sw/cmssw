@@ -141,15 +141,15 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
         DD3Vector x, y, z;
         rm.GetComponents(x, y, z);
         if ((x.Cross(y)).Dot(z) < 0)
-          edm::LogInfo("SimG4CoreGeometry")
-              << ">>Reflection encountered: " << gra.edgeData(cit->second)->ddrot()
+          edm::LogVerbatim("SimG4CoreGeometry")
+              << "DDG4Builder: Reflection: " << gra.edgeData(cit->second)->ddrot()
               << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname()
               << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
         G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(),
                                gra.edgeData(cit->second)->trans().Y(),
                                gra.edgeData(cit->second)->trans().Z());
         G4Translate3D transl = tempTran;
-        CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z());  // matrix representation
+        CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z());  // matrix
         CLHEP::HepRotation hr(temp);
 
         // G3 convention of defining rot-matrices ...
@@ -176,8 +176,8 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
       map_.insert(reflLogicalVolume, ddlv);
       DDG4Dispatchable *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      edm::LogInfo("SimG4CoreGeometry") << "DDG4Builder: newEvent: dd=" << ddlv.ddname()
-                                        << " g4=" << reflLogicalVolume->GetName();
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();
     }
   }
 
@@ -186,8 +186,8 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
   //
   //  needed for building sensitive detectors
   //
-  DDG4SensitiveConverter conv_;
-  conv_.upDate(*theVectorOfDDG4Dispatchables_, catalog);
+  DDG4SensitiveConverter conv;
+  conv.upDate(*theVectorOfDDG4Dispatchables_, catalog);
 
   return world;
 }

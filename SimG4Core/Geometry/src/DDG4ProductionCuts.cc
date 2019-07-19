@@ -1,19 +1,18 @@
 #include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "G4ProductionCuts.hh"
 #include "G4RegionStore.hh"
+#include "G4Region.hh"
+#include "G4LogicalVolume.hh"
 
 #include <algorithm>
 
-DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map,
-                                       int verb,
-                                       const edm::ParameterSet& p)
-    : map_(map), verbosity_(verb) {
-  keywordRegion_ = "CMSCutsRegion";
-  protonCut_ = p.getUntrackedParameter<bool>("CutsOnProton", true);
+DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap& map, int verb, bool pcut)
+    : map_(map), keywordRegion_("CMSCutsRegion"), verbosity_(verb), protonCut_(pcut) {
   initialize();
 }
 
@@ -63,14 +62,16 @@ void DDG4ProductionCuts::initialize() {
   G4Region* region = nullptr;
   G4RegionStore* store = G4RegionStore::GetInstance();
   for (auto const& vv : vec_) {
-    //for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin(); tit != vec_.end(); ++tit) {
     unsigned int num = map_.toString(keywordRegion_, vv.second, regionName);
+    edm::LogVerbatim("Geometry") << "  num  " << num << " regionName: " << regionName << " " << store;
 
     if (num != 1) {
       throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::initialize: Problem with Region tags.");
     }
     if (regionName != curName) {
+      edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : regionName " << regionName << " " << store;
       region = store->FindOrCreateRegion(regionName);
+      edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : region " << region;
       if (!region) {
         throw cms::Exception("SimG4CoreGeometry", " DDG4ProductionCuts::initialize: Problem with Region tags.");
       }
