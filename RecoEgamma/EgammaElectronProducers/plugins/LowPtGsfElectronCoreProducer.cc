@@ -55,7 +55,8 @@ void LowPtGsfElectronCoreProducer::produce(edm::Event& event, const edm::EventSe
 //////////////////////////////////////////////////////////////////////////////////////////
 //
 void LowPtGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  auto desc = makeBaseDescription("lowPtGsfElePfGsfTracks", "lowPtGsfEleGsfTracks");
+  edm::ParameterSetDescription desc;
+  GsfElectronCoreBaseProducer::fillDescription(desc, "lowPtGsfElePfGsfTracks", "lowPtGsfEleGsfTracks");
   desc.add<edm::InputTag>("superClusters", edm::InputTag("lowPtGsfElectronSuperClusters"));
   descriptions.add("lowPtGsfElectronCores", desc);
 }

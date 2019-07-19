@@ -27,8 +27,9 @@ namespace edm {
 
 class GsfElectronCoreBaseProducer : public edm::stream::EDProducer<> {
 public:
-  static edm::ParameterSetDescription makeBaseDescription(std::string const& gsfPfRecTracks,
-                                                          std::string const& gsfTracks);
+  static void fillDescription(edm::ParameterSetDescription&,
+                              std::string const& gsfPfRecTracks = "pfTrackElec",
+                              std::string const& gsfTracks = "electronGsfTracks");
 
   explicit GsfElectronCoreBaseProducer(const edm::ParameterSet& conf);
 
