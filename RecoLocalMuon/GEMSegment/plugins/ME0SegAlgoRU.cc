@@ -375,8 +375,7 @@ bool ME0SegAlgoRU::areHitsCloseInEta(const float maxETA,
                                      const bool beamConst,
                                      const GlobalPoint& h1,
                                      const GlobalPoint& h2) const {
-  float diff = 0;
-  diff = std::fabs(h1.eta() - h1.eta());
+  float diff = std::fabs(h1.eta() - h2.eta());
   edm::LogVerbatim("ME0SegAlgoRU") << "[ME0SegAlgoRU::areHitsCloseInEta] gp1 = " << h1 << " in eta part = " << h1.eta()
                                    << " and gp2 = " << h2 << " in eta part = " << h2.eta() << " ==> dEta = " << diff
                                    << " ==> return " << (diff < 0.1) << std::endl;
