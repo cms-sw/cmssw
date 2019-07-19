@@ -82,11 +82,14 @@ namespace reco {
 
       math::XYZVector magneticFieldStrength_;
 
-      mutable std::atomic<unsigned int> numWarnings_;
+      static std::atomic<unsigned int> numWarnings_;
       static constexpr unsigned int maxWarnings_ = 3;
 
       int verbosity_;
     };
+
+    template <class TrackClass>
+    std::atomic<unsigned int> PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::numWarnings_{0};
 
     template <class TrackClass>
     PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::PFRecoTauChargedHadronFromGenericTrackPlugin(
@@ -105,7 +108,6 @@ namespace reco {
       dRmergeNeutralHadron_ = pset.getParameter<double>("dRmergeNeutralHadron");
       dRmergePhoton_ = pset.getParameter<double>("dRmergePhoton");
 
-      numWarnings_ = 0;
       verbosity_ = pset.getParameter<int>("verbosity");
     }
 
