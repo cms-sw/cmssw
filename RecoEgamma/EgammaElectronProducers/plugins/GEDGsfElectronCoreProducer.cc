@@ -21,7 +21,8 @@
 using namespace reco;
 
 void GEDGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  auto desc = makeBaseDescription("pfTrackElec", "electronGsfTracks");
+  edm::ParameterSetDescription desc;
+  GsfElectronCoreBaseProducer::fillDescription(desc);
   desc.add<edm::InputTag>("GEDEMUnbiased", edm::InputTag("particleFlowEGamma"));
   descriptions.add("gedGsfElectronCores", desc);
 }

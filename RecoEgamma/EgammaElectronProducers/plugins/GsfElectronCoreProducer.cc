@@ -18,7 +18,8 @@
 using namespace reco;
 
 void GsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
-  auto desc = makeBaseDescription("pfTrackElec", "electronGsfTracks");
+  edm::ParameterSetDescription desc;
+  GsfElectronCoreBaseProducer::fillDescription(desc);
   desc.add<edm::InputTag>("ecalDrivenGsfElectronCoresTag", edm::InputTag("ecalDrivenGsfElectronCores"));
   desc.add<edm::InputTag>("pflowGsfElectronCoresTag", edm::InputTag("pfElectronTranslator:pf"));
   desc.add<edm::InputTag>("pfSuperClusters", edm::InputTag("pfElectronTranslator:pf"));

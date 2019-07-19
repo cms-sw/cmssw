@@ -18,7 +18,8 @@
 using namespace reco;
 
 void GsfElectronCoreEcalDrivenProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  auto desc = makeBaseDescription("pfTrackElec", "electronGsfTracks");
+  edm::ParameterSetDescription desc;
+  GsfElectronCoreBaseProducer::fillDescription(desc);
   descriptions.add("ecalDrivenGsfElectronCores", desc);
 }
 

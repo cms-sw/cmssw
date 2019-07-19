@@ -13,14 +13,13 @@
 
 using namespace reco;
 
-edm::ParameterSetDescription GsfElectronCoreBaseProducer::makeBaseDescription(std::string const& gsfPfRecTracks,
-                                                                              std::string const& gsfTracks) {
-  edm::ParameterSetDescription desc;
+void GsfElectronCoreBaseProducer::fillDescription(edm::ParameterSetDescription& desc,
+                                                  std::string const& gsfPfRecTracks,
+                                                  std::string const& gsfTracks) {
   desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag(gsfPfRecTracks));
   desc.add<edm::InputTag>("gsfTracks", edm::InputTag(gsfTracks));
   desc.add<edm::InputTag>("ctfTracks", edm::InputTag("generalTracks"));
   desc.add<bool>("useGsfPfRecTracks", true);
-  return desc;
 }
 
 GsfElectronCoreBaseProducer::GsfElectronCoreBaseProducer(const edm::ParameterSet& config) {
