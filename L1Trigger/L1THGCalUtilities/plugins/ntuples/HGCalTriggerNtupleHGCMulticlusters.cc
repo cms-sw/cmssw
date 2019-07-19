@@ -42,6 +42,13 @@ private:
   std::vector<float> cl3d_srrmax_;
   std::vector<float> cl3d_srrmean_;
   std::vector<float> cl3d_emaxe_;
+  std::vector<float> cl3d_hoe_;
+  std::vector<float> cl3d_meanz_;
+  std::vector<float> cl3d_layer10_;
+  std::vector<float> cl3d_layer50_;
+  std::vector<float> cl3d_layer90_;
+  std::vector<float> cl3d_ntc67_;
+  std::vector<float> cl3d_ntc90_;
   std::vector<float> cl3d_bdteg_;
   std::vector<int> cl3d_quality_;
 };
@@ -91,6 +98,13 @@ void HGCalTriggerNtupleHGCMulticlusters::initialize(TTree& tree,
   tree.Branch(withPrefix("srrmax"), &cl3d_srrmax_);
   tree.Branch(withPrefix("srrmean"), &cl3d_srrmean_);
   tree.Branch(withPrefix("emaxe"), &cl3d_emaxe_);
+  tree.Branch(withPrefix("hoe"), &cl3d_hoe_);
+  tree.Branch(withPrefix("meanz"), &cl3d_meanz_);
+  tree.Branch(withPrefix("layer10"), &cl3d_layer10_);
+  tree.Branch(withPrefix("layer50"), &cl3d_layer50_);
+  tree.Branch(withPrefix("layer90"), &cl3d_layer90_);
+  tree.Branch(withPrefix("ntc67"), &cl3d_ntc67_);
+  tree.Branch(withPrefix("ntc90"), &cl3d_ntc90_);
   tree.Branch(withPrefix("bdteg"), &cl3d_bdteg_);
   tree.Branch(withPrefix("quality"), &cl3d_quality_);
 }
@@ -128,6 +142,13 @@ void HGCalTriggerNtupleHGCMulticlusters::fill(const edm::Event& e, const edm::Ev
     cl3d_srrmax_.emplace_back(cl3d_itr->sigmaRRMax());
     cl3d_srrmean_.emplace_back(cl3d_itr->sigmaRRMean());
     cl3d_emaxe_.emplace_back(cl3d_itr->eMax() / cl3d_itr->energy());
+    cl3d_hoe_.emplace_back(cl3d_itr->hOverE());
+    cl3d_meanz_.emplace_back(std::abs(cl3d_itr->zBarycenter()));
+    cl3d_layer10_.emplace_back(cl3d_itr->layer10percent());
+    cl3d_layer50_.emplace_back(cl3d_itr->layer50percent());
+    cl3d_layer90_.emplace_back(cl3d_itr->layer90percent());
+    cl3d_ntc67_.emplace_back(cl3d_itr->triggerCells67percent());
+    cl3d_ntc90_.emplace_back(cl3d_itr->triggerCells90percent());
     cl3d_bdteg_.emplace_back(id_->value(*cl3d_itr));
     cl3d_quality_.emplace_back(cl3d_itr->hwQual());
 
@@ -174,6 +195,13 @@ void HGCalTriggerNtupleHGCMulticlusters::clear() {
   cl3d_srrmax_.clear();
   cl3d_srrmean_.clear();
   cl3d_emaxe_.clear();
+  cl3d_hoe_.clear();
+  cl3d_meanz_.clear();
+  cl3d_layer10_.clear();
+  cl3d_layer50_.clear();
+  cl3d_layer90_.clear();
+  cl3d_ntc67_.clear();
+  cl3d_ntc90_.clear();
   cl3d_bdteg_.clear();
   cl3d_quality_.clear();
 }
