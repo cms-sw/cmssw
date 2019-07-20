@@ -757,7 +757,20 @@ void Converter<DDLLogicalPart>::operator()(xml_h element) const {
   xml_dim_t e(element);
   string sol = e.child(DD_CMU(rSolid)).attr<string>(_U(name));
   string mat = e.child(DD_CMU(rMaterial)).attr<string>(_U(name));
-  ns.addVolume(Volume(e.nameStr(), ns.solid(sol), ns.material(mat)));
+  string volName = e.attr<string>(_U(name));
+  Solid solid = ns.solid(sol);
+  Material material = ns.material(mat);
+  Volume volume = ns.addVolume(Volume(volName, solid, material));
+  printout(ns.context()->debug_volumes ? ALWAYS : DEBUG,
+           "DD4CMS",
+           "+++ %s Volume: %-24s [%s] Shape: %-32s [%s] Material: %-40s [%s]",
+           e.tag().c_str(),
+           volName.c_str(),
+           volume.isValid() ? "VALID" : "INVALID",
+           sol.c_str(),
+           solid.isValid() ? "VALID" : "INVALID",
+           mat.c_str(),
+           material.isValid() ? "VALID" : "INVALID");
 }
 
 /// Helper converter
@@ -808,14 +821,25 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
   int copy = e.attr<int>(DD_CMU(copyNumber));
   string parentName = ns.attr<string>(e.child(DD_CMU(rParent)), _U(name));
   string childName = ns.attr<string>(e.child(DD_CMU(rChild)), _U(name));
-
-  if (strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
-    parentName = ns.name() + parentName;
-  Volume parent = ns.volume(parentName);
-
-  if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+  Volume parent = ns.volume(parentName, false);
   Volume child = ns.volume(childName, false);
+  printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
+           "DD4CMS",
+           "+++ %s Parent: %-24s [%s] Child: %-32s [%s] copy:%d",
+           e.tag().c_str(),
+           parentName.c_str(),
+           parent.isValid() ? "VALID" : "INVALID",
+           childName.c_str(),
+           child.isValid() ? "VALID" : "INVALID",
+           copy);
+
+  if (!parent.isValid() && strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
+    parentName = ns.name() + parentName;
+  parent = ns.volume(parentName);
+
+  if (!child.isValid() && strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
+    childName = ns.name() + childName;
+  child = ns.volume(childName, false);
 
   printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
            "DD4CMS",
