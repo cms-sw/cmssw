@@ -25,6 +25,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
+#include "DataFormats/Provenance/interface/StoredMergeableRunProductMetadata.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
