@@ -70,11 +70,11 @@ reco::PFCandidateCollection PFCandConnector::connect(PFCandidateCollection& pfCa
 
   // loop on primary
   if (bCorrect_) {
-    LogDebug("PFCandConnector::connect") << "pfCand.size()=" << pfCand.size() << "bCalibPrimary_=" << bCalibPrimary_;
+    LogTrace("PFCandConnector|connect") << "pfCand.size()=" << pfCand.size() << "bCalibPrimary_=" << bCalibPrimary_;
 
     for (unsigned int ce1 = 0; ce1 < pfCand.size(); ++ce1) {
       if (isPrimaryNucl(pfCand.at(ce1))) {
-        LogDebug("PFCandConnector::connect")
+        LogTrace("PFCandConnector|connect")
             << "" << endl
             << "Nuclear Interaction w Primary Candidate " << ce1 << " " << pfCand.at(ce1) << endl
             << " based on the Track " << pfCand.at(ce1).trackRef().key()
@@ -89,15 +89,15 @@ reco::PFCandidateCollection PFCandConnector::connect(PFCandidateCollection& pfCa
         analyseNuclearWPrim(pfCand, bMask, ce1);
 
 #ifdef EDM_ML_DEBUG
-        LogDebug("PFCandConnector::connect")
+        LogTrace("PFCandConnector|connect")
             << "After Connection the candidate " << ce1 << " is " << pfCand.at(ce1) << endl
             << endl;
 
         PFCandidate::ElementsInBlocks elementsInBlocks = pfCand.at(ce1).elementsInBlocks();
         for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++) {
           if (blockElem == 0)
-            LogDebug("PFCandConnector::connect") << *(elementsInBlocks[blockElem].first) << endl;
-          LogDebug("PFCandConnector::connect") << " position " << elementsInBlocks[blockElem].second;
+            LogTrace("PFCandConnector|connect") << *(elementsInBlocks[blockElem].first) << endl;
+          LogTrace("PFCandConnector|connect") << " position " << elementsInBlocks[blockElem].second;
         }
 #endif
       }
@@ -105,7 +105,7 @@ reco::PFCandidateCollection PFCandConnector::connect(PFCandidateCollection& pfCa
 
     for (unsigned int ce1 = 0; ce1 < pfCand.size(); ++ce1) {
       if (!bMask[ce1] && isSecondaryNucl(pfCand.at(ce1))) {
-        LogDebug("PFCandConnector::connect")
+        LogTrace("PFCandConnector|connect")
             << "" << endl
             << "Nuclear Interaction w no Primary Candidate " << ce1 << " " << pfCand.at(ce1) << endl
             << " based on the Track " << pfCand.at(ce1).trackRef().key()
@@ -123,14 +123,14 @@ reco::PFCandidateCollection PFCandConnector::connect(PFCandidateCollection& pfCa
         analyseNuclearWSec(pfCand, bMask, ce1);
 
 #ifdef EDM_ML_DEBUG
-        LogDebug("PFCandConnector::connect") << "After Connection the candidate " << ce1 << " is " << pfCand.at(ce1)
+        LogTrace("PFCandConnector|connect") << "After Connection the candidate " << ce1 << " is " << pfCand.at(ce1)
                                              << " and elements connected to it are: " << endl;
 
         PFCandidate::ElementsInBlocks elementsInBlocks = pfCand.at(ce1).elementsInBlocks();
         for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++) {
           if (blockElem == 0)
-            LogDebug("PFCandConnector::connect") << *(elementsInBlocks[blockElem].first) << endl;
-          LogDebug("PFCandConnector::connect") << " position " << elementsInBlocks[blockElem].second;
+            LogTrace("PFCandConnector|connect") << *(elementsInBlocks[blockElem].first) << endl;
+          LogTrace("PFCandConnector|connect") << " position " << elementsInBlocks[blockElem].second;
         }
 #endif
       }
@@ -141,7 +141,7 @@ reco::PFCandidateCollection PFCandConnector::connect(PFCandidateCollection& pfCa
     if (!bMask[ce1])
       pfC.push_back(pfCand.at(ce1));
 
-  LogDebug("PFCandConnector::connect") << "end of function";
+  LogTrace("PFCandConnector|connect") << "end of function";
 
   return pfC;
 }
@@ -171,7 +171,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
       ref2 = (pfCand.at(ce2)).displacedVertexRef(fT_FROM_DISP_);
 
       if (ref1 == ref2) {
-        LogDebug("PFCandConnector::analyseNuclearWPrim")
+        LogTrace("PFCandConnector|analyseNuclearWPrim")
             << "\t here is a Secondary Candidate " << ce2 << " " << pfCand.at(ce2) << endl
             << "\t based on the Track " << pfCand.at(ce2).trackRef().key()
             << " w p = " << pfCand.at(ce2).trackRef()->p() << " w pT = " << pfCand.at(ce2).trackRef()->pt() << " #pm "
@@ -183,7 +183,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
             << pfCand.at(ce2).trackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) << endl;
 
         if (isPrimaryNucl(pfCand.at(ce2))) {
-          LogDebug("PFCandConnector::analyseNuclearWPrim") << "\t\t but it is also a Primary Candidate " << ce2 << endl;
+          LogTrace("PFCandConnector|analyseNuclearWPrim") << "\t\t but it is also a Primary Candidate " << ce2 << endl;
 
           ref1_bis = (pfCand.at(ce2)).displacedVertexRef(fT_TO_DISP_);
           if (ref1_bis.isNonnull())
@@ -213,7 +213,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
         if (deltaEn > 1 && nMissOuterHits > 1) {
           math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce2).p4() * caloEn / pfCand.at(ce2).p4().E();
           momentumSec += momentumToAdd;
-          LogDebug("PFCandConnector::analyseNuclearWPrim")
+          LogTrace("PFCandConnector|analyseNuclearWPrim")
               << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may "
                  "have happened. Let's trust the calo energy"
               << endl
@@ -239,7 +239,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
   // We have more primary energy than secondary: reject all secondary tracks which have no calo energy attached.
 
   if (momentumPrim.E() < momentumSec.E()) {
-    LogDebug("PFCandConnector::analyseNuclearWPrim")
+    LogTrace("PFCandConnector|analyseNuclearWPrim")
         << "Size of 0 calo Energy secondary candidates" << candidatesWithoutCalo.size() << endl;
     for (map<double, math::XYZTLorentzVectorD>::iterator iter = candidatesWithoutCalo.begin();
          iter != candidatesWithoutCalo.end() && momentumPrim.E() < momentumSec.E();
@@ -247,15 +247,15 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
       if (momentumSec.E() > iter->second.E() + 0.1) {
         momentumSec -= iter->second;
 
-        LogDebug("PFCandConnector::analyseNuclearWPrim")
+        LogTrace("PFCandConnector|analyseNuclearWPrim")
             << "\t Remove a SecondaryCandidate with 0 calo energy " << iter->second << endl;
-        LogDebug("PFCandConnector::analyseNuclearWPrim")
+        LogTrace("PFCandConnector|analyseNuclearWPrim")
             << "momentumPrim.E() = " << momentumPrim.E() << " and momentumSec.E() = " << momentumSec.E() << endl;
       }
   }
 
   if (momentumPrim.E() < momentumSec.E()) {
-    LogDebug("PFCandConnector::analyseNuclearWPrim")
+    LogTrace("PFCandConnector|analyseNuclearWPrim")
         << "0 Calo Energy rejected but still not sufficient. Size of not enough calo Energy secondary candidates"
         << candidatesWithTrackExcess.size() << endl;
     for (map<double, math::XYZTLorentzVectorD>::iterator iter = candidatesWithTrackExcess.begin();
@@ -280,7 +280,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
       momentumPrim.E() > momentumSec.E() && momentumSec.E() > 0.1) {
     if (bCalibPrimary_) {
       double factor = rescaleFactor(momentumPrim.Pt(), momentumSec.E() / momentumPrim.E());
-      LogDebug("PFCandConnector::analyseNuclearWPrim") << "factor = " << factor << endl;
+      LogTrace("PFCandConnector|analyseNuclearWPrim") << "factor = " << factor << endl;
       if (factor * momentumPrim.Pt() < momentumSec.Pt())
         momentumSec = momentumPrim;
       else
@@ -342,41 +342,41 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
     for (unsigned it = 0; it < refittedTracks.size(); it++) {
       reco::TrackBaseRef primaryBaseRef = ref1->originalTrack(refittedTracks[it]);
       if (ref1->isIncomingTrack(primaryBaseRef))
-        LogDebug("PFCandConnector::analyseNuclearWSec")
+        LogTrace("PFCandConnector|analyseNuclearWSec")
             << "There is a Primary track ref with pt = " << primaryBaseRef->pt() << endl;
 
       for (unsigned int ce = 0; ce < pfCand.size(); ++ce) {
         //	  cout << "PFCand Id = " << (pfCand.at(ce)).particleId() << endl;
         if ((pfCand.at(ce)).particleId() == reco::PFCandidate::e ||
             (pfCand.at(ce)).particleId() == reco::PFCandidate::mu) {
-          LogDebug("PFCandConnector::analyseNuclearWSec")
+          LogTrace("PFCandConnector|analyseNuclearWSec")
               << " It is an electron and it has a ref to a track " << (pfCand.at(ce)).trackRef().isNonnull() << endl;
 
           if ((pfCand.at(ce)).trackRef().isNonnull()) {
             reco::TrackRef tRef = (pfCand.at(ce)).trackRef();
             reco::TrackBaseRef bRef(tRef);
-            LogDebug("PFCandConnector::analyseNuclearWSec")
+            LogTrace("PFCandConnector|analyseNuclearWSec")
                 << "With Track Ref pt = " << (pfCand.at(ce)).trackRef()->pt() << endl;
 
             if (bRef == primaryBaseRef) {
               if ((pfCand.at(ce)).particleId() == reco::PFCandidate::e)
-                LogDebug("PFCandConnector::analyseNuclearWSec")
+                LogTrace("PFCandConnector|analyseNuclearWSec")
                     << "It is a NI from electron. NI Discarded. Just release the candidate." << endl;
               if ((pfCand.at(ce)).particleId() == reco::PFCandidate::mu)
-                LogDebug("PFCandConnector::analyseNuclearWSec")
+                LogTrace("PFCandConnector|analyseNuclearWSec")
                     << "It is a NI from muon. NI Discarded. Just release the candidate" << endl;
 
               // release the track but take care of not overcounting bad tracks. In fact those tracks was protected against destruction in
               // PFAlgo. Now we treat them as if they was treated in PFAlgo
 
               if (caloEn < 0.1 && pfCand.at(ce1).trackRef()->ptError() > ptErrorSecondary_) {
-                edm::LogInfo("PFCandConnector::analyseNuclearWSec")
+                edm::LogInfo("PFCandConnector|analyseNuclearWSec")
                     << "discarded track since no calo energy and ill measured" << endl;
                 bMask[ce1] = true;
               }
               if (caloEn > 0.1 && deltaEn > ptErrorSecondary_ &&
                   pfCand.at(ce1).trackRef()->ptError() > ptErrorSecondary_) {
-                edm::LogInfo("PFCandConnector::analyseNuclearWSec")
+                edm::LogInfo("PFCandConnector|analyseNuclearWSec")
                     << "rescaled momentum of the track since no calo energy and ill measured" << endl;
 
                 double factor = caloEn / pfCand.at(ce1).p4().E();
@@ -398,7 +398,7 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
   if (deltaEn > ptErrorSecondary_ && nMissOuterHits > 1) {
     math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce1).p4() * caloEn / pfCand.at(ce1).p4().E();
     momentumSec = momentumToAdd;
-    LogDebug("PFCandConnector::analyseNuclearWSec")
+    LogTrace("PFCandConnector|analyseNuclearWSec")
         << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may have "
            "happened. Let's trust the calo energy"
         << endl
@@ -411,7 +411,7 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
       ref2 = (pfCand.at(ce2)).displacedVertexRef(fT_FROM_DISP_);
 
       if (ref1 == ref2) {
-        LogDebug("PFCandConnector::analyseNuclearWSec")
+        LogTrace("PFCandConnector|analyseNuclearWSec")
             << "\t here is a Secondary Candidate " << ce2 << " " << pfCand.at(ce2) << endl
             << "\t based on the Track " << pfCand.at(ce2).trackRef().key()
             << " w pT = " << pfCand.at(ce2).trackRef()->pt() << " #pm " << pfCand.at(ce2).trackRef()->ptError() << " %"
@@ -441,7 +441,7 @@ void PFCandConnector::analyseNuclearWSec(PFCandidateCollection& pfCand,
         if (deltaEn > ptErrorSecondary_ && nMissOuterHits > 1) {
           math::XYZTLorentzVectorD momentumToAdd = pfCand.at(ce2).p4() * caloEn / pfCand.at(ce2).p4().E();
           momentumSec += momentumToAdd;
-          LogDebug("PFCandConnector::analyseNuclearWSec")
+          LogTrace("PFCandConnector|analyseNuclearWSec")
               << "The difference track-calo s really large and the track miss at least 2 hits. A secondary NI may "
                  "have happened. Let's trust the calo energy"
               << endl
