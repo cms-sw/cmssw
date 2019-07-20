@@ -57,11 +57,18 @@ def customiseFor2017DtUnpacking(process):
 
     return process
 
+def customiseFor27183(process) :
+ 
+   for producer in esproducers_by_type(process, "PixelCPEGenericESProducer"):
+      producer.IrradiationBiasCorrection = cms.bool(True)
+      
+   return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     process = customiseFor27220(process)
+    process = customiseFor27183(process)
 
     return process
