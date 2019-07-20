@@ -156,6 +156,7 @@ private:
   void createCandidateHF(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          const edm::OwnVector<reco::PFBlockElement>& elements,
+			 std::vector<bool>& active,
                          ElementIndices& inds);
 
   void createCandidatesHCAL(const reco::PFBlock& block,
