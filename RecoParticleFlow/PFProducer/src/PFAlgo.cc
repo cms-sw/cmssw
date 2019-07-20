@@ -996,7 +996,8 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     //only process TRACK elements, but fill the ElementIndices vector with indices for all elements.
     //Mark the active & deadArea for bad HCAL
     auto ret_decideType = decideType(elements, type, active, inds, deadArea, iEle);
-    if (ret_decideType == 1) {
+
+    if (ret_decideType == 1 || PFBlockForHF) {
       LogTrace("PFAlgo|elementLoop") << "ret_decideType==1, continuing";
       continue;
     }
@@ -1204,6 +1205,7 @@ int PFAlgo::decideType(const edm::OwnVector<reco::PFBlockElement>& elements,
 void PFAlgo::createCandidateHF(const reco::PFBlock& block,
                                const reco::PFBlockRef& blockref,
                                const edm::OwnVector<reco::PFBlockElement>& elements,
+			       std::vector<bool>& active,
                                ElementIndices& inds) {
   // there is at least one HF element in this block.
   // so all elements must be HF.
@@ -2719,7 +2721,8 @@ void PFAlgo::processBlock(const reco::PFBlockRef& blockref,
 
   // Reconstruct pfCandidate from HF (either EM-only, Had-only or both)
   if (!(inds.hfEmIs.empty() && inds.hfHadIs.empty())) {
-    createCandidateHF(block, blockref, elements, inds);
+    createCandidateHF(block, blockref, elements, active, inds);
+    return;
   }
 
   createCandidatesHCAL(block, linkData, elements, active, blockref, inds, deadArea);
