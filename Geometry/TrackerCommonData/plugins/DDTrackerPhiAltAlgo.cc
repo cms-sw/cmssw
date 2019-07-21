@@ -3,15 +3,48 @@
 // Description: Position n copies inside and outside at alternate phi values
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTrackerPhiAltAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTrackerPhiAltAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTrackerPhiAltAlgo();
+  ~DDTrackerPhiAltAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double tilt;        //Tilt of the module
+  double startAngle;  //offset in phi
+  double rangeAngle;  //Maximum range in phi
+  double radiusIn;    //Inner radius
+  double radiusOut;   //Outer radius
+  double zpos;        //z position
+  int number;         //Number of copies
+  int startCopyNo;    //Start copy number
+  int incrCopyNo;     //Increment in copy number
+
+  string idNameSpace;  //Namespace of this and ALL sub-parts
+  string childName;    //Child name
+};
 
 DDTrackerPhiAltAlgo::DDTrackerPhiAltAlgo() {
   LogDebug("TrackerGeom") << "DDTrackerPhiAltAlgo info: Creating an instance";
@@ -68,7 +101,7 @@ void DDTrackerPhiAltAlgo::execute(DDCompactView& cpv) {
 
       DDRotation rotation;
       if (phideg != 0) {
-        std::string rotstr = DDSplit(childName).first + std::to_string(phideg * 10.);
+        string rotstr = DDSplit(childName).first + to_string(phideg * 10.);
         rotation = DDRotation(DDName(rotstr, idNameSpace));
         if (!rotation) {
           LogDebug("TrackerGeom") << "DDTrackerPhiAltAlgo test: Creating a new"
@@ -95,3 +128,5 @@ void DDTrackerPhiAltAlgo::execute(DDCompactView& cpv) {
     }
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTrackerPhiAltAlgo, "track:DDTrackerPhiAltAlgo");

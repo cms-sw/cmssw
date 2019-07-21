@@ -3,18 +3,57 @@
 // Description: Make one layer of pixel barrel detector
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDPixBarLayerAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDPixBarLayerAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDPixBarLayerAlgo();
+  ~DDPixBarLayerAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string idNameSpace;          //Namespace of this and ALL sub-parts
+  string genMat;               //Name of general material
+  int number;                  //Number of ladders in phi
+  double layerDz;              //Length of the layer
+  double sensorEdge;           //Distance from edge for a half sensor
+  double coolDz;               //Length of the cooling piece
+  double coolWidth;            //Width
+  double coolSide;             //Side length
+  double coolThick;            //Thickness of the shell
+  double coolDist;             //Radial distance between centres of 2
+  string coolMat;              //Cooling fluid material name
+  string tubeMat;              //Cooling piece material name
+  vector<string> ladder;       //Names     of ladders
+  vector<double> ladderWidth;  //Widths         ...
+  vector<double> ladderThick;  //Thickness      ...
+};
 
 DDPixBarLayerAlgo::DDPixBarLayerAlgo() { LogDebug("PixelGeom") << "DDPixBarLayerAlgo info: Creating an instance"; }
 
@@ -58,7 +97,7 @@ void DDPixBarLayerAlgo::initialize(const DDNumericArguments& nArgs,
 
 void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
   DDName mother = parent().name();
-  const std::string& idName = mother.name();
+  const string& idName = mother.name();
 
   double dphi = CLHEP::twopi / number;
   double d2 = 0.5 * coolWidth;
@@ -84,7 +123,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
   double rr = 0.5 * (rmax + rmin);
   double dr = 0.5 * (rmax - rmin);
   double h1 = 0.5 * coolSide * cos(0.5 * dphi);
-  std::string name = idName + "CoolTube";
+  string name = idName + "CoolTube";
   solid = DDSolidFactory::trap(DDName(name, idNameSpace), 0.5 * coolDz, 0, 0, h1, d2, d1, 0, h1, d2, d1, 0);
   LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: " << solid.name() << " Trap made of " << tubeMat
                         << " of dimensions " << 0.5 * coolDz << ", 0, 0, " << h1 << ", " << d2 << ", " << d1 << ", 0, "
@@ -114,14 +153,14 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
   for (int i = 0; i < number; i++) {
     double phi = phi0 + i * dphi;
     double phix, phiy, rrr, xx;
-    std::string rots;
+    string rots;
     DDTranslation tran;
     DDRotation rot;
     if (i == 0 || i == nphi) {
       rrr = rr + dr + 0.5 * (ladderThick[1] - ladderThick[0]);
       xx = (0.5 * ladderWidth[1] - sensorEdge) * sin(phi);
       tran = DDTranslation(xx, rrr * sin(phi), 0);
-      rots = idName + std::to_string(copy);
+      rots = idName + to_string(copy);
       phix = phi - 90 * CLHEP::deg;
       phiy = 90 * CLHEP::deg + phix;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
@@ -135,7 +174,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
       iup = -1;
       rrr = rr - dr - 0.5 * (ladderThick[1] - ladderThick[0]);
       tran = DDTranslation(-xx, rrr * sin(phi), 0);
-      rots = idName + std::to_string(copy);
+      rots = idName + to_string(copy);
       phix = phi + 90 * CLHEP::deg;
       phiy = 90 * CLHEP::deg + phix;
       LogDebug("PixelGeom") << "DDPixBarLayerAlgo test: Creating a new "
@@ -150,7 +189,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
       iup = -iup;
       rrr = rr + iup * dr;
       tran = DDTranslation(rrr * cos(phi), rrr * sin(phi), 0);
-      rots = idName + std::to_string(copy);
+      rots = idName + to_string(copy);
       if (iup > 0)
         phix = phi - 90 * CLHEP::deg;
       else
@@ -167,7 +206,7 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
     }
     rrr = coolDist * cos(0.5 * dphi);
     tran = DDTranslation(rrr * cos(phi) - x2 * sin(phi), rrr * sin(phi) + x2 * cos(phi), 0);
-    rots = idName + std::to_string(i + 100);
+    rots = idName + to_string(i + 100);
     phix = phi + 0.5 * dphi;
     if (iup > 0)
       phix += 180 * CLHEP::deg;
@@ -181,3 +220,5 @@ void DDPixBarLayerAlgo::execute(DDCompactView& cpv) {
                           << layer.name() << " at " << tran << " with " << rot;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDPixBarLayerAlgo, "track:DDPixBarLayerAlgo");
