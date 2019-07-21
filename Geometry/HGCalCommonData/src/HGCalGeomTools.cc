@@ -33,7 +33,7 @@ void HGCalGeomTools::radius(double zf,
   auto zb1 = std::lower_bound(zFront1.begin(), zFront1.end(), zb);
   if (zb1 != zFront1.begin())
     --zb1;
-  if (((zb1 - 1) != zFront1.begin()) && (std::abs(*zb1 - zb) < tol_)) {
+  if ((zb1 != zFront1.begin()) && (std::abs(*zb1 - zb) < tol_)) {
     --zb1;
     dz2 = -2 * tol_;
   }
