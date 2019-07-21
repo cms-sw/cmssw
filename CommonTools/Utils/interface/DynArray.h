@@ -78,14 +78,21 @@ public:
   }
 };
 
-#define unInitDynArray(T, n, x)                                 \
-  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * n]; \
+namespace dynarray {
+  template <typename T>
+  inline T num(T s) {
+    return s > 0 ? s : T(1);
+  }
+}  // namespace dynarray
+
+#define unInitDynArray(T, n, x)                                                \
+  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * dynarray::num(n)]; \
   DynArray<T> x(x##_storage)
-#define declareDynArray(T, n, x)                                \
-  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * n]; \
+#define declareDynArray(T, n, x)                                               \
+  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * dynarray::num(n)]; \
   DynArray<T> x(x##_storage, n)
-#define initDynArray(T, n, x, i)                                \
-  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * n]; \
+#define initDynArray(T, n, x, i)                                               \
+  alignas(alignof(T)) unsigned char x##_storage[sizeof(T) * dynarray::num(n)]; \
   DynArray<T> x(x##_storage, n, i)
 
 #endif  // CommonTools_Utils_DynArray_H
