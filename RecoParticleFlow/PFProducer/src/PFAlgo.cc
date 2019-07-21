@@ -130,7 +130,8 @@ void PFAlgo::reconstructParticles(const reco::PFBlockHandle& blockHandle, PFEGam
   // reset output collection
   pfCandidates_->clear();
 
-  LogTrace("PFAlgo|reconstructParticles") << "start of function PFAlgo::reconstructParticles, blocks.size()=" << blocks.size();
+  LogTrace("PFAlgo|reconstructParticles")
+      << "start of function PFAlgo::reconstructParticles, blocks.size()=" << blocks.size();
 
   // sort elements in three lists:
   std::list<reco::PFBlockRef> hcalBlockRefs;
@@ -234,8 +235,8 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
       sameBlock = true;
     if (sameBlock) {
       LogTrace("PFAlgo|egammaFilters") << " I am in looping on EGamma Candidates: pt " << (*pfEgmRef).pt()
-                                        << " eta,phi " << (*pfEgmRef).eta() << ", " << (*pfEgmRef).phi() << " charge "
-                                        << (*pfEgmRef).charge();
+                                       << " eta,phi " << (*pfEgmRef).eta() << ", " << (*pfEgmRef).phi() << " charge "
+                                       << (*pfEgmRef).charge();
 
       if ((*pfEgmRef).gsfTrackRef().isNonnull()) {
         reco::GsfElectronRef gedEleRef = (*valueMapGedElectrons_)[pfEgmRef];
@@ -257,7 +258,7 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
           isGoodPhoton = pfegamma->passPhotonSelection(*gedPhoRef);
           if (isGoodPhoton)
             LogTrace("PFAlgo|egammaFilters") << "** Good Photon, pt " << gedPhoRef->pt() << " eta, phi "
-                                              << gedPhoRef->eta() << ", " << gedPhoRef->phi() << endl;
+                                             << gedPhoRef->eta() << ", " << gedPhoRef->phi() << endl;
         }
       }
     }  // end sameBlock
@@ -290,9 +291,9 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
         myPFElectron.set_mva_Isolated(gedEleRef->mva_Isolated());
 
         LogTrace("PFAlgo|egammaFilters") << " PFAlgo: found an electron with NEW EGamma code ";
-        LogTrace("PFAlgo|egammaFilters")
-            << " myPFElectron: pt " << myPFElectron.pt() << " eta,phi " << myPFElectron.eta() << ", "
-            << myPFElectron.phi() << " mva " << myPFElectron.mva_e_pi() << " charge " << myPFElectron.charge();
+        LogTrace("PFAlgo|egammaFilters") << " myPFElectron: pt " << myPFElectron.pt() << " eta,phi "
+                                         << myPFElectron.eta() << ", " << myPFElectron.phi() << " mva "
+                                         << myPFElectron.mva_e_pi() << " charge " << myPFElectron.charge();
 
         LogTrace("PFAlgo|egammaFilters") << " THE BLOCK " << *blockref;
         for (auto const& eb : theElements) {
@@ -310,7 +311,7 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
         }
 
         LogTrace("PFAlgo|egammaFilters") << "Creating PF electron: pt=" << myPFElectron.pt()
-                                          << " eta=" << myPFElectron.eta() << " phi=" << myPFElectron.phi();
+                                         << " eta=" << myPFElectron.eta() << " phi=" << myPFElectron.phi();
         pfCandidates_->push_back(myPFElectron);
 
       } else {
@@ -336,7 +337,7 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
         myPFPhoton.setP4(gedPhoRef->p4());
         LogTrace("PFAlgo|egammaFilters") << " PFAlgo: found a photon with NEW EGamma code ";
         LogTrace("PFAlgo|egammaFilters") << " myPFPhoton: pt " << myPFPhoton.pt() << " eta,phi " << myPFPhoton.eta()
-                                          << ", " << myPFPhoton.phi() << " charge " << myPFPhoton.charge();
+                                         << ", " << myPFPhoton.phi() << " charge " << myPFPhoton.charge();
 
         // Lock all the elements
         LogTrace("PFAlgo|egammaFilters") << " THE BLOCK " << *blockref;
@@ -345,7 +346,7 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
           LogTrace("PFAlgo|egammaFilters") << " Elements used " << eb.second;
         }
         LogTrace("PFAlgo|egammaFilters") << "Creating PF photon: pt=" << myPFPhoton.pt() << " eta=" << myPFPhoton.eta()
-                                          << " phi=" << myPFPhoton.phi();
+                                         << " phi=" << myPFPhoton.phi();
         pfCandidates_->push_back(myPFPhoton);
 
       }  // end isSafe
@@ -355,12 +356,13 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
 }
 
 void PFAlgo::conversionAlgo(const edm::OwnVector<reco::PFBlockElement>& elements, std::vector<bool>& active) {
-  LogTrace("PFAlgo|conversionAlgo") << "start of function PFAlgo::conversionAlgo(), elements.size()=" << elements.size();
+  LogTrace("PFAlgo|conversionAlgo") << "start of function PFAlgo::conversionAlgo(), elements.size()="
+                                    << elements.size();
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
     PFBlockElement::Type type = elements[iEle].type();
     if (type == PFBlockElement::TRACK) {
       LogTrace("PFAlgo|conversionAlgo") << "elements[" << iEle << "].type() == TRACK, active[" << iEle
-                                         << "]=" << active[iEle];
+                                        << "]=" << active[iEle];
       if (elements[iEle].trackRef()->algo() == reco::TrackBase::conversionStep) {
         active[iEle] = false;
       }
@@ -392,8 +394,9 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
                                unsigned int iTrack,
                                std::multimap<double, unsigned>& ecalElems,
                                reco::TrackRef& trackRef) {
-  LogTrace("PFAlgo|recoTracksNotHCAL")
-      << "start of function PFAlgo::recoTracksNotHCAL(), now dealing with tracks linked to no HCAL clusters. Was HCal active? " << (!hasDeadHcal);
+  LogTrace("PFAlgo|recoTracksNotHCAL") << "start of function PFAlgo::recoTracksNotHCAL(), now dealing with tracks "
+                                          "linked to no HCAL clusters. Was HCal active? "
+                                       << (!hasDeadHcal);
   // vector<unsigned> elementIndices;
   // elementIndices.push_back(iTrack);
 
@@ -472,11 +475,11 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
     unsigned nHits = elements[iTrack].trackRef()->hitPattern().trackerLayersWithMeasurement();
     unsigned int NLostHit = trackRef->hitPattern().trackerLayersWithoutMeasurement(HitPattern::TRACK_HITS);
 
-    LogTrace("PFAlgo|recoTracksNotHCAL")
-        << "A track (algo = " << trackRef->algo() << ") with momentum " << trackMomentum << " / "
-        << elements[iTrack].trackRef()->pt() << " +/- " << Dpt << " / " << elements[iTrack].trackRef()->eta()
-        << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit
-        << ") hits (lost hits) has been cleaned";
+    LogTrace("PFAlgo|recoTracksNotHCAL") << "A track (algo = " << trackRef->algo() << ") with momentum "
+                                         << trackMomentum << " / " << elements[iTrack].trackRef()->pt() << " +/- "
+                                         << Dpt << " / " << elements[iTrack].trackRef()->eta()
+                                         << " without any link to ECAL/HCAL and with " << nHits << " (" << NLostHit
+                                         << ") hits (lost hits) has been cleaned";
 
     active[iTrack] = false;
     return true;
@@ -523,14 +526,14 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
   // Consider charged particles closest to the same ECAL cluster
   std::multimap<double, unsigned> sortedTracks;
   block.associatedElements(thisEcal, linkData, sortedTracks, reco::PFBlockElement::TRACK, reco::PFBlock::LINKTEST_ALL);
-  LogTrace("PFAlgo|recoTracksNotHCAL") << "the closest ECAL cluster, id " << thisEcal << ", has "
-                                        << sortedTracks.size() << " associated tracks, now processing them. ";
+  LogTrace("PFAlgo|recoTracksNotHCAL") << "the closest ECAL cluster, id " << thisEcal << ", has " << sortedTracks.size()
+                                       << " associated tracks, now processing them. ";
 
   if (hasDeadHcal && !sortedTracks.empty()) {
     // GP: only allow the ecal cluster closest to this track to be considered
-    LogTrace("PFAlgo|recoTracksNotHCAL")
-        << " the closest track to ECAL " << thisEcal << " is " << sortedTracks.begin()->second << " (distance "
-        << sortedTracks.begin()->first << ")";
+    LogTrace("PFAlgo|recoTracksNotHCAL") << " the closest track to ECAL " << thisEcal << " is "
+                                         << sortedTracks.begin()->second << " (distance " << sortedTracks.begin()->first
+                                         << ")";
     if (sortedTracks.begin()->second != iTrack) {
       LogTrace("PFAlgo|recoTracksNotHCAL")
           << " the closest track to ECAL " << thisEcal << " is " << sortedTracks.begin()->second
@@ -575,7 +578,7 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
     // Check if this track is a muon
     bool thatIsAMuon = PFMuonAlgo::isMuon(elements[jTrack]);
     LogTrace("PFAlgo|recoTracksNotHCAL") << " found track " << jTrack << (thatIsAMuon ? " (muon) " : " (non-muon)")
-                                          << ", with distance = " << sortedECAL.begin()->first << std::endl;
+                                         << ", with distance = " << sortedECAL.begin()->first << std::endl;
 
     // Check if this track is not a fake
     bool rejectFake = false;
@@ -662,8 +665,8 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
     const reco::PFClusterRef clusterRef = elements[index].clusterRef();
     assert(!clusterRef.isNull());
 
-    LogTrace("PFAlgo|recoTracksNotHCAL")
-        << "Ecal cluster with raw energy = " << clusterRef->energy() << " linked with distance = " << ecal.first;
+    LogTrace("PFAlgo|recoTracksNotHCAL") << "Ecal cluster with raw energy = " << clusterRef->energy()
+                                         << " linked with distance = " << ecal.first;
     //double dist = ie->first;
     //if ( !connectedToEcal && dist > 0.1 ) {
     //std::cout << "Warning - first ECAL cluster at a distance of " << dist << "from the closest track!" << std::endl;
@@ -697,8 +700,8 @@ bool PFAlgo::recoTracksNotHCAL(const reco::PFBlock& block,
     if (totalEcal > 0.)
       slopeEcal = calibEcal / totalEcal;
 
-    LogTrace("PFAlgo|recoTracksNotHCAL")
-        << "The total calibrated energy so far amounts to = " << calibEcal << " (slope = " << slopeEcal << ")";
+    LogTrace("PFAlgo|recoTracksNotHCAL") << "The total calibrated energy so far amounts to = " << calibEcal
+                                         << " (slope = " << slopeEcal << ")";
 
     // Stop the loop when adding more ECAL clusters ruins the compatibility
     if (connectedToEcal && calibEcal - trackMomentum >= 0.) {
@@ -864,10 +867,10 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     reco::MuonRef muonRef = elements[iTrack].muonRef();
     if (muonRef.isNonnull()) {
       LogTrace("PFAlgo|elementLoop") << "track " << iTrack << " has a valid muon reference. " << endl
-                                      << "   - isMuon: " << PFMuonAlgo::isMuon(muonRef) << endl
-                                      << "   - isGlobalTightMuon: " << PFMuonAlgo::isGlobalTightMuon(muonRef) << endl
-                                      << "   - isTrackerTightMuon: " << PFMuonAlgo::isTrackerTightMuon(muonRef) << endl
-                                      << "   - isIsolatedMuon: " << PFMuonAlgo::isIsolatedMuon(muonRef);
+                                     << "   - isMuon: " << PFMuonAlgo::isMuon(muonRef) << endl
+                                     << "   - isGlobalTightMuon: " << PFMuonAlgo::isGlobalTightMuon(muonRef) << endl
+                                     << "   - isTrackerTightMuon: " << PFMuonAlgo::isTrackerTightMuon(muonRef) << endl
+                                     << "   - isIsolatedMuon: " << PFMuonAlgo::isIsolatedMuon(muonRef);
     } else {
       LogTrace("PFAlgo|elementLoop") << "track has no valid muon reference";
     }
@@ -896,9 +899,9 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     assert(!trackRef.isNull());
 
     LogTrace("PFAlgo|elementLoop") << "PFAlgo:processBlock"
-                                    << " trackIs.size()=" << inds.trackIs.size()
-                                    << " ecalIs.size()=" << inds.ecalIs.size()
-                                    << " hcalIs.size()=" << inds.hcalIs.size() << " hoIs.size()=" << inds.hoIs.size();
+                                   << " trackIs.size()=" << inds.trackIs.size()
+                                   << " ecalIs.size()=" << inds.ecalIs.size() << " hcalIs.size()=" << inds.hcalIs.size()
+                                   << " hoIs.size()=" << inds.hoIs.size();
 
     // look for associated elements of all types
     //COLINFEB16
@@ -911,13 +914,13 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
     block.associatedElements(iTrack, linkData, hcalElems, reco::PFBlockElement::HCAL, reco::PFBlock::LINKTEST_ALL);
 
     LogTrace("PFAlgo|elementLoop") << "\tTrack " << iTrack << " is linked to " << ecalElems.size() << " ecal and "
-                                    << hcalElems.size() << " hcal elements";
+                                   << hcalElems.size() << " hcal elements";
     for (const auto& pair : ecalElems) {
       LogTrace("PFAlgo|elementLoop") << "ecal: dist " << pair.first << "\t elem " << pair.second;
     }
     for (const auto& pair : hcalElems) {
       LogTrace("PFAlgo|elementLoop") << "hcal: dist " << pair.first << "\t elem " << pair.second
-                                      << (deadArea[pair.second] ? "  DEAD AREA MARKER" : "");
+                                     << (deadArea[pair.second] ? "  DEAD AREA MARKER" : "");
     }
     // there's 3 possible options possible here, in principle:
     //    1) flag everything that may be associated to a dead hcal marker
@@ -990,7 +993,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
       std::multimap<double, unsigned> sortedTracks;
       block.associatedElements(index, linkData, sortedTracks, reco::PFBlockElement::TRACK, reco::PFBlock::LINKTEST_ALL);
       LogTrace("PFAlgo|elementLoop") << "The closest ECAL cluster is linked to " << sortedTracks.size()
-                                      << " tracks, with distance = " << ecalElems.begin()->first;
+                                     << " tracks, with distance = " << ecalElems.begin()->first;
 
       LogTrace("PFAlgo|elementLoop") << "Looping over sortedTracks";
       // Loop over all tracks
@@ -1081,7 +1084,7 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
       //assert( !clusterRef.isNull() );
       if (!hcalElems.empty())
         LogTrace("PFAlgo|elementLoop") << "\t\tat least one hcal element connected to the track."
-                                        << " Sparing Ecal cluster for the hcal loop";
+                                       << " Sparing Ecal cluster for the hcal loop";
 
     }  //loop print ecal elements
 
@@ -1291,7 +1294,8 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
                                   const reco::PFBlockRef& blockref,
                                   ElementIndices& inds,
                                   std::vector<bool>& deadArea) {
-  LogTrace("PFAlgo|createCandidatesHCAL") << "start of function PFAlgo::createCandidatesHCAL, inds.hcalIs.size()=" << inds.hcalIs.size();
+  LogTrace("PFAlgo|createCandidatesHCAL")
+      << "start of function PFAlgo::createCandidatesHCAL, inds.hcalIs.size()=" << inds.hcalIs.size();
 
   for (unsigned iHcal : inds.hcalIs) {
     PFBlockElement::Type type = elements[iHcal].type();
@@ -1398,8 +1402,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
       std::multimap<double, unsigned> sortedEcals;
       block.associatedElements(iTrack, linkData, sortedEcals, reco::PFBlockElement::ECAL, reco::PFBlock::LINKTEST_ALL);
 
-      LogTrace("PFAlgo|createCandidatesHCAL")
-          << "number of Ecal elements linked to this track: " << sortedEcals.size();
+      LogTrace("PFAlgo|createCandidatesHCAL") << "number of Ecal elements linked to this track: " << sortedEcals.size();
 
       // look for HO elements associated to iTrack (associated to iHcal)
       std::multimap<double, unsigned> sortedHOs;
@@ -2122,10 +2125,10 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
 #ifdef EDM_ML_DEBUG
       if (!sortedTracks.empty()) {
         LogTrace("PFAlgo|createCandidatesHCAL") << "\t\tcase 2: NEUTRAL DETECTION " << caloEnergy << " > " << nsigma
-                                                 << "x" << TotalError << " + " << totalChargedMomentum;
+                                                << "x" << TotalError << " + " << totalChargedMomentum;
         LogTrace("PFAlgo|createCandidatesHCAL") << "\t\tneutral activity detected: " << endl
-                                                 << "\t\t\t           photon = " << ePhoton << endl
-                                                 << "\t\t\tor neutral hadron = " << eNeutralHadron;
+                                                << "\t\t\t           photon = " << ePhoton << endl
+                                                << "\t\t\tor neutral hadron = " << eNeutralHadron;
 
         LogTrace("PFAlgo|createCandidatesHCAL") << "\t\tphoton or hadron ?";
       }
@@ -2411,7 +2414,8 @@ void PFAlgo::createCandidatesHCALUnlinked(const reco::PFBlock& block,
                                           ElementIndices& inds,
                                           std::vector<bool>& deadArea) {
   // Processing the remaining HCAL clusters
-  LogTrace("PFAlgo|createCandidatesHCALUnlinked") << "start of function, PFAlgo::createCandidatesHCALUnlinked, hcalIs.size()=" << inds.hcalIs.size();
+  LogTrace("PFAlgo|createCandidatesHCALUnlinked")
+      << "start of function, PFAlgo::createCandidatesHCALUnlinked, hcalIs.size()=" << inds.hcalIs.size();
 
   for (unsigned iHcal : inds.hcalIs) {
     // Keep ECAL and HO elements for reference in the PFCandidate
@@ -2623,7 +2627,8 @@ void PFAlgo::createCandidatesECAL(const reco::PFBlock& block,
                                   const reco::PFBlockRef& blockref,
                                   ElementIndices& inds,
                                   std::vector<bool>& deadArea) {
-  LogTrace("PFAlgo|createCandidatesECAL") << "start of function PFALgo::createCandidatesECAL(), ecalIs.size()=" << inds.ecalIs.size();
+  LogTrace("PFAlgo|createCandidatesECAL")
+      << "start of function PFALgo::createCandidatesECAL(), ecalIs.size()=" << inds.ecalIs.size();
 
   // for each ecal element iEcal = ecalIs[i] in turn:
 
@@ -2751,8 +2756,8 @@ unsigned PFAlgo::reconstructTrack(const reco::PFBlockElement& elt, bool allowLoo
   double energy = sqrt(track.p() * track.p() + 0.13957 * 0.13957);
 
   LogTrace("PFAlgo|reconstructTrack") << "Reconstructing PF candidate from track of pT = " << track.pt()
-                                       << " eta = " << track.eta() << " phi = " << track.phi() << " px = " << px
-                                       << " py = " << py << " pz = " << pz << " energy = " << energy;
+                                      << " eta = " << track.eta() << " phi = " << track.phi() << " px = " << px
+                                      << " py = " << py << " pz = " << pz << " energy = " << energy;
 
   // Create a PF Candidate
   ::math::XYZTLorentzVector momentum(px, py, pz, energy);
@@ -2760,8 +2765,8 @@ unsigned PFAlgo::reconstructTrack(const reco::PFBlockElement& elt, bool allowLoo
 
   // Add it to the stack
   LogTrace("PFAlgo|reconstructTrack") << "Creating PFCandidate charge=" << charge << ", type=" << particleType
-                                       << ", pt=" << momentum.pt() << ", eta=" << momentum.eta()
-                                       << ", phi=" << momentum.phi();
+                                      << ", pt=" << momentum.pt() << ", eta=" << momentum.eta()
+                                      << ", phi=" << momentum.phi();
   pfCandidates_->push_back(PFCandidate(charge, momentum, particleType));
   //Set vertex and stuff like this
   pfCandidates_->back().setVertexSource(PFCandidate::kTrkVertex);
@@ -2822,9 +2827,9 @@ unsigned PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
                                     double particleY,
                                     double particleZ) {
   LogTrace("PFAlgo|reconstructCluster") << "start of function PFAlgo::reconstructCluster, cluster=" << cluster
-                                         << "particleEnergy=" << particleEnergy << "useDirection=" << useDirection
-                                         << "particleX=" << particleX << "particleY=" << particleY
-                                         << "particleZ=" << particleZ;
+                                        << "particleEnergy=" << particleEnergy << "useDirection=" << useDirection
+                                        << "particleX=" << particleX << "particleY=" << particleY
+                                        << "particleZ=" << particleZ;
 
   reco::PFCandidate::ParticleType particleType = reco::PFCandidate::X;
 
@@ -2904,7 +2909,7 @@ unsigned PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
 
   // The pf candidate
   LogTrace("PFAlgo|reconstructCluster") << "Creating PFCandidate charge=" << charge << ", type=" << particleType
-                                         << ", pt=" << tmp.pt() << ", eta=" << tmp.eta() << ", phi=" << tmp.phi();
+                                        << ", pt=" << tmp.pt() << ", eta=" << tmp.eta() << ", phi=" << tmp.phi();
   pfCandidates_->push_back(PFCandidate(charge, tmp, particleType));
 
   // The position at ECAL entrance (well: watch out, it is not true
@@ -3155,7 +3160,7 @@ void PFAlgo::postCleaning() {
     // The significance must be significantly reduced to indeed clean the candidates
     if (significance - significanceCor > minSignificanceReduction_ && significanceCor < maxSignificance_) {
       edm::LogInfo("PFAlgo|postCleaning") << "Significance reduction = " << significance << " -> " << significanceCor
-                                           << " = " << significanceCor - significance;
+                                          << " = " << significanceCor - significance;
       for (unsigned int toRemove : pfCandidatesToBeRemoved) {
         edm::LogInfo("PFAlgo|postCleaning") << "Removed : " << (*pfCandidates_)[toRemove];
         pfCleanedCandidates_.push_back((*pfCandidates_)[toRemove]);
@@ -3252,7 +3257,7 @@ void PFAlgo::checkCleaning(const reco::PFRecHitCollection& cleanedHits) {
   if (std::sqrt(met2_Original) - std::sqrt(met2) > 5.) {
     LogTrace("PFAlgo|checkCleaning") << hitsToBeAdded.size() << " hits were re-added ";
     LogTrace("PFAlgo|checkCleaning") << "MET reduction = " << std::sqrt(met2_Original) << " -> " << std::sqrt(met2Cor)
-                                      << " = " << std::sqrt(met2Cor) - std::sqrt(met2_Original);
+                                     << " = " << std::sqrt(met2Cor) - std::sqrt(met2_Original);
     LogTrace("PFAlgo|checkCleaning") << "Added after cleaning check : ";
     for (unsigned int hitIdx : hitsToBeAdded) {
       const PFRecHit& hit = cleanedHits[hitIdx];
