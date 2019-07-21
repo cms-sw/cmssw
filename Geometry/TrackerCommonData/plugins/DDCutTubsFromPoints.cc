@@ -3,16 +3,59 @@
 // Description: Create a ring of CutTubs segments from points on the rim.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <string>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDVector.h"
-#include "Geometry/TrackerCommonData/plugins/DDCutTubsFromPoints.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <cmath>
+#include <map>
+#include <string>
+#include <vector>
+
+// This algorithm creates a ring made of CutTubs segments from the phi,z points
+// of the rings "corners".
+// The algorithm only defines and places two copies of a single Solid with the given name.
+class DDCutTubsFromPoints : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDCutTubsFromPoints();
+  ~DDCutTubsFromPoints() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  struct Section {
+    double phi;  // phi position of this edge
+    double z_l;  // -Z end (cuttubs l plane)
+    double z_t;  // +Z end (cuttubs t plane)
+    // radius is implicitly r_min
+  };
+
+  double r_min;
+  double r_max;
+  double z_pos;
+  DDMaterial material;
+
+  // a segment is produced between each two consecutive sections that have a
+  // non-zero phi distance. Sections with zero phi distance can be used to
+  // create sharp jumps.
+  std::vector<Section> sections;
+  // this solid will be defined.
+  DDName solidOutput;
+};
 
 DDCutTubsFromPoints::DDCutTubsFromPoints() {
   LogDebug("TrackerGeom") << "DDCutTubsFromPoints info: Creating an instance";
@@ -188,3 +231,5 @@ void DDCutTubsFromPoints::execute(DDCompactView& cpv) {
   cpv.position(logical, parent(), 1, DDTranslation(0, 0, z_pos - offset), DDRotation());
   cpv.position(logical, parent(), 2, DDTranslation(0, 0, z_pos - offset), rot180);
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDCutTubsFromPoints, "track:DDCutTubsFromPoints");
