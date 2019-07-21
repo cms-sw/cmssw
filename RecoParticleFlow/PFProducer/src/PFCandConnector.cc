@@ -124,7 +124,7 @@ reco::PFCandidateCollection PFCandConnector::connect(PFCandidateCollection& pfCa
 
 #ifdef EDM_ML_DEBUG
         LogTrace("PFCandConnector|connect") << "After Connection the candidate " << ce1 << " is " << pfCand.at(ce1)
-                                             << " and elements connected to it are: " << endl;
+                                            << " and elements connected to it are: " << endl;
 
         PFCandidate::ElementsInBlocks elementsInBlocks = pfCand.at(ce1).elementsInBlocks();
         for (unsigned blockElem = 0; blockElem < elementsInBlocks.size(); blockElem++) {
