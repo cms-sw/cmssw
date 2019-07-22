@@ -41,7 +41,7 @@ mergedSiStripQualityProducer.appendToDataLabel = 'MergedBadComponent'
 
 siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
     StripQualityLabel = cms.string('MergedBadComponent'),
-    AddBadComponentsFromFedError = cms.untracked.bool(True),
+    AddBadComponentsFromFedErrors = cms.untracked.bool(True),
     FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
 )
 
