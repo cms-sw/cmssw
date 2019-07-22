@@ -37,6 +37,8 @@ static long algorithm(dd4hep::Detector&,
   double ladderOffset = args.value<double>("LadderOffset");
   int outerFirst = args.value<int>("OuterFirst");
 
+  dd4hep::Volume mother = ns.volume(args.parentName());
+
   LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo debug: Parent " << parentName 
                         << " NameSpace " << ns.objName(parentName)
                         << "\n\tLadders " << number
@@ -257,6 +259,10 @@ static long algorithm(dd4hep::Detector&,
                           << " positioned in " << layer.name()
                           << " at " << tran << " with " << rot;
   }
+
+  int nCopy = 1;
+  mother.placeVolume(layer, nCopy, dd4hep::Transform3D(dd4hep::Rotation3D(),
+                                                       dd4hep::Position(0., 0., 0.)));
 
   return cms::s_executed;
 
