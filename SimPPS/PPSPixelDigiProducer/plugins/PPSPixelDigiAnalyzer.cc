@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
@@ -48,7 +48,7 @@ namespace edm {
   class EventSetup;
 }  // namespace edm
 
-class PPSPixelDigiAnalyzer : public edm::EDAnalyzer {
+class PPSPixelDigiAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PPSPixelDigiAnalyzer(const edm::ParameterSet &pset);
   ~PPSPixelDigiAnalyzer() override;

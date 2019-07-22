@@ -3,7 +3,7 @@
 #include <fstream>
 
 RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_id)
-    : det_id_(det_id), theRPixDetTopology_(), sqrt_2(sqrt(2.0)) {
+    : det_id_(det_id), theRPixDetTopology_() {
   verbosity_ = params.getParameter<int>("RPixVerbosity");
   signalCoupling_.clear();
   ChargeMapFile2E_[0] = params.getParameter<std::string>("ChargeMapFile2E");
@@ -29,7 +29,7 @@ RPixChargeShare::RPixChargeShare(const edm::ParameterSet &params, uint32_t det_i
       while (fChargeMap >> xMap >> yMap >> chargeprobcollect) {
         ix = int((xMap + xUpper[i]) / 5);
         iy = int((yMap + yUpper[i]) / 5);
-        chargeMap2E[i][ix][iy] = chargeprobcollect;
+        chargeMap2E_[i][ix][iy] = chargeprobcollect;
       }
       fChargeMap.close();
     } else
@@ -100,26 +100,26 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
       int ybin = int((((*i).X() - pixel_center_x) + pixel_width_x / 2.) * 1.e3 / 5.);
       if (pixel_width_x < 0.11 && pixel_width_y < 0.151) {  // pixel 100x150 um^2
         psize = 0;
-        if (xbin > xBinMax[psize] || ybin > yBinMax[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
           continue;
       }
       if (pixel_width_x > 0.11 && pixel_width_y < 0.151) {  // pixel 200x150 um^2
         psize = 2;
-        if (xbin > xBinMax[psize] || ybin > yBinMax[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
           continue;
       }
       if (pixel_width_x < 0.11 && pixel_width_y > 0.151) {  // pixel 100x300 um^2
         psize = 1;
-        if (xbin > xBinMax[psize] || ybin > yBinMax[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
           continue;
       }
       if (pixel_width_x > 0.11 && pixel_width_y > 0.151) {  // pixel 200x300 um^2
         psize = 3;
-        if (xbin > xBinMax[psize] || ybin > yBinMax[psize])
+        if (xbin > xBinMax_[psize] || ybin > yBinMax_[psize])
           continue;
       }
       double hit2neighbour[8];
-      double collect_prob = chargeMap2E[psize][xbin][ybin];
+      double collect_prob = chargeMap2E_[psize][xbin][ybin];
       thePixelChargeMap[pixel_no] += charge_in_pixel * collect_prob;
       unsigned short neighbour_no[8];
       unsigned short m = 0;
@@ -144,7 +144,7 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
           neighbour_pixel_center_x = neighbour_pixel_lower_x + (neighbour_pixel_upper_x - neighbour_pixel_lower_x) / 2.;
           neighbour_pixel_center_y = neighbour_pixel_lower_y + (neighbour_pixel_upper_y - neighbour_pixel_lower_y) / 2.;
           hit2neighbour[m] =
-              1 / sqrt(pow((*i).X() - neighbour_pixel_center_x, 2.) + pow((*i).Y() - neighbour_pixel_center_y, 2.));
+              sqrt(pow((*i).X() - neighbour_pixel_center_x, 2.) + pow((*i).Y() - neighbour_pixel_center_y, -2.));
           neighbour_no[m] = l * pxlRowSize_ + k;
           if (hit2neighbour[m] > closer_neighbour) {
             closer_neighbour = hit2neighbour[m];

@@ -23,6 +23,10 @@ public:
 
 private:
   typedef std::set<unsigned short> dead_pixel_set;
+  static constexpr double highRangeCal_ = 1800.;
+  static constexpr double lowRangeCal_ = 260.;
+  static constexpr int maxADC_ = 255;
+
   uint32_t det_id_;
   double dead_pixel_probability_;
   bool dead_pixels_simulation_on_;

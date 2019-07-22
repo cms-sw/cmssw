@@ -33,14 +33,14 @@ std::vector<RPixEnergyDepositUnit> RPixLinearChargeDivider::divide(const PSimHit
     double length = direction.mag();  // Track length in Silicon
     FluctuateEloss(pid, momentum, eLoss, length, NumberOfSegmentation, the_energy_path_distribution_);
     for (int i = 0; i < NumberOfSegmentation; i++) {
-      the_energy_path_distribution_[i].Position() =
-          hit.entryPoint() + double((i + 0.5) / NumberOfSegmentation) * direction;
+      the_energy_path_distribution_[i].setPosition(hit.entryPoint() +
+                                                   double((i + 0.5) / NumberOfSegmentation) * direction);
     }
   } else {
     for (int i = 0; i < NumberOfSegmentation; i++) {
-      the_energy_path_distribution_[i].Position() =
-          hit.entryPoint() + double((i + 0.5) / NumberOfSegmentation) * direction;
-      the_energy_path_distribution_[i].Energy() = eLoss / (double)NumberOfSegmentation;
+      the_energy_path_distribution_[i].setPosition(hit.entryPoint() +
+                                                   double((i + 0.5) / NumberOfSegmentation) * direction);
+      the_energy_path_distribution_[i].setEnergy(eLoss / (double)NumberOfSegmentation);
     }
   }
 
@@ -89,7 +89,7 @@ void RPixLinearChargeDivider::FluctuateEloss(int pid,
     de = fluctuate->SampleFluctuations(
              particleMomentum * 1000, particleMass, deltaCutoff, segmentLength, segmentEloss, &(rndEngine_)) /
          1000;  //convert to GeV
-    elossVector[i].Energy() = de;
+    elossVector[i].setEnergy(de);
     sum += de;
   }
 
@@ -97,11 +97,11 @@ void RPixLinearChargeDivider::FluctuateEloss(int pid,
                    // Rescale to the same total eloss
     double ratio = eloss / sum;
     for (int ii = 0; ii < NumberOfSegs; ii++)
-      elossVector[ii].Energy() = ratio * elossVector[ii].Energy();
+      elossVector[ii].setEnergy(ratio * elossVector[ii].Energy());
   } else {  // If fluctuations gives 0 eloss
     double averageEloss = eloss / NumberOfSegs;
     for (int ii = 0; ii < NumberOfSegs; ii++)
-      elossVector[ii].Energy() = averageEloss;
+      elossVector[ii].setEnergy(averageEloss);
   }
   return;
 }

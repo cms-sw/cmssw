@@ -14,14 +14,14 @@ public:
   RPixSignalPoint(double x, double y, double s, double charge) : pos_(x, y), sigma_(s), charge_(charge){};
 
   inline LocalPoint Position() const { return pos_; }
-  inline LocalPoint &Position() { return pos_; }
   inline double X() const { return pos_.x(); }
   inline double Y() const { return pos_.y(); }
   inline double Sigma() const { return sigma_; }
-  inline double &Sigma() { return sigma_; }
   inline double Charge() const { return charge_; }
-  inline double &Charge() { return charge_; }
-  inline void SetCharge(double charge) { charge_ = charge; }
+
+  inline void setCharge(double charge) { charge_ = charge; }
+  inline void setPosition(LocalPoint p) { pos_ = p; }
+  inline void setSigma(double s) { sigma_ = s; }
 
 private:
   LocalPoint pos_;
