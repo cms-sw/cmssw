@@ -136,16 +136,17 @@ namespace {
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
       auto hfirst = std::unique_ptr<TH1F>(
-          new TH1F("value_first", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0., 0.1));
+          new TH1F("value_first", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.11));
       hfirst->SetStats(false);
 
       auto hlast = std::unique_ptr<TH1F>(
-          new TH1F("value_last", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0., 0.1));
+          new TH1F("value_last", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.11));
       hlast->SetStats(false);
 
-      canvas.SetBottomMargin(0.10);
+      canvas.SetTopMargin(0.06);
+      canvas.SetBottomMargin(0.12);
       canvas.SetLeftMargin(0.12);
-      canvas.SetRightMargin(0.03);
+      canvas.SetRightMargin(0.05);
       canvas.Modified();
 
       for (const auto &element : f_LAMap_) {
@@ -159,26 +160,44 @@ namespace {
       auto extrema = SiPixelPI::getExtrema(hfirst.get(), hlast.get());
       hfirst->GetYaxis()->SetRangeUser(extrema.first, extrema.second * 1.10);
 
+      hfirst->SetTitle("");
       hfirst->SetFillColor(kRed);
-      hfirst->SetMarkerStyle(20);
-      hfirst->SetMarkerSize(1);
+      hfirst->SetMarkerStyle(kFullCircle);
+      hfirst->SetMarkerSize(1.5);
+      hfirst->SetMarkerColor(kRed);
       hfirst->Draw("HIST");
       hfirst->Draw("Psame");
 
+      hlast->SetTitle("");
       hlast->SetFillColorAlpha(kBlue, 0.20);
-      hlast->SetMarkerStyle(20);
-      hlast->SetMarkerSize(1);
+      hlast->SetMarkerStyle(kOpenCircle);
+      hlast->SetMarkerSize(1.5);
+      hlast->SetMarkerColor(kBlue);
       hlast->Draw("HISTsame");
       hlast->Draw("Psame");
 
+      SiPixelPI::makeNicePlotStyle(hfirst.get());
+      SiPixelPI::makeNicePlotStyle(hlast.get());
+
       canvas.Update();
 
-      TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
-      legend.SetHeader("SiPixel Lorentz Angle Comparison", "C");  // option "C" allows to center the header
-      legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
-      legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
+      TLegend legend = TLegend(0.32, 0.86, 0.95, 0.94);
+      //legend.SetHeader("#font[22]{SiPixel Lorentz Angle Comparison}", "C");  // option "C" allows to center the header
+      //legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
+      //legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
+      legend.AddEntry(hfirst.get(), ("payload: #color[2]{" + std::get<1>(firstiov)+"}").c_str(), "F");
+      legend.AddEntry(hlast.get(),  ("payload: #color[4]{" + std::get<1>(lastiov)+"}").c_str(), "F");
       legend.SetTextSize(0.025);
       legend.Draw("same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kBlue);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+		       1 - gPad->GetTopMargin() + 0.01,
+		       ("SiPixel Lorentz Angle IOV: #color[2]{"+std::to_string(std::get<0>(firstiov)) + "} vs IOV: #color[4]{" + std::to_string(std::get<0>(lastiov))+"}").c_str());
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
