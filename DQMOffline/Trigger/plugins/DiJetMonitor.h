@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -48,6 +48,9 @@ class GenericTriggerEventFlag;
 
 class DiJetMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
   DiJetMonitor(const edm::ParameterSet &);
   ~DiJetMonitor() throw() override{};
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);

@@ -13,7 +13,7 @@
 #include "DataFormats/RPCDigi/interface/RPCRawDataCounts.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 

@@ -21,8 +21,6 @@
 #include "TMath.h"
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
-using namespace dqm;
-
 namespace {
   template <typename T, size_t N>
   std::array<T, N + 1> makeLogBins(const double min, const double max) {

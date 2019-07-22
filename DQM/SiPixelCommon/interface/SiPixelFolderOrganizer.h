@@ -25,6 +25,9 @@ Usage:
 
 class SiPixelFolderOrganizer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor - getStore should be called false from multi-thread DQM
   /// applications
   SiPixelFolderOrganizer(bool getStore = true);

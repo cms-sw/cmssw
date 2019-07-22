@@ -3,12 +3,13 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class MonitorElement;
-
 #include <string>
 
 class HistoProviderDQM {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HistoProviderDQM(const std::string& prefix, const std::string& label, DQMStore::IBooker& ibook);
   virtual ~HistoProviderDQM() {}
 

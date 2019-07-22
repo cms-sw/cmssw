@@ -31,7 +31,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <string>
@@ -44,6 +43,8 @@
 
 class SiPixelDQMRocLevelAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiPixelDQMRocLevelAnalyzer(const edm::ParameterSet &);
   ~SiPixelDQMRocLevelAnalyzer() override;
 

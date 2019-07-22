@@ -1,7 +1,6 @@
 #include "DQM/SiStripCommissioningSources/interface/FineDelayTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/SiStripCommon/interface/SiStripDetKey.h"
 
@@ -12,7 +11,7 @@
 // -----------------------------------------------------------------------------
 //
 CommissioningTask::HistoSet FineDelayTask::timing_;
-MonitorElement* FineDelayTask::mode_ = nullptr;
+CommissioningTask::MonitorElement* FineDelayTask::mode_ = nullptr;
 
 // -----------------------------------------------------------------------------
 //

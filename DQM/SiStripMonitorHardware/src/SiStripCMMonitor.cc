@@ -41,7 +41,6 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripMonitorHardware/interface/FEDHistograms.hh"
 #include "DQM/SiStripMonitorHardware/interface/FEDErrors.hh"

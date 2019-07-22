@@ -6,7 +6,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -48,6 +47,8 @@
 */
 
 namespace TopDiLeptonOffline {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   class MonitorEnsemble {
   public:

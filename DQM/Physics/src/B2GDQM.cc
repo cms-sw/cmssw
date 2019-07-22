@@ -4,7 +4,6 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

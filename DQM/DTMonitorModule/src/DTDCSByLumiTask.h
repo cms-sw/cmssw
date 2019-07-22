@@ -20,17 +20,14 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <vector>
 
 class DTGeometry;
-class DQMStore;
-class MonitorElement;
 class DTHVStatus;
 
 class DTDCSByLumiTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {

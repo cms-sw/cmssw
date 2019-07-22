@@ -12,7 +12,6 @@
 #include "DataFormats/DTDigi/interface/DTControlData.h"
 #include "DataFormats/DTDigi/interface/DTDDUWords.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

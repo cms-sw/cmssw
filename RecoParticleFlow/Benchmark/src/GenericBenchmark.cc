@@ -1,9 +1,5 @@
 #include "RecoParticleFlow/Benchmark/interface/GenericBenchmark.h"
 #include "RecoParticleFlow/Benchmark/interface/BenchmarkTree.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-// CMSSW_2_X_X
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TROOT.h>
 #include <TFile.h>

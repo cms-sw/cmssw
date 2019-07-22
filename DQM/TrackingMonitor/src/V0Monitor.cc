@@ -83,33 +83,33 @@ void V0Monitor::getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning) {
   mebinning.xmax = pset.getParameter<double>("xmax");
 }
 
-MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker& ibooker,
-                                       std::string name,
-                                       std::string title,
-                                       std::string xaxis,
-                                       std::string yaxis,
-                                       MEbinning binning) {
+V0Monitor::MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker& ibooker,
+                                                  std::string name,
+                                                  std::string title,
+                                                  std::string xaxis,
+                                                  std::string yaxis,
+                                                  MEbinning binning) {
   std::string title_w_axes = title + ";" + xaxis + ";" + yaxis;
   return ibooker.book1D(name, title_w_axes, binning.nbins, binning.xmin, binning.xmax);
 }
-MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker& ibooker,
-                                       std::string name,
-                                       std::string title,
-                                       std::string xaxis,
-                                       std::string yaxis,
-                                       MEbinning xbinning,
-                                       MEbinning ybinning) {
+V0Monitor::MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker& ibooker,
+                                                  std::string name,
+                                                  std::string title,
+                                                  std::string xaxis,
+                                                  std::string yaxis,
+                                                  MEbinning xbinning,
+                                                  MEbinning ybinning) {
   std::string title_w_axes = title + ";" + xaxis + ";" + yaxis;
   return ibooker.book2D(
       name, title_w_axes, xbinning.nbins, xbinning.xmin, xbinning.xmax, ybinning.nbins, ybinning.xmin, ybinning.xmax);
 }
-MonitorElement* V0Monitor::bookProfile(DQMStore::IBooker& ibooker,
-                                       std::string name,
-                                       std::string title,
-                                       std::string xaxis,
-                                       std::string yaxis,
-                                       MEbinning xbinning,
-                                       MEbinning ybinning) {
+V0Monitor::MonitorElement* V0Monitor::bookProfile(DQMStore::IBooker& ibooker,
+                                                  std::string name,
+                                                  std::string title,
+                                                  std::string xaxis,
+                                                  std::string yaxis,
+                                                  MEbinning xbinning,
+                                                  MEbinning ybinning) {
   std::string title_w_axes = title + ";" + xaxis + ";" + yaxis;
   return ibooker.bookProfile(
       name, title_w_axes, xbinning.nbins, xbinning.xmin, xbinning.xmax, ybinning.xmin, ybinning.xmax);

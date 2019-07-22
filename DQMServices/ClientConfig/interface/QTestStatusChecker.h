@@ -16,6 +16,9 @@
 #include <vector>
 
 class QTestStatusChecker {
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
 public:
   ///Creator
   QTestStatusChecker();

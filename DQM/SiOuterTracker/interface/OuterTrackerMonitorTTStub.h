@@ -2,7 +2,7 @@
 #define SiOuterTracker_OuterTrackerMonitorTTStub_h
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -14,8 +14,6 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include <memory>
 #include <vector>
-
-class DQMStore;
 
 class OuterTrackerMonitorTTStub : public DQMEDAnalyzer {
 public:

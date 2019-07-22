@@ -22,7 +22,6 @@
 // user include files
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TFile.h"
 
 using namespace edm;

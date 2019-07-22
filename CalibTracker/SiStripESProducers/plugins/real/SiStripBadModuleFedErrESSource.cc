@@ -37,12 +37,12 @@
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-
-class DQMStore;
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiStripBadModuleFedErrESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   SiStripBadModuleFedErrESSource(const edm::ParameterSet&);
   ~SiStripBadModuleFedErrESSource() override;
 
@@ -67,8 +67,7 @@ private:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 SiStripBadModuleFedErrESSource::SiStripBadModuleFedErrESSource(const edm::ParameterSet& iConfig) {
   setWhatProduced(this).setConsumes(cablingToken_);
@@ -103,7 +102,7 @@ float SiStripBadModuleFedErrESSource::getProcessedEvents(DQMStore* dqmStore) con
 std::vector<std::pair<uint16_t, uint16_t>> SiStripBadModuleFedErrESSource::getFedBadChannelList(
     DQMStore* dqmStore, const MonitorElement* me) const {
   std::vector<std::pair<uint16_t, uint16_t>> ret;
-  if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me->kind() == MonitorElement::Kind::TH2F) {
     TH2F* th2 = me->getTH2F();
     float entries = getProcessedEvents(dqmStore);
     if (!entries)

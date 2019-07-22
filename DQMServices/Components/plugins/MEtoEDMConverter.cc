@@ -155,51 +155,51 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
       continue;
 
     switch (me->kind()) {
-      case MonitorElement::DQM_KIND_INT:
+      case MonitorElement::Kind::INT:
         ++nInt64;
         break;
 
-      case MonitorElement::DQM_KIND_REAL:
+      case MonitorElement::Kind::REAL:
         ++nDouble;
         break;
 
-      case MonitorElement::DQM_KIND_STRING:
+      case MonitorElement::Kind::STRING:
         ++nString;
         break;
 
-      case MonitorElement::DQM_KIND_TH1F:
+      case MonitorElement::Kind::TH1F:
         ++n1F;
         break;
 
-      case MonitorElement::DQM_KIND_TH1S:
+      case MonitorElement::Kind::TH1S:
         ++n1S;
         break;
 
-      case MonitorElement::DQM_KIND_TH1D:
+      case MonitorElement::Kind::TH1D:
         ++n1D;
         break;
 
-      case MonitorElement::DQM_KIND_TH2F:
+      case MonitorElement::Kind::TH2F:
         ++n2F;
         break;
 
-      case MonitorElement::DQM_KIND_TH2S:
+      case MonitorElement::Kind::TH2S:
         ++n2S;
         break;
 
-      case MonitorElement::DQM_KIND_TH2D:
+      case MonitorElement::Kind::TH2D:
         ++n2D;
         break;
 
-      case MonitorElement::DQM_KIND_TH3F:
+      case MonitorElement::Kind::TH3F:
         ++n3F;
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE:
+      case MonitorElement::Kind::TPROFILE:
         ++nProf;
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE2D:
+      case MonitorElement::Kind::TPROFILE2D:
         ++nProf2;
         break;
 
@@ -236,51 +236,51 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
     // get monitor elements
     switch (me->kind()) {
-      case MonitorElement::DQM_KIND_INT:
+      case MonitorElement::Kind::INT:
         pOutInt->putMEtoEdmObject(me->getFullname(), me->getTags(), me->getIntValue());
         break;
 
-      case MonitorElement::DQM_KIND_REAL:
+      case MonitorElement::Kind::REAL:
         pOutDouble->putMEtoEdmObject(me->getFullname(), me->getTags(), me->getFloatValue());
         break;
 
-      case MonitorElement::DQM_KIND_STRING:
+      case MonitorElement::Kind::STRING:
         pOutString->putMEtoEdmObject(me->getFullname(), me->getTags(), me->getStringValue());
         break;
 
-      case MonitorElement::DQM_KIND_TH1F:
+      case MonitorElement::Kind::TH1F:
         pOut1->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH1F());
         break;
 
-      case MonitorElement::DQM_KIND_TH1S:
+      case MonitorElement::Kind::TH1S:
         pOut1s->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH1S());
         break;
 
-      case MonitorElement::DQM_KIND_TH1D:
+      case MonitorElement::Kind::TH1D:
         pOut1d->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH1D());
         break;
 
-      case MonitorElement::DQM_KIND_TH2F:
+      case MonitorElement::Kind::TH2F:
         pOut2->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH2F());
         break;
 
-      case MonitorElement::DQM_KIND_TH2S:
+      case MonitorElement::Kind::TH2S:
         pOut2s->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH2S());
         break;
 
-      case MonitorElement::DQM_KIND_TH2D:
+      case MonitorElement::Kind::TH2D:
         pOut2d->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH2D());
         break;
 
-      case MonitorElement::DQM_KIND_TH3F:
+      case MonitorElement::Kind::TH3F:
         pOut3->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTH3F());
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE:
+      case MonitorElement::Kind::TPROFILE:
         pOutProf->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTProfile());
         break;
 
-      case MonitorElement::DQM_KIND_TPROFILE2D:
+      case MonitorElement::Kind::TPROFILE2D:
         pOutProf2->putMEtoEdmObject(me->getFullname(), me->getTags(), *me->getTProfile2D());
         break;
 

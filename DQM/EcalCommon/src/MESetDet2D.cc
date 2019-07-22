@@ -10,8 +10,8 @@ namespace ecaldqm {
                          binning::AxisSpecs const *_zaxis /* = 0*/)
       : MESetEcal(_fullPath, _otype, _btype, _kind, 2, nullptr, nullptr, _zaxis) {
     switch (kind_) {
-      case MonitorElement::DQM_KIND_TH2F:
-      case MonitorElement::DQM_KIND_TPROFILE2D:
+      case MonitorElement::Kind::TH2F:
+      case MonitorElement::Kind::TPROFILE2D:
         break;
       default:
         throw_("Unsupported MonitorElement kind");
@@ -71,7 +71,7 @@ namespace ecaldqm {
     // To avoid the ambiguity between "content == 0 because the mean is 0" and
     // "content == 0 because the entry is 0" RenderPlugin must be configured
     // accordingly
-    if (!batchMode_ && kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
+    if (!batchMode_ && kind_ == MonitorElement::Kind::TPROFILE2D)
       resetAll(0., 0., -1.);
   }
 
@@ -250,7 +250,7 @@ namespace ecaldqm {
   void MESetDet2D::setBinEntries(DetId const &_id, double _entries) {
     if (!active_)
       return;
-    if (kind_ != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind_ != MonitorElement::Kind::TPROFILE2D)
       return;
 
     unsigned iME(binning::findPlotIndex(otype_, _id));
@@ -276,7 +276,7 @@ namespace ecaldqm {
   void MESetDet2D::setBinEntries(EcalElectronicsId const &_id, double _entries) {
     if (!active_)
       return;
-    if (kind_ != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind_ != MonitorElement::Kind::TPROFILE2D)
       return;
 
     unsigned iME(binning::findPlotIndex(otype_, _id));
@@ -402,7 +402,7 @@ namespace ecaldqm {
   double MESetDet2D::getBinEntries(DetId const &_id, int) const {
     if (!active_)
       return 0.;
-    if (kind_ != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind_ != MonitorElement::Kind::TPROFILE2D)
       return 0.;
 
     unsigned iME(binning::findPlotIndex(otype_, _id));
@@ -429,7 +429,7 @@ namespace ecaldqm {
   double MESetDet2D::getBinEntries(EcalElectronicsId const &_id, int) const {
     if (!active_)
       return 0.;
-    if (kind_ != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind_ != MonitorElement::Kind::TPROFILE2D)
       return 0.;
 
     unsigned iME(binning::findPlotIndex(otype_, _id));
@@ -495,7 +495,7 @@ namespace ecaldqm {
   void MESetDet2D::reset(double _content /* = 0.*/, double _err /* = 0.*/, double _entries /* = 0.*/) {
     unsigned nME(binning::getNObjects(otype_));
 
-    bool isProfile(kind_ == MonitorElement::DQM_KIND_TPROFILE2D);
+    bool isProfile(kind_ == MonitorElement::Kind::TPROFILE2D);
 
     for (unsigned iME(0); iME < nME; iME++) {
       MonitorElement *me(mes_[iME]);
@@ -520,12 +520,12 @@ namespace ecaldqm {
 
   void MESetDet2D::softReset() {
     MESet::softReset();
-    if (!batchMode_ && kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
+    if (!batchMode_ && kind_ == MonitorElement::Kind::TPROFILE2D)
       resetAll(0., 0., -1.);
   }
 
   void MESetDet2D::fill_(unsigned _iME, int _bin, double _w) {
-    if (kind_ == MonitorElement::DQM_KIND_TPROFILE2D) {
+    if (kind_ == MonitorElement::Kind::TPROFILE2D) {
       MonitorElement *me(mes_.at(_iME));
       if (me->getBinEntries(_bin) < 0.) {
         me->setBinContent(_bin, 0.);
@@ -538,7 +538,7 @@ namespace ecaldqm {
   }
 
   void MESetDet2D::fill_(unsigned _iME, int _bin, double _y, double _w) {
-    if (kind_ == MonitorElement::DQM_KIND_TPROFILE2D) {
+    if (kind_ == MonitorElement::Kind::TPROFILE2D) {
       MonitorElement *me(mes_.at(_iME));
       if (me->getBinEntries(_bin) < 0.) {
         me->setBinContent(_bin, 0.);
@@ -551,7 +551,7 @@ namespace ecaldqm {
   }
 
   void MESetDet2D::fill_(unsigned _iME, double _x, double _wy, double _w) {
-    if (kind_ == MonitorElement::DQM_KIND_TPROFILE2D) {
+    if (kind_ == MonitorElement::Kind::TPROFILE2D) {
       MonitorElement *me(mes_.at(_iME));
       int bin(me->getTProfile2D()->FindBin(_x, _wy));
       if (me->getBinEntries(bin) < 0.) {

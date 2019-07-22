@@ -22,7 +22,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -57,6 +56,9 @@ const std::string EFFICIENCY_SUFFIXES[2] = {"denom", "numer"};
 
 class HLTMuonMatchAndPlot {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor
   HLTMuonMatchAndPlot(const edm::ParameterSet &, std::string, std::string, bool);
 

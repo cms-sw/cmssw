@@ -13,6 +13,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -25,8 +26,6 @@
 
 class DTGeometry;
 class DTSuperLayerId;
-class DQMStore;
-class MonitorElement;
 
 class DTResolutionAnalysisTest : public DQMEDHarvester {
 public:

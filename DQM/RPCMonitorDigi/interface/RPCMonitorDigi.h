@@ -7,7 +7,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"

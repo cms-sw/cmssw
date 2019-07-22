@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DQM Stuff
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 SiPixelPhase1DigisV::SiPixelPhase1DigisV(const edm::ParameterSet &iConfig) : SiPixelPhase1Base(iConfig) {
   srcToken_ = consumes<edm::DetSetVector<PixelDigi>>(iConfig.getParameter<edm::InputTag>("src"));

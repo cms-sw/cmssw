@@ -4,7 +4,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"

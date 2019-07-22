@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,13 +35,14 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 class SiStripFedCabling;
 class TrackerTopology;
 
 class SiStripDaqInfo : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripDaqInfo(edm::ParameterSet const& ps);
 
 private:
