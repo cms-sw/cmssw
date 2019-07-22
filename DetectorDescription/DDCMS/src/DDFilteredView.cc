@@ -313,10 +313,10 @@ bool DDFilteredView::isATruncTube() const {
 
 bool DDFilteredView::isATubeSeg() const { return (getShape() == TGeoTubeSeg::Class()); }
 
-std::string DDFilteredView::name() const { return (volume().volume().name()); }
+std::string_view DDFilteredView::name() const { return (volume().volume().name()); }
 
 dd4hep::Solid DDFilteredView::solid() const { return (volume().volume().solid()); }
 
 unsigned short DDFilteredView::copyNum() const { return (volume().copyNumber()); }
 
-std::string DDFilteredView::materialName() const { return (volume().material().name()); }
+std::string_view DDFilteredView::materialName() const { return (volume().material().name()); }
