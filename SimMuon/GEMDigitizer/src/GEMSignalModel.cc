@@ -8,6 +8,7 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include <cmath>
 #include <utility>
 #include <map>
@@ -97,7 +98,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   const GlobalPoint& globMiddleRol = roll->toGlobal(middleOfRoll);
   double muRadius = sqrt(globMiddleRol.x() * globMiddleRol.x() + globMiddleRol.y() * globMiddleRol.y() +
                          globMiddleRol.z() * globMiddleRol.z());
-  double timeCalibrationOffset_ = (muRadius * 1e+9) / (cspeed * 1e+2);  //[ns]
+  double timeCalibrationOffset_ = geant_units::operators::convertCmToMm(muRadius) / cspeed;  //[ns]
 
   const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float halfStripLength(0.5 * top->stripLength());
