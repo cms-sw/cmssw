@@ -25,6 +25,8 @@ public:
   ~TICLSeedingRegionProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const& es) override;
+
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -61,6 +63,10 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<int>("algoId", 1);
   descriptions.add("ticlSeedingRegionProducer", desc);
+}
+
+void TICLSeedingRegionProducer::beginRun(edm::Run const& iEvent, edm::EventSetup const& es){
+  myAlgo_->Initialize(es);
 }
 
 void TICLSeedingRegionProducer::produce(edm::Event& evt, const edm::EventSetup& es) {

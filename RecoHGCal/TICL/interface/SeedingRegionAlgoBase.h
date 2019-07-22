@@ -26,10 +26,13 @@ namespace ticl {
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
     virtual ~SeedingRegionAlgoBase(){};
 
+    virtual void Initialize(const edm::EventSetup& es) = 0;
+
     virtual void makeRegions(const edm::Event& ev,
                              const edm::EventSetup& es,
                              std::vector<TICLSeedingRegion>& result) = 0;
-    enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+
+    enum class VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
   protected:
     int algo_verbosity_;
