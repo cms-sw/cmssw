@@ -30,8 +30,13 @@ def applyDefaultSettings(ctppsProtons):
 ctpps_2016.toModify(ctppsProtons, applyDefaultSettings) # applied for all Run2 years (2016, 2017 and 2018)
 
 def apply2017Settings(ctppsProtons):
-  ctppsProtons.association_cuts_45.xi_cut_value = 0.010
-  ctppsProtons.association_cuts_56.xi_cut_value = 0.015
+  ctppsProtons.association_cuts_45.xi_cut_value = 0.013
+  ctppsProtons.association_cuts_45.th_y_cut_apply = True
+  ctppsProtons.association_cuts_45.th_y_cut_value = 20E-6
+  ctppsProtons.association_cuts_56.xi_cut_value = 0.013
+  ctppsProtons.association_cuts_56.th_y_cut_apply = True
+  ctppsProtons.association_cuts_56.th_y_cut_value = 20E-6
+
 
 ctpps_2017.toModify(ctppsProtons, apply2017Settings)
 
