@@ -19,10 +19,11 @@ public:
   inline double X() const { return position_.x(); }
   inline double Y() const { return position_.y(); }
   inline double Z() const { return position_.z(); }
-  inline double& Energy() { return energy_; }
   inline double Energy() const { return energy_; }
   inline Local3DPoint Position() const { return position_; }
-  inline Local3DPoint& Position() { return position_; }
+
+  inline void setEnergy(double e) { energy_ = e; }
+  inline void setPosition(Local3DPoint p) { position_ = p; }
 
 private:
   double energy_;

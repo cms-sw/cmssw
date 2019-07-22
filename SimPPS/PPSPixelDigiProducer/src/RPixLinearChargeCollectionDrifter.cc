@@ -17,9 +17,9 @@ std::vector<RPixSignalPoint> RPixLinearChargeCollectionDrifter::Drift(
   // convert an energy deposit in a point and in a charge of electrons n=E/3.61 (eV)
   temp_.resize(energy_deposition.size());
   for (unsigned int i = 0; i < energy_deposition.size(); i++) {
-    temp_[i].Position() = LocalPoint(energy_deposition[i].X(), energy_deposition[i].Y());
-    temp_[i].Sigma() = getSigma_(energy_deposition[i].Z());
-    temp_[i].Charge() = energy_deposition[i].Energy() / GeV_per_electron_;
+    temp_[i].setPosition(LocalPoint(energy_deposition[i].X(), energy_deposition[i].Y()));
+    temp_[i].setSigma(getSigma_(energy_deposition[i].Z()));
+    temp_[i].setCharge(energy_deposition[i].Energy() / GeV_per_electron_);
     if (verbosity_ > 1) {
       edm::LogInfo("RPixLinearChargeCollectionDrifter")
           << det_id_ << " :" << temp_[i].Position() << " " << temp_[i].Sigma() << " " << temp_[i].Charge();

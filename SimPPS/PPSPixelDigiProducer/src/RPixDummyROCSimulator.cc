@@ -45,14 +45,14 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
         adc = int(round(i->second / electron_per_adc_));
       } else {
         if (DetCalibs.getDetId() != 0) {
-          gain = DetCalibs.getGain(col, row) * 1800. / 260.;  // *highRangeCal/lowRangeCal
+          gain = DetCalibs.getGain(col, row) * highRangeCal_ / lowRangeCal_;  // *highRangeCal/lowRangeCal
           pedestal = DetCalibs.getPed(col, row);
           adc = int(round((i->second - VcaltoElectronOffset_) / (gain * VcaltoElectronGain_) + pedestal));
         }
       }
       /// set maximum for 8 bits adc
-      if (adc >= 255)
-        adc = 255;
+      if (adc >= maxADC_)
+        adc = maxADC_;
       if (adc < 0)
         adc = 0;
       output_digi.push_back(CTPPSPixelDigi(row, col, adc));

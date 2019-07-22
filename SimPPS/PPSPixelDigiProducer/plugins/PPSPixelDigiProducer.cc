@@ -17,8 +17,6 @@
 // Original Author:  F.Ferro
 //
 
-#include "boost/shared_ptr.hpp"
-
 // system include files
 #include <memory>
 #include <vector>
@@ -92,7 +90,7 @@ private:
 
   edm::ParameterSet conf_;
 
-  std::map<uint32_t, boost::shared_ptr<RPixDetDigitizer>> theAlgoMap;  //DetId = uint32_t
+  std::map<uint32_t, std::unique_ptr<RPixDetDigitizer>> theAlgoMap;  //DetId = uint32_t
 
   CLHEP::HepRandomEngine* rndEngine_ = nullptr;
   int verbosity_;
@@ -230,7 +228,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     edm::DetSet<CTPPSPixelDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = boost::shared_ptr<RPixDetDigitizer>(
+      theAlgoMap[it->first] = std::unique_ptr<RPixDetDigitizer>(
           new RPixDetDigitizer(conf_, *rndEngine_, it->first, iSetup));  //a digitizer for eny detector
     }
 
