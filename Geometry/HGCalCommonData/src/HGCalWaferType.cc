@@ -1,6 +1,7 @@
-#include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
+#include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
 //#define EDM_ML_DEBUG
 
@@ -59,21 +60,21 @@ int HGCalWaferType::getType(double xpos, double ypos, double zpos) {
   double fracArea(0);
   if (choice_ == 1) {
     if (fine.size() >= cutValue_)
-      type = 0;
+      type = HGCSiliconDetId::HGCalFine;
     else if (coarse.size() >= cutValue_)
-      type = 1;
+      type = HGCSiliconDetId::HGCalCoarseThin;
     else
-      type = 2;
+      type = HGCSiliconDetId::HGCalCoarseThick;
   } else {
     if (fine.size() >= 4)
-      type = 0;
+      type = HGCSiliconDetId::HGCalFine;
     else if (coarse.size() >= 4 && fine.size() <= 1)
-      type = 1;
+      type = HGCSiliconDetId::HGCalCoarseThin;
     else if (coarse.size() < 2 && fine.empty())
-      type = 2;
+      type = HGCSiliconDetId::HGCalCoarseThick;
     else if (!fine.empty())
       type = -1;
-    if (type < 0) {
+    if (type <= -1) {
       unsigned int kmax = (type == -1) ? fine.size() : coarse.size();
       std::vector<double> xcn, ycn;
       for (unsigned int k = 0; k < kmax; ++k) {
