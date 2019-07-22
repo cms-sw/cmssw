@@ -40,7 +40,7 @@ private:
   edm::EDGetTokenT<std::vector<float>> original_layerclusters_mask_token_;
   edm::EDGetTokenT<edm::ValueMap<float>> clustersTime_token_;
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
-  edm::EDGetTokenT<std::vector<ticl::TICLSeedingRegion>> seeding_regions_token_;
+  edm::EDGetTokenT<std::vector<TICLSeedingRegion>> seeding_regions_token_;
 
   std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
 };
@@ -53,8 +53,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
   original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
   clustersTime_token_ = consumes<edm::ValueMap<float>>(ps.getParameter<edm::InputTag>("time_layerclusters"));
   layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
-  seeding_regions_token_ =
-      consumes<std::vector<ticl::TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"));
+  seeding_regions_token_ = consumes<std::vector<TICLSeedingRegion>>(ps.getParameter<edm::InputTag>("seeding_regions"));
 
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration
@@ -87,7 +86,7 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   edm::Handle<std::vector<float>> original_layerclusters_mask_h;
   edm::Handle<edm::ValueMap<float>> time_clusters_h;
   edm::Handle<TICLLayerTiles> layer_clusters_tiles_h;
-  edm::Handle<std::vector<ticl::TICLSeedingRegion>> seeding_regions_h;
+  edm::Handle<std::vector<TICLSeedingRegion>> seeding_regions_h;
 
   evt.getByToken(clusters_token_, cluster_h);
   evt.getByToken(filtered_layerclusters_mask_token_, filtered_layerclusters_mask_h);

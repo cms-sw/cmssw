@@ -1,8 +1,8 @@
 // Author: Felice Pantaleo,Marco Rovere - felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 09/2018
 
-#ifndef __RecoHGCal_TICL_PRbyCA_H__
-#define __RecoHGCal_TICL_PRbyCA_H__
+#ifndef RecoHGCal_TICL_SeedingRegionByTracks_h
+#define RecoHGCal_TICL_SeedingRegionByTracks_h
 #include <memory>  // unique_ptr
 #include <string>
 #include "RecoHGCal/TICL/interface/SeedingRegionAlgoBase.h"
@@ -15,6 +15,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -33,9 +35,7 @@ namespace ticl {
     SeedingRegionByTracks(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
     ~SeedingRegionByTracks() override;
 
-    void makeRegions(const edm::Event& ev,
-                     const edm::EventSetup& es,
-                     std::vector<ticl::TICLSeedingRegion>& result) override;
+    void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
 
   private:
     void buildFirstLayers();
@@ -44,7 +44,7 @@ namespace ticl {
     std::once_flag initializeGeometry_;
     const HGCalDDDConstants* hgcons_;
     const StringCutObjectSelector<reco::Track> cutTk_;
-    std::string detectorName_ = "HGCalEESensitive";
+    inline static const std::string detectorName_ = "HGCalEESensitive";
     edm::ESHandle<Propagator> propagator_;
     const std::string propName_;
     edm::ESHandle<MagneticField> bfield_;

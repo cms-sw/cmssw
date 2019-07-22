@@ -1,4 +1,5 @@
-// Author: Arabella Martelli, Felice Pantaleo, Marco Rovere - arabella.martelli@cern.ch, felice.pantaleo@cern.ch, marco.rovere@cern.ch
+// Author: Arabella Martelli, Felice Pantaleo, Marco Rovere
+// arabella.martelli@cern.ch, felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 06/2019
 #include <algorithm>
 #include <set>
@@ -13,16 +14,17 @@ using namespace ticl;
 
 SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm::ConsumesCollector &sumes)
     : SeedingRegionAlgoBase(conf, sumes),
+      tracks_token_(sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"))),
       cutTk_(conf.getParameter<std::string>("cutTk")),
-      propName_(conf.getParameter<std::string>("propagator")) {
-  tracks_token_ = sumes.consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("tracks"));
-}
+      propName_(conf.getParameter<std::string>("propagator")){}
 
 SeedingRegionByTracks::~SeedingRegionByTracks(){};
 
+
 void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
                                         const edm::EventSetup &es,
-                                        std::vector<ticl::TICLSeedingRegion> &result) {
+                                        std::vector<TICLSeedingRegion> &result) {
+
   std::call_once(initializeGeometry_, [&]() {
     edm::ESHandle<HGCalDDDConstants> hdc;
     es.get<IdealGeometryRecord>().get(detectorName_, hdc);
@@ -49,17 +51,15 @@ void SeedingRegionByTracks::makeRegions(const edm::Event &ev,
     int iSide = int(tk.eta() > 0);
     TrajectoryStateOnSurface tsos = prop.propagate(fts, firstDisk_[iSide]->surface());
     if (tsos.isValid()) {
-      result.emplace_back(ticl::TICLSeedingRegion(
-          {GlobalPoint(tsos.globalPosition()),
-           GlobalVector(tsos.globalMomentum().x(), tsos.globalMomentum().y(), tsos.globalMomentum().z()),
-           iSide,
-           i,
-           trkId}));
+      result.emplace_back(tsos.globalPosition(), tsos.globalMomentum(), iSide, i, trkId);
     }
   }
 }
 
 void SeedingRegionByTracks::buildFirstLayers() {
+
+  std::cout << " buildFirstLayers " << std::endl;
+
   float zVal = hgcons_->waferZ(1, true);
   std::pair<double, double> rMinMax = hgcons_->rangeR(zVal, true);
 

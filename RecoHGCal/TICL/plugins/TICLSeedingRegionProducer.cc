@@ -48,11 +48,10 @@ TICLSeedingRegionProducer::TICLSeedingRegionProducer(const edm::ParameterSet& ps
     default:
       break;
   }
-  produces<std::vector<ticl::TICLSeedingRegion>>();
+  produces<std::vector<TICLSeedingRegion>>();
 }
 
 void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  // hgcalMultiClusters
   edm::ParameterSetDescription desc;
   desc.add<int>("algo_verbosity", 0);
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
@@ -61,11 +60,11 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 10");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<int>("algoId", 1);
-  descriptions.add("seedingRegionProducer", desc);
+  descriptions.add("ticlSeedingRegionProducer", desc);
 }
 
 void TICLSeedingRegionProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  auto result = std::make_unique<std::vector<ticl::TICLSeedingRegion>>();
+  auto result = std::make_unique<std::vector<TICLSeedingRegion>>();
   myAlgo_->makeRegions(evt, es, *result);
 
   evt.put(std::move(result));

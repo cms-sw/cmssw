@@ -10,7 +10,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cfi import *
 from RecoLocalCalo.HGCalRecProducers.hgcalLayerClusters_cff import hgcalLayerClusters
 from RecoLocalCalo.HGCalRecProducers.hgcalMultiClusters_cfi import hgcalMultiClusters
 
-from RecoHGCal.TICL.seedingRegionProducer_cfi import seedingRegionProducer
+from RecoHGCal.TICL.ticlSeedingRegionProducer_cfi import ticlSeedingRegionProducer
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.trackstersProducer_cfi import trackstersProducer
 from RecoHGCal.TICL.filteredLayerClustersProducer_cfi import filteredLayerClustersProducer
@@ -22,7 +22,7 @@ def TICL_iterations_withReco(process):
 
   process.TICLLayerTileProducer = ticlLayerTileProducer.clone()
 
-  process.SeedingTrk = seedingRegionProducer.clone(
+  process.SeedingTrk = ticlSeedingRegionProducer.clone(
     cutTk = ("1.48 < abs(eta) < 3.0 && pt > 0.5 && p > 1 && quality('highPurity') && hitPattern().numberOfLostHits('MISSING_OUTER_HITS') < 10"),
     algoId = 1
   )
@@ -51,7 +51,7 @@ def TICL_iterations_withReco(process):
   )
 
 
-  process.SeedingGlobal = seedingRegionProducer.clone(
+  process.SeedingGlobal = ticlSeedingRegionProducer.clone(
     algoId = 2
   )
 
@@ -118,7 +118,7 @@ def TICL_iterations(process):
 
   process.TICLLayerTileProducer = ticlLayerTileProducer.clone()
 
-  process.SeedingGlobal = seedingRegionProducer.clone(
+  process.SeedingGlobal = ticlSeedingRegionProducer.clone(
     algoId = 2
   )
 

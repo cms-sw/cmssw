@@ -1,4 +1,5 @@
-// Author: Arabella Martelli, Felice Pantaleo, Marco Rovere - arabella.martelli@cern.ch, felice.pantaleo@cern.ch, marco.rovere@cern.ch
+// Author: Arabella Martelli, Felice Pantaleo, Marco Rovere
+// arabella.martelli@cern.ch, felice.pantaleo@cern.ch, marco.rovere@cern.ch
 // Date: 06/2019
 #include <algorithm>
 #include <set>
@@ -18,11 +19,10 @@ SeedingRegionGlobal::~SeedingRegionGlobal(){};
 
 void SeedingRegionGlobal::makeRegions(const edm::Event &ev,
                                       const edm::EventSetup &es,
-                                      std::vector<ticl::TICLSeedingRegion> &result) {
+                                      std::vector<TICLSeedingRegion> &result) {
   // for unseeded iterations create 2 global seeding regions
   // one for each endcap
   for (int i = 0; i < 2; ++i) {
-    result.emplace_back(
-        ticl::TICLSeedingRegion({GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1, edm::ProductID()}));
+    result.emplace_back(GlobalPoint(0., 0., 0.), GlobalVector(0., 0., 0.), i, -1, edm::ProductID());
   }
 }
