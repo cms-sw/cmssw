@@ -20,20 +20,20 @@ from RecoHGCal.TICL.multiClustersFromTrackstersProducer_cfi import multiClusters
 def TICL_iterations_withReco(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
 
-  process.TICLLayerTileProducer = ticlLayerTileProducer.clone()
+  process.ticlLayerTileProducer = ticlLayerTileProducer.clone()
 
-  process.SeedingTrk = ticlSeedingRegionProducer.clone(
-    cutTk = ("1.48 < abs(eta) < 3.0 && pt > 0.5 && p > 1 && quality('highPurity') && hitPattern().numberOfLostHits('MISSING_OUTER_HITS') < 10"),
+  process.seedingTrk = ticlSeedingRegionProducer.clone(
+    cutTk = ("1.48 < abs(eta) < 3.0 && pt > 2. && p > 1 && quality('highPurity') && hitPattern().numberOfLostHits('MISSING_OUTER_HITS') < 10"),
     algoId = 1
   )
 
-  process.FilteredLayerClustersTrk = filteredLayerClustersProducer.clone(
+  process.filteredLayerClustersTrk = filteredLayerClustersProducer.clone(
     clusterFilter = "ClusterFilterByAlgo",
     algo_number = 8,
     iteration_label = "Trk"
   )
 
-  process.TrackstersTrk = trackstersProducer.clone(
+  process.trackstersTrk = trackstersProducer.clone(
     filtered_mask = cms.InputTag("FilteredLayerClustersTrk", "Trk"),
     original_mask = cms.InputTag("hgcalLayerClusters", "InitialLayerClustersMask"),
     layer_clusters_tiles = cms.InputTag("TICLLayerTileProducer"),
@@ -45,24 +45,24 @@ def TICL_iterations_withReco(process):
     min_cos_pointing = 0.9
   )
 
-  process.MultiClustersFromTrackstersTrk = multiClustersFromTrackstersProducer.clone(
+  process.multiClustersFromTrackstersTrk = multiClustersFromTrackstersProducer.clone(
       label = "TrkMultiClustersFromTracksterByCA",
       Tracksters = "TrackstersTrk"
   )
 
 
-  process.SeedingGlobal = ticlSeedingRegionProducer.clone(
+  process.seedingGlobal = ticlSeedingRegionProducer.clone(
     algoId = 2
   )
 
-  process.FilteredLayerClustersMIP = filteredLayerClustersProducer.clone(
+  process.filteredLayerClustersMIP = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterBySize",
       algo_number = 8,
       max_cluster_size = 2, # inclusive
       iteration_label = "MIP"
   )
 
-  process.TrackstersMIP = trackstersProducer.clone(
+  process.trackstersMIP = trackstersProducer.clone(
       filtered_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
       seeding_regions = cms.InputTag("SeedingGlobal"),
       missing_layers = 3,
@@ -71,18 +71,18 @@ def TICL_iterations_withReco(process):
       min_cos_pointing = 0.9
   )
 
-  process.MultiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
+  process.multiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
       label = "MIPMultiClustersFromTracksterByCA",
       Tracksters = "TrackstersMIP"
   )
 
-  process.FilteredLayerClusters = filteredLayerClustersProducer.clone(
+  process.filteredLayerClusters = filteredLayerClustersProducer.clone(
       algo_number = 8,
       iteration_label = "algo8",
       LayerClustersInputMask = "TrackstersMIP"
   )
 
-  process.Tracksters = trackstersProducer.clone(
+  process.tracksters = trackstersProducer.clone(
       original_mask = "TrackstersMIP",
       filtered_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
       seeding_regions = cms.InputTag("SeedingGlobal"),
@@ -92,44 +92,44 @@ def TICL_iterations_withReco(process):
       min_cos_pointing = 0.7
   )
 
-  process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
+  process.multiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
       Tracksters = "Tracksters"
   )
 
   process.hgcalMultiClusters = hgcalMultiClusters
   process.TICL_Task = cms.Task(
-      process.TICLLayerTileProducer,
-      process.SeedingTrk,
-      process.FilteredLayerClustersTrk,
-      process.TrackstersTrk,
-      process.MultiClustersFromTrackstersTrk,
-      process.SeedingGlobal,
-      process.FilteredLayerClustersMIP,
-      process.TrackstersMIP,
-      process.MultiClustersFromTrackstersMIP,
-      process.FilteredLayerClusters,
-      process.Tracksters,
-      process.MultiClustersFromTracksters)
+      process.ticlLayerTileProducer,
+      process.seedingTrk,
+      process.filteredLayerClustersTrk,
+      process.trackstersTrk,
+      process.multiClustersFromTrackstersTrk,
+      process.seedingGlobal,
+      process.filteredLayerClustersMIP,
+      process.trackstersMIP,
+      process.multiClustersFromTrackstersMIP,
+      process.filteredLayerClusters,
+      process.tracksters,
+      process.multiClustersFromTracksters)
   process.schedule.associate(process.TICL_Task)
   return process
 
 def TICL_iterations(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_MultiClustersFromTracksters*_*_*'])
 
-  process.TICLLayerTileProducer = ticlLayerTileProducer.clone()
+  process.ticlLayerTileProducer = ticlLayerTileProducer.clone()
 
-  process.SeedingGlobal = ticlSeedingRegionProducer.clone(
+  process.seedingGlobal = ticlSeedingRegionProducer.clone(
     algoId = 2
   )
 
-  process.FilteredLayerClustersMIP = filteredLayerClustersProducer.clone(
+  process.filteredLayerClustersMIP = filteredLayerClustersProducer.clone(
       clusterFilter = "ClusterFilterBySize",
       algo_number = 8,
       max_cluster_size = 2, # inclusive
       iteration_label = "MIP"
   )
 
-  process.TrackstersMIP = trackstersProducer.clone(
+  process.trackstersMIP = trackstersProducer.clone(
       filtered_mask = cms.InputTag("FilteredLayerClustersMIP", "MIP"),
       seeding_regions = cms.InputTag("SeedingGlobal"),    
       missing_layers = 3,
@@ -137,17 +137,17 @@ def TICL_iterations(process):
       min_cos_theta = 0.985 # ~10 degrees
   )
 
-  process.MultiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
+  process.multiClustersFromTrackstersMIP = multiClustersFromTrackstersProducer.clone(
       label = "MIPMultiClustersFromTracksterByCA",
       Tracksters = "TrackstersMIP"
   )
 
-  process.FilteredLayerClusters = filteredLayerClustersProducer.clone(
+  process.filteredLayerClusters = filteredLayerClustersProducer.clone(
       algo_number = 8,
       iteration_label = "algo8"
   )
 
-  process.Tracksters = trackstersProducer.clone(
+  process.tracksters = trackstersProducer.clone(
       original_mask = "TrackstersMIP",
       filtered_mask = cms.InputTag("FilteredLayerClusters", "algo8"),
       seeding_regions = cms.InputTag("SeedingGlobal"),
@@ -157,7 +157,7 @@ def TICL_iterations(process):
       min_cos_pointing = 0.7
   )
 
-  process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
+  process.multiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
       Tracksters = "Tracksters"
   )
 
@@ -168,14 +168,14 @@ def TICL_iterations(process):
   process.TICL_Task = cms.Task(process.HGCalUncalibRecHit,
       process.HGCalRecHit,
       process.hgcalLayerClusters,
-      process.FilteredLayerClustersMIP,
-      process.TICLLayerTileProducer,
-      process.SeedingGlobal,
-      process.TrackstersMIP,
-      process.MultiClustersFromTrackstersMIP,
-      process.FilteredLayerClusters,
-      process.Tracksters,
-      process.MultiClustersFromTracksters,
+      process.filteredLayerClustersMIP,
+      process.ticlLayerTileProducer,
+      process.seedingGlobal,
+      process.trackstersMIP,
+      process.multiClustersFromTrackstersMIP,
+      process.filteredLayerClusters,
+      process.tracksters,
+      process.multiClustersFromTracksters,
       process.hgcalMultiClusters)
   process.schedule = cms.Schedule(process.raw2digi_step,process.FEVTDEBUGHLToutput_step)
   process.schedule.associate(process.TICL_Task)

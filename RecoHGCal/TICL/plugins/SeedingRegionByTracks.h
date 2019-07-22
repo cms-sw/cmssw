@@ -35,6 +35,8 @@ namespace ticl {
     SeedingRegionByTracks(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
     ~SeedingRegionByTracks() override;
 
+    void Initialize(const edm::EventSetup& es) override;
+
     void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
 
   private:
@@ -48,7 +50,7 @@ namespace ticl {
     edm::ESHandle<Propagator> propagator_;
     const std::string propName_;
     edm::ESHandle<MagneticField> bfield_;
-    GeomDet* firstDisk_[2];
+    std::unique_ptr<GeomDet> firstDisk_[2];
   };
 }  // namespace ticl
 #endif
