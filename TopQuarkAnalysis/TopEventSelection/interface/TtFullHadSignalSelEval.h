@@ -5,7 +5,7 @@
 #include "TMath.h"
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
-#include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
+#include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtFullHadSignalSel.h"
@@ -13,14 +13,8 @@
 inline double evaluateTtFullHadSignalSel(PhysicsTools::MVAComputerCache& mvaComputer,
                                          const TtFullHadSignalSel& sigsel,
                                          double weight = 1.0,
-                                         const bool training = false,
                                          const bool isSignal = false) {
   std::vector<PhysicsTools::Variable::Value> values;
-
-  if (training)
-    values.push_back(PhysicsTools::Variable::Value(PhysicsTools::MVATrainer::kTargetId, isSignal));
-  if (training)
-    values.push_back(PhysicsTools::Variable::Value(PhysicsTools::MVATrainer::kWeightId, weight));
 
   values.push_back(PhysicsTools::Variable::Value("H", sigsel.H()));
   values.push_back(PhysicsTools::Variable::Value("Ht", sigsel.Ht()));
