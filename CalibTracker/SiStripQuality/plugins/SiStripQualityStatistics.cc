@@ -54,6 +54,8 @@ void SiStripQualityStatistics::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IG
     SiStripQuality mergedQuality{*siStripQuality_};
     auto fedErrQuality = sistrip::badStripFromFedErr(getter, *fedCabling_, fedErrCutoff_);
     mergedQuality.add(fedErrQuality.get());
+    mergedQuality.cleanUp();
+    mergedQuality.fillBadComponents();
     updateAndSave(&mergedQuality);
   }
   std::string filename = TkMapFileName_;

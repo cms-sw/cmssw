@@ -153,6 +153,8 @@ void SiStripBadComponentInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
     auto mergedQuality = std::make_unique<SiStripQuality>(*siStripQuality_);
     auto fedErrQuality = sistrip::badStripFromFedErr(igetter, *fedCabling_, fedErrCutoff_);
     mergedQuality->add(fedErrQuality.get());
+    mergedQuality->cleanUp();
+    mergedQuality->fillBadComponents();
     fillBadComponentMaps(mergedQuality.get());
   }
   bookBadComponentHistos(ibooker, igetter);
