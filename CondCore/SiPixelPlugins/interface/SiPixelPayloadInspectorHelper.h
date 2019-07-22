@@ -407,5 +407,26 @@ namespace SiPixelPI {
     return result;
   }
 
+
+  /*--------------------------------------------------------------------*/
+  void makeNicePlotStyle(TH1* hist)
+  /*--------------------------------------------------------------------*/
+  {
+    hist->SetStats(kFALSE);
+    hist->SetLineWidth(2);
+    hist->GetXaxis()->CenterTitle(true);
+    hist->GetYaxis()->CenterTitle(true);
+    hist->GetXaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleFont(42);
+    hist->GetXaxis()->SetTitleSize(0.05);
+    hist->GetYaxis()->SetTitleSize(0.05);
+    hist->GetXaxis()->SetTitleOffset(1.1);
+    hist->GetYaxis()->SetTitleOffset(1.3);
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelSize(.05);
+    hist->GetXaxis()->SetLabelSize(.05);
+  }
+
 };  // namespace SiPixelPI
 #endif
