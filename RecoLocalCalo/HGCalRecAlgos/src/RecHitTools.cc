@@ -410,10 +410,10 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
 }
 
 bool RecHitTools::isSilicon(const DetId& id) const {
-  bool isSilicon_ = false;
+  bool issilicon = false;
   if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi)
-    isSilicon_ = true;
-  return isSilicon_;
+    issilicon = true;
+  return issilicon;
 }
 
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {

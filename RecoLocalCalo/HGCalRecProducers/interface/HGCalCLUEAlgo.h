@@ -13,6 +13,7 @@
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
 
@@ -42,6 +43,7 @@ public:
         fcPerEle_(ps.getParameter<double>("fcPerEle")),
         nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double>>("values")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
+        use2x2_(ps.getParameter<bool>("use2x2")),
         initialized_(false) {}
 
   ~HGCalCLUEAlgo() override {}
@@ -99,6 +101,7 @@ public:
     iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);
     descNestedNoiseMIP.add<double>("noise_MIP", 1. / 100.);
     iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
+    iDesc.add<bool>("use2x2", true);  // use 2x2 for 3x3 scenario for scint density calculation
   }
 
   /// point in the space
@@ -130,6 +133,8 @@ private:
   std::vector<std::vector<double>> thresholds_;
   std::vector<std::vector<double>> v_sigmaNoise_;
 
+  bool use2x2_;
+
   // initialization bool
   bool initialized_;
 
@@ -137,7 +142,7 @@ private:
 
   struct CellsOnLayer {
     std::vector<DetId> detid;
-    std::vector<bool> isSilic;
+    std::vector<bool> isSi;
     std::vector<float> x;
     std::vector<float> y;
     std::vector<float> eta;
@@ -155,7 +160,7 @@ private:
 
     void clear() {
       detid.clear();
-      isSilic.clear();
+      isSi.clear();
       x.clear();
       y.clear();
       eta.clear();
@@ -177,14 +182,7 @@ private:
 
   inline float distance2(int cell1, int cell2, int layerId, bool isEtaPhi) const {  // distance squared
     if (isEtaPhi) {
-      const float dphi =
-          (cells_[layerId].phi[cell1] * cells_[layerId].phi[cell2] >= 0 || abs(cells_[layerId].phi[cell1]) < 1.)
-              ?  // this guarantee cell1 and cell2 do not located in phi=+/-pi
-              cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2]
-              : cells_[layerId].phi[cell1] > 0 ?  // if cell1 has phi=pi and cell2 has phi=-pi
-                    cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] - 2 * M_PI
-                                               : cells_[layerId].phi[cell1] - cells_[layerId].phi[cell2] +
-                                                     2 * M_PI;  // if cell1 has phi=-pi and cell2 has phi=pi
+      const float dphi = reco::deltaPhi(cells_[layerId].phi[cell1], cells_[layerId].phi[cell2]);
       const float deta = cells_[layerId].eta[cell1] - cells_[layerId].eta[cell2];
       return (deta * deta + dphi * dphi);
     } else {

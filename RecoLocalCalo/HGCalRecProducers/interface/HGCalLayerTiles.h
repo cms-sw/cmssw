@@ -18,16 +18,18 @@ public:
             const std::vector<float>& y,
             const std::vector<float>& eta,
             const std::vector<float>& phi,
-            const std::vector<bool>& isSilic) {
+            const std::vector<bool>& isSi) {
     auto cellsSize = x.size();
     for (unsigned int i = 0; i < cellsSize; ++i) {
       tiles_[getGlobalBin(x[i], y[i])].push_back(i);
-      if (!isSilic[i]) {
+      if (!isSi[i]) {
         tiles_[getGlobalBinEtaPhi(eta[i], phi[i])].push_back(i);
-        if (getPhiBin(phi[i]) == 1) {  // need to do this to handle cells at phi=+/-pi
+        // Copy cells in phi=[-3.15,-3.] to the last bin
+        if (getPhiBin(phi[i]) == mPiPhiBin) {
           tiles_[getGlobalBinEtaPhi(eta[i], phi[i] + 2 * M_PI)].push_back(i);
         }
-        if (getPhiBin(phi[i]) == 42) {
+        // Copy cells in phi=[3.,3.15] to the first bin
+        if (getPhiBin(phi[i]) == pPiPhiBin) {
           tiles_[getGlobalBinEtaPhi(eta[i], phi[i] - 2 * M_PI)].push_back(i);
         }
       }
@@ -70,6 +72,9 @@ public:
     return phiBin;
   }
 
+  int mPiPhiBin = getPhiBin(-M_PI);
+  int pPiPhiBin = getPhiBin(M_PI);
+
   int getGlobalBin(float x, float y) const { return getXBin(x) + getYBin(y) * hgcaltilesconstants::nColumns; }
 
   int getGlobalBinByBin(int xBin, int yBin) const { return xBin + yBin * hgcaltilesconstants::nColumns; }
@@ -108,10 +113,7 @@ public:
   const std::vector<int>& operator[](int globalBinId) const { return tiles_[globalBinId]; }
 
 private:
-  std::array<std::vector<int>,
-             hgcaltilesconstants::nColumns * hgcaltilesconstants::nRows +
-                 hgcaltilesconstants::nColumnsEta * hgcaltilesconstants::nRowsPhi>
-      tiles_;
+  std::array<std::vector<int>, hgcaltilesconstants::nTiles> tiles_;
 };
 
 #endif
