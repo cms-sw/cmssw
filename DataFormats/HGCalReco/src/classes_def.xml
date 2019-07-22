@@ -15,10 +15,10 @@
   </class>
   <class name="edm::Wrapper<TICLLayerTiles> " />
 
-  <class name="ticl::TICLSeedingRegion" ClassVersion="5">
-    <version ClassVersion="5" checksum="1952737206"/>
+  <class name="TICLSeedingRegion" ClassVersion="6">
+    <version ClassVersion="6" checksum="2409655320"/>
   </class>
-  <class name="std::vector<ticl::TICLSeedingRegion>" />               
-  <class name="edm::Wrapper<ticl::TICLSeedingRegion>" />              
-  <class name="edm::Wrapper<std::vector<ticl::TICLSeedingRegion> >" />  
+  <class name="std::vector<TICLSeedingRegion>" />               
+  <class name="edm::Wrapper<TICLSeedingRegion>" />              
+  <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />  
 </lcgdict>

@@ -32,7 +32,7 @@ namespace ticl {
                                 const std::vector<float>& mask,
                                 const edm::ValueMap<float>& layerClustersTime,
                                 const TICLLayerTiles& tiles,
-                                const std::vector<ticl::TICLSeedingRegion>& regions,
+                                const std::vector<TICLSeedingRegion>& regions,
                                 std::vector<Trackster>& result) = 0;
 
     enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
