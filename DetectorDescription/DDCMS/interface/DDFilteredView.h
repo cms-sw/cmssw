@@ -110,13 +110,13 @@ namespace cms {
     dd4hep::Solid solid() const;
 
     // Name of current node
-    std::string name() const;
+    std::string_view name() const;
 
     // Copy number of current node
     unsigned short copyNum() const;
 
     // Material name of current node
-    std::string materialName() const;
+    std::string_view materialName() const;
 
     //! extract shape parameters
     std::vector<double> extractParameters() const;
