@@ -40,7 +40,7 @@ namespace hgc_digi_utils {
                        : false);
     //base time samples for each DetId, initialized to 0
     info.size = (isHalf ? 0.5 : 1.0);
-    info.thickness = dddConst.waferType(detid);
+    info.thickness = 1 + dddConst.waferType(detid);
   }
 
   inline void addCellMetadata(HGCCellInfo& info, const CaloSubdetectorGeometry* geom, const DetId& detid) {
