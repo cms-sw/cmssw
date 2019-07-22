@@ -61,10 +61,10 @@ public:
 
   void tagAsInnerNeighbor(unsigned int otherDoublet) { innerNeighbors_.push_back(otherDoublet); }
 
-  bool checkCompatibilityAndTag(std::vector<HGCDoublet> &,
-                                const std::vector<int> &,
+  bool checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
+                                const std::vector<int> &innerDoublets,
                                 const GlobalVector &refDir,
-                                float,
+                                float minCosTheta,
                                 float minCosPointing = 1.,
                                 bool debug = false);
 
@@ -79,7 +79,7 @@ public:
                  const GlobalVector &refDir,
                  bool debug = false) const;
 
-  void findNtuplets(std::vector<HGCDoublet> &, HGCntuplet &, int);
+  void findNtuplets(std::vector<HGCDoublet> &allDoublets, HGCntuplet &tmpNtuplet, int seedIndex);
 
 private:
   const std::vector<reco::CaloCluster> *layerClusters_;

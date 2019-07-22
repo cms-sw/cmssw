@@ -14,7 +14,7 @@
 class HGCGraph {
 public:
   void makeAndConnectDoublets(const TICLLayerTiles &h,
-                              const std::vector<ticl::TICLSeedingRegion> &regions,
+                              const std::vector<TICLSeedingRegion> &regions,
                               int nEtaBins,
                               int nPhiBins,
                               const std::vector<reco::CaloCluster> &layerClusters,

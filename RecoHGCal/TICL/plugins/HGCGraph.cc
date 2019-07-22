@@ -8,7 +8,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 void HGCGraph::makeAndConnectDoublets(const TICLLayerTiles &histo,
-                                      const std::vector<ticl::TICLSeedingRegion> &regions,
+                                      const std::vector<TICLSeedingRegion> &regions,
                                       int nEtaBins,
                                       int nPhiBins,
                                       const std::vector<reco::CaloCluster> &layerClusters,

@@ -28,8 +28,10 @@ bool HGCDoublet::checkCompatibilityAndTag(std::vector<HGCDoublet> &allDoublets,
       seedi[j] = otherDoublet.seedIndex();
     }
     for (int j = 0; j < vs; ++j) {
-      if (seedi[j] != seedIndex_)
+      if (seedi[j] != seedIndex_) {
+        ok[j] = 0;
         continue;
+      }
       ok[j] = areAligned(xi[j], yi[j], zi[j], xo, yo, zo, minCosTheta, minCosPointing, refDir, debug);
       if (debug) {
         LogDebug("HGCDoublet") << "Are aligned for InnerDoubletId: " << i + j << " is " << ok[j] << std::endl;
@@ -94,8 +96,7 @@ int HGCDoublet::areAligned(double xi,
   // the doublets themeselves
 
   const GlobalVector firstDoublet(dx2, dy2, dz2);
-  const GlobalVector pointingDir =
-      (seedIndex_ == -1) ? (GlobalPoint(innerX(), innerY(), innerZ()) - GlobalPoint(0, 0, 0)) : refDir;
+  const GlobalVector pointingDir = (seedIndex_ == -1) ? GlobalVector(innerX(), innerY(), innerZ()) : refDir;
 
   auto dot_pointing = pointingDir.dot(firstDoublet);
   auto mag_pointing = sqrt(pointingDir.mag2());

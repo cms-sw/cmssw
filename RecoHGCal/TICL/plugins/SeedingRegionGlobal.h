@@ -14,18 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "TrackingTools/GeomPropagators/interface/Propagator.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
-
-class HGCGraph;
 
 namespace ticl {
   class SeedingRegionGlobal final : public SeedingRegionAlgoBase {
@@ -33,11 +22,7 @@ namespace ticl {
     SeedingRegionGlobal(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
     ~SeedingRegionGlobal() override;
 
-    void makeRegions(const edm::Event& ev,
-                     const edm::EventSetup& es,
-                     std::vector<ticl::TICLSeedingRegion>& result) override;
-
-  private:
+    void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
   };
 }  // namespace ticl
 #endif
