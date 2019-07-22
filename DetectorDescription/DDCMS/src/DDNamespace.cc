@@ -5,6 +5,8 @@
 #include "XML/XML.h"
 
 #include <TClass.h>
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 using namespace std;
 using namespace cms;
@@ -231,4 +233,16 @@ dd4hep::Solid DDNamespace::solid(const string& nam) const {
   if (i != m_context->shapes.end())
     return (*i).second;
   throw runtime_error("Unknown shape identifier:" + nam);
+}
+
+std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
+  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  auto it = registry->find(name);
+  if( it != registry->end()) {
+    std::vector<double> result;
+    for(auto in : it->second)
+      result.emplace_back(in);
+    return result;
+  } else
+    return std::vector<double>();
 }
