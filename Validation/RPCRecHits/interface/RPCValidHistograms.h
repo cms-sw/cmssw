@@ -2,7 +2,6 @@
 #define Validation_RPCRecHits_RPCValidHistograms_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,6 +9,9 @@
 #include <string>
 
 struct RPCValidHistograms {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   typedef MonitorElement *MEP;
 
   RPCValidHistograms() { booked_ = false; };

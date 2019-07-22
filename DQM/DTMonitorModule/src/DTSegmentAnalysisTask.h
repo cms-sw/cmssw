@@ -22,10 +22,9 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 
 //RecHit
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
@@ -35,8 +34,6 @@
 #include <vector>
 
 class DTGeometry;
-class DQMStore;
-class MonitorElement;
 class DTTimeEvolutionHisto;
 
 class DTSegmentAnalysisTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {

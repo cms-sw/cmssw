@@ -157,6 +157,9 @@ using Density = hgcal_clustering::Density;
 
 class HGVHistoProducerAlgo {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HGVHistoProducerAlgo(const edm::ParameterSet& pset);
   ~HGVHistoProducerAlgo();
 

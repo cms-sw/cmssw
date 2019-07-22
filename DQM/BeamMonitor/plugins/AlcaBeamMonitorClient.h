@@ -16,13 +16,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 //#include "DataFormats/VertexReco/interface/Vertex.h"
 //#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 class AlcaBeamMonitorClient : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   AlcaBeamMonitorClient(const edm::ParameterSet&);
   ~AlcaBeamMonitorClient() override;
 

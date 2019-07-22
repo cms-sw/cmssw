@@ -1,6 +1,5 @@
 #include "DQM/CastorMonitor/interface/CastorLEDMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //***************************************************//
 //********** CastorLEDMonitor ***********************//

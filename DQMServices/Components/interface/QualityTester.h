@@ -21,16 +21,19 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMXMLFileRcd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
 #include <iostream>
 #include <string>
 
-class DQMStore;
 class QTestHandle;
 
 class QualityTester : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   /// Constructor
   QualityTester(const edm::ParameterSet& ps);
 

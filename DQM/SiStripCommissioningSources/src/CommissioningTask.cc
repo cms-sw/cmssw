@@ -4,7 +4,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TAxis.h"
 #include <iostream>
@@ -78,11 +78,11 @@ CommissioningTask::CompactHistoSet::CompactHistoSet() : vNumOfEntries_(), explic
 
 // -----------------------------------------------------------------------------
 //
-MonitorElement* CommissioningTask::HistoSet::histo() { return histo_; }
+CommissioningTask::MonitorElement* CommissioningTask::HistoSet::histo() { return histo_; }
 
 // -----------------------------------------------------------------------------
 //
-MonitorElement* CommissioningTask::CompactHistoSet::histo() { return histo_; }
+CommissioningTask::MonitorElement* CommissioningTask::CompactHistoSet::histo() { return histo_; }
 
 // -----------------------------------------------------------------------------
 //

@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -47,7 +47,6 @@ class MuonServiceProxy;
 class MuonPatternRecoDumper;
 class TrajectorySeed;
 class MuonUpdatorAtVertex;
-class DQMStore;
 
 class MuonTrackAnalyzer : public DQMEDAnalyzer {
 public:

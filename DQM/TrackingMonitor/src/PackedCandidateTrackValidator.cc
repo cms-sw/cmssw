@@ -8,7 +8,7 @@
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -27,6 +27,9 @@
 #include <iomanip>
 
 namespace {
+  using dqm::reco::DQMStore;
+  using dqm::reco::MonitorElement;
+
   template <typename T>
   void fillNoFlow(MonitorElement* me, T val) {
     auto h = me->getTH1();

@@ -69,11 +69,11 @@ namespace ecaldqm {
     MonitorElement *me(nullptr);
 
     switch (kind_) {
-      case MonitorElement::DQM_KIND_REAL:
+      case MonitorElement::Kind::REAL:
         me = _ibooker.bookFloat(name);
         break;
 
-      case MonitorElement::DQM_KIND_TH1F: {
+      case MonitorElement::Kind::TH1F: {
         if (!xaxis_)
           throw_("No xaxis found for MESetNonObject");
 
@@ -83,7 +83,7 @@ namespace ecaldqm {
           me = _ibooker.book1D(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high);
       } break;
 
-      case MonitorElement::DQM_KIND_TPROFILE: {
+      case MonitorElement::Kind::TPROFILE: {
         if (!xaxis_)
           throw_("No xaxis found for MESetNonObject");
 
@@ -105,7 +105,7 @@ namespace ecaldqm {
           me = _ibooker.bookProfile(name, name, xaxis_->nbins, xaxis_->low, xaxis_->high, ylow, yhigh, "");
       } break;
 
-      case MonitorElement::DQM_KIND_TH2F: {
+      case MonitorElement::Kind::TH2F: {
         if (!xaxis_ || !yaxis_)
           throw_("No x/yaxis found for MESetNonObject");
 
@@ -117,7 +117,7 @@ namespace ecaldqm {
           me = _ibooker.book2D(name, name, xaxis_->nbins, xaxis_->edges, yaxis_->nbins, yaxis_->edges);
       } break;
 
-      case MonitorElement::DQM_KIND_TPROFILE2D: {
+      case MonitorElement::Kind::TPROFILE2D: {
         if (!xaxis_ || !yaxis_)
           throw_("No x/yaxis found for MESetNonObject");
         if (xaxis_->edges || yaxis_->edges)
@@ -203,15 +203,15 @@ namespace ecaldqm {
       return;
 
     switch (kind_) {
-      case MonitorElement::DQM_KIND_REAL:
+      case MonitorElement::Kind::REAL:
         mes_[0]->Fill(_x);
         break;
-      case MonitorElement::DQM_KIND_TH1F:
-      case MonitorElement::DQM_KIND_TPROFILE:
+      case MonitorElement::Kind::TH1F:
+      case MonitorElement::Kind::TPROFILE:
         mes_[0]->Fill(_x, _wy);
         break;
-      case MonitorElement::DQM_KIND_TH2F:
-      case MonitorElement::DQM_KIND_TPROFILE2D:
+      case MonitorElement::Kind::TH2F:
+      case MonitorElement::Kind::TPROFILE2D:
         mes_[0]->Fill(_x, _wy, _w);
         break;
       default:
@@ -222,7 +222,7 @@ namespace ecaldqm {
   void MESetNonObject::setBinContent(int _bin, double _content) {
     if (!active_)
       return;
-    if (kind_ == MonitorElement::DQM_KIND_REAL)
+    if (kind_ == MonitorElement::Kind::REAL)
       return;
 
     if (mes_.empty() || !mes_[0])
@@ -234,7 +234,7 @@ namespace ecaldqm {
   void MESetNonObject::setBinError(int _bin, double _error) {
     if (!active_)
       return;
-    if (kind_ == MonitorElement::DQM_KIND_REAL)
+    if (kind_ == MonitorElement::Kind::REAL)
       return;
 
     if (mes_.empty() || !mes_[0])
@@ -246,7 +246,7 @@ namespace ecaldqm {
   void MESetNonObject::setBinEntries(int _bin, double _entries) {
     if (!active_)
       return;
-    if (kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return;
 
     if (mes_.empty() || !mes_[0])
@@ -258,7 +258,7 @@ namespace ecaldqm {
   double MESetNonObject::getBinContent(int _bin, int) const {
     if (!active_)
       return 0.;
-    if (kind_ == MonitorElement::DQM_KIND_REAL)
+    if (kind_ == MonitorElement::Kind::REAL)
       return 0.;
 
     if (mes_.empty() || !mes_[0])
@@ -268,7 +268,7 @@ namespace ecaldqm {
   }
 
   double MESetNonObject::getFloatValue() const {
-    if (kind_ == MonitorElement::DQM_KIND_REAL)
+    if (kind_ == MonitorElement::Kind::REAL)
       return mes_[0]->getFloatValue();
     else
       return 0.;
@@ -277,7 +277,7 @@ namespace ecaldqm {
   double MESetNonObject::getBinError(int _bin, int) const {
     if (!active_)
       return 0.;
-    if (kind_ == MonitorElement::DQM_KIND_REAL)
+    if (kind_ == MonitorElement::Kind::REAL)
       return 0.;
 
     if (mes_.empty() || !mes_[0])
@@ -289,7 +289,7 @@ namespace ecaldqm {
   double MESetNonObject::getBinEntries(int _bin, int) const {
     if (!active_)
       return 0.;
-    if (kind_ != MonitorElement::DQM_KIND_TPROFILE && kind_ != MonitorElement::DQM_KIND_TPROFILE2D)
+    if (kind_ != MonitorElement::Kind::TPROFILE && kind_ != MonitorElement::Kind::TPROFILE2D)
       return 0.;
 
     if (mes_.empty() || !mes_[0])
@@ -305,9 +305,9 @@ namespace ecaldqm {
     if (mes_.empty() || !mes_[0])
       return 0;
 
-    if (kind_ == MonitorElement::DQM_KIND_TH1F || kind_ == MonitorElement::DQM_KIND_TPROFILE)
+    if (kind_ == MonitorElement::Kind::TH1F || kind_ == MonitorElement::Kind::TPROFILE)
       return mes_[0]->getTH1()->FindBin(_x);
-    else if (kind_ == MonitorElement::DQM_KIND_TH2F || kind_ == MonitorElement::DQM_KIND_TPROFILE2D)
+    else if (kind_ == MonitorElement::Kind::TH2F || kind_ == MonitorElement::Kind::TPROFILE2D)
       return mes_[0]->getTH1()->FindBin(_x, _y);
     else
       return 0;

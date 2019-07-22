@@ -21,7 +21,7 @@ Monitoring source to measure the track efficiency
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -36,8 +36,6 @@ namespace reco {
   class TransientTrack;
 }
 class NavigationSchool;
-
-class DQMStore;
 
 class TrackEfficiencyMonitor : public DQMEDAnalyzer {
 public:

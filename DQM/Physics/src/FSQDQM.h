@@ -29,7 +29,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // ParticleFlow
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -74,8 +74,6 @@
 #include <vector>
 #include <map>
 #include <cmath>
-
-class DQMStore;
 
 class FSQDQM : public DQMEDAnalyzer {
 public:

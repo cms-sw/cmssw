@@ -9,7 +9,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "EventFilter/GEMRawToDigi/interface/GEMVfatStatusDigiCollection.h"
 #include "EventFilter/GEMRawToDigi/interface/GEMGEBdataCollection.h"

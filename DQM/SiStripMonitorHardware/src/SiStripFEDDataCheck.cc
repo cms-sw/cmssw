@@ -39,7 +39,6 @@
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 

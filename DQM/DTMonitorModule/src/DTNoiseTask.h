@@ -7,11 +7,10 @@
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
@@ -32,7 +31,6 @@ namespace edm {
   class Event;
 }  // namespace edm
 
-class DQMStore;
 class DTGeometry;
 
 //-class DTNoiseTask : public edm::EDAnalyzer {

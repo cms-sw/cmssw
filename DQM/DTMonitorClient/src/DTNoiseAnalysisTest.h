@@ -13,6 +13,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
@@ -25,8 +26,6 @@
 class DTGeometry;
 class DTChamberId;
 class DTSuperLayerId;
-class DQMStore;
-class MonitorElement;
 
 class DTNoiseAnalysisTest : public DQMEDHarvester {
 public:

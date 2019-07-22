@@ -15,11 +15,11 @@ class TProfile;
 class TH2F;
 class TDirectory;
 
-class DQMStore;
-
 /// abstract base class
 class Benchmark {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+
   class PhaseSpace {
   public:
     int n;

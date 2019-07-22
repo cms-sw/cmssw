@@ -336,7 +336,7 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(MonitorElement const* me,
     float fval = 0.0;
     if (name.find("Residuals") != std::string::npos) {
       if (ResidualsRMS_ == true) {
-        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+        if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
           TProfile2D* tp = me->getTProfile2D();
           float fval_prov =
               tp->GetBinError(xyval.ix, xyval.iy) * sqrt(tp->GetBinEntries(tp->GetBin(xyval.ix, xyval.iy)));
@@ -422,7 +422,7 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* const dqm
   LogDebug("SearchBadModule") << badmodule_folder << " exists: " << badmodule_path;
 
   auto const* bad_module_me = dqm_store->get(badmodule_path.str());
-  if (bad_module_me && bad_module_me->kind() == MonitorElement::DQM_KIND_INT) {
+  if (bad_module_me && bad_module_me->kind() == MonitorElement::Kind::INT) {
     LogDebug("SearchBadModule") << "Monitor Element found";
     flag = bad_module_me->getIntValue();
     std::string message;

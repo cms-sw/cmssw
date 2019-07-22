@@ -21,7 +21,7 @@ namespace ecaldqm {
       // isVariableBinning is true for 1. MESetEcal or MESetNonObject with any custom binning or 2. MESetTrend
       // In principle it is sufficient to protect the MESetTrends from being reset
       if (mItr->second->getBinType() != ecaldqm::binning::kTrend && !mItr->second->isVariableBinning() &&
-          mItr->second->getKind() != MonitorElement::DQM_KIND_REAL)
+          mItr->second->getKind() != MonitorElement::Kind::REAL)
         resettable_.insert(mItr->first);
     }
   }
