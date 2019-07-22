@@ -75,7 +75,7 @@ namespace {
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
       auto h1 = std::unique_ptr<TH1F>(
-          new TH1F("value", "SiPixel LA value;SiPixel Lorentz Angle [rad];# modules", 100, 0., 0.1));
+          new TH1F("value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 100, 0., 0.15));
       h1->SetStats(false);
       canvas.SetBottomMargin(0.10);
       canvas.SetLeftMargin(0.12);
@@ -136,11 +136,11 @@ namespace {
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
       auto hfirst = std::unique_ptr<TH1F>(
-          new TH1F("value_first", "SiPixel LA value;SiPixel Lorentz Angle [rad];# modules", 50, 0., 0.1));
+          new TH1F("value_first", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0., 0.1));
       hfirst->SetStats(false);
 
       auto hlast = std::unique_ptr<TH1F>(
-          new TH1F("value_last", "SiPixel LA value;SiPixel Lorentz Angle [rad];# modules", 50, 0., 0.1));
+          new TH1F("value_last", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0., 0.1));
       hlast->SetStats(false);
 
       canvas.SetBottomMargin(0.10);
@@ -176,7 +176,7 @@ namespace {
       TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
       legend.SetHeader("SiPixel Lorentz Angle Comparison", "C");  // option "C" allows to center the header
       legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
-      legend.AddEntry(hlast.get(), ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
+      legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
