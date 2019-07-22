@@ -56,7 +56,7 @@ void HGCalCLUEAlgo::populate(const HGCRecHitCollection& hits) {
     int offset = ((rhtools_.zside(detid) + 1) >> 1) * maxlayer_;
     int layer = layerOnSide + offset;
     cells_[layer].detid.emplace_back(detid);
-    cells_[layer].isSilic.emplace_back(rhtools_.isSilicon(detid));
+    cells_[layer].isSi.emplace_back(rhtools_.isSilicon(detid));
     cells_[layer].x.emplace_back(position.x());
     cells_[layer].y.emplace_back(position.y());
     cells_[layer].eta.emplace_back(position.eta());
@@ -86,7 +86,7 @@ void HGCalCLUEAlgo::makeClusters() {
     tbb::parallel_for(size_t(0), size_t(2 * maxlayer_ + 2), [&](size_t i) {
       HGCalLayerTiles lt;
       lt.clear();
-      lt.fill(cells_[i].x, cells_[i].y, cells_[i].eta, cells_[i].phi, cells_[i].isSilic);
+      lt.fill(cells_[i].x, cells_[i].y, cells_[i].eta, cells_[i].phi, cells_[i].isSi);
       float delta_c;  // maximum search distance (critical distance) for local
                       // density calculation
       if (i % maxlayer_ < lastLayerEE_)
@@ -226,16 +226,13 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt,
                                           float delta_r) {
   auto& cellsOnLayer = cells_[layerId];
   unsigned int numberOfCells = cellsOnLayer.detid.size();
-  bool is2by2 = true;  // use 2x2 window for scitillator as default
 
   for (unsigned int i = 0; i < numberOfCells; i++) {
-    float delta_c_(0);
-    if (cellsOnLayer.isSilic[i]) {
-      delta_c_ = delta_c;
-      std::array<int, 4> search_box = lt.searchBox(cellsOnLayer.x[i] - delta_c_,
-                                                   cellsOnLayer.x[i] + delta_c_,
-                                                   cellsOnLayer.y[i] - delta_c_,
-                                                   cellsOnLayer.y[i] + delta_c_);
+    float delta(0);
+    if (cellsOnLayer.isSi[i]) {
+      delta = delta_c;
+      std::array<int, 4> search_box = lt.searchBox(
+          cellsOnLayer.x[i] - delta, cellsOnLayer.x[i] + delta, cellsOnLayer.y[i] - delta, cellsOnLayer.y[i] + delta);
 
       for (int xBin = search_box[0]; xBin < search_box[1] + 1; ++xBin) {
         for (int yBin = search_box[2]; yBin < search_box[3] + 1; ++yBin) {
@@ -244,20 +241,20 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt,
 
           for (unsigned int j = 0; j < binSize; j++) {
             unsigned int otherId = lt[binId][j];
-            if (!cellsOnLayer.isSilic[otherId])
+            if (!cellsOnLayer.isSi[otherId])
               continue;  //cells in the silicon cannot talk to cells in scintillator
-            if (distance(i, otherId, layerId, false) < delta_c_) {
+            if (distance(i, otherId, layerId, false) < delta) {
               cellsOnLayer.rho[i] += (i == otherId ? 1.f : 0.5f) * cellsOnLayer.weight[otherId];
             }
           }
         }
       }
     } else {
-      delta_c_ = delta_r;
-      std::array<int, 4> search_box = lt.searchBoxEtaPhi(cellsOnLayer.eta[i] - delta_c_,
-                                                         cellsOnLayer.eta[i] + delta_c_,
-                                                         cellsOnLayer.phi[i] - delta_c_,
-                                                         cellsOnLayer.phi[i] + delta_c_);
+      delta = delta_r;
+      std::array<int, 4> search_box = lt.searchBoxEtaPhi(cellsOnLayer.eta[i] - delta,
+                                                         cellsOnLayer.eta[i] + delta,
+                                                         cellsOnLayer.phi[i] - delta,
+                                                         cellsOnLayer.phi[i] + delta);
       cellsOnLayer.rho[i] += cellsOnLayer.weight[i];
       float northeast(0), northwest(0), southeast(0), southwest(0), all(0);
 
@@ -268,15 +265,15 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt,
 
           for (unsigned int j = 0; j < binSize; j++) {
             unsigned int otherId = lt[binId][j];
-            if (cellsOnLayer.isSilic[otherId])
+            if (cellsOnLayer.isSi[otherId])
               continue;  //cells in the silicon cannot talk to cells in scintillator
-            if (distance(i, otherId, layerId, true) < delta_c_) {
+            if (distance(i, otherId, layerId, true) < delta) {
               // need to round these numbers to 5 decimals to be able to compare floats
-              float roundDec = 100000.;
+              constexpr float roundDec = 100000.;
               float iPhi = round(cellsOnLayer.phi[i] * roundDec) / roundDec;
-              float otherPhi_ = cellsOnLayer.phi[otherId];
-              otherPhi_ += (otherPhi_ * iPhi >= 0 || abs(iPhi) < 1.) ? 0. : iPhi > 0. ? 2 * M_PI : -2 * M_PI;
-              float otherPhi = round(otherPhi_ * roundDec) / roundDec;
+              float otherphi = cellsOnLayer.phi[otherId];
+              otherphi += (otherphi * iPhi >= 0 || abs(iPhi) < 1.) ? 0. : iPhi > 0. ? 2 * M_PI : -2 * M_PI;
+              float otherPhi = round(otherphi * roundDec) / roundDec;
               float otherEta = round(cellsOnLayer.eta[otherId] * roundDec) / roundDec;
               float iEta = round(cellsOnLayer.eta[i] * roundDec) / roundDec;
               LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
@@ -284,23 +281,20 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt,
                                         << " otherPhi: " << otherPhi << " iPhi: " << iPhi << " otherEta: " << otherEta
                                         << " iEta: " << iEta << "\n";
 
-              if ((otherEta > iEta && otherPhi > iPhi) || (otherEta > iEta && otherPhi == iPhi) ||
-                  (otherEta == iEta && otherPhi > iPhi))
-                northeast += 0.5 * cellsOnLayer.weight[otherId];
-              if ((otherEta > iEta && otherPhi < iPhi) || (otherEta > iEta && otherPhi == iPhi) ||
-                  (otherEta == iEta && otherPhi < iPhi))
-                southeast += 0.5 * cellsOnLayer.weight[otherId];
-              if ((otherEta < iEta && otherPhi > iPhi) || (otherEta < iEta && otherPhi == iPhi) ||
-                  (otherEta == iEta && otherPhi > iPhi))
-                northwest += 0.5 * cellsOnLayer.weight[otherId];
-              if ((otherEta < iEta && otherPhi < iPhi) || (otherEta == iEta && otherPhi < iPhi) ||
-                  (otherEta < iEta && otherPhi == iPhi))
-                southwest += 0.5 * cellsOnLayer.weight[otherId];
-              if (otherId != i)
+              if (otherId != i) {
                 all += 0.5 * cellsOnLayer.weight[otherId];
+                if (otherEta >= iEta && otherPhi >= iPhi)
+                  northeast += 0.5 * cellsOnLayer.weight[otherId];
+                if (otherEta <= iEta && otherPhi >= iPhi)
+                  northwest += 0.5 * cellsOnLayer.weight[otherId];
+                if (otherEta >= iEta && otherPhi <= iPhi)
+                  southeast += 0.5 * cellsOnLayer.weight[otherId];
+                if (otherEta <= iEta && otherPhi <= iPhi)
+                  southwest += 0.5 * cellsOnLayer.weight[otherId];
+              }
               LogDebug("HGCalCLUEAlgo") << "  Debugging calculateLocalDensity for Scintillator: \n"
-                                        << "    northeast: " << northeast << " southeast" << southeast << " northwest"
-                                        << northwest << " southwest" << southwest << "\n";
+                                        << "    northeast: " << northeast << " southeast: " << southeast
+                                        << " northwest: " << northwest << " southwest: " << southwest << "\n";
             }
           }
         }
@@ -308,13 +302,13 @@ void HGCalCLUEAlgo::calculateLocalDensity(const HGCalLayerTiles& lt,
       float neighborsval = (std::max(northeast, northwest) > std::max(southeast, southwest))
                                ? std::max(northeast, northwest)
                                : std::max(southeast, southwest);
-      if (is2by2)
+      if (use2x2_)
         cellsOnLayer.rho[i] += neighborsval;
       else
         cellsOnLayer.rho[i] += all;
     }
     LogDebug("HGCalCLUEAlgo") << "Debugging calculateLocalDensity: \n"
-                              << "  cell: " << i << " isSilicon: " << cellsOnLayer.isSilic[i]
+                              << "  cell: " << i << " isSilicon: " << cellsOnLayer.isSi[i]
                               << " eta: " << cellsOnLayer.eta[i] << " phi: " << cellsOnLayer.phi[i]
                               << " energy: " << cellsOnLayer.weight[i] << " density: " << cellsOnLayer.rho[i] << "\n";
   }
@@ -332,12 +326,12 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt,
     float maxDelta = std::numeric_limits<float>::max();
     float i_delta = maxDelta;
     int i_nearestHigher = -1;
-    float delta_c_(0);
-    if (cellsOnLayer.isSilic[i]) {
-      delta_c_ = delta_c;
+    float delta(0);
+    if (cellsOnLayer.isSi[i]) {
+      delta = delta_c;
       // get search box for ith hit
       // guarantee to cover a range "outlierDeltaFactor_*delta_c"
-      auto range = outlierDeltaFactor_ * delta_c_;
+      auto range = outlierDeltaFactor_ * delta;
       std::array<int, 4> search_box = lt.searchBox(
           cellsOnLayer.x[i] - range, cellsOnLayer.x[i] + range, cellsOnLayer.y[i] - range, cellsOnLayer.y[i] + range);
       // loop over all bins in the search box
@@ -351,7 +345,7 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt,
           // loop over all hits in this bin
           for (unsigned int j = 0; j < binSize; j++) {
             unsigned int otherId = lt[binId][j];
-            if (!cellsOnLayer.isSilic[otherId])
+            if (!cellsOnLayer.isSi[otherId])
               continue;  //cells in the silicon cannot talk to cells in scintillator
             float dist = distance(i, otherId, layerId, false);
             bool foundHigher = (cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i]) ||
@@ -380,8 +374,8 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt,
       }
     } else {
       //similar to silicon
-      delta_c_ = delta_r;
-      auto range = outlierDeltaFactor_ * delta_c_;
+      delta = delta_r;
+      auto range = outlierDeltaFactor_ * delta;
       std::array<int, 4> search_box = lt.searchBoxEtaPhi(cellsOnLayer.eta[i] - range,
                                                          cellsOnLayer.eta[i] + range,
                                                          cellsOnLayer.phi[i] - range,
@@ -397,7 +391,7 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt,
           // loop over all hits in this bin
           for (unsigned int j = 0; j < binSize; j++) {
             unsigned int otherId = lt[binId][j];
-            if (cellsOnLayer.isSilic[otherId])
+            if (cellsOnLayer.isSi[otherId])
               continue;  //cells in the silicon cannot talk to cells in scintillator
             float dist = distance(i, otherId, layerId, true);
             bool foundHigher = (cellsOnLayer.rho[otherId] > cellsOnLayer.rho[i]) ||
@@ -426,7 +420,7 @@ void HGCalCLUEAlgo::calculateDistanceToHigher(const HGCalLayerTiles& lt,
       }
     }
     LogDebug("HGCalCLUEAlgo") << "Debugging calculateDistanceToHigher: \n"
-                              << "  cell: " << i << " isSilicon: " << cellsOnLayer.isSilic[i]
+                              << "  cell: " << i << " isSilicon: " << cellsOnLayer.isSi[i]
                               << " eta: " << cellsOnLayer.eta[i] << " phi: " << cellsOnLayer.phi[i]
                               << " energy: " << cellsOnLayer.weight[i] << " density: " << cellsOnLayer.rho[i]
                               << " nearest higher: " << cellsOnLayer.nearestHigher[i]
@@ -446,17 +440,17 @@ int HGCalCLUEAlgo::findAndAssignClusters(const unsigned int layerId, float delta
   // find cluster seeds and outlier
   for (unsigned int i = 0; i < numberOfCells; i++) {
     float rho_c = kappa_ * cellsOnLayer.sigmaNoise[i];
-    float delta_c_ = 0;
-    if (!cellsOnLayer.isSilic[i]) {
-      delta_c_ = delta_r;
+    float delta(0);
+    if (!cellsOnLayer.isSi[i]) {
+      delta = delta_r;
     } else {
-      delta_c_ = delta_c;
+      delta = delta_c;
     }
 
     // initialize clusterIndex
     cellsOnLayer.clusterIndex[i] = -1;
-    bool isSeed = (cellsOnLayer.delta[i] > delta_c_) && (cellsOnLayer.rho[i] >= rho_c);
-    bool isOutlier = (cellsOnLayer.delta[i] > outlierDeltaFactor_ * delta_c_) && (cellsOnLayer.rho[i] < rho_c);
+    bool isSeed = (cellsOnLayer.delta[i] > delta) && (cellsOnLayer.rho[i] >= rho_c);
+    bool isOutlier = (cellsOnLayer.delta[i] > outlierDeltaFactor_ * delta) && (cellsOnLayer.rho[i] < rho_c);
     if (isSeed) {
       cellsOnLayer.clusterIndex[i] = nClustersOnLayer;
       cellsOnLayer.isSeed[i] = true;
