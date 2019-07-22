@@ -18,7 +18,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
@@ -29,9 +28,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class EfficiencyAnalyzer : public DQMEDAnalyzer {
 public:

@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/EcalPreshowerMonitorModule/interface/ESFEDIntegrityTask.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"

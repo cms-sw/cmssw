@@ -3,7 +3,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

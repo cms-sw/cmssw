@@ -2,8 +2,7 @@
 #define DQM_SiStripCommissioningClients_PedsOnlyHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class PedsOnlyHistograms : public virtual CommissioningHistograms {
 public:

@@ -49,7 +49,6 @@
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsTechTrigRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -69,6 +68,8 @@
 
 class ValidationHcalIsoTrackAlCaReco : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit ValidationHcalIsoTrackAlCaReco(const edm::ParameterSet&);
   ~ValidationHcalIsoTrackAlCaReco();
 

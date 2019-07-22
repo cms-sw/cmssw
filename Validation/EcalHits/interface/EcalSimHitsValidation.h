@@ -32,7 +32,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -42,6 +41,9 @@ class EcalSimHitsValidation : public edm::EDAnalyzer {
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor
   EcalSimHitsValidation(const edm::ParameterSet &ps);
 

@@ -15,11 +15,9 @@
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
-
-class DQMStore;
-class MonitorElement;
 
 class TrackerHitAnalyzer : public DQMEDAnalyzer {
 public:

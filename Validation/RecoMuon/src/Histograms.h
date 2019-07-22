@@ -13,7 +13,6 @@
 #include "TFile.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
@@ -23,6 +22,9 @@
 
 class HTrackVariables {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HTrackVariables(DQMStore::IBooker &ibooker, std::string dirName_, std::string name, std::string whereIs = "")
       : theName(name), where(whereIs) {
     ibooker.cd();
@@ -146,6 +148,9 @@ private:
 
 class HResolution {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HResolution(DQMStore::IBooker &ibooker, std::string dirName_, std::string name, std::string whereIs)
       : theName(name), where(whereIs) {
     ibooker.cd();
@@ -293,6 +298,9 @@ private:
 
 class HResolution1DRecHit {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HResolution1DRecHit(DQMStore::IBooker &ibooker, std::string name) : theName(name) {
     // Position, sigma, residual, pull
     hResX = ibooker.book1D(theName + "_X_Res", "X residual", 5000, -0.5, 0.5);

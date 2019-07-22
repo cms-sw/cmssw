@@ -10,8 +10,6 @@
 #include <fstream>
 #include <iostream>
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "RelationalAccess/ICursor.h"

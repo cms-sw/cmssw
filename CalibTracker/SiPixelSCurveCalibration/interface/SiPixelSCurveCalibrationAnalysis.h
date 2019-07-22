@@ -52,6 +52,7 @@ enum sCurveErrorFlag {
                         // as a potential tool for potential future debugging
 };
 
+typedef dqm::legacy::MonitorElement MonitorElement;
 typedef std::map<sCurveHistogramType, MonitorElement *> sCurveHistogramHolder;
 typedef std::map<uint32_t, sCurveHistogramHolder> detIDHistogramMap;
 

@@ -21,8 +21,8 @@ namespace ecaldqm
     meTable_()
   {
     switch(kind_){
-    case MonitorElement::DQM_KIND_TH1F:
-    case MonitorElement::DQM_KIND_TPROFILE:
+    case MonitorElement::Kind::TH1F:
+    case MonitorElement::Kind::TPROFILE:
       break;
     default:
       throw_("Unsupported MonitorElement kind");
@@ -276,7 +276,7 @@ namespace ecaldqm
     for(unsigned iME(0); iME < nME; iME++){
       mes_[iME]->setBinContent(1, _content);
       mes_[iME]->setBinError(1, _err);
-      if(kind_ == MonitorElement::DQM_KIND_TPROFILE)
+      if(kind_ == MonitorElement::Kind::TPROFILE)
 	mes_[iME]->setBinEntries(1, _entries);
     }
   }
@@ -318,7 +318,7 @@ namespace ecaldqm
       dqmStore_->setCurrentFolder(path_);
 
       MonitorElement* me(0);
-      if(kind_ == MonitorElement::DQM_KIND_TH1F)
+      if(kind_ == MonitorElement::Kind::TH1F)
         me = dqmStore_->book1D(name, name, 1, 0., 1.);
       else
         me = dqmStore_->bookProfile(name, name, 1, 0., 1., -std::numeric_limits<double>::max(), std::numeric_limits<double>::max());

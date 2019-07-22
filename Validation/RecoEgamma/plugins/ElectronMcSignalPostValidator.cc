@@ -1,6 +1,6 @@
 
 #include "Validation/RecoEgamma/plugins/ElectronMcSignalPostValidator.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ElectronMcSignalPostValidator::ElectronMcSignalPostValidator(const edm::ParameterSet& conf)

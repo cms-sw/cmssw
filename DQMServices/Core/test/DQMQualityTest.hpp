@@ -14,6 +14,9 @@ float mean, sigma;  // gaussian parameters for generated distribution
 
 class DQMQualityTest {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   // arguments: # of bins and range for histogram to be tested
   DQMQualityTest(int NBINS, float XMIN, float XMAX) {
     // Process each file given as argument.

@@ -16,11 +16,12 @@
 #include "CondFormats/Common/interface/FileBlob.h"
 #include "CondFormats/DataRecord/interface/DQMReferenceHistogramRootFileRcd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edmtest {
   class DQMReferenceHistogramRootFileEventSetupAnalyzer : public edm::EDAnalyzer {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(const edm::ParameterSet& pset);
     explicit DQMReferenceHistogramRootFileEventSetupAnalyzer(int i);
     ~DQMReferenceHistogramRootFileEventSetupAnalyzer() override;

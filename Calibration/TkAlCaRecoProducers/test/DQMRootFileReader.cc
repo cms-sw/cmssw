@@ -37,6 +37,7 @@ using std::endl;
 //
 class DQMRootFileReader : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit DQMRootFileReader(const edm::ParameterSet &);
   ~DQMRootFileReader();
 

@@ -56,7 +56,7 @@
 #include <DataFormats/L1Trigger/interface/Tau.h>
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMStore.h>
 
 #include <Validation/L1T/interface/L1ValidatorHists.h>
 

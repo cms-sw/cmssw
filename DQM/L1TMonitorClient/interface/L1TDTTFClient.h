@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 //
 // class declaration
@@ -15,7 +16,6 @@
 
 class TH1F;
 class TH2F;
-class MonitorElement;
 
 class L1TDTTFClient : public DQMEDHarvester {
 public:

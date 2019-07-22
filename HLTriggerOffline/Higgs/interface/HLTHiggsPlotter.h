@@ -31,7 +31,6 @@
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
 
@@ -46,6 +45,9 @@ struct EVTColContainer;
 
 class HLTHiggsPlotter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HLTHiggsPlotter(const edm::ParameterSet &pset,
                   const std::string &hltPath,
                   //const std::string & lastFilter,

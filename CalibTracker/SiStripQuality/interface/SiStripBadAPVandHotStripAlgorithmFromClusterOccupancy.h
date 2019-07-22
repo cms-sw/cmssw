@@ -36,13 +36,14 @@
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class SiStripQuality;
 class TrackerTopology;
 
 class SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   typedef SiStrip::QualityHistosMap HistoMap;
 
   SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet&, const TrackerTopology*);

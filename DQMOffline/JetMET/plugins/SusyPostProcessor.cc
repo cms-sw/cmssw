@@ -73,12 +73,12 @@ void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
       MEx = iget_.get(dirName + "/" + "MEx");
       MEy = iget_.get(dirName + "/" + "MEy");
 
-      if (MEx && MEx->kind() == MonitorElement::DQM_KIND_TH1F) {
+      if (MEx && MEx->kind() == MonitorElement::Kind::TH1F) {
         if (MEx->getTH1F()->GetEntries() > 50)
           MEx->getTH1F()->Fit(&mygaus, "q");
       }
 
-      if (MEy && MEy->kind() == MonitorElement::DQM_KIND_TH1F) {
+      if (MEy && MEy->kind() == MonitorElement::Kind::TH1F) {
         if (MEy->getTH1F()->GetEntries() > 50)
           MEy->getTH1F()->Fit(&mygaus, "q");
       }

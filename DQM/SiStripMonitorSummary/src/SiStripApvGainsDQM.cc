@@ -1,7 +1,7 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "TCanvas.h"
 
 // -----

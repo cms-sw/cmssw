@@ -2,7 +2,7 @@
 #include "DQM/TrackingMonitorClient/plugins/TrackingDQMClientHeavyIons.h"
 
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,7 +18,7 @@
 using namespace std;
 using namespace edm;
 
-typedef MonitorElement ME;
+typedef dqm::harvesting::MonitorElement ME;
 
 TrackingDQMClientHeavyIons::TrackingDQMClientHeavyIons(const edm::ParameterSet& pset) {
   TopFolder_ = pset.getParameter<std::string>("FolderName");

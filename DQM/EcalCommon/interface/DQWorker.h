@@ -38,6 +38,9 @@ namespace ecaldqm {
     };
 
   protected:
+    typedef dqm::legacy::DQMStore DQMStore;
+    typedef dqm::legacy::MonitorElement MonitorElement;
+
     void setVerbosity(int _verbosity) { verbosity_ = _verbosity; }
     void initialize(std::string const &_name, edm::ParameterSet const &);
 

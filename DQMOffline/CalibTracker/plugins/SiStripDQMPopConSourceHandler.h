@@ -17,6 +17,8 @@
 template <typename T>
 class SiStripDQMPopConSourceHandler : public popcon::PopConSourceHandler<T> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripDQMPopConSourceHandler(const edm::ParameterSet& pset)
       : m_name{pset.getUntrackedParameter<std::string>("name", "SiStripPopConDbObjHandler")},
         m_since{pset.getUntrackedParameter<uint32_t>("since", 5)},

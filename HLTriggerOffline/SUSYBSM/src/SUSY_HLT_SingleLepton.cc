@@ -18,6 +18,9 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 namespace {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   bool Contains(const std::string &text, const std::string &pattern) { return text.find(pattern) != std::string::npos; }
 
   void SetBinLabels(MonitorElement *const me) {

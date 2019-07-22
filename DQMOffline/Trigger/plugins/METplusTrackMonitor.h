@@ -18,7 +18,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "DQM/TrackingMonitor/interface/GetLumi.h"
 
@@ -48,6 +48,9 @@ class GenericTriggerEventFlag;
 
 class METplusTrackMonitor : public DQMEDAnalyzer, public TriggerDQMBase {
 public:
+  typedef dqm::reco::MonitorElement MonitorElement;
+  typedef dqm::reco::DQMStore DQMStore;
+
   METplusTrackMonitor(const edm::ParameterSet &);
   ~METplusTrackMonitor() noexcept(true) override {}
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);

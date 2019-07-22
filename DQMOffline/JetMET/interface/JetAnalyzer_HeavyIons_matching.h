@@ -21,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
@@ -74,8 +73,6 @@
 #include <algorithm>
 #include <set>
 #include <utility>
-
-class MonitorElement;
 
 class JetAnalyzer_HeavyIons_matching : public DQMEDAnalyzer {
 public:

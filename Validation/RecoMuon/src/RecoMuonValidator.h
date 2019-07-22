@@ -24,9 +24,8 @@
 
 // for selection cut
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
-class DQMStore;
-class MonitorElement;
 class MuonServiceProxy;
 class TrackAssociatorBase;
 

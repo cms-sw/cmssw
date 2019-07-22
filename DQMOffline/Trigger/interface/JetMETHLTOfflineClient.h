@@ -22,7 +22,6 @@
 #include <unistd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
@@ -46,9 +45,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-class DQMStore;
-class MonitorElement;
 
 class JetMETHLTOfflineClient : public DQMEDHarvester {
 private:

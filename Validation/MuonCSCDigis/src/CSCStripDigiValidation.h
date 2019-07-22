@@ -4,7 +4,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "Validation/MuonCSCDigis/interface/CSCBaseValidation.h"

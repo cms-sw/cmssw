@@ -22,7 +22,6 @@ Monitoring source for general quantities related to vertex
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -31,6 +30,9 @@ class GetLumi;
 
 class VertexMonitor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   VertexMonitor(const edm::ParameterSet&, const edm::InputTag&, const edm::InputTag&, std::string pvLabel);
   VertexMonitor(const edm::ParameterSet&,
                 const edm::InputTag&,

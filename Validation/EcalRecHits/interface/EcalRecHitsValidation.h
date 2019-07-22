@@ -35,7 +35,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>

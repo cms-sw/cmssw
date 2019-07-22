@@ -29,7 +29,6 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelDataQuality.h"

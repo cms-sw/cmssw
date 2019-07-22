@@ -60,6 +60,9 @@ namespace FSQ {
   //################################################################################################
   class BaseHandler {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     BaseHandler();
     virtual ~BaseHandler() = default;
     BaseHandler(const edm::ParameterSet& iConfig, triggerExpression::Data& eventCache)

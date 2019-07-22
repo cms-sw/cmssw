@@ -2,7 +2,6 @@
 
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 // #include "FWCore/Sources/interface/ProducerSourceBase.h"

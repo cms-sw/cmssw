@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripPedestalsDQM.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TCanvas.h"
 
