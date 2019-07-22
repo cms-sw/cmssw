@@ -12,7 +12,7 @@ namespace cms {
 
   class DDParsingContext;
   using DDVectorsMap = tbb::concurrent_unordered_map<std::string, tbb::concurrent_vector<double>>;
-  
+
   class DDNamespace {
   public:
     DDNamespace(DDParsingContext*, xml_h);

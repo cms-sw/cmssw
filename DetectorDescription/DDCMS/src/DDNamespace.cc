@@ -238,9 +238,9 @@ dd4hep::Solid DDNamespace::solid(const string& nam) const {
 std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
   cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
   auto it = registry->find(name);
-  if( it != registry->end()) {
+  if (it != registry->end()) {
     std::vector<double> result;
-    for(auto in : it->second)
+    for (auto in : it->second)
       result.emplace_back(in);
     return result;
   } else
