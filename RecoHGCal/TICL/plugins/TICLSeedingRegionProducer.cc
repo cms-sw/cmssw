@@ -65,9 +65,7 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.add("ticlSeedingRegionProducer", desc);
 }
 
-void TICLSeedingRegionProducer::beginRun(edm::Run const& iEvent, edm::EventSetup const& es){
-  myAlgo_->Initialize(es);
-}
+void TICLSeedingRegionProducer::beginRun(edm::Run const& iEvent, edm::EventSetup const& es) { myAlgo_->Initialize(es); }
 
 void TICLSeedingRegionProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto result = std::make_unique<std::vector<TICLSeedingRegion>>();
