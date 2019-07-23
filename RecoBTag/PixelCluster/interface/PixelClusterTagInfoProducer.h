@@ -75,35 +75,23 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
+// ROOT
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
 
-//
-// class declaration
-//
 
 class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
    public:
       explicit PixelClusterTagInfoProducer(const edm::ParameterSet&);
       ~PixelClusterTagInfoProducer();
 
-//      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-//      virtual void beginStream(edm::StreamID) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-//      virtual void endStream() override;
 
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      
-//      virtual void fillData(reco::PixelClusterData*, float, float, int, int);
-
-      // ----------member data ---------------------------
       edm::ParameterSet iConfig;
       
       edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jets;
