@@ -22,7 +22,7 @@ public:
   double getZ(const AHCalDetId& id) const;
 
 private:
-  AHCalGeometry();
+  AHCalGeometry() = delete;
   const int maxDepth_;
   const double deltaX_, deltaY_, deltaZ_, zFirst_;
 };
