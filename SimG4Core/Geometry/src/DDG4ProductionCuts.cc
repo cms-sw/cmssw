@@ -19,24 +19,24 @@ namespace {
       while pointers usually can't guarantee this
   */
   bool dd_is_greater(const std::pair<G4LogicalVolume*, DDLogicalPart>& p1,
-		     const std::pair<G4LogicalVolume*, DDLogicalPart>& p2) {
+                     const std::pair<G4LogicalVolume*, DDLogicalPart>& p2) {
     bool result = false;
     if (p1.second.name().ns() > p2.second.name().ns()) {
       result = true;
     }
     if (p1.second.name().ns() == p2.second.name().ns()) {
       if (p1.second.name().name() > p2.second.name().name()) {
-	result = true;
+        result = true;
       }
       if (p1.second.name().name() == p2.second.name().name()) {
-	if (p1.first->GetName() > p2.first->GetName()) {
-	  result = true;
-	}
+        if (p1.first->GetName() > p2.first->GetName()) {
+          result = true;
+        }
       }
     }
     return result;
   }
-  
+
   bool sortByName(const std::pair<G4LogicalVolume*, const cms::DDSpecPar*>& p1,
                   const std::pair<G4LogicalVolume*, const cms::DDSpecPar*>& p2) {
     bool result = false;
@@ -53,9 +53,10 @@ DDG4ProductionCuts::DDG4ProductionCuts(const G4LogicalVolumeToDDLogicalPartMap* 
 }
 
 DDG4ProductionCuts::DDG4ProductionCuts(const cms::DDSpecParRegistry* specPars,
-				       const dd4hep::sim::Geant4GeometryMaps::VolumeMap* map,
-				       int verb, bool pcut)
-  : dd4hepMap_(map), specPars_(specPars), keywordRegion_("CMSCutsRegion"), verbosity_(verb), protonCut_(pcut) {
+                                       const dd4hep::sim::Geant4GeometryMaps::VolumeMap* map,
+                                       int verb,
+                                       bool pcut)
+    : dd4hepMap_(map), specPars_(specPars), keywordRegion_("CMSCutsRegion"), verbosity_(verb), protonCut_(pcut) {
   dd4hepInitialize();
 }
 
@@ -109,12 +110,12 @@ void DDG4ProductionCuts::initialize() {
 void DDG4ProductionCuts::dd4hepInitialize() {
   specPars_->filter(specs_, keywordRegion_);
 
-  for(auto const& it : *dd4hepMap_) {
-    for(auto const& fit : specs_) {
-      for(auto const& pit : fit->paths) {
-	if(cms::dd::compareEqual(cms::dd::noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
-	  dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
-	}
+  for (auto const& it : *dd4hepMap_) {
+    for (auto const& fit : specs_) {
+      for (auto const& pit : fit->paths) {
+        if (cms::dd::compareEqual(cms::dd::noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
+          dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
+        }
       }
     }
   }
@@ -129,21 +130,19 @@ void DDG4ProductionCuts::dd4hepInitialize() {
     edm::LogVerbatim("Geometry") << it.first->GetName() << ": " << it.second->strValue(keywordRegion_.data());
     edm::LogVerbatim("Geometry") << " MakeRegions: added " << it.first->GetName() << " to region " << region->GetName();
     edm::LogVerbatim("Geometry").log([&](auto& log) {
-	for(auto const& sit : it.second->spars) {
-	    log << sit.first << " =  " << sit.second[0] << "\n";
-	}
-      });
+      for (auto const& sit : it.second->spars) {
+        log << sit.first << " =  " << sit.second[0] << "\n";
+      }
+    });
     setProdCuts(it.second, region);
   }
 
-  if ( verbosity_ > 0 ) {
-    LogDebug("Geometry") <<" DDG4ProductionCuts (New) : starting\n"
-			 <<" DDG4ProductionCuts : Got "<< dd4hepVec_.size()
-			 <<" region roots.\n"
-			 <<" DDG4ProductionCuts : List of all roots:";
-    for ( size_t jj=0; jj < dd4hepVec_.size(); ++jj)
-      LogDebug("Geometry") << "   DDG4ProductionCuts : root=" 
-			   << dd4hepVec_[jj];
+  if (verbosity_ > 0) {
+    LogDebug("Geometry") << " DDG4ProductionCuts (New) : starting\n"
+                         << " DDG4ProductionCuts : Got " << dd4hepVec_.size() << " region roots.\n"
+                         << " DDG4ProductionCuts : List of all roots:";
+    for (size_t jj = 0; jj < dd4hepVec_.size(); ++jj)
+      LogDebug("Geometry") << "   DDG4ProductionCuts : root=" << dd4hepVec_[jj];
   }
 }
 
@@ -209,87 +208,85 @@ void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4Region* region
 }
 
 void DDG4ProductionCuts::setProdCuts(const cms::DDSpecPar* spec, G4Region* region) {
-
   //
   // Create and fill production cuts
   //
   G4ProductionCuts* prodCuts = region->GetProductionCuts();
   if (!prodCuts) {
+    // FIXME: Here we use a dd4hep string to double evaluator
+    //        Beware of the units!!!
 
-  // FIXME: Here we use a dd4hep string to double evaluator
-  //        Beware of the units!!!
-  
-  //
-  // search for production cuts
-  // you must have four of them: e+ e- gamma proton
-  //
-  double gammacut = 0.0;
-  double electroncut = 0.0;
-  double positroncut = 0.0;
-  double protoncut = 0.0;
+    //
+    // search for production cuts
+    // you must have four of them: e+ e- gamma proton
+    //
+    double gammacut = 0.0;
+    double electroncut = 0.0;
+    double positroncut = 0.0;
+    double protoncut = 0.0;
 
-  auto gammacutStr = spec->strValue("ProdCutsForGamma");
-  if(gammacutStr.empty()) {
-    throw cms::Exception(
-        "SimG4CorePhysics",
-        " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForGamma.");
-  }
-  gammacut = dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()});
-  
-  auto electroncutStr = spec->strValue("ProdCutsForElectrons");
-  if(electroncutStr.empty()) {
-    throw cms::Exception(
-        "SimG4CorePhysics",
-        " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForElectrons.");
-  }
-  electroncut = dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()});
-
-  auto positroncutStr = spec->strValue("ProdCutsForPositrons");
-  if(positroncutStr.empty()) {
-    throw cms::Exception(
-        "SimG4CorePhysics",
-        " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForPositrons.");
-  }
-  positroncut = dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()});
-
-  if(!spec->hasValue("ProdCutsForProtons")) {
-    // There is no ProdCutsForProtons set in XML,
-    // check if it's a legacy geometry scenario without it
-    if (protonCut_) {
-      protoncut = electroncut;
-    } else {
-      protoncut = 0.;
-    }
-  } else {
-    auto protoncutStr = spec->strValue("ProdCutsForProtons");
-    if(protoncutStr.empty()) {
+    auto gammacutStr = spec->strValue("ProdCutsForGamma");
+    if (gammacutStr.empty()) {
       throw cms::Exception(
-        "SimG4CorePhysics",
-        " DDG4ProductionCuts::setProdCuts: Problem with Region tags - more than one ProdCutsForProtons.");
+          "SimG4CorePhysics",
+          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForGamma.");
     }
-    protoncut = dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()});
-  }
+    gammacut = dd4hep::_toDouble({gammacutStr.data(), gammacutStr.size()});
+
+    auto electroncutStr = spec->strValue("ProdCutsForElectrons");
+    if (electroncutStr.empty()) {
+      throw cms::Exception(
+          "SimG4CorePhysics",
+          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForElectrons.");
+    }
+    electroncut = dd4hep::_toDouble({electroncutStr.data(), electroncutStr.size()});
+
+    auto positroncutStr = spec->strValue("ProdCutsForPositrons");
+    if (positroncutStr.empty()) {
+      throw cms::Exception(
+          "SimG4CorePhysics",
+          " DDG4ProductionCuts::setProdCuts: Problem with Region tags - no/more than one ProdCutsForPositrons.");
+    }
+    positroncut = dd4hep::_toDouble({positroncutStr.data(), positroncutStr.size()});
+
+    if (!spec->hasValue("ProdCutsForProtons")) {
+      // There is no ProdCutsForProtons set in XML,
+      // check if it's a legacy geometry scenario without it
+      if (protonCut_) {
+        protoncut = electroncut;
+      } else {
+        protoncut = 0.;
+      }
+    } else {
+      auto protoncutStr = spec->strValue("ProdCutsForProtons");
+      if (protoncutStr.empty()) {
+        throw cms::Exception(
+            "SimG4CorePhysics",
+            " DDG4ProductionCuts::setProdCuts: Problem with Region tags - more than one ProdCutsForProtons.");
+      }
+      protoncut = dd4hep::_toDouble({protoncutStr.data(), protoncutStr.size()});
+    }
 
     prodCuts = new G4ProductionCuts();
     region->SetProductionCuts(prodCuts);
-  
-  prodCuts->SetProductionCut(gammacut, idxG4GammaCut);
-  prodCuts->SetProductionCut(electroncut, idxG4ElectronCut);
-  prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
-  prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
-  if (verbosity_ > 0) {
-    edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << region->GetName()
-                                 << "\n    Electrons: " << electroncut << "\n    Positrons: " << positroncut
-                                 << "\n    Gamma    : " << gammacut << "\n    Proton   : " << protoncut;
-  }
+
+    prodCuts->SetProductionCut(gammacut, idxG4GammaCut);
+    prodCuts->SetProductionCut(electroncut, idxG4ElectronCut);
+    prodCuts->SetProductionCut(positroncut, idxG4PositronCut);
+    prodCuts->SetProductionCut(protoncut, idxG4ProtonCut);
+    if (verbosity_ > 0) {
+      edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : Setting cuts for " << region->GetName()
+                                   << "\n    Electrons: " << electroncut << "\n    Positrons: " << positroncut
+                                   << "\n    Gamma    : " << gammacut << "\n    Proton   : " << protoncut;
+    }
   } else {
     if (verbosity_ > 0) {
-      edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : Cuts are already set for " << region->GetName()
-				   << "\n    Electrons: " << region->GetProductionCuts()->GetProductionCut(idxG4ElectronCut)
-				   << "\n    Positrons: " << region->GetProductionCuts()->GetProductionCut(idxG4PositronCut)
-				   << "\n    Gamma    : " << region->GetProductionCuts()->GetProductionCut(idxG4GammaCut)
-				   << "\n    Proton   : " << region->GetProductionCuts()->GetProductionCut(idxG4ProtonCut);
+      edm::LogVerbatim("Geometry")
+          << "DDG4ProductionCuts : Cuts are already set for " << region->GetName()
+          << "\n    Electrons: " << region->GetProductionCuts()->GetProductionCut(idxG4ElectronCut)
+          << "\n    Positrons: " << region->GetProductionCuts()->GetProductionCut(idxG4PositronCut)
+          << "\n    Gamma    : " << region->GetProductionCuts()->GetProductionCut(idxG4GammaCut)
+          << "\n    Proton   : " << region->GetProductionCuts()->GetProductionCut(idxG4ProtonCut);
     }
   }
 }
-
