@@ -159,7 +159,7 @@ namespace edmtest {
     }
   }
 
-  class ESTestAnalyzerJ : public edm::EDAnalyzer {
+  class ESTestAnalyzerJ : public edm::stream::EDAnalyzer<> {
   public:
     explicit ESTestAnalyzerJ(edm::ParameterSet const&) {}
     void analyze(const edm::Event&, const edm::EventSetup&) override;
