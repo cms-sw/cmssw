@@ -36,6 +36,7 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
+#include "SimG4CMS/HGCalTestBeam/interface/AHCalGeometry.h"
 
 #include "SimDataFormats/CaloHit/interface/PassiveHit.h"
 
@@ -72,6 +73,7 @@ private:
   void analyzePassiveHits(edm::Handle<edm::PassiveHitContainer> const& hgcPh, int subdet);
 
   edm::Service<TFileService> fs_;
+  std::unique_ptr<AHCalGeometry> ahcalGeom_;
   const HGCalDDDConstants* hgcons_[2];
   const HGCalGeometry* hgeom_[2];
   bool ifEE_, ifFH_, ifBH_, ifBeam_;
@@ -124,27 +126,28 @@ private:
 
 HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   usesResource("TFileService");
-
+  ahcalGeom_.reset(new AHCalGeometry(iConfig));
+  
   // now do whatever initialization is needed
-  detectorEE_ = iConfig.getParameter<std::string>("DetectorEE");
-  detectorFH_ = iConfig.getParameter<std::string>("DetectorFH");
-  detectorBH_ = iConfig.getParameter<std::string>("DetectorBH");
-  detectorBeam_ = iConfig.getParameter<std::string>("DetectorBeam");
-  ifEE_ = iConfig.getParameter<bool>("UseEE");
-  ifFH_ = iConfig.getParameter<bool>("UseFH");
-  ifBH_ = iConfig.getParameter<bool>("UseBH");
-  ifBeam_ = iConfig.getParameter<bool>("UseBeam");
-  zFrontEE_ = iConfig.getParameter<double>("ZFrontEE");
-  zFrontFH_ = iConfig.getParameter<double>("ZFrontFH");
-  zFrontBH_ = iConfig.getParameter<double>("ZFrontBH");
-  idBeams_ = iConfig.getParameter<std::vector<int>>("IDBeams");
-  doSimHits_ = iConfig.getParameter<bool>("DoSimHits");
-  doDigis_ = iConfig.getParameter<bool>("DoDigis");
-  sampleIndex_ = iConfig.getParameter<int>("SampleIndex");
-  doRecHits_ = iConfig.getParameter<bool>("DoRecHits");
-  doTree_ = iConfig.getUntrackedParameter<bool>("DoTree", false);
-  doTreeCell_ = iConfig.getUntrackedParameter<bool>("DoTreeCell", false);
-  doPassive_ = iConfig.getUntrackedParameter<bool>("DoPassive", false);
+  detectorEE_ = iConfig.getParameter<std::string>("detectorEE");
+  detectorFH_ = iConfig.getParameter<std::string>("detectorFH");
+  detectorBH_ = iConfig.getParameter<std::string>("detectorBH");
+  detectorBeam_ = iConfig.getParameter<std::string>("detectorBeam");
+  ifEE_ = iConfig.getParameter<bool>("useEE");
+  ifFH_ = iConfig.getParameter<bool>("useFH");
+  ifBH_ = iConfig.getParameter<bool>("useBH");
+  ifBeam_ = iConfig.getParameter<bool>("useBeam");
+  zFrontEE_ = iConfig.getParameter<double>("zFrontEE");
+  zFrontFH_ = iConfig.getParameter<double>("zFrontFH");
+  zFrontBH_ = iConfig.getParameter<double>("zFrontBH");
+  idBeams_ = iConfig.getParameter<std::vector<int>>("idBeams");
+  doSimHits_ = iConfig.getParameter<bool>("doSimHits");
+  doDigis_ = iConfig.getParameter<bool>("doDigis");
+  sampleIndex_ = iConfig.getParameter<int>("sampleIndex");
+  doRecHits_ = iConfig.getParameter<bool>("doRecHits");
+  doTree_ = iConfig.getUntrackedParameter<bool>("doTree", false);
+  doTreeCell_ = iConfig.getUntrackedParameter<bool>("doTreeCell", false);
+  doPassive_ = iConfig.getUntrackedParameter<bool>("doPassive", false);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: SimHits = " << doSimHits_ << " Digis = " << doDigis_ << ":"
@@ -157,19 +160,19 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   if (idBeams_.empty())
     idBeams_.push_back(1001);
 
-  edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("GeneratorSrc");
+  edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("generatorSrc");
   tok_hepMC_ = consumes<edm::HepMCProduct>(tmp0);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: GeneratorSource = " << tmp0;
 #endif
-  std::string tmp1 = iConfig.getParameter<std::string>("CaloHitSrcEE");
+  std::string tmp1 = iConfig.getParameter<std::string>("caloHitSrcEE");
   tok_hitsEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
   tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  edm::InputTag tmp2 = iConfig.getParameter<edm::InputTag>("DigiSrcEE");
+  edm::InputTag tmp2 = iConfig.getParameter<edm::InputTag>("digiSrcEE");
   tok_digiEE_ = consumes<HGCalDigiCollection>(tmp2);
-  edm::InputTag tmp3 = iConfig.getParameter<edm::InputTag>("RecHitSrcEE");
+  edm::InputTag tmp3 = iConfig.getParameter<edm::InputTag>("recHitSrcEE");
   tok_hitrEE_ = consumes<HGCRecHitCollection>(tmp3);
 #ifdef EDM_ML_DEBUG
   if (ifEE_) {
@@ -177,11 +180,11 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
                                << ", " << tmp3;
   }
 #endif
-  tmp1 = iConfig.getParameter<std::string>("CaloHitSrcFH");
+  tmp1 = iConfig.getParameter<std::string>("caloHitSrcFH");
   tok_hitsFH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-  tmp2 = iConfig.getParameter<edm::InputTag>("DigiSrcFH");
+  tmp2 = iConfig.getParameter<edm::InputTag>("digiSrcFH");
   tok_digiFH_ = consumes<HGCalDigiCollection>(tmp2);
-  tmp3 = iConfig.getParameter<edm::InputTag>("RecHitSrcFH");
+  tmp3 = iConfig.getParameter<edm::InputTag>("recHitSrcFH");
   tok_hitrFH_ = consumes<HGCRecHitCollection>(tmp3);
 #ifdef EDM_ML_DEBUG
   if (ifFH_) {
@@ -189,24 +192,24 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
                                << ", " << tmp3;
   }
 #endif
-  tmp1 = iConfig.getParameter<std::string>("CaloHitSrcBH");
+  tmp1 = iConfig.getParameter<std::string>("caloHitSrcBH");
   tok_hitsBH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-  tmp2 = iConfig.getParameter<edm::InputTag>("DigiSrcBH");
+  tmp2 = iConfig.getParameter<edm::InputTag>("digiSrcBH");
   tok_digiBH_ = consumes<HGCalDigiCollection>(tmp2);
-  tmp3 = iConfig.getParameter<edm::InputTag>("RecHitSrcBH");
+  tmp3 = iConfig.getParameter<edm::InputTag>("recHitSrcBH");
   tok_hitrBH_ = consumes<HGCRecHitCollection>(tmp3);
 
   /// Passive hits
-  edm::InputTag tmp = iConfig.getParameter<edm::InputTag>("HGCPassiveEE");
+  edm::InputTag tmp = iConfig.getParameter<edm::InputTag>("passiveEE");
   tok_hgcPHEE_ = consumes<edm::PassiveHitContainer>(tmp);
 
-  tmp = iConfig.getParameter<edm::InputTag>("HGCPassiveFH");
+  tmp = iConfig.getParameter<edm::InputTag>("passiveFH");
   tok_hgcPHFH_ = consumes<edm::PassiveHitContainer>(tmp);
 
-  tmp = iConfig.getParameter<edm::InputTag>("HGCPassiveBH");
+  tmp = iConfig.getParameter<edm::InputTag>("passiveBH");
   tok_hgcPHBH_ = consumes<edm::PassiveHitContainer>(tmp);
 
-  tmp = iConfig.getParameter<edm::InputTag>("HGCPassiveCMSE");
+  tmp = iConfig.getParameter<edm::InputTag>("passiveCMSE");
   tok_hgcPHCMSE_ = consumes<edm::PassiveHitContainer>(tmp);
 
 #ifdef EDM_ML_DEBUG
@@ -215,7 +218,7 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
                                << ", " << tmp3;
   }
 #endif
-  tmp1 = iConfig.getParameter<std::string>("CaloHitSrcBeam");
+  tmp1 = iConfig.getParameter<std::string>("caloHitSrcBeam");
   tok_hitsBeam_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
 #ifdef EDM_ML_DEBUG
   if (ifBeam_) {
@@ -229,43 +232,48 @@ HGCalTBAnalyzer::~HGCalTBAnalyzer() {}
 void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
-  desc.add<std::string>("DetectorEE", "HGCalEESensitive");
-  desc.add<bool>("UseEE", true);
-  desc.add<double>("ZFrontEE", 0.0);
-  desc.add<std::string>("CaloHitSrcEE", "HGCHitsEE");
-  desc.add<edm::InputTag>("DigiSrcEE", edm::InputTag("hgcalDigis", "EE"));
-  desc.add<edm::InputTag>("RecHitSrcEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
-  desc.add<std::string>("DetectorFH", "HGCalHESiliconSensitive");
-  desc.add<bool>("UseFH", false);
-  desc.add<double>("ZFrontFH", 0.0);
-  desc.add<std::string>("CaloHitSrcFH", "HGCHitsHEfront");
-  desc.add<edm::InputTag>("DigiSrcFH", edm::InputTag("hgcalDigis", "HEfront"));
-  desc.add<edm::InputTag>("RecHitSrcFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
-  desc.add<std::string>("DetectorBH", "AHCal");
-  desc.add<bool>("UseBH", false);
-  desc.add<double>("ZFrontBH", 0.0);
-  desc.add<std::string>("CaloHitSrcBH", "HcalHits");
-  desc.add<edm::InputTag>("DigiSrcBH", edm::InputTag("hgcalDigis", "HEback"));
-  desc.add<edm::InputTag>("RecHitSrcBH", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
-  desc.add<std::string>("DetectorBeam", "HcalTB06BeamDetector");
-  desc.add<bool>("UseBeam", false);
-  desc.add<std::string>("CaloHitSrcBeam", "HcalTB06BeamHits");
+  desc.add<std::string>("detectorEE", "HGCalEESensitive");
+  desc.add<bool>("useEE", true);
+  desc.add<double>("zFrontEE", 0.0);
+  desc.add<std::string>("caloHitSrcEE", "HGCHitsEE");
+  desc.add<edm::InputTag>("digiSrcEE", edm::InputTag("hgcalDigis", "EE"));
+  desc.add<edm::InputTag>("recHitSrcEE", edm::InputTag("HGCalRecHit", "HGCEERecHits"));
+  desc.add<std::string>("detectorFH", "HGCalHESiliconSensitive");
+  desc.add<bool>("useFH", false);
+  desc.add<double>("zFrontFH", 0.0);
+  desc.add<std::string>("caloHitSrcFH", "HGCHitsHEfront");
+  desc.add<edm::InputTag>("digiSrcFH", edm::InputTag("hgcalDigis", "HEfront"));
+  desc.add<edm::InputTag>("recHitSrcFH", edm::InputTag("HGCalRecHit", "HGCHEFRecHits"));
+  desc.add<std::string>("detectorBH", "AHCal");
+  desc.add<bool>("useBH", false);
+  desc.add<double>("zFrontBH", 0.0);
+  desc.add<std::string>("caloHitSrcBH", "HcalHits");
+  desc.add<edm::InputTag>("digiSrcBH", edm::InputTag("hgcalDigis", "HEback"));
+  desc.add<edm::InputTag>("recHitSrcBH", edm::InputTag("HGCalRecHit", "HGCHEBRecHits"));
+  desc.add<std::string>("detectorBeam", "HcalTB06BeamDetector");
+  desc.add<bool>("useBeam", false);
+  desc.add<std::string>("caloHitSrcBeam", "HcalTB06BeamHits");
   std::vector<int> ids = {
       1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008, 1011, 1012, 1013, 1014, 2001, 2002, 2003, 2004, 2005};
-  desc.add<std::vector<int>>("IDBeams", ids);
-  desc.add<edm::InputTag>("GeneratorSrc", edm::InputTag("generatorSmeared"));
-  desc.add<edm::InputTag>("HGCPassiveEE", edm::InputTag("g4SimHits", "HGCalEEPassiveHits"));
-  desc.add<edm::InputTag>("HGCPassiveFH", edm::InputTag("g4SimHits", "HGCalHEPassiveHits"));
-  desc.add<edm::InputTag>("HGCPassiveBH", edm::InputTag("g4SimHits", "HGCalAHPassiveHits"));
-  desc.add<edm::InputTag>("HGCPassiveCMSE", edm::InputTag("g4SimHits", "CMSEPassiveHits"));
+  desc.add<std::vector<int>>("idBeams", ids);
+  desc.add<edm::InputTag>("generatorSrc", edm::InputTag("generatorSmeared"));
+  desc.add<edm::InputTag>("passiveEE", edm::InputTag("g4SimHits", "HGCalEEPassiveHits"));
+  desc.add<edm::InputTag>("passiveFH", edm::InputTag("g4SimHits", "HGCalHEPassiveHits"));
+  desc.add<edm::InputTag>("passiveBH", edm::InputTag("g4SimHits", "HGCalAHPassiveHits"));
+  desc.add<edm::InputTag>("passiveCMSE", edm::InputTag("g4SimHits", "CMSEPassiveHits"));
 
-  desc.add<bool>("DoSimHits", true);
-  desc.add<bool>("DoDigis", true);
-  desc.add<bool>("DoRecHits", true);
-  desc.add<int>("SampleIndex", 0);
-  desc.addUntracked<bool>("DoTree", true);
-  desc.addUntracked<bool>("DoTreeCell", true);
-  desc.addUntracked<bool>("DoPassive", false);
+  desc.add<bool>("doSimHits", true);
+  desc.add<bool>("doDigis", true);
+  desc.add<bool>("doRecHits", true);
+  desc.add<int>("sampleIndex", 0);
+  desc.addUntracked<bool>("doTree", true);
+  desc.addUntracked<bool>("doTreeCell", true);
+  desc.addUntracked<bool>("doPassive", false);
+  desc.addUntracked<int>("maxDepth", 12);
+  desc.addUntracked<double>("deltaX", 3.0);   // Size of tile along X
+  desc.addUntracked<double>("deltaY", 3.0);   // Size of tile along Y
+  desc.addUntracked<double>("deltaZ", 8.1);   // Thickness of a single layer
+  desc.addUntracked<double>("zFirst", 1.76);  // Position of the center
 
   descriptions.add("HGCalTBAnalyzer", desc);
 }
@@ -452,7 +460,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   }
 
   if (ifBH_) {
-    for (int l = 0; l < AHCalDetId::MaxDepth; ++l) {
+    for (int l = 0; l < ahcalGeom_->maxDepth(); ++l) {
       sprintf(name, "SimHitEnA%d%s", l, detectorBH_.c_str());
       sprintf(title, "Sim Hit Energy in layer %d for %s", l + 1, detectorBH_.c_str());
       hSimHitLayEn1BH_.push_back(fs_->make<TH1D>(name, title, 100000, 0., 0.2));
@@ -553,8 +561,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
     }
     if (ifBH_) {
-      simHitLayEn1BH_ = std::vector<float>(AHCalDetId::MaxDepth, 0);
-      simHitLayEn2BH_ = std::vector<float>(AHCalDetId::MaxDepth, 0);
+      simHitLayEn1BH_ = std::vector<float>(ahcalGeom_->maxDepth(), 0);
+      simHitLayEn2BH_ = std::vector<float>(ahcalGeom_->maxDepth(), 0);
       iEvent.getByToken(tok_hitsBH_, theCaloHitContainers);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
@@ -783,7 +791,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     if (type < 2)
       zp = hgcons_[type]->waferZ(layer + 1, false);
     else if (type == 2)
-      zp = AHCalDetId((itr.second).first).getZ();
+      zp = ahcalGeom_->getZ(AHCalDetId((itr.second).first));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "SimHit:Layer " << layer + 1 << " Z " << zp << ":" << zp - zFront << " E " << energy;
 #endif
@@ -848,7 +856,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       std::pair<float, float> xy(0, 0);
       double xx(0);
       if (type == 2) {
-        xy = AHCalDetId(id).getXY();
+        xy = ahcalGeom_->getXY(AHCalDetId(id));
         xx = xy.first;
       } else {
         int subdet, zside, layer, sector, subsector, cell;
