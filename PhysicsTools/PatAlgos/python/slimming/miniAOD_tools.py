@@ -393,7 +393,6 @@ def miniAOD_customizeCommon(process):
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
                     pfCandidates = cms.InputTag("particleFlow"),
                     algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators,
-                    btagInfos = ['pixelClusterTagInfos'],
                     )
     
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
@@ -425,6 +424,21 @@ def miniAOD_customizeCommon(process):
     delattr(process, 'selectedUpdatedPatJetsPuppiJetSpecific')
 
     task.add(process.slimmedJetsPuppi)
+
+    
+    process.patJets.addTagInfos = cms.bool(True)
+    process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pixelClusterTagInfos"),    )
+    process.slimmedJetsNoDeepFlavour.dropTagInfos = cms.string('0')
+    process.updatedPatJetsSlimmedDeepFlavour.addTagInfos = cms.bool(True)
+    process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources = cms.VInputTag(cms.InputTag("pixelClusterTagInfos"),)
+    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = cms.bool(True)
+    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag(
+      cms.InputTag("pfDeepFlavourTagInfosSlimmedDeepFlavour"),
+      cms.InputTag("pfDeepCSVTagInfosSlimmedDeepFlavour"),
+      cms.InputTag("pfImpactParameterTagInfosSlimmedDeepFlavour"),
+      cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfosSlimmedDeepFlavour"),
+      cms.InputTag("pixelClusterTagInfos"),
+    )
     
     ## puppi met
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
