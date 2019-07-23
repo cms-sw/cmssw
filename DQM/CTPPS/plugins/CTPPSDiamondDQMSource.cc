@@ -133,7 +133,7 @@ private:
     MonitorElement* pixelTomographyAll_0_25 = nullptr;
     MonitorElement* pixelTomographyAll_25_50 = nullptr;
     MonitorElement* pixelTomographyAll_50_75 = nullptr;
-    std::vector<MonitorElement*> pixelTomographyAll;
+    std::unordered_map<unsigned int,MonitorElement*> pixelTomographyAll;
 
     MonitorElement *leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_all = nullptr,
                    *leadingEdgeCumulative_le = nullptr, *trailingEdgeCumulative_te = nullptr;
@@ -297,7 +297,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                                         -0.5,
                                         18.5);
 
-  pixelTomographyAll_0_25 =
+  pixelTomographyAll[0] =
       ibooker.book2D("tomography pixel 0 25",
                      title + " tomography with pixel 0 - 25 ns (all planes);x + 25*plane(mm);y (mm)",
                      100,
@@ -306,8 +306,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                      8,
                      0,
                      8);
-  pixelTomographyAll.emplace_back(pixelTomographyAll_0_25);
-  pixelTomographyAll_25_50 =
+  pixelTomographyAll[1] =
       ibooker.book2D("tomography pixel 25 50",
                      title + " tomography with pixel 25 - 50 ns (all planes);x + 25*plane(mm);y (mm)",
                      100,
@@ -316,8 +315,7 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                      8,
                      0,
                      8);
-  pixelTomographyAll.emplace_back(pixelTomographyAll_25_50);
-  pixelTomographyAll_50_75 =
+  pixelTomographyAll[2] =
       ibooker.book2D("tomography pixel 50 75",
                      title + " tomography with pixel 50 - 75 ns (all planes);x + 25*plane(mm);y (mm)",
                      100,
@@ -326,7 +324,6 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
                      8,
                      0,
                      8);
-  pixelTomographyAll.emplace_back(pixelTomographyAll_50_75);
 
   leadingEdgeCumulative_both = ibooker.book1D(
       "leading edge (le and te)", title + " leading edge (le and te) (recHits); leading edge (ns)", 75, 0, 75);
@@ -911,7 +908,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         for (const auto& lt : ds) {
           if (lt.isValid() && pixId.arm() == detId_pot.arm()) {
             if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
-                rechit.getOOTIndex() < (int)potPlots_[detId_pot].pixelTomographyAll.size() &&
+                potPlots_[detId_pot].pixelTomographyAll.count(rechit.getOOTIndex()) > 0 &&
                 rechit.getOOTIndex() >= 0 && lt.getX0() - horizontalShiftBwDiamondPixels_ < 24)
               potPlots_[detId_pot]
                   .pixelTomographyAll.at(rechit.getOOTIndex())
