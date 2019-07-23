@@ -119,10 +119,7 @@ private:
 
   /// plots related to one Diamond detector package
   struct PotPlots {
-    MonitorElement* activity_per_bx_0_25 = nullptr;
-    MonitorElement* activity_per_bx_25_50 = nullptr;
-    MonitorElement* activity_per_bx_50_75 = nullptr;
-    std::vector<MonitorElement*> activity_per_bx;
+    std::map<unsigned int,MonitorElement*> activity_per_bx;
 
     MonitorElement* hitDistribution2d = nullptr;
     MonitorElement* hitDistribution2d_lumisection = nullptr;
@@ -186,10 +183,7 @@ private:
 
   /// plots related to one Diamond channel
   struct ChannelPlots {
-    MonitorElement* activity_per_bx_0_25 = nullptr;
-    MonitorElement* activity_per_bx_25_50 = nullptr;
-    MonitorElement* activity_per_bx_50_75 = nullptr;
-    std::vector<MonitorElement*> activity_per_bx;
+    std::map<unsigned int, MonitorElement*> activity_per_bx;
 
     MonitorElement* HPTDCErrorFlags = nullptr;
     MonitorElement *leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_le = nullptr,
@@ -247,15 +241,9 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
 
   CTPPSDiamondDetId(id).rpName(title, CTPPSDiamondDetId::nFull);
 
-  activity_per_bx_0_25 =
-      ibooker.book1D("activity per BX 0 25", title + " Activity per BX 0 - 25 ns;Event.BX", 3600, -1.5, 3598. + 0.5);
-  activity_per_bx.emplace_back(activity_per_bx_0_25);
-  activity_per_bx_25_50 =
-      ibooker.book1D("activity per BX 25 50", title + " Activity per BX 25 - 50 ns;Event.BX", 3600, -1.5, 3598. + 0.5);
-  activity_per_bx.emplace_back(activity_per_bx_25_50);
-  activity_per_bx_50_75 =
-      ibooker.book1D("activity per BX 50 75", title + " Activity per BX 50 - 75 ns;Event.BX", 3600, -1.5, 3598. + 0.5);
-  activity_per_bx.emplace_back(activity_per_bx_50_75);
+  activity_per_bx[0] = ibooker.book1D("activity per BX 0 25", title + " Activity per BX 0 - 25 ns;Event.BX", 3600, -1.5, 3598. + 0.5);
+  activity_per_bx[1] = ibooker.book1D("activity per BX 25 50", title + " Activity per BX 25 - 50 ns;Event.BX", 3600, -1.5, 3598. + 0.5);
+  activity_per_bx[2] = ibooker.book1D("activity per BX 50 75", title + " Activity per BX 50 - 75 ns;Event.BX", 3600, -1.5, 3598. + 0.5);
 
   hitDistribution2d = ibooker.book2D("hits in planes",
                                      title + " hits in planes;plane number;x (mm)",
@@ -447,15 +435,9 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
   leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel(2, "Trailing only");
   leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel(3, "Full");
 
-  activity_per_bx_0_25 =
-      ibooker.book1D("activity per BX 0 25", title + " Activity per BX 0 - 25 ns;Event.BX", 500, -1.5, 498. + 0.5);
-  activity_per_bx.emplace_back(activity_per_bx_0_25);
-  activity_per_bx_25_50 =
-      ibooker.book1D("activity per BX 25 50", title + " Activity per BX 25 - 50 ns;Event.BX", 500, -1.5, 498. + 0.5);
-  activity_per_bx.emplace_back(activity_per_bx_25_50);
-  activity_per_bx_50_75 =
-      ibooker.book1D("activity per BX 50 75", title + " Activity per BX 50 - 75 ns;Event.BX", 500, -1.5, 498. + 0.5);
-  activity_per_bx.emplace_back(activity_per_bx_50_75);
+  activity_per_bx[0] = ibooker.book1D("activity per BX 0 25", title + " Activity per BX 0 - 25 ns;Event.BX", 500, -1.5, 498. + 0.5);
+  activity_per_bx[1] = ibooker.book1D("activity per BX 25 50", title + " Activity per BX 25 - 50 ns;Event.BX", 500, -1.5, 498. + 0.5);
+  activity_per_bx[2] = ibooker.book1D("activity per BX 50 75", title + " Activity per BX 50 - 75 ns;Event.BX", 500, -1.5, 498. + 0.5);
 
   HPTDCErrorFlags = ibooker.book1D("hptdc_Errors", title + " HPTDC Errors", 16, -0.5, 16.5);
   for (unsigned short error_index = 1; error_index < 16; ++error_index)
@@ -804,7 +786,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         }
       }
       if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
-          rechit.getOOTIndex() < (int)potPlots_[detId_pot].activity_per_bx.size())
+          potPlots_[detId_pot].activity_per_bx.count(rechit.getOOTIndex()) > 0)
         potPlots_[detId_pot].activity_per_bx.at(rechit.getOOTIndex())->Fill(event.bunchCrossing());
     }
   }
@@ -1113,7 +1095,7 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
       }
 
       if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
-          rechit.getOOTIndex() < (int)channelPlots_[detId].activity_per_bx.size())
+          channelPlots_[detId].activity_per_bx.count(rechit.getOOTIndex()) > 0)
         channelPlots_[detId].activity_per_bx.at(rechit.getOOTIndex())->Fill(event.bunchCrossing());
     }
   }
