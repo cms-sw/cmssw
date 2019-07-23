@@ -602,8 +602,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   std::unordered_map<unsigned int, std::set<unsigned int> > planes;
   std::unordered_map<unsigned int, std::set<unsigned int> > planes_inclusive;
 
-  std::cerr<<"huhu1"<<std::endl;
-
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   for ( const auto& rechits : *diamondRecHits ) {
     CTPPSDiamondDetId detId_pot( rechits.detId() );
@@ -676,7 +674,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     plt.second.activePlanesInclusive->Fill( planes_inclusive[plt.first].size() );
   }
 
-  std::cerr<<"huhu2"<<std::endl;
   // Using CTPPSDiamondLocalTrack
   for ( const auto& tracks : *diamondLocalTracks ) {
     CTPPSDiamondDetId detId_pot( tracks.detId() );
@@ -708,8 +705,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
-
-  std::cerr<<"haha0"<<std::endl;
 
   // Channel efficiency using CTPPSDiamondLocalTrack
   for ( const auto& tracks : *diamondLocalTracks ) {
@@ -762,7 +757,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
-  std::cerr<<"haha1"<<std::endl;
 
   // Tomography of diamonds using pixel
   for ( const auto& rechits : *diamondRecHits ) {
@@ -789,7 +783,6 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
-  std::cerr<<"haha2"<<std::endl;
 
   //------------------------------
   // Clock Plots
