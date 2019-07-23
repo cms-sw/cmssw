@@ -131,7 +131,7 @@ def TICL_iterations(process):
 
   process.trackstersMIP = trackstersProducer.clone(
       filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
-      seeding_regions = cms.InputTag("seedingGlobal"),    
+      seeding_regions = cms.InputTag("seedingGlobal"),
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.985 # ~10 degrees

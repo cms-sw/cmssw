@@ -11,8 +11,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HGCalReco/interface/TICLSeedingRegion.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 namespace edm {
   class Event;
@@ -32,7 +30,7 @@ namespace ticl {
                              const edm::EventSetup& es,
                              std::vector<TICLSeedingRegion>& result) = 0;
 
-    enum class VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
+    enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 
   protected:
     int algo_verbosity_;
