@@ -97,10 +97,11 @@ process.g4SimHits.HGCSD.RotatedWafer    = True
 #process.HGCalTBAnalyzer.useBH       = True
 #process.HGCalTBAnalyzer.useBeam     = True
 #process.HGCalTBAnalyzer.zFrontEE    = 1110.0
-#process.HGCalTBAnalyzer.zFrontFH    = 1172.3
-#process.HGCalTBAnalyzer.maxDepth    = 20
-#process.HGCalTBAnalyzer.deltaZ      = 2.62
-#process.HGCalTBAnalyzer.zFirst      = 2.28
+#process.HGCalTBAnalyzer.zFrontFH    = 1176.5
+#process.HGCalTBAnalyzer.zFrontFH    = 1307.5
+#process.HGCalTBAnalyzer.maxDepth    = 39
+#process.HGCalTBAnalyzer.deltaZ      = 26.2
+#process.HGCalTBAnalyzer.zFirst      = 22.8
 #process.HGCalTBAnalyzer.doPassive   = False
 
 # Path and EndPath definitions
