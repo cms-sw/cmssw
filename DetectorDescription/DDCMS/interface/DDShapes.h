@@ -158,7 +158,7 @@ namespace cms {
     // A pseudo-trapezoid, that is, a trapezoid with a cut-out
     class DDPseudoTrap {
     public:
-      DDPseudoTrap(cms::DDFilteredView &fview);
+      DDPseudoTrap(const cms::DDFilteredView &fview);
       DDPseudoTrap(void) = delete;
 
       //! half of the z-Axis
@@ -197,7 +197,7 @@ namespace cms {
     /// A truncated tube section
     class DDTruncTubs {
     public:
-      DDTruncTubs(cms::DDFilteredView &fview);
+      DDTruncTubs(const cms::DDFilteredView &fview);
       DDTruncTubs(void) = delete;
 
       //! half of the z-Axis

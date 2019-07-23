@@ -64,7 +64,7 @@ DDCons::DDCons(const DDFilteredView &fv) : valid{fv.isAConeSeg()} {
 
 // ** DDPseudoTrap
 
-DDPseudoTrap::DDPseudoTrap(DDFilteredView &fv) : valid{fv.isAPseudoTrap()} {
+DDPseudoTrap::DDPseudoTrap(const DDFilteredView &fv) : valid{fv.isAPseudoTrap()} {
   if (valid) {
     auto trap = fv.solid();
     std::vector<double> params = trap.dimensions();
@@ -118,7 +118,7 @@ DDTubs::DDTubs(const DDFilteredView &fv) : valid{fv.isATubeSeg()} {
 
 // ** DDTruncTubs
 
-DDTruncTubs::DDTruncTubs(DDFilteredView &fv) : valid{fv.isATruncTube()} {
+DDTruncTubs::DDTruncTubs(const DDFilteredView &fv) : valid{fv.isATruncTube()} {
   if (valid) {
     auto tube = fv.solid();
     std::vector<double> params = tube.dimensions();
