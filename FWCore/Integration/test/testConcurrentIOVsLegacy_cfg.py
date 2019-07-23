@@ -1,6 +1,7 @@
 # Similar to testConcurrentIOVsForce
 # The difference is the ConcurrentIOVESSource
-# has been configured to run in legacy mode.
+# has been configured to run with its concurrentFinder
+# parameter set to false.
 # in all cases the produce method will refer
 # to the IOV from the immediately preceding
 # setIntervalFor function call. This effectively
@@ -23,13 +24,13 @@ process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32(8)
 )
 
-process.options = cms.untracked.PSet(
-    numberOfThreads = cms.untracked.uint32(4),
-    numberOfStreams = cms.untracked.uint32(4),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(4),
-    eventSetup = cms.untracked.PSet(
-        numberOfConcurrentIOVs = cms.untracked.uint32(2)
+process.options = dict(
+    numberOfThreads = 4,
+    numberOfStreams = 4,
+    numberOfConcurrentRuns = 1,
+    numberOfConcurrentLuminosityBlocks = 4,
+    eventSetup = dict(
+        numberOfConcurrentIOVs = 2
     )
 )
 

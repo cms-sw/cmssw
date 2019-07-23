@@ -218,6 +218,7 @@ class Process(object):
                               eventSetup = untracked.PSet(
                                   numberOfConcurrentIOVs = untracked.uint32(1),
                                   forceNumberOfConcurrentIOVs = untracked.PSet(
+                                      allowAnyLabel_ = required.untracked.uint32
                                   )
                               ),
                               wantSummary = untracked.bool(False),
