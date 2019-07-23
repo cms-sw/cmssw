@@ -73,6 +73,7 @@ namespace edm {
         clearComponents();
 
         initializeEventSetupRecordIOVQueues();
+        numberOfConcurrentIOVs_.clear();
         mustFinishConfiguration_ = false;
       }
     }
@@ -134,7 +135,6 @@ namespace edm {
 
       // These do nothing ...
       WaitingTaskList dummyWaitingTaskList;
-      std::vector<WaitingTaskHolder> dummyVector;
       std::vector<std::shared_ptr<const EventSetupImpl>> dummyEventSetupImpls;
 
       {
