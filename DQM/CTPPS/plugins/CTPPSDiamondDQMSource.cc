@@ -120,7 +120,7 @@ private:
 
   /// plots related to one Diamond detector package
   struct PotPlots {
-    std::map<unsigned int,MonitorElement*> activity_per_bx;
+    std::unordered_map<unsigned int,MonitorElement*> activity_per_bx;
 
     MonitorElement* hitDistribution2d = nullptr;
     MonitorElement* hitDistribution2d_lumisection = nullptr;
@@ -184,7 +184,7 @@ private:
 
   /// plots related to one Diamond channel
   struct ChannelPlots {
-    std::map<unsigned int, MonitorElement*> activity_per_bx;
+    std::unordered_map<unsigned int, MonitorElement*> activity_per_bx;
 
     MonitorElement* HPTDCErrorFlags = nullptr;
     MonitorElement *leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_le = nullptr,
