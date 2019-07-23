@@ -87,8 +87,6 @@ combinedP5SeedsForCTFTop = globalCombinedSeeds.clone(
 seedCollections = cms.VInputTag(cms.InputTag('combinatorialcosmicseedfinderP5Top'),cms.InputTag('simpleCosmicBONSeedsTop'))
 )
 MeasurementTrackerTop = MeasurementTracker.clone(
-pixelClusterProducer = cms.string('siPixelClustersTop'),
-stripClusterProducer = cms.string('siStripClustersTop'),
 ComponentName = cms.string('MeasurementTrackerTop')
 )
 GroupedCkfTrajectoryBuilderP5Top = copy.deepcopy(GroupedCkfTrajectoryBuilderP5)
@@ -165,8 +163,6 @@ combinedP5SeedsForCTFBottom = globalCombinedSeeds.clone(
 seedCollections = cms.VInputTag(cms.InputTag('combinatorialcosmicseedfinderP5Bottom'),cms.InputTag('simpleCosmicBONSeedsBottom'))
 )
 MeasurementTrackerBottom = MeasurementTracker.clone(
-pixelClusterProducer = cms.string('siPixelClustersBottom'),
-stripClusterProducer = cms.string('siStripClustersBottom'),
 ComponentName = cms.string('MeasurementTrackerBottom')
 )
 GroupedCkfTrajectoryBuilderP5Bottom = copy.deepcopy(GroupedCkfTrajectoryBuilderP5)
