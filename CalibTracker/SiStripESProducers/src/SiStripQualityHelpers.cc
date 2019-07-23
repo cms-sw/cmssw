@@ -5,6 +5,9 @@
 
 #include "CalibTracker/SiStripESProducers/interface/SiStripQualityHelpers.h"
 
+using dqm::harvesting::DQMStore;
+using dqm::harvesting::MonitorElement;
+
 namespace {
 
   float getProcessedEvents(DQMStore::IGetter& dqmStore) {
@@ -24,7 +27,7 @@ namespace {
                                                                   const MonitorElement* me,
                                                                   float cutoff) {
     std::vector<std::pair<uint16_t, uint16_t>> ret;
-    if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+    if (me->kind() == MonitorElement::Kind::TH2F) {
       TH2F* th2 = me->getTH2F();
       float entries = getProcessedEvents(dqmStore);
       if (!entries)

@@ -16,7 +16,7 @@ namespace sistrip {
    * Create a SiStripQuality record from the list of detected Fed errors
    * in the SiStrip/ReadoutView/FedIdVsApvId DQM histogram
    */
-  std::unique_ptr<SiStripQuality> badStripFromFedErr(DQMStore::IGetter& dqmStore,
+  std::unique_ptr<SiStripQuality> badStripFromFedErr(dqm::harvesting::DQMStore::IGetter& dqmStore,
                                                      const SiStripFedCabling& fedCabling,
                                                      float cutoff);
 }  // namespace sistrip
