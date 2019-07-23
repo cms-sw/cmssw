@@ -905,11 +905,11 @@ void CTPPSDiamondDQMSource::analyze(const edm::Event& event, const edm::EventSet
         for (const auto& lt : ds) {
           if (lt.isValid() && pixId.arm() == detId_pot.arm()) {
             if (rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING &&
+                rechit.getOOTIndex() >= 0  &&
                 potPlots_[detId_pot].pixelTomographyAll.count(rechit.getOOTIndex()) > 0 &&
-                rechit.getOOTIndex() >= 0 && lt.getX0() - horizontalShiftBwDiamondPixels_ < 24)
-              potPlots_[detId_pot]
-                  .pixelTomographyAll.at(rechit.getOOTIndex())
-                  ->Fill(lt.getX0() - horizontalShiftBwDiamondPixels_ + 25 * detId.plane(), lt.getY0());
+                lt.getX0() - horizontalShiftBwDiamondPixels_ < 24)
+              potPlots_[detId_pot].pixelTomographyAll.at(rechit.getOOTIndex())
+                ->Fill(lt.getX0() - horizontalShiftBwDiamondPixels_ + 25 * detId.plane(), lt.getY0());
           }
         }
       }
