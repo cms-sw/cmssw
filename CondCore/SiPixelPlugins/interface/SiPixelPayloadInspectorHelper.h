@@ -15,12 +15,16 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "CondCore/CondDB/interface/Time.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
 
 namespace SiPixelPI {
+
+  // size of the phase-0 pixel detID list
+  static const unsigned int phase0size = 1440 ;
 
   std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
     auto kLowMask = 0XFFFFFFFF;
@@ -407,7 +411,6 @@ namespace SiPixelPI {
     return result;
   }
 
-
   /*--------------------------------------------------------------------*/
   void makeNicePlotStyle(TH1* hist)
   /*--------------------------------------------------------------------*/
@@ -426,6 +429,200 @@ namespace SiPixelPI {
     hist->GetYaxis()->SetLabelFont(42);
     hist->GetYaxis()->SetLabelSize(.05);
     hist->GetXaxis()->SetLabelSize(.05);
+  }
+
+  enum regions {
+    BPixL1o,          //0  Barrel Pixel Layer 1 outer
+    BPixL1i,          //1  Barrel Pixel Layer 1 inner
+    BPixL2o,          //2  Barrel Pixel Layer 2 outer
+    BPixL2i,          //3  Barrel Pixel Layer 2 inner
+    BPixL3o,          //4  Barrel Pixel Layer 3 outer
+    BPixL3i,          //5  Barrel Pixel Layer 3 inner
+    BPixL4o,          //6  Barrel Pixel Layer 4 outer
+    BPixL4i,          //7  Barrel Pixel Layer 4 inner
+    FPixmL1,          //8  Forward Pixel Minus side Disk 1
+    FPixmL2,          //9  Forward Pixel Minus side Disk 2
+    FPixmL3,          //10 Forward Pixel Minus side Disk 3
+    FPixpL1,          //11 Forward Pixel Plus side Disk 1
+    FPixpL2,          //12 Forward Pixel Plus side Disk 2
+    FPixpL3,          //13 Forward Pixel Plus side Disk 3
+    NUM_OF_REGIONS    //14 -- default
+  };
+
+  /*--------------------------------------------------------------------*/
+  std::string getStringFromRegionEnum(SiPixelPI::regions e)
+  /*--------------------------------------------------------------------*/
+  {
+    switch (e) {
+    case SiPixelPI::BPixL1o:
+      return "BPix L1/o";
+    case SiPixelPI::BPixL1i:
+      return "BPix L1/i";
+    case SiPixelPI::BPixL2o:
+      return "BPix L2/o";
+    case SiPixelPI::BPixL2i:
+      return "BPix L2/i";
+    case SiPixelPI::BPixL3o:
+      return "BPix L3/o";
+    case SiPixelPI::BPixL3i:
+      return "BPix L3/i";
+    case SiPixelPI::BPixL4o:
+      return "BPix L4/o";
+    case SiPixelPI::BPixL4i:
+      return "BPix L4/i";
+    case SiPixelPI::FPixmL1:
+      return "FPix- D1";
+    case SiPixelPI::FPixmL2:
+      return "FPix- D2";
+    case SiPixelPI::FPixmL3:
+      return "FPix- D3";
+    case SiPixelPI::FPixpL1:
+      return "FPix+ D1";
+    case SiPixelPI::FPixpL2:
+      return "FPix+ D2";
+    case SiPixelPI::FPixpL3:
+      return "FPix+ D3";
+    default:
+      edm::LogWarning("LogicError") << "Unknown partition: " << e;
+      return "";
+    }
+  }
+
+ /*--------------------------------------------------------------------*/
+  bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
+  /*--------------------------------------------------------------------*/
+  {
+    bool isOuter = false;
+    int layer = tTopo.pxbLayer(detid.rawId());
+    bool odd_ladder = tTopo.pxbLadder(detid.rawId()) % 2;
+    if (isPhase0) {
+      if (layer == 2)
+        isOuter = !odd_ladder;
+      else
+        isOuter = odd_ladder;
+    } else {
+      if (layer == 4)
+        isOuter = odd_ladder;
+      else
+        isOuter = !odd_ladder;
+    }
+    return isOuter;
+  }
+
+  // ancillary struct to manage the topology
+  // info in a more compact way
+
+  struct topolInfo {
+  private:
+    uint32_t m_rawid;
+    int m_subdetid;
+    int m_layer;
+    int m_side;
+    int m_ring;
+    bool m_isInternal;
+
+  public:
+    void init();
+    void fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0);
+    SiPixelPI::regions filterThePartition();
+    bool sanityCheck();
+    void printAll();
+    virtual ~topolInfo() {}
+  };
+
+  /*--------------------------------------------------------------------*/
+  void topolInfo::printAll()
+  /*--------------------------------------------------------------------*/
+  {
+    std::cout << " detId:" << m_rawid << " subdetid: " << m_subdetid << " layer: " << m_layer << " side: " << m_side
+              << " ring: " << m_ring << " isInternal:" << m_isInternal << std::endl;
+  }
+
+  /*--------------------------------------------------------------------*/
+  void topolInfo::init()
+  /*--------------------------------------------------------------------*/
+  {
+    m_rawid = 0;
+    m_subdetid = -1;
+    m_layer = -1;
+    m_side = -1;
+    m_ring = -1;
+    m_isInternal = false;
+  };
+
+  /*--------------------------------------------------------------------*/
+  bool topolInfo::sanityCheck()
+  /*--------------------------------------------------------------------*/
+  {
+    if (m_layer == 0 || (m_subdetid == 1 && m_layer > 4) || (m_subdetid == 2 && m_layer > 3)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  /*--------------------------------------------------------------------*/
+  void topolInfo::fillGeometryInfo(const DetId& detId, const TrackerTopology& tTopo, bool isPhase0)
+  /*--------------------------------------------------------------------*/
+  {
+    unsigned int subdetId = static_cast<unsigned int>(detId.subdetId());
+
+    m_rawid = detId.rawId();
+    m_subdetid = subdetId;
+    if (subdetId == PixelSubdetector::PixelBarrel) {
+      m_layer = tTopo.pxbLayer(detId.rawId());
+      m_isInternal = !SiPixelPI::isBPixOuterLadder(detId, tTopo, isPhase0);
+    } else if (subdetId == PixelSubdetector::PixelEndcap) {
+      m_layer = tTopo.pxfDisk(detId.rawId());
+      m_side = tTopo.pxfSide(detId.rawId());
+    } else
+      edm::LogWarning("LogicError") << "Unknown subdetid: " << subdetId;
+  }
+
+  // ------------ method to assign a partition based on the topology struct info ---------------
+
+  /*--------------------------------------------------------------------*/
+  SiPixelPI::regions topolInfo::filterThePartition()
+  /*--------------------------------------------------------------------*/
+  {
+    SiPixelPI::regions ret = SiPixelPI::NUM_OF_REGIONS;
+
+    // BPix
+    if (m_subdetid == 1) {
+      switch (m_layer) {
+        case 1:
+          m_isInternal > 0 ? ret = SiPixelPI::BPixL1o : ret = SiPixelPI::BPixL1i;
+          break;
+        case 2:
+          m_isInternal > 0 ? ret = SiPixelPI::BPixL2o : ret = SiPixelPI::BPixL2i;
+          break;
+        case 3:
+          m_isInternal > 0 ? ret = SiPixelPI::BPixL3o : ret = SiPixelPI::BPixL3i;
+          break;
+        case 4:
+          m_isInternal > 0 ? ret = SiPixelPI::BPixL4o : ret = SiPixelPI::BPixL4i;
+          break;
+        default:
+          edm::LogWarning("LogicError") << "Unknow BPix layer: " << m_layer;
+          break;
+      }
+      // FPix
+    } else if (m_subdetid == 2) {
+      switch (m_layer) {
+        case 1:
+          m_side > 1 ? ret = SiPixelPI::FPixpL1 : ret = SiPixelPI::FPixmL1;
+          break;
+        case 2:
+          m_side > 1 ? ret = SiPixelPI::FPixpL2 : ret = SiPixelPI::FPixmL2;
+          break;
+        case 3:
+          m_side > 1 ? ret = SiPixelPI::FPixpL3 : ret = SiPixelPI::FPixmL3;
+          break;
+        default:
+          edm::LogWarning("LogicError") << "Unknow FPix disk: " << m_layer;
+          break;
+      }
+    }
+    return ret;
   }
 
 };  // namespace SiPixelPI
