@@ -105,7 +105,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   const float distanceFromEdge(halfStripLength - simHitPos.y());
 
   // signal propagation speed in material in [cm/ns]
-  double signalPropagationSpeedTrue = signalPropagationSpeed_ * cspeed * 1e-7;  // 1e+2 * 1e-9;
+  double signalPropagationSpeedTrue = signalPropagationSpeed_ * cspeed;
 
   // average time for the signal to propagate from the SimHit to the top of a strip
   const float averagePropagationTime(distanceFromEdge / signalPropagationSpeedTrue);
