@@ -24,6 +24,6 @@ public:
 private:
   AHCalGeometry();
   const int maxDepth_;
-  const double deltaX_, deltaY_,  deltaZ_,  zFirst_;
+  const double deltaX_, deltaY_, deltaZ_, zFirst_;
 };
 #endif
