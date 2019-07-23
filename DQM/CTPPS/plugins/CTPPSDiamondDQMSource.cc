@@ -125,7 +125,7 @@ class CTPPSDiamondDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCach
       MonitorElement* activity_per_bx_0_25 = nullptr;
       MonitorElement* activity_per_bx_25_50 = nullptr;
       MonitorElement* activity_per_bx_50_75 = nullptr;
-      std::vector< MonitorElement* > activity_per_bx;
+      std::unordered_map<unsigned int, MonitorElement*> activity_per_bx;
 
       MonitorElement* hitDistribution2d = nullptr;
       MonitorElement* hitDistribution2d_lumisection = nullptr;
@@ -190,10 +190,7 @@ class CTPPSDiamondDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCach
     /// plots related to one Diamond channel
     struct ChannelPlots
     {
-      MonitorElement* activity_per_bx_0_25 = nullptr;
-      MonitorElement* activity_per_bx_25_50 = nullptr;
-      MonitorElement* activity_per_bx_50_75 = nullptr;
-      std::vector< MonitorElement* > activity_per_bx;
+      std::unordered_map<unsigned int, MonitorElement*> activity_per_bx;
 
       MonitorElement* HPTDCErrorFlags = nullptr;
       MonitorElement* leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_le = nullptr, *trailingEdgeCumulative_te = nullptr;
@@ -249,12 +246,9 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
 
   CTPPSDiamondDetId( id ).rpName( title, CTPPSDiamondDetId::nFull );
 
-  activity_per_bx_0_25 = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 3600, -1.5, 3598. + 0.5 );
-  activity_per_bx.emplace_back(activity_per_bx_0_25);
-  activity_per_bx_25_50 = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 3600, -1.5, 3598. + 0.5 );
-  activity_per_bx.emplace_back(activity_per_bx_25_50);
-  activity_per_bx_50_75 = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 3600, -1.5, 3598. + 0.5 );
-  activity_per_bx.emplace_back(activity_per_bx_50_75);
+  activity_per_bx[0] = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 3600, -1.5, 3598. + 0.5 );
+  activity_per_bx[1] = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 3600, -1.5, 3598. + 0.5 );
+  activity_per_bx[2] = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 3600, -1.5, 3598. + 0.5 );
 
   hitDistribution2d = ibooker.book2D( "hits in planes", title+" hits in planes;plane number;x (mm)", 10, -0.5, 4.5, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -0.5, 18.5 );
   hitDistribution2d_lumisection = ibooker.book2D( "hits in planes lumisection", title+" hits in planes in the last lumisection;plane number;x (mm)", 10, -0.5, 4.5, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -0.5, 18.5 );
@@ -348,12 +342,9 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots( DQMStore::IBooker& ibooker, u
   leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 2, "Trailing only" );
   leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel( 3, "Full" );
 
-  activity_per_bx_0_25 = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 500, -1.5, 498. + 0.5 );
-  activity_per_bx.emplace_back(activity_per_bx_0_25);
-  activity_per_bx_25_50 = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 500, -1.5, 498. + 0.5 );
-  activity_per_bx.emplace_back(activity_per_bx_25_50);
-  activity_per_bx_50_75 = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 500, -1.5, 498. + 0.5 );
-  activity_per_bx.emplace_back(activity_per_bx_50_75);
+  activity_per_bx[0] = ibooker.book1D( "activity per BX 0 25", title+" Activity per BX 0 - 25 ns;Event.BX", 500, -1.5, 498. + 0.5 );
+  activity_per_bx[1] = ibooker.book1D( "activity per BX 25 50", title+" Activity per BX 25 - 50 ns;Event.BX", 500, -1.5, 498. + 0.5 );
+  activity_per_bx[2] = ibooker.book1D( "activity per BX 50 75", title+" Activity per BX 50 - 75 ns;Event.BX", 500, -1.5, 498. + 0.5 );
 
   HPTDCErrorFlags = ibooker.book1D( "hptdc_Errors", title+" HPTDC Errors", 16, -0.5, 16.5 );
   for ( unsigned short error_index=1; error_index<16; ++error_index )
@@ -611,6 +602,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   std::unordered_map<unsigned int, std::set<unsigned int> > planes;
   std::unordered_map<unsigned int, std::set<unsigned int> > planes_inclusive;
 
+  std::cerr<<"huhu1"<<std::endl;
 
   auto lumiCache = luminosityBlockCache(event.getLuminosityBlock().index());
   for ( const auto& rechits : *diamondRecHits ) {
@@ -638,7 +630,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         for ( int i=0; i<numOfBins; ++i) {
           hitHistoTmp->Fill( detId.plane() + UFSDShift, hitHistoTmpYAxis->GetBinCenter(startBin+i) );
         }
-        
+
         hitHistoTmp = lumiCache->hitDistribution2dMap[detId_pot].get();
         hitHistoTmpYAxis = hitHistoTmp->GetYaxis();
         startBin = hitHistoTmpYAxis->FindBin( rechit.getX() - horizontalShiftOfDiamond_ - 0.5*rechit.getXWidth() );
@@ -674,7 +666,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
           }
         }
       }
-      if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getOOTIndex() < (int) potPlots_[detId_pot].activity_per_bx.size() )
+      if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && potPlots_[detId_pot].activity_per_bx.count( rechit.getOOTIndex() ) > 0 )
         potPlots_[detId_pot].activity_per_bx.at( rechit.getOOTIndex() )->Fill( event.bunchCrossing() );
     }
   }
@@ -684,6 +676,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
     plt.second.activePlanesInclusive->Fill( planes_inclusive[plt.first].size() );
   }
 
+  std::cerr<<"huhu2"<<std::endl;
   // Using CTPPSDiamondLocalTrack
   for ( const auto& tracks : *diamondLocalTracks ) {
     CTPPSDiamondDetId detId_pot( tracks.detId() );
@@ -715,6 +708,8 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
+
+  std::cerr<<"haha0"<<std::endl;
 
   // Channel efficiency using CTPPSDiamondLocalTrack
   for ( const auto& tracks : *diamondLocalTracks ) {
@@ -767,6 +762,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
+  std::cerr<<"haha1"<<std::endl;
 
   // Tomography of diamonds using pixel
   for ( const auto& rechits : *diamondRecHits ) {
@@ -793,6 +789,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
       }
     }
   }
+  std::cerr<<"haha2"<<std::endl;
 
   //------------------------------
   // Clock Plots
@@ -939,7 +936,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
   }
 
   // Using CTPPSDiamondRecHit
-  
+
   for ( const auto& rechits : *diamondRecHits ) {
     CTPPSDiamondDetId detId( rechits.detId() );
     for ( const auto& rechit : rechits ) {
@@ -952,7 +949,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         ++(lumiCache->hitsCounterMap[detId]);
       }
 
-      if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getOOTIndex() < (int) channelPlots_[detId].activity_per_bx.size() )
+      if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && channelPlots_[detId].activity_per_bx.count( rechit.getOOTIndex() ) > 0 )
         channelPlots_[detId].activity_per_bx.at( rechit.getOOTIndex() )->Fill( event.bunchCrossing() );
     }
 
