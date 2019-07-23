@@ -270,10 +270,10 @@ void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.addUntracked<bool>("doTreeCell", true);
   desc.addUntracked<bool>("doPassive", false);
   desc.addUntracked<int>("maxDepth", 12);
-  desc.addUntracked<double>("deltaX", 3.0);   // Size of tile along X
-  desc.addUntracked<double>("deltaY", 3.0);   // Size of tile along Y
-  desc.addUntracked<double>("deltaZ", 8.1);   // Thickness of a single layer
-  desc.addUntracked<double>("zFirst", 1.76);  // Position of the center
+  desc.addUntracked<double>("deltaX", 30.0);   // Size of tile along X
+  desc.addUntracked<double>("deltaY", 30.0);   // Size of tile along Y
+  desc.addUntracked<double>("deltaZ", 81.0);   // Thickness of a single layer
+  desc.addUntracked<double>("zFirst", 17.6);   // Position of the center
 
   descriptions.add("HGCalTBAnalyzer", desc);
 }
