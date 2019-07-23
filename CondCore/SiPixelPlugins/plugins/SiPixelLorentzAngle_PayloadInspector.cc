@@ -10,6 +10,7 @@
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/CondDB/interface/Time.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CondCore/SiPixelPlugins/interface/SiPixelPayloadInspectorHelper.h"
 
@@ -216,6 +217,229 @@ namespace {
     SiPixelLorentzAngleValueComparisonTwoTags() : SiPixelLorentzAngleValueComparisonBase() { setTwoTags(true); }
   };
 
+  /************************************************
+   Summary Comparison per region of SiPixelLorentzAngle between 2 IOVs
+  *************************************************/
+  class SiPixelLorentzAngleByRegionComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
+  public:
+    SiPixelLorentzAngleByRegionComparisonBase()
+      : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle") {}
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
+
+      gStyle->SetPaintTextFormat(".3f");
+
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiPixelLorentzAngle> last_payload  = fetchPayload(std::get<1>(lastiov));
+      std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
+      std::shared_ptr<SiPixelLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
+      std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
+
+      std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+      std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+      TCanvas canvas("Comparison", "Comparison", 1600, 800);
+
+      std::map<SiPixelPI::regions, std::shared_ptr<TH1F> > FirstLA_spectraByRegion;
+      std::map<SiPixelPI::regions, std::shared_ptr<TH1F> > LastLA_spectraByRegion;
+      std::shared_ptr<TH1F> summaryFirst;
+      std::shared_ptr<TH1F> summaryLast;
+
+      // book the intermediate histograms
+      for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
+        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+        std::string s_part = SiPixelPI::getStringFromRegionEnum(part);
+
+        FirstLA_spectraByRegion[part] =
+            std::make_shared<TH1F>(Form("hfirstLA_%s", s_part.c_str()),
+                                   Form(";%s #mu_{H} [1/T];n. of modules", s_part.c_str()),
+                                   1000,
+                                   0.,
+                                   1000.);
+        LastLA_spectraByRegion[part] =
+            std::make_shared<TH1F>(Form("hlastLA_%s", s_part.c_str()),
+                                   Form(";%s #mu_{H} [1/T];n. of modules", s_part.c_str()),
+                                   1000,
+                                   0.,
+                                   1000.);
+      }
+
+      summaryFirst =
+          std::make_shared<TH1F>("first Summary",
+				 "Summary for #LT tan#theta_{L}/B #GT;;average LA #LT #mu_{H} #GT [1/T]",
+                                 FirstLA_spectraByRegion.size(),
+                                 0,
+                                 FirstLA_spectraByRegion.size());
+      summaryLast =
+	std::make_shared<TH1F>("last Summary",
+			       "Summary for #LT tan#theta_{L}/B #GT;;average LA #LT #mu_{H}  #GT [1/T]",
+			       LastLA_spectraByRegion.size(),
+			       0,
+			       LastLA_spectraByRegion.size());
+
+      const char* path_toTopologyXML = (f_LAMap_.size() == SiPixelPI::phase0size)
+                                           ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                                           : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology f_tTopo =
+	StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      bool isPhase0(false);
+      if (f_LAMap_.size() == SiPixelPI::phase0size){
+	isPhase0 = true;
+      }
+
+      // -------------------------------------------------------------------
+      // loop on the first LA Map
+      // -------------------------------------------------------------------
+      for (const auto& it : f_LAMap_) {
+
+        if (DetId(it.first).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
+          return false;
+        }
+
+        SiPixelPI::topolInfo t_info_fromXML;
+        t_info_fromXML.init();
+        DetId detid(it.first);
+        t_info_fromXML.fillGeometryInfo(detid, f_tTopo, isPhase0);
+
+        SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
+        FirstLA_spectraByRegion[thePart]->Fill(it.second);
+      }  // ends loop on the vector of error transforms
+
+      path_toTopologyXML = (l_LAMap_.size() == SiPixelPI::phase0size)
+                               ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
+                               : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
+      TrackerTopology l_tTopo =
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+
+      if (l_LAMap_.size() == SiPixelPI::phase0size)
+        isPhase0 = true;
+
+      // -------------------------------------------------------------------
+      // loop on the second LA Map
+      // -------------------------------------------------------------------
+      for (const auto& it : l_LAMap_) {
+
+        if (DetId(it.first).det() != DetId::Tracker) {
+          edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector")
+              << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
+          return false;
+        }
+
+        SiPixelPI::topolInfo t_info_fromXML;
+        t_info_fromXML.init();
+        DetId detid(it.first);
+        t_info_fromXML.fillGeometryInfo(detid, l_tTopo, isPhase0);
+
+        SiPixelPI::regions thePart = t_info_fromXML.filterThePartition();
+        LastLA_spectraByRegion[thePart]->Fill(it.second);
+      }  // ends loop on the vector of error transforms
+
+      // fill the summary plots
+      int bin = 1;
+      for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
+        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+
+        summaryFirst->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
+        // avoid filling the histogram with numerical noise
+        float f_mean =
+            FirstLA_spectraByRegion[part]->GetMean() > 10.e-6 ? FirstLA_spectraByRegion[part]->GetMean() : 10.e-6;
+        summaryFirst->SetBinContent(bin, f_mean);
+        //summaryFirst->SetBinError(bin,LA_spectraByRegion[hash]->GetRMS());
+
+        summaryLast->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
+        // avoid filling the histogram with numerical noise
+        float l_mean =
+            LastLA_spectraByRegion[part]->GetMean() > 10.e-6 ? LastLA_spectraByRegion[part]->GetMean() : 10.e-6;
+        summaryLast->SetBinContent(bin, l_mean);
+        //summaryLast->SetBinError(bin,LA_spectraByRegion[hash]->GetRMS());
+        bin++;
+      }
+
+      SiPixelPI::makeNicePlotStyle(summaryFirst.get());//, kBlue);
+      summaryFirst->SetMarkerColor(kBlue);
+      summaryFirst->GetXaxis()->LabelsOption("v");
+      summaryFirst->GetXaxis()->SetLabelSize(0.05);
+      summaryFirst->GetYaxis()->SetTitleOffset(0.9);
+
+      SiPixelPI::makeNicePlotStyle(summaryLast.get());//, kRed);
+      summaryLast->SetMarkerColor(kRed);
+      summaryLast->GetYaxis()->SetTitleOffset(0.9);
+      summaryLast->GetXaxis()->LabelsOption("v");
+      summaryLast->GetXaxis()->SetLabelSize(0.05);
+
+      canvas.cd()->SetGridy();
+
+      canvas.SetBottomMargin(0.18);
+      canvas.SetLeftMargin(0.11);
+      canvas.SetRightMargin(0.02);
+      canvas.Modified();
+
+      summaryFirst->SetFillColor(kBlue);
+      summaryLast->SetFillColor(kRed);
+
+      summaryFirst->SetBarWidth(0.45);
+      summaryFirst->SetBarOffset(0.1);
+
+      summaryLast->SetBarWidth(0.4);
+      summaryLast->SetBarOffset(0.55);
+
+      summaryLast->SetMarkerSize(1.5);
+      summaryFirst->SetMarkerSize(1.5);
+
+      float max = (summaryFirst->GetMaximum() > summaryLast->GetMaximum()) ? summaryFirst->GetMaximum()
+                                                                           : summaryLast->GetMaximum();
+
+      summaryFirst->GetYaxis()->SetRangeUser(0., std::max(0., max * 1.40));
+
+      summaryFirst->Draw("bar2");
+      summaryFirst->Draw("text90same");
+      summaryLast->Draw("bar2,same");
+      summaryLast->Draw("text60same");
+
+      TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
+      legend.SetHeader("#mu_{H} value comparison","C");  // option "C" allows to center the header
+      legend.AddEntry(
+          summaryLast.get(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[2]{" + std::get<1>(lastiov) + "}")
+              .c_str(),
+          "F");
+      legend.AddEntry(
+          summaryFirst.get(),
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[4]{" + std::get<1>(firstiov) + "}")
+              .c_str(),
+          "F");
+      legend.SetTextSize(0.025);
+      legend.Draw("same");
+
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+      return true;
+    }
+  };
+
+  class SiPixelLorentzAngleByRegionComparisonSingleTag : public SiPixelLorentzAngleByRegionComparisonBase {
+  public:
+    SiPixelLorentzAngleByRegionComparisonSingleTag() : SiPixelLorentzAngleByRegionComparisonBase() { setSingleIov(false); }
+  };
+
+  class SiPixelLorentzAngleByRegionComparisonTwoTags : public SiPixelLorentzAngleByRegionComparisonBase {
+  public:
+    SiPixelLorentzAngleByRegionComparisonTwoTags() : SiPixelLorentzAngleByRegionComparisonBase() { setTwoTags(true); }
+  };
+
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
@@ -223,4 +447,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValues);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValueComparisonSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleValueComparisonTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleByRegionComparisonSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleByRegionComparisonTwoTags);
 }
