@@ -130,9 +130,6 @@ private:
     MonitorElement* trackDistribution = nullptr;
     MonitorElement* trackDistributionOOT = nullptr;
 
-    MonitorElement* pixelTomographyAll_0_25 = nullptr;
-    MonitorElement* pixelTomographyAll_25_50 = nullptr;
-    MonitorElement* pixelTomographyAll_50_75 = nullptr;
     std::unordered_map<unsigned int,MonitorElement*> pixelTomographyAll;
 
     MonitorElement *leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_all = nullptr,
