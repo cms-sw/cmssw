@@ -15,8 +15,8 @@
   </class>
   <class name="edm::Wrapper<TICLLayerTiles> " />
 
-  <class name="TICLSeedingRegion" ClassVersion="6">
-    <version ClassVersion="6" checksum="2409655320"/>
+  <class name="TICLSeedingRegion" ClassVersion="3">
+    <version ClassVersion="3" checksum="2409655320"/>
   </class>
   <class name="std::vector<TICLSeedingRegion>" />               
   <class name="edm::Wrapper<TICLSeedingRegion>" />              
