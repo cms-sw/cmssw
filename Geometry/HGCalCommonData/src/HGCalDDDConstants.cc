@@ -372,8 +372,6 @@ HGCalParameters::hgtrap HGCalDDDConstants::getModule(unsigned int indx, bool hex
                                    << " ***** ERROR *****";
     unsigned int type =
         ((indx < hgpar_->waferTypeL_.size()) ? hgpar_->waferTypeL_[indx] - 1 : HGCSiliconDetId::HGCalCoarseThick);
-    //  if (type > 0)
-    //    --type;
     mytr = hgpar_->getModule(type, reco);
   } else {
     mytr = hgpar_->getModule(indx, reco);
