@@ -85,7 +85,7 @@ void GEMDigiProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<std::string>("inputCollection", "g4SimHitsMuonGEMHits");
   desc.add<std::string>("mixLabel", "mix");
 
-  desc.add<double>("signalPropagationSpeed", 0.66);
+  desc.add<double>("signalPropagationSpeed", 6.6);
   desc.add<double>("timeResolution", 5.);
   desc.add<double>("timeJitter", 1.0);
   desc.add<double>("averageShapingTime", 50.0);
