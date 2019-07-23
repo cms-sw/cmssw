@@ -50,12 +50,12 @@ namespace edmtest {
 
     // These are thread safe because after the constructor we do not
     // modify their state.
-    bool iovIsTime_;
+    const bool iovIsTime_;
     std::set<edm::IOVSyncValue> setOfIOV_;
     std::set<edm::IOVSyncValue> setOfInvalidIOV_;
-    bool concurrentFinder_;
-    bool testForceESSourceMode_;
-    bool findForRecordA_;
+    const bool concurrentFinder_;
+    const bool testForceESSourceMode_;
+    const bool findForRecordA_;
     edm::WallclockTimer wallclockTimer_;
 
     // Be careful with this. It is modified in setIntervalFor
