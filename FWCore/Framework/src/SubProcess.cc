@@ -399,7 +399,7 @@ namespace edm {
     schedule_->processOneEventAsync(std::move(afterProcessTask),
                                     ep.streamID().value(),
                                     ep,
-                                    *iEventSetupImpls->at(esp_->subProcessIndex()),
+                                    *((*iEventSetupImpls)[esp_->subProcessIndex()]),
                                     serviceToken_);
   }
 
@@ -513,7 +513,7 @@ namespace edm {
                                        *schedule_,
                                        lbp,
                                        ts,
-                                       *iEventSetupImpls->at(esp_->subProcessIndex()),
+                                       *((*iEventSetupImpls)[esp_->subProcessIndex()]),
                                        iEventSetupImpls,
                                        serviceToken_,
                                        subProcesses_);
@@ -531,7 +531,7 @@ namespace edm {
                                      *schedule_,
                                      lbp,
                                      ts,
-                                     *iEventSetupImpls->at(esp_->subProcessIndex()),
+                                     *((*iEventSetupImpls)[esp_->subProcessIndex()]),
                                      iEventSetupImpls,
                                      serviceToken_,
                                      subProcesses_,
@@ -633,7 +633,7 @@ namespace edm {
                                        id,
                                        lbp,
                                        ts,
-                                       *iEventSetupImpls->at(esp_->subProcessIndex()),
+                                       *((*iEventSetupImpls)[esp_->subProcessIndex()]),
                                        iEventSetupImpls,
                                        serviceToken_,
                                        subProcesses_);
@@ -653,7 +653,7 @@ namespace edm {
                                      id,
                                      lbp,
                                      ts,
-                                     *iEventSetupImpls->at(esp_->subProcessIndex()),
+                                     *((*iEventSetupImpls)[esp_->subProcessIndex()]),
                                      iEventSetupImpls,
                                      serviceToken_,
                                      subProcesses_,
