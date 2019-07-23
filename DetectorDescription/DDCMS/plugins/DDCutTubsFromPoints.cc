@@ -31,16 +31,15 @@ static long algorithm(dd4hep::Detector& /* description */,
   const std::string solidOutput = args.value<std::string>("SolidName");
   const std::string material = args.value<std::string>("Material");
 
-  std::vector<std::string> phis = args.vecStr("Phi");
-  std::vector<std::string> z_ls = args.vecStr("z_l");
-  std::vector<std::string> z_ts = args.vecStr("z_t");
+  auto phis = ns.vecDbl(args.str("Phi"));
+  auto z_ls = ns.vecDbl(args.str("z_l"));
+  auto z_ts = ns.vecDbl(args.str("z_t"));
 
   assert(phis.size() == z_ls.size());
   assert(phis.size() == z_ts.size());
 
   for (unsigned i = 0; i < phis.size(); i++) {
-    Section s = {dd4hep::_toDouble(phis[i]), dd4hep::_toDouble(z_ls[i]), dd4hep::_toDouble(z_ts[i])};
-
+    Section s = {phis[i], z_ls[i], z_ts[i]};
     sections.emplace_back(s);
   }
 
