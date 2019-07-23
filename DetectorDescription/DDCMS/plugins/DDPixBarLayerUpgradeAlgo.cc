@@ -31,7 +31,9 @@ static long algorithm(dd4hep::Detector&,
   double rOuterFineTune = args.value<double>("OuterOffsetFineTune");
   double rInnerFineTune = args.value<double>("InnerOffsetFineTune");
 
+  // FixMe : Would need ns.vecStr
   std::string ladder = args.value<std::string>("LadderName");
+
   double ladderWidth = args.value<double>("LadderWidth");
   double ladderThick = args.value<double>("LadderThick");
   double ladderOffset = args.value<double>("LadderOffset");
@@ -203,7 +205,8 @@ static long algorithm(dd4hep::Detector&,
 
     rot = cms::makeRotation3D(90._deg, phix, 90._deg, phiy, 0., 0.);
 
-    layer.placeVolume(ladder, copy, dd4hep::Transform3D(rot, tran));
+    // FixMe : Would need ns.vecStr
+    layer.placeVolume(ns.volume(ladder), copy, dd4hep::Transform3D(rot, tran));
 
     LogDebug("PixelGeom") << "DDPixBarLayerUpgradeAlgo test: " << ladder
                           << " number " << copy
