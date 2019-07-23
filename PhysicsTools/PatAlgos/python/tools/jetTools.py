@@ -273,15 +273,12 @@ def setupBTagging(process, jetSource, pfCandidates, explicitJTA, pvSource, svSou
             task.add(process.combinedMVATask)
             process.load("RecoBTag.CTagging.cTagging_cff")
             task.add(process.cTaggingTask)
-            process.load("RecoBTag.PixelCluster.pixelCluster_cff")
-            task.add(process.pixelClusterTask)
         else: # to prevent loading of modules already run in the standard reconstruction
             process.load("RecoBTag.ImpactParameter.impactParameter_EventSetup_cff")
             process.load("RecoBTag.SecondaryVertex.secondaryVertex_EventSetup_cff")
             process.load("RecoBTag.SoftLepton.softLepton_EventSetup_cff")
             process.load("RecoBTag.Combined.combinedMVA_EventSetup_cff")
             process.load("RecoBTag.CTagging.cTagging_EventSetup_cff")
-            process.load("RecoBTag.PixelCluster.pixelCluster_EventSetup_cff")
     import RecoBTag.Configuration.RecoBTag_cff as btag
     import RecoJets.JetProducers.caTopTaggers_cff as toptag
 
