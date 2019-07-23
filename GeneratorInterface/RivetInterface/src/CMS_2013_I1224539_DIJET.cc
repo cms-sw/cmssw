@@ -33,21 +33,21 @@ namespace Rivet {
     //@{
 
     /// Book histograms and initialise projections before the run
-    void init() override {
-      FinalState fs(-2.4, 2.4, 0*GeV);
-      addProjection(fs, "FS");
+    void init() {
+      FinalState fs((Cuts::etaIn(-2.4, 2.4)));
+      declare(fs, "FS");
 
       // Jet collections
-      addProjection(FastJets(fs, FastJets::ANTIKT, 0.7), "JetsAK7");
-      addProjection(FastJets(fs, FastJets::CAM, 0.8), "JetsCA8");
-      addProjection(FastJets(fs, FastJets::CAM, 1.2), "JetsCA12");
+      declare(FastJets(fs, FastJets::ANTIKT, 0.7), "JetsAK7");
+      declare(FastJets(fs, FastJets::CAM, 0.8), "JetsCA8");
+      declare(FastJets(fs, FastJets::CAM, 1.2), "JetsCA12");
 
       // Histograms
       for (size_t i = 0; i < N_PT_BINS_dj; ++i ) {
-        _h_ungroomedAvgJetMass_dj[i] = bookHisto1D(i+1+0*N_PT_BINS_dj, 1, 1);
-        _h_filteredAvgJetMass_dj[i] = bookHisto1D(i+1+1*N_PT_BINS_dj, 1, 1);
-        _h_trimmedAvgJetMass_dj[i] = bookHisto1D(i+1+2*N_PT_BINS_dj, 1, 1);
-        _h_prunedAvgJetMass_dj[i] = bookHisto1D(i+1+3*N_PT_BINS_dj, 1, 1);
+        book(_h_ungroomedAvgJetMass_dj[i] ,i+1+0*N_PT_BINS_dj, 1, 1);
+        book(_h_filteredAvgJetMass_dj[i] ,i+1+1*N_PT_BINS_dj, 1, 1);
+        book(_h_trimmedAvgJetMass_dj[i] ,i+1+2*N_PT_BINS_dj, 1, 1);
+        book(_h_prunedAvgJetMass_dj[i] ,i+1+3*N_PT_BINS_dj, 1, 1);
       }
     }
 
@@ -64,11 +64,11 @@ namespace Rivet {
 
 
     /// Perform the per-event analysis
-    void analyze(const Event& event) override {
-      const double weight = event.weight();
+    void analyze(const Event& event) {
+      const double weight = 1.0;
 
       // Look at events with >= 2 jets
-      const PseudoJets& psjetsAK7 = applyProjection<FastJets>(event, "JetsAK7").pseudoJetsByPt( 50.0*GeV );
+      const PseudoJets& psjetsAK7 = apply<FastJets>(event, "JetsAK7").pseudoJetsByPt( 50.0*GeV );
       if (psjetsAK7.size() < 2) vetoEvent;
 
       // Get the leading two jets and find their average pT
@@ -97,7 +97,7 @@ namespace Rivet {
 
 
     /// Normalise histograms etc., after the run
-    void finalize() override {
+    void finalize() {
       const double normalizationVal = 1000;
       for (size_t i = 0; i < N_PT_BINS_dj; ++i) {
         normalize(_h_ungroomedAvgJetMass_dj[i], normalizationVal);
@@ -122,8 +122,8 @@ namespace Rivet {
 
     /// @name Histograms
     //@{
-    enum { PT_220_300_dj=0, PT_300_450_dj, PT_450_500_dj, PT_500_600_dj,
-           PT_600_800_dj, PT_800_1000_dj, PT_1000_1500_dj, N_PT_BINS_dj } BINS_dj;
+    enum BINS_dj { PT_220_300_dj=0, PT_300_450_dj, PT_450_500_dj, PT_500_600_dj,
+                   PT_600_800_dj, PT_800_1000_dj, PT_1000_1500_dj, N_PT_BINS_dj };
     Histo1DPtr _h_ungroomedJet0pt, _h_ungroomedJet1pt;
     Histo1DPtr _h_ungroomedAvgJetMass_dj[N_PT_BINS_dj];
     Histo1DPtr _h_filteredAvgJetMass_dj[N_PT_BINS_dj];

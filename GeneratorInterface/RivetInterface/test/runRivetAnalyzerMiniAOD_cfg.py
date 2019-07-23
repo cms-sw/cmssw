@@ -10,13 +10,14 @@ process.load("GeneratorInterface.RivetInterface.genParticles2HepMC_cff")
 process.load("GeneratorInterface.RivetInterface.rivetAnalyzer_cfi")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        '/store/relval/CMSSW_10_6_0/RelValTTbar_13/MINIAODSIM/PUpmx25ns_106X_upgrade2018_realistic_v4-v1/10000/DB4F12C2-3B53-4247-A1C3-BEB74F177362.root',
+        #'/store/relval/CMSSW_10_6_0/RelValTTbar_13/MINIAODSIM/PUpmx25ns_106X_upgrade2018_realistic_v4-v1/10000/DB4F12C2-3B53-4247-A1C3-BEB74F177362.root',
+        '/store/mc/RunIIAutumn18MiniAOD/TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8/MINIAODSIM/102X_upgrade2018_realistic_v15-v1/00000/0126270E-DB20-FB42-A2B6-CE59183BEB12.root',
     ),
 )
 
