@@ -20,8 +20,9 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-#include <map>
 #include <set>
+#include <utility>
+#include <vector>
 
 namespace edm {
 
@@ -40,6 +41,8 @@ namespace edm {
       void initialize(EventSetupProvider const&);
 
       unsigned int numberOfConcurrentIOVs(EventSetupRecordKey const&) const;
+
+      void clear();
 
     private:
       // This is the single value configured in the top level options
@@ -63,11 +66,11 @@ namespace edm {
       // It is possible to individually configure the number of concurrent
       // IOVs allowed for each record. This is done by adding parameters
       // to a nested parameter set in the top level options parameter set.
-      // Setting these parameters is optional. This map can contain an
-      // entry for all records, it can be empty, or contain an entry for
-      // any subset of records. Values in this map override both of the
+      // Setting these parameters is optional. This container can hold an
+      // entry for all records, it can be empty, or hold an entry for
+      // any subset of records. Values in this container override both of the
       // above data members.
-      std::map<EventSetupRecordKey, unsigned int> forceNumberOfConcurrentIOVs_;
+      std::vector<std::pair<EventSetupRecordKey, unsigned int>> forceNumberOfConcurrentIOVs_;
     };
 
   }  // namespace eventsetup
