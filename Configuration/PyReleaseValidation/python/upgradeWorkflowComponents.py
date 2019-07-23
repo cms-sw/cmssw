@@ -317,6 +317,12 @@ upgradeProperties[2017]['2021PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','Rec
 upgradeProperties[2017]['2021DesignPU'] = deepcopy(upgradeProperties[2017]['2021Design'])
 upgradeProperties[2017]['2021DesignPU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU']
 
+upgradeProperties[2017]['2023PU'] = deepcopy(upgradeProperties[2017]['2023'])
+upgradeProperties[2017]['2023PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
+
+upgradeProperties[2017]['2024PU'] = deepcopy(upgradeProperties[2017]['2024'])
+upgradeProperties[2017]['2024PU']['ScenToRun'] = ['GenSimFull','DigiFullPU','RecoFullPU','HARVESTFullPU','NanoFull']
+
 upgradeProperties[2026] = {
     '2026D35' : {
         'Geom' : 'Extended2026D35',
