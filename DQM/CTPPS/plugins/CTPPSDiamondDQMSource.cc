@@ -122,9 +122,6 @@ class CTPPSDiamondDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCach
     /// plots related to one Diamond detector package
     struct PotPlots
     {
-      MonitorElement* activity_per_bx_0_25 = nullptr;
-      MonitorElement* activity_per_bx_25_50 = nullptr;
-      MonitorElement* activity_per_bx_50_75 = nullptr;
       std::unordered_map<unsigned int, MonitorElement*> activity_per_bx;
 
       MonitorElement* hitDistribution2d = nullptr;
@@ -136,10 +133,7 @@ class CTPPSDiamondDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCach
       MonitorElement* trackDistribution = nullptr;
       MonitorElement* trackDistributionOOT = nullptr;
 
-      MonitorElement* pixelTomographyAll_0_25 = nullptr;
-      MonitorElement* pixelTomographyAll_25_50 = nullptr;
-      MonitorElement* pixelTomographyAll_50_75 = nullptr;
-      std::vector< MonitorElement* > pixelTomographyAll;
+      std::unordered_map<unsigned int, MonitorElement*> pixelTomographyAll;
 
       MonitorElement* leadingEdgeCumulative_both = nullptr, *leadingEdgeCumulative_all = nullptr, *leadingEdgeCumulative_le = nullptr, *trailingEdgeCumulative_te = nullptr;
       MonitorElement* timeOverThresholdCumulativePot = nullptr, *leadingTrailingCorrelationPot = nullptr;
@@ -260,12 +254,9 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots( DQMStore::IBooker& ibooker, unsigned 
   trackDistribution = ibooker.book1D( "tracks", title+" tracks;x (mm)", 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -0.5, 18.5 );
   trackDistributionOOT = ibooker.book2D( "tracks with OOT", title+" tracks with OOT;plane number;x (mm)", 9, -0.5, 4, 19.*INV_DISPLAY_RESOLUTION_FOR_HITS_MM, -0.5, 18.5 );
 
-  pixelTomographyAll_0_25 = ibooker.book2D( "tomography pixel 0 25", title+" tomography with pixel 0 - 25 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 8, 0, 8 );
-  pixelTomographyAll.emplace_back(pixelTomographyAll_0_25);
-  pixelTomographyAll_25_50 = ibooker.book2D( "tomography pixel 25 50", title+" tomography with pixel 25 - 50 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 8, 0, 8 );
-  pixelTomographyAll.emplace_back(pixelTomographyAll_25_50);
-  pixelTomographyAll_50_75 = ibooker.book2D( "tomography pixel 50 75", title+" tomography with pixel 50 - 75 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 8, 0, 8 );
-  pixelTomographyAll.emplace_back(pixelTomographyAll_50_75);
+  pixelTomographyAll[0] = ibooker.book2D( "tomography pixel 0 25", title+" tomography with pixel 0 - 25 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 8, 0, 8 );
+  pixelTomographyAll[1] = ibooker.book2D( "tomography pixel 25 50", title+" tomography with pixel 25 - 50 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 8, 0, 8 );
+  pixelTomographyAll[2] = ibooker.book2D( "tomography pixel 50 75", title+" tomography with pixel 50 - 75 ns (all planes);x + 25*plane(mm);y (mm)", 100, 0, 100, 8, 0, 8 );
 
   leadingEdgeCumulative_both = ibooker.book1D( "leading edge (le and te)", title+" leading edge (le and te) (recHits); leading edge (ns)", 75, 0, 75 );
   leadingEdgeCumulative_all = ibooker.book1D( "leading edge (all)", title+" leading edge (with or without te) (DIGIs); leading edge (ns)", 75, 0, 75 );
@@ -776,7 +767,7 @@ CTPPSDiamondDQMSource::analyze( const edm::Event& event, const edm::EventSetup& 
         if ( pixId.station() != CTPPS_PIXEL_STATION_ID || pixId.rp() != CTPPS_FAR_RP_ID ) continue;
         for ( const auto& lt : ds ) {
           if ( lt.isValid() && pixId.arm() == detId_pot.arm() ) {
-            if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && rechit.getOOTIndex() < (int) potPlots_[detId_pot].pixelTomographyAll.size() && rechit.getOOTIndex()  >= 0 && lt.getX0() - horizontalShiftBwDiamondPixels_ < 24 )
+            if ( rechit.getOOTIndex() != CTPPSDiamondRecHit::TIMESLICE_WITHOUT_LEADING && potPlots_[detId_pot].pixelTomographyAll.count( rechit.getOOTIndex() ) && rechit.getOOTIndex() >= 0 && lt.getX0() - horizontalShiftBwDiamondPixels_ < 24 )
               potPlots_[detId_pot].pixelTomographyAll.at( rechit.getOOTIndex() )->Fill( lt.getX0() - horizontalShiftBwDiamondPixels_ + 25*detId.plane(), lt.getY0() );
           }
         }
