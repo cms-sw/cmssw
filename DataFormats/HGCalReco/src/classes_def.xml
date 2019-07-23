@@ -18,7 +18,7 @@
   <class name="TICLSeedingRegion" ClassVersion="3">
     <version ClassVersion="3" checksum="2409655320"/>
   </class>
-  <class name="std::vector<TICLSeedingRegion>" />               
-  <class name="edm::Wrapper<TICLSeedingRegion>" />              
-  <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />  
+  <class name="std::vector<TICLSeedingRegion>" />
+  <class name="edm::Wrapper<TICLSeedingRegion>" />
+  <class name="edm::Wrapper<std::vector<TICLSeedingRegion> >" />
 </lcgdict>

@@ -22,7 +22,7 @@ namespace ticl {
     SeedingRegionGlobal(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
     ~SeedingRegionGlobal() override;
 
-    void Initialize(const edm::EventSetup& es) override {};
+    void Initialize(const edm::EventSetup& es) override{};
 
     void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
   };
