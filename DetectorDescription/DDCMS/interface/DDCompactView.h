@@ -31,7 +31,7 @@ namespace cms {
     DDCompactView(const cms::DDDetector& det) : m_det(det) {}
     const cms::DDDetector* detector() const { return &m_det; }
     DDSpecParRegistry const& specpars() const { return m_det.specpars(); }
-    
+
   private:
     const cms::DDDetector& m_det;
   };

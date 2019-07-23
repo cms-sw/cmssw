@@ -19,7 +19,9 @@ public:
   // ---------------------------------
   // DD4hep specific constructor...
   explicit DDG4ProductionCuts(const cms::DDSpecParRegistry*,
-			      const dd4hep::sim::Geant4GeometryMaps::VolumeMap*, int, bool);
+                              const dd4hep::sim::Geant4GeometryMaps::VolumeMap*,
+                              int,
+                              bool);
 
   ~DDG4ProductionCuts();
 
@@ -38,8 +40,8 @@ private:
 
   const dd4hep::sim::Geant4GeometryMaps::VolumeMap* dd4hepMap_ = nullptr;
   std::vector<std::pair<G4LogicalVolume*, const cms::DDSpecPar*>> dd4hepVec_;
-  const cms::DDSpecParRegistry*     specPars_;
-  cms::DDSpecParRefs                specs_;
+  const cms::DDSpecParRegistry* specPars_;
+  cms::DDSpecParRefs specs_;
   // ... end here.
   // ---------------------------------
 
