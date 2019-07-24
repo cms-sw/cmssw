@@ -2315,8 +2315,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           particleDirection.push_back(std::get<1>(pae));
           ecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated / sumEcalClusters);
           hcalEnergy.push_back(0.);
-          rawecalEnergy.push_back(mergedPhotonEnergy * clusterEnergyCalibrated /
-                                  sumEcalClusters);  // "raw" not well defined. use the corrected value.
+          rawecalEnergy.push_back(totalEcal);
           rawhcalEnergy.push_back(0.);
           pivotalClusterRef.push_back(elements[std::get<0>(pae)].clusterRef());
           iPivotal.push_back(std::get<0>(pae));
@@ -2344,8 +2343,7 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
           ecalEnergy.push_back(0.);
           hcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated / sumEcalClusters);
           rawecalEnergy.push_back(0.);
-          rawhcalEnergy.push_back(mergedNeutralHadronEnergy * clusterEnergyCalibrated /
-                                  sumEcalClusters);  // "raw" not well defined. use the corrected value.
+          rawhcalEnergy.push_back(totalHcal);
           pivotalClusterRef.push_back(hclusterref);
           iPivotal.push_back(iHcal);
         }
@@ -2371,10 +2369,15 @@ void PFAlgo::createCandidatesHCAL(const reco::PFBlock& block,
         if (!useHO_) {
           neutral.setHcalEnergy(rawhcalEnergy[iPivot], hcalEnergy[iPivot]);
           neutral.setHoEnergy(0., 0.);
-        } else {
-          neutral.setHcalEnergy(max(rawhcalEnergy[iPivot] - totalHO, 0.0),
-                                hcalEnergy[iPivot] * (1. - totalHO / rawhcalEnergy[iPivot]));
-          neutral.setHoEnergy(totalHO, totalHO * hcalEnergy[iPivot] / rawhcalEnergy[iPivot]);
+        } else {                              // useHO_
+          if (rawhcalEnergy[iPivot] == 0.) {  // photons should be here
+            neutral.setHcalEnergy(0., 0.);
+            neutral.setHoEnergy(0., 0.);
+          } else {
+            neutral.setHcalEnergy(max(rawhcalEnergy[iPivot] - totalHO, 0.0),
+                                  hcalEnergy[iPivot] * max(1. - totalHO / rawhcalEnergy[iPivot], 0.));
+            neutral.setHoEnergy(totalHO, totalHO * hcalEnergy[iPivot] / rawhcalEnergy[iPivot]);
+          }
         }
         neutral.setPs1Energy(0.);
         neutral.setPs2Energy(0.);
