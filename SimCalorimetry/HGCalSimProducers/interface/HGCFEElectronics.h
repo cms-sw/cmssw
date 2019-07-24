@@ -6,7 +6,7 @@
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandGaussQ.h"
-
+#include "CLHEP/Random/RandFlat.h"
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerTypes.h"
 
 /**

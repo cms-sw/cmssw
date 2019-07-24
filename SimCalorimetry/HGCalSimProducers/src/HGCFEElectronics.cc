@@ -111,7 +111,7 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr &dataFrame, HGCSimHitData& char
 #ifdef EDM_ML_DEBUG  
   for(int it=0; it<(int)(chargeColl.size()); it++) debug |= (chargeColl[it]>adcThreshold_fC_);
 #endif
-    
+  
   if(debug) edm::LogVerbatim("HGCFE") << "[runTrivialShaper]" << std::endl;
   
   //set new ADCs
@@ -142,6 +142,7 @@ void HGCFEElectronics<DFr>::runSimpleShaper(DFr &dataFrame, HGCSimHitData& charg
   //convolute with pulse shape to compute new ADCs
   newCharge.fill(0.f);
   bool debug(false);
+ 
   for(int it=0; it<(int)(chargeColl.size()); it++)
     {
       const float charge(chargeColl[it]);
@@ -196,6 +197,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   toaFlags.fill(false);
   newCharge.fill( 0.f );
   toaFromToT.fill( 0.f );
+  
 
 #ifdef EDM_ML_DEBUG
   constexpr bool debug_state(true);
@@ -216,7 +218,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   //to be done properly with realistic ToA shaper and jitter for the moment accounted in the smearing 
   if(toaColl[fireBX] != 0.f){
     timeToA = toaColl[fireBX];
-    float jitter = getTimeJitter(chargeColl[fireBX], thickness);
+    float jitter = getTimeJitter(chargeColl[fireBX], thickness);// --p1
     if(jitter != 0) timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, jitter);
     else if(tdcResolutionInNs_ != 0) timeToA = CLHEP::RandGaussQ::shoot(engine, timeToA, tdcResolutionInNs_);
     if(timeToA >= 0.f && timeToA <= 25.f) toaFlags[fireBX] = true;
@@ -225,7 +227,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   //now look at charge
   //first identify bunches which will trigger ToT
   //if(debug_state) edm::LogVerbatim("HGCFE") << "[runShaperWithToT]" << std::endl;
-  for(int it=0; it<(int)(chargeColl.size()); ++it)
+  const int chargeCollectionSize((int)chargeColl.size());
+  for(int it=0; it<chargeCollectionSize; ++it)
     {
       debug = debug_state;
       //if already flagged as busy it can't be re-used to trigger the ToT
@@ -251,6 +254,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
       int busyBxs(0);
       float totalCharge(charge), finalToA(toa), integTime(0);
       while(true) {        
+	// not sure how many times this loop is repeated --p2
         //compute integration time in ns and # bunches
         //float newIntegTime(0);
         int poffset = 0;
@@ -306,7 +310,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
             if(debug) edm::LogVerbatim("HGCFE") << "\t\t leaking " << chargeColl[jt] << " fC @ deltaT=-" << deltaT << " -> +" << leakCharge << " with avgT=" << pulseAvgT_[deltaT+2] << std::endl;
           }
         
-        //add contamination from posterior bunches
+        //add contamination from posterior bunches 
         for(int jt=it+1; jt<it+busyBxs && jt<dataFrame.size() ; ++jt) 
           { 
             //this charge will be integrated in TDC mode
@@ -346,7 +350,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
   //including the leakage from bunches in SARS ADC when not declared busy or in ToT
   auto runChargeSharing = [&]() {
     int ipulse = 0;
-    for(int it=0; it<(int)(chargeColl.size()); ++it)
+    //int nestedloop_counter = 0;
+    const int chargeColl_size((int)chargeColl.size()); 
+    for(int it=0; it<chargeColl_size; ++it)
       {
         //if busy, charge has been already integrated
         //if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
@@ -354,6 +360,7 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
           const int start = std::max(0,2-it);
           const int stop  = std::min((int)adcPulse_.size(),(int)newCharge.size()-it+2);          
           for(ipulse = start; ipulse < stop; ++ipulse) {
+	    //nestedloop_counter = nestedloop_counter+1;
             const int itoffset = it + ipulse - 2; 
             //notice that if the channel is already busy,
             //it has already been affected by the leakage of the SARS ADC
@@ -367,7 +374,9 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr &dataFrame, HGCSimHitData& char
         }
         
         if(debug) edm::LogVerbatim("HGCFE") << std::endl;
+	//std::cout<<"printing nested loop counter -------->>>>>>> "<<nestedloop_counter<<std::endl;
       }
+    //std::cout<<"printing nested loop counter -------->>>>>>> "<<nestedloop_counter<<std::endl;
   };
   runChargeSharing();
 

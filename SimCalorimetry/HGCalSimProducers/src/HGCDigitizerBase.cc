@@ -6,7 +6,11 @@ using namespace hgc_digi;
 using namespace hgc_digi_utils;
 
 template<class DFr>
-HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
+HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps):
+  NoiseMean_(0.0),
+  NoiseStd_(1.0)
+{
+  //std::cout<<"debugging effort for new PU dataset - log 1"<<std::endl;
   bxTime_        = ps.getParameter<double>("bxTime");
   myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg");
   doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
@@ -32,6 +36,19 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
   myFEelectronics_->SetNoiseValues(noise_fC_);
+  Dim_ = noise_fC_.size();
+  GenGaussianNoise(NoiseMean_,NoiseStd_);
+  //std::cout<<"debugging effort for new PU dataset - log 2"<<std::endl;
+}
+
+template<class DFr>
+void HGCDigitizerBase<DFr>::GenGaussianNoise(const double NoiseMean, const double NoiseStd){
+  const int sampleSize = (int) hgc_digi::nSamples;
+  for(size_t i = 0;i<NoiseArrayLength_;i++){
+    for(int j=0;j<sampleSize;j++){
+      GaussianNoiseVec_[i][j]=CLHEP::RandGaussQ::shoot(NoiseMean,NoiseStd);}
+
+  }
 }
 
 template<class DFr>
@@ -41,63 +58,81 @@ void HGCDigitizerBase<DFr>::run( std::unique_ptr<HGCDigitizerBase::DColl> &digiC
 				 const std::unordered_set<DetId>& validIds,
 				 uint32_t digitizationType,
 				 CLHEP::HepRandomEngine* engine) {
+  //std::cout<<"debugging effort for new PU dataset - log 3"<<std::endl;
+  
   if(digitizationType==0) runSimple(digiColl,simData,theGeom,validIds,engine);
   else                    runDigitizer(digiColl,simData,theGeom,validIds,digitizationType,engine);
 }
 
+
 template<class DFr>
 void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl> &coll,
-				      HGCSimHitDataAccumulator &simData,
-				      const CaloSubdetectorGeometry* theGeom,
-				      const std::unordered_set<DetId>& validIds,
-				      CLHEP::HepRandomEngine* engine) {
+                                      HGCSimHitDataAccumulator &simData,
+                                      const CaloSubdetectorGeometry* theGeom,
+                                      const std::unordered_set<DetId>& validIds,
+                                      CLHEP::HepRandomEngine* engine) {
   HGCSimHitData chargeColl,toa;
-
-  // this represents a cell with no signal charge
+  //const int sampleSize = (int) hgc_digi::nSamples;
+  // this represents a cell with no signal charge                                                                        
   HGCCellInfo zeroData;
-  zeroData.hit_info[0].fill(0.f); //accumulated energy
-  zeroData.hit_info[1].fill(0.f); //time-of-flight
-
-  for( const auto& id : validIds ) {
+  zeroData.hit_info[0].fill(0.f); //accumulated energy                                                                    
+  zeroData.hit_info[1].fill(0.f); //time-of-flight                                                                       
+  const auto NoiseArrayBegin_ = GaussianNoiseVec_.begin();
+  
+  for(std::unordered_set<DetId>::const_iterator itr=validIds.begin();itr!=validIds.end();++itr) {
+    int id = *itr;
     chargeColl.fill(0.f);
     toa.fill(0.f);
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = ( simData.end() == it ? zeroData : it->second );
-    addCellMetadata(cell,theGeom,id);
+    addCellMetadata(cell,theGeom,id);                                                                                                         
+    long hash_index((long)(id));
+    long flatRandom = CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_-1));                                                                    long hash1 = std::fabs(hash_index+flatRandom);                                                                                       
+    long hash2 = hash1%NoiseArrayLength_;
+    const auto NoisePointer = NoiseArrayBegin_ + hash2;
 
+    const auto pointer_ = NoisePointer->begin();
     for(size_t i=0; i<cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
-
-      //time of arrival
+      auto x = pointer_ + i;
+      float randNum = *x;
+      //time of arrival                                                                                                                                             
       toa[i]=cell.hit_info[1][i];
       if(myFEelectronics_->toaMode()==HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge>0)
         toa[i]=cell.hit_info[1][i]/rawCharge;
 
-      //convert total energy in GeV to charge (fC)
-      //double totalEn=rawEn*1e6*keV2fC_;
+      //convert total energy in GeV to charge fC                                                                                              
       float totalCharge=rawCharge;
+      float randn = 0.f;
+      //add noise (in fC)                                                                                                                     
+      //we assume it's randomly distributed and won't impact ToA measurement                                                                 
+      //also assume that it is related to the charge path only and that noise fluctuation for ToA circuit be handled separately               
+      if (noise_fC_[cell.thickness-1] != 0){//{totalCharge += 0.f;}                                                                            
+	randn = randNum*noise_fC_[cell.thickness-1];
+        totalCharge += std::max( randn , 0.f );
+      }
 
-      //add noise (in fC)
-      //we assume it's randomly distributed and won't impact ToA measurement
-      //also assume that it is related to the charge path only and that noise fluctuation for ToA circuit be handled separately
-      if (noise_fC_[cell.thickness-1] != 0)
-        totalCharge += std::max( (float)CLHEP::RandGaussQ::shoot(engine,0.0,cell.size*noise_fC_[cell.thickness-1]) , 0.f );
       if(totalCharge<0.f) totalCharge=0.f;
-
       chargeColl[i]= totalCharge;
     }
-
-    //run the shaper to create a new data frame
+    //run the shaper to create a new data frame                                                                                                                     
     DFr rawDataFrame( id );
-    if( !cce_.empty() )
+    if( !cce_.empty() ){
+      //std::cout<<"running runshaper option 1"<<std::endl;
       myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cce_[cell.thickness-1]);
-    else
+    }
+    else{
+      //std::cout<<"running runshaper option 2"<<std::endl;
       myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
-
-    //update the output according to the final shape
+    }
+    //update the output according to the final shape                                                                                                                
     updateOutput(coll,rawDataFrame);
   }
 }
+
+
+
+
 
 template<class DFr>
 void HGCDigitizerBase<DFr>::updateOutput(std::unique_ptr<HGCDigitizerBase::DColl> &coll,

@@ -22,7 +22,6 @@
 #include "FWCore/Utilities/interface/transform.h"
 
 //#define EDM_ML_DEBUG
-
 using namespace hgc_digi;
 
 namespace {
@@ -200,7 +199,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
   premixStage1_      = ps.getParameter<bool>("premixStage1");
   premixStage1MinCharge_ = ps.getParameter<double>("premixStage1MinCharge");
   premixStage1MaxCharge_ = ps.getParameter<double>("premixStage1MaxCharge");
-
+  //std::cout<<"debugging effort for new PU dataset - post 23"<<std::endl;
   std::unordered_set<DetId>().swap(validIds_);
 
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits",hitCollection_));
@@ -245,25 +244,29 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
     myDet_   =DetId::Forward;
     theHFNoseDigitizer_=std::make_unique<HFNoseDigitizer>(ps);
   }
+  //std::cout<<"debugging effort for new PU dataset - post 24"<<std::endl;
 }
 
 //
 void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es)
 {
   // reserve memory for a full detector
+  //std::cout<<"debugging effort for new PU dataset - post 1"<<std::endl;
   unsigned idx = getType();
   simHitAccumulator_->reserve( averageOccupancies_[idx]*validIds_.size() );
+  //std::cout<<"debugging effort for new PU dataset - post 2"<<std::endl;
 }
 
 //
 void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP::HepRandomEngine* hre)
 {
+  //std::cout<<"debugging effort for new PU dataset - post 3"<<std::endl;
   hitRefs_bx0.clear();
-
+  
   const CaloSubdetectorGeometry* theGeom = ( nullptr == gHGCal_ ?
 					     static_cast<const CaloSubdetectorGeometry*>(gHcal_) :
 					     static_cast<const CaloSubdetectorGeometry*>(gHGCal_)  );
-
+  //std::cout<<"debugging effort for new PU dataset - post 4"<<std::endl;
   ++nEvents_;
   unsigned idx = getType();
   // release memory for unfilled parts of hash table
@@ -324,15 +327,16 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP
       e.put(std::move(digiResult),digiCollection());
     }
   }
-
+  //std::cout<<"debugging effort for new PU dataset - post 5"<<std::endl;
   hgc::HGCSimHitDataAccumulator().swap(*simHitAccumulator_);
 }
 
 //
 void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* hre) {
-
+  //std::cout<<"debugging effort for new PU dataset - post 6"<<std::endl;
   //get inputs
   edm::Handle<edm::PCaloHitContainer> hits;
+  //std::cout<<"debugging effort for new PU dataset - post 7"<<std::endl;
   e.getByLabel(edm::InputTag("g4SimHits",hitCollection_),hits);
   if( !hits.isValid() ){
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
@@ -354,13 +358,15 @@ void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventS
 void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* hre) {
 
   //get inputs
+  //std::cout<<"debugging effort for new PU dataset - post 8.1"<<std::endl;
   edm::Handle<edm::PCaloHitContainer> hits;
+  //std::cout<<"debugging effort for new PU dataset - post 8"<<std::endl;
   e.getByLabel(edm::InputTag("g4SimHits",hitCollection_),hits);
   if( !hits.isValid() ){
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
     return;
   }
-
+  //std::cout<<"debugging effort for new PU dataset - post 9"<<std::endl;
   //accumulate for the simulated bunch crossing
   if( nullptr != gHGCal_ ) {
     accumulate(hits, e.bunchCrossing(), gHGCal_, hre);
@@ -381,12 +387,12 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   if( nullptr == geom ) return;
 
 
-
+  //std::cout<<"debugging effort for new PU dataset - post 10"<<std::endl;
   //configuration to apply for the computation of time-of-flight
   std::array<float, 3> tdcForToAOnset{ {0.f, 0.f, 0.f} };
   float keV2fC(0.f);
   bool weightToAbyEnergy= getWeight(tdcForToAOnset, keV2fC);
-
+  //std::cout<<"debugging effort for new PU dataset - post 11"<<std::endl;
   //create list of tuples (pos in container, RECO DetId, time) to be sorted first
   int nchits=(int)hits->size();
   std::vector< HGCCaloHitTuple_t > hitRefs;
@@ -408,7 +414,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     }
   }
   std::sort(hitRefs.begin(),hitRefs.end(),this->orderByDetIdThenTime);
-
+  //std::cout<<"debugging effort for new PU dataset - post 12"<<std::endl;
   //loop over sorted hits
   nchits = hitRefs.size();
   for(int i=0; i<nchits; ++i) {
@@ -506,19 +512,23 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
   }
   hitRefs.clear();
+  //std::cout<<"debugging effort for new PU dataset - post 13"<<std::endl;
 }
 
 void HGCDigitizer::accumulate(const PHGCSimAccumulator& simAccumulator) {
   //configuration to apply for the computation of time-of-flight
+  //std::cout<<"debugging effort for new PU dataset - post 21"<<std::endl;
   std::array<float, 3> tdcForToAOnset{ {0.f, 0.f, 0.f} };
   float keV2fC(0.f);
   bool weightToAbyEnergy= getWeight(tdcForToAOnset, keV2fC);
   loadSimHitAccumulator(*simHitAccumulator_, simAccumulator, premixStage1MinCharge_, premixStage1MaxCharge_, !weightToAbyEnergy);
+  //std::cout<<"debugging effort for new PU dataset - post 22"<<std::endl;
 }
 
 //
 void HGCDigitizer::beginRun(const edm::EventSetup & es) {
   //get geometry
+  //std::cout<<"debugging effort for new PU dataset - post 14"<<std::endl;
   edm::ESHandle<CaloGeometry> geom;
   es.get<CaloGeometryRecord>().get(geom);
 
@@ -528,7 +538,7 @@ void HGCDigitizer::beginRun(const edm::EventSetup & es) {
   if( producesEEDigis() )      gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_,mySubDet_));
   if( producesHEfrontDigis() ) gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_,mySubDet_));
   if( producesHFNoseDigis() )  gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_,mySubDet_));
-  
+  //std::cout<<"debugging effort for new PU dataset - post 15"<<std::endl;
   if( producesHEbackDigis() )  {
     if (geometryType_ == 0) {
       gHcal_  = dynamic_cast<const HcalGeometry*>(geom->getSubdetectorGeometry(DetId::Hcal, HcalEndcap));
@@ -536,7 +546,7 @@ void HGCDigitizer::beginRun(const edm::EventSetup & es) {
       gHGCal_ = dynamic_cast<const HGCalGeometry*>(geom->getSubdetectorGeometry(myDet_,mySubDet_));
     }
   }
-
+  //std::cout<<"debugging effort for new PU dataset - post 16"<<std::endl;
   int nadded(0);
   //valid ID lists
   if( nullptr != gHGCal_ ) {
@@ -547,18 +557,20 @@ void HGCDigitizer::beginRun(const edm::EventSetup & es) {
     throw cms::Exception("BadConfiguration")
       << "HGCDigitizer is not producing EE, FH, or BH digis!";
   }
-
+  //std::cout<<"debugging effort for new PU dataset - post 19"<<std::endl;
   if (verbosity_ > 0)
     edm::LogInfo("HGCDigitizer")
       << "Added " << nadded << ":" << validIds_.size()
       << " detIds without " << hitCollection_
       << " in first event processed" << std::endl;
+  //std::cout<<"debugging effort for new PU dataset - post 20"<<std::endl;
 }
 
 //
 void HGCDigitizer::endRun()
-{
+{//std::cout<<"debugging effort for new PU dataset - post 17"<<std::endl;
   std::unordered_set<DetId>().swap(validIds_);
+  // std::cout<<"debugging effort for new PU dataset - post 18"<<std::endl;
 }
 
 //
