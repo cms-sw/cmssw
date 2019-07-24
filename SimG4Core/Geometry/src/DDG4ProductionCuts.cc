@@ -63,13 +63,15 @@ void DDG4ProductionCuts::initialize() {
   G4RegionStore* store = G4RegionStore::GetInstance();
   for (auto const& vv : vec_) {
     unsigned int num = map_.toString(keywordRegion_, vv.second, regionName);
-    edm::LogVerbatim("Geometry") << "  num  " << num << " regionName: " << regionName << ", the store of size " << store->size();
+    edm::LogVerbatim("Geometry") << "  num  " << num << " regionName: " << regionName << ", the store of size "
+                                 << store->size();
 
     if (num != 1) {
       throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::initialize: Problem with Region tags.");
     }
     if (regionName != curName) {
-      edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : regionName " << regionName << ", the store of size " << store->size();
+      edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : regionName " << regionName << ", the store of size "
+                                   << store->size();
       region = store->FindOrCreateRegion(regionName);
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : region " << region->GetName();
       if (!region) {
