@@ -76,11 +76,18 @@ public:
     m_EEs25notCont = EEs25notCont;
     m_peToABarrel = peToABarrel;
     m_peToAEndcap = peToAEndcap;
+    
+    
+//     std::cout << " ---> EcalSignalGenerator() : EcalBaseSignalGenerator() " << std::endl;
+    
   }
 
   ~EcalSignalGenerator() override {}
 
   void initializeEvent(const edm::Event* event, const edm::EventSetup* eventSetup) {
+    
+//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() " << std::endl;
+    
     theEvent = event;
     eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
     // Ecal Intercalibration Constants
@@ -101,6 +108,7 @@ public:
     const edm::TimeValue_t eventTimeValue = theEvent->time().value();
     m_iTime = eventTimeValue;
     m_lasercals = laser.product();
+//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
 
     edm::ESHandle<EcalLaserDbService> laser_prime;
     eventSetup->get<EcalLaserDbRecord>().get(laser_prime);
@@ -108,7 +116,10 @@ public:
     m_lasercals_prime = laser_prime.product();
     
     //clear the laser cache for each event time
-    CalibCache().swap(m_valueLCCache_LC);
+//     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
+//     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
+//     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
+    m_valueLCCache_LC.clear();
     //----
 
     
@@ -131,10 +142,16 @@ public:
       ESMIPToGeV = esMipToGeV->getESValueLow();
     else
       ESMIPToGeV = esMipToGeV->getESValueHigh();
+    
+//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() [end] " << std::endl;
+    
   }
 
   /// some users use EventPrincipals, not Events.  We support both
   void initializeEvent(const edm::EventPrincipal* eventPrincipal, const edm::EventSetup* eventSetup) {
+
+//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() [second version]" << std::endl;
+
     theEventPrincipal = eventPrincipal;
     eventSetup->get<EcalGainRatiosRcd>().get(grHandle);  // find the gains
     // Ecal Intercalibration Constants
@@ -146,6 +163,34 @@ public:
     m_maxEneEB = (agc->getEBValue()) * theDefaultGains[1] * MAXADC * m_EBs25notCont;
     m_maxEneEE = (agc->getEEValue()) * theDefaultGains[1] * MAXADC * m_EEs25notCont;
 
+    //----
+    // Ecal LaserCorrection Constants for laser correction ratio
+    edm::ESHandle<EcalLaserDbService> laser;
+    eventSetup->get<EcalLaserDbRecord>().get(laser);
+    edm::TimeValue_t eventTimeValue;
+    if (theEventPrincipal) {
+      eventTimeValue = theEventPrincipal->time().value();
+    }
+    else {
+      std::cout << " theEventPrincipal not defined??? " << std::endl;
+    }
+    m_iTime = eventTimeValue;
+    m_lasercals = laser.product();
+//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
+    
+    edm::ESHandle<EcalLaserDbService> laser_prime;
+    eventSetup->get<EcalLaserDbRecord>().get(laser_prime);
+    //     const edm::TimeValue_t eventTimeValue = event.time().value();
+    m_lasercals_prime = laser_prime.product();
+    
+    //clear the laser cache for each event time
+    //     CalibCache().swap(m_valueLCCache_LC);   -> strange way to clear a collection ... why was it like this?
+    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
+    //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
+    m_valueLCCache_LC.clear();
+    //----
+    
+    
     //ES
     eventSetup->get<ESGainRcd>().get(hesgain);
     eventSetup->get<ESMIPToGeVConstantRcd>().get(hesMIPToGeV);
@@ -162,6 +207,9 @@ public:
       ESMIPToGeV = esMipToGeV->getESValueLow();
     else
       ESMIPToGeV = esMipToGeV->getESValueHigh();
+    
+//     std::cout << " ---> EcalSignalGenerator() : initializeEvent() [end] " << std::endl;
+    
   }
 
   virtual void fill(edm::ModuleCallingContext const* mcc) {
@@ -224,20 +272,22 @@ private:
   
   
 
-  //---- FIXME  
+  //---- LC that depends with time
   double findLaserConstant_LC(const DetId& detId) const {
     
 //     return 1.0;
     
 //     const edm::TimeValue_t m_iTime = event.time().value();
-//     int m_iTime = 0; //---- FIXME
     const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
+    
+//     std::cout << " findLaserConstant_LC::evtTimeStamp = " << evtTimeStamp << std::endl;
+    
     return (m_lasercals->getLaserCorrection(detId, evtTimeStamp));
     
   }
   
   
-  //---- FIXME
+  //---- LC at the beginning of the time (first IOV of the GT == first time)
   double findLaserConstant_LC_prime(const DetId& detId) const {
     
 //     return 1.0;
