@@ -191,4 +191,4 @@ static long algorithm(dd4hep::Detector& /* description */,
 }
 
 // first argument is the type from the xml file
-DECLARE_DDCMS_DETELEMENT(DDCMS_tracker_DDCutTubsFromPoints, algorithm)
+DECLARE_DDCMS_DETELEMENT(DDCMS_track_DDCutTubsFromPoints, algorithm)

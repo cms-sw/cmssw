@@ -29,6 +29,7 @@
     <Include ref="DetectorDescription/DDCMS/data/testDDCutTubsFromPointsAlgorithm.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/materials.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdSupportRingParameters.xml"/>
+    <Include ref="DetectorDescription/DDCMS/data/pixfwdCommon.xml"/>
   </IncludeSection>
 
 </DDDefinition>
