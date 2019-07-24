@@ -8,7 +8,8 @@ from Configuration.Eras.Modifier_run2_HLTconditions_2016_cff import run2_HLTcond
 from Configuration.Eras.Modifier_run2_muon_2016_cff import run2_muon_2016
 from Configuration.Eras.Modifier_run2_egamma_2016_cff import run2_egamma_2016
 from Configuration.Eras.Modifier_run2_L1prefiring_cff import run2_L1prefiring
+from Configuration.Eras.Modifier_pixel_2016_cff import pixel_2016
 
 Run2_2016 = cms.ModifierChain(run2_common, run2_25ns_specific,
- stage2L1Trigger, ctpps_2016, run2_HLTconditions_2016, run2_muon_2016, run2_egamma_2016, run2_L1prefiring)
+                              stage2L1Trigger, ctpps_2016, run2_HLTconditions_2016, run2_muon_2016, run2_egamma_2016, run2_L1prefiring,pixel_2016)
 
