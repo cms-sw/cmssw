@@ -78,8 +78,8 @@ void LowPtGsfElectronSeedValueMapsProducer::fillDescriptions(edm::ConfigurationD
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
   desc.add<edm::InputTag>("preIdsValueMap", edm::InputTag("lowPtGsfElectronSeeds"));
-  desc.add<std::vector<std::string> >("ModelNames", std::vector<std::string>());
-  descriptions.add("defaultLowPtGsfElectronSeedValueMaps", desc);
+  desc.add<std::vector<std::string> >("ModelNames", {"unbiased", "ptbiased"});
+  descriptions.add("lowPtGsfElectronSeedValueMaps", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

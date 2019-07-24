@@ -10,7 +10,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   explicit GEDGsfElectronCoreProducer(const edm::ParameterSet& conf);
-  ~GEDGsfElectronCoreProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:

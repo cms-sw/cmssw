@@ -294,9 +294,3 @@ reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highle
 #sequences without some stuffs
 #
 reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
-
-
-# define a standard candle. please note I am picking up individual
-# modules instead of sequences
-#
-reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)
