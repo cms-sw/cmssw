@@ -38,8 +38,9 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : scaleByDo
   } else {
     noise_fC_.resize(1, 1.f);
   }
-  if (myCfg_.existsAs<std::vector<double>>("ileakParam")) {
-    scal_.setIleakParam(myCfg_.getParameter<std::vector<double>>("ileakParam"));
+  if (myCfg_.existsAs<edm::ParameterSet>("ileakParam")) {
+    scal_.setIleakParam(
+        myCfg_.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
   }
   if (myCfg_.existsAs<edm::ParameterSet>("cceParams")) {
     scal_.setCceParam(
@@ -89,10 +90,11 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
 
     //set the noise,cce, LSB and threshold to be used
     float cce(1.f), noiseWidth(0.f), lsbADC(-1.f), maxADC(-1.f);
-    int thrADC(5);
+    uint32_t thrADC(std::floor(myFEelectronics_->getTargetMipValue() / 2));
     if (scaleByDose_) {
       HGCSiliconDetId detId(id);
-      HGCalSiNoiseMap::SiCellOpCharacteristics siop = scal_.getSiCellOpCharacteristics(detId, HGCalSiNoiseMap::AUTO);
+      HGCalSiNoiseMap::SiCellOpCharacteristics siop =
+          scal_.getSiCellOpCharacteristics(detId, HGCalSiNoiseMap::AUTO, false, myFEelectronics_->getTargetMipValue());
       cce = siop.cce;
       noiseWidth = siop.noise;
       lsbADC = scal_.getLSBPerGain()[(HGCalSiNoiseMap::GainRange_t)siop.gain];
@@ -104,9 +106,10 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
       //probably should simply be removed in a future iteration
       cce = (cce_.empty() ? 1.f : cce_[cell.thickness - 1]);
       noiseWidth = cell.size * noise_fC_[cell.thickness - 1];
-      if (thresholdFollowsMIP_) {
-        thrADC = cell.thickness * cce * myFEelectronics_->getADCThreshold();
-      }
+      thrADC =
+          thresholdFollowsMIP_
+              ? std::floor(cell.thickness * cce * myFEelectronics_->getADCThreshold() / myFEelectronics_->getADClsb())
+              : std::floor(cell.thickness * myFEelectronics_->getADCThreshold() / myFEelectronics_->getADClsb());
     }
 
     //loop over time samples and add noise
@@ -119,7 +122,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
         toa[i] = cell.hit_info[1][i] / rawCharge;
 
       //final charge estimation
-      float noise = (float)CLHEP::RandGaussQ::shoot(engine, 0.0, noiseWidth);
+      float noise = CLHEP::RandGaussQ::shoot(engine, 0.0, noiseWidth);
       float totalCharge(rawCharge * cce + noise);
       if (totalCharge < 0.f)
         totalCharge = 0.f;

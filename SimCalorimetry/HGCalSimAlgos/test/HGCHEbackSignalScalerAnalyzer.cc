@@ -68,9 +68,10 @@ private:
   const HGCalDDDConstants* hgcCons_;
 
   int firstLayer_, lastLayer_;
-  float radiusMin_ = 70;   //cm
-  float radiusMax_ = 280;  //cm
-  int radiusBins_ = 525;
+  const float radiusMin_ = 70;   //cm
+  const float radiusMax_ = 280;  //cm
+  const int radiusBins_ = 525;   //cm
+  const int nWedges_ = 72;
 };
 
 //
@@ -176,7 +177,7 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     HGCScintillatorDetId scId(myId->rawId());
 
     int layer = scId.layer();
-    std::array<double, 8> radius = scal.computeRadius(scId);
+    radiiVec radius = scal.computeRadius(scId);
     double dose = scal.getDoseValue(DetId::HGCalHSc, layer, radius);
     double fluence = scal.getFluenceValue(DetId::HGCalHSc, layer, radius);
 
@@ -240,7 +241,7 @@ void HGCHEbackSignalScalerAnalyzer::analyze(const edm::Event& iEvent, const edm:
     //fill per layer plots
     //float rpos = sqrt(global.x()*global.x() + global.y()*global.y());
     int rocbin = probNoiseAboveHalfMip_layerMap[ilayer]->FindBin(radius[0] * 10);
-    double scaleValue = prob / 72. / hgcrocNcellsMap_[ilayer][rocbin - 1];
+    double scaleValue = prob / nWedges_ / hgcrocNcellsMap_[ilayer][rocbin - 1];
     probNoiseAboveHalfMip_layerMap[ilayer]->Fill(radius[0] * 10, scaleValue);
   }
 

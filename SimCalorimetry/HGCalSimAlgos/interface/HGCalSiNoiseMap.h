@@ -35,9 +35,9 @@ public:
   void setCceParam(const std::vector<double> &parsFine,
                    const std::vector<double> &parsThin,
                    const std::vector<double> &parsThick) {
-    cceParam_[HGCSiliconDetId::waferType::HGCalFine] = parsFine;          //120
-    cceParam_[HGCSiliconDetId::waferType::HGCalCoarseThin] = parsThin;    //200
-    cceParam_[HGCSiliconDetId::waferType::HGCalCoarseThick] = parsThick;  //300
+    cceParam_.push_back(parsFine);   //120
+    cceParam_.push_back(parsThin);   //200
+    cceParam_.push_back(parsThick);  //300
   }
 
   /**
@@ -49,19 +49,19 @@ public:
                                                      bool ignoreFluence = false,
                                                      int aimMIPtoADC = 10);
 
-  std::map<HGCSiliconDetId::waferType, double> &getMipEqfC() { return mipEqfC_; }
-  std::map<HGCSiliconDetId::waferType, double> &getCellCapacitance() { return cellCapacitance_; }
-  std::map<HGCSiliconDetId::waferType, double> &getCellVolume() { return cellVolume_; }
-  std::map<HGCSiliconDetId::waferType, std::vector<double> > &getCCEParam() { return cceParam_; }
+  std::vector<double> &getMipEqfC() { return mipEqfC_; }
+  std::vector<double> &getCellCapacitance() { return cellCapacitance_; }
+  std::vector<double> &getCellVolume() { return cellVolume_; }
+  std::vector<std::vector<double> > &getCCEParam() { return cceParam_; }
   std::vector<double> &getIleakParam() { return ileakParam_; }
-  std::map<GainRange_t, std::vector<double> > &getENCsParam() { return encsParam_; }
-  std::map<GainRange_t, double> &getLSBPerGain() { return lsbPerGain_; }
-  std::map<GainRange_t, double> &getMaxADCPerGain() { return maxADCPerGain_; }
+  std::vector<std::vector<double> > &getENCsParam() { return encsParam_; }
+  std::vector<double> &getLSBPerGain() { return lsbPerGain_; }
+  std::vector<double> &getMaxADCPerGain() { return maxADCPerGain_; }
 
 private:
   //
-  std::map<HGCSiliconDetId::waferType, double> mipEqfC_, cellCapacitance_, cellVolume_;
-  std::map<HGCSiliconDetId::waferType, std::vector<double> > cceParam_;
+  std::vector<double> mipEqfC_, cellCapacitance_, cellVolume_;
+  std::vector<std::vector<double> > cceParam_;
 
   //leakage current/volume vs fluence
   std::vector<double> ileakParam_;
@@ -76,10 +76,13 @@ private:
   const double qe2fc_;
 
   //electronics noise (series+parallel) polynomial coeffs;
-  std::map<GainRange_t, std::vector<double> > encsParam_;
+  std::vector<std::vector<double> > encsParam_;
 
   //lsb
-  std::map<GainRange_t, double> lsbPerGain_, maxADCPerGain_;
+  std::vector<double> lsbPerGain_, maxADCPerGain_;
+
+  //conversions
+  const double unitToMicro_ = 1e6;
 };
 
 #endif

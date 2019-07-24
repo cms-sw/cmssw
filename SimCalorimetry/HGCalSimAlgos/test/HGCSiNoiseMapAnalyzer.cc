@@ -51,14 +51,16 @@ private:
 
   // ----------member data ---------------------------
   edm::Service<TFileService> fs_;
-  std::map<DetId::Detector, HGCalSiNoiseMap *> noiseMaps_;
+  std::map<DetId::Detector, std::unique_ptr<HGCalSiNoiseMap>> noiseMaps_;
   std::map<std::pair<DetId::Detector, int>, TH1F *> layerN_, layerCCE_, layerNoise_, layerIleak_, layerSN_, layerF_,
       layerGain_, layerMipPeak_;
   std::map<DetId::Detector, TH2F *> detN_, detCCE_, detNoise_, detIleak_, detSN_, detF_, detGain_, detMipPeak_;
-  std::map<std::pair<DetId::Detector, HGCSiliconDetId::waferType>, TProfile *> detCCEVsFluence_;
+  std::map<std::pair<DetId::Detector, int>, TProfile *> detCCEVsFluence_;
 
   int aimMIPtoADC_;
   bool ignoreFluence_, ignoreGainSettings_;
+
+  const int plotMargin_ = 20;
 };
 
 //
@@ -68,20 +70,21 @@ HGCSiNoiseMapAnalyzer::HGCSiNoiseMapAnalyzer(const edm::ParameterSet &iConfig) {
 
   //configure the dose map
   std::string doseMapURL(iConfig.getParameter<std::string>("doseMap"));
-  std::vector<double> ileakParam(iConfig.getParameter<std::vector<double> >("ileakParam"));
+  std::vector<double> ileakParam(
+      iConfig.getParameter<edm::ParameterSet>("ileakParam").template getParameter<std::vector<double>>("ileakParam"));
   std::vector<double> cceParamFine(
-      iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamFine"));
+      iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamFine"));
   std::vector<double> cceParamThin(
-      iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThin"));
+      iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThin"));
   std::vector<double> cceParamThick(
-      iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double> >("cceParamThick"));
+      iConfig.getParameter<edm::ParameterSet>("cceParams").template getParameter<std::vector<double>>("cceParamThick"));
 
-  noiseMaps_[DetId::HGCalEE] = new HGCalSiNoiseMap;
+  noiseMaps_[DetId::HGCalEE] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
   noiseMaps_[DetId::HGCalEE]->setDoseMap(doseMapURL);
   noiseMaps_[DetId::HGCalEE]->setIleakParam(ileakParam);
   noiseMaps_[DetId::HGCalEE]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
 
-  noiseMaps_[DetId::HGCalHSi] = new HGCalSiNoiseMap;
+  noiseMaps_[DetId::HGCalHSi] = std::unique_ptr<HGCalSiNoiseMap>(new HGCalSiNoiseMap);
   noiseMaps_[DetId::HGCalHSi]->setDoseMap(doseMapURL);
   noiseMaps_[DetId::HGCalHSi]->setIleakParam(ileakParam);
   noiseMaps_[DetId::HGCalHSi]->setCceParam(cceParamFine, cceParamThin, cceParamThick);
@@ -101,14 +104,13 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
   es.get<CaloGeometryRecord>().get(geom);
 
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi};
-  for (auto &d : dets) {
+  for (const auto &d : dets) {
     noiseMaps_[d]->setGeometry(geom->getSubdetectorGeometry(d, ForwardSubdetector::ForwardEmpty));
     //sub-detector boundaries
     unsigned int nlay = noiseMaps_[d]->ddd()->layers(true);
     std::pair<double, double> ranZ = noiseMaps_[d]->ddd()->rangeZ(true);
-    std::pair<double, double> ranRAtZmin = noiseMaps_[d]->ddd()->rangeR(ranZ.first, true);
-    std::pair<double, double> ranRAtZmax = noiseMaps_[d]->ddd()->rangeR(ranZ.first, true);
-    std::pair<double, double> ranR(ranRAtZmin.first - 20, ranRAtZmax.second + 20);
+    std::pair<double, double> ranRAtZ = noiseMaps_[d]->ddd()->rangeR(ranZ.first, true);
+    std::pair<double, double> ranR(ranRAtZ.first - plotMargin_, ranRAtZ.second + plotMargin_);
 
     const std::vector<DetId> &detIdVec = noiseMaps_[d]->geom()->getValidDetIds();
     cout << "Subdetector:" << d << " has " << detIdVec.size() << " valid cells" << endl
@@ -140,10 +142,10 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
     }
 
     //cce vs fluence
-    for (auto &wt : noiseMaps_[d]->getMipEqfC()) {
-      std::pair<DetId::Detector, HGCSiliconDetId::waferType> key2(d, wt.first);
+    for (unsigned int wafertype = 0; wafertype < (noiseMaps_[d]->getMipEqfC()).size(); ++wafertype) {
+      std::pair<DetId::Detector, int> key2(d, wafertype);
       detCCEVsFluence_[key2] = fs_->make<TProfile>(
-          baseName + Form("wt%d_", wt.first) + "cceVsFluence", title + ";<F> [n_{eq}/cm^{2}];<CCE>", 1000, 1e14, 1e16);
+          baseName + Form("wt%d_", wafertype) + "cceVsFluence", title + ";<F> [n_{eq}/cm^{2}];<CCE>", 1000, 1e14, 1e16);
     }
 
     //sub-detector histos
@@ -197,7 +199,7 @@ void HGCSiNoiseMapAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
       layerGain_[key]->Fill(r, siop.gain + 1);
       layerMipPeak_[key]->Fill(r, siop.mipADC);
 
-      std::pair<DetId::Detector, HGCSiliconDetId::waferType> key2(d, HGCSiliconDetId::waferType(id.type()));
+      std::pair<DetId::Detector, int> key2(d, id.type());
       detCCEVsFluence_[key2]->Fill(siop.fluence, siop.cce);
     }
 

@@ -21,7 +21,7 @@ HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet& ps) : HGCDigitiz
   scaleByDose_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<bool>("scaleByDose");
   doseMapFile_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<std::string>("doseMap");
   noise_MIP_ = cfg.getParameter<edm::ParameterSet>("noise").getParameter<double>("noise_MIP");
-  calibDigis_ = cfg.getParameter<bool>("calibDigis");
+  thresholdFollowsMIP_ = cfg.getParameter<bool>("thresholdFollowsMIP");
   keV2MIP_ = cfg.getParameter<double>("keV2MIP");
   this->keV2fC_ = 1.0;  //keV2MIP_; // hack for HEB
   nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
@@ -113,7 +113,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     if (id.det() == DetId::HGCalHSc)  //skip those geometries that have HE used as BH
     {
-      std::array<double, 8> radius;
+      radiiVec radius;
       if (scaleByTileArea_ or scaleByDose_ or scaleBySipmArea_)
         radius = scal_.computeRadius(id);
 
@@ -162,8 +162,8 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       //take into account the gain fluctuations of each pixel
       //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
 
-      //scale to calibrated response depending on the calibDigis_ flag
-      float totalMIPs = calibDigis_ ? std::max((npe - meanN), 0.f) / scaledPePerMip : nPixel / nPEperMIP_;
+      //scale to calibrated response depending on the thresholdFollowsMIP_ flag
+      float totalMIPs = thresholdFollowsMIP_ ? std::max((npe - meanN), 0.f) / nPEperMIP_ : nPixel / nPEperMIP_;
 
       if (debug && totalIniMIPs > 0) {
         LogDebug("HGCHEbackDigitizer") << "npeS: " << npeS << " npeN: " << npeN << " npe: " << npe
@@ -179,7 +179,11 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
 
     //init a new data frame and run shaper
     HGCalDataFrame newDataFrame(id);
-    int thrADC(calibDigis_ ? 1 : std::floor(0.5 * scaledPePerMip / nPEperMIP_));
+    float adcThr = this->myFEelectronics_->getADCThreshold();  //this is in MIPs
+    float adcLsb = this->myFEelectronics_->getADClsb();
+    uint32_t thrADC(thresholdFollowsMIP_ ? std::floor(adcThr / adcLsb * scaledPePerMip / nPEperMIP_)
+                                         : std::floor(adcThr / adcLsb));
+
     this->myFEelectronics_->runShaper(newDataFrame, chargeColl, toa, engine, thrADC);
 
     //prepare the output

@@ -34,7 +34,7 @@ public:
                         hgc::HGCSimHitData& chargeColl,
                         hgc::HGCSimHitData& toa,
                         CLHEP::HepRandomEngine* engine,
-                        int thrADC = -1,
+                        uint32_t thrADC = 0,
                         float lsbADC = -1,
                         float maxADC = -1,
                         int thickness = 1) {
@@ -71,6 +71,7 @@ public:
   */
   float getADClsb() { return adcLSB_fC_; }
   float getTDClsb() { return tdcLSB_fC_; }
+  int getTargetMipValue() { return targetMIPvalue_ADC_; }
   float getADCThreshold() { return adcThreshold_fC_; }
   float getTDCOnset() { return tdcOnset_fC_; }
   std::array<float, 3> getTDCForToAOnset() { return tdcForToAOnset_fC_; }
@@ -79,12 +80,12 @@ public:
   /**
      @short converts charge to digis without pulse shape
    */
-  void runTrivialShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thrADC, float lsbADC, float maxADC);
+  void runTrivialShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, float maxADC);
 
   /**
      @short applies a shape to each time sample and propagates the tails to the subsequent time samples
    */
-  void runSimpleShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, int thrADC, float lsbADC, float maxADC);
+  void runSimpleShaper(DFr& dataFrame, hgc::HGCSimHitData& chargeColl, uint32_t thrADC, float lsbADC, float maxADC);
 
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
@@ -93,7 +94,7 @@ public:
                         hgc::HGCSimHitData& chargeColl,
                         hgc::HGCSimHitData& toa,
                         CLHEP::HepRandomEngine* engine,
-                        int thrADC,
+                        uint32_t thrADC,
                         float lsbADC,
                         float maxADC,
                         int thickness);
@@ -116,6 +117,7 @@ private:
   std::vector<float> tdcChargeDrainParameterisation_;
   float adcSaturation_fC_, adcLSB_fC_, tdcLSB_fC_, tdcSaturation_fC_, adcThreshold_fC_, tdcOnset_fC_, toaLSB_ns_,
       tdcResolutionInNs_;
+  uint32_t targetMIPvalue_ADC_;
   std::array<float, 3> jitterNoise2_ns_, jitterConstant2_ns_;
   std::vector<float> noise_fC_;
   uint32_t toaMode_;
