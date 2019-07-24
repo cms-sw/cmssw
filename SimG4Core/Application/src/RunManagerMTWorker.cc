@@ -152,7 +152,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
           iC.consumes<edm::LHCTransportLinkContainer>(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
       m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
-      m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
+      m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
       m_pField(iConfig.getParameter<edm::ParameterSet>("MagneticField")),
       m_pRunAction(iConfig.getParameter<edm::ParameterSet>("RunAction")),
       m_pEventAction(iConfig.getParameter<edm::ParameterSet>("EventAction")),
@@ -255,11 +255,11 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   if (uitype == "MessageLogger") {
     m_tls->UIsession.reset(new CustomUIsession());
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    m_tls->UIsession.reset(
-	new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix",""), thisID));
+    m_tls->UIsession.reset(new CustomUIsessionThreadPrefix(
+        m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID));
   } else if (uitype == "FilePerThread") {
     m_tls->UIsession.reset(
-	new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile",""), thisID));
+        new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID));
   } else {
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid value of CustomUIsession.Type '" << uitype
@@ -303,8 +303,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, []() { dumpMF = true; });
       if (dumpMF) {
-        edm::LogVerbatim("SimG4CoreApplication") 
-            << " RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
+        edm::LogVerbatim("SimG4CoreApplication") << " RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
         DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
       }
     }

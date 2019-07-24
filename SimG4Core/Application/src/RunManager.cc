@@ -124,7 +124,7 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
-      m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
+      m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
@@ -187,8 +187,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
-  int verb = std::max(m_pPhysics.getParameter<int>("Verbosity"), 
-                      m_p.getParameter<int>("SteppingVerbosity"));
+  int verb = std::max(m_pPhysics.getParameter<int>("Verbosity"), m_p.getParameter<int>("SteppingVerbosity"));
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"

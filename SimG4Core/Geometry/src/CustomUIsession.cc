@@ -12,8 +12,11 @@ CustomUIsession::~CustomUIsession() {
 
 G4int CustomUIsession::ReceiveG4cout(const G4String& coutString) {
   //std::cout << coutString << std::flush;
-  if(fout) { (*fout) << trim(coutString) << "\n"; }
-  else { edm::LogVerbatim("G4cout") << trim(coutString); }
+  if (fout) {
+    (*fout) << trim(coutString) << "\n";
+  } else {
+    edm::LogVerbatim("G4cout") << trim(coutString);
+  }
   return 0;
 }
 
@@ -29,7 +32,8 @@ std::string CustomUIsession::trim(const std::string& str) {
   return str;
 }
 
-void CustomUIsession::sendToFile(std::ofstream* ptr)
-{
-  if(ptr && !ptr->fail()) { fout = ptr; }
+void CustomUIsession::sendToFile(std::ofstream* ptr) {
+  if (ptr && !ptr->fail()) {
+    fout = ptr;
+  }
 }
