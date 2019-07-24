@@ -5,10 +5,13 @@
 #include "DD4hep/Objects.h"
 #include "DD4hep/Shapes.h"
 #include "DD4hep/Volumes.h"
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 namespace cms {
 
   class DDParsingContext;
+  using DDVectorsMap = tbb::concurrent_unordered_map<std::string, tbb::concurrent_vector<double>>;
 
   class DDNamespace {
   public:
@@ -63,6 +66,8 @@ namespace cms {
     DDParsingContext* setContext() { return m_context; }
 
     std::string_view name() const { return m_name; }
+
+    std::vector<double> vecDbl(const std::string& name) const;
 
   private:
     DDParsingContext* m_context = nullptr;
