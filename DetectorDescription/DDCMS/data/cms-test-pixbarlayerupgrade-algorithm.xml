@@ -31,6 +31,8 @@
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarmaterial.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer0.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer.xml"/>
    </IncludeSection>
 
 </DDDefinition>

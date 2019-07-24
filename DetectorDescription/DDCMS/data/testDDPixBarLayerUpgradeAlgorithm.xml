@@ -27,7 +27,7 @@
     <Constant name="InnerOffsetFineTune"    value="-0.0120*cm-[pixbarladder:SensorThick]/2"/>
   </ConstantsSection>
 
-  <Algorithm name="tracker:DDPixBarLayerUpgrade">
+  <Algorithm name="track:DDPixBarLayerUpgradeAlgo">
     <rParent name="pixbarlayer0:PixelBarrelLayer0"/>
     <String name="GeneralMaterial"   value="materials:Air"/>
     <Numeric name="Ladders"          value="[pixbarlayer0:Ladders]"/>

@@ -8,14 +8,14 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'testPixBarLayerUpgradeAlgo'),
+    statistics = cms.untracked.vstring('cout', 'testDDPixBarLayerUpgradeAlgo'),
     categories = cms.untracked.vstring('PixelGeom'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
     ),
 
-    testPixBarLayerUpgradeAlgo = cms.untracked.PSet(
+    testDDPixBarLayerUpgradeAlgo = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
         ),
@@ -35,7 +35,7 @@ process.MessageLogger = cms.Service(
     ),
 
     destinations = cms.untracked.vstring('cout',
-                                         'testDDPixBarLayerUpgradeLog')
+                                         'testDDPixBarLayerUpgradeAlgo')
 )
 
 
