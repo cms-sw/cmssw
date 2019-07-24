@@ -47,14 +47,16 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
 
   // correction facotr for premixed sample: ratio of laser corrections
   float correction_factor_for_premixed_sample_transparency = 1.0;
-//   correction_factor_for_premixed_sample_transparency
+  //   correction_factor_for_premixed_sample_transparency
   double value_LC = 1.;
   if (detId.subdetId() != 3) {
+//     std::cout << " detId.subdetId() = " << detId.subdetId() << std::endl;
     auto cache = m_valueLCCache_LC.find(detId);
     if (cache != m_valueLCCache_LC.end()) {
       value_LC = cache->second;
     } else {
       value_LC = findLaserConstant_LC(detId);
+//       value_LC = 1.0;
       m_valueLCCache_LC.emplace(detId, value_LC);
     }
   }
@@ -71,6 +73,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   }
   
   correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
+//   std::cout << " EB correction_factor_for_premixed_sample_transparency[" << detId() << "] = " << correction_factor_for_premixed_sample_transparency << " = " << value_LC_prime << " / " << value_LC << std::endl;
   //
   // LC' /  LC  (see formula)
   //
@@ -93,13 +96,13 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
     //result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
   }
 
-  //std::cout << " EcalSignalGenerator:EB noise input " << digi << std::endl;
-
-  //std::cout << " converted noise sample " << std::endl;
-  //for(int isample = 0; isample<digi.size(); ++isample){
-  //  std::cout << " " << result[isample] ;
-  //}
-  //std::cout << std::endl;
+//   std::cout << " EcalSignalGenerator:EB noise input " << digi << std::endl;
+// 
+//   std::cout << " converted noise sample " << std::endl;
+//   for(int isample = 0; isample<digi.size(); ++isample){
+//    std::cout << " " << result[isample] ;
+//   }
+//   std::cout << std::endl;
 
   return result;
 }
@@ -169,6 +172,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   }
   
   correction_factor_for_premixed_sample_transparency = value_LC_prime / value_LC;
+//   std::cout << " EE correction_factor_for_premixed_sample_transparency[" << detId() << "] = " << correction_factor_for_premixed_sample_transparency << " = " << value_LC_prime << " / " << value_LC << std::endl;
   //
   // LC' /  LC  (see formula)
   //
@@ -190,13 +194,13 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
     //result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
   }
 
-  //std::cout << " EcalSignalGenerator:EE noise input " << digi << std::endl;
-
-  //std::cout << " converted noise sample " << std::endl;
-  //for(int isample = 0; isample<digi.size(); ++isample){
-  //  std::cout << " " << result[isample] ;
-  // }
-  //std::cout << std::endl;
+//   std::cout << " EcalSignalGenerator:EE noise input " << digi << std::endl;
+// 
+//   std::cout << " converted noise sample " << std::endl;
+//   for(int isample = 0; isample<digi.size(); ++isample){
+//    std::cout << " " << result[isample] ;
+//   }
+//   std::cout << std::endl;
 
   return result;
 }
@@ -229,13 +233,13 @@ CaloSamples EcalSignalGenerator<ESDigitizerTraits>::samplesInPE(const DIGI &digi
     result[isample] = float(digi[isample].adc()) / icalconst * ESMIPToGeV;
   }
 
-  //std::cout << " EcalSignalGenerator:ES noise input " << digi << std::endl;
-
-  //std::cout << " converted noise sample " << std::endl;
-  //for(int isample = 0; isample<digi.size(); ++isample){
-  //  std::cout << " " << result[isample] ;
-  //}
-  //std::cout << std::endl;
+//   std::cout << " EcalSignalGenerator:ES noise input " << digi << std::endl;
+// 
+//   std::cout << " converted noise sample " << std::endl;
+//   for(int isample = 0; isample<digi.size(); ++isample){
+//    std::cout << " " << result[isample] ;
+//   }
+//   std::cout << std::endl;
 
   return result;
 }
