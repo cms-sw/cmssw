@@ -1655,7 +1655,7 @@ void Converter<DDLVector>::operator()(xml_h element) const {
   cms::DDParsingContext* const context = ns.context();
   DDVectorsMap* registry = context->description.load()->extension<DDVectorsMap>();
   xml_dim_t e(element);
-  string name = e.nameStr();
+  string name = ns.prepend(e.nameStr());
   string type = ns.attr<string>(e, _U(type));
   string nEntries = ns.attr<string>(e, DD_CMU(nEntries));
   string val = e.text();
