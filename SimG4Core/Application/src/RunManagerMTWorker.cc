@@ -6,10 +6,11 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
-#include "SimG4Core/Application/interface/CustomUIsession.h"
 #include "SimG4Core/Application/interface/CustomUIsessionThreadPrefix.h"
 #include "SimG4Core/Application/interface/CustomUIsessionToFile.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
+
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -151,7 +152,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
           iC.consumes<edm::LHCTransportLinkContainer>(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
       m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
-      m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
+      m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
       m_pField(iConfig.getParameter<edm::ParameterSet>("MagneticField")),
       m_pRunAction(iConfig.getParameter<edm::ParameterSet>("RunAction")),
       m_pEventAction(iConfig.getParameter<edm::ParameterSet>("EventAction")),
@@ -255,10 +256,10 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
     m_tls->UIsession.reset(new CustomUIsession());
   } else if (uitype == "MessageLoggerThreadPrefix") {
     m_tls->UIsession.reset(
-        new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix"), thisID));
+	new CustomUIsessionThreadPrefix(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix",""), thisID));
   } else if (uitype == "FilePerThread") {
     m_tls->UIsession.reset(
-        new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile"), thisID));
+	new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile",""), thisID));
   } else {
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid value of CustomUIsession.Type '" << uitype
@@ -298,11 +299,12 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
 
-    std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField", "");
+    std::string fieldFile = m_p.getParameter<std::string>("FileNameField");
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, []() { dumpMF = true; });
       if (dumpMF) {
-        edm::LogVerbatim("SimG4CoreApplication") << " RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
+        edm::LogVerbatim("SimG4CoreApplication") 
+            << " RunManagerMTWorker: Dump magnetic field to file " << fieldFile;
         DumpMagneticField(tM->GetFieldManager()->GetDetectorField(), fieldFile);
       }
     }
