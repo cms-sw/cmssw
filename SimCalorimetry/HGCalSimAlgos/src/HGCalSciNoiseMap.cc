@@ -9,8 +9,8 @@ HGCalSciNoiseMap::HGCalSciNoiseMap() : refEdge_(3.) {}
 void HGCalSciNoiseMap::setSipmMap(const std::string& fullpath) { sipmMap_ = readSipmPars(fullpath); }
 
 //
-std::map<int, float> HGCalSciNoiseMap::readSipmPars(const std::string& fullpath) {
-  std::map<int, float> result;
+std::unordered_map<int, float> HGCalSciNoiseMap::readSipmPars(const std::string& fullpath) {
+  std::unordered_map<int, float> result;
   //no file means default sipm size
   if (fullpath.empty())
     return result;
@@ -35,25 +35,30 @@ std::map<int, float> HGCalSciNoiseMap::readSipmPars(const std::string& fullpath)
 }
 
 //
-std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId,
-                                                        const std::array<double, 8>& radius) {
+std::pair<double, double> HGCalSciNoiseMap::scaleByDose(const HGCScintillatorDetId& cellId, const radiiVec& radius) {
   if (getDoseMap().empty())
     return std::make_pair(1., 0.);
 
+  //formula is: A = A0 * exp( -D^0.65 / 199.6)
+  //where A0 is the response of the undamaged detector, D is the dose
   int layer = cellId.layer();
   double cellDose = getDoseValue(DetId::HGCalHSc, layer, radius);  //in kRad
   constexpr double expofactor = 1. / 199.6;
-  double scaleFactor = std::exp(-std::pow(cellDose, 0.65) * expofactor);
+  const double dosespower = 0.65;
+  double scaleFactor = std::exp(-std::pow(cellDose, dosespower) * expofactor);
 
+  //formula is: N = 2.18 * sqrt(F * A / 2e13)
+  //where F is the fluence and A is the SiPM area
   double cellFluence = getFluenceValue(DetId::HGCalHSc, layer, radius);  //in 1-Mev-equivalent neutrons per cm2
 
-  constexpr double factor = 2. / (2 * 1e13);  //SiPM area = 2mm^2
-  double noise = 2.18 * sqrt(cellFluence * factor);
+  constexpr double fluencefactor = 2. / (2 * 1e13);  //SiPM area = 2mm^2
+  const double normfactor = 2.18;
+  double noise = normfactor * sqrt(cellFluence * fluencefactor);
 
   return std::make_pair(scaleFactor, noise);
 }
 
-double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, const std::array<double, 8>& radius) {
+double HGCalSciNoiseMap::scaleByTileArea(const HGCScintillatorDetId& cellId, const radiiVec& radius) {
   double edge;
   if (cellId.type() == 0) {
     constexpr double factor = 2 * M_PI * 1. / 360.;
@@ -79,7 +84,7 @@ double HGCalSciNoiseMap::scaleBySipmArea(const HGCScintillatorDetId& cellId, con
     return 1.;
 }
 
-std::array<double, 8> HGCalSciNoiseMap::computeRadius(const HGCScintillatorDetId& cellId) {
+radiiVec HGCalSciNoiseMap::computeRadius(const HGCScintillatorDetId& cellId) {
   GlobalPoint global = geom()->getPosition(cellId);
 
   double radius2 = std::pow(global.x(), 2) + std::pow(global.y(), 2);  //in cm
@@ -92,7 +97,6 @@ std::array<double, 8> HGCalSciNoiseMap::computeRadius(const HGCScintillatorDetId
   double radius_m100_3 = radius_m100_2 * radius_m100;
   double radius_m100_4 = std::pow(radius_m100_2, 2);
 
-  std::array<double, 8> radii{
-      {radius, radius2, radius3, radius4, radius_m100, radius_m100_2, radius_m100_3, radius_m100_4}};
+  radiiVec radii{{radius, radius2, radius3, radius4, radius_m100, radius_m100_2, radius_m100_3, radius_m100_4}};
   return radii;
 }

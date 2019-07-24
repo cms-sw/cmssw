@@ -7,6 +7,8 @@
 #include "vdt/vdtMath.h"
 #include <string>
 
+typedef std::array<double, 8> radiiVec;
+
 /**
    @class HGCalRadiationMap
    @short parses a txt file with dose/fluence parameters and provides functions for noise, etc.
@@ -18,30 +20,32 @@ public:
     double a_, b_, c_, d_, e_, f_, g_, h_, i_, j_;
   };
 
-  HGCalRadiationMap();
+  HGCalRadiationMap(){};
   ~HGCalRadiationMap(){};
+
+  typedef std::map<std::pair<int, int>, DoseParameters> doseParametersMap;
 
   void setGeometry(const CaloSubdetectorGeometry *);
   void setDoseMap(const std::string &);
 
-  double getDoseValue(const int, const int, const std::array<double, 8> &, bool logVal = false);
-  double getFluenceValue(const int, const int, const std::array<double, 8> &, bool logVal = false);
+  double getDoseValue(const int, const int, const radiiVec &, bool logVal = false);
+  double getFluenceValue(const int, const int, const radiiVec &, bool logVal = false);
 
   const HGCalGeometry *geom() { return hgcalGeom_; }
   const HGCalTopology *topo() { return hgcalTopology_; }
   const HGCalDDDConstants *ddd() { return hgcalDDD_; }
 
-  inline const std::map<std::pair<int, int>, DoseParameters> &getDoseMap() { return doseMap_; }
+  inline const doseParametersMap &getDoseMap() { return doseMap_; }
 
 private:
-  std::map<std::pair<int, int>, DoseParameters> readDosePars(const std::string &);
+  doseParametersMap readDosePars(const std::string &);
 
   const HGCalGeometry *hgcalGeom_;
   const HGCalTopology *hgcalTopology_;
   const HGCalDDDConstants *hgcalDDD_;
-  std::map<std::pair<int, int>, DoseParameters> doseMap_;
+  doseParametersMap doseMap_;
   //conversion from grey to krad
-  const double grayToKrad_;
+  const double grayToKrad_ = 0.1;
 };
 
 #endif

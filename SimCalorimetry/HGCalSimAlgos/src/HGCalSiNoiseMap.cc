@@ -2,27 +2,39 @@
 
 //
 HGCalSiNoiseMap::HGCalSiNoiseMap() : encpScale_(840.), encCommonNoiseSub_(sqrt(1.25)), qe2fc_(1.60217646E-4) {
-  encsParam_[q80fC] = {636., 15.6, 0.0328};
-  maxADCPerGain_[q80fC] = 80.;
-  encsParam_[q160fC] = {1045., 8.74, 0.0685};
-  maxADCPerGain_[q160fC] = 160.;
-  encsParam_[q320fC] = {1915., 2.79, 0.0878};
-  maxADCPerGain_[q320fC] = 320.;
+  encsParam_.push_back({636., 15.6, 0.0328});  //q80fC
+  maxADCPerGain_.push_back(80.);
+  encsParam_.push_back({1045., 8.74, 0.0685});  //q160fC
+  maxADCPerGain_.push_back(160.);
+  encsParam_.push_back({1915., 2.79, 0.0878});  //q320fC
+  maxADCPerGain_.push_back(320.);
 
   for (auto i : maxADCPerGain_)
-    lsbPerGain_[i.first] = i.second / 1024.;
+    lsbPerGain_.push_back(i / 1024.);
 
-  mipEqfC_[HGCSiliconDetId::waferType::HGCalFine] = 120. * 67. * qe2fc_;
-  cellCapacitance_[HGCSiliconDetId::waferType::HGCalFine] = 50;
-  cellVolume_[HGCSiliconDetId::waferType::HGCalFine] = 0.52 * (120.e-4);
+  //fine
+  const double mipEqfC_120 = 120. * 67. * qe2fc_;
+  mipEqfC_.push_back(mipEqfC_120);
+  const double cellCapacitance_120 = 50;
+  cellCapacitance_.push_back(cellCapacitance_120);
+  const double cellVolume_120 = 0.52 * (120.e-4);
+  cellVolume_.push_back(cellVolume_120);
 
-  mipEqfC_[HGCSiliconDetId::waferType::HGCalCoarseThin] = 200. * 70. * qe2fc_;
-  cellCapacitance_[HGCSiliconDetId::waferType::HGCalCoarseThin] = 65;
-  cellVolume_[HGCSiliconDetId::waferType::HGCalCoarseThin] = 1.18 * (200.e-4);
+  //thin
+  const double mipEqfC_200 = 200. * 70. * qe2fc_;
+  mipEqfC_.push_back(mipEqfC_200);
+  const double cellCapacitance_200 = 65;
+  cellCapacitance_.push_back(cellCapacitance_200);
+  const double cellVolume_200 = 1.18 * (200.e-4);
+  cellVolume_.push_back(cellVolume_200);
 
-  mipEqfC_[HGCSiliconDetId::waferType::HGCalCoarseThick] = 300. * 73. * qe2fc_;
-  cellCapacitance_[HGCSiliconDetId::waferType::HGCalCoarseThick] = 45;
-  cellVolume_[HGCSiliconDetId::waferType::HGCalCoarseThick] = 1.18 * (300.e-4);
+  //thick
+  const double mipEqfC_300 = 300. * 73. * qe2fc_;
+  mipEqfC_.push_back(mipEqfC_300);
+  const double cellCapacitance_300 = 45;
+  cellCapacitance_.push_back(cellCapacitance_300);
+  const double cellVolume_300 = 1.18 * (300.e-4);
+  cellVolume_.push_back(cellVolume_300);
 }
 
 //
@@ -34,7 +46,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
 
   //decode cell properties
   int layer(cellId.layer());
-  HGCSiliconDetId::waferType cellThick(HGCSiliconDetId::waferType(cellId.type()));
+  unsigned int cellThick = cellId.type();
   double cellCap(cellCapacitance_[cellThick]);
   double cellVol(cellVolume_[cellThick]);
 
@@ -46,7 +58,7 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
   if (ignoreFluence) {
     siop.fluence = 0;
     siop.lnfluence = -1;
-    siop.ileak = exp(ileakParam_[1]) * cellVol * 1e6;
+    siop.ileak = exp(ileakParam_[1]) * cellVol * unitToMicro_;
     siop.cce = 1;
   } else {
     //compute the radius here
@@ -57,14 +69,14 @@ HGCalSiNoiseMap::SiCellOpCharacteristics HGCalSiNoiseMap::getSiCellOpCharacteris
     double radius = sqrt(radius2);
     double radius3 = radius * radius2;
     double radius4 = pow(radius2, 2);
-    std::array<double, 8> radii{{radius, radius2, radius3, radius4, 0., 0., 0., 0.}};
+    radiiVec radii{{radius, radius2, radius3, radius4, 0., 0., 0., 0.}};
     siop.fluence = getFluenceValue(cellId.subdet(), layer, radii);
     siop.lnfluence = log(siop.fluence);
-    siop.ileak = exp(ileakParam_[0] * siop.lnfluence + ileakParam_[1]) * cellVol * 1e6;
+    siop.ileak = exp(ileakParam_[0] * siop.lnfluence + ileakParam_[1]) * cellVol * unitToMicro_;
 
     //lin+log parametrization
     siop.cce = siop.fluence <= cceParam_[cellThick][0] ? 1. + cceParam_[cellThick][1] * siop.fluence
-                                                       : (1. - cceParam_[cellThick][2] * log(siop.fluence)) +
+                                                       : (1. - cceParam_[cellThick][2] * siop.lnfluence) +
                                                              (cceParam_[cellThick][1] * cceParam_[cellThick][0] +
                                                               cceParam_[cellThick][2] * log(cceParam_[cellThick][0]));
   }

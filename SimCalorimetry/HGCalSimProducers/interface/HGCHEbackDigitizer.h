@@ -20,7 +20,7 @@ public:
 private:
   //calice-like digitization parameters
   uint32_t algo_;
-  bool scaleByTileArea_, scaleBySipmArea_, scaleByDose_, calibDigis_;
+  bool scaleByTileArea_, scaleBySipmArea_, scaleByDose_, thresholdFollowsMIP_;
   float keV2MIP_, noise_MIP_;
   float nPEperMIP_, nTotalPE_, xTalk_, sdPixels_;
   std::string doseMapFile_, sipmMapFile_;

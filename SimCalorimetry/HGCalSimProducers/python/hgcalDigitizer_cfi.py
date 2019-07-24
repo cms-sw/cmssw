@@ -6,12 +6,13 @@ fC_per_ele     = 1.6020506e-4
 nonAgedCCEs    = [1.0, 1.0, 1.0]
 nonAgedNoises  = [2100.0,2100.0,1600.0] #100,200,300 um (in electrons)
 nonAgedNoises_v9 = [2000.0,2400.0,2000.0] # 120,200,300 um (in electrons)
-thresholdTracksMIP = False
+thresholdTracksMIP = True
 
 ileakParam_600V     = [0.993,-42.668]
 ileakParam_800V     = [0.996,-42.464]
-ileakParam_toUse    = ileakParam_600V
-
+HGCAL_ileakParam_toUse    = cms.PSet(
+    ileakParam = cms.vdouble(ileakParam_600V)
+    )
 
 #  line+log tdr 600V
 cceParamFine_tdr600  = [1.5e+15, -3.00394e-17, 0.318083]      #120
@@ -34,7 +35,7 @@ cceParamFine_epi600  = [3.5e+15, -9.73872e-19, 0.263812]      #100
 cceParamThin_epi600  = [1.5e+15, -3.09878e-16, 0.211207]      #200
 cceParamThick_epi600 = [6e+14,   -7.96539e-16, 0.251751]      #300
 
-HGCAL_cceParams_toUse      = cms.PSet(
+HGCAL_cceParams_toUse = cms.PSet(
     cceParamFine  = cms.vdouble(cceParamFine_tdr600),
     cceParamThin  = cms.vdouble(cceParamThin_tdr600),
     cceParamThick = cms.vdouble(cceParamThick_tdr600)
@@ -79,7 +80,7 @@ hgceeDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
         keV2fC           = cms.double(0.044259), #1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
-        ileakParam       = cms.vdouble(ileakParam_toUse),
+        ileakParam       = cms.PSet(refToPSet_ = cms.string("HGCAL_ileakParam_toUse")),
         cceParams        = cms.PSet(refToPSet_ = cms.string("HGCAL_cceParams_toUse")),
         chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
         noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
@@ -106,6 +107,8 @@ hgceeDigitizer = cms.PSet(
             tdcNbits          = cms.uint32(12),
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
+            # aim to have the MIP peak at 10 ADC
+            targetMIPvalue_ADC   = cms.uint32(10),
             # raise threshold flag (~MIP/2) this is scaled
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
@@ -145,7 +148,7 @@ hgchefrontDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
         keV2fC           = cms.double(0.044259), #1000 eV / 3.62 (eV per e) / 6.24150934e3 (e per fC)
-        ileakParam       = cms.vdouble(ileakParam_toUse),
+        ileakParam       = cms.PSet(refToPSet_ = cms.string("HGCAL_ileakParam_toUse")),
         cceParams        = cms.PSet(refToPSet_ = cms.string("HGCAL_cceParams_toUse")),
         chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
         noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
@@ -171,6 +174,8 @@ hgchefrontDigitizer = cms.PSet(
             tdcNbits          = cms.uint32(12),
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
+            # aim to have the MIP peak at 10 ADC
+            targetMIPvalue_ADC   = cms.uint32(10),
             # raise threshold flag (~MIP/2) this is scaled
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
@@ -216,14 +221,13 @@ hgchebackDigitizer = cms.PSet(
         scaleBySipmArea= cms.bool(True),
         sipmMap       = cms.string("SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt"),
         noise         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")), #scales both for scint raddam and sipm dark current
-        calibDigis    = cms.bool(True),
         keV2MIP       = cms.double(1./675.0),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(21.0),
         nTotalPE  = cms.double(7500),
         xTalk     = cms.double(0.01),
         sdPixels  = cms.double(1e-6), # this is additional photostatistics noise (as implemented), not sure why it's here...
-        thresholdFollowsMIP = cms.bool(False),
+        thresholdFollowsMIP = cms.bool(thresholdTracksMIP),
         feCfg   = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
@@ -256,7 +260,7 @@ hfnoseDigitizer = cms.PSet(
     verbosity         = cms.untracked.uint32(0),
     digiCfg = cms.PSet(
         keV2fC           = cms.double(0.044259), #1000 eV/3.62 (eV per e) / 6.24150934e3 (e per fC)
-        ileakParam       = cms.vdouble(ileakParam_toUse),
+        ileakParam       = cms.PSet(refToPSet_ = cms.string("HGCAL_ileakParam_toUse")),
         cceParams        = cms.PSet(refToPSet_ = cms.string("HGCAL_cceParams_toUse")),
         chargeCollectionEfficiencies = cms.PSet(refToPSet_ = cms.string("HGCAL_chargeCollectionEfficiencies")),
         noise_fC         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_fC")),
@@ -283,6 +287,8 @@ hfnoseDigitizer = cms.PSet(
             tdcNbits          = cms.uint32(12),
             # TDC saturation
             tdcSaturation_fC  = cms.double(10000),
+            # aim to have the MIP peak at 10 ADC
+            targetMIPvalue_ADC   = cms.uint32(10),
             # raise threshold flag (~MIP/2) this is scaled
             # for different thickness
             adcThreshold_fC   = cms.double(0.672),
