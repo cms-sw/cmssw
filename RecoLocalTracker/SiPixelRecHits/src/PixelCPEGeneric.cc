@@ -261,9 +261,6 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
   int Q_l_X;        //!< Q of the last   pixels  in X
   int Q_f_Y;        //!< Q of the first  pixels  in Y
   int Q_l_Y;        //!< Q of the last   pixels  in Y
-  //float xtalk[4] = {0,0.1,0,0};
-  //bool correct_xtalk = true;
-  //int induced_thre = 1000;
   double xtalk[4] = {Odd_column_interchannelCoupling_next_column,
                     Odd_row_interchannelCoupling_next_row,
                     Even_column_interchannelCoupling_next_column,
