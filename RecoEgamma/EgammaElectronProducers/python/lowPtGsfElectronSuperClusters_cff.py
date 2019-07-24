@@ -1,5 +1,0 @@
-import FWCore.ParameterSet.Config as cms
-
-from RecoEgamma.EgammaElectronProducers.defaultLowPtGsfElectronSuperClusters_cfi import defaultLowPtGsfElectronSuperClusters
-
-lowPtGsfElectronSuperClusters = defaultLowPtGsfElectronSuperClusters.clone()

@@ -6,7 +6,7 @@ from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol0
 from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol03CfgV2,trkIsol04CfgV2
 
 lowPtGsfElectrons = cms.EDProducer(
-    "LowPtGsfElectronProducer",
+    "GsfElectronBaseProducer",
     
     # input collections
     previousGsfElectronsTag = cms.InputTag(""),
