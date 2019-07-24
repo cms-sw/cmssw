@@ -1,4 +1,5 @@
-#include "SimG4Core/Application/interface/G4RegionReporter.h"
+#include "SimG4Core/Geometry/interface/CMSG4RegionReporter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Region.hh"
 #include "G4RegionStore.hh"
@@ -10,15 +11,15 @@
 #include <iomanip>
 #include <fstream>
 
-G4RegionReporter::G4RegionReporter() {}
+CMSG4RegionReporter::CMSG4RegionReporter() {}
 
-G4RegionReporter::~G4RegionReporter() {}
+CMSG4RegionReporter::~CMSG4RegionReporter() {}
 
-void G4RegionReporter::ReportRegions(const std::string& ss) {
+void CMSG4RegionReporter::ReportRegions(const std::string& ss) {
   std::ofstream fout(ss.c_str(), std::ios::out);
   if (fout.fail()) {
-    std::cout << "SimG4CoreApplication ReportRegions WARNING : "
-              << "error opening file <" << ss << ">" << std::endl;
+      edm::LogWarning("SimG4CoreGeometry") 
+	<< "CMSG4RegionReporter: file <" << ss << "> is not opened - no report provided";
     return;
   }
   G4RegionStore* regStore = G4RegionStore::GetInstance();
@@ -27,17 +28,17 @@ void G4RegionReporter::ReportRegions(const std::string& ss) {
 
   unsigned int i;
 
-  fout << std::endl;
+  fout << "\n";
   fout << "#---------------------------------------------------------------------";
-  fout << "------------------------------------" << std::endl;
-  fout << "## List of Regions, root logical volumes and cuts. " << std::endl;
-  fout << "## Number of regions = " << numRegions << std::endl;
+  fout << "------------------------------------" << "\n";
+  fout << "## List of Regions, root logical volumes and cuts. " << "\n";
+  fout << "## Number of regions = " << numRegions << "\n";
 
   //  Banner
   fout << "# " << std::setw(24) << " Region, " << std::setw(38) << " LogicalVolume, "
-       << " Cuts:Gamma, Electron, Positron, Proton, Units" << std::endl;
+       << " Cuts:Gamma, Electron, Positron, Proton, Units" << "\n";
   fout << "#---------------------------------------------------------------------";
-  fout << "------------------------------------" << std::endl;
+  fout << "------------------------------------" << "\n";
 
   for (i = 0; i < numRegions; ++i) {
     G4Region* region = regStore->at(i);
@@ -49,7 +50,8 @@ void G4RegionReporter::ReportRegions(const std::string& ss) {
     G4String lengthUnitName = "mm";
     unsigned int pmax = 4;  // g, e-, e+, proton
 
-    std::vector<G4LogicalVolume*>::iterator rootLVItr = region->GetRootLogicalVolumeIterator();
+    std::vector<G4LogicalVolume*>::iterator rootLVItr = 
+      region->GetRootLogicalVolumeIterator();
     size_t numRootLV = region->GetNumberOfRootVolumes();
 
     for (size_t iLV = 0; iLV < numRootLV; ++iLV, ++rootLVItr) {
@@ -77,11 +79,11 @@ void G4RegionReporter::ReportRegions(const std::string& ss) {
           fout << " ,   " << lengthUnitName;
         }
       }
-      fout << std::endl;
+      fout << "\n";
     }
   }
   fout << "#---------------------------------------------------------------------";
-  fout << "------------------------------------" << std::endl;
-  fout << std::endl;
+  fout << "------------------------------------" << "\n";
+  fout << "\n";
   fout.close();
 }
