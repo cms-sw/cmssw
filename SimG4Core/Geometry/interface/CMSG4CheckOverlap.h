@@ -10,15 +10,13 @@ class G4VPhysicalVolume;
 
 class CMSG4CheckOverlap {
 public:
-  CMSG4CheckOverlap(edm::ParameterSet const &p, std::string& regFile,
-                    CustomUIsession*, G4VPhysicalVolume* world);
+  CMSG4CheckOverlap(edm::ParameterSet const& p, std::string& regFile, CustomUIsession*, G4VPhysicalVolume* world);
   ~CMSG4CheckOverlap();
 
 private:
   void makeReportForMaterials(std::ofstream& fout);
   void makeReportForGeometry(std::ofstream& fout, G4VPhysicalVolume* world);
-  void makeReportForOverlaps(std::ofstream& fout, const edm::ParameterSet &p);
-
+  void makeReportForOverlaps(std::ofstream& fout, const edm::ParameterSet& p);
 };
 
 #endif

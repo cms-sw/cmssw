@@ -18,8 +18,8 @@ CMSG4RegionReporter::~CMSG4RegionReporter() {}
 void CMSG4RegionReporter::ReportRegions(const std::string& ss) {
   std::ofstream fout(ss.c_str(), std::ios::out);
   if (fout.fail()) {
-      edm::LogWarning("SimG4CoreGeometry") 
-	<< "CMSG4RegionReporter: file <" << ss << "> is not opened - no report provided";
+    edm::LogWarning("SimG4CoreGeometry") << "CMSG4RegionReporter: file <" << ss
+                                         << "> is not opened - no report provided";
     return;
   }
   G4RegionStore* regStore = G4RegionStore::GetInstance();
@@ -30,15 +30,19 @@ void CMSG4RegionReporter::ReportRegions(const std::string& ss) {
 
   fout << "\n";
   fout << "#---------------------------------------------------------------------";
-  fout << "------------------------------------" << "\n";
-  fout << "## List of Regions, root logical volumes and cuts. " << "\n";
+  fout << "------------------------------------"
+       << "\n";
+  fout << "## List of Regions, root logical volumes and cuts. "
+       << "\n";
   fout << "## Number of regions = " << numRegions << "\n";
 
   //  Banner
   fout << "# " << std::setw(24) << " Region, " << std::setw(38) << " LogicalVolume, "
-       << " Cuts:Gamma, Electron, Positron, Proton, Units" << "\n";
+       << " Cuts:Gamma, Electron, Positron, Proton, Units"
+       << "\n";
   fout << "#---------------------------------------------------------------------";
-  fout << "------------------------------------" << "\n";
+  fout << "------------------------------------"
+       << "\n";
 
   for (i = 0; i < numRegions; ++i) {
     G4Region* region = regStore->at(i);
@@ -50,8 +54,7 @@ void CMSG4RegionReporter::ReportRegions(const std::string& ss) {
     G4String lengthUnitName = "mm";
     unsigned int pmax = 4;  // g, e-, e+, proton
 
-    std::vector<G4LogicalVolume*>::iterator rootLVItr = 
-      region->GetRootLogicalVolumeIterator();
+    std::vector<G4LogicalVolume*>::iterator rootLVItr = region->GetRootLogicalVolumeIterator();
     size_t numRootLV = region->GetNumberOfRootVolumes();
 
     for (size_t iLV = 0; iLV < numRootLV; ++iLV, ++rootLVItr) {
@@ -83,7 +86,8 @@ void CMSG4RegionReporter::ReportRegions(const std::string& ss) {
     }
   }
   fout << "#---------------------------------------------------------------------";
-  fout << "------------------------------------" << "\n";
+  fout << "------------------------------------"
+       << "\n";
   fout << "\n";
   fout.close();
 }

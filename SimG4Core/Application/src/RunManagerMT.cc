@@ -99,7 +99,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
   int verb =
-    std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity",0), m_p.getParameter<int>("SteppingVerbosity"));
+      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
@@ -121,7 +121,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   edm::LogVerbatim("SimG4CoreApplication")
       << "###RunManagerMT: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
 
-  if (m_check) { m_kernel->SetVerboseLevel(2); }
+  if (m_check) {
+    m_kernel->SetVerboseLevel(2);
+  }
   m_kernel->DefineWorldVolume(world, true);
   m_registry.dddWorldSignal_(m_world.get());
 
