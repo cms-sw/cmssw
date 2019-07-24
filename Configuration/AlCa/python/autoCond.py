@@ -16,13 +16,13 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
     'run2_design'       :   '110X_mcRun2_design_v1',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '106X_mcRun2_asymptotic_Candidate_2019_07_16_22_08_53',
+    'run2_mc'           :   '110X_mcRun2_asymptotic_Candidate_2019_07_24_12_20_37',
     # GlobalTag for MC production (cosmics) with starup-like alignment and calibrations for Run2, Strip tracker in peak mode
-    'run2_mc_cosmics'   :   '110X_mcRun2cosmics_startup_deco_v1',
+    'run2_mc_cosmics'   :   '110X_mcRun2cosmics_startup_deco_Candidate_2019_07_24_12_21_07',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
     'run2_mc_hi'        :   '110X_mcRun2_HeavyIon_v1',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
-    'run2_mc_pa'        :   '110X_mcRun2_pA_v1',
+    'run2_mc_pa'        :   '110X_mcRun2_pA_Candidate_2019_07_24_12_21_09',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '110X_dataRun2_v1',
     # GlobalTag for Run2 data reprocessing
