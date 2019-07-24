@@ -50,6 +50,14 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
   // Externally settable flags to inflate errors
   inflate_errors = conf.getParameter<bool>("inflate_errors");
   inflate_all_errors_no_trk_angle = conf.getParameter<bool>("inflate_all_errors_no_trk_angle");
+  
+  // xtalk-related parameters
+  correct_xtalk = conf.getParameter<bool>("correct_xtalk");
+  induced_thre = conf.getParameter<int>("induced_thre");
+  Odd_row_interchannelCoupling_next_row = conf.getParameter<double>("Odd_row_interchannelCoupling_next_row"),
+  Even_row_interchannelCoupling_next_row = conf.getParameter<double>("Even_row_interchannelCoupling_next_row"),
+  Odd_column_interchannelCoupling_next_column = conf.getParameter<double>("Odd_column_interchannelCoupling_next_column"),
+  Even_column_interchannelCoupling_next_column = conf.getParameter<double>("Even_column_interchannelCoupling_next_column"),
 
   UseErrorsFromTemplates_ = conf.getParameter<bool>("UseErrorsFromTemplates");
   TruncatePixelCharge_ = conf.getParameter<bool>("TruncatePixelCharge");
@@ -245,11 +253,29 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
     theClusterParam.qBin_ = 0;
   }
 
-  int Q_f_X;  //!< Q of the first  pixel  in X
-  int Q_l_X;  //!< Q of the last   pixel  in X
-  int Q_f_Y;  //!< Q of the first  pixel  in Y
-  int Q_l_Y;  //!< Q of the last   pixel  in Y
-  collect_edge_charges(theClusterParam, Q_f_X, Q_l_X, Q_f_Y, Q_l_Y);
+  bool del_Xmin = false;
+  bool del_Xmax = false;
+  bool del_Ymin = false;
+  bool del_Ymax = false;
+  int Q_f_X;        //!< Q of the first  pixels  in X
+  int Q_l_X;        //!< Q of the last   pixels  in X
+  int Q_f_Y;        //!< Q of the first  pixels  in Y
+  int Q_l_Y;        //!< Q of the last   pixels  in Y
+  //float xtalk[4] = {0,0.1,0,0};
+  //bool correct_xtalk = true;
+  //int induced_thre = 1000;
+  double xtalk[4] = {Odd_column_interchannelCoupling_next_column,
+                    Odd_row_interchannelCoupling_next_row,
+                    Even_column_interchannelCoupling_next_column,
+                    Even_row_interchannelCoupling_next_row};
+  collect_edge_charges( theClusterParam,
+                        del_Xmin, del_Xmax,
+                        del_Ymin, del_Ymax,
+                        Q_f_X, Q_l_X,
+                        Q_f_Y, Q_l_Y,
+                        xtalk,
+                        induced_thre,
+                        correct_xtalk);
 
   //--- Find the inner widths along X and Y in one shot.  We
   //--- compute the upper right corner of the inner pixels
@@ -306,6 +332,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 
   float xPos =
       generic_position_formula(theClusterParam.theCluster->sizeX(),
+                               del_Xmin,
+                               del_Xmax,
                                Q_f_X,
                                Q_l_X,
                                local_URcorn_LLpix.x(),
@@ -314,8 +342,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
                                theDetParam.theThickness,
                                theClusterParam.cotalpha,
                                theDetParam.thePitchX,
-                               theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->minPixelRow()),
-                               theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->maxPixelRow()),
+                               theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->minPixelRow() + int(del_Xmin) ),
+                               theDetParam.theRecTopol->isItBigPixelInX(theClusterParam.theCluster->maxPixelRow() - int(del_Xmax) ),
                                the_eff_charge_cut_lowX,
                                the_eff_charge_cut_highX,
                                the_size_cutX);  // cut for eff charge width &&&
@@ -330,6 +358,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 
   float yPos =
       generic_position_formula(theClusterParam.theCluster->sizeY(),
+                               del_Ymin,
+                               del_Ymax,
                                Q_f_Y,
                                Q_l_Y,
                                local_URcorn_LLpix.y(),
@@ -338,8 +368,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
                                theDetParam.theThickness,
                                theClusterParam.cotbeta,
                                theDetParam.thePitchY,
-                               theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->minPixelCol()),
-                               theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->maxPixelCol()),
+                               theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->minPixelCol() + int(del_Ymin) ),
+                               theDetParam.theRecTopol->isItBigPixelInY(theClusterParam.theCluster->maxPixelCol() - int(del_Ymax) ),
                                the_eff_charge_cut_lowY,
                                the_eff_charge_cut_highY,
                                the_size_cutY);  // cut for eff charge width &&&
@@ -399,6 +429,8 @@ LocalPoint PixelCPEGeneric::localPosition(DetParam const& theDetParam, ClusterPa
 //!  is the theThickness, since that's common for both X and Y.
 //-----------------------------------------------------------------------------
 float PixelCPEGeneric::generic_position_formula(int size,                    //!< Size of this projection.
+                                                bool del_min,
+                                                bool del_max,
                                                 int Q_f,                     //!< Charge in the first pixel.
                                                 int Q_l,                     //!< Charge in the last pixel.
                                                 float upper_edge_first_pix,  //!< As the name says.
@@ -414,7 +446,15 @@ float PixelCPEGeneric::generic_position_formula(int size,                    //!
                                                 float size_cut               //!< Use edge when size == cuts
                                                 ) const {
   //cout<<" in PixelCPEGeneric:generic_position_formula - "<<endl; //dk
-
+  
+  if (del_min){
+    upper_edge_first_pix += pitch;
+    size--;
+  }
+  if (del_max){
+    lower_edge_last_pix -= pitch;
+    size--;
+  }
   float geom_center = 0.5f * (upper_edge_first_pix + lower_edge_last_pix);
 
   //--- The case of only one pixel in this projection is separate.  Note that
@@ -518,46 +558,135 @@ float PixelCPEGeneric::generic_position_formula(int size,                    //!
 //!  and the inner cluster charge, projected in x and y.
 //-----------------------------------------------------------------------------
 void PixelCPEGeneric::collect_edge_charges(ClusterParam& theClusterParamBase,  //!< input, the cluster
+                                           bool& del_Xmin,
+                                           bool& del_Xmax,
+                                           bool& del_Ymin,
+                                           bool& del_Ymax,
                                            int& Q_f_X,                         //!< output, Q first  in X
                                            int& Q_l_X,                         //!< output, Q last   in X
                                            int& Q_f_Y,                         //!< output, Q first  in Y
-                                           int& Q_l_Y                          //!< output, Q last   in Y
+                                           int& Q_l_Y,                         //!< output, Q last   in Y
+                                           double xtalk[4],
+                                           int induced_thre,
+                                           bool correct_xtalk
                                            ) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   // Initialize return variables.
-  Q_f_X = Q_l_X = 0.0;
-  Q_f_Y = Q_l_Y = 0.0;
+  del_Xmin = del_Xmax = false;
+  del_Ymin = del_Ymax = false;
+  Q_f_X = Q_l_X = 0;
+  Q_f_Y = Q_l_Y = 0;
+  
+  // xtalk matrix is defined as a symmetric 2x2 matrix [ [1-xtalk,xtalk] , [xtalk,1-xtalk] ] which
+  // has been applied to pair pixels and is to be corrected with its inverse
+  // the four values in xtalk[4] correspond to the coupling between a pixel in an odd row and column to its next column, next row, previous column, previous row
+  float xtalk_matrix_determinant[4];
+  for (int i=0; i < 4; i++) xtalk_matrix_determinant[i] = (1-xtalk[i])*(1-xtalk[i]) - xtalk[i]*xtalk[i];
+  
+  float xtalk_correction_factors[4][2];
+  for (int i=0; i < 4; i++){
+    xtalk_correction_factors[i][0] = (1-xtalk[i])/xtalk_matrix_determinant[i]; // first element of inverse matrix
+    xtalk_correction_factors[i][1] = -1.0*xtalk[i]/xtalk_matrix_determinant[i]; // second element of inverse matrix
+  }
 
   // Obtain boundaries in index units
   int xmin = theClusterParam.theCluster->minPixelRow();
   int xmax = theClusterParam.theCluster->maxPixelRow();
   int ymin = theClusterParam.theCluster->minPixelCol();
   int ymax = theClusterParam.theCluster->maxPixelCol();
-
-  // Iterate over the pixels.
+  int sizex = 1 + xmax - xmin;
+  int sizey = 1 + ymax - ymin;
+  
+  float cluster_matrix[sizex+2][sizey+2];
+  for (int i = 0; i < sizex+2; i++){
+    for (int j = 0; j < sizey+2; j++) cluster_matrix[i][j] = 0.0;
+  }
+  
+  // Iterate over the pixels and fill cluster_matrix
+  // cluster_matrix has one extra row/column margin on each side set to zeros as the pairs of actual marginal pixels of the cluster
   int isize = theClusterParam.theCluster->size();
-  for (int i = 0; i != isize; ++i) {
-    auto const& pixel = theClusterParam.theCluster->pixel(i);
-    // ggiurgiu@fnal.gov: add pixel charge truncation
-    int pix_adc = pixel.adc;
-    if (UseErrorsFromTemplates_ && TruncatePixelCharge_)
-      pix_adc = std::min(pix_adc, theClusterParam.pixmx);
-
-    //
-    // X projection
-    if (pixel.x == xmin)
-      Q_f_X += pix_adc;
-    if (pixel.x == xmax)
-      Q_l_X += pix_adc;
-    //
-    // Y projection
-    if (pixel.y == ymin)
-      Q_f_Y += pix_adc;
-    if (pixel.y == ymax)
-      Q_l_Y += pix_adc;
+  for (int i = 0;  i != isize; i++)
+  {
+    auto const & pixel = theClusterParam.theCluster->pixel(i);
+    cluster_matrix[1 + pixel.x - xmin][1 + pixel.y - ymin] = pixel.adc;
   }
 
+  // Iterate over the pixels.
+  bool pruned_cluster = false; //indicating if any rows/columns have been deleted from the cluster
+  while(!pruned_cluster){
+  Q_f_X = Q_l_X = 0.0;
+  Q_f_Y = Q_l_Y = 0.0;
+    for (int i = 0; i != isize; ++i) {
+      auto const& pixel = theClusterParam.theCluster->pixel(i);
+      // ggiurgiu@fnal.gov: add pixel charge truncation
+      int pix_adc = pixel.adc;
+      if (UseErrorsFromTemplates_ && TruncatePixelCharge_)
+        pix_adc = std::min(pix_adc, theClusterParam.pixmx);
+      
+      if (!correct_xtalk){ //read the charges exactly as before if correction is off
+        // X projection
+        if (pixel.x == xmin)
+          Q_f_X += pix_adc;
+        if (pixel.x == xmax)
+          Q_l_X += pix_adc;
+        //
+        // Y projection
+        if (pixel.y == ymin)
+          Q_f_Y += pix_adc;
+        if (pixel.y == ymax)
+          Q_l_Y += pix_adc;          
+      }
+      // correct the charges modified by xtalk
+      else{
+        if (pixel.x == xmin || pixel.x == xmax){
+          float delta_charge = 0;
+          int oddness = 2*(pixel.x % 2) - 1; // 1 for odd and -1 for even
+          for (int direction = -1; direction < 2; direction += 2){
+            delta_charge += xtalk_correction_factors[2 + oddness*direction][0]*pix_adc + xtalk_correction_factors[2 + oddness*direction][1]*cluster_matrix[1+pixel.x + oddness - xmin][1+pixel.y - ymin] - pix_adc;
+          }
+          if (delta_charge + pix_adc < induced_thre) delta_charge = -1*pix_adc;
+          if ( pixel.x == xmin){
+            Q_f_X += delta_charge + pix_adc;
+          }
+          if ( pixel.x == xmax){
+            Q_l_X += delta_charge + pix_adc;
+          }
+        }
+        if (pixel.y == ymin || pixel.y == ymax){
+          float delta_charge = 0;
+          int oddness = 2*(pixel.y % 2) - 1; // 1 for odd and -1 for even
+          for (int direction = -1; direction < 2; direction += 2){
+            delta_charge += xtalk_correction_factors[1 + oddness*direction][0]*pix_adc + xtalk_correction_factors[2 + oddness*direction][1]*cluster_matrix[1+pixel.x - xmin][1+pixel.y + oddness - ymin] - pix_adc;
+          }
+          if (delta_charge + pix_adc < induced_thre) delta_charge = -1*pix_adc;
+          if ( pixel.y == ymin) Q_f_Y += delta_charge + pix_adc;
+          if ( pixel.y == ymax) Q_l_Y += delta_charge + pix_adc;
+        }
+      }
+    }
+    if(!correct_xtalk) break;
+    if (Q_f_X == 0 || Q_l_X == 0 || Q_f_Y == 0 || Q_l_Y == 0){ //basically if after correction a whole row/column is below threshold
+      if (Q_f_X == 0){
+        del_Xmin = true;
+        xmin++;
+      }
+      if (Q_l_X == 0){
+        del_Xmax = true;
+        xmax--;
+      }
+      if (Q_f_Y == 0){
+        del_Ymin = true;
+        ymin++;
+      }
+      if (Q_l_Y == 0){
+        del_Ymax = true;
+        ymax--;
+      }
+      pruned_cluster = true;
+    }
+    else break;
+  }
   return;
 }
 

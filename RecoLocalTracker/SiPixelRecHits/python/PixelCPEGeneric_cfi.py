@@ -21,6 +21,14 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     # ggiurgiu@jhu.edu
     inflate_errors = cms.bool(False),
     inflate_all_errors_no_trk_angle = cms.bool(False),
+    
+    #xtalk-related parameteres
+    correct_xtalk = cms.bool(False), # correcting the charges and pruning the clusters after cross-talk
+    induced_thre = cms.int32(1000), # threshold in electrons for keeping pixels after correcting their charge
+    Odd_row_interchannelCoupling_next_row = cms.double(0.10),
+    Even_row_interchannelCoupling_next_row = cms.double(0.0),
+    Odd_column_interchannelCoupling_next_column = cms.double(0.0),
+    Even_column_interchannelCoupling_next_column = cms.double(0.0),
 
     # Can use errors predicted by the template code
     # If UseErrorsFromTemplates is False, must also set

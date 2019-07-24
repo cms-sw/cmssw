@@ -96,6 +96,8 @@ private:
   //  Methods.
   //------------------------------------------------------------------
   float generic_position_formula(int size,                    //!< Size of this projection.
+                                 bool del_min,
+                                 bool del_max,
                                  int Q_f,                     //!< Charge in the first pixel.
                                  int Q_l,                     //!< Charge in the last pixel.
                                  float upper_edge_first_pix,  //!< As the name says.
@@ -112,10 +114,17 @@ private:
                                  ) const;
 
   void collect_edge_charges(ClusterParam &theClusterParam,  //!< input, the cluster
+                            bool &del_Xmin,                 //delete the first row
+                            bool &del_Xmax,                 //delete the last row
+                            bool &del_Ymin,                 //delete the first column
+                            bool &del_Ymax,                 //delete the last column
                             int &Q_f_X,                     //!< output, Q first  in X
                             int &Q_l_X,                     //!< output, Q last   in X
                             int &Q_f_Y,                     //!< output, Q first  in Y
-                            int &Q_l_Y                      //!< output, Q last   in Y
+                            int &Q_l_Y,                     //!< output, Q last   in Y
+                            double xtalk[4],
+                            int induced_thre,               //threshold in electrons for keeping pixels after correcting their charge
+                            bool correct_xtalk
                             ) const;
 
   //--- Errors squared in x and y.  &&& Need to be revisited.
@@ -132,6 +141,13 @@ private:
 
   bool inflate_errors;
   bool inflate_all_errors_no_trk_angle;
+
+  bool correct_xtalk;
+  int induced_thre;
+  double Odd_row_interchannelCoupling_next_row;
+  double Even_row_interchannelCoupling_next_row;
+  double Odd_column_interchannelCoupling_next_column;
+  double Even_column_interchannelCoupling_next_column;
 
   bool UseErrorsFromTemplates_;
   bool DoCosmics_;
