@@ -403,6 +403,8 @@ trackingPhase2PU140.toModify(pixelPairStepSelector,
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'pixelPairStep',
             preFilterName = 'pixelPairStepTight',
+#            min_eta = -4.0, # useless, the eta distribution does not even reach |eta| = 3 (!)
+#            max_eta = 4.0,
             chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
