@@ -84,6 +84,8 @@ MicroEventContent = cms.PSet(
 	'keep recoTracks_displacedStandAloneMuons__*',
         # L1 prefiring weights
         'keep *_prefiringweight_*_*',
+        # Pixel Cluster
+        'keep *_pixelClusterTagInfos*_*_*',
     )
 )
 
