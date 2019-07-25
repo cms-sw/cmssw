@@ -723,7 +723,7 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   if (not cores_.isUninitialized()) {
     Handle<edm::View<reco::Candidate>> cores;
     event.getByToken(cores_, cores);
-    if(cores.isValid()) {
+    if (cores.isValid()) {
       coresVector = cores.product();
     }
   }
