@@ -363,6 +363,8 @@ trackingPhase2PU140.toModify(initialStepSelector,
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'initialStep',
             preFilterName = 'initialStepTight',
+            min_eta = -4.1,
+            max_eta = 4.1,            
             chi2n_par = 1.2,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
