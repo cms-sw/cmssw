@@ -58,7 +58,7 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
     : cmEnergy_(pset.getUntrackedParameter<double>("cmEnergy", 13000)) {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
-  genRunInfoToken_ = consumes<GenRunInfoProduct,edm::InRun>(pset.getParameter<edm::InputTag>("genRunInfo"));
+  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genRunInfo"));
   signalParticlePdgIds_ = pset.getParameter<std::vector<int>>("signalParticlePdgIds");
 
   produces<edm::HepMCProduct>("unsmeared");
@@ -67,7 +67,7 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
 void GenParticles2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&) {
   edm::Handle<GenRunInfoProduct> genRunInfoHandle;
   iRun.getByToken(genRunInfoToken_, genRunInfoHandle);
-  
+
   xsec_.set_cross_section(genRunInfoHandle->internalXSec().value(), genRunInfoHandle->internalXSec().error());
 }
 
@@ -88,7 +88,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   hepmc_event->set_alphaQCD(genEventInfoHandle->alphaQCD());
 
   hepmc_event->weights() = genEventInfoHandle->weights();
-  
+
   hepmc_event->set_cross_section(xsec_);
 
   // Set PDF

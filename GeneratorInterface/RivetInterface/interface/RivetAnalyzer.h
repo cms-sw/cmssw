@@ -20,7 +20,8 @@
 #include <vector>
 #include <string>
 
-class RivetAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::one::SharedResources> {
+class RivetAnalyzer
+    : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks, edm::one::SharedResources> {
 public:
   RivetAnalyzer(const edm::ParameterSet &);
 
@@ -33,12 +34,12 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   void beginRun(const edm::Run &, const edm::EventSetup &) override;
-  
+
   void endRun(const edm::Run &, const edm::EventSetup &) override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
-  
-  void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
+
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
 
 private:
   void normalizeTree();
