@@ -13,6 +13,7 @@ public:
   virtual ~HcalSimParametersFromDD() {}
 
   bool build(const DDCompactView*, HcalSimParameters&);
+
 private:
   std::vector<double> getDDDArray(const std::string& str, const DDsvalues_type& sv, int& nmin);
 };

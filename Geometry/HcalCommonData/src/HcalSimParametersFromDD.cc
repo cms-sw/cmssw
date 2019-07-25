@@ -16,7 +16,6 @@
 using namespace geant_units::operators;
 
 bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimParameters& php) {
-
   // Parameters for the fibers
   std::string attribute = "Volume";
   std::string value = "HF";
@@ -61,7 +60,7 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimParameters&
     }
     edm::LogVerbatim("HCalGeom") << nb << " Long Fibre Length(cm):" << ss2.str();
 #endif
- 
+
     nb = 0;
     php.shortFiberLength_ = getDDDArray("ShortFL", sv, nb);
 #ifdef EDM_ML_DEBUG
@@ -73,7 +72,7 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimParameters&
       ss3 << "  " << convertMmToCm(php.shortFiberLength_[it]);
     }
     edm::LogVerbatim("HCalGeom") << nb << " Short Fibre Length(cm):" << ss3.str();
-#endif 
+#endif
 
   } else {
     throw cms::Exception("HcalSimParametersFromDD") << "Not found " << value << " for " << attribute << " but needed.";
@@ -112,9 +111,9 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimParameters&
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "HcalSimParameters: gets the Index matches for " << neta.size() << " PMTs";
     for (unsigned int ii = 0; ii < neta.size(); ii++) {
-      edm::LogVerbatim("HCalGeom") << "rIndexR[" << ii << "] = " << php.pmtRight_[ii] << " fibreR[" << ii << "] = "
-                                   << php.pmtFiberRight_[ii] << " rIndexL[" << ii << "] = " << php.pmtLeft_[ii] 
-				   << " fibreL[" << ii << "] = " << php.pmtFiberLeft_[ii];
+      edm::LogVerbatim("HCalGeom") << "rIndexR[" << ii << "] = " << php.pmtRight_[ii] << " fibreR[" << ii
+                                   << "] = " << php.pmtFiberRight_[ii] << " rIndexL[" << ii
+                                   << "] = " << php.pmtLeft_[ii] << " fibreL[" << ii << "] = " << php.pmtFiberLeft_[ii];
     }
 #endif
   } else {
@@ -137,12 +136,12 @@ std::vector<double> HcalSimParametersFromDD::getDDDArray(const std::string& str,
     int nval = fvec.size();
     if (nmin > 0) {
       if (nval < nmin) {
-	edm::LogError("HCalGeom") << "# of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
+        edm::LogError("HCalGeom") << "# of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
         throw cms::Exception("HcalSimParametersFromDD") << "nval < nmin for array " << str << "\n";
       }
     } else {
       if (nval < 1 && nmin != 0) {
-	edm::LogError("HCalGeom") << "# of " << str << " bins " << nval << " < 1 ==> illegal (nmin=" << nmin << ")";
+        edm::LogError("HCalGeom") << "# of " << str << " bins " << nval << " < 1 ==> illegal (nmin=" << nmin << ")";
         throw cms::Exception("HcalSimParametersFromDD") << "nval < 1 for array " << str << "\n";
       }
     }
