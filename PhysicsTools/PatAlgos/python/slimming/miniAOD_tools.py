@@ -392,7 +392,7 @@ def miniAOD_customizeCommon(process):
     addJetCollection(process, postfix   = "", labelName = 'Puppi', jetSource = cms.InputTag('ak4PFJetsPuppi'),
                     jetCorrections = ('AK4PFPuppi', ['L2Relative', 'L3Absolute'], ''),
                     pfCandidates = cms.InputTag("particleFlow"),
-                    algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators,
+                    algo= 'AK', rParam = 0.4, btagDiscriminators = noDeepFlavourDiscriminators
                     )
     
     process.patJetGenJetMatchPuppi.matched = 'slimmedGenJets'
@@ -425,20 +425,14 @@ def miniAOD_customizeCommon(process):
 
     task.add(process.slimmedJetsPuppi)
 
-    
+    # Embed pixelClusterTagInfos in slimmedJets
     process.patJets.addTagInfos = cms.bool(True)
-    process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("pixelClusterTagInfos"),    )
+    process.patJets.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
     process.slimmedJetsNoDeepFlavour.dropTagInfos = cms.string('0')
     process.updatedPatJetsSlimmedDeepFlavour.addTagInfos = cms.bool(True)
-    process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources = cms.VInputTag(cms.InputTag("pixelClusterTagInfos"),)
+    process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = cms.bool(True)
-    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag(
-      cms.InputTag("pfDeepFlavourTagInfosSlimmedDeepFlavour"),
-      cms.InputTag("pfDeepCSVTagInfosSlimmedDeepFlavour"),
-      cms.InputTag("pfImpactParameterTagInfosSlimmedDeepFlavour"),
-      cms.InputTag("pfInclusiveSecondaryVertexFinderTagInfosSlimmedDeepFlavour"),
-      cms.InputTag("pixelClusterTagInfos"),
-    )
+    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
     
     ## puppi met
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
