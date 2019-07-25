@@ -22,8 +22,7 @@ PixelClusterTagInfoProducer::~PixelClusterTagInfoProducer() {}
 
 
 // ------------ method called to produce the data  ------------
-void
-PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     // Declare produced collection
     auto pixelTagInfo = std::make_unique<reco::PixelClusterTagInfoCollection>();
