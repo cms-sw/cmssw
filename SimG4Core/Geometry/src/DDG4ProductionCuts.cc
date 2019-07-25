@@ -82,7 +82,7 @@ void DDG4ProductionCuts::initialize() {
   G4Region* region = nullptr;
   G4RegionStore* store = G4RegionStore::GetInstance();
   for (auto const& vv : vec_) {
-    unsigned int num = map_.toString(keywordRegion_, vv.second, regionName);
+    unsigned int num = map_->toString(keywordRegion_, vv.second, regionName);
     edm::LogVerbatim("Geometry") << "  num  " << num << " regionName: " << regionName << ", the store of size "
                                  << store->size();
     if (num != 1) {
