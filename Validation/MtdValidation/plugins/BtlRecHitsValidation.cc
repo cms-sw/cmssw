@@ -38,7 +38,6 @@
 #include "Geometry/MTDGeometryBuilder/interface/ProxyMTDTopology.h"
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 
-
 struct MTDHit {
   float energy;
   float time;
@@ -94,13 +93,12 @@ private:
   MonitorElement* meEnergyRes_;
   MonitorElement* meTresvsE_;
   MonitorElement* meEresvsE_;
-
 };
 
 // ------------ constructor and destructor --------------
 BtlRecHitsValidation::BtlRecHitsValidation(const edm::ParameterSet& iConfig)
-  : folder_(iConfig.getParameter<std::string>("folder")),
-    hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
+    : folder_(iConfig.getParameter<std::string>("folder")),
+      hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("simHitsTag"));
 }
@@ -146,7 +144,6 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       (simHitIt->second).x_local = hit_pos.x();
       (simHitIt->second).y_local = hit_pos.y();
       (simHitIt->second).z_local = hit_pos.z();
-
     }
 
   }  // simHit loop
@@ -189,17 +186,15 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meHitTvsZ_->Fill(global_point.z(), recHit.time());
 
     // Resolution histograms
-    if ( m_btlSimHits.count(detId.rawId()) == 1 && m_btlSimHits[detId.rawId()].energy > hitMinEnergy_ ) {
-
-      float time_res   = recHit.time() - m_btlSimHits[detId.rawId()].time;
+    if (m_btlSimHits.count(detId.rawId()) == 1 && m_btlSimHits[detId.rawId()].energy > hitMinEnergy_) {
+      float time_res = recHit.time() - m_btlSimHits[detId.rawId()].time;
       float energy_res = recHit.energy() - m_btlSimHits[detId.rawId()].energy;
 
       meTimeRes_->Fill(time_res);
       meEnergyRes_->Fill(energy_res);
 
-      meTresvsE_->Fill(m_btlSimHits[detId.rawId()].energy,time_res);
-      meEresvsE_->Fill(m_btlSimHits[detId.rawId()].energy,energy_res);
-
+      meTresvsE_->Fill(m_btlSimHits[detId.rawId()].energy, time_res);
+      meEresvsE_->Fill(m_btlSimHits[detId.rawId()].energy, energy_res);
     }
 
     n_reco_btl++;
@@ -207,7 +202,6 @@ void BtlRecHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   }  // recHit loop
 
   meNhits_->Fill(n_reco_btl);
-
 }
 
 // ------------ method for histogram booking ------------
@@ -247,12 +241,13 @@ void BtlRecHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitTvsZ_ =
       ibook.bookProfile("BtlHitTvsZ", "BTL RECO ToA vs Z;Z_{RECO} [cm];ToA_{RECO} [ns]", 50, -260., 260., 0., 100.);
 
-  meTimeRes_   = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO} - T_{SIM} [ns]", 100, -0.5, 0.5);
+  meTimeRes_ = ibook.book1D("BtlTimeRes", "BTL time resolution;T_{RECO} - T_{SIM} [ns]", 100, -0.5, 0.5);
   meEnergyRes_ = ibook.book1D("BtlEnergyRes", "BTL energy resolution;E_{RECO} - E_{SIM} [MeV]", 100, -0.5, 0.5);
 
-  meTresvsE_ = ibook.bookProfile("BtlTresvsE", "BTL time resolution vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM} [ns]", 50, 0., 20., 0., 100.);
-  meEresvsE_ = ibook.bookProfile("BtlEresvsE", "BTL energy resolution vs E;E_{SIM} [MeV];E_{RECO}-E_{SIM} [MeV]", 50, 0., 20., 0., 100.);
-
+  meTresvsE_ = ibook.bookProfile(
+      "BtlTresvsE", "BTL time resolution vs E;E_{SIM} [MeV];T_{RECO}-T_{SIM} [ns]", 50, 0., 20., 0., 100.);
+  meEresvsE_ = ibook.bookProfile(
+      "BtlEresvsE", "BTL energy resolution vs E;E_{SIM} [MeV];E_{RECO}-E_{SIM} [MeV]", 50, 0., 20., 0., 100.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -261,7 +256,7 @@ void BtlRecHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   desc.add<std::string>("folder", "MTD/BTL/RecHits");
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mtdRecHits", "FTLBarrel"));
-  desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix","g4SimHitsFastTimerHitsBarrel"));
+  desc.add<edm::InputTag>("simHitsTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
 
   descriptions.add("btlRecHits", desc);
