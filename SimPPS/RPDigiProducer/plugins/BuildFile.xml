@@ -1,0 +1,7 @@
+<use   name="SimTracker/Common"/>
+<use   name="RecoCTPPS/PixelLocal"/>
+<use   name="SimPPS/RPDigiProducer"/>
+
+<library name="SimPPSRPDigiProducerPlugins" file="*.cc">
+<flags   EDM_PLUGIN="1"/>
+</library>
