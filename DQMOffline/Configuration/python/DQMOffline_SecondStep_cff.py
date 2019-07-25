@@ -128,6 +128,8 @@ DQMHarvestOuterTracker = cms.Sequence(
 
 DQMHarvestLumi = cms.Sequence()
 
+DQMHarvestCTPPS = cms.Sequence()
+
 DQMHarvestMuon = cms.Sequence( dtClients *
                                rpcTier0Client *
                                cscOfflineCollisionsClients *

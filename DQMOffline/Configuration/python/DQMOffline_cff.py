@@ -32,6 +32,7 @@ DQMOfflinePreDPG = cms.Sequence( dqmDcsInfo *
                                  cscSources *
                                  es_dqm_source_offline *
                                  castorSources *
+                                 ctppsDQM *
                                  HcalDQMOfflineSequence )
 
 DQMOfflineDPG = cms.Sequence( DQMOfflinePreDPG *
@@ -81,14 +82,7 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            # dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
-_ctpps_2016_DQMOffline = DQMOffline.copy()
-_ctpps_2016_DQMOffline *= ctppsDQM
-from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
-
-_ctpps_2016_DQMOffline = DQMOffline.copy()
-#_ctpps_2016_DQMOffline *= ctppsDQM
-ctpps_2016.toReplaceWith(DQMOffline, _ctpps_2016_DQMOffline)
+DQMOfflineCTPPS = cms.Sequence( ctppsDQM ) 
 
 DQMOfflineExtraHLT = cms.Sequence(
     offlineValidationHLTSource
