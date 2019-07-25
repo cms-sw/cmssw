@@ -1,5 +1,6 @@
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateReco.h"
+#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -15,6 +16,22 @@
 #include <string>
 #include <memory>
 
+class PixelCPETemplateRecoESProducer : public edm::ESProducer {
+public:
+  PixelCPETemplateRecoESProducer(const edm::ParameterSet& p);
+  std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord&);
+
+private:
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> hTTToken_;
+  edm::ESGetToken<SiPixelLorentzAngle, SiPixelLorentzAngleRcd> lorentzAngleToken_;
+  edm::ESGetToken<SiPixelTemplateDBObject, SiPixelTemplateDBObjectESProducerRcd> templateDBobjectToken_;
+
+  edm::ParameterSet pset_;
+  bool DoLorentz_;
+};
+
 using namespace edm;
 
 PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::ParameterSet& p) {
@@ -24,37 +41,29 @@ PixelCPETemplateRecoESProducer::PixelCPETemplateRecoESProducer(const edm::Parame
   DoLorentz_ = p.existsAs<bool>("DoLorentz") ? p.getParameter<bool>("DoLorentz") : false;
 
   pset_ = p;
-  setWhatProduced(this, myname);
-
+  auto c = setWhatProduced(this, myname);
+  c.setConsumes(magfieldToken_).setConsumes(pDDToken_).setConsumes(hTTToken_).setConsumes(templateDBobjectToken_);
+  if (DoLorentz_) {
+    c.setConsumes(lorentzAngleToken_, edm::ESInputTag("", "fromAlignment"));
+  }
   //std::cout<<" from ES Producer Templates "<<myname<<" "<<DoLorentz_<<std::endl;  //dk
 }
 
-PixelCPETemplateRecoESProducer::~PixelCPETemplateRecoESProducer() {}
-
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPETemplateRecoESProducer::produce(
     const TkPixelCPERecord& iRecord) {
-  ESHandle<MagneticField> magfield;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-
-  edm::ESHandle<TrackerGeometry> pDD;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().get(pDD);
-
-  edm::ESHandle<TrackerTopology> hTT;
-  iRecord.getRecord<TrackerDigiGeometryRecord>().getRecord<TrackerTopologyRcd>().get(hTT);
-
-  edm::ESHandle<SiPixelLorentzAngle> lorentzAngle;
+  // Normal, deafult LA actually is NOT needed
+  // null is ok becuse LA is not use by templates in this mode
   const SiPixelLorentzAngle* lorentzAngleProduct = nullptr;
   if (DoLorentz_) {  //  LA correction from alignment
-    iRecord.getRecord<SiPixelLorentzAngleRcd>().get("fromAlignment", lorentzAngle);
-    lorentzAngleProduct = lorentzAngle.product();
-  } else {  // Normal, deafult LA actually is NOT needed
-    //iRecord.getRecord<SiPixelLorentzAngleRcd>().get(lorentzAngle);
-    lorentzAngleProduct = nullptr;  // null is ok becuse LA is not use by templates in this mode
+    lorentzAngleProduct = &iRecord.get(lorentzAngleToken_);
   }
 
-  ESHandle<SiPixelTemplateDBObject> templateDBobject;
-  iRecord.getRecord<SiPixelTemplateDBObjectESProducerRcd>().get(templateDBobject);
-
-  return std::make_unique<PixelCPETemplateReco>(
-      pset_, magfield.product(), *pDD.product(), *hTT.product(), lorentzAngleProduct, templateDBobject.product());
+  return std::make_unique<PixelCPETemplateReco>(pset_,
+                                                &iRecord.get(magfieldToken_),
+                                                iRecord.get(pDDToken_),
+                                                iRecord.get(hTTToken_),
+                                                lorentzAngleProduct,
+                                                &iRecord.get(templateDBobjectToken_));
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPETemplateRecoESProducer);
