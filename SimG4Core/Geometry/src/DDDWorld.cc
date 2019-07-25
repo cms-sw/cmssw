@@ -25,7 +25,7 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
                    int verb,
                    bool cuts,
                    bool pcut) {
-  LogVerbatim("SimG4CoreApplication") << "DDDWorld: initialisation of Geant4 geometry";
+  LogVerbatim("SimG4CoreApplication") << "+++ DDDWorld: initialisation of Geant4 geometry";
   if (pDD4hep) {
     // DD4Hep
     const cms::DDDetector *det = pDD4hep->detector();
@@ -37,7 +37,9 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
     Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
     lvMap = geometry->g4Volumes;
     m_world = geometry->world();
-
+    if (cuts) {
+      DDG4ProductionCuts pcuts(&det->specpars(), &lvMap, verb, pcut);
+    }
   } else {
     // old DD code
     G4LogicalVolumeToDDLogicalPartMap lvMap;
@@ -47,7 +49,7 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
     LogVerbatim("SimG4CoreApplication") << "DDDWorld: worldLV: " << world->GetName();
     m_world = new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld", nullptr, false, 0);
     if (cuts) {
-      DDG4ProductionCuts pcuts(lvMap, verb, pcut);
+      DDG4ProductionCuts pcuts(&lvMap, verb, pcut);
     }
   }
   LogVerbatim("SimG4CoreApplication") << "DDDWorld: initialisation of Geant4 geometry is done.";
