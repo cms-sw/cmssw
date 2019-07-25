@@ -12,6 +12,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
 #include "Rivet/Tools/RivetYODA.hh"
 //#include "YODA/ROOTCnv.h"
@@ -51,13 +52,16 @@ private:
   edm::EDGetTokenT<LHEEventProduct> _LHECollection;
   edm::EDGetTokenT<GenEventInfoProduct> _genEventInfoCollection;
   edm::EDGetTokenT<GenLumiInfoHeader> _genLumiInfoToken;
+  edm::EDGetTokenT<LHERunInfoProduct> _lheRunInfoToken;
   Rivet::AnalysisHandler _analysisHandler;
   bool _isFirstEvent;
   std::string _outFileName;
   bool _doFinalize;
   bool _produceDQM;
+  const edm::InputTag _lheLabel;
   double _xsection;
   std::vector<std::string> _weightNames;
+  std::vector<std::string> _lheWeightNames;
 
   DQMStore *dbe;
   std::vector<MonitorElement *> _mes;
