@@ -1,13 +1,12 @@
 #ifndef DataFormats_BTauReco_PixelClusterTagInfo_h
 #define DataFormats_BTauReco_PixelClusterTagInfo_h
 
-#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
+
 
 namespace reco {
+
 
 struct PixelClusterProperties {
     float x = 0;
@@ -16,6 +15,7 @@ struct PixelClusterProperties {
     int charge = 0;
     int layer = 0;
 };
+
 
 struct PixelClusterData {
     char L1_R004 = 0;
@@ -55,7 +55,6 @@ struct PixelClusterData {
 };
 
 
-
 class PixelClusterTagInfo : public BaseTagInfo {
 
     public:
@@ -83,8 +82,6 @@ class PixelClusterTagInfo : public BaseTagInfo {
 
         // method to get the PixelClusterData struct
         const PixelClusterData& data() const { return pixelClusters; }
-
-        CMS_CLASS_VERSION(3)
 
     private:
     
