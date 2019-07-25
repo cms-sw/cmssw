@@ -105,8 +105,20 @@ public:
     // Ecal LaserCorrection Constants for laser correction ratio
     edm::ESHandle<EcalLaserDbService> laser;
     eventSetup->get<EcalLaserDbRecord>().get(laser);
-    const edm::TimeValue_t eventTimeValue = theEvent->time().value();
+    
+//     const edm::TimeValue_t eventTimeValue = theEvent->time().value();
+    const edm::TimeValue_t eventTimeValue = theEvent->run(); 
+    //---- NB: this is a trick. Since the time dependent MC 
+    //         will be based on "run" (and lumisection)
+    //         to identify the IOV.
+    //         The "time" defined here as "run" 
+    //         will have to match in the generation of the tag 
+    //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
+    //
     m_iTime = eventTimeValue;
+    
+    
+    
     m_lasercals = laser.product();
 //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
 
@@ -169,7 +181,15 @@ public:
     eventSetup->get<EcalLaserDbRecord>().get(laser);
     edm::TimeValue_t eventTimeValue;
     if (theEventPrincipal) {
-      eventTimeValue = theEventPrincipal->time().value();
+//       eventTimeValue = theEventPrincipal->time().value();
+      eventTimeValue = theEventPrincipal->run();
+      //---- NB: this is a trick. Since the time dependent MC 
+      //         will be based on "run" (and lumisection)
+      //         to identify the IOV.
+      //         The "time" defined here as "run" 
+      //         will have to match in the generation of the tag 
+      //         for the MC from ECAL (apd/pn, alpha, whatever time dependent is needed)
+      //
     }
     else {
       std::cout << " theEventPrincipal not defined??? " << std::endl;
