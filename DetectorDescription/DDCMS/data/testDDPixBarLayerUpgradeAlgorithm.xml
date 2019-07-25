@@ -54,9 +54,13 @@
   </Algorithm>
 
   <PosPartSection label="">
-    <PosPart copyNumber="1">
+    <PosPart copyNumber="2">
       <rParent name=":world_volume"/>
       <rChild name="MotherOfAllBoxes"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="MotherOfAllBoxes"/>
+      <rChild name="testDDPixBarLayerUpgradeAlgorithm:PixelBarrelLayer0"/>
     </PosPart>
   </PosPartSection>
 </DDDefinition>
