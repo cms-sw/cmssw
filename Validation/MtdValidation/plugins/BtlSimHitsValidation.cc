@@ -60,7 +60,6 @@ private:
 
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-
   // ------------ member data ------------
 
   int eventCounter_;
@@ -105,16 +104,14 @@ private:
 
 // ------------ constructor and destructor --------------
 BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig)
-  : eventCounter_(0),
-    folder_(iConfig.getParameter<std::string>("folder")),
-    hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
-  hEnergyFullRange_ = new TH1D("hEnergyFullRange","",1000,0.01,20.);
+    : eventCounter_(0),
+      folder_(iConfig.getParameter<std::string>("folder")),
+      hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
+  hEnergyFullRange_ = new TH1D("hEnergyFullRange", "", 1000, 0.01, 20.);
   btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputTag"));
 }
 
-BtlSimHitsValidation::~BtlSimHitsValidation() {
-  delete hEnergyFullRange_;
-}
+BtlSimHitsValidation::~BtlSimHitsValidation() { delete hEnergyFullRange_; }
 
 // ------------ method called for each event  ------------
 void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -172,7 +169,6 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meNtrkPerCell_->Fill((hit.second).size());
 
   for (auto const& hit : m_btlHits) {
-
     meHitLogEnergy_->Fill(log10((hit.second).energy));
     hEnergyFullRange_->Fill((hit.second).energy);
 
@@ -222,26 +218,21 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   }  // hit loop
 
   eventCounter_++;
-
 }
 
 // ------------ method called at run end -----------------
 void BtlSimHitsValidation::endLuminosityBlock(edm::LuminosityBlock const& iLumBlock, edm::EventSetup const& iSetup) {
+  const float NBtlCrystals = BTLDetId::kCrystalsPerRODBarPhiFlat * BTLDetId::MAX_ROD;
+  const float scale = (eventCounter_ > 0 ? 1. / (eventCounter_ * NBtlCrystals) : 1.);
 
-  const float NBtlCrystals = BTLDetId::kCrystalsPerRODBarPhiFlat*BTLDetId::MAX_ROD;
-  const float scale = ( eventCounter_>0 ? 1./(eventCounter_*NBtlCrystals) : 1. );
-
-  double bin_sum = hEnergyFullRange_->GetBinContent(hEnergyFullRange_->GetNbinsX()+1);
-  for (int ibin=hEnergyFullRange_->GetNbinsX(); ibin>0; --ibin){
-
+  double bin_sum = hEnergyFullRange_->GetBinContent(hEnergyFullRange_->GetNbinsX() + 1);
+  for (int ibin = hEnergyFullRange_->GetNbinsX(); ibin > 0; --ibin) {
     bin_sum += hEnergyFullRange_->GetBinContent(ibin);
-    meHitOccupancy_->setBinContent(ibin, scale*bin_sum);
-
+    meHitOccupancy_->setBinContent(ibin, scale * bin_sum);
   }
 
   eventCounter_ = 0;
   hEnergyFullRange_->Reset();
-
 };
 
 // ------------ method for histogram booking ------------
@@ -255,7 +246,8 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meNhits_ = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;N_{BTL cells}", 100, 0., 5000.);
   meNtrkPerCell_ = ibook.book1D("BtlNtrkPerCell", "Number of tracks per BTL cell;N_{trk}", 10, 0., 10.);
 
-  meHitOccupancy_ = ibook.book1D("BtlHitOccupancy", "BTL cell occupancy vs hit energy;E_{SIM} [MeV]; Occupancy per event", 1000, 0.01, 20.);
+  meHitOccupancy_ = ibook.book1D(
+      "BtlHitOccupancy", "BTL cell occupancy vs hit energy;E_{SIM} [MeV]; Occupancy per event", 1000, 0.01, 20.);
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 100, 0., 20.);
   meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL SIM hits energy;log_{10}(E_{SIM} [MeV])", 100, -6., 3.);
@@ -295,7 +287,7 @@ void BtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/BTL/SimHits");
-  desc.add<edm::InputTag>("inputTag", edm::InputTag("mix","g4SimHitsFastTimerHitsBarrel"));
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
 
   descriptions.add("btlSimHits", desc);
