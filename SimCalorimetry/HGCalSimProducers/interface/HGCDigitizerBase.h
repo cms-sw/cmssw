@@ -65,8 +65,14 @@ public:
   /**
      @short CTOR
   */
-  HGCDigitizerBase(const edm::ParameterSet& ps);
+
+  HGCDigitizerBase(const edm::ParameterSet &ps);
   /**
+     @short Random Gaussian Noise Generator
+  */
+  void GenGaussianNoise(const double NoiseMean, const double NoiseStd);
+ /**
+
     @short steer digitization mode
  */
   void run(std::unique_ptr<DColl>& digiColl,
@@ -130,10 +136,16 @@ protected:
 
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;
+  
 
+  static const int ss = (int) hgc::nSamples;
+  const double NoiseMean_,NoiseStd_;
+  static const long NoiseArrayLength_ = 10000;
+  std::array<std::array <float, ss>, NoiseArrayLength_> GaussianNoiseVec_;
   //bunch time
   double bxTime_;
-
+  size_t Dim_;
+  
   //if true will put both in time and out-of-time samples in the event
   bool doTimeSamples_;
 };
