@@ -7,7 +7,8 @@
 #include <numeric>
 
 HGCalShowerShape::HGCalShowerShape(const edm::ParameterSet& conf)
-    : threshold_(conf.getParameter<double>("shape_threshold")) {}
+    : threshold_(conf.getParameter<double>("shape_threshold")),
+      distance_(conf.getParameter<double>("shape_distance")) {}
 
 //Compute energy-weighted mean of any variable X in the cluster
 
@@ -32,7 +33,7 @@ int HGCalShowerShape::firstLayer(const l1t::HGCalMulticluster& c3d) const {
   int firstLayer = 999;
 
   for (const auto& id_clu : clustersPtrs) {
-    if (!pass(*id_clu.second))
+    if (!pass(*id_clu.second, c3d))
       continue;
     int layer = triggerTools_.layerWithOffset(id_clu.second->detId());
     if (layer < firstLayer)
@@ -48,7 +49,7 @@ int HGCalShowerShape::maxLayer(const l1t::HGCalMulticluster& c3d) const {
   float max_pt = 0.;
   int max_layer = 0;
   for (const auto& id_cluster : clustersPtrs) {
-    if (!pass(*id_cluster.second))
+    if (!pass(*id_cluster.second, c3d))
       continue;
     unsigned layer = triggerTools_.layerWithOffset(id_cluster.second->detId());
     auto itr_insert = layers_pt.emplace(layer, 0.);
@@ -67,7 +68,7 @@ int HGCalShowerShape::lastLayer(const l1t::HGCalMulticluster& c3d) const {
   int lastLayer = -999;
 
   for (const auto& id_clu : clustersPtrs) {
-    if (!pass(*id_clu.second))
+    if (!pass(*id_clu.second, c3d))
       continue;
     int layer = triggerTools_.layerWithOffset(id_clu.second->detId());
     if (layer > lastLayer)
@@ -83,7 +84,7 @@ int HGCalShowerShape::coreShowerLength(const l1t::HGCalMulticluster& c3d,
   unsigned nlayers = triggerTools_.layers(ForwardSubdetector::ForwardEmpty);
   std::vector<bool> layers(nlayers);
   for (const auto& id_cluster : clustersPtrs) {
-    if (!pass(*id_cluster.second))
+    if (!pass(*id_cluster.second, c3d))
       continue;
     unsigned layer = triggerGeometry.triggerLayer(id_cluster.second->detId());
     if (layer == 0 || layer > nlayers)
@@ -113,7 +114,7 @@ float HGCalShowerShape::percentileLayer(const l1t::HGCalMulticluster& c3d,
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       unsigned layer = triggerGeometry.triggerLayer(id_tc.second->detId());
       if (layer == 0 || layer > nlayers)
@@ -144,7 +145,7 @@ float HGCalShowerShape::percentileTriggerCells(const l1t::HGCalMulticluster& c3d
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       ordered_tcs.emplace(id_tc.second->pt());
       pt_sum += id_tc.second->pt();
@@ -177,7 +178,7 @@ float HGCalShowerShape::sigmaEtaEtaTot(const l1t::HGCalMulticluster& c3d) const 
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       tc_energy_eta.emplace_back(std::make_pair(id_tc.second->energy(), id_tc.second->eta()));
     }
@@ -197,7 +198,7 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalMulticluster& c3d) const 
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       tc_energy_phi.emplace_back(std::make_pair(id_tc.second->energy(), id_tc.second->phi()));
     }
@@ -217,7 +218,7 @@ float HGCalShowerShape::sigmaRRTot(const l1t::HGCalMulticluster& c3d) const {
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       float r = (id_tc.second->position().z() != 0.
                      ? std::sqrt(pow(id_tc.second->position().x(), 2) + pow(id_tc.second->position().y(), 2)) /
@@ -247,7 +248,7 @@ float HGCalShowerShape::sigmaEtaEtaMax(const l1t::HGCalMulticluster& c3d) const 
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       tc_layer_energy_eta[layer].emplace_back(std::make_pair(id_tc.second->energy(), id_tc.second->eta()));
     }
@@ -280,7 +281,7 @@ float HGCalShowerShape::sigmaPhiPhiMax(const l1t::HGCalMulticluster& c3d) const 
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       tc_layer_energy_phi[layer].emplace_back(std::make_pair(id_tc.second->energy(), id_tc.second->phi()));
     }
@@ -310,7 +311,7 @@ float HGCalShowerShape::sigmaRRMax(const l1t::HGCalMulticluster& c3d) const {
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       float r = (id_tc.second->position().z() != 0.
                      ? std::sqrt(pow(id_tc.second->position().x(), 2) + pow(id_tc.second->position().y(), 2)) /
@@ -341,7 +342,7 @@ float HGCalShowerShape::sigmaRRMean(const l1t::HGCalMulticluster& c3d, float rad
     unsigned layer = triggerTools_.layerWithOffset(id_clu.second->detId());
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       layers_tcs[layer].emplace_back(id_tc.second);
     }
@@ -393,7 +394,7 @@ float HGCalShowerShape::eMax(const l1t::HGCalMulticluster& c3d) const {
   const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalCluster>>& clustersPtrs = c3d.constituents();
 
   for (const auto& id_clu : clustersPtrs) {
-    if (!pass(*id_clu.second))
+    if (!pass(*id_clu.second, c3d))
       continue;
     unsigned layer = triggerTools_.layerWithOffset(id_clu.second->detId());
     layer_energy[layer] += id_clu.second->energy();
@@ -418,7 +419,7 @@ float HGCalShowerShape::meanZ(const l1t::HGCalMulticluster& c3d) const {
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       tc_energy_z.emplace_back(std::make_pair(id_tc.second->energy(), id_tc.second->position().z()));
     }
@@ -436,7 +437,7 @@ float HGCalShowerShape::sigmaZZ(const l1t::HGCalMulticluster& c3d) const {
     const std::unordered_map<uint32_t, edm::Ptr<l1t::HGCalTriggerCell>>& triggerCells = id_clu.second->constituents();
 
     for (const auto& id_tc : triggerCells) {
-      if (!pass(*id_tc.second))
+      if (!pass(*id_tc.second, c3d))
         continue;
       tc_energy_z.emplace_back(std::make_pair(id_tc.second->energy(), id_tc.second->position().z()));
     }
@@ -454,7 +455,7 @@ float HGCalShowerShape::sigmaEtaEtaTot(const l1t::HGCalCluster& c2d) const {
   std::vector<std::pair<float, float>> tc_energy_eta;
 
   for (const auto& id_cell : cellsPtrs) {
-    if (!pass(*id_cell.second))
+    if (!pass(*id_cell.second, c2d))
       continue;
     tc_energy_eta.emplace_back(std::make_pair(id_cell.second->energy(), id_cell.second->eta()));
   }
@@ -470,7 +471,7 @@ float HGCalShowerShape::sigmaPhiPhiTot(const l1t::HGCalCluster& c2d) const {
   std::vector<std::pair<float, float>> tc_energy_phi;
 
   for (const auto& id_cell : cellsPtrs) {
-    if (!pass(*id_cell.second))
+    if (!pass(*id_cell.second, c2d))
       continue;
     tc_energy_phi.emplace_back(std::make_pair(id_cell.second->energy(), id_cell.second->phi()));
   }
@@ -486,7 +487,7 @@ float HGCalShowerShape::sigmaRRTot(const l1t::HGCalCluster& c2d) const {
   std::vector<std::pair<float, float>> tc_energy_r;
 
   for (const auto& id_cell : cellsPtrs) {
-    if (!pass(*id_cell.second))
+    if (!pass(*id_cell.second, c2d))
       continue;
     float r = (id_cell.second->position().z() != 0.
                    ? std::sqrt(pow(id_cell.second->position().x(), 2) + pow(id_cell.second->position().y(), 2)) /

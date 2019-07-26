@@ -81,13 +81,17 @@ private:
   float sigmaPhiPhi(const std::vector<pair<float, float>>& energy_phi_tc, const float phi_cluster) const {
     return sigmaXX<DeltaPhi<float>>(energy_phi_tc, phi_cluster);
   }
-  template <typename T>
-  bool pass(const T& obj) const {
-    return obj.mipPt() > threshold_;
+  template <typename T, typename Tref>
+  bool pass(const T& obj, const Tref& ref) const {
+    bool pass_threshold = (obj.mipPt() > threshold_);
+    GlobalPoint proj(Basic3DVector<float>(obj.position()) / std::abs(obj.position().z()));
+    bool pass_distance = ((proj - ref.centreProj()).mag() < distance_);
+    return pass_threshold && pass_distance;
   }
 
   HGCalTriggerTools triggerTools_;
   double threshold_ = 0.;
+  double distance_ = 1.;
 };
 
 #endif
