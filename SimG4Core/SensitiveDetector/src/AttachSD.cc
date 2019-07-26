@@ -19,13 +19,14 @@ std::pair<std::vector<SensitiveTkDetector*>, std::vector<SensitiveCaloDetector*>
     const SimTrackManager* man,
     SimActivityRegistry& reg) const {
   std::pair<std::vector<SensitiveTkDetector*>, std::vector<SensitiveCaloDetector*> > detList;
-  const std::vector<std::string>& rouNames = clg.readoutNames();
+  const std::vector<std::string_view>& rouNames = clg.readoutNames();
   edm::LogVerbatim("SimG4CoreSensitiveDetector") << " AttachSD: Initialising " << rouNames.size() << " SDs";
   for (auto& rname : rouNames) {
-    std::string className = clg.className(rname);
-    std::unique_ptr<SensitiveDetectorMakerBase> temp{SensitiveDetectorPluginFactory::get()->create(className)};
+    std::string_view className = clg.className({rname.data(), rname.size()});
+    std::unique_ptr<SensitiveDetectorMakerBase> temp{
+        SensitiveDetectorPluginFactory::get()->create({className.data(), className.size()})};
 
-    std::unique_ptr<SensitiveDetector> sd{temp->make(rname, es, clg, p, man, reg)};
+    std::unique_ptr<SensitiveDetector> sd{temp->make({rname.data(), rname.size()}, es, clg, p, man, reg)};
 
     std::stringstream ss;
     ss << " AttachSD: created a " << className << " with name " << rname;
