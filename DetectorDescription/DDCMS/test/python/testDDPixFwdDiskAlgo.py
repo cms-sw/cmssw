@@ -38,11 +38,11 @@ process.MessageLogger = cms.Service(
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
     confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-test-ddpixfwddisk-algo.xml'),
-    appendToDataLabel = cms.string('TestPixFwdDisk')
+    appendToDataLabel = cms.string('testDDPixFwdDiskAlgo')
     )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-    DDDetector = cms.ESInputTag('','TestPixFwdDisk')
+    DDDetector = cms.ESInputTag('','testDDPixFwdDiskAlgo')
 )
 
 process.p = cms.Path(process.testDump)
