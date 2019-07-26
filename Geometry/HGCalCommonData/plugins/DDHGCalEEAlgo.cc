@@ -281,8 +281,10 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
       int iv = std::abs(v);
       int nr = 2 * v;
       int nc = -2 * u + v;
-      double xpos = xyoff.first + nc * r;
-      double ypos = xyoff.second + nr * dy;
+      double xps0 = nc * r;
+      double xpos = xyoff.first + xps0;
+      double yps0 = nr * dy;
+      double ypos = xyoff.second + yps0;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;
@@ -293,7 +295,7 @@ void DDHGCalEEAlgo::positionSensitive(const DDLogicalPart& glog,
       }
 #endif
       if (corner.first > 0) {
-        int type = waferType_->getType(xpos, ypos, zpos);
+        int type = waferType_->getType(xps0, yps0, zpos);
         int copy = type * 1000000 + iv * 100 + iu;
         if (u < 0)
           copy += 10000;
