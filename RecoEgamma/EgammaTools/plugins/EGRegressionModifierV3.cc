@@ -36,12 +36,14 @@ public:
     EgammaRegressionContainer ecalOnlySigma;    
   };
 
-  EGRegressionModifierV3(const edm::ParameterSet& conf, edm::ConsumesCollector& cc);
+  EGRegressionModifierV3(const edm::ParameterSet& conf);
   ~EGRegressionModifierV3() override;
     
   void setEvent(const edm::Event&) final;
   void setEventContent(const edm::EventSetup&) final;
-  
+  void setConsumes(edm::ConsumesCollector& cc) final{
+    rhoToken_ = cc.consumes<double>(rhoLabel_);
+  }
   void modifyObject(reco::GsfElectron&) const final;
   void modifyObject(reco::Photon&) const final;
   
@@ -59,6 +61,7 @@ private:
   
   float rhoValue_;
   edm::EDGetTokenT<double> rhoToken_;
+  edm::InputTag rhoLabel_;
 
   bool useClosestToCentreSeedCrysDef_;
   float maxRawEnergyForLowPtEBSigma_;
@@ -71,11 +74,10 @@ DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
 		  EGRegressionModifierV3,
 		  "EGRegressionModifierV3");
 
-EGRegressionModifierV3::EGRegressionModifierV3(const edm::ParameterSet& conf, 
-					       edm::ConsumesCollector& cc) :
+EGRegressionModifierV3::EGRegressionModifierV3(const edm::ParameterSet& conf):
   ModifyObjectValueBase(conf),
   rhoValue_(0.),
-  rhoToken_(cc.consumes<double>(conf.getParameter<edm::InputTag>("rhoTag"))),
+  rhoLabel_(conf.getParameter<edm::InputTag>("rhoTag")),
   useClosestToCentreSeedCrysDef_(conf.getParameter<bool>("useClosestToCentreSeedCrysDef")),
   maxRawEnergyForLowPtEBSigma_(conf.getParameter<double>("maxRawEnergyForLowPtEBSigma")),
   maxRawEnergyForLowPtEESigma_(conf.getParameter<double>("maxRawEnergyForLowPtEESigma"))
@@ -120,8 +122,8 @@ void EGRegressionModifierV3::modifyObject(reco::GsfElectron& ele) const
 
   //check if fbrem is filled as its needed for E/p combination so abort if its set to the default value 
   //this will be the case for <5 (or current cuts) for miniAOD electrons
-  if(ele.fbrem()==reco::GsfElectron::ClassificationVariables::kDefaultValue) return;
-  
+  if(ele.fbrem()==reco::GsfElectron::ClassificationVariables().trackFbrem) return;
+
   auto regData = getRegData(ele);
   const float rawEnergy = superClus->rawEnergy(); 
   const float rawESEnergy = superClus->preshowerEnergy();
@@ -349,12 +351,13 @@ void EGRegressionModifierV3::getSeedCrysCoord(const reco::CaloCluster& clus,int&
 
   if(useClosestToCentreSeedCrysDef_){
     float dummy;
+    EcalClusterLocal ecalLocal;
     if(isEB){
-      egammaTools::localEcalClusterCoordsEB(clus, *caloGeomHandle_, dummy, dummy, 
-					    iEtaOrX, iPhiOrY, dummy, dummy);
+      ecalLocal.localCoordsEB(clus, *caloGeomHandle_, dummy, dummy, 
+			      iEtaOrX, iPhiOrY, dummy, dummy);
     }else{
-      egammaTools::localEcalClusterCoordsEE(clus, *caloGeomHandle_, dummy, dummy, 
-					    iEtaOrX, iPhiOrY, dummy, dummy);
+      ecalLocal.localCoordsEE(clus, *caloGeomHandle_, dummy, dummy, 
+			      iEtaOrX, iPhiOrY, dummy, dummy);
     }
   }else{
     if(isEB){
