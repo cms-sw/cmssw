@@ -18,7 +18,7 @@ if options.geom == 'v10':
 elif options.geom == 'v11':
     process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')
 else:
-    print 'UNKNOWN GEOMETRY!'
+    raise Exception('UNKNOWN GEOMETRY!')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
