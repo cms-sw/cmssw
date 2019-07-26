@@ -41,7 +41,7 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
-       applySigmaIetaIphiBug = cms.bool(False)
+       applySigmaIetaIphiBug = cms.bool(True)
        ),
 
     #threshold for final SuperCluster Et
@@ -117,7 +117,7 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
        ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
-       applySigmaIetaIphiBug = cms.bool(False)
+       applySigmaIetaIphiBug = cms.bool(True)
        ),
        
     #threshold for final SuperCluster Et
