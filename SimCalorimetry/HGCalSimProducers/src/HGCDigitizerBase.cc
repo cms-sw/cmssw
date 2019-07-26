@@ -43,7 +43,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : NoiseMean
 template <class DFr>
 void HGCDigitizerBase<DFr>::GenGaussianNoise(const double NoiseMean, const double NoiseStd) {
   for (size_t i = 0; i < NoiseArrayLength_; i++) {
-    for (int j = 0; j < samplesize; j++) {
+    for (int j = 0; j < samplesize_; j++) {
       GaussianNoiseArray_[i][j] = CLHEP::RandGaussQ::shoot(NoiseMean, NoiseStd);
     }
   }
