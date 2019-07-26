@@ -93,6 +93,7 @@ histoMax_C3d_clustering_params = cms.PSet(dR_multicluster=cms.double(0.03),
                                dR_multicluster_byLayer_coefficientA=cms.vdouble(),
                                dR_multicluster_byLayer_coefficientB=cms.vdouble(),
                                shape_threshold=cms.double(1.),
+                               shape_distance=cms.double(0.015),
                                minPt_multicluster=cms.double(0.5),  # minimum pt of the multicluster (GeV)
                                cluster_association=cms.string("NearestNeighbour"),
                                EGIdentification=egamma_identification_histomax.clone(),
