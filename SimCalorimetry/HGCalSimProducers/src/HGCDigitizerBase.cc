@@ -42,10 +42,9 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : NoiseMean
 
 template <class DFr>
 void HGCDigitizerBase<DFr>::GenGaussianNoise(const double NoiseMean, const double NoiseStd) {
-  const int sampleSize = (int)hgc_digi::nSamples;
   for (size_t i = 0; i < NoiseArrayLength_; i++) {
-    for (int j = 0; j < sampleSize; j++) {
-      GaussianNoiseVec_[i][j] = CLHEP::RandGaussQ::shoot(NoiseMean, NoiseStd);
+    for (int j = 0; j < samplesize; j++) {
+      GaussianNoiseArray_[i][j] = CLHEP::RandGaussQ::shoot(NoiseMean, NoiseStd);
     }
   }
 }
@@ -74,7 +73,6 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   HGCCellInfo zeroData;
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
-  const auto NoiseArrayBegin = GaussianNoiseVec_.begin();
 
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
@@ -85,12 +83,11 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     long hash_index =
         std::abs(CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + (long)id) % NoiseArrayLength_;
 
-    const auto NoisePointer = NoiseArrayBegin + hash_index;
+    const auto& cellNoiseArray = GaussianNoiseArray_[hash_index];
 
-    const auto pointer = NoisePointer->begin();
     for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
-      float randNum = *(pointer + i);
+      float randNum = cellNoiseArray[i];
       //time of arrival
       toa[i] = cell.hit_info[1][i];
       if (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge > 0)
