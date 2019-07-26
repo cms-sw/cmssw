@@ -38,7 +38,6 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : NoiseMean
   myFEelectronics_->SetNoiseValues(noise_fC_);
   Dim_ = noise_fC_.size();
   GenGaussianNoise(NoiseMean_, NoiseStd_);
-  //std::cout<<"debugging effort for new PU dataset - log 2"<<std::endl;
 }
 
 template <class DFr>
@@ -58,7 +57,6 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 const std::unordered_set<DetId>& validIds,
                                 uint32_t digitizationType,
                                 CLHEP::HepRandomEngine* engine) {
-  //std::cout<<"debugging effort for new PU dataset - log 3"<<std::endl;
 
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
@@ -73,45 +71,38 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
                                       const std::unordered_set<DetId>& validIds,
                                       CLHEP::HepRandomEngine* engine) {
   HGCSimHitData chargeColl, toa;
-  //const int sampleSize = (int) hgc_digi::nSamples;
   // this represents a cell with no signal charge
   HGCCellInfo zeroData;
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
-  const auto NoiseArrayBegin_ = GaussianNoiseVec_.begin();
+  const auto NoiseArrayBegin = GaussianNoiseVec_.begin();
 
-  for (std::unordered_set<DetId>::const_iterator itr = validIds.begin(); itr != validIds.end(); ++itr) {
-    int id = *itr;
+  for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
-    long hash_index((long)(id));
-    long flatRandom = CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1));
-    long hash1 = std::fabs(hash_index + flatRandom);
-    long hash2 = hash1 % NoiseArrayLength_;
-    const auto NoisePointer = NoiseArrayBegin_ + hash2;
+    long hash_index = std::abs(CLHEP::RandFlat::shootInt(engine,(NoiseArrayLength_ - 1))+(long)id)%NoiseArrayLength_;
+      
+    const auto NoisePointer = NoiseArrayBegin + hash_index;
 
-    const auto pointer_ = NoisePointer->begin();
+    const auto pointer = NoisePointer->begin();
     for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
-      auto x = pointer_ + i;
-      float randNum = *x;
+      float randNum = *(pointer + i);
       //time of arrival
       toa[i] = cell.hit_info[1][i];
       if (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge > 0)
         toa[i] = cell.hit_info[1][i] / rawCharge;
 
-      //convert total energy in GeV to charge fC
+      
       float totalCharge = rawCharge;
-      float randn = 0.f;
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
       //also assume that it is related to the charge path only and that noise fluctuation for ToA circuit be handled separately
-      if (noise_fC_[cell.thickness - 1] != 0) {  //{totalCharge += 0.f;}
-        randn = randNum * noise_fC_[cell.thickness - 1];
-        totalCharge += std::max(randn, 0.f);
+      if (noise_fC_[cell.thickness - 1] != 0) { 
+        totalCharge += std::max((float)(randNum * noise_fC_[cell.thickness - 1]), 0.f);
       }
 
       if (totalCharge < 0.f)
@@ -121,10 +112,8 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     //run the shaper to create a new data frame
     DFr rawDataFrame(id);
     if (!cce_.empty()) {
-      //std::cout<<"running runshaper option 1"<<std::endl;
       myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cce_[cell.thickness - 1]);
     } else {
-      //std::cout<<"running runshaper option 2"<<std::endl;
       myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
     }
     //update the output according to the final shape
