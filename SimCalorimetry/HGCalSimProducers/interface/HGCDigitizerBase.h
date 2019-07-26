@@ -137,7 +137,7 @@ protected:
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;
 
-  static const int samplesize =  hgc::nSamples;
+  static const int samplesize = hgc::nSamples;
   const double NoiseMean_, NoiseStd_;
   static const long NoiseArrayLength_ = 10000;
   std::array<std::array<float, samplesize>, NoiseArrayLength_> GaussianNoiseVec_;

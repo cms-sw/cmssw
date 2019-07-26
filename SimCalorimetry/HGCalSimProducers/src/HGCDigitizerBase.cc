@@ -57,7 +57,6 @@ void HGCDigitizerBase<DFr>::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiCo
                                 const std::unordered_set<DetId>& validIds,
                                 uint32_t digitizationType,
                                 CLHEP::HepRandomEngine* engine) {
-
   if (digitizationType == 0)
     runSimple(digiColl, simData, theGeom, validIds, engine);
   else
@@ -83,8 +82,9 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
-    long hash_index = std::abs(CLHEP::RandFlat::shootInt(engine,(NoiseArrayLength_ - 1))+(long)id)%NoiseArrayLength_;
-      
+    long hash_index =
+        std::abs(CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + (long)id) % NoiseArrayLength_;
+
     const auto NoisePointer = NoiseArrayBegin + hash_index;
 
     const auto pointer = NoisePointer->begin();
@@ -96,12 +96,11 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
       if (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge > 0)
         toa[i] = cell.hit_info[1][i] / rawCharge;
 
-      
       float totalCharge = rawCharge;
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
       //also assume that it is related to the charge path only and that noise fluctuation for ToA circuit be handled separately
-      if (noise_fC_[cell.thickness - 1] != 0) { 
+      if (noise_fC_[cell.thickness - 1] != 0) {
         totalCharge += std::max((float)(randNum * noise_fC_[cell.thickness - 1]), 0.f);
       }
 
