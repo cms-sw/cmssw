@@ -126,4 +126,4 @@ static long algorithm(dd4hep::Detector& /* description */,
   return cms::s_executed;
 }
 
-DECLARE_DDCMS_DETELEMENT(DDCMS_tracker_DDPixFwdDisk, algorithm)
+DECLARE_DDCMS_DETELEMENT(DDCMS_track_DDPixFwdDiskAlgo, algorithm)
