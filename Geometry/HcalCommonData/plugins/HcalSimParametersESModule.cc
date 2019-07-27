@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "CondFormats/GeometryObjects/interface/HcalSimParameters.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
@@ -16,7 +16,7 @@ public:
   HcalSimParametersESModule(const edm::ParameterSet&);
   ~HcalSimParametersESModule(void) override;
 
-  using ReturnType = std::unique_ptr<HcalSimParameters>;
+  using ReturnType = std::unique_ptr<HcalSimulationParameters>;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
@@ -35,14 +35,14 @@ HcalSimParametersESModule::~HcalSimParametersESModule() {}
 
 void HcalSimParametersESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add("hcalSimParameters", desc);
+  descriptions.add("hcalSimulationParameters", desc);
 }
 
 HcalSimParametersESModule::ReturnType HcalSimParametersESModule::produce(const HcalParametersRcd& iRecord) {
   edm::LogInfo("HcalESModule") << "HcalSimParametersESModule::produce(const HcalParametersRcd& iRecord)";
   edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(cpvToken_);
 
-  auto ptp = std::make_unique<HcalSimParameters>();
+  auto ptp = std::make_unique<HcalSimulationParameters>();
   HcalSimParametersFromDD builder;
   builder.build(&(*cpv), *ptp);
 

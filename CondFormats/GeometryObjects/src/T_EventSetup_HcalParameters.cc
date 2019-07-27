@@ -1,6 +1,6 @@
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
-#include "CondFormats/GeometryObjects/interface/HcalSimParameters.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "FWCore/Utilities/interface/typelookup.h"
 
 TYPELOOKUP_DATA_REG(HcalParameters);
-TYPELOOKUP_DATA_REG(HcalSimParameters);
+TYPELOOKUP_DATA_REG(HcalSimulationParameters);

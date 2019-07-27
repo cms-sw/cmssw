@@ -3,7 +3,7 @@ process = cms.Process("HcalParametersTest")
 
 process.load('Geometry.HcalCommonData.testPhase2GeometryFineXML_cfi')
 process.load('Geometry.HcalCommonData.hcalParameters_cfi')
-process.load('Geometry.HcalCommonData.hcalSimParameters_cfi')
+process.load('Geometry.HcalCommonData.hcalSimulationParameters_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 process.source = cms.Source("EmptySource")

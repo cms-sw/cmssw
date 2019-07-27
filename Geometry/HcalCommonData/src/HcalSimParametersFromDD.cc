@@ -1,5 +1,5 @@
 #include "Geometry/HcalCommonData/interface/HcalSimParametersFromDD.h"
-#include "CondFormats/GeometryObjects/interface/HcalSimParameters.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
@@ -15,7 +15,7 @@
 
 using namespace geant_units::operators;
 
-bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimParameters& php) {
+bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimulationParameters& php) {
   // Parameters for the fibers
   std::string attribute = "Volume";
   std::string value = "HF";
