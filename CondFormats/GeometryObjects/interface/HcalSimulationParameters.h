@@ -1,12 +1,12 @@
-#ifndef CondFormats_GeometryObjects_HcalSimParameters_h
-#define CondFormats_GeometryObjects_HcalSimParameters_h
+#ifndef CondFormats_GeometryObjects_HcalSimulationParameters_h
+#define CondFormats_GeometryObjects_HcalSimulationParameters_h
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
-class HcalSimParameters {
+class HcalSimulationParameters {
 public:
-  HcalSimParameters(void) {}
-  ~HcalSimParameters(void) {}
+  HcalSimulationParameters(void) {}
+  ~HcalSimulationParameters(void) {}
 
   std::vector<double> attenuationLength_;
   std::vector<int> lambdaLimits_;

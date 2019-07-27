@@ -5,14 +5,14 @@
 #include <string>
 
 class DDCompactView;
-class HcalSimParameters;
+class HcalSimulationParameters;
 
 class HcalSimParametersFromDD {
 public:
   HcalSimParametersFromDD() {}
   virtual ~HcalSimParametersFromDD() {}
 
-  bool build(const DDCompactView*, HcalSimParameters&);
+  bool build(const DDCompactView*, HcalSimulationParameters&);
 
 private:
   std::vector<double> getDDDArray(const std::string& str, const DDsvalues_type& sv, int& nmin);

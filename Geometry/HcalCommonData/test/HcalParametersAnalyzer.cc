@@ -2,7 +2,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
-#include "CondFormats/GeometryObjects/interface/HcalSimParameters.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include <iostream>
 
@@ -15,12 +15,12 @@ public:
 
 private:
   edm::ESGetToken<HcalParameters, HcalParametersRcd> parToken_;
-  edm::ESGetToken<HcalSimParameters, HcalParametersRcd> simparToken_;
+  edm::ESGetToken<HcalSimulationParameters, HcalParametersRcd> simparToken_;
 };
 
 HcalParametersAnalyzer::HcalParametersAnalyzer(const edm::ParameterSet&) {
   parToken_ = esConsumes<HcalParameters, HcalParametersRcd>(edm::ESInputTag{});
-  simparToken_ = esConsumes<HcalSimParameters, HcalParametersRcd>(edm::ESInputTag{});
+  simparToken_ = esConsumes<HcalSimulationParameters, HcalParametersRcd>(edm::ESInputTag{});
 }
 
 HcalParametersAnalyzer::~HcalParametersAnalyzer(void) {}
@@ -205,7 +205,7 @@ void HcalParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Ev
             << std::dec << std::endl;
 
   const auto& parS = iSetup.getData(simparToken_);
-  const HcalSimParameters* parsim = &parS;
+  const HcalSimulationParameters* parsim = &parS;
   if (parsim != nullptr) {
     std::cout << "\nattenuationLength_: ";
     for (const auto& it : parsim->attenuationLength_)
