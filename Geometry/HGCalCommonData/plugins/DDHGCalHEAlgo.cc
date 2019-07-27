@@ -457,10 +457,8 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
       int iv = std::abs(v);
       int nr = 2 * v;
       int nc = -2 * u + v;
-      double xps0 = nc * r;
-      double xpos = xyoff.first + xps0;
-      double yps0 = nr * dy;
-      double ypos = xyoff.second + yps0;
+      double xpos = xyoff.first + nc * r;
+      double ypos = xyoff.second + nr * dy;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;
