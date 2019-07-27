@@ -1,7 +1,7 @@
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 
 #include "SimG4Core/Application/interface/RunManagerMT.h"
-#include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

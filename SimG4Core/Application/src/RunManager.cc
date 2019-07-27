@@ -7,7 +7,6 @@
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
-#include "SimG4Core/Application/interface/G4RegionReporter.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 
@@ -34,9 +33,9 @@
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
-#include "SimG4Core/Application/interface/CustomUIsession.h"
 
-#include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
+#include "SimG4Core/Geometry/interface/CMSG4CheckOverlap.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -143,10 +142,10 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
 
   m_physicsList.reset(nullptr);
 
-  m_check = p.getUntrackedParameter<bool>("CheckOverlap", false);
-  m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML", "");
-  m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField", "");
-  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions", "");
+  m_check = p.getParameter<bool>("CheckGeometry");
+  m_WriteFile = p.getParameter<std::string>("FileNameGDML");
+  m_FieldFile = p.getParameter<std::string>("FileNameField");
+  m_RegionFile = p.getParameter<std::string>("FileNameRegions");
 
   m_userRunAction = nullptr;
   m_runInterface = nullptr;
@@ -187,9 +186,8 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
-  bool protonCut = m_pPhysics.getUntrackedParameter<bool>("CutsOnProton", true);
-  int verb =
-      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
+  bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
+  int verb = std::max(m_pPhysics.getParameter<int>("Verbosity"), m_p.getParameter<int>("SteppingVerbosity"));
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
@@ -276,7 +274,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
 
   // exotic particle physics
-  double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0);
+  double monopoleMass = m_pPhysics.getUntrackedParameter<double>("MonopoleMass", 0.);
   if (monopoleMass > 0.0) {
     phys->RegisterPhysics(new CMSMonopolePhysics(fPDGTable, m_pPhysics));
   }
@@ -345,13 +343,12 @@ void RunManager::initG4(const edm::EventSetup& es) {
     gdml.Write(m_WriteFile, pworld, true);
   }
 
-  if (!m_RegionFile.empty()) {
-    G4RegionReporter rrep;
-    rrep.ReportRegions(m_RegionFile);
-  }
+  // G4Region dump file name
+  auto regionFile = m_p.getParameter<std::string>("FileNameRegions");
 
-  if (m_check) {
-    G4CheckOverlap check(m_g4overlap);
+  // Geometry checks
+  if (m_check || !regionFile.empty()) {
+    CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession.get(), pworld);
   }
 
   // If the Geant4 particle table is needed, decomment the lines below

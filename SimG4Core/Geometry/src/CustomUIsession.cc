@@ -1,6 +1,6 @@
-#include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
-CustomUIsession::CustomUIsession() {
+CustomUIsession::CustomUIsession() : fout(nullptr) {
   G4UImanager* UI = G4UImanager::GetUIpointer();
   UI->SetCoutDestination(this);
 }
@@ -12,7 +12,11 @@ CustomUIsession::~CustomUIsession() {
 
 G4int CustomUIsession::ReceiveG4cout(const G4String& coutString) {
   //std::cout << coutString << std::flush;
-  edm::LogVerbatim("G4cout") << trim(coutString);
+  if (fout) {
+    (*fout) << trim(coutString) << "\n";
+  } else {
+    edm::LogVerbatim("G4cout") << trim(coutString);
+  }
   return 0;
 }
 
@@ -26,4 +30,10 @@ std::string CustomUIsession::trim(const std::string& str) {
   if (!str.empty() && str.back() == '\n')
     return str.substr(0, str.length() - 1);
   return str;
+}
+
+void CustomUIsession::sendToFile(std::ofstream* ptr) {
+  if (ptr && !ptr->fail()) {
+    fout = ptr;
+  }
 }
