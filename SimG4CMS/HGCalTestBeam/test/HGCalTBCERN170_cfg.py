@@ -101,14 +101,14 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 		type = cms.string('HGCPassive'),
 		)
 				       )
-process.HGCalTBAnalyzer.DoDigis     = False
-process.HGCalTBAnalyzer.DoRecHits   = False
-process.HGCalTBAnalyzer.UseFH       = True
-process.HGCalTBAnalyzer.UseBH       = True
-process.HGCalTBAnalyzer.UseBeam     = True
-process.HGCalTBAnalyzer.ZFrontEE    = 1110.0
-process.HGCalTBAnalyzer.ZFrontFH    = 1172.3
-process.HGCalTBAnalyzer.DoPassive   = True
+process.HGCalTBAnalyzer.doDigis     = False
+process.HGCalTBAnalyzer.doRecHits   = False
+process.HGCalTBAnalyzer.useFH       = True
+process.HGCalTBAnalyzer.useBH       = True
+process.HGCalTBAnalyzer.useBeam     = True
+process.HGCalTBAnalyzer.zFrontEE    = 1110.0
+process.HGCalTBAnalyzer.zFrontFH    = 1172.3
+process.HGCalTBAnalyzer.doPassive   = True
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
