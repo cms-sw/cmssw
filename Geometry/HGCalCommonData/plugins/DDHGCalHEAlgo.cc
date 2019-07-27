@@ -466,7 +466,7 @@ void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
       ++ntot;
 #endif
       if (corner.first > 0) {
-        int type = waferType_->getType(xps0, yps0, zpos);
+        int type = waferType_->getType(xpos, ypos, zpos);
         int copy = type * 1000000 + iv * 100 + iu;
         if (u < 0)
           copy += 10000;
