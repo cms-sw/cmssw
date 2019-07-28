@@ -36,7 +36,8 @@ public:
   bool useLowEtBin(const float et,const bool isSaturated)const;
 
 private:
-  const EgammaBDTOutputTransformer outputTransformer_;
+  const EgammaBDTOutputTransformer outputTransformerLowEt_;
+  const EgammaBDTOutputTransformer outputTransformerHighEt_;
   
   bool forceHighEnergyTrainingIfSaturated_;
   const float lowEtHighEtBoundary_;
