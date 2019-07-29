@@ -17,17 +17,18 @@ cd $W_DIR;
 getPayloadData.py \
     --plugin pluginSiPixelQuality_PayloadInspector \
     --plot plot_SiPixelBPixQualityMap \
-    --tag  SiPixelQuality_byPCL_prompt_v2 \
+    --tag SiPixelQuality_phase1_2018_permanentlyBad \
     --time_type Lumi \
-    --iovs '{"start_iov": "1390517136916505", "end_iov": "1390517136916505"}' \
-    --db Prod \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db sqlite_file:SiPixelQuality_phase1_2018_permanentlyBad.db \
     --test;
 
 getPayloadData.py \
     --plugin pluginSiPixelQuality_PayloadInspector \
     --plot plot_SiPixelFPixQualityMap \
-    --tag  SiPixelQuality_byPCL_prompt_v2 \
+    --tag SiPixelQuality_phase1_2018_permanentlyBad  \
     --time_type Lumi \
-    --iovs '{"start_iov": "1390517136916505", "end_iov": "1390517136916505"}' \
-    --db Prod \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db sqlite_file:SiPixelQuality_phase1_2018_permanentlyBad.db \
     --test;
+
