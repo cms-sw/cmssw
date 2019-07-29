@@ -83,7 +83,6 @@ double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
   for (auto const &theCells : m3x3aroundDC) {
     EBDetId cell = EBDetId(theCells);
     if (cell == id) {
-      
       int iEtaCentral = std::abs(cell.ieta());
       int iPhiCentral = cell.iphi();
 
@@ -93,21 +92,21 @@ double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
     }
     if (!cell.null()) {
       EcalRecHitCollection::const_iterator goS_it = hit_collection.find(cell);
-      if (goS_it != hit_collection.end() &&  cell!=id) {
-      	if (goS_it->energy() < single8Cut) {
-	  *acceptFlag = false;
-	  return 0.;
-	} else {
-	  neighTotEn += goS_it->energy();
-	  mx_.rEn[cellIndex] = goS_it->energy();
-	  mx_.iphi[cellIndex] = cell.iphi();
-	  mx_.ieta[cellIndex] = cell.ieta();
-	  cellIndex++;
-	}
-      } else if (cell==id)  {  // the cell is the central one
-	mx_.rEn[cellIndex] = 0;
-	cellIndex++;
-      }else {  //goS_it is not in the rechitcollection
+      if (goS_it != hit_collection.end() && cell != id) {
+        if (goS_it->energy() < single8Cut) {
+          *acceptFlag = false;
+          return 0.;
+        } else {
+          neighTotEn += goS_it->energy();
+          mx_.rEn[cellIndex] = goS_it->energy();
+          mx_.iphi[cellIndex] = cell.iphi();
+          mx_.ieta[cellIndex] = cell.ieta();
+          cellIndex++;
+        }
+      } else if (cell == id) {  // the cell is the central one
+        mx_.rEn[cellIndex] = 0;
+        cellIndex++;
+      } else {  //goS_it is not in the rechitcollection
         *acceptFlag = false;
         return 0.;
       }
