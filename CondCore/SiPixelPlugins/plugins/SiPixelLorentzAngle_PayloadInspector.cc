@@ -367,13 +367,13 @@ namespace {
       }
 
       SiPixelPI::makeNicePlotStyle(summaryFirst.get());//, kBlue);
-      summaryFirst->SetMarkerColor(kBlue);
+      summaryFirst->SetMarkerColor(kRed);
       summaryFirst->GetXaxis()->LabelsOption("v");
       summaryFirst->GetXaxis()->SetLabelSize(0.05);
       summaryFirst->GetYaxis()->SetTitleOffset(0.9);
 
       SiPixelPI::makeNicePlotStyle(summaryLast.get());//, kRed);
-      summaryLast->SetMarkerColor(kRed);
+      summaryLast->SetMarkerColor(kBlue);
       summaryLast->GetYaxis()->SetTitleOffset(0.9);
       summaryLast->GetXaxis()->LabelsOption("v");
       summaryLast->GetXaxis()->SetLabelSize(0.05);
@@ -385,8 +385,8 @@ namespace {
       canvas.SetRightMargin(0.02);
       canvas.Modified();
 
-      summaryFirst->SetFillColor(kBlue);
-      summaryLast->SetFillColor(kRed);
+      summaryFirst->SetFillColor(kRed);
+      summaryLast->SetFillColor(kBlue);
 
       summaryFirst->SetBarWidth(0.45);
       summaryFirst->SetBarOffset(0.1);
