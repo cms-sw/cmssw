@@ -3,14 +3,14 @@
 #ifndef GENERS_ARCHIVERECORD_HH_
 #define GENERS_ARCHIVERECORD_HH_
 
-#include <vector>
-
 #include "Alignment/Geners/interface/AbsRecord.hh"
 #include "Alignment/Geners/interface/ArrayAdaptor.hh"
 #include "Alignment/Geners/interface/IOIsAnyPtr.hh"
 
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 #include "Alignment/Geners/interface/GenericIO.hh"
+
+#include <memory>
+#include <vector>
 
 namespace gs {
     template <typename T>
@@ -78,7 +78,7 @@ namespace gs {
         inline virtual bool writeData(std::ostream& os) const
             {return write_item(os, *obj_, true);}
 
-        CPP11_shared_ptr<T> obj_;
+        std::shared_ptr<T> obj_;
     };
 
 
@@ -97,9 +97,8 @@ namespace gs {
         inline virtual bool writeData(std::ostream& os) const
             {return write_array(os, obj_->begin(), obj_->size());}
 
-        CPP11_shared_ptr<std::vector<T> > obj_;
+        std::shared_ptr<std::vector<T> > obj_;
     };
 }
 
 #endif // GENERS_ARCHIVERECORD_HH_
-
