@@ -48,7 +48,7 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
     }
 
     // If no suitable Jet and PV is available, skip the event without opening pixel collection
-    if(collectionPVs->size() <= 0 || nJets <= 0) {
+    if(collectionPVs->empty() || nJets <= 0) {
         iEvent.put(std::move(pixelTagInfo));
         return;
     }
@@ -71,7 +71,7 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
     
     // Get vector of detunit ids, and fill a vector of PixelClusterProperties in the loop
     for(edmNew::DetSetVector<SiPixelCluster>::const_iterator detUnit = collectionClusters->begin(); detUnit != collectionClusters->end(); ++detUnit) {
-        if(detUnit->size() <= 0) continue;
+        if(detUnit->empty()) continue;
         unsigned int detid = detUnit->detId();
         DetId detId = DetId(detid);            // Get the Detid object
         unsigned int detType = detId.det();    // det type, pixel = 1
