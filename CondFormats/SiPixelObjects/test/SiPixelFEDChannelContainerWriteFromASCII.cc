@@ -88,8 +88,8 @@ void SiPixelFEDChannelContainerWriteFromASCII::analyze(const edm::Event& iEvent,
 
   if (mysnapshots.is_open()) {
     while (getline(mysnapshots, line)) {
-      if(printdebug_){
-	edm::LogVerbatim("SiPixelFEDChannelContainerWriteFromASCII") << line << std::endl;
+      if (printdebug_) {
+        edm::LogVerbatim("SiPixelFEDChannelContainerWriteFromASCII") << line << std::endl;
       }
       std::istringstream iss(line);
       unsigned int run, ls, detid, fed, link, roc_first, roc_last;
@@ -114,9 +114,9 @@ void SiPixelFEDChannelContainerWriteFromASCII::analyze(const edm::Event& iEvent,
       }
 
       if (detid != thedetid) {
-        if (printdebug_){
+        if (printdebug_) {
           edm::LogVerbatim("SiPixelFEDChannelContainerWriteFromASCII") << "found a new detid!" << detid << std::endl;
-	}
+        }
         thedetid = detid;
       }
       theBadFEDChannels[thedetid].push_back(theBadChannel);

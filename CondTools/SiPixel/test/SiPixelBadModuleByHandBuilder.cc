@@ -29,7 +29,8 @@ std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject() {
     BadModule.DetID = it->getParameter<uint32_t>("detid");
     std::string errorstring = it->getParameter<std::string>("errortype");
     if (printdebug_) {
-      edm::LogInfo("SiPixelBadModuleByHandBuilder") << "now looking at detid " << BadModule.DetID << ", string " << errorstring << std::endl;
+      edm::LogInfo("SiPixelBadModuleByHandBuilder")
+          << "now looking at detid " << BadModule.DetID << ", string " << errorstring << std::endl;
     }
 
     //////////////////////////////////////
@@ -123,7 +124,9 @@ std::unique_ptr<SiPixelQuality> SiPixelBadModuleByHandBuilder::getNewObject() {
 
       obj->addDisabledModule(BadModule);
       if (printdebug_) {
-	edm::LogVerbatim("SiPixelBadModuleByHandBuilder") << "New module added: " << tTopo_->print(BadModule.DetID) << ", errorType: " << BadModule.errorType << ", BadRocs: " << std::bitset<16>(it->second) << std::endl;
+        edm::LogVerbatim("SiPixelBadModuleByHandBuilder")
+            << "New module added: " << tTopo_->print(BadModule.DetID) << ", errorType: " << BadModule.errorType
+            << ", BadRocs: " << std::bitset<16>(it->second) << std::endl;
       }
     }
   }
