@@ -15,14 +15,14 @@
 #ifndef GENERS_BINARYIO_HH_
 #define GENERS_BINARYIO_HH_
 
-#include <cassert>
-#include <iostream>
-#include <vector>
-
 #include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 #include "Alignment/Geners/interface/ClassId.hh"
 #include "Alignment/Geners/interface/IOException.hh"
+
+#include <cassert>
+#include <iostream>
+#include <memory>
+#include <vector>
 
 namespace gs {
   // The following functions perform binary I/O of built-in types.
@@ -192,13 +192,13 @@ namespace gs {
   // The following assumes that the array contains a bunch of
   // shared pointers and that class T has the "read" function
   template <typename T>
-  inline void read_heap_obj_array(std::istream &in, CPP11_shared_ptr<T> *arr, const unsigned long len) {
+  inline void read_heap_obj_array(std::istream &in, std::shared_ptr<T> *arr, const unsigned long len) {
     if (len) {
       assert(arr);
       const ClassId id(in, 1);
       for (unsigned long i = 0; i < len; ++i) {
         T *obj = T::read(id, in);
-        arr[i] = CPP11_shared_ptr<T>(obj);
+        arr[i] = std::shared_ptr<T>(obj);
       }
     }
   }
@@ -207,7 +207,7 @@ namespace gs {
   template <typename Reader>
   inline void read_base_obj_array(std::istream &in,
                                   const Reader &f,
-                                  CPP11_shared_ptr<typename Reader::value_type> *arr,
+                                  std::shared_ptr<typename Reader::value_type> *arr,
                                   const unsigned long len) {
     typedef typename Reader::value_type T;
     if (len) {
@@ -215,7 +215,7 @@ namespace gs {
       const ClassId id(in, 1);
       for (unsigned long i = 0; i < len; ++i) {
         T *obj = f.read(id, in);
-        arr[i] = CPP11_shared_ptr<T>(obj);
+        arr[i] = std::shared_ptr<T>(obj);
       }
     }
   }
@@ -249,7 +249,7 @@ namespace gs {
   // The following assumes that the vector contains a bunch of
   // shared pointers
   template <typename T>
-  inline void read_heap_obj_vector(std::istream &in, std::vector<CPP11_shared_ptr<T>> *pv) {
+  inline void read_heap_obj_vector(std::istream &in, std::vector<std::shared_ptr<T>> *pv) {
     unsigned long vlen = 0UL;
     read_pod(in, &vlen);
     if (in.fail())
@@ -289,7 +289,7 @@ namespace gs {
   template <typename Reader>
   inline void read_base_obj_vector(std::istream &in,
                                    const Reader &f,
-                                   std::vector<CPP11_shared_ptr<typename Reader::value_type>> *pv) {
+                                   std::vector<std::shared_ptr<typename Reader::value_type>> *pv) {
     unsigned long vlen = 0UL;
     read_pod(in, &vlen);
     if (in.fail())

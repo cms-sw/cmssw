@@ -65,7 +65,7 @@ namespace gs {
       throw gs::IOInvalidArgument(
           "In gs::AbsArchive::copyItem: "
           "destination archive is not writable");
-    CPP11_shared_ptr<const CatalogEntry> entry(catalogEntry(id));
+    std::shared_ptr<const CatalogEntry> entry(catalogEntry(id));
     if (!entry)
       throw gs::IOInvalidArgument(
           "In gs::AbsArchive::copyItem: no item "

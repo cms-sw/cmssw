@@ -1,8 +1,9 @@
 #include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 #include "Alignment/Geners/interface/IOException.hh"
 #include "Alignment/Geners/interface/WriteOnlyCatalog.hh"
 #include "Alignment/Geners/interface/binaryIO.hh"
+
+#include <memory>
 
 namespace gs {
   WriteOnlyCatalog::WriteOnlyCatalog(std::ostream &os, const unsigned long long firstId)
@@ -88,12 +89,12 @@ namespace gs {
     return cat.release();
   }
 
-  CPP11_shared_ptr<const CatalogEntry> WriteOnlyCatalog::retrieveEntry(unsigned long long) const {
+  std::shared_ptr<const CatalogEntry> WriteOnlyCatalog::retrieveEntry(unsigned long long) const {
     throw IOReadFailure(
         "In gs::WriteOnlyCatalog::retrieveEntry: "
         "entries can not be retrieved "
         "from a write-only catalog");
-    return CPP11_shared_ptr<CatalogEntry>(reinterpret_cast<CatalogEntry *>(0));
+    return std::shared_ptr<CatalogEntry>(reinterpret_cast<CatalogEntry *>(0));
   }
 
   bool WriteOnlyCatalog::retrieveStreampos(unsigned long long /* id */,
