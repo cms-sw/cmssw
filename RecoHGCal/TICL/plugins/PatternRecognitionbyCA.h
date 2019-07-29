@@ -6,7 +6,6 @@
 #include <memory>  // unique_ptr
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
-
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
 namespace tf = tensorflow;
@@ -27,8 +26,7 @@ namespace ticl {
                         const TICLLayerTiles& tiles,
                         std::vector<Trackster>& result) override;
 
-    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters,
-       std::vector<Trackster>& result);
+    void energyRegressionAndID(const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result);
 
   private:
     hgcal::RecHitTools rhtools_;

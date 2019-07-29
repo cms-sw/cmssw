@@ -17,7 +17,7 @@ namespace ticl {
   class PatternRecognitionbyMultiClusters final : public PatternRecognitionAlgoBase {
   public:
     PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf, const CacheBase* cache)
-      : PatternRecognitionAlgoBase(conf, cache) {}
+        : PatternRecognitionAlgoBase(conf, cache) {}
     ~PatternRecognitionbyMultiClusters() override{};
 
     void makeTracksters(const edm::Event& ev,

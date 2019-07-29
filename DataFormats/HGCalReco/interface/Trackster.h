@@ -32,21 +32,13 @@ namespace ticl {
     std::array<float, 4> id_probabilities;
 
     // convenience methods to return certain id probabilities
-    inline float photon_probability() {
-      return id_probabilities[0];
-    };
+    inline float photon_probability() { return id_probabilities[0]; };
 
-    inline float electron_probability() {
-      return id_probabilities[1];
-    };
+    inline float electron_probability() { return id_probabilities[1]; };
 
-    inline float muon_probability() {
-      return id_probabilities[2];
-    };
+    inline float muon_probability() { return id_probabilities[2]; };
 
-    inline float hadron_probability() {
-      return id_probabilities[3];
-    };
+    inline float hadron_probability() { return id_probabilities[3]; };
   };
 }  // namespace ticl
 #endif

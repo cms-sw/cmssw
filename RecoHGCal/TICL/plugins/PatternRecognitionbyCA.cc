@@ -139,11 +139,11 @@ void PatternRecognitionbyCA::energyRegressionAndID(
     for (size_t cluster = 0; cluster < tracksters[i].vertices.size(); cluster++) {
       sumClusterEnergy += (float)layerClusters[tracksters[i].vertices[cluster]].energy();
       // there might be many clusters, so try to stop early
-      if (sumClusterEnergy > eidMinClusterEnergy_) {
+      if (sumClusterEnergy >= eidMinClusterEnergy_) {
         break;
       }
     }
-    if (sumClusterEnergy <= eidMinClusterEnergy_) {
+    if (sumClusterEnergy < eidMinClusterEnergy_) {
       continue;
     }
     tracksterIndices.push_back(i);
@@ -224,22 +224,11 @@ void PatternRecognitionbyCA::energyRegressionAndID(
       size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
       float* probs = outputs[probsIdx].flat<float>().data();
 
-      size_t n = 0;
       for (int i : tracksterIndices) {
         tracksters[i].id_probabilities[0] = *(probs++);
         tracksters[i].id_probabilities[1] = *(probs++);
         tracksters[i].id_probabilities[2] = *(probs++);
         tracksters[i].id_probabilities[3] = *(probs++);
-
-        // some debug log, to be removed for actual PR
-        if (n == 0) {
-            std::cout << "probabilities of first trackster:" << std::endl;
-            std::cout << "photon:   " << tracksters[i].photon_probability() << std::endl;
-            std::cout << "electron: " << tracksters[i].electron_probability() << std::endl;
-            std::cout << "muon:     " << tracksters[i].muon_probability() << std::endl;
-            std::cout << "hadron:   " << tracksters[i].hadron_probability() << std::endl;
-        }
-        n++;
       }
     }
   }
