@@ -95,7 +95,7 @@ private:
   //--------------------------------------------------------------------
   //  Methods.
   //------------------------------------------------------------------
-  float generic_position_formula(int size,                    //!< Size of this projection.
+  float generic_position_formula(int size,  //!< Size of this projection.
                                  bool del_min,
                                  bool del_max,
                                  int Q_f,                     //!< Charge in the first pixel.
@@ -123,9 +123,8 @@ private:
                             int &Q_f_Y,                     //!< output, Q first  in Y
                             int &Q_l_Y,                     //!< output, Q last   in Y
                             double xtalk[4],
-                            int induced_thre,               //threshold in electrons for keeping pixels after correcting their charge
-                            bool correct_xtalk
-                            ) const;
+                            int induced_thre,  //threshold in electrons for keeping pixels after correcting their charge
+                            bool correct_xtalk) const;
 
   //--- Errors squared in x and y.  &&& Need to be revisited.
   float err2X(bool &, int &) const;
