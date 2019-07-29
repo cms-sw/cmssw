@@ -190,26 +190,30 @@ namespace {
       auto theDisabledModules = payload->getBadComponentList();
       for (const auto& mod : theDisabledModules) {
         int coded_badRocs = mod.BadRocs;
-        if (payload->IsModuleBad(mod.DetID)) {
-          int subid = DetId(mod.DetID).subdetId();
-          if (subid == PixelSubdetector::PixelBarrel) {
-            auto layer = m_trackerTopo.pxbLayer(DetId(mod.DetID));
-            auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID), m_trackerTopo, true);
-            auto s_module = SiPixelPI::signed_module(DetId(mod.DetID), m_trackerTopo, true);
+	int subid = DetId(mod.DetID).subdetId();
+	std::bitset<16> bad_rocs(coded_badRocs);
+	if (subid == PixelSubdetector::PixelBarrel) {
+	  auto layer = m_trackerTopo.pxbLayer(DetId(mod.DetID));
+	  auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID), m_trackerTopo, true);
+	  auto s_module = SiPixelPI::signed_module(DetId(mod.DetID), m_trackerTopo, true);
 
-            //auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
-            //auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
-            // std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module
-            //	         <<" signed ladder: "<< s_ladder
-            //           <<" signed module: "<< s_module << std::endl;
+	  //auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
+	  //auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
+	  // std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module
+	  //	         <<" signed ladder: "<< s_ladder
+	  //           <<" signed module: "<< s_module << std::endl;
 
-            std::vector<std::pair<int, int> > rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module);
-            for (const auto& bin : rocsToMask) {
+	  std::vector<std::pair<int, int> > rocsToMask;
+	  if (payload->IsModuleBad(mod.DetID)) {
+	    rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module);
+	  } else {
+	    rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module,bad_rocs);
+	  }
+
+	  for (const auto& bin : rocsToMask) {
               h_bpix_occ[layer - 1]->SetBinContent(bin.first, bin.second, 1);
-            }
-          }
-        }
-        std::bitset<16> bad_rocs(coded_badRocs);
+	  }
+	}
       }
 
       gStyle->SetOptStat(0);
@@ -269,10 +273,50 @@ namespace {
           }
         }
       }
-
       return rocsToMask;
     }
 
+
+    // #============================================================================
+    std::vector<std::pair<int, int> > maskedBarrelRocsToBins(int layer, int ladder, int module,	std::bitset<16> bad_rocs) {
+      std::vector<std::pair<int, int> > rocsToMask;
+
+      int nlad_list[4] = {6, 14, 22, 32};
+      int nlad = nlad_list[layer - 1];
+
+      int start_x = module > 0 ? ((module + 4) * 8) + 1 : ((4 - (std::abs(module))) * 8) + 1;
+      int start_y = ladder > 0 ? ((ladder + nlad) * 2) + 1 : ((nlad - (std::abs(ladder))) * 2) + 1;
+
+      // int start_x = ((module + 4) * 8) + 1;	     
+      //int start_y = ((ladder + nlad) * 2) + 1;
+
+      size_t idx = 0;
+      while (idx < bad_rocs.size()) {
+	if(bad_rocs.test(idx)){
+
+	  int start_x1 = start_x + idx%8;
+	  int start_y1 = idx > 7 ? start_y + 1 : start_y;
+
+	  int end_x = start_x1 + 1;
+	  int end_y = start_y1;
+
+	  std::cout << "module: " << module << " start_x:" << start_x1 << " end_x:" << end_x << std::endl;
+	  std::cout << "ladder: " << ladder << " start_y:" << start_y1 << " end_y:" << end_y << std::endl;
+	  std::cout << "==================================================================" << std::endl;
+
+	  for (int bin_x = 1; bin_x <= 72; bin_x++) {
+	    for (int bin_y = 1; bin_y <= (nlad * 4 + 2); bin_y++) {
+	      if (bin_x >= start_x && bin_x <= end_x && bin_y >= start_y && bin_y <= end_y) {
+		rocsToMask.push_back(std::make_pair(bin_x, bin_y));
+	      }
+	    }
+	  }
+	}	  
+	++idx;
+      }
+      return rocsToMask;
+    }
+    
   private:
     TrackerTopology m_trackerTopo;
   };
