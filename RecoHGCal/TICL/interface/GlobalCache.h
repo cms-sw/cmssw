@@ -21,7 +21,7 @@ namespace ticl {
   struct TrackstersCache : CacheBase {
     TrackstersCache(const edm::ParameterSet& params) : CacheBase(params), eidGraphDef(nullptr) {}
 
-    virtual ~TrackstersCache() {}
+    ~TrackstersCache() override {}
 
     std::atomic<tf::GraphDef*> eidGraphDef;
   };
