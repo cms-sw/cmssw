@@ -28,4 +28,26 @@ getPayloadData.py \
     --time_type Run \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
-    --test ;                                  
+    --test ;
+
+getPayloadData.py \
+    --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+    --plot plot_SiPixelLorentzAngleValueComparisonTwoTags \
+    --tag SiPixelLorentzAngle_forWidth_v1_mc \
+    --tagtwo SiPixelLorentzAngle_2016_ultralegacymc_v2 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod
+    --test ;
+
+getPayloadData.py \
+    --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+    --plot plot_SiPixelLorentzAngleByRegionComparisonTwoTags \
+    --tag SiPixelLorentzAngle_forWidth_v1_mc \
+    --tagtwo SiPixelLorentzAngle_2016_ultralegacymc_v2 \
+    --time_type Run \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test ;
