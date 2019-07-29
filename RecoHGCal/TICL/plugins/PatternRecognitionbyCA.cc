@@ -11,18 +11,24 @@
 using namespace ticl;
 
 PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf,
-    tf::GraphDef* energyIDGraphDef)
-    : PatternRecognitionAlgoBase(conf), energyIDSession_(nullptr) {
+    const CacheBase* cache)
+    : PatternRecognitionAlgoBase(conf, cache), eidSession_(nullptr) {
   theGraph_ = std::make_unique<HGCGraph>();
   min_cos_theta_ = conf.getParameter<double>("min_cos_theta");
   min_cos_pointing_ = conf.getParameter<double>("min_cos_pointing");
   missing_layers_ = conf.getParameter<int>("missing_layers");
   min_clusters_per_ntuplet_ = conf.getParameter<int>("min_clusters_per_ntuplet");
   max_delta_time_ = conf.getParameter<double>("max_delta_time");
+  eidInputName_ = conf.getParameter<std::string >("eid_input_name");
+  eidOutputNameEnergy_ = conf.getParameter<std::string>("eid_output_name_energy");
+  eidOutputNameId_ = conf.getParameter<std::string>("eid_output_name_id");
+  eidNLayers_ = conf.getParameter<int>("eid_n_layers");
+  eidNClusters_ = conf.getParameter<int>("eid_n_clusters");
 
   // mount the tensorflow graph onto the session when set
-  if (energyIDGraphDef != nullptr) {
-    energyIDSession_ = tf::createSession(energyIDGraphDef);
+  const TrackstersCache* trackstersCache = dynamic_cast<const TrackstersCache*>(cache);
+  if (trackstersCache->eidGraphDef != nullptr) {
+    eidSession_ = tf::createSession(trackstersCache->eidGraphDef);
   }
 }
 
@@ -99,105 +105,142 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
   }
 
   // energy regression and ID when a session is created
-  if (energyIDSession_ != nullptr) {
+  if (eidSession_ != nullptr) {
     energyRegressionAndID(layerClusters, result);
   }
 }
 
 void PatternRecognitionbyCA::energyRegressionAndID(
-    const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& result) {
-  // TODO: the inference doesn't use batching yet!
-  // TODO: layer clusters are not sorted by any metric yet, some geometric approach might be good,
-  // maybe even correlated between layers
+    const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& tracksters) {
+  // Energy regression and particle identification strategy:
+  // 1. Set default values for regressed energy and particle id for each trackster.
+  // 2. Store indices of tracksters whose total sum of cluster energies is above the
+  //    eidMinClusterEnergy_ (GeV) treshold. Inference is not applied for soft tracksters.
+  // 3. Create input and output tensors. The batch dimension is determined by the number of
+  //    tracksters passing 2.
+  // 4. Fill input tensors with variables of tracksters. Per layer, tracksters are ordered
+  //    descending by energy. Given that tensor data is contiguous in memory, we can use pointer
+  //    arithmetic to fill values, even with batching.
+  // 5. Batched inference.
+  // 6. Assign regressed energy and id probabilities to each trackster.
 
-  // define input dimensions
-  // TODO: use instance members
-  size_t batchSize = 1;
-  size_t nLayers = 50;
-  size_t nClusters = 10;
-  size_t nFeatures = 3;
-  float zero = 0.;
+  // set default values per trackster, determine if the cluster energy threshold is passed,
+  // and store indices of hard tracksters
+  std::vector<int> tracksterIndices;
+  for (int i = 0; i < (int)tracksters.size(); i++) {
+    // set default values (1)
+    tracksters[i].id_probabilities = {{ 0., 0., 0., 0. }};
+    tracksters[i].regressed_energy = 0.;
 
-  // create structures for input / output tensors as shapes are distinct as long as we do not batch
-  // TODO: tensor names might become configurable via pset
-  std::vector<tf::Tensor> outputs;
-  tf::Tensor input(tf::DT_FLOAT,
-    tf::TensorShape({ (int)batchSize, (int)nLayers, (int)nClusters, (int)nFeatures }));
-  tf::NamedTensorList inputList = { { "input", input } };
-  std::vector<std::string> outputNames = { "output/Softmax" };
-
-  for (size_t i = 0; i < result.size(); i++) {
-    // only run the inference for tracksters whose sum of layer cluster energies is > 5 GeV
-    // note: after the loop, sumClusterEnergy might be just above 5, which is enough to decide
-    // whether to run inference for the trackster or not
+    // calculate the cluster energy sum (2)
+    // note: after the loop, sumClusterEnergy might be just above the treshold which is enough to
+    // decide whether to run inference for the trackster or not
     float sumClusterEnergy = 0.;
-    for(size_t cluster = 0; cluster < result[i].vertices.size(); cluster++) {
-      sumClusterEnergy += (float)layerClusters[result[i].vertices[cluster]].energy();
+    for (size_t cluster = 0; cluster < tracksters[i].vertices.size(); cluster++) {
+      sumClusterEnergy += (float)layerClusters[tracksters[i].vertices[cluster]].energy();
       // there might be many clusters, so try to stop early
-      if (sumClusterEnergy > 5) {
+      if (sumClusterEnergy > eidMinClusterEnergy_) {
         break;
       }
     }
-    if (sumClusterEnergy <= 5) {
-      // TODO: set probabilities and regressed energy to default values? if so, this should maybe happen via
-      // a method of the trackster struct itself
+    if (sumClusterEnergy <= eidMinClusterEnergy_) {
       continue;
     }
+    tracksterIndices.push_back(i);
+  }
 
+  // create input and output tensors (3)
+  int batchSize = (int)tracksterIndices.size();
+
+  tf::Tensor input(tf::DT_FLOAT,
+    tf::TensorShape({ batchSize, eidNLayers_, eidNClusters_, 3 }));
+  tf::NamedTensorList inputList = { { eidInputName_, input } };
+  float* inputData = input.flat<float>().data();
+
+  std::vector<tf::Tensor> outputs;
+  std::vector<std::string> outputNames;
+  if (!eidOutputNameEnergy_.empty()) {
+    outputNames.push_back(eidOutputNameEnergy_);
+  }
+  if (!eidOutputNameId_.empty()) {
+    outputNames.push_back(eidOutputNameId_);
+  }
+
+  // fill input tensor (4)
+  for (int i : tracksterIndices) {
     // get features per layer and cluster and store them in a nested vector
     // this is necessary since layer information is stored per layer cluster, not vice versa
+    // also, this allows for convenient re-ordering
     std::vector<std::vector<std::array<float, 3> > > tracksterFeatures;
-    tracksterFeatures.resize(nLayers);
-    for(size_t cluster = 0; cluster < result[i].vertices.size(); cluster++) {
-      const reco::CaloCluster& lc = layerClusters[result[i].vertices[cluster]];
-      // TODO: can getLayerWithOffset(lc.hitsAndFractions()[0].first) return 0?
-      size_t layer = rhtools_.getLayerWithOffset(lc.hitsAndFractions()[0].first) - 1;
-      if (layer < nLayers) {
+    tracksterFeatures.resize(eidNLayers_);
+    for (int cluster = 0; cluster < (int)tracksters[i].vertices.size(); cluster++) {
+      const reco::CaloCluster &lc = layerClusters[tracksters[i].vertices[cluster]];
+      int layer = rhtools_.getLayerWithOffset(lc.hitsAndFractions()[0].first) - 1;
+      if (layer < eidNLayers_) {
         std::array<float, 3> features {{ float(lc.eta()), float(lc.phi()), float(lc.energy()) }};
         tracksterFeatures[layer].push_back(features);
       }
     }
 
-    // TODO: sorting of layer clusters (even correlated between layers) could happen here
-
     // start filling input tensor data
-    float* data = input.flat<float>().data();
-    for (size_t layer = 0; layer < nLayers; layer++) {
-      for (size_t cluster = 0; cluster < nClusters; cluster++) {
+    for (int layer = 0; layer < eidNLayers_; layer++) {
+      // per layer, sort tracksters by decreasing energy
+      std::vector<std::array<float, 3> > &layerData = tracksterFeatures[layer];
+      sort(layerData.begin(), layerData.end(), [](const std::array<float, 3> &a, const std::array<float, 3> &b) {
+        return a[2] > b[2];
+      });
+
+      for (int cluster = 0; cluster < eidNClusters_; cluster++) {
         // if there are not enough clusters, fill zeros
-        if (cluster < tracksterFeatures[layer].size()) {
-          std::array<float, 3>& features = tracksterFeatures[layer][cluster];
-          *(data++) = features[0];
-          *(data++) = features[1];
-          *(data++) = features[2];
+        if (cluster < (int)tracksterFeatures[layer].size()) {
+          std::array<float, 3>& features = layerData[cluster];
+          *(inputData++) = features[0];
+          *(inputData++) = features[1];
+          *(inputData++) = features[2];
         } else {
-          *(data++) = zero;
-          *(data++) = zero;
-          *(data++) = zero;
+          *(inputData++) = float(0);
+          *(inputData++) = float(0);
+          *(inputData++) = float(0);
         }
       }
     }
 
-    // run the inference
-    tf::run(energyIDSession_, inputList, outputNames, &outputs);
+    // run the inference (5)
+    tf::run(eidSession_, inputList, outputNames, &outputs);
 
-    // store ID probabilities in trackster
-    float* probs = outputs[0].flat<float>().data();
-    result[i].prob_photon = *(probs++);
-    result[i].prob_electron = *(probs++);
-    result[i].prob_muon = *(probs++);
-    result[i].prob_charged_pion = *(probs++);
+    // store regressed energy per trackster (6)
+    if (!eidOutputNameEnergy_.empty()) {
+      // get the pointer to the energy tensor, dimension is batch x 1
+      float* energy = outputs[0].flat<float>().data();
 
-    // TODO: store regressed energy when the model is capable of producing that
-    result[i].regressed_energy = -1.;
+      for (int i : tracksterIndices) {
+        tracksters[i].regressed_energy = *(energy++);
+      }
+    }
 
-    // some debug log, to be removed for actual PR
-    if (i == 0) {
-        std::cout << "probabilities of first trackster:" << std::endl;
-        std::cout << "photon:   " << result[i].prob_photon << std::endl;
-        std::cout << "electron: " << result[i].prob_electron << std::endl;
-        std::cout << "muon:     " << result[i].prob_muon << std::endl;
-        std::cout << "ch. pion: " << result[i].prob_charged_pion << std::endl;
+    // store id probabilities per trackster (6)
+    if (!eidOutputNameId_.empty()) {
+      // get the pointer to the id probability tensor, dimension is batch x 4
+      size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
+      float* probs = outputs[probsIdx].flat<float>().data();
+
+      size_t n = 0;
+      for (int i : tracksterIndices) {
+        tracksters[i].id_probabilities[0] = *(probs++);
+        tracksters[i].id_probabilities[1] = *(probs++);
+        tracksters[i].id_probabilities[2] = *(probs++);
+        tracksters[i].id_probabilities[3] = *(probs++);
+
+        // some debug log, to be removed for actual PR
+        if (n == 0) {
+            std::cout << "probabilities of first trackster:" << std::endl;
+            std::cout << "photon:   " << tracksters[i].photon_probability() << std::endl;
+            std::cout << "electron: " << tracksters[i].electron_probability() << std::endl;
+            std::cout << "muon:     " << tracksters[i].muon_probability() << std::endl;
+            std::cout << "hadron:   " << tracksters[i].hadron_probability() << std::endl;
+        }
+        n++;
+      }
     }
   }
 }

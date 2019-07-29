@@ -19,6 +19,7 @@
 #include "DataFormats/HGCalReco/interface/TICLLayerTile.h"
 
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
+#include "RecoHGCal/TICL/interface/GlobalCache.h"
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
@@ -28,13 +29,6 @@ namespace tf = tensorflow;
 
 using namespace ticl;
 
-// data structure hold by edm::GlobalCache to store the energy regression / ID graph
-struct TrackstersCache {
-  TrackstersCache() : energyIDGraphDef(nullptr) {
-  }
-
-  std::atomic<tf::GraphDef*> energyIDGraphDef;
-};
 
 class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache> > {
 public:
@@ -46,7 +40,7 @@ public:
 
   // static methods for handling the global cache
   static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet&);
-  static void globalEndJob(const TrackstersCache*);
+  static void globalEndJob(TrackstersCache*);
 
 private:
   edm::EDGetTokenT<std::vector<reco::CaloCluster>> clusters_token_;
@@ -55,41 +49,33 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> clustersTime_token_;
   edm::EDGetTokenT<TICLLayerTiles> layer_clusters_tiles_token_;
 
-  // TODO: obviously not all classes inheriting from PatternRecognitionAlgoBase take a graphDef
-  // as a second constructor argument, so there should be some way of setting up an Algo with
-  // custom objects, so for the moment, limit myAlgo_ to PatternRecognitionbyCA
-  // probably it is enough to pass the cache object, but this depends on where algos are used
-  // std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
-  std::unique_ptr<PatternRecognitionbyCA> myAlgo_;
+  std::unique_ptr<PatternRecognitionAlgoBase> myAlgo_;
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
 std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(
-    const edm::ParameterSet& config) {
+    const edm::ParameterSet& params) {
   // this method is supposed to create, initialize and return a TrackstersCache instance
-  TrackstersCache* cache = new TrackstersCache();
+  TrackstersCache* cache = new TrackstersCache(params);
 
   // load the graph def and save it
-  std::string graphPath = config.getParameter<std::string>("energy_ID_graph_path");
+  std::string graphPath = params.getParameter<std::string>("eid_graph_path");
   if (!graphPath.empty()) {
-    cache->energyIDGraphDef = tf::loadGraphDef(graphPath);
+    cache->eidGraphDef = tf::loadGraphDef(graphPath);
   }
-
-  // set some global configs, such as the TF log level
-  tf::setLogging("0");
 
   return std::unique_ptr<TrackstersCache>(cache);
 }
 
-void TrackstersProducer::globalEndJob(const TrackstersCache* cache) {
-  // reset the energyIDGraphDef
-  if (cache->energyIDGraphDef != nullptr) {
-    delete cache->energyIDGraphDef;
+void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
+  if (cache->eidGraphDef != nullptr) {
+    delete cache->eidGraphDef;
+    cache->eidGraphDef = nullptr;
   }
 }
 
 TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
-    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps, cache->energyIDGraphDef)) {
+    : myAlgo_(std::make_unique<PatternRecognitionbyCA>(ps, cache)) {
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
   filtered_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"));
   original_layerclusters_mask_token_ = consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"));
@@ -113,7 +99,13 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<int>("missing_layers", 0);
   desc.add<int>("min_clusters_per_ntuplet", 10);
   desc.add<double>("max_delta_time", 0.09);
-  desc.add<std::string>("energy_ID_graph_path", "");
+  desc.add<std::string>("eid_graph_path", "");
+  desc.add<std::string>("eid_input_name", "input");
+  desc.add<std::string>("eid_output_name_energy", "");
+  desc.add<std::string>("eid_output_name_id", "output/Softmax");
+  desc.add<double>("eid_min_cluster_energy", 5.);
+  desc.add<int>("eid_n_layers", 50);
+  desc.add<int>("eid_n_clusters", 10);
   descriptions.add("trackstersProducer", desc);
 }
 

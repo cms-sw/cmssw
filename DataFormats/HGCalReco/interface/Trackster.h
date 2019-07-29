@@ -25,17 +25,28 @@ namespace ticl {
     // the outer element is on the outer layer.
     std::vector<std::array<unsigned int, 2> > edges;
 
-    // trackster ID probabilities
-    // TODO: maybe store a vector here
-    float prob_photon;
-    float prob_electron;
-    float prob_muon;
-    float prob_charged_pion;
-
-    // TODO: convenience method to return most probable particle ID?
-
     // regressed energy
     float regressed_energy;
+
+    // trackster ID probabilities
+    std::array<float, 4> id_probabilities;
+
+    // convenience methods to return certain id probabilities
+    inline float photon_probability() {
+      return id_probabilities[0];
+    };
+
+    inline float electron_probability() {
+      return id_probabilities[1];
+    };
+
+    inline float muon_probability() {
+      return id_probabilities[2];
+    };
+
+    inline float hadron_probability() {
+      return id_probabilities[3];
+    };
   };
 }  // namespace ticl
 #endif

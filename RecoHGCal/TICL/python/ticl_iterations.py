@@ -56,7 +56,14 @@ def TICL_iterations_withReco(process):
       min_cos_theta = 0.94, # ~20 degrees
       min_cos_pointing = 0.7,
       # TODO: change to released path
-      energy_ID_graph_path = cms.string("/afs/cern.ch/user/z/zichen/public/TICL/CMSSW_11_0_X_2019-07-02-2300/src/RecoHGCal/TICL/plugins/CNN.pb")
+      eid_graph_path = cms.string("/afs/cern.ch/user/z/zichen/public/TICL/CMSSW_11_0_X_2019-07-02-2300/src/RecoHGCal/TICL/plugins/CNN.pb"),
+      # eid_graph_path = cms.FileInPath("RecoHGCal/TICL/data/tf_models/energy_id_cnn_v0.pb"),
+      eid_input_name = cms.string("input"),
+      eid_output_name_energy = cms.string(""),
+      eid_output_name_id = cms.string("output/Softmax"),
+      eid_min_cluster_energy = cms.double(5.),
+      eid_n_layers = cms.int32(50),
+      eid_n_clusters = cms.int32(10),
   )
 
   process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
@@ -112,7 +119,14 @@ def TICL_iterations(process):
       min_cos_theta = 0.94, # ~20 degrees
       min_cos_pointing = 0.7,
       # TODO: change to released path
-      energy_ID_graph_path = cms.string("/afs/cern.ch/user/z/zichen/public/TICL/CMSSW_11_0_X_2019-07-02-2300/src/RecoHGCal/TICL/plugins/CNN.pb")
+      eid_graph_path = cms.string("/afs/cern.ch/user/z/zichen/public/TICL/CMSSW_11_0_X_2019-07-02-2300/src/RecoHGCal/TICL/plugins/CNN.pb"),
+      # eid_graph_path = cms.FileInPath("RecoHGCal/TICL/data/tf_models/energy_id_cnn_v0.pb"),
+      eid_input_name = cms.string("input"),
+      eid_output_name_energy = cms.string(""),
+      eid_output_name_id = cms.string("output/Softmax"),
+      eid_min_cluster_energy = cms.double(5.),
+      eid_n_layers = cms.int32(50),
+      eid_n_clusters = cms.int32(10),
   )
 
   process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(

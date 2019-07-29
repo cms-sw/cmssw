@@ -16,7 +16,7 @@ class HGCGraph;
 namespace ticl {
   class PatternRecognitionbyCA final : public PatternRecognitionAlgoBase {
   public:
-    PatternRecognitionbyCA(const edm::ParameterSet& conf, tf::GraphDef* energyIDGraphDef);
+    PatternRecognitionbyCA(const edm::ParameterSet& conf, const CacheBase* cache);
     ~PatternRecognitionbyCA() override;
 
     void makeTracksters(const edm::Event& ev,
@@ -38,7 +38,13 @@ namespace ticl {
     int missing_layers_;
     int min_clusters_per_ntuplet_;
     float max_delta_time_;
-    tf::Session* energyIDSession_;
+    tf::Session* eidSession_;
+    std::string eidInputName_;
+    std::string eidOutputNameEnergy_;
+    std::string eidOutputNameId_;
+    double eidMinClusterEnergy_;
+    int eidNLayers_;
+    int eidNClusters_;
   };
 }  // namespace ticl
 #endif
