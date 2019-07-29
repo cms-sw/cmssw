@@ -23,7 +23,7 @@ public:
 
 private:
   std::unique_ptr<SiPixelQuality> getNewObject() override;
-  void algoBeginJob(const edm::EventSetup& es) {
+  void algoBeginJob(const edm::EventSetup& es) override {
     edm::ESHandle<TrackerTopology> htopo;
     es.get<TrackerTopologyRcd>().get(htopo);
     tTopo_ = htopo.product();
