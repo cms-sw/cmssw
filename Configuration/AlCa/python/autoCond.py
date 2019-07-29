@@ -24,11 +24,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '110X_mcRun2_pA_v1',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '110X_dataRun2_v1',
+    'run1_data'         :   '110X_dataRun2_v2',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '110X_dataRun2_v1',
+    'run2_data'         :   '110X_dataRun2_v2',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '110X_dataRun2_relval_v1',
+    'run2_data_relval'  :   '110X_dataRun2_relval_v2',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_promptlike_HEfail' : '110X_dataRun2_PromptLike_HEfail_v1',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
@@ -56,7 +56,7 @@ autoCond = {
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
     'phase1_2018_realistic'    :  '110X_upgrade2018_realistic_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
-    'phase1_2018_realistic_hi' :  '110X_upgrade2018_realistic_HI_v1',
+    'phase1_2018_realistic_hi' :  '110X_upgrade2018_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
     'phase1_2018_realistic_HEfail' :  '110X_upgrade2018_realistic_HEfail_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode

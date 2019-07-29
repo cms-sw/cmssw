@@ -4,10 +4,10 @@
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
-#include "SimG4Core/Application/interface/CustomUIsession.h"
 #include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
@@ -19,9 +19,8 @@
 #include "SimG4Core/Notification/interface/SimTrackManager.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
-#include "SimG4Core/Application/interface/G4RegionReporter.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
-#include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
+#include "SimG4Core/Geometry/interface/CMSG4CheckOverlap.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
@@ -84,7 +83,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_stateManager->SetExceptionHandler(new ExceptionHandler());
   m_geometryManager->G4GeometryManager::GetInstance();
 
-  m_check = p.getUntrackedParameter<bool>("CheckOverlap", false);
+  m_check = p.getParameter<bool>("CheckGeometry");
 }
 
 RunManagerMT::~RunManagerMT() { stopG4(); }
@@ -98,7 +97,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
-  bool protonCut = m_pPhysics.getUntrackedParameter<bool>("CutsOnProton", true);
+  bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
   int verb =
       std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
   edm::LogVerbatim("SimG4CoreApplication")
@@ -122,6 +121,9 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   edm::LogVerbatim("SimG4CoreApplication")
       << "###RunManagerMT: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
 
+  if (m_check) {
+    m_kernel->SetVerboseLevel(2);
+  }
   m_kernel->DefineWorldVolume(world, true);
   m_registry.dddWorldSignal_(m_world.get());
 
@@ -210,7 +212,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   initializeUserActions();
 
   // geometry dump
-  auto writeFile = m_p.getUntrackedParameter<std::string>("FileNameGDML", "");
+  auto writeFile = m_p.getParameter<std::string>("FileNameGDML");
   if (!writeFile.empty()) {
     G4GDMLParser gdml;
     gdml.SetRegionExport(true);
@@ -218,16 +220,12 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
     gdml.Write(writeFile, m_world->GetWorldVolume(), true);
   }
 
-  // G4Region dump
-  auto regionFile = m_p.getUntrackedParameter<std::string>("FileNameRegions", "");
-  if (!regionFile.empty()) {
-    G4RegionReporter rrep;
-    rrep.ReportRegions(regionFile);
-  }
+  // G4Region dump file name
+  auto regionFile = m_p.getParameter<std::string>("FileNameRegions");
 
-  // Intersection check
-  if (m_check) {
-    G4CheckOverlap check(m_g4overlap);
+  // Geometry checks
+  if (m_check || !regionFile.empty()) {
+    CMSG4CheckOverlap check(m_g4overlap, regionFile, m_UIsession.get(), world);
   }
 
   // If the Geant4 particle table is needed, decomment the lines below
