@@ -411,12 +411,12 @@ namespace {
       legend.SetHeader("#mu_{H} value comparison","C");  // option "C" allows to center the header
       legend.AddEntry(
           summaryLast.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[2]{" + std::get<1>(lastiov) + "}")
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + std::get<1>(lastiov) + "}")
               .c_str(),
           "F");
       legend.AddEntry(
           summaryFirst.get(),
-          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[4]{" + std::get<1>(firstiov) + "}")
+          ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(firstiov)) + "} | #color[2]{" + std::get<1>(firstiov) + "}")
               .c_str(),
           "F");
       legend.SetTextSize(0.025);
