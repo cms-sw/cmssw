@@ -80,7 +80,9 @@ void SiPixelQualityProbabilitiesWriteFromASCII::analyze(const edm::Event& iEvent
 
   if (myfile.is_open()) {
     while (getline(myfile, line)) {
-      //edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << line << std::endl;
+      if(printdebug_){
+	edm::LogInfo("SiPixelQualityProbabilitiesWriteFromASCII") << line << std::endl;
+      }
       std::istringstream iss(line);
       int pileupBinId, nEntries;
       iss >> pileupBinId >> nEntries;
