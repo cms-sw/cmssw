@@ -139,7 +139,7 @@ protected:
 
   static const int samplesize_ = hgc::nSamples;
   const double NoiseMean_, NoiseStd_;
-  static const long NoiseArrayLength_ = 10000;
+  static const long NoiseArrayLength_ = 50000;
   std::array<std::array<float, samplesize_>, NoiseArrayLength_> GaussianNoiseArray_;
   //bunch time
   double bxTime_;
