@@ -10,5 +10,8 @@ from RecoEcal.EgammaClusterProducers.fixedMatrixSuperClusters_cfi import *
 # FixedMatrix SuperCluster with Preshower producer
 from RecoEcal.EgammaClusterProducers.fixedMatrixSuperClustersWithPreshower_cfi import *
 # create sequence for fixedMatrix clustering
-fixedMatrixClusteringSequence = cms.Sequence(fixedMatrixBasicClusters*fixedMatrixSuperClusters*fixedMatrixSuperClustersWithPreshower)
+fixedMatrixClusteringTask = cms.Task(fixedMatrixBasicClusters,
+                                     fixedMatrixSuperClusters,
+                                     fixedMatrixSuperClustersWithPreshower)
+fixedMatrixClusteringSequence = cms.Sequence(fixedMatrixClusteringTask)
 

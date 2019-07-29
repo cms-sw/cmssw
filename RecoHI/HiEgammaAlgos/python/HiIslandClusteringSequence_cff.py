@@ -13,5 +13,9 @@ from RecoHI.HiEgammaAlgos.HiIslandSuperClusters_cfi import *
 from RecoHI.HiEgammaAlgos.HiCorrectedIslandBarrelSuperClusters_cfi import *
 from RecoHI.HiEgammaAlgos.HiCorrectedIslandEndcapSuperClusters_cfi import *
 # create sequence for island clustering
-islandClusteringSequence = cms.Sequence(islandBasicClusters*islandSuperClusters*correctedIslandBarrelSuperClusters*correctedIslandEndcapSuperClusters)
+islandClusteringTask = cms.Task(islandBasicClusters,
+                                islandSuperClusters,
+                                correctedIslandBarrelSuperClusters,
+                                correctedIslandEndcapSuperClusters)
+islandClusteringSequence = cms.Sequence(islandClusteringTask)
 
