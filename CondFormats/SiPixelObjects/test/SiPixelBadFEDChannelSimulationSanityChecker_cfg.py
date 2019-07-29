@@ -36,23 +36,21 @@ process.source = cms.Source("EmptyIOVSource",
 ##
 from CondCore.CondDB.CondDB_cfi import *
 #CondDBQualityCollection = CondDB.clone(connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS"))
-CondDBQualityCollection = CondDB.clone(connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"))
+CondDBQualityCollection = CondDB.clone(connect = cms.string("sqlite_file:SiPixelStatusScenarios_UltraLegacy2018_v0_mc.db"))
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBQualityCollection,
                                toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
-                                                          #tag = cms.string('SiPixelFEDChannelContainer_StuckTBM_2018_v0_mc') # choose tag you want
-                                                          tag = cms.string('SiPixelFEDChannelContainer_2018_run_322633_v0_mc') # choose tag you want
+                                                          tag = cms.string('SiPixelStatusScenarios_UltraLegacy2018_v0_mc') # choose tag you want
                                                           )
                                                  )
                                )
 
 #CondDBProbabilities = CondDB.clone(connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS"))
-CondDBProbabilities = CondDB.clone(connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"))
+CondDBProbabilities = CondDB.clone(connect = cms.string("sqlite_file:SiPixelQualityProbabilities_UltraLegacy2018_v0_mc.db"))
 process.dbInput2 = cms.ESSource("PoolDBESSource",
                                 CondDBProbabilities,
                                 toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenarioProbabilityRcd'),
-                                                           #tag = cms.string('SiPixelQualityProbabilities_2018_noPU_v0_mc') # choose tag you want
-                                                           tag = cms.string('SiPixelQualityProbabilities_2018_322633_v0_mc') # choose tag you want
+                                                           tag = cms.string('SiPixelQualityProbabilities_UltraLegacy2018_v0_mc') # choose tag you want
                                                            )
                                                   )
                                 )
