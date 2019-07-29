@@ -84,13 +84,13 @@
 class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
    public:
       explicit PixelClusterTagInfoProducer(const edm::ParameterSet&);
-      ~PixelClusterTagInfoProducer();
+      ~PixelClusterTagInfoProducer() override;
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
 
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
 
       edm::ParameterSet iConfig;
       
