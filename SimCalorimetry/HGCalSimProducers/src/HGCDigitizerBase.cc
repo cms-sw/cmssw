@@ -80,9 +80,12 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
-    long hash_index =
-        std::abs(CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + (long)id) % NoiseArrayLength_;
-
+    double randStep = CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
+    long hash_index;
+    if (randStep > 0.5)
+      hash_index = std::abs(CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + long(id)) % NoiseArrayLength_;
+    else
+      hash_index = std::abs(CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) - long(id)) % NoiseArrayLength_;
     const auto& cellNoiseArray = GaussianNoiseArray_[hash_index];
 
     for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
