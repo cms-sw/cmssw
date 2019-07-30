@@ -53,12 +53,28 @@ Template2Dden = {
     'T15' : ( ','.join( [ 'SiPixel2DTemplateDBObject_phase2_T15_v0_den' ,SiPixel2DTemplatesRecord,connectionString, "denominator", "2019-07-15 12:00:00.000"] ), ),
 }
 
-phase2GTs = {    
-#   'symbolic GT'           : ('base GT',[('payload1',payload2')])
-    'phase2_realistic_T6'   : ('phase2_realistic',LA['T6'] +LAWidth['T6'] +SimLA['T6']),
-    'phase2_realistic_T14'  : ('phase2_realistic',LA['T14']+LAWidth['T14']+SimLA['T14']),
-    'phase2_realistic_T15'  : ('phase2_realistic',LA['T15']+LAWidth['T15']+SimLA['T15']),
+#combines in a single dict of dict the tags defined above
+allTags={
+    "LA" : LA ,
+    "LAWidth": LAWidth ,
+    "SimLA" : SimLA ,
+    "GenError": GenError ,
+    "Template": Template ,
+    "Template2Dnum": Template2Dnum ,
+    "Template2Dden": Template2Dden
 }
+
+# list of active tags to be replaced
+activeKeys = ["LA","LAWidth","SimLA"]
+
+# list og geometries supported
+activeDets = ["T6","T14","T15"]
+phase2GTs = {}
+for det in activeDets:
+    appendedTags = ()
+    for key in activeKeys:
+       appendedTags += allTags[key][det]
+    phase2GTs["phase2_realistic_"+det] = ('phase2_realistic', appendedTags)
 
 def autoCondPhase2(autoCond):
     for key,val in phase2GTs.iteritems():
