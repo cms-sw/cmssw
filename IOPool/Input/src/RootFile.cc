@@ -1466,8 +1466,9 @@ namespace edm {
 
   std::shared_ptr<RunAuxiliary> RootFile::readRunAuxiliary_() {
     if (runHelper_->fakeNewRun()) {
-      runHelper_->overrideRunNumber(savedRunAuxiliary_->id());
-      return savedRunAuxiliary();
+      auto runAuxiliary = std::make_shared<RunAuxiliary>(*savedRunAuxiliary());
+      runHelper_->overrideRunNumber(runAuxiliary->id());
+      return runAuxiliary;
     }
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
