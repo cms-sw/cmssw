@@ -89,6 +89,7 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
     bhOffset_ =
         fhOffset_ + (geomBH->topology().dddConstants()).firstLayer() - (geomEE->topology().dddConstants()).firstLayer();
     bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).layers(true);
+    bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
   } else {
     geometryType_ = 0;
     geomEE =

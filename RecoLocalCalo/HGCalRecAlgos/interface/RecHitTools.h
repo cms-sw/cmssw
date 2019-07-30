@@ -66,6 +66,7 @@ namespace hgcal {
     unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
       return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
     }
+    inline int getScintMaxIphi() const { return bhMaxIphi_; }
     inline int getGeometryType() const { return geometryType_; }
     bool maskCell(const DetId& id, int corners = 3) const;
 
@@ -74,6 +75,7 @@ namespace hgcal {
     unsigned int fhOffset_, bhOffset_, bhLastLayer_, fhLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int geometryType_;
+    int bhMaxIphi_;
   };
 }  // namespace hgcal
 
