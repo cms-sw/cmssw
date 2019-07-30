@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 
-from Configuration.Eras.Era_Phase2C6_cff import Phase2C6
+from Configuration.Eras.Era_Phase2C6_timing_layer_bar_cff import Phase2C6_timing_layer_bar
+process = cms.Process('PROD',Phase2C6_timing_layer_bar)
 
-process = cms.Process('PROD',Phase2C6)
-process.load('Configuration.Geometry.GeometryExtended2023D31_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D31Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D44_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D44Reco_cff')
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Services_cff')
