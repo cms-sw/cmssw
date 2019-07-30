@@ -922,10 +922,12 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         uvmax = std::max(uvmax, std::max(std::abs(u), std::abs(v)));
       }
       for (unsigned int i = 0; i < php.zLayerHex_.size(); ++i) {
+        int copy = i + php.layerOffset_;
+        std::pair<double, double> xyoff = geomTools_.shiftXY(php.layerCenter_[copy], (waferW + waferS));
         int lay = php.layer_[php.layerIndex_[i]];
         double zpos = php.zLayerHex_[i];
-        int type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos,
-                                  HGCalParameters::k_ScaleToDDD * ypos,
+        int type = wType->getType(HGCalParameters::k_ScaleToDDD * (xpos + xyoff.first),
+                                  HGCalParameters::k_ScaleToDDD * (ypos + xyoff.second),
                                   HGCalParameters::k_ScaleToDDD * zpos);
         php.waferTypeL_.emplace_back(type);
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
