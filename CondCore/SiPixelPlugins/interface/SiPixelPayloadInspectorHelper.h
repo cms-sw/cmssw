@@ -145,7 +145,8 @@ namespace SiPixelPI {
     gStyle->SetPadRightMargin(0.125);
     gStyle->SetPalette(1);
 
-    h->Draw("zcol");
+    h->SetMarkerSize(0.7);
+    h->Draw("text");
 
     auto ltx = TLatex();
     ltx.SetTextFont(62);
