@@ -46,6 +46,8 @@ namespace hgcal {
 
     bool isSilicon(const DetId&) const;
 
+    bool isOnlySilicon(const unsigned int layer) const;
+
     // 4-vector helper functions using GlobalPoint
     float getEta(const GlobalPoint& position, const float& vertex_z = 0.) const;
     float getPhi(const GlobalPoint& position) const;
