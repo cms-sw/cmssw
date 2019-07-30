@@ -1,14 +1,59 @@
-#include "SimMuon/GEMDigitizer/interface/ME0PadDigiClusterProducer.h"
+#ifndef SimMuon_GEMDigitizer_ME0PadDigiClusterProducer_h
+#define SimMuon_GEMDigitizer_ME0PadDigiClusterProducer_h
+
+/**
+ *  \class ME0PadDigiClusterProducer
+ *
+ *  Produces ME0 pad clusters from at most 8 adjacent ME0 pads.
+ *  Clusters are used downstream to build triggers.
+ *
+ *  \author Sven Dildick (TAMU)
+ */
+
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0PadDigiClusterCollection.h"
+
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <map>
 #include <vector>
+
+class ME0PadDigiClusterProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ME0PadDigiClusterProducer(const edm::ParameterSet& ps);
+
+  ~ME0PadDigiClusterProducer() override;
+
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  void buildClusters(const ME0PadDigiCollection& pads, ME0PadDigiClusterCollection& out_clusters);
+
+  /// Name of input digi Collection
+  edm::EDGetTokenT<ME0PadDigiCollection> pad_token_;
+  edm::InputTag pads_;
+
+  unsigned int maxClusters_;
+  unsigned int maxClusterSize_;
+
+  const ME0Geometry* geometry_;
+};
 
 ME0PadDigiClusterProducer::ME0PadDigiClusterProducer(const edm::ParameterSet& ps) : geometry_(nullptr) {
   pads_ = ps.getParameter<edm::InputTag>("InputCollection");
@@ -90,3 +135,6 @@ void ME0PadDigiClusterProducer::buildClusters(const ME0PadDigiCollection& det_pa
     }
   }  // end of chamber loop
 }
+
+DEFINE_FWK_MODULE(ME0PadDigiClusterProducer);
+#endif
