@@ -12,6 +12,7 @@ Calorimeters:
 * C4: HGCal (v9) + Phase2 HCAL and EB
 * C6: HGCal (v9) + HFNose + Phase2 HCAL and EB
 * C8: HGCal (v10 post TDR HGCal Geometry) + Phase2 HCAL and EB + Tracker cables in calorimeter region
+* C9: HGCal (v11 post TDR HGCal Geometry same as V8 + corner centering for HE part)
 
 Muon system:
 * M2: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1)
@@ -35,5 +36,6 @@ Several detector combinations have been generated:
 * D43 = T14+C4+M3+I7+O2+F2
 * D44 = T14+C6+M3+I7+O2+F3
 * D45 = T15+C8+M3+I10+O3+F2
+* D46 = T15+C9+M3+I10+O3+F2
 
 D35 is the baseline for the MTD TDR, and D41 is the baseline for the L1T TDR.
