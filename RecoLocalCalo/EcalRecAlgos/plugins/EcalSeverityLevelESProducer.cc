@@ -32,14 +32,12 @@ private:
   using HostType = edm::ESProductHost<EcalSeverityLevelAlgo, EcalChannelStatusRcd>;
 
   edm::ReusableObjectHolder<HostType> holder_;
-  edm::ParameterSet pset_;
+  edm::ParameterSet const pset_;
+  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> const channelToken_;
 };
 
-EcalSeverityLevelESProducer::EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig) : pset_(iConfig) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this);
-}
+EcalSeverityLevelESProducer::EcalSeverityLevelESProducer(const edm::ParameterSet& iConfig)
+    : pset_(iConfig), channelToken_(setWhatProduced(this).consumesFrom<EcalChannelStatus, EcalChannelStatusRcd>()) {}
 
 EcalSeverityLevelESProducer::ReturnType EcalSeverityLevelESProducer::produce(const EcalSeverityLevelAlgoRcd& iRecord) {
   auto host = holder_.makeOrGet([this]() { return new HostType(pset_); });
@@ -51,9 +49,7 @@ EcalSeverityLevelESProducer::ReturnType EcalSeverityLevelESProducer::produce(con
 }
 
 void EcalSeverityLevelESProducer::setupChannelStatus(const EcalChannelStatusRcd& chs, EcalSeverityLevelAlgo* algo) {
-  edm::ESHandle<EcalChannelStatus> h;
-  chs.get(h);
-  algo->setChannelStatus(*h.product());
+  algo->setChannelStatus(chs.get(channelToken_));
 }
 
 //define this as a plug-in
