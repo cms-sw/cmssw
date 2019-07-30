@@ -49,8 +49,8 @@ std::vector<RPixEnergyDepositUnit> RPixLinearChargeDivider::divide(const PSimHit
     double sum = 0;
     for (unsigned int i = 0; i < the_energy_path_distribution_.size(); i++) {
       edm::LogInfo("RPixLinearChargeDivider")
-          << the_energy_path_distribution_[i].X() << " " << the_energy_path_distribution_[i].Y() << " "
-          << the_energy_path_distribution_[i].Z() << " " << the_energy_path_distribution_[i].Energy();
+          << the_energy_path_distribution_[i].Position().x() << " " << the_energy_path_distribution_[i].Position().y()
+          << " " << the_energy_path_distribution_[i].Position().z() << " " << the_energy_path_distribution_[i].Energy();
       sum += the_energy_path_distribution_[i].Energy();
     }
     edm::LogInfo("RPixLinearChargeDivider") << "energy dep. sum=" << sum;
