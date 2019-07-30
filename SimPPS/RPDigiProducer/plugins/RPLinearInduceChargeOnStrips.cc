@@ -22,7 +22,7 @@ simromanpot::strip_charge_map RPLinearInduceChargeOnStrips::Induce(
   for (simromanpot::charge_induced_on_surface::const_iterator i = charge_map.begin(); i != charge_map.end(); ++i) {
     double hit_pos;
     std::vector<strip_info> relevant_strips =
-        theRPDetTopology.GetStripsInvolved((*i).X(), (*i).Y(), (*i).Sigma(), hit_pos);
+        theRPDetTopology.GetStripsInvolved((*i).Position().x(), (*i).Position().y(), (*i).Sigma(), hit_pos);
     if (verbosity_) {
       edm::LogInfo("RPLinearInduceChargeOnStrips ")
           << det_id_ << " : relevant_strips" << relevant_strips.size() << "\n";
