@@ -114,8 +114,8 @@ void HGCFEElectronics<DFr>::runTrivialShaper(DFr& dataFrame, HGCSimHitData& char
 
   //set new ADCs
   const float adj_thresh = thresholdFollowsMIP_ ? thickness * adcThreshold_fC_ * cce : thickness * adcThreshold_fC_;
-
-  for (int it = 0; it < (int)(chargeColl.size()); it++) {
+  const int chargeCollsize = (int)(chargeColl.size());
+  for (int it = 0; it < chargeCollsize; it++) {
     //brute force saturation, maybe could to better with an exponential like saturation
     const uint32_t adc = std::floor(std::min(chargeColl[it], adcSaturation_fC_) / adcLSB_fC_);
     HGCSample newSample;
@@ -369,7 +369,8 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
   //including the leakage from bunches in SARS ADC when not declared busy or in ToT
   auto runChargeSharing = [&]() {
     int ipulse = 0;
-    for (int it = 0; it < (int)(chargeColl.size()); ++it) {
+    const int chargeCollsize = (int)(chargeColl.size());
+    for (int it = 0; it < chargeCollsize; ++it) {
       //if busy, charge has been already integrated
       //if(debug) edm::LogVerbatim("HGCFE") << "\t SARS ADC pulse activated @ " << it << " : ";
       if (!totFlags[it] & !busyFlags[it]) {
