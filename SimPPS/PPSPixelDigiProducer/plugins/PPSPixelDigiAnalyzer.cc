@@ -2,7 +2,8 @@
 #define SimPPS_RPIXDigiAnalyzer_h
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h>
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
@@ -24,7 +25,6 @@
 #include <iostream>
 #include <string>
 
-#include "TFile.h"
 #include "TH2D.h"
 
 #define SELECTED_PIXEL_ROW 89
@@ -39,7 +39,6 @@
 using namespace edm;
 using namespace std;
 
-class TFile;
 class PSimHit;
 
 namespace edm {
@@ -62,7 +61,7 @@ private:
   TH2D *hOneHitperEvent2;
   TH2D *hOneHitperEventCenter;
   TH2D *hOneHitperEvent2Center;
-  TFile *file;
+  //TFile *file;
   std::string label_;
 
   int verbosity_;
@@ -74,29 +73,29 @@ private:
   unsigned int cumulative_cluster_size_[3];
 };
 
-PPSPixelDigiAnalyzer::PPSPixelDigiAnalyzer(const ParameterSet &pset) : theRPixDetTopology_() {
+PPSPixelDigiAnalyzer::PPSPixelDigiAnalyzer(const ParameterSet &pset)
+    : hAllHits(nullptr),
+      hOneHitperEvent(nullptr),
+      hOneHitperEvent2(nullptr),
+      hOneHitperEventCenter(nullptr),
+      hOneHitperEvent2Center(nullptr),
+      theRPixDetTopology_() {
   label_ = pset.getUntrackedParameter<string>("label");
   verbosity_ = pset.getParameter<int>("Verbosity");
+  edm::Service<TFileService> file;
 #ifdef USE_MIDDLE_OF_PIXEL
-  file = new TFile("CTPPSPixelDigiPlots2.root", "RECREATE");
-
-  hOneHitperEvent = new TH2D("OneHitperEvent", "One Hit per Event", 30, -8.511, -8.361, 20, 1, 1.1);
-  hOneHitperEvent2 = new TH2D("OneHitperEvent2", "One Hit per Event 2", 30, -8.511, -8.361, 20, 1, 1.1);
+  hOneHitperEvent = file->make<TH2D>("OneHitperEvent", "One Hit per Event", 30, -8.511, -8.361, 20, 1, 1.1);
+  hOneHitperEvent2 = file->make<TH2D>("OneHitperEvent2", "One Hit per Event 2", 30, -8.511, -8.361, 20, 1, 1.1);
 #else
-  file = new TFile("CTPPSPixelDigiPlots.root", "RECREATE");
-  hOneHitperEvent = new TH2D("OneHitperEvent", "One Hit per Event", 30, -8.55, -8.4, 20, 1, 1.1);
-  hOneHitperEvent2 = new TH2D("OneHitperEvent2", "One Hit per Event 2", 30, -8.55, -8.4, 20, 1, 1.1);
+  hOneHitperEvent = file->make<TH2D>("OneHitperEvent", "One Hit per Event", 30, -8.55, -8.4, 20, 1, 1.1);
+  hOneHitperEvent2 = file->make<TH2D>("OneHitperEvent2", "One Hit per Event 2", 30, -8.55, -8.4, 20, 1, 1.1);
   hOneHitperEventCenter =
-      new TH2D("OneHitperEventCenter", "One Hit per Event Center", 30, -0.075, 0.075, 20, -0.05, 0.05);
-  hOneHitperEvent2Center = new TH2D("OneHitperEvent2Center", "Cluster Size 2", 30, -0.075, 0.075, 20, -0.05, 0.05);
+      file->make<TH2D>("OneHitperEventCenter", "One Hit per Event Center", 30, -0.075, 0.075, 20, -0.05, 0.05);
+  hOneHitperEvent2Center =
+      file->make<TH2D>("OneHitperEvent2Center", "Cluster Size 2", 30, -0.075, 0.075, 20, -0.05, 0.05);
 #endif
   file->cd();
-  hAllHits = new TH2D("AllHits", "All Hits", 10, 1, 1.1, 10, -8.55, -8.4);
-
-  if (file->IsOpen())
-    edm::LogInfo("PPSPixelDigiAnalyzer") << "file open!";
-  else
-    edm::LogInfo("PPSPixelDigiAnalyzer") << "*** Error in opening file ***";
+  hAllHits = file->make<TH2D>("AllHits", "All Hits", 10, 1, 1.1, 10, -8.55, -8.4);
 
   psim_token = consumes<PSimHitContainer>(edm::InputTag("g4SimHits", "CTPPSPixelHits"));
   pixel_token = consumes<edm::DetSetVector<CTPPSPixelDigi>>(edm::InputTag(label_, ""));  //label=RPixDetDigitizer???
@@ -110,24 +109,9 @@ void PPSPixelDigiAnalyzer::beginJob() {
     cumulative_cluster_size_[a] = 0;
 }
 void PPSPixelDigiAnalyzer::endJob() {
-  file->cd();
-  hAllHits->Write();
-  hOneHitperEvent->Write();
-  hOneHitperEvent2->Write();
-  hOneHitperEventCenter->Write();
-  hOneHitperEvent2Center->Write();
-  file->Close();
-
   edm::LogInfo("PPSPixelDigiAnalyzer") << "found_corresponding_digi_count_: " << found_corresponding_digi_count_;
   edm::LogInfo("PPSPixelDigiAnalyzer") << "Cumulative cluster size (1,2,>2) = " << cumulative_cluster_size_[0] << ", "
                                        << cumulative_cluster_size_[1] << ", " << cumulative_cluster_size_[2];
-
-  delete file;
-  delete hAllHits;
-  delete hOneHitperEvent;
-  delete hOneHitperEvent2;
-  delete hOneHitperEventCenter;
-  delete hOneHitperEvent2Center;
 }
 
 void PPSPixelDigiAnalyzer::analyze(const Event &event, const EventSetup &eventSetup) {
