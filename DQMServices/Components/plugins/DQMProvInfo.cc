@@ -189,6 +189,8 @@ void DQMProvInfo::bookHistogramsEventInfo(DQMStore::IBooker& iBooker) {
   reportSummaryMap_->setBinLabel(VBIN_MOMENTUM, "13 TeV", 2);
   reportSummaryMap_->setBinLabel(VBIN_STABLE_BEAM, "Stable B", 2);
   reportSummaryMap_->setBinLabel(VBIN_VALID, "Valid", 2);
+
+  blankAllLumiSections();
 }
 
 void DQMProvInfo::bookHistogramsProvInfo(DQMStore::IBooker& iBooker) {
@@ -234,9 +236,6 @@ void DQMProvInfo::beginLuminosityBlock(const edm::LuminosityBlock& l,
   for (int vbin = 1; vbin <= MAX_DCS_VBINS; vbin++) {
     dcsBits_[vbin] = false;
   }
-  // Boolean that tells the analyse method that we encountered the first real
-  // dcs info
-  foundFirstDcsBits_ = false;
 }
 
 void DQMProvInfo::analyze(const edm::Event& event, const edm::EventSetup& c) {
@@ -309,10 +308,10 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
   // Basically: we do an AND of the physicsDeclared of ALL events.
   // As soon as one value is not "1", physicsDeclared_ becomes false.
   physicsDeclared_ = (beamMode_ == 11) &&
-                      (dcsBits_[VBIN_BPIX] && dcsBits_[VBIN_FPIX] && dcsBits_[VBIN_TIBTID] && dcsBits_[VBIN_TOB] &&
-                       dcsBits_[VBIN_TEC_P] && dcsBits_[VBIN_TE_M]) &&
-                      (dcsBits_[VBIN_CSC_P] || dcsBits_[VBIN_CSC_M] || dcsBits_[VBIN_DT_0] || dcsBits_[VBIN_DT_P] ||
-                       dcsBits_[VBIN_DT_M] || dcsBits_[VBIN_RPC]);
+                     (dcsBits_[VBIN_BPIX] && dcsBits_[VBIN_FPIX] && dcsBits_[VBIN_TIBTID] && dcsBits_[VBIN_TOB] &&
+                      dcsBits_[VBIN_TEC_P] && dcsBits_[VBIN_TE_M]) &&
+                     (dcsBits_[VBIN_CSC_P] || dcsBits_[VBIN_CSC_M] || dcsBits_[VBIN_DT_0] || dcsBits_[VBIN_DT_P] ||
+                      dcsBits_[VBIN_DT_M] || dcsBits_[VBIN_RPC]);
   // Some info-level logging
   edm::LogInfo("DQMProvInfo") << "Physics declared bit: "
                               << physicsDeclared_ << std::endl;
@@ -420,6 +419,17 @@ void DQMProvInfo::blankPreviousLumiSections(const int currentLSNumber) {
     reportSummaryMap_->setBinContent(ls, VBIN_VALID, 0.);
     // Color all the other bins white (-1)
     for (int vBin = 1; vBin < VBIN_VALID; vBin++) {
+      reportSummaryMap_->setBinContent(ls, vBin, -1.);
+    }
+  }
+}
+
+void DQMProvInfo::blankAllLumiSections() {
+  // Initially we want all lumisection to be blank (-1) and
+  // white instead of red which is misleading.
+  for (int ls = 0; ls < MAX_LUMIS; ls++) {
+    // Color all the bins white (-1)
+    for (int vBin = 1; vBin <= MAX_VBINS; vBin++) {
       reportSummaryMap_->setBinContent(ls, vBin, -1.);
     }
   }
