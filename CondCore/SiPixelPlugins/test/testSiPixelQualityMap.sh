@@ -9,6 +9,7 @@ eval `scram run -sh`;
 # Go back to original working directory
 cd $W_DIR;
 # Run get payload data script
+rm -fr *.png
 
 #    --iovs '{"start_iov": "1407898869563565", "end_iov": "1407898869563565"}' \
 ####################
@@ -23,6 +24,8 @@ getPayloadData.py \
     --db Prod \
     --test;
 
+mv *.png $HOME/www/display/CheckROCsBPix.png
+
 getPayloadData.py \
     --plugin pluginSiPixelQuality_PayloadInspector \
     --plot plot_SiPixelFPixQualityMap \
@@ -32,3 +35,4 @@ getPayloadData.py \
     --db Prod \
     --test;
 
+mv *.png $HOME/www/display/CheckROCsFPix.png
