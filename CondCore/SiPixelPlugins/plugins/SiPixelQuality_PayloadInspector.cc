@@ -198,6 +198,7 @@ namespace {
 	  auto s_module = SiPixelPI::signed_module(DetId(mod.DetID), m_trackerTopo, true);
 
 	  bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(mod.DetID), m_trackerTopo,false);
+	  if((layer>1 && s_module<0)) isFlipped = !isFlipped;
 
 	  //auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
 	  //auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
@@ -290,7 +291,7 @@ namespace {
       int start_x = module > 0 ? ((module + 4) * 8) + 1 : ((4 - (std::abs(module))) * 8) + 1;
       int start_y = ladder > 0 ? ((ladder + nlad) * 2) + 1 : ((nlad - (std::abs(ladder))) * 2) + 1;
 
-      int roc0_x = start_x+7;	     
+      int roc0_x = ((layer==1) || (layer>1 && module>0)) ? start_x+7 : start_x;	     
       int roc0_y = start_y-1;
 
       size_t idx = 0;
@@ -319,14 +320,23 @@ namespace {
 	  
 	  int roc_x(0),roc_y(0);
 
-	  if(!isFlipped){
-	    roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
-	    roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
+	  if((layer==1) || (layer>1 && module>0)){
+	    if(!isFlipped){
+	      roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
+	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
+	    } else {
+	      roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
+	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
+	    }
 	  } else {
-	    roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
-	    roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
+	    if(!isFlipped){
+	      roc_x = idx<8 ? roc0_x+idx : (roc0_x+7)-(idx-8);
+	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
+	    } else {
+	      roc_x = idx<8 ? roc0_x+idx : (roc0_x+7)-(idx-8);
+	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
+	    }
 	  }
-
 	  /*
 	    std::cout << bad_rocs << " : (idx)= " << idx << std::endl;
 	    std::cout <<" layer:  " << layer << std::endl;
