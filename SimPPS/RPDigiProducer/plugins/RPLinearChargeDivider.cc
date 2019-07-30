@@ -73,8 +73,9 @@ simromanpot::energy_path_distribution RPLinearChargeDivider::divide(const PSimHi
     double sum = 0;
     for (unsigned int i = 0; i < the_energy_path_distribution_.size(); i++) {
       edm::LogInfo("RPLinearChargeDivider")
-          << the_energy_path_distribution_[i].Position().x() << " " << the_energy_path_distribution_[i].Position().y() << " "
-          << the_energy_path_distribution_[i].Position().z() << " " << the_energy_path_distribution_[i].Energy() << "\n";
+          << the_energy_path_distribution_[i].Position().x() << " " << the_energy_path_distribution_[i].Position().y()
+          << " " << the_energy_path_distribution_[i].Position().z() << " " << the_energy_path_distribution_[i].Energy()
+          << "\n";
       sum += the_energy_path_distribution_[i].Energy();
     }
     edm::LogInfo("RPLinearChargeDivider") << "energy dep. sum=" << sum << "\n";
