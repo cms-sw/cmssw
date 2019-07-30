@@ -4,6 +4,7 @@
 #include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "SimG4Core/Geometry/interface/DD4hep_DDG4Builder.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DDG4/Geant4Converter.h"
@@ -31,12 +32,15 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
     const cms::DDDetector *det = pDD4hep->detector();
     dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
 
-    DetElement world = det->description()->world();
-    const Detector &detector = *det->description();
-    Geant4Converter g4Geo(detector);
-    Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
-    lvMap = geometry->g4Volumes;
-    m_world = geometry->world();
+    // DetElement world = det->description()->world();
+    // const Detector &detector = *det->description();
+    // Geant4Converter g4Geo(detector);
+    // Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
+    // lvMap = geometry->g4Volumes;
+    // m_world = geometry->world();
+    cms::DDG4Builder theBuilder(pDD4hep, lvMap, false);
+    //G4LogicalVolume *world = theBuilder.BuildGeometry(catalog);
+    m_world = theBuilder.BuildGeometry(catalog);//new G4PVPlacement(nullptr, G4ThreeVector(), world, "DDDWorld", nullptr, false, 0);
     if (cuts) {
       DDG4ProductionCuts pcuts(&det->specpars(), &lvMap, verb, pcut);
     }
