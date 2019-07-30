@@ -416,6 +416,11 @@ bool RecHitTools::isSilicon(const DetId& id) const {
   return issilicon;
 }
 
+bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
+  bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
+  return isonlysilicon;
+}
+
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
   GlobalPoint corrected_position = GlobalPoint(position.x(), position.y(), position.z() - vertex_z);
   return corrected_position.eta();
