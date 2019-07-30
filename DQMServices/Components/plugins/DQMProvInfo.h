@@ -15,6 +15,7 @@
 #include <DataFormats/Scalers/interface/DcsStatus.h>
 
 #include <DataFormats/TCDS/interface/TCDSRecord.h>
+#include <DataFormats/OnlineMetaData/interface/DCSRecord.h>
 
 #include <string>
 #include <vector>
@@ -105,8 +106,8 @@ private:
   std::string subsystemname_;
   std::string provinfofolder_;
 
-  edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
   edm::EDGetTokenT<TCDSRecord> tcdsrecord_;
+  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
 
   // MonitorElements for LhcInfo and corresponding variables
   MonitorElement* hBeamMode_;
