@@ -1,7 +1,7 @@
 #ifndef SimG4Core_DDG4SensitiveConverter_h
 #define SimG4Core_DDG4SensitiveConverter_h
 
-#include "SimG4Core/Notification/interface/DDG4DispContainer.h"
+#include "SimG4Core/Geometry/interface/DDG4DispContainer.h"
 
 #include <iostream>
 #include <string>
