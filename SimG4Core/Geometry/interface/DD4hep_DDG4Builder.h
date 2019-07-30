@@ -24,13 +24,12 @@ namespace cms {
   public:
     DDG4Builder(const cms::DDCompactView *, dd4hep::sim::Geant4GeometryMaps::VolumeMap &, bool check);
     G4VPhysicalVolume *BuildGeometry(SensitiveDetectorCatalog &);
-    
+
   private:
-    
     const cms::DDCompactView *compactView_;
     dd4hep::sim::Geant4GeometryMaps::VolumeMap &map_;
     bool check_;
   };
-}
+}  // namespace cms
 
 #endif
