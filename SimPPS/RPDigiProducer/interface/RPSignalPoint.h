@@ -13,9 +13,7 @@ public:
 
   RPSignalPoint(double x, double y, double s, double charge) : pos_(x, y), sigma_(s), charge_(charge) {}
 
-  inline LocalPoint Position() const { return pos_; }
-  inline double X() const { return pos_.x(); }
-  inline double Y() const { return pos_.y(); }
+  inline const LocalPoint& Position() const { return pos_; }
   inline double Sigma() const { return sigma_; }
   inline double Charge() const { return charge_; }
 

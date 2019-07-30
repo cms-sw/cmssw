@@ -17,8 +17,8 @@ simromanpot::charge_induced_on_surface RPLinearChargeCollectionDrifter::Drift(
   simromanpot::charge_induced_on_surface temp_;
   temp_.resize(energy_deposition.size());
   for (unsigned int i = 0; i < energy_deposition.size(); i++) {
-    temp_[i].setPosition(LocalPoint(energy_deposition[i].X(), energy_deposition[i].Y()));
-    temp_[i].setSigma(getSigma(energy_deposition[i].Z()));  //befor charge_cloud_sigma_ used, now a vector of sigmas;
+    temp_[i].setPosition(LocalPoint(energy_deposition[i].Position().x(), energy_deposition[i].Position().y()));
+    temp_[i].setSigma(getSigma(energy_deposition[i].Position().z()));  //befor charge_cloud_sigma_ used, now a vector of sigmas;
     temp_[i].setCharge(energy_deposition[i].Energy() / GeV_per_electron_);
     if (verbosity_) {
       edm::LogInfo("RPLinearChargeCollectionDrifter")
