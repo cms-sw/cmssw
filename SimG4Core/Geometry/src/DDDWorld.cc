@@ -31,7 +31,7 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
     // DD4Hep
     const cms::DDDetector *det = pDD4hep->detector();
     dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
-    
+
     cms::DDG4Builder theBuilder(pDD4hep, lvMap, false);
     m_world = theBuilder.BuildGeometry(catalog);
     LogVerbatim("SimG4CoreApplication") << "DDDWorld: worldLV: " << m_world->GetName();
