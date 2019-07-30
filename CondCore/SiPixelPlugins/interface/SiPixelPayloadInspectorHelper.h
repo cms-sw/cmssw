@@ -146,7 +146,7 @@ namespace SiPixelPI {
     gStyle->SetPalette(1);
 
     h->SetMarkerSize(0.7);
-    h->Draw("text");
+    h->Draw("colz");
 
     auto ltx = TLatex();
     ltx.SetTextFont(62);
