@@ -77,7 +77,7 @@ glbTrackQual.InputCollection = "globalCosmicMuons"
 allmuonsTask = cms.Task(glbTrackQual,
                         tevMuons,
                         muons,
-                        muIsolation)
+                        muIsolationTask)
 allmuons = cms.Sequence(allmuonsTask)
 
 # Final sequence
@@ -117,7 +117,7 @@ STAmuontrackingforcosmics1LegTask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
 muontrackingforcosmics1LegTask = cms.Task(STAmuontrackingforcosmics1LegTask, globalCosmicMuons1Leg)
 
 # Stand Alone Tracking plus muon ID
-STAmuonrecoforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1Leg)
+STAmuonrecoforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1LegTask)
 
 # Final sequence
 muonrecoforcosmics1LegTask = cms.Task(muontrackingforcosmics1LegTask,muons1Leg)
