@@ -24,7 +24,7 @@
 namespace SiPixelPI {
 
   // size of the phase-0 pixel detID list
-  static const unsigned int phase0size = 1440 ;
+  static const unsigned int phase0size = 1440;
 
   std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
     auto kLowMask = 0XFFFFFFFF;
@@ -433,21 +433,21 @@ namespace SiPixelPI {
   }
 
   enum regions {
-    BPixL1o,          //0  Barrel Pixel Layer 1 outer
-    BPixL1i,          //1  Barrel Pixel Layer 1 inner
-    BPixL2o,          //2  Barrel Pixel Layer 2 outer
-    BPixL2i,          //3  Barrel Pixel Layer 2 inner
-    BPixL3o,          //4  Barrel Pixel Layer 3 outer
-    BPixL3i,          //5  Barrel Pixel Layer 3 inner
-    BPixL4o,          //6  Barrel Pixel Layer 4 outer
-    BPixL4i,          //7  Barrel Pixel Layer 4 inner
-    FPixmL1,          //8  Forward Pixel Minus side Disk 1
-    FPixmL2,          //9  Forward Pixel Minus side Disk 2
-    FPixmL3,          //10 Forward Pixel Minus side Disk 3
-    FPixpL1,          //11 Forward Pixel Plus side Disk 1
-    FPixpL2,          //12 Forward Pixel Plus side Disk 2
-    FPixpL3,          //13 Forward Pixel Plus side Disk 3
-    NUM_OF_REGIONS    //14 -- default
+    BPixL1o,        //0  Barrel Pixel Layer 1 outer
+    BPixL1i,        //1  Barrel Pixel Layer 1 inner
+    BPixL2o,        //2  Barrel Pixel Layer 2 outer
+    BPixL2i,        //3  Barrel Pixel Layer 2 inner
+    BPixL3o,        //4  Barrel Pixel Layer 3 outer
+    BPixL3i,        //5  Barrel Pixel Layer 3 inner
+    BPixL4o,        //6  Barrel Pixel Layer 4 outer
+    BPixL4i,        //7  Barrel Pixel Layer 4 inner
+    FPixmL1,        //8  Forward Pixel Minus side Disk 1
+    FPixmL2,        //9  Forward Pixel Minus side Disk 2
+    FPixmL3,        //10 Forward Pixel Minus side Disk 3
+    FPixpL1,        //11 Forward Pixel Plus side Disk 1
+    FPixpL2,        //12 Forward Pixel Plus side Disk 2
+    FPixpL3,        //13 Forward Pixel Plus side Disk 3
+    NUM_OF_REGIONS  //14 -- default
   };
 
   /*--------------------------------------------------------------------*/
@@ -455,41 +455,41 @@ namespace SiPixelPI {
   /*--------------------------------------------------------------------*/
   {
     switch (e) {
-    case SiPixelPI::BPixL1o:
-      return "BPix L1/o";
-    case SiPixelPI::BPixL1i:
-      return "BPix L1/i";
-    case SiPixelPI::BPixL2o:
-      return "BPix L2/o";
-    case SiPixelPI::BPixL2i:
-      return "BPix L2/i";
-    case SiPixelPI::BPixL3o:
-      return "BPix L3/o";
-    case SiPixelPI::BPixL3i:
-      return "BPix L3/i";
-    case SiPixelPI::BPixL4o:
-      return "BPix L4/o";
-    case SiPixelPI::BPixL4i:
-      return "BPix L4/i";
-    case SiPixelPI::FPixmL1:
-      return "FPix- D1";
-    case SiPixelPI::FPixmL2:
-      return "FPix- D2";
-    case SiPixelPI::FPixmL3:
-      return "FPix- D3";
-    case SiPixelPI::FPixpL1:
-      return "FPix+ D1";
-    case SiPixelPI::FPixpL2:
-      return "FPix+ D2";
-    case SiPixelPI::FPixpL3:
-      return "FPix+ D3";
-    default:
-      edm::LogWarning("LogicError") << "Unknown partition: " << e;
-      return "";
+      case SiPixelPI::BPixL1o:
+        return "BPix L1/o";
+      case SiPixelPI::BPixL1i:
+        return "BPix L1/i";
+      case SiPixelPI::BPixL2o:
+        return "BPix L2/o";
+      case SiPixelPI::BPixL2i:
+        return "BPix L2/i";
+      case SiPixelPI::BPixL3o:
+        return "BPix L3/o";
+      case SiPixelPI::BPixL3i:
+        return "BPix L3/i";
+      case SiPixelPI::BPixL4o:
+        return "BPix L4/o";
+      case SiPixelPI::BPixL4i:
+        return "BPix L4/i";
+      case SiPixelPI::FPixmL1:
+        return "FPix- D1";
+      case SiPixelPI::FPixmL2:
+        return "FPix- D2";
+      case SiPixelPI::FPixmL3:
+        return "FPix- D3";
+      case SiPixelPI::FPixpL1:
+        return "FPix+ D1";
+      case SiPixelPI::FPixpL2:
+        return "FPix+ D2";
+      case SiPixelPI::FPixpL3:
+        return "FPix+ D3";
+      default:
+        edm::LogWarning("LogicError") << "Unknown partition: " << e;
+        return "";
     }
   }
 
- /*--------------------------------------------------------------------*/
+  /*--------------------------------------------------------------------*/
   bool isBPixOuterLadder(const DetId& detid, const TrackerTopology& tTopo, bool isPhase0)
   /*--------------------------------------------------------------------*/
   {

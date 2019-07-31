@@ -38,7 +38,7 @@
 
 // #define MMDEBUG
 #ifdef MMDEBUG
-#include<iostream>
+#include <iostream>
 #define COUT std::cout << "MM "
 #else
 #define COUT edm::LogVerbatim("")
@@ -72,11 +72,10 @@ namespace {
               if (mod.BadRocs & mask)
                 BadRocCount++;
             }
-            COUT << "detId:" << mod.DetID << " error type:" << mod.errorType << " BadRocs:" << BadRocCount
-                      << std::endl;
+            COUT << "detId:" << mod.DetID << " error type:" << mod.errorType << " BadRocs:" << BadRocCount << std::endl;
           }
-        }// payload
-      }// iovs
+        }  // payload
+      }    // iovs
       return true;
     }  // fill
   };
@@ -102,7 +101,7 @@ namespace {
         auto theDisabledModules = payload->getBadComponentList();
         for (const auto& mod : theDisabledModules) {
           COUT << "detId: " << mod.DetID << " |error type: " << mod.errorType << " |BadRocs: " << mod.BadRocs
-                    << std::endl;
+               << std::endl;
         }
       }
 
@@ -192,34 +191,34 @@ namespace {
       auto theDisabledModules = payload->getBadComponentList();
       for (const auto& mod : theDisabledModules) {
         int coded_badRocs = mod.BadRocs;
-	int subid = DetId(mod.DetID).subdetId();
-	std::bitset<16> bad_rocs(coded_badRocs);
-	if (subid == PixelSubdetector::PixelBarrel) {
-	  auto layer = m_trackerTopo.pxbLayer(DetId(mod.DetID));
-	  auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID), m_trackerTopo, true);
-	  auto s_module = SiPixelPI::signed_module(DetId(mod.DetID), m_trackerTopo, true);
+        int subid = DetId(mod.DetID).subdetId();
+        std::bitset<16> bad_rocs(coded_badRocs);
+        if (subid == PixelSubdetector::PixelBarrel) {
+          auto layer = m_trackerTopo.pxbLayer(DetId(mod.DetID));
+          auto s_ladder = SiPixelPI::signed_ladder(DetId(mod.DetID), m_trackerTopo, true);
+          auto s_module = SiPixelPI::signed_module(DetId(mod.DetID), m_trackerTopo, true);
 
-	  bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(mod.DetID), m_trackerTopo,false);
-	  if((layer>1 && s_module<0)) isFlipped = !isFlipped;
+          bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(mod.DetID), m_trackerTopo, false);
+          if ((layer > 1 && s_module < 0))
+            isFlipped = !isFlipped;
 
-	  auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
-	  auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
-	  COUT <<"layer:" << layer << " ladder:" << ladder << " module:" << module
-	       <<" signed ladder: "<< s_ladder
-	       <<" signed module: "<< s_module << std::endl;
+          auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
+          auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
+          COUT << "layer:" << layer << " ladder:" << ladder << " module:" << module << " signed ladder: " << s_ladder
+               << " signed module: " << s_module << std::endl;
 
-	  if (payload->IsModuleBad(mod.DetID)) {
-	    auto rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module);
-	    for (const auto& bin : rocsToMask) {
-              h_bpix_occ[layer - 1]->SetBinContent(bin.first, bin.second,1);
-	    }
-	  } else {
-	    auto rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module,bad_rocs,isFlipped);
-	    for (const auto& bin : rocsToMask) {
-              h_bpix_occ[layer - 1]->SetBinContent(std::get<0>(bin),std::get<1>(bin),1);
-	    }
-	  }
-	}
+          if (payload->IsModuleBad(mod.DetID)) {
+            auto rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module);
+            for (const auto& bin : rocsToMask) {
+              h_bpix_occ[layer - 1]->SetBinContent(bin.first, bin.second, 1);
+            }
+          } else {
+            auto rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module, bad_rocs, isFlipped);
+            for (const auto& bin : rocsToMask) {
+              h_bpix_occ[layer - 1]->SetBinContent(std::get<0>(bin), std::get<1>(bin), 1);
+            }
+          }
+        }
       }
 
       gStyle->SetOptStat(0);
@@ -286,7 +285,8 @@ namespace {
     }
 
     // #============================================================================
-    std::vector<std::tuple<int, int, int> > maskedBarrelRocsToBins(int layer, int ladder, int module, std::bitset<16> bad_rocs, bool isFlipped) {
+    std::vector<std::tuple<int, int, int> > maskedBarrelRocsToBins(
+        int layer, int ladder, int module, std::bitset<16> bad_rocs, bool isFlipped) {
       std::vector<std::tuple<int, int, int> > rocsToMask;
 
       int nlad_list[4] = {6, 14, 22, 32};
@@ -295,70 +295,68 @@ namespace {
       int start_x = module > 0 ? ((module + 4) * 8) + 1 : ((4 - (std::abs(module))) * 8) + 1;
       int start_y = ladder > 0 ? ((ladder + nlad) * 2) + 1 : ((nlad - (std::abs(ladder))) * 2) + 1;
 
-      int roc0_x = ((layer==1) || (layer>1 && module>0)) ? start_x+7 : start_x;	     
-      int roc0_y = start_y-1;
+      int roc0_x = ((layer == 1) || (layer > 1 && module > 0)) ? start_x + 7 : start_x;
+      int roc0_y = start_y - 1;
 
       size_t idx = 0;
       while (idx < bad_rocs.size()) {
-	if(bad_rocs.test(idx)){
-	  
-	  //////////////////////////////////////////////////////////////////////////////////////
-	  //		                            |					      //
-	  // In BPix Layer1 and module>0 in L2,3,4  |   In BPix Layer 2,3,4 module > 0	      //
-	  //                                        |					      //
-	  // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-	  // fashion for unplipped modules 	    |   fashion for unplipped modules         //
-	  //					    |  				              //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  //					    |  					      //
-	  // if the module is flipped the ordering  |   if the module is flipped the ordering //
-	  // is reveresed                           |   is reversed                           //
-	  //					    |                                         //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  //////////////////////////////////////////////////////////////////////////////////////
+        if (bad_rocs.test(idx)) {
+          //////////////////////////////////////////////////////////////////////////////////////
+          //		                            |					      //
+          // In BPix Layer1 and module>0 in L2,3,4  |   In BPix Layer 2,3,4 module > 0	      //
+          //                                        |					      //
+          // ROCs are ordered in the following      |   ROCs are ordered in the following     //
+          // fashion for unplipped modules 	    |   fashion for unplipped modules         //
+          //					    |  				              //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          //					    |  					      //
+          // if the module is flipped the ordering  |   if the module is flipped the ordering //
+          // is reveresed                           |   is reversed                           //
+          //					    |                                         //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          //////////////////////////////////////////////////////////////////////////////////////
 
-	  int roc_x(0),roc_y(0);
+          int roc_x(0), roc_y(0);
 
-	  if((layer==1) || (layer>1 && module>0)){
-	    if(!isFlipped){
-	      roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
-	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
-	    } else {
-	      roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
-	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
-	    }
-	  } else {
-	    if(!isFlipped){
-	      roc_x = idx<8 ? roc0_x+idx : (roc0_x+7)-(idx-8);
-	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
-	    } else {
-	      roc_x = idx<8 ? roc0_x+idx : (roc0_x+7)-(idx-8);
-	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
-	    }
-	  }
+          if ((layer == 1) || (layer > 1 && module > 0)) {
+            if (!isFlipped) {
+              roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
+              roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
+            } else {
+              roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
+              roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
+            }
+          } else {
+            if (!isFlipped) {
+              roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
+              roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
+            } else {
+              roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
+              roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
+            }
+          }
 
-	  COUT << bad_rocs << " : (idx)= " << idx << std::endl;
-	  COUT <<" layer:  " << layer << std::endl;
-	  COUT << "module: " << module << " roc_x:" << roc_x << std::endl;
-	  COUT << "ladder: " << ladder << " roc_y:" << roc_y << std::endl;
-	  COUT << "==================================================================" << std::endl;
+          COUT << bad_rocs << " : (idx)= " << idx << std::endl;
+          COUT << " layer:  " << layer << std::endl;
+          COUT << "module: " << module << " roc_x:" << roc_x << std::endl;
+          COUT << "ladder: " << ladder << " roc_y:" << roc_y << std::endl;
+          COUT << "==================================================================" << std::endl;
 
-	  rocsToMask.push_back(std::make_tuple(roc_x,roc_y,idx));
-
-	}	  
-	++idx;
+          rocsToMask.push_back(std::make_tuple(roc_x, roc_y, idx));
+        }
+        ++idx;
       }
       return rocsToMask;
     }
-    
+
   private:
     TrackerTopology m_trackerTopo;
   };
@@ -397,35 +395,34 @@ namespace {
       auto theDisabledModules = payload->getBadComponentList();
       for (const auto& mod : theDisabledModules) {
         int coded_badRocs = mod.BadRocs;
-	int subid = DetId(mod.DetID).subdetId();
-	std::bitset<16> bad_rocs(coded_badRocs);        
-	if (subid == PixelSubdetector::PixelEndcap) {
-	  auto ring = SiPixelPI::ring(DetId(mod.DetID), m_trackerTopo, true);
-	  auto s_blade = SiPixelPI::signed_blade(DetId(mod.DetID), m_trackerTopo, true);
-	  auto s_disk = SiPixelPI::signed_disk(DetId(mod.DetID), m_trackerTopo, true);
-	  auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(mod.DetID), m_trackerTopo, true);
-	  auto panel = m_trackerTopo.pxfPanel(mod.DetID);
+        int subid = DetId(mod.DetID).subdetId();
+        std::bitset<16> bad_rocs(coded_badRocs);
+        if (subid == PixelSubdetector::PixelEndcap) {
+          auto ring = SiPixelPI::ring(DetId(mod.DetID), m_trackerTopo, true);
+          auto s_blade = SiPixelPI::signed_blade(DetId(mod.DetID), m_trackerTopo, true);
+          auto s_disk = SiPixelPI::signed_disk(DetId(mod.DetID), m_trackerTopo, true);
+          auto s_blade_panel = SiPixelPI::signed_blade_panel(DetId(mod.DetID), m_trackerTopo, true);
+          auto panel = m_trackerTopo.pxfPanel(mod.DetID);
 
-	  //bool isFlipped = (s_disk > 0) ? (std::abs(s_blade)%2==0) : (std::abs(s_blade)%2==1);
-	  bool isFlipped = (s_disk > 0) ? (panel==1) : (panel==2);
+          //bool isFlipped = (s_disk > 0) ? (std::abs(s_blade)%2==0) : (std::abs(s_blade)%2==1);
+          bool isFlipped = (s_disk > 0) ? (panel == 1) : (panel == 2);
 
-	  COUT << "ring:" << ring << " blade: " << s_blade << " panel: " << panel << " signed blade/panel: " << s_blade_panel
-	       << " disk: " << s_disk << std::endl;
+          COUT << "ring:" << ring << " blade: " << s_blade << " panel: " << panel
+               << " signed blade/panel: " << s_blade_panel << " disk: " << s_disk << std::endl;
 
-	  if (payload->IsModuleBad(mod.DetID)) {
-	    auto rocsToMask = maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
-	    for (const auto& bin : rocsToMask) {
-	      h_fpix_occ[ring - 1]->SetBinContent(bin.first, bin.second, 1);
-	    }
-	  } else {
-	    auto rocsToMask = maskedForwardRocsToBins(ring, s_blade, panel, s_disk,bad_rocs,isFlipped);
-	    for (const auto& bin : rocsToMask) {
-	      h_fpix_occ[ring - 1]->SetBinContent(std::get<0>(bin),std::get<1>(bin),1);
-	    }
-	  }
-	}// if it's endcap 
-      } // loop on disable moduels
-    
+          if (payload->IsModuleBad(mod.DetID)) {
+            auto rocsToMask = maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
+            for (const auto& bin : rocsToMask) {
+              h_fpix_occ[ring - 1]->SetBinContent(bin.first, bin.second, 1);
+            }
+          } else {
+            auto rocsToMask = maskedForwardRocsToBins(ring, s_blade, panel, s_disk, bad_rocs, isFlipped);
+            for (const auto& bin : rocsToMask) {
+              h_fpix_occ[ring - 1]->SetBinContent(std::get<0>(bin), std::get<1>(bin), 1);
+            }
+          }
+        }  // if it's endcap
+      }    // loop on disable moduels
 
       gStyle->SetOptStat(0);
       //=========================
@@ -493,9 +490,9 @@ namespace {
       return rocsToMask;
     }
 
-    
     // #============================================================================
-    std::vector<std::tuple<int, int, int> >  maskedForwardRocsToBins(int ring, int blade, int panel, int disk, std::bitset<16> bad_rocs, bool isFlipped ) {
+    std::vector<std::tuple<int, int, int> > maskedForwardRocsToBins(
+        int ring, int blade, int panel, int disk, std::bitset<16> bad_rocs, bool isFlipped) {
       std::vector<std::tuple<int, int, int> > rocsToMask;
 
       //int nblade_list[2] = {11, 17};
@@ -508,69 +505,68 @@ namespace {
       int start_y = blade > 0 ? (nybins / 2) + (blade * 4) - (panel * 2) + 3
                               : ((nybins / 2) - (std::abs(blade) * 4) - panel * 2) + 3;
 
-      int roc0_x = disk>0 ? start_x+7 : start_x;	     
-      int roc0_y = start_y-1;
+      int roc0_x = disk > 0 ? start_x + 7 : start_x;
+      int roc0_y = start_y - 1;
 
       size_t idx = 0;
       while (idx < bad_rocs.size()) {
-	if(bad_rocs.test(idx)){
-	  
-	  int roc_x(0),roc_y(0);
+        if (bad_rocs.test(idx)) {
+          int roc_x(0), roc_y(0);
 
-	  //////////////////////////////////////////////////////////////////////////////////////
-	  //		                            |					      //
-	  // In FPix + (Disk 1,2,3)                 |   In FPix - (Disk -1,-2,-3)	      //
-	  //                                        |					      //
-	  // ROCs are ordered in the following      |   ROCs are ordered in the following     //
-	  // fashion for unplipped modules 	    |   fashion for unplipped modules         //
-	  //					    |  				              //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  //					    |  					      //
-	  // if the module is flipped the ordering  |   if the module is flipped the ordering //
-	  // is reveresed                           |   is reversed                           //
-	  //					    |                                         //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
-	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
-	  //////////////////////////////////////////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////////////////////////
+          //		                            |					      //
+          // In FPix + (Disk 1,2,3)                 |   In FPix - (Disk -1,-2,-3)	      //
+          //                                        |					      //
+          // ROCs are ordered in the following      |   ROCs are ordered in the following     //
+          // fashion for unplipped modules 	    |   fashion for unplipped modules         //
+          //					    |  				              //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          //					    |  					      //
+          // if the module is flipped the ordering  |   if the module is flipped the ordering //
+          // is reveresed                           |   is reversed                           //
+          //					    |                                         //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+          // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+          //////////////////////////////////////////////////////////////////////////////////////
 
-	  if(disk>0){
-	    if(!isFlipped){
-	      roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
-	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
-	    } else {
-	      roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
-	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
-	    }
-	  } else {
-	    if(!isFlipped){
-	      roc_x = idx<8 ? roc0_x+idx : (roc0_x+7)-(idx-8);
-	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
-	    } else {
-	      roc_x = idx<8 ? roc0_x+idx : (roc0_x+7)-(idx-8);
-	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
-	    }
-	  }
+          if (disk > 0) {
+            if (!isFlipped) {
+              roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
+              roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
+            } else {
+              roc_x = idx < 8 ? roc0_x - idx : (start_x - 8) + idx;
+              roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
+            }
+          } else {
+            if (!isFlipped) {
+              roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
+              roc_y = idx < 8 ? roc0_y + 1 : roc0_y + 2;
+            } else {
+              roc_x = idx < 8 ? roc0_x + idx : (roc0_x + 7) - (idx - 8);
+              roc_y = idx < 8 ? roc0_y + 2 : roc0_y + 1;
+            }
+          }
 
-	  COUT << bad_rocs << " : (idx)= " << idx << std::endl;
-	  COUT << " panel: " << panel << " isFlipped: " << isFlipped << std::endl;
-	  COUT << " disk:  " << disk  << " roc_x:" << roc_x << std::endl;
-	  COUT << " blade: " << blade << " roc_y:" << roc_y << std::endl;
-	  COUT << "===============================" << std::endl;
+          COUT << bad_rocs << " : (idx)= " << idx << std::endl;
+          COUT << " panel: " << panel << " isFlipped: " << isFlipped << std::endl;
+          COUT << " disk:  " << disk << " roc_x:" << roc_x << std::endl;
+          COUT << " blade: " << blade << " roc_y:" << roc_y << std::endl;
+          COUT << "===============================" << std::endl;
 
-	  rocsToMask.push_back(std::make_tuple(roc_x,roc_y,idx));
-	}	  
-	++idx;
+          rocsToMask.push_back(std::make_tuple(roc_x, roc_y, idx));
+        }
+        ++idx;
       }
       return rocsToMask;
     }
-      
+
   private:
     TrackerTopology m_trackerTopo;
   };
