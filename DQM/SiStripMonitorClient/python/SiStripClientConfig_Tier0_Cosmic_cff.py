@@ -21,10 +21,6 @@ siStripQTester = cms.EDAnalyzer("QualityTester",
     getQualityTestsFromFile = cms.untracked.bool(True)
 )
 
-from CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi import*
-siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
-siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(False)
-
 from CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi import siStripQualityESProducer 
 mergedSiStripQualityProducer = siStripQualityESProducer.clone(
     #names and desigantions
@@ -33,7 +29,7 @@ mergedSiStripQualityProducer = siStripQualityESProducer.clone(
         cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string('')), # Use Detector cabling information to exclude detectors not connected            
         cms.PSet(record = cms.string('SiStripBadChannelRcd'), tag = cms.string('')), # Online Bad components
         cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),   # Bad Channel list from the selected IOV as done at PCL
-        cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel')), # BadChannel list from FED erroes              
+        # BadChannel list from FED errors is included below
         cms.PSet(record = cms.string('RunInfoRcd'), tag = cms.string(''))            # List of FEDs exluded during data taking          
         )
     )
@@ -44,7 +40,9 @@ mergedSiStripQualityProducer.appendToDataLabel = 'MergedBadComponent'
 
 
 siStripBadComponentInfo = cms.EDProducer("SiStripBadComponentInfo",
-    StripQualityLabel = cms.string('MergedBadComponent')
+    StripQualityLabel = cms.string('MergedBadComponent'),
+    AddBadComponentsFromFedErrors = cms.untracked.bool(True),
+    FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
 )
 
 # Sequence
