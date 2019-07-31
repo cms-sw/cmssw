@@ -40,6 +40,7 @@
 namespace {
 
   struct RunBasedHistograms {
+    typedef dqm::reco::MonitorElement MonitorElement;
     // HLT configuration
     struct HLTIndices {
       unsigned int index_l1_seed;

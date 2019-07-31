@@ -134,7 +134,9 @@ uncleanedOnlyPfTracking = cms.Sequence(uncleanedOnlyPfTrackingTask)
 # Electrons
 #
 
-from RecoEgamma.EgammaElectronProducers.gsfElectronCores_cfi import *
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCores_cfi import ecalDrivenGsfElectronCores
+from RecoEgamma.EgammaElectronProducers.gsfElectronCores_cfi import gsfElectronCores
+from RecoEgamma.EgammaElectronProducers.ecalDrivenGsfElectronCoresFromMultiCl_cff import ecalDrivenGsfElectronCoresFromMultiCl
 uncleanedOnlyGsfElectronCores = ecalDrivenGsfElectronCores.clone(
     gsfTracks = cms.InputTag("uncleanedOnlyElectronGsfTracks"),
     gsfPfRecTracks = cms.InputTag("uncleanedOnlyPfTrackElec")

@@ -241,8 +241,8 @@ class MatrixInjector(object):
             wmsplit['DigiFullPU']=1
             wmsplit['RecoFullPU']=1
             wmsplit['RECOHID11']=1
-            wmsplit['DigiFullTriggerPU_2023D17PU'] = 1 
-            wmsplit['RecoFullGlobalPU_2023D17PU']=1
+            wmsplit['DigiFullTriggerPU_2026D17PU'] = 1 
+            wmsplit['RecoFullGlobalPU_2026D17PU']=1
             wmsplit['DIGIUP17']=1
             wmsplit['RECOUP17']=1
             wmsplit['DIGIUP17_PU25']=1
@@ -253,6 +253,8 @@ class MatrixInjector(object):
             wmsplit['RECOCOS_UP17']=1
             wmsplit['DIGICOS_UP18']=1
             wmsplit['RECOCOS_UP18']=1
+            wmsplit['DIGICOS_UP21']=1
+            wmsplit['RECOCOS_UP21']=1
             wmsplit['HYBRIDRepackHI2015VR']=1
             wmsplit['HYBRIDZSHI2015']=1
             wmsplit['RECOHID15']=1

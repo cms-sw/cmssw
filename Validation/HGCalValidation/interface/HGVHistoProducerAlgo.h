@@ -157,6 +157,9 @@ using Density = hgcal_clustering::Density;
 
 class HGVHistoProducerAlgo {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HGVHistoProducerAlgo(const edm::ParameterSet& pset);
   ~HGVHistoProducerAlgo();
 
@@ -174,11 +177,13 @@ public:
   void layerClusters_to_CaloParticles(const Histograms& histograms,
                                       const reco::CaloClusterCollection& clusters,
                                       std::vector<CaloParticle> const& cP,
+                                      std::vector<size_t> const& cPIndices,
                                       std::map<DetId, const HGCRecHit*> const&,
                                       unsigned layers) const;
   void multiClusters_to_CaloParticles(const Histograms& histograms,
                                       const std::vector<reco::HGCalMultiCluster>& multiClusters,
                                       std::vector<CaloParticle> const& cP,
+                                      std::vector<size_t> const& cPIndices,
                                       std::map<DetId, const HGCRecHit*> const&,
                                       unsigned layers,
                                       std::vector<bool> contimulti) const;
@@ -193,6 +198,7 @@ public:
                                    const reco::CaloClusterCollection& clusters,
                                    const Density& densities,
                                    std::vector<CaloParticle> const& cP,
+                                   std::vector<size_t> const& cPIndices,
                                    std::map<DetId, const HGCRecHit*> const&,
                                    std::map<double, double> cummatbudg,
                                    unsigned layers,
@@ -201,6 +207,7 @@ public:
                                  int count,
                                  const std::vector<reco::HGCalMultiCluster>& multiClusters,
                                  std::vector<CaloParticle> const& cP,
+                                 std::vector<size_t> const& cPIndices,
                                  std::map<DetId, const HGCRecHit*> const&,
                                  unsigned layers) const;
   double distance2(const double x1, const double y1, const double x2, const double y2) const;
@@ -212,14 +219,14 @@ public:
 
   struct detIdInfoInCluster {
     bool operator==(const detIdInfoInCluster& o) const { return clusterId == o.clusterId; };
-    unsigned int clusterId;
+    long unsigned int clusterId;
     float fraction;
   };
 
   struct detIdInfoInMultiCluster {
     bool operator==(const detIdInfoInMultiCluster& o) const { return multiclusterId == o.multiclusterId; };
     unsigned int multiclusterId;
-    unsigned int clusterId;
+    long unsigned int clusterId;
     float fraction;
   };
 

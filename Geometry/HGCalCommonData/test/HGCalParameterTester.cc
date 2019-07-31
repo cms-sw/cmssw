@@ -119,8 +119,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
     std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
     std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "LayerOffset: " << phgp->layerOffset_ << "\n";
     std::cout << "mode_: " << phgp->mode_ << "\n";
-    std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
 
     myPrint("waferUVMaxLayer", phgp->waferUVMaxLayer_, 20);
     myPrint("CellThickness", phgp->cellThickness_, 10);
@@ -131,6 +131,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
 
     myPrint("CellSize", phgp->cellSize_, 10);
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);
+    myPrint("LayerCenter", phgp->layerCenter_, 20);
     myPrint("slopeMin", phgp->slopeMin_, 10);
     myPrint("zFrontMin", phgp->zFrontMin_, 10);
     myPrint("rMinFront", phgp->rMinFront_, 10);
@@ -162,6 +163,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("trformRotXZ", phgp->trformRotXZ_, 10);
     myPrint("trformRotYZ", phgp->trformRotYZ_, 10);
     myPrint("trformRotZZ", phgp->trformRotZZ_, 10);
+    myPrint("xLayerHex", phgp->xLayerHex_, 10);
+    myPrint("yLayerHex", phgp->yLayerHex_, 10);
     myPrint("zLayerHex", phgp->zLayerHex_, 10);
     myPrint("rMinLayHex", phgp->rMinLayHex_, 10);
     myPrint("rMaxLayHex", phgp->rMaxLayHex_, 10);
@@ -187,6 +190,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     std::cout << "MinTileZize: " << phgp->minTileSize_ << "\n";
     std::cout << "FirstLayer: " << phgp->firstLayer_ << "\n";
     std::cout << "FirstMixedLayer: " << phgp->firstMixedLayer_ << "\n";
+    std::cout << "LayerOffset: " << phgp->layerOffset_ << "\n";
     std::cout << "mode_: " << phgp->mode_ << "\n";
     std::cout << "waferUVMax: " << phgp->waferUVMax_ << "\n";
     std::cout << "nSectors_: " << phgp->nSectors_ << "\n";
@@ -196,6 +200,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("radiusMixBoundary", phgp->radiusMixBoundary_, 10);
     myPrint("nPhiBinBH", phgp->nPhiBinBH_, 18);
     myPrint("layerFrontBH", phgp->layerFrontBH_, 10);
+    myPrint("LayerCenter", phgp->layerCenter_, 20);
     myPrint("rMinLayerBH", phgp->rMinLayerBH_, 10);
     myPrint("slopeMin", phgp->slopeMin_, 10);
     myPrint("zFrontMin", phgp->zFrontMin_, 10);
@@ -234,6 +239,8 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     myPrint("trformRotXZ", phgp->trformRotXZ_, 10);
     myPrint("trformRotYZ", phgp->trformRotYZ_, 10);
     myPrint("trformRotZZ", phgp->trformRotZZ_, 10);
+    myPrint("xLayerHex", phgp->xLayerHex_, 10);
+    myPrint("yLayerHex", phgp->yLayerHex_, 10);
     myPrint("zLayerHex", phgp->zLayerHex_, 10);
     myPrint("rMinLayHex", phgp->rMinLayHex_, 10);
     myPrint("rMaxLayHex", phgp->rMaxLayHex_, 10);

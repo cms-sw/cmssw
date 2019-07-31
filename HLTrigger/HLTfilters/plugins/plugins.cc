@@ -24,8 +24,6 @@
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauFwd.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/TauReco/interface/HLTTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
@@ -98,8 +96,6 @@ typedef HLTDoublet<PFJet, PFMET> HLT2PFJetPFMET;
 typedef HLTDoublet<Electron, CaloJet> HLT2ElectronTau;
 typedef HLTDoublet<RecoEcalCandidate, CaloJet> HLT2PhotonTau;
 typedef HLTDoublet<RecoChargedCandidate, CaloJet> HLT2MuonTau;
-typedef HLTDoublet<Electron, CaloTau> HLT2ElectronCaloTau;
-typedef HLTDoublet<RecoChargedCandidate, CaloTau> HLT2MuonCaloTau;
 typedef HLTDoublet<Electron, HLTTau> HLT2ElectronHLTTau;
 typedef HLTDoublet<RecoChargedCandidate, HLTTau> HLT2MuonHLTTau;
 typedef HLTDoublet<Electron, PFTau> HLT2ElectronPFTau;

@@ -11,8 +11,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-//#include "DQMServices/Core/interface/MonitorElement.h"
-//#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -23,11 +22,11 @@
 #include <TDirectory.h>
 
 class TrackerTopology;
-class MonitorElement;
-class DQMStore;
 
 class SiStripLAProfileBooker : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripLAProfileBooker(const edm::ParameterSet& conf);
 
   ~SiStripLAProfileBooker() override;

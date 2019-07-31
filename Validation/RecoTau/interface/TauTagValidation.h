@@ -27,8 +27,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
@@ -45,7 +43,6 @@
 
 // Include DQM core
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 typedef math::XYZTLorentzVectorD LV;
@@ -166,25 +163,6 @@ private:
   MonitorElement* nIsolated_NoChargedNoGammas_GammasSignal_;
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsSignal_;
   MonitorElement* nIsolated_NoChargedNoGammas_NeutralHadronsIsolAnnulus_;
-
-  // Second for the CaloTaus
-  // Number of CaloJets with a Leading Track (within a cone of 0.1 around the jet axis and a minimum pt of 5. GeV)
-
-  MonitorElement* nCaloJet_LeadingTrack_signalTracksInvariantMass_;
-  MonitorElement* nCaloJet_LeadingTrack_signalTracks_;
-  MonitorElement* nCaloJet_LeadingTrack_isolationTracks_;
-  MonitorElement* nCaloJet_LeadingTrack_isolationECALhitsEtSum_;
-
-  // Track Isolated CaloTau with a Leading Track
-
-  MonitorElement* nTrackIsolated_isolationECALhitsEtSum_;
-  MonitorElement* nTrackIsolated_signalTracksInvariantMass_;
-  MonitorElement* nTrackIsolated_signalTracks_;
-
-  // EM Isolated CaloTau with a Leading with no tracks in the Isolation Annulus
-
-  MonitorElement* nEMIsolated_signalTracksInvariantMass_;
-  MonitorElement* nEMIsolated_signalTracks_;
 
   // book-keeping variables
   int numEvents_;

@@ -17,10 +17,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
@@ -44,9 +43,6 @@ class DTLayerId;
 class DTChamberId;
 class DTTtrig;
 class DTT0;
-
-class DQMStore;
-class MonitorElement;
 
 class DTDigiTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:

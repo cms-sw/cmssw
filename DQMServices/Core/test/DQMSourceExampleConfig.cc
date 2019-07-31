@@ -47,6 +47,9 @@ using std::string;
 
 class DQMSourceExampleConfig : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit DQMSourceExampleConfig(const edm::ParameterSet&);
   ~DQMSourceExampleConfig() override;
 

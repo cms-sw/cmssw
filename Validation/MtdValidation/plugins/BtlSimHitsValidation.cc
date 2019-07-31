@@ -20,13 +20,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/Records/interface/MTDTopologyRcd.h"
@@ -56,20 +58,27 @@ private:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
+  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
   // ------------ member data ------------
 
-  const std::string folder_;
+  int eventCounter_;
+  TH1D* hEnergyFullRange_;
 
+  const std::string folder_;
   const float hitMinEnergy_;
 
-  edm::EDGetTokenT<edm::PSimHitContainer> btlSimHitsToken_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > btlSimHitsToken_;
 
   // --- histograms declaration
 
   MonitorElement* meNhits_;
   MonitorElement* meNtrkPerCell_;
 
+  MonitorElement* meHitOccupancy_;
+
   MonitorElement* meHitEnergy_;
+  MonitorElement* meHitLogEnergy_;
   MonitorElement* meHitTime_;
 
   MonitorElement* meHitXlocal_;
@@ -95,12 +104,14 @@ private:
 
 // ------------ constructor and destructor --------------
 BtlSimHitsValidation::BtlSimHitsValidation(const edm::ParameterSet& iConfig)
-    : folder_(iConfig.getParameter<std::string>("folder")),
+    : eventCounter_(0),
+      folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
-  btlSimHitsToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("inputTag"));
+  hEnergyFullRange_ = new TH1D("hEnergyFullRange", "", 1000, 0.01, 20.);
+  btlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputTag"));
 }
 
-BtlSimHitsValidation::~BtlSimHitsValidation() {}
+BtlSimHitsValidation::~BtlSimHitsValidation() { delete hEnergyFullRange_; }
 
 // ------------ method called for each event  ------------
 void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -116,12 +127,13 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   const MTDTopology* topology = topologyHandle.product();
 
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
+  MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
 
   std::unordered_map<uint32_t, MTDHit> m_btlHits;
   std::unordered_map<uint32_t, std::set<int> > m_btlTrkPerCell;
 
   // --- Loop over the BLT SIM hits
-  for (auto const& simHit : *btlSimHitsHandle) {
+  for (auto const& simHit : btlSimHits) {
     // --- Use only hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
       continue;
@@ -157,6 +169,9 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meNtrkPerCell_->Fill((hit.second).size());
 
   for (auto const& hit : m_btlHits) {
+    meHitLogEnergy_->Fill(log10((hit.second).energy));
+    hEnergyFullRange_->Fill((hit.second).energy);
+
     if ((hit.second).energy < hitMinEnergy_)
       continue;
 
@@ -201,7 +216,24 @@ void BtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     meHitTvsZ_->Fill(global_point.z(), (hit.second).time);
 
   }  // hit loop
+
+  eventCounter_++;
 }
+
+// ------------ method called at run end -----------------
+void BtlSimHitsValidation::endLuminosityBlock(edm::LuminosityBlock const& iLumBlock, edm::EventSetup const& iSetup) {
+  const float NBtlCrystals = BTLDetId::kCrystalsPerRODBarPhiFlat * BTLDetId::MAX_ROD;
+  const float scale = (eventCounter_ > 0 ? 1. / (eventCounter_ * NBtlCrystals) : 1.);
+
+  double bin_sum = hEnergyFullRange_->GetBinContent(hEnergyFullRange_->GetNbinsX() + 1);
+  for (int ibin = hEnergyFullRange_->GetNbinsX(); ibin > 0; --ibin) {
+    bin_sum += hEnergyFullRange_->GetBinContent(ibin);
+    meHitOccupancy_->setBinContent(ibin, scale * bin_sum);
+  }
+
+  eventCounter_ = 0;
+  hEnergyFullRange_->Reset();
+};
 
 // ------------ method for histogram booking ------------
 void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
@@ -214,7 +246,11 @@ void BtlSimHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
   meNhits_ = ibook.book1D("BtlNhits", "Number of BTL cells with SIM hits;N_{BTL cells}", 100, 0., 5000.);
   meNtrkPerCell_ = ibook.book1D("BtlNtrkPerCell", "Number of tracks per BTL cell;N_{trk}", 10, 0., 10.);
 
+  meHitOccupancy_ = ibook.book1D(
+      "BtlHitOccupancy", "BTL cell occupancy vs hit energy;E_{SIM} [MeV]; Occupancy per event", 1000, 0.01, 20.);
+
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL SIM hits energy;E_{SIM} [MeV]", 100, 0., 20.);
+  meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL SIM hits energy;log_{10}(E_{SIM} [MeV])", 100, -6., 3.);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL SIM hits ToA;ToA_{SIM} [ns]", 100, 0., 25.);
 
   meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL SIM local X;X_{SIM}^{LOC} [mm]", 100, -30., 30.);
@@ -251,7 +287,7 @@ void BtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/BTL/SimHits");
-  desc.add<edm::InputTag>("inputTag", edm::InputTag("g4SimHits", "FastTimerHitsBarrel"));
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<double>("hitMinimumEnergy", 1.);  // [MeV]
 
   descriptions.add("btlSimHits", desc);

@@ -104,6 +104,9 @@ public:
   /// If binary is true, binary format is used.
   void Print(bool binary = false) const;
 
+  /// internaly used to check CRC
+  static word calculateCRC(word crc_in, word dato);
+
 protected:
   /** Raw data frame as sent by electronics.
     * The container is organized as follows (reversed Figure 8 at page 23 of VFAT2 manual):
@@ -134,9 +137,6 @@ private:
   /// Number of clusters.
   /// Only available in cluster mode and if the number of clusters exceeds a limit (10).
   uint8_t numberOfClusters;
-
-  /// internaly used to check CRC
-  static word calculateCRC(word crc_in, word dato);
 };
 
 #endif

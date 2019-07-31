@@ -37,8 +37,14 @@ private:
         resize(other.theContainer.size());
 
       for (size_t i = 0, size = other.theContainer.size(); i != size; ++i) {
-        assert(get(i) == nullptr);               // We don't want to override any existing value
-        theContainer[i].reset(*(other.get(i)));  // pass by reference to denote that we don't own it
+        assert(get(i) == nullptr);  // We don't want to override any existing value
+        auto v = other.get(i);
+        if (v) {
+          // pass by reference to denote that we don't own it
+          theContainer[i].reset(*(other.get(i)));
+        } else {
+          theContainer[i].reset();
+        }
       }
     }
     /// emptify cache, delete values associated to Key

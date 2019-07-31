@@ -62,12 +62,13 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <string>
 
 class EwkElecTauHistManager {
 public:
+  typedef EwkTauDQM::DQMStore DQMStore;
+  typedef EwkTauDQM::MonitorElement MonitorElement;
+
   EwkElecTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);
@@ -210,12 +211,13 @@ private:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <string>
 
 class EwkMuTauHistManager {
 public:
+  typedef EwkTauDQM::DQMStore DQMStore;
+  typedef EwkTauDQM::MonitorElement MonitorElement;
+
   EwkMuTauHistManager(const edm::ParameterSet&);
 
   void bookHistograms(DQMStore::IBooker&);

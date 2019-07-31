@@ -9,6 +9,8 @@
 #include "FWCore/Sources/interface/ProducerSourceBase.h"
 #include "FWCore/Sources/interface/PuttableSourceBase.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQMFileIterator.h"
 #include "DQMMonitoringService.h"
 
@@ -16,6 +18,9 @@ namespace dqmservices {
 
   class DQMProtobufReader : public edm::PuttableSourceBase {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     explicit DQMProtobufReader(edm::ParameterSet const&, edm::InputSourceDescription const&);
     ~DQMProtobufReader() override;
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);

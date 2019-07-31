@@ -2,8 +2,7 @@
 #define DQM_SiStripCommissioningClients_PedestalsHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class PedestalsHistograms : public virtual CommissioningHistograms {
 public:

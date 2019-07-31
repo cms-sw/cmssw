@@ -7,7 +7,7 @@
 
    pat::Tau implements the analysis-level tau class within the 'pat' namespace.
    It inherits from reco::BaseTau, copies all the information from the source
-   reco::CaloTau or reco::PFTau, and adds some PAT-specific variables.
+   reco::PFTau, and adds some PAT-specific variables.
 
    Please post comments and questions to the Physics Tools hypernews:
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
@@ -25,7 +25,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
-#include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/TauPFEssential.h"
 
@@ -116,39 +115,6 @@ namespace pat {
     const reco::GenJet* genJet() const;
     /// set the matched GenJet
     void setGenJet(const reco::GenJetRef& ref);
-
-    // ---- CaloTau accessors (getters only) ----
-    /// Returns true if this pat::Tau was made from a reco::CaloTau
-    bool isCaloTau() const { return !caloSpecific_.empty(); }
-    /// return CaloTau info or throw exception 'not CaloTau'
-    const pat::tau::TauCaloSpecific& caloSpecific() const;
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    reco::CaloTauTagInfoRef caloTauTagInfoRef() const { return caloSpecific().CaloTauTagInfoRef_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float leadTracksignedSipt() const { return caloSpecific().leadTracksignedSipt_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float leadTrackHCAL3x3hitsEtSum() const { return caloSpecific().leadTrackHCAL3x3hitsEtSum_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float leadTrackHCAL3x3hottesthitDEta() const { return caloSpecific().leadTrackHCAL3x3hottesthitDEta_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float signalTracksInvariantMass() const { return caloSpecific().signalTracksInvariantMass_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float TracksInvariantMass() const { return caloSpecific().TracksInvariantMass_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float isolationTracksPtSum() const { return caloSpecific().isolationTracksPtSum_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float isolationECALhitsEtSum() const { return caloSpecific().isolationECALhitsEtSum_; }
-    /// Method copied from reco::CaloTau.
-    /// Throws an exception if this pat::Tau was not made from a reco::CaloTau
-    float maximumHCALhitEt() const { return caloSpecific().maximumHCALhitEt_; }
 
     // ---- PFTau accessors (getters only) ----
     /// Returns true if this pat::Tau was made from a reco::PFTau
@@ -352,7 +318,7 @@ namespace pat {
     float emFraction_MVA() const { return pfEssential().emFraction_; }
 
     /// Methods copied from reco::Jet.
-    /// (accessible from reco::CaloTau/reco::PFTau via reco::CaloTauTagInfo/reco::PFTauTagInfo)
+    /// (accessible from reco::PFTau via reco::PFTauTagInfo)
     reco::Candidate::LorentzVector p4Jet() const;
     float etaetaMoment() const;
     float phiphiMoment() const;
@@ -501,10 +467,6 @@ namespace pat {
     // ---- PFTau specific variables  ----
     /// holder for PFTau info, or empty vector if CaloTau
     std::vector<pat::tau::TauPFSpecific> pfSpecific_;
-
-    // ---- CaloTau specific variables  ----
-    /// holder for CaloTau info, or empty vector if PFTau
-    std::vector<pat::tau::TauCaloSpecific> caloSpecific_;
 
     // ---- energy scale correction factors ----
     // energy scale correction factors; the string carries a potential label if

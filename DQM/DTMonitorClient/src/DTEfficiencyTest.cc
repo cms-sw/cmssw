@@ -19,7 +19,6 @@
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cstdio>

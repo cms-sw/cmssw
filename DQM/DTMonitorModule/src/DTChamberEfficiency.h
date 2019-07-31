@@ -30,7 +30,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -48,8 +47,6 @@ namespace reco {
 class Chi2MeasurementEstimator;
 class MuonServiceProxy;
 
-class DQMStore;
-class MonitorElement;
 class FreeTrajectoryState;
 class DetLayer;
 class DetId;

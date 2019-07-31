@@ -2,7 +2,7 @@
 #define EcalDQMonitorTask_H
 
 #include "DQM/EcalCommon/interface/EcalDQMonitor.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 
 #include "DQWorkerTask.h"
 #include "Collections.h"

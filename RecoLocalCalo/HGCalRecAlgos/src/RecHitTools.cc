@@ -138,7 +138,7 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
 }
 
 GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
-  int lay = std::abs(layer);
+  unsigned int lay = std::abs(layer);
   double z(0);
   if (nose) {
     auto geomNose =
@@ -150,6 +150,10 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
     }
   } else {
     const HGCalDDDConstants* ddd = get_ddd(geom_, geometryType_, fhOffset_, lay);
+    if (geometryType_ == 1) {
+      if (lay > fhOffset_)
+        lay -= fhOffset_;
+    }
     z = (layer > 0) ? ddd->waferZ(lay, true) : -ddd->waferZ(lay, true);
   }
   return GlobalPoint(0, 0, z);

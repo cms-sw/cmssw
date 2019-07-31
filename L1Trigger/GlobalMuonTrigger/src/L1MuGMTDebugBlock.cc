@@ -40,8 +40,9 @@ L1MuGMTDebugBlock::L1MuGMTDebugBlock(int minbx, int maxbx)
       _phisel(maxbx - minbx + 1, std::vector<unsigned>(32, 0)),
       _etasel(maxbx - minbx + 1, std::vector<unsigned>(32, 0)),
       _isMIPISO(maxbx - minbx + 1, std::vector<unsigned>(32, 0)),
-      _pairMatrices(maxbx - minbx + 1, std::vector<L1MuGMTMatrix<bool> >(NumMatrices, L1MuGMTMatrix<bool>(4, 4))),
-      _mqMatrices(maxbx - minbx + 1, std::vector<L1MuGMTMatrix<int> >(NumMatrices, L1MuGMTMatrix<int>(4, 4))),
+      _pairMatrices(maxbx - minbx + 1,
+                    std::vector<L1MuGMTMatrix<bool> >(NumMatrices, L1MuGMTMatrix<bool>(4, 4, false))),
+      _mqMatrices(maxbx - minbx + 1, std::vector<L1MuGMTMatrix<int> >(NumMatrices, L1MuGMTMatrix<int>(4, 4, 0))),
       _cancelbits(maxbx - minbx + 1, std::vector<unsigned>(4)),
       _brlmuons(maxbx - minbx + 1, std::vector<L1MuGMTExtendedCand>(4)),
       _fwdmuons(maxbx - minbx + 1, std::vector<L1MuGMTExtendedCand>(4))
@@ -107,8 +108,8 @@ void L1MuGMTDebugBlock::reset() {
       _isMIPISO[bx][i] = 0;
     }
     for (int i = 0; i < NumMatrices; i++) {
-      _pairMatrices[bx][i].init(false);
-      _mqMatrices[bx][i].init(0);
+      _pairMatrices[bx][i].reset(false);
+      _mqMatrices[bx][i].reset(0);
     }
     for (int i = 0; i < 4; i++) {
       _brlmuons[bx][i].reset();

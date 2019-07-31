@@ -7,7 +7,7 @@
 
 using namespace std;
 
-typedef MonitorElement *MEP;
+typedef RPCRecHitValidClient::MonitorElement *MEP;
 
 RPCRecHitValidClient::RPCRecHitValidClient(const edm::ParameterSet &pset) {
   subDir_ = pset.getParameter<std::string>("subDir");

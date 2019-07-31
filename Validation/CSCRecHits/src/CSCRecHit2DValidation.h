@@ -2,7 +2,6 @@
 #define CSCRecHit2DValidation_h
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"

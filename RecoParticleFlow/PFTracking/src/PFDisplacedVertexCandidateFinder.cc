@@ -18,10 +18,9 @@ PFDisplacedVertexCandidateFinder::PFDisplacedVertexCandidateFinder()
       primaryVertexCut2_(0.0),
       dcaPInnerHitCut2_(1000.0),
       vertexCandidatesSize_(50),
-      debug_(false) {
-  TwoTrackMinimumDistance theMinimum(TwoTrackMinimumDistance::SlowMode);
-  theMinimum_ = theMinimum;
-}
+      theMinimum_(TwoTrackMinimumDistance::SlowMode),
+      debug_(false),
+      magField_(nullptr) {}
 
 PFDisplacedVertexCandidateFinder::~PFDisplacedVertexCandidateFinder() {
 #ifdef PFLOW_DEBUG

@@ -11,12 +11,12 @@
 
 #include <map>
 
-class DQMStore;
-
 namespace ecaldqm {
 
   class DBWriterWorker {
   public:
+    typedef dqm::legacy::DQMStore DQMStore;
+    typedef dqm::legacy::MonitorElement MonitorElement;
     DBWriterWorker(std::string const &, edm::ParameterSet const &);
     virtual ~DBWriterWorker() {}
 

@@ -26,7 +26,7 @@
 
 /*** DQM ***/
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 /*** Records for ESWatcher ***/
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

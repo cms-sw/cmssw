@@ -19,13 +19,12 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
   class Jet;
   class MET;
 }  // namespace reco
-class DQMStore;
-class MonitorElement;
 
 class EwkDQM : public DQMEDAnalyzer {
 public:

@@ -916,6 +916,12 @@ class Process(object):
     def _replaceInSequences(self, label, new):
         old = getattr(self,label)
         #TODO - replace by iterator concatenation
+        #to ovoid dependency problems between sequences, first modify
+        # process known sequences to do a non-recursive change. Then do
+        # a recursive change to get cases where a sub-sequence unknown to
+        # the process has the item to be replaced
+        for sequenceable in six.itervalues(self.sequences):
+            sequenceable._replaceIfHeldDirectly(old,new)
         for sequenceable in six.itervalues(self.sequences):
             sequenceable.replace(old,new)
         for sequenceable in six.itervalues(self.paths):
@@ -2007,6 +2013,7 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             s.associate(t2)
             p.s4.associate(t2)
             p.p = Path(p.c+s+p.a)
+            p.p2 = Path(p.c+p.s4+p.a)
             p.e3 = EndPath(p.c+s+p.a)
             new = EDAnalyzer("NewAnalyzer")
             new2 = EDProducer("NewProducer")
@@ -2019,12 +2026,18 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             visitor2 = NodeVisitor()
             p.p.visit(visitor2)
             self.assertTrue(visitor2.modules == set([new,new2,p.b,p.c]))
+            self.assertEqual(p.p.dumpPython()[:-1], "cms.Path(process.c+process.a+process.b+process.a, cms.Task(process.d))")
+            visitor_p2 = NodeVisitor()
+            p.p2.visit(visitor_p2)
+            self.assertTrue(visitor_p2.modules == set([new,new2,p.b,p.c]))
+            self.assertEqual(p.p2.dumpPython()[:-1], "cms.Path(process.c+process.s4+process.a)")
             visitor3 = NodeVisitor()
             p.e3.visit(visitor3)
             self.assertTrue(visitor3.modules == set([new,new2,p.b,p.c]))
             visitor4 = NodeVisitor()
             p.s4.visit(visitor4)
             self.assertTrue(visitor4.modules == set([new,new2,p.b]))
+            self.assertEqual(p.s4.dumpPython()[:-1],"cms.Sequence(process.a+process.b, cms.Task(process.d))")
             visitor5 = NodeVisitor()
             p.t1.visit(visitor5)
             self.assertTrue(visitor5.modules == set([new2]))

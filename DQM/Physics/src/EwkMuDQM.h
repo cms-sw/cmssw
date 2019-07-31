@@ -14,6 +14,7 @@
 // #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
   class Muon;
@@ -23,9 +24,6 @@ namespace reco {
   class Photon;
   class BeamSpot;
 }  // namespace reco
-
-class DQMStore;
-class MonitorElement;
 
 class EwkMuDQM : public DQMEDAnalyzer {
 public:

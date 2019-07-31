@@ -42,7 +42,7 @@ lowPtGsfEleGsfTracks.src = 'lowPtGsfEleCkfTrackCandidates'
 fastSim.toModify(lowPtGsfEleGsfTracks,src = cms.InputTag("fastLowPtGsfTkfTrackCandidates"))
 
 # GSFTrack to track association
-from RecoEgamma.EgammaElectronProducers.lowPtGsfToTrackLinks_cfi import *
+from RecoEgamma.EgammaElectronProducers.lowPtGsfToTrackLinks_cfi import lowPtGsfToTrackLinks
 
 # GsfPFRecTracks
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
@@ -57,19 +57,20 @@ lowPtGsfElePfGsfTracks.useFifthStepForTrackerDrivenGsf = True
 # RecoParticleFlow/PFClusterProducer/python/particleFlowClusterECALUncorrected_cfi.py
 # RecoParticleFlow/PFClusterProducer/python/particleFlowClusterECAL_cff.py
 # (particleFlowClusterECAL_cfi is generated automatically)
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSuperClusters_cff import lowPtGsfElectronSuperClusters
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSuperClusters_cfi import lowPtGsfElectronSuperClusters
 
 # Low pT electron cores
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cff import *
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronCores_cff import lowPtGsfElectronCores
 
 # Low pT electrons
 from RecoEgamma.EgammaElectronProducers.lowPtGsfElectrons_cfi import *
 
 # Low pT Electron value maps
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cff import lowPtGsfElectronSeedValueMaps
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronSeedValueMaps_cfi import lowPtGsfElectronSeedValueMaps
 
 # Low pT Electron ID
-from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cff import lowPtGsfElectronID
+from RecoEgamma.EgammaElectronProducers.lowPtGsfElectronID_cfi import lowPtGsfElectronID
+
 
 # Full sequence 
 lowPtGsfElectronTask = cms.Task(lowPtGsfElePfTracks,

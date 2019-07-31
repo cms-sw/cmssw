@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 CaloTowersClient::CaloTowersClient(const edm::ParameterSet& iConfig) : conf_(iConfig) {
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");

@@ -1,12 +1,9 @@
 #ifndef GEOMETRY_ECALGEOMETRYLOADER_ICC
-#define GEOMETRY_ECALGEOMETRYLOADER_ICC 1
+#define GEOMETRY_ECALGEOMETRYLOADER_ICC
 
 #include "CondFormats/Alignment/interface/AlignTransform.h"
-
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
-
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -29,18 +26,16 @@
 
 #include <vector>
 
-template <class T>
-const double CaloGeometryLoader<T>::k_ScaleFromDDDtoGeant(0.1);
+template <class T, class D>
+const double CaloGeometryLoader<T, D>::k_ScaleFromDDDtoGeant(0.1);
 
-template <class T>
-CaloGeometryLoader<T>::CaloGeometryLoader()
-    : m_filter(DDSpecificsMatchesValueFilter{DDValue("SensitiveDetector", "EcalSensitiveDetector", 0)},
-               DDSpecificsMatchesValueFilter{DDValue("ReadOutName", T::hitString(), 0)}) {}
+template <class T, class D>
+CaloGeometryLoader<T, D>::CaloGeometryLoader() {}
 
-template <class T>
-typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const DDCompactView* cpv,
-                                                                    const Alignments* alignments,
-                                                                    const Alignments* globals) {
+template <class T, class D>
+typename CaloGeometryLoader<T, D>::PtrType CaloGeometryLoader<T, D>::load(const D* cpv,
+                                                                          const Alignments* alignments,
+                                                                          const Alignments* globals) {
   PtrType geom = std::make_unique<T>();
 
   makeGeometry(cpv, dynamic_cast<T*>(geom.get()), alignments, globals);
@@ -48,19 +43,23 @@ typename CaloGeometryLoader<T>::PtrType CaloGeometryLoader<T>::load(const DDComp
   return geom;
 }
 
-template <class T>
-void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
-                                         T* geom,
-                                         const Alignments* alignments,
-                                         const Alignments* globals) {
-  DDFilteredView fv0(*cpv, m_filter);
+template <class T, class D>
+void CaloGeometryLoader<T, D>::makeGeometry(const D* cpv,
+                                            T* geom,
+                                            const Alignments* alignments,
+                                            const Alignments* globals) {
+  DDAndFilter<DDSpecificsMatchesValueFilter, DDSpecificsMatchesValueFilter> filter(
+      DDSpecificsMatchesValueFilter{DDValue("SensitiveDetector", "EcalSensitiveDetector", 0)},
+      DDSpecificsMatchesValueFilter{DDValue("ReadOutName", T::hitString(), 0)});
+
+  DDFilteredView fv0(*cpv, filter);
 
   fillNamedParams(fv0, geom);
 
   geom->allocateCorners(T::k_NumberOfCellsForCorners);
   geom->allocatePar(T::k_NumberOfParametersPerShape * T::k_NumberOfShapes, T::k_NumberOfParametersPerShape);
 
-  DDFilteredView fv(*cpv, m_filter);
+  DDFilteredView fv(*cpv, filter);
 
   unsigned int counter(0);
   for (bool doSubDets = fv.firstChild(); doSubDets; doSubDets = fv.nextSibling()) {
@@ -107,8 +106,9 @@ void CaloGeometryLoader<T>::makeGeometry(const DDCompactView* cpv,
   geom->initializeParms();
 }
 
-template <class T>
-unsigned int CaloGeometryLoader<T>::getDetIdForDDDNode(const DDFilteredView& fv) {
+template <class T, class D>
+template <class F>
+unsigned int CaloGeometryLoader<T, D>::getDetIdForDDDNode(const F& fv) {
   // perform some consistency checks
   // get the parents and grandparents of this node
 

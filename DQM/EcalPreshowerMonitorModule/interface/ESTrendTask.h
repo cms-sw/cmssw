@@ -11,8 +11,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "TProfile.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ESTrendTask : public DQMEDAnalyzer {
 public:

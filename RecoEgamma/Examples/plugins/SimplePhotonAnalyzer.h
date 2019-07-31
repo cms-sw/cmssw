@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -34,6 +33,9 @@ class TFile;
 
 class SimplePhotonAnalyzer : public edm::one::EDAnalyzer<> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit SimplePhotonAnalyzer(const edm::ParameterSet&);
   ~SimplePhotonAnalyzer() override;
 

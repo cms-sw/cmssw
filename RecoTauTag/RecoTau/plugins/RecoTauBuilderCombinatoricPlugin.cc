@@ -37,7 +37,7 @@ namespace reco {
                              const std::vector<CandidatePtr>&) const override;
 
     private:
-      RecoTauQualityCuts qcuts_;
+      std::unique_ptr<RecoTauQualityCuts> qcuts_;
 
       double isolationConeSize_;
 
@@ -61,7 +61,7 @@ namespace reco {
     RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset,
                                                                        edm::ConsumesCollector&& iC)
         : RecoTauBuilderPlugin(pset, std::move(iC)),
-          qcuts_(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts")),
+          qcuts_(new RecoTauQualityCuts(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
           isolationConeSize_(pset.getParameter<double>("isolationConeSize")),
           signalConeSize_(pset.getParameter<std::string>("signalConeSize")),
           minAbsPhotonSumPt_insideSignalCone_(pset.getParameter<double>("minAbsPhotonSumPt_insideSignalCone")),
@@ -180,7 +180,7 @@ namespace reco {
 
       // Update the primary vertex used by the quality cuts.  The PV is supplied by
       // the base class.
-      qcuts_.setPV(primaryVertex(jet));
+      qcuts_->setPV(primaryVertex(jet));
 
       typedef std::vector<CandidatePtr> CandPtrs;
 
@@ -203,13 +203,13 @@ namespace reco {
         }
       }
 
-      CandPtrs pfchs = qcuts_.filterCandRefs(pfChargedCands(*jet));
-      CandPtrs pfnhs = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 130));
-      CandPtrs pfgammas = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 22));
+      CandPtrs pfchs = qcuts_->filterCandRefs(pfChargedCands(*jet));
+      CandPtrs pfnhs = qcuts_->filterCandRefs(pfCandidatesByPdgId(*jet, 130));
+      CandPtrs pfgammas = qcuts_->filterCandRefs(pfCandidatesByPdgId(*jet, 22));
 
       /// Apply quality cuts to the regional junk around the jet.  Note that the
       /// particle contents of the junk is exclusive to the jet content.
-      CandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
+      CandPtrs regionalJunk = qcuts_->filterCandRefs(regionalExtras);
 
       // Loop over the decay modes we want to build
       for (std::vector<decayModeInfo>::const_iterator decayMode = decayModesToBuild_.begin();
@@ -459,7 +459,7 @@ namespace reco {
                            boost::make_filter_iterator(pfNeutralJunk, regionalJunk.begin(), regionalJunk.end()),
                            boost::make_filter_iterator(pfNeutralJunk, regionalJunk.end(), regionalJunk.end()));
 
-            std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
+            std::unique_ptr<reco::PFTau> tauPtr = tau.get(true);
 
             // Set event vertex position for tau
             reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
@@ -489,7 +489,7 @@ namespace reco {
             //edm::LogPrint("RecoTauBuilderCombinatoricPlugin") << "bendCorrMass2 = " << sqrt(bendCorrMass2) << std::endl;
             tauPtr->setBendCorrMass(sqrt(bendCorrMass2));
 
-            output.push_back(tauPtr);
+            output.push_back(std::move(tauPtr));
           }
         }
       }

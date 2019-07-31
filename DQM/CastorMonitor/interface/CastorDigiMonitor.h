@@ -9,7 +9,6 @@
 #include "CondFormats/CastorObjects/interface/CastorPedestalWidth.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -19,6 +18,8 @@
 
 class CastorDigiMonitor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   CastorDigiMonitor(const edm::ParameterSet &ps);
   ~CastorDigiMonitor();
 

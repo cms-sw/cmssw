@@ -599,7 +599,7 @@ class ParallelValidation(GenericValidation):
 class ValidationWithPlots(GenericValidation):
     @classmethod
     def runPlots(cls, validations):
-        return ("rfcp .oO[plottingscriptpath]Oo. .\n"
+        return ("cp .oO[plottingscriptpath]Oo. .\n"
                 "root -x -b -q .oO[plottingscriptname]Oo.++")
     @abstractmethod
     def appendToPlots(self):

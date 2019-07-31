@@ -30,6 +30,9 @@ class FEDRawDataCollection;
 
 class SiStripAnalyser : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripAnalyser(const edm::ParameterSet& ps);
   ~SiStripAnalyser() override;
 

@@ -49,7 +49,6 @@
 #include "TMath.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
@@ -58,6 +57,7 @@
 
 class TrackerOfflineValidationSummary : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit TrackerOfflineValidationSummary(const edm::ParameterSet&);
   ~TrackerOfflineValidationSummary() override;
 

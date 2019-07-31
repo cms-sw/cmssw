@@ -53,8 +53,8 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
       subdet = HGCHEB;
     else
       subdet = HGCEE;
-    std::cout << "Perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":" << subdet
-              << std::endl;
+    std::cout << "Perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":" << subdet << " Mode "
+              << mode << std::endl;
     doTest(geom, subdet);
   } else {
     DetId::Detector det;
@@ -64,7 +64,7 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
       det = DetId::HGCalHSc;
     else
       det = DetId::HGCalEE;
-    std::cout << "Perform test for " << name << " Detector " << det << std::endl;
+    std::cout << "Perform test for " << name << " Detector " << det << " Mode " << mode << std::endl;
     if (name == "HGCalHEScintillatorSensitive") {
       doTestScint(geom, det);
     } else {
