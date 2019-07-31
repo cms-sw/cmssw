@@ -244,7 +244,7 @@ void MeasurementTrackerESProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<bool>("UsePixelROCQualityDB", true)->setComment("Use DB info at the ROC level");
   desc.addUntracked<bool>("DebugPixelROCQualityDB", false)->setComment("dump out info om module status ");
 
-  descriptions.addDefault(desc);
+  descriptions.add("_MeasurementTrackerESProducer_default", desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(MeasurementTrackerESProducer);
