@@ -31,8 +31,6 @@ pfClusteringECAL = cms.Sequence(pfClusteringECALTask)
 pfClusteringPSTask = cms.Task(particleFlowRecHitPS,particleFlowClusterPS)
 pfClusteringPS = cms.Sequence(pfClusteringPSTask)
 
-#pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
-
 pfClusteringHBHEHFTask = cms.Task(particleFlowRecHitHBHE,particleFlowRecHitHF,particleFlowClusterHBHE,particleFlowClusterHF,particleFlowClusterHCAL)
 pfClusteringHBHEHF = cms.Sequence(pfClusteringHBHEHFTask)
 
