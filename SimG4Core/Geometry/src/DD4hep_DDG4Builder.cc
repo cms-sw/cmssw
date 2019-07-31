@@ -43,13 +43,13 @@ G4VPhysicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog)
     for (auto const &fit : specs) {
       for (auto const &pit : fit->paths) {
         if (cms::dd::compareEqual(cms::dd::noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
-          dd4hepVec.emplace_back(std::make_pair<G4LogicalVolume *, const cms::DDSpecPar *>(&*it.second, &*fit));
+          dd4hepVec.emplace_back(&*it.second, &*fit);
         }
       }
     }
   }
 
-  for (auto it : dd4hepVec) {
+  for (auto const &it : dd4hepVec) {
     auto sClassName = it.second->strValue("SensitiveDetector");
     auto sROUName = it.second->strValue("ReadOutName");
     auto fff = it.first->GetName();
