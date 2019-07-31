@@ -30,8 +30,8 @@ void EcalDeadChannelRecoveryBDTG<EBDetId>::addVariables(TMVA::Reader *reader) {
 }
 template <>
 void EcalDeadChannelRecoveryBDTG<EBDetId>::loadFile() {
-  readerNoCrack = std::unique_ptr<TMVA::Reader> (new TMVA::Reader("!Color:!Silent"));
-  readerCrack = std::unique_ptr<TMVA::Reader> (new TMVA::Reader("!Color:!Silent"));
+  readerNoCrack = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:!Silent"));
+  readerCrack = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:!Silent"));
 
   addVariables(readerNoCrack.get());
   addVariables(readerCrack.get());
