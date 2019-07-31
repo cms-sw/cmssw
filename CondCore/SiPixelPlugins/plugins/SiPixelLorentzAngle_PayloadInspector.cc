@@ -64,7 +64,7 @@ namespace {
   *************************************************/
   class SiPixelLorentzAngleValues : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
   public:
-    SiPixelLorentzAngleValues() : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle") {
+    SiPixelLorentzAngleValues() : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values") {
       setSingleIov(true);
     }
 
@@ -76,17 +76,20 @@ namespace {
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
       auto h1 = std::unique_ptr<TH1F>(
-          new TH1F("value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 100, 0., 0.15));
+          new TH1F("value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
       h1->SetStats(false);
-      canvas.SetBottomMargin(0.10);
+
+      canvas.SetTopMargin(0.06);
+      canvas.SetBottomMargin(0.12);
       canvas.SetLeftMargin(0.12);
-      canvas.SetRightMargin(0.03);
+      canvas.SetRightMargin(0.05);
       canvas.Modified();
 
       for (const auto &element : LAMap_) {
         h1->Fill(element.second);
       }
 
+      h1->SetTitle("");
       h1->GetYaxis()->SetRangeUser(0., h1->GetMaximum() * 1.30);
       h1->SetFillColor(kRed);
       h1->SetMarkerStyle(20);
@@ -94,13 +97,24 @@ namespace {
       h1->Draw("HIST");
       h1->Draw("Psame");
 
+      SiPixelPI::makeNicePlotStyle(h1.get());
+
       canvas.Update();
 
-      TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
-      legend.SetHeader((std::get<1>(iov)).c_str(), "C");  // option "C" allows to center the header
-      legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
+      TLegend legend = TLegend(0.40, 0.88, 0.95, 0.94);
+      legend.SetHeader(("Payload hash: #bf{"+(std::get<1>(iov))+"}" ).c_str(), "C");  // option "C" allows to center the header
+      //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
       legend.SetTextSize(0.025);
       legend.Draw("same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      //ltx.SetTextColor(kBlue);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+		       1 - gPad->GetTopMargin() + 0.01,
+		       ("SiPixel Lorentz Angle IOV:" + std::to_string(std::get<0>(iov))).c_str());
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -115,7 +129,7 @@ namespace {
   class SiPixelLorentzAngleValueComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
   public:
     SiPixelLorentzAngleValueComparisonBase()
-        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle") {}
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Values Comparison") {}
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
       TH1F::SetDefaultSumw2(true);
       std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
@@ -137,11 +151,11 @@ namespace {
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
       auto hfirst = std::unique_ptr<TH1F>(
-          new TH1F("value_first", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.11));
+          new TH1F("value_first", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
       hfirst->SetStats(false);
 
       auto hlast = std::unique_ptr<TH1F>(
-          new TH1F("value_last", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.11));
+          new TH1F("value_last", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
       hlast->SetStats(false);
 
       canvas.SetTopMargin(0.06);
@@ -223,7 +237,7 @@ namespace {
   class SiPixelLorentzAngleByRegionComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
   public:
     SiPixelLorentzAngleByRegionComparisonBase()
-      : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle") {}
+      : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Comparison by Region") {}
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
 
       gStyle->SetPaintTextFormat(".3f");
@@ -302,7 +316,7 @@ namespace {
       for (const auto& it : f_LAMap_) {
 
         if (DetId(it.first).det() != DetId::Tracker) {
-          edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector")
+          edm::LogWarning("SiPixelLorentzAngle_PayloadInspector")
               << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
           return false;
         }
@@ -322,8 +336,9 @@ namespace {
       TrackerTopology l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      if (l_LAMap_.size() == SiPixelPI::phase0size)
+      if (l_LAMap_.size() == SiPixelPI::phase0size){
         isPhase0 = true;
+      }
 
       // -------------------------------------------------------------------
       // loop on the second LA Map
@@ -331,7 +346,7 @@ namespace {
       for (const auto& it : l_LAMap_) {
 
         if (DetId(it.first).det() != DetId::Tracker) {
-          edm::LogWarning("TrackerAlignmentErrorExtended_PayloadInspector")
+          edm::LogWarning("SiPixelLorentzAngle_PayloadInspector")
               << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
           return false;
         }
