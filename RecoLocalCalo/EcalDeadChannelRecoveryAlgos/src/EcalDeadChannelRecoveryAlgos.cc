@@ -19,7 +19,7 @@ void EcalDeadChannelRecoveryAlgos<T>::setParameters(const edm::ParameterSet &ps)
 }
 
 template <typename T>
-void EcalDeadChannelRecoveryAlgos<T>::setCaloTopology(std::string algo, const CaloTopology *topo) {
+void EcalDeadChannelRecoveryAlgos<T>::setCaloTopology(const CaloTopology *topo) {
   bdtg_.setCaloTopology(topo);
 }
 
