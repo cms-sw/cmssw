@@ -106,9 +106,9 @@ public:
     auto etaOk = [&](const TrackingParticle &p) -> bool {
       float eta = etaFromXYZ(p.px(), p.py(), p.pz());
       if (!invertRapidityCut_)
-        return (eta >= minRapidity_) & (eta <= maxRapidity_);
+        return (eta >= minRapidity_) && (eta <= maxRapidity_);
       else
-        return (!(eta >= minRapidity_) & !(eta <= maxRapidity_));
+        return (eta < minRapidity_ || eta > maxRapidity_);
     };
     auto phiOk = [&](const TrackingParticle &p) {
       float dphi = deltaPhi(atan2f(p.py(), p.px()), meanPhi_);

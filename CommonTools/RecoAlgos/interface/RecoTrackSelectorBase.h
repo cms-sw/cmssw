@@ -118,9 +118,9 @@ public:
     auto etaOk = [&](const reco::Track& p) -> bool {
       float eta = p.eta();
       if (!invertRapidityCut_)
-        return (eta >= minRapidity_) & (eta <= maxRapidity_);
+        return (eta >= minRapidity_) && (eta <= maxRapidity_);
       else
-        return (!(eta >= minRapidity_) & !(eta <= maxRapidity_));
+        return (eta < minRapidity_ || eta > maxRapidity_);
     };
 
     return ((algo_ok & quality_ok) && t.hitPattern().numberOfValidHits() >= minHit_ &&
