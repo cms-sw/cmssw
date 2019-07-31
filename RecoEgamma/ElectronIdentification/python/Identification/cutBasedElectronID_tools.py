@@ -234,6 +234,17 @@ def psetDEtaInSeedCut(wpEB, wpEE):
         isIgnored = cms.bool(False)
         )
 
+# Configure dEtaIn cut
+def psetDEtaInCut(wpEB, wpEE):
+    return cms.PSet( 
+        cutName = cms.string('GsfEleEBEECut'),
+        cutString = cms.string("abs(deltaEtaSuperClusterTrackAtVtx)"),
+        cutValueEB = cms.double( wpEB.dEtaInCut ),
+        cutValueEE = cms.double( wpEE.dEtaInCut ),
+        needsAdditionalProducts = cms.bool(False),
+        isIgnored = cms.bool(False)
+        )
+
 # Configure dPhiIn cut
 def psetDPhiInCut(wpEB, wpEE):
     return cms.PSet( 
@@ -404,6 +415,25 @@ def psetMissingHitsCut(wpEB, wpEE):
         isIgnored = cms.bool(False) 
         )
 
+def psetGsfEleDxyCut(wpEB, wpEE):
+    return cms.PSet( cutName = cms.string('GsfEleDxyCut'),
+        dxyCutValueEB = cms.double( wpEB.dxyCut ),
+        dxyCutValueEE = cms.double( wpEE.dxyCut ),
+        vertexSrc        = cms.InputTag("offlinePrimaryVertices"),
+        vertexSrcMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
+        barrelCutOff = cms.double(ebCutOff),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False))
+
+def psetGsfEleDzCut(wpEB, wpEE):
+    return cms.PSet( cutName = cms.string('GsfEleDzCut'),
+        dzCutValueEB = cms.double( wpEB.dzCut ),
+        dzCutValueEE = cms.double( wpEE.dzCut ),
+        vertexSrc        = cms.InputTag("offlinePrimaryVertices"),
+        vertexSrcMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
+        barrelCutOff = cms.double(ebCutOff),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False))
 
 # -----------------------------
 # Version V2 common definitions
@@ -425,67 +455,20 @@ def configureVIDCutBasedEleID_V2( wpEB, wpEE, isoInputs ):
         #
         idName = cms.string( wpEB.idName ), # same name stored in the _EB and _EE objects
         cutFlow = cms.VPSet(
-            cms.PSet( cutName = cms.string("MinPtCut"),
-                      minPt = cms.double(5.0),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False)                ),
-            cms.PSet( cutName = cms.string("GsfEleSCEtaMultiRangeCut"),
-                      useAbsEta = cms.bool(True),
-                      allowedEtaRanges = cms.VPSet( 
-                    cms.PSet( minEta = cms.double(0.0), 
-                              maxEta = cms.double(ebCutOff) ),
-                    cms.PSet( minEta = cms.double(ebCutOff), 
-                              maxEta = cms.double(2.5) )
-                    ),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False)),
+            psetMinPtCut(),
+            psetPhoSCEtaMultiRangeCut(),
             psetDEtaInCut(wpEB, wpEE),
             psetDPhiInCut(wpEB, wpEE),
             psetFull5x5SigmaIEtaIEtaCut(wpEB, wpEE),
             psetHadronicOverEMCut(wpEB, wpEE),
-            cms.PSet( cutName = cms.string('GsfEleDxyCut'),
-                      dxyCutValueEB = cms.double( wpEB.dxyCut ),
-                      dxyCutValueEE = cms.double( wpEE.dxyCut ),
-                      vertexSrc        = cms.InputTag("offlinePrimaryVertices"),
-                      vertexSrcMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(True),
-                      isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('GsfEleDzCut'),
-                      dzCutValueEB = cms.double( wpEB.dzCut ),
-                      dzCutValueEE = cms.double( wpEE.dzCut ),
-                      vertexSrc        = cms.InputTag("offlinePrimaryVertices"),
-                      vertexSrcMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(True),
-                      isIgnored = cms.bool(False)),
+            psetGsfEleDxyCut(wpEB, wpEE),
+            psetGsfEleDzCut(wpEB, wpEE),
             psetEInerseMinusPInverseCut(wpEB, wpEE),
-            cms.PSet( cutName = cms.string('GsfEleEffAreaPFIsoCut'),
-                      isoCutEBLowPt  = cms.double( wpEB.relCombIsolationWithEALowPtCut  ),
-                      isoCutEBHighPt = cms.double( wpEB.relCombIsolationWithEAHighPtCut ),
-                      isoCutEELowPt  = cms.double( wpEE.relCombIsolationWithEALowPtCut  ),
-                      isoCutEEHighPt = cms.double( wpEE.relCombIsolationWithEAHighPtCut ),
-                      isRelativeIso = cms.bool(True),
-                      ptCutOff = cms.double(20.0),          # high pT above this value, low pT below
-                      barrelCutOff = cms.double(ebCutOff),
-                      rho = cms.InputTag("fixedGridRhoFastjetAll"),
-                      effAreasConfigFile = cms.FileInPath( isoInputs ),
-                      needsAdditionalProducts = cms.bool(True),
-                      isIgnored = cms.bool(False) ),
-            cms.PSet( cutName = cms.string('GsfEleConversionVetoCut'),
-                      conversionSrc        = cms.InputTag('allConversions'),
-                      conversionSrcMiniAOD = cms.InputTag('reducedEgamma:reducedConversions'),
-                      beamspotSrc = cms.InputTag('offlineBeamSpot'),
-                      needsAdditionalProducts = cms.bool(True),
-                      isIgnored = cms.bool(False)),
-            cms.PSet( cutName = cms.string('GsfEleMissingHitsCut'),
-                      maxMissingHitsEB = cms.uint32( wpEB.missingHitsCut ),
-                      maxMissingHitsEE = cms.uint32( wpEE.missingHitsCut ),
-                      barrelCutOff = cms.double(ebCutOff),
-                      needsAdditionalProducts = cms.bool(False),
-                      isIgnored = cms.bool(False) ),
-            )
+            psetEffAreaPFIsoCut(wpEB, wpEE, isoInputs),
+            psetConversionVetoCut(),
+            psetMissingHitsCut(wpEB, wpEE)
         )
+    )
     #
     return parameterSet
 
