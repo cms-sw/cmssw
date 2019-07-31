@@ -29,21 +29,27 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet &ps) {
   ESrechitCollection_ = ps.getParameter<edm::InputTag>("ESrechitCollection");
   EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
   EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
+  // switch to allow disabling endcaps for phase 2
+  enableEndcaps_ = ps.getUntrackedParameter<bool>("enableEndcaps", true);
+
   // fix for consumes
   HepMCLabel_Token_ = consumes<HepMCProduct>(ps.getParameter<std::string>("moduleLabelMC"));
   EBrechitCollection_Token_ = consumes<EBRecHitCollection>(ps.getParameter<edm::InputTag>("EBrechitCollection"));
-  EErechitCollection_Token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
-  ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
   EBuncalibrechitCollection_Token_ =
       consumes<EBUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EBuncalibrechitCollection"));
-  EEuncalibrechitCollection_Token_ =
-      consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
+
   EBHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
       edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEB")));
-  EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
-  ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
-      edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
+  if (enableEndcaps_) {
+    EErechitCollection_Token_ = consumes<EERecHitCollection>(ps.getParameter<edm::InputTag>("EErechitCollection"));
+    ESrechitCollection_Token_ = consumes<ESRecHitCollection>(ps.getParameter<edm::InputTag>("ESrechitCollection"));
+    EEuncalibrechitCollection_Token_ =
+        consumes<EEUncalibratedRecHitCollection>(ps.getParameter<edm::InputTag>("EEuncalibrechitCollection"));
+    EEHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
+        edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsEE")));
+    ESHits_Token_ = consumes<CrossingFrame<PCaloHit>>(
+        edm::InputTag(std::string("mix"), ps.getParameter<std::string>("hitsProducer") + std::string("EcalHitsES")));
+  }
 
   // ----------------------
   // DQM ROOT output
@@ -132,47 +138,23 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio";
   meEBRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio";
-  meEERecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-  histo = "EcalRecHitsTask Preshower RecSimHit Ratio";
-  meESRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio gt 3p5 GeV";
   meEBRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV";
-  meEERecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio";
   meEBUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
-  histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio";
-  meEEUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=10 11";
   meEBRecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=10 11";
-  meEERecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=12";
   meEBRecHitSimHitRatio12_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=12";
-  meEERecHitSimHitRatio12_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=13";
   meEBRecHitSimHitRatio13_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=13";
-  meEERecHitSimHitRatio13_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-
   histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV";
   meEBUnRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-  histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV";
-  meEEUnRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
   histo = "EcalRecHitsTask Barrel Rec E5x5";
   meEBe5x5_ = ibooker.book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
@@ -183,39 +165,10 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
   histo = "EcalRecHitsTask Barrel Rec E5x5 over gun energy";
   meEBe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
-  histo = "EcalRecHitsTask Endcap Rec E5x5";
-  meEEe5x5_ = ibooker.book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
-
-  histo = "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5";
-  meEEe5x5OverSimHits_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
-  histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
-  meEEe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
-
   meEBRecHitLog10Energy_ =
       ibooker.book1D("EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4.);
-  meEERecHitLog10Energy_ =
-      ibooker.book1D("EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
-  meESRecHitLog10Energy_ =
-      ibooker.book1D("EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4.);
   meEBRecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Barrel Log10En vs Hit Contribution",
                                                     "EcalRecHits Barrel Log10En vs Hit Contribution",
-                                                    90,
-                                                    -5.,
-                                                    4.,
-                                                    100,
-                                                    0.,
-                                                    1.);
-  meEERecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Endcap Log10En vs Hit Contribution",
-                                                    "EcalRecHits Endcap Log10En vs Hit Contribution",
-                                                    90,
-                                                    -5.,
-                                                    4.,
-                                                    100,
-                                                    0.,
-                                                    1.);
-  meESRecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Preshower Log10En vs Hit Contribution",
-                                                    "EcalRecHits Preshower Log10En vs Hit Contribution",
                                                     90,
                                                     -5.,
                                                     4.,
@@ -230,47 +183,109 @@ void EcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run 
                                                        100,
                                                        0.,
                                                        1.);
-  meEERecHitLog10Energy5x5Contr_ = ibooker.bookProfile("EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
-                                                       "EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
-                                                       90,
-                                                       -5.,
-                                                       4.,
-                                                       100,
-                                                       0.,
-                                                       1.);
 
   histo = "EB Occupancy Flag=5 6";
   meEBRecHitsOccupancyFlag5_6_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
   histo = "EB Occupancy Flag=8 9";
   meEBRecHitsOccupancyFlag8_9_ = ibooker.book2D(histo, histo, 170, -85., 85., 360, 0., 360.);
 
-  histo = "EE+ Occupancy Flag=5 6";
-  meEERecHitsOccupancyPlusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  histo = "EE- Occupancy Flag=5 6";
-  meEERecHitsOccupancyMinusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  histo = "EE+ Occupancy Flag=8 9";
-  meEERecHitsOccupancyPlusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  histo = "EE- Occupancy Flag=8 9";
-  meEERecHitsOccupancyMinusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-
   histo = "EcalRecHitsTask Barrel Reco Flags";
   meEBRecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
-  histo = "EcalRecHitsTask Endcap Reco Flags";
-  meEERecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio vs SimHit Flag=5 6";
   meEBRecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6";
-  meEERecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=6";
   meEBRecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=6";
-  meEERecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
   histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=7";
   meEBRecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
-  histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=7";
-  meEERecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
   histo = "EcalRecHitsTask Barrel 5x5 RecSimHit Ratio vs SimHit Flag=8";
   meEB5x5RecHitSimHitvsSimHitFlag8_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
+
+  if (enableEndcaps_) {
+    histo = "EcalRecHitsTask Preshower RecSimHit Ratio";
+    meESRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio";
+    meEERecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV";
+    meEERecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+    histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio";
+    meEEUnRecHitSimHitRatio_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=10 11";
+    meEERecHitSimHitRatio1011_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=12";
+    meEERecHitSimHitRatio12_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=13";
+    meEERecHitSimHitRatio13_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV";
+    meEEUnRecHitSimHitRatioGt35_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+    histo = "EcalRecHitsTask Endcap Rec E5x5";
+    meEEe5x5_ = ibooker.book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
+
+    histo = "EcalRecHitsTask Endcap Rec E5x5 over Sim E5x5";
+    meEEe5x5OverSimHits_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+    histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
+    meEEe5x5OverGun_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+    meEERecHitLog10Energy_ =
+        ibooker.book1D("EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4.);
+    meESRecHitLog10Energy_ =
+        ibooker.book1D("EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4.);
+
+    meEERecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Endcap Log10En vs Hit Contribution",
+                                                      "EcalRecHits Endcap Log10En vs Hit Contribution",
+                                                      90,
+                                                      -5.,
+                                                      4.,
+                                                      100,
+                                                      0.,
+                                                      1.);
+    meESRecHitLog10EnergyContr_ = ibooker.bookProfile("EcalRecHits Preshower Log10En vs Hit Contribution",
+                                                      "EcalRecHits Preshower Log10En vs Hit Contribution",
+                                                      90,
+                                                      -5.,
+                                                      4.,
+                                                      100,
+                                                      0.,
+                                                      1.);
+
+    meEERecHitLog10Energy5x5Contr_ = ibooker.bookProfile("EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
+                                                         "EcalRecHits Endcap Log10En5x5 vs Hit Contribution",
+                                                         90,
+                                                         -5.,
+                                                         4.,
+                                                         100,
+                                                         0.,
+                                                         1.);
+
+    histo = "EE+ Occupancy Flag=5 6";
+    meEERecHitsOccupancyPlusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    histo = "EE- Occupancy Flag=5 6";
+    meEERecHitsOccupancyMinusFlag5_6_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    histo = "EE+ Occupancy Flag=8 9";
+    meEERecHitsOccupancyPlusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    histo = "EE- Occupancy Flag=8 9";
+    meEERecHitsOccupancyMinusFlag8_9_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+
+    histo = "EcalRecHitsTask Endcap Reco Flags";
+    meEERecHitFlags_ = ibooker.book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6";
+    meEERecHitSimHitvsSimHitFlag5_6_ = ibooker.book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=6";
+    meEERecHitSimHitFlag6_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=7";
+    meEERecHitSimHitFlag7_ = ibooker.book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+  }
 }
 
 void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
@@ -307,12 +322,15 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
   bool skipEndcap = false;
   const EEUncalibratedRecHitCollection *EEUncalibRecHit = nullptr;
   Handle<EEUncalibratedRecHitCollection> EcalUncalibRecHitEE;
-  e.getByToken(EEuncalibrechitCollection_Token_, EcalUncalibRecHitEE);
-  if (EcalUncalibRecHitEE.isValid()) {
-    EEUncalibRecHit = EcalUncalibRecHitEE.product();
-  } else {
+  if (enableEndcaps_) {
+    e.getByToken(EEuncalibrechitCollection_Token_, EcalUncalibRecHitEE);
+    if (EcalUncalibRecHitEE.isValid()) {
+      EEUncalibRecHit = EcalUncalibRecHitEE.product();
+    } else {
+      skipEndcap = true;
+    }
+  } else
     skipEndcap = true;
-  }
 
   const EBRecHitCollection *EBRecHit = nullptr;
   Handle<EBRecHitCollection> EcalRecHitEB;
@@ -325,22 +343,27 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
   const EERecHitCollection *EERecHit = nullptr;
   Handle<EERecHitCollection> EcalRecHitEE;
-  e.getByToken(EErechitCollection_Token_, EcalRecHitEE);
-  if (EcalRecHitEE.isValid()) {
-    EERecHit = EcalRecHitEE.product();
-  } else {
-    skipEndcap = true;
+  if (enableEndcaps_) {
+    e.getByToken(EErechitCollection_Token_, EcalRecHitEE);
+    if (EcalRecHitEE.isValid()) {
+      EERecHit = EcalRecHitEE.product();
+    } else {
+      skipEndcap = true;
+    }
   }
 
   bool skipPreshower = false;
   const ESRecHitCollection *ESRecHit = nullptr;
   Handle<ESRecHitCollection> EcalRecHitES;
-  e.getByToken(ESrechitCollection_Token_, EcalRecHitES);
-  if (EcalRecHitES.isValid()) {
-    ESRecHit = EcalRecHitES.product();
-  } else {
+  if (enableEndcaps_) {
+    e.getByToken(ESrechitCollection_Token_, EcalRecHitES);
+    if (EcalRecHitES.isValid()) {
+      ESRecHit = EcalRecHitES.product();
+    } else {
+      skipPreshower = true;
+    }
+  } else
     skipPreshower = true;
-  }
 
   // ----------------------
   // gun

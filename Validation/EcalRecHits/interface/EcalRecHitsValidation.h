@@ -72,6 +72,7 @@ private:
   edm::InputTag ESrechitCollection_;
   edm::InputTag EBuncalibrechitCollection_;
   edm::InputTag EEuncalibrechitCollection_;
+  bool enableEndcaps_;
   // fix for consumes
   edm::EDGetTokenT<edm::HepMCProduct> HepMCLabel_Token_;
   edm::EDGetTokenT<EBRecHitCollection> EBrechitCollection_Token_;
