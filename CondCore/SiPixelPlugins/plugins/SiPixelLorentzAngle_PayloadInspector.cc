@@ -75,8 +75,8 @@ namespace {
 
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
-      auto h1 = std::unique_ptr<TH1F>(
-          new TH1F("value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
+      auto h1 = std::unique_ptr<TH1F>(new TH1F(
+          "value", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
       h1->SetStats(false);
 
       canvas.SetTopMargin(0.06);
@@ -102,7 +102,8 @@ namespace {
       canvas.Update();
 
       TLegend legend = TLegend(0.40, 0.88, 0.95, 0.94);
-      legend.SetHeader(("Payload hash: #bf{"+(std::get<1>(iov))+"}" ).c_str(), "C");  // option "C" allows to center the header
+      legend.SetHeader(("Payload hash: #bf{" + (std::get<1>(iov)) + "}").c_str(),
+                       "C");  // option "C" allows to center the header
       //legend.AddEntry(h1.get(), ("IOV: " + std::to_string(std::get<0>(iov))).c_str(), "PL");
       legend.SetTextSize(0.025);
       legend.Draw("same");
@@ -113,8 +114,8 @@ namespace {
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
       ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-		       1 - gPad->GetTopMargin() + 0.01,
-		       ("SiPixel Lorentz Angle IOV:" + std::to_string(std::get<0>(iov))).c_str());
+                       1 - gPad->GetTopMargin() + 0.01,
+                       ("SiPixel Lorentz Angle IOV:" + std::to_string(std::get<0>(iov))).c_str());
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -151,11 +152,19 @@ namespace {
       TCanvas canvas("Canv", "Canv", 1200, 1000);
       canvas.cd();
       auto hfirst = std::unique_ptr<TH1F>(
-          new TH1F("value_first", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
+          new TH1F("value_first",
+                   "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
+                   50,
+                   0.051,
+                   0.15));
       hfirst->SetStats(false);
 
       auto hlast = std::unique_ptr<TH1F>(
-          new TH1F("value_last", "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules", 50, 0.051, 0.15));
+          new TH1F("value_last",
+                   "SiPixel LA value;SiPixel LorentzAngle #mu_{H}(tan#theta_{L}/B) [1/T];# modules",
+                   50,
+                   0.051,
+                   0.15));
       hlast->SetStats(false);
 
       canvas.SetTopMargin(0.06);
@@ -200,8 +209,8 @@ namespace {
       //legend.SetHeader("#font[22]{SiPixel Lorentz Angle Comparison}", "C");  // option "C" allows to center the header
       //legend.AddEntry(hfirst.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "FL");
       //legend.AddEntry(hlast.get(),  ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "FL");
-      legend.AddEntry(hfirst.get(), ("payload: #color[2]{" + std::get<1>(firstiov)+"}").c_str(), "F");
-      legend.AddEntry(hlast.get(),  ("payload: #color[4]{" + std::get<1>(lastiov)+"}").c_str(), "F");
+      legend.AddEntry(hfirst.get(), ("payload: #color[2]{" + std::get<1>(firstiov) + "}").c_str(), "F");
+      legend.AddEntry(hlast.get(), ("payload: #color[4]{" + std::get<1>(lastiov) + "}").c_str(), "F");
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
@@ -211,8 +220,10 @@ namespace {
       ltx.SetTextSize(0.05);
       ltx.SetTextAlign(11);
       ltx.DrawLatexNDC(gPad->GetLeftMargin(),
-		       1 - gPad->GetTopMargin() + 0.01,
-		       ("SiPixel Lorentz Angle IOV: #color[2]{"+std::to_string(std::get<0>(firstiov)) + "} vs IOV: #color[4]{" + std::to_string(std::get<0>(lastiov))+"}").c_str());
+                       1 - gPad->GetTopMargin() + 0.01,
+                       ("SiPixel Lorentz Angle IOV: #color[2]{" + std::to_string(std::get<0>(firstiov)) +
+                        "} vs IOV: #color[4]{" + std::to_string(std::get<0>(lastiov)) + "}")
+                           .c_str());
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -237,22 +248,21 @@ namespace {
   class SiPixelLorentzAngleByRegionComparisonBase : public cond::payloadInspector::PlotImage<SiPixelLorentzAngle> {
   public:
     SiPixelLorentzAngleByRegionComparisonBase()
-      : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Comparison by Region") {}
+        : cond::payloadInspector::PlotImage<SiPixelLorentzAngle>("SiPixelLorentzAngle Comparison by Region") {}
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>> &iovs) override {
-
       gStyle->SetPaintTextFormat(".3f");
 
-      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
         return std::get<0>(t1) < std::get<0>(t2);
       });
 
       auto firstiov = sorted_iovs.front();
       auto lastiov = sorted_iovs.back();
 
-      std::shared_ptr<SiPixelLorentzAngle> last_payload  = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiPixelLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
       std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
       std::shared_ptr<SiPixelLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
       std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
@@ -262,8 +272,8 @@ namespace {
 
       TCanvas canvas("Comparison", "Comparison", 1600, 800);
 
-      std::map<SiPixelPI::regions, std::shared_ptr<TH1F> > FirstLA_spectraByRegion;
-      std::map<SiPixelPI::regions, std::shared_ptr<TH1F> > LastLA_spectraByRegion;
+      std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> FirstLA_spectraByRegion;
+      std::map<SiPixelPI::regions, std::shared_ptr<TH1F>> LastLA_spectraByRegion;
       std::shared_ptr<TH1F> summaryFirst;
       std::shared_ptr<TH1F> summaryLast;
 
@@ -272,49 +282,44 @@ namespace {
         SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
         std::string s_part = SiPixelPI::getStringFromRegionEnum(part);
 
-        FirstLA_spectraByRegion[part] =
-            std::make_shared<TH1F>(Form("hfirstLA_%s", s_part.c_str()),
-                                   Form(";%s #mu_{H} [1/T];n. of modules", s_part.c_str()),
-                                   1000,
-                                   0.,
-                                   1000.);
-        LastLA_spectraByRegion[part] =
-            std::make_shared<TH1F>(Form("hlastLA_%s", s_part.c_str()),
-                                   Form(";%s #mu_{H} [1/T];n. of modules", s_part.c_str()),
-                                   1000,
-                                   0.,
-                                   1000.);
+        FirstLA_spectraByRegion[part] = std::make_shared<TH1F>(Form("hfirstLA_%s", s_part.c_str()),
+                                                               Form(";%s #mu_{H} [1/T];n. of modules", s_part.c_str()),
+                                                               1000,
+                                                               0.,
+                                                               1000.);
+        LastLA_spectraByRegion[part] = std::make_shared<TH1F>(Form("hlastLA_%s", s_part.c_str()),
+                                                              Form(";%s #mu_{H} [1/T];n. of modules", s_part.c_str()),
+                                                              1000,
+                                                              0.,
+                                                              1000.);
       }
 
-      summaryFirst =
-          std::make_shared<TH1F>("first Summary",
-				 "Summary for #LT tan#theta_{L}/B #GT;;average LA #LT #mu_{H} #GT [1/T]",
-                                 FirstLA_spectraByRegion.size(),
-                                 0,
-                                 FirstLA_spectraByRegion.size());
-      summaryLast =
-	std::make_shared<TH1F>("last Summary",
-			       "Summary for #LT tan#theta_{L}/B #GT;;average LA #LT #mu_{H}  #GT [1/T]",
-			       LastLA_spectraByRegion.size(),
-			       0,
-			       LastLA_spectraByRegion.size());
+      summaryFirst = std::make_shared<TH1F>("first Summary",
+                                            "Summary for #LT tan#theta_{L}/B #GT;;average LA #LT #mu_{H} #GT [1/T]",
+                                            FirstLA_spectraByRegion.size(),
+                                            0,
+                                            FirstLA_spectraByRegion.size());
+      summaryLast = std::make_shared<TH1F>("last Summary",
+                                           "Summary for #LT tan#theta_{L}/B #GT;;average LA #LT #mu_{H}  #GT [1/T]",
+                                           LastLA_spectraByRegion.size(),
+                                           0,
+                                           LastLA_spectraByRegion.size());
 
-      const char* path_toTopologyXML = (f_LAMap_.size() == SiPixelPI::phase0size)
+      const char *path_toTopologyXML = (f_LAMap_.size() == SiPixelPI::phase0size)
                                            ? "Geometry/TrackerCommonData/data/trackerParameters.xml"
                                            : "Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml";
       TrackerTopology f_tTopo =
-	StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
+          StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
       bool isPhase0(false);
-      if (f_LAMap_.size() == SiPixelPI::phase0size){
-	isPhase0 = true;
+      if (f_LAMap_.size() == SiPixelPI::phase0size) {
+        isPhase0 = true;
       }
 
       // -------------------------------------------------------------------
       // loop on the first LA Map
       // -------------------------------------------------------------------
-      for (const auto& it : f_LAMap_) {
-
+      for (const auto &it : f_LAMap_) {
         if (DetId(it.first).det() != DetId::Tracker) {
           edm::LogWarning("SiPixelLorentzAngle_PayloadInspector")
               << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
@@ -336,15 +341,14 @@ namespace {
       TrackerTopology l_tTopo =
           StandaloneTrackerTopology::fromTrackerParametersXMLFile(edm::FileInPath(path_toTopologyXML).fullPath());
 
-      if (l_LAMap_.size() == SiPixelPI::phase0size){
+      if (l_LAMap_.size() == SiPixelPI::phase0size) {
         isPhase0 = true;
       }
 
       // -------------------------------------------------------------------
       // loop on the second LA Map
       // -------------------------------------------------------------------
-      for (const auto& it : l_LAMap_) {
-
+      for (const auto &it : l_LAMap_) {
         if (DetId(it.first).det() != DetId::Tracker) {
           edm::LogWarning("SiPixelLorentzAngle_PayloadInspector")
               << "Encountered invalid Tracker DetId:" << it.first << " - terminating ";
@@ -381,13 +385,13 @@ namespace {
         bin++;
       }
 
-      SiPixelPI::makeNicePlotStyle(summaryFirst.get());//, kBlue);
+      SiPixelPI::makeNicePlotStyle(summaryFirst.get());  //, kBlue);
       summaryFirst->SetMarkerColor(kRed);
       summaryFirst->GetXaxis()->LabelsOption("v");
       summaryFirst->GetXaxis()->SetLabelSize(0.05);
       summaryFirst->GetYaxis()->SetTitleOffset(0.9);
 
-      SiPixelPI::makeNicePlotStyle(summaryLast.get());//, kRed);
+      SiPixelPI::makeNicePlotStyle(summaryLast.get());  //, kRed);
       summaryLast->SetMarkerColor(kBlue);
       summaryLast->GetYaxis()->SetTitleOffset(0.9);
       summaryLast->GetXaxis()->LabelsOption("v");
@@ -423,7 +427,7 @@ namespace {
       summaryLast->Draw("text60same");
 
       TLegend legend = TLegend(0.52, 0.80, 0.98, 0.9);
-      legend.SetHeader("#mu_{H} value comparison","C");  // option "C" allows to center the header
+      legend.SetHeader("#mu_{H} value comparison", "C");  // option "C" allows to center the header
       legend.AddEntry(
           summaryLast.get(),
           ("IOV: #scale[1.2]{" + std::to_string(std::get<0>(lastiov)) + "} | #color[4]{" + std::get<1>(lastiov) + "}")
@@ -437,7 +441,6 @@ namespace {
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
-
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
       return true;
@@ -446,14 +449,15 @@ namespace {
 
   class SiPixelLorentzAngleByRegionComparisonSingleTag : public SiPixelLorentzAngleByRegionComparisonBase {
   public:
-    SiPixelLorentzAngleByRegionComparisonSingleTag() : SiPixelLorentzAngleByRegionComparisonBase() { setSingleIov(false); }
+    SiPixelLorentzAngleByRegionComparisonSingleTag() : SiPixelLorentzAngleByRegionComparisonBase() {
+      setSingleIov(false);
+    }
   };
 
   class SiPixelLorentzAngleByRegionComparisonTwoTags : public SiPixelLorentzAngleByRegionComparisonBase {
   public:
     SiPixelLorentzAngleByRegionComparisonTwoTags() : SiPixelLorentzAngleByRegionComparisonBase() { setTwoTags(true); }
   };
-
 
 }  // namespace
 
