@@ -13,9 +13,6 @@
     <rParent name="testDDCutTubsFromPointsAlgorithm:MotherOfAllBoxes"/>
     <String name="SolidName" value="cutTubFromPoints"/>
     <String name="Material" value="materials:Air"/>
-    <Numeric name="r_min" value="30.*cm"/>
-    <Numeric name="r_max" value="35.*cm"/>
-    <Numeric name="z_pos" value="10.*cm"/>
     <Numeric name="zPos" value="36.625*mm"/>
     <Numeric name="rMin" value="[pixfwdSupportRingParameters:InnerDiskOuterRingRMin]"/>
     <Numeric name="rMax" value="[pixfwdSupportRingParameters:InnerDiskOuterRingRMax]"/>
