@@ -8,6 +8,7 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import *
 # Producer for energy corrections
 #from RecoEcal.EgammaClusterProducers.correctedDynamicHybridSuperClusters_cfi import *
 # PFECAL super clusters, either hybrid-clustering clone (Box) or mustache.
+particleFlowSuperClusteringTask = cms.Task(particleFlowSuperClusterECAL)
 #particleFlowSuperClusteringSequence = cms.Sequence(particleFlowSuperClusterECAL)
 
 particleFlowSuperClusterHGCal = particleFlowSuperClusterECAL.clone()
@@ -29,9 +30,9 @@ phase2_hgcal.toModify(
     particleFlowSuperClusterHGCalFromMultiCl,
     PFClusters = cms.InputTag('particleFlowClusterHGCalFromMultiCl')
 )
-_phase2_hgcal_particleFlowSuperClusteringTask = particleFlowSuperClusterECAL.copy()
+_phase2_hgcal_particleFlowSuperClusteringTask = particleFlowSuperClusteringTask.copy()
 _phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCal)
 _phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCalFromMultiCl)
 
-phase2_hgcal.toReplaceWith( particleFlowSuperClusterECAL, _phase2_hgcal_particleFlowSuperClusteringTask )
+phase2_hgcal.toReplaceWith( particleFlowSuperClusteringTask, _phase2_hgcal_particleFlowSuperClusteringTask )
 
