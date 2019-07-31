@@ -855,6 +855,8 @@ void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventS
 void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                                     edm::Run const&,
                                                     edm::EventSetup const&) {
+  ibooker.setCurrentFolder("EcalDigisV/SelectiveReadout");
+
   meL1aRate_ = bookFloat(ibooker, "l1aRate_");
 
   meDccVol_ = bookProfile(ibooker,
