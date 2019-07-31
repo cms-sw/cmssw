@@ -25,7 +25,7 @@ public:
   ~EcalDeadChannelRecoveryBDTG();
 
   void setParameters(const edm::ParameterSet &ps);
-  void setCaloTopology(const CaloTopology *topo) { topology_ = topo; };
+  void setCaloTopology(const CaloTopology *topo) { topology_ = topo; }
 
   double recover(
       const DetIdT id, const EcalRecHitCollection &hit_collection, double single8Cut, double sum8Cut, bool *acceptFlag);
@@ -45,8 +45,8 @@ private:
   edm::FileInPath bdtWeightFileNoCracks_;
   edm::FileInPath bdtWeightFileCracks_;
 
-  TMVA::Reader *readerNoCrack;
-  TMVA::Reader *readerCrack;
+  std::unique_ptr<TMVA::Reader> readerNoCrack;
+  std::unique_ptr<TMVA::Reader> readerCrack;
 };
 
 #endif

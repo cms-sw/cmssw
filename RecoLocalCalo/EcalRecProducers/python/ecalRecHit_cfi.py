@@ -49,7 +49,7 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
                             
     # for channel recovery
     algoRecover = cms.string("EcalRecHitWorkerRecover"),
-                            recoverEBIsolatedChannels = cms.bool(False),##default is false
+    recoverEBIsolatedChannels = cms.bool(False),##default is false
     recoverEEIsolatedChannels = cms.bool(False),
     recoverEBVFE  = cms.bool(False),
     recoverEEVFE  = cms.bool(False),
