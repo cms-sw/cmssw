@@ -50,22 +50,7 @@ void CAHitQuadrupletGenerator::fillDescriptions(edm::ParameterSetDescription& de
   desc.add<bool>("useBendingCorrection", false);
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 10);
-/*
-  //EDIT: Added the following 12 lines.
-  edm::ParameterSetDescription descCALayerIds;
-  descCALayerIds.add<int>("BPix1",    0);
-  descCALayerIds.add<int>("BPix2",    1);
-  descCALayerIds.add<int>("BPix3",    2);
-  descCALayerIds.add<int>("BPix4",    3);
-  descCALayerIds.add<int>("FPix1_neg", 14);
-  descCALayerIds.add<int>("FPix2_neg", 15);
-  descCALayerIds.add<int>("FPix3_neg", 16);
-  descCALayerIds.add<int>("FPix1_pos", 29);
-  descCALayerIds.add<int>("FPix2_pos", 30);
-  descCALayerIds.add<int>("FPix3_pos", 31);
-  desc.add<edm::ParameterSetDescription>("CALayerIds", descCALayerIds);
-*/
-  //EDIT: Added the following 14 lines.
+
   edm::ParameterSetDescription descCACut_byLayers;
   descCACut_byLayers.add<double>("BPix1__BPix2__BPix3", -1.);
   descCACut_byLayers.add<double>("BPix1__BPix2__FPix1_neg", -1.);

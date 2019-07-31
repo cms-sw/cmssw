@@ -45,17 +45,6 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
       CACut::CAValueByInnerLayerId caThetaCut = thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
       CACut::CAValueByInnerLayerId caPhiCut = phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
 
-      // EDIT: Added the following 6 lines
-      std::cout << "=========================== Outer Pair: [" << currentInnerLayerRef.seqNum() << ", " << currentOuterLayerRef.seqNum() << "] ===========================" << std::endl;
-      std::cout << "Inner layer and cut: [" << std::endl;
-      for(size_t thisInnerHit = 0; thisInnerHit < caThetaCut.cutValues.size(); thisInnerHit++ ) {
-          std::cout << "                     (" << caThetaCut.layerIds.at(thisInnerHit) << ", " << caThetaCut.cutValues.at(thisInnerHit) << "), " << std::endl;
-      }
-      std::cout << "]" << std::endl;
-
-//      double thetaCut=0.0012;
- 
-
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
         allInnerLayerPairsAlreadyVisited &= alreadyVisitedLayerPairs[innerLayerPair];
       }
@@ -80,9 +69,8 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
                                                region_origin_x,
                                                region_origin_y,
                                                region_origin_radius,
-                                               //TODO Move the two functions below outside the HitDoublet loop
-                                               thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum()),
-                                               phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum()),
+                                               caThetaCut,
+                                               caPhiCut,
                                                hardPtCut);
         }
         assert(cellId == currentLayerPairRef.theFoundCells[1]);
@@ -191,6 +179,9 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
       auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
       bool allInnerLayerPairsAlreadyVisited{true};
 
+      CACut::CAValueByInnerLayerId caThetaCut = thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
+      CACut::CAValueByInnerLayerId caPhiCut = phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
+
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
         allInnerLayerPairsAlreadyVisited &= alreadyVisitedLayerPairs[innerLayerPair];
       }
@@ -215,10 +206,9 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
                                                        ptmin,
                                                        region_origin_x,
                                                        region_origin_y,
-                                                       region_origin_radius,
-                                                       //TODO Move the two functions below outside the HitDoublet loop
-                                                       thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum()),//thetaCut,
-                                                       phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum()),//phiCut,
+                                                       region_origin_radius,                
+                                                       caThetaCut,
+                                                       caPphiCut,
                                                        hardPtCut);
         }
         assert(cellId == currentLayerPairRef.theFoundCells[1]);
