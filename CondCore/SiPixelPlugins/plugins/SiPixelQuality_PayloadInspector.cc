@@ -19,6 +19,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
 #include <sstream>
@@ -34,6 +35,14 @@
 #include "TLatex.h"
 #include "TPave.h"
 #include "TPaveStats.h"
+
+// #define MMDEBUG
+#ifdef MMDEBUG
+#include<iostream>
+#define COUT std::cout << "MM "
+#else
+#define COUT edm::LogVerbatim("")
+#endif
 
 namespace {
 
@@ -63,11 +72,11 @@ namespace {
               if (mod.BadRocs & mask)
                 BadRocCount++;
             }
-            std::cout << "detId:" << mod.DetID << " error type:" << mod.errorType << " BadRocs:" << BadRocCount
+            COUT << "detId:" << mod.DetID << " error type:" << mod.errorType << " BadRocs:" << BadRocCount
                       << std::endl;
           }
-        }  // payload
-      }    // iovs
+        }// payload
+      }// iovs
       return true;
     }  // fill
   };
@@ -87,12 +96,12 @@ namespace {
 
       for (const auto& iov : iovs) {
         std::shared_ptr<SiPixelQuality> payload = fetchPayload(std::get<1>(iov));
-        auto unpacked = unpack(std::get<0>(iov));
+        auto unpacked = SiPixelPI::unpack(std::get<0>(iov));
 
-        std::cout << "======================= " << unpacked.first << " : " << unpacked.second << std::endl;
+        COUT << "======================= " << unpacked.first << " : " << unpacked.second << std::endl;
         auto theDisabledModules = payload->getBadComponentList();
         for (const auto& mod : theDisabledModules) {
-          std::cout << "detId: " << mod.DetID << " |error type: " << mod.errorType << " |BadRocs: " << mod.BadRocs
+          COUT << "detId: " << mod.DetID << " |error type: " << mod.errorType << " |BadRocs: " << mod.BadRocs
                     << std::endl;
         }
       }
@@ -109,13 +118,6 @@ namespace {
       canvas.SaveAs(fileName.c_str());
 
       return true;
-    }
-
-    std::pair<unsigned int, unsigned int> unpack(cond::Time_t since) {
-      auto kLowMask = 0XFFFFFFFF;
-      auto run = (since >> 32);
-      auto lumi = (since & kLowMask);
-      return std::make_pair(run, lumi);
     }
   };
 
@@ -200,13 +202,12 @@ namespace {
 	  bool isFlipped = SiPixelPI::isBPixOuterLadder(DetId(mod.DetID), m_trackerTopo,false);
 	  if((layer>1 && s_module<0)) isFlipped = !isFlipped;
 
-	  //auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
-	  //auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
-	  // std::cout <<"layer:" << layer << " ladder:" << ladder << " module:" << module
-	  //	       <<" signed ladder: "<< s_ladder
-	  //           <<" signed module: "<< s_module << std::endl;
+	  auto ladder = m_trackerTopo.pxbLadder(DetId(mod.DetID));
+	  auto module = m_trackerTopo.pxbModule(DetId(mod.DetID));
+	  COUT <<"layer:" << layer << " ladder:" << ladder << " module:" << module
+	       <<" signed ladder: "<< s_ladder
+	       <<" signed module: "<< s_module << std::endl;
 
-	  //std::vector<std::pair<int, int> > rocsToMask;
 	  if (payload->IsModuleBad(mod.DetID)) {
 	    auto rocsToMask = maskedBarrelRocsToBins(layer, s_ladder, s_module);
 	    for (const auto& bin : rocsToMask) {
@@ -250,6 +251,9 @@ namespace {
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
+#ifdef MMDEBUG
+      canvas.SaveAs("outBPix.root");
+#endif
 
       return true;
     }
@@ -267,9 +271,9 @@ namespace {
       int end_x = start_x + 7;
       int end_y = start_y + 1;
 
-      //std::cout << "module: " << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
-      //std::cout << "ladder: " << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
-      //std::cout << "==================================================================" << std::endl;
+      COUT << "module: " << module << " start_x:" << start_x << " end_x:" << end_x << std::endl;
+      COUT << "ladder: " << ladder << " start_y:" << start_y << " end_y:" << end_y << std::endl;
+      COUT << "==================================================================" << std::endl;
 
       for (int bin_x = 1; bin_x <= 72; bin_x++) {
         for (int bin_y = 1; bin_y <= (nlad * 4 + 2); bin_y++) {
@@ -297,27 +301,30 @@ namespace {
       size_t idx = 0;
       while (idx < bad_rocs.size()) {
 	if(bad_rocs.test(idx)){
-
-	  ////////////////////////////////////////
-	  //
-	  // ROCs are ordered in the following 
-	  // fashion for unplipped modules 
-	  //
-	  // +---+---+---+---+---+---+---+---+
-	  // | 8 |9  |10 |11 |12 |13 |14 |15 |  
-	  // +---+---+---+---+---+---+---+---+
-	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	  // +---+---+---+---+---+---+---+---+
-	  //
-	  // if the module is flipped the ordering is
-	  //
-	  // +---+---+---+---+---+---+---+---+
-	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	  // +---+---+---+---+---+---+---+---+
-	  // | 8 | 9 |10 |11 |12 |13 |14 |15 |
-	  // +---+---+---+---+---+---+---+---+
-	  ////////////////////////////////////////
 	  
+	  //////////////////////////////////////////////////////////////////////////////////////
+	  //		                            |					      //
+	  // In BPix Layer1 and module>0 in L2,3,4  |   In BPix Layer 2,3,4 module > 0	      //
+	  //                                        |					      //
+	  // ROCs are ordered in the following      |   ROCs are ordered in the following     //
+	  // fashion for unplipped modules 	    |   fashion for unplipped modules         //
+	  //					    |  				              //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  //					    |  					      //
+	  // if the module is flipped the ordering  |   if the module is flipped the ordering //
+	  // is reveresed                           |   is reversed                           //
+	  //					    |                                         //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  //////////////////////////////////////////////////////////////////////////////////////
+
 	  int roc_x(0),roc_y(0);
 
 	  if((layer==1) || (layer>1 && module>0)){
@@ -337,13 +344,12 @@ namespace {
 	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
 	    }
 	  }
-	  /*
-	    std::cout << bad_rocs << " : (idx)= " << idx << std::endl;
-	    std::cout <<" layer:  " << layer << std::endl;
-	    std::cout << "module: " << module << " roc_x:" << roc_x << std::endl;
-	    std::cout << "ladder: " << ladder << " roc_y:" << roc_y << std::endl;
-	    std::cout << "==================================================================" << std::endl;
-	  */	  
+
+	  COUT << bad_rocs << " : (idx)= " << idx << std::endl;
+	  COUT <<" layer:  " << layer << std::endl;
+	  COUT << "module: " << module << " roc_x:" << roc_x << std::endl;
+	  COUT << "ladder: " << ladder << " roc_y:" << roc_y << std::endl;
+	  COUT << "==================================================================" << std::endl;
 
 	  rocsToMask.push_back(std::make_tuple(roc_x,roc_y,idx));
 
@@ -403,8 +409,8 @@ namespace {
 	  //bool isFlipped = (s_disk > 0) ? (std::abs(s_blade)%2==0) : (std::abs(s_blade)%2==1);
 	  bool isFlipped = (s_disk > 0) ? (panel==1) : (panel==2);
 
-	  //std::cout << "ring:" << ring << " blade: " << s_blade << " panel: " << panel << " disk: " << s_disk
-	  //        << std::endl;
+	  COUT << "ring:" << ring << " blade: " << s_blade << " panel: " << panel << " signed blade/panel: " << s_blade_panel
+	       << " disk: " << s_disk << std::endl;
 
 	  if (payload->IsModuleBad(mod.DetID)) {
 	    auto rocsToMask = maskedForwardRocsToBins(ring, s_blade, panel, s_disk);
@@ -450,8 +456,9 @@ namespace {
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
-      canvas.SaveAs("out.root");
-
+#ifdef MMDEBUG
+      canvas.SaveAs("outFPix.root");
+#endif
       return true;
     }
 
@@ -459,9 +466,9 @@ namespace {
     std::vector<std::pair<int, int> > maskedForwardRocsToBins(int ring, int blade, int panel, int disk) {
       std::vector<std::pair<int, int> > rocsToMask;
 
-      int nblade_list[2] = {11, 17};
+      //int nblade_list[2] = {11, 17};
       int nybins_list[2] = {92, 140};
-      int nblade = nblade_list[ring - 1];
+      //int nblade = nblade_list[ring - 1];
       int nybins = nybins_list[ring - 1];
 
       int start_x = disk > 0 ? ((disk + 3) * 8) + 1 : ((3 - (std::abs(disk))) * 8) + 1;
@@ -472,9 +479,9 @@ namespace {
       int end_x = start_x + 7;
       int end_y = start_y + 1;
 
-      //std::cout << "==================================================================" << std::endl;
-      //std::cout << "disk:  " << disk << " start_x:" << start_x << " end_x:" << end_x << std::endl;
-      //std::cout << "blade: " << blade << " start_y:" << start_y << " end_y:" << end_y << std::endl;
+      COUT << "==================================================================" << std::endl;
+      COUT << "disk:  " << disk << " start_x:" << start_x << " end_x:" << end_x << std::endl;
+      COUT << "blade: " << blade << " start_y:" << start_y << " end_y:" << end_y << std::endl;
 
       for (int bin_x = 1; bin_x <= 56; bin_x++) {
         for (int bin_y = 1; bin_y <= nybins; bin_y++) {
@@ -491,9 +498,9 @@ namespace {
     std::vector<std::tuple<int, int, int> >  maskedForwardRocsToBins(int ring, int blade, int panel, int disk, std::bitset<16> bad_rocs, bool isFlipped ) {
       std::vector<std::tuple<int, int, int> > rocsToMask;
 
-      int nblade_list[2] = {11, 17};
+      //int nblade_list[2] = {11, 17};
       int nybins_list[2] = {92, 140};
-      int nblade = nblade_list[ring - 1];
+      //int nblade = nblade_list[ring - 1];
       int nybins = nybins_list[ring - 1];
 
       int start_x = disk > 0 ? ((disk + 3) * 8) + 1 : ((3 - (std::abs(disk))) * 8) + 1;
@@ -510,28 +517,30 @@ namespace {
 	  
 	  int roc_x(0),roc_y(0);
 
+	  //////////////////////////////////////////////////////////////////////////////////////
+	  //		                            |					      //
+	  // In FPix + (Disk 1,2,3)                 |   In FPix - (Disk -1,-2,-3)	      //
+	  //                                        |					      //
+	  // ROCs are ordered in the following      |   ROCs are ordered in the following     //
+	  // fashion for unplipped modules 	    |   fashion for unplipped modules         //
+	  //					    |  				              //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 8 |9  |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  //					    |  					      //
+	  // if the module is flipped the ordering  |   if the module is flipped the ordering //
+	  // is reveresed                           |   is reversed                           //
+	  //					    |                                         //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |      |   | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  // | 8 | 9 |10 |11 |12 |13 |14 |15 |      |   |15 |14 |13 |12 |11 |10 | 9 | 8 |     //
+	  // +---+---+---+---+---+---+---+---+      |   +---+---+---+---+---+---+---+---+     //
+	  //////////////////////////////////////////////////////////////////////////////////////
+
 	  if(disk>0){
-
-	    ////////////////////////////////////////
-	    //
-	    // ROCs are ordered in the following 
-	    // fashion for unplipped modules 
-	    //
-	    // +---+---+---+---+---+---+---+---+
-	    // | 8 |9  |10 |11 |12 |13 |14 |15 |  
-	    // +---+---+---+---+---+---+---+---+
-	    // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	    // +---+---+---+---+---+---+---+---+
-	    //
-	    // if the module is flipped the ordering is
-	    //
-	    // +---+---+---+---+---+---+---+---+
-	    // | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-	    // +---+---+---+---+---+---+---+---+
-	    // | 8 | 9 |10 |11 |12 |13 |14 |15 |
-	    // +---+---+---+---+---+---+---+---+
-	    ////////////////////////////////////////
-
 	    if(!isFlipped){
 	      roc_x = idx<8 ? roc0_x-idx : (start_x-8)+idx;
 	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
@@ -540,27 +549,6 @@ namespace {
 	      roc_y = idx<8 ? roc0_y+2 : roc0_y+1;
 	    }
 	  } else {
-
-	    ////////////////////////////////////////
-	    //
-	    // ROCs are ordered in the following 
-	    // fashion for unplipped modules 
-	    //
-	    // +---+---+---+---+---+---+---+---+
-	    // |15 |14 |13 |12 |11 |10 | 9 | 8 |  
-	    // +---+---+---+---+---+---+---+---+
-	    // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-	    // +---+---+---+---+---+---+---+---+
-	    //
-	    // if the module is flipped the ordering is
-	    //
-	    // +---+---+---+---+---+---+---+---+
-	    // | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-	    // +---+---+---+---+---+---+---+---+
-	    // |15 |14 |13 |12 |11 |10 | 9 | 8 |
-	    // +---+---+---+---+---+---+---+---+
-	    ////////////////////////////////////////
-
 	    if(!isFlipped){
 	      roc_x = idx<8 ? roc0_x+idx : (roc0_x+7)-(idx-8);
 	      roc_y = idx<8 ? roc0_y+1 : roc0_y+2;
@@ -570,13 +558,12 @@ namespace {
 	    }
 	  }
 
-	  // if(ring==1 && disk<0){
-	  //   std::cout << bad_rocs << " : (idx)= " << idx << std::endl;
-	  //   std::cout << " panel: " << panel << " isFlipped: " << isFlipped << std::endl;
-	  //   std::cout << " disk:  " << disk  << " roc_x:" << roc_x << std::endl;
-	  //   std::cout << " blade: " << blade << " roc_y:" << roc_y << std::endl;
-	  //   std::cout << "===============================" << std::endl;
-	  // }	  	  
+	  COUT << bad_rocs << " : (idx)= " << idx << std::endl;
+	  COUT << " panel: " << panel << " isFlipped: " << isFlipped << std::endl;
+	  COUT << " disk:  " << disk  << " roc_x:" << roc_x << std::endl;
+	  COUT << " blade: " << blade << " roc_y:" << roc_y << std::endl;
+	  COUT << "===============================" << std::endl;
+
 	  rocsToMask.push_back(std::make_tuple(roc_x,roc_y,idx));
 	}	  
 	++idx;
