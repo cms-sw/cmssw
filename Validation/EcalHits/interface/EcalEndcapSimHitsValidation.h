@@ -27,7 +27,6 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/ValidationFormats/interface/PValidationFormats.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -37,6 +36,9 @@ class EcalEndcapSimHitsValidation : public edm::EDAnalyzer {
   typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   /// Constructor
   EcalEndcapSimHitsValidation(const edm::ParameterSet &ps);
 

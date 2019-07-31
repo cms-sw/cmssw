@@ -7,7 +7,6 @@
 // date: 11/7/2007
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -18,6 +17,9 @@
 
 class PFTester : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit PFTester(const edm::ParameterSet &);
   ~PFTester() override;
 

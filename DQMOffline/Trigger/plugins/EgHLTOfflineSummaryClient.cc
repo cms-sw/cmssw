@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQMOffline/Trigger/interface/EgHLTTrigTools.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -165,7 +164,7 @@ void EgHLTOfflineSummaryClient::splitStringsToPairs_(const std::vector<std::stri
   }
 }
 
-MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_() {
+EgHLTOfflineSummaryClient::MonitorElement* EgHLTOfflineSummaryClient::getEgHLTSumHist_() {
   MonitorElement* egHLTSumHist = dbe_->get(dirName_ + "/" + egHLTSumHistName_);
   if (egHLTSumHist == nullptr) {
     auto* hist = new TH2F(egHLTSumHistName_.c_str(),

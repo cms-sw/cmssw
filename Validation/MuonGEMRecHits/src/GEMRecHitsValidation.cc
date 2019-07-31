@@ -12,27 +12,27 @@ GEMRecHitsValidation::GEMRecHitsValidation(const edm::ParameterSet &cfg) : GEMBa
   detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 
-MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
-                                                 const char *name,
-                                                 const char *label,
-                                                 unsigned int region_num,
-                                                 unsigned int station_num,
-                                                 unsigned int layer_num,
-                                                 const unsigned int Nbin,
-                                                 const Float_t xMin,
-                                                 const Float_t xMax) {
+GEMRecHitsValidation::MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
+                                                                       const char *name,
+                                                                       const char *label,
+                                                                       unsigned int region_num,
+                                                                       unsigned int station_num,
+                                                                       unsigned int layer_num,
+                                                                       const unsigned int Nbin,
+                                                                       const Float_t xMin,
+                                                                       const Float_t xMax) {
   string hist_name = name + getSuffixName(region_num, station_num + 1, layer_num + 1);
   string hist_label = label + string(" : ") + getSuffixTitle(region_num, station_num + 1, layer_num + 1);
   return ibooker.book1D(hist_name, hist_label, Nbin, xMin, xMax);
 }
 
-MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
-                                                 const char *name,
-                                                 const char *label,
-                                                 unsigned int region_num,
-                                                 const unsigned int Nbin,
-                                                 const Float_t xMin,
-                                                 const Float_t xMax) {
+GEMRecHitsValidation::MonitorElement *GEMRecHitsValidation::BookHist1D(DQMStore::IBooker &ibooker,
+                                                                       const char *name,
+                                                                       const char *label,
+                                                                       unsigned int region_num,
+                                                                       const unsigned int Nbin,
+                                                                       const Float_t xMin,
+                                                                       const Float_t xMax) {
   string hist_name = name + getSuffixName(region_num);
   string hist_label = label + string(" : ") + getSuffixName(region_num);
   return ibooker.book1D(hist_name, hist_label, Nbin, xMin, xMax);

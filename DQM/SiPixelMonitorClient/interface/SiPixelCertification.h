@@ -20,7 +20,6 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 class SiPixelCertification : public DQMEDHarvester {
 public:

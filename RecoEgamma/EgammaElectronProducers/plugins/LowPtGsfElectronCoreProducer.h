@@ -10,8 +10,6 @@ class LowPtGsfElectronCoreProducer : public GsfElectronCoreBaseProducer {
 public:
   explicit LowPtGsfElectronCoreProducer(const edm::ParameterSet& conf);
 
-  ~LowPtGsfElectronCoreProducer() override;
-
   void produce(edm::Event&, const edm::EventSetup&) override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);

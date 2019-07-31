@@ -12,7 +12,7 @@
 // Original Author:  Marcel Schneider
 //
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelPhase1Common/interface/GeometryInterface.h"
 #include <vector>
 #include <utility>
@@ -20,7 +20,7 @@
 
 struct AbstractHistogram {
   int count = 0;  // how many things where inserted already. For concat.
-  MonitorElement* me = nullptr;
+  dqm::legacy::MonitorElement* me = nullptr;
   TH1* th1 = nullptr;
   // This is needed for re-grouping, which happens for counters and harvesting
   // This is always an iq out of GeometryInterface::allModules

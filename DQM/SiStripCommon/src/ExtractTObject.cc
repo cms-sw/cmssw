@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "TNamed.h"
 #include "TH1.h"
 #include "TH1C.h"

@@ -11,7 +11,7 @@ related to Tracker Alignment AlCaReco Production.
 */
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,7 +28,6 @@ related to Tracker Alignment AlCaReco Production.
 #include <DataFormats/JetReco/interface/CaloJet.h>
 
 class TrackerGeometry;
-class DQMStore;
 
 class TkAlCaRecoMonitor : public DQMEDAnalyzer {
 public:

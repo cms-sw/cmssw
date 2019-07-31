@@ -129,22 +129,21 @@ void SiPixelErrorsDigisToCalibDigis::endJob() {
 
 // ------------ helper functions ---------------------------------------------------------
 
-MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t detid,
-                                                                   std::string name,
-                                                                   std::string title,
-                                                                   int nchX,
-                                                                   double lowX,
-                                                                   double highX,
-                                                                   int nchY,
-                                                                   double lowY,
-                                                                   double highY) {
+SiPixelErrorsDigisToCalibDigis::MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t detid,
+                                                                                                   std::string name,
+                                                                                                   std::string title,
+                                                                                                   int nchX,
+                                                                                                   double lowX,
+                                                                                                   double highX,
+                                                                                                   int nchY,
+                                                                                                   double lowY,
+                                                                                                   double highY) {
   std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
   return daqBE_->book2D(hid, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(uint32_t detid,
-                                                                               std::string name,
-                                                                               std::string title) {
+SiPixelErrorsDigisToCalibDigis::MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(
+    uint32_t detid, std::string name, std::string title) {
   DetId detId(detid);
   const TrackerGeometry& theTracker(*geom_);
   const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));

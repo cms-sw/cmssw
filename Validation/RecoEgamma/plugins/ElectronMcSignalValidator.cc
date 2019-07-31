@@ -4,7 +4,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -576,7 +576,7 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   h1_recTrackNum = bookH1(iBooker, "recTrackNum", "# rec gsf tracks", 41, -0.5, 40.5, "N_{track}");
   h1_recSeedNum = bookH1(iBooker, "recSeedNum", "# rec electron seeds", 101, -0.5, 100.5, "N_{seed}");
   h1_recOfflineVertices =
-      bookH1(iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", 61, -0.5, 60.5, "N_{Vertices}");
+      bookH1(iBooker, "recOfflineVertices", "# rec Offline Primary Vertices", 81, -0.5, 161.5, "N_{Vertices}");
   h2_scl_EoEtrueVsrecOfflineVertices = bookH2(iBooker,
                                               "scl_EoEtrueVsrecOfflineVertices",
                                               "E/Etrue vs number of primary vertices",

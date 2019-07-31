@@ -43,19 +43,6 @@ int AHCalDetId::icol() const {
 
 int AHCalDetId::depth() const { return ((id_ >> HcalDetId::kHcalDepthOffset2) & HcalDetId::kHcalDepthMask2); }
 
-std::pair<double, double> AHCalDetId::getXY() const {
-  int row = irow();
-  int col = icol();
-  double shiftx = (col > 0) ? -0.5 * deltaX_ : 0.5 * deltaX_;
-  double shifty = (row > 0) ? -0.5 * deltaY_ : 0.5 * deltaY_;
-  return std::pair<double, double>(col * deltaX_ + shiftx, row * deltaY_ + shifty);
-}
-
-double AHCalDetId::getZ() const {
-  int lay = depth();
-  return (zFirst_ + (lay - 1) * deltaZ_);
-}
-
 std::ostream& operator<<(std::ostream& s, const AHCalDetId& id) {
   return s << "(AHCal " << id.irow() << ',' << id.icol() << ',' << id.depth() << ')';
 }

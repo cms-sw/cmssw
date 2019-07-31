@@ -15,7 +15,7 @@
 
 class PFCandConnector {
 public:
-  PFCandConnector(bool debug = false) : debug_(debug) {
+  PFCandConnector() {
     bCorrect_ = false;
     bCalibPrimary_ = false;
 
@@ -96,7 +96,6 @@ private:
   double rescaleFactor(const double pt, const double cFrac) const;
 
   /// Parameters
-  const bool debug_;
   bool bCorrect_;
 
   /// Calibration parameters for the reconstructed nuclear interactions

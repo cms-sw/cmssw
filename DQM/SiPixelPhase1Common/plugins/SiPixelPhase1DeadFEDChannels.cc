@@ -21,7 +21,7 @@
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 
 // DQM Stuff
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // Input data stuff
 #include "DataFormats/Common/interface/DetSetVector.h"

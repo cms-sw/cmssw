@@ -49,7 +49,6 @@
 #include "TF1.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -65,6 +64,8 @@
 
 class SiPixelOfflineCalibAnalysisBase : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiPixelOfflineCalibAnalysisBase(const edm::ParameterSet&);
   ~SiPixelOfflineCalibAnalysisBase() override;
 

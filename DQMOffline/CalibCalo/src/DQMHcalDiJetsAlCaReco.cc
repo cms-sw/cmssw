@@ -15,7 +15,7 @@
 
 // DQM include files
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // work on collections
 

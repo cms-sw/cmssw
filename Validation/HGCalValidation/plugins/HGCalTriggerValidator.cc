@@ -17,7 +17,6 @@
 #include "FWCore/Common/interface/Provenance.h"
 
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"

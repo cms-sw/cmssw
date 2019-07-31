@@ -4,7 +4,6 @@
 #include <string>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edm {
   class ParameterSet;
@@ -12,6 +11,9 @@ namespace edm {
 
 class ESClient {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   ESClient(edm::ParameterSet const &);
   virtual ~ESClient() {}
 

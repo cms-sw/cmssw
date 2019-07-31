@@ -7,7 +7,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -46,6 +45,9 @@ namespace HLTOfflineDQMTopDiLepton {
 
   class MonitorDiLepton {
   public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     /// make clear which LorentzVector to use
     /// for jet, electrons and muon buffering
     using LorentzVector = reco::LeafCandidate::LorentzVector;

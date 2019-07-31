@@ -36,7 +36,6 @@
 
 // For plotting.
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/SiStripMonitorHardware/interface/SiStripFEDSpyBuffer.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"

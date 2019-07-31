@@ -31,13 +31,10 @@ namespace cms {
 }
 
 class DDDWorld;
-class DDG4ProductionCuts;
-class MagneticField;
 
 class G4MTRunManagerKernel;
 class G4Run;
 class G4Event;
-class G4Field;
 class G4StateManager;
 class G4GeometryManager;
 class RunAction;
@@ -62,7 +59,8 @@ public:
   explicit RunManagerMT(edm::ParameterSet const&);
   ~RunManagerMT();
 
-  void initG4(const DDCompactView*, const cms::DDCompactView*, const MagneticField*, const HepPDT::ParticleDataTable*);
+  //  void initG4(const DDCompactView*, const cms::DDCompactView*, const MagneticField*, const HepPDT::ParticleDataTable*);
+  void initG4(const DDCompactView*, const cms::DDCompactView*, const HepPDT::ParticleDataTable*);
 
   void initializeUserActions();
 
@@ -87,7 +85,6 @@ public:
 
 private:
   void terminateRun();
-  void DumpMagneticField(const G4Field*) const;
 
   G4MTRunManagerKernel* m_kernel;
 
@@ -95,7 +92,6 @@ private:
   std::unique_ptr<PhysicsList> m_physicsList;
   bool m_managerInitialized;
   bool m_runTerminated;
-  bool m_pUseMagneticField;
   RunAction* m_userRunAction;
   G4Run* m_currentRun;
   G4StateManager* m_stateManager;
@@ -107,7 +103,6 @@ private:
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
   bool m_check;
-  edm::ParameterSet m_pField;
   edm::ParameterSet m_pPhysics;
   edm::ParameterSet m_pRunAction;
   edm::ParameterSet m_g4overlap;
@@ -115,13 +110,8 @@ private:
   edm::ParameterSet m_p;
 
   std::unique_ptr<DDDWorld> m_world;
-  std::unique_ptr<DDG4ProductionCuts> m_prodCuts;
   SimActivityRegistry m_registry;
   SensitiveDetectorCatalog m_catalog;
-
-  std::string m_FieldFile;
-  std::string m_WriteFile;
-  std::string m_RegionFile;
 };
 
 #endif

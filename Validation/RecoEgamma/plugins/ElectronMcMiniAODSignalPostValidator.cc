@@ -1,6 +1,6 @@
 
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalPostValidator.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ElectronMcSignalPostValidatorMiniAOD::ElectronMcSignalPostValidatorMiniAOD(const edm::ParameterSet& conf)

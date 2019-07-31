@@ -8,17 +8,19 @@
  *  \author Ilaria Segoni
  */
 
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 #include <vector>
 #include <map>
 
-class DQMStore;
 class QTestConfigurationParser;
 class QTestConfigure;
 class QTestStatusChecker;
 
 class QTestHandle {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
   ///Creator
   QTestHandle();
   ///Destructor

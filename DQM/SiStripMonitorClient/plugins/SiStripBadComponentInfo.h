@@ -30,15 +30,13 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-
-class DQMStore;
-class MonitorElement;
 
 class SiStripBadComponentInfo : public DQMEDHarvester {
 public:

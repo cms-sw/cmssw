@@ -22,11 +22,13 @@
 //                of variable inherit from so dont need seperate vectors
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 namespace egHLT {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
+
   template <class T>
   class MonElemManagerBase {
   public:

@@ -213,7 +213,7 @@ GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const {
                                     << " Global " << glob;
 #endif
     } else {
-      xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false);
+      xy = m_topology.dddConstants().locateCell(id.iLay, id.iSec1, id.iSec2, id.iCell1, id.iCell2, true, false, true);
       const HepGeom::Point3D<float> lcoord(xy.first, xy.second, 0);
       glob = m_cellVec[cellIndex].getPosition(lcoord);
 #ifdef EDM_ML_DEBUG

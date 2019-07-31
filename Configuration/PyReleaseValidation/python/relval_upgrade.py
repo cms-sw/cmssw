@@ -15,7 +15,7 @@ def makeStepNameSim(key,frag,step,suffix):
 def makeStepName(key,frag,step,suffix):
    return step+suffix+'_'+key
 
-neutronKeys = ['2023D17','2023D19','2023D21','2023D24','2023D25','2023D28','2023D29','2023D30','2023D31','2023D33','2023D34','2023D35','2023D38','2023D39','2023D40','2023D41','2023D42','2023D43']
+neutronKeys = [x for x in upgradeKeys[2026] if 'PU' not in x]
 neutronFrags = ['ZMM_14','MinBias_14TeV']
 
 tbmFrags = ['TTbar_13','ZMM_13']
@@ -68,10 +68,6 @@ for year in upgradeKeys:
 
             workflows[numWF] = [ upgradeDatasetFromFragment[frag], stepList['baseline']]
 
-            # only keep some special workflows for timing
-            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2023' in key:
-                workflows[numWF+upgradeSteps['Timing']['offset']] = [ upgradeDatasetFromFragment[frag]+"_Timing", stepList['Timing']]
-
             # special workflows for neutron bkg sim
             if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in neutronFrags) and any(nkey in key for nkey in neutronKeys):
                 workflows[numWF+upgradeSteps['Neutron']['offset']] = [ upgradeDatasetFromFragment[frag]+"_Neutron", stepList['Neutron']]
@@ -90,7 +86,7 @@ for year in upgradeKeys:
                     workflows[numWF+upgradeSteps['pixelTrackingOnly']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['pixelTrackingOnly']]
 
             # special workflows for HGCAL/TICL
-            if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2023' in key):
+            if (upgradeDatasetFromFragment[frag]=="CloseByParticleGun") and ('2026' in key):
                 TICLVariations = ['TICLOnly', 'TICLFullReco']
                 # Skip Hharvesting for TICLOnly
                 for tv in TICLVariations:
@@ -108,7 +104,7 @@ for year in upgradeKeys:
                 workflows[numWF+upgradeSteps['killStuckTBM']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['killStuckTBM']]
 
             # workflow for profiling
-            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2023' in key:
+            if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2026' in key:
                 workflows[numWF+upgradeSteps['ProdLike']['offset']] = [ upgradeDatasetFromFragment[frag]+"_ProdLike", stepList['ProdLike']]
 
             # special workflows for ParkingBPH
@@ -116,11 +112,11 @@ for year in upgradeKeys:
                 workflows[numWF+upgradeSteps['ParkingBPH']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['ParkingBPH']]
 
             # premixing stage1, only for NuGun
-            if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2023' in key:
+            if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2026' in key:
                 workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
 
             # premixing stage2, only for ttbar for time being
-            if 'PU' in key and '2023' in key and upgradeDatasetFromFragment[frag]=="TTbar_14TeV":
+            if 'PU' in key and '2026' in key and upgradeDatasetFromFragment[frag]=="TTbar_14TeV":
                 slist = []
                 for step in stepList['baseline']:
                     s = step

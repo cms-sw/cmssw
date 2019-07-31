@@ -3,15 +3,50 @@
 // Description: Position n copies inside and outside Z at alternate phi values
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTECPhiAltAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <cmath>
+#include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTECPhiAltAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTECPhiAltAlgo();
+  ~DDTECPhiAltAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double startAngle;  //Start angle
+  double incrAngle;   //Increment in angle
+  double radius;      //Radius
+  double zIn;         //z position for the even ones
+  double zOut;        //z position for the odd  ones
+  int number;         //Number of copies
+  int startCopyNo;    //Start copy number
+  int incrCopyNo;     //Increment in copy number
+
+  string idNameSpace;  //Namespace of this and ALL sub-parts
+  string childName;    //Child name
+};
 
 DDTECPhiAltAlgo::DDTECPhiAltAlgo() { LogDebug("TECGeom") << "DDTECPhiAltAlgo info: Creating an instance"; }
 
@@ -57,7 +92,7 @@ void DDTECPhiAltAlgo::execute(DDCompactView& cpv) {
       double phideg = phiz / CLHEP::deg;
 
       DDRotation rotation;
-      std::string rotstr = DDSplit(childName).first + std::to_string(phideg * 10.);
+      string rotstr = DDSplit(childName).first + to_string(phideg * 10.);
       rotation = DDRotation(DDName(rotstr, idNameSpace));
       if (!rotation) {
         LogDebug("TECGeom") << "DDTECPhiAltAlgo test: Creating a new "
@@ -82,3 +117,5 @@ void DDTECPhiAltAlgo::execute(DDCompactView& cpv) {
     }
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTECPhiAltAlgo, "track:DDTECPhiAltAlgo");

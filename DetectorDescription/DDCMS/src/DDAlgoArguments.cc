@@ -41,6 +41,7 @@ dd4hep::Rotation3D cms::makeRotReflect(
   }
 
   dd4hep::Rotation3D rotation(x.x(), y.x(), z.x(), x.y(), y.y(), z.y(), x.z(), y.z(), z.z());
+
   return rotation;
 }
 
@@ -110,6 +111,40 @@ string DDAlgoArguments::resolved_scalar_arg(const string& nam) const {
   return ns.realName(val);
 }
 
+string DDAlgoArguments::resolveValue(const std::string& aValue) const {
+  cms::DDNamespace ns(context);
+  string value(aValue);
+  size_t idx = value.find('[');
+  if (idx == string::npos) {
+    return value;
+  }
+
+  while (idx != string::npos) {
+    ++idx;
+    size_t idp = value.find(':', idx);
+    size_t idq = value.find(']', idx);
+    if (idp == string::npos || idp > idq)
+      value.insert(idx, ns.name());
+    else if (idp != string::npos && idp < idq)
+      value[idp] = NAMESPACE_SEP;
+    idx = value.find('[', idx);
+  }
+
+  string rep;
+  string& v = value;
+  size_t idq;
+  for (idx = v.find('[', 0); idx != string::npos; idx = v.find('[', idx + 1)) {
+    idq = v.find(']', idx + 1);
+    rep = v.substr(idx + 1, idq - idx - 1);
+    auto r = ns.context()->description.load()->constants().find(rep);
+    if (r != ns.context()->description.load()->constants().end()) {
+      rep = "(" + r->second->type + ")";
+      v.replace(idx, idq - idx + 1, rep);
+    }
+  }
+  return value;
+}
+
 namespace {
 
   /// Access of raw strings as vector by argument name
@@ -120,7 +155,8 @@ namespace {
     string val = xp.text();
     string nam = xp.nameStr();
     string typ = xp.typeStr();
-    int num = xp.attr<int>(DD_CMU(nEntries));
+    string numValue = xp.attr<string>(DD_CMU(nEntries));
+    int num = _toDouble(numValue);
     const BasicGrammar& gr = BasicGrammar::instance<vector<string> >();
 
     val = '[' + ns.realName(val) + ']';
@@ -138,8 +174,13 @@ namespace {
              num,
              data.size());
     }
-    printout(
-        DEBUG, "DD4CMS", "+++ VectorParam<%s>: ret=%d %s -> %s", typ.c_str(), res, nam.c_str(), gr.str(&data).c_str());
+    printout(a->context.debug_algorithms ? ALWAYS : DEBUG,
+             "DD4CMS",
+             "+++ VectorParam<%s>: ret=%d %s -> %s",
+             typ.c_str(),
+             res,
+             nam.c_str(),
+             gr.str(&data).c_str());
     return data;
   }
 
@@ -173,9 +214,10 @@ namespace {
     cms::DDNamespace ns(a->context);
     string piece;
     string nam = xp.attr<string>(_U(name));
-    string typ = xp.attr<string>(_U(type));
+    string typ = xp.hasAttr(_U(type)) ? xp.attr<string>(_U(type)) : "numeric";
     string val = xp.text();
-    int num = xp.attr<int>(DD_CMU(nEntries));
+    string nValues = a->resolveValue(xp.attr<string>(DD_CMU(nEntries)));
+    int num = _toInt(nValues);
     if (typ != req_typ) {
       except("DD4CMS",
              "+++ VectorParam<%s | %s>: %s -> <%s> %s [Incompatible vector-type]",
@@ -195,7 +237,13 @@ namespace {
       T d = __cnv<T>(piece);
       data.push_back(d);
     }
-    printout(DEBUG, "DD4CMS", "+++ VectorParam<%s>: %s[%d] -> %s", typ.c_str(), nam.c_str(), num, val.c_str());
+    printout(a->context.debug_algorithms ? ALWAYS : DEBUG,
+             "DD4CMS",
+             "+++ VectorParam<%s>: %s[%d] -> %s",
+             typ.c_str(),
+             nam.c_str(),
+             num,
+             val.c_str());
     return data;
   }
 }  // namespace
@@ -250,7 +298,7 @@ namespace cms {
 string DDAlgoArguments::str(const string& nam) const { return this->value<string>(nam); }
 
 /// Shortcut to access double arguments
-double DDAlgoArguments::dble(const string& nam) const { return this->value<double>(nam); }
+double DDAlgoArguments::dble(const string& nam) const { return this->value<double>(resolveValue(nam)); }
 
 /// Shortcut to access integer arguments
 int DDAlgoArguments::integer(const string& nam) const { return this->value<int>(nam); }

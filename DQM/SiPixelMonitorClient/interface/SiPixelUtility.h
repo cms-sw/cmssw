@@ -9,7 +9,6 @@
  */
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "TH1.h"
 #include "TPaveText.h"
 #include <fstream>
@@ -19,6 +18,9 @@
 
 class SiPixelUtility {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   static int getMEList(std::string name, std::vector<std::string> &values);
   static bool checkME(std::string element, std::string name, std::string &full_path);
   static int getMEList(std::string name, std::string &dir_path, std::vector<std::string> &me_names);

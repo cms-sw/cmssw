@@ -2,8 +2,7 @@
 #define DQM_SiStripCommissioningClients_NoiseHistograms_H
 
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
-
-class DQMStore;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class NoiseHistograms : public virtual CommissioningHistograms {
 public:

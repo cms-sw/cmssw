@@ -120,6 +120,12 @@ trackingLowPU.toReplaceWith(globalreco_tracking, _globalreco_tracking_LowPU)
 _fastSim_globalreco_tracking = globalreco_tracking.copyAndExclude([offlineBeamSpot,MeasurementTrackerEventPreSplitting,siPixelClusterShapeCachePreSplitting])
 fastSim.toReplaceWith(globalreco_tracking,_fastSim_globalreco_tracking)
 
+_phase2_timing_layer_globalreco_tracking = globalreco_tracking.copy()
+_phase2_timing_layer_globalreco_tracking += fastTimingGlobalReco
+from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
+from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
+(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco_tracking,_phase2_timing_layer_globalreco_tracking)
+
 globalreco = cms.Sequence(globalreco_tracking*
                           particleFlowCluster*
                           ecalClusters*
@@ -133,12 +139,6 @@ globalreco = cms.Sequence(globalreco_tracking*
 
 _run3_globalreco = globalreco.copyAndExclude([CastorFullReco])
 run3_common.toReplaceWith(globalreco, _run3_globalreco)
-
-_phase2_timing_layer_globalreco = _run3_globalreco.copy()
-_phase2_timing_layer_globalreco += fastTimingGlobalReco
-from Configuration.Eras.Modifier_phase2_timing_layer_tile_cff import phase2_timing_layer_tile
-from Configuration.Eras.Modifier_phase2_timing_layer_bar_cff import phase2_timing_layer_bar
-(phase2_timing_layer_tile | phase2_timing_layer_bar).toReplaceWith(globalreco,_phase2_timing_layer_globalreco)
 
 _fastSim_globalreco = globalreco.copyAndExclude([CastorFullReco,muoncosmicreco])
 # insert the few tracking modules to be run after mixing back in the globalreco sequence
@@ -294,9 +294,3 @@ reconstruction_HcalNZS = cms.Sequence(localreco_HcalNZS*globalreco       *highle
 #sequences without some stuffs
 #
 reconstruction_woCosmicMuons = cms.Sequence(localreco*globalreco*highlevelreco*logErrorHarvester)
-
-
-# define a standard candle. please note I am picking up individual
-# modules instead of sequences
-#
-reconstruction_standard_candle = cms.Sequence(localreco*globalreco*vertexreco*recoJetAssociations*btagging*electronSequence*photonSequence)

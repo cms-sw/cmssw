@@ -20,14 +20,16 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 #include <TFile.h>
 #include <vector>
 
-class DQMStore;
-
 class PFJetBenchmark {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   PFJetBenchmark();
   virtual ~PFJetBenchmark();
 

@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimMuon.GEMDigitizer.muonGEMDigis_cfi import gemDigiCommonParameters
-
 me0DigiCommonParameters = cms.PSet(
     signalPropagationSpeed = cms.double(0.66),
     timeResolution = cms.double(5),
@@ -21,9 +19,9 @@ me0DigiCommonParameters = cms.PSet(
     fixedRollRadius = cms.bool(True), #Uses fixed radius in the center of the roll
     simulateIntrinsicNoise = cms.bool(False),
     simulateElectronBkg = cms.bool(True),	#False=simulate only neutral Bkg
-    instLumi = gemDigiCommonParameters.instLumi, # in units of 1E34 cm^-2 s^-1. Internally the background is parametrized from FLUKA+GEANT results at 5x10^34 (PU140). We are adding a 1.5 factor for PU200
-    rateFact = gemDigiCommonParameters.rateFact, # We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizer
-    referenceInstLumi = gemDigiCommonParameters.referenceInstLumi,  #reference inst. luminosity 5x10^34 cm-2s-1
+    instLumi = cms.double(7.5), # in units of 1E34 cm^-2 s^-1. Internally the background is parametrized from FLUKA+GEANT results at 5x10^34 (PU140). We are adding a 1.5 factor for PU200
+    rateFact = cms.double(1.0), # We are adding also a safety factor of 2 to take into account the new beam pipe effect (not yet known). Hits can be thrown away later at re-digi step. Parameters are kept in sync with the ones used in the GEM digitizer
+    referenceInstLumi = cms.double(5.),  #reference inst. luminosity 5x10^34 cm-2s-1
     #The following parameters are needed to model the background contribution. 
     #The parameters have been obtained after the fit of the predicted by FLUKA.
     #By default the backgroundmodeling with these parameters should be disabled with 

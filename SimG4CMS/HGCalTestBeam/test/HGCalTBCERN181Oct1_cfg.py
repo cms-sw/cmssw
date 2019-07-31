@@ -18,6 +18,7 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('SimG4CMS.HGCalTestBeam.HGCalTBAnalyzer_cfi')
 process.load('SimG4CMS.HGCalTestBeam.HGCalTBCheckGunPosition_cfi')
 
 process.maxEvents = cms.untracked.PSet(
@@ -42,6 +43,21 @@ process.configurationMetadata = cms.untracked.PSet(
     annotation = cms.untracked.string('SingleMuonE200_cfi nevts:10'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
+)
+
+# Output definition
+
+process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('generation_step')
+    ),
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('GEN-SIM'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:TBGenSim181Oct1.root'),
+    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
 )
 
 # Additional output definition
@@ -77,20 +93,34 @@ process.VtxSmeared.MinY = -7.5
 process.VtxSmeared.MaxY =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
+#process.HGCalTBAnalyzer.useFH       = True
+#process.HGCalTBAnalyzer.useBH       = True
+#process.HGCalTBAnalyzer.useBeam     = True
+#process.HGCalTBAnalyzer.zFrontEE    = 1110.0
+#process.HGCalTBAnalyzer.zFrontFH    = 1176.5
+#process.HGCalTBAnalyzer.zFrontFH    = 1307.5
+#process.HGCalTBAnalyzer.maxDepth    = 39
+#process.HGCalTBAnalyzer.deltaZ      = 26.2
+#process.HGCalTBAnalyzer.zFirst      = 22.8
+#process.HGCalTBAnalyzer.doPassive   = False
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.gunfilter_step  = cms.Path(process.HGCalTBCheckGunPostion)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+process.analysis_step = cms.Path(process.HGCalTBAnalyzer)
 process.endjob_step = cms.EndPath(process.endOfProcess)
+process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
 				process.genfiltersummary_step,
 				process.simulation_step,
-				process.gunfilter_step,
+#				process.gunfilter_step,
+#				process.analysis_step,
 				process.endjob_step,
+                                process.FEVTDEBUGoutput_step
 				)
 # filter all path with the production filter sequence
 for path in process.paths:

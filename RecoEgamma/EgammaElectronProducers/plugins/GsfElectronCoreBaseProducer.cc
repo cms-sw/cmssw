@@ -13,9 +13,11 @@
 
 using namespace reco;
 
-void GsfElectronCoreBaseProducer::fillDescription(edm::ParameterSetDescription& desc) {
-  desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag("pfTrackElec"));
-  desc.add<edm::InputTag>("gsfTracks", edm::InputTag("electronGsfTracks"));
+void GsfElectronCoreBaseProducer::fillDescription(edm::ParameterSetDescription& desc,
+                                                  std::string const& gsfPfRecTracks,
+                                                  std::string const& gsfTracks) {
+  desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag(gsfPfRecTracks));
+  desc.add<edm::InputTag>("gsfTracks", edm::InputTag(gsfTracks));
   desc.add<edm::InputTag>("ctfTracks", edm::InputTag("generalTracks"));
   desc.add<bool>("useGsfPfRecTracks", true);
 }
@@ -27,8 +29,6 @@ GsfElectronCoreBaseProducer::GsfElectronCoreBaseProducer(const edm::ParameterSet
   ctfTracksTag_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"));
   useGsfPfRecTracks_ = config.getParameter<bool>("useGsfPfRecTracks");
 }
-
-GsfElectronCoreBaseProducer::~GsfElectronCoreBaseProducer() {}
 
 //=======================================================================================
 // For derived producers

@@ -59,12 +59,13 @@ public:
 
 private:
   // parameters
-  edm::EDGetTokenT<edm::HepMCProduct> token_;  // token to get the generated particles
-  double MaxSeedEta_;                          // maximum eta of the isolated track seed
-  double MinSeedMom_;                          // minimum momentum of the isolated track seed
-  double MinIsolTrackMom_;                     // minimum prohibited momentum of a nearby track
-  double IsolCone_;                            // cone size (in mm) around the seed to consider a track "nearby"
-  bool onlyHadrons_;                           // select only isolated hadrons
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;  // token to get the generated particles
+  const double maxSeedEta_;                          // maximum eta of the isolated track seed
+  const double minSeedEta_;                          // minimum eta of the isolated track seed
+  const double minSeedMom_;                          // minimum momentum of the isolated track seed
+  const double minIsolTrackMom_;                     // minimum prohibited momentum of a nearby track
+  const double isolCone_;                            // cone size (in mm) around the seed to consider a track "nearby"
+  const bool onlyHadrons_;                           // select only isolated hadrons
 
   unsigned int nAll_, nGood_;
   double ecDist_;  //distance to ECAL andcap from IP (cm)

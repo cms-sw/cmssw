@@ -169,9 +169,12 @@ int HGCalTriggerTools::zside(const DetId& id) const {
 }
 
 int HGCalTriggerTools::thicknessIndex(const DetId& id, bool tc) const {
+  if (isScintillator(id)) {
+    throw cms::Exception("IncompatibleDetId") << "Trying to get the sensor thickness of a scintillator detid";
+  }
   unsigned det = id.det();
   int thickness = 0;
-  // For the v8 geometry
+  // For the v8 detid scheme
   if (det == DetId::Forward) {
     if (!tc)
       thickness = sensorCellThicknessV8(id);
@@ -181,13 +184,23 @@ int HGCalTriggerTools::thicknessIndex(const DetId& id, bool tc) const {
       // Use a majority logic to find the TC thickness
       std::array<unsigned, 3> occurences = {{0, 0, 0}};
       for (const auto& c_id : geom_->getCellsFromTriggerCell(id)) {
-        int c_thickness = sensorCellThicknessV8(c_id);
+        unsigned c_det = DetId(c_id).det();
+        int c_thickness = -1;
+        // For the v8 detid scheme
+        if (c_det == DetId::Forward) {
+          c_thickness = sensorCellThicknessV8(c_id);
+        } else {
+          c_thickness = HGCSiliconDetId(c_id).type();
+        }
+        if (c_thickness < 0 || unsigned(c_thickness) >= occurences.size()) {
+          throw cms::Exception("OutOfBound") << "Found thickness index = " << c_thickness;
+        }
         occurences[c_thickness]++;
       }
       thickness = std::max_element(occurences.begin(), occurences.end()) - occurences.begin();
     }
   }
-  // For the v9 geometry
+  // For the v9 detid scheme
   else if (det == DetId::HGCalEE || det == DetId::HGCalHSi) {
     thickness = HGCSiliconDetId(id).type();
   } else if (det == DetId::HGCalTrigger) {
