@@ -116,7 +116,8 @@ namespace edm {
           RunIndex ri = rp.index();
           const EventSetup c{ci,
                              static_cast<unsigned int>(Transition::BeginRun),
-                             this->consumer()->esGetTokenIndices(Transition::BeginRun)};
+                             this->consumer()->esGetTokenIndices(Transition::BeginRun),
+                             false};
           MyGlobalRun::beginRun(cnstR, c, m_global.get(), m_runs[ri]);
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
           MyGlobalRunSummary::beginRun(cnstR, c, &rc, m_runSummaries[ri]);
@@ -136,7 +137,8 @@ namespace edm {
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
           const EventSetup c{ci,
                              static_cast<unsigned int>(Transition::EndRun),
-                             this->consumer()->esGetTokenIndices(Transition::EndRun)};
+                             this->consumer()->esGetTokenIndices(Transition::EndRun),
+                             false};
           MyGlobalRunSummary::globalEndRun(r, c, &rc, m_runSummaries[ri].get());
           if constexpr (T::HasAbility::kEndRunProducer) {
             MyEndRunProduce::produce(r, c, &rc, m_runSummaries[ri].get());
@@ -160,7 +162,8 @@ namespace edm {
           typename T::RunContext rc(m_runs[ri].get(), m_global.get());
           const EventSetup c{ci,
                              static_cast<unsigned int>(Transition::BeginLuminosityBlock),
-                             this->consumer()->esGetTokenIndices(Transition::BeginLuminosityBlock)};
+                             this->consumer()->esGetTokenIndices(Transition::BeginLuminosityBlock),
+                             false};
 
           MyGlobalLuminosityBlock::beginLuminosityBlock(cnstLb, c, &rc, m_lumis[li]);
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
@@ -185,7 +188,8 @@ namespace edm {
           typename T::LuminosityBlockContext lc(m_lumis[li].get(), m_runs[ri].get(), m_global.get());
           const EventSetup c{ci,
                              static_cast<unsigned int>(Transition::EndLuminosityBlock),
-                             this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock)};
+                             this->consumer()->esGetTokenIndices(Transition::EndLuminosityBlock),
+                             false};
           MyGlobalLuminosityBlockSummary::globalEndLuminosityBlock(lb, c, &lc, m_lumiSummaries[li].get());
           if constexpr (T::HasAbility::kEndLuminosityBlockProducer) {
             MyEndLuminosityBlockProduce::produce(lb, c, &lc, m_lumiSummaries[li].get());

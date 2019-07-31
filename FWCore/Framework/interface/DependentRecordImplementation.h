@@ -56,7 +56,8 @@ namespace edm {
             !std::is_same<FoundItrT, EndItrT>::value,
             "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
         try {
-          EventSetup const eventSetupT{this->eventSetup(), this->transitionID(), this->getTokenIndices()};
+          EventSetup const eventSetupT{
+              this->eventSetup(), this->transitionID(), this->getTokenIndices(), this->requireTokens()};
           return eventSetupT.get<DepRecordT>();
         } catch (cms::Exception& e) {
           std::ostringstream sstrm;
@@ -74,7 +75,8 @@ namespace edm {
         static_assert(
             !std::is_same<FoundItrT, EndItrT>::value,
             "Trying to get a Record from another Record where the second Record is not dependent on the first Record.");
-        EventSetup const eventSetupT{this->eventSetup(), this->transitionID(), this->getTokenIndices()};
+        EventSetup const eventSetupT{
+            this->eventSetup(), this->transitionID(), this->getTokenIndices(), this->requireTokens()};
         return eventSetupT.tryToGet<DepRecordT>();
       }
 
