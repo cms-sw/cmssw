@@ -7,8 +7,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-namespace tf = tensorflow;
-
 namespace ticl {
   // base struct across ticl for objects hold in the edm::GlobalCache by plugins
   struct CacheBase {
@@ -23,7 +21,7 @@ namespace ticl {
 
     ~TrackstersCache() override {}
 
-    std::atomic<tf::GraphDef*> eidGraphDef;
+    std::atomic<tensorflow::GraphDef*> eidGraphDef;
   };
 }  // namespace ticl
 
