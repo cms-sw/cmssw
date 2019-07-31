@@ -42,8 +42,6 @@ template <typename T_Generator>
 CAHitNtupletEDProducerT<T_Generator>::CAHitNtupletEDProducerT(const edm::ParameterSet& iConfig)
     : doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
       generator_(iConfig, consumesCollector()) {
-  // EDIT: Added the following line:
-  //std::cout << "Iteration: " << iConfig.getParameter<edm::InputTag>("doublets").label() << std::endl;
   produces<RegionsSeedingHitSets>();
 }
 
