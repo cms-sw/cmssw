@@ -24,9 +24,9 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   std::vector<Section> sections;
 
-  double r_min = args.value<double>("r_min");
-  double r_max = args.value<double>("r_max");
-  double z_pos = args.value<double>("z_pos");
+  double r_min = args.value<double>("rMin");
+  double r_max = args.value<double>("rMax");
+  double z_pos = args.value<double>("zPos");
 
   const std::string solidOutput = args.value<std::string>("SolidName");
   const std::string material = args.value<std::string>("Material");
