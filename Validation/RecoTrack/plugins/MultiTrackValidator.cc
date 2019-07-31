@@ -723,7 +723,9 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
   if (not cores_.isUninitialized()) {
     Handle<edm::View<reco::Candidate>> cores;
     event.getByToken(cores_, cores);
-    coresVector = cores.product();
+    if (cores.isValid()) {
+      coresVector = cores.product();
+    }
   }
   declareDynArray(float, tPCeff.size(), dR_tPCeff_jet);
 
