@@ -33,7 +33,9 @@ cd $W_DIR;
 
 #    --tag SiPixelQuality_byPCL_stuckTBM_v1 \
 #    --tag SiPixelQuality_byPCL_other_v1 \
-#     --tag SiPixelQuality_byPCL_prompt_v2 \
+#    --tag SiPixelQuality_byPCL_prompt_v2 \
+
+### to produce detailed list of bad ROCs for a whole year
 
 getPayloadData.py \
     --plugin pluginSiPixelQuality_PayloadInspector \

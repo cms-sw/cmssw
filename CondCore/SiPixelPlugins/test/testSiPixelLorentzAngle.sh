@@ -9,17 +9,24 @@ eval `scram run -sh`;
 # Go back to original working directory
 cd $W_DIR;
 # Run get payload data script
+if [ -d $W_DIR/plots_LA ]; then
+    rm -fr $W_DIR/plots_LA
+fi
+
+mkdir $W_DIR/plots_LA
 
 getPayloadData.py \
-    --plugin pluginSiPixelLorentzAngle_PayloadInspector \
-    --plot plot_SiPixelLorentzAngleValueComparisonTwoTags \
-    --tag SiPixelLorentzAngleSim_phase1_BoR3_HV350_Tr1300 \
-    --tagtwo SiPixelLorentzAngle_phase1_BoR3_HV350_Tr1300 \
-    --time_type Run \
-    --iovs '{"start_iov": "1", "end_iov": "1"}' \
-    --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
-    --db Prod \
-    --test ;
+     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
+     --plot plot_SiPixelLorentzAngleValueComparisonTwoTags \
+     --tag SiPixelLorentzAngleSim_phase1_BoR3_HV350_Tr1300 \
+     --tagtwo SiPixelLorentzAngle_phase1_BoR3_HV350_Tr1300 \
+     --time_type Run \
+     --iovs '{"start_iov": "1", "end_iov": "1"}' \
+     --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
+     --db Prod \
+     --test ;
+
+mv *.png  $W_DIR/plots_LA/comparisonByValuePhase1.png
 
 getPayloadData.py \
     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
@@ -30,6 +37,8 @@ getPayloadData.py \
     --db Prod \
     --test ;
 
+mv *.png  $W_DIR/plots_LA/ByValuePhase1.png
+
 getPayloadData.py \
     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
     --plot plot_SiPixelLorentzAngleValueComparisonTwoTags \
@@ -38,8 +47,10 @@ getPayloadData.py \
     --time_type Run \
     --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
-    --db Prod
+    --db Prod \
     --test ;
+
+mv *.png  $W_DIR/plots_LA/comparisonByValuePhase0.png
 
 getPayloadData.py \
     --plugin pluginSiPixelLorentzAngle_PayloadInspector \
@@ -51,3 +62,6 @@ getPayloadData.py \
     --iovstwo '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test ;
+
+mv *.png  $W_DIR/plots_LA/comparisonByRegionPhase0.png
+
