@@ -1,4 +1,3 @@
-<flags GENREFLEX_ARGS="--"/>
 <use name="CondFormats/Common"/>
 <!-- // comment out
 <use name="FWCore/ParameterSet"/>

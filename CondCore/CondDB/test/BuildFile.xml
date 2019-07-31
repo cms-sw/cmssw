@@ -1,4 +1,3 @@
-<flags   GENREFLEX_ARGS="--"/>
 
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/Common"/>
