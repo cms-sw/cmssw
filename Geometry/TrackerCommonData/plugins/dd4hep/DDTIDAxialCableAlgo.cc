@@ -5,16 +5,15 @@
 
 #include <algorithm>
 #include <cmath>
-
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 namespace {
   long algorithm(dd4hep::Detector &description, cms::DDParsingContext &ctxt, xml_h e, SensitiveDetector & /* sens */) {
