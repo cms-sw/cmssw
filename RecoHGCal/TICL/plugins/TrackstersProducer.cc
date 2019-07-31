@@ -27,8 +27,7 @@
 
 using namespace ticl;
 
-
-class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache> > {
+class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache>> {
 public:
   explicit TrackstersProducer(const edm::ParameterSet&, const TrackstersCache*);
   ~TrackstersProducer() override {}
@@ -51,8 +50,7 @@ private:
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(
-    const edm::ParameterSet& params) {
+std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(const edm::ParameterSet& params) {
   // this method is supposed to create, initialize and return a TrackstersCache instance
   TrackstersCache* cache = new TrackstersCache(params);
 

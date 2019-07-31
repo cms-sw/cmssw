@@ -10,8 +10,7 @@
 
 using namespace ticl;
 
-PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf,
-    const CacheBase* cache)
+PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, const CacheBase *cache)
     : PatternRecognitionAlgoBase(conf, cache), eidSession_(nullptr) {
   theGraph_ = std::make_unique<HGCGraph>();
   min_cos_theta_ = conf.getParameter<double>("min_cos_theta");
@@ -19,14 +18,14 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf,
   missing_layers_ = conf.getParameter<int>("missing_layers");
   min_clusters_per_ntuplet_ = conf.getParameter<int>("min_clusters_per_ntuplet");
   max_delta_time_ = conf.getParameter<double>("max_delta_time");
-  eidInputName_ = conf.getParameter<std::string >("eid_input_name");
+  eidInputName_ = conf.getParameter<std::string>("eid_input_name");
   eidOutputNameEnergy_ = conf.getParameter<std::string>("eid_output_name_energy");
   eidOutputNameId_ = conf.getParameter<std::string>("eid_output_name_id");
   eidNLayers_ = conf.getParameter<int>("eid_n_layers");
   eidNClusters_ = conf.getParameter<int>("eid_n_clusters");
 
   // mount the tensorflow graph onto the session when set
-  const TrackstersCache* trackstersCache = dynamic_cast<const TrackstersCache*>(cache);
+  const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
   if (trackstersCache->eidGraphDef != nullptr) {
     eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
   }
@@ -110,8 +109,8 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
   }
 }
 
-void PatternRecognitionbyCA::energyRegressionAndID(
-    const std::vector<reco::CaloCluster>& layerClusters, std::vector<Trackster>& tracksters) {
+void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                                                   std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   // 1. Set default values for regressed energy and particle id for each trackster.
   // 2. Store indices of tracksters whose total sum of cluster energies is above the
@@ -129,7 +128,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
   std::vector<int> tracksterIndices;
   for (int i = 0; i < (int)tracksters.size(); i++) {
     // set default values (1)
-    tracksters[i].id_probabilities = {{ 0., 0., 0., 0., 0. }};
+    tracksters[i].id_probabilities = {{0., 0., 0., 0., 0.}};
     tracksters[i].regressed_energy = 0.;
 
     // calculate the cluster energy sum (2)
@@ -152,10 +151,9 @@ void PatternRecognitionbyCA::energyRegressionAndID(
   // create input and output tensors (3)
   int batchSize = (int)tracksterIndices.size();
 
-  tensorflow::Tensor input(tensorflow::DT_FLOAT,
-    tensorflow::TensorShape({ batchSize, eidNLayers_, eidNClusters_, 3 }));
-  tensorflow::NamedTensorList inputList = { { eidInputName_, input } };
-  float* inputData = input.flat<float>().data();
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, tensorflow::TensorShape({batchSize, eidNLayers_, eidNClusters_, 3}));
+  tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
+  float *inputData = input.flat<float>().data();
 
   std::vector<tensorflow::Tensor> outputs;
   std::vector<std::string> outputNames;
@@ -177,7 +175,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
       const reco::CaloCluster &lc = layerClusters[tracksters[i].vertices[cluster]];
       int layer = rhtools_.getLayerWithOffset(lc.hitsAndFractions()[0].first) - 1;
       if (layer < eidNLayers_) {
-        std::array<float, 3> features {{ float(lc.eta()), float(lc.phi()), float(lc.energy()) }};
+        std::array<float, 3> features{{float(lc.eta()), float(lc.phi()), float(lc.energy())}};
         tracksterFeatures[layer].push_back(features);
       }
     }
@@ -193,7 +191,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
       for (int cluster = 0; cluster < eidNClusters_; cluster++) {
         // if there are not enough clusters, fill zeros
         if (cluster < (int)tracksterFeatures[layer].size()) {
-          std::array<float, 3>& features = layerData[cluster];
+          std::array<float, 3> &features = layerData[cluster];
           *(inputData++) = features[0];
           *(inputData++) = features[1];
           *(inputData++) = features[2];
@@ -211,7 +209,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
     // store regressed energy per trackster (6)
     if (!eidOutputNameEnergy_.empty()) {
       // get the pointer to the energy tensor, dimension is batch x 1
-      float* energy = outputs[0].flat<float>().data();
+      float *energy = outputs[0].flat<float>().data();
 
       for (int i : tracksterIndices) {
         tracksters[i].regressed_energy = *(energy++);
@@ -223,7 +221,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
       // get the pointer to the id probability tensor, dimension is batch x 5
       // (photon, electron, muon, charged hadron, neutral hadron)
       size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
-      float* probs = outputs[probsIdx].flat<float>().data();
+      float *probs = outputs[probsIdx].flat<float>().data();
 
       for (int i : tracksterIndices) {
         tracksters[i].id_probabilities[0] = *(probs++);
