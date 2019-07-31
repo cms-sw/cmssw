@@ -31,8 +31,10 @@ CAHitTripletGenerator::CAHitTripletGenerator(const edm::ParameterSet& cfg,
           "extraHitRPhitolerance")),  //extra window in ThirdHitPredictionFromCircle range (divide by R to get phi)
       maxChi2(cfg.getParameter<edm::ParameterSet>("maxChi2")),
       useBendingCorrection(cfg.getParameter<bool>("useBendingCorrection")),
-      caThetaCut(cfg.getParameter<double>("CAThetaCut")),
-      caPhiCut(cfg.getParameter<double>("CAPhiCut")),
+      caThetaCut(cfg.getParameter<double>("CAThetaCut"),
+                 cfg.getParameter<edm::ParameterSet>("CAThetaCut_byLayers")),
+      caPhiCut(cfg.getParameter<double>("CAPhiCut"),
+               cfg.getParameter<edm::ParameterSet>("CAPhiCut_byLayers")),
       caHardPtCut(cfg.getParameter<double>("CAHardPtCut")) {
   edm::ParameterSet comparitorPSet = cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
   std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
@@ -46,6 +48,54 @@ void CAHitTripletGenerator::fillDescriptions(edm::ParameterSetDescription& desc)
   desc.add<bool>("useBendingCorrection", false);
   desc.add<double>("CAThetaCut", 0.00125);
   desc.add<double>("CAPhiCut", 0.1);
+/*
+  //EDIT: Added the following 12 lines.
+  edm::ParameterSetDescription descCALayerIds;
+  descCALayerIds.add<int>("BPix1",    0);
+  descCALayerIds.add<int>("BPix2",    1);
+  descCALayerIds.add<int>("BPix3",    2);
+  descCALayerIds.add<int>("BPix4",    3);
+  descCALayerIds.add<int>("FPix1_neg", 14);
+  descCALayerIds.add<int>("FPix2_neg", 15);
+  descCALayerIds.add<int>("FPix3_neg", 16);
+  descCALayerIds.add<int>("FPix1_pos", 29);
+  descCALayerIds.add<int>("FPix2_pos", 30);
+  descCALayerIds.add<int>("FPix3_pos", 31);
+  desc.add<edm::ParameterSetDescription>("CALayerIds", descCALayerIds);
+*/
+  //EDIT: Added the following 14+2+10 lines.
+  edm::ParameterSetDescription descCACut_byLayers;
+  descCACut_byLayers.add<double>("BPix1__BPix2__BPix3", -1.);
+  descCACut_byLayers.add<double>("BPix1__BPix2__BPix4", -1.);            // Gap
+  descCACut_byLayers.add<double>("BPix1__BPix2__FPix1_neg", -1.);
+  descCACut_byLayers.add<double>("BPix1__BPix2__FPix1_pos", -1.);
+  descCACut_byLayers.add<double>("BPix1__BPix2__FPix2_neg", -1.);        // Gap
+  descCACut_byLayers.add<double>("BPix1__BPix2__FPix2_pos", -1.);        // Gap
+  descCACut_byLayers.add<double>("BPix1__BPix3__BPix4", -1.);            // Gap
+  descCACut_byLayers.add<double>("BPix1__BPix3__FPix1_neg", -1.);        // Gap
+  descCACut_byLayers.add<double>("BPix1__BPix3__FPix1_pos", -1.);        // Gap
+  descCACut_byLayers.add<double>("BPix1__FPix1_neg__FPix2_neg", -1.);
+  descCACut_byLayers.add<double>("BPix1__FPix1_pos__FPix2_pos", -1.);
+  descCACut_byLayers.add<double>("BPix1__FPix1_neg__FPix3_neg", -1.);    // Gap
+  descCACut_byLayers.add<double>("BPix1__FPix1_pos__FPix3_pos", -1.);    // Gap
+  descCACut_byLayers.add<double>("BPix1__FPix2_neg__FPix3_neg", -1.);    // Gap
+  descCACut_byLayers.add<double>("BPix1__FPix2_pos__FPix3_pos", -1.);    // Gap
+  descCACut_byLayers.add<double>("BPix2__BPix3__BPix4", -1.);
+  descCACut_byLayers.add<double>("BPix2__BPix3__FPix1_neg", -1.);
+  descCACut_byLayers.add<double>("BPix2__BPix3__FPix1_pos", -1.);
+  descCACut_byLayers.add<double>("BPix2__FPix1_neg__FPix2_neg", -1.);
+  descCACut_byLayers.add<double>("BPix2__FPix1_pos__FPix2_pos", -1.);
+  descCACut_byLayers.add<double>("BPix2__FPix1_neg__FPix3_neg", -1.);    // Gap+
+  descCACut_byLayers.add<double>("BPix2__FPix1_pos__FPix3_pos", -1.);    // Gap+
+  descCACut_byLayers.add<double>("BPix2__FPix2_neg__FPix3_neg", -1.);    // Gap+
+  descCACut_byLayers.add<double>("BPix2__FPix2_pos__FPix3_pos", -1.);    // Gap+
+  descCACut_byLayers.add<double>("BPix3__FPix1_neg__FPix2_neg", -1.);
+  descCACut_byLayers.add<double>("BPix3__FPix1_pos__FPix2_pos", -1.);
+  descCACut_byLayers.add<double>("FPix1_neg__FPix2_neg__FPix3_neg", -1.);
+  descCACut_byLayers.add<double>("FPix1_pos__FPix2_pos__FPix3_pos", -1.);
+  desc.add<edm::ParameterSetDescription>("CAThetaCut_byLayers", descCACut_byLayers);
+  desc.add<edm::ParameterSetDescription>("CAPhiCut_byLayers", descCACut_byLayers);
+
   desc.add<double>("CAHardPtCut", 0);
 
   edm::ParameterSetDescription descMaxChi2;
@@ -74,7 +124,7 @@ namespace {
         auto vertexIndex = 0;
         auto foundVertex = std::find(g.theLayers.begin(), g.theLayers.end(), layers[i][j].name());
         if (foundVertex == g.theLayers.end()) {
-          g.theLayers.emplace_back(layers[i][j].name(), layers[i][j].hits().size());
+          g.theLayers.emplace_back(layers[i][j].name(), layers[i][j].detLayer()->seqNum(), layers[i][j].hits().size());
           vertexIndex = g.theLayers.size() - 1;
         } else {
           vertexIndex = foundVertex - g.theLayers.begin();
