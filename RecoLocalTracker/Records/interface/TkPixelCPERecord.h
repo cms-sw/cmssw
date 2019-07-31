@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "CondFormats/DataRecord/interface/SiPixelLorentzAngleRcd.h"
 //#include "CondFormats/DataRecord/interface/SiPixelCPEGenericErrorParmRcd.h"
@@ -21,7 +22,7 @@ class TkPixelCPERecord
                                                                                SiPixelLorentzAngleRcd,
                                                                                SiPixelGenErrorDBObjectRcd,
                                                                                SiPixelTemplateDBObjectESProducerRcd,
-                                                                               SiPixel2DTemplateDBObjectESProducerRcd> > {
-};
+                                                                               SiPixel2DTemplateDBObjectESProducerRcd,
+                                                                               TrackerTopologyRcd> > {};
 
 #endif
