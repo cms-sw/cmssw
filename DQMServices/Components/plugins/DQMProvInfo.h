@@ -45,6 +45,10 @@ class DQMProvInfo : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   void analyzeEventInfo(const edm::Event& e);
   void analyzeProvInfo(const edm::Event& e);
 
+  void fillDcsBitsFromDCSRecord(const DCSRecord&);
+  void fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatusCollection>&);
+  bool isPhysicsDeclared();
+
   void endLuminosityBlockLhcInfo(const int currentLSNumber);
   void endLuminosityBlockEventInfo(const int currentLSNumber);
   void blankPreviousLumiSections(const int currentLSNumber);
@@ -109,6 +113,7 @@ class DQMProvInfo : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   std::string subsystemname_;
   std::string provinfofolder_;
 
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
   edm::EDGetTokenT<TCDSRecord> tcdsrecord_;
   edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
 
