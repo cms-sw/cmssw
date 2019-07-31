@@ -62,17 +62,17 @@ process.source = cms.Source("EmptyIOVSource",
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
-process.load("CalibTracker.SiStripESProducers.SiStripBadModuleFedErrESSource_cfi")
-process.siStripBadModuleFedErrESSource.appendToDataLabel = cms.string('BadModules_from_FEDBadChannel')
-process.siStripBadModuleFedErrESSource.ReadFromFile = cms.bool(True)
-process.siStripBadModuleFedErrESSource.FileName = cms.string(options.dqmFile)
+
+# DQMStore service
+process.load('DQMServices.Core.DQMStore_cfi')
+process.DQMStore.referenceFileName = cms.string(options.dqmFile)
 
 process.siStripQualityESProducer.ListOfRecordToMerge = cms.VPSet(
        cms.PSet(record = cms.string('SiStripDetCablingRcd'), tag = cms.string('')), # Use Detector cabling information to exclude detectors not connected            
        cms.PSet(record = cms.string('SiStripBadChannelRcd'), tag = cms.string('')), # Online Bad components
        cms.PSet(record = cms.string('RunInfoRcd'), tag = cms.string('')),            # List of FEDs exluded during data taking          
        cms.PSet(record = cms.string('SiStripBadFiberRcd'), tag = cms.string('')),   # Bad Channel list from the selected IOV as done at PCL
-       cms.PSet(record = cms.string('SiStripBadModuleFedErrRcd'), tag = cms.string('BadModules_from_FEDBadChannel')) # BadChannel list from FED erroes              
+       # BadChannel list from FED errors is added below
        )
 process.siStripQualityESProducer.ReduceGranularity = cms.bool(False)
 process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3)
@@ -80,7 +80,9 @@ process.siStripQualityESProducer.ThresholdForReducedGranularity = cms.double(0.3
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 process.stat = DQMEDAnalyzer("SiStripQualityStatistics",
                              TkMapFileName = cms.untracked.string('MergedBadComponentsTkMap.png'),
-                             dataLabel = cms.untracked.string('')
+                             dataLabel = cms.untracked.string(''),
+                             AddBadComponentsFromFedErrors = cms.untracked.bool(True),
+                             FedErrorBadComponentsCutoff = cms.untracked.double(0.8)
                              )
 #### Add these lines to produce a tracker map
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
