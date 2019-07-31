@@ -9,30 +9,55 @@ eval `scram run -sh`;
 # Go back to original working directory
 cd $W_DIR;
 # Run get payload data script
-rm -fr *.png
+if [ -d $W_DIR/plots_Quality ]; then
+    rm -fr $W_DIR/plots_Quality
+fi
 
-#    --iovs '{"start_iov": "1407898869563565", "end_iov": "1407898869563565"}' \
+mkdir $W_DIR/plots_Quality
+
 ####################
 # Test SiPixelQuality
 ####################
 getPayloadData.py \
     --plugin pluginSiPixelQuality_PayloadInspector \
     --plot plot_SiPixelBPixQualityMap \
-    --tag  SiPixelQuality_byPCL_prompt_v2 \
+    --tag SiPixelQuality_phase1_2018_permanentlyBad \
     --time_type Lumi \
-    --iovs '{"start_iov": "1390517136916505", "end_iov": "1390517136916505"}' \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test;
 
-mv *.png $HOME/www/display/CheckROCsBPix.png
+mv *.png $W_DIR/plots_Quality/SiPixelQuality_phase1_2018_permanentlyBad_BPix.png
 
 getPayloadData.py \
     --plugin pluginSiPixelQuality_PayloadInspector \
     --plot plot_SiPixelFPixQualityMap \
-    --tag  SiPixelQuality_byPCL_prompt_v2 \
+    --tag SiPixelQuality_phase1_2018_permanentlyBad  \
     --time_type Lumi \
-    --iovs '{"start_iov": "1390517136916505", "end_iov": "1390517136916505"}' \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
     --db Prod \
     --test;
 
-mv *.png $HOME/www/display/CheckROCsFPix.png
+mv *.png $W_DIR/plots_Quality/SiPixelQuality_phase1_2018_permanentlyBad_FPix.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelQuality_PayloadInspector \
+    --plot plot_SiPixelBPixQualityMap \
+    --tag SiPixelQuality_forDigitizer_phase1_2018_permanentlyBad \
+    --time_type Lumi \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/plots_Quality/SiPixelQuality_forDigitizer_phase1_2018_permanentlyBad_BPix.png
+
+getPayloadData.py \
+    --plugin pluginSiPixelQuality_PayloadInspector \
+    --plot plot_SiPixelFPixQualityMap \
+    --tag SiPixelQuality_forDigitizer_phase1_2018_permanentlyBad  \
+    --time_type Lumi \
+    --iovs '{"start_iov": "1", "end_iov": "1"}' \
+    --db Prod \
+    --test;
+
+mv *.png $W_DIR/plots_Quality/SiPixelQuality_forDigitizer_phase1_2018_permanentlyBad_FPix.png
