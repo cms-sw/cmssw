@@ -42,7 +42,6 @@ public:
 
   Hit const& getOuterHit() const { return theDoublets->hit(theDoubletId, HitDoublets::outer); }
 
-  // EDIT: Added the two functions below:
   int getInnerLayer() const { return theDoublets->detLayer(HitDoublets::inner)->seqNum(); }
 
   int getOuterLayer() const { return theDoublets->detLayer(HitDoublets::outer)->seqNum(); }
@@ -106,9 +105,6 @@ public:
         auto& oc = allCells[koc];
         r1[j] = oc.getInnerR();
         z1[j] = oc.getInnerZ();
-        //EDIT: Added the 4 lines below
-        //std::cout << "Layers: (" << oc.getInnerLayer() << ", " << oc.getOuterLayer() << ", " << getOuterLayer() <<") ";
-        //std::cout << "Cut: " << thetaCut.at(oc.getInnerLayer()) << std::endl;
         thetaCut[j] = thetaCutByInnerLayer.at(oc.getInnerLayer());
         phiCut[j] = phiCutByInnerLayer.at(oc.getInnerLayer());
       }
