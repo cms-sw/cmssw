@@ -59,8 +59,11 @@ namespace edm {
     friend class edm::PileUp;
 
   public:
-    explicit EventSetup(EventSetupImpl const& iSetup, unsigned int iTransitionID, ESProxyIndex const* iGetTokenIndices)
-        : m_setup{iSetup}, m_getTokenIndices{iGetTokenIndices}, m_id{iTransitionID} {}
+    explicit EventSetup(EventSetupImpl const& iSetup,
+                        unsigned int iTransitionID,
+                        ESProxyIndex const* iGetTokenIndices,
+                        bool iRequireToken)
+        : m_setup{iSetup}, m_getTokenIndices{iGetTokenIndices}, m_id{iTransitionID}, m_requireToken(iRequireToken) {}
     EventSetup(EventSetup const&) = delete;
     EventSetup& operator=(EventSetup const&) = delete;
 
@@ -81,7 +84,7 @@ namespace edm {
         throw eventsetup::NoRecordException<T>(recordDoesExist(m_setup, eventsetup::EventSetupRecordKey::makeKey<T>()));
       }
       T returnValue;
-      returnValue.setImpl(temp, m_id, m_getTokenIndices, &m_setup);
+      returnValue.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_requireToken);
       return returnValue;
     }
 
@@ -99,7 +102,7 @@ namespace edm {
                                                 eventsetup::EventSetupRecordKey>());
       if (temp != nullptr) {
         T rec;
-        rec.setImpl(temp, m_id, m_getTokenIndices, &m_setup);
+        rec.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_requireToken);
         return rec;
       }
       return std::nullopt;
@@ -178,6 +181,7 @@ namespace edm {
     edm::EventSetupImpl const& m_setup;
     ESProxyIndex const* m_getTokenIndices;
     unsigned int m_id;
+    bool m_requireToken;
   };
 
   // Free functions to retrieve an object from the EventSetup.

@@ -32,7 +32,7 @@ namespace edm {
     e.setProducer(this, &previousParentage_);
     e.setSharedResourcesAcquirer(&resourceAcquirer_);
     EventSignalsSentry sentry(act, mcc);
-    const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event)};
+    const EventSetup c{ci, static_cast<unsigned int>(Transition::Event), esGetTokenIndices(Transition::Event), false};
     this->produce(e, c);
     commit_(e, &previousParentageId_);
     return true;
@@ -50,7 +50,8 @@ namespace edm {
     Run r(rp, moduleDescription_, mcc, false);
     r.setConsumer(this);
     Run const& cnstR = r;
-    const EventSetup c{ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun)};
+    const EventSetup c{
+        ci, static_cast<unsigned int>(Transition::BeginRun), esGetTokenIndices(Transition::BeginRun), false};
     this->beginRun(cnstR, c);
     commit_(r);
   }
@@ -59,7 +60,7 @@ namespace edm {
     Run r(rp, moduleDescription_, mcc, true);
     r.setConsumer(this);
     Run const& cnstR = r;
-    const EventSetup c{ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun)};
+    const EventSetup c{ci, static_cast<unsigned int>(Transition::EndRun), esGetTokenIndices(Transition::EndRun), false};
     this->endRun(cnstR, c);
     commit_(r);
   }
@@ -72,7 +73,8 @@ namespace edm {
     LuminosityBlock const& cnstLb = lb;
     const EventSetup c{ci,
                        static_cast<unsigned int>(Transition::BeginLuminosityBlock),
-                       esGetTokenIndices(Transition::BeginLuminosityBlock)};
+                       esGetTokenIndices(Transition::BeginLuminosityBlock),
+                       false};
     this->beginLuminosityBlock(cnstLb, c);
     commit_(lb);
   }
@@ -84,7 +86,8 @@ namespace edm {
     lb.setConsumer(this);
     const EventSetup c{ci,
                        static_cast<unsigned int>(Transition::EndLuminosityBlock),
-                       esGetTokenIndices(Transition::EndLuminosityBlock)};
+                       esGetTokenIndices(Transition::EndLuminosityBlock),
+                       false};
     LuminosityBlock const& cnstLb = lb;
     this->endLuminosityBlock(cnstLb, c);
     commit_(lb);
