@@ -21,6 +21,11 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:RunPerLumiTest.root')
 )
 
+process.output = cms.OutputModule("PoolOutputModule",
+    fileName = cms.untracked.string('OutputRunPerLumiTest.root')
+)
+
 process.p = cms.Path(process.OtherThing*process.Analysis)
 
+process.e = cms.EndPath(process.output)
 
