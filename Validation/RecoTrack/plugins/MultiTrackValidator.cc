@@ -166,7 +166,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
                                         pset.getParameter<bool>("intimeOnlyTP"),
                                         pset.getParameter<bool>("chargedOnlyTP"),
                                         pset.getParameter<bool>("stableOnlyTP"),
-                                        pset.getParameter<std::vector<int>>("pdgIdTP"));
+                                        pset.getParameter<std::vector<int>>("pdgIdTP"),
+                                        pset.getParameter<bool>("invertRapidityCutTP"));
 
   cosmictpSelector = CosmicTrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
                                                     pset.getParameter<double>("minRapidityTP"),
@@ -189,7 +190,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset)
                                           psetVsPhi.getParameter<bool>("intimeOnly"),
                                           psetVsPhi.getParameter<bool>("chargedOnly"),
                                           psetVsPhi.getParameter<bool>("stableOnly"),
-                                          psetVsPhi.getParameter<std::vector<int>>("pdgId"));
+                                          psetVsPhi.getParameter<std::vector<int>>("pdgId"),
+                                          psetVsPhi.getParameter<bool>("invertRapidityCut"));
 
   dRTrackSelector = MTVHistoProducerAlgoForTracker::makeRecoTrackSelectorFromTPSelectorParameters(psetVsPhi);
 

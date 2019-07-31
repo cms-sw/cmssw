@@ -10,6 +10,9 @@ genParticleCustomSelector = cms.EDFilter("GenParticleCustomSelector",
     lip = cms.double(30.0),
     ptMin = cms.double(0.9),
     maxRapidity = cms.double(2.4),
+    minPhi = cms.double(-3.2),
+    maxPhi = cms.double( 3.2),
+    invertRapidityCut = cms.bool(False)
 )
 
 
