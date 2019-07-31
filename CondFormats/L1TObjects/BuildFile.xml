@@ -1,4 +1,3 @@
-<flags   GENREFLEX_ARGS="--"/>
 <use   name="boost"/>
 <use   name="CondFormats/Serialization"/>
 <use   name="boost_serialization"/>
