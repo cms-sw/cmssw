@@ -13,11 +13,12 @@
  * It can be combined with edm::LuminosityBlockCache to watch per-lumi things,
  * and fill per-run histograms with the results.
  */
-template<T...>
-class DQMOneEDAnalyzer : edm::one::EDProducer<edm::EndRunProducer,
-                                              edm::WatchRuns,
+template<typename... Args>
+class DQMOneEDAnalyzer : public edm::one::EDProducer<edm::EndRunProducer,
+                                              edm::one::WatchRuns,
                                               edm::Accumulator,
                                               Args...>  {
+public:
   typedef dqm::reco::DQMStore DQMStore;
   typedef dqm::reco::MonitorElement MonitorElement;
 
@@ -41,7 +42,7 @@ class DQMOneEDAnalyzer : edm::one::EDProducer<edm::EndRunProducer,
         this->getCanSaveByLumi());
   }
 
-  void accumulate(edm::StreamID id, edm::Event const& event, edm::EventSetup const& setup) final {
+  void accumulate(edm::Event const& event, edm::EventSetup const& setup) final {
     analyze(event, setup);
   }
 
@@ -56,12 +57,12 @@ class DQMOneEDAnalyzer : edm::one::EDProducer<edm::EndRunProducer,
   void endRun(edm::Run const&, edm::EventSetup const&) final{};
 
   // methods to be implemented by the user, in order of invocation
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) const {}
-  virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) const = 0;
-  virtual void dqmAnalyze(edm::Event const&, edm::EventSetup const&) const = 0;
-  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) const {}
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+  virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) = 0;
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) = 0;
+  virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
 
-private:
+protected:
   edm::EDPutTokenT<DQMToken> runToken_;
 };
 
@@ -76,8 +77,8 @@ private:
  * probaby care about seeing lumisections in order anyways.
  */
 
-template<T...>
-class DQMOneLumiEDAnalyzer : DQMOneEDAnalyzer<edm::EndLuminosityBlockProducer,
+template<typename... Args>
+class DQMOneLumiEDAnalyzer : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProducer,
                                               edm::one::WatchLuminosityBlocks,
                                               Args...>  {
 
@@ -91,7 +92,7 @@ class DQMOneLumiEDAnalyzer : DQMOneEDAnalyzer<edm::EndLuminosityBlockProducer,
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
     dqmBeginLumi(lumi, setup);
-    dqmstore_->enterLumi(lumi.run(), lumi.luminosityBlock());
+    this->dqmstore_->enterLumi(lumi.run(), lumi.luminosityBlock());
   }
 
   //void accumulate(edm::StreamID id, edm::Event const& event, edm::EventSetup const& setup) final {
