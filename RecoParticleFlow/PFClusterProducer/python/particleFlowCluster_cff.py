@@ -14,7 +14,6 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALUncorrected_cfi i
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHETimeSelected_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
