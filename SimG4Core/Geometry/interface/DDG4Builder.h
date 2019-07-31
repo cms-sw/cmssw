@@ -1,7 +1,7 @@
 #ifndef SimG4Core_DDG4Builder_h
 #define SimG4Core_DDG4Builder_h
 
-#include "SimG4Core/Notification/interface/DDG4DispContainer.h"
+#include "SimG4Core/Geometry/interface/DDG4DispContainer.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
 
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
