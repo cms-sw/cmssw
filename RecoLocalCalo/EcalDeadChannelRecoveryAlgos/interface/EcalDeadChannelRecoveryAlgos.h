@@ -17,7 +17,7 @@ template <typename DetIdT>
 class EcalDeadChannelRecoveryAlgos {
 public:
   void setParameters(const edm::ParameterSet &ps);
-  void setCaloTopology(std::string algo, const CaloTopology *topology);
+  void setCaloTopology(const CaloTopology *topology);
   float correct(const DetIdT id,
                 const EcalRecHitCollection &hit_collection,
                 std::string algo,
