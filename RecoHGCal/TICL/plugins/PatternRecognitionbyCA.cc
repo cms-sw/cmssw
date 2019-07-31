@@ -28,7 +28,7 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf,
   // mount the tensorflow graph onto the session when set
   const TrackstersCache* trackstersCache = dynamic_cast<const TrackstersCache*>(cache);
   if (trackstersCache->eidGraphDef != nullptr) {
-    eidSession_ = tf::createSession(trackstersCache->eidGraphDef);
+    eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
   }
 }
 
@@ -129,7 +129,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
   std::vector<int> tracksterIndices;
   for (int i = 0; i < (int)tracksters.size(); i++) {
     // set default values (1)
-    tracksters[i].id_probabilities = {{ 0., 0., 0., 0. }};
+    tracksters[i].id_probabilities = {{ 0., 0., 0., 0., 0. }};
     tracksters[i].regressed_energy = 0.;
 
     // calculate the cluster energy sum (2)
@@ -152,12 +152,12 @@ void PatternRecognitionbyCA::energyRegressionAndID(
   // create input and output tensors (3)
   int batchSize = (int)tracksterIndices.size();
 
-  tf::Tensor input(tf::DT_FLOAT,
-    tf::TensorShape({ batchSize, eidNLayers_, eidNClusters_, 3 }));
-  tf::NamedTensorList inputList = { { eidInputName_, input } };
+  tensorflow::Tensor input(tensorflow::DT_FLOAT,
+    tensorflow::TensorShape({ batchSize, eidNLayers_, eidNClusters_, 3 }));
+  tensorflow::NamedTensorList inputList = { { eidInputName_, input } };
   float* inputData = input.flat<float>().data();
 
-  std::vector<tf::Tensor> outputs;
+  std::vector<tensorflow::Tensor> outputs;
   std::vector<std::string> outputNames;
   if (!eidOutputNameEnergy_.empty()) {
     outputNames.push_back(eidOutputNameEnergy_);
@@ -206,7 +206,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
     }
 
     // run the inference (5)
-    tf::run(eidSession_, inputList, outputNames, &outputs);
+    tensorflow::run(eidSession_, inputList, outputNames, &outputs);
 
     // store regressed energy per trackster (6)
     if (!eidOutputNameEnergy_.empty()) {
@@ -220,7 +220,8 @@ void PatternRecognitionbyCA::energyRegressionAndID(
 
     // store id probabilities per trackster (6)
     if (!eidOutputNameId_.empty()) {
-      // get the pointer to the id probability tensor, dimension is batch x 4
+      // get the pointer to the id probability tensor, dimension is batch x 5
+      // (photon, electron, muon, charged hadron, neutral hadron)
       size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
       float* probs = outputs[probsIdx].flat<float>().data();
 
@@ -229,6 +230,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(
         tracksters[i].id_probabilities[1] = *(probs++);
         tracksters[i].id_probabilities[2] = *(probs++);
         tracksters[i].id_probabilities[3] = *(probs++);
+        tracksters[i].id_probabilities[4] = *(probs++);
       }
     }
   }

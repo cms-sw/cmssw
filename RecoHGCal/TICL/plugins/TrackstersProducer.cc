@@ -25,8 +25,6 @@
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-namespace tf = tensorflow;
-
 using namespace ticl;
 
 
@@ -62,7 +60,7 @@ std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(
   std::string graphPath = params.getParameter<std::string>("eid_graph_path");
   if (!graphPath.empty()) {
     graphPath = edm::FileInPath(graphPath).fullPath();
-    cache->eidGraphDef = tf::loadGraphDef(graphPath);
+    cache->eidGraphDef = tensorflow::loadGraphDef(graphPath);
   }
 
   return std::unique_ptr<TrackstersCache>(cache);
@@ -103,8 +101,8 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_cnn_v0.pb");
   desc.add<std::string>("eid_input_name", "input");
   desc.add<std::string>("eid_output_name_energy", "");
-  desc.add<std::string>("eid_output_name_id", "output/Softmax");
-  desc.add<double>("eid_min_cluster_energy", 5.);
+  desc.add<std::string>("eid_output_name_id", "output/id_probabilities");
+  desc.add<double>("eid_min_cluster_energy", 1.);
   desc.add<int>("eid_n_layers", 50);
   desc.add<int>("eid_n_clusters", 10);
   descriptions.add("trackstersProducer", desc);

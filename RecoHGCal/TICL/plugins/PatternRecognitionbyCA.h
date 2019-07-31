@@ -8,8 +8,6 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-namespace tf = tensorflow;
-
 class HGCGraph;
 
 namespace ticl {
@@ -36,7 +34,7 @@ namespace ticl {
     int missing_layers_;
     int min_clusters_per_ntuplet_;
     float max_delta_time_;
-    tf::Session* eidSession_;
+    tensorflow::Session* eidSession_;
     std::string eidInputName_;
     std::string eidOutputNameEnergy_;
     std::string eidOutputNameId_;

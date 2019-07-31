@@ -58,8 +58,8 @@ def TICL_iterations_withReco(process):
       eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_cnn_v0.pb"),
       eid_input_name = cms.string("input"),
       eid_output_name_energy = cms.string(""),
-      eid_output_name_id = cms.string("output/Softmax"),
-      eid_min_cluster_energy = cms.double(5.),
+      eid_output_name_id = cms.string("output/id_probabilities"),
+      eid_min_cluster_energy = cms.double(1.),
       eid_n_layers = cms.int32(50),
       eid_n_clusters = cms.int32(10),
   )
@@ -119,8 +119,8 @@ def TICL_iterations(process):
       eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_cnn_v0.pb"),
       eid_input_name = cms.string("input"),
       eid_output_name_energy = cms.string(""),
-      eid_output_name_id = cms.string("output/Softmax"),
-      eid_min_cluster_energy = cms.double(5.),
+      eid_output_name_id = cms.string("output/id_probabilities"),
+      eid_min_cluster_energy = cms.double(1.),
       eid_n_layers = cms.int32(50),
       eid_n_clusters = cms.int32(10),
   )
