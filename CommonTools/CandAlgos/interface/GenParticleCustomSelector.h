@@ -68,16 +68,16 @@ public:
     auto etaOk = [&](const reco::GenParticle& p) -> bool {
       float eta = p.eta();
       if (!invertRapidityCut_)
-        return (eta >= minRapidity_) & (eta <= maxRapidity_);
+        return (eta >= minRapidity_) && (eta <= maxRapidity_);
       else
-        return (!(eta >= minRapidity_) & !(eta <= maxRapidity_));
+        return (eta < minRapidity_ || eta > maxRapidity_);
     };
     auto phiOk = [&](const reco::GenParticle& p) {
       float dphi = deltaPhi(atan2f(p.py(), p.px()), meanPhi_);
       return dphi >= -rangePhi_ && dphi <= rangePhi_;
     };
     auto ptOk = [&](const reco::GenParticle& p) {
-      double pt = tp.pt();
+      double pt = p.pt();
       return pt >= ptMin_;
     };
 

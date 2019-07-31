@@ -410,8 +410,6 @@ trackValidatorTPEtaGreater2p7 = trackValidator.clone(
     label = [x for x in trackValidator.label.value() if ("Pt09" not in x) and ("BtvLike" not in x) and ("AK4PFJets" not in x)],
     dodEdxPlots = False,
 #    doPVAssociationPlots = False,
-#    doSimPlots = False,
-    doResolutionPlotsForLabels = ["disabled"],
     minRapidityTP = -2.7,
     maxRapidityTP = 2.7,
     invertRapidityCutTP = True,
@@ -430,7 +428,7 @@ trackValidatorTPEtaGreater2p7 = trackValidator.clone(
     ),
     doSimPlots = False,       # same as in trackValidator, no need to repeat here
     doRecoTrackPlots = False, # fake rates are same as in trackValidator, no need to repeat here
-#    doResolutionPlotsForLabels = ["disabled"] # resolutions are same as in trackValidator, no need to repeat here
+    doResolutionPlotsForLabels = ["disabled"] # resolutions are same as in trackValidator, no need to repeat here
 )
 
 
