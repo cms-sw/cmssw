@@ -55,7 +55,7 @@ private:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
-  void dqmEndRunProduce(const edm::Run& runSeg, const edm::EventSetup& iSetup) final;
+  void dqmEndRunProduce(const edm::Run& runSeg, const edm::EventSetup& iSetup);
   void endJob() final;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
