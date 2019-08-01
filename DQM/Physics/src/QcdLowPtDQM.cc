@@ -90,7 +90,7 @@ QcdLowPtDQM::QcdLowPtDQM(const ParameterSet &parameters)
   }
 
   // This used to be at the end of the beginJob,
-  // hence before any of the beginRun operations
+  // hence before any of the dqmBeginRun operations
   // So this now is placed at the end of the constructor
   yieldAlphaHistogram(pixLayers_);
 }

@@ -6,7 +6,7 @@
 // [wittich 11/07]
 
 // Revision 1.19  2011/03/29 09:46:03  rekovic
-// clean vector pairPDPaths in beginRun and tidy up
+// clean vector pairPDPaths in dqmBeginRun and tidy up
 //
 // Revision 1.18  2011/03/24 18:25:45  rekovic
 // Add single 1D plot of streamA content
