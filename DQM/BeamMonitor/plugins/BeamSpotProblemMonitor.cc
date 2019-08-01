@@ -92,7 +92,7 @@ void BeamSpotProblemMonitor::bookHistograms(DQMStore::IBooker& iB, const edm::Ru
   beamSpotStatusLumiAll_->setAxisTitle(ytitle, 2);
 
   //NOTE: This in principal should be a Lumi only histogram since it gets reset at every
-  // beginLuminosityBlock call. However, it is also filled at that time and the DQMStore
+  // dqmBeginLuminosityBlock call. However, it is also filled at that time and the DQMStore
   // clears all lumi histograms at postGlobalBeginLuminosityBlock!
   beamSpotError_ = iB.book1D("BeamSpotError", "ERROR: Beamspot missing from scalars", 20, 0.5, 20.5);
   beamSpotError_->setAxisTitle("# of consecutive LSs with problem", 1);
@@ -100,25 +100,25 @@ void BeamSpotProblemMonitor::bookHistograms(DQMStore::IBooker& iB, const edm::Ru
 }
 
 //--------------------------------------------------------
-void BeamSpotProblemMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
+void BeamSpotProblemMonitor::dqmBeginLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   const int nthlumi = lumiSeg.luminosityBlock();
 
   if (onlineMode_) {
     if (nthlumi > nextlumi_) {
       fillPlots(lastlumi_, nextlumi_, nthlumi);
       nextlumi_ = nthlumi;
-      edm::LogInfo("BeamSpotProblemMonitor") << "beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+      edm::LogInfo("BeamSpotProblemMonitor") << "dqmBeginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
     }
   } else {
     if (processed_)
       fillPlots(lastlumi_, nextlumi_, nthlumi);
     nextlumi_ = nthlumi;
-    edm::LogInfo("BeamSpotProblemMonitor") << " beginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
+    edm::LogInfo("BeamSpotProblemMonitor") << " dqmBeginLuminosityBlock:: Next Lumi to Fit: " << nextlumi_ << endl;
   }
 
   if (processed_)
     processed_ = false;
-  edm::LogInfo("BeamSpotProblemMonitor") << " beginLuminosityBlock::  Begin of Lumi: " << nthlumi << endl;
+  edm::LogInfo("BeamSpotProblemMonitor") << " dqmBeginLuminosityBlock::  Begin of Lumi: " << nthlumi << endl;
 }
 
 // ----------------------------------------------------------

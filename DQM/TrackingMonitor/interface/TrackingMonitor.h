@@ -67,10 +67,10 @@ public:
       std::vector<double>&, std::vector<double>&, std::vector<int>&, double, double, int, double, double, int);
   virtual void setNclus(const edm::Event&, std::vector<int>&);
 
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& eSetup) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  //        virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  //        virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
   void dqmEndRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:

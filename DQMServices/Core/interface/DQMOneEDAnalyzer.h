@@ -31,7 +31,7 @@ public:
     runToken_ = this->template produces<DQMToken, edm::Transition::EndRun>();
   }
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+  void dqmBeginRun(edm::Run const& run, edm::EventSetup const& setup) final {
     dqmBeginRun(run, setup);
     edm::Service<DQMStore>()->bookTransaction(
         [this, &run, &setup](DQMStore::IBooker& booker) {
@@ -92,8 +92,7 @@ class DQMOneLumiEDAnalyzer : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProd
   }
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) final {
-    dqmBeginLumi(lumi, setup);
-    this->dqmstore_->enterLumi(lumi.run(), lumi.luminosityBlock());
+    dqmBeginLuminosityBlock(lumi, setup);
   }
 
   //void accumulate(edm::StreamID id, edm::Event const& event, edm::EventSetup const& setup) final {
@@ -116,7 +115,7 @@ class DQMOneLumiEDAnalyzer : public DQMOneEDAnalyzer<edm::EndLuminosityBlockProd
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) final{};
 
   // methods to be implemented by the user, in order of invocation
-  virtual void dqmBeginLumi(edm::LuminosityBlock const&, edm::EventSetup const&) {}
+  virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
   virtual void dqmEndLumi(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
 private:
