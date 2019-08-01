@@ -1,5 +1,5 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
-#include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
+#include "AHCalDetId.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 
 #include "DataFormats/DetId/interface/DetId.h"

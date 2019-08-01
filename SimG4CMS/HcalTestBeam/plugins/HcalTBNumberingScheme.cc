@@ -14,10 +14,10 @@
 #include <iostream>
 
 // user include files
-#include "SimG4CMS/HcalTestBeam/interface/HcalTBNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HcalTBNumberingScheme.h"
 
 //
 // member functions
