@@ -24,8 +24,6 @@
 #include "SimDataFormats/HcalTestBeam/interface/HcalTB02HistoClass.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
 #include "SimG4Core/Notification/interface/Observer.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
@@ -38,6 +36,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 
+#include "HcalTB02HcalNumberingScheme.h"
+#include "HcalTB02XtalNumberingScheme.h"
 #include "HcalTB02Histo.h"
 
 #include "G4HCofThisEvent.hh"
