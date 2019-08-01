@@ -5,12 +5,45 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
-#include "Geometry/MuonCommonData/plugins/DDMuonAngular.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+class DDMuonAngular : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDMuonAngular();
+  ~DDMuonAngular() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double startAngle;  //Start angle
+  double stepAngle;   //Step  angle
+  double zoffset;     //Offset in z
+  int n;              //Mumber of copies
+  int startCopyNo;    //Start copy Number
+  int incrCopyNo;     //Increment copy Number
+
+  std::string rotns;        //Namespace for rotation matrix
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+  std::string childName;    //Children name
+};
 
 using namespace geant_units::operators;
 
@@ -86,3 +119,5 @@ void DDMuonAngular::execute(DDCompactView& cpv) {
     copyNo += incrCopyNo;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDMuonAngular, "muon:DDMuonAngular");
