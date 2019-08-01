@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 from Configuration.Eras.Modifier_run2_nanoAOD_94X2016_cff import run2_nanoAOD_94X2016
-from Configuration.Eras.Modifier_run2_nanoAOD_102Xv1_cff import run2_nanoAOD_102Xv1 
-
 
 from  PhysicsTools.NanoAOD.common_cff import *
 from RecoJets.JetProducers.ak4PFJetsBetaStar_cfi import *
@@ -76,9 +74,7 @@ tightJetIdLepVeto = cms.EDProducer("PatJetIDValueMapProducer",
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify( tightJetId.filterParams, version = "WINTER16" )
     modifier.toModify( tightJetIdLepVeto.filterParams, version = "WINTER16" )
-#Nano without modifier?
-run2_nanoAOD_102Xv1.toModify( tightJetId.filterParams, version = "SUMMER18" )
-run2_nanoAOD_102Xv1.toModify( tightJetIdLepVeto.filterParams, version = "SUMMER18" )
+
 
 looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
@@ -89,14 +85,14 @@ looseJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 )
 tightJetIdAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('WINTER17PUPPI'),
+			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHT'),
 			  ),
                           src = cms.InputTag("updatedJetsAK8")
 )
 tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 			  filterParams=cms.PSet(
-			    version = cms.string('WINTER17PUPPI'),
+			    version = cms.string('WINTER17'),
 			    quality = cms.string('TIGHTLEPVETO'),
 			  ),
                           src = cms.InputTag("updatedJetsAK8")
@@ -104,8 +100,7 @@ tightJetIdLepVetoAK8 = cms.EDProducer("PatJetIDValueMapProducer",
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
     modifier.toModify( tightJetIdAK8.filterParams, version = "WINTER16" )
     modifier.toModify( tightJetIdLepVetoAK8.filterParams, version = "WINTER16" )
-run2_nanoAOD_102Xv1.toModify( tightJetIdAK8.filterParams, version = "SUMMER18PUPPI" )
-run2_nanoAOD_102Xv1.toModify( tightJetIdLepVetoAK8.filterParams, version = "SUMMER18PUPPI" )
+
 
 bJetVars = cms.EDProducer("JetRegressionVarProducer",
     pvsrc = cms.InputTag("offlineSlimmedPrimaryVertices"),
