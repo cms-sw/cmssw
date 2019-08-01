@@ -4,7 +4,7 @@
 // This file provides units represented with user-defined literals to more easily attach units to numerical values.
 // The CMS convention is that centimeter = 1 and GeV = 1
 
-#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 namespace cms_units {
 
