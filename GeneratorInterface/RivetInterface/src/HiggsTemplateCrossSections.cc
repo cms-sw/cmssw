@@ -312,6 +312,7 @@ namespace Rivet {
 
       cat.errorCode = HTXS::SUCCESS;
       ++m_errorCount[HTXS::SUCCESS];
+      ++m_sumevents;
 
       return cat;
     }
@@ -743,6 +744,7 @@ namespace Rivet {
       // initialize the histograms with for each of the stages
       initializeHistos();
       m_sumw = 0.0;
+      m_sumevents = 0;
       printf("==============================================================\n");
       printf("========             Higgs prod mode %d              =========\n", m_HiggsProdMode);
       printf("========          Sucessful Initialization           =========\n");
@@ -791,7 +793,7 @@ namespace Rivet {
       MSG_INFO("      Higgs Template X-Sec Categorization Tool          ");
       MSG_INFO("                Status Code Summary                     ");
       MSG_INFO(" ====================================================== ");
-      bool allSuccess = (numEvents() == m_errorCount[HTXS::SUCCESS]);
+      bool allSuccess = (m_sumevents == m_errorCount[HTXS::SUCCESS]);
       if (allSuccess)
         MSG_INFO("     >>>> All " << m_errorCount[HTXS::SUCCESS] << " events successfully categorized!");
       else {
@@ -855,6 +857,7 @@ namespace Rivet {
 
   private:
     double m_sumw;
+    size_t m_sumevents;
     HTXS::HiggsProdMode m_HiggsProdMode;
     std::map<HTXS::ErrorCode, size_t> m_errorCount;
     Histo1DPtr hist_stage0;
