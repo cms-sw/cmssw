@@ -39,7 +39,7 @@ protected:
 
   int bx_minTwinMux_, bx_maxTwinMux_;
   int bx_minOMTF_, bx_maxOMTF_;
-  int bx_minCPPF_, bx_maxCPPF_;  
+  int bx_minCPPF_, bx_maxCPPF_;
 };
 
 #endif  // EventFilter_RPCRawToDigi_RPCDigiMerger_h
