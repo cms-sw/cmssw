@@ -291,7 +291,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
+void AlcaBeamMonitor::dqmEndLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
   if (theBeamFitter_->runPVandTrkFitter()) {
     beamSpotsMap_["BF"] = theBeamFitter_->getBeamSpot();
   }

@@ -30,7 +30,7 @@ protected:
   void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
 
   /// End Lumi
-  void endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
 
   /// Calculate Data Integrity Fraction
   void calculateDIFraction(void);

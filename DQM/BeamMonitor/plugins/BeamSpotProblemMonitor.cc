@@ -279,9 +279,9 @@ void BeamSpotProblemMonitor::fillPlots(int& lastlumi, int& nextlumi, int nthlumi
 }
 
 //--------------------------------------------------------
-void BeamSpotProblemMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& iSetup) {
+void BeamSpotProblemMonitor::dqmEndLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& iSetup) {
   const int nthlumi = lumiSeg.id().luminosityBlock();
-  edm::LogInfo("BeamSpotProblemMonitor") << "endLuminosityBlock:: Lumi of the last event before endLuminosityBlock: "
+  edm::LogInfo("BeamSpotProblemMonitor") << "dqmEndLuminosityBlock:: Lumi of the last event before dqmEndLuminosityBlock: "
                                          << nthlumi << endl;
 }
 //-------------------------------------------------------

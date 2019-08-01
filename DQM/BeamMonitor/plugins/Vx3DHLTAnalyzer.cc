@@ -934,7 +934,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock(const LuminosityBlock& lumiBlock, con
     reset("scratch");
 }
 
-void Vx3DHLTAnalyzer::endLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
+void Vx3DHLTAnalyzer::dqmEndLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
   stringstream histTitle;
   double minXfit, maxXfit;
   int goodData;
