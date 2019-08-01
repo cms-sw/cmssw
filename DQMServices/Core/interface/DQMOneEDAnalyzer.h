@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
  * A "one" module base class that can only produce per-run histograms. This
