@@ -267,9 +267,6 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&) {}
-
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginLuminosityBlock(const edm::LuminosityBlock& lb, const edm::EventSetup& es) {
   if (subdetswitchtotdigifailureon) {
     isStableBeams = false;
