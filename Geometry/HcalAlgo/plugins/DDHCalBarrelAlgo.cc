@@ -29,9 +29,8 @@ public:
   DDHCalBarrelAlgo();
   ~DDHCalBarrelAlgo() override;
 
-private:
   //Get Methods
-  std::string getGenMaterial() const { return genMaterial; }
+  const std::string& getGenMaterial() const { return genMaterial; }
   int getNsectors() const { return nsectors; }
   int getNsectortot() const { return nsectortot; }
   int getNhalf() const { return nhalf; }
@@ -45,8 +44,8 @@ private:
 
   int getNLayers() const { return nLayers; }
   int getLayerId(unsigned i) const { return layerId[i]; }
-  std::string getLayerLabel(unsigned i) const { return layerLabel[i]; }
-  std::string getLayerMaterial(unsigned i) const { return layerMat[i]; }
+  const std::string& getLayerLabel(unsigned i) const { return layerLabel[i]; }
+  const std::string& getLayerMaterial(unsigned i) const { return layerMat[i]; }
   double getLayerWidth(unsigned i) const { return layerWidth[i]; }
   double getLayerD1(unsigned i) const { return layerD1[i]; }
   double getLayerD2(unsigned i) const { return layerD2[i]; }
@@ -56,31 +55,31 @@ private:
   int getLayerAbsorb(unsigned int i) const { return layerAbsorb[i]; }
   double getLayerGap(unsigned int i) const { return layerGap[i]; }
 
-  std::string getSideMat(unsigned int i) const { return sideMat[i]; }
+  const std::string& getSideMat(unsigned int i) const { return sideMat[i]; }
   double getSideD(unsigned int i) const { return sideD[i]; }
   double getSideT(unsigned int i) const { return sideT[i]; }
   int getSideAbsorber() const { return nSideAbs; }
-  std::string getSideAbsName(unsigned int i) const { return sideAbsName[i]; }
-  std::string getSideAbsMat(unsigned int i) const { return sideAbsMat[i]; }
+  const std::string& getSideAbsName(unsigned int i) const { return sideAbsName[i]; }
+  const std::string& getSideAbsMat(unsigned int i) const { return sideAbsMat[i]; }
   double getSideAbsW(unsigned int i) const { return sideAbsW[i]; }
 
   int getAbsorberN() const { return nAbsorber; }
-  std::string getAbsorbName(unsigned int i) const { return absorbName[i]; }
-  std::string getAbsorbMat(unsigned int i) const { return absorbMat[i]; }
+  const std::string& getAbsorbName(unsigned int i) const { return absorbName[i]; }
+  const std::string& getAbsorbMat(unsigned int i) const { return absorbMat[i]; }
   double getAbsorbD(unsigned int i) const { return absorbD[i]; }
   double getAbsorbT(unsigned int i) const { return absorbT[i]; }
-  std::string getMiddleMat() const { return middleMat; }
+  const std::string& getMiddleMat() const { return middleMat; }
   double getMiddleD() const { return middleD; }
   double getMiddleW() const { return middleW; }
   int getMidAbsorber() const { return nMidAbs; }
-  std::string getMidAbsName(unsigned int i) const { return midName[i]; }
-  std::string getMidAbsMat(unsigned int i) const { return midMat[i]; }
+  const std::string& getMidAbsName(unsigned int i) const { return midName[i]; }
+  const std::string& getMidAbsMat(unsigned int i) const { return midMat[i]; }
   double getMidAbsW(unsigned int i) const { return midW[i]; }
   double getMidAbsT(unsigned int i) const { return midT[i]; }
 
-  std::string getDetMat() const { return detMat; }
-  std::string getDetMatPl() const { return detMatPl; }
-  std::string getDetMatSc() const { return detMatSc; }
+  const std::string& getDetMat() const { return detMat; }
+  const std::string& getDetMatPl() const { return detMatPl; }
+  const std::string& getDetMatSc() const { return detMatSc; }
   int getDetType(unsigned int i) const { return detType[i]; }
   double getDetdP1(unsigned int i) const { return detdP1[i]; }
   double getDetdP2(unsigned int i) const { return detdP2[i]; }
@@ -100,7 +99,8 @@ private:
                   const DDStringVectorArguments& vsArgs) override;
 
   void execute(DDCompactView& cpv) override;
-
+  
+private:
   void constructGeneralVolume(DDCompactView& cpv);
   void constructInsideSector(const DDLogicalPart& sector, DDCompactView& cpv);
   void constructInsideLayers(const DDLogicalPart& laylog,
