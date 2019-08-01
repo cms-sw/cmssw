@@ -32,9 +32,9 @@ uint32_t PPSDiamondOrganization::GetUnitID(const G4Step* aStep) {
       theDetector = physVol->GetCopyNo() % 100;
       thePlane = physVol->GetCopyNo() / 100;
       LogDebug("PPSSimDiamond") << "\n---------------------CTPPS_Diamond_Segment-------------------------------------"
-                                     "------------------------------";
+                                   "------------------------------";
       LogDebug("PPSSimDiamond") << "\t\t\t\t\tDetector name " << physVol->GetName()
-                                  << " copynumber= " << physVol->GetCopyNo();
+                                << " copynumber= " << physVol->GetCopyNo();
       LogDebug("PPSSimDiamond") << "\t\t\t\t\tdetector= " << theDetector << " plane= " << thePlane << " ii = " << ii;
     }
 
@@ -45,8 +45,8 @@ uint32_t PPSDiamondOrganization::GetUnitID(const G4Step* aStep) {
       theRoman_pot = cpy_no % 10;
     }
     LogDebug("PPSSimDiamond") << "Diamond"
-                                << "physVol =" << physVol->GetName() << ", level=" << ii
-                                << ", physVol->GetCopyNo()=" << physVol->GetCopyNo() << std::endl;
+                              << "physVol =" << physVol->GetName() << ", level=" << ii
+                              << ", physVol->GetCopyNo()=" << physVol->GetCopyNo() << std::endl;
   }
   return CTPPSDiamondDetId(theArm, theStation, theRoman_pot, thePlane, theDetector).rawId();
 }

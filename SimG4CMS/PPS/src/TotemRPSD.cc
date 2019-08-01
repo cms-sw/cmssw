@@ -31,10 +31,10 @@
 #include <string>
 
 TotemRPSD::TotemRPSD(const std::string& name,
-                         const edm::EventSetup& es,
-                         const SensitiveDetectorCatalog& clg,
-                         edm::ParameterSet const& p,
-                         const SimTrackManager* manager)
+                     const edm::EventSetup& es,
+                     const SensitiveDetectorCatalog& clg,
+                     edm::ParameterSet const& p,
+                     const SimTrackManager* manager)
     : SensitiveTkDetector(name, es, clg, p),
       numberingScheme(nullptr),
       hcID(-1),
