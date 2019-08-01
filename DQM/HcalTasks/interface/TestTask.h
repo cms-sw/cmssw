@@ -24,7 +24,7 @@ class TestTask : public hcaldqm::DQTask
 
 		virtual void bookHistograms(DQMStore::IBooker&,
 			edm::Run const&, edm::EventSetup const&);
-		virtual void endLuminosityBlock(edm::LuminosityBlock const&,
+		virtual void dqmEndLuminosityBlock(edm::LuminosityBlock const&,
 			edm::EventSetup const&);
 
 	protected:

@@ -800,12 +800,12 @@ void LaserTask::processLaserMon(edm::Handle<QIE10DigiCollection>& col, std::vect
   }
 }
 
-/* virtual */ void LaserTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void LaserTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype == fLocal)
     return;
   this->_dump();
 
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ bool LaserTask::_isApplicable(edm::Event const& e) {
