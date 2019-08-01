@@ -47,6 +47,7 @@ void RPCDigiMerger::fillDescriptions(edm::ConfigurationDescriptions& descs) {
   desc.add<edm::InputTag>("inputTagTwinMuxDigis", edm::InputTag("", ""));
   desc.add<edm::InputTag>("inputTagOMTFDigis", edm::InputTag("", ""));
   desc.add<edm::InputTag>("inputTagCPPFDigis", edm::InputTag("", ""));
+  desc.add<edm::InputTag>("InputLabel", edm::InputTag(" "));
   desc.add<int>("bxMinTwinMux", -2);
   desc.add<int>("bxMaxTwinMux", 2);
   desc.add<int>("bxMinOMTF", -3);
