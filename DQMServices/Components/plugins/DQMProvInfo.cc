@@ -280,8 +280,10 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
   event.getByToken(dcsStatusCollection_, dcsStatusCollection);
 
   if (!dcsStatusCollection->empty()) {
+    edm::LogInfo("DQMProvInfo") << "Using FED#735 for reading DCS bits" << std::endl;
     fillDcsBitsFromDcsStatusCollection(dcsStatusCollection);
   } else {
+    edm::LogInfo("DQMProvInfo") << "Using softFED#1022 for reading DCS bits" << std::endl;
     DCSRecord const& dcsRecord = event.get(dcsRecordToken_);
     fillDcsBitsFromDCSRecord(dcsRecord);
   }
