@@ -99,7 +99,7 @@ public:
                   const DDStringVectorArguments& vsArgs) override;
 
   void execute(DDCompactView& cpv) override;
-  
+
 private:
   void constructGeneralVolume(DDCompactView& cpv);
   void constructInsideSector(const DDLogicalPart& sector, DDCompactView& cpv);
