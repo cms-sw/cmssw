@@ -286,9 +286,9 @@ void BeamSpotProblemMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, 
 }
 //-------------------------------------------------------
 
-void BeamSpotProblemMonitor::endRun(const Run& r, const EventSetup& context) {
+void BeamSpotProblemMonitor::dqmEndRun(const Run& r, const EventSetup& context) {
   if (debug_)
-    edm::LogInfo("BeamSpotProblemMonitor") << "endRun:: Clearing all the Maps " << endl;
+    edm::LogInfo("BeamSpotProblemMonitor") << "dqmEndRun:: Clearing all the Maps " << endl;
   //Reset it end of job
   beamSpotError_->Reset();
 }

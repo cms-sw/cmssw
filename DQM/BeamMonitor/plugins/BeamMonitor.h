@@ -44,7 +44,7 @@ protected:
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   void FitAndFill(const edm::LuminosityBlock& lumiSeg, int&, int&, int&);

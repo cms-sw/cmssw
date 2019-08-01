@@ -55,7 +55,7 @@ protected:
   //void beginJob();                                                   // BeginJob
   //void endJob  ();                                                   // EndJob
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) override;
-  //void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
+  //void dqmEndRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c) override;
