@@ -104,8 +104,7 @@ void FWGeometryTableViewManager::setGeoManagerFromFile() {
       throw std::runtime_error("Can't find TGeoManager object in selected file.");
 
   } catch (std::runtime_error& e) {
-    fwLog(fwlog::kError)
-        << "Failed to find simulation geometry file. Please set the file path with --sim-geom-file option.\n";
+    fwLog(fwlog::kError) << e.what();
     exit(0);
   }
 }
