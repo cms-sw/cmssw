@@ -49,7 +49,7 @@ protected:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
 
   /// By Lumi DCS DB Operation
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
+  void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;

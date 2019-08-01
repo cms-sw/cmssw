@@ -92,7 +92,7 @@ void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Event
   }
 }
 
-void DTDCSByLumiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
+void DTDCSByLumiTask::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) {
   if (DTHVRecordFound) {
     context.get<DTHVStatusRcd>().get(hvStatus);
   }
