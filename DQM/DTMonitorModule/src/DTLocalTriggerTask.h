@@ -23,7 +23,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
@@ -49,7 +49,7 @@ typedef std::array<std::array<std::array<const L1MuDTChambThDigi*, 15>, 5>, 6> D
 typedef std::array<std::array<std::array<const DTLocalTrigger*, 15>, 5>, 6> DTArr3LocalTrigger;
 typedef std::array<std::array<std::array<int, 2>, 13>, 6> DTArr3mapInt;
 
-class DTLocalTriggerTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTLocalTriggerTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
 public:

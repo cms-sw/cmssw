@@ -14,7 +14,7 @@
 
 namespace hcaldqm {
   enum UpdateFreq { fEvent = 0, f1LS = 1, f10LS = 2, f50LS = 3, f100LS = 4, nUpdateFreq = 5 };
-  class DQTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>, public DQModule {
+  class DQTask : public DQMOneLumiEDAnalyzer<>, public DQModule {
   public:
     //	constructor
     DQTask(edm::ParameterSet const &);

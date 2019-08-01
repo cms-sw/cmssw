@@ -13,7 +13,7 @@
  *  \author G. Cerminara - INFN Torino
  */
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
@@ -29,7 +29,7 @@
 
 class DTGeometry;
 
-class DTResolutionAnalysisTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTResolutionAnalysisTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   DTResolutionAnalysisTask(const edm::ParameterSet& pset);

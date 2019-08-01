@@ -6,10 +6,10 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class ESIntegrityTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class ESIntegrityTask : public DQMOneLumiEDAnalyzer<> {
 public:
   ESIntegrityTask(const edm::ParameterSet& ps);
   ~ESIntegrityTask() override {}

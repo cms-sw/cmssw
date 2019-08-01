@@ -52,13 +52,13 @@
 
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 //
 // Class declaration
 //
 
-class SiStripFEDMonitorPlugin : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class SiStripFEDMonitorPlugin : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit SiStripFEDMonitorPlugin(const edm::ParameterSet&);
   ~SiStripFEDMonitorPlugin() override;

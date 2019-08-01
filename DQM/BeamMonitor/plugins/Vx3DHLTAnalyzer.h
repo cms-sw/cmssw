@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -40,7 +40,7 @@ typedef struct {
   double Covariance[DIM][DIM];
 } VertexType;
 
-class Vx3DHLTAnalyzer : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class Vx3DHLTAnalyzer : public DQMOneLumiEDAnalyzer<> {
 public:
   Vx3DHLTAnalyzer(const edm::ParameterSet&);
   ~Vx3DHLTAnalyzer() override;

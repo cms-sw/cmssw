@@ -16,12 +16,12 @@
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 //DataFormats
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-class DQMDcsInfo : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class DQMDcsInfo : public DQMOneLumiEDAnalyzer<> {
 public:
   /// Constructor
   DQMDcsInfo(const edm::ParameterSet& ps);

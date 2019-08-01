@@ -58,11 +58,11 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class HLTScalers : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class HLTScalers : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   HLTScalers(const edm::ParameterSet &ps);
   ~HLTScalers() override = default;

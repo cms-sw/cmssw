@@ -14,7 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
@@ -26,7 +26,7 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSCommonDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<std::vector<int>>> {
+class CTPPSCommonDQMSource : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<std::vector<int>>> {
 public:
   CTPPSCommonDQMSource(const edm::ParameterSet &ps);
   ~CTPPSCommonDQMSource() override;

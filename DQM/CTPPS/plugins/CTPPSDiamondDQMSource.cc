@@ -16,7 +16,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Provenance/interface/EventRange.h"
@@ -63,7 +63,7 @@ namespace dds {
   };
 }  // namespace dds
 
-class CTPPSDiamondDQMSource : public one::DQMEDAnalyzer<edm::LuminosityBlockCache<dds::Cache>> {
+class CTPPSDiamondDQMSource : public DQMOneEDAnalyzer<edm::LuminosityBlockCache<dds::Cache>> {
 public:
   CTPPSDiamondDQMSource(const edm::ParameterSet&);
   ~CTPPSDiamondDQMSource() override;

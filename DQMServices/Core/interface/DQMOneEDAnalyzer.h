@@ -1,5 +1,5 @@
-#ifndef DQMServices_Core_oneDQMEDAnalyzer_h
-#define DQMServices_Core_oneDQMEDAnalyzer_h
+#ifndef DQMServices_Core_DQMOneEDAnalyzer.h
+#define DQMServices_Core_DQMOneEDAnalyzer.h
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Event.h"
