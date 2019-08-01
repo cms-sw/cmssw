@@ -31,7 +31,7 @@ process.trackingMaterialAnalyser.SaveXML           = True
 process.trackingMaterialAnalyser.SaveDetailedPlots = False
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/tmp/emiglior/material.root')
+    fileNames = cms.untracked.vstring('file:material.root')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
