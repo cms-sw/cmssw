@@ -6,7 +6,7 @@
 // The CMS convention is that centimeter = 1 and GeV = 1, so care must be taken with code that converts between
 // the two conventions.
 
-#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/angle_units.h"
 
 namespace geant_units {
 
