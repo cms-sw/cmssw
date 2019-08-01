@@ -31,35 +31,4 @@ namespace angle_units {
   }  // namespace operators
 }  // namespace angle_units
 
-namespace angle0to2pi {
-
-  using angle_units::operators::operator""_pi;
-
-  // make0To2pi constrains an angle to be >= 0 and < 2pi.
-  // This function is a faster version of reco::reduceRange.
-  // In timing tests, it is almost always faster than reco::reduceRange.
-  // It also protects against floating-point value drift over repeated calculations.
-  // This implementation uses multiplication instead of division and avoids
-  // calling fmod to improve performance.
-
-  template <class valType>
-  inline constexpr valType make0To2pi(valType angle) {
-    constexpr valType twoPi = 2._pi;
-    constexpr valType oneOverTwoPi = 1. / twoPi;
-    constexpr valType epsilon = 1.e-13;
-
-    if ((std::abs(angle) <= epsilon) || (std::abs(twoPi - std::abs(angle)) <= epsilon))
-      return (0.);
-    if (std::abs(angle) > twoPi) {
-      valType nFac = trunc(angle * oneOverTwoPi);
-      angle -= (nFac * twoPi);
-      if (std::abs(angle) <= epsilon)
-        return (0.);
-    }
-    if (angle < 0.)
-      angle += twoPi;
-    return (angle);
-  }
-}  // namespace angle0to2pi
-
 #endif
