@@ -65,7 +65,7 @@ public:
 
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
   void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -465,7 +465,7 @@ void SiStripFEDMonitorPlugin::bookHistograms(DQMStore::IBooker& ibooker,
     fedHists_.bookAllFEDHistograms(ibooker, fullDebugMode_);
 }
 
-void SiStripFEDMonitorPlugin::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+void SiStripFEDMonitorPlugin::dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                                                    const edm::EventSetup& context) {
   fedErrors_.initialiseLumiBlock();
 }

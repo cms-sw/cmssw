@@ -27,7 +27,7 @@ protected:
   void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
   /// Begin Lumi
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
+  void dqmBeginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;
 
   /// End Lumi
   void dqmEndLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& c) override;

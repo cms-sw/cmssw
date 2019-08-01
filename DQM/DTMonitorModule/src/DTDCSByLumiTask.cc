@@ -80,7 +80,7 @@ void DTDCSByLumiTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   }
 }
 
-void DTDCSByLumiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
+void DTDCSByLumiTask::dqmBeginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
   theLumis++;
 
   LogTrace("DTDQM|DTMonitorModule|DTDCSByLumiTask")

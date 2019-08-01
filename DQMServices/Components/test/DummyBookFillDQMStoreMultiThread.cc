@@ -143,7 +143,7 @@ private:
   void endJob() override;
 
   void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
-  void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void dqmEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -270,7 +270,7 @@ void DummyBookFillDQMStoreMultiThread::endJob() {}
 void DummyBookFillDQMStoreMultiThread::dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
-void DummyBookFillDQMStoreMultiThread::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
+void DummyBookFillDQMStoreMultiThread::dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
   auto it = m_lumiFillers.begin();
   auto ite = m_lumiFillers.end();
   for (; it != ite; ++it)

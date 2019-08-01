@@ -198,7 +198,7 @@ void AlcaBeamMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void AlcaBeamMonitor::beginLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
+void AlcaBeamMonitor::dqmBeginLuminosityBlock(const LuminosityBlock& iLumi, const EventSetup& iSetup) {
   // Always create a beamspot group for each lumi weather we have results or not! Each Beamspot will be of unknown type!
 
   vertices_.clear();
