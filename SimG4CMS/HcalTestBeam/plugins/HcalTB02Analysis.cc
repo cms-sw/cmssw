@@ -56,30 +56,28 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class HcalTB02Analysis : public SimProducer,
-                         public Observer<const BeginOfEvent *>,
-                         public Observer<const EndOfEvent *> {
+class HcalTB02Analysis : public SimProducer, public Observer<const BeginOfEvent*>, public Observer<const EndOfEvent*> {
 public:
-  HcalTB02Analysis(const edm::ParameterSet &p);
+  HcalTB02Analysis(const edm::ParameterSet& p);
   ~HcalTB02Analysis() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB02Analysis(const HcalTB02Analysis &) = delete;  // stop default
-  const HcalTB02Analysis &operator=(const HcalTB02Analysis &) = delete;
+  HcalTB02Analysis(const HcalTB02Analysis&) = delete;  // stop default
+  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
 
   // observer methods
-  void update(const BeginOfEvent *evt) override;
-  void update(const EndOfEvent *evt) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const EndOfEvent* evt) override;
 
-  void fillEvent(HcalTB02HistoClass &);
+  void fillEvent(HcalTB02HistoClass&);
   void clear();
   void finish();
 
 private:
   // Private Tuples
-  HcalTB02Histo *histo;
+  HcalTB02Histo* histo;
 
   // to read from parameter set
   bool hcalOnly;
