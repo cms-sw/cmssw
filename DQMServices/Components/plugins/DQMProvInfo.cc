@@ -271,7 +271,7 @@ void DQMProvInfo::analyzeEventInfo(const edm::Event& event) {
   edm::Handle<DcsStatusCollection> dcsStatusCollection;
   event.getByToken(dcsStatusCollection_, dcsStatusCollection);
 
-  if (dcsStatusCollection->size() != 0) {
+  if (!dcsStatusCollection->empty()) {
     fillDcsBitsFromDcsStatusCollection(dcsStatusCollection);
   } else {
     DCSRecord const& dcsRecord = event.get(dcsRecordToken_);
