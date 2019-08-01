@@ -5,12 +5,45 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "Geometry/HcalAlgo/plugins/DDHCalXtalAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+class DDHCalXtalAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDHCalXtalAlgo();
+  ~DDHCalXtalAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double radius;                   //Pointing distance from front surface
+  double offset;                   //Offset along Z
+  double dx;                       //Half size along x
+  double dz;                       //Half size along z
+  double angwidth;                 //Angular width
+  int iaxis;                       //Axis of rotation
+  std::vector<std::string> names;  //Names for rotation matrices
+
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+  std::string idName;       //Children name
+};
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -94,3 +127,5 @@ void DDHCalXtalAlgo::execute(DDCompactView& cpv) {
 #endif
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalXtalAlgo, "hcal:DDHCalXtalAlgo");
