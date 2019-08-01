@@ -29,10 +29,9 @@ public:
   DDHCalEndcapAlgo();
   ~DDHCalEndcapAlgo() override;
 
-private:
   //Get Methods
-  std::string getGenMat() const { return genMaterial; }
-  std::string getRotation() const { return rotation; }
+  const std::string& getGenMat() const { return genMaterial; }
+  const std::string& getRotation() const { return rotation; }
   int getNsectors() const { return nsectors; }
   int getNsectortot() const { return nsectortot; }
   int getEndcaps() const { return nEndcap; }
@@ -64,10 +63,10 @@ private:
   double getAngGap() const { return angGap; }
   double getSlope() const { return slope; }
 
-  std::string getAbsMat() const { return absMat; }
+  const std::string& getAbsMat() const { return absMat; }
   int getModules() const { return modules; }
-  std::string getModName(unsigned int i) const { return modName[i]; }
-  std::string getModMat(unsigned int i) const { return modMat[i]; }
+  const std::string& getModName(unsigned int i) const { return modName[i]; }
+  const std::string& getModMat(unsigned int i) const { return modMat[i]; }
   int getModType(unsigned int i) const { return modType[i]; }
   int getSectionModule(unsigned i) const { return sectionModule[i]; }
   int getLayerN(unsigned int i) const { return layerN[i]; }
@@ -82,15 +81,15 @@ private:
   double getRoutBlock2(unsigned i) const { return routBlock2[i]; }
 
   int getPhi() const { return phiSections; }
-  std::string getPhiName(unsigned int i) const { return phiName[i]; }
+  const std::string& getPhiName(unsigned int i) const { return phiName[i]; }
   int getLayers() const { return layers; }
-  std::string getLayerName(unsigned int i) const { return layerName[i]; }
+  const std::string& getLayerName(unsigned int i) const { return layerName[i]; }
   int getLayerType(unsigned int i) const { return layerType[i]; }
   double getLayerT(unsigned int i) const { return layerT[i]; }
   double getScintT(unsigned int i) const { return scintT[i]; }
-  std::string getPlastMat() const { return plastMat; }
-  std::string getScintMat() const { return scintMat; }
-  std::string getRotMat() const { return rotmat; }
+  const std::string& getPlastMat() const { return plastMat; }
+  const std::string& getScintMat() const { return scintMat; }
+  const std::string& getRotMat() const { return rotmat; }
   double getTolPos() const { return tolPos; }
   double getTolAbs() const { return tolAbs; }
 
