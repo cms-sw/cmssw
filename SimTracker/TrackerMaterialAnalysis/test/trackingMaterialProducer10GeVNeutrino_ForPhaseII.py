@@ -48,7 +48,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',                                                       # drop all objects
         'keep MaterialAccountingTracks_trackingMaterialProducer_*_*'),  # but the material accounting informations
-    fileName = cms.untracked.string('file:/tmp/emiglior/material.root')
+    fileName = cms.untracked.string('file:material.root')
 )
 
 process.path = cms.Path(process.generator
