@@ -15,6 +15,7 @@ ________________________________________________________________**/
 #include <iostream>
 #include <map>
 #include <utility>
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/Luminosity/interface/LumiCorrections.h"
 #include "CondFormats/DataRecord/interface/LumiCorrectionsRcd.h"
@@ -45,10 +46,7 @@ ________________________________________________________________**/
 #include "TGraphErrors.h"
 #include "TFile.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-class CorrPCCProducer : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class CorrPCCProducer : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit CorrPCCProducer(const edm::ParameterSet&);
   ~CorrPCCProducer() override;

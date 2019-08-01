@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
@@ -129,7 +129,7 @@ namespace {
   };
 }  // namespace
 
-class DummyBookFillDQMStoreMultiThread : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class DummyBookFillDQMStoreMultiThread : public DQMOneLumiEDAnalyzer<> {
 public:
   using PSets = std::vector<edm::ParameterSet>;
   explicit DummyBookFillDQMStoreMultiThread(const edm::ParameterSet&);

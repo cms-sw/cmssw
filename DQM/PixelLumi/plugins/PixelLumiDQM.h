@@ -31,13 +31,13 @@
 #include <string>
 #include <vector>
 
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 class ConfigurationDescriptions;
 
-class PixelLumiDQM : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class PixelLumiDQM : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit PixelLumiDQM(const edm::ParameterSet &);
   ~PixelLumiDQM() override;

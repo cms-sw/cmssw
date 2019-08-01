@@ -17,13 +17,13 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 //
 // class declaration
 //
 
-class BeamSpotProblemMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class BeamSpotProblemMonitor : public DQMOneLumiEDAnalyzer<> {
 public:
   explicit BeamSpotProblemMonitor(const edm::ParameterSet&);
   static void fillDescriptions(edm::ConfigurationDescriptions&);

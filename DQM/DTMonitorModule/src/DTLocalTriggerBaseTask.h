@@ -22,7 +22,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
@@ -41,7 +41,7 @@ class L1MuDTChambThDigi;
 class DTTPGCompareUnit;
 class DTTimeEvolutionHisto;
 
-class DTLocalTriggerBaseTask : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class DTLocalTriggerBaseTask : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
   friend class DTMonitorModule;
 
 public:

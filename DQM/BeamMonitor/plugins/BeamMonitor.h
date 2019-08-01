@@ -21,7 +21,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include <fstream>
@@ -30,7 +30,7 @@
 // class declaration
 //
 
-class BeamMonitor : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class BeamMonitor : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   BeamMonitor(const edm::ParameterSet&);
 

@@ -22,7 +22,7 @@
 #include "DQM/SiStripCommon/interface/APVShot.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 class SiStripDCSStatus;
 class SiStripDetCabling;
@@ -31,7 +31,7 @@ class EventWithHistory;
 class L1GlobalTriggerEvmReadoutRecord;
 class APVCyclePhaseCollection;
 
-class SiStripMonitorDigi : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
+class SiStripMonitorDigi : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi() override;

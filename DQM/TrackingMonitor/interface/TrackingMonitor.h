@@ -22,7 +22,7 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
@@ -55,7 +55,7 @@ class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class TrackingMonitor : public DQMOneLumiEDAnalyzer<> {
 public:
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;

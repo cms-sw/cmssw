@@ -5,7 +5,7 @@
  *  harvest per-lumi prduced SiPixelDetector status and make the payload for SiPixelQualityFromDB
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 // Pixel quality harvester
@@ -20,7 +20,7 @@
 #include "TH1.h"
 #include "TFile.h"
 
-class SiPixelStatusHarvester : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks>,
+class SiPixelStatusHarvester : public DQMOneEDAnalyzer<edm::one::WatchLuminosityBlocks>,
                                private HistogramManagerHolder {
   enum { BADROC, PERMANENTBADROC, FEDERRORROC, STUCKTBMROC, OTHERBADROC, PROMPTBADROC };
 

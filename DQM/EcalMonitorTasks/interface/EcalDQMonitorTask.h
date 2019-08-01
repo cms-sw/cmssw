@@ -2,7 +2,7 @@
 #define EcalDQMonitorTask_H
 
 #include "DQM/EcalCommon/interface/EcalDQMonitor.h"
-#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 
 #include "DQWorkerTask.h"
 #include "Collections.h"
@@ -15,7 +15,7 @@ namespace edm {
   class ParameterSetDescription;
 }  // namespace edm
 
-class EcalDQMonitorTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements>, public ecaldqm::EcalDQMonitor {
+class EcalDQMonitorTask : public DQMOneLumiEDAnalyzer<>, public ecaldqm::EcalDQMonitor {
 public:
   EcalDQMonitorTask(edm::ParameterSet const&);
   ~EcalDQMonitorTask() override {}

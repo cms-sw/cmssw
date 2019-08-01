@@ -21,7 +21,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
 
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
@@ -30,7 +30,7 @@
 class DTGeometry;
 class DTHVStatus;
 
-class DTDCSByLumiTask : public one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> {
+class DTDCSByLumiTask : public DQMOneLumiEDAnalyzer<> {
 public:
   /// Constructor
   DTDCSByLumiTask(const edm::ParameterSet& ps);
