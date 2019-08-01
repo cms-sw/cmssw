@@ -101,7 +101,7 @@ public:
     iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);
     descNestedNoiseMIP.add<double>("noise_MIP", 1. / 100.);
     iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
-    iDesc.add<bool>("use2x2", true);  // use 2x2 for 3x3 scenario for scint density calculation
+    iDesc.add<bool>("use2x2", true);  // use 2x2 or 3x3 scenario for scint density calculation
   }
 
   /// point in the space
