@@ -26,10 +26,10 @@
 #include <string>
 
 PPSDiamondSD::PPSDiamondSD(const std::string& name,
-                                   const edm::EventSetup& es,
-                                   const SensitiveDetectorCatalog& clg,
-                                   edm::ParameterSet const& p,
-                                   const SimTrackManager* manager)
+                           const edm::EventSetup& es,
+                           const SensitiveDetectorCatalog& clg,
+                           edm::ParameterSet const& p,
+                           const SimTrackManager* manager)
     : SensitiveTkDetector(name, es, clg, p),
       numberingScheme(nullptr),
       hcID(-1),
@@ -46,11 +46,11 @@ PPSDiamondSD::PPSDiamondSD(const std::string& name,
   verbosity_ = m_Anal.getParameter<int>("Verbosity");
 
   LogDebug("PPSSimDiamond") << "*******************************************************\n"
-                              << "*                                                     *\n"
-                              << "* Constructing a PPSDiamondSD  with name " << name << "\n"
-                              << "*                                                     *\n"
-                              << "*******************************************************"
-                              << "\n";
+                            << "*                                                     *\n"
+                            << "* Constructing a PPSDiamondSD  with name " << name << "\n"
+                            << "*                                                     *\n"
+                            << "*******************************************************"
+                            << "\n";
 
   slave = new TrackingSlaveSD(name);
 
@@ -81,11 +81,11 @@ void PPSDiamondSD::Initialize(G4HCofThisEvent* HCE) {
 
 void PPSDiamondSD::Print_Hit_Info() {
   LogDebug("PPSSimDiamond") << theTrack->GetDefinition()->GetParticleName() << " PPS_Timing_SD CreateNewHit for"
-                              << " PV " << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo() << " Unit "
-                              << unitID << "\n";
+                            << " PV " << currentPV->GetName() << " PVid = " << currentPV->GetCopyNo() << " Unit "
+                            << unitID << "\n";
   LogDebug("PPSSimDiamond") << " primary " << primaryID << " time slice " << tSliceID << " of energy "
-                              << theTrack->GetTotalEnergy() << " Eloss " << Eloss << " positions "
-                              << "\n";
+                            << theTrack->GetTotalEnergy() << " Eloss " << Eloss << " positions "
+                            << "\n";
   printf(" PreStepPoint(%10f,%10f,%10f)",
          preStepPoint->GetPosition().x(),
          preStepPoint->GetPosition().y(),
@@ -95,11 +95,11 @@ void PPSDiamondSD::Print_Hit_Info() {
          postStepPoint->GetPosition().y(),
          postStepPoint->GetPosition().z());
   LogDebug("PPSSimDiamond") << " positions "
-                              << "(" << postStepPoint->GetPosition().x() << "," << postStepPoint->GetPosition().y()
-                              << "," << postStepPoint->GetPosition().z() << ")"
-                              << " For Track  " << theTrack->GetTrackID() << " which is a "
-                              << theTrack->GetDefinition()->GetParticleName() << " ParentID is "
-                              << theTrack->GetParentID() << "\n";
+                            << "(" << postStepPoint->GetPosition().x() << "," << postStepPoint->GetPosition().y() << ","
+                            << postStepPoint->GetPosition().z() << ")"
+                            << " For Track  " << theTrack->GetTrackID() << " which is a "
+                            << theTrack->GetDefinition()->GetParticleName() << " ParentID is "
+                            << theTrack->GetParentID() << "\n";
 
   if (theTrack->GetTrackID() == 1) {
     LogDebug("PPSSimDiamond") << " primary particle ";
@@ -123,11 +123,11 @@ bool PPSDiamondSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     return true;
   } else {
     LogDebug("PPSSimDiamond") << "*******************************************************\n"
-                                << "*                                                     *\n"
-                                << "* PPS Diamond Hit initialized  with name " << name << "\n"
-                                << "*                                                     *\n"
-                                << "*******************************************************"
-                                << "\n";
+                              << "*                                                     *\n"
+                              << "* PPS Diamond Hit initialized  with name " << name << "\n"
+                              << "*                                                     *\n"
+                              << "*******************************************************"
+                              << "\n";
 
     GetStepInfo(aStep);
 
@@ -197,7 +197,7 @@ void PPSDiamondSD::StoreHit(PPSDiamondG4Hit* hit) {
   if (hit == nullptr) {
     if (verbosity_)
       LogDebug("PPSSimDiamond") << "PPSDiamond: hit to be stored is NULL !!"
-                                  << "\n";
+                                << "\n";
     return;
   }
 
@@ -287,7 +287,7 @@ void PPSDiamondSD::SetNumberingScheme(PPSVDetectorOrganization* scheme) {
 
 void PPSDiamondSD::update(const BeginOfEvent* i) {
   LogDebug("PPSSimDiamond") << " Dispatched BeginOfEvent !"
-                              << "\n";
+                            << "\n";
   clearHits();
   eventno = (*i)()->GetEventID();
 }
