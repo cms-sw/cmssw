@@ -39,7 +39,7 @@ phase2_hgcal.toModify(
 )
 
 from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
-lightByLightLowPt.toModify(ecalDrivenElectronSeeds.SeedConfiguration
+lightByLightLowPt.toModify(ecalDrivenElectronSeeds.SeedConfiguration,
                            LowPtThreshold =1.0,
                            applyHOverECut = False) 
 
