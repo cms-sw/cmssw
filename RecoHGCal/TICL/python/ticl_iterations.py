@@ -43,6 +43,8 @@ def TICL_iterations_withReco(process):
   )
 
   process.FilteredLayerClusters = filteredLayerClustersProducer.clone(
+      clusterFilter = "ClusterFilterByAlgoAndSize",
+      min_cluster_size = 2,
       algo_number = 8,
       iteration_label = "algo8",
       LayerClustersInputMask = "TrackstersMIP"
@@ -98,6 +100,8 @@ def TICL_iterations(process):
   )
 
   process.FilteredLayerClusters = filteredLayerClustersProducer.clone(
+      clusterFilter = "ClusterFilterByAlgoAndSize",
+      min_cluster_size = 2,
       algo_number = 8,
       iteration_label = "algo8"
   )
