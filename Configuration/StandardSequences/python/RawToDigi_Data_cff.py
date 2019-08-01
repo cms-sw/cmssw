@@ -7,6 +7,9 @@ ecalDigis.DoRegional = False
 #False by default ecalDigis.DoRegional = False
 
 # RPC Merged Digis 
-muonRPCNewDigis.inputTagTwinMuxDigis = cms.InputTag('rpcTwinMuxRawToDigi')
-muonRPCNewDigis.inputTagOMTFDigis = cms.InputTag('omtfStage2Digis')
-muonRPCNewDigis.inputTagCPPFDigis = cms.InputTag('rpcCPPFRawToDigi')
+_muonRPCDigis = muonRPCDigis.copy()
+from Configuration.Eras.Modifier_run3_RPC_cff import run3_RPC
+_muonRPCDigis.inputTagTwinMuxDigis = cms.InputTag('rpcTwinMuxRawToDigi')
+_muonRPCDigis.inputTagOMTFDigis = cms.InputTag('omtfStage2Digis')
+_muonRPCDigis.inputTagCPPFDigis = cms.InputTag('rpcCPPFRawToDigi')
+run3_RPC.toReplaceWith(muonRPCDigis,_muonRPCDigis)
