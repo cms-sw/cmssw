@@ -1,0 +1,6 @@
+<use   name="FWCore/PluginManager"/>
+<library   file="*.cc" name="SimG4CMSPPSPlugins">
+  <flags   EDM_PLUGIN="1"/>
+  <use   name="SimG4CMS/PPS"/>
+
+</library>
