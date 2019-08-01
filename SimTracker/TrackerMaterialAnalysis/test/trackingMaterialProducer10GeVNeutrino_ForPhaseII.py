@@ -11,7 +11,7 @@ readGeometryFromDB = False
 # only a temporary hack, since the material description has
 # been updated in release via XML and the DB is behind.
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2023D41_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
@@ -48,7 +48,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     outputCommands = cms.untracked.vstring(
         'drop *',                                                       # drop all objects
         'keep MaterialAccountingTracks_trackingMaterialProducer_*_*'),  # but the material accounting informations
-    fileName = cms.untracked.string('file:material.root')
+    fileName = cms.untracked.string('file:/tmp/emiglior/material.root')
 )
 
 process.path = cms.Path(process.generator

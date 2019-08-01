@@ -12,10 +12,10 @@ trackingMaterialAnalyser = cms.EDAnalyzer("TrackingMaterialAnalyser",
 # to derive the following list:
 # cat ../data/trackingMaterialGroups_ForPhaseII.xml | grep TrackingMaterialGroup | sed -e 's/\s*//' | cut -d ' ' -f 3 | tr '=' ' ' | cut -d ' ' -f 2 | tr -d '"' | sed -e 's/\(.*\)/"\1",/'
     Groups = cms.vstring(
-        "TrackerRecMaterialPhase1PixelBarrelLayer1",
-        "TrackerRecMaterialPhase1PixelBarrelLayer2",
-        "TrackerRecMaterialPhase1PixelBarrelLayer3",
-        "TrackerRecMaterialPhase1PixelBarrelLayer4",
+        "TrackerRecMaterialPhase2PixelBarrelLayer1",
+        "TrackerRecMaterialPhase2PixelBarrelLayer2",
+        "TrackerRecMaterialPhase2PixelBarrelLayer3",
+        "TrackerRecMaterialPhase2PixelBarrelLayer4",
         "TrackerRecMaterialPhase2PixelForwardDisk1",
         "TrackerRecMaterialPhase2PixelForwardDisk2",
         "TrackerRecMaterialPhase2PixelForwardDisk3",

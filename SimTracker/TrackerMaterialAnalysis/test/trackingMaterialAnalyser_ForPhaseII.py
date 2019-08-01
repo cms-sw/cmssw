@@ -16,12 +16,12 @@ if readGeometryFromDB:
   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
   process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 else:
-  process.load('Configuration.Geometry.GeometryExtended2023D41Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 # Add our custom detector grouping to DDD
-process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII_D41.xml'])
+process.XMLIdealGeometryESSource.geomXMLFiles.extend(['SimTracker/TrackerMaterialAnalysis/data/trackingMaterialGroups_ForPhaseII.xml'])
 
 # Analyze and plot the tracking material
 process.load("SimTracker.TrackerMaterialAnalysis.trackingMaterialAnalyser_ForPhaseII_cff")
@@ -31,7 +31,7 @@ process.trackingMaterialAnalyser.SaveXML           = True
 process.trackingMaterialAnalyser.SaveDetailedPlots = False
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:material.root')
+    fileNames = cms.untracked.vstring('file:/tmp/emiglior/material.root')
 )
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
