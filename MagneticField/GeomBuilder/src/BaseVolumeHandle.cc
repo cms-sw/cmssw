@@ -11,8 +11,6 @@
 #include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-
 #include "MagneticField/Layers/interface/MagVerbosity.h"
 
 #include <string>
