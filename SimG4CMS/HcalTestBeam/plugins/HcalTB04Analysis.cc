@@ -68,34 +68,34 @@ namespace CLHEP {
 }
 
 class HcalTB04Analysis : public SimProducer,
-                         public Observer<const BeginOfRun *>,
-                         public Observer<const BeginOfEvent *>,
-                         public Observer<const EndOfEvent *>,
-                         public Observer<const G4Step *> {
+                         public Observer<const BeginOfRun*>,
+                         public Observer<const BeginOfEvent*>,
+                         public Observer<const EndOfEvent*>,
+                         public Observer<const G4Step*> {
 public:
-  HcalTB04Analysis(const edm::ParameterSet &p);
+  HcalTB04Analysis(const edm::ParameterSet& p);
   ~HcalTB04Analysis() override;
 
-  void produce(edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  HcalTB04Analysis(const HcalTB04Analysis &) = delete;  // stop default
-  const HcalTB04Analysis &operator=(const HcalTB04Analysis &) = delete;
+  HcalTB04Analysis(const HcalTB04Analysis&) = delete;  // stop default
+  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
 
   void init();
 
   // observer methods
-  void update(const BeginOfRun *run) override;
-  void update(const BeginOfEvent *evt) override;
-  void update(const G4Step *step) override;
-  void update(const EndOfEvent *evt) override;
+  void update(const BeginOfRun* run) override;
+  void update(const BeginOfEvent* evt) override;
+  void update(const G4Step* step) override;
+  void update(const EndOfEvent* evt) override;
 
   //User methods
-  void fillBuffer(const EndOfEvent *evt);
-  void qieAnalysis(CLHEP::HepRandomEngine *);
-  void xtalAnalysis(CLHEP::HepRandomEngine *);
+  void fillBuffer(const EndOfEvent* evt);
+  void qieAnalysis(CLHEP::HepRandomEngine*);
+  void xtalAnalysis(CLHEP::HepRandomEngine*);
   void finalAnalysis();
-  void fillEvent(PHcalTB04Info &);
+  void fillEvent(PHcalTB04Info&);
 
   void clear();
   int unitID(uint32_t id);
@@ -103,8 +103,8 @@ private:
   double timeOfFlight(int det, int layer, double eta);
 
 private:
-  HcalQie *myQie;
-  HcalTB04Histo *histo;
+  HcalQie* myQie;
+  HcalTB04Histo* histo;
 
   // to read from parameter set
   bool hcalOnly;
@@ -113,7 +113,7 @@ private:
   int iceta, icphi;
   double scaleHB0, scaleHB16, scaleHO, scaleHE0;
   std::vector<std::string> names;
-  G4RotationMatrix *beamline_RM;
+  G4RotationMatrix* beamline_RM;
 
   // Constants for the run
   int count;
