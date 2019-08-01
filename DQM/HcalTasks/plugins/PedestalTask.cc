@@ -922,11 +922,11 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   _xPedEntries1LS.reset();
 }
 
-/* virtual */ void PedestalTask::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
-  DQTask::beginLuminosityBlock(lb, es);
+/* virtual */ void PedestalTask::dqmBeginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+  DQTask::dqmBeginLuminosityBlock(lb, es);
 }
 
-/* virtual */ void PedestalTask::endRun(edm::Run const& r, edm::EventSetup const&) {
+/* virtual */ void PedestalTask::dqmEndRun(edm::Run const& r, edm::EventSetup const&) {
   if (_ptype == fLocal) {
     if (r.runAuxiliary().run() == 1)
       return;
@@ -936,12 +936,12 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
     return;
 }
 
-/* virtual */ void PedestalTask::endLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
+/* virtual */ void PedestalTask::dqmEndLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const& es) {
   if (_ptype == fLocal)
     return;
   this->_dump();
 
-  DQTask::endLuminosityBlock(lb, es);
+  DQTask::dqmEndLuminosityBlock(lb, es);
 }
 
 /* virtual */ void PedestalTask::_process(edm::Event const& e, edm::EventSetup const& es) {

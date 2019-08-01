@@ -25,7 +25,7 @@ public:
   ~LEDTask() override {}
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const& r, edm::EventSetup const&) override {
+  void dqmEndRun(edm::Run const& r, edm::EventSetup const&) override {
     if (_ptype == hcaldqm::fLocal)
       if (r.runAuxiliary().run() == 1)
         return;
