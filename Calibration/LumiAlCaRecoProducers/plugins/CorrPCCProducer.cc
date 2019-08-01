@@ -54,8 +54,8 @@ public:
 private:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) final;
-  void endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
-  void endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) final;
+  void dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) final;
+  void dqmEndRunProduce(const edm::Run& runSeg, const edm::EventSetup& iSetup) final;
   void endJob() final;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
@@ -382,10 +382,13 @@ void CorrPCCProducer::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, co
 }
 
 //--------------------------------------------------------------------------------------------------
-void CorrPCCProducer::endRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) {}
+void CorrPCCProducer::dqmEndRun(edm::Run const& runSeg, const edm::EventSetup& iSetup) {
+  // TODO: why was this code not put here in the first place?  
+  dqmEndRunProduce(runSeg, iSetup);
+}
 
 //--------------------------------------------------------------------------------------------------
-void CorrPCCProducer::endRunProduce(edm::Run& runSeg, const edm::EventSetup& iSetup) {
+void CorrPCCProducer::dqmEndRunProduce(edm::Run const& runSeg, const edm::EventSetup& iSetup) {
   if (lumiSections.empty()) {
     return;
   }

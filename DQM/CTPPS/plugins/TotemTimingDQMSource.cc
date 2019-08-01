@@ -58,7 +58,7 @@ protected:
   std::shared_ptr<totemds::Cache> globalBeginLuminosityBlock(const edm::LuminosityBlock &,
                                                              const edm::EventSetup &) const override;
   void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) override;
-  void endRun(const edm::Run &, const edm::EventSetup &) override;
+  void dqmEndRun(const edm::Run &, const edm::EventSetup &) override;
 
 private:
   // Constants
@@ -786,7 +786,7 @@ void TotemTimingDQMSource::globalEndLuminosityBlock(const edm::LuminosityBlock &
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemTimingDQMSource::endRun(const edm::Run &, const edm::EventSetup &) {}
+void TotemTimingDQMSource::dqmEndRun(const edm::Run &, const edm::EventSetup &) {}
 
 //----------------------------------------------------------------------------------------------------
 

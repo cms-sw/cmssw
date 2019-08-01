@@ -37,7 +37,7 @@ protected:
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) override;
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c) override;
   // EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void dqmEndRun(const edm::Run& r, const edm::EventSetup& c) override;
 
 private:
   void fillPlots(int&, int&, int);

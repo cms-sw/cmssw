@@ -142,7 +142,7 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
+  void dqmEndRun(edm::Run const&, edm::EventSetup const&) override;
   void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
@@ -267,7 +267,7 @@ void DummyBookFillDQMStoreMultiThread::beginJob() {}
 void DummyBookFillDQMStoreMultiThread::endJob() {}
 
 // ------------ method called when ending the processing of a run  ------------
-void DummyBookFillDQMStoreMultiThread::endRun(edm::Run const&, edm::EventSetup const&) {}
+void DummyBookFillDQMStoreMultiThread::dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
 
 // ------------ method called when starting to processes a luminosity block  ------------
 void DummyBookFillDQMStoreMultiThread::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {

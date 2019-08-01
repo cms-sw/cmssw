@@ -73,7 +73,7 @@ public:
   void analyze(const edm::Event &e, const edm::EventSetup &c) override;
   /// DQM Client Diagnostic should be performed here:
   void endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, const edm::EventSetup &c) override;
-  void endRun(const edm::Run &run, const edm::EventSetup &c) override;
+  void dqmEndRun(const edm::Run &run, const edm::EventSetup &c) override;
 
 private:
   HLTConfigProvider hltConfig_;
