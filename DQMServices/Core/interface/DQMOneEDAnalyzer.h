@@ -60,7 +60,7 @@ public:
   // methods to be implemented by the user, in order of invocation
   virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
   virtual void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) = 0;
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) = 0;
+  virtual void analyze(edm::Event const&, edm::EventSetup const&) {}
   virtual void dqmEndRun(edm::Run const&, edm::EventSetup const&) {}
 
 protected:
