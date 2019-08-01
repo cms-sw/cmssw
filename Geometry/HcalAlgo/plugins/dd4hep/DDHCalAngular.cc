@@ -27,7 +27,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
     childName = ns.name() + childName;
   dd4hep::Volume child = ns.volume(childName);
-    
+
   // Increment
   double dphi = rangeAngle / n;
 #ifdef EDM_ML_DEBUG
