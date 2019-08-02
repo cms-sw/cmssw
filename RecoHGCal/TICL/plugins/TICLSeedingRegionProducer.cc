@@ -58,14 +58,14 @@ void TICLSeedingRegionProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<int>("algo_verbosity", 0);
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<std::string>("cutTk",
-                        "1.48 < abs(eta) < 3.0 && pt > 2. && p > 1 && quality(\"highPurity\") && "
+                        "1.48 < abs(eta) < 3.0 && pt > 2. && quality(\"highPurity\") && "
                         "hitPattern().numberOfLostHits(\"MISSING_OUTER_HITS\") < 10");
   desc.add<std::string>("propagator", "PropagatorWithMaterial");
   desc.add<int>("algoId", 1);
   descriptions.add("ticlSeedingRegionProducer", desc);
 }
 
-void TICLSeedingRegionProducer::beginRun(edm::Run const& iEvent, edm::EventSetup const& es) { myAlgo_->Initialize(es); }
+void TICLSeedingRegionProducer::beginRun(edm::Run const& iEvent, edm::EventSetup const& es) { myAlgo_->initialize(es); }
 
 void TICLSeedingRegionProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   auto result = std::make_unique<std::vector<TICLSeedingRegion>>();

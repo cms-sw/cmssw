@@ -21,8 +21,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
-#include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 class HGCGraph;
@@ -33,7 +31,7 @@ namespace ticl {
     SeedingRegionByTracks(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes);
     ~SeedingRegionByTracks() override;
 
-    void Initialize(const edm::EventSetup& es) override;
+    void initialize(const edm::EventSetup& es) override;
 
     void makeRegions(const edm::Event& ev, const edm::EventSetup& es, std::vector<TICLSeedingRegion>& result) override;
 

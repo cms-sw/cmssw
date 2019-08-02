@@ -9,6 +9,7 @@
 #include "SeedingRegionByTracks.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 
 using namespace ticl;
 
@@ -20,7 +21,7 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
 
 SeedingRegionByTracks::~SeedingRegionByTracks(){};
 
-void SeedingRegionByTracks::Initialize(const edm::EventSetup &es) {
+void SeedingRegionByTracks::initialize(const edm::EventSetup &es) {
   edm::ESHandle<HGCalDDDConstants> hdc;
   es.get<IdealGeometryRecord>().get(detectorName_, hdc);
   hgcons_ = hdc.product();

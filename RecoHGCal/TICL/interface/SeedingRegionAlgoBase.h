@@ -24,7 +24,7 @@ namespace ticl {
         : algo_verbosity_(conf.getParameter<int>("algo_verbosity")) {}
     virtual ~SeedingRegionAlgoBase(){};
 
-    virtual void Initialize(const edm::EventSetup& es) = 0;
+    virtual void initialize(const edm::EventSetup& es) = 0;
 
     virtual void makeRegions(const edm::Event& ev,
                              const edm::EventSetup& es,
