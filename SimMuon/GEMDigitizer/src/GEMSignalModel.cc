@@ -23,7 +23,7 @@ GEMSignalModel::GEMSignalModel(const edm::ParameterSet& config)
       digitizeOnlyMuons_(config.getParameter<bool>("digitizeOnlyMuons")),
       resolutionX_(config.getParameter<double>("resolutionX")),
       muonPdgId(13),
-      cspeed(CLHEP::c_light),
+      cspeed(geant_units::operators::convertMmToCm(CLHEP::c_light)),
       momConvFact(1000.),
       elecMomCut1(1.96e-03),
       elecMomCut2(10.e-03),
@@ -98,7 +98,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   const GlobalPoint& globMiddleRol = roll->toGlobal(middleOfRoll);
   double muRadius = sqrt(globMiddleRol.x() * globMiddleRol.x() + globMiddleRol.y() * globMiddleRol.y() +
                          globMiddleRol.z() * globMiddleRol.z());
-  double timeCalibrationOffset_ = geant_units::operators::convertCmToMm(muRadius) / cspeed;  //[ns]
+  double timeCalibrationOffset_ = muRadius / cspeed;  //[ns]
 
   const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float halfStripLength(0.5 * top->stripLength());

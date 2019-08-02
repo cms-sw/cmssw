@@ -89,6 +89,7 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
     bhOffset_ =
         fhOffset_ + (geomBH->topology().dddConstants()).firstLayer() - (geomEE->topology().dddConstants()).firstLayer();
     bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).layers(true);
+    bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
   } else {
     geometryType_ = 0;
     geomEE =
@@ -411,6 +412,18 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   }
   //new geometry is always false
   return ishalf;
+}
+
+bool RecHitTools::isSilicon(const DetId& id) const {
+  bool issilicon = false;
+  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi)
+    issilicon = true;
+  return issilicon;
+}
+
+bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
+  bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
+  return isonlysilicon;
 }
 
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {
