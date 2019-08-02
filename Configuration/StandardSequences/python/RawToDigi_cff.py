@@ -60,7 +60,6 @@ RawToDigiTask = cms.Task(L1TRawToDigiTask,
                          castorDigis,
                          scalersRawToDigi,
                          tcdsDigis,
-                         onlineMetaDataDigis,
                          )
 RawToDigi = cms.Sequence(RawToDigiTask)
 
@@ -80,6 +79,12 @@ muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
+
+#Add OnlineMetaData only from Run2_2018
+from Configuration.Eras.Modifier_run2_onlineMetaData_2018_cff import run2_onlineMetaData_2018
+RawToDigiTask2018=RawToDigiTask.copy()
+RawToDigiTask2018.add(onlineMetaDataDigis)
+run2_onlineMetaData_2018.toReplaceWith(RawToDigiTask, RawToDigiTask2018)
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([castorDigis]))
