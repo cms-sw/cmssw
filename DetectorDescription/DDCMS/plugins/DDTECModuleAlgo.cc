@@ -43,14 +43,16 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double topFrame2LHeight = isStereo ? args.value<double>("TopFrame2LHeight") : 0e0;  //             left  height
   double topFrame2RHeight = isStereo ? args.value<double>("TopFrame2RHeight") : 0e0;  //             right height
   double topFrameZ = args.value<double>("TopFrameZ");                                 //              z-positions
+
+  double resizeH = 0.96;
   string sideFrameMat = args.value<string>("SideFrameMaterial");                      //Side frame    material
   double sideFrameThick = args.value<double>("SideFrameThick");                       //              thickness
   double sideFrameLWidth = args.value<double>("SideFrameLWidth");  //    Left     Width (for stereo modules upper one)
   double sideFrameLWidthLow = isStereo ? args.value<double>("SideFrameLWidthLow")
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
-  double sideFrameLHeight = args.value<double>("SideFrameLHeight");  //             Height
+  double sideFrameLHeight = resizeH * args.value<double>("SideFrameLHeight");  //             Height
   double sideFrameLtheta = args.value<double>("SideFrameLtheta");    //              angle of the trapezoid shift
-  double sideFrameRWidth = args.value<double>("SideFrameRWidth");    //    Right    Width (for stereo modules upper one)
+  double sideFrameRWidth = resizeH * args.value<double>("SideFrameRWidth");    //    Right    Width (for stereo modules upper one)
   double sideFrameRWidthLow = isStereo ? args.value<double>("SideFrameRWidthLow")
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
   double sideFrameRHeight = args.value<double>("SideFrameRHeight");  //             Height
