@@ -543,3 +543,14 @@ LocalError PixelCPETemplateReco::localError(DetParam const& theDetParam, Cluster
 
   return LocalError(xerr * xerr, 0, yerr * yerr);
 }
+
+void PixelCPETemplateReco::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<int>("barrelTemplateID", 0);
+  desc.add<int>("forwardTemplateID", 0);
+  desc.add<int>("directoryWithTemplates", 0);
+  desc.add<int>("speed", -2);
+  desc.add<bool>("UseClusterSplitter", false);
+
+  // needed because it's in the HLT configuration
+  desc.addOptional<bool>("DoCosmics", false);
+}

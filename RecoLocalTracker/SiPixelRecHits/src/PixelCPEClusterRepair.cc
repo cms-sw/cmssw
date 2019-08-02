@@ -100,7 +100,7 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
   // can be:
   //     XYX (XYZ = PXB, PXE)
   //     XYZ n (XYZ as above, n = layer, wheel or disk = 1 .. 6 ;)
-  std::vector<std::string> str_recommend2D = conf.getParameter<std::vector<std::string> >("Recommend2D");
+  std::vector<std::string> str_recommend2D = conf.getParameter<std::vector<std::string>>("Recommend2D");
   recommend2D_.reserve(str_recommend2D.size());
   for (auto& str : str_recommend2D) {
     recommend2D_.push_back(str);
@@ -336,7 +336,7 @@ void PixelCPEClusterRepair::callTempReco1D(DetParam const& theDetParam,
   float locBx = theDetParam.bx;
   //
   const bool deadpix = false;
-  std::vector<std::pair<int, int> > zeropix;
+  std::vector<std::pair<int, int>> zeropix;
   int nypix = 0, nxpix = 0;
   //
   theClusterParam.ierr = PixelTempReco1D(ID,
@@ -718,3 +718,15 @@ PixelCPEClusterRepair::Rule::Rule(const std::string& str) {
     layer_ = 0;
   }
 }  //end Rule::Rule
+
+void PixelCPEClusterRepair::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<int>("barrelTemplateID", 0);
+  desc.add<int>("forwardTemplateID", 0);
+  desc.add<int>("directoryWithTemplates", 0);
+  desc.add<int>("speed", -2);
+  desc.add<bool>("UseClusterSplitter", false);
+  desc.add<double>("MaxSizeMismatchInY", 0.3);
+  desc.add<double>("MinChargeRatio", 0.8);
+  desc.add<std::vector<std::string>>("Recommend2D", {"PXB 2", "PXB 3", "PXB 4"});
+  desc.add<bool>("RunDamagedClusters", false);
+}

@@ -23,6 +23,7 @@ class PixelCPEGenericESProducer : public edm::ESProducer {
 public:
   PixelCPEGenericESProducer(const edm::ParameterSet& p);
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord&);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
@@ -42,23 +43,20 @@ using namespace edm;
 PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
   // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
-  useLAWidthFromDB_ = p.existsAs<bool>("useLAWidthFromDB") ? p.getParameter<bool>("useLAWidthFromDB") : false;
+  useLAWidthFromDB_ = p.getParameter<bool>("useLAWidthFromDB");
   // Use Alignment LA-offset
-  const bool useLAAlignmentOffsets =
-      p.existsAs<bool>("useLAAlignmentOffsets") ? p.getParameter<bool>("useLAAlignmentOffsets") : false;
+  const bool useLAAlignmentOffsets = p.getParameter<bool>("useLAAlignmentOffsets");
   char const* laLabel = "";  // standard LA, from calibration, label=""
   if (useLAAlignmentOffsets) {
     laLabel = "fromAlignment";
   }
 
-  auto magname = p.existsAs<edm::ESInputTag>("MagneticFieldRecord")
-                     ? p.getParameter<edm::ESInputTag>("MagneticFieldRecord")
-                     : edm::ESInputTag("");
+  auto magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
   UseErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
 
   pset_ = p;
   auto c = setWhatProduced(this, myname);
-  c.setConsumes(magfieldToken_, magname)
+  c.setConsumes(magfieldToken_, edm::ESInputTag(magname))
       .setConsumes(pDDToken_)
       .setConsumes(hTTToken_)
       .setConsumes(lorentzAngleToken_, edm::ESInputTag("", laLabel));
@@ -96,6 +94,27 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEGenericESProducer::produ
                                            &iRecord.get(lorentzAngleToken_),
                                            genErrorDBObjectProduct,
                                            lorentzAngleWidthProduct);
+}
+
+void PixelCPEGenericESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+
+  // from PixelCPEBase
+  PixelCPEBase::fillPSetDescription(desc);
+
+  // from PixelCPEGeneric
+  PixelCPEGeneric::fillPSetDescription(desc);
+
+  // specific to PixelCPEGenericESProducer
+  desc.add<std::string>("ComponentName", "PixelCPEGeneric");
+  desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag(""));
+  desc.add<bool>("useLAAlignmentOffsets", false);
+
+  // vestigial (present in certain HLT menus)
+  desc.addOptional<double>("TanLorentzAnglePerTesla", 0.106);
+  desc.addOptional<std::string>("PixelErrorParametrization", "NOTcmsim");
+
+  descriptions.add("PixelCPEGenericESProducer", desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEGenericESProducer);

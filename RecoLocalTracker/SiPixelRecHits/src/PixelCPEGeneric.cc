@@ -59,7 +59,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
 
   // no clear what upgrade means, is it phase1, phase2? Probably delete.
   isUpgrade_ = false;
-  if (conf.exists("Upgrade") && conf.getParameter<bool>("Upgrade"))
+  if (conf.getParameter<bool>("Upgrade"))
     isUpgrade_ = true;
 
   // Select the position error source
@@ -120,7 +120,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const& conf,
     yerr_endcap_ = {0.00289, 0.00025};
     yerr_endcap_def_ = 0.00180;
 
-    if (conf.exists("SmallPitch") && conf.getParameter<bool>("SmallPitch")) {
+    if (conf.getParameter<bool>("SmallPitch")) {
       xerr_barrel_l1_ = {0.00104, 0.000691, 0.00122};
       xerr_barrel_l1_def_ = 0.00321;
       yerr_barrel_l1_ = {0.00199, 0.00136, 0.0015, 0.00153, 0.00152, 0.00171, 0.00154, 0.00157, 0.00154};
@@ -743,4 +743,23 @@ LocalError PixelCPEGeneric::localError(DetParam const& theDetParam, ClusterParam
   auto yerr_sq = yerr * yerr;
 
   return LocalError(xerr_sq, 0, yerr_sq);
+}
+
+void PixelCPEGeneric::fillPSetDescription(edm::ParameterSetDescription& desc) {
+  desc.add<double>("eff_charge_cut_highX", 1.0);
+  desc.add<double>("eff_charge_cut_highY", 1.0);
+  desc.add<double>("eff_charge_cut_lowX", 0.0);
+  desc.add<double>("eff_charge_cut_lowY", 0.0);
+  desc.add<double>("size_cutX", 3.0);
+  desc.add<double>("size_cutY", 3.0);
+  desc.add<double>("EdgeClusterErrorX", 50.0);
+  desc.add<double>("EdgeClusterErrorY", 85.0);
+  desc.add<bool>("inflate_errors", false);
+  desc.add<bool>("inflate_all_errors_no_trk_angle", false);
+  desc.add<bool>("UseErrorsFromTemplates", true);
+  desc.add<bool>("TruncatePixelCharge", true);
+  desc.add<bool>("IrradiationBiasCorrection", false);
+  desc.add<bool>("DoCosmics", false);
+  desc.add<bool>("Upgrade", false);
+  desc.add<bool>("SmallPitch", false);
 }
