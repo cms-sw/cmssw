@@ -21,15 +21,8 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf) : 
 
 PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 
-void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
-                                            const edm::EventSetup &es,
-                                            const std::vector<reco::CaloCluster> &layerClusters,
-                                            const std::vector<float> &mask,
-                                            const edm::ValueMap<float> &layerClustersTime,
-                                            const TICLLayerTiles &tiles,
-                                            const std::vector<TICLSeedingRegion> &regions,
-                                            std::vector<Trackster> &result) {
-  rhtools_.getEventSetup(es);
+void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input) {
+  rhtools_.getEventSetup(input.es);
 
   theGraph_->setVerbosity(algo_verbosity_);
   theGraph_->clear();
@@ -38,14 +31,14 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
   }
   std::vector<HGCDoublet::HGCntuplet> foundNtuplets;
   std::vector<int> seedIndices;
-  std::vector<uint8_t> layer_cluster_usage(layerClusters.size(), 0);
-  theGraph_->makeAndConnectDoublets(tiles,
-                                    regions,
+  std::vector<uint8_t> layer_cluster_usage(input.layerClusters.size(), 0);
+  theGraph_->makeAndConnectDoublets(input.tiles,
+                                    input.regions,
                                     ticl::constants::nEtaBins,
                                     ticl::constants::nPhiBins,
-                                    layerClusters,
-                                    mask,
-                                    layerClustersTime,
+                                    input.layerClusters,
+                                    input.mask,
+                                    input.layerClustersTime,
                                     1,
                                     1,
                                     min_cos_theta_,
@@ -66,12 +59,13 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
       effective_cluster_idx.insert(innerCluster);
       effective_cluster_idx.insert(outerCluster);
       if (algo_verbosity_ > Advanced) {
-        LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
-                                      << innerCluster << " " << layerClusters[innerCluster].x() << " "
-                                      << layerClusters[innerCluster].y() << " " << layerClusters[innerCluster].z()
-                                      << " OuterCl " << outerCluster << " " << layerClusters[outerCluster].x() << " "
-                                      << layerClusters[outerCluster].y() << " " << layerClusters[outerCluster].z()
-                                      << " " << tracksterId << std::endl;
+        LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << input.result.size()
+                                      << " InnerCl " << innerCluster << " " << input.layerClusters[innerCluster].x()
+                                      << " " << input.layerClusters[innerCluster].y() << " "
+                                      << input.layerClusters[innerCluster].z() << " OuterCl " << outerCluster << " "
+                                      << input.layerClusters[outerCluster].x() << " "
+                                      << input.layerClusters[outerCluster].y() << " "
+                                      << input.layerClusters[outerCluster].z() << " " << tracksterId << std::endl;
       }
     }
     for (auto const i : effective_cluster_idx) {
@@ -84,14 +78,14 @@ void PatternRecognitionbyCA::makeTracksters(const edm::Event &ev,
     tmp.vertex_multiplicity.resize(effective_cluster_idx.size(), 0);
     //regions and seedIndices can have different size
     //if a seeding region does not lead to any trackster
-    tmp.seedID = regions[0].collectionID;
+    tmp.seedID = input.regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
     std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
-    result.push_back(tmp);
+    input.result.push_back(tmp);
     tracksterId++;
   }
 
-  for (auto &trackster : result) {
+  for (auto &trackster : input.result) {
     assert(trackster.vertices.size() <= trackster.vertex_multiplicity.size());
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
       trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
