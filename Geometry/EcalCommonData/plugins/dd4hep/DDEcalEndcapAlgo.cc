@@ -1,6 +1,7 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "DetectorDescription/DDCMS/interface/BenchmarkGrd.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 // Header files for endcap supercrystal geometry
 #include "Geometry/EcalCommonData/interface/DDEcalEndcapTrap.h"
 #include <CLHEP/Geometry/Transform3D.h>
@@ -11,18 +12,7 @@
 using namespace std;
 using namespace cms;
 using namespace dd4hep;
-// FIXME: use local definition until dd4hep fixes the uniits
-// using namespace geant_units::operators;
-
-constexpr long double piRadians(M_PIl);              // M_PIl is long double version of pi
-constexpr long double degPerRad = 180. / piRadians;  // Degrees per radian
-constexpr double operator"" _deg(long double deg) { return deg / degPerRad; }
-constexpr double operator"" _deg(unsigned long long int deg) { return deg / degPerRad; }
-
-// Length
-constexpr double operator"" _mm(long double length) { return length * 0.1; }
-constexpr double operator"" _mm(unsigned long long int length) { return length * 0.1; }
-constexpr double operator"" _cm(unsigned long long int length) { return length * 1; }
+using namespace cms_units::operators;
 
 using DDTranslation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 using DDRotation = ROOT::Math::Rotation3D;
