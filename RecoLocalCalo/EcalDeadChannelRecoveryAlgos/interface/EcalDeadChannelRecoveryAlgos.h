@@ -22,7 +22,7 @@ public:
                 std::string algo,
                 double single8Cut,
                 double sum8Cut,
-                bool *accFlag);
+                bool &accFlag);
 
 private:
   EcalDeadChannelRecoveryBDTG<DetIdT> bdtg_;

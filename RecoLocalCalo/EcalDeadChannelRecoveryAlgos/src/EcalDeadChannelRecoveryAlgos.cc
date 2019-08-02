@@ -29,17 +29,17 @@ float EcalDeadChannelRecoveryAlgos<T>::correct(const T id,
                                                std::string algo,
                                                double single8Cut,
                                                double sum8Cut,
-                                               bool *acceptFlag) {
+                                               bool &acceptFlag) {
   // recover as single dead channel
   double newEnergy = 0.0;
   if (algo == "BDTG") {
-    *acceptFlag = false;
+    acceptFlag = false;
     newEnergy = this->bdtg_.recover(id, hit_collection, single8Cut, sum8Cut, acceptFlag);  //ADD here
     if (newEnergy > 0.)
-      *acceptFlag = true;  //bdtg set to 0 if there is more than one channel in the matrix that is not reponding
+      acceptFlag = true;  //bdtg set to 0 if there is more than one channel in the matrix that is not reponding
   } else {
     edm::LogError("EcalDeadChannelRecoveryAlgos") << "Invalid algorithm for dead channel recovery.";
-    *acceptFlag = false;
+    acceptFlag = false;
   }
 
   return newEnergy;

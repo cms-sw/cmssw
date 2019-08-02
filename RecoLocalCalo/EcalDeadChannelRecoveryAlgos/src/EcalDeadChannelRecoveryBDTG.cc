@@ -17,43 +17,29 @@
 #include <ostream>
 #include <string>
 
-template <>
-void EcalDeadChannelRecoveryBDTG<EBDetId>::addVariables(TMVA::Reader *reader) {
-  for (int i = 0; i < 9; ++i) {
-    if (i == 4)
-      continue;
-    reader->AddVariable("E" + std::to_string(i + 1) + "/(E1+E2+E3+E4+E6+E7+E8+E9)", &(mx_.rEn[i]));
+namespace {
+
+  struct XtalMatrix {
+    float rEn[9];
+    float sumE8;
+    float ieta[9];
+    float iphi[9];
+  };
+
+  std::vector<float> xtalMatrixToVector(XtalMatrix const &xtalMatrix) {
+    std::vector<float> v(xtalMatrix.rEn, xtalMatrix.rEn + 4);
+    v.insert(v.end(), xtalMatrix.rEn + 5, xtalMatrix.rEn + 9);
+    v.push_back(xtalMatrix.sumE8);
+    v.insert(v.end(), xtalMatrix.ieta, xtalMatrix.ieta + 9);
+    v.insert(v.end(), xtalMatrix.iphi, xtalMatrix.iphi + 9);
+    return v;
   }
-  reader->AddVariable("E1+E2+E3+E4+E6+E7+E8+E9", &(mx_.sumE8));
-  for (int i = 0; i < 9; ++i)
-    reader->AddVariable("iEta" + std::to_string(i + 1), &(mx_.ieta[i]));
-  for (int i = 0; i < 9; ++i)
-    reader->AddVariable("iPhi" + std::to_string(i + 1), &(mx_.iphi[i]));
-}
-template <>
-void EcalDeadChannelRecoveryBDTG<EBDetId>::loadFile() {
-  readerNoCrack = std::make_unique<TMVA::Reader>("!Color:!Silent");
-  readerCrack = std::make_unique<TMVA::Reader>("!Color:!Silent");
-
-  addVariables(readerNoCrack.get());
-  addVariables(readerCrack.get());
-
-  reco::details::loadTMVAWeights(readerNoCrack.get(), "BDTG", bdtWeightFileNoCracks_.fullPath());
-  reco::details::loadTMVAWeights(readerCrack.get(), "BDTG", bdtWeightFileCracks_.fullPath());
-}
-
-template <typename T>
-EcalDeadChannelRecoveryBDTG<T>::EcalDeadChannelRecoveryBDTG() {}
-
-template <typename T>
-EcalDeadChannelRecoveryBDTG<T>::~EcalDeadChannelRecoveryBDTG() {}
+}  // namespace
 
 template <>
 void EcalDeadChannelRecoveryBDTG<EBDetId>::setParameters(const edm::ParameterSet &ps) {
-  bdtWeightFileNoCracks_ = ps.getParameter<edm::FileInPath>("bdtWeightFileNoCracks");
-  bdtWeightFileCracks_ = ps.getParameter<edm::FileInPath>("bdtWeightFileCracks");
-
-  loadFile();
+  gbrForestNoCrack_ = createGBRForest(ps.getParameter<edm::FileInPath>("bdtWeightFileNoCracks"));
+  gbrForestCrack_ = createGBRForest(ps.getParameter<edm::FileInPath>("bdtWeightFileCracks"));
 }
 
 template <>
@@ -61,13 +47,15 @@ void EcalDeadChannelRecoveryBDTG<EEDetId>::setParameters(const edm::ParameterSet
 
 template <>
 double EcalDeadChannelRecoveryBDTG<EEDetId>::recover(
-    const EEDetId id, const EcalRecHitCollection &hit_collection, double single8Cut, double sum8Cut, bool *acceptFlag) {
+    const EEDetId id, const EcalRecHitCollection &hit_collection, double single8Cut, double sum8Cut, bool &acceptFlag) {
   return 0;
 }
 
 template <>
 double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
-    const EBDetId id, const EcalRecHitCollection &hit_collection, double single8Cut, double sum8Cut, bool *acceptFlag) {
+    const EBDetId id, const EcalRecHitCollection &hit_collection, double single8Cut, double sum8Cut, bool &acceptFlag) {
+  XtalMatrix mx;
+
   bool isCrack = false;
   int cellIndex = 0.;
   double neighTotEn = 0.;
@@ -76,7 +64,7 @@ double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
   //find the matrix around id
   std::vector<DetId> m3x3aroundDC = EcalClusterTools::matrixDetId(topology_, id, 1);
   if (m3x3aroundDC.size() < 9) {
-    *acceptFlag = false;
+    acceptFlag = false;
     return 0;
   }
 
@@ -96,53 +84,53 @@ double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
       EcalRecHitCollection::const_iterator goS_it = hit_collection.find(cell);
       if (goS_it != hit_collection.end() && cell != id) {
         if (goS_it->energy() < single8Cut) {
-          *acceptFlag = false;
+          acceptFlag = false;
           return 0.;
         } else {
           neighTotEn += goS_it->energy();
-          mx_.rEn[cellIndex] = goS_it->energy();
-          mx_.iphi[cellIndex] = cell.iphi();
-          mx_.ieta[cellIndex] = cell.ieta();
+          mx.rEn[cellIndex] = goS_it->energy();
+          mx.iphi[cellIndex] = cell.iphi();
+          mx.ieta[cellIndex] = cell.ieta();
           cellIndex++;
         }
       } else if (cell == id) {  // the cell is the central one
-        mx_.rEn[cellIndex] = 0;
+        mx.rEn[cellIndex] = 0;
         cellIndex++;
       } else {  //goS_it is not in the rechitcollection
-        *acceptFlag = false;
+        acceptFlag = false;
         return 0.;
       }
     } else {  //cell is null
-      *acceptFlag = false;
+      acceptFlag = false;
       return 0.;
     }
   }
   if (cellIndex > 0 && neighTotEn >= single8Cut * 8. && neighTotEn >= sum8Cut) {
     bool allneighs = true;
-    mx_.sumE8 = neighTotEn;
+    mx.sumE8 = neighTotEn;
     for (unsigned int icell = 0; icell < 9; icell++) {
-      if (mx_.rEn[icell] < single8Cut && icell != 4) {
+      if (mx.rEn[icell] < single8Cut && icell != 4) {
         allneighs = false;
       }
-      mx_.rEn[icell] = mx_.rEn[icell] / neighTotEn;
+      mx.rEn[icell] = mx.rEn[icell] / neighTotEn;
     }
     if (allneighs == true) {
       // evaluate the regression
       if (isCrack) {
-        val = exp((readerCrack->EvaluateRegression("BDTG"))[0]);
+        val = exp(gbrForestCrack_->GetResponse(xtalMatrixToVector(mx).data()));
       } else {
-        val = exp((readerNoCrack->EvaluateRegression("BDTG"))[0]);
+        val = exp(gbrForestNoCrack_->GetResponse(xtalMatrixToVector(mx).data()));
       }
 
-      *acceptFlag = true;
+      acceptFlag = true;
       //return the estimated energy
       return val;
     } else {
-      *acceptFlag = false;
+      acceptFlag = false;
       return 0;
     }
   } else {
-    *acceptFlag = false;
+    acceptFlag = false;
     return 0;
   }
 }

@@ -9,10 +9,9 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-#include "CommonTools/MVAUtils/interface/TMVAZipReader.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "TMVA/Reader.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include <string>
 #include <memory>
@@ -20,32 +19,17 @@
 template <typename DetIdT>
 class EcalDeadChannelRecoveryBDTG {
 public:
-  EcalDeadChannelRecoveryBDTG();
-  ~EcalDeadChannelRecoveryBDTG();
-
   void setParameters(const edm::ParameterSet &ps);
   void setCaloTopology(const CaloTopology *topo) { topology_ = topo; }
 
   double recover(
-      const DetIdT id, const EcalRecHitCollection &hit_collection, double single8Cut, double sum8Cut, bool *acceptFlag);
-
-  void loadFile();
-  void addVariables(TMVA::Reader *reader);
+      const DetIdT id, const EcalRecHitCollection &hit_collection, double single8Cut, double sum8Cut, bool &acceptFlag);
 
 private:
   const CaloTopology *topology_;
-  struct XtalMatrix {
-    std::array<float, 9> rEn, ieta, iphi;
-    float sumE8;
-  };
 
-  XtalMatrix mx_;
-
-  edm::FileInPath bdtWeightFileNoCracks_;
-  edm::FileInPath bdtWeightFileCracks_;
-
-  std::unique_ptr<TMVA::Reader> readerNoCrack;
-  std::unique_ptr<TMVA::Reader> readerCrack;
+  std::unique_ptr<const GBRForest> gbrForestNoCrack_;
+  std::unique_ptr<const GBRForest> gbrForestCrack_;
 };
 
 #endif
