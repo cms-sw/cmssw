@@ -3,3 +3,10 @@
  <use   name="FWCore/PluginManager"/>
  <flags   EDM_PLUGIN="1"/>
 </library>
+
+<library name="DD4hep_GeometryHcalAlgoPlugins" file="dd4hep/*.cc">
+  <use name="DetectorDescription/DDCMS"/>
+  <use name="dd4hep"/>
+  <lib name="Geom"/>
+  <flags DD4HEP_PLUGIN="1"/>
+</library>

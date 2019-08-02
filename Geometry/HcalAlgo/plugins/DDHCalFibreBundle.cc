@@ -5,8 +5,12 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
@@ -14,7 +18,37 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/plugins/DDHCalFibreBundle.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+class DDHCalFibreBundle : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDHCalFibreBundle();
+  ~DDHCalFibreBundle() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  std::string idNameSpace;          //Namespace of this and ALL sub-parts
+  std::string childPrefix;          //Prefix to child name
+  std::string material;             //Name of the material for bundles
+  double deltaZ;                    //Width in  Z  for mother
+  double deltaPhi;                  //Width in phi for mother
+  int numberPhi;                    //Number of sections in phi
+  double tilt;                      //Tilt angle of the readout box
+  std::vector<double> areaSection;  //Area of a bundle
+  std::vector<double> rStart;       //Radius at start
+  std::vector<double> rEnd;         //Radius at End
+  std::vector<int> bundle;          //Bundle to be positioned
+};
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -130,3 +164,5 @@ void DDHCalFibreBundle::execute(DDCompactView& cpv) {
     }
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalFibreBundle, "hcal:DDHCalFibreBundle");
