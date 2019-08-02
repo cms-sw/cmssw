@@ -23,7 +23,11 @@ static long algorithm(dd4hep::Detector& /* description */,
   double shiftY = args.value<double>("shiftY");          //y Shift
   double zoffset = args.value<double>("zoffset");        //z offset
   dd4hep::Volume mother = ns.volume(args.parentName());
-  dd4hep::Volume child = ns.volume(args.value<std::string>("ChildName"));
+  std::string childName = args.value<std::string>("ChildName");
+  if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
+    childName = ns.name() + childName;
+  dd4hep::Volume child = ns.volume(childName);
+
   // Increment
   double dphi = rangeAngle / n;
 #ifdef EDM_ML_DEBUG
@@ -66,4 +70,4 @@ static long algorithm(dd4hep::Detector& /* description */,
 }
 
 // first argument is the type from the xml file
-DECLARE_DDCMS_DETELEMENT(DDCMS_Hcal_DDHCalAngular, algorithm)
+DECLARE_DDCMS_DETELEMENT(DDCMS_hcal_DDHCalAngular, algorithm)
