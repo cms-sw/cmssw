@@ -1777,6 +1777,7 @@ static long load_dddefinition(Detector& det, xml_h element) {
   ns.addConstantNS("Air", "materials:Air", "string");
   ns.addConstantNS("Vacuum", "materials:Vacuum", "string");
   ns.addConstantNS("fm", "1e-12*m", "number");
+  ns.addConstantNS("mum", "1e-6*m", "number");
 
   xml_elt_t dddef(element);
   string fname = xml::DocumentHandler::system_path(element);
