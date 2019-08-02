@@ -397,6 +397,40 @@ generated for each configuration with a module label.
                           [2]: 'One'
                           [3]: 'One::Three'
 
+    esinputTagv1
+                        type: ESInputTag 
+                        default: 'One:Two'
+
+    esinputTagv2
+                        type: ESInputTag 
+                        default: 'One:'
+
+    esinputTagv3
+                        type: ESInputTag 
+                        default: ':Two'
+
+    vESInputTagv1
+                        type: VESInputTag 
+                        default: empty
+
+    vESInputTagv2
+                        type: VESInputTag 
+                        default: (vector size = 1)
+                          [0]: 'One:Two'
+
+    vESInputTagv3
+                        type: VESInputTag 
+                        default: (vector size = 2)
+                          [0]: 'One:Two'
+                          [1]: 'One:'
+
+    vESInputTagv4
+                        type: VESInputTag 
+                        default: (vector size = 3)
+                          [0]: 'One:Two'
+                          [1]: 'One:'
+                          [2]: ':Two'
+
     fileInPath
                         type: FileInPath 
                         default: 'FWCore/Integration/test/ProducerWithPSetDesc.cc'

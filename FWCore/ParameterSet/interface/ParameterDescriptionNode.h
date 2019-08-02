@@ -50,6 +50,8 @@ namespace edm {
     k_VLuminosityBlockID = 'm',
     k_InputTag = 't',
     k_VInputTag = 'v',
+    k_ESInputTag = 'g',
+    k_VESInputTag = 'G',
     k_FileInPath = 'F',
     k_LuminosityBlockRange = 'A',
     k_VLuminosityBlockRange = 'a',
