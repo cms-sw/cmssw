@@ -56,4 +56,4 @@ static long algorithm(dd4hep::Detector& /* description */,
 }
 
 // first argument is the type from the xml file
-DECLARE_DDCMS_DETELEMENT(DDCMS_Hcal_DDHCalLinearXY, algorithm)
+DECLARE_DDCMS_DETELEMENT(DDCMS_hcal_DDHCalLinearXY, algorithm)
