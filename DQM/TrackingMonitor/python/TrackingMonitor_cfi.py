@@ -67,6 +67,7 @@ TrackMon = DQMEDAnalyzer('TrackingMonitor',
     pvNDOF                              = cms.int32(4),
     pixelCluster4lumi                   = cms.InputTag('siPixelClustersPreSplitting'),
     scal                                = cms.InputTag('scalersRawToDigi'),
+    metadata                            = cms.InputTag('onlineMetaDataDigis'),
     useBPixLayer1                       = cms.bool(False),
     minNumberOfPixelsPerCluster         = cms.int32(2), # from DQM/PixelLumi/python/PixelLumiDQM_cfi.py
     minPixelClusterCharge               = cms.double(15000.),

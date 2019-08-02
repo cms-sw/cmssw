@@ -125,6 +125,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   pvSrcToken_ = mayConsume<reco::VertexCollection>(pvSrc_);
 
   lumiscalersToken_ = consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("scal"));
+  metaDataToken_ = consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("metadata"));
 
   edm::InputTag alltrackProducer = iConfig.getParameter<edm::InputTag>("allTrackProducer");
   edm::InputTag trackProducer = iConfig.getParameter<edm::InputTag>("TrackProducer");
@@ -753,13 +754,23 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   MEFolderName = conf->getParameter<std::string>("FolderName");
   std::string Folder = MEFolderName.substr(0, 2);
   float lumi = -1.;
-  edm::Handle<LumiScalersCollection> lumiScalers;
-  iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if (lumiScalers.isValid() && !lumiScalers->empty()) {
-    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
-    lumi = scalit->instantLumi();
-  } else
-    lumi = -1.;
+
+  edm::Handle<OnlineLuminosityRecord> metaData;
+  iEvent.getByToken(metaDataToken_, metaData);
+  if (metaData.isValid()) {
+    lumi = metaData->instLumi();
+  }
+  else {
+    edm::Handle<LumiScalersCollection> lumiScalers;
+    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      lumi = scalit->instantLumi();
+    }
+    else {
+      lumi = -1;
+    }
+  }
 
   if (doPlotsVsLUMI_ || doAllPlots)
     NumberEventsOfVsLUMI->Fill(lumi);

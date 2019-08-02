@@ -23,6 +23,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
 class GenericTriggerEventFlag;
 
@@ -77,6 +78,7 @@ private:
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
 
   int pvNDOF_;
 

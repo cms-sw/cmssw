@@ -18,6 +18,7 @@ V0Monitor::V0Monitor(const edm::ParameterSet& iConfig)
       bsToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       pvToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertex"))),
       lumiscalersToken_(consumes<LumiScalersCollection>(iConfig.getParameter<edm::InputTag>("lumiScalers"))),
+      metaDataToken_(consumes<OnlineLuminosityRecord>(iConfig.getParameter<edm::InputTag>("metadata"))),
       pvNDOF_(iConfig.getParameter<int>("pvNDOF")),
       genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this)) {
@@ -234,13 +235,24 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   n_vs_BX_->Fill(bx);
 
   float lumi = -1.;
-  edm::Handle<LumiScalersCollection> lumiScalers;
-  iEvent.getByToken(lumiscalersToken_, lumiScalers);
-  if (lumiScalers.isValid() && !lumiScalers->empty()) {
-    LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
-    lumi = scalit->instantLumi();
-  } else
-    lumi = -1.;
+
+  edm::Handle<OnlineLuminosityRecord> metaData;
+  iEvent.getByToken(metaDataToken_, metaData);
+  if (metaData.isValid()) {
+    lumi = metaData->instLumi();
+  }
+  else {
+    edm::Handle<LumiScalersCollection> lumiScalers;
+    iEvent.getByToken(lumiscalersToken_, lumiScalers);
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      lumi = scalit->instantLumi();
+    }
+    else {
+      lumi = -1;
+    }
+  }
+
   n_vs_lumi_->Fill(lumi);
 
   edm::Handle<reco::BeamSpot> beamspotHandle;

@@ -7,6 +7,7 @@ v0Monitor = DQMEDAnalyzer('V0Monitor',
    beamSpot      = cms.InputTag('offlineBeamSpot'),
    primaryVertex = cms.InputTag('offlinePrimaryVertices'),
    lumiScalers   = cms.InputTag('scalersRawToDigi'),
+   metadata      = cms.InputTag('onlineMetaDataDigis'),
    pvNDOF = cms.int32(4),   
    genericTriggerEventPSet = cms.PSet(),
    histoPSet = cms.PSet(

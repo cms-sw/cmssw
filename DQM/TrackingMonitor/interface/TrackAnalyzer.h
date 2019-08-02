@@ -26,6 +26,7 @@ Monitoring source for general quantities related to tracks.
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 
 class BeamSpot;
 class TrackAnalyzer {
@@ -80,6 +81,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> pvToken_;
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumiscalersToken_;
+  edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
   float lumi_factor_per_bx_;
 
   edm::ParameterSet const* conf_;
