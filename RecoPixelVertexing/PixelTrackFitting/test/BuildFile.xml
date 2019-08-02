@@ -78,7 +78,11 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
-<bin file="testEigenJacobian.cpp">
+<bin file="testEigenJacobian.cpp">  
+  <use   name="DataFormats/GeometrySurface"/>
+  <use   name="TrackingTools/AnalyticalJacobians"/>
+  <use   name="TrackingTools/TrajectoryParametrization"/>
+  <use   name="MagneticField/Engine"/>
   <use name="eigen"/>
   <use name="cuda"/>
   <flags CXXFLAGS="-g"/>
