@@ -11,13 +11,7 @@
 #include "RecoLocalTracker/Phase2TrackerRecHits/interface/Phase2StripCPE.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
@@ -51,7 +45,14 @@ public:
     /* Pixels: */ BadROCs = 2
   };
 
-  MeasurementTrackerImpl(const edm::ParameterSet& conf,
+  struct BadStripCutsDet {
+    StMeasurementConditionSet::BadStripCuts tib;
+    StMeasurementConditionSet::BadStripCuts tob;
+    StMeasurementConditionSet::BadStripCuts tid;
+    StMeasurementConditionSet::BadStripCuts tec;
+  };
+
+  MeasurementTrackerImpl(const BadStripCutsDet& badStripCuts,
                          const PixelClusterParameterEstimator* pixelCPE,
                          const StripClusterParameterEstimator* stripCPE,
                          const SiStripRecHitMatcher* hitMatcher,
@@ -105,9 +106,6 @@ public:
   const Phase2OTMeasurementConditionSet& phase2DetConditions() const override { return thePhase2DetConditions; }
 
 protected:
-  const edm::ParameterSet& pset_;
-  const std::string name_;
-
   StMeasurementConditionSet theStDetConditions;
   PxMeasurementConditionSet thePxDetConditions;
   Phase2OTMeasurementConditionSet thePhase2DetConditions;
@@ -141,7 +139,10 @@ protected:
 
   bool checkDets();
 
-  void initializeStripStatus(const SiStripQuality* stripQuality, int qualityFlags, int qualityDebugFlags);
+  void initializeStripStatus(const BadStripCutsDet& badStripCuts,
+                             const SiStripQuality* stripQuality,
+                             int qualityFlags,
+                             int qualityDebugFlags);
 
   void initializePixelStatus(const SiPixelQuality* stripQuality,
                              const SiPixelFedCabling* pixelCabling,

@@ -20,8 +20,6 @@ class Phase2StripCPE;
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include <unordered_map>
 
 // #define VISTAT
@@ -49,9 +47,8 @@ public:
 
   struct BadStripCuts {
     BadStripCuts() : maxBad(9999), maxConsecutiveBad(9999) {}
-    BadStripCuts(const edm::ParameterSet& pset)
-        : maxBad(pset.getParameter<uint32_t>("maxBad")),
-          maxConsecutiveBad(pset.getParameter<uint32_t>("maxConsecutiveBad")) {}
+    BadStripCuts(uint32_t iMaxBad, uint32_t iMaxConsecutiveBad)
+        : maxBad(iMaxBad), maxConsecutiveBad(iMaxConsecutiveBad) {}
     uint16_t maxBad, maxConsecutiveBad;
   };
 
