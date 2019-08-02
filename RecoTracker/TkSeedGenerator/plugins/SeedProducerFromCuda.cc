@@ -1,11 +1,9 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/Common/interface/OrphanHandle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,29 +15,30 @@
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/Producer/interface/HeterogeneousEDProducer.h"
 #include "RecoPixelVertexing/PixelTriplets/plugins/pixelTuplesHeterogeneousProduct.h"
-#include "RecoTracker/TkHitPairs/interface/RegionsSeedingHitSets.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/AnalyticalJacobians/interface/JacobianLocalToCurvilinear.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
 #include "RecoPixelVertexing/PixelTrackFitting/interface/FitUtils.h"
 
-#include "storeTracks.h"
-
-/**
- * This class will eventually be the one creating the reco::Track
- * objects from the output of GPU CA. Now it is just to produce
- * something persistable.
- */
-class PixelTrackProducerFromCUDA
+/*
+  produces seeds directly from cuda produced tuples
+*/
+class SeedProducerFromCuda
     : public HeterogeneousEDProducer<heterogeneous::HeterogeneousDevices<heterogeneous::GPUCuda, heterogeneous::CPU>> {
 public:
   using Input = pixelTuplesHeterogeneousProduct::HeterogeneousPixelTuples;
   using TuplesOnCPU = pixelTuplesHeterogeneousProduct::TuplesOnCPU;
 
-  using Output = HeterogeneousProductImpl<heterogeneous::CPUProduct<int>, heterogeneous::GPUCudaProduct<int>>;
-
-  explicit PixelTrackProducerFromCUDA(const edm::ParameterSet &iConfig);
-  ~PixelTrackProducerFromCUDA() override = default;
+  explicit SeedProducerFromCuda(const edm::ParameterSet &iConfig);
+  ~SeedProducerFromCuda() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
@@ -57,40 +56,28 @@ private:
 
   edm::EDGetTokenT<reco::BeamSpot> tBeamSpot_;
   edm::EDGetTokenT<HeterogeneousProduct> gpuToken_;
-  edm::EDGetTokenT<RegionsSeedingHitSets> srcToken_;
   uint32_t minNumberOfHits_;
-  bool enableConversion_;
 };
 
-PixelTrackProducerFromCUDA::PixelTrackProducerFromCUDA(const edm::ParameterSet &iConfig)
+SeedProducerFromCuda::SeedProducerFromCuda(const edm::ParameterSet &iConfig)
     : HeterogeneousEDProducer(iConfig),
       tBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))),
       gpuToken_(consumes<HeterogeneousProduct>(iConfig.getParameter<edm::InputTag>("src"))),
-      minNumberOfHits_(iConfig.getParameter<unsigned int>("minNumberOfHits")),
-      enableConversion_(iConfig.getParameter<bool>("gpuEnableConversion")) {
-  if (enableConversion_) {
-    srcToken_ = consumes<RegionsSeedingHitSets>(iConfig.getParameter<edm::InputTag>("src"));
-    produces<reco::TrackCollection>();
-    produces<TrackingRecHitCollection>();
-    produces<reco::TrackExtraCollection>();
-  } else {
-    produces<int>();  // dummy
-  }
-  //  produces<HeterogeneousProduct>();
+      minNumberOfHits_(iConfig.getParameter<unsigned int>("minNumberOfHits"))
+{
+    produces<TrajectorySeedCollection>();
 }
 
-void PixelTrackProducerFromCUDA::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
+void SeedProducerFromCuda::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
   desc.add<edm::InputTag>("src", edm::InputTag("pixelTracksHitQuadruplets"));
-  desc.add<unsigned int>("minNumberOfHits", 4);
-  desc.add<bool>("gpuEnableConversion", true);
-
+  desc.add<unsigned int>("minNumberOfHits",4);
   HeterogeneousEDProducer::fillPSetDescription(desc);
   descriptions.addWithDefaultLabel(desc);
 }
 
-void PixelTrackProducerFromCUDA::acquireGPUCuda(const edm::HeterogeneousEvent &iEvent,
+void SeedProducerFromCuda::acquireGPUCuda(const edm::HeterogeneousEvent &iEvent,
                                                 const edm::EventSetup &iSetup,
                                                 cuda::stream_t<> &cudaStream) {
   edm::Handle<TuplesOnCPU> gh;
@@ -101,31 +88,28 @@ void PixelTrackProducerFromCUDA::acquireGPUCuda(const edm::HeterogeneousEvent &i
   tuples_ = gh.product();
 }
 
-void PixelTrackProducerFromCUDA::produceGPUCuda(edm::HeterogeneousEvent &iEvent,
+void SeedProducerFromCuda::produceGPUCuda(edm::HeterogeneousEvent &iEvent,
                                                 const edm::EventSetup &iSetup,
                                                 cuda::stream_t<> &cudaStream) {
-  // iEvent.put(std::make_unique<int>(0));
-  if (!enableConversion_)
-    return;
 
-  // std::cout << "Converting gpu helix in reco tracks" << std::endl;
+  // std::cout << "Converting gpu helix to trajectory seed" << std::endl;
+  auto result = std::make_unique<TrajectorySeedCollection>();
+
 
   edm::ESHandle<MagneticField> fieldESH;
   iSetup.get<IdealMagneticFieldRecord>().get(fieldESH);
 
-  pixeltrackfitting::TracksWithTTRHs tracks;
+  edm::ESHandle<TrackerGeometry> tracker;
+  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+  auto const & dus = tracker->detUnits();
+
+  edm::ESHandle<Propagator>  propagatorHandle;
+  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",propagatorHandle);
+  const Propagator*  propagator = &(*propagatorHandle);
+
   edm::ESHandle<TrackerTopology> httopo;
   iSetup.get<TrackerTopologyRcd>().get(httopo);
 
-  edm::Handle<RegionsSeedingHitSets> hitSets;
-  iEvent.getByToken(srcToken_, hitSets);
-  const auto &hitSet = *hitSets->begin();
-  auto b = hitSet.begin();
-  auto e = hitSet.end();
-  // std::cout << "reading hitset " << e-b << std::endl;
-
-  // const auto & region = hitSet.region();
-  // std::cout << "origin " << region.origin() << std::endl;
 
   edm::Handle<reco::BeamSpot> bsHandle;
   iEvent.getByToken(tBeamSpot_, bsHandle);
@@ -133,34 +117,34 @@ void PixelTrackProducerFromCUDA::produceGPUCuda(edm::HeterogeneousEvent &iEvent,
   // std::cout << "beamspot " << bsh.x0() << ' ' << bsh.y0() << ' ' << bsh.z0() << std::endl;
   GlobalPoint bs(bsh.x0(), bsh.y0(), bsh.z0());
 
-  std::vector<const TrackingRecHit *> hits;
-  hits.reserve(5);
-
-  uint32_t nh = 0;  // current hitset
-  assert(tuples_->indToEdm.size() == tuples_->nTuples);
+  auto const & detIndices =  *tuples_->detIndices;
   for (uint32_t it = 0; it < tuples_->nTuples; ++it) {
     auto q = tuples_->quality[it];
-    // this should be in phase with selection of hitset....
     if (q != pixelTuplesHeterogeneousProduct::loose)
       continue;                           // FIXME
-    assert(tuples_->indToEdm[it] == nh);  // filled on CPU!
-    auto const &shits = *(b + nh);
-    auto nHits = shits.size();
-    ++nh;
-    if (nHits< minNumberOfHits_) continue;
-    hits.resize(nHits);
-    for (unsigned int iHit = 0; iHit < nHits; ++iHit)
-      hits[iHit] = shits[iHit];
+    auto nHits = detIndices.size(it);
+    if (nHits<minNumberOfHits_) continue;
 
-    // mind: this values are respect the beamspot!
+    // fill hits with invalid just to hold the detId
+    auto b = detIndices.begin(it);
+    edm::OwnVector<TrackingRecHit> hits;
+    for (unsigned int iHit = 0; iHit < nHits; ++iHit) {
+      auto const * det =  dus[*(b+iHit)];
+      // FIXME at some point get a proper type ...
+      hits.push_back(new InvalidTrackingRecHit(*det,TrackingRecHit::bad));
+    }
+
+    // mind: this values are respect to the beamspot!
     auto const &fittedTrack = tuples_->helix_fit_results[it];
 
     // std::cout << "tk " << it << ": " << fittedTrack.q << ' ' << fittedTrack.par[2] << ' ' << std::sqrt(fittedTrack.cov(2, 2)) << std::endl;
 
+    // "Reference implementation" following CMSSW (ORCA!) practices
+    // to be optimized, refactorized and eventually moved to GPU
+
     auto iCharge = fittedTrack.q;
     float phi = fittedTrack.par(0);
-    float chi2 = fittedTrack.chi2_line + fittedTrack.chi2_circle;
-
+   
     Rfit::Vector5d opar;
     Rfit::Matrix5d ocov;
     Rfit::transformToPerigeePlane(fittedTrack.par,fittedTrack.cov,opar,ocov,iCharge);
@@ -179,30 +163,34 @@ void PixelTrackProducerFromCUDA::produceGPUCuda(edm::HeterogeneousEvent &iEvent,
     Plane impPointPlane(bs,rot);
     GlobalTrajectoryParameters gp(impPointPlane.toGlobal(lpar.position()), 
                                   impPointPlane.toGlobal(lpar.momentum()),lpar.charge(),fieldESH.product());
+
     JacobianLocalToCurvilinear jl2c(impPointPlane,lpar,*fieldESH.product());
 
     AlgebraicSymMatrix55 mo = ROOT::Math::Similarity(jl2c.jacobian(),m);
 
-    int ndof = 2*hits.size()-5;
-    GlobalPoint vv = gp.position();
-    math::XYZPoint  pos( vv.x(), vv.y(), vv.z() );
-    GlobalVector pp = gp.momentum();
-    math::XYZVector mom( pp.x(), pp.y(), pp.z() );
+    FreeTrajectoryState fts(gp, CurvilinearTrajectoryError(mo));
 
-    auto track =  std::make_unique<reco::Track> ( chi2, ndof, pos, mom,
-                  gp.charge(), CurvilinearTrajectoryError(mo));
-    // filter???
-    tracks.emplace_back(track.release(), shits);
+    auto const & lastHit = hits.back();
+
+    TrajectoryStateOnSurface outerState = propagator->propagate(fts, *lastHit.surface());
+
+    if (!outerState.isValid()){
+      edm::LogError("SeedFromGPU")<<" was trying to create a seed from:\n"<<fts<<"\n propagating to: " 
+                                         << lastHit.geographicalId().rawId();
+      continue;
+    }
+
+    auto const & pTraj = trajectoryStateTransform::persistentState(outerState, lastHit.geographicalId().rawId());
+
+    result->emplace_back(pTraj, hits, alongMomentum);
+
   }
-  assert(nh == e - b);
-  // std::cout << "processed " << nh << " good tuples " << tracks.size() << std::endl;
 
-  // store tracks
-  storeTracks(iEvent, tracks, *httopo);
+  iEvent.put(std::move(result));
 }
 
-void PixelTrackProducerFromCUDA::produceCPU(edm::HeterogeneousEvent &iEvent, const edm::EventSetup &iSetup) {
+void SeedProducerFromCuda::produceCPU(edm::HeterogeneousEvent &iEvent, const edm::EventSetup &iSetup) {
   throw cms::Exception("NotImplemented") << "CPU version is no longer implemented";
 }
 
-DEFINE_FWK_MODULE(PixelTrackProducerFromCUDA);
+DEFINE_FWK_MODULE(SeedProducerFromCuda);

@@ -38,6 +38,8 @@ namespace pixelTuplesHeterogeneousProduct {
 
     Container const* tuples = nullptr;
 
+    Container const* detIndices = nullptr;
+
     Rfit::helix_fit const* helix_fit_results = nullptr;
     Quality* quality = nullptr;
 

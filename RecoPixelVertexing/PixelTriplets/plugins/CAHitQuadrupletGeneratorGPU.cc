@@ -216,6 +216,7 @@ void CAHitQuadrupletGeneratorGPU::deallocateOnGPU() {
   cudaFree(gpu_.apc_d);
   cudaFree(gpu_d);
   cudaFreeHost(tuples_);
+  cudaFreeHost(hitDetIndices_);
   cudaFreeHost(helix_fit_results_);
   cudaFreeHost(quality_);
 }
@@ -238,6 +239,7 @@ void CAHitQuadrupletGeneratorGPU::allocateOnGPU() {
   cudaCheck(cudaMemcpy(gpu_d, &gpu_, sizeof(TuplesOnGPU), cudaMemcpyDefault));
 
   cudaCheck(cudaMallocHost(&tuples_, sizeof(TuplesOnGPU::Container)));
+  cudaCheck(cudaMallocHost(&hitDetIndices_, sizeof(TuplesOnGPU::Container)));
   cudaCheck(cudaMallocHost(&helix_fit_results_, sizeof(Rfit::helix_fit) * maxNumberOfQuadruplets_));
   cudaCheck(cudaMallocHost(&quality_, sizeof(Quality) * maxNumberOfQuadruplets_));
 
@@ -260,6 +262,8 @@ void CAHitQuadrupletGeneratorGPU::launchKernels(HitsOnCPU const &hh,
   if (transferToCPU) {
     cudaCheck(cudaMemcpyAsync(
         tuples_, gpu_.tuples_d, sizeof(TuplesOnGPU::Container), cudaMemcpyDeviceToHost, cudaStream.id()));
+
+    kernels.fillHitDetIndices(hh, gpu_, hitDetIndices_, cudaStream);
 
     cudaCheck(cudaMemcpyAsync(helix_fit_results_,
                               gpu_.helix_fit_results_d,
