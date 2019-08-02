@@ -39,7 +39,6 @@ process.myGenerator = cms.EDProducer("GenParticles2HepMCConverter",
     genParticles = cms.InputTag("mergedGenParticles"),
     genEventInfo = cms.InputTag("generator"),
     signalParticlePdgIds = cms.vint32(25), ## for the Higgs analysis
-    genRunInfo = cms.InputTag("generator"),
 )
 process.p = cms.Path(process.mergedGenParticles*process.myGenerator*process.rivetProducerHTXS)
 
