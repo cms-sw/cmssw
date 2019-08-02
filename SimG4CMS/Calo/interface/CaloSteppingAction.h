@@ -47,6 +47,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 
 class CaloSteppingAction : public SimProducer,
                            public Observer<const BeginOfJob *>,
@@ -99,7 +100,8 @@ private:
   double birkCutEC_, birkC1HC_, birkC2HC_;
   double birkC3HC_;
   std::map<std::pair<int, CaloHitID>, CaloGVHit> hitMap_[nSD_];
-  std::map<std::pair<const G4LogicalVolume *, std::pair<uint32_t, int> >, std::array<double, 3> > store_;
+  typedef std::tuple<const G4LogicalVolume*, uint32_t, int> PassiveKey;
+  std::map<PassiveKey, std::array<double, 3> > store_;
 };
 
 #endif

@@ -107,15 +107,15 @@ void CaloSteppingAction::fillHits(edm::PCaloHitContainer& cc, int type) {
 void CaloSteppingAction::fillPassiveHits(edm::PassiveHitContainer& cc) {
   edm::LogVerbatim("Step") << "CaloSteppingAction::fillPassiveHits with " << store_.size() << " hits";
   for (const auto& element : store_) {
-    auto lv = (element.first).first;
+    auto lv = std::get<0>(element.first);
     auto it = mapLV_.find(lv);
     if (it != mapLV_.end()) {
       PassiveHit hit(it->second,
-                     (element.first).second.first,
+                     std::get<1>(element.first),
                      (element.second)[1],
                      (element.second)[2],
                      (element.second)[0],
-                     (element.first).second.second);
+                     std::get<2>(element.first));
       cc.emplace_back(hit);
     }
   }
@@ -289,12 +289,12 @@ void CaloSteppingAction::update(const G4Step* aStep) {
                  : static_cast<uint32_t>(touch->GetReplicaNumber(0) + 1000 * touch->GetReplicaNumber(1));
     }
     if (it != mapLV_.end()) {
+      PassiveKey key(std::make_tuple(lv, copy, trackId));
       if (allSteps_ > 1) {
-        std::pair<const G4LogicalVolume*, std::pair<uint32_t, int> > key(lv, std::make_pair(copy, trackId));
         bool flag(true);
         while (store_.find(key) != store_.end()) {
           copy += 1000000;
-          key = std::make_pair(lv, std::make_pair(copy, trackId));
+          key = std::make_tuple(lv, copy, trackId);
           if (copy > 100000000) {
             flag = false;
             break;
@@ -308,7 +308,6 @@ void CaloSteppingAction::update(const G4Step* aStep) {
           (itr->second)[2] += energy;
         }
       } else {
-        std::pair<const G4LogicalVolume*, std::pair<uint32_t, int> > key(lv, std::make_pair(copy, trackId));
         auto itr = store_.find(key);
         if (itr == store_.end()) {
           store_[key] = {{time, energy, energy}};
