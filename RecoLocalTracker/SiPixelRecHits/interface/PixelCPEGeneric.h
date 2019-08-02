@@ -86,6 +86,8 @@ public:
 
   ~PixelCPEGeneric() override { ; }
 
+  static void fillPSetDescription(edm::ParameterSetDescription &desc);
+
 private:
   ClusterParam *createClusterParam(const SiPixelCluster &cl) const override;
 
