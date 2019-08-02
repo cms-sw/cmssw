@@ -4,6 +4,7 @@
 #include "SimG4Core/Geometry/interface/DDG4ProductionCuts.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "SimG4Core/Geometry/interface/DD4hep_DDG4Builder.h"
 #include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "DDG4/Geant4Converter.h"
@@ -31,15 +32,13 @@ DDDWorld::DDDWorld(const DDCompactView *pDD,
     const cms::DDDetector *det = pDD4hep->detector();
     dd4hep::sim::Geant4GeometryMaps::VolumeMap lvMap;
 
-    DetElement world = det->description()->world();
-    const Detector &detector = *det->description();
-    Geant4Converter g4Geo(detector);
-    Geant4GeometryInfo *geometry = g4Geo.create(world).detach();
-    lvMap = geometry->g4Volumes;
-    m_world = geometry->world();
+    cms::DDG4Builder theBuilder(pDD4hep, lvMap, false);
+    m_world = theBuilder.BuildGeometry(catalog);
+    LogVerbatim("SimG4CoreApplication") << "DDDWorld: worldLV: " << m_world->GetName();
     if (cuts) {
       DDG4ProductionCuts pcuts(&det->specpars(), &lvMap, verb, pcut);
     }
+    catalog.printMe();
   } else {
     // old DD code
     G4LogicalVolumeToDDLogicalPartMap lvMap;

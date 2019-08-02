@@ -109,10 +109,11 @@ void DDG4ProductionCuts::initialize() {
 }
 
 void DDG4ProductionCuts::dd4hepInitialize() {
-  specPars_->filter(specs_, keywordRegion_);
+  cms::DDSpecParRefs specs;
+  specPars_->filter(specs, keywordRegion_);
 
   for (auto const& it : *dd4hepMap_) {
-    for (auto const& fit : specs_) {
+    for (auto const& fit : specs) {
       for (auto const& pit : fit->paths) {
         if (cms::dd::compareEqual(cms::dd::noNamespace(it.first.name()), cms::dd::realTopName(pit))) {
           dd4hepVec_.emplace_back(std::make_pair<G4LogicalVolume*, const cms::DDSpecPar*>(&*it.second, &*fit));
