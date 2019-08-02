@@ -80,9 +80,10 @@ void EcalDeadChannelRecoveryProducers<DetIdT>::produce(edm::Event& evt, const ed
       if (it->detid() == *CheckDead) {
         OverADeadRecHit = true;
         bool AcceptRecHit = true;
-        EcalRecHit hit = deadChannelCorrector.correct(
-            it->detid(), *hit_collection, CorrectionMethod_, Sum8GeVThreshold_, &AcceptRecHit);
-
+        float dummy = 0;
+        float ebEn = deadChannelCorrector.correct(
+            it->detid(), *hit_collection, CorrectionMethod_, Sum8GeVThreshold_, dummy, &AcceptRecHit);
+        EcalRecHit hit(it->detid(), ebEn, 0., EcalRecHit::kDead);
         if (hit.energy() != 0 and AcceptRecHit == true) {
           hit.setFlag(EcalRecHit::kNeighboursRecovered);
         } else {

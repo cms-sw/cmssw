@@ -24,6 +24,7 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet& ps, ed
   // isolated channel recovery
   singleRecoveryMethod_ = ps.getParameter<std::string>("singleChannelRecoveryMethod");
   singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");
+  sum8RecoveryThreshold_ = ps.getParameter<double>("sum8ChannelRecoveryThreshold");
   killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
   recoverEBIsolatedChannels_ = ps.getParameter<bool>("recoverEBIsolatedChannels");
   recoverEEIsolatedChannels_ = ps.getParameter<bool>("recoverEEIsolatedChannels");
@@ -40,6 +41,9 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet& ps, ed
 
   tpDigiToken_ =
       c.consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection"));
+
+  if (recoverEBIsolatedChannels_ && singleRecoveryMethod_ == "BDTG")
+    ebDeadChannelCorrector.setParameters(ps);
 }
 
 void EcalRecHitWorkerRecover::set(const edm::EventSetup& es) {
@@ -124,8 +128,9 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 
     // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
     bool AcceptRecHit = true;
-    EcalRecHit hit =
-        ebDeadChannelCorrector.correct(detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+    float ebEn = ebDeadChannelCorrector.correct(
+        detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, sum8RecoveryThreshold_, &AcceptRecHit);
+    EcalRecHit hit(detId, ebEn, 0., EcalRecHit::kDead);
 
     if (hit.energy() != 0 and AcceptRecHit == true) {
       hit.setFlag(EcalRecHit::kNeighboursRecovered);
@@ -141,8 +146,9 @@ bool EcalRecHitWorkerRecover::run(const edm::Event& evt,
 
     // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
     bool AcceptRecHit = true;
-    EcalRecHit hit =
-        eeDeadChannelCorrector.correct(detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+    float eeEn = eeDeadChannelCorrector.correct(
+        detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, sum8RecoveryThreshold_, &AcceptRecHit);
+    EcalRecHit hit(detId, eeEn, 0., EcalRecHit::kDead);
     if (hit.energy() != 0 and AcceptRecHit == true) {
       hit.setFlag(EcalRecHit::kNeighboursRecovered);
     } else {
