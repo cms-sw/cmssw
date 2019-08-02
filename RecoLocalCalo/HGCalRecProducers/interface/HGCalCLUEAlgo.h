@@ -13,6 +13,7 @@
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
 
@@ -42,6 +43,7 @@ public:
         fcPerEle_(ps.getParameter<double>("fcPerEle")),
         nonAgedNoises_(ps.getParameter<edm::ParameterSet>("noises").getParameter<std::vector<double>>("values")),
         noiseMip_(ps.getParameter<edm::ParameterSet>("noiseMip").getParameter<double>("noise_MIP")),
+        use2x2_(ps.getParameter<bool>("use2x2")),
         initialized_(false) {}
 
   ~HGCalCLUEAlgo() override {}
@@ -79,6 +81,7 @@ public:
                                        1.3,
                                        1.3,
                                        5.0,
+                                       0.0315,  // for scintillator
                                    });
     iDesc.add<bool>("dependSensor", true);
     iDesc.add<double>("ecut", 3.0);
@@ -98,6 +101,7 @@ public:
     iDesc.add<edm::ParameterSetDescription>("doseMap", descNestedNoiseMIP);
     descNestedNoiseMIP.add<double>("noise_MIP", 1. / 100.);
     iDesc.add<edm::ParameterSetDescription>("noiseMip", descNestedNoiseMIP);
+    iDesc.add<bool>("use2x2", true);  // use 2x2 or 3x3 scenario for scint density calculation
   }
 
   /// point in the space
@@ -129,6 +133,8 @@ private:
   std::vector<std::vector<double>> thresholds_;
   std::vector<std::vector<double>> v_sigmaNoise_;
 
+  bool use2x2_;
+
   // initialization bool
   bool initialized_;
 
@@ -136,8 +142,11 @@ private:
 
   struct CellsOnLayer {
     std::vector<DetId> detid;
+    std::vector<bool> isSi;
     std::vector<float> x;
     std::vector<float> y;
+    std::vector<float> eta;
+    std::vector<float> phi;
 
     std::vector<float> weight;
     std::vector<float> rho;
@@ -151,8 +160,11 @@ private:
 
     void clear() {
       detid.clear();
+      isSi.clear();
       x.clear();
       y.clear();
+      eta.clear();
+      phi.clear();
       weight.clear();
       rho.clear();
       delta.clear();
@@ -168,22 +180,29 @@ private:
 
   std::vector<int> numberOfClustersPerLayer_;
 
-  inline float distance2(int cell1, int cell2, int layerId) const {  // distance squared
-    const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
-    const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
-    return (dx * dx + dy * dy);
+  inline float distance2(int cell1, int cell2, int layerId, bool isEtaPhi) const {  // distance squared
+    if (isEtaPhi) {
+      const float dphi = reco::deltaPhi(cells_[layerId].phi[cell1], cells_[layerId].phi[cell2]);
+      const float deta = cells_[layerId].eta[cell1] - cells_[layerId].eta[cell2];
+      return (deta * deta + dphi * dphi);
+    } else {
+      const float dx = cells_[layerId].x[cell1] - cells_[layerId].x[cell2];
+      const float dy = cells_[layerId].y[cell1] - cells_[layerId].y[cell2];
+      return (dx * dx + dy * dy);
+    }
   }
 
-  inline float distance(int cell1, int cell2, int layerId) const {  // 2-d distance on the layer (x-y)
-    return std::sqrt(distance2(cell1, cell2, layerId));
+  inline float distance(int cell1, int cell2, int layerId, bool isEtaPhi) const {  // 2-d distance on the layer (x-y)
+    return std::sqrt(distance2(cell1, cell2, layerId, isEtaPhi));
   }
 
   void prepareDataStructures(const unsigned int layerId);
   void calculateLocalDensity(const HGCalLayerTiles& lt,
                              const unsigned int layerId,
-                             float delta_c);  // return max density
-  void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c);
-  int findAndAssignClusters(const unsigned int layerId, float delta_c);
+                             float delta_c,
+                             float delta_r);  // return max density
+  void calculateDistanceToHigher(const HGCalLayerTiles& lt, const unsigned int layerId, float delta_c, float delta_r);
+  int findAndAssignClusters(const unsigned int layerId, float delta_c, float delta_r);
   math::XYZPoint calculatePosition(const std::vector<int>& v, const unsigned int layerId) const;
   void setDensity(const unsigned int layerId);
 };
