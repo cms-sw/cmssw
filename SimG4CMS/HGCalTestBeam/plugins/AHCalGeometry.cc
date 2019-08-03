@@ -1,5 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimG4CMS/HGCalTestBeam/interface/AHCalGeometry.h"
+#include "AHCalGeometry.h"
 
 AHCalGeometry::AHCalGeometry(edm::ParameterSet const& iC)
     : maxDepth_(iC.getUntrackedParameter<int>("maxDepth", 12)),

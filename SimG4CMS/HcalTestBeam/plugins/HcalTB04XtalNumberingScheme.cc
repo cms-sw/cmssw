@@ -13,22 +13,20 @@
 // system include files
 
 // user include files
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB04XtalNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HcalTestNumberingScheme.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-using namespace std;
+#include "HcalTB04XtalNumberingScheme.h"
 
 //
 // constructors and destructor
 //
 
 HcalTB04XtalNumberingScheme::HcalTB04XtalNumberingScheme() : EcalNumberingScheme() {
-  edm::LogInfo("HcalTBSim") << "Creating HcalTB04XtalNumberingScheme";
+  edm::LogVerbatim("HcalTBSim") << "Creating HcalTB04XtalNumberingScheme";
 }
 
 HcalTB04XtalNumberingScheme::~HcalTB04XtalNumberingScheme() {
-  edm::LogInfo("HcalTBSim") << "Deleting HcalTB04XtalNumberingScheme";
+  edm::LogVerbatim("HcalTBSim") << "Deleting HcalTB04XtalNumberingScheme";
 }
 
 //
@@ -49,8 +47,8 @@ uint32_t HcalTB04XtalNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber
   int det = 10;
   uint32_t idunit = HcalTestNumbering::packHcalIndex(det, 0, 1, idl, idx, 1);
 
-  LogDebug("HcalTBSim") << "HcalTB04XtalNumberingScheme : Crystal " << idx << " Layer " << idl << " UnitID = 0x"
-                        << std::hex << idunit << std::dec;
+  edm::LogVerbatim("HcalTBSim") << "HcalTB04XtalNumberingScheme : Crystal " << idx << " Layer " << idl 
+				<< " UnitID = 0x" << std::hex << idunit << std::dec;
 
   return idunit;
 }
