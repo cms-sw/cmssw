@@ -2,7 +2,7 @@
 #define SimG4CMS_HGCalTestBeam_AHCALGEOMETRY_H 1
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
+#include "AHCalDetId.h"
 
 /** \class AHCalGeometry
  *  Gets position of AHCal cell

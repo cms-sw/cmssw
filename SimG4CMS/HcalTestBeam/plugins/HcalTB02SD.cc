@@ -13,9 +13,6 @@
 // system include files
 
 // user include files
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02SD.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02HcalNumberingScheme.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02XtalNumberingScheme.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -25,6 +22,9 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "HcalTB02SD.h"
+#include "HcalTB02HcalNumberingScheme.h"
+#include "HcalTB02XtalNumberingScheme.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
