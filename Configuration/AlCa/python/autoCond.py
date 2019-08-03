@@ -24,11 +24,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '110X_mcRun2_pA_v2',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '110X_dataRun2_2017_2018_Candidate_2019_08_02_16_26_41',
+    'run1_data'         :   '110X_dataRun2_2017_2018_Candidate_2019_08_03_03_51_45',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '110X_dataRun2_2017_2018_Candidate_2019_08_02_16_26_41',
+    'run2_data'         :   '110X_dataRun2_2017_2018_Candidate_2019_08_03_03_51_45',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '110X_dataRun2_relval_Candidate_2019_08_02_16_31_52',
+    'run2_data_relval'  :   '110X_dataRun2_relval_Candidate_2019_08_03_03_55_32',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_promptlike_HEfail' : '110X_dataRun2_PromptLike_HEfail_Candidate_2019_08_02_16_55_52',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
@@ -56,11 +56,11 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for full Phase1 2018 (and 0,0,0-centred beamspot)
     'phase1_2018_design'       :  '110X_upgrade2018_design_v1',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector
-    'phase1_2018_realistic'    :  '110X_upgrade2018_realistic_Candidate_2019_08_02_16_44_50',
+    'phase1_2018_realistic'    :  '110X_upgrade2018_realistic_Candidate_2019_08_03_04_00_02',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector for Heavy Ion
     'phase1_2018_realistic_hi' :  '110X_upgrade2018_realistic_HI_v2',
     # GlobalTag for MC production with realistic conditions for full Phase1 2018 detector: HEM-15-16 fail
-    'phase1_2018_realistic_HEfail' :  '110X_upgrade2018_realistic_HEfail_Candidate_2019_08_02_16_45_22',
+    'phase1_2018_realistic_HEfail' :  '110X_upgrade2018_realistic_HEfail_Candidate_2019_08_03_04_03_44',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in DECO mode
     'phase1_2018_cosmics'      :   '110X_upgrade2018cosmics_realistic_deco_v1',
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
