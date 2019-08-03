@@ -23,22 +23,22 @@ void makeGVPlots(std::string fname="analG4.root", bool ifG4=true,
 		 int todomin=0, int todomax=3, bool save=false,
 		 std::string dirnm="caloSimHitAnalysis") {
 
-  std::string names[13] = {"Edep", "Time", "Etot", "rz", "etaphi", "EtotG",
-			   "EdepT", "EdepEM", "EdepHad", "rr", "zz", "eta", 
-			   "phi"};
-  int         types[13] = {1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
+  std::string names[14] = {"Edep", "Time", "Etot", "rz", "etaphi", "rz2",
+			   "EtotG","EdepT", "EdepEM", "EdepHad", "rr", "zz",
+			   "eta", "phi"};
+  int         types[14] = {1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
   int         dets[4]   = {0, 1, 2, 3};
   std::string detName[4]= {"EB", "EE", "HB", "HE"};
-  std::string xtitle[13] = {"Energy deposit (GeV)", "Hit time (ns)",
+  std::string xtitle[14] = {"Energy deposit (GeV)", "Hit time (ns)",
 			    "Energy deposit (GeV)", "z (cm)", "#eta",
-			    "Energy deposit in 100 ns (GeV)", 
+			    "z (cm)", "Energy deposit in 100 ns (GeV)", 
 			    "Energy deposit per Hit (GeV)", 
 			    "Energy deposit for EM particles (GeV)", 
 			    "Energy deposit for non-EM particles (GeV)", 
 			    "R (cm)", "z (cm)", "#eta", "phi"};
-  std::string ytitle[13] = {"Hits", "Hits", "Events", "R (cm)", "#phi", 
-			    "Events", "Hits", "Hits", "Hits", "Hits", 
-			    "Hits", "Hits", "Hits"};
+  std::string ytitle[14] = {"Hits", "Hits", "Events", "R (cm)", "#phi", 
+			    "R (cm)", "Events", "Hits", "Hits", "Hits",
+			    "Hits", "Hits", "Hits", "Hits"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
@@ -108,27 +108,32 @@ void makeGVPlots(std::string fname="analG4.root", bool ifG4=true,
 
 void makeGV2Plots(std::string fnmG4="analG4.root", 
 		  std::string fnmGV="analGV.root", int todomin=0, 
-		  int todomax=2, bool save=false,
+		  int todomax=2, bool normalize=true, bool save=false,
 		  std::string dirnm="caloSimHitAnalysis") {
 
-  std::string names[11] = {"Edep", "Time", "Etot", "EtotG", "EdepT", "EdepEM",
-			   "EdepHad", "rr", "zz", "eta", "phi"};
+  std::string names[13] = {"Edep", "Time", "Etot", "Edep15", "EdepT", "EdepT15",
+			   "EtotG", "EdepEM", "EdepHad", "rr", "zz", "eta", 
+			   "phi"};
   int         dets[4]  = {0, 1, 2, 3};
   std::string detName[4] = {"EB", "EE", "HB", "HE"};
-  std::string xtitle[11] = {"Energy deposit (GeV)", "Hit time (ns)",
+  std::string xtitle[13] = {"Energy deposit (GeV)", "Hit time (ns)",
 			    "Total energy deposit (GeV)", 
-			    "Total energy deposit in 100 ns (GeV)", 
+			    "Energy deposit (GeV) for T > 15 ns",
 			    "Energy deposit per Hit (GeV)", 
+			    "Energy deposit (GeV) per Hit for T > 15 ns", 
+			    "Total energy deposit in 100 ns (GeV)", 
 			    "Energy deposit for EM particles (GeV)", 
 			    "Energy deposit for non-EM particles (GeV)", 
 			    "R (cm)", "z (cm)", "#eta", "phi"};
-  std::string ytitle[11] = {"Hits", "Hits", "Events", "Events", "Hits", "Hits",
-			    "Hits", "Hits", "Hits", "Hits", "Hits"};
+  std::string ytitle[13] = {"Hits", "Hits", "Events", "Hits", "Hits", "Hits",
+			    "Events", "Hits", "Hits", "Hits", "Hits", "Hits",
+			    "Hits"};
 
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
-//gStyle->SetOptStat(111100);
-  gStyle->SetOptStat(0);
+//
+  if (normalize) gStyle->SetOptStat(0);
+  else           gStyle->SetOptStat(111100);
   TFile      *file1 = new TFile(fnmG4.c_str());
   TFile      *file2 = new TFile(fnmGV.c_str());
   if (file1 && file2) {
@@ -166,8 +171,13 @@ void makeGV2Plots(std::string fnmG4="analG4.root",
 	    hist[i]->SetNdivisions(505,"X");
 	    total[i] = hist[i]->GetEntries();
 	    legend->AddEntry(hist[i],type[i].c_str(),"lp");
-	    if (i == 0) hist[i]->DrawNormalized("hist");  
-	    else        hist[i]->DrawNormalized("sames hist");  
+	    if (i == 0) {
+	      if (normalize) hist[i]->DrawNormalized("hist");  
+	      else           hist[i]->Draw();
+	    } else {
+	      if (normalize) hist[i]->DrawNormalized("sames hist");  
+              else           hist[i]->Draw("sames");
+	    }
 	    pad->Update();
 	  }
 	  legend->Draw("same");
@@ -186,68 +196,148 @@ void makeGV2Plots(std::string fnmG4="analG4.root",
 	    sprintf (name, "c_%s.jpg", pad->GetName());
 	    pad->Print(name);
 	  }
+
 	  // Ratio plot
-	  int nbin = hist[0]->GetNbinsX();
-	  double xmin = hist[0]->GetBinLowEdge(1);
-          double dx   = hist[0]->GetBinWidth(1);
-	  double xmax = xmin + nbin*dx;
-	  double fac  = total[1]/total[0];
-	  int npt = 0;
-	  double sumNum(0), sumDen(0), xpt[200], dxp[200], ypt[200], dyp[200];
-	  for (int i=0; i<nbin; ++i) {
-	    if (hist[0]->GetBinContent(i+1) > 0 && 
-		hist[1]->GetBinContent(i+1) > 0) {
-	      ypt[npt] = (fac*hist[0]->GetBinContent(i+1)/
-			  hist[1]->GetBinContent(i+1));
-	      double er1 = hist[0]->GetBinError(i+1)/hist[0]->GetBinContent(i+1);
-	      double er2 = hist[1]->GetBinError(i+1)/hist[1]->GetBinContent(i+1);
-	      dyp[npt] = ypt[npt] * sqrt (er1*er1 + er2*er2);
-	      xpt[npt] = xmin + (i-0.5)*dx;
-	      dxp[npt] = 0;
-	      double temp1 = (ypt[npt]>1.0) ? 1.0/ypt[npt] : ypt[npt];
-	      double temp2 = (ypt[npt]>1.0) ? dyp[npt]/(ypt[npt]*ypt[npt]) : dyp[npt];
-	      sumNum += (fabs(1-temp1)/(temp2*temp2));
-	      sumDen += (1.0/(temp2*temp2));
-	      ++npt;
+	  if (normalize) {
+	    int nbin = hist[0]->GetNbinsX();
+	    double xmin = hist[0]->GetBinLowEdge(1);
+	    double dx   = hist[0]->GetBinWidth(1);
+	    double xmax = xmin + nbin*dx;
+	    double fac  = total[1]/total[0];
+	    int npt = 0;
+	    double sumNum(0), sumDen(0), xpt[200], dxp[200], ypt[200], dyp[200];
+	    for (int i=0; i<nbin; ++i) {
+	      if (hist[0]->GetBinContent(i+1) > 0 && 
+		  hist[1]->GetBinContent(i+1) > 0) {
+		ypt[npt] = (fac*hist[0]->GetBinContent(i+1)/
+			    hist[1]->GetBinContent(i+1));
+		double er1 = hist[0]->GetBinError(i+1)/hist[0]->GetBinContent(i+1);
+		double er2 = hist[1]->GetBinError(i+1)/hist[1]->GetBinContent(i+1);
+		dyp[npt] = ypt[npt] * sqrt (er1*er1 + er2*er2);
+		xpt[npt] = xmin + (i-0.5)*dx;
+		dxp[npt] = 0;
+		double temp1 = (ypt[npt]>1.0) ? 1.0/ypt[npt] : ypt[npt];
+		double temp2 = (ypt[npt]>1.0) ? dyp[npt]/(ypt[npt]*ypt[npt]) : dyp[npt];
+		sumNum += (fabs(1-temp1)/(temp2*temp2));
+		sumDen += (1.0/(temp2*temp2));
+		++npt;
+	      }
+	    }
+	    sumNum  = (sumDen>0)  ? (sumNum/sumDen) : 0;
+	    sumDen  = (sumDen>0)  ? 1.0/sqrt(sumDen) : 0;
+	    TGraphAsymmErrors *graph = new TGraphAsymmErrors(npt, xpt, ypt, dxp,
+							     dxp, dyp, dyp);
+	    graph->SetMarkerStyle(24);
+	    graph->SetMarkerColor(1);
+	    graph->SetMarkerSize(0.8);
+	    graph->SetLineColor(1);
+	    graph->SetLineWidth(2);
+	    sprintf (name, "%sRatio", pad->GetName());
+	    TCanvas *canvas = new TCanvas(name, name, 500, 400);
+	    gStyle->SetOptStat(0);     gPad->SetTopMargin(0.05);
+	    gPad->SetLeftMargin(0.15); gPad->SetRightMargin(0.025);
+	    gPad->SetBottomMargin(0.20);
+	    TH1F *vFrame = canvas->DrawFrame(xmin, 0.01, xmax, 0.5);
+	    vFrame->GetYaxis()->SetRangeUser(0.4,1.5);
+	    vFrame->GetXaxis()->SetLabelSize(0.035);
+	    vFrame->GetYaxis()->SetLabelSize(0.04);
+	    vFrame->GetXaxis()->SetTitleSize(0.045);
+	    vFrame->GetYaxis()->SetTitleSize(0.045);
+	    vFrame->GetYaxis()->SetTitleOffset(1.2);
+	    vFrame->GetXaxis()->SetRangeUser(xmin, xmax);
+	    vFrame->GetYaxis()->SetTitle("Geant4/GeantV");  
+	    sprintf (name, "%s in %s", xtitle[i2].c_str(), detName[i1].c_str());
+	    vFrame->GetXaxis()->SetTitle(name);
+	    graph->Draw("P");
+	    TLine *line = new TLine(xmin, 1.0, xmax, 1.0);
+	    line->SetLineStyle(2); line->SetLineWidth(2); line->SetLineColor(kRed);
+	    line->Draw();
+	    sprintf (title, "Mean Deviation = %5.3f #pm %5.3f", sumNum, sumDen);
+	    TPaveText* text = new TPaveText(0.16, 0.85, 0.60, 0.90, "brNDC");
+	    text->AddText(title); text->Draw("same");
+	    canvas->Modified(); canvas->Update();
+	    if (save) {
+	      sprintf (name, "c_%s.jpg", canvas->GetName());
+	      canvas->Print(name);
 	    }
 	  }
-	  sumNum  = (sumDen>0)  ? (sumNum/sumDen) : 0;
-	  sumDen  = (sumDen>0)  ? 1.0/sqrt(sumDen) : 0;
-	  TGraphAsymmErrors *graph = new TGraphAsymmErrors(npt, xpt, ypt, dxp,
-							   dxp, dyp, dyp);
-	  graph->SetMarkerStyle(24);
-	  graph->SetMarkerColor(1);
-	  graph->SetMarkerSize(0.8);
-	  graph->SetLineColor(1);
-	  graph->SetLineWidth(2);
-	  sprintf (name, "%sRatio", pad->GetName());
-	  TCanvas *canvas = new TCanvas(name, name, 500, 400);
-	  gStyle->SetOptStat(0);     gPad->SetTopMargin(0.05);
-	  gPad->SetLeftMargin(0.15); gPad->SetRightMargin(0.025);
-	  gPad->SetBottomMargin(0.20);
-	  TH1F *vFrame = canvas->DrawFrame(xmin, 0.01, xmax, 0.5);
-	  vFrame->GetYaxis()->SetRangeUser(0.4,1.5);
-	  vFrame->GetXaxis()->SetLabelSize(0.035);
-	  vFrame->GetYaxis()->SetLabelSize(0.04);
-	  vFrame->GetXaxis()->SetTitleSize(0.045);
-	  vFrame->GetYaxis()->SetTitleSize(0.045);
-	  vFrame->GetYaxis()->SetTitleOffset(1.2);
-	  vFrame->GetXaxis()->SetRangeUser(xmin, xmax);
-	  vFrame->GetYaxis()->SetTitle("Geant4/GeantV");  
-	  sprintf (name, "%s in %s", xtitle[i2].c_str(), detName[i1].c_str());
-	  vFrame->GetXaxis()->SetTitle(name);
-	  graph->Draw("P");
-	  TLine *line = new TLine(xmin, 1.0, xmax, 1.0);
-	  line->SetLineStyle(2); line->SetLineWidth(2); line->SetLineColor(kRed);
-	  line->Draw();
-	  sprintf (title, "Mean Deviation = %5.3f #pm %5.3f", sumNum, sumDen);
-	  TPaveText* text = new TPaveText(0.16, 0.85, 0.60, 0.90, "brNDC");
-	  text->AddText(title); text->Draw("same");
-	  canvas->Modified(); canvas->Update();
-	  if (save) {
-	    sprintf (name, "c_%s.jpg", canvas->GetName());
-	    canvas->Print(name);
+	}
+      }
+    }
+  }
+}
+
+
+
+void makeGVSPlots(std::string fnmG4="analG4.root", 
+		  std::string fnmGV="analGV.root", bool save=false,
+		  std::string dirnm="caloSimHitAnalysis") {
+
+  std::string names[4] = {"hitp", "trackp", "edepp", "timep"};
+  std::string xtitle[4] = {"Hits", "Tracks", "Energy Deposit (MeV)",
+			   "Time (ns)"};
+  std::string ytitle[4] = {"Events", "Events", "Hits", "Hits"};
+  int boxp[4] = {0, 1, 0, 0};
+
+  gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
+  gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
+  gStyle->SetOptStat(111110);
+  TFile      *file1 = new TFile(fnmG4.c_str());
+  TFile      *file2 = new TFile(fnmGV.c_str());
+  if (file1 && file2) {
+    TDirectory *dir1 = (TDirectory*)file1->FindObjectAny(dirnm.c_str());
+    TDirectory *dir2 = (TDirectory*)file2->FindObjectAny(dirnm.c_str());
+    char name[100], title[100];
+    for (int i2=0; i2<4; ++i2) {
+      sprintf (name, "%s", names[i2].c_str());
+      sprintf (title, "Geant4 vs GeantV");
+      TH1D *hist[2];
+      hist[0] = (TH1D*)dir1->FindObjectAny(name);
+      hist[1] = (TH1D*)dir2->FindObjectAny(name);
+      if ((hist[0] != nullptr) && (hist[1] != nullptr)) {
+	// Plot superimposed histograms
+	TCanvas *pad = new TCanvas(name,name,500,500);
+	TLegend *legend = new TLegend(0.44, 0.78, 0.64, 0.89);
+	pad->SetRightMargin(0.10); pad->SetTopMargin(0.10); pad->SetLogy();
+	pad->SetFillColor(kWhite); legend->SetFillColor(kWhite);
+	int icol[2] = {1,2};
+	int isty[2] = {1,2};
+	int imty[2] = {20,24};
+	std::string type[2] = {"Geant4", "GeantV"};
+	double ymax(0.90);
+	double total[2] = {0,0};
+	for (int i=0; i<2; ++i) {
+	  hist[i]->GetYaxis()->SetTitleOffset(1.2);
+	  hist[i]->GetYaxis()->SetTitle(ytitle[i2].c_str());
+	  hist[i]->GetXaxis()->SetTitle(xtitle[i2].c_str());
+	  hist[i]->SetTitle(title); 
+	  hist[i]->SetMarkerStyle(imty[i]);
+	  hist[i]->SetMarkerColor(icol[i]);
+	  hist[i]->SetLineColor(icol[i]);
+	  hist[i]->SetLineStyle(isty[i]);
+	  hist[i]->SetNdivisions(505,"X");
+	  total[i] = hist[i]->GetEntries();
+	  legend->AddEntry(hist[i],type[i].c_str(),"lp");
+	  if (i == 0) hist[i]->Draw();
+	  else        hist[i]->Draw("sames");
+	  pad->Update();
+	}
+	legend->Draw("same");
+	pad->Modified(); pad->Update();
+	for (int i=0; i<2; ++i) {
+	  TPaveStats* st = (TPaveStats*)hist[i]->GetListOfFunctions()->FindObject("stats");
+	  if (st != NULL) {
+	    double xl = (boxp[i2] == 0) ? 0.65 : 0.10;
+	    st->SetLineColor(icol[i]); st->SetTextColor(icol[i]); 
+	    st->SetY1NDC(ymax-0.15);   st->SetY2NDC(ymax);
+	    st->SetX1NDC(xl);          st->SetX2NDC(xl+0.25);
+	    ymax -= 0.15;
 	  }
+	}
+	pad->Modified(); pad->Update();
+	if (save) {
+	  sprintf (name, "c_%s.jpg", pad->GetName());
+	  pad->Print(name);
 	}
       }
     }
