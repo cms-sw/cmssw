@@ -284,6 +284,26 @@ namespace edmtest {
     assert(vInputTag[2] == inputTag3);
     assert(vInputTag[3] == inputTag4);
 
+    edm::ESInputTag esinputTag1("One", "Two");
+    assert(ps.getParameter<edm::ESInputTag>("esinputTagv1") == esinputTag1);
+    edm::ESInputTag esinputTag2("One", "");
+    assert(ps.getParameter<edm::ESInputTag>("esinputTagv2") == esinputTag2);
+    edm::ESInputTag esinputTag3("", "Two");
+    assert(ps.getParameter<edm::ESInputTag>("esinputTagv3") == esinputTag3);
+
+    std::vector<edm::ESInputTag> vESInputTag;
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv1");
+    assert(vESInputTag.empty());
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv2");
+    assert(vESInputTag[0] == esinputTag1);
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv3");
+    assert(vESInputTag[0] == esinputTag1);
+    assert(vESInputTag[1] == esinputTag2);
+    vESInputTag = ps.getParameter<std::vector<edm::ESInputTag>>("vESInputTagv4");
+    assert(vESInputTag[0] == esinputTag1);
+    assert(vESInputTag[1] == esinputTag2);
+    assert(vESInputTag[2] == esinputTag3);
+
     // For purposes of the test, this just needs to point to any file
     // that exists.  I guess pointing to itself cannot ever fail ...
     edm::FileInPath fileInPath("FWCore/Integration/test/ProducerWithPSetDesc.cc");
@@ -653,6 +673,22 @@ namespace edmtest {
     iDesc.add<std::vector<edm::InputTag>>("vInputTagv4", vInputTag);
     vInputTag.push_back(inputTag4);
     iDesc.add<std::vector<edm::InputTag>>("vInputTagv5", vInputTag);
+
+    edm::ESInputTag esinputTag("One", "Two");
+    iDesc.add<edm::ESInputTag>("esinputTagv1", esinputTag);
+    edm::ESInputTag esinputTag2("One", "");
+    iDesc.add<edm::ESInputTag>("esinputTagv2", esinputTag2);
+    edm::ESInputTag esinputTag3("", "Two");
+    iDesc.add<edm::ESInputTag>("esinputTagv3", esinputTag3);
+
+    std::vector<edm::ESInputTag> vESInputTag;
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv1", vESInputTag);
+    vESInputTag.push_back(esinputTag);
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv2", vESInputTag);
+    vESInputTag.push_back(esinputTag2);
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv3", vESInputTag);
+    vESInputTag.push_back(esinputTag3);
+    iDesc.add<std::vector<edm::ESInputTag>>("vESInputTagv4", vESInputTag);
 
     // For purposes of the test, this just needs to point to any file
     // that exists.  I guess pointing to itself cannot ever fail ...
