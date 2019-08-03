@@ -146,6 +146,19 @@
       [1]: 'One:Two'
       [2]: 'One'
       [3]: 'One::Three'
+    esinputTagv1            ESInputTag                     'One:Two'
+    esinputTagv2            ESInputTag                     'One:'
+    esinputTagv3            ESInputTag                     ':Two'
+    vESInputTagv1           VESInputTag                    empty
+    vESInputTagv2           VESInputTag                    (vector size = 1)
+      [0]: 'One:Two'
+    vESInputTagv3           VESInputTag                    (vector size = 2)
+      [0]: 'One:Two'
+      [1]: 'One:'
+    vESInputTagv4           VESInputTag                    (vector size = 3)
+      [0]: 'One:Two'
+      [1]: 'One:'
+      [2]: ':Two'
     fileInPath              FileInPath                     'FWCore/Integration/test/ProducerWithPSetDesc.cc'
     Empty group description
     bar                     PSet                           see Section 1.1.2
