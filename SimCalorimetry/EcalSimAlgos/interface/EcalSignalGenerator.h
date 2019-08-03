@@ -38,6 +38,8 @@
 // needed for LC'/LC correction for time dependent MC
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbServiceMC.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecordMC.h"
 
 
 
@@ -122,8 +124,14 @@ public:
     m_lasercals = laser.product();
 //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
 
-    edm::ESHandle<EcalLaserDbService> laser_prime;
-    eventSetup->get<EcalLaserDbRecord>().get(laser_prime);
+    //
+    // the "prime" is exactly the same as the usual laser service, BUT
+    // it has only 1 IOV, so that effectively you are dividing IOV_n / IOV_0
+    // NB: in the creation of the tag make sure the "prime" (MC) tag is prepared properly!
+    // NB again: if many IOVs also in "MC" tag, then fancy things could be perfomed ... left for the future
+    //
+    edm::ESHandle<EcalLaserDbServiceMC> laser_prime;
+    eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
     //     const edm::TimeValue_t eventTimeValue = event.time().value();
     m_lasercals_prime = laser_prime.product();
     
@@ -132,6 +140,7 @@ public:
 //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
 //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
     m_valueLCCache_LC.clear();
+    m_valueLCCache_LC_prime.clear(); //--- also the "prime" ... yes
     //----
 
     
@@ -198,8 +207,8 @@ public:
     m_lasercals = laser.product();
 //     std::cout << " ---> EcalSignalGenerator() : initializeEvent() :: eventTimeValue = " << eventTimeValue << std::endl;
     
-    edm::ESHandle<EcalLaserDbService> laser_prime;
-    eventSetup->get<EcalLaserDbRecord>().get(laser_prime);
+    edm::ESHandle<EcalLaserDbServiceMC> laser_prime;
+    eventSetup->get<EcalLaserDbRecordMC>().get(laser_prime);
     //     const edm::TimeValue_t eventTimeValue = event.time().value();
     m_lasercals_prime = laser_prime.product();
     
@@ -208,6 +217,7 @@ public:
     //     http://www.cplusplus.com/reference/unordered_map/unordered_map/clear/
     //     http://www.cplusplus.com/reference/unordered_map/unordered_map/swap/
     m_valueLCCache_LC.clear();
+    m_valueLCCache_LC_prime.clear(); //--- also the "prime" ... yes
     //----
     
     
@@ -308,12 +318,12 @@ private:
   
   
   //---- LC at the beginning of the time (first IOV of the GT == first time)
+  //---- Using the different "tag", the one with "MC": exactly the same function as findLaserConstant_LC but with a different object
   double findLaserConstant_LC_prime(const DetId& detId) const {
     
 //     return 1.0;
     
-    int temp_iTime = 0; //---- Correct to set the time to 0 --> the "LC'" is the first IOV of the tag MC to be used
-    const edm::Timestamp& evtTimeStamp = edm::Timestamp(temp_iTime);
+    const edm::Timestamp& evtTimeStamp = edm::Timestamp(m_iTime);
     return (m_lasercals_prime->getLaserCorrection(detId, evtTimeStamp));
     
   }
@@ -377,7 +387,7 @@ private:
   CalibCache m_valueLCCache_LC;
   CalibCache m_valueLCCache_LC_prime;
   const EcalLaserDbService* m_lasercals;
-  const EcalLaserDbService* m_lasercals_prime;
+  const EcalLaserDbServiceMC* m_lasercals_prime;
   
   
   double theDefaultGains[NGAINS];

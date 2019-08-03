@@ -34,6 +34,7 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeDependentCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosMC.h"
 #include "CondFormats/EcalObjects/interface/EcalLinearCorrections.h"
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
@@ -125,6 +126,13 @@ namespace CondFormats_EcalObjects {
     EcalContainer<EBDetId, EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_ec_ebDetId_pair;
     EcalCondObjectContainer<EcalLaserAPDPNRatios::EcalLaserAPDPNpair> laser_map_dm;
 
+    EcalLaserAPDPNRatiosMC laser_mc_map;
+    std::vector<EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_pair_map;
+    std::vector<EcalLaserAPDPNRatiosMC::EcalLaserTimeStamp> laser_mc_time_map;
+    EcalContainer<EEDetId,EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_ec_eeDetId_pair;
+    EcalContainer<EBDetId,EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_ec_ebDetId_pair;
+    EcalCondObjectContainer<EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair> laser_mc_map_dm;
+    
     EcalTimeDependentCorrections correction_map;
     std::vector<EcalTimeDependentCorrections::Values> value_map;
     std::vector<EcalTimeDependentCorrections::Times> time_map;
