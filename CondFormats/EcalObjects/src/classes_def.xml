@@ -152,6 +152,22 @@
 </class>
 
 <!-- base class -->
+<class name="EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair"/>
+<class name="EcalLaserAPDPNRatiosMC::EcalLaserTimeStamp"/>
+<class name="EcalLaserAPDPNRatiosMC">
+   <field name="laser_map" mapping="blob" />
+</class>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair>"/>
+<class name="std::vector<EcalLaserAPDPNRatiosMC::EcalLaserTimeStamp>"/>
+<class name="EcalContainer<EEDetId,EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair>"/>
+<class name="EcalContainer<EBDetId,EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair>"/>
+<class name="EcalCondObjectContainer<EcalLaserAPDPNRatiosMC::EcalLaserAPDPNpair>">
+   <field name = "eb_" mapping = "blob"/>
+   <field name = "ee_" mapping = "blob"/>
+</class>
+
+<!-- base class -->
 <class name="EcalTimeDependentCorrections::Values"/>
 <class name="EcalTimeDependentCorrections::Times"/>
 <class name="EcalTimeDependentCorrections">
