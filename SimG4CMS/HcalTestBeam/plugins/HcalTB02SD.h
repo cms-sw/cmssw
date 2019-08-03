@@ -21,7 +21,7 @@
 
 // user include files
 #include "SimG4CMS/Calo/interface/CaloSD.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB02NumberingScheme.h"
+#include "HcalTB02NumberingScheme.h"
 
 #include "G4String.hh"
 #include <cstdint>
