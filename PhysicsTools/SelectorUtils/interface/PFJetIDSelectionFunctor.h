@@ -194,6 +194,7 @@ public:  // interface
     double cef = 0.0;
     double nef = 0.0;
     double muf = 0.0;
+
     int nch = 0;
     int nconstituents = 0;
     int nneutrals = 0;
@@ -210,6 +211,7 @@ public:  // interface
         cef = patJet->chargedEmEnergyFraction();
         nef = patJet->neutralEmEnergyFraction();
         nch = patJet->chargedMultiplicity();
+        muf = patJet->muonEnergyFraction();
         nconstituents = patJet->numberOfDaughters();
         nneutrals = patJet->neutralMultiplicity();
         // Handle the special case of PUPPI jets with weighted multiplicities
@@ -225,6 +227,7 @@ public:  // interface
         double e_nhf = 0.0;
         double e_cef = 0.0;
         double e_nef = 0.0;
+        double e_muf = 0.0;
         nch = 0;
         nconstituents = 0;
         nneutrals = 0;
@@ -238,6 +241,7 @@ public:  // interface
             e_nhf += patsub->neutralHadronEnergy();
             e_cef += patsub->chargedEmEnergy();
             e_nef += patsub->neutralEmEnergy();
+	    e_muf += patsub->muonEnergy();
             nch += patsub->chargedMultiplicity();
             nconstituents += patsub->numberOfDaughters();
             nneutrals += patsub->neutralMultiplicity();
@@ -246,6 +250,7 @@ public:  // interface
             e_nhf += pfsub->neutralHadronEnergy();
             e_cef += pfsub->chargedEmEnergy();
             e_nef += pfsub->neutralEmEnergy();
+	    e_muf += pfsub->muonEnergy();
             nch += pfsub->chargedMultiplicity();
             nconstituents += pfsub->numberOfDaughters();
             nneutrals += pfsub->neutralMultiplicity();
@@ -258,8 +263,9 @@ public:  // interface
           nhf = e_nhf / e;
           cef = e_cef / e;
           nef = e_nef / e;
+          muf = e_muf / e;
         } else {
-          chf = nhf = cef = nef = 0.0;
+          chf = nhf = cef = nef = muf = 0.0;
         }
       }
     }  // end if pat jet
@@ -286,6 +292,7 @@ public:  // interface
       double e_nhf = 0.0;
       double e_cef = 0.0;
       double e_nef = 0.0;
+      double e_muf = 0.0;
       nch = 0;
       nconstituents = 0;
       for (reco::Jet::const_iterator ibegin = basicJet->begin(), iend = patJet->end(), isub = ibegin; isub != iend;
@@ -295,6 +302,7 @@ public:  // interface
         e_nhf += pfsub->neutralHadronEnergy();
         e_cef += pfsub->chargedEmEnergy();
         e_nef += pfsub->neutralEmEnergy();
+        e_muf += pfsub->muonEnergy();
         nch += pfsub->chargedMultiplicity();
         nconstituents += pfsub->numberOfDaughters();
         nneutrals += pfsub->neutralMultiplicity();
@@ -305,6 +313,7 @@ public:  // interface
         nhf = e_nhf / e;
         cef = e_cef / e;
         nef = e_nef / e;
+        muf = e_muf / e;
       }
     }  // end if basic jet
 
