@@ -71,11 +71,11 @@ public:
 
   /// Track momentum
   GlobalVector momentum() const;
-  GlobalVector getMomentum(unsigned int npar) const;
+  GlobalVector getMomentum(unsigned int npar = 4) const;
 
   /// Track curvature
   double rInv() const;
-  double getRInv(unsigned int npar) const;
+  double getRInv(unsigned int npar = 4) const;
 
   /// Track phi
   double phi() const;
@@ -94,7 +94,7 @@ public:
 
   /// POCA
   GlobalPoint POCA() const;
-  GlobalPoint getPOCA(unsigned int npar) const;
+  GlobalPoint getPOCA(unsigned int npar = 4) const;
 
   /// Phi Sector
   unsigned int PhiSector() const { return thePhiSector; }
@@ -108,11 +108,11 @@ public:
   /// Chi2
   double chi2() const;
   double chi2Red() const;
-  double getChi2(unsigned int npar) const;
-  double getChi2Red(unsigned int npar) const;
+  double getChi2(unsigned int npar = 4) const;
+  double getChi2Red(unsigned int npar = 4) const;
 
   /// Stub Pt consistency
-  double StubPtConsistency() const;
+  double getStubPtConsistency(unsigned int npar = 4) const;
   void setStubPtConsistency(double aPtConsistency);
 
   void setFitParNo(unsigned int aFitParNo);
@@ -321,7 +321,7 @@ void TTTrack<T>::setStubPtConsistency(double aStubPtConsistency) {
 
 /// StubPtConsistency
 template <typename T>
-double TTTrack<T>::StubPtConsistency() const {
+double TTTrack<T>::getStubPtConsistency(unsigned int npar) const {
   if (NumFitPars == 5 || NumFitPars == 4) {
     return theStubPtConsistency;
   } else
