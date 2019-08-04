@@ -115,7 +115,7 @@ void OuterTrackerMonitorTTTrack::analyze(const edm::Event &iEvent, const edm::Ev
     if (nStubs >= HQNStubs_ && trackChi2R <= HQChi2dof_) {
       numHQTracks++;
 
-      Track_HQ_Pt->Fill(tempTrackPtr->getMomentum(4).perp()); //4 for now for backwards compatibility
+      Track_HQ_Pt->Fill(tempTrackPtr->getMomentum(4).perp());  //4 for now for backwards compatibility
       Track_HQ_Eta->Fill(tempTrackPtr->eta());
       Track_HQ_Phi->Fill(tempTrackPtr->phi());
       Track_HQ_VtxZ->Fill(tempTrackPtr->z0());
