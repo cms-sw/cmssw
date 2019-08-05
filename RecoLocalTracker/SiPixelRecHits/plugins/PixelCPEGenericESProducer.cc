@@ -56,7 +56,7 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet& p)
 
   pset_ = p;
   auto c = setWhatProduced(this, myname);
-  c.setConsumes(magfieldToken_, edm::ESInputTag(magname))
+  c.setConsumes(magfieldToken_, magname)
       .setConsumes(pDDToken_)
       .setConsumes(hTTToken_)
       .setConsumes(lorentzAngleToken_, edm::ESInputTag("", laLabel));
