@@ -1094,7 +1094,7 @@ namespace evf {
     }
     //write JSON file (TODO: use jsoncpp)
     std::stringstream ss;
-    ss << "{\"data\":{\"NEvents\":" << nbEventsWrittenRaw << ",\"NBytes\":" << fileSizeFromRaw << "}}";
+    ss << "{\"data\":[" << nbEventsWrittenRaw << "," << fileSizeFromRaw << "]}";
     std::string sstr = ss.str();
 
     if (::write(outfile, sstr.c_str(), sstr.size()) < 0) {
