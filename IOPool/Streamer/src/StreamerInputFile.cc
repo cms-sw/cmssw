@@ -40,10 +40,8 @@ namespace edm {
     readStartMessage();
   }
 
-  StreamerInputFile::StreamerInputFile(std::string const& name,
-                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
+  StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID)
       : StreamerInputFile(name, name, eventSkipperByID) {}
-
 
   StreamerInputFile::StreamerInputFile(std::vector<FileCatalogItem> const& names,
                                        std::shared_ptr<EventSkipperByID> eventSkipperByID)
@@ -74,15 +72,14 @@ namespace edm {
     currentFileName_ = name;
 
     // Check if the logical file name was found.
-    if(currentFileName_.empty()) {
+    if (currentFileName_.empty()) {
       // LFN not found in catalog.
       throw cms::Exception("LogicalFileNameNotFound", "StreamerInputFile::openStreamerFile()\n")
-        << "Logical file name '" << LFN << "' was not found in the file catalog.\n"
-        << "If you wanted a local file, you forgot the 'file:' prefix\n"
-        << "before the file name in your configuration file.\n";
+          << "Logical file name '" << LFN << "' was not found in the file catalog.\n"
+          << "If you wanted a local file, you forgot the 'file:' prefix\n"
+          << "before the file name in your configuration file.\n";
       return;
     }
-
 
     logFileAction("  Initiating request to open file ");
 

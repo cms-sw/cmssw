@@ -71,7 +71,8 @@ int readSingleStream(bool verbose) {
 
 int readMultipleStreams(bool verbose) {
   try {
-    std::unique_ptr<edm::SiteLocalConfig> slcptr = std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
+    std::unique_ptr<edm::SiteLocalConfig> slcptr =
+        std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
     auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
     edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
     edm::ServiceRegistry::Operate operate(slcToken);
@@ -119,7 +120,8 @@ int readMultipleStreams(bool verbose) {
 
 int readInvalidLFN(bool verbose) {
   try {
-    std::unique_ptr<edm::SiteLocalConfig> slcptr = std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
+    std::unique_ptr<edm::SiteLocalConfig> slcptr =
+        std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
     auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
     edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
     edm::ServiceRegistry::Operate operate(slcToken);
@@ -159,7 +161,8 @@ int readInvalidLFN(bool verbose) {
     std::cout << " TOTAL Events Read: " << evCount << std::endl;
   } catch (cms::Exception& e) {
     std::cerr << "Exception caught:  " << e.what() << std::endl;
-    if (e.category() == "LogicalFileNameNotFound") return 0;
+    if (e.category() == "LogicalFileNameNotFound")
+      return 0;
   }
   return 1;
 }
