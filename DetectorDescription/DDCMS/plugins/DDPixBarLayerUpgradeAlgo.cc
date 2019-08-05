@@ -1,9 +1,9 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 static long algorithm(dd4hep::Detector&, cms::DDParsingContext& ctxt, xml_h e, dd4hep::SensitiveDetector&) {
   cms::DDNamespace ns(ctxt, e, true);

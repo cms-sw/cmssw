@@ -42,11 +42,7 @@
 
   <IncludeSection>
     <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/trackermaterial.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/tibtidcommonmaterial.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/vacuum.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/cmsextent.xml"/>
-    <Include ref="DetectorDescription/DDCMS/data/cms.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/v2/cmsextent.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cms/2021/v1/cms.xml"/>
