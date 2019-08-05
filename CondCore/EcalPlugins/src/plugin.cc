@@ -59,6 +59,9 @@
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
 
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosMC.h"
+#include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosMCRcd.h"
+
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
@@ -172,6 +175,7 @@ REGISTER_PLUGIN(EcalIntercalibErrorsRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalADCToGeVConstantRcd, EcalADCToGeVConstant);
 REGISTER_PLUGIN(EcalLaserAlphasRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRcd, EcalLaserAPDPNRatios);
+REGISTER_PLUGIN(EcalLaserAPDPNRatiosMCRcd,EcalLaserAPDPNRatiosMC);
 REGISTER_PLUGIN(EcalLaserAPDPNRatiosRefRcd, EcalCondObjectContainer<float>);
 REGISTER_PLUGIN(EcalChannelStatusRcd, EcalCondObjectContainer<EcalChannelStatusCode>);
 REGISTER_PLUGIN(EcalPFRecHitThresholdsRcd, EcalCondObjectContainer<float>);
