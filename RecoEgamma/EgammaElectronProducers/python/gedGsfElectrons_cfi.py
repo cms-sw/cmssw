@@ -64,10 +64,10 @@ from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 pp_on_AA_2018.toModify(gedGsfElectronsTmp.preselection, minSCEtBarrel = 15.0)
 pp_on_AA_2018.toModify(gedGsfElectronsTmp.preselection, minSCEtEndcaps = 15.0)
 
-from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
-lightByLightLowPt.toModify(gedGsfElectronsTmp.preselection,
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp.preselection,
                            minSCEtBarrel = 1.0, 
                            minSCEtEndcaps = 1.0)
-lightByLightLowPt.toModify(gedGsfElectronsTmp,
+egamma_lowPt_exclusive.toModify(gedGsfElectronsTmp,
                            applyPreselection = False) 
 
