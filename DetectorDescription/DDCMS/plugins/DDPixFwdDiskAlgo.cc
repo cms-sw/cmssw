@@ -8,11 +8,11 @@
 #include "DD4hep/DetFactoryHelper.h"
 #include "DD4hep/Printout.h"
 
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 
 #include <sstream>
 
-using namespace geant_units::operators;  // _deg and convertRadToDeg
+using namespace cms_units::operators;  // _deg and convertRadToDeg
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,

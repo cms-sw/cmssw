@@ -33,6 +33,9 @@ class CkfComponentsRecord
                                                                                SiStripNoisesRcd,
                                                                                SiStripRegionCablingRcd,
                                                                                SiPixelQualityRcd,
-                                                                               SiPixelFedCablingMapRcd> > {};
+                                                                               SiPixelFedCablingMapRcd,
+                                                                               IdealMagneticFieldRecord,
+                                                                               SiPixelLorentzAngleRcd,
+                                                                               SiStripLorentzAngleDepRcd> > {};
 
 #endif
