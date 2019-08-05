@@ -1,4 +1,5 @@
 // system include files
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -49,6 +50,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TTree.h"
+#include "TRandom3.h"
 
 //#define EDM_ML_DEBUG
 
@@ -71,6 +73,7 @@ private:
   void analyzeDigi(int type, const T1& detId, uint16_t adc);
   void analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>& hits);
   void analyzePassiveHits(edm::Handle<edm::PassiveHitContainer> const& hgcPh, int subdet);
+  static bool sortTime(const std::pair<double, double>& i, const std::pair<double, double>& j);
 
   edm::Service<TFileService> fs_;
   std::unique_ptr<AHCalGeometry> ahcalGeom_;
@@ -79,12 +82,13 @@ private:
   bool ifEE_, ifFH_, ifBH_, ifBeam_;
   bool doTree_, doTreeCell_;
   bool doSimHits_, doDigis_, doRecHits_;
-  bool doPassive_;
+  bool doPassive_, doPassiveEE_, doPassiveHE_, doPassiveBH_;;
   std::string detectorEE_, detectorFH_;
   std::string detectorBH_, detectorBeam_;
   double zFrontEE_, zFrontFH_, zFrontBH_;
   int sampleIndex_;
   std::vector<int> idBeams_;
+  double gev2mip200_, gev2mip300_, stoc_smear_time_200_, stoc_smear_time_300_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsFH_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsBH_, tok_hitsBeam_;
   edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
@@ -93,7 +97,7 @@ private:
   edm::EDGetToken tok_hitrEE_, tok_hitrFH_, tok_hitrBH_;
   edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHEE_, tok_hgcPHFH_;
-  edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHBH_, tok_hgcPHCMSE_;
+  edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHBH_, tok_hgcPHCMSE_, tok_hgcPHBeam_;
 
   TTree* tree_;
   TH1D *hSimHitE_[4], *hSimHitT_[4];
@@ -116,12 +120,17 @@ private:
   std::vector<uint32_t> simHitCellIdBH_, simHitCellIdBeam_;
   std::vector<float> simHitCellEnEE_, simHitCellEnFH_;
   std::vector<float> simHitCellEnBH_, simHitCellEnBeam_;
+  std::vector<int> simHitCellColBH_, simHitCellRowBH_, simHitCellLayerBH_;
+  std::vector<float> simHitCellTimeFirstHitEE_, simHitCellTimeFirstHitFH_, simHitCellTimeFirstHitBH_;
+  std::vector<float> simHitCellTime15MipEE_, simHitCellTime15MipFH_, simHitCellTime15MipBH_;
+  std::vector<float> simHitCellTimeLastHitEE_, simHitCellTimeLastHitFH_, simHitCellTimeLastHitBH_;
 
-  std::vector<float> hgcPassiveEEEnergy_, hgcPassiveFHEnergy_, hgcPassiveBHEnergy_, hgcPassiveCMSEEnergy_;
-  std::vector<std::string> hgcPassiveEEName_, hgcPassiveFHName_, hgcPassiveBHName_, hgcPassiveCMSEName_;
-  std::vector<int> hgcPassiveEEID_, hgcPassiveFHID_, hgcPassiveBHID_, hgcPassiveCMSEID_;
+  std::vector<float> hgcPassiveEEEnergy_, hgcPassiveFHEnergy_, hgcPassiveBHEnergy_, hgcPassiveCMSEEnergy_, hgcPassiveBeamEnergy_;
+  std::vector<std::string> hgcPassiveEEName_, hgcPassiveFHName_, hgcPassiveBHName_, hgcPassiveCMSEName_, hgcPassiveBeamName_;
+  std::vector<int> hgcPassiveEEID_, hgcPassiveFHID_, hgcPassiveBHID_, hgcPassiveCMSEID_, hgcPassiveBeamID_;
 
   double xBeam_, yBeam_, zBeam_, pBeam_;
+  double thetaBeam_, phiBeam_;
 };
 
 HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
@@ -148,7 +157,18 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   doTree_ = iConfig.getUntrackedParameter<bool>("doTree", false);
   doTreeCell_ = iConfig.getUntrackedParameter<bool>("doTreeCell", false);
   doPassive_ = iConfig.getUntrackedParameter<bool>("doPassive", false);
-
+  doPassiveEE_ = iConfig.getUntrackedParameter<bool>("doPassiveEE",false);
+  doPassiveHE_ = iConfig.getUntrackedParameter<bool>("doPassiveHE",false);
+  doPassiveBH_ = iConfig.getUntrackedParameter<bool>("doPassiveBH",false);
+  gev2mip200_ = iConfig.getUntrackedParameter<double>("gev2mip200",57.0e-6);
+  gev2mip300_ = iConfig.getUntrackedParameter<double>("gev2mip300",85.5e-6);
+///TIME SMEARING
+///Const = 50ps = 0.05ns
+///Stochastic is 4ns/Q(fC)
+////For 300 um, 1MIP = 3.84fC, 200um, it is 3.84*2./3.=2.56fC
+////This stochastic for 300um = 4*3.84/E_MIP=15.5ns/E_MIP and 200um = 4*2.56/E_MIPs=10.24ns/E_MIP
+  stoc_smear_time_200_ = iConfig.getUntrackedParameter<double>("stoc_smear_time_200",10.24);
+  stoc_smear_time_300_ = iConfig.getUntrackedParameter<double>("stoc_smear_time_300",15.5);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: SimHits = " << doSimHits_ << " Digis = " << doDigis_ << ":"
                              << sampleIndex_ << " RecHits = " << doRecHits_ << " useDets " << ifEE_ << ":" << ifFH_
@@ -156,6 +176,10 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
                              << zFrontBH_ << " IdBeam " << idBeams_.size() << ":";
   for (unsigned int k = 0; k < idBeams_.size(); ++k)
     edm::LogVerbatim("HGCSim") << " [" << k << "] " << idBeams_[k];
+  edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: DoPassive " << doPassive_ << ":" << doPassiveEE_ << ":" 
+			     << doPassiveHE_ << ":" << doPassiveBH_;
+  edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: MIP conversion factors " << gev2mip200_ << ":" << gev2mip300_
+			     << " Time smearing " << stoc_smear_time_200_ << ":" << stoc_smear_time_300_;
 #endif
   if (idBeams_.empty())
     idBeams_.push_back(1001);
@@ -212,6 +236,9 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   tmp = iConfig.getParameter<edm::InputTag>("passiveCMSE");
   tok_hgcPHCMSE_ = consumes<edm::PassiveHitContainer>(tmp);
 
+  tmp = iConfig.getParameter<edm::InputTag>("passiveBeam");
+  tok_hgcPHBeam_   = consumes<edm::PassiveHitContainer>(tmp);
+
 #ifdef EDM_ML_DEBUG
   if (ifBH_) {
     edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBH_ << " with tags " << tmp1 << ", " << tmp2
@@ -231,7 +258,6 @@ HGCalTBAnalyzer::~HGCalTBAnalyzer() {}
 
 void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
   desc.add<std::string>("detectorEE", "HGCalEESensitive");
   desc.add<bool>("useEE", true);
   desc.add<double>("zFrontEE", 0.0);
@@ -261,6 +287,7 @@ void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<edm::InputTag>("passiveFH", edm::InputTag("g4SimHits", "HGCalHEPassiveHits"));
   desc.add<edm::InputTag>("passiveBH", edm::InputTag("g4SimHits", "HGCalAHPassiveHits"));
   desc.add<edm::InputTag>("passiveCMSE", edm::InputTag("g4SimHits", "CMSEPassiveHits"));
+  desc.add<edm::InputTag>("passiveBeam",edm::InputTag("g4SimHits","HGCalBeamPassiveHits"));
 
   desc.add<bool>("doSimHits", true);
   desc.add<bool>("doDigis", true);
@@ -269,12 +296,18 @@ void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.addUntracked<bool>("doTree", true);
   desc.addUntracked<bool>("doTreeCell", true);
   desc.addUntracked<bool>("doPassive", false);
+  desc.addUntracked<bool>("doPassiveEE",false);
+  desc.addUntracked<bool>("doPassiveHE",false);
+  desc.addUntracked<bool>("doPassiveBH",false);
+  desc.addUntracked<double>("gev2mip200",57.0e-6);
+  desc.addUntracked<double>("gev2mip300",85.5e-6);
+  desc.addUntracked<double>("stoc_smear_time_200",10.24);
+  desc.addUntracked<double>("stoc_smear_time_300",15.5);
   desc.addUntracked<int>("maxDepth", 12);
   desc.addUntracked<double>("deltaX", 30.0);  // Size of tile along X
   desc.addUntracked<double>("deltaY", 30.0);  // Size of tile along Y
   desc.addUntracked<double>("deltaZ", 81.0);  // Thickness of a single layer
   desc.addUntracked<double>("zFirst", 17.6);  // Position of the center
-
   descriptions.add("HGCalTBAnalyzer", desc);
 }
 
@@ -369,6 +402,8 @@ void HGCalTBAnalyzer::beginJob() {
     tree_->Branch("yBeam", &yBeam_, "yBeam/D");
     tree_->Branch("zBeam", &zBeam_, "zBeam/D");
     tree_->Branch("pBeam", &pBeam_, "pBeam/D");
+    tree_->Branch("thetaBeam", &thetaBeam_, "thetaBeam/D");
+    tree_->Branch("phiBeam", &phiBeam_, "phiBeam/D");
     if (doTreeCell_) {
       tree_->Branch("simHitCellIdEE", &simHitCellIdEE_);
       tree_->Branch("simHitCellEnEE", &simHitCellEnEE_);
@@ -378,22 +413,44 @@ void HGCalTBAnalyzer::beginJob() {
       tree_->Branch("simHitCellEnBH", &simHitCellEnBH_);
       tree_->Branch("simHitCellIdBeam", &simHitCellIdBeam_);
       tree_->Branch("simHitCellEnBeam", &simHitCellEnBeam_);
+
+      tree_->Branch("simHitCellColBH", &simHitCellColBH_);
+      tree_->Branch("simHitCellRowBH", &simHitCellRowBH_);
+      tree_->Branch("simHitCellLayerBH", &simHitCellLayerBH_);
+      tree_->Branch("simHitCellTimeFirstHitEE", &simHitCellTimeFirstHitEE_);
+      tree_->Branch("simHitCellTimeFirstHitFH", &simHitCellTimeFirstHitFH_);
+      //tree_->Branch("simHitCellTimeFirstHitBH", &simHitCellTimeFirstHitBH_);
+      tree_->Branch("simHitCellTime15MipEE", &simHitCellTime15MipEE_);
+      tree_->Branch("simHitCellTime15MipFH", &simHitCellTime15MipFH_);
+      //tree_->Branch("simHitCellTime15MipBH", &simHitCellTime15MipBH_);
+      tree_->Branch("simHitCellTimeLastHitEE", &simHitCellTimeLastHitEE_);
+      tree_->Branch("simHitCellTimeLastHitFH", &simHitCellTimeLastHitFH_);
+      //tree_->Branch("simHitCellTimeLastHitBH", &simHitCellTimeLastHitBH_);
     }
   }
 
   if (doPassive_ && doTree_) {
-    tree_->Branch("hgcPassiveEEEnergy", &hgcPassiveEEEnergy_);
-    tree_->Branch("hgcPassiveEEName", &hgcPassiveEEName_);
-    tree_->Branch("hgcPassiveEEID", &hgcPassiveEEID_);
-    tree_->Branch("hgcPassiveFHEnergy", &hgcPassiveFHEnergy_);
-    tree_->Branch("hgcPassiveFHName", &hgcPassiveFHName_);
-    tree_->Branch("hgcPassiveFHID", &hgcPassiveFHID_);
-    tree_->Branch("hgcPassiveBHEnergy", &hgcPassiveBHEnergy_);
-    tree_->Branch("hgcPassiveBHName", &hgcPassiveBHName_);
-    tree_->Branch("hgcPassiveBHID", &hgcPassiveBHID_);
+    if (doPassiveEE_) {
+      tree_->Branch("hgcPassiveEEEnergy", &hgcPassiveEEEnergy_);
+      tree_->Branch("hgcPassiveEEName", &hgcPassiveEEName_);
+      tree_->Branch("hgcPassiveEEID", &hgcPassiveEEID_);
+    }
+    if (doPassiveHE_) {
+      tree_->Branch("hgcPassiveFHEnergy", &hgcPassiveFHEnergy_);
+      tree_->Branch("hgcPassiveFHName", &hgcPassiveFHName_);
+      tree_->Branch("hgcPassiveFHID", &hgcPassiveFHID_);
+    }
+    if (doPassiveBH_) {
+      tree_->Branch("hgcPassiveBHEnergy", &hgcPassiveBHEnergy_);
+      tree_->Branch("hgcPassiveBHName", &hgcPassiveBHName_);
+      tree_->Branch("hgcPassiveBHID", &hgcPassiveBHID_);
+    }
     tree_->Branch("hgcPassiveCMSEEnergy", &hgcPassiveCMSEEnergy_);
     tree_->Branch("hgcPassiveCMSEName", &hgcPassiveCMSEName_);
     tree_->Branch("hgcPassiveCMSEID", &hgcPassiveCMSEID_);
+    tree_->Branch("hgcPassiveBeamEnergy", &hgcPassiveBeamEnergy_);
+    tree_->Branch("hgcPassiveBeamName", &hgcPassiveBeamName_);
+    tree_->Branch("hgcPassiveBeamID", &hgcPassiveBeamID_);
   }
 }
 
@@ -522,6 +579,20 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     simHitCellEnBH_.clear();
     simHitCellIdBeam_.clear();
     simHitCellEnBeam_.clear();
+    simHitCellColBH_.clear();
+    simHitCellRowBH_.clear();
+    simHitCellLayerBH_.clear();
+    simHitCellTimeFirstHitEE_.clear();
+    simHitCellTime15MipEE_.clear(); 
+    simHitCellTimeLastHitEE_.clear(); 
+    simHitCellTimeFirstHitFH_.clear();
+    simHitCellTime15MipFH_.clear(); 
+    simHitCellTimeLastHitFH_.clear(); 
+    /*
+    simHitCellTimeFirstHitBH_.clear();
+    simHitCellTime15MipBH_.clear(); 
+    simHitCellTimeLastHitBH_.clear(); 
+    */
     edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
     std::vector<PCaloHit> caloHits;
     if (ifEE_) {
@@ -600,38 +671,47 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   ////Store the info about the Passive hits
   if (doPassive_) {
-    hgcPassiveEEEnergy_.clear();
-    hgcPassiveFHEnergy_.clear();
-    hgcPassiveBHEnergy_.clear();
-    hgcPassiveCMSEEnergy_.clear();
-    hgcPassiveEEName_.clear();
-    hgcPassiveFHName_.clear();
-    hgcPassiveBHName_.clear();
-    hgcPassiveCMSEName_.clear();
-    hgcPassiveEEID_.clear();
-    hgcPassiveFHID_.clear();
-    hgcPassiveBHID_.clear();
-    hgcPassiveCMSEID_.clear();
-
     /// EE
-    edm::Handle<edm::PassiveHitContainer> hgcPHEE;
-    iEvent.getByToken(tok_hgcPHEE_, hgcPHEE);
-    analyzePassiveHits(hgcPHEE, 1);
-
+    hgcPassiveEEEnergy_.clear();
+    hgcPassiveEEName_.clear();
+    hgcPassiveEEID_.clear();
+    if (doPassiveEE_){ 
+      edm::Handle<edm::PassiveHitContainer> hgcPHEE;
+      iEvent.getByToken(tok_hgcPHEE_, hgcPHEE);
+      analyzePassiveHits(hgcPHEE, 1);
+    }
     /// FH
-    edm::Handle<edm::PassiveHitContainer> hgcPHFH;
-    iEvent.getByToken(tok_hgcPHFH_, hgcPHFH);
-    analyzePassiveHits(hgcPHFH, 2);
-
+    hgcPassiveFHEnergy_.clear();
+    hgcPassiveFHName_.clear();
+    hgcPassiveFHID_.clear();
+    if (doPassiveHE_){ 
+      edm::Handle<edm::PassiveHitContainer> hgcPHFH;
+      iEvent.getByToken(tok_hgcPHFH_, hgcPHFH);
+      analyzePassiveHits(hgcPHFH, 2);
+    }
     /// BH
-    edm::Handle<edm::PassiveHitContainer> hgcPHBH;
-    iEvent.getByToken(tok_hgcPHBH_, hgcPHBH);
-    analyzePassiveHits(hgcPHBH, 3);
-
+    hgcPassiveBHEnergy_.clear();
+    hgcPassiveBHName_.clear();
+    hgcPassiveBHID_.clear();
+    if (doPassiveBH_){
+      edm::Handle<edm::PassiveHitContainer> hgcPHBH;
+      iEvent.getByToken(tok_hgcPHBH_, hgcPHBH);
+      analyzePassiveHits(hgcPHBH, 3);
+    }
     /// CMSE
+    hgcPassiveCMSEEnergy_.clear();
+    hgcPassiveCMSEName_.clear();
+    hgcPassiveCMSEID_.clear();
     edm::Handle<edm::PassiveHitContainer> hgcPHCMSE;
     iEvent.getByToken(tok_hgcPHCMSE_, hgcPHCMSE);
     analyzePassiveHits(hgcPHCMSE, 4);
+    ///Beam
+    hgcPassiveBeamName_.clear();
+    hgcPassiveBeamEnergy_.clear();
+    hgcPassiveBeamID_.clear();
+    edm::Handle<edm::PassiveHitContainer>  hgcPHBeam;
+    iEvent.getByToken(tok_hgcPHBeam_,hgcPHBeam);
+    analyzePassiveHits(hgcPHBeam, 5);
   }
 
   if ((doSimHits_ || doPassive_) && (doTree_))
@@ -710,9 +790,19 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, double zFront) {
   std::map<uint32_t, double> map_hits, map_hitn;
+  std::map<uint32_t,double>  map_hittime_firsthit, map_hittime_lasthit, map_hittime_15Mip;
   std::map<int, double> map_hitDepth;
   std::map<int, std::pair<uint32_t, double>> map_hitLayer, map_hitCell;
   double entot(0);
+  std::map<uint32_t,double> nhits;
+  std::map<uint32_t,int> ID, Depth;
+  std::map<uint32_t,double>  GeV2Mip;
+  std::map<uint32_t,double>  StochTermTime;
+  std::vector<int> nSimLayers;
+  ///storing time of each pcalohit in each cell ///SJ
+  std::map<uint32_t,std::vector<std::pair<double,double>> > map_hitTimeEn;
+  //bool debug = true;
+  bool debug = false;
   for (unsigned int i = 0; i < hits.size(); i++) {
     double energy = hits[i].energy();
     double time = hits[i].time();
@@ -729,6 +819,8 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       sector = hid.irow();
       cell = hid.icol();
       idx = ((hid.irowAbs() * 100) + (hid.icolAbs()));
+      if (debug) 
+	edm::LogVerbatim("HGCSim") << "depth, cell " << depth << " " << cell;
     } else if (type == 3) {
       HcalTestBeamNumbering::unpackIndex(id, subdet, layer, sector, cell);
       depth = layer;
@@ -752,16 +844,22 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     }
     if (map_hitLayer.count(layer) != 0) {
       double ee = energy + map_hitLayer[layer].second;
-      map_hitLayer[layer] = std::pair<uint32_t, double>(id, ee);
+      map_hitLayer[layer] = std::make_pair(id, ee);
     } else {
-      map_hitLayer[layer] = std::pair<uint32_t, double>(id, energy);
+      map_hitLayer[layer] = std::make_pair(id, energy);
     }
     if (depth >= 0) {
       if (map_hitCell.count(idx) != 0) {
         double ee = energy + map_hitCell[idx].second;
-        map_hitCell[idx] = std::pair<uint32_t, double>(id, ee);
+        map_hitCell[idx] = std::make_pair(id, ee);
       } else {
-        map_hitCell[idx] = std::pair<uint32_t, double>(id, energy);
+        map_hitCell[idx] = std::make_pair(id, energy);
+      }
+      if (debug) {
+        if (type==1)
+          edm::LogVerbatim("HGCSim") << "EE, depth is and map_hitDepth[depth] " << depth << " " << map_hitDepth[depth];
+        if (type==2)
+          edm::LogVerbatim("HGCSim") << "BH, depth is and map_hitDepth[depth] " << depth << " " << map_hitDepth[depth];
       }
       if (map_hitDepth.count(depth) != 0) {
         map_hitDepth[depth] += energy;
@@ -770,13 +868,91 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       }
       uint32_t idn =
           (type >= 2) ? id : HGCalTestNumbering::packHexagonIndex(subdet, zside, depth, sector, subsector, cell);
+      map_hitTimeEn[idn].push_back(std::make_pair(time, energy));
+      GeV2Mip[idn] = gev2mip300_;
+      StochTermTime[idn] = stoc_smear_time_300_;
+      ID[idn] = id;
+      Depth[idn] = depth;
       if (map_hitn.count(idn) != 0) {
         map_hitn[idn] += energy;
+	++nhits[idn];
       } else {
         map_hitn[idn] = energy;
+	nhits[idn] = 1;
       }
     }
     hSimHitT_[type]->Fill(time, energy);
+  }
+
+  if (type<2) { //store only for EE and FH
+    ///now sort the vector of each cell hits
+    for (auto itr : map_hitTimeEn) {
+      uint32_t id = itr.first;
+      int wafer= -99;
+      ///id: reco and ID[id]: sim ID
+      wafer = HGCalDetId(ID[id]).wafer();
+      double layer = HGCalDetId(id).layer();
+      double thickness = hgcons_[type]->cellThickness(layer,wafer,0);
+      if (debug) {
+	edm::LogVerbatim("HGCSim") << "wafer is : depth (reco) " << wafer << " " << Depth[id]
+				   << "\ntype : layer : wafer thickness " << type << " " << layer << " " << thickness
+				   <<"\nID(sim) and id(reco) " << std::hex << ID[id] << " " << id << std::dec << std::endl;
+      }
+      if (thickness== 300) {
+        GeV2Mip[id] = gev2mip300_;
+        StochTermTime[id] = stoc_smear_time_300_;
+      } else if(thickness== 200) {
+        GeV2Mip[id] = gev2mip200_;
+        StochTermTime[id] = stoc_smear_time_200_;
+      }
+      //first sort
+      std::sort(map_hitTimeEn[id].begin(), map_hitTimeEn[id].end(), sortTime);
+      ///once it is sorted now start adding the energy
+      double threshold = 15.;
+      double totE = 0.;
+      double totEbeforeThreshold = 0.;
+      double timebeforeThreshold = 0.;
+      double timeAtThresohld = 0.;
+      for (unsigned int ihit=0; ihit<map_hitTimeEn[id].size(); ihit++) {
+        double energy = (map_hitTimeEn[id].at(ihit)).second/GeV2Mip[id];
+        totE += energy;
+	double time = (map_hitTimeEn[id].at(ihit)).first;
+	if (debug)
+	  edm::LogVerbatim("HGCSim") << "Tot E till now : time of that E : GeV2Mip[id] is " << totE << " " << time << " " << GeV2Mip[id];
+	if(totE < threshold){
+	  totEbeforeThreshold = totE;
+	  timebeforeThreshold = time;
+	} else {
+	  timeAtThresohld = (threshold - totEbeforeThreshold) * (time - timebeforeThreshold) / (totE - totEbeforeThreshold) + timebeforeThreshold;
+	  map_hittime_15Mip[id] = timeAtThresohld;
+	  if (debug)
+	    edm::LogVerbatim("HGCSim") << "ihit : energyBefore : timeBefore : energyTot : timeTot : timeAt15MIP  " << ihit
+				       << " " << totEbeforeThreshold << " " << timebeforeThreshold << " " << totE << " "
+				       << time << " " << map_hittime_15Mip[id];
+	  break;
+	}
+      }
+      if (!map_hitTimeEn[id].empty()) {
+        map_hittime_firsthit[id] = (map_hitTimeEn[id].at(0)).first;
+        map_hittime_lasthit[id] = (map_hitTimeEn[id].at(map_hitTimeEn[id].size(
+)-1)).first;   
+        if (map_hittime_15Mip[id] < map_hittime_firsthit[id])
+          map_hittime_15Mip[id] = map_hittime_firsthit[id];
+        /*
+        ///Put the smeared values here after correcting for the vertex time
+        double firsthit_sm = ran3.Gaus(map_hittime_firsthit_vtxCorr[id], StochTermTime[id]);
+        double lasthit_sm = ran3.Gaus(map_hittime_lasthit_vtxCorr[id], StochTermTime[id]);
+        double threshmiphit_sm = ran3.Gaus(map_hittime_15Mip_vtxCorr[id], StochTermTime[id]);
+        */
+      }
+
+      if (totE < threshold)
+        map_hittime_15Mip[id] = -99;
+      if (debug)
+        edm::LogVerbatim("HGCSim") << "id : first hit time :  last hit time " << id << " " << map_hittime_firsthit[id]
+				   << " " << map_hittime_lasthit[id] << "\nFinally for this cell, time is "
+				   << map_hittime_15Mip[id];
+    }
   }
 
   hSimHitEn_[type]->Fill(entot);
@@ -784,8 +960,10 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     hSimHitE_[type]->Fill(itr.second);
   }
 
+  if (debug)
+    edm::LogVerbatim("HGCSim") << "Now looping over map_hitLayer";
   for (auto itr : map_hitLayer) {
-    int layer = itr.first - 1;
+    int layer = (type==2) ? itr.first : (itr.first - 1);
     double energy = (itr.second).second;
     double zp(0);
     if (type < 2)
@@ -800,20 +978,22 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       hSimHitLng2_[type]->Fill(layer + 1, energy);
     }
     if (type == 0) {
-      if (layer < (int)(hSimHitLayEn1EE_.size())) {
+      if (layer < static_cast<int>(hSimHitLayEn1EE_.size())) {
         simHitLayEn1EE_[layer] = energy;
         hSimHitLayEn1EE_[layer]->Fill(energy);
       }
     } else if (type == 1) {
-      if (layer < (int)(hSimHitLayEn1FH_.size())) {
+      if (layer < static_cast<int>(hSimHitLayEn1FH_.size())) {
         simHitLayEn1FH_[layer] = energy;
         hSimHitLayEn1FH_[layer]->Fill(energy);
       }
     } else if (type == 2) {
-      if (layer < (int)(hSimHitLayEn1BH_.size())) {
-        simHitLayEn1BH_[layer] = energy;
-        hSimHitLayEn1BH_[layer]->Fill(energy);
-      }
+       if (debug) 
+	 edm::LogVerbatim("HGCSim") << "layer < hSimHitLayEn1BH_.size()";
+       if (layer < static_cast<int>(hSimHitLayEn1BH_.size())) {
+	 simHitLayEn1BH_[layer] = energy;
+	 hSimHitLayEn1BH_[layer]->Fill(energy);
+       }
     } else {
       for (unsigned int k = 0; k < idBeams_.size(); ++k) {
         if (layer + 1 == idBeams_[k]) {
@@ -825,30 +1005,34 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     }
   }
   for (auto itr : map_hitDepth) {
-    int layer = itr.first - 1;
+    int layer = (type==2) ? itr.first : (itr.first - 1);
     double energy = itr.second;
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "SimHit:Layer " << layer + 1 << " " << energy;
 #endif
     hSimHitLng1_[type]->Fill(layer + 1, energy);
     if (type == 0) {
-      if (layer < (int)(hSimHitLayEn2EE_.size())) {
+      if (layer < static_cast<int>(hSimHitLayEn2EE_.size())) {
         simHitLayEn2EE_[layer] = energy;
         hSimHitLayEn2EE_[layer]->Fill(energy);
       }
     } else if (type == 1) {
-      if (layer < (int)(hSimHitLayEn2FH_.size())) {
+      if (layer < static_cast<int>(hSimHitLayEn2FH_.size())) {
         simHitLayEn2FH_[layer] = energy;
         hSimHitLayEn2FH_[layer]->Fill(energy);
       }
     } else if (type == 2) {
-      if (layer < (int)(hSimHitLayEn2BH_.size())) {
+      if (debug) 
+	edm::LogVerbatim("HGCSim") << "Inside map_hitDepth, layer no. " << layer;
+      if (layer < static_cast<int>(hSimHitLayEn2BH_.size())) {
         simHitLayEn2BH_[layer] = energy;
         hSimHitLayEn2BH_[layer]->Fill(energy);
       }
     }
   }
 
+  if (debug)
+    edm::LogVerbatim("HGCSim") << "Now looping over map_hitCell";
   if (type < 3) {
     for (auto itr : map_hitCell) {
       uint32_t id = ((itr.second).first);
@@ -873,14 +1057,39 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     uint32_t id = itr.first;
     double energy = itr.second;
     if (type == 0) {
-      simHitCellIdEE_.push_back(id);
+      double time_firsthit = map_hittime_firsthit[id];
+      double time15Mip = map_hittime_15Mip[id];
+      double time_lasthit = map_hittime_lasthit[id];
+      simHitCellIdEE_.push_back(id); 
       simHitCellEnEE_.push_back(energy);
+      simHitCellTimeFirstHitEE_.push_back(time_firsthit);
+      simHitCellTime15MipEE_.push_back(time15Mip);
+      simHitCellTimeLastHitEE_.push_back(time_lasthit);
+      if (debug && (energy/GeV2Mip[id] < 15) && (map_hittime_15Mip[id] > 0))
+	edm::LogVerbatim("HGCSim") << "FOUND!!!!rechit energy : Finally for this cell, time is " << energy/GeV2Mip[id] 
+				   <<" " << map_hittime_15Mip[id];
     } else if (type == 1) {
+      double time_firsthit = map_hittime_firsthit[id];
+      double time15Mip = map_hittime_15Mip[id];
+      double time_lasthit = map_hittime_lasthit[id];
       simHitCellIdFH_.push_back(id);
       simHitCellEnFH_.push_back(energy);
+      simHitCellTimeFirstHitFH_.push_back(time_firsthit);
+      simHitCellTime15MipFH_.push_back(time15Mip);
+      simHitCellTimeLastHitFH_.push_back(time_lasthit);
     } else if (type == 2) {
       simHitCellIdBH_.push_back(id);
       simHitCellEnBH_.push_back(energy);
+      AHCalDetId hid(id);
+      int row = hid.irow();
+      int col = hid.icol();
+      int layer = hid.depth();
+      simHitCellColBH_.push_back(col);
+      simHitCellRowBH_.push_back(row);
+      simHitCellLayerBH_.push_back(layer); 
+#ifdef EDM_ML_DEBUG      
+      edm::LogVerbatim("HGCSim") << "ID: " << std::hex << id << std::dec << " Layer: " << layer << " col: " << col << " row: " << row;
+#endif
     } else if (type == 3) {
       simHitCellIdBeam_.push_back(id);
       simHitCellEnBeam_.push_back(energy);
@@ -891,6 +1100,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
 void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const& SimTk,
                                        edm::Handle<edm::SimVertexContainer> const& SimVtx) {
   xBeam_ = yBeam_ = zBeam_ = pBeam_ = -1000000;
+  thetaBeam_ = phiBeam_ = -100000;
   int vertIndex(-1);
   for (auto simTrkItr : *SimTk) {
 #ifdef EDM_ML_DEBUG
@@ -901,6 +1111,10 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
     if (vertIndex == -1) {
       vertIndex = simTrkItr.vertIndex();
       pBeam_ = simTrkItr.momentum().P();
+      thetaBeam_ = simTrkItr.momentum().theta();
+      phiBeam_ = simTrkItr.momentum().phi();
+      if (phiBeam_<0)
+	phiBeam_ += (2*M_PI);
     }
   }
   if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {
@@ -934,6 +1148,9 @@ void HGCalTBAnalyzer::analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>&
     double energy = it.energy();
     int layer = HGCalDetId(detId).layer();
     int cell = HGCalDetId(detId).cell();
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "Layer thickness " << hgcons_[type]->waferTypeL(HGCalDetId(detId).wafer()); 
+#endif
     hRecHitOcc_[type]->Fill(global.x(), global.y(), energy);
     hRecHitE_[type]->Fill(energy);
     if (map_hitLayer.count(layer) != 0) {
@@ -999,8 +1216,16 @@ void HGCalTBAnalyzer::analyzePassiveHits(edm::Handle<edm::PassiveHitContainer> c
       hgcPassiveCMSEEnergy_.push_back(energy);
       hgcPassiveCMSEName_.push_back(name);
       hgcPassiveCMSEID_.push_back(id);
+    } else if (subdet==5) {
+      hgcPassiveBeamEnergy_.push_back(energy);
+      hgcPassiveBeamName_.push_back(name);
+      hgcPassiveBeamID_.push_back(id);
     }
   }
+}
+
+bool HGCalTBAnalyzer::sortTime(const std::pair<double, double>& i, const std::pair<double, double>& j) {
+  return i.first < j.first;
 }
 
 // define this as a plug-in

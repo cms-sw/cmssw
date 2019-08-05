@@ -40,6 +40,8 @@ public:
   int depth() const;
 
   static const AHCalDetId Undefined;
+private:
+  static constexpr int kMaxRowCol = 16;
 };
 
 std::ostream& operator<<(std::ostream&, const AHCalDetId& id);
