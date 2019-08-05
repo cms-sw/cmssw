@@ -14,7 +14,7 @@ selectDigi = cms.EDProducer("EcalDigiSelector",
     selectedEcalEEDigiCollection = cms.string('selectedEcalEEDigiCollection')
 )
 
-from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
-lightByLightLowPt.toModify(selectDigi,
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(selectDigi,
                            cluster_pt_thresh = 1.0,
                            single_cluster_thresh = 1.0)

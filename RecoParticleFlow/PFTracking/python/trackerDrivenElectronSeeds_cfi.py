@@ -71,6 +71,5 @@ _fastSim_trackerDrivenElectronSeeds.seedCollection.setModuleLabel("trackerDriven
 _fastSim_trackerDrivenElectronSeeds.idCollection.setModuleLabel("trackerDrivenElectronSeedsTmp")
 fastSim.toReplaceWith(trackerDrivenElectronSeeds,_fastSim_trackerDrivenElectronSeeds)
 
-
-from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
-lightByLightLowPt.toModify(trackerDrivenElectronSeeds,MinPt = 1.0)
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(trackerDrivenElectronSeeds,MinPt = 1.0)

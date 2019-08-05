@@ -191,8 +191,8 @@ phase2_timing.toModify(
     elementImporters = _addTiming
 )
 
-from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
-lightByLightLowPt.toModify(particleFlowBlock.elementImporters[2],
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(particleFlowBlock.elementImporters[2],
                            minSuperClusterPt = 1.0,
                            minPTforBypass = 0.0)
 

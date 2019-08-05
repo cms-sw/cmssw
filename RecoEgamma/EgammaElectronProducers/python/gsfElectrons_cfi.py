@@ -351,8 +351,8 @@ ecalDrivenGsfElectronsFromMultiCl = ecalDrivenGsfElectrons.clone(
   gsfElectronCoresTag = 'ecalDrivenGsfElectronCoresFromMultiCl'
 )
 
-from Configuration.Eras.Modifier_lightByLightLowPt_cff import lightByLightLowPt
-lightByLightLowPt.toModify(gsfElectrons,
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
+egamma_lowPt_exclusive.toModify(gsfElectrons,
                            minSCEtBarrel = 1.0, 
                            minSCEtEndcaps = 1.0, 
                            applyPreselection = False) 
