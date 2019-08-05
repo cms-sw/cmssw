@@ -20,8 +20,7 @@ templates2 = cms.ESProducer("PixelCPEClusterRepairESProducer",
 
     # petar, for clusterProbability() from TTRHs
     ClusterProbComputationFlag = cms.int32(0),
-    # gavril
-    DoCosmics = cms.bool(False), 
+
     # The flag to regulate if the LA offset is taken from Alignment 
     # True in Run II for offline RECO
     DoLorentz = cms.bool(True),
