@@ -9,8 +9,8 @@ AHCalDetId::AHCalDetId() : DetId() {}
 AHCalDetId::AHCalDetId(uint32_t rawid) : DetId(rawid) {}
 
 AHCalDetId::AHCalDetId(int row, int col, int depth) : DetId(Hcal, HcalOther) {
-  int icol = (col > 0) ? col : 10 - col;
-  int irow = (row > 0) ? row : 10 - row;
+  int icol = (col > 0) ? col : kMaxRowCol - col;
+  int irow = (row > 0) ? row : kMaxRowCol - row;
   id_ |= (HcalDetId::kHcalIdFormat2) | ((depth & HcalDetId::kHcalDepthMask2) << HcalDetId::kHcalDepthOffset2) |
          (HcalDetId::kHcalZsideMask2) | ((irow & HcalDetId::kHcalEtaMask2) << HcalDetId::kHcalEtaOffset2) |
          (icol & HcalDetId::kHcalPhiMask2);
@@ -29,15 +29,15 @@ AHCalDetId::AHCalDetId(const DetId& gen) {
 
 int AHCalDetId::irow() const {
   int value = ((id_ >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2);
-  if (value >= 10)
-    value = -(value % 10);
+  if (value >= kMaxRowCol)
+    value = (kMaxRowCol - value);
   return value;
 }
 
 int AHCalDetId::icol() const {
   int value = (id_ & HcalDetId::kHcalPhiMask2);
-  if (value >= 10)
-    value = -(value % 10);
+  if (value >= kMaxRowCol)
+    value = (kMaxRowCol - value);
   return value;
 }
 
