@@ -29,7 +29,7 @@ namespace ticl {
     float regressed_energy;
 
     // trackster ID probabilities
-    std::array<float, 5> id_probabilities;
+    std::array<float, 7> id_probabilities;
 
     // convenience methods to return certain id probabilities
     inline float photon_probability() { return id_probabilities[0]; };
@@ -41,6 +41,10 @@ namespace ticl {
     inline float charged_hadron_probability() { return id_probabilities[3]; };
 
     inline float neutral_hadron_probability() { return id_probabilities[4]; };
+
+    inline float ambiguous_probability() { return id_probabilities[5]; };
+
+    inline float unknown_probability() { return id_probabilities[6]; };
   };
 }  // namespace ticl
 #endif
