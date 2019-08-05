@@ -128,8 +128,10 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
   std::vector<int> tracksterIndices;
   for (int i = 0; i < (int)tracksters.size(); i++) {
     // set default values (1)
-    tracksters[i].id_probabilities = {{0., 0., 0., 0., 0.}};
     tracksters[i].regressed_energy = 0.;
+    for (size_t j = 0; j < tracksters[i].id_probabilities.size(); j++) {
+      tracksters[i].id_probabilities[j] = 0.;
+    }
 
     // calculate the cluster energy sum (2)
     // note: after the loop, sumClusterEnergy might be just above the treshold which is enough to
@@ -139,13 +141,10 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
       sumClusterEnergy += (float)layerClusters[tracksters[i].vertices[cluster]].energy();
       // there might be many clusters, so try to stop early
       if (sumClusterEnergy >= eidMinClusterEnergy_) {
+        tracksterIndices.push_back(i);
         break;
       }
     }
-    if (sumClusterEnergy < eidMinClusterEnergy_) {
-      continue;
-    }
-    tracksterIndices.push_back(i);
   }
 
   // create input and output tensors (3)
