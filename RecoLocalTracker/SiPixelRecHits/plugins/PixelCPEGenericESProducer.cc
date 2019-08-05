@@ -112,7 +112,7 @@ void PixelCPEGenericESProducer::fillDescriptions(edm::ConfigurationDescriptions&
 
   // vestigial (present in certain HLT menus)
   desc.addOptional<double>("TanLorentzAnglePerTesla");
-  desc.addOptional<std::string>("PixelErrorParametrization", "NOTcmsim");
+  desc.addOptional<std::string>("PixelErrorParametrization");
 
   descriptions.add("PixelCPEGenericESProducer", desc);
 }
