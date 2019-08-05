@@ -40,6 +40,7 @@ public:
   int depth() const;
 
   static const AHCalDetId Undefined;
+
 private:
   static constexpr int kMaxRowCol = 16;
 };
