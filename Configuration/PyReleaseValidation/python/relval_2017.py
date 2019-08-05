@@ -21,7 +21,6 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #   2018 (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
 #        (TTbar trackingOnly, pixelTrackingOnly)
 #         he collapse: TTbar, TTbar PU, TTbar design
-#         killStuckTBM: TTbar, ZMM
 #         ParkingBPH: TTbar
 #   2021 (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
 #   2023 (TTbar, TTbar PU)
@@ -33,7 +32,6 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            10842.0,10824.0,10825.0,10826.0,10823.0,11024.0,11025.0,11224.0,
            10824.1,10824.5,
            10824.6,11024.6,11224.6,
-           10824.7,10842.7,
            10824.8,
            11650.0,11634.0,11646.0,11640.0,11834.0,11846.0,12024.0,
            12434.0,12634.0,
