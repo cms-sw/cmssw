@@ -222,8 +222,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
 
   // store id probabilities per trackster (6)
   if (!eidOutputNameId_.empty()) {
-    // get the pointer to the id probability tensor, dimension is batch x 5
-    // (photon, electron, muon, charged hadron, neutral hadron)
+    // get the pointer to the id probability tensor, dimension is batch x id_probabilities.size()
     size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
     float *probs = outputs[probsIdx].flat<float>().data();
 

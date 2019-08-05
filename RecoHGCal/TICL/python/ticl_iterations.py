@@ -55,7 +55,7 @@ def TICL_iterations_withReco(process):
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
       min_cos_pointing = 0.7,
-      eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_cnn_v0.pb"),
+      eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_v0.pb"),
       eid_input_name = cms.string("input"),
       eid_output_name_energy = cms.string(""),
       eid_output_name_id = cms.string("output/id_probabilities"),
@@ -116,7 +116,7 @@ def TICL_iterations(process):
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
       min_cos_pointing = 0.7,
-      eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_cnn_v0.pb"),
+      eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_v0.pb"),
       eid_input_name = cms.string("input"),
       eid_output_name_energy = cms.string(""),
       eid_output_name_id = cms.string("output/id_probabilities"),
