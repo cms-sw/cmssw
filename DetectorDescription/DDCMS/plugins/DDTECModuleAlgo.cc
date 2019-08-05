@@ -45,14 +45,15 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double topFrameZ = args.value<double>("TopFrameZ");                                 //              z-positions
 
   double resizeH = 0.96;
-  string sideFrameMat = args.value<string>("SideFrameMaterial");                      //Side frame    material
-  double sideFrameThick = args.value<double>("SideFrameThick");                       //              thickness
+  string sideFrameMat = args.value<string>("SideFrameMaterial");   //Side frame    material
+  double sideFrameThick = args.value<double>("SideFrameThick");    //              thickness
   double sideFrameLWidth = args.value<double>("SideFrameLWidth");  //    Left     Width (for stereo modules upper one)
   double sideFrameLWidthLow = isStereo ? args.value<double>("SideFrameLWidthLow")
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
   double sideFrameLHeight = resizeH * args.value<double>("SideFrameLHeight");  //             Height
-  double sideFrameLtheta = args.value<double>("SideFrameLtheta");    //              angle of the trapezoid shift
-  double sideFrameRWidth = resizeH * args.value<double>("SideFrameRWidth");    //    Right    Width (for stereo modules upper one)
+  double sideFrameLtheta = args.value<double>("SideFrameLtheta");  //              angle of the trapezoid shift
+  double sideFrameRWidth =
+      resizeH * args.value<double>("SideFrameRWidth");  //    Right    Width (for stereo modules upper one)
   double sideFrameRWidthLow = isStereo ? args.value<double>("SideFrameRWidthLow")
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
   double sideFrameRHeight = args.value<double>("SideFrameRHeight");  //             Height
@@ -219,12 +220,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
            dz * cos(detTilt + fabs(thet)) / cos(fabs(thet)) + bl2 * sin(detTilt) - 0.1_mm;
   }
   //position
-  mother.placeVolume(sideFrameLeft, isStereo? 2 : 1,
-                     dd4hep::Transform3D(ns.rotation(waferRot),
-                                         dd4hep::Position( zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos,
-                                                           ypos)));
-
-
+  mother.placeVolume(
+      sideFrameLeft,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(waferRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
 
   //right Frame
   name = idName + "SideFrameRight";
@@ -256,10 +256,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
            dz * cos(detTilt - fabs(thet)) / cos(fabs(thet)) - bl2 * sin(detTilt) - 0.1_mm;
   }
   //position it
-  mother.placeVolume(sideFrameRight, isStereo? 2 : 1,
-                     dd4hep::Transform3D(ns.rotation(waferRot),
-                                         dd4hep::Position( zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos,
-                                                           ypos)));
+  mother.placeVolume(
+      sideFrameRight,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(waferRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
   //Supplies Box(es)
   matter = ns.material(siFrSuppBoxMat);
   for (int i = 0; i < (int)(siFrSuppBoxWidth.size()); i++) {
@@ -297,10 +298,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
              siFrSuppBoxYPos[i] - sin(detTilt) * sideFrameRWidth;
     }
     //position it;
-    mother.placeVolume(siFrSuppBox, isStereo? 2 : 1,
-                       dd4hep::Transform3D(ns.rotation(waferRot),
-                                           dd4hep::Position( zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos,
-                                                             ypos)));
+    mother.placeVolume(siFrSuppBox,
+                       isStereo ? 2 : 1,
+                       dd4hep::Transform3D(
+                           ns.rotation(waferRot),
+                           dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
   }
 
   //The Hybrid
@@ -320,10 +322,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   if (isRing6)
     zpos *= -1;
   //position it
-  mother.placeVolume(hybrid, isStereo? 2 : 1,
-                     dd4hep::Transform3D(ns.rotation(standardRot),
-                                         dd4hep::Position( zpos + rPos, isStereo ?  rPos * sin(posCorrectionPhi) : 0.,
-                                                           ypos)));
+  mother.placeVolume(
+      hybrid,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(standardRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0., ypos)));
 
   // Wafer
   name = idName + tag + "Wafer";
@@ -343,11 +346,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   if (isRing6)
     zpos *= -1;
 
-  mother.placeVolume(wafer, isStereo? 2 : 1,
-                     dd4hep::Transform3D(ns.rotation(waferRot),
-                                         dd4hep::Position(zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0.,
-                                                           ypos)));
-
+  mother.placeVolume(
+      wafer,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(waferRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0., ypos)));
 
   // Active
   name = idName + tag + "Active";
@@ -368,8 +371,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Volume active(name, solid, ns.material(activeMat));
   ns.addVolumeNS(active);
 
-  wafer.placeVolume(active, 1, dd4hep::Transform3D(ns.rotation(activeRot),
-                                                   dd4hep::Position( 0., -0.5*backplaneThick, 0.))); 
+  wafer.placeVolume(
+      active, 1, dd4hep::Transform3D(ns.rotation(activeRot), dd4hep::Position(0., -0.5 * backplaneThick, 0.)));
 
   //inactive part in rings > 3
   if (ringNo > 3) {
@@ -397,9 +400,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     ns.addVolumeNS(inactive);
     ypos = inactivePos - 0.5 * activeHeight;
 
-    active.placeVolume(inactive, 1, dd4hep::Transform3D(ns.rotation(standardRot),
-                                                        dd4hep::Position(0., ypos, 0.)));
-
+    active.placeVolume(inactive, 1, dd4hep::Transform3D(ns.rotation(standardRot), dd4hep::Position(0., ypos, 0.)));
   }
   //Pitch Adapter
   name = idName + "PA";
@@ -433,14 +434,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
   Volume pa(name, solid, ns.material(pitchMat));
   if (isStereo)
-    mother.placeVolume(pa, 2,
+    mother.placeVolume(pa,
+                       2,
                        dd4hep::Transform3D(ns.rotation(pitchRot),
-                                           dd4hep::Position( zpos + rPos, xpos + rPos * sin(posCorrectionPhi),
-                                                             ypos)));
+                                           dd4hep::Position(zpos + rPos, xpos + rPos * sin(posCorrectionPhi), ypos)));
   else
-    mother.placeVolume(pa, 1,
-                     dd4hep::Transform3D(ns.rotation(standardRot),
-                                         dd4hep::Position( zpos + rPos, xpos, ypos)));
+    mother.placeVolume(pa, 1, dd4hep::Transform3D(ns.rotation(standardRot), dd4hep::Position(zpos + rPos, xpos, ypos)));
 
   //Top of the frame
   name = idName + "TopFrame";
@@ -484,20 +483,19 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     zpos *= -1;
   }
 
-
-
-  mother.placeVolume(topFrame, isStereo? 2 : 1,
-                     dd4hep::Transform3D(ns.rotation(standardRot),
-                                         dd4hep::Position( zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0.,
-                                                           ypos)));
+  mother.placeVolume(
+      topFrame,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(standardRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0., ypos)));
   if (isStereo) {
     //create
     Volume topFrame2(name, solid, ns.material(topFrameMat));
     zpos -= 0.5 * (topFrameHeight + 0.5 * (topFrame2LHeight + topFrame2RHeight));
-    mother.placeVolume(topFrame2, 2,
-                       dd4hep::Transform3D(ns.rotation(pitchRot),
-                                           dd4hep::Position( zpos + rPos, rPos * sin(posCorrectionPhi),
-                                                             ypos)));
+    mother.placeVolume(
+        topFrame2,
+        2,
+        dd4hep::Transform3D(ns.rotation(pitchRot), dd4hep::Position(zpos + rPos, rPos * sin(posCorrectionPhi), ypos)));
   }
 
   //Si - Reencorcement
@@ -528,11 +526,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       zpos -= topFrame2RHeight + sin(fabs(detTilt)) * 0.5 * topFrame2Width;
     }
 
-
-    mother.placeVolume(siReenforce, isStereo? 2 : 1,
-                       dd4hep::Transform3D(ns.rotation(waferRot),
-                                           dd4hep::Position( zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos,
-                                                             ypos)));
+    mother.placeVolume(siReenforce,
+                       isStereo ? 2 : 1,
+                       dd4hep::Transform3D(
+                           ns.rotation(waferRot),
+                           dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
   }
 
   //Bridge
