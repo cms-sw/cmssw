@@ -52,7 +52,7 @@ DEFINE_FWK_MODULE(TrackstersProducer);
 
 std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(const edm::ParameterSet& params) {
   // this method is supposed to create, initialize and return a TrackstersCache instance
-  TrackstersCache* cache = new TrackstersCache(params);
+  std::unique_ptr<TrackstersCache> cache = std::make_unique<TrackstersCache>(params);
 
   // load the graph def and save it
   std::string graphPath = params.getParameter<std::string>("eid_graph_path");
@@ -61,7 +61,7 @@ std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(const
     cache->eidGraphDef = tensorflow::loadGraphDef(graphPath);
   }
 
-  return std::unique_ptr<TrackstersCache>(cache);
+  return cache;
 }
 
 void TrackstersProducer::globalEndJob(TrackstersCache* cache) {

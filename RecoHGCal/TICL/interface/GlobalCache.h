@@ -1,5 +1,4 @@
-// Author: Marcel Rieger - marcel.rieger@cern.ch
-// Date: 07/2019
+// Definition of objects placed in the edm::GlobalCache.
 
 #ifndef RecoHGCal_TICL_GlobalCache_H__
 #define RecoHGCal_TICL_GlobalCache_H__

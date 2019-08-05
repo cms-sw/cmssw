@@ -151,7 +151,8 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
   // create input and output tensors (3)
   int batchSize = (int)tracksterIndices.size();
 
-  tensorflow::Tensor input(tensorflow::DT_FLOAT, tensorflow::TensorShape({batchSize, eidNLayers_, eidNClusters_, 3}));
+  tensorflow::TensorShape shape({batchSize, eidNLayers_, eidNClusters_, eidNFeatures_});
+  tensorflow::Tensor input(tensorflow::DT_FLOAT, shape);
   tensorflow::NamedTensorList inputList = {{eidInputName_, input}};
   float *inputData = input.flat<float>().data();
 
@@ -169,13 +170,13 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     // get features per layer and cluster and store them in a nested vector
     // this is necessary since layer information is stored per layer cluster, not vice versa
     // also, this allows for convenient re-ordering
-    std::vector<std::vector<std::array<float, 3> > > tracksterFeatures;
+    std::vector<std::vector<std::array<float, eidNFeatures_> > > tracksterFeatures;
     tracksterFeatures.resize(eidNLayers_);
     for (int cluster = 0; cluster < (int)tracksters[i].vertices.size(); cluster++) {
       const reco::CaloCluster &lc = layerClusters[tracksters[i].vertices[cluster]];
       int layer = rhtools_.getLayerWithOffset(lc.hitsAndFractions()[0].first) - 1;
       if (layer < eidNLayers_) {
-        std::array<float, 3> features{{float(lc.eta()), float(lc.phi()), float(lc.energy())}};
+        std::array<float, eidNFeatures_> features{{float(lc.eta()), float(lc.phi()), float(lc.energy())}};
         tracksterFeatures[layer].push_back(features);
       }
     }
@@ -183,52 +184,52 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
     // start filling input tensor data
     for (int layer = 0; layer < eidNLayers_; layer++) {
       // per layer, sort tracksters by decreasing energy
-      std::vector<std::array<float, 3> > &layerData = tracksterFeatures[layer];
-      sort(layerData.begin(), layerData.end(), [](const std::array<float, 3> &a, const std::array<float, 3> &b) {
-        return a[2] > b[2];
-      });
+      std::vector<std::array<float, eidNFeatures_> > &layerData = tracksterFeatures[layer];
+      sort(layerData.begin(),
+           layerData.end(),
+           [](const std::array<float, eidNFeatures_> &a, const std::array<float, eidNFeatures_> &b) {
+             return a[2] > b[2];
+           });
 
       for (int cluster = 0; cluster < eidNClusters_; cluster++) {
         // if there are not enough clusters, fill zeros
         if (cluster < (int)tracksterFeatures[layer].size()) {
-          std::array<float, 3> &features = layerData[cluster];
-          *(inputData++) = features[0];
-          *(inputData++) = features[1];
-          *(inputData++) = features[2];
+          std::array<float, eidNFeatures_> &features = layerData[cluster];
+          for (int j = 0; j < eidNFeatures_; j++) {
+            *(inputData++) = features[j];
+          }
         } else {
-          *(inputData++) = float(0);
-          *(inputData++) = float(0);
-          *(inputData++) = float(0);
+          for (int j = 0; j < eidNFeatures_; j++) {
+            *(inputData++) = float(0);
+          }
         }
       }
     }
+  }
 
-    // run the inference (5)
-    tensorflow::run(eidSession_, inputList, outputNames, &outputs);
+  // run the inference (5)
+  tensorflow::run(eidSession_, inputList, outputNames, &outputs);
 
-    // store regressed energy per trackster (6)
-    if (!eidOutputNameEnergy_.empty()) {
-      // get the pointer to the energy tensor, dimension is batch x 1
-      float *energy = outputs[0].flat<float>().data();
+  // store regressed energy per trackster (6)
+  if (!eidOutputNameEnergy_.empty()) {
+    // get the pointer to the energy tensor, dimension is batch x 1
+    float *energy = outputs[0].flat<float>().data();
 
-      for (int i : tracksterIndices) {
-        tracksters[i].regressed_energy = *(energy++);
-      }
+    for (int i : tracksterIndices) {
+      tracksters[i].regressed_energy = *(energy++);
     }
+  }
 
-    // store id probabilities per trackster (6)
-    if (!eidOutputNameId_.empty()) {
-      // get the pointer to the id probability tensor, dimension is batch x 5
-      // (photon, electron, muon, charged hadron, neutral hadron)
-      size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
-      float *probs = outputs[probsIdx].flat<float>().data();
+  // store id probabilities per trackster (6)
+  if (!eidOutputNameId_.empty()) {
+    // get the pointer to the id probability tensor, dimension is batch x 5
+    // (photon, electron, muon, charged hadron, neutral hadron)
+    size_t probsIdx = eidOutputNameEnergy_.empty() ? 0 : 1;
+    float *probs = outputs[probsIdx].flat<float>().data();
 
-      for (int i : tracksterIndices) {
-        tracksters[i].id_probabilities[0] = *(probs++);
-        tracksters[i].id_probabilities[1] = *(probs++);
-        tracksters[i].id_probabilities[2] = *(probs++);
-        tracksters[i].id_probabilities[3] = *(probs++);
-        tracksters[i].id_probabilities[4] = *(probs++);
+    for (int i : tracksterIndices) {
+      for (size_t j = 0; j < tracksters[i].id_probabilities.size(); j++) {
+        tracksters[i].id_probabilities[j] = *(probs++);
       }
     }
   }

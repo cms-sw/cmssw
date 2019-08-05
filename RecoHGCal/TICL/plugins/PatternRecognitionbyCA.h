@@ -41,6 +41,8 @@ namespace ticl {
     double eidMinClusterEnergy_;
     int eidNLayers_;
     int eidNClusters_;
+
+    static const int eidNFeatures_ = 3;
   };
 }  // namespace ticl
 #endif
