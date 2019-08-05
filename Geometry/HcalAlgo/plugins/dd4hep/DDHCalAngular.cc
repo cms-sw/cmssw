@@ -1,11 +1,11 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#define EDM_ML_DEBUG
 
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 static long algorithm(dd4hep::Detector& /* description */,
                       cms::DDParsingContext& ctxt,
