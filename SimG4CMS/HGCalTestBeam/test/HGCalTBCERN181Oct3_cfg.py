@@ -85,24 +85,34 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     firstRun = cms.untracked.uint32(1),
     psethack = cms.string('single muon E 100')
 )
-process.VtxSmeared.MinZ = -800.0
-process.VtxSmeared.MaxZ = -800.0
-process.VtxSmeared.MinX = -7.5
-process.VtxSmeared.MaxX =  7.5
-process.VtxSmeared.MinY = -7.5
-process.VtxSmeared.MaxY =  7.5
+process.VtxSmeared.MinZ                 = -800.0
+process.VtxSmeared.MaxZ                 = -800.0
+process.VtxSmeared.MinX                 = -7.5
+process.VtxSmeared.MaxX                 =  7.5
+process.VtxSmeared.MinY                 = -7.5
+process.VtxSmeared.MaxY                 =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
-#process.HGCalTBAnalyzer.useFH       = True
-#process.HGCalTBAnalyzer.useBH       = True
-#process.HGCalTBAnalyzer.useBeam     = True
-#process.HGCalTBAnalyzer.zFrontEE    = 1110.0
-#process.HGCalTBAnalyzer.zFrontFH    = 1179.7
-#process.HGCalTBAnalyzer.zFrontFH    = 1275.9
-#process.HGCalTBAnalyzer.maxDepth    = 39
-#process.HGCalTBAnalyzer.deltaZ      = 26.2
-#process.HGCalTBAnalyzer.zFirst      = 22.8
-#process.HGCalTBAnalyzer.doPassive   = True
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+		HGCPassive = cms.PSet(
+			LVNames = cms.vstring('HGCalEE','HGCalHE','HGCalAH', 'HGCalBeam', 'CMSE'),
+			MotherName = cms.string('OCMS'),
+			),
+		type = cms.string('HGCPassive'),
+		)
+				       )
+process.HGCalTBAnalyzer.doDigis         = False
+process.HGCalTBAnalyzer.doRecHits       = False
+process.HGCalTBAnalyzer.useFH           = True
+process.HGCalTBAnalyzer.useBH           = True
+process.HGCalTBAnalyzer.useBeam         = True
+process.HGCalTBAnalyzer.zFrontEE        = 1110.0
+process.HGCalTBAnalyzer.zFrontFH        = 1179.7
+process.HGCalTBAnalyzer.zFrontFH        = 1275.9
+process.HGCalTBAnalyzer.maxDepth        = 39
+process.HGCalTBAnalyzer.deltaZ          = 26.2
+process.HGCalTBAnalyzer.zFirst          = 22.8
+process.HGCalTBAnalyzer.doPassive       = True
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -117,8 +127,8 @@ process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 process.schedule = cms.Schedule(process.generation_step,
 				process.genfiltersummary_step,
 				process.simulation_step,
-#				process.gunfilter_step,
-#				process.analysis_step,
+				process.gunfilter_step,
+				process.analysis_step,
 				process.endjob_step,
                                 process.FEVTDEBUGoutput_step
 				)
