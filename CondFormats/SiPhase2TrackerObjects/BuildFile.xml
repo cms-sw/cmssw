@@ -3,7 +3,6 @@
 <use name="CondFormats/Serialization"/>
 <use name="DataFormats/DetId"/>
 <use name="rootrflx"/>
-<flags GENREFLEX_ARGS="--"/>
 <export>
   <lib name="1"/>
 </export>
