@@ -15,10 +15,10 @@
 #include <cmath>
 
 // user include files
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB04Histo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "HcalTB04Histo.h"
 
 //
 // constructors and destructor

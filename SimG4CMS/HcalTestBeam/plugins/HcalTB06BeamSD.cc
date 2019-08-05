@@ -3,7 +3,6 @@
 // Description: Sensitive Detector class for beam counters in TB06 setup
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -17,6 +16,7 @@
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "HcalTB06BeamSD.h"
 
 #include "G4Step.hh"
 #include "G4Track.hh"
