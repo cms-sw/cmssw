@@ -2,6 +2,41 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DDCMSDetectorTest")
 
+process.MessageLogger = cms.Service(
+    "MessageLogger",
+    statistics = cms.untracked.vstring('cout', 'dd4hepTrackerTest'),
+    categories = cms.untracked.vstring('TECGeom'),
+    cout = cms.untracked.PSet(
+        threshold = cms.untracked.string('DEBUG'),
+        noLineBreaks = cms.untracked.bool(True)
+    ),
+
+    dd4hepTrackerTest = cms.untracked.PSet(
+        INFO = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        DEBUG = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        WARNING = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        ERROR = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        threshold = cms.untracked.string('DEBUG'),
+        TECGeom = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        )
+    ),
+
+    destinations = cms.untracked.vstring('cout',
+                                         'dd4hepTrackerTest')
+)
+
+
+
+
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
