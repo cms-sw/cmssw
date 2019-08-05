@@ -1260,7 +1260,16 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     unsigned int skipped = bufferLeft;
     auto start = std::chrono::high_resolution_clock::now();
     for (unsigned int i = 0; i < readBlocks_; i++) {
-      const ssize_t last = ::read(fileDescriptor, (void*)(chunk->buf_ + bufferLeft), eventChunkBlock_);
+      ssize_t last, lastAndSkipped;
+      bool lastBlock = i == readBlocks_-1;
+      //subtract header size if reading last block to not overrun into next chunk
+      if (lastBlock && skipped) {
+        last = ::read(fileDescriptor, (void*)(chunk->buf_ + bufferLeft), eventChunkBlock_ - skipped);
+        lastAndSkipped = last + skipped;
+      }
+      else
+        last = lastAndSkipped = ::read(fileDescriptor, (void*)(chunk->buf_ + bufferLeft), eventChunkBlock_);
+
       if (last < 0) {
         edm::LogError("FedRawDataInputSource") << "readWorker failed to read file -: " << file->fileName_
                                                << " fd:" << fileDescriptor << " error: " << strerror(errno);
@@ -1269,12 +1278,13 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
       }
       if (last > 0)
         bufferLeft += last;
-      if (last < eventChunkBlock_) {
-        if (!(chunk->usedSize_ == i * eventChunkBlock_ + last + skipped)) {
+      if (lastAndSkipped < eventChunkBlock_) { //last read
+        //check if this is last block, then total read size must match file size
+        if (!(lastBlock && chunk->usedSize_ == skipped + i * eventChunkBlock_ + last)) {
           edm::LogError("FedRawDataInputSource")
               << "readWorker failed to read file -: " << file->fileName_ << " fd:" << fileDescriptor << " last:" << last
-              << " expectedChunkSize:" << chunk->usedSize_ << " readChunkSize:" << (i * eventChunkBlock_ + last + skipped)
-              << " error: " << strerror(errno);
+              << " expectedChunkSize:" << chunk->usedSize_ << " readChunkSize:" << (skipped + i * eventChunkBlock_ + last)
+              << " skipped:" << skipped << " block:" << (i+1) << "/" << readBlocks_ << " error: " << strerror(errno);
           setExceptionState_ = true;
         }
         break;
