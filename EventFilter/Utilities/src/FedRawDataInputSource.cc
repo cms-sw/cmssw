@@ -1310,7 +1310,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
 
     //detect FRD event version. Skip file Header if it exists
     if (detectedFRDversion_ == 0 && chunk->offset_ == 0) {
-      detectedFRDversion_ = *((uint32*)chunk->buf_ + file->rawHeaderSize_);
+      detectedFRDversion_ = *((uint32*)(chunk->buf_ + file->rawHeaderSize_));
     }
     assert(detectedFRDversion_ <= 5);
     chunk->readComplete_ =
