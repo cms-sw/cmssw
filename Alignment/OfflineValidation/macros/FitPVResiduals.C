@@ -45,6 +45,7 @@
 #include <TStopwatch.h>
 //#include "Alignment/OfflineValidation/macros/TkAlStyle.cc" 
 #include "Alignment/OfflineValidation/macros/CMS_lumi.C"
+#define PLOTTING_MACRO // to remove message logger
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 
 /* 
@@ -315,8 +316,8 @@ Float_t _boundSx    = (nBins_/4.)-0.5;
 Float_t _boundDx    = 3*(nBins_/4.)-0.5;
 Float_t _boundMax   = nBins_-0.5;
 Float_t  etaRange   = 2.5;
-Float_t  minPt      = 1.; 
-Float_t  maxPt_     = 20.;
+Float_t  minPt_      = 1.;
+Float_t  maxPt_      = 20.;
 bool     isDebugMode = false;
 
 // pT binning as in paragraph 3.2 of CMS-PAS-TRK-10-005 (https://cds.cern.ch/record/1279383/files/TRK-10-005-pas.pdf) 
@@ -768,9 +769,11 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     std::cout<<"FitPVResiduals::FitPVResiduals(): the pT binning is different"<<std::endl;
     std::cout<<"won't do the pT analysis..."<<std::endl;
     std::cout<<"======================================================"<<std::endl;
-    minPt = -1.;
+    minPt_ = -1.;
   } else {
     if(thePtMin[0]!=0.){
+      minPt_ = thePtMin[0];
+      maxPt_ = thePtMax[0];
       mypT_bins = PVValHelper::makeLogBins<float,nPtBins_>(thePtMin[0],thePtMax[0]);
       std::cout<<"======================================================"<<std::endl;
       std::cout<<"FitPVResiduals::FitPVResiduals(): log bins [" << thePtMin[0] << "," << thePtMax[0] <<"]"<< std::endl;
@@ -932,7 +935,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     dzEtaMeanTrend[i]   = new TH1F(Form("means_dz_eta_%i",i),"#LT d_{z} #GT vs #eta sector;track #eta;#LT d_{z} #GT [#mum]",nBins_,lowedge,highedge); 
     dzEtaWidthTrend[i]  = new TH1F(Form("widths_dz_eta_%i",i),"#sigma(d_{xy}) vs #eta sector;track #eta;#sigma(d_{z}) [#mum]",nBins_,lowedge,highedge);
 
-    if(minPt>0.){
+    if(minPt_>0.){
 
       dxyPtMeanTrend[i]   = new TH1F(Form("means_dxy_pT_%i",i),"#LT d_{xy} #GT vs p_{T} sector;track p_{T} [GeV];#LT d_{xy} #GT [#mum]",mypT_bins.size()-1,mypT_bins.data());
       dxyPtWidthTrend[i]  = new TH1F(Form("widths_dxy_pT_%i",i),"#sigma(d_{xy}) vs p_{T} sector;track p_{T} [GeV];#sigma(d_{xy}) [#mum]",mypT_bins.size()-1,mypT_bins.data());
@@ -967,7 +970,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     dzNormEtaMeanTrend[i]  = new TH1F(Form("means_dzNorm_eta_%i",i),"#LT d_{z}/#sigma_{d_{z}} #GT vs #eta sector;track #eta;#LT d_{z}/#sigma_{d_{z}} #GT",nBins_,lowedge,highedge); 
     dzNormEtaWidthTrend[i] = new TH1F(Form("widths_dzNorm_eta_%i",i),"#sigma(d_{z}/#sigma_{d_{z}}) vs #eta sector;track #eta;#sigma(d_{z}/#sigma_{d_{z}})",nBins_,lowedge,highedge);
     
-    if(minPt>0.){
+    if(minPt_>0.){
 
       dxyNormPtMeanTrend[i] = new TH1F(Form("means_dxyNorm_pT_%i",i),"#LT d_{xy}/#sigma_{d_{xy}} #GT vs p_{T} sector;track p_{T} [GeV];#LT d_{xy}/#sigma_{d_{xy}} #GT",mypT_bins.size()-1,mypT_bins.data());
       dxyNormPtWidthTrend[i]= new TH1F(Form("widths_dxyNorm_pT_%i",i),"#sigma(d_{xy}/#sigma_{d_{xy}}) vs p_{T} sector;track p_{T} [GeV];#sigma(d_{xy}/#sigma_{d_{xy}})",mypT_bins.size()-1,mypT_bins.data());
@@ -1033,7 +1036,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     FillTrendPlot(dzEtaMeanTrend[i]  ,dzEtaResiduals[i] ,params::MEAN,"eta",nBins_); 
     FillTrendPlot(dzEtaWidthTrend[i] ,dzEtaResiduals[i] ,params::WIDTH,"eta",nBins_);
 
-    if(minPt>0.){
+    if(minPt_>0.){
 
       FillTrendPlot(dxyPtMeanTrend[i] ,dxyPtResiduals[i],params::MEAN,"pT",nPtBins_); 
       FillTrendPlot(dxyPtWidthTrend[i],dxyPtResiduals[i],params::WIDTH,"pT",nPtBins_);
@@ -1072,7 +1075,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     MakeNiceTrendPlotStyle(dzEtaMeanTrend[i],colors[i],markers[i]);
     MakeNiceTrendPlotStyle(dzEtaWidthTrend[i],colors[i],markers[i]);
 
-    if(minPt>0.){
+    if(minPt_>0.){
 
       MakeNiceTrendPlotStyle(dxyPtMeanTrend[i],colors[i],markers[i]);
       MakeNiceTrendPlotStyle(dxyPtWidthTrend[i],colors[i],markers[i]);
@@ -1105,7 +1108,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     FillTrendPlot(dzNormEtaMeanTrend[i]  ,dzNormEtaResiduals[i] ,params::MEAN,"eta",nBins_); 
     FillTrendPlot(dzNormEtaWidthTrend[i] ,dzNormEtaResiduals[i] ,params::WIDTH,"eta",nBins_);
 
-    if(minPt>0.){
+    if(minPt_>0.){
 
       FillTrendPlot(dxyNormPtMeanTrend[i] ,dxyNormPtResiduals[i],params::MEAN,"pT",nPtBins_);        
       FillTrendPlot(dxyNormPtWidthTrend[i],dxyNormPtResiduals[i],params::WIDTH,"pT",nPtBins_);       
@@ -1136,7 +1139,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
     MakeNiceTrendPlotStyle(dzNormEtaMeanTrend[i],colors[i],markers[i]);
     MakeNiceTrendPlotStyle(dzNormEtaWidthTrend[i],colors[i],markers[i]);
 
-    if(minPt>0.){
+    if(minPt_>0.){
 
       MakeNiceTrendPlotStyle(dxyNormPtMeanTrend[i],colors[i],markers[i]);
       MakeNiceTrendPlotStyle(dxyNormPtWidthTrend[i],colors[i],markers[i]);
@@ -1313,7 +1316,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+theStrAlignment+".pdf");
   dzPhiTrendFit->SaveAs("dzPhiTrendFit_"+theStrDate+theStrAlignment+".png");
 
-  if(minPt>0.){
+  if(minPt_>0.){
 
     TCanvas *dxyPtTrend = new TCanvas("dxyPtTrend","dxyPtTrend",1200,600);
     arrangeCanvas(dxyPtTrend,dxyPtMeanTrend,dxyPtWidthTrend,nFiles_,LegLabels,theDate,false,setAutoLimits);
@@ -1367,7 +1370,7 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
   dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+theStrAlignment+".pdf");
   dzNormEtaTrend->SaveAs("dzEtaTrendNorm_"+theStrDate+theStrAlignment+".png");
 
-  if(minPt>0.){
+  if(minPt_>0.){
 
     TCanvas *dxyNormPtTrend = new TCanvas("dxyNormPtTrend","dxyNormPtTrend",1200,600);
     arrangeCanvas(dxyNormPtTrend,dxyNormPtMeanTrend,dxyNormPtWidthTrend,nFiles_,LegLabels,theDate,false,setAutoLimits);
@@ -2157,9 +2160,9 @@ void arrangeFitCanvas(TCanvas *canv,TH1F* meanplots[100],Int_t nFiles, TString L
     
     deltaZ=(fright[j]->GetParameter(0) - fall[j]->GetParameter(0))/2;
     sigmadeltaZ=0.5*TMath::Sqrt(fright[j]->GetParError(0)*fright[j]->GetParError(0) + fall[j]->GetParError(0)*fall[j]->GetParError(0));
-    TString COUT = Form(" : #Delta z = %.f #pm %.f #mum",deltaZ,sigmadeltaZ);
+    TString MYOUT = Form(" : #Delta z = %.f #pm %.f #mum",deltaZ,sigmadeltaZ);
     
-    lego->AddEntry(meanplots[j],LegLabels[j]+COUT); 
+    lego->AddEntry(meanplots[j],LegLabels[j]+MYOUT);
 
     if(j==nFiles-1){ 
       outfile <<deltaZ<<"|"<<sigmadeltaZ<<endl;
@@ -2688,14 +2691,14 @@ void FillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], params::estimator 
       pt->SetTextAlign(22);
 
       //TF1 *tmp1 = (TF1*)residualsPlot[i]->GetListOfFunctions()->FindObject("tmp");
-      TString COUT;
+      TString MYOUT;
       if(tmp1){
-	COUT = Form("#chi^{2}/ndf=%.1f",tmp1->GetChisquare()/tmp1->GetNDF());
+	MYOUT = Form("#chi^{2}/ndf=%.1f",tmp1->GetChisquare()/tmp1->GetNDF());
       } else {
-	COUT = "!! no plot !!";
+	MYOUT = "!! no plot !!";
       }
        
-      TText *text1 = pt->AddText(COUT);
+      TText *text1 = pt->AddText(MYOUT);
       text1->SetTextFont(72);
       text1->SetTextColor(kBlue);
       pt->Draw("same");
@@ -3374,12 +3377,12 @@ void makeNewXAxis (TH1F *h)
     axmax = TMath::Pi();
     ndiv = 510;
   } else if (myTitle.Contains("pT")) {
-    axmin = 0;
-    axmax = 19.99;
+    axmin = minPt_;
+    axmax = maxPt_;
     ndiv = 510;
   } else if (myTitle.Contains("ladder")) {
     axmin = 0.5;
-    axmax = 12.5;
+    axmax = nLadders_+0.5;
   } else if (myTitle.Contains("modZ")) {
     axmin = 0.5;
     axmax = 8.5;
