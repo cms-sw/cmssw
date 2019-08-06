@@ -14,7 +14,6 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALUncorrected_cfi i
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECAL_cff import *
 
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHE_cfi import *
-from RecoParticleFlow.PFClusterProducer.particleFlowClusterHBHETimeSelected_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCAL_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHO_cfi import *
@@ -31,8 +30,6 @@ pfClusteringECAL = cms.Sequence(pfClusteringECALTask)
 
 pfClusteringPSTask = cms.Task(particleFlowRecHitPS,particleFlowClusterPS)
 pfClusteringPS = cms.Sequence(pfClusteringPSTask)
-
-#pfClusteringHBHEHF = cms.Sequence(towerMakerPF*particleFlowRecHitHCAL*particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
 
 pfClusteringHBHEHFTask = cms.Task(particleFlowRecHitHBHE,particleFlowRecHitHF,particleFlowClusterHBHE,particleFlowClusterHF,particleFlowClusterHCAL)
 pfClusteringHBHEHF = cms.Sequence(pfClusteringHBHEHFTask)
