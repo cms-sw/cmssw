@@ -1347,7 +1347,7 @@ void PrimaryVertexValidation::beginJob() {
   h_probeNormChi2_ = ProbeFeatures.make<TH1F>(
       "h_probeNormChi2", " normalized #chi^{2} of probe track;track #chi^{2}/ndof; tracks", 100, 0., 10.);
   h_probeCharge_ =
-      ProbeFeatures.make<TH1F>("h_probeCharge", "charge of profe track;track charge Q;tracks", 3, -1.5, 1.5);
+      ProbeFeatures.make<TH1F>("h_probeCharge", "charge of probe track;track charge Q;tracks", 3, -1.5, 1.5);
   h_probeQoverP_ =
       ProbeFeatures.make<TH1F>("h_probeQoverP", "q/p of probe track; track Q/p (GeV^{-1});tracks", 200, -1., 1.);
   h_probedzRecoV_ = ProbeFeatures.make<TH1F>(
