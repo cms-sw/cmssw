@@ -19,15 +19,26 @@ namespace CLHEP {
 }
 
 namespace edm {
-  BeamMomentumGunProducer::BeamMomentumGunProducer(const edm::ParameterSet& pset) :
-    FlatBaseThetaGunProducer(pset), parPDGId_(nullptr), parX_(nullptr), 
-    parY_(nullptr), parZ_(nullptr), parPx_(nullptr), parPy_(nullptr), 
-    parPz_(nullptr), b_npar_(nullptr), b_eventId_(nullptr), 
-    b_parPDGId_(nullptr), b_parX_(nullptr), b_parY_(nullptr), b_parZ_(nullptr),
-    b_parPx_(nullptr), b_parPy_(nullptr), b_parPz_(nullptr) {
+  BeamMomentumGunProducer::BeamMomentumGunProducer(const edm::ParameterSet& pset)
+      : FlatBaseThetaGunProducer(pset),
+        parPDGId_(nullptr),
+        parX_(nullptr),
+        parY_(nullptr),
+        parZ_(nullptr),
+        parPx_(nullptr),
+        parPy_(nullptr),
+        parPz_(nullptr),
+        b_npar_(nullptr),
+        b_eventId_(nullptr),
+        b_parPDGId_(nullptr),
+        b_parX_(nullptr),
+        b_parY_(nullptr),
+        b_parZ_(nullptr),
+        b_parPx_(nullptr),
+        b_parPy_(nullptr),
+        b_parPz_(nullptr) {
+    edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters");
 
-    edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters") ;
-  
     // doesn't seem necessary to check if pset is empty - if this
     // is the case, default values will be taken for params
     zpos_ = pgun_params.getParameter<double>("ZPosition");
@@ -35,7 +46,7 @@ namespace edm {
     std::string infileName = fp.fullPath();
 
     fFile_ = new TFile(infileName.c_str());
-    fFile_->GetObject("EventTree",fTree_);
+    fFile_->GetObject("EventTree", fTree_);
     nentries_ = fTree_->GetEntriesFast();
     if (fVerbosity > 0)
       edm::LogVerbatim("BeamMomentumGun") << "Total Events: " << nentries_ << " in " << infileName << " Z " << zpos_;
@@ -55,15 +66,14 @@ namespace edm {
 
     produces<HepMCProduct>("unsmeared");
     produces<GenEventInfoProduct>();
-    
+
     if (fVerbosity > 0)
       edm::LogVerbatim("BeamMomentumGun") << "BeamMonetumGun is initialzed";
   }
 
-  void BeamMomentumGunProducer::produce(edm::Event & e, const edm::EventSetup& es) {
-  
+  void BeamMomentumGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     if (fVerbosity > 0)
-      edm::LogVerbatim("BeamMomentumGun") << "BeamMomentumGunProducer : Begin New Event Generation"; 
+      edm::LogVerbatim("BeamMomentumGun") << "BeamMomentumGunProducer : Begin New Event Generation";
 
     edm::Service<edm::RandomNumberGenerator> rng;
     CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
@@ -72,23 +82,22 @@ namespace edm {
     // no need to clean up GenEvent memory - done in HepMCProduct
     // here re-create fEvt (memory)
     //
-    fEvt = new HepMC::GenEvent() ;
-  
+    fEvt = new HepMC::GenEvent();
+
     // random entry generation for peaking event randomly from tree
-    long int rjentry  = rand_.Uniform(0, nentries_-1);
+    long int rjentry = rand_.Uniform(0, nentries_ - 1);
     fTree_->GetEntry(rjentry);
-    if (fVerbosity > 0) 
-      edm::LogVerbatim("BeamMomentumGun") << "Entry " << rjentry << " : "<< eventId_ << "  :  " << npar_;
-  
+    if (fVerbosity > 0)
+      edm::LogVerbatim("BeamMomentumGun") << "Entry " << rjentry << " : " << eventId_ << "  :  " << npar_;
+
     // loop over particles
     int barcode = 1;
-    for (unsigned int ip=0; ip<parPDGId_->size(); ip++) {
-      int partID = parPDGId_->at(ip) ;
-      const HepPDT::ParticleData* 
-	pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(partID))) ;
-      double mass = pData->mass().value() ;
-      if (fVerbosity > 0) 
-	edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
+    for (unsigned int ip = 0; ip < parPDGId_->size(); ip++) {
+      int partID = parPDGId_->at(ip);
+      const HepPDT::ParticleData* pData = fPDGTable->particle(HepPDT::ParticleID(std::abs(partID)));
+      double mass = pData->mass().value();
+      if (fVerbosity > 0)
+        edm::LogVerbatim("BeamMomentumGun") << "PDGId: " << partID << "   mass: " << mass;
       double xp = mm2cm_ * parX_->at(ip);
       double yp = mm2cm_ * parY_->at(ip);
       HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zpos_));
@@ -100,47 +109,48 @@ namespace edm {
       double mom = std::sqrt(momRand2);
       double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
       double phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      double px = mom * sin(theta) * cos(phi) ;
-      double py = mom * sin(theta) * sin(phi) ;
-      double pz = mom * cos(theta) ;
+      double px = mom * sin(theta) * cos(phi);
+      double py = mom * sin(theta) * sin(phi);
+      double pz = mom * cos(theta);
 
       if (fVerbosity > 0)
-	edm::LogVerbatim("BeamMomentumGun") << "px:py:pz " << px << ":" << py << ":" << pz; 
-      
-      HepMC::FourVector p(px, py, pz, energy) ;
-      HepMC::GenParticle* part =  new HepMC::GenParticle(p, partID, 1);
-      part->suggest_barcode(barcode) ;
-      barcode++ ;
+        edm::LogVerbatim("BeamMomentumGun") << "px:py:pz " << px << ":" << py << ":" << pz;
+
+      HepMC::FourVector p(px, py, pz, energy);
+      HepMC::GenParticle* part = new HepMC::GenParticle(p, partID, 1);
+      part->suggest_barcode(barcode);
+      barcode++;
       Vtx->add_particle_out(part);
-       
+
       if (fAddAntiParticle) {
-	HepMC::FourVector ap(-px,-py,-pz,energy) ;
-	int apartID = (partID == 22 || partID == 23 ) ? partID : -partID ;
-	HepMC::GenParticle* apart = new HepMC::GenParticle(ap,apartID,1);
-	apart->suggest_barcode(barcode) ;
-	if (fVerbosity > 0)
-	  edm::LogVerbatim("BeamMomentumGun") << "Add anti-particle " << apartID << ":" << -px << ":" << -py << ":" << -pz; 
-	barcode++ ;
-	Vtx->add_particle_out(apart) ;
+        HepMC::FourVector ap(-px, -py, -pz, energy);
+        int apartID = (partID == 22 || partID == 23) ? partID : -partID;
+        HepMC::GenParticle* apart = new HepMC::GenParticle(ap, apartID, 1);
+        apart->suggest_barcode(barcode);
+        if (fVerbosity > 0)
+          edm::LogVerbatim("BeamMomentumGun")
+              << "Add anti-particle " << apartID << ":" << -px << ":" << -py << ":" << -pz;
+        barcode++;
+        Vtx->add_particle_out(apart);
       }
 
-      fEvt->add_vertex(Vtx) ;
+      fEvt->add_vertex(Vtx);
     }
-  
-    fEvt->set_event_number(e.id().event()) ;
-    fEvt->set_signal_process_id(20) ;  
-  
-    if (fVerbosity > 0)
-      fEvt->print() ;  
 
-    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
-    BProduct->addHepMCData( fEvt );
+    fEvt->set_event_number(e.id().event());
+    fEvt->set_signal_process_id(20);
+
+    if (fVerbosity > 0)
+      fEvt->print();
+
+    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    BProduct->addHepMCData(fEvt);
     e.put(std::move(BProduct), "unsmeared");
-    
+
     std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
     e.put(std::move(genEventInfo));
-  
+
     if (fVerbosity > 0)
       edm::LogVerbatim("BeamMomentumGun") << "BeamMomentumGunProducer : Event Generation Done";
   }
-}
+}  // namespace edm
