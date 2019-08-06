@@ -66,7 +66,7 @@ class Herwig7Interface {
 	std::unique_ptr<HepMC::IO_BaseClass>	iobc_;
 
 	// HerwigUi contains settings piped to Herwig7
-	Herwig::HerwigUIProvider* HwUI_;
+	std::shared_ptr<Herwig::HerwigUIProvider> HwUI_;
 
 	/**
         * Function calls Herwig event generator via API
