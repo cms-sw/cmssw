@@ -18,7 +18,7 @@ namespace edm {
     BeamMomentumGunProducer(const ParameterSet &);
     ~BeamMomentumGunProducer() override {}
 
-    void produce(Event &e, const EventSetup& es) override;
+    void produce(Event &e, const EventSetup &es) override;
 
   private:
     // data members
@@ -30,7 +30,7 @@ namespace edm {
 
     // Declaration of leaf types
     int npar_, eventId_;
-    std::vector<int>  *parPDGId_;
+    std::vector<int> *parPDGId_;
     std::vector<float> *parX_, *parY_, *parZ_;
     std::vector<float> *parPx_, *parPy_, *parPz_;
 
@@ -42,6 +42,6 @@ namespace edm {
     static constexpr double mm2cm_ = 0.1;
     static constexpr double MeV2GeV_ = 0.001;
   };
-} 
+}  // namespace edm
 
 #endif
