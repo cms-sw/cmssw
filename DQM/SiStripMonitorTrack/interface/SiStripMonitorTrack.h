@@ -48,7 +48,6 @@
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 
-
 //******** Single include for the TkMap *************/
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 //***************************************************/
@@ -172,15 +171,14 @@ private:
   float iOrbitSec, iLumisection;
 
   std::string topFolderName_;
-  
-  
-  const TrackerTopology* tTopo_ ;
-  edm::ESWatcher<TrackerTopologyRcd> watchertTopo_ ;
-  
-  const SiStripGain* stripGain_ ;
+
+  const TrackerTopology* tTopo_;
+  edm::ESWatcher<TrackerTopologyRcd> watchertTopo_;
+
+  const SiStripGain* stripGain_;
   edm::ESWatcher<SiStripGainRcd> watcherStripGain_;
-  
-  const SiStripQuality* stripQuality_ ;
+
+  const SiStripQuality* stripQuality_;
 
   //******* TkHistoMaps*/
   std::unique_ptr<TkHistoMap> tkhisto_StoNCorrOnTrack, tkhisto_NumOnTrack, tkhisto_NumOffTrack;
