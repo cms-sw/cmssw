@@ -19,6 +19,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/Luminosity"/>
 <use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/TCDS"/>
 <use   name="DPGAnalysis/SiStripTools"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="DQMServices/Core"/>
