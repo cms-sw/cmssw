@@ -11,9 +11,8 @@ AHCalDetId::AHCalDetId(uint32_t rawid) : DetId(rawid) {}
 AHCalDetId::AHCalDetId(int row, int col, int depth) : DetId(Hcal, HcalOther) {
   int icol = (col > 0) ? col : kMaxRowCol - col;
   int irow = (row > 0) ? row : kMaxRowCol - row;
-  id_ |= ((depth & kHcalDepthMask) << HcalDetId::kHcalDepthOffset1) |
-         (HcalDetId::kHcalZsideMask1) | ((irow & HcalDetId::kHcalEtaMask1) << HcalDetId::kHcalEtaOffset1) |
-         (icol & HcalDetId::kHcalPhiMask1);
+  id_ |= ((depth & kHcalDepthMask) << HcalDetId::kHcalDepthOffset1) | (HcalDetId::kHcalZsideMask1) |
+         ((irow & HcalDetId::kHcalEtaMask1) << HcalDetId::kHcalEtaOffset1) | (icol & HcalDetId::kHcalPhiMask1);
 }
 
 AHCalDetId::AHCalDetId(const DetId& gen) {

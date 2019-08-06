@@ -44,7 +44,6 @@ public:
 private:
   static constexpr int kMaxRowCol = 16;
   static constexpr uint32_t kHcalDepthMask = 0x3F;
-
 };
 
 std::ostream& operator<<(std::ostream&, const AHCalDetId& id);
