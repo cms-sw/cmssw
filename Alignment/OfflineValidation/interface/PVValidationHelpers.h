@@ -8,7 +8,14 @@
 #include <utility>
 #include "TH1.h"
 
+#ifndef PLOTTING_MACRO
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#define COUT edm::LogWarning("PVValidationHelpers")
+#else
+#include <iostream>
+#define COUT std::cout << "PVValidationHelpers: "
+#endif
+
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 namespace PVValHelper {
@@ -81,7 +88,7 @@ namespace PVValHelper {
       if (range.find(std::make_pair(type, plot)) != range.end()) {
         return range[std::make_pair(type, plot)];
       } else {
-        edm::LogWarning("PVValidationHelpers") << "Trying to get range for non-existent combination " << std::endl;
+        COUT << "Trying to get range for non-existent combination " << std::endl;
         return std::make_pair(0., 0.);
       }
     }
@@ -90,8 +97,7 @@ namespace PVValHelper {
       if (range.find(std::make_pair(type, plot)) != range.end()) {
         return range[std::make_pair(type, plot)].first;
       } else {
-        edm::LogWarning("PVValidationHelpers")
-            << "Trying to get low end of range for non-existent combination " << std::endl;
+        COUT << "Trying to get low end of range for non-existent combination " << std::endl;
         return 0.;
       }
     }
@@ -100,8 +106,7 @@ namespace PVValHelper {
       if (range.find(std::make_pair(type, plot)) != range.end()) {
         return range[std::make_pair(type, plot)].second;
       } else {
-        edm::LogWarning("PVValidationHelpers")
-            << "Trying get high end of range for non-existent combination " << std::endl;
+        COUT << "Trying get high end of range for non-existent combination " << std::endl;
         return 0.;
       }
     }
