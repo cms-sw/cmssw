@@ -456,46 +456,50 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
   // next, center the cluster on template center if necessary
 
-   midpix = (fypix+lypix)/2;
-   shifty = templ.cytemp() - midpix;
-   
-// calculate new cluster boundaries
-   
-   int lytmp = lypix + shifty;
-   int fytmp = fypix + shifty;
-   
-// Check the boundaries
-   
-   if(fytmp <= 1) {return 8;}
-   if(lytmp >= BYM2) {return 8;}
+  midpix = (fypix + lypix) / 2;
+  shifty = templ.cytemp() - midpix;
 
-//  If OK, shift everything   
-   
-   if(shifty > 0) {
-      for(i=lypix; i>=fypix; --i) {
-         ysum[i+shifty] = ysum[i];
-         ysum[i] = 0.;
-         yd[i+shifty] = yd[i];
-         yd[i] = false;
-      }
-   } else if (shifty < 0) {
-      for(i=fypix; i<=lypix; ++i) {
-         ysum[i+shifty] = ysum[i];
-         ysum[i] = 0.;
-         yd[i+shifty] = yd[i];
-         yd[i] = false;
-      }
-   }
-   
-   lypix = lytmp;
-   fypix = fytmp;
-   
-// add pseudopixels
-   
-   ysum[fypix-1] = pseudopix;
-   ysum[fypix-2] = pseudopix;
-   ysum[lypix+1] = pseudopix;
-   ysum[lypix+2] = pseudopix;
+  // calculate new cluster boundaries
+
+  int lytmp = lypix + shifty;
+  int fytmp = fypix + shifty;
+
+  // Check the boundaries
+
+  if (fytmp <= 1) {
+    return 8;
+  }
+  if (lytmp >= BYM2) {
+    return 8;
+  }
+
+  //  If OK, shift everything
+
+  if (shifty > 0) {
+    for (i = lypix; i >= fypix; --i) {
+      ysum[i + shifty] = ysum[i];
+      ysum[i] = 0.;
+      yd[i + shifty] = yd[i];
+      yd[i] = false;
+    }
+  } else if (shifty < 0) {
+    for (i = fypix; i <= lypix; ++i) {
+      ysum[i + shifty] = ysum[i];
+      ysum[i] = 0.;
+      yd[i + shifty] = yd[i];
+      yd[i] = false;
+    }
+  }
+
+  lypix = lytmp;
+  fypix = fytmp;
+
+  // add pseudopixels
+
+  ysum[fypix - 1] = pseudopix;
+  ysum[fypix - 2] = pseudopix;
+  ysum[lypix + 1] = pseudopix;
+  ysum[lypix + 2] = pseudopix;
 
   // finally, determine if pixel[0] is a double pixel and make an origin correction if it is
 
@@ -565,45 +569,49 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
   // next, center the cluster on template center if necessary
 
-   midpix = (fxpix+lxpix)/2;
-   shiftx = templ.cxtemp() - midpix;
-   
-// calculate new cluster boundaries
-   
-   int lxtmp = lxpix + shiftx;
-   int fxtmp = fxpix + shiftx;
-   
-// Check the boundaries
-   
-   if(fxtmp <= 1) {return 9;}
-   if(lxtmp >= BXM2) {return 9;}
-   
-//  If OK, shift everything   
-   
-   if(shiftx > 0) {
-      for(i=lxpix; i>=fxpix; --i) {
-         xsum[i+shiftx] = xsum[i];
-         xsum[i] = 0.;
-         xd[i+shiftx] = xd[i];
-         xd[i] = false;
-      }
-   } else if (shiftx < 0) {
-      for(i=fxpix; i<=lxpix; ++i) {
-         xsum[i+shiftx] = xsum[i];
-         xsum[i] = 0.;
-         xd[i+shiftx] = xd[i];
-         xd[i] = false;
-      }
-   }
-   
-   lxpix = lxtmp;
-   fxpix = fxtmp;
-   
-   xsum[fxpix-1] = pseudopix;
-   xsum[fxpix-2] = pseudopix;
-   xsum[lxpix+1] = pseudopix;
-   xsum[lxpix+2] = pseudopix;
-   
+  midpix = (fxpix + lxpix) / 2;
+  shiftx = templ.cxtemp() - midpix;
+
+  // calculate new cluster boundaries
+
+  int lxtmp = lxpix + shiftx;
+  int fxtmp = fxpix + shiftx;
+
+  // Check the boundaries
+
+  if (fxtmp <= 1) {
+    return 9;
+  }
+  if (lxtmp >= BXM2) {
+    return 9;
+  }
+
+  //  If OK, shift everything
+
+  if (shiftx > 0) {
+    for (i = lxpix; i >= fxpix; --i) {
+      xsum[i + shiftx] = xsum[i];
+      xsum[i] = 0.;
+      xd[i + shiftx] = xd[i];
+      xd[i] = false;
+    }
+  } else if (shiftx < 0) {
+    for (i = fxpix; i <= lxpix; ++i) {
+      xsum[i + shiftx] = xsum[i];
+      xsum[i] = 0.;
+      xd[i + shiftx] = xd[i];
+      xd[i] = false;
+    }
+  }
+
+  lxpix = lxtmp;
+  fxpix = fxtmp;
+
+  xsum[fxpix - 1] = pseudopix;
+  xsum[fxpix - 2] = pseudopix;
+  xsum[lxpix + 1] = pseudopix;
+  xsum[lxpix + 2] = pseudopix;
+
   // finally, determine if pixel[0] is a double pixel and make an origin correction if it is
 
   if (xdouble[0]) {
