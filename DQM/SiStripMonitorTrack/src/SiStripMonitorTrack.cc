@@ -78,16 +78,15 @@ void SiStripMonitorTrack::dqmBeginRun(const edm::Run& run, const edm::EventSetup
   LogDebug("SiStripMonitorTrack") << "[SiStripMonitorTrack::beginRun] There are " << tkgeom_->detUnits().size()
                                   << " detectors instantiated in the geometry" << std::endl;
   es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
-  
+
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   tTopo_ = tTopoHandle.product();
-    
+
   edm::ESHandle<SiStripGain> gainHandle;
   es.get<SiStripGainRcd>().get(gainHandle);
   stripGain_ = gainHandle.product();
-  
-  
+
   // Initialize the GenericTriggerEventFlag
   if (genTriggerEventFlag_->on())
     genTriggerEventFlag_->initRun(run, es);
@@ -130,25 +129,22 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
     iSubDet->second.totNClustersOffTrack = 0;
   }
 
-  if (watchertTopo_.check(es) ) {
+  if (watchertTopo_.check(es)) {
     edm::ESHandle<TrackerTopology> tTopoHandle;
     es.get<TrackerTopologyRcd>().get(tTopoHandle);
     tTopo_ = tTopoHandle.product();
   }
 
-  
-  if (watcherStripGain_.check(es) ) {
+  if (watcherStripGain_.check(es)) {
     edm::ESHandle<SiStripGain> gainHandle;
     es.get<SiStripGainRcd>().get(gainHandle);
-    stripGain_ = gainHandle.product();   
+    stripGain_ = gainHandle.product();
   }
-  
-  
+
   edm::ESHandle<SiStripQuality> qualityHandle;
   es.get<SiStripQualityRcd>().get("", qualityHandle);
   stripQuality_ = qualityHandle.product();
-  
-  
+
   //Perform track study
   trackStudy(e, es);
 
