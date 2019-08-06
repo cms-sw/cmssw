@@ -59,11 +59,17 @@ MuonGEMHitsHarvestor::~MuonGEMHitsHarvestor()
 }
 TProfile* MuonGEMHitsHarvestor::ComputeEff(TH1F* num, TH1F* denum )
 {
-  if ( num==nullptr || denum==nullptr) { std::cout<<"num or denum are missing"<<std::endl; } 
+  if ( num==nullptr || denum==nullptr) { 
+    std::cout<<"num or denum are missing"<<std::endl;
+    return nullptr; 
+  }
+  if ( num->GetNbinsX() != denum->GetNbinsX()) {
+    std::cout<<"Wrong Xbin. Please, check histogram's name"<<std::endl;
+    return nullptr;
+  }
   std::string name = "eff_"+std::string(num->GetName());
   std::string title = "Eff. "+std::string(num->GetTitle());
   TProfile * efficHist = new TProfile(name.c_str(), title.c_str(),num->GetXaxis()->GetNbins(), num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax());
-  if ( num->GetNbinsX() != denum->GetNbinsX()) { std::cout<<"Wrong Xbin. Please, check histogram's name"<<std::endl; return nullptr;  }
   for (int i=1; i <= num->GetNbinsX(); i++) {
     const double nNum = num->GetBinContent(i);
     const double nDenum = denum->GetBinContent(i);
