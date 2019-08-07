@@ -106,7 +106,7 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker& iBooker) {
           "L3TrigTauEtaPhiEffNum", "L3 efficiency in eta-phi plane", etabins_, -2.5, 2.5, phibins_, -3.2, 3.2);
       hL3TrigTauEtaPhiEffDenom_ = iBooker.book2D(
           "L3TrigTauEtaPhiEffDenom", "L3 denominator in eta-phi plane", etabins_, -2.5, 2.5, phibins_, -3.2, 3.2);
-      hL3TrigTauEtaPhiEffDenom_->getTH2F()->SetOption("COL");
+      hL3TrigTauEtaPhiEffDenom_->setOption("COL");
     }
 
     if (hltPath_.hasL2Electrons()) {

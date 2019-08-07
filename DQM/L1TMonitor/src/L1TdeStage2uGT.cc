@@ -201,13 +201,13 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
     htitle = "uGT Data/Emulator Mismatches --" + bxn.str();
     m_SummaryHistograms[hname] = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
     m_SummaryHistograms[hname]->getTH1F()->GetYaxis()->SetTitle("Events");
-    m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1 + NInitalMismatchDataNoEmul,
+    m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchDataNoEmul,
                                                                    "Data, NoEmul -- Initial Decisions");
-    m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1 + NInitalMismatchEmulNoData,
+    m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchEmulNoData,
                                                                    "Emulator, No Data -- Initial Decisions");
-    m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1 + NFinalMismatchDataNoEmul,
+    m_SummaryHistograms[hname]->setBinLabel(1 + NFinalMismatchDataNoEmul,
                                                                    "Data, NoEmul -- Final Decisions");
-    m_SummaryHistograms[hname]->getTH1F()->GetXaxis()->SetBinLabel(1 + NFinalMismatchEmulNoData,
+    m_SummaryHistograms[hname]->setBinLabel(1 + NFinalMismatchEmulNoData,
                                                                    "Emulator, No Data -- Final Decisions");
 
     if (i == 0) {
@@ -215,13 +215,13 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
       htitle = "Normalization histogram for uGT Data/Emulator Mismatches ratios";
       m_normalizationHisto = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
       m_normalizationHisto->getTH1F()->GetYaxis()->SetTitle("Events");
-      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1 + NInitalMismatchDataNoEmul,
+      m_normalizationHisto->setBinLabel(1 + NInitalMismatchDataNoEmul,
                                                                "Data, NoEmul -- Initial Decisions");
-      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1 + NInitalMismatchEmulNoData,
+      m_normalizationHisto->setBinLabel(1 + NInitalMismatchEmulNoData,
                                                                "Emulator, No Data -- Initial Decisions");
-      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1 + NFinalMismatchDataNoEmul,
+      m_normalizationHisto->setBinLabel(1 + NFinalMismatchDataNoEmul,
                                                                "Data, NoEmul -- Final Decisions");
-      m_normalizationHisto->getTH1F()->GetXaxis()->SetBinLabel(1 + NFinalMismatchEmulNoData,
+      m_normalizationHisto->setBinLabel(1 + NFinalMismatchEmulNoData,
                                                                "Emulator, No Data -- Final Decisions");
     }
 
@@ -233,7 +233,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
                                                   0.,
                                                   double(numLS_));
     initDecisionMismatches_vs_LS->getTH1F()->GetYaxis()->SetTitle("Events with Initial Decision Mismatch");
-    initDecisionMismatches_vs_LS->getTH1F()->GetXaxis()->SetTitle("Luminosity Segment");
+    initDecisionMismatches_vs_LS->setAxisTitle("Luminosity Segment");
 
     hname = "DataNoEmul_" + bxt.str();
     htitle = "uGT data-emul mismatch -- Data fired but not Emulator --" + bxn.str();
@@ -251,7 +251,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
                                                    0.,
                                                    double(numLS_));
     finalDecisionMismatches_vs_LS->getTH1F()->GetYaxis()->SetTitle("Events with Final Decision Mismatch");
-    finalDecisionMismatches_vs_LS->getTH1F()->GetXaxis()->SetTitle("Luminosity Segment");
+    finalDecisionMismatches_vs_LS->setAxisTitle("Luminosity Segment");
 
     hname = "DataNoEmul_" + bxt.str();
     htitle = "uGT data-emul mismatch -- Data fired but not Emulator --" + bxn.str();
@@ -268,9 +268,9 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
     // for (unsigned int i = 0; i < prescales.size(); i++) {
     //   auto const& name = prescales.at(i).first;
     //   if (name != "NULL")
-    // 	(*it).second->getTH1F()->GetXaxis()->SetBinLabel(1+i, name.c_str());
+    // 	(*it).second->setBinLabel(1+i, name.c_str());
     // }
-    (*it).second->getTH1F()->GetXaxis()->SetTitle("Trigger Bit");
+    (*it).second->setAxisTitle("Trigger Bit");
     (*it).second->getTH1F()->GetYaxis()->SetTitle("Events with Initial Decision Mismatch");
   }
 
@@ -279,9 +279,9 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
     // for (unsigned int i = 0; i < prescales.size(); i++) {
     //   auto const& name = prescales.at(i).first;
     //   if (name != "NULL")
-    // 	(*it).second->getTH1F()->GetXaxis()->SetBinLabel(1+i, name.c_str());
+    // 	(*it).second->setBinLabel(1+i, name.c_str());
     // }
-    (*it).second->getTH1F()->GetXaxis()->SetTitle("Trigger Bit (Unprescaled)");
+    (*it).second->setAxisTitle("Trigger Bit (Unprescaled)");
     (*it).second->getTH1F()->GetYaxis()->SetTitle("Events with Final Decision Mismatch");
   }
 }

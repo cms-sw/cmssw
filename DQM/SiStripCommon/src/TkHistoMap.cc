@@ -210,7 +210,7 @@ void TkHistoMap::setBinContent(DetId detid, float value) {
     tkHistoMap_[layer]->getTProfile2D()->SetBinContent(tkHistoMap_[layer]->getTProfile2D()->GetBin(xybin.ix, xybin.iy),
                                                        value);
   } else if (tkHistoMap_[layer]->kind() == MonitorElement::Kind::TH2F) {
-    tkHistoMap_[layer]->getTH2F()->SetBinContent(xybin.ix, xybin.iy, value);
+    tkHistoMap_[layer]->setBinContent(xybin.ix, xybin.iy, value);
   }
 
 #ifdef debug_TkHistoMap

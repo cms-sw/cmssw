@@ -347,17 +347,17 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
 
   leadingWithoutTrailingCumulativePot =
       ibooker.book1D("event category", title + " leading edges without trailing;;%", 3, 0.5, 3.5);
-  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel(1, "Leading only");
-  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel(2, "Trailing only");
-  leadingWithoutTrailingCumulativePot->getTH1F()->GetXaxis()->SetBinLabel(3, "Both");
+  leadingWithoutTrailingCumulativePot->setBinLabel(1, "Leading only");
+  leadingWithoutTrailingCumulativePot->setBinLabel(2, "Trailing only");
+  leadingWithoutTrailingCumulativePot->setBinLabel(3, "Both");
 
   ECCheck = ibooker.book1D("optorxEC(8bit) - vfatEC", title + " EC Error;optorxEC-vfatEC", 50, -25, 25);
 
   HPTDCErrorFlags_2D = ibooker.book2D("HPTDC Errors", title + " HPTDC Errors", 16, -0.5, 16.5, 9, -0.5, 8.5);
   for (unsigned short error_index = 1; error_index < 16; ++error_index)
-    HPTDCErrorFlags_2D->getTH2F()->GetXaxis()->SetBinLabel(error_index,
+    HPTDCErrorFlags_2D->setBinLabel(error_index,
                                                            HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
-  HPTDCErrorFlags_2D->getTH2F()->GetXaxis()->SetBinLabel(16, "Wrong EC");
+  HPTDCErrorFlags_2D->setBinLabel(16, "Wrong EC");
 
   int tmpIndex = 0;
   HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 0 TDC 18");
@@ -428,9 +428,9 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
   CTPPSDiamondDetId(id).channelName(title, CTPPSDiamondDetId::nFull);
 
   leadingWithoutTrailing = ibooker.book1D("event category", title + " Event Category;;%", 3, 0.5, 3.5);
-  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel(1, "Leading only");
-  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel(2, "Trailing only");
-  leadingWithoutTrailing->getTH1F()->GetXaxis()->SetBinLabel(3, "Full");
+  leadingWithoutTrailing->setBinLabel(1, "Leading only");
+  leadingWithoutTrailing->setBinLabel(2, "Trailing only");
+  leadingWithoutTrailing->setBinLabel(3, "Full");
 
   activity_per_bx[0] =
       ibooker.book1D("activity per BX 0 25", title + " Activity per BX 0 - 25 ns;Event.BX", 500, -1.5, 498. + 0.5);
@@ -441,9 +441,9 @@ CTPPSDiamondDQMSource::ChannelPlots::ChannelPlots(DQMStore::IBooker& ibooker, un
 
   HPTDCErrorFlags = ibooker.book1D("hptdc_Errors", title + " HPTDC Errors", 16, -0.5, 16.5);
   for (unsigned short error_index = 1; error_index < 16; ++error_index)
-    HPTDCErrorFlags->getTH1F()->GetXaxis()->SetBinLabel(error_index,
+    HPTDCErrorFlags->setBinLabel(error_index,
                                                         HPTDCErrorFlags::hptdcErrorName(error_index - 1).c_str());
-  HPTDCErrorFlags->getTH1F()->GetXaxis()->SetBinLabel(16, "MH  (%)");
+  HPTDCErrorFlags->setBinLabel(16, "MH  (%)");
 
   leadingEdgeCumulative_both =
       ibooker.book1D("leading edge (le and te)", title + " leading edge (recHits); leading edge (ns)", 75, 0, 75);

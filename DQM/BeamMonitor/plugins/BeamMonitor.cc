@@ -243,7 +243,7 @@ void BeamMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const& iRu
 
   h_vx_vy = iBooker.book2D(
       "trk_vx_vy", "Vertex (PCA) position of selected tracks", vxBin_, vxMin_, vxMax_, vxBin_, vxMin_, vxMax_);
-  h_vx_vy->getTH2F()->SetOption("COLZ");
+  h_vx_vy->setOption("COLZ");
   //   h_vx_vy->getTH1()->SetCanExtend(TH1::kAllAxes);
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)", 1);
   h_vx_vy->setAxisTitle("y coordinate of input track at PCA (cm)", 2);

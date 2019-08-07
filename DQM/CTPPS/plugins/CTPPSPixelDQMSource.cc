@@ -282,19 +282,19 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
         string st3 = ";PlaneIndex(=pixelPot*PlaneMAX + plane)";
         h2HitsMultipl[arm][stn] =
             ibooker.book2DD(st, st + st2 + st3 + ";multiplicity", NPlaneBins, 0, NPlaneBins, hitMultMAX, 0, hitMultMAX);
-        h2HitsMultipl[arm][stn]->getTH2D()->SetOption("colz");
+        h2HitsMultipl[arm][stn]->setOption("colz");
 
         st = "cluster size in planes";
         h2CluSize[arm][stn] = ibooker.book2D(
             st, st + st2 + st3 + ";Cluster size", NPlaneBins, 0, NPlaneBins, ClusterSizeMax + 1, 0, ClusterSizeMax + 1);
-        h2CluSize[arm][stn]->getTH2F()->SetOption("colz");
+        h2CluSize[arm][stn]->setOption("colz");
 
         const float x0Maximum = 70.;
         const float y0Maximum = 15.;
         st = "track intercept point";
         h2trackXY0[indexP] = ibooker.book2D(
             st, st + st2 + ";x0;y0", int(x0Maximum) * 2, 0., x0Maximum, int(y0Maximum) * 4, -y0Maximum, y0Maximum);
-        h2trackXY0[indexP]->getTH2F()->SetOption("colz");
+        h2trackXY0[indexP]->setOption("colz");
 
         st = "number of tracks per event";
         htrackMult[indexP] = ibooker.bookProfile(st,
@@ -377,7 +377,7 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
           st = "hits position";
           h2xyHits[indexP][p] =
               ibooker.book2DD(st, st1 + ";pix col;pix row", pixRowMAX, 0, pixRowMAX, pixRowMAX, 0, pixRowMAX);
-          h2xyHits[indexP][p]->getTH2D()->SetOption("colz");
+          h2xyHits[indexP][p]->setOption("colz");
 
           st = "adc average value";
           hp2xyADC[indexP][p] = ibooker.bookProfile2D(
