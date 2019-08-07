@@ -225,8 +225,10 @@ namespace edm {
           writeDoc_(os, dfh.startColumn2());
         }
       }
-    } else {
+    } else if (!writeToCfi) {
       os << "none (do not write to cfi)";
+    } else {
+      os << "none";
     }
     os << "\n";
   }
