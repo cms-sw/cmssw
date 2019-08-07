@@ -106,13 +106,13 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "CASTOR BadChannelsMap");
   h2status = ibooker.book2D(s, s, 14, 0., 14., 16, 0., 16.);
   h2status->setAxisTitle("Module Z");
-  h2status->getTH2F()->GetYaxis()->SetTitle("Sector #phi");
+  h2status->setAxisTitle("Sector #phi", /* axis */ 2);
   h2status->setOption("colz");
 
   sprintf(s, "CASTOR TSmax Significance Map");
   h2TSratio = ibooker.book2D(s, s, 14, 0., 14., 16, 0., 16.);
   h2TSratio->setAxisTitle("Module Z");
-  h2TSratio->getTH2F()->GetYaxis()->SetTitle("Sector #phi");
+  h2TSratio->setAxisTitle("Sector #phi", /* axis */ 2);
   h2TSratio->setOption("colz");
 
   sprintf(s, "CASTOR TSmax Significance All chan");
@@ -123,11 +123,11 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "ModuleZ(fC)_allTS");
   hModule = ibooker.book1D(s, s, 14, 0., 14.);
   hModule->setAxisTitle("ModuleZ");
-  hModule->getTH1F()->GetYaxis()->SetTitle("QIE(fC)");
+  hModule->setAxisTitle("QIE(fC)", /* axis */ 2);
   sprintf(s, "Sector #phi(fC)_allTS");
   hSector = ibooker.book1D(s, s, 16, 0., 16.);
   hSector->setAxisTitle("Sector #phi");
-  hSector->getTH1F()->GetYaxis()->SetTitle("QIE(fC)");
+  hSector->setAxisTitle("QIE(fC)", /* axis */ 2);
 
   st = "Castor cells avr digi(fC) per event Map TS vs Channel";
   h2QmeantsvsCh =
@@ -141,7 +141,7 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "CASTOR data quality");
   h2qualityMap = ibooker.book2D(s, s, 14, 0, 14, 16, 0, 16);
   h2qualityMap->setAxisTitle("module Z");
-  h2qualityMap->getTH2F()->GetYaxis()->SetTitle("Sector #phi");
+  h2qualityMap->setAxisTitle("Sector #phi", /* axis */ 2);
   h2qualityMap->setOption("colz");
 
   hReport = ibooker.bookFloat("CASTOR reportSummary");
@@ -149,7 +149,7 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "QmeanfC_map(allTS)");
   h2QmeanMap = ibooker.book2D(s, s, 14, 0., 14., 16, 0., 16.);
   h2QmeanMap->setAxisTitle("Module Z");
-  h2QmeanMap->getTH2F()->GetYaxis()->SetTitle("Sector #phi");
+  h2QmeanMap->setAxisTitle("Sector #phi", /* axis */ 2);
   h2QmeanMap->setOption("textcolz");
 
   const int NEtow = 20;
@@ -174,7 +174,7 @@ void CastorDigiMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "CASTOR_Tower_EMvsEhad(fC)");
   h2towEMvsHAD = ibooker.book2D(s, s, NEtow, EhadTow, NEtow, EMTow);
   h2towEMvsHAD->setAxisTitle("Ehad [fC]");
-  h2towEMvsHAD->getTH2F()->GetYaxis()->SetTitle("EM [fC]");
+  h2towEMvsHAD->setAxisTitle("EM [fC]", /* axis */ 2);
   h2towEMvsHAD->setOption("colz");
 
   sprintf(s, "CASTOR_TowerTotalEnergy(fC)");
