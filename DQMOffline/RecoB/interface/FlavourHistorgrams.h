@@ -321,20 +321,20 @@ FlavourHistograms<T>::FlavourHistograms(const std::string& baseNameTitle_,
   // statistics if requested
   if (theStatistics) {
     if (theHisto_all)
-      theHisto_all->getTH1F()->Sumw2();
+      theHisto_all->enableSumw2();
     if (mcPlots_) {
       if (mcPlots_ > 2) {
-        theHisto_d->getTH1F()->Sumw2();
-        theHisto_u->getTH1F()->Sumw2();
-        theHisto_s->getTH1F()->Sumw2();
-        theHisto_g->getTH1F()->Sumw2();
-        theHisto_dus->getTH1F()->Sumw2();
+        theHisto_d->enableSumw2();
+        theHisto_u->enableSumw2();
+        theHisto_s->enableSumw2();
+        theHisto_g->enableSumw2();
+        theHisto_dus->enableSumw2();
       }
-      theHisto_c->getTH1F()->Sumw2();
-      theHisto_b->getTH1F()->Sumw2();
-      theHisto_ni->getTH1F()->Sumw2();
-      theHisto_dusg->getTH1F()->Sumw2();
-      theHisto_pu->getTH1F()->Sumw2();
+      theHisto_c->enableSumw2();
+      theHisto_b->enableSumw2();
+      theHisto_ni->enableSumw2();
+      theHisto_dusg->enableSumw2();
+      theHisto_pu->enableSumw2();
     }
   }
   // defaults for other data members
@@ -517,7 +517,7 @@ void FlavourHistograms<T>::plot(TPad* theCanvas /* = 0 */) {
       lineStyle[1] = 2;
   }
 
-  histo[0]->getTH1F()->GetXaxis()->SetTitle(theBaseNameDescription.c_str());
+  histo[0]->setAxisTitle(theBaseNameDescription.c_str());
   histo[0]->getTH1F()->GetYaxis()->SetTitle("Arbitrary Units");
   histo[0]->getTH1F()->GetYaxis()->SetTitleOffset(1.25);
 

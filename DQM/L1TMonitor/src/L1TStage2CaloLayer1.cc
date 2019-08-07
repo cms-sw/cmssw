@@ -381,16 +381,16 @@ void L1TStage2CaloLayer1::endLuminosityBlock(const edm::LuminosityBlock& lumi, c
   maxEvtMismatchHCALCurrentLumi_ = 0;
 
   // Simple way to embed current lumi to auto-scale axis limits in render plugin
-  ecalLinkErrorByLumi_->getTH1F()->SetBinContent(0, id);
-  ecalMismatchByLumi_->getTH1F()->SetBinContent(0, id);
-  hcalLinkErrorByLumi_->getTH1F()->SetBinContent(0, id);
-  hcalMismatchByLumi_->getTH1F()->SetBinContent(0, id);
-  maxEvtLinkErrorsByLumiECAL_->getTH1F()->SetBinContent(0, id);
-  maxEvtLinkErrorsByLumiHCAL_->getTH1F()->SetBinContent(0, id);
-  maxEvtLinkErrorsByLumi_->getTH1F()->SetBinContent(0, id);
-  maxEvtMismatchByLumiECAL_->getTH1F()->SetBinContent(0, id);
-  maxEvtMismatchByLumiHCAL_->getTH1F()->SetBinContent(0, id);
-  maxEvtMismatchByLumi_->getTH1F()->SetBinContent(0, id);
+  ecalLinkErrorByLumi_->setBinContent(0, id);
+  ecalMismatchByLumi_->setBinContent(0, id);
+  hcalLinkErrorByLumi_->setBinContent(0, id);
+  hcalMismatchByLumi_->setBinContent(0, id);
+  maxEvtLinkErrorsByLumiECAL_->setBinContent(0, id);
+  maxEvtLinkErrorsByLumiHCAL_->setBinContent(0, id);
+  maxEvtLinkErrorsByLumi_->setBinContent(0, id);
+  maxEvtMismatchByLumiECAL_->setBinContent(0, id);
+  maxEvtMismatchByLumiHCAL_->setBinContent(0, id);
+  maxEvtMismatchByLumi_->setBinContent(0, id);
 }
 
 void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) {
@@ -481,10 +481,10 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm::
                                      20,
                                      0,
                                      20);
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(1, "Ecal TP Et Mismatch");
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(2, "Ecal TP Fine Grain Bit Mismatch");
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(3, "Hcal TP Et Mismatch");
-  last20Mismatches_->getTH2F()->GetXaxis()->SetBinLabel(4, "Hcal TP Feature Bit Mismatch");
+  last20Mismatches_->setBinLabel(1, "Ecal TP Et Mismatch");
+  last20Mismatches_->setBinLabel(2, "Ecal TP Fine Grain Bit Mismatch");
+  last20Mismatches_->setBinLabel(3, "Hcal TP Et Mismatch");
+  last20Mismatches_->setBinLabel(4, "Hcal TP Feature Bit Mismatch");
   for (size_t i = 0; i < last20MismatchArray_.size(); ++i)
     last20MismatchArray_[i] = {"-" + std::to_string(i), 0};
   for (size_t i = 1; i <= 20; ++i)
