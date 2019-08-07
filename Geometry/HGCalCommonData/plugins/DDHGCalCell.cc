@@ -50,11 +50,11 @@ DDHGCalCell::DDHGCalCell() {
 
 DDHGCalCell::~DDHGCalCell() {}
 
-void DDHGCalCell::initialize(const DDNumericArguments &nArgs,
-                             const DDVectorArguments &,
-                             const DDMapArguments &,
-                             const DDStringArguments &sArgs,
-                             const DDStringVectorArguments &vsArgs) {
+void DDHGCalCell::initialize(const DDNumericArguments& nArgs,
+                             const DDVectorArguments&,
+                             const DDMapArguments&,
+                             const DDStringArguments& sArgs,
+                             const DDStringVectorArguments& vsArgs) {
   waferSize_ = nArgs["WaferSize"];
   waferT_ = nArgs["WaferThick"];
   cellT_ = nArgs["CellThick"];
@@ -96,7 +96,7 @@ void DDHGCalCell::initialize(const DDNumericArguments &nArgs,
 #endif
 }
 
-void DDHGCalCell::execute(DDCompactView &cpv) {
+void DDHGCalCell::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalCell...";
 #endif
