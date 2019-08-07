@@ -28,11 +28,7 @@
 
 class SiPixelGainCalibrationForHLT {
 public:
-  struct DecodingStructure {
-    unsigned int gain : 8;
-    unsigned int ped : 8;
-  };
-
+  
   struct DetRegistry {
     uint32_t detid;
     uint32_t ibegin;
