@@ -386,7 +386,6 @@ void RunManager::stopG4() {
 }
 
 void RunManager::produce(edm::Event& inpevt, const edm::EventSetup& es) {
-  //if(!m_runInitialized) { initG4(es); }
   m_currentEvent = generateEvent(inpevt);
   m_simEvent = new G4SimEvent;
   m_simEvent->hepEvent(m_generator->genEvent());
