@@ -22,6 +22,13 @@ def runSelected(opt):
     mrd = MatrixReader(opt)
     mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
 
+    # test for wrong input workflows
+    if opt.testList:
+        definedWF = []
+        for dwf in mrd.workFlows: definedWF.append(dwf.numId)
+        for twf in opt.testList:
+            if twf not in definedWF: raise ValueError('Not defined workflow ', twf , ' requested')
+
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
