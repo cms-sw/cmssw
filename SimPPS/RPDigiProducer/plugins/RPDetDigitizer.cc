@@ -19,8 +19,8 @@ RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params,
   misalignment_simulation_on_ = params.getParameter<bool>("RPDisplacementOn");
   links_persistence_ = params.getParameter<bool>("RPDigiSimHitRelationsPresistence");
 
-  theRPGaussianTailNoiseAdder =
-      std::make_unique<RPGaussianTailNoiseAdder>(numStrips_, theNoiseInElectrons, theStripThresholdInE, eng, verbosity_);
+  theRPGaussianTailNoiseAdder = std::make_unique<RPGaussianTailNoiseAdder>(
+      numStrips_, theNoiseInElectrons, theStripThresholdInE, eng, verbosity_);
   theRPPileUpSignals = std::make_unique<RPPileUpSignals>(params, det_id_);
   theRPVFATSimulator = std::make_unique<RPVFATSimulator>(params, det_id_);
   theRPHitChargeConverter = std::make_unique<RPHitChargeConverter>(params, eng, det_id_);
