@@ -28,9 +28,6 @@
 
 class SiPixelGainCalibrationOffline {
 public:
-  struct DecodingStructure {
-    unsigned int datum : 8;
-  };
 
   struct DetRegistry {
     uint32_t detid;
