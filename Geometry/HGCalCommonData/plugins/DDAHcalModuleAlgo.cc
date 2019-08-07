@@ -182,11 +182,11 @@ void DDAHcalModuleAlgo::positionSensitive(DDLogicalPart& glog, DDCompactView& cp
       if (nr != 0 && nc != 0) {
         DDTranslation tran(xpos, ypos, 0.0);
         DDRotation rotation;
-        int copy = inr * 10 + inc;
+        int copy = inr * 100 + inc;
         if (nc < 0)
-          copy += 100;
+          copy += 10000;
         if (nr < 0)
-          copy += 1000;
+          copy += 100000;
         DDName name = DDName(DDSplit(tile).first, DDSplit(tile).second);
         cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
