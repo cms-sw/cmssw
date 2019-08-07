@@ -75,24 +75,22 @@ void CastorMonitorModule::bookHistograms(DQMStore::IBooker &ibooker,
   char s[60];
   sprintf(s, "CastorEventProducts");
   CastorEventProduct = ibooker.book1DD(s, s, 6, -0.5, 5.5);
-  CastorEventProduct->getTH1D()->GetYaxis()->SetTitle("Events");
-  TAxis *xa = CastorEventProduct->getTH1D()->GetXaxis();
-  xa->SetBinLabel(1, "FEDs/3");
-  xa->SetBinLabel(2, "RawData");
-  xa->SetBinLabel(3, "Digi");
-  xa->SetBinLabel(4, "RecHits");
-  xa->SetBinLabel(5, "Towers");
-  xa->SetBinLabel(6, "Jets");
+  CastorEventProduct->setAxisTitle("Events", /* axis */ 2);
+  CastorEventProduct->setBinLabel(1, "FEDs/3");
+  CastorEventProduct->setBinLabel(2, "RawData");
+  CastorEventProduct->setBinLabel(3, "Digi");
+  CastorEventProduct->setBinLabel(4, "RecHits");
+  CastorEventProduct->setBinLabel(5, "Towers");
+  CastorEventProduct->setBinLabel(6, "Jets");
 
   sprintf(s, "CASTORUnpackReport");
   hunpkrep = ibooker.bookProfile(s, s, 6, -0.5, 5.5, 100, 0, 1.e10, "");
-  xa = hunpkrep->getTProfile()->GetXaxis();
-  xa->SetBinLabel(1, "N_FEDs");
-  xa->SetBinLabel(2, "SPIGOT_Err");
-  xa->SetBinLabel(3, "empty");
-  xa->SetBinLabel(4, "busy");
-  xa->SetBinLabel(5, "OvF");
-  xa->SetBinLabel(6, "BadDigis");
+  hunpkrep->setBinLabel(1, "N_FEDs");
+  hunpkrep->setBinLabel(2, "SPIGOT_Err");
+  hunpkrep->setBinLabel(3, "empty");
+  hunpkrep->setBinLabel(4, "busy");
+  hunpkrep->setBinLabel(5, "OvF");
+  hunpkrep->setBinLabel(6, "BadDigis");
   return;
 }
 

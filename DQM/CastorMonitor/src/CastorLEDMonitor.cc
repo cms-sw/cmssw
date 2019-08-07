@@ -30,8 +30,8 @@ void CastorLEDMonitor::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
   h2qMap->setOption("colz");
   sprintf(s, "CastorLED_QmeanMap");
   h2meanMap = ibooker.book2D(s, s, 14, 0, 14, 16, 0, 16);
-  h2meanMap->setAxisTitle("moduleZ");
-  h2meanMap->getTH2F()->GetYaxis()->SetTitle("sectorPhi");
+  h2meanMap->setAxisTitle("moduleZ", /* axis */ 1);
+  h2meanMap->setAxisTitle("sectorPhi", /* axis */ 2);
   h2meanMap->setOption("colz");
 
   ievt_ = 0;
@@ -75,7 +75,7 @@ void CastorLEDMonitor::processEvent(const CastorDigiCollection &castorDigis, con
   if (ievt_ % 100 == 0) {
     for (int mod = 1; mod <= 14; mod++)
       for (int sec = 1; sec <= 16; sec++) {
-        double a = h2qMap->getTH2F()->GetBinContent(mod, sec);
+        double a = h2qMap->getBinContent(mod, sec);
         h2meanMap->setBinContent(mod, sec, a / double(ievt_));
       }
   }

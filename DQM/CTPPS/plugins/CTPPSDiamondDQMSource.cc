@@ -360,14 +360,14 @@ CTPPSDiamondDQMSource::PotPlots::PotPlots(DQMStore::IBooker& ibooker, unsigned i
   HPTDCErrorFlags_2D->setBinLabel(16, "Wrong EC");
 
   int tmpIndex = 0;
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 0 TDC 18");
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 0 TDC 17");
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 0 TDC 16");
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 0 TDC 15");
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 1 TDC 18");
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 1 TDC 17");
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 1 TDC 16");
-  HPTDCErrorFlags_2D->getTH2F()->GetYaxis()->SetBinLabel(++tmpIndex, "DB 1 TDC 15");
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 0 TDC 18", /* axis */ 2);
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 0 TDC 17", /* axis */ 2);
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 0 TDC 16", /* axis */ 2);
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 0 TDC 15", /* axis */ 2);
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 1 TDC 18", /* axis */ 2);
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 1 TDC 17", /* axis */ 2);
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 1 TDC 16", /* axis */ 2);
+  HPTDCErrorFlags_2D->setBinLabel(++tmpIndex, "DB 1 TDC 15", /* axis */ 2);
 
   MHComprensive =
       ibooker.book2D("MH in channels", title + " MH (%) in channels;plane number;ch number", 10, -0.5, 4.5, 14, -1, 13);

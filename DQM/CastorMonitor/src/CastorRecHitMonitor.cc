@@ -47,7 +47,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "Castor Energy by Sectors #Phi");
   h2RHvsSec = ibooker.book2D(s, s, N_Sec, xSec, nySec, ySec);
   h2RHvsSec->setAxisTitle("sector #Phi");
-  h2RHvsSec->getTH2F()->GetYaxis()->SetTitle("RecHit / GeV");
+  h2RHvsSec->setAxisTitle("RecHit / GeV", /* axis */ 2);
   h2RHvsSec->setOption("colz");
 
   const int nxCh = 224;
@@ -78,7 +78,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "CastorRecHitEntriesMap");
   h2RHentriesMap = ibooker.book2D(s, s, 14, 0, 14, 16, 0, 16);
   h2RHentriesMap->setAxisTitle("moduleZ");
-  h2RHentriesMap->getTH2F()->GetYaxis()->SetTitle("sector #Phi");
+  h2RHentriesMap->setAxisTitle("sector #Phi", /* axis */ 2);
   h2RHentriesMap->setOption("colz");
 
   sprintf(s, "CastorRecHitTime");
@@ -113,7 +113,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   sprintf(s, "CASTORTowerEMvsEhad");
   h2TowerEMhad = ibooker.book2D(s, s, NEtow, EhadTow, NEtow, EMTow);
   h2TowerEMhad->setAxisTitle("Ehad / GeV");
-  h2TowerEMhad->getTH2F()->GetYaxis()->SetTitle("EM / GeV");
+  h2TowerEMhad->setAxisTitle("EM / GeV", /* axis */ 2);
   h2TowerEMhad->setOption("colz");
 
   sprintf(s, "CASTORTowerTotalEnergy");

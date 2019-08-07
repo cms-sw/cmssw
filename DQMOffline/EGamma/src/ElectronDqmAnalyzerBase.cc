@@ -69,7 +69,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStor
     me->setAxisTitle(titleX.c_str());
   }
   if (!titleY.empty()) {
-    me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY.c_str(), 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -97,7 +97,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw
     me->setAxisTitle(titleX.c_str());
   }
   if (!titleY.empty()) {
-    me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY.c_str(), 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -126,7 +126,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStor
     me->setAxisTitle(titleX.c_str());
   }
   if (!titleY.empty()) {
-    me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY.c_str(), 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -157,7 +157,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw
     me->setAxisTitle(titleX.c_str());
   }
   if (!titleY.empty()) {
-    me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY.c_str(), 2);
   }
   if (TString(option) != "") {
     me->setOption(option);
@@ -185,7 +185,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStor
     me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str());
   }
   if (!titleY.empty()) {
-    me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str());
+    me->setAxisTitle(titleY.c_str(), 2);
   }
   if (TString(option) != "") {
     me->getTProfile()->SetOption(option);

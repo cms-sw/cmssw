@@ -343,10 +343,10 @@ void L1TStage2CaloLayer1::updateMismatch(const edm::Event& e, int mismatchType) 
 
 void L1TStage2CaloLayer1::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) {
   // Ugly way to loop backwards through the last 20 mismatches
-  auto h = last20Mismatches_->getTH2F();
+  auto h = last20Mismatches_;
   for (size_t ibin = 1, imatch = lastMismatchIndex_; ibin <= 20; ibin++, imatch = (imatch + 19) % 20) {
-    h->GetYaxis()->SetBinLabel(ibin, last20MismatchArray_.at(imatch).first.c_str());
-    for (int itype = 0; itype < h->GetNbinsX(); ++itype) {
+    h->setBinLabel(ibin, last20MismatchArray_.at(imatch).first.c_str(), /* axis */ 2);
+    for (int itype = 0; itype < h->getNbinsX(); ++itype) {
       int binContent = (last20MismatchArray_.at(imatch).second >> itype) & 1;
       last20Mismatches_->setBinContent(itype + 1, ibin, binContent);
     }
@@ -488,7 +488,7 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker, const edm::
   for (size_t i = 0; i < last20MismatchArray_.size(); ++i)
     last20MismatchArray_[i] = {"-" + std::to_string(i), 0};
   for (size_t i = 1; i <= 20; ++i)
-    last20Mismatches_->getTH2F()->GetYaxis()->SetBinLabel(i, ("-" + std::to_string(i)).c_str());
+    last20Mismatches_->setBinLabel(i, ("-" + std::to_string(i)).c_str(), /* axis */ 2);
 
   const int nLumis = 2000;
   ecalLinkErrorByLumi_ = ibooker.book1D(

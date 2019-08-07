@@ -200,7 +200,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
     hname = "dataEmulSummary_" + bxt.str();
     htitle = "uGT Data/Emulator Mismatches --" + bxn.str();
     m_SummaryHistograms[hname] = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
-    m_SummaryHistograms[hname]->getTH1F()->GetYaxis()->SetTitle("Events");
+    m_SummaryHistograms[hname]->setAxisTitle("Events", /* axis */ 2);
     m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchDataNoEmul,
                                                                    "Data, NoEmul -- Initial Decisions");
     m_SummaryHistograms[hname]->setBinLabel(1 + NInitalMismatchEmulNoData,
@@ -214,7 +214,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
       hname = "normalizationHisto";
       htitle = "Normalization histogram for uGT Data/Emulator Mismatches ratios";
       m_normalizationHisto = ibooker.book1D(hname, htitle, NSummaryColumns, 0., double(NSummaryColumns));
-      m_normalizationHisto->getTH1F()->GetYaxis()->SetTitle("Events");
+      m_normalizationHisto->setAxisTitle("Events", /* axis */ 2);
       m_normalizationHisto->setBinLabel(1 + NInitalMismatchDataNoEmul,
                                                                "Data, NoEmul -- Initial Decisions");
       m_normalizationHisto->setBinLabel(1 + NInitalMismatchEmulNoData,
@@ -232,7 +232,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
                                                   numLS_,
                                                   0.,
                                                   double(numLS_));
-    initDecisionMismatches_vs_LS->getTH1F()->GetYaxis()->SetTitle("Events with Initial Decision Mismatch");
+    initDecisionMismatches_vs_LS->setAxisTitle("Events with Initial Decision Mismatch", /* axis */ 2);
     initDecisionMismatches_vs_LS->setAxisTitle("Luminosity Segment");
 
     hname = "DataNoEmul_" + bxt.str();
@@ -250,7 +250,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
                                                    numLS_,
                                                    0.,
                                                    double(numLS_));
-    finalDecisionMismatches_vs_LS->getTH1F()->GetYaxis()->SetTitle("Events with Final Decision Mismatch");
+    finalDecisionMismatches_vs_LS->setAxisTitle("Events with Final Decision Mismatch", /* axis */ 2);
     finalDecisionMismatches_vs_LS->setAxisTitle("Luminosity Segment");
 
     hname = "DataNoEmul_" + bxt.str();
@@ -271,7 +271,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
     // 	(*it).second->setBinLabel(1+i, name.c_str());
     // }
     (*it).second->setAxisTitle("Trigger Bit");
-    (*it).second->getTH1F()->GetYaxis()->SetTitle("Events with Initial Decision Mismatch");
+    (*it).second->setAxisTitle("Events with Initial Decision Mismatch", /* axis */ 2);
   }
 
   for (std::map<std::string, MonitorElement*>::iterator it = m_HistNamesFinal.begin(); it != m_HistNamesFinal.end();
@@ -282,7 +282,7 @@ void L1TdeStage2uGT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& 
     // 	(*it).second->setBinLabel(1+i, name.c_str());
     // }
     (*it).second->setAxisTitle("Trigger Bit (Unprescaled)");
-    (*it).second->getTH1F()->GetYaxis()->SetTitle("Events with Final Decision Mismatch");
+    (*it).second->setAxisTitle("Events with Final Decision Mismatch", /* axis */ 2);
   }
 }
 
