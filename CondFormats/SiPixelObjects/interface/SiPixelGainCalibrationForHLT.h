@@ -28,7 +28,6 @@
 
 class SiPixelGainCalibrationForHLT {
 public:
-  
   struct DetRegistry {
     uint32_t detid;
     uint32_t ibegin;
