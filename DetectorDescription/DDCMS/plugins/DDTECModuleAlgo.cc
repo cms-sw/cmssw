@@ -198,9 +198,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     bl1 = 0.5 * sideFrameLWidthLow;
   solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolidNS(name, solid);
-  edm::LogVerbatim("TECGeom") << "Solid: " << solid.name() << " Trap made of " << sideFrameMat << " of dimensions "
-                              << dz << ",  " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1
-                              << ", " << bl2 << ", " << bl2 << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid: " << name << " " << solid.name() << " Trap made of " << sideFrameMat
+                              << " of dimensions " << dz << ",  " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1
+                              << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume sideFrameLeft(name, solid, ns.material(sideFrameMat));
   ns.addVolumeNS(sideFrameLeft);
   //translate
@@ -236,9 +236,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     bl1 = 0.5 * sideFrameRWidthLow;
   solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolidNS(name, solid);
-  edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << sideFrameMat << " of dimensions "
-                              << dz << ", " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1
-                              << ", " << bl2 << ", " << bl2 << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << sideFrameMat
+                              << " of dimensions " << dz << ", " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1
+                              << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume sideFrameRight(name, solid, ns.material(sideFrameMat));
   ns.addVolumeNS(sideFrameRight);
   //translate
@@ -275,9 +275,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // ^-- this calculates the lower left angel of the tipped trapezoid, which is the SideFframe...
 
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << siFrSuppBoxMat << " of dimensions "
-                                << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
-                                << ", " << bl2 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << siFrSuppBoxMat
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl2 << ", 0";
     Volume siFrSuppBox(name, solid, matter);
     ns.addVolumeNS(siFrSuppBox);
     //translate
@@ -312,8 +312,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   dz = 0.5 * hybridHeight;
   solid = Box(dx, dy, dz);
   ns.addSolidNS(name, solid);
-  edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Box made of " << hybridMat << " of dimensions " << dx
-                              << ", " << dy << ", " << dz;
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Box made of " << hybridMat
+                              << " of dimensions " << dx << ", " << dy << ", " << dz;
   Volume hybrid(name, solid, ns.material(hybridMat));
   ns.addVolumeNS(hybrid);
 
@@ -336,9 +336,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   dz = 0.5 * fullHeight;
   solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolidNS(name, solid);
-  edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << waferMat << " of dimensions " << dz
-                              << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
-                              << bl2 << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << waferMat
+                              << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                              << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume wafer(name, solid, ns.material(waferMat));
 
   ypos = activeZ;
@@ -365,9 +365,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   }
   solid = Trap(dz, 0, 0, h1, bl2, bl1, 0, h1, bl2, bl1, 0);
   ns.addSolidNS(name, solid);
-  edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << activeMat << " of dimensions " << dz
-                              << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", "
-                              << bl1 << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << activeMat
+                              << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, "
+                              << h1 << ", " << bl2 << ", " << bl1 << ", 0";
   Volume active(name, solid, ns.material(activeMat));
   ns.addVolumeNS(active);
 
@@ -393,9 +393,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     }
     solid = Trap(dz, 0, 0, h1, bl2, bl1, 0, h1, bl2, bl1, 0);
     ns.addSolidNS(name, solid);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << inactiveMat << " of dimensions "
-                                << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
-                                << ", " << bl1 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << inactiveMat
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl1 << ", 0";
     Volume inactive(name, solid, ns.material(inactiveMat));
     ns.addVolumeNS(inactive);
     ypos = inactivePos - 0.5 * activeHeight;
@@ -410,8 +410,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     dz = 0.5 * pitchHeight;
     solid = Box(dx, dy, dz);
     ns.addSolidNS(name, solid);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Box made of " << pitchMat << " of dimensions " << dx
-                                << ", " << dy << ", " << dz;
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Box made of " << pitchMat
+                                << " of dimensions " << dx << ", " << dy << ", " << dz;
   } else {
     dz = 0.5 * pitchWidth;
     h1 = 0.5 * pitchThick;
@@ -420,9 +420,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     thet = atan((bl1 - bl2) / (2. * dz));
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
     ns.addSolidNS(name, solid);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << pitchMat << " of dimensions " << dz
-                                << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", " << bl1 << ", " << bl1
-                                << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << pitchMat
+                                << " of dimensions " << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", "
+                                << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   }
   xpos = 0;
   ypos = pitchZ;
@@ -454,9 +454,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
   solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolid(name, solid);
-  edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << topFrameMat << " of dimensions "
-                              << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
-                              << ", " << bl2 << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << topFrameMat
+                              << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                              << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume topFrame(name, solid, ns.material(topFrameMat));
   ns.addVolumeNS(topFrame);
 
@@ -471,9 +471,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
     ns.addSolid(name, solid);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << topFrameMat << " of dimensions "
-                                << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", " << bl1 << ", " << bl1
-                                << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << topFrameMat
+                                << " of dimensions " << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", "
+                                << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   }
 
   // Position the topframe
@@ -506,9 +506,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     dz = 0.5 * siReenforceHeight[i];
     bl1 = bl2 = 0.5 * siReenforceWidth[i];
     solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << matter.name() << " of dimensions "
-                                << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
-                                << ", " << bl2 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << matter.name()
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl2 << ", 0";
     Volume siReenforce(name, solid, matter);
     ns.addVolumeNS(siReenforce);
     //translate
@@ -541,17 +541,17 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     h1 = 0.5 * bridgeThick;
     dz = 0.5 * bridgeHeight;
     solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << bridgeMat << " of dimensions "
-                                << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
-                                << ", " << bl2 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << bridgeMat
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl2 << ", 0";
     Volume bridge(name, solid, ns.material(bridgeMat));
     ns.addVolumeNS(bridge);
 
     name = idName + "BridgeGap";
     bl1 = 0.5 * bridgeSep;
     solid = Box(bl1, h1, dz);
-    edm::LogVerbatim("TECGeom") << "Solid:\t" << solid.name() << " Box made of " << genMat << " of dimensions " << bl1
-                                << ", " << h1 << ", " << dz;
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Box made of " << genMat
+                                << " of dimensions " << bl1 << ", " << h1 << ", " << dz;
     Volume bridgeGap(name, solid, ns.material(genMat));
     ns.addVolumeNS(bridgeGap);
     /* PlacedVolume pv = */ bridge.placeVolume(bridgeGap, 1);
