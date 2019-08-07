@@ -69,6 +69,12 @@
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 
+#include "G4LogicalVolume.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4Region.hh"
+#include "G4RegionStore.hh"
+
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
 
@@ -124,7 +130,7 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
-      m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
+      m_EvtMgrVerbosity(p.getParameter<int>("G4EventManagerVerbosity")),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
@@ -187,9 +193,9 @@ void RunManager::initG4(const edm::EventSetup& es) {
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
-  int verb = std::max(m_pPhysics.getParameter<int>("Verbosity"), m_p.getParameter<int>("SteppingVerbosity"));
+  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity"), m_p.getParameter<int>("SteppingVerbosity"));
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
+      << "RunManager: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
 
@@ -210,17 +216,28 @@ void RunManager::initG4(const edm::EventSetup& es) {
   const DDCompactView* pDD = nullptr;
   const cms::DDCompactView* pDD4hep = nullptr;
   if (geoFromDD4hep) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    pDD4hep = pDD.product();
+    edm::ESTransientHandle<cms::DDCompactView> ph;
+    es.get<IdealGeometryRecord>().get(ph);
+    pDD4hep = ph.product();
   } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    pDD = pDD.product();
+    edm::ESTransientHandle<DDCompactView> ph;
+    es.get<IdealGeometryRecord>().get(ph);
+    pDD = ph.product();
   }
   SensitiveDetectorCatalog catalog;
   const DDDWorld* world = new DDDWorld(pDD, pDD4hep, catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* pworld = world->GetWorldVolume();
+
+  const G4RegionStore* regStore = G4RegionStore::GetInstance();
+  const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  unsigned int numPV = pvs->size();
+  unsigned int numLV = lvs->size();
+  unsigned int nn = regStore->size();
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "###RunManager: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
+
+  m_kernel->DefineWorldVolume(pworld, true);
   m_registry.dddWorldSignal_(world);
 
   if (m_pUseMagneticField) {
@@ -335,6 +352,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
       G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
     }
   }
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
 
   if (!m_WriteFile.empty()) {
     G4GDMLParser gdml;
@@ -368,6 +386,7 @@ void RunManager::stopG4() {
 }
 
 void RunManager::produce(edm::Event& inpevt, const edm::EventSetup& es) {
+  //if(!m_runInitialized) { initG4(es); }
   m_currentEvent = generateEvent(inpevt);
   m_simEvent = new G4SimEvent;
   m_simEvent->hepEvent(m_generator->genEvent());
