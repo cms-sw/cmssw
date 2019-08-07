@@ -330,7 +330,7 @@ namespace SiStripPI {
       case SiStripPI::TID3s:
         return std::make_pair(38, "TID D3 stereo");
       case SiStripPI::END_OF_REGIONS:
-        std::make_pair(-1, "undefined");
+        return std::make_pair(-1, "undefined");
       default:
         return std::make_pair(999, "should never be here");
     }
