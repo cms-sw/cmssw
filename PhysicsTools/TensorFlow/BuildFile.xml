@@ -1,6 +1,3 @@
-<flags REM_CXXFLAGS="-Werror=sign-compare" />
-
-<use name="tensorflow" />
 <use name="tensorflow-cc" />
 
 <use name="FWCore/Framework" />
