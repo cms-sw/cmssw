@@ -6,7 +6,11 @@
 
 class RPGaussianTailNoiseAdder {
 public:
-  RPGaussianTailNoiseAdder(int numStrips, double theNoiseInElectrons, double theStripThresholdInE, CLHEP::HepRandomEngine &eng, int verbosity);
+  RPGaussianTailNoiseAdder(int numStrips,
+                           double theNoiseInElectrons,
+                           double theStripThresholdInE,
+                           CLHEP::HepRandomEngine &eng,
+                           int verbosity);
   simromanpot::strip_charge_map addNoise(const simromanpot::strip_charge_map &theSignal);
 
 private:
@@ -14,7 +18,7 @@ private:
   double theNoiseInElectrons;
   double theStripThresholdInE;
   double strips_above_threshold_prob_;
-  CLHEP::HepRandomEngine& rndEngine_;
+  CLHEP::HepRandomEngine &rndEngine_;
   int verbosity_;
 };
 
