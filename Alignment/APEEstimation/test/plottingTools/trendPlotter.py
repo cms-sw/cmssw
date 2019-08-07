@@ -1,3 +1,4 @@
+from __future__ import print_function
 import ROOT
 ROOT.gROOT.SetBatch(True)
 from setTDRStyle import setTDRStyle
@@ -63,7 +64,7 @@ def whichYear(run):
         if min(runs[year]) <= run:
             thisYear = year
     return thisYear
-    print "Run %d not in range of any year"%(run)
+    print("Run %d not in range of any year"%(run))
     return -1
     
 
