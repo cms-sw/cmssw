@@ -166,4 +166,15 @@
    <field name="mode_"            mapping="blob"/>
    <field name="copiesInLayers_"  mapping="blob"/>
  </class>
+ <class name="HcalSimulationParameters" class_version="0"> 
+   <field name="attenuationLength_"  mapping="blob"/>
+   <field name="lambdaLimits_"       mapping="blob"/>
+   <field name="shortFiberLength_"   mapping="blob"/>
+   <field name="longFiberLength_"    mapping="blob"/>
+   <field name="pmtRight_"           mapping="blob"/>
+   <field name="pmtFiberRight_"      mapping="blob"/>
+   <field name="pmtLeft_"            mapping="blob"/>
+   <field name="pmtFiberLeft_"       mapping="blob"/>
+ </class>
+
 </lcgdict> 
