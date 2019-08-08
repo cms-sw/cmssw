@@ -88,10 +88,10 @@ uint32_t AHCalSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
   int depth = (touch->GetReplicaNumber(1));
-  int incol = ((touch->GetReplicaNumber(0)) % 10);
-  int inrow = ((touch->GetReplicaNumber(0)) / 10) % 10;
-  int jncol = ((touch->GetReplicaNumber(0)) / 100) % 10;
-  int jnrow = ((touch->GetReplicaNumber(0)) / 1000) % 10;
+  int incol = ((touch->GetReplicaNumber(0)) % 100);
+  int inrow = ((touch->GetReplicaNumber(0)) / 100) % 100;
+  int jncol = ((touch->GetReplicaNumber(0)) / 10000) % 10;
+  int jnrow = ((touch->GetReplicaNumber(0)) / 100000) % 10;
   int col = (jncol == 0) ? incol : -incol;
   int row = (jnrow == 0) ? inrow : -inrow;
   uint32_t index = AHCalDetId(row, col, depth).rawId();
