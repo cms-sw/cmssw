@@ -28,7 +28,7 @@ namespace {
     return n1;
   }
 
-  void remove(std::string const& name, std::string const& tmpDir="/tmp") {
+  void remove(std::string const& name, std::string const& tmpDir = "/tmp") {
     std::string sfile = tmpDir + "/" + name + ".cc";
     std::string ofile = tmpDir + "/" + name + ".so";
 
@@ -144,16 +144,16 @@ namespace reco {
 
     void* dl = dlopen(ofile.c_str(), RTLD_LAZY);
     if (!dl) {
-      remove(m_name, baseDir+"/tmp");
+      remove(m_name, baseDir + "/tmp");
       throw cms::Exception("ExpressionEvaluator",
                            std::string("compilation/linking failed\n") + cpp + ss + "dlerror " + dlerror());
       return;
     }
 
     m_expr = dlsym(dl, factory.c_str());
-    remove(m_name, baseDir+"/tmp");
+    remove(m_name, baseDir + "/tmp");
   }
 
-  ExpressionEvaluator::~ExpressionEvaluator() { remove(m_name, edm::getEnvironmentVariable("CMSSW_BASE")+"/tmp"); }
+  ExpressionEvaluator::~ExpressionEvaluator() { remove(m_name, edm::getEnvironmentVariable("CMSSW_BASE") + "/tmp"); }
 
 }  // namespace reco
