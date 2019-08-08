@@ -69,6 +69,12 @@
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
 
+#include "G4LogicalVolume.hh"
+#include "G4LogicalVolumeStore.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4Region.hh"
+#include "G4RegionStore.hh"
+
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
 
@@ -121,9 +127,9 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
       m_currentRun(nullptr),
       m_currentEvent(nullptr),
       m_simEvent(nullptr),
-      m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
-      m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
-      m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
+      m_PhysicsTablesDir(p.getUntrackedParameter<std::string>("PhysicsTablesDirectory", "")),
+      m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
+      m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
       m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
@@ -133,7 +139,7 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
       m_pStackingAction(p.getParameter<edm::ParameterSet>("StackingAction")),
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
-      m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
+      m_g4overlap(p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_p(p) {
   m_UIsession.reset(new CustomUIsession());
@@ -142,10 +148,10 @@ RunManager::RunManager(edm::ParameterSet const& p, edm::ConsumesCollector&& iC)
 
   m_physicsList.reset(nullptr);
 
-  m_check = p.getParameter<bool>("CheckGeometry");
-  m_WriteFile = p.getParameter<std::string>("FileNameGDML");
-  m_FieldFile = p.getParameter<std::string>("FileNameField");
-  m_RegionFile = p.getParameter<std::string>("FileNameRegions");
+  m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
+  m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML", "");
+  m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField", "");
+  m_RegionFile = p.getUntrackedParameter<std::string>("FileNameRegions", "");
 
   m_userRunAction = nullptr;
   m_runInterface = nullptr;
@@ -187,9 +193,10 @@ void RunManager::initG4(const edm::EventSetup& es) {
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
-  int verb = std::max(m_pPhysics.getParameter<int>("Verbosity"), m_p.getParameter<int>("SteppingVerbosity"));
+  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0),
+                      m_p.getUntrackedParameter<int>("SteppingVerbosity", 0));
   edm::LogVerbatim("SimG4CoreApplication")
-      << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
+      << "RunManager: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
       << "              G4 verbosity: " << verb;
 
@@ -210,17 +217,28 @@ void RunManager::initG4(const edm::EventSetup& es) {
   const DDCompactView* pDD = nullptr;
   const cms::DDCompactView* pDD4hep = nullptr;
   if (geoFromDD4hep) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    pDD4hep = pDD.product();
+    edm::ESTransientHandle<cms::DDCompactView> ph;
+    es.get<IdealGeometryRecord>().get(ph);
+    pDD4hep = ph.product();
   } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    pDD = pDD.product();
+    edm::ESTransientHandle<DDCompactView> ph;
+    es.get<IdealGeometryRecord>().get(ph);
+    pDD = ph.product();
   }
   SensitiveDetectorCatalog catalog;
   const DDDWorld* world = new DDDWorld(pDD, pDD4hep, catalog, verb, cuts, protonCut);
   G4VPhysicalVolume* pworld = world->GetWorldVolume();
+
+  const G4RegionStore* regStore = G4RegionStore::GetInstance();
+  const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
+  const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
+  unsigned int numPV = pvs->size();
+  unsigned int numLV = lvs->size();
+  unsigned int nn = regStore->size();
+  edm::LogVerbatim("SimG4CoreApplication")
+      << "###RunManager: " << numPV << " PhysVolumes; " << numLV << " LogVolumes; " << nn << " Regions.";
+
+  m_kernel->DefineWorldVolume(pworld, true);
   m_registry.dddWorldSignal_(world);
 
   if (m_pUseMagneticField) {
@@ -317,11 +335,11 @@ void RunManager::initG4(const edm::EventSetup& es) {
   BeginOfJob aBeginOfJob(&es);
   m_registry.beginOfJobSignal_(&aBeginOfJob);
 
-  G4int sv = m_p.getParameter<int>("SteppingVerbosity");
-  G4double elim = m_p.getParameter<double>("StepVerboseThreshold") * CLHEP::GeV;
-  std::vector<int> ve = m_p.getParameter<std::vector<int> >("VerboseEvents");
-  std::vector<int> vn = m_p.getParameter<std::vector<int> >("VertexNumber");
-  std::vector<int> vt = m_p.getParameter<std::vector<int> >("VerboseTracks");
+  G4int sv = m_p.getUntrackedParameter<int>("SteppingVerbosity", 0);
+  G4double elim = m_p.getUntrackedParameter<double>("StepVerboseThreshold", 0.1) * CLHEP::GeV;
+  std::vector<int> ve = m_p.getUntrackedParameter<std::vector<int> >("VerboseEvents");
+  std::vector<int> vn = m_p.getUntrackedParameter<std::vector<int> >("VertexNumber");
+  std::vector<int> vt = m_p.getUntrackedParameter<std::vector<int> >("VerboseTracks");
 
   if (sv > 0) {
     m_sVerbose.reset(new CMSSteppingVerbose(sv, elim, ve, vn, vt));
@@ -335,6 +353,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
       G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
     }
   }
+  G4StateManager::GetStateManager()->SetNewState(G4State_Init);
 
   if (!m_WriteFile.empty()) {
     G4GDMLParser gdml;
@@ -344,7 +363,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
 
   // G4Region dump file name
-  auto regionFile = m_p.getParameter<std::string>("FileNameRegions");
+  auto regionFile = m_p.getUntrackedParameter<std::string>("FileNameRegions", "");
 
   // Geometry checks
   if (m_check || !regionFile.empty()) {
@@ -367,7 +386,7 @@ void RunManager::stopG4() {
   }
 }
 
-void RunManager::produce(edm::Event& inpevt, const edm::EventSetup& es) {
+void RunManager::produce(edm::Event& inpevt, const edm::EventSetup&) {
   m_currentEvent = generateEvent(inpevt);
   m_simEvent = new G4SimEvent;
   m_simEvent->hepEvent(m_generator->genEvent());
