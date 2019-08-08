@@ -85,3 +85,14 @@ btaggingTask = cms.Task(
     pfCTaggingTask
 )
 btagging = cms.Sequence(btaggingTask)
+
+
+
+# Create a b-tagging sequence without pixelClusterTagInfos
+btaggingFastSim = btagging.copy()
+btaggingFastSim.remove(pixelClusterTagInfos)
+
+# FastSim modifier (do not run pixelClusterTagInfos because the siPixelCluster input collection is not produced in FastSim)
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(btagging, btaggingFastSim)
+
