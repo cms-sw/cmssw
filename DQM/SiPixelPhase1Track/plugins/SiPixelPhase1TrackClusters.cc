@@ -153,7 +153,7 @@ namespace {
 
       // find out whether track crosses pixel fiducial volume (for cosmic tracks)
       auto d0 = track.d0(), dz = track.dz();
-      if (std::abs(d0) < 15 && std::abs(dz) < 50)
+      if (std::abs(d0) < 16 && std::abs(dz) < 50)
         crossesPixVol = true;
 
       auto etatk = track.eta();
