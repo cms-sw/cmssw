@@ -142,7 +142,7 @@ std::pair<float, float> SiPixelGainCalibrationForHLT::getPedAndGain(const int& c
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
   const unsigned int tot =
-      *range.first + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip;
+      *(range.first + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip);
   const unsigned int gain = tot & 0xFF;
   const unsigned int ped = (tot >> 8) & 0xFF;
 
@@ -173,7 +173,7 @@ float SiPixelGainCalibrationForHLT::getPed(const int& col,
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
   const unsigned int ped =
-      ((*range.first + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip) >> 8) &
+      (*(range.first + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip) >> 8) &
       0xFF;
 
   if (ped == deadFlag_)
@@ -200,7 +200,7 @@ float SiPixelGainCalibrationForHLT::getGain(const int& col,
   unsigned int lengthOfAveragedDataInEachColumn = 2;  // we always only have two values per column averaged block
   unsigned int numberOfDataBlocksToSkip = row / numberOfRowsToAverageOver_;
   const unsigned int gain =
-      (*range.first + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip) & 0xFF;
+      *(range.first + col * lengthOfColumnData + lengthOfAveragedDataInEachColumn * numberOfDataBlocksToSkip) & 0xFF;
 
   if (gain == deadFlag_)
     isDeadColumn = true;
