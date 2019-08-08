@@ -164,8 +164,8 @@ float SiPixelGainCalibrationOffline::getPed(
   unsigned int offSetInCorrectDataBlock = row % numberOfRowsToAverageOver_;
 
   const unsigned int datum =
-      (*range.first + col * lengthOfColumnData + numberOfAveragedDataBlocksToSkip * lengthOfAveragedDataInEachColumn +
-       offSetInCorrectDataBlock) &
+      *(range.first + col * lengthOfColumnData + numberOfAveragedDataBlocksToSkip * lengthOfAveragedDataInEachColumn +
+        offSetInCorrectDataBlock) &
       0xFF;
 
   int maxRow = lengthOfColumnData - (lengthOfColumnData % numberOfRowsToAverageOver_) - 1;
@@ -194,8 +194,8 @@ float SiPixelGainCalibrationOffline::getGain(const int& col,
   unsigned int numberOfAveragedDataBlocksToSkip = row / numberOfRowsToAverageOver_;
 
   // gain average is stored in the last location of current row averaged column data block
-  const unsigned int datum = (*range.first + col * lengthOfColumnData +
-                              ((numberOfAveragedDataBlocksToSkip + 1) * lengthOfAveragedDataInEachColumn) - 1) &
+  const unsigned int datum = *(range.first + col * lengthOfColumnData +
+                               ((numberOfAveragedDataBlocksToSkip + 1) * lengthOfAveragedDataInEachColumn) - 1) &
                              0xFF;
 
   if (datum == deadFlag_)
