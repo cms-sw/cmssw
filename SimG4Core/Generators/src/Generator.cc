@@ -145,7 +145,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
       // propagated by GEANT
       int status = (*pitr)->status();
       int pdg = (*pitr)->pdg_id();
-      if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
+      if (status > 3 && isChargedExotic(pdg)) {
         // In Pythia 8, there are many status codes besides 1, 2, 3.
         // By setting the status to 2 for exotic particles, they will be
         // checked: if its decay vertex is outside the beampipe, it will be
@@ -216,7 +216,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
         if ((!pdgFilterSel && isInTheList) || (pdgFilterSel && !isInTheList)) {
           edm::LogVerbatim("SimG4CoreGenerator")
               << " Skiped GenParticle barcode= " << (*pitr)->barcode() << " PDGid= " << pdg << " status= " << status
-              << " isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
+              << " isChargedExotic: " << isChargedExotic(pdg)
               << " isInTheList: " << isInTheList << " hasDecayVertex: " << hasDecayVertex;
           continue;
         }
@@ -224,11 +224,11 @@ void Generator::HepMC2G4(const HepMC::GenEvent *evt_orig, G4Event *g4evt) {
 
       edm::LogVerbatim("SimG4CoreGenerator")
           << "Generator: pdg= " << pdg << " status= " << status << " hasPreDefinedDecay: " << hasDecayVertex
-          << " isExotic: " << isExotic(pdg) << " isExoticNotDet: " << isExoticNonDetectable(pdg)
+          << " isChargedExotic: " << isChargedExotic(pdg) 
           << " isInTheList: " << IsInTheFilterList(pdg) << "\n         (x,y,z,t): (" << x1 << "," << y1 << "," << z1
           << "," << t1 << ")";
 
-      if (status > 3 && isExotic(pdg) && (!(isExoticNonDetectable(pdg)))) {
+      if (status > 3 && isChargedExotic(pdg)) {
         status = hasDecayVertex ? 2 : 1;
       }
 
@@ -495,21 +495,14 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector &p) const {
   return flag;
 }
 
-bool Generator::isExotic(int pdgcode) const {
-  int pdgid = std::abs(pdgcode);
-  return ((pdgid >= 1000000 && pdgid < 4000000) ||  // SUSY, R-hadron, and technicolor particles
-          pdgid == 17 ||                            // 4th generation lepton
-          pdgid == 34 ||                            // W-prime
-          pdgid == 37)                              // charged Higgs
-             ? true
-             : false;
-}
-
-bool Generator::isExoticNonDetectable(int pdgcode) const {
+bool Generator::isChargedExotic(int pdgcode) const {
   int pdgid = std::abs(pdgcode);
   HepPDT::ParticleID pid(pdgcode);
   int charge = pid.threeCharge();
-  return ((charge == 0) && (pdgid >= 1000000 && pdgid < 1000040))  // SUSY
+  return (charge != 0 && ((pdgid >= 1000000 && pdgid < 4000000) ||  // SUSY, R-hadron, and technicolor particles
+          pdgid == 17 ||                            // 4th generation lepton
+          pdgid == 34 ||                            // W-prime
+          pdgid == 37))                             // charged Higgs
              ? true
              : false;
 }
