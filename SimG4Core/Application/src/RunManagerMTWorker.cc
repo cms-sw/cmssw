@@ -82,8 +82,7 @@ namespace {
   void createWatchers(const edm::ParameterSet& iP,
                       SimActivityRegistry* iReg,
                       std::vector<std::shared_ptr<SimWatcher> >& oWatchers,
-                      std::vector<std::shared_ptr<SimProducer> >& oProds,
-                      int thisThreadID) {
+                      std::vector<std::shared_ptr<SimProducer> >& oProds) {
     if (!iP.exists("Watchers")) {
       return;
     }
@@ -152,7 +151,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
           iC.consumes<edm::LHCTransportLinkContainer>(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))),
       m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
       m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
-      m_EvtMgrVerbosity(iConfig.getParameter<int>("G4EventManagerVerbosity")),
+      m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
       m_pField(iConfig.getParameter<edm::ParameterSet>("MagneticField")),
       m_pRunAction(iConfig.getParameter<edm::ParameterSet>("RunAction")),
       m_pEventAction(iConfig.getParameter<edm::ParameterSet>("EventAction")),
@@ -236,7 +235,7 @@ void RunManagerMTWorker::initializeTLS() {
     }
   }
   if (m_hasWatchers) {
-    createWatchers(m_p, m_tls->registry.get(), m_tls->watchers, m_tls->producers, thisID);
+    createWatchers(m_p, m_tls->registry.get(), m_tls->watchers, m_tls->producers);
   }
 }
 
@@ -299,7 +298,7 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
     tM->SetFieldManager(fieldManager);
     fieldBuilder.build(fieldManager, tM->GetPropagatorInField());
 
-    std::string fieldFile = m_p.getParameter<std::string>("FileNameField");
+    std::string fieldFile = m_p.getUntrackedParameter<std::string>("FileNameField", "");
     if (!fieldFile.empty()) {
       std::call_once(applyOnce, []() { dumpMF = true; });
       if (dumpMF) {
@@ -348,11 +347,11 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   BeginOfJob aBeginOfJob(&es);
   m_tls->registry->beginOfJobSignal_(&aBeginOfJob);
 
-  G4int sv = m_p.getParameter<int>("SteppingVerbosity");
-  G4double elim = m_p.getParameter<double>("StepVerboseThreshold") * CLHEP::GeV;
-  std::vector<int> ve = m_p.getParameter<std::vector<int> >("VerboseEvents");
-  std::vector<int> vn = m_p.getParameter<std::vector<int> >("VertexNumber");
-  std::vector<int> vt = m_p.getParameter<std::vector<int> >("VerboseTracks");
+  G4int sv = m_p.getUntrackedParameter<int>("SteppingVerbosity", 0);
+  G4double elim = m_p.getUntrackedParameter<double>("StepVerboseThreshold", 0.1) * CLHEP::GeV;
+  std::vector<int> ve = m_p.getUntrackedParameter<std::vector<int> >("VerboseEvents");
+  std::vector<int> vn = m_p.getUntrackedParameter<std::vector<int> >("VertexNumber");
+  std::vector<int> vt = m_p.getUntrackedParameter<std::vector<int> >("VerboseTracks");
 
   if (sv > 0) {
     m_sVerbose.reset(new CMSSteppingVerbose(sv, elim, ve, vn, vt));
