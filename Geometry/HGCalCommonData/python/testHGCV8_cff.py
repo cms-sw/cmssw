@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from Geometry.HGCalCommonData.testHGCV8XML_cfi import *
 from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *
-from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkTilted_cff import *
+from SLHCUpgradeSimulations.Geometry.fakeConditions_phase2TkT6_cff import *
 from Geometry.HcalCommonData.hcalParameters_cfi      import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *
 from Geometry.HGCalCommonData.hgcalV6ParametersInitialization_cfi import *
