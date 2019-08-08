@@ -3,7 +3,7 @@
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 using namespace cms_units::operators;
 
@@ -43,7 +43,7 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   dd4hep::Volume mother = ns.volume(args.parentName());
   dd4hep::Material matter = ns.material(material);
-  
+
   // Create the rotation matrices
   double dPhi = deltaPhi / numberPhi;
   std::vector<dd4hep::Rotation3D> rotation;
@@ -52,12 +52,12 @@ static long algorithm(dd4hep::Detector& /* description */,
     dd4hep::Rotation3D rot = cms::makeRotation3D(90._deg, phi, 90._deg, (90._deg + phi), 0, 0);
 #ifdef EDM_ML_DEBUG
     double phideg = convertRadToDeg(phi);
-    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Creating a new rotation "  << 90 << "," << phideg << "," << 90 << ","
-				 << (phideg + 90) << ", 0, 0";
+    edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Creating a new rotation " << 90 << "," << phideg << "," << 90
+                                 << "," << (phideg + 90) << ", 0, 0";
 #endif
     rotation.emplace_back(rot);
   }
-  
+
   // Create the solids and logical parts
   std::vector<dd4hep::Volume> logs;
   for (unsigned int i = 0; i < areaSection.size(); ++i) {
@@ -65,13 +65,8 @@ static long algorithm(dd4hep::Detector& /* description */,
     double dStart = areaSection[i] / (2 * dPhi * rStart[i]);
     double dEnd = areaSection[i] / (2 * dPhi * r0);
     std::string name = childPrefix + std::to_string(i);
-    dd4hep::Solid solid = dd4hep::ConeSegment(0.5 * deltaZ,
-					      rStart[i] - dStart,
-					      rStart[i] + dStart,
-					      r0 - dEnd,
-					      r0 + dEnd,
-					      -0.5 * dPhi,
-					      0.5 * dPhi);
+    dd4hep::Solid solid = dd4hep::ConeSegment(
+        0.5 * deltaZ, rStart[i] - dStart, rStart[i] + dStart, r0 - dEnd, r0 + dEnd, -0.5 * dPhi, 0.5 * dPhi);
     ns.addSolidNS(name, solid);
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: Creating a new solid " << name << " a cons with dZ " << deltaZ
@@ -98,7 +93,8 @@ static long algorithm(dd4hep::Detector& /* description */,
       mother.placeVolume(logs[ib], copy, dd4hep::Transform3D(rotation[ir], tran));
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HCalGeom") << "DDHCalFibreBundle: " << logs[ib].name() << " number " << copy
-                                   << " positioned in " << mother.name() << " at (0, 0, 0)" << tran << " with " << rotation[ir];
+                                   << " positioned in " << mother.name() << " at (0, 0, 0)" << tran << " with "
+                                   << rotation[ir];
 #endif
     }
   }
@@ -107,4 +103,3 @@ static long algorithm(dd4hep::Detector& /* description */,
 
 // first argument is the type from the xml file
 DECLARE_DDCMS_DETELEMENT(DDCMS_hcal_DDHCalFibreBundle, algorithm);
-
