@@ -53,8 +53,9 @@ void FilteredLayerClustersProducer::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("HGCLayerClusters", edm::InputTag("hgcalLayerClusters"));
   desc.add<edm::InputTag>("LayerClustersInputMask", edm::InputTag("hgcalLayerClusters", "InitialLayerClustersMask"));
   desc.add<std::string>("iteration_label", "iterationLabelGoesHere");
-  desc.add<std::string>("clusterFilter", "ClusterFilterByAlgo");
+  desc.add<std::string>("clusterFilter", "ClusterFilterByAlgoAndSize");
   desc.add<int>("algo_number", 9);
+  desc.add<int>("min_cluster_size", 0);
   desc.add<int>("max_cluster_size", 9999);
   descriptions.add("filteredLayerClustersProducer", desc);
 }
