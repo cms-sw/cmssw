@@ -408,7 +408,7 @@ namespace gs {
           ptr, str, s, processClassId);
       if (status) {
         assert(ptr);
-        a = CPP11_shared_ptr<Pointee>(ptr);
+        a = std::shared_ptr<Pointee>(ptr);
         return true;
       } else {
         delete ptr;
@@ -553,7 +553,7 @@ namespace gs {
           GenericReader<Stream, State, Pointee *, Int2Type<IOTraits<int>::ISNULLPOINTER>>::process(ptr, is, st, true);
       if (status) {
         assert(ptr);
-        CPP11_shared_ptr<Pointee> sptr(ptr);
+        std::shared_ptr<Pointee> sptr(ptr);
         InsertContainerItem<Container>::insert(obj, sptr, itemN);
       } else
         delete ptr;
