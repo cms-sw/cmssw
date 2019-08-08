@@ -82,7 +82,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
   Active_Dead = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 2, 0.5, 2.5);
   Active_Dead->setBinLabel(1, "Active Strips", 1);
   Active_Dead->setBinLabel(2, "Inactive Strips", 1);
-
+/*
   histoName.str("");
   histoName << "Barrel_OccupancyByStations_Normalized";
   Barrel_OccBySt = ibooker.book1D(histoName.str().c_str(), histoName.str().c_str(), 4, 0.5, 4.5);
@@ -98,6 +98,7 @@ void RPCOccupancyTest::myBooker(DQMStore::IBooker& ibooker) {
   EndCap_OccByRng->setBinLabel(2, "E+/R2", 1);
   EndCap_OccByRng->setBinLabel(3, "E-/R2", 1);
   EndCap_OccByRng->setBinLabel(4, "E-/R3", 1);
+*/
 
   for (int w = -2; w <= 2; w++) {  //loop on wheels
 
@@ -207,16 +208,17 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
   if (AsyMe)
     AsyMe->setBinContent(xBin, yBin, asym);
 
-  float normoccup = 1;
-  if (rpcevents_ != 0) {
-    normoccup = (totEnt / rpcevents_);
-  }
+  //float normoccup = 1;
+  //if (rpcevents_ != 0) {
+    //normoccup = (totEnt / rpcevents_);
+  //}
 
   if (useNormalization_) {
   //if(NormOccup)  NormOccup->setBinContent(xBin,yBin, normoccup);
   //if(NormOccupD) NormOccupD->Fill(normoccup);
   }
 
+/*
   if (detId.region() == 0) {
     if (Barrel_OccBySt)
       Barrel_OccBySt->Fill(detId.station(), normoccup);
@@ -233,4 +235,5 @@ void RPCOccupancyTest::fillGlobalME(RPCDetId& detId, MonitorElement* myMe) {
       EndCap_OccByRng->Fill(3, normoccup);
     }
   }
+*/
 }
