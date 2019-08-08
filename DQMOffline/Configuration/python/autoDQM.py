@@ -98,7 +98,7 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
 
             'rerecoZeroBias' : ['@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                                 'PostDQMOffline',
-                                '@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
+                                'DQMHarvestCommonSiStripZeroBias+DQMCertCommon+DQMHarvestMuon+DQMCertMuon+DQMHarvestHcal+DQMHarvestJetMET+DQMCertJetMET+DQMHarvestEcal+DQMCertEcal+DQMHarvestEGamma+DQMHarvestL1TMuon+DQMHarvestL1TEgamma+DQMHarvestCTPPS'],
 
             'rerecoZeroBiasFakeHLT' : ['@commonSiStripZeroBiasFakeHLT+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma',
                                 'PostDQMOffline',
