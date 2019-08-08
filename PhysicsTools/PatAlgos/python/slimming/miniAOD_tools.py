@@ -432,7 +432,7 @@ def miniAOD_customizeCommon(process):
     process.updatedPatJetsSlimmedDeepFlavour.addTagInfos = cms.bool(True)
     process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = cms.bool(True)
-    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
+    process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
     
     ## puppi met
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
