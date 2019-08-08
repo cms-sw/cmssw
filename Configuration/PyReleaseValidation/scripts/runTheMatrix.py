@@ -22,6 +22,13 @@ def runSelected(opt):
     mrd = MatrixReader(opt)
     mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
 
+    # test for wrong input workflows
+    if opt.testList:
+        definedWF = []
+        for dwf in mrd.workFlows: definedWF.append(dwf.numId)
+        for twf in opt.testList:
+            if twf not in definedWF: raise ValueError('Not defined workflow ', twf , ' requested')
+
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
@@ -75,6 +82,7 @@ if __name__ == '__main__':
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
                      11634.0, #2021 ttbar
+                     12434.0, #2023 ttbar
                      20034.0, #2026D35 ttbar (MTD TDR baseline)
                      20434.0, #2026D41 ttbar (L1T TDR baseline)
                      21234.0, #2026D44 (exercise HF nose)
