@@ -51,8 +51,6 @@ namespace edm {
     if (fVerbosity > 0)
       edm::LogVerbatim("BeamMomentumGun") << "Total Events: " << nentries_ << " in " << infileName << " Z " << zpos_;
 
-    rand_.SetSeed(0);
-
     // Set branch addresses and branch pointers
     fTree_->SetBranchAddress("npar", &npar_, &b_npar_);
     fTree_->SetBranchAddress("eventId", &eventId_, &b_eventId_);
@@ -85,7 +83,7 @@ namespace edm {
     fEvt = new HepMC::GenEvent();
 
     // random entry generation for peaking event randomly from tree
-    long int rjentry = rand_.Uniform(0, nentries_ - 1);
+    long int rjentry = static_cast<long int>(CLHEP::RandFlat::shoot(engine, 0, nentries_ - 1));
     fTree_->GetEntry(rjentry);
     if (fVerbosity > 0)
       edm::LogVerbatim("BeamMomentumGun") << "Entry " << rjentry << " : " << eventId_ << "  :  " << npar_;

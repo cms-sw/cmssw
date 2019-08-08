@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "TFile.h"
-#include "TRandom3.h"
 #include "TTree.h"
 
 namespace edm {
@@ -25,7 +24,6 @@ namespace edm {
     double zpos_;
     TFile *fFile_;
     TTree *fTree_;
-    TRandom3 rand_;
     long int nentries_;
 
     // Declaration of leaf types
