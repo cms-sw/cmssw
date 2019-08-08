@@ -158,7 +158,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_pStackingAction(iConfig.getParameter<edm::ParameterSet>("StackingAction")),
       m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
-      m_pCustomUIsession(iConfig.getParameter<edm::ParameterSet>("CustomUIsession")),
+      m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
       m_p(iConfig),
       m_simEvent(nullptr),
       m_sVerbose(nullptr) {
@@ -250,15 +250,15 @@ void RunManagerMTWorker::initializeThread(RunManagerMT& runManagerMaster, const 
   // Initialize per-thread output
   G4Threading::G4SetThreadId(thisID);
   G4UImanager::GetUIpointer()->SetUpForAThread(thisID);
-  const std::string& uitype = m_pCustomUIsession.getParameter<std::string>("Type");
+  const std::string& uitype = m_pCustomUIsession.getUntrackedParameter<std::string>("Type", "MessageLogger");
   if (uitype == "MessageLogger") {
     m_tls->UIsession.reset(new CustomUIsession());
   } else if (uitype == "MessageLoggerThreadPrefix") {
-    m_tls->UIsession.reset(
-        new CustomUIsessionThreadPrefix(m_pCustomUIsession.getParameter<std::string>("ThreadPrefix"), thisID));
+    m_tls->UIsession.reset(new CustomUIsessionThreadPrefix(
+        m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadPrefix", ""), thisID));
   } else if (uitype == "FilePerThread") {
     m_tls->UIsession.reset(
-        new CustomUIsessionToFile(m_pCustomUIsession.getParameter<std::string>("ThreadFile"), thisID));
+        new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID));
   } else {
     throw edm::Exception(edm::errors::Configuration)
         << "Invalid value of CustomUIsession.Type '" << uitype

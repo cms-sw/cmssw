@@ -80,10 +80,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     Watchers = cms.VPSet(),
     HepMCProductLabel = cms.InputTag("generatorSmeared"),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
-    CustomUIsession = cms.PSet(
-        Type = cms.string("MessageLogger"), # alternatives: MessageLoggerThreadPrefix, FilePerThread
-        ThreadPrefix = cms.string("W"),     # for MessageLoggerThreadPrefix
-        ThreadFile = cms.string("sim_output_thread"), # for FilePerThread
+    CustomUIsession = cms.untracked.PSet(
+        Type = cms.untracked.string("MessageLogger"), # alternatives: MessageLoggerThreadPrefix, FilePerThread
+        ThreadPrefix = cms.untracked.string("W"),     # for MessageLoggerThreadPrefix
+        ThreadFile = cms.untracked.string("sim_output_thread"), # for FilePerThread
     ),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),
