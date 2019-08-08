@@ -185,16 +185,6 @@ upgradeSteps['heCollapse'] = {
     'suffix' : '_heCollapse',
     'offset' : 0.6,
 }
-upgradeSteps['killStuckTBM'] = {
-    'steps' : [
-        'DigiFull',
-    ],
-    'PU' : [
-        'DigiFull',
-    ],
-    'suffix' : '_killStuckTBM',
-    'offset' : 0.7,
-}
 upgradeSteps['ParkingBPH'] = {
     'steps' : [
         'RecoFull',
