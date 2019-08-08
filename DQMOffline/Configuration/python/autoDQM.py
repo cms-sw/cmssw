@@ -96,13 +96,13 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                                  'PostDQMOffline',
                                  '@common+@muon+@hcal+@jetmet+@ecal+@egamma+@lumi+@L1TMuon+@L1TEgamma+@ctpps'],
 
-            'rerecoZeroBias' : ['@commonSiStripZeroBias+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
+            'rerecoZeroBias' : ['DQMOfflineCommonSiStripZeroBias+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                                 'PostDQMOffline',
-                                'DQMHarvestCommonSiStripZeroBias+DQMCertCommon+DQMHarvestMuon+DQMCertMuon+DQMHarvestHcal+DQMHarvestJetMET+DQMCertJetMET+DQMHarvestEcal+DQMCertEcal+DQMHarvestEGamma+DQMHarvestL1TMuon+DQMHarvestL1TEgamma+DQMHarvestCTPPS'],
+                                'DQMHarvestCommonSiStripZeroBias+DQMCertCommon+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
 
-            'rerecoZeroBiasFakeHLT' : ['@commonSiStripZeroBiasFakeHLT+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma',
-                                'PostDQMOffline',
-                                '@commonSiStripZeroBiasFakeHLT+@muon+@hcal+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma'],
+            'rerecoZeroBiasFakeHLT' : ['DQMOfflineCommonSiStripZeroBiasFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma',
+                                       'PostDQMOffline',
+                                       'DQMHarvestCommonSiStripZeroBiasFakeHLT+DQMCertCommonFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma'],
 
             'miniAODDQM': ['DQMOfflineMiniAOD',
                            'PostDQMOfflineMiniAOD',
