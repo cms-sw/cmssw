@@ -603,31 +603,40 @@ namespace {
             Ybarycenters[0] += (ali.translation().y());
             Zbarycenters[0] += (ali.translation().z());
             nmodules[0]++;
+            break;
           case AlignmentPI::FPix:
             Xbarycenters[1] += (ali.translation().x());
             Ybarycenters[1] += (ali.translation().y());
             Zbarycenters[1] += (ali.translation().z());
             nmodules[1]++;
+            break;
           case AlignmentPI::TIB:
             Xbarycenters[2] += (ali.translation().x());
             Ybarycenters[2] += (ali.translation().y());
             Zbarycenters[2] += (ali.translation().z());
             nmodules[2]++;
+            break;
           case AlignmentPI::TID:
             Xbarycenters[3] += (ali.translation().x());
             Ybarycenters[3] += (ali.translation().y());
             Zbarycenters[3] += (ali.translation().z());
             nmodules[3]++;
+            break;
           case AlignmentPI::TOB:
             Xbarycenters[4] += (ali.translation().x());
             Ybarycenters[4] += (ali.translation().y());
             Zbarycenters[4] += (ali.translation().z());
             nmodules[4]++;
+            break;
           case AlignmentPI::TEC:
             Xbarycenters[5] += (ali.translation().x());
             Ybarycenters[5] += (ali.translation().y());
             Zbarycenters[5] += (ali.translation().z());
             nmodules[5]++;
+            break;
+          default:
+            edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized partition " << thePart << std::endl;
+            break;
         }
       }
 
