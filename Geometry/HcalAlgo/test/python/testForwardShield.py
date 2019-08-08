@@ -14,12 +14,12 @@ if hasattr(process,'MessageLogger'):
 
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             confGeomXMLFiles = cms.FileInPath('Geometry/HcalAlgo/data/cms-test-ddhcalForwardShield-algorithm.xml'),
-                                            appendToDataLabel = cms.string('TestDDHcalForwardShield')
+                                            appendToDataLabel = cms.string('DDHCalFibreBundle')
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
                                   outputFileName = cms.untracked.string('ForwardShieldDD4Hep.root'),
-                                  DDDetector = cms.ESInputTag('','TestDDHcalForwardShield')
+                                  DDDetector = cms.ESInputTag('','DDHCalFibreBundle')
                                   )
 
 process.p = cms.Path(process.testDump)
