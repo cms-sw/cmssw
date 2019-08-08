@@ -8,10 +8,6 @@
 // statements already present in this program.
 //
 
-#include <iostream>
-#include <map>
-#include <set>
-
 #include "Alignment/Geners/interface/CPP11_auto_ptr.hh"
 #include "Alignment/Geners/interface/ClassId.hh"
 #include "Alignment/Geners/interface/MultiFileArchive.hh"
@@ -19,6 +15,11 @@
 #include "Alignment/Geners/interface/complexIO.hh"
 
 #include "CmdLine.hh"
+
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
 
 using namespace gs;
 using namespace std;
@@ -129,7 +130,7 @@ int main(int argc, char const *argv[]) {
   std::set<std::string> typenames;
   unsigned long nprinted = 0;
   for (unsigned long i = 0; i < nfound; ++i) {
-    CPP11_shared_ptr<const CatalogEntry> entry = mar.catalogEntry(found[i]);
+    std::shared_ptr<const CatalogEntry> entry = mar.catalogEntry(found[i]);
     const ClassId &type = entry->type();
     const std::string &tname = type.name();
     if (typenames.insert(tname).second) {

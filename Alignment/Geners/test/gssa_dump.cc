@@ -75,7 +75,7 @@ int main(int argc, char const *argv[]) {
     if (!ar->itemExists(id))
       continue;
 
-    CPP11_shared_ptr<const CatalogEntry> e = ar->catalogEntry(id);
+    std::shared_ptr<const CatalogEntry> e = ar->catalogEntry(id);
     if (fullDump) {
       if (id != first)
         cout << '\n';
