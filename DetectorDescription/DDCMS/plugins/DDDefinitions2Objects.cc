@@ -1640,7 +1640,7 @@ namespace {
 
     for_each_token(cbegin(str), cend(str), cbegin(delims), cend(delims), [&output](auto first, auto second) {
       if (first != second) {
-        output.emplace_back(stod(string(first, second)));
+        output.emplace_back(dd4hep::_toDouble(string(first, second)));
       }
     });
     return output;
