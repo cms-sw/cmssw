@@ -21,7 +21,6 @@ if hasattr(process,'MessageLogger'):
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
         'file:step2.root',
-#       'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/10D95AC2-B14A-E711-BC4A-0CC47A7C3638.root',
         )
                             )
 
