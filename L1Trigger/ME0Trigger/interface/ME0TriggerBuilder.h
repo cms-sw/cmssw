@@ -29,7 +29,7 @@ public:
   ~ME0TriggerBuilder();
 
   /** Build Triggers from pads or clusters in each chamber and fill them into output collections. */
-  template<class T>
+  template <class T>
   void build(const T* me0Pads, ME0TriggerDigiCollection& oc_trig);
 
   /** set geometry for the matching needs */
@@ -54,7 +54,7 @@ private:
   std::unique_ptr<ME0Motherboard> tmb_[MAX_ENDCAPS][MAX_CHAMBERS];
 };
 
-template<class T>
+template <class T>
 void ME0TriggerBuilder::build(const T* me0Pads, ME0TriggerDigiCollection& oc_trig) {
   for (int endc = 0; endc < 2; endc++) {
     for (int cham = 0; cham < 18; cham++) {

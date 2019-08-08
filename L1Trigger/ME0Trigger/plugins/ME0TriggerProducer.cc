@@ -40,8 +40,10 @@ void ME0TriggerProducer::produce(edm::StreamID, edm::Event& ev, const edm::Event
 
   // Fill output collections if valid input collection is available.
   if (me0PadDigiClusters.isValid()) {
-    if (useClusters_) trigBuilder->build<ME0PadDigiClusterCollection>(me0PadClusters, *oc_trig);
-    else              trigBuilder->build<ME0PadDigiCollection>(me0Pads, *oc_trig);
+    if (useClusters_)
+      trigBuilder->build<ME0PadDigiClusterCollection>(me0PadClusters, *oc_trig);
+    else
+      trigBuilder->build<ME0PadDigiCollection>(me0Pads, *oc_trig);
   }
 
   // Put collections in event.
