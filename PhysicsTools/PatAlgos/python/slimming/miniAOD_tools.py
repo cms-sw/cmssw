@@ -561,5 +561,11 @@ def miniAOD_customizeAllMCFastSim(process):
     from PhysicsTools.PatAlgos.slimming.isolatedTracks_cfi import miniAOD_customizeIsolatedTracksFastSim
     process = miniAOD_customizeIsolatedTracksFastSim(process)
     process.patMuons.addTriggerMatching = False
+    # Disable pixelClusterTagInfos in FastSim (no siPixelCluster available)
+    from Configuration.Eras.Modifier_fastSim_cff import fastSim
+    fastSim.toModify(process.patJets, addTagInfos = cms.bool(False) )
+    fastSim.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
+    fastSim.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    fastSim.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
 
     return process
