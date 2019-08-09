@@ -1,5 +1,5 @@
-# default value for all customizations
-connectionString = "frontier://FrontierProd/CMS_CONDITIONS"
+from Configuration.StandardSequences.CondDBESSource_cff import GlobalTag as essource
+connectionString = essource.connect.value()
 
 SiPixelLARecord           =   "SiPixelLorentzAngleRcd"                  
 SiPixelSimLARecord        =   "SiPixelLorentzAngleSimRcd"   
