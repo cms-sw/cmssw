@@ -166,13 +166,10 @@ static long algorithm(dd4hep::Detector& /* description */,
       n_y_t /= norm;
       n_z_t /= norm;
 
-      // the cuttubs wants a delta phi
-      double dphi = phi2 - phi1;
-
-      auto seg = dd4hep::CutTube(r_min, r_max, dz, phi1, dphi, n_x_l, n_y_l, n_z_l, n_x_t, n_y_t, n_z_t);
+      auto seg = dd4hep::CutTube(r_min, r_max, dz, phi1, phi2, n_x_l, n_y_l, n_z_l, n_x_t, n_y_t, n_z_t);
 
       edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: CutTube(" << r_min << "," << r_max << "," << dz << ","
-                                      << phi1 << "," << dphi << "," << n_x_l << "," << n_y_l << "," << n_z_l << ","
+                                      << phi1 << "," << phi2 << "," << n_x_l << "," << n_y_l << "," << n_z_l << ","
                                       << n_x_t << "," << n_y_t << "," << n_z_t << ")";
 
       segments.emplace_back(seg);
