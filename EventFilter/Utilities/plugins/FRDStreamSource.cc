@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"

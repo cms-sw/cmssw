@@ -14,6 +14,7 @@
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/DataPoint.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 #include <iostream>
 //#include <istream>

@@ -5,6 +5,7 @@
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
