@@ -49,7 +49,6 @@ namespace magneticfield {
     const std::string version_;
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> paramFieldToken_;
     edm::ESGetToken<DDCompactView, IdealMagneticFieldRecord> cpvToken_;
-    const edm::ESInputTag tag_;
   };
 }  // namespace magneticfield
 
@@ -58,8 +57,7 @@ VolBasedMagFieldESProducerNewDD::VolBasedMagFieldESProducerNewDD(const edm::Para
       debug_{iConfig.getUntrackedParameter<bool>("debugBuilder", false)},
       useParametrizedTrackerField_{iConfig.getParameter<bool>("useParametrizedTrackerField")},
       conf_{iConfig, debug_},
-      version_{iConfig.getParameter<std::string>("version")},
-      tag_{iConfig.getParameter<edm::ESInputTag>("DDDetector")} {
+      version_{iConfig.getParameter<std::string>("version")} {
   // LogInfo used because LogDebug messages don't appear even when fully enabled.
   edm::LogInfo("VolBasedMagFieldESProducerNewDD") << "info:Constructing a VolBasedMagFieldESProducerNewDD" << endl;
 

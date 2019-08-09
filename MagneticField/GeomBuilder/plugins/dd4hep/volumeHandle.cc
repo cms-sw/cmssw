@@ -191,8 +191,9 @@ std::vector<VolumeSide> volumeHandle::sides() const {
   return result;
 }
 
-// To allow the following code to work with both old and new DD,
-// we need this function that merely returns its argument.
+// The files included below are used here and in the old DD version of this file.
+// To allow them to be used in both places, they call a "convertUnits" function
+// that is defined differently between old and new DD.
 // For the old DD, another version of this function converts mm to cm.
 
 template <class NumType>
