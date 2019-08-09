@@ -958,8 +958,15 @@ namespace evf {
       if (retry) {
         edm::LogWarning("EvFDaqDirector")
             << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
-        return parseFRDFileHeader(
-            rawSourcePath, rawFd, rawHeaderSize, lsFromHeader, eventsFromHeader, fileSizeFromHeader, requireHeader, false, closeFile);
+        return parseFRDFileHeader(rawSourcePath,
+                                  rawFd,
+                                  rawHeaderSize,
+                                  lsFromHeader,
+                                  eventsFromHeader,
+                                  fileSizeFromHeader,
+                                  requireHeader,
+                                  false,
+                                  closeFile);
       } else {
         usleep(100000);
         if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
@@ -986,12 +993,14 @@ namespace evf {
     if (sz_read < 0) {
       edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - unable to read " << rawSourcePath << " : "
                                       << strerror(errno);
-      if (infile!=-1) close(infile);
+      if (infile != -1)
+        close(infile);
       return -1;
     }
     if ((size_t)sz_read < buf_sz) {
       edm::LogError("EvFDaqDirector") << "parseFRDFileHeader - file smaller than header: " << rawSourcePath;
-      if (infile!=-1) close(infile);
+      if (infile != -1)
+        close(infile);
       return -1;
     }
 
@@ -1003,7 +1012,8 @@ namespace evf {
       //no header (specific sequence not detected)
       if (requireHeader) {
         edm::LogError("EvFDaqDirector") << "no header or invalid version string found in:" << rawSourcePath;
-        if (infile!=-1) close(infile);
+        if (infile != -1)
+          close(infile);
         return -1;
       } else {
         //no header, but valid file
@@ -1018,7 +1028,8 @@ namespace evf {
       if (headerSizeRaw < buf_sz) {
         edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
                                         << " v:" << frd_version;
-        if (infile!=-1) close(infile);
+        if (infile != -1)
+          close(infile);
         return -1;
       }
       //allow header size to exceed read size. Future header versions will not break this, but the size can change.
@@ -1058,7 +1069,8 @@ namespace evf {
     uint32_t lsFromRaw;
     int32_t nbEventsWrittenRaw;
     int64_t fileSizeFromRaw;
-    auto ret = parseFRDFileHeader(rawSourcePath, rawFd, rawHeaderSize, lsFromRaw, nbEventsWrittenRaw, fileSizeFromRaw, true, true, false);
+    auto ret = parseFRDFileHeader(
+        rawSourcePath, rawFd, rawHeaderSize, lsFromRaw, nbEventsWrittenRaw, fileSizeFromRaw, true, true, false);
     if (ret != 0) {
       if (ret == 1)
         fileFound = false;
@@ -1104,8 +1116,8 @@ namespace evf {
       return -1;
     }
     close(outfile);
-    if (serverLS && serverLS!=lsFromRaw)
-      edm::LogWarning("EvFDaqDirector") << "grabNextJsonFromRaw - mismatch in expected (server) LS " << serverLS 
+    if (serverLS && serverLS != lsFromRaw)
+      edm::LogWarning("EvFDaqDirector") << "grabNextJsonFromRaw - mismatch in expected (server) LS " << serverLS
                                         << " and raw file header LS " << lsFromRaw;
 
     fileSizeFromHeader = fileSizeFromRaw;
@@ -1504,17 +1516,17 @@ namespace evf {
         int version_min = 0;
         int version_rev = 0;
         {
-          auto * s_ptr = server_version->second.c_str();
-          if (server_version->second.size() > 1 && server_version->second[0] == '"') s_ptr++;
-          auto res = sscanf(s_ptr,"%d.%d.%d",&version_maj,&version_min,&version_rev);
+          auto* s_ptr = server_version->second.c_str();
+          if (server_version->second.size() > 1 && server_version->second[0] == '"')
+            s_ptr++;
+          auto res = sscanf(s_ptr, "%d.%d.%d", &version_maj, &version_min, &version_rev);
           if (res < 3) {
-            res = sscanf(s_ptr,"%d.%d",&version_maj,&version_min);
+            res = sscanf(s_ptr, "%d.%d", &version_maj, &version_min);
             if (res < 2) {
-              res = sscanf(s_ptr,"%d",&version_maj);
+              res = sscanf(s_ptr, "%d", &version_maj);
               if (res < 1) {
                 //expecting at least 1 number (major version)
-                edm::LogWarning("EvFDaqDirector")
-                  << "Can not parse server version " << server_version->second;
+                edm::LogWarning("EvFDaqDirector") << "Can not parse server version " << server_version->second;
               }
             }
           }
@@ -1732,12 +1744,13 @@ namespace evf {
 
     if (fileStatus == newFile) {
       if (rawHeader > 0)
-        serverEventsInNewFile = grabNextJsonFromRaw(nextFileRaw, rawFd, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS);
+        serverEventsInNewFile =
+            grabNextJsonFromRaw(nextFileRaw, rawFd, rawHeaderSize, fileSizeFromMetadata, fileFound, serverLS);
       else
         serverEventsInNewFile = grabNextJsonFile(nextFileJson, nextFileRaw, fileSizeFromMetadata, fileFound);
     }
     //closing file in case of any error
-    if (serverEventsInNewFile<0 && rawFd!=-1) {
+    if (serverEventsInNewFile < 0 && rawFd != -1) {
       close(rawFd);
       rawFd = -1;
     }
