@@ -1,6 +1,8 @@
 <use   name="SimTracker/Common"/>
-<use   name="RecoCTPPS/PixelLocal"/>
-<use   name="SimPPS/RPDigiProducer"/>
+<use   name="DataFormats/CTPPSDetId"/>
+<use   name="CondFormats/CTPPSReadoutObjects"/>
+<use   name="Geometry/VeryForwardGeometryBuilder"/>
+<use   name="Geometry/VeryForwardRPTopology"/>
 
 <library name="SimPPSRPDigiProducerPlugins" file="*.cc">
 <flags   EDM_PLUGIN="1"/>
