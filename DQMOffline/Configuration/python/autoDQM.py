@@ -100,9 +100,9 @@ autoDQM = { 'common': ['DQMOfflineCommon+@L1TMon',
                                 'PostDQMOffline',
                                 'DQMHarvestCommonSiStripZeroBias+DQMCertCommon+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
 
-            'rerecoZeroBiasFakeHLT' : ['DQMOfflineCommonSiStripZeroBiasFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma',
+            'rerecoZeroBiasFakeHLT' : ['DQMOfflineCommonSiStripZeroBiasFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps',
                                        'PostDQMOffline',
-                                       'DQMHarvestCommonSiStripZeroBiasFakeHLT+DQMCertCommonFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma'],
+                                       'DQMHarvestCommonSiStripZeroBiasFakeHLT+DQMCertCommonFakeHLT+@muon+@hcal+@hcal2+@jetmet+@ecal+@egamma+@L1TMuon+@L1TEgamma+@ctpps'],
 
             'miniAODDQM': ['DQMOfflineMiniAOD',
                            'PostDQMOfflineMiniAOD',
