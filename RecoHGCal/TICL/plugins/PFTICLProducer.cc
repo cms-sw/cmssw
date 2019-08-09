@@ -31,6 +31,8 @@ public:
   PFTICLProducer(const edm::ParameterSet&);
   ~PFTICLProducer() override {}
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
@@ -43,6 +45,12 @@ DEFINE_FWK_MODULE(PFTICLProducer);
 PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
     : ticl_candidates_(consumes<edm::View<ticl::TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))) {
   produces<reco::PFCandidateCollection>();
+}
+
+void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("ticlCandidateSrc", edm::InputTag("ticlCandidateFromTrackstersProducer"));
+  descriptions.add("pfTICLProducer", desc);
 }
 
 void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const {
@@ -79,9 +87,12 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
     candidates->emplace_back(charge, four_mom, part_type);
 
     auto& candidate = candidates->back();
-    candidate.setTrackRef(ticl_cand.track_ref());
+    if (candidate.charge()) { // otherwise PFCandidate throws
+      candidate.setTrackRef(ticl_cand.track_ref());
+    }
     candidate.setTime(ticl_cand.time(), ticl_cand.time_error());
   }
 
   evt.put(std::move(candidates));
 }
+
