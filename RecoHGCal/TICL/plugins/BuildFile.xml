@@ -5,6 +5,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/CaloRecHit"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/HGCDigi"/>
 <use   name="DataFormats/HGCRecHit"/>
