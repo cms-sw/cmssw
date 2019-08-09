@@ -26,7 +26,7 @@ using namespace jsoncollector;
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
     :  // default to .5ms sleep per event
       microSleep_(ps.getUntrackedParameter<int>("microSleep", 0)),
-      frdFileVersion_(ps.getUntrackedParameter<unsigned int>("frdFileVersion",0))
+      frdFileVersion_(ps.getUntrackedParameter<unsigned int>("frdFileVersion", 0))
 //debug_(ps.getUntrackedParameter<bool>("debug", False))
 {
   //per-file JSD and FastMonitor
@@ -116,7 +116,7 @@ void RawEventFileWriterForBU::doOutputEventFragment(unsigned char* dataPtr, unsi
 void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int ls) {
   destinationDir_ = destinationDir;
 
-  if (outfd_!=-1) {
+  if (outfd_ != -1) {
     finishFileWrite(ls);
     closefd();
   }
@@ -173,12 +173,12 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   adlera_ = 1;
   adlerb_ = 0;
 
-  if (frdFileVersion_>0) {
-    assert(frdFileVersion_==1);
+  if (frdFileVersion_ > 0) {
+    assert(frdFileVersion_ == 1);
     //reserve space for file header
     ftruncate(outfd_, sizeof(FRDFileHeader_v1));
-    lseek(outfd_,sizeof(FRDFileHeader_v1),SEEK_SET);
-    perFileSize_.value()=sizeof(FRDFileHeader_v1);
+    lseek(outfd_, sizeof(FRDFileHeader_v1), SEEK_SET);
+    perFileSize_.value() = sizeof(FRDFileHeader_v1);
   }
 }
 
@@ -216,21 +216,19 @@ void RawEventFileWriterForBU::writeJsds() {
 }
 
 void RawEventFileWriterForBU::finishFileWrite(int ls) {
-
-  if (frdFileVersion_>0) {
+  if (frdFileVersion_ > 0) {
     //rewind
-    lseek(outfd_,0,SEEK_SET);
-    FRDFileHeader_v1 frdFileHeader( perFileEventCount_.value(), (uint32_t)ls, perFileSize_.value());
-    write(outfd_,(char*)&frdFileHeader,sizeof(FRDFileHeader_v1));
+    lseek(outfd_, 0, SEEK_SET);
+    FRDFileHeader_v1 frdFileHeader(perFileEventCount_.value(), (uint32_t)ls, perFileSize_.value());
+    write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v1));
     closefd();
     //move raw file from open to run directory
     rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
 
     edm::LogInfo("RawEventFileWriterForBU")
-          << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value() << " and size "
-          << perFileSize_.value();
-  }
-  else {
+        << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
+  } else {
     closefd();
     //move raw file from open to run directory
     rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
@@ -247,8 +245,8 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
     rename(path.c_str(), (destinationDir_ + path.substr(path.rfind("/"))).c_str());
 
     edm::LogInfo("RawEventFileWriterForBU")
-          << "Wrote JSON input file: " << path << " with perFileEventCount = " << perFileEventCount_.value() << " and size "
-          << perFileSize_.value();
+        << "Wrote JSON input file: " << path << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
   }
   //there is a small chance that script gets interrupted while this isn't consistent (non-atomic)
   perLumiFileCount_.value()++;
@@ -260,7 +258,7 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
 }
 
 void RawEventFileWriterForBU::endOfLS(int ls) {
-  if (outfd_!=-1) {
+  if (outfd_ != -1) {
     finishFileWrite(ls);
     closefd();
   }
