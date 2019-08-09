@@ -1517,7 +1517,7 @@ namespace evf {
         int version_rev = 0;
         {
           auto* s_ptr = server_version->second.c_str();
-          if (server_version->second.size() > 1 && server_version->second[0] == '"')
+          if (server_version->second.size() > 0 && server_version->second[0] == '"')
             s_ptr++;
           auto res = sscanf(s_ptr, "%d.%d.%d", &version_maj, &version_min, &version_rev);
           if (res < 3) {
