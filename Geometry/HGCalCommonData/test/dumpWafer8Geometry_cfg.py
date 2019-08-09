@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("DUMP")
-process.load("Geometry.HGCalCommonData.testHGCalWaferXML_cfi")
+process.load("Geometry.HGCalCommonData.testHGCalWafer8XML_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -21,6 +21,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
 ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('waferDDD.root'))
+                              outputFileName = cms.untracked.string('wafer8DDD.root'))
 
 process.p = cms.Path(process.dump)
