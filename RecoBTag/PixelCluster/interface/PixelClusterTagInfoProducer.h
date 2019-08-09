@@ -2,7 +2,7 @@
 //
 // Package:    RecoBTag/PixelCluster
 // Class:      PixelClusterTagInfoProducer
-// 
+//
 /**\class PixelClusterTagInfoProducer PixelCluster RecoBTag/PixelCluster/plugins/PixelClusterTagInfoProducer.cc
 
  Description: Produces a collection of PixelClusterTagInfo objects,
@@ -49,7 +49,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 // For jet
-#include "DataFormats/JetReco/interface/PFJet.h" 
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 // For pixel clusters
@@ -79,30 +79,27 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
-
-
 class PixelClusterTagInfoProducer : public edm::stream::EDProducer<> {
-   public:
-      explicit PixelClusterTagInfoProducer(const edm::ParameterSet&);
-      ~PixelClusterTagInfoProducer() override;
+public:
+  explicit PixelClusterTagInfoProducer(const edm::ParameterSet&);
+  ~PixelClusterTagInfoProducer() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  edm::ParameterSet iConfig;
 
-      edm::ParameterSet iConfig;
-      
-      edm::EDGetTokenT<edm::View<reco::Jet> >                 m_jets;
-      edm::EDGetTokenT<reco::VertexCollection >               m_vertices;
-      edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
-      bool m_isPhase1;
-      bool m_addFPIX;
-      int m_minADC;
-      double m_minJetPt;
-      double m_maxJetEta;
-      int m_nLayers;
+  edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
+  edm::EDGetTokenT<reco::VertexCollection> m_vertices;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
+  bool m_isPhase1;
+  bool m_addFPIX;
+  int m_minADC;
+  double m_minJetPt;
+  double m_maxJetEta;
+  int m_nLayers;
 };
 
 #endif
