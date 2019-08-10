@@ -18,8 +18,8 @@
 
 #include <iostream>
 
-HFShower::HFShower(const std::string &name, const HcalDDDSimConstants* hcons, edm::ParameterSet const &p, int chk)
-  : hcalConstant_(hcons), chkFibre_(chk) {
+HFShower::HFShower(const std::string &name, const HcalDDDSimConstants *hcons, edm::ParameterSet const &p, int chk)
+    : hcalConstant_(hcons), chkFibre_(chk) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");
   probMax_ = m_HF.getParameter<double>("ProbMax");
@@ -33,7 +33,7 @@ HFShower::HFShower(const std::string &name, const HcalDDDSimConstants* hcons, ed
   gpar_ = hcalConstant_->getGparHF();
 }
 
-HFShower::~HFShower() { }
+HFShower::~HFShower() {}
 
 std::vector<HFShower::Hit> HFShower::getHits(const G4Step *aStep, double weight) {
   std::vector<HFShower::Hit> hits;

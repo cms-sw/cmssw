@@ -20,7 +20,8 @@
 
 #define EDM_ML_DEBUG
 
-HFShowerPMT::HFShowerPMT(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p) : hcalConstant_(hcons) {
+HFShowerPMT::HFShowerPMT(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
+    : hcalConstant_(hcons) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV = m_HF.getParameter<double>("PEPerGeVPMT");
 
@@ -33,8 +34,8 @@ HFShowerPMT::HFShowerPMT(const std::string& name, const HcalDDDSimConstants* hco
   edm::LogVerbatim("HFShower") << "HFShowerPMT: gets the Index matches for " << pmtR1.size() << " PMTs";
   for (unsigned int ii = 0; ii < pmtR1.size(); ii++) {
     edm::LogVerbatim("HFShower") << "HFShowerPMT: rIndexR[" << ii << "] = " << pmtR1[ii] << " fibreR[" << ii
-				 << "] = " << pmtFib1[ii] << " rIndexL[" << ii << "] = " << pmtR2[ii] << " fibreL["
-				 << ii << "] = " << pmtFib2[ii];
+                                 << "] = " << pmtFib1[ii] << " rIndexL[" << ii << "] = " << pmtR2[ii] << " fibreL["
+                                 << ii << "] = " << pmtFib2[ii];
   }
 #endif
   cherenkov_.reset(new HFCherenkov(m_HF));
@@ -53,7 +54,7 @@ HFShowerPMT::HFShowerPMT(const std::string& name, const HcalDDDSimConstants* hco
 #endif
 }
 
-HFShowerPMT::~HFShowerPMT() { }
+HFShowerPMT::~HFShowerPMT() {}
 
 double HFShowerPMT::getHits(const G4Step* aStep) {
   indexR = indexF = -1;

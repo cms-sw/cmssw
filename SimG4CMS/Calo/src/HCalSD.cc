@@ -590,8 +590,7 @@ void HCalSD::update(const BeginOfJob* job) {
   }
 }
 
-void HCalSD::initRun() {
-}
+void HCalSD::initRun() {}
 
 bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {
   double threshold = 0;

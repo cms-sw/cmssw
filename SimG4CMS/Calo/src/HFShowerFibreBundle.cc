@@ -20,8 +20,10 @@
 
 //#define EDM_ML_DEBUG
 
-HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p) 
-  : hcalConstant_(hcons) {
+HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name,
+                                         const HcalDDDSimConstants* hcons,
+                                         edm::ParameterSet const& p)
+    : hcalConstant_(hcons) {
   edm::ParameterSet m_HF1 = p.getParameter<edm::ParameterSet>("HFShowerStraightBundle");
   facTube = m_HF1.getParameter<double>("FactorBundle");
   cherenkov1_.reset(new HFCherenkov(m_HF1));
@@ -40,8 +42,8 @@ HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name, const HcalDDDS
   edm::LogVerbatim("HFShower") << "HFShowerPMT: gets the Index matches for " << pmtR1.size() << " PMTs";
   for (unsigned int ii = 0; ii < pmtR1.size(); ii++) {
     edm::LogVerbatim("HFShower") << "HFShowerPMT: rIndexR[" << ii << "] = " << pmtR1[ii] << " fibreR[" << ii
-				 << "] = " << pmtFib1[ii] << " rIndexL[" << ii << "] = " << pmtR2[ii] << " fibreL["
-				 << ii << "] = " << pmtFib2[ii];
+                                 << "] = " << pmtFib1[ii] << " rIndexL[" << ii << "] = " << pmtR2[ii] << " fibreL["
+                                 << ii << "] = " << pmtFib2[ii];
   }
 #endif
 
@@ -59,7 +61,7 @@ HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name, const HcalDDDS
 #endif
 }
 
-HFShowerFibreBundle::~HFShowerFibreBundle() { }
+HFShowerFibreBundle::~HFShowerFibreBundle() {}
 
 double HFShowerFibreBundle::getHits(const G4Step* aStep, bool type) {
   indexR = indexF = -1;
@@ -91,11 +93,11 @@ double HFShowerFibreBundle::getHits(const G4Step* aStep, bool type) {
     G4ThreeVector pDir = aTrack->GetDynamicParticle()->GetMomentumDirection();
     G4ThreeVector localMom = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform().TransformAxis(pDir);
     if (type) {
-      photons =
-	facCone * cherenkov2_.get()->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
+      photons = facCone *
+                cherenkov2_.get()->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
     } else {
-      photons =
-	facTube * cherenkov1_.get()->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
+      photons = facTube *
+                cherenkov1_.get()->computeNPEinPMT(particleDef, beta, localMom.x(), localMom.y(), localMom.z(), stepl);
     }
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HFShower") << "HFShowerFibreBundle::getHits: for particle " << particleDef->GetParticleName()

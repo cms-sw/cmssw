@@ -17,12 +17,12 @@
 
 #define EDM_ML_DEBUG
 
-HFFibre::HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p) : hcalConstant_(hcons) {
+HFFibre::HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
+    : hcalConstant_(hcons) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   cFibre = c_light * (m_HF.getParameter<double>("CFibre"));
 
   edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre << " m/ns";
-
 
   // Attenuation length
   attL = hcalConstant_->hcalsimpar()->attenuationLength_;
@@ -106,7 +106,8 @@ double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
   double time = zFibre / cFibre;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFFibre::tShift for point " << point << " ( depth = " << depth
-                               << ", traversed length = " << zFibre / CLHEP::cm << " cm) = " << time / CLHEP::ns << " ns";
+                               << ", traversed length = " << zFibre / CLHEP::cm << " cm) = " << time / CLHEP::ns
+                               << " ns";
 #endif
   return time;
 }
@@ -145,8 +146,8 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFFibre::zShift for point " << point << " (R = " << hR / CLHEP::cm
-                               << " cm, Index = " << ieta << ", depth = " << depth << ", Fibre Length = " << length / CLHEP::cm
-                               << " cm = " << zFibre / CLHEP::cm << " cm)";
+                               << " cm, Index = " << ieta << ", depth = " << depth
+                               << ", Fibre Length = " << length / CLHEP::cm << " cm = " << zFibre / CLHEP::cm << " cm)";
 #endif
   return zFibre;
 }

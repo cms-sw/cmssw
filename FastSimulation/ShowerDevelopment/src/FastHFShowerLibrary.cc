@@ -67,8 +67,8 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
     G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
     partTable->SetReadiness();
   });
-//G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-//hfshower->initRun(partTable, hcalConstants);  // init particle code
+  //G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+  //hfshower->initRun(partTable, hcalConstants);  // init particle code
 }
 
 void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution* rnd) {
