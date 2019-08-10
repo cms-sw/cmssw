@@ -138,7 +138,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //} else {
   //  iSetup.get<PGeometricDetRcd>().get( rDD );
   //}
-  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD.product() << " " << rDD.product()->name().name()
+  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD.product() << " " << rDD.product()->name()
                                     << std::endl;
   edm::LogInfo("ModuleInfo_Phase2") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                     << std::endl;
@@ -345,7 +345,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_pxb += volume;
         weight_pxb += weight;
         activeSurface_pxb += activeSurface;
-        std::string name = modules[i]->name().name();
+        std::string name = modules[i]->name();
         if (name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull0" || name == "PixelBarrelActiveFull1" ||
             name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveFull3")
           pxb_fullN++;
@@ -444,7 +444,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_pxf += volume;
         weight_pxf += weight;
         activeSurface_pxf += activeSurface;
-        std::string name = modules[i]->name().name();
+        std::string name = modules[i]->name();
         if (name == "PixelForwardSensor" || name == "PixelForwardSensor1" || name == "PixelForwardSensor2" ||
             name == "PixelForwardSensor3")
           pxf_D_N++;
@@ -525,7 +525,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tib += volume;
         weight_tib += weight;
         activeSurface_tib += activeSurface;
-        std::string name = modules[i]->name().name();
+        std::string name = modules[i]->name();
         if (name == "TIBActiveRphi0")
           tib_L12_rphiN++;
         if (name == "TIBActiveSter0")
@@ -579,7 +579,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tid += volume;
         weight_tid += weight;
         activeSurface_tid += activeSurface;
-        std::string name = modules[i]->name().name();
+        std::string name = modules[i]->name();
         if (name == "TIDModule0RphiActive")
           tid_r1_rphiN++;
         if (name == "TIDModule0StereoActive")
@@ -643,7 +643,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tob += volume;
         weight_tob += weight;
         activeSurface_tob += activeSurface;
-        std::string name = modules[i]->name().name();
+        std::string name = modules[i]->name();
         if (name == "TOBActiveRphi0")
           tob_L12_rphiN++;
         if (name == "TOBActiveSter0")
@@ -699,7 +699,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
         volume_tec += volume;
         weight_tec += weight;
         activeSurface_tec += activeSurface;
-        std::string name = modules[i]->name().name();
+        std::string name = modules[i]->name();
         if (name == "TECModule0RphiActive")
           tec_r1_rphiN++;
         if (name == "TECModule0StereoActive")
