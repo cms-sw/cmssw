@@ -21,7 +21,7 @@
 #define EDM_ML_DEBUG
 
 HFShowerLibrary::HFShowerLibrary(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
-  : hcalConstant_(hcons), hf(nullptr), emBranch(nullptr), hadBranch(nullptr), npe(0) {
+    : hcalConstant_(hcons), hf(nullptr), emBranch(nullptr), hadBranch(nullptr), npe(0) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   probMax = m_HF.getParameter<double>("ProbMax");
 
@@ -110,7 +110,6 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name, const HcalDDDSimConsta
 
   fibre_.reset(new HFFibre(name, hcalConstant_, p));
   photo = new HFShowerPhotonCollection;
-
 
   //Radius (minimum and maximum)
   std::vector<double> rTable = hcalConstant_->getRTableHF();

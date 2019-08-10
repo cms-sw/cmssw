@@ -18,13 +18,13 @@ class G4Step;
 
 class HFShowerFibreBundle {
 public:
-  HFShowerFibreBundle(const std::string &name, const HcalDDDSimConstants* hcons, edm::ParameterSet const &p);
+  HFShowerFibreBundle(const std::string &name, const HcalDDDSimConstants *hcons, edm::ParameterSet const &p);
   virtual ~HFShowerFibreBundle();
   double getHits(const G4Step *aStep, bool type);
   double getRadius();
 
 private:
-  const HcalDDDSimConstants* hcalConstant_;
+  const HcalDDDSimConstants *hcalConstant_;
   std::unique_ptr<HFCherenkov> cherenkov1_, cherenkov2_;
   double facTube, facCone;  //Packing factors
   int indexR, indexF;

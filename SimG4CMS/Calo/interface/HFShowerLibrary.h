@@ -28,7 +28,7 @@ class G4ParticleTable;
 class HFShowerLibrary {
 public:
   //Constructor and Destructor
-  HFShowerLibrary(const std::string &name, const HcalDDDSimConstants* hcons, edm::ParameterSet const &p);
+  HFShowerLibrary(const std::string &name, const HcalDDDSimConstants *hcons, edm::ParameterSet const &p);
   ~HFShowerLibrary();
 
 public:
@@ -58,7 +58,7 @@ protected:
   void storePhoton(int j);
 
 private:
-  const HcalDDDSimConstants* hcalConstant_;
+  const HcalDDDSimConstants *hcalConstant_;
   std::unique_ptr<HFFibre> fibre_;
   TFile *hf;
   TBranch *emBranch, *hadBranch;

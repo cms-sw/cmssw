@@ -27,7 +27,7 @@
 #define mkdebug
 
 HFShowerParam::HFShowerParam(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
-  : hcalConstants_(hcons), fillHisto_(false) {
+    : hcalConstants_(hcons), fillHisto_(false) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV_ = m_HF.getParameter<double>("PEPerGeV");
   trackEM_ = m_HF.getParameter<bool>("TrackEM");
@@ -93,11 +93,11 @@ HFShowerParam::HFShowerParam(const std::string& name, const HcalDDDSimConstants*
     gflash_.reset(nullptr);
   fibre_.reset(new HFFibre(name, hcalConstants_, p));
   attLMeanInv_ = fibre_.get()->attLength(lambdaMean);
-  edm::LogVerbatim("HFShower") << "att. length used for (lambda=" << lambdaMean << ") = " << 1 / (attLMeanInv_ * CLHEP::cm)
-                               << " cm";
+  edm::LogVerbatim("HFShower") << "att. length used for (lambda=" << lambdaMean
+                               << ") = " << 1 / (attLMeanInv_ * CLHEP::cm) << " cm";
 }
 
-HFShowerParam::~HFShowerParam() { }
+HFShowerParam::~HFShowerParam() {}
 
 std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, double weight, bool& isKilled) {
   auto const preStepPoint = aStep->GetPreStepPoint();
