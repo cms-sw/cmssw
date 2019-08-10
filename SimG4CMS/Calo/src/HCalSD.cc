@@ -130,6 +130,16 @@ HCalSD::HCalSD(const std::string& name,
                               << "Application of Fiducial Cut " << applyFidCut
                               << "Flag for test number|neutral density filter " << testNumber << " " << neutralDensity;
 
+  // Get pointer to HcalDDDConstant
+  edm::ESHandle<HcalDDDSimConstants> hdc;
+  es.get<HcalSimNumberingRecord>().get(hdc);
+  if (hdc.isValid()) {
+    hcalConstants = hdc.product();
+  } else {
+    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant\n";
+  }
+
   HcalNumberingScheme* scheme;
   if (testNumber || forTBH2) {
     scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(forTBH2));
@@ -151,12 +161,12 @@ HCalSD::HCalSD(const std::string& name,
 
   if (useHF) {
     if (useParam) {
-      showerParam.reset(new HFShowerParam(name, *cpv, p));
+      showerParam.reset(new HFShowerParam(name, hcalConstants, p));
     } else {
       if (useShowerLibrary) {
-        showerLibrary.reset(new HFShowerLibrary(name, *cpv, p));
+        showerLibrary.reset(new HFShowerLibrary(name, hcalConstants, p));
       }
-      hfshower.reset(new HFShower(name, *cpv, p, 0));
+      hfshower.reset(new HFShower(name, hcalConstants, p, 0));
     }
 
     // HF volume names
@@ -581,16 +591,6 @@ void HCalSD::update(const BeginOfJob* job) {
 }
 
 void HCalSD::initRun() {
-  if (showerLibrary.get())
-    showerLibrary.get()->initRun(nullptr, hcalConstants);
-  if (showerParam.get())
-    showerParam.get()->initRun(hcalConstants);
-  if (hfshower.get())
-    hfshower.get()->initRun(hcalConstants);
-  if (showerPMT.get())
-    showerPMT.get()->initRun(hcalConstants);
-  if (showerBundle.get())
-    showerBundle.get()->initRun(hcalConstants);
 }
 
 bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {

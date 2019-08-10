@@ -11,11 +11,13 @@ from Geometry.TrackerNumberingBuilder.trackerTopology_cfi import *
 from RecoMuon.DetLayers.muonDetLayerGeometry_cfi import *
 
 #  Calorimeters
+from GeometryReaders.XMLIdealGeometryESSource.cmsGeometryDB_cff import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.AlignedCaloGeometryDBReader_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
+from Geometry.HcalCommonData.hcalSimulationParameters_cfi import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
 from Geometry.HcalEventSetup.hcalTopologyIdeal_cfi import *

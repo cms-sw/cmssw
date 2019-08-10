@@ -15,23 +15,18 @@
 #include <vector>
 #include <string>
 
-class DDCompactView;
-
 class HFFibre {
 public:
   //Constructor and Destructor
-  HFFibre(const std::string& name, const DDCompactView& cpv, edm::ParameterSet const& p);
+  HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p);
   ~HFFibre() = default;
 
-  void initRun(const HcalDDDSimConstants*);
   double attLength(double lambda);
   double tShift(const G4ThreeVector& point, int depth, int fromEndAbs = 0);
   double zShift(const G4ThreeVector& point, int depth, int fromEndAbs = 0);
 
-protected:
-  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&, int&);
-
 private:
+  const HcalDDDSimConstants* hcalConstant_;
   double cFibre;
   std::vector<double> gpar, radius;
   std::vector<double> shortFL, longFL;

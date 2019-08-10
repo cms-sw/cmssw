@@ -15,83 +15,74 @@
 #include <iostream>
 #include <sstream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
-HFFibre::HFFibre(const std::string& name, const DDCompactView& cpv, edm::ParameterSet const& p) {
+HFFibre::HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p) : hcalConstant_(hcons) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   cFibre = c_light * (m_HF.getParameter<double>("CFibre"));
 
   edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre << " m/ns";
 
-  std::string attribute = "Volume";
-  std::string value = "HF";
-  DDSpecificsMatchesValueFilter filter1{DDValue(attribute, value, 0)};
-  DDFilteredView fv1(cpv, filter1);
-  bool dodet = fv1.firstChild();
 
-  if (dodet) {
-    DDsvalues_type sv(fv1.mergedSpecifics());
-
-    // Attenuation length
-    nBinAtt = -1;
-    attL = getDDDArray("attl", sv, nBinAtt);
-    std::stringstream ss1;
-    for (int it = 0; it < nBinAtt; it++) {
-      if (it / 10 * 10 == it) {
-        ss1 << "\n";
-      }
-      ss1 << "  " << attL[it] * cm;
+  // Attenuation length
+  attL = hcalConstant_->hcalsimpar()->attenuationLength_;
+  nBinAtt = static_cast<int>(attL.size());
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss1;
+  for (int it = 0; it < nBinAtt; it++) {
+    if (it / 10 * 10 == it) {
+      ss1 << "\n";
     }
-    edm::LogVerbatim("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
-
-    // Limits on Lambda
-    int nb = 2;
-    std::vector<double> nvec = getDDDArray("lambLim", sv, nb);
-    lambLim[0] = static_cast<int>(nvec[0]);
-    lambLim[1] = static_cast<int>(nvec[1]);
-    edm::LogVerbatim("HFShower") << "HFFibre: Limits on lambda " << lambLim[0] << " and " << lambLim[1];
-
-    // Fibre Lengths
-    nb = 0;
-    longFL = getDDDArray("LongFL", sv, nb);
-    std::stringstream ss2;
-    for (int it = 0; it < nb; it++) {
-      if (it / 10 * 10 == it) {
-        ss2 << "\n";
-      }
-      ss2 << "  " << longFL[it] / cm;
-    }
-    edm::LogVerbatim("HFShower") << "HFFibre: " << nb << " Long Fibre Length(cm):" << ss2.str();
-    nb = 0;
-    shortFL = getDDDArray("ShortFL", sv, nb);
-    std::stringstream ss3;
-    for (int it = 0; it < nb; it++) {
-      if (it / 10 * 10 == it) {
-        ss3 << "\n";
-      }
-      ss3 << "  " << shortFL[it] / cm;
-    }
-    edm::LogVerbatim("HFShower") << "HFFibre: " << nb << " Short Fibre Length(cm):" << ss3.str();
-  } else {
-    edm::LogError("HFShower") << "HFFibre: cannot get filtered view for " << attribute << " matching " << name;
-    throw cms::Exception("Unknown", "HFFibre") << "cannot match " << attribute << " to " << name << "\n";
+    ss1 << "  " << attL[it] * CLHEP::cm;
   }
-}
+  edm::LogVerbatim("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
+#endif
+  // Limits on Lambda
+  std::vector<int> nvec = hcalConstant_->hcalsimpar()->lambdaLimits_;
+  lambLim[0] = nvec[0];
+  lambLim[1] = nvec[1];
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HFShower") << "HFFibre: Limits on lambda " << lambLim[0] << " and " << lambLim[1];
+#endif
+  // Fibre Lengths
+  longFL = hcalConstant_->hcalsimpar()->longFiberLength_;
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss2;
+  for (unsigned int it = 0; it < longFL.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss2 << "\n";
+    }
+    ss2 << "  " << longFL[it] / CLHEP::cm;
+  }
+  edm::LogVerbatim("HFShower") << "HFFibre: " << longFL.size() << " Long Fibre Length(cm):" << ss2.str();
+#endif
+  shortFL = hcalConstant_->hcalsimpar()->longFiberLength_;
+#ifdef EDM_ML_DEBUG
+  std::stringstream ss3;
+  for (unsigned int it = 0; it < shortFL.size(); it++) {
+    if (it / 10 * 10 == it) {
+      ss3 << "\n";
+    }
+    ss3 << "  " << shortFL[it] / CLHEP::cm;
+  }
+  edm::LogVerbatim("HFShower") << "HFFibre: " << shortFL.size() << " Short Fibre Length(cm):" << ss3.str();
+#endif
 
-void HFFibre::initRun(const HcalDDDSimConstants* hcons) {
   // Now geometry parameters
-  gpar = hcons->getGparHF();
-  radius = hcons->getRTableHF();
+  gpar = hcalConstant_->getGparHF();
+  radius = hcalConstant_->getRTableHF();
 
-  nBinR = (int)(radius.size());
+  nBinR = static_cast<int>(radius.size());
+#ifdef EDM_ML_DEBUG
   std::stringstream sss;
   for (int i = 0; i < nBinR; ++i) {
     if (i / 10 * 10 == i) {
       sss << "\n";
     }
-    sss << "  " << radius[i] / cm;
+    sss << "  " << radius[i] / CLHEP::cm;
   }
   edm::LogVerbatim("HFShower") << "HFFibre: " << radius.size() << " rTable(cm):" << sss.str();
+#endif
 }
 
 double HFFibre::attLength(double lambda) {
@@ -115,7 +106,7 @@ double HFFibre::tShift(const G4ThreeVector& point, int depth, int fromEndAbs) {
   double time = zFibre / cFibre;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFFibre::tShift for point " << point << " ( depth = " << depth
-                               << ", traversed length = " << zFibre / cm << " cm) = " << time / ns << " ns";
+                               << ", traversed length = " << zFibre / CLHEP::cm << " cm) = " << time / CLHEP::ns << " ns";
 #endif
   return time;
 }
@@ -125,7 +116,7 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
   double zFibre = 0;
   double hR = sqrt((point.x()) * (point.x()) + (point.y()) * (point.y()));
   int ieta = 0;
-  double length = 250 * cm;
+  double length = 250 * CLHEP::cm;
   if (fromEndAbs < 0) {
     zFibre = 0.5 * gpar[1] - point.z();  // Never, as fromEndAbs=0 (?)
   } else {
@@ -153,45 +144,9 @@ double HFFibre::zShift(const G4ThreeVector& point, int depth, int fromEndAbs) { 
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFFibre::zShift for point " << point << " (R = " << hR / cm
-                               << " cm, Index = " << ieta << ", depth = " << depth << ", Fibre Length = " << length / cm
-                               << " cm = " << zFibre / cm << " cm)";
+  edm::LogVerbatim("HFShower") << "HFFibre::zShift for point " << point << " (R = " << hR / CLHEP::cm
+                               << " cm, Index = " << ieta << ", depth = " << depth << ", Fibre Length = " << length / CLHEP::cm
+                               << " cm = " << zFibre / CLHEP::cm << " cm)";
 #endif
   return zFibre;
-}
-
-std::vector<double> HFFibre::getDDDArray(const std::string& str, const DDsvalues_type& sv, int& nmin) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFFibre:getDDDArray called for " << str << " with nMin " << nmin;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << value;
-#endif
-    const std::vector<double>& fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-        edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " << nval << " < " << nmin << " ==> illegal";
-        throw cms::Exception("Unknown", "HFFibre") << "nval < nmin for array " << str << "\n";
-      }
-    } else {
-      if (nval < 1 && nmin != 0) {
-        edm::LogError("HFShower") << "HFFibre : # of " << str << " bins " << nval << " < 1 ==> illegal (nmin=" << nmin
-                                  << ")";
-        throw cms::Exception("Unknown", "HFFibre") << "nval < 1 for array " << str << "\n";
-      }
-    }
-    nmin = nval;
-    return fvec;
-  } else {
-    if (nmin != 0) {
-      edm::LogError("HFShower") << "HFFibre : cannot get array " << str;
-      throw cms::Exception("Unknown", "HFFibre") << "cannot get array " << str << "\n";
-    } else {
-      std::vector<double> fvec;
-      return fvec;
-    }
-  }
 }

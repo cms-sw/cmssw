@@ -11,7 +11,6 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
-class DDCompactView;
 class G4Step;
 
 #include <string>
@@ -19,17 +18,14 @@ class G4Step;
 
 class HFShowerFibreBundle {
 public:
-  HFShowerFibreBundle(const std::string &name, const DDCompactView &cpv, edm::ParameterSet const &p);
+  HFShowerFibreBundle(const std::string &name, const HcalDDDSimConstants* hcons, edm::ParameterSet const &p);
   virtual ~HFShowerFibreBundle();
   double getHits(const G4Step *aStep, bool type);
   double getRadius();
-  void initRun(const HcalDDDSimConstants *);
 
 private:
-  std::vector<double> getDDDArray(const std::string &, const DDsvalues_type &);
-
-private:
-  HFCherenkov *cherenkov1, *cherenkov2;
+  const HcalDDDSimConstants* hcalConstant_;
+  std::unique_ptr<HFCherenkov> cherenkov1_, cherenkov2_;
   double facTube, facCone;  //Packing factors
   int indexR, indexF;
   std::vector<double> rTable;       // R-table

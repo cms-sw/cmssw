@@ -18,10 +18,10 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
-HFShowerLibrary::HFShowerLibrary(const std::string& name, const DDCompactView& cpv, edm::ParameterSet const& p)
-    : fibre(nullptr), hf(nullptr), emBranch(nullptr), hadBranch(nullptr), npe(0) {
+HFShowerLibrary::HFShowerLibrary(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
+  : hcalConstant_(hcons), hf(nullptr), emBranch(nullptr), hadBranch(nullptr), npe(0) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   probMax = m_HF.getParameter<double>("ProbMax");
 
@@ -108,34 +108,29 @@ HFShowerLibrary::HFShowerLibrary(const std::string& name, const DDCompactView& c
                                << "\n Maximum probability cut off " << probMax << "  Back propagation of light prob. "
                                << backProb;
 
-  fibre = new HFFibre(name, cpv, p);
+  fibre_.reset(new HFFibre(name, hcalConstant_, p));
   photo = new HFShowerPhotonCollection;
+
+
+  //Radius (minimum and maximum)
+  std::vector<double> rTable = hcalConstant_->getRTableHF();
+  rMin = rTable[0];
+  rMax = rTable[rTable.size() - 1];
+
+  //Delta phi
+  std::vector<double> phibin = hcalConstant_->getPhiTableHF();
+  dphi = phibin[0];
+  edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin / CLHEP::cm << " cm and rMax " << rMax / CLHEP::cm
+                               << " (Half) Phi Width of wedge " << dphi / CLHEP::deg;
+
+  //Special Geometry parameters
+  gpar = hcalConstant_->getGparHF();
 }
 
 HFShowerLibrary::~HFShowerLibrary() {
   if (hf)
     hf->Close();
-  delete fibre;
   delete photo;
-}
-
-void HFShowerLibrary::initRun(G4ParticleTable*, const HcalDDDSimConstants* hcons) {
-  if (fibre)
-    fibre->initRun(hcons);
-
-  //Radius (minimum and maximum)
-  std::vector<double> rTable = hcons->getRTableHF();
-  rMin = rTable[0];
-  rMax = rTable[rTable.size() - 1];
-
-  //Delta phi
-  std::vector<double> phibin = hcons->getPhiTableHF();
-  dphi = phibin[0];
-  edm::LogVerbatim("HFShower") << "HFShowerLibrary: rMIN " << rMin / cm << " cm and rMax " << rMax / cm
-                               << " (Half) Phi Width of wedge " << dphi / deg;
-
-  //Special Geometry parameters
-  gpar = hcons->getGparHF();
 }
 
 std::vector<HFShowerLibrary::Hit> HFShowerLibrary::getHits(const G4Step* aStep,
@@ -259,10 +254,10 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
       zv = std::abs(pos.z()) - gpar[4] - 0.5 * gpar[1];
       G4ThreeVector lpos = G4ThreeVector(pos.x(), pos.y(), zv);
 
-      zv = fibre->zShift(lpos, depth, 0);  // distance to PMT !
+      zv = fibre_.get()->zShift(lpos, depth, 0);  // distance to PMT !
 
       double r = pos.perp();
-      double p = fibre->attLength(pe[i].lambda());
+      double p = fibre_.get()->attLength(pe[i].lambda());
       double fi = pos.phi();
       if (fi < 0)
         fi += CLHEP::twopi;
@@ -298,12 +293,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
           zz <= gpar[4] + gpar[1] && r3 <= backProb && (depth != 2 || zz >= gpar[4] + gpar[0])) {
         oneHit.position = pos;
         oneHit.depth = depth;
-        oneHit.time = (tSlice + (pe[i].t()) + (fibre->tShift(lpos, depth, 1)));
+        oneHit.time = (tSlice + (pe[i].t()) + (fibre_.get()->tShift(lpos, depth, 1)));
         hit.push_back(oneHit);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
                                      << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t() << ":"
-                                     << fibre->tShift(lpos, depth, 1) << ":" << (hit[nHit].time);
+                                     << fibre_.get()->tShift(lpos, depth, 1) << ":" << (hit[nHit].time);
 #endif
         ++nHit;
       }
@@ -317,12 +312,12 @@ std::vector<HFShowerLibrary::Hit> HFShowerLibrary::fillHits(const G4ThreeVector&
         if (rInside(r) && r1 <= exp(-p * zv) && r2 <= probMax && dfir > gpar[5]) {
           oneHit.position = pos;
           oneHit.depth = 2;
-          oneHit.time = (tSlice + (pe[i].t()) + (fibre->tShift(lpos, 2, 1)));
+          oneHit.time = (tSlice + (pe[i].t()) + (fibre_.get()->tShift(lpos, 2, 1)));
           hit.push_back(oneHit);
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HFShower") << "HFShowerLibrary: Final Hit " << nHit << " position " << (hit[nHit].position)
                                        << " Depth " << (hit[nHit].depth) << " Time " << tSlice << ":" << pe[i].t()
-                                       << ":" << fibre->tShift(lpos, 2, 1) << ":" << (hit[nHit].time);
+                                       << ":" << fibre_.get()->tShift(lpos, 2, 1) << ":" << (hit[nHit].time);
 #endif
           ++nHit;
         }
