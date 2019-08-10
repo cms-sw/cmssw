@@ -138,8 +138,7 @@ void ModuleInfo_Phase2::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //} else {
   //  iSetup.get<PGeometricDetRcd>().get( rDD );
   //}
-  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD.product() << " " << rDD.product()->name()
-                                    << std::endl;
+  edm::LogInfo("ModuleInfo_Phase2") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
   edm::LogInfo("ModuleInfo_Phase2") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                     << std::endl;
   CmsTrackerDebugNavigator nav(*rDDE.product());
