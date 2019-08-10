@@ -19,15 +19,15 @@ public:
 #endif
 
   explicit GeometricTimingDetExtra(GeometricTimingDet const* gd,
-                          DetId id,
-                          GeoHistory& gh,
-                          double vol,
-                          double dens,
-                          double wgt,
-                          double cpy,
-                          const std::string& mat,
-                          const std::string& name,
-                          bool dd = false);
+                                   DetId id,
+                                   GeoHistory& gh,
+                                   double vol,
+                                   double dens,
+                                   double wgt,
+                                   double cpy,
+                                   const std::string& mat,
+                                   const std::string& name,
+                                   bool dd = false);
 
   /**
    *

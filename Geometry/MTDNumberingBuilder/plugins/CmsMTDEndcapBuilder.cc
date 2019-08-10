@@ -14,8 +14,7 @@ CmsMTDEndcapBuilder::CmsMTDEndcapBuilder() {}
 void CmsMTDEndcapBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string s) {
   CmsMTDDiscBuilder theCmsMTDDiscBuilder;
 
-  GeometricTimingDet* subdet =
-    new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
   std::string subdet_name = subdet->name();
   switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::ETLDisc:

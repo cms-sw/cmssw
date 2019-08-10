@@ -62,9 +62,7 @@ namespace {
  * What to do in the destructor?
  * destroy all the daughters!
  */
-GeometricDet::~GeometricDet() {
-  deleteComponents();
-}
+GeometricDet::~GeometricDet() { deleteComponents(); }
 
 GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
     :  //
@@ -85,8 +83,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
       _pixROCx(getDouble("PixelROC_X", *fv)),
       _pixROCy(getDouble("PixelROC_Y", *fv)),
       _stereo(getString("TrackerStereoDetectors", *fv) == strue),
-      _siliconAPVNum(getDouble("SiliconAPVNumber", *fv))
-{
+      _siliconAPVNum(getDouble("SiliconAPVNumber", *fv)) {
   //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
   const DDFilteredView::nav_type& nt = fv->navPos();
   _ddd = nav_type(nt.begin(), nt.end());
@@ -120,8 +117,7 @@ GeometricDet::GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType 
       _pixROCx(onePGD._pixROCx),
       _pixROCy(onePGD._pixROCy),
       _stereo(onePGD._stereo),
-      _siliconAPVNum(onePGD._siliconAPVNum)
-{
+      _siliconAPVNum(onePGD._siliconAPVNum) {
   if (onePGD._shape == 1 || onePGD._shape == 3) {  //The parms vector is neede only in the case of box or trap shape
     _params.reserve(11);
     _params.emplace_back(onePGD._params0);
@@ -191,9 +187,7 @@ void GeometricDet::addComponents(ConstGeometricDetContainer const& cont) {
   std::copy(cont.begin(), cont.end(), back_inserter(_container));
 }
 
-void GeometricDet::addComponent(GeometricDet* det) {
-  _container.emplace_back(det);
-}
+void GeometricDet::addComponent(GeometricDet* det) { _container.emplace_back(det); }
 
 namespace {
   struct Deleter {

@@ -91,8 +91,7 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd) : theTrackerDet(gd) {
   LogDebug("ThicknessAndType") << "Dump of sensors names and bounds";
   for (auto det : deepcomp) {
     fillTestMap(det);
-    LogDebug("ThicknessAndType") << det->geographicalId() << " " << det->name() << " "
-                                 << det->bounds()->thickness();
+    LogDebug("ThicknessAndType") << det->geographicalId() << " " << det->name() << " " << det->bounds()->thickness();
   }
   LogDebug("DetTypeList") << " Content of DetTypetList : size " << theDetTypetList.size();
   for (auto iVal : theDetTypetList) {
