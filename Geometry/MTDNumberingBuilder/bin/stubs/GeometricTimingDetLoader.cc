@@ -137,7 +137,7 @@ void GeometricTimingDetLoader::putOne(const GeometricTimingDet* gd, PGeometricTi
   const DDRotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
-  item.name_ = gd->name().name();
+  item.name_ = gd->name();
   item.level_ = lev;
   item.x_ = tran.X();
   item.y_ = tran.Y();

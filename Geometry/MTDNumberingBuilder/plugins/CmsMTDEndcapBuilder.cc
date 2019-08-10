@@ -15,15 +15,15 @@ void CmsMTDEndcapBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet*
   CmsMTDDiscBuilder theCmsMTDDiscBuilder;
 
   GeometricTimingDet* subdet =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname()));
-  std::string subdet_name = subdet->name().fullname();
-  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname())) {
+    new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
+  std::string subdet_name = subdet->name();
+  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::ETLDisc:
       theCmsMTDDiscBuilder.build(fv, subdet, s);
       break;
     default:
       throw cms::Exception("CmsMTDEndcapBuilder")
-          << " ERROR - I was expecting a Disk... I got a " << fv.logicalPart().name().fullname();
+          << " ERROR - I was expecting a Disk... I got a " << fv.logicalPart().name();
   }
 
   g->addComponent(subdet);

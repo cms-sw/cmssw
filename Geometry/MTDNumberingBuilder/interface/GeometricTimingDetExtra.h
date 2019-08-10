@@ -12,20 +12,13 @@
 
 class GeometricTimingDetExtra {
 public:
-  typedef DDExpandedView::NavRange NavRange;
 #ifdef PoolAlloc
-  typedef std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
+  using GeoHistory = std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> >;
+#else
+  using GeoHistory = std::vector<DDExpandedNode>;
 #endif
-#ifndef PoolAlloc
-  typedef std::vector<DDExpandedNode> GeoHistory;
-#endif
-  /**
-   * Constructors to be used when looping over DDD
-   */
-  GeometricTimingDetExtra(GeometricTimingDet const* gd)
-      : _mygd(gd){};  // this better be "copied into" or it will never have any valid numbers/info.
 
-  GeometricTimingDetExtra(GeometricTimingDet const* gd,
+  explicit GeometricTimingDetExtra(GeometricTimingDet const* gd,
                           DetId id,
                           GeoHistory& gh,
                           double vol,

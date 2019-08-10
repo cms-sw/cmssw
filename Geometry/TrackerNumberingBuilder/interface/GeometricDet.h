@@ -3,23 +3,19 @@
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
-#include "DetectorDescription/Core/interface/DDTranslation.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include <Math/Rotation3D.h>
+#include <Math/Vector3D.h>
 
 #include <vector>
 #include <memory>
 #include "FWCore/ParameterSet/interface/types.h"
 
 #include <ext/pool_allocator.h>
-// waiting for template-alias
-//#define PoolAlloc  __gnu_cxx::__pool_alloc
-// MEC: testing whether we need all bits-and-pieces.  Setting this makes GeometricDet like it used to be.
-//#define GEOMETRICDETDEBUG
-//class DetId;
+
 class DDFilteredView;
 
 /**
@@ -29,21 +25,22 @@ class DDFilteredView;
 
 class GeometricDet {
 public:
-  typedef DDExpandedView::nav_type DDnav_type;
-  typedef DDExpandedView::NavRange NavRange;
-
-  typedef std::vector<GeometricDet const*> ConstGeometricDetContainer;
-  typedef std::vector<GeometricDet*> GeometricDetContainer;
+  using NavRange = DDExpandedView::NavRange;
+  using ConstGeometricDetContainer = std::vector<GeometricDet const*>;
+  using GeometricDetContainer = std::vector<GeometricDet*>;
+  using RotationMatrix = ROOT::Math::Rotation3D;
+  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
 
 #ifdef PoolAlloc
-  typedef std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> > GeoHistory;
-  typedef std::vector<int, PoolAlloc<int> > nav_type;
+  using GeoHistory = std::vector<DDExpandedNode, PoolAlloc<DDExpandedNode> >;
+  using nav_type = std::vector<int, PoolAlloc<int> >;
 #else
-  typedef std::vector<DDExpandedNode> GeoHistory;
-  typedef DDExpandedView::nav_type nav_type;
+  using GeoHistory = std::vector<DDExpandedNode>;
+  using nav_type = DDExpandedView::nav_type;
 #endif
-  typedef Surface::PositionType Position;
-  typedef Surface::RotationType Rotation;
+  
+  using Position = Surface::PositionType;
+  using Rotation = Surface::RotationType;
 
   //
   // more can be added; please add at the end!
@@ -82,36 +79,19 @@ public:
     PixelPhase2ReducedDisk = 227,
     PixelPhase2TDRDisk = 237
   } GeometricEnumType;
-  // PixelV4021Barrel=301, PixelV4021EndCap=302 } GeometricEnumType;
+
   /**
    * Constructors to be used when looping over DDD
    */
-#ifdef GEOMETRICDETDEBUG
-  GeometricDet(DDnav_type const& navtype, GeometricEnumType dd);
-  GeometricDet(DDExpandedView* ev, GeometricEnumType dd);
-#endif
   GeometricDet(DDFilteredView* fv, GeometricEnumType dd);
   GeometricDet(const PGeometricDet::Item& onePGD, GeometricEnumType dd);
-
-  /*
-  GeometricDet(const GeometricDet &);
-
-  GeometricDet & operator=( const GeometricDet & );
-  */
 
   /**
    * set or add or clear components
    */
   void setGeographicalID(DetId id) {
     _geographicalID = id;
-    //std::cout <<"setGeographicalID " << int(id) << std::endl;
   }
-#ifdef GEOMETRICDETDEBUG
-  void setComponents(GeometricDetContainer const& cont) {
-    _container = cont;
-    //std::cout <<"setComponents" << std::endl;
-  }
-#endif
   void addComponents(GeometricDetContainer const& cont);
   void addComponents(ConstGeometricDetContainer const& cont);
   void addComponent(GeometricDet*);
@@ -120,7 +100,6 @@ public:
    */
   void clearComponents() {
     _container.clear();
-    //std::cout<<"clearComponents"<<std::endl;
   }
 
   /**
@@ -130,7 +109,6 @@ public:
   void deleteComponents();
 
   bool isLeaf() const {
-    //std::cout <<"isLeaf() ==" <<_container.empty()<<std::endl;
     return _container.empty();
   }
 
@@ -139,52 +117,37 @@ public:
   /**
    * Access methods
    */
-  DDRotationMatrix const& rotation() const {
-    //std::cout<<"rotation" <<std::endl;
+  RotationMatrix const& rotation() const {
     return _rot;
   }
-  DDTranslation const& translation() const {
-    //std::cout<<"translation" <<std::endl;
+  Translation const& translation() const {
     return _trans;
   }
   double phi() const {
-    //std::cout<<"phi"<<std::endl;
     return _phi;
   }
   double rho() const {
-    //std::cout << "rho" <<std::endl;
     return _rho;
   }
 
   DDSolidShape const& shape() const {
-    //std::cout<<"shape"<<std::endl;
     return _shape;
   }
   GeometricEnumType type() const {
-    //std::cout<<"type"<<std::endl;
     return _type;
   }
-  DDName const& name() const {
-    //std::cout<<"name"<<std::endl;
+  std::string const& name() const {
     return _ddname;
   }
+
   // internal representaion
   nav_type const& navType() const {
-    //std::cout<<"navType"<<std::endl;
     return _ddd;
   }
-  // representation neutral interface
-  NavRange navRange() const {
-    //std::cout<<"navRange"<<std::endl;
-    return NavRange(&_ddd.front(), _ddd.size());
-  }
-  // more meaningfull name (maybe)
   NavRange navpos() const {
-    //std::cout<<"navpos"<<std::endl;
     return NavRange(&_ddd.front(), _ddd.size());
   }
   std::vector<double> const& params() const {
-    //std::cout<<"params"<<std::endl;
     return _params;
   }
 
@@ -195,11 +158,9 @@ public:
    * GeometricDet it returns nothing (an empty vector)
    */
   ConstGeometricDetContainer& components() {
-    //std::cout << "components1" <<std::endl;
     return _container;
   }
   ConstGeometricDetContainer const& components() const {
-    //std::cout<<"const components2 "<<std::endl;
     return _container;
   }
 
@@ -211,27 +172,13 @@ public:
   ConstGeometricDetContainer deepComponents() const;
   void deepComponents(ConstGeometricDetContainer& cont) const;
 
-#ifdef GEOMETRICDETDEBUG
-  //rr
-  /** parents() retuns the geometrical history
-   * mec: only works if this is built from DD and not from reco DB.
-   */
-  GeoHistory const& parents() const {
-    //std::cout<<"parents"<<std::endl;
-    return _parents;
-  }
-  //rr
-#endif
-
   /**
    *geometricalID() returns the ID associated to the GeometricDet.
    */
   DetId geographicalID() const {
-    //std::cout<<"geographicalID"<<std::endl;
     return _geographicalID;
   }
   DetId geographicalId() const {
-    //std::cout<<"geographicalId"<<std::endl;
     return _geographicalID;
   }
 
@@ -249,53 +196,26 @@ public:
    *bounds() returns the Bounds.
    */
   std::unique_ptr<Bounds> bounds() const;
-#ifdef GEOMETRICDETDEBUG
-  int copyno() const {
-    //std::cout<<"copyno"<<std::endl;
-    return _copy;
-  }
-  double volume() const {
-    //std::cout<<"volume"<<std::endl;
-    return _volume;
-  }
-  double density() const {
-    //std::cout<<"density"<<std::endl;
-    return _density;
-  }
-  double weight() const {
-    //std::cout<<"weight"<<std::endl;
-    return _weight;
-  }
-  std::string const& material() const {
-    //std::cout<<"material"<<std::endl;
-    return _material;
-  }
-#endif
+
   double radLength() const {
-    //std::cout<<"radLength"<<std::endl;
     return _radLength;
   }
   double xi() const {
-    //std::cout<<"xi - chi"<<std::endl;
     return _xi;
   }
   /**
    * The following four pix* methods only return meaningful results for pixels.
    */
   double pixROCRows() const {
-    //std::cout<<"pixROCRows"<<std::endl;
     return _pixROCRows;
   }
   double pixROCCols() const {
-    //std::cout<<"pixROCCols"<<std::endl;
     return _pixROCCols;
   }
   double pixROCx() const {
-    //std::cout<<"pixROCx"<<std::endl;
     return _pixROCx;
   }
   double pixROCy() const {
-    //std::cout<<"pixROCy"<<std::endl;
     return _pixROCy;
   }
 
@@ -303,45 +223,25 @@ public:
    * The following two are only meaningful for the silicon tracker.
    */
   bool stereo() const {
-    //std::cout<<"stereo"<<std::endl;
     return _stereo;
   }
   double siliconAPVNum() const {
-    //std::cout<<"siliconAPVNum"<<std::endl;
     return _siliconAPVNum;
   }
 
-  /**
-   * what it says... used the DD in memory model to build the geometry... or not.
-   */
-#ifdef GEOMETRICDETDEBUG
-  bool wasBuiltFromDD() const {
-    //std::cout<<"wasBuildFromDD"<<std::endl;
-    return _fromDD;
-  }
-#endif
-
 private:
   ConstGeometricDetContainer _container;
-  DDTranslation _trans;
+  Translation _trans;
   double _phi;
   double _rho;
-  DDRotationMatrix _rot;
+  RotationMatrix _rot;
   DDSolidShape _shape;
   nav_type _ddd;
-  DDName _ddname;
+  std::string _ddname;
   GeometricEnumType _type;
   std::vector<double> _params;
 
   DetId _geographicalID;
-#ifdef GEOMETRICDETDEBUG
-  GeoHistory _parents;
-  double _volume;
-  double _density;
-  double _weight;
-  int _copy;
-  std::string _material;
-#endif
   double _radLength;
   double _xi;
   double _pixROCRows;
@@ -350,9 +250,6 @@ private:
   double _pixROCy;
   bool _stereo;
   double _siliconAPVNum;
-#ifdef GEOMETRICDETDEBUG
-  bool _fromDD;
-#endif
 };
 
 #undef PoolAlloc

@@ -135,7 +135,7 @@ void GeometricDetLoader::putOne(const GeometricDet* gd, PGeometricDet* pgd, int 
   const DDRotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
-  item._name = gd->name().name();
+  item._name = gd->name();
   item._level = lev;
   item._x = tran.X();
   item._y = tran.Y();
