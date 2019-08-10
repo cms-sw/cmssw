@@ -33,8 +33,8 @@ public:
   const std::string &name() const;
   const DDSolidShape shape() const;
   std::string const material() const;
-  const std::vector<double>& parameters() const;
-  
+  const std::vector<double> &parameters() const;
+
   //! The absolute translation of the current node
   const DDTranslation &translation() const;
 

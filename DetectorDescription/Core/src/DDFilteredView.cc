@@ -21,8 +21,7 @@ const DDSolidShape DDFilteredView::shape() const { return epv_.logicalPart().sol
 
 std::string const DDFilteredView::material() const { return epv_.logicalPart().material().name().fullname(); }
 
-const std::vector<double>& DDFilteredView::parameters() const
-{ return epv_.logicalPart().solid().parameters(); }
+const std::vector<double>& DDFilteredView::parameters() const { return epv_.logicalPart().solid().parameters(); }
 
 const DDTranslation& DDFilteredView::translation() const { return epv_.translation(); }
 

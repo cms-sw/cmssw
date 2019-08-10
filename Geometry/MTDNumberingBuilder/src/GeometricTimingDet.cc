@@ -83,8 +83,7 @@ GeometricTimingDet::GeometricTimingDet(DDFilteredView* fv, GeometricTimingEnumTy
       pixROCx_(getDouble("PixelROC_X", *fv)),
       pixROCy_(getDouble("PixelROC_Y", *fv)),
       stereo_(getString("TrackerStereoDetectors", *fv) == strue),
-      siliconAPVNum_(getDouble("SiliconAPVNumber", *fv))
-{
+      siliconAPVNum_(getDouble("SiliconAPVNumber", *fv)) {
   const DDFilteredView::nav_type& nt = fv->navPos();
   ddd_ = nav_type(nt.begin(), nt.end());
 }
@@ -117,8 +116,7 @@ GeometricTimingDet::GeometricTimingDet(const PGeometricTimingDet::Item& onePGD, 
       pixROCx_(onePGD.pixROCx_),
       pixROCy_(onePGD.pixROCy_),
       stereo_(onePGD.stereo_),
-      siliconAPVNum_(onePGD.siliconAPVNum_)
-{
+      siliconAPVNum_(onePGD.siliconAPVNum_) {
   if (onePGD.shape_ == 1 || onePGD.shape_ == 3) {  //The parms vector is neede only in the case of box or trap shape
     params_.reserve(11);
     params_.emplace_back(onePGD.params_0);

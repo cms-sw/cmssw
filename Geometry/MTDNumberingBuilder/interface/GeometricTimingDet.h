@@ -36,7 +36,7 @@ public:
   using GeoHistory = std::vector<DDExpandedNode>;
   using nav_type = DDExpandedView::nav_type;
 #endif
-  
+
   using Position = Surface::PositionType;
   using Rotation = Surface::RotationType;
 
@@ -68,9 +68,7 @@ public:
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id) {
-    geographicalID_ = id;
-  }
+  void setGeographicalID(DetId id) { geographicalID_ = id; }
   void addComponents(GeometricTimingDetContainer const& cont);
   void addComponents(ConstGeometricTimingDetContainer const& cont);
   void addComponent(GeometricTimingDet*);
@@ -106,9 +104,7 @@ public:
   NavRange navRange() const { return NavRange(&ddd_.front(), ddd_.size()); }
   // more meaningfull name (maybe)
   NavRange navpos() const { return NavRange(&ddd_.front(), ddd_.size()); }
-  std::vector<double> const& params() const {
-    return params_;
-  }
+  std::vector<double> const& params() const { return params_; }
 
   ~GeometricTimingDet();
 

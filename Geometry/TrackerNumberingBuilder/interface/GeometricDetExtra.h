@@ -25,15 +25,15 @@ public:
    * Constructors to be used when looping over DDD
    */
   explicit GeometricDetExtra(GeometricDet const* gd,
-                    DetId id,
-                    GeoHistory& gh,
-                    double vol,
-                    double dens,
-                    double wgt,
-                    double cpy,
-                    const std::string& mat,
-                    const std::string& name,
-                    bool dd = false);
+                             DetId id,
+                             GeoHistory& gh,
+                             double vol,
+                             double dens,
+                             double wgt,
+                             double cpy,
+                             const std::string& mat,
+                             const std::string& name,
+                             bool dd = false);
 
   /**
    * get and set associated GeometricDet 
@@ -44,35 +44,19 @@ public:
   /**
    * set or add or clear components
    */
-  void setGeographicalId(DetId id) {
-    _geographicalId = id;
-  }
+  void setGeographicalId(DetId id) { _geographicalId = id; }
   DetId geographicalId() const { return _geographicalId; }
-  GeoHistory const& parents() const {
-    return _parents;
-  }
-  int copyno() const {
-    return _copy;
-  }
-  double volume() const {
-    return _volume;
-  }
-  double density() const {
-    return _density;
-  }
-  double weight() const {
-    return _weight;
-  }
-  std::string const& material() const {
-    return _material;
-  }
+  GeoHistory const& parents() const { return _parents; }
+  int copyno() const { return _copy; }
+  double volume() const { return _volume; }
+  double density() const { return _density; }
+  double weight() const { return _weight; }
+  std::string const& material() const { return _material; }
 
   /**
    * what it says... used the DD in memory model to build the geometry... or not.
    */
-  bool wasBuiltFromDD() const {
-    return _fromDD;
-  }
+  bool wasBuiltFromDD() const { return _fromDD; }
 
   std::string const& name() const { return _name; }
 

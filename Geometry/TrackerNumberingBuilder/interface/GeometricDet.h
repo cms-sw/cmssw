@@ -38,7 +38,7 @@ public:
   using GeoHistory = std::vector<DDExpandedNode>;
   using nav_type = DDExpandedView::nav_type;
 #endif
-  
+
   using Position = Surface::PositionType;
   using Rotation = Surface::RotationType;
 
@@ -89,18 +89,14 @@ public:
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id) {
-    _geographicalID = id;
-  }
+  void setGeographicalID(DetId id) { _geographicalID = id; }
   void addComponents(GeometricDetContainer const& cont);
   void addComponents(ConstGeometricDetContainer const& cont);
   void addComponent(GeometricDet*);
   /**
    * clearComponents() only empties the container, the components are not deleted!
    */
-  void clearComponents() {
-    _container.clear();
-  }
+  void clearComponents() { _container.clear(); }
 
   /**
    * deleteComponents() explicitly deletes the daughters
@@ -108,48 +104,26 @@ public:
    */
   void deleteComponents();
 
-  bool isLeaf() const {
-    return _container.empty();
-  }
+  bool isLeaf() const { return _container.empty(); }
 
   GeometricDet* component(size_t index) { return const_cast<GeometricDet*>(_container[index]); }
 
   /**
    * Access methods
    */
-  RotationMatrix const& rotation() const {
-    return _rot;
-  }
-  Translation const& translation() const {
-    return _trans;
-  }
-  double phi() const {
-    return _phi;
-  }
-  double rho() const {
-    return _rho;
-  }
+  RotationMatrix const& rotation() const { return _rot; }
+  Translation const& translation() const { return _trans; }
+  double phi() const { return _phi; }
+  double rho() const { return _rho; }
 
-  DDSolidShape const& shape() const {
-    return _shape;
-  }
-  GeometricEnumType type() const {
-    return _type;
-  }
-  std::string const& name() const {
-    return _ddname;
-  }
+  DDSolidShape const& shape() const { return _shape; }
+  GeometricEnumType type() const { return _type; }
+  std::string const& name() const { return _ddname; }
 
   // internal representaion
-  nav_type const& navType() const {
-    return _ddd;
-  }
-  NavRange navpos() const {
-    return NavRange(&_ddd.front(), _ddd.size());
-  }
-  std::vector<double> const& params() const {
-    return _params;
-  }
+  nav_type const& navType() const { return _ddd; }
+  NavRange navpos() const { return NavRange(&_ddd.front(), _ddd.size()); }
+  std::vector<double> const& params() const { return _params; }
 
   ~GeometricDet();
 
@@ -157,12 +131,8 @@ public:
    * components() returns explicit components; please note that in case of a leaf 
    * GeometricDet it returns nothing (an empty vector)
    */
-  ConstGeometricDetContainer& components() {
-    return _container;
-  }
-  ConstGeometricDetContainer const& components() const {
-    return _container;
-  }
+  ConstGeometricDetContainer& components() { return _container; }
+  ConstGeometricDetContainer const& components() const { return _container; }
 
   /**
    * deepComponents() returns all the components below; please note that 
@@ -175,12 +145,8 @@ public:
   /**
    *geometricalID() returns the ID associated to the GeometricDet.
    */
-  DetId geographicalID() const {
-    return _geographicalID;
-  }
-  DetId geographicalId() const {
-    return _geographicalID;
-  }
+  DetId geographicalID() const { return _geographicalID; }
+  DetId geographicalId() const { return _geographicalID; }
 
   /**
    *positionBounds() returns the position in cm. 
@@ -197,37 +163,21 @@ public:
    */
   std::unique_ptr<Bounds> bounds() const;
 
-  double radLength() const {
-    return _radLength;
-  }
-  double xi() const {
-    return _xi;
-  }
+  double radLength() const { return _radLength; }
+  double xi() const { return _xi; }
   /**
    * The following four pix* methods only return meaningful results for pixels.
    */
-  double pixROCRows() const {
-    return _pixROCRows;
-  }
-  double pixROCCols() const {
-    return _pixROCCols;
-  }
-  double pixROCx() const {
-    return _pixROCx;
-  }
-  double pixROCy() const {
-    return _pixROCy;
-  }
+  double pixROCRows() const { return _pixROCRows; }
+  double pixROCCols() const { return _pixROCCols; }
+  double pixROCx() const { return _pixROCx; }
+  double pixROCy() const { return _pixROCy; }
 
   /**
    * The following two are only meaningful for the silicon tracker.
    */
-  bool stereo() const {
-    return _stereo;
-  }
-  double siliconAPVNum() const {
-    return _siliconAPVNum;
-  }
+  bool stereo() const { return _stereo; }
+  double siliconAPVNum() const { return _siliconAPVNum; }
 
 private:
   ConstGeometricDetContainer _container;

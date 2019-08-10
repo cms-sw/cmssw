@@ -194,8 +194,7 @@ void MTDModuleNumbering::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::ESHandle<std::vector<GeometricDetExtra> > rDDE;
   iSetup.get<IdealGeometryRecord>().get(rDD);
   iSetup.get<IdealGeometryRecord>().get(rDDE);
-  edm::LogInfo("MTDModuleNumbering") << " Top node is  " << rDD.product() << " " << rDD.product()->name()
-                                     << std::endl;
+  edm::LogInfo("MTDModuleNumbering") << " Top node is  " << rDD.product() << " " << rDD.product()->name() << std::endl;
   edm::LogInfo("MTDModuleNumbering") << " And Contains  Daughters: " << rDD.product()->deepComponents().size()
                                      << std::endl;
   CmsTrackerDebugNavigator nav(*rDDE.product());
