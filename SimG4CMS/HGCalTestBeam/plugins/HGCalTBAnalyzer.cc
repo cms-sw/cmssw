@@ -42,7 +42,6 @@
 #include "SimDataFormats/CaloHit/interface/PassiveHit.h"
 
 // Root objects
-#include "TFile.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -50,7 +49,6 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TTree.h"
-#include "TRandom3.h"
 
 //#define EDM_ML_DEBUG
 
@@ -156,12 +154,12 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig) {
   doDigis_ = iConfig.getParameter<bool>("doDigis");
   sampleIndex_ = iConfig.getParameter<int>("sampleIndex");
   doRecHits_ = iConfig.getParameter<bool>("doRecHits");
-  doTree_ = iConfig.getUntrackedParameter<bool>("doTree", false);
-  doTreeCell_ = iConfig.getUntrackedParameter<bool>("doTreeCell", false);
-  doPassive_ = iConfig.getUntrackedParameter<bool>("doPassive", false);
-  doPassiveEE_ = iConfig.getUntrackedParameter<bool>("doPassiveEE", false);
-  doPassiveHE_ = iConfig.getUntrackedParameter<bool>("doPassiveHE", false);
-  doPassiveBH_ = iConfig.getUntrackedParameter<bool>("doPassiveBH", false);
+  doTree_ = iConfig.getParameter<bool>("doTree");
+  doTreeCell_ = iConfig.getParameter<bool>("doTreeCell");
+  doPassive_ = iConfig.getParameter<bool>("doPassive");
+  doPassiveEE_ = iConfig.getParameter<bool>("doPassiveEE");
+  doPassiveHE_ = iConfig.getParameter<bool>("doPassiveHE");
+  doPassiveBH_ = iConfig.getParameter<bool>("doPassiveBH");
   gev2mip200_ = iConfig.getUntrackedParameter<double>("gev2mip200", 57.0e-6);
   gev2mip300_ = iConfig.getUntrackedParameter<double>("gev2mip300", 85.5e-6);
   ///TIME SMEARING
@@ -295,12 +293,12 @@ void HGCalTBAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("doDigis", true);
   desc.add<bool>("doRecHits", true);
   desc.add<int>("sampleIndex", 0);
-  desc.addUntracked<bool>("doTree", true);
-  desc.addUntracked<bool>("doTreeCell", true);
-  desc.addUntracked<bool>("doPassive", false);
-  desc.addUntracked<bool>("doPassiveEE", false);
-  desc.addUntracked<bool>("doPassiveHE", false);
-  desc.addUntracked<bool>("doPassiveBH", false);
+  desc.add<bool>("doTree", true);
+  desc.add<bool>("doTreeCell", true);
+  desc.add<bool>("doPassive", false);
+  desc.add<bool>("doPassiveEE", false);
+  desc.add<bool>("doPassiveHE", false);
+  desc.add<bool>("doPassiveBH", false);
   desc.addUntracked<double>("gev2mip200", 57.0e-6);
   desc.addUntracked<double>("gev2mip300", 85.5e-6);
   desc.addUntracked<double>("stoc_smear_time_200", 10.24);
@@ -729,7 +727,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         edm::LogVerbatim("HGCSim") << "HGCDigiCintainer for " << detectorEE_ << " with " << theDigiContainers->size()
                                    << " element(s)";
 #endif
-        for (auto it : *theDigiContainers) {
+        for (const auto& it : *theDigiContainers) {
           HGCalDetId detId = (it.id());
           const HGCSample& hgcSample = it.sample(sampleIndex_);
           uint16_t adc = hgcSample.data();
@@ -745,7 +743,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         edm::LogVerbatim("HGCSim") << "HGCDigiContainer for " << detectorFH_ << " with " << theDigiContainers->size()
                                    << " element(s)";
 #endif
-        for (auto it : *theDigiContainers) {
+        for (const auto& it : *theDigiContainers) {
           HGCalDetId detId = (it.id());
           const HGCSample& hgcSample = it.sample(sampleIndex_);
           uint16_t adc = hgcSample.data();
@@ -888,7 +886,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
 
   if (type < 2) {  //store only for EE and FH
     ///now sort the vector of each cell hits
-    for (auto itr : map_hitTimeEn) {
+    for (const auto& itr : map_hitTimeEn) {
       uint32_t id = itr.first;
       int wafer = -99;
       ///id: reco and ID[id]: sim ID
@@ -961,13 +959,13 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
   }
 
   hSimHitEn_[type]->Fill(entot);
-  for (auto itr : map_hits) {
+  for (const auto& itr : map_hits) {
     hSimHitE_[type]->Fill(itr.second);
   }
 
   if (debug)
     edm::LogVerbatim("HGCSim") << "Now looping over map_hitLayer";
-  for (auto itr : map_hitLayer) {
+  for (const auto& itr : map_hitLayer) {
     int layer = (type == 2) ? itr.first : (itr.first - 1);
     double energy = (itr.second).second;
     double zp(0);
@@ -1009,7 +1007,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
       }
     }
   }
-  for (auto itr : map_hitDepth) {
+  for (const auto& itr : map_hitDepth) {
     int layer = (type == 2) ? itr.first : (itr.first - 1);
     double energy = itr.second;
 #ifdef EDM_ML_DEBUG
@@ -1039,7 +1037,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
   if (debug)
     edm::LogVerbatim("HGCSim") << "Now looping over map_hitCell";
   if (type < 3) {
-    for (auto itr : map_hitCell) {
+    for (const auto& itr : map_hitCell) {
       uint32_t id = ((itr.second).first);
       double energy = ((itr.second).second);
       std::pair<float, float> xy(0, 0);
@@ -1058,7 +1056,7 @@ void HGCalTBAnalyzer::analyzeSimHits(int type, std::vector<PCaloHit>& hits, doub
     }
   }
 
-  for (auto itr : map_hitn) {
+  for (const auto& itr : map_hitn) {
     uint32_t id = itr.first;
     double energy = itr.second;
     if (type == 0) {
@@ -1108,7 +1106,7 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
   xBeam_ = yBeam_ = zBeam_ = pBeam_ = -1000000;
   thetaBeam_ = phiBeam_ = -100000;
   int vertIndex(-1);
-  for (auto simTrkItr : *SimTk) {
+  for (const auto& simTrkItr : *SimTk) {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCSim") << "Track " << simTrkItr.trackId() << " Vertex " << simTrkItr.vertIndex() << " Type "
                                << simTrkItr.type() << " Charge " << simTrkItr.charge() << " momentum "
@@ -1148,7 +1146,7 @@ void HGCalTBAnalyzer::analyzeDigi(int type, const T1& detId, uint16_t adc) {
 void HGCalTBAnalyzer::analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>& hits) {
   std::map<int, double> map_hitLayer;
   std::map<int, std::pair<DetId, double>> map_hitCell;
-  for (auto it : *hits) {
+  for (const auto& it : *hits) {
     DetId detId = it.id();
     GlobalPoint global = hgeom_[type]->getPosition(detId);
     double energy = it.energy();
@@ -1176,7 +1174,7 @@ void HGCalTBAnalyzer::analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>&
 #endif
   }
 
-  for (auto itr : map_hitLayer) {
+  for (const auto& itr : map_hitLayer) {
     int layer = itr.first;
     double energy = itr.second;
     double zp = hgcons_[type]->waferZ(layer, true);
@@ -1187,7 +1185,7 @@ void HGCalTBAnalyzer::analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>&
     hRecHitLng1_[type]->Fill(layer, energy);
   }
 
-  for (auto itr : map_hitCell) {
+  for (const auto& itr : map_hitCell) {
     DetId detId = ((itr.second).first);
     double energy = ((itr.second).second);
     GlobalPoint global = hgeom_[type]->getPosition(detId);
@@ -1196,7 +1194,7 @@ void HGCalTBAnalyzer::analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>&
 }
 
 void HGCalTBAnalyzer::analyzePassiveHits(edm::Handle<edm::PassiveHitContainer> const& hgcPH, int subdet) {
-  for (auto v : *hgcPH) {
+  for (const auto& v : *hgcPH) {
     double energy = v.energy();
     std::string name = v.vname();
     unsigned int id = v.id();
