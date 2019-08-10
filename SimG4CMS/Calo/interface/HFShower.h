@@ -14,14 +14,13 @@
 #include "G4ThreeVector.hh"
 #include "G4String.hh"
 
-class DDCompactView;
 class G4Step;
 
 #include <vector>
 
 class HFShower {
 public:
-  HFShower(const std::string &name, const DDCompactView &cpv, edm::ParameterSet const &p, int chk = 0);
+  HFShower(const std::string &name, const HcalDDDSimConstants* hcons, edm::ParameterSet const &p, int chk = 0);
   virtual ~HFShower();
 
 public:
@@ -34,21 +33,20 @@ public:
     G4ThreeVector position;
   };
 
-  void initRun(const HcalDDDSimConstants *);
   std::vector<Hit> getHits(const G4Step *aStep, double weight);
   std::vector<Hit> getHits(const G4Step *aStep, bool forLibrary);
   std::vector<Hit> getHits(const G4Step *aStep, bool forLibraryProducer, double zoffset);
 
 private:
-  bool applyFidCut;
+  const HcalDDDSimConstants* hcalConstant_; 
 
-private:
-  HFCherenkov *cherenkov;
-  HFFibre *fibre;
+  std::unique_ptr<HFCherenkov> cherenkov_;
+  std::unique_ptr<HFFibre> fibre_;
 
-  int chkFibre;
-  double probMax;
-  std::vector<double> gpar;
+  int chkFibre_;
+  bool applyFidCut_;
+  double probMax_;
+  std::vector<double> gpar_;
 };
 
 #endif  // HFShower_h

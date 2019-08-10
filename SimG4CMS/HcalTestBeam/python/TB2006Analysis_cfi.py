@@ -9,6 +9,7 @@ def testbeam2006(process):
     process.load('SimGeneral.HepPDTESSource.pdt_cfi')
     process.load('Configuration.EventContent.EventContent_cff')
     process.load('Geometry.HcalCommonData.hcalParameters_cfi')
+    process.load("Geometry.HcalCommonData.hcalSimulationParameters_cfi")
     process.load('Geometry.HcalCommonData.hcalDDDSimConstants_cfi')
     process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')
     process.load('GeneratorInterface.Core.generatorSmeared_cfi')

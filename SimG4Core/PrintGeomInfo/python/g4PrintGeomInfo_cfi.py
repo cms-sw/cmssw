@@ -7,6 +7,7 @@ def printGeomInfo(process):
     process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
     process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
     process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+    process.load("Geometry.HcalCommonData.hcalSimulationParameters_cfi")
     process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
     process.load("IOMC.RandomEngine.IOMC_cff")
     process.load('IOMC.EventVertexGenerators.VtxSmearedFlat_cfi')

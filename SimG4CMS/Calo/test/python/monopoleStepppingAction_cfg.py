@@ -8,6 +8,7 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+process.load("Geometry.HcalCommonData.hcalSimulationParameters_cfi")
 process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
