@@ -31,9 +31,9 @@ void CmsMTDDebugNavigator::iterate(const GeometricTimingDet& in,
   std::string spaces(' ', level * 2);
   for (unsigned int k = 0; k < in.components().size(); k++) {
     const GeometricTimingDetExtra* extra = _helperMap[in.components()[k]->geographicalId().rawId()];
-    edm::LogInfo("CmsMTDDebugNavigator") << level << spaces << "### VOLUME " << in.components()[k]->name().name()
+    edm::LogInfo("CmsMTDDebugNavigator") << level << spaces << "### VOLUME " << in.components()[k]->name()
                                          << " of type " << in.components()[k]->type() << " copy number "
-                                         << extra->copyno() << " positioned in " << in.name().name()
+                                         << extra->copyno() << " positioned in " << in.name()
                                          << " global position of centre " << in.components()[k]->translation()
                                          << " volume = " << extra->volume() << " cm3"
                                          << " density = " << extra->density() << " g/cm3"

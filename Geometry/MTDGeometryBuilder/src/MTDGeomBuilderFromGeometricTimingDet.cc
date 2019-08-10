@@ -136,7 +136,7 @@ void MTDGeomBuilderFromGeometricTimingDet::buildPixel(
   }
 
   for (auto i : gdv) {
-    std::string const& detName = i->name().fullname();
+    std::string const& detName = i->name();
     if (theMTDDetTypeMap.find(detName) == theMTDDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
 
