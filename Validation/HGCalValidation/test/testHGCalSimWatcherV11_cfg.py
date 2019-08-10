@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C8_timing_layer_bar_cff import Phase2C8_timing_layer_bar
-process = cms.Process('testHGCalRecoLocal',Phase2C8_timing_layer_bar)
+from Configuration.Eras.Era_Phase2C9_timing_layer_bar_cff import Phase2C9_timing_layer_bar
+process = cms.Process('testHGCalRecoLocal',Phase2C9_timing_layer_bar)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D41_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D46Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D46_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -20,13 +20,11 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
-process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
-process.load('HLTrigger.Configuration.HLT_Fake2_cff')
+process.load('HLTrigger.Configuration.HLT_Fake_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.load('Configuration.StandardSequences.RecoSim_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.maxEvents = cms.untracked.PSet(
@@ -63,7 +61,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 #       'keep *_mix_*_*',
 	'keep *_*HGC*_*_*',
         ),
-    fileName = cms.untracked.string('file:testHGCalSimWatcherV10.root'),
+    fileName = cms.untracked.string('file:testHGCalSimWatcherV8.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
@@ -77,13 +75,12 @@ process.output = cms.OutputModule("PoolOutputModule",
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     SimG4HGCalValidation = cms.PSet(
         Names = cms.vstring(
-		'HGCalEESensitive',  
-		'HGCalHESensitive',
-                'HGCalHESiliconSensitive',
-		'HGCalHEScintillatorSensitive',
+		'HGCalEECell',  
+		'HGCalHECell',
+		'HEScintillator',
 		),
-	Types          = cms.vint32(0,0,0,0),
-	DetTypes       = cms.vint32(0,1,1,2),
+	Types          = cms.vint32(1,1,2),
+	DetTypes       = cms.vint32(0,1,2),
 	LabelLayerInfo = cms.string("HGCalInfoLayer"),
 	Verbosity      = cms.untracked.int32(0),
     ),
@@ -117,37 +114,30 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 #Modified to produce hgceedigis
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 
-process.ProductionFilterSequence = cms.Sequence(process.generator)
-
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.digitisation_step = cms.Path(process.pdigi_valid)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
-process.L1TrackTrigger_step = cms.Path(process.L1TrackTrigger)
 process.digi2raw_step = cms.Path(process.DigiToRaw)
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.localreco)
-process.recosim_step = cms.Path(process.recosim)
 process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
 				process.simulation_step,
 				process.digitisation_step,
-                                process.L1simulation_step,
-                                process.L1TrackTrigger_step,
-                                process.digi2raw_step,
-#                                process.HLTSchedule,
-                                process.raw2digi_step,
-                                process.L1Reco_step,
-                                process.reconstruction_step,
-                                process.recosim_step,
-                                process.out_step
+				process.L1simulation_step,
+				process.digi2raw_step,
+				process.raw2digi_step,
+				process.L1Reco_step,
+				process.reconstruction_step,
+				process.out_step
 				)
 
 # filter all path with the production filter sequence
 for path in process.paths:
-        if getattr(process,path)._seq is not None: getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq
+        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
