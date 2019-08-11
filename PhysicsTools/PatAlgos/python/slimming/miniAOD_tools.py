@@ -433,6 +433,23 @@ def miniAOD_customizeCommon(process):
     process.updatedPatJetsSlimmedDeepFlavour.tagInfoSources.append( cms.InputTag("pixelClusterTagInfos") )
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = cms.bool(True)
     process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = cms.VInputTag( cms.InputTag("pixelClusterTagInfos") )
+
+    # Exclude pixelClusterTagInfos from previous production (80XLegacy and 94XFall17)
+    from RecoBTag.Configuration.RecoBTag_cff import btagging, btaggingNoPixelCluster, pfBTaggingTask, pfBTaggingTaskNoPixelCluster
+    
+    from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
+    run2_miniAOD_80XLegacy.toReplaceWith(pfBTaggingTask, pfBTaggingTaskNoPixelCluster)
+    run2_miniAOD_80XLegacy.toModify(process.patJets, addTagInfos = cms.bool(False) )
+    run2_miniAOD_80XLegacy.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
+    run2_miniAOD_80XLegacy.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    run2_miniAOD_80XLegacy.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    
+    from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
+    run2_miniAOD_94XFall17.toReplaceWith(pfBTaggingTask, pfBTaggingTaskNoPixelCluster)
+    run2_miniAOD_94XFall17.toModify(process.patJets, addTagInfos = cms.bool(False) )
+    run2_miniAOD_94XFall17.toModify(process.slimmedJetsNoDeepFlavour, dropTagInfos = cms.string('1') )
+    run2_miniAOD_94XFall17.toModify(process.updatedPatJetsSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
+    run2_miniAOD_94XFall17.toModify(process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour, addTagInfos = cms.bool(False) )
     
     ## puppi met
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppies
