@@ -720,3 +720,45 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
   }
   return logicalExpressions->decompose(listIter->second);
 }
+
+bool GenericTriggerEventFlag::allHLTPathsAreValid() const {
+  if (not onHlt_) {
+    return true;
+  }
+
+  if (not hltConfigInit_) {
+    if (verbose_ > 0) {
+      edm::LogWarning("GenericTriggerEventFlag::allHLTPathsAreValid()")
+          << "HLTConfigProvider is not initialized, method will return \"false\"";
+    }
+
+    return false;
+  }
+
+  for (unsigned iExpr = 0; iExpr < hltLogicalExpressions_.size(); ++iExpr) {
+    std::string hltLogicalExpression = hltLogicalExpressions_.at(iExpr);
+
+    L1GtLogicParser hltAlgoLogicParser(hltLogicalExpression);
+
+    if (hltAlgoLogicParser.operandTokenVector().empty()) {
+      return false;
+    }
+
+    for (size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath) {
+      const std::string hltPathName(hltAlgoLogicParser.operandTokenVector().at(iPath).tokenName);
+
+      const unsigned indexPath(hltConfig_.triggerIndex(hltPathName));
+
+      if (indexPath == hltConfig_.size()) {
+        if (verbose_ > 1) {
+          edm::LogWarning("GenericTriggerEventFlag::allHLTPathsAreValid()")
+              << "HLT path \"" << hltPathName << "\" is not found in process " << hltInputTag_.process();
+        }
+
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
