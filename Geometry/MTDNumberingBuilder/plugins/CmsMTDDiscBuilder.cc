@@ -12,7 +12,7 @@ using namespace std;
 
 void CmsMTDDiscBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string s) {
   CmsMTDETLRingBuilder theCmsMTDETLRingBuilder;
-  const std::string ringname = fv.logicalPart().name().fullname().substr(0, 8);
+  const std::string ringname = fv.logicalPart().name().name().substr(0, 4);
   GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(ringname));
 
   switch (theCmsMTDStringToEnum.type(ringname)) {

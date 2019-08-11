@@ -179,8 +179,8 @@ void MTDGeometricTimingDetExtraESModule::putOne(std::vector<GeometricTimingDetEx
                                                 const GeometricTimingDet* gd,
                                                 const DDExpandedView& ev,
                                                 int lev) {
-  std::string matname = ((ev.logicalPart()).material()).name().fullname();
-  std::string lpname = ((ev.logicalPart()).name().fullname());
+  std::string matname = ((ev.logicalPart()).material()).name().name();
+  std::string lpname = ((ev.logicalPart()).name().name());
   std::vector<DDExpandedNode> evs = GeometricTimingDetExtra::GeoHistory(ev.geoHistory().begin(), ev.geoHistory().end());
   gde.emplace_back(GeometricTimingDetExtra(
       gd,
