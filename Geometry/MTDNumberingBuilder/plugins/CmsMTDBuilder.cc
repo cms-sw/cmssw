@@ -16,8 +16,7 @@ void CmsMTDBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, st
   CmsMTDSubStrctBuilder theCmsMTDSubStrctBuilder;
   CmsMTDEndcapBuilder theCmsMTDEndcapBuilder;
 
-  GeometricTimingDet* subdet =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
 
   switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::ETL:

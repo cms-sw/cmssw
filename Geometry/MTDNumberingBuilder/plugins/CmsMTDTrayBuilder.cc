@@ -13,8 +13,7 @@
 void CmsMTDTrayBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side) {
   CmsMTDModuleBuilder theCmsMTDModuleBuilder;
 
-  GeometricTimingDet* subdet =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
   switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::BTLTray:
       theCmsMTDModuleBuilder.build(fv, subdet, side);

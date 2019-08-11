@@ -14,8 +14,7 @@ CmsMTDSubStrctBuilder::CmsMTDSubStrctBuilder() {}
 void CmsMTDSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side) {
   CmsMTDTrayBuilder theCmsMTDTrayBuilder;
 
-  GeometricTimingDet* subdet =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
 
   switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::BTLLayer:
