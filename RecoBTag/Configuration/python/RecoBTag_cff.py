@@ -88,11 +88,14 @@ btagging = cms.Sequence(btaggingTask)
 
 
 
-# Create a b-tagging sequence without pixelClusterTagInfos
-btaggingFastSim = btagging.copy()
-btaggingFastSim.remove(pixelClusterTagInfos)
+# Create b-tagging sequences without pixelClusterTagInfos
+pfBTaggingTaskNoPixelCluster = pfBTaggingTask.copy()
+pfBTaggingTaskNoPixelCluster.remove(pixelClusterTagInfos)
 
-# FastSim modifier (do not run pixelClusterTagInfos because the siPixelCluster input collection is not produced in FastSim)
+btaggingNoPixelCluster = btagging.copy()
+btaggingNoPixelCluster.remove(pixelClusterTagInfos)
+
+## FastSim modifier (do not run pixelClusterTagInfos because the siPixelCluster input collection is not produced in FastSim)
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toReplaceWith(btagging, btaggingFastSim)
+fastSim.toReplaceWith(btagging, btaggingNoPixelCluster)
 
