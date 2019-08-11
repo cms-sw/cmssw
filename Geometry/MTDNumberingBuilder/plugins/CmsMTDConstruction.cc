@@ -12,7 +12,7 @@ void CmsMTDConstruction::buildComponent(DDFilteredView& fv, GeometricTimingDet* 
 
   GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name()));
 
-  const std::string part_name = fv.name().substr(0, 11);
+  const std::string part_name = fv.name().substr(0, 7);
 
   if (theCmsMTDStringToEnum.type(part_name) == GeometricTimingDet::BTLModule) {
     bool dodets = fv.firstChild();
