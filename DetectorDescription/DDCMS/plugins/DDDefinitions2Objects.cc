@@ -1334,7 +1334,7 @@ void Converter<DDLCutTubs>::operator()(xml_h element) const {
            rmax,
            startPhi,
            deltaPhi);
-  ns.addSolid(nam, CutTube(rmin, rmax, dz, startPhi, deltaPhi, lx, ly, lz, tx, ty, tz));
+  ns.addSolid(nam, CutTube(rmin, rmax, dz, startPhi, startPhi + deltaPhi, lx, ly, lz, tx, ty, tz));
 }
 
 /// Converter for <TruncTubs/> tags
