@@ -28,9 +28,9 @@ namespace {
     return n1;
   }
 
-  void remove(std::string const& name) {
-    std::string sfile = "/tmp/" + name + ".cc";
-    std::string ofile = "/tmp/" + name + ".so";
+  void remove(std::string const& name, std::string const& tmpDir = "/tmp") {
+    std::string sfile = tmpDir + "/" + name + ".cc";
+    std::string ofile = tmpDir + "/" + name + ".so";
 
     std::string rm = "rm -f ";
     rm += sfile + ' ' + ofile;
@@ -55,12 +55,12 @@ namespace reco {
     pch += "/src/precompile.h";
     std::string quote("\"");
 
-    std::string sfile = "/tmp/" + m_name + ".cc";
-    std::string ofile = "/tmp/" + m_name + ".so";
-
     auto arch = edm::getEnvironmentVariable("SCRAM_ARCH");
     auto baseDir = edm::getEnvironmentVariable("CMSSW_BASE");
     auto relDir = edm::getEnvironmentVariable("CMSSW_RELEASE_BASE");
+
+    std::string sfile = baseDir + "/tmp/" + m_name + ".cc";
+    std::string ofile = baseDir + "/tmp/" + m_name + ".so";
 
     std::string incDir = "/include/" + arch + "/";
     std::string cxxf;
@@ -144,16 +144,16 @@ namespace reco {
 
     void* dl = dlopen(ofile.c_str(), RTLD_LAZY);
     if (!dl) {
-      remove(m_name);
+      remove(m_name, baseDir + "/tmp");
       throw cms::Exception("ExpressionEvaluator",
                            std::string("compilation/linking failed\n") + cpp + ss + "dlerror " + dlerror());
       return;
     }
 
     m_expr = dlsym(dl, factory.c_str());
-    remove(m_name);
+    remove(m_name, baseDir + "/tmp");
   }
 
-  ExpressionEvaluator::~ExpressionEvaluator() { remove(m_name); }
+  ExpressionEvaluator::~ExpressionEvaluator() { remove(m_name, edm::getEnvironmentVariable("CMSSW_BASE") + "/tmp"); }
 
 }  // namespace reco
