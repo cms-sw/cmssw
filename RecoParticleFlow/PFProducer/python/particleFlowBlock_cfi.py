@@ -220,9 +220,3 @@ phase2_timing.toModify(
     elementImporters = _addTimingLayer
 )
 
-#from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
-#egamma_lowPt_exclusive.toModify(particleFlowBlock.elementImporters[2],
-#egamma_lowPt_exclusive.toModify(particleFlowBlock.findIndicesByModule("SuperClusterImporter")[0],
-#                           minSuperClusterPt = 1.0,
-#                           minPTforBypass = 0.0)
-#
