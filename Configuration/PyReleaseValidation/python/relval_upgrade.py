@@ -105,12 +105,20 @@ for year in upgradeKeys:
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
                 workflows[numWF+upgradeSteps['ParkingBPH']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['ParkingBPH']]
 
+            inclPremix = 'PU' in key
+            if inclPremix:
+                inclPremix = False
+                for y in ['2021', '2023', '2024', '2026']:
+                    if y in key:
+                        inclPremix = True
+                        continue
+
             # premixing stage1, only for NuGun
-            if upgradeDatasetFromFragment[frag]=="NuGun" and 'PU' in key and '2026' in key:
+            if inclPremix and upgradeDatasetFromFragment[frag]=="NuGun":
                 workflows[numWF+upgradeSteps['Premix']['offset']] = [upgradeDatasetFromFragment[frag], stepList['Premix']]
 
             # premixing stage2, only for ttbar for time being
-            if 'PU' in key and '2026' in key and upgradeDatasetFromFragment[frag]=="TTbar_14TeV":
+            if inclPremix and upgradeDatasetFromFragment[frag]=="TTbar_14TeV":
                 slist = []
                 for step in stepList['baseline']:
                     s = step
