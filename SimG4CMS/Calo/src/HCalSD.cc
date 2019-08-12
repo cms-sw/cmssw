@@ -16,6 +16,7 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -57,7 +58,8 @@ HCalSD::HCalSD(const std::string& name,
              manager,
              (float)(p.getParameter<edm::ParameterSet>("HCalSD").getParameter<double>("TimeSliceUnit")),
              p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")),
-      hcalConstants(nullptr),
+      hcalConstants_(nullptr),
+      hcalSimConstants_(nullptr),
       m_HBDarkening(nullptr),
       m_HEDarkening(nullptr),
       isHF(false),
@@ -130,14 +132,22 @@ HCalSD::HCalSD(const std::string& name,
                               << "Application of Fiducial Cut " << applyFidCut
                               << "Flag for test number|neutral density filter " << testNumber << " " << neutralDensity;
 
-  // Get pointer to HcalDDDConstant
+  // Get pointers to HcalDDDConstant and HcalSimulationParameters
   edm::ESHandle<HcalDDDSimConstants> hdc;
   es.get<HcalSimNumberingRecord>().get(hdc);
   if (hdc.isValid()) {
-    hcalConstants = hdc.product();
+    hcalConstants_ = hdc.product();
   } else {
     edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
     throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant\n";
+  }
+  edm::ESHandle<HcalDDDSimulationConstants> hdsc;
+  es.get<HcalSimNumberingRecord>().get(hdsc);
+  if (hdsc.isValid()) {
+    hcalSimConstants_ = hdsc.product();
+  } else {
+    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimulationConstant";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimulationConstant\n";
   }
 
   HcalNumberingScheme* scheme;
@@ -161,12 +171,12 @@ HCalSD::HCalSD(const std::string& name,
 
   if (useHF) {
     if (useParam) {
-      showerParam.reset(new HFShowerParam(name, hcalConstants, p));
+      showerParam.reset(new HFShowerParam(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p));
     } else {
       if (useShowerLibrary) {
-        showerLibrary.reset(new HFShowerLibrary(name, hcalConstants, p));
+        showerLibrary.reset(new HFShowerLibrary(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p));
       }
-      hfshower.reset(new HFShower(name, hcalConstants, p, 0));
+      hfshower.reset(new HFShower(name, hcalConstants_, hcalSimConstants_->hcalsimpar(), p, 0));
     }
 
     // HF volume names
@@ -253,6 +263,33 @@ HCalSD::HCalSD(const std::string& name,
 
   if (useLayerWt) {
     readWeightFromFile(file);
+  }
+  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants_));
+
+  //Special Geometry parameters
+  gpar = hcalConstants_->getGparHF();
+#ifdef EDM_ML_DEBUG
+  std::stringstream sss;
+  for (unsigned int ig = 0; ig < gpar.size(); ig++) {
+    sss << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
+  }
+  edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants_->getMaxDepth(2) << gpar.size() << " gpar (cm)"
+                              << sss.str();
+#endif
+
+  //Test Hcal Numbering Scheme
+  if (testNS_)
+    m_HcalTestNS.reset(new HcalTestNS(&es));
+
+  if (agingFlagHB) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HB", hdark);
+    m_HBDarkening = &*hdark;
+  }
+  if (agingFlagHE) {
+    edm::ESHandle<HBHEDarkening> hdark;
+    es.get<HBHEDarkeningRecord>().get("HE", hdark);
+    m_HEDarkening = &*hdark;
   }
 
   for (int i = 0; i < 9; ++i) {
@@ -476,7 +513,7 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
                               << "  lay: " << lay - 2;
 #endif
   if (depth_ == 0 && (det == 1 || det == 2) && ((!testNumber) || neutralDensity))
-    weight_ = hcalConstants->getLayer0Wt(det, phi, z);
+    weight_ = hcalConstants_->getLayer0Wt(det, phi, z);
   if (useLayerWt) {
     G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();
     weight_ = layerWeight(det + 2, hitPoint, depth_, lay);
@@ -552,43 +589,7 @@ void HCalSD::setNumberingScheme(HcalNumberingScheme* scheme) {
   }
 }
 
-void HCalSD::update(const BeginOfJob* job) {
-  const edm::EventSetup* es = (*job)();
-  edm::ESHandle<HcalDDDSimConstants> hdc;
-  es->get<HcalSimNumberingRecord>().get(hdc);
-  if (hdc.isValid()) {
-    hcalConstants = hdc.product();
-  } else {
-    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
-    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant"
-                                              << "\n";
-  }
-
-  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
-
-  //Special Geometry parameters
-  gpar = hcalConstants->getGparHF();
-  std::stringstream sss;
-  for (unsigned int ig = 0; ig < gpar.size(); ig++) {
-    sss << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
-  }
-  edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants->getMaxDepth(2) << gpar.size() << " gpar (cm)"
-                              << sss.str();
-  //Test Hcal Numbering Scheme
-  if (testNS_)
-    m_HcalTestNS.reset(new HcalTestNS(es));
-
-  if (agingFlagHB) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es->get<HBHEDarkeningRecord>().get("HB", hdark);
-    m_HBDarkening = &*hdark;
-  }
-  if (agingFlagHE) {
-    edm::ESHandle<HBHEDarkening> hdark;
-    es->get<HBHEDarkeningRecord>().get("HE", hdark);
-    m_HEDarkening = &*hdark;
-  }
-}
+void HCalSD::update(const BeginOfJob* job) { }
 
 void HCalSD::initRun() {}
 
@@ -1119,7 +1120,7 @@ void HCalSD::plotHF(const G4ThreeVector& hitPoint, bool emType) {
 void HCalSD::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
   if (id.subdet == 4) {
     int ieta = (id.zside == 0) ? -id.etaR : id.etaR;
-    if (hcalConstants->maxHFDepth(ieta, id.phis) > 2) {
+    if (hcalConstants_->maxHFDepth(ieta, id.phis) > 2) {
       if (id.depth <= 2) {
         if (G4UniformRand() > 0.5)
           id.depth += 2;

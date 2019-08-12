@@ -14,11 +14,14 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include <iostream>
 
-HFShower::HFShower(const std::string &name, const HcalDDDSimConstants *hcons, edm::ParameterSet const &p, int chk)
+HFShower::HFShower(const std::string &name, 
+		   const HcalDDDSimConstants *hcons,
+		   const HcalSimulationParameters* hps,
+		   edm::ParameterSet const &p, int chk)
     : hcalConstant_(hcons), chkFibre_(chk) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");
@@ -27,7 +30,7 @@ HFShower::HFShower(const std::string &name, const HcalDDDSimConstants *hcons, ed
   edm::LogVerbatim("HFShower") << "HFShower:: Maximum probability cut off " << probMax_ << " Check flag " << chkFibre_;
 
   cherenkov_.reset(new HFCherenkov(m_HF));
-  fibre_.reset(new HFFibre(name, hcalConstant_, p));
+  fibre_.reset(new HFFibre(name, hcalConstant_, hps, p));
 
   //Special Geometry parameters
   gpar_ = hcalConstant_->getGparHF();

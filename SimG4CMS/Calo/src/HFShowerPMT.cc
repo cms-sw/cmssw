@@ -18,18 +18,21 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <sstream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
-HFShowerPMT::HFShowerPMT(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
-    : hcalConstant_(hcons) {
+HFShowerPMT::HFShowerPMT(const std::string& name, 
+			 const HcalDDDSimConstants* hcons, 
+			 const HcalSimulationParameters* hps,
+			 edm::ParameterSet const& p)
+    : hcalConstant_(hcons), hcalsimpar_(hps) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV = m_HF.getParameter<double>("PEPerGeVPMT");
 
   //Special Geometry parameters
-  pmtR1 = hcalConstant_->hcalsimpar()->pmtRight_;
-  pmtFib1 = hcalConstant_->hcalsimpar()->pmtFiberRight_;
-  pmtR2 = hcalConstant_->hcalsimpar()->pmtLeft_;
-  pmtFib2 = hcalConstant_->hcalsimpar()->pmtFiberLeft_;
+  pmtR1 = hcalsimpar_->pmtRight_;
+  pmtFib1 = hcalsimpar_->pmtFiberRight_;
+  pmtR2 = hcalsimpar_->pmtLeft_;
+  pmtFib2 = hcalsimpar_->pmtFiberLeft_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerPMT: gets the Index matches for " << pmtR1.size() << " PMTs";
   for (unsigned int ii = 0; ii < pmtR1.size(); ii++) {

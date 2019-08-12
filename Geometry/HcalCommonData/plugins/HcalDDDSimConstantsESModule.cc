@@ -39,7 +39,6 @@ public:
 
 private:
   edm::ESGetToken<HcalParameters, HcalParametersRcd> parToken_;
-  edm::ESGetToken<HcalSimulationParameters, HcalParametersRcd> parSimToken_;
 };
 
 HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet&) {
@@ -48,7 +47,6 @@ HcalDDDSimConstantsESModule::HcalDDDSimConstantsESModule(const edm::ParameterSet
 #endif
   auto cc = setWhatProduced(this);
   parToken_ = cc.consumesFrom<HcalParameters, HcalParametersRcd>(edm::ESInputTag{});
-  parSimToken_ = cc.consumesFrom<HcalSimulationParameters, HcalParametersRcd>(edm::ESInputTag{});
 }
 
 void HcalDDDSimConstantsESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -59,8 +57,7 @@ void HcalDDDSimConstantsESModule::fillDescriptions(edm::ConfigurationDescription
 // ------------ method called to produce the data  ------------
 HcalDDDSimConstantsESModule::ReturnType HcalDDDSimConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
   const auto& par = iRecord.get(parToken_);
-  const auto& parSim = iRecord.get(parSimToken_);
-  return std::make_unique<HcalDDDSimConstants>(&par, &parSim);
+  return std::make_unique<HcalDDDSimConstants>(&par);
 }
 
 //define this as a plug-in

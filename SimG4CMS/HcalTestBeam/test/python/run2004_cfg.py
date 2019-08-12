@@ -4,9 +4,7 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("SimG4CMS.HcalTestBeam.TB2004GeometryXML_cfi")
-process.load("Geometry.HcalCommonData.hcalParameters_cfi")
-process.load("Geometry.HcalCommonData.hcalSimulationParameters_cfi")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 

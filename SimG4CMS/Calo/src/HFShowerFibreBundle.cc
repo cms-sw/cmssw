@@ -22,8 +22,9 @@
 
 HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name,
                                          const HcalDDDSimConstants* hcons,
+					 const HcalSimulationParameters* hps,
                                          edm::ParameterSet const& p)
-    : hcalConstant_(hcons) {
+  : hcalConstant_(hcons), hcalsimpar_(hps) {
   edm::ParameterSet m_HF1 = p.getParameter<edm::ParameterSet>("HFShowerStraightBundle");
   facTube = m_HF1.getParameter<double>("FactorBundle");
   cherenkov1_.reset(new HFCherenkov(m_HF1));
@@ -34,10 +35,10 @@ HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name,
                                << " for the straight portion and " << facCone << " for the curved portion";
 
   //Special Geometry parameters
-  pmtR1 = hcalConstant_->hcalsimpar()->pmtRight_;
-  pmtFib1 = hcalConstant_->hcalsimpar()->pmtFiberRight_;
-  pmtR2 = hcalConstant_->hcalsimpar()->pmtLeft_;
-  pmtFib2 = hcalConstant_->hcalsimpar()->pmtFiberLeft_;
+  pmtR1 = hcalsimpar_->pmtRight_;
+  pmtFib1 = hcalsimpar_->pmtFiberRight_;
+  pmtR2 = hcalsimpar_->pmtLeft_;
+  pmtFib2 = hcalsimpar_->pmtFiberLeft_;
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFShowerPMT: gets the Index matches for " << pmtR1.size() << " PMTs";
   for (unsigned int ii = 0; ii < pmtR1.size(); ii++) {
