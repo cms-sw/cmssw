@@ -896,7 +896,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
       if (sub == 1 && (subdet_ == 1 || subdet_ == 5)) {
         meTimeHB->Fill(t);
         meRecHitsEnergyHB->Fill(en);
-        if(sevlev <= 9) meRecHitsCleanedEnergyHB->Fill(en);
+        if (sevlev <= 9) 
+	  meRecHitsCleanedEnergyHB->Fill(en);
 
         meRecHitsEnergyHBM0->Fill(enM0);
         meRecHitsEnergyHBM3->Fill(enM3);
@@ -919,8 +920,9 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
         meTimeHE->Fill(t);
         if (!isHEP17) {
           meRecHitsEnergyHE->Fill(en);
-	  if(sevlev <= 9) meRecHitsCleanedEnergyHE->Fill(en);
-
+	  if (sevlev <= 9) 
+	    meRecHitsCleanedEnergyHE->Fill(en);
+	  
           meRecHitsEnergyHEM0->Fill(enM0);
           meRecHitsEnergyHEM3->Fill(enM3);
         } else {
@@ -947,7 +949,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
       if (sub == 4 && (subdet_ == 4 || subdet_ == 5)) {
         meTimeHF->Fill(t);
         meRecHitsEnergyHF->Fill(en);
-        if(sevlev <= 9) meRecHitsCleanedEnergyHF->Fill(en);
+        if (sevlev <= 9) 
+	  meRecHitsCleanedEnergyHF->Fill(en);
 
         meTE_Low_HF->Fill(en, t);
         meTE_HF->Fill(en, t);
@@ -957,7 +960,8 @@ void HcalRecHitsAnalyzer::analyze(edm::Event const &ev, edm::EventSetup const &c
       if (sub == 3 && (subdet_ == 3 || subdet_ == 5)) {
         meTimeHO->Fill(t);
         meRecHitsEnergyHO->Fill(en);
-        if(sevlev <= 9) meRecHitsCleanedEnergyHO->Fill(en);
+        if (sevlev <= 9) 
+	  meRecHitsCleanedEnergyHO->Fill(en);
 
         meTE_HO->Fill(en, t);
         meTE_High_HO->Fill(en, t);
@@ -1028,7 +1032,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
         int stwd = j->flags();
         int auxstwd = j->aux();
 
-        int severityLevel = hcalSevLvl((CaloRecHit *)&*j);   
+        int severityLevel = hcalSevLvl((CaloRecHit *)&*j);
         if (cell.subdet() == HcalBarrel) {
           hcalHBSevLvlVec.push_back(severityLevel);
         } else if (cell.subdet() == HcalEndcap) {
@@ -1050,7 +1054,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
           cz.push_back(zc);
           cstwd.push_back(stwd);
           cauxstwd.push_back(auxstwd);
-          csevlev.push_back(severityLevel); 
+          csevlev.push_back(severityLevel);
         }
       }
     }
@@ -1098,7 +1102,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
           cz.push_back(zc);
           cstwd.push_back(stwd);
           cauxstwd.push_back(auxstwd);
-          csevlev.push_back(severityLevel); 
+          csevlev.push_back(severityLevel);
         }
       }
     }
@@ -1146,7 +1150,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
           cz.push_back(zc);
           cstwd.push_back(stwd);
           cauxstwd.push_back(auxstwd);
-          csevlev.push_back(severityLevel); 
+          csevlev.push_back(severityLevel);
         }
       }
     }
