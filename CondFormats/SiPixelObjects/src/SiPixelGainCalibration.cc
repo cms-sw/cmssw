@@ -126,7 +126,7 @@ void SiPixelGainCalibration::setData(
 float SiPixelGainCalibration::getPed(
     const int& col, const int& row, const Range& range, const int& nCols, bool& isDead, bool& isNoisy) const {
   int nRows = (range.second - range.first) / 2 / nCols;
-  const unsigned int ped = (*(range.first + (col * nRows + row) * 2) >> 8) & 0xFF;
+  const unsigned int ped = *(range.first + 1 + (col * nRows + row) * 2) & 0xFF;
   if (col >= nCols || row >= nRows) {
     throw cms::Exception("CorruptedData")
         << "[SiPixelGainCalibration::getPed] Pixel out of range: col " << col << " row " << row;
