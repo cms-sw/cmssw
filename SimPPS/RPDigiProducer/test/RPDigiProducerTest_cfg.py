@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import math
 
 process = cms.Process("RPDigiProducerTest")
 
@@ -17,66 +18,72 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 
-# Configure if you want to detail or simple log information.
-# LoggerMax -- detail log info output including: errors.log, warnings.log, infos.log, debugs.log
-# LoggerMin -- simple log info output to the standard output (e.g. screen)
-process.load("Configuration.TotemCommon.LoggerMin_cfi")
-
-
 ################## STEP 1
 process.source = cms.Source("EmptySource")
 
 ################## STEP 2 - process.generator
+process.load('Configuration.StandardSequences.Generator_cff')
+process.load('GeneratorInterface.Core.genFilterSummary_cff')
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+process.RandomNumberGeneratorService.LHCTransport.engineName   = cms.untracked.string('TRandom3')
+phi_min = -math.pi
+phi_max = math.pi
+t_min = 0.
+t_max = 2.0
+xi_min = 0.01
+xi_max = 0.2
+ecms = 13000.
+process.generator = cms.EDProducer("RandomtXiGunProducer",
+        PGunParameters = cms.PSet(
+            PartID = cms.vint32(2212),
+            MinPhi = cms.double(phi_min),
+            MaxPhi = cms.double(phi_max),
+            ECMS   = cms.double(ecms),
+            Mint   = cms.double(t_min),
+            Maxt   = cms.double(t_max),
+            MinXi  = cms.double(xi_min),
+            MaxXi  = cms.double(xi_max)
+            ),
+        Verbosity = cms.untracked.int32(0),
+        psethack = cms.string('single protons'),
+        FireBackward = cms.bool(True),
+        FireForward  = cms.bool(True),
+        firstRun = cms.untracked.uint32(1),
+        )
 
-# Use random number generator service
-process.load("Configuration.TotemCommon.RandomNumbers_cfi")
-
-# Monte Carlo gun - elastic specific
-energy = "7000"
-import IOMC.Elegent.ElegentSource_cfi
-process.generator = IOMC.Elegent.ElegentSource_cfi.generator
-process.generator.fileName = IOMC.Elegent.ElegentSource_cfi.ElegentDefaultFileName(energy)
-
-# particle generator paramteres
-process.generator.t_min = '6E-2'  # beta* specific
-process.generator.t_max = '6E-1'  # beta* specific
-energy = "1180"
-
+process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 ################## STEP 3 process.SmearingGenerator
 
 # declare optics parameters
-# process.load("Configuration.TotemOpticsConfiguration.OpticsConfig_7000GeV_90_cfi")
 
 # Smearing
-process.load("IOMC.SmearingGenerator.SmearingGenerator_cfi")
+process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic25ns13TeVEarly2017Collision_cfi')
 
 ################## STEP 4 process.OptInfo
 
-process.OptInfo = cms.EDAnalyzer("OpticsInformation")
-
-process.load("Configuration.TotemOpticsConfiguration.OpticsConfig_1180GeV_11_cfi")
 
 ################## STEP 5 process.*process.g4SimHits
 
-# Geometry - beta* specific
-# process.load("Configuration.TotemCommon.geometryRP_cfi")
-# process.XMLIdealGeometryESSource.geomXMLFiles.append('Geometry/TotemRPData/data/RP_Beta_90_150_out/RP_Dist_Beam_Cent.xml')
-
 # Magnetic Field, by default we have 3.8T
+process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2017_realistic', '')
+process.load('PhysicsTools.HepMCCandAlgos.genParticles_cfi')
 
 # G4 simulation & proton transport
-process.load("Configuration.TotemCommon.g4SimHits_cfi")
-#process.g4SimHits.Physics.BeamProtTransportSetup = process.BeamProtTransportSetup
-process.g4SimHits.Generator.HepMCProductLabel = 'generator'    # The input source for G4 module is connected to "process.source".
 
-process.load("Configuration.TotemCommon.geometryRP_cfi")
-process.XMLIdealGeometryESSource.geomXMLFiles.append('Geometry/TotemRPData/data/RP_1180_Beta_11_220/RP_Dist_Beam_Cent.xml')
+from Geometry.VeryForwardGeometry.geometryPPS_CMSxz_fromDD_2017_cfi import XMLIdealGeometryESSource_CTPPS
+process.XMLIdealGeometryESSource = XMLIdealGeometryESSource_CTPPS.clone()
 
-process.g4SimHits.Physics.BeamProtTransportSetup = process.BeamProtTransportSetup
+process.load("SimG4Core.Application.g4SimHits_cfi")
 
-
+process.g4SimHits.Generator.HepMCProductLabel = 'LHCTransport'    # The input source for G4 module is connected to "process.source".
 
 ################## STEP 6 process.mix*process.RPSiDetDigitizer 
 
@@ -86,16 +93,25 @@ process.load("SimGeneral.MixingModule.mixNoPU_cfi")
 ########################### DIGI+RECO RP ##########################################
 
 # process.load("SimPPS.RPDigiProducer.RPSiDetConf_cfi")
+process.generation_step = cms.Path(process.pgen)
+process.simulation_step = cms.Path(process.psim)
+process.g4Simhits_step = cms.Path(process.g4SimHits)
 
 
-
-process.p1 = cms.Path(process.generator
-                      *process.SmearingGenerator
-                      *process.g4SimHits
-#                       *process.mix
-#                       *process.RPSiDetDigitizer
-                      )
+process.simulation_step = cms.Path(process.psim)
+process.g4Simhits_step = cms.Path(process.g4SimHits)
+process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 
 process.outpath = cms.EndPath(process.o1)
 
+process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.g4Simhits_step,process.outpath)
+
+# filter all path with the production filter sequence
+for path in process.paths:
+    getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq
+
+
 # print process.dumpConfig()
+from SimPPS.PPSSimTrackProducer.SimTrackProducerForFullSim_cff import customise
+process = customise(process)
+
