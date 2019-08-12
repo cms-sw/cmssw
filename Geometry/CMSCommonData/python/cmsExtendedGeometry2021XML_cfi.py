@@ -229,11 +229,7 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml',
         'Geometry/HcalCommonData/data/hcalSimNumbering/2021/hcalSimNumbering.xml', 
         'Geometry/HcalCommonData/data/hcalRecNumbering/2021/hcalRecNumbering.xml',
-<<<<<<< HEAD
         'Geometry/MuonCommonData/data/mbCommon/2021/v1/mbCommon.xml',
-=======
-        'Geometry/MuonCommonData/data/mbCommon/2015/v3/mbCommon.xml',
->>>>>>> Scenario 2021, no overlaps for the Muon system in DD and DD4HEP geometry, all MB4Shields included
         'Geometry/MuonCommonData/data/mb1/2015/v2/mb1.xml',
         'Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml',
         'Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml',
