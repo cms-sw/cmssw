@@ -17,11 +17,11 @@
 
 //#define EDM_ML_DEBUG
 
-HFFibre::HFFibre(const std::string& name, 
-		 const HcalDDDSimConstants* hcons, 
-		 const HcalSimulationParameters* hps, 
-		 edm::ParameterSet const& p)
-  : hcalConstant_(hcons), hcalsimpar_(hps) {
+HFFibre::HFFibre(const std::string& name,
+                 const HcalDDDSimConstants* hcons,
+                 const HcalSimulationParameters* hps,
+                 edm::ParameterSet const& p)
+    : hcalConstant_(hcons), hcalsimpar_(hps) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   cFibre = c_light * (m_HF.getParameter<double>("CFibre"));
 

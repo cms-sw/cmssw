@@ -29,7 +29,10 @@ class G4ParticleTable;
 class HFShowerLibrary {
 public:
   //Constructor and Destructor
-  HFShowerLibrary(const std::string &name, const HcalDDDSimConstants *hcons, const HcalSimulationParameters* hps, edm::ParameterSet const &p);
+  HFShowerLibrary(const std::string &name,
+                  const HcalDDDSimConstants *hcons,
+                  const HcalSimulationParameters *hps,
+                  edm::ParameterSet const &p);
   ~HFShowerLibrary();
 
 public:

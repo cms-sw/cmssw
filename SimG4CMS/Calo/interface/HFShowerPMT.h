@@ -19,7 +19,10 @@ class G4Step;
 
 class HFShowerPMT {
 public:
-  HFShowerPMT(const std::string& name, const HcalDDDSimConstants* hcons, const HcalSimulationParameters *hps, edm::ParameterSet const& p);
+  HFShowerPMT(const std::string& name,
+              const HcalDDDSimConstants* hcons,
+              const HcalSimulationParameters* hps,
+              edm::ParameterSet const& p);
   virtual ~HFShowerPMT();
   double getHits(const G4Step* aStep);
   double getRadius();

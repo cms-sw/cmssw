@@ -19,7 +19,10 @@ class G4Step;
 
 class HFShowerFibreBundle {
 public:
-  HFShowerFibreBundle(const std::string &name, const HcalDDDSimConstants *hcons, const HcalSimulationParameters *hps, edm::ParameterSet const &p);
+  HFShowerFibreBundle(const std::string &name,
+                      const HcalDDDSimConstants *hcons,
+                      const HcalSimulationParameters *hps,
+                      edm::ParameterSet const &p);
   virtual ~HFShowerFibreBundle();
   double getHits(const G4Step *aStep, bool type);
   double getRadius();

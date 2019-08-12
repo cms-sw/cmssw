@@ -59,7 +59,7 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
 
   edm::ESHandle<HcalDDDSimulationConstants> hdsc;
   iSetup.get<HcalSimNumberingRecord>().get(hdsc);
-  const HcalDDDSimulationConstants*  hsps = hdsc.product();
+  const HcalDDDSimulationConstants* hsps = hdsc.product();
 
   std::string name = "HcalHits";
   numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));

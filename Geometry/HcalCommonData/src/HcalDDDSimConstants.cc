@@ -7,8 +7,7 @@
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
-HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp)
-    : hpar(hp) {
+HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HCalGeom") << "HcalDDDSimConstants::HcalDDDSimConstants (const HcalParameters* hp) constructor\n";
 #endif

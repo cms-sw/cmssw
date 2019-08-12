@@ -20,10 +20,10 @@
 
 #define EDM_ML_DEBUG
 
-HFShowerLibrary::HFShowerLibrary(const std::string& name, 
-				 const HcalDDDSimConstants* hcons,
-				 const HcalSimulationParameters* hps,
-				 edm::ParameterSet const& p)
+HFShowerLibrary::HFShowerLibrary(const std::string& name,
+                                 const HcalDDDSimConstants* hcons,
+                                 const HcalSimulationParameters* hps,
+                                 edm::ParameterSet const& p)
     : hcalConstant_(hcons), hf(nullptr), emBranch(nullptr), hadBranch(nullptr), npe(0) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   probMax = m_HF.getParameter<double>("ProbMax");

@@ -39,7 +39,7 @@ FiberSD::FiberSD(const std::string& iname,
     edm::LogError("FiberSim") << "FiberSD : Cannot find HcalDDDSimulationConstant";
     throw cms::Exception("Unknown", "FiberSD") << "Cannot find HcalDDDSimulationConstant\n";
   }
-  const HcalDDDSimulationConstants*  hsps = hdsc.product();
+  const HcalDDDSimulationConstants* hsps = hdsc.product();
   edm::ESHandle<HcalDDDSimConstants> hdc;
   es.get<HcalSimNumberingRecord>().get(hdc);
   if (hdc.isValid()) {

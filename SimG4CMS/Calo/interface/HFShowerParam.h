@@ -24,7 +24,10 @@ class G4Step;
 
 class HFShowerParam {
 public:
-  HFShowerParam(const std::string& name, const HcalDDDSimConstants* hcons, const HcalSimulationParameters* hps, edm::ParameterSet const& p);
+  HFShowerParam(const std::string& name,
+                const HcalDDDSimConstants* hcons,
+                const HcalSimulationParameters* hps,
+                edm::ParameterSet const& p);
   virtual ~HFShowerParam();
 
 public:

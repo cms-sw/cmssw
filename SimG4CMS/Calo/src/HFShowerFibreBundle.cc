@@ -22,9 +22,9 @@
 
 HFShowerFibreBundle::HFShowerFibreBundle(const std::string& name,
                                          const HcalDDDSimConstants* hcons,
-					 const HcalSimulationParameters* hps,
+                                         const HcalSimulationParameters* hps,
                                          edm::ParameterSet const& p)
-  : hcalConstant_(hcons), hcalsimpar_(hps) {
+    : hcalConstant_(hcons), hcalsimpar_(hps) {
   edm::ParameterSet m_HF1 = p.getParameter<edm::ParameterSet>("HFShowerStraightBundle");
   facTube = m_HF1.getParameter<double>("FactorBundle");
   cherenkov1_.reset(new HFCherenkov(m_HF1));

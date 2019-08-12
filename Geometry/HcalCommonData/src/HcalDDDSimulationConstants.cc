@@ -4,10 +4,10 @@
 
 //#define EDM_ML_DEBUG
 
-HcalDDDSimulationConstants::HcalDDDSimulationConstants(const HcalSimulationParameters* hsp)
-    : hspar(hsp) {
+HcalDDDSimulationConstants::HcalDDDSimulationConstants(const HcalSimulationParameters* hsp) : hspar(hsp) {
 #ifdef EDM_ML_DEBUG
-  edm::LogInfo("HCalGeom") << "HcalDDDSimulationConstants::HcalDDDSimulationConstants (const HcalSimulationParameters* hsp) constructor\n";
+  edm::LogInfo("HCalGeom")
+      << "HcalDDDSimulationConstants::HcalDDDSimulationConstants (const HcalSimulationParameters* hsp) constructor\n";
 #endif
 }
 
