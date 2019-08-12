@@ -273,8 +273,8 @@ HCalSD::HCalSD(const std::string& name,
   for (unsigned int ig = 0; ig < gpar.size(); ig++) {
     sss << "\n         gpar[" << ig << "] = " << gpar[ig] / cm << " cm";
   }
-  edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants_->getMaxDepth(2) << gpar.size() << " gpar (cm)"
-                              << sss.str();
+  edm::LogVerbatim("HcalSim") << "Maximum depth for HF " << hcalConstants_->getMaxDepth(2) << gpar.size()
+                              << " gpar (cm)" << sss.str();
 #endif
 
   //Test Hcal Numbering Scheme
@@ -589,7 +589,7 @@ void HCalSD::setNumberingScheme(HcalNumberingScheme* scheme) {
   }
 }
 
-void HCalSD::update(const BeginOfJob* job) { }
+void HCalSD::update(const BeginOfJob* job) {}
 
 void HCalSD::initRun() {}
 

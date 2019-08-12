@@ -55,7 +55,8 @@ void HcalDDDSimulationConstantsESModule::fillDescriptions(edm::ConfigurationDesc
 }
 
 // ------------ method called to produce the data  ------------
-HcalDDDSimulationConstantsESModule::ReturnType HcalDDDSimulationConstantsESModule::produce(const HcalSimNumberingRecord& iRecord) {
+HcalDDDSimulationConstantsESModule::ReturnType HcalDDDSimulationConstantsESModule::produce(
+    const HcalSimNumberingRecord& iRecord) {
   const auto& parSim = iRecord.get(parSimToken_);
   return std::make_unique<HcalDDDSimulationConstants>(&parSim);
 }

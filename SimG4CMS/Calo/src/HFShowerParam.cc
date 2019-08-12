@@ -26,10 +26,10 @@
 //#define plotDebug
 //#define mkdebug
 
-HFShowerParam::HFShowerParam(const std::string& name, 
-			     const HcalDDDSimConstants* hcons,
-			     const HcalSimulationParameters* hps,
-			     edm::ParameterSet const& p)
+HFShowerParam::HFShowerParam(const std::string& name,
+                             const HcalDDDSimConstants* hcons,
+                             const HcalSimulationParameters* hps,
+                             edm::ParameterSet const& p)
     : hcalConstants_(hcons), fillHisto_(false) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV_ = m_HF.getParameter<double>("PEPerGeV");

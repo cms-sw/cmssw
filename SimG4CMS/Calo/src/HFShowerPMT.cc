@@ -20,10 +20,10 @@
 
 //#define EDM_ML_DEBUG
 
-HFShowerPMT::HFShowerPMT(const std::string& name, 
-			 const HcalDDDSimConstants* hcons, 
-			 const HcalSimulationParameters* hps,
-			 edm::ParameterSet const& p)
+HFShowerPMT::HFShowerPMT(const std::string& name,
+                         const HcalDDDSimConstants* hcons,
+                         const HcalSimulationParameters* hps,
+                         edm::ParameterSet const& p)
     : hcalConstant_(hcons), hcalsimpar_(hps) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV = m_HF.getParameter<double>("PEPerGeVPMT");

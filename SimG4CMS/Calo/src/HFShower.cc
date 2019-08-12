@@ -18,10 +18,11 @@
 
 #include <iostream>
 
-HFShower::HFShower(const std::string &name, 
-		   const HcalDDDSimConstants *hcons,
-		   const HcalSimulationParameters* hps,
-		   edm::ParameterSet const &p, int chk)
+HFShower::HFShower(const std::string &name,
+                   const HcalDDDSimConstants *hcons,
+                   const HcalSimulationParameters *hps,
+                   edm::ParameterSet const &p,
+                   int chk)
     : hcalConstant_(hcons), chkFibre_(chk) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut_ = m_HF.getParameter<bool>("ApplyFiducialCut");

@@ -19,7 +19,10 @@
 class HFFibre {
 public:
   //Constructor and Destructor
-  HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, const HcalSimulationParameters* hps, edm::ParameterSet const& p);
+  HFFibre(const std::string& name,
+          const HcalDDDSimConstants* hcons,
+          const HcalSimulationParameters* hps,
+          edm::ParameterSet const& p);
   ~HFFibre() = default;
 
   double attLength(double lambda);
