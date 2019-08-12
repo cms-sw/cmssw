@@ -35,7 +35,7 @@ simromanpot::strip_charge_map RPGaussianTailNoiseAdder::addNoise(const simromanp
       CLHEP::RandBinomial::shoot(&(rndEngine_), (long)numStrips_, strips_above_threshold_prob_);
 
   for (int j = 0; j < strips_no_above_threshold; j++) {
-    int strip = CLHEP::RandFlat::shootInt(numStrips_);
+    int strip = CLHEP::RandFlat::shootInt(&(rndEngine_),numStrips_);
     if (the_strip_charge_map[strip] == 0) {
       the_strip_charge_map[strip] = 2 * theStripThresholdInE;
       //only binary decision later, no need to simulate the noise precisely,

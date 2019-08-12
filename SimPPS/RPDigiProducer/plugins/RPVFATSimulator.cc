@@ -2,7 +2,6 @@
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
-#include "TRandom.h"
 #include <iostream>
 
 RPVFATSimulator::RPVFATSimulator(const edm::ParameterSet &params, RPDetId det_id) : params_(params), det_id_(det_id) {
