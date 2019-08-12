@@ -36,7 +36,7 @@ process.source = cms.Source("EmptyIOVSource",
 ##
 from CondCore.CondDB.CondDB_cfi import *
 #CondDBQualityCollection = CondDB.clone(connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS"))
-CondDBQualityCollection = CondDB.clone(connect = cms.string("sqlite_file:SiPixelStatusScenarios_UltraLegacy2018_v0_mc.db"))
+CondDBQualityCollection = CondDB.clone(connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"))
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBQualityCollection,
                                toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenariosRcd'),
@@ -46,7 +46,7 @@ process.dbInput = cms.ESSource("PoolDBESSource",
                                )
 
 #CondDBProbabilities = CondDB.clone(connect = cms.string("frontier://FrontierPrep/CMS_CONDITIONS"))
-CondDBProbabilities = CondDB.clone(connect = cms.string("sqlite_file:SiPixelQualityProbabilities_UltraLegacy2018_v0_mc.db"))
+CondDBProbabilities = CondDB.clone(connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"))
 process.dbInput2 = cms.ESSource("PoolDBESSource",
                                 CondDBProbabilities,
                                 toGet = cms.VPSet(cms.PSet(record = cms.string('SiPixelStatusScenarioProbabilityRcd'),
