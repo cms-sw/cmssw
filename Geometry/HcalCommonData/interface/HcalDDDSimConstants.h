@@ -16,7 +16,6 @@
 #include <iomanip>
 
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
-#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 #include "Geometry/HcalCommonData/interface/HcalLayerDepthMap.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
@@ -24,7 +23,7 @@
 
 class HcalDDDSimConstants {
 public:
-  HcalDDDSimConstants(const HcalParameters* hp, const HcalSimulationParameters* hps);
+  HcalDDDSimConstants(const HcalParameters* hp);
   ~HcalDDDSimConstants();
 
   HcalCellType::HcalCell cell(
@@ -70,7 +69,6 @@ public:
   void printTiles() const;
   int unitPhi(const int& det, const int& etaR) const;
   int unitPhi(const double& dphi) const;
-  const HcalSimulationParameters* hcalsimpar() const { return hspar; }
 
 private:
   static const int nDepthMax = 9;
@@ -90,7 +88,6 @@ private:
   unsigned int layerGroup(int det, int eta, int phi, int zside, int i) const;
 
   const HcalParameters* hpar;
-  const HcalSimulationParameters* hspar;
   HcalLayerDepthMap ldmap_;
 
   std::vector<int> maxDepth;                     // Maximum depths in HB/HE/HF/HO

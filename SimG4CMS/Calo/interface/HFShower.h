@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 
@@ -20,7 +21,7 @@ class G4Step;
 
 class HFShower {
 public:
-  HFShower(const std::string &name, const HcalDDDSimConstants *hcons, edm::ParameterSet const &p, int chk = 0);
+  HFShower(const std::string &name, const HcalDDDSimConstants *hcons, const HcalSimulationParameters* hps, edm::ParameterSet const &p, int chk = 0);
   virtual ~HFShower();
 
 public:

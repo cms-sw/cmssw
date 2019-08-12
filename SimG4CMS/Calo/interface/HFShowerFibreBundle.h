@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "CondFormats/GeometryObjects/interface/HcalSimulationParameters.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
@@ -18,13 +19,14 @@ class G4Step;
 
 class HFShowerFibreBundle {
 public:
-  HFShowerFibreBundle(const std::string &name, const HcalDDDSimConstants *hcons, edm::ParameterSet const &p);
+  HFShowerFibreBundle(const std::string &name, const HcalDDDSimConstants *hcons, const HcalSimulationParameters *hps, edm::ParameterSet const &p);
   virtual ~HFShowerFibreBundle();
   double getHits(const G4Step *aStep, bool type);
   double getRadius();
 
 private:
   const HcalDDDSimConstants *hcalConstant_;
+  const HcalSimulationParameters *hcalsimpar_;
   std::unique_ptr<HFCherenkov> cherenkov1_, cherenkov2_;
   double facTube, facCone;  //Packing factors
   int indexR, indexF;

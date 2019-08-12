@@ -22,11 +22,14 @@
 
 #include <iostream>
 
-#define EDM_ML_DEBUG
-#define plotDebug
-#define mkdebug
+//#define EDM_ML_DEBUG
+//#define plotDebug
+//#define mkdebug
 
-HFShowerParam::HFShowerParam(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
+HFShowerParam::HFShowerParam(const std::string& name, 
+			     const HcalDDDSimConstants* hcons,
+			     const HcalSimulationParameters* hps,
+			     edm::ParameterSet const& p)
     : hcalConstants_(hcons), fillHisto_(false) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV_ = m_HF.getParameter<double>("PEPerGeV");
@@ -84,14 +87,14 @@ HFShowerParam::HFShowerParam(const std::string& name, const HcalDDDSimConstants*
 #endif
 
   if (useShowerLibrary)
-    showerLibrary_.reset(new HFShowerLibrary(name, hcalConstants_, p));
+    showerLibrary_.reset(new HFShowerLibrary(name, hcalConstants_, hps, p));
   else
     showerLibrary_.reset(nullptr);
   if (useGflash)
     gflash_.reset(new HFGflash(p));
   else
     gflash_.reset(nullptr);
-  fibre_.reset(new HFFibre(name, hcalConstants_, p));
+  fibre_.reset(new HFFibre(name, hcalConstants_, hps, p));
   attLMeanInv_ = fibre_.get()->attLength(lambdaMean);
   edm::LogVerbatim("HFShower") << "att. length used for (lambda=" << lambdaMean
                                << ") = " << 1 / (attLMeanInv_ * CLHEP::cm) << " cm";

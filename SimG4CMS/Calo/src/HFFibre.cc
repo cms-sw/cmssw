@@ -15,17 +15,20 @@
 #include <iostream>
 #include <sstream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
-HFFibre::HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, edm::ParameterSet const& p)
-    : hcalConstant_(hcons) {
+HFFibre::HFFibre(const std::string& name, 
+		 const HcalDDDSimConstants* hcons, 
+		 const HcalSimulationParameters* hps, 
+		 edm::ParameterSet const& p)
+  : hcalConstant_(hcons), hcalsimpar_(hps) {
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   cFibre = c_light * (m_HF.getParameter<double>("CFibre"));
 
   edm::LogVerbatim("HFShower") << "HFFibre:: Speed of light in fibre " << cFibre << " m/ns";
 
   // Attenuation length
-  attL = hcalConstant_->hcalsimpar()->attenuationLength_;
+  attL = hcalsimpar_->attenuationLength_;
   nBinAtt = static_cast<int>(attL.size());
 #ifdef EDM_ML_DEBUG
   std::stringstream ss1;
@@ -38,14 +41,14 @@ HFFibre::HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, edm:
   edm::LogVerbatim("HFShower") << "HFFibre: " << nBinAtt << " attL(1/cm): " << ss1.str();
 #endif
   // Limits on Lambda
-  std::vector<int> nvec = hcalConstant_->hcalsimpar()->lambdaLimits_;
+  std::vector<int> nvec = hcalsimpar_->lambdaLimits_;
   lambLim[0] = nvec[0];
   lambLim[1] = nvec[1];
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HFShower") << "HFFibre: Limits on lambda " << lambLim[0] << " and " << lambLim[1];
 #endif
   // Fibre Lengths
-  longFL = hcalConstant_->hcalsimpar()->longFiberLength_;
+  longFL = hcalsimpar_->longFiberLength_;
 #ifdef EDM_ML_DEBUG
   std::stringstream ss2;
   for (unsigned int it = 0; it < longFL.size(); it++) {
@@ -56,7 +59,7 @@ HFFibre::HFFibre(const std::string& name, const HcalDDDSimConstants* hcons, edm:
   }
   edm::LogVerbatim("HFShower") << "HFFibre: " << longFL.size() << " Long Fibre Length(cm):" << ss2.str();
 #endif
-  shortFL = hcalConstant_->hcalsimpar()->longFiberLength_;
+  shortFL = hcalsimpar_->longFiberLength_;
 #ifdef EDM_ML_DEBUG
   std::stringstream ss3;
   for (unsigned int it = 0; it < shortFL.size(); it++) {
