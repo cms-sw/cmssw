@@ -240,6 +240,10 @@ struct InputFile {
     for (unsigned int i = 0; i < nChunks; i++)
       chunks_.push_back(nullptr);
   }
+  ~InputFile() {
+    if (rawFd_!=-1)
+      close(rawFd_);
+  }
 
   InputFile(std::string& name) : fileName_(name) {}
 
