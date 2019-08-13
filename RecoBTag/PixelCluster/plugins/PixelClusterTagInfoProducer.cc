@@ -121,69 +121,21 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
       float sC = 12. * 2. / (jetRef->pt());
 
       // Match pixel clusters to jets and fill Data struct
-      if (cluIt->layer == 1) {
+      if (cluIt->layer >= 1 && cluIt->layer <= m_nLayers) {
         if (dR < 0.04)
-          data.L1_R004++;
+          data.R004[cluIt->layer]++;
         if (dR < 0.06)
-          data.L1_R006++;
+          data.R006[cluIt->layer]++;
         if (dR < 0.08)
-          data.L1_R008++;
+          data.R008[cluIt->layer]++;
         if (dR < 0.10)
-          data.L1_R010++;
+          data.R010[cluIt->layer]++;
         if (dR < 0.16)
-          data.L1_R016++;
+          data.R016[cluIt->layer]++;
         if (dR < sC)
-          data.L1_RVAR++;
+          data.RVAR[cluIt->layer]++;
         if (dR < sC)
-          data.L1_RVWT += cluIt->charge;
-      }
-      if (cluIt->layer == 2) {
-        if (dR < 0.04)
-          data.L2_R004++;
-        if (dR < 0.06)
-          data.L2_R006++;
-        if (dR < 0.08)
-          data.L2_R008++;
-        if (dR < 0.10)
-          data.L2_R010++;
-        if (dR < 0.16)
-          data.L2_R016++;
-        if (dR < sC)
-          data.L2_RVAR++;
-        if (dR < sC)
-          data.L2_RVWT += cluIt->charge;
-      }
-      if (cluIt->layer == 3) {
-        if (dR < 0.04)
-          data.L3_R004++;
-        if (dR < 0.06)
-          data.L3_R006++;
-        if (dR < 0.08)
-          data.L3_R008++;
-        if (dR < 0.10)
-          data.L3_R010++;
-        if (dR < 0.16)
-          data.L3_R016++;
-        if (dR < sC)
-          data.L3_RVAR++;
-        if (dR < sC)
-          data.L3_RVWT += cluIt->charge;
-      }
-      if (cluIt->layer == 4) {
-        if (dR < 0.04)
-          data.L4_R004++;
-        if (dR < 0.06)
-          data.L4_R006++;
-        if (dR < 0.08)
-          data.L4_R008++;
-        if (dR < 0.10)
-          data.L4_R010++;
-        if (dR < 0.16)
-          data.L4_R016++;
-        if (dR < sC)
-          data.L4_RVAR++;
-        if (dR < sC)
-          data.L4_RVWT += cluIt->charge;
+          data.RVWT[cluIt->layer] += cluIt->charge;
       }
     }
 
