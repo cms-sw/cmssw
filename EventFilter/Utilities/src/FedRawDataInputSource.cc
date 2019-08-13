@@ -167,8 +167,9 @@ FedRawDataInputSource::~FedRawDataInputSource() {
 
   //delete any remaining open files
   for (auto it = filesToDelete_.begin(); it != filesToDelete_.end(); it++) {
-    deleteFile(it->second->fileName_);
+    std::string fileToDelete = it->second->fileName_;
     delete it->second;
+    deleteFile(fileToDelete);
   }
   if (startedSupervisorThread_) {
     readSupervisorThread_->join();
@@ -624,24 +625,15 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName) {
   try {
     //sometimes this fails but file gets deleted
     boost::filesystem::remove(filePath);
+    return;
   } catch (const boost::filesystem::filesystem_error& ex) {
     edm::LogError("FedRawDataInputSource")
         << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
-    usleep(100000);
-    try {
-      boost::filesystem::remove(filePath);
-    } catch (
-        const boost::filesystem::filesystem_error&) { /*file gets deleted first time but exception is still thrown*/
-    }
   } catch (std::exception& ex) {
     edm::LogError("FedRawDataInputSource")
         << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
-    usleep(100000);
-    try {
-      boost::filesystem::remove(filePath);
-    } catch (std::exception&) { /*file gets deleted first time but exception is still thrown*/
-    }
   }
+  boost::filesystem::remove(filePath);
 }
 
 void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
@@ -703,9 +695,10 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal) {
         }
       }
       if (!fileIsBeingProcessed) {
-        deleteFile(it->second->fileName_);
+        std::string fileToDelete = it->second->fileName_;
         delete it->second;
         it = filesToDelete_.erase(it);
+        deleteFile(fileToDelete);
       } else
         it++;
     }
