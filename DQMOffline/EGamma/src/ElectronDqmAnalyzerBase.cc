@@ -75,7 +75,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1(DQMStor
     me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
@@ -103,7 +103,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH1withSumw
     me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
@@ -132,7 +132,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2(DQMStor
     me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
@@ -163,7 +163,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookH2withSumw
     me->setOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }
@@ -191,7 +191,7 @@ ElectronDqmAnalyzerBase::MonitorElement *ElectronDqmAnalyzerBase::bookP1(DQMStor
     me->getTProfile()->SetOption(option);
   }
   if (bookStatOverflowFlag_) {
-    me->getTH1()->StatOverflows(kTRUE);
+    me->setStatOverflows(kTRUE);
   }
   return me;
 }

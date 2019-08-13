@@ -724,7 +724,7 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string&
   axisName = "Number of on-track clusters in " + name;
   theSubDetMEs.nClustersOnTrack = bookME1D(ibooker, "TH1nClustersOn", completeName.c_str());
   theSubDetMEs.nClustersOnTrack->setAxisTitle(axisName);
-  theSubDetMEs.nClustersOnTrack->getTH1()->StatOverflows(kTRUE);
+  theSubDetMEs.nClustersOnTrack->setStatOverflows(kTRUE);
 
   // TotalNumber of Cluster OffTrack
   completeName = "Summary_TotalNumberOfClusters_OffTrack" + subdet_tag;
@@ -750,7 +750,7 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string&
     theSubDetMEs.nClustersOffTrack->setAxisRange(0.0, xmaximum, 1);
   }
 
-  theSubDetMEs.nClustersOffTrack->getTH1()->StatOverflows(kTRUE);
+  theSubDetMEs.nClustersOffTrack->setStatOverflows(kTRUE);
 
   // Cluster Gain
   completeName = "Summary_ClusterGain" + subdet_tag;
