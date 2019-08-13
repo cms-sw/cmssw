@@ -25,7 +25,7 @@ MatchCandidateBenchmark::MatchCandidateBenchmark(Mode mode) : Benchmark(mode) {
 
 MatchCandidateBenchmark::~MatchCandidateBenchmark() {}
 
-void MatchCandidateBenchmark::setup(DQMStore::IBooker& b) {
+void MatchCandidateBenchmark::setup(DQMStore::IBooker &b) {
   if (!histogramBooked_) {
     PhaseSpace ptPS;
     PhaseSpace dptOvptPS;
@@ -99,8 +99,8 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker& b) {
   }
 }
 
-void MatchCandidateBenchmark::computePtBins(const edm::ParameterSet& ps, const edm::ParameterSet& ptPS) {
-  const std::vector<double>& ptBinsPS = ps.getParameter<std::vector<double> >("VariablePtBins");
+void MatchCandidateBenchmark::computePtBins(const edm::ParameterSet &ps, const edm::ParameterSet &ptPS) {
+  const std::vector<double> &ptBinsPS = ps.getParameter<std::vector<double> >("VariablePtBins");
   if (ptBinsPS.size() > 1) {
     ptBins_.reserve(ptBinsPS.size());
     for (size_t i = 0; i < ptBinsPS.size(); i++)
@@ -110,10 +110,10 @@ void MatchCandidateBenchmark::computePtBins(const edm::ParameterSet& ps, const e
     ptBins_.reserve(nFixedBins + 1);
     for (Int_t i = 0; i <= nFixedBins; i++)
       ptBins_.push_back(ptPS.getParameter<double>("xMin") +
-                        i * ((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins));
+                        i  *((ptPS.getParameter<double>("xMax") - ptPS.getParameter<double>("xMin")) / nFixedBins));
   }
 }
-void MatchCandidateBenchmark::setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet) {
+void MatchCandidateBenchmark::setup(DQMStore::IBooker &b, const edm::ParameterSet &parameterSet) {
   if (!histogramBooked_) {
     edm::ParameterSet ptPS = parameterSet.getParameter<edm::ParameterSet>("PtHistoParameter");
     edm::ParameterSet dptPS = parameterSet.getParameter<edm::ParameterSet>("DeltaPtHistoParameter");
@@ -225,7 +225,7 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker& b, const edm::ParameterSe
   }
 }
 
-void MatchCandidateBenchmark::fillOne(const reco::Candidate& cand, const reco::Candidate& matchedCand) {
+void MatchCandidateBenchmark::fillOne(const reco::Candidate &cand, const reco::Candidate &matchedCand) {
   if (!isInRange(cand.pt(), cand.eta(), cand.phi()))
     return;
 
@@ -254,9 +254,9 @@ bool MatchCandidateBenchmark::inEtaRange(double value, bool inBarrel) {
   return std::abs(value) >= eta_min_endcap_ && std::abs(value) <= eta_max_endcap_;
 }
 
-void MatchCandidateBenchmark::fillOne(const reco::Candidate& cand,
-                                      const reco::Candidate& matchedCand,
-                                      const edm::ParameterSet& parameterSet) {
+void MatchCandidateBenchmark::fillOne(const reco::Candidate &cand,
+                                      const reco::Candidate &matchedCand,
+                                      const edm::ParameterSet &parameterSet) {
   if (!isInRange(cand.pt(), cand.eta(), cand.phi()))
     return;
 
