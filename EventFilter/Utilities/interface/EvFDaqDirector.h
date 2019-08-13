@@ -165,7 +165,7 @@ namespace evf {
     void createProcessingNotificationMaybe() const;
     int readLastLSEntry(std::string const& file);
     unsigned int getLumisectionToStart() const;
-    void setDeleteTracking(std::mutex* fileDeleteLock, std::list<std::pair<int, InputFile*>>* filesToDelete) {
+    void setDeleteTracking(std::mutex* fileDeleteLock, std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDelete) {
       fileDeleteLockPtr_ = fileDeleteLock;
       filesToDeletePtr_ = filesToDelete;
     }
@@ -238,7 +238,7 @@ namespace evf {
     evf::FastMonitoringService* fms_ = nullptr;
 
     std::mutex* fileDeleteLockPtr_ = nullptr;
-    std::list<std::pair<int, InputFile*>>* filesToDeletePtr_ = nullptr;
+    std::list<std::pair<int, std::unique_ptr<InputFile>>>* filesToDeletePtr_ = nullptr;
 
     pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
 
