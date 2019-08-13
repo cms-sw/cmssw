@@ -83,4 +83,4 @@ static long algorithm(dd4hep::Detector& /* description */,
 }
 
 // first argument is the type from the xml file
-DECLARE_DDCMS_DETELEMENT(DDCMS_HGCal_DDHGCalWafer, algorithm)
+DECLARE_DDCMS_DETELEMENT(DDCMS_hgcal_DDHGCalWafer, algorithm)

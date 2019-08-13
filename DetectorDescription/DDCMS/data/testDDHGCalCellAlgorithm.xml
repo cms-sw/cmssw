@@ -18,7 +18,7 @@
       <rSolid name="MotherOfAllBoxes"/>
     </LogicalPart> 
   </LogicalPartSection>
-  <Algorithm name="HGCal:DDHGCalCell">
+  <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="testDDHGCalCellAlgorithm:MotherOfAllBoxes"/>
     <Numeric name="WaferSize"    value="[WaferSize]"/>
     <Numeric name="WaferThick"   value="[WaferThickness]"/>
