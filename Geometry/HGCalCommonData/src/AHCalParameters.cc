@@ -8,5 +8,5 @@ AHCalParameters::AHCalParameters(edm::ParameterSet const& iC)
       deltaZ_(iC.getUntrackedParameter<double>("deltaZ", 81.0)),
       zFirst_(iC.getUntrackedParameter<double>("zFirst", 17.6)) {
   edm::LogVerbatim("HGCalGeom") << "AHCalParameters: maxDepth = " << maxDepth_ << " deltaX = " << deltaX_
-				<< " deltaY = " << deltaY_ << " deltaZ = " << deltaZ_ << " zFirst = " << zFirst_;
+                                << " deltaY = " << deltaY_ << " deltaZ = " << deltaZ_ << " zFirst = " << zFirst_;
 }
