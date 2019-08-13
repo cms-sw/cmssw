@@ -383,30 +383,22 @@ namespace evf {
       if (it->second->lumi_ == ls) {
         const boost::filesystem::path filePath(it->second->fileName_);
         LogDebug("EvFDaqDirector") << "Deleting input file -:" << it->second->fileName_;
+        delete it->second;
+        it = filesToDeletePtr_->erase(it);
+
         try {
           //rarely this fails but file gets deleted
           boost::filesystem::remove(filePath);
         } catch (boost::filesystem::filesystem_error const& ex) {
           edm::LogError("EvFDaqDirector")
               << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
-          usleep(10000);
-          try {
-            boost::filesystem::remove(filePath);
-          } catch (
-              const boost::filesystem::filesystem_error&) { /*file gets deleted first time but exception is still thrown*/
-          }
+          boost::filesystem::remove(filePath);
         } catch (std::exception const& ex) {
           edm::LogError("EvFDaqDirector")
               << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
-          usleep(10000);
-          try {
-            boost::filesystem::remove(filePath);
-          } catch (std::exception const&) { /*file gets deleted first time but exception is still thrown*/
-          }
+          boost::filesystem::remove(filePath);
         }
 
-        delete it->second;
-        it = filesToDeletePtr_->erase(it);
       } else
         it++;
     }
@@ -968,7 +960,6 @@ namespace evf {
                                   false,
                                   closeFile);
       } else {
-        usleep(100000);
         if ((infile = ::open(rawSourcePath.c_str(), O_RDONLY)) < 0) {
           edm::LogError("EvFDaqDirector")
               << "parseFRDFileHeader - failed to open input file -: " << rawSourcePath << " : " << strerror(errno);
@@ -1086,7 +1077,6 @@ namespace evf {
       }
       edm::LogError("EvFDaqDirector") << "grabNextJsonFromRaw - failed to open output file -: " << jsonDestPath << " : "
                                       << strerror(errno);
-      usleep(100000);
       struct stat out_stat;
       if (stat(jsonDestPath.c_str(), &out_stat) == 0) {
         edm::LogWarning("EvFDaqDirector")
@@ -1143,7 +1133,6 @@ namespace evf {
     if ((infile = ::open(jsonSourcePath.c_str(), O_RDONLY)) < 0) {
       edm::LogWarning("EvFDaqDirector") << "grabNextJsonFile - failed to open input file -: " << jsonSourcePath << " : "
                                         << strerror(errno);
-      usleep(100000);
       if ((infile = ::open(jsonSourcePath.c_str(), O_RDONLY)) < 0) {
         edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to open input file (on retry) -: "
                                         << jsonSourcePath << " : " << strerror(errno);
@@ -1164,7 +1153,6 @@ namespace evf {
       }
       edm::LogError("EvFDaqDirector") << "grabNextJsonFile - failed to open output file -: " << jsonDestPath << " : "
                                       << strerror(errno);
-      usleep(100000);
       struct stat out_stat;
       if (stat(jsonDestPath.c_str(), &out_stat) == 0) {
         edm::LogWarning("EvFDaqDirector")
