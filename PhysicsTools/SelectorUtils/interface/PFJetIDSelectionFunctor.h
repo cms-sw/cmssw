@@ -299,7 +299,7 @@ public:  // interface
             e_nhf += patsub->neutralHadronEnergy();
             e_cef += patsub->chargedEmEnergy();
             e_nef += patsub->neutralEmEnergy();
-	    e_muf += patsub->muonEnergy();
+            e_muf += patsub->muonEnergy();
             nch += patsub->chargedMultiplicity();
             nconstituents += patsub->numberOfDaughters();
             nneutrals += patsub->neutralMultiplicity();
@@ -308,7 +308,7 @@ public:  // interface
             e_nhf += pfsub->neutralHadronEnergy();
             e_cef += pfsub->chargedEmEnergy();
             e_nef += pfsub->neutralEmEnergy();
-	    e_muf += pfsub->muonEnergy();
+            e_muf += pfsub->muonEnergy();
             nch += pfsub->chargedMultiplicity();
             nconstituents += pfsub->numberOfDaughters();
             nneutrals += pfsub->neutralMultiplicity();
