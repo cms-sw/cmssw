@@ -497,10 +497,10 @@ bool Generator::particlePassesPrimaryCuts(const G4ThreeVector &p) const {
 
 bool Generator::isExotic(int pdgcode) const {
   int pdgid = std::abs(pdgcode);
-  return ((pdgid >= 1000000 && pdgid < 4000000) ||  // SUSY, R-hadron, and technicolor particles
-          pdgid == 17 ||                            // 4th generation lepton
-          pdgid == 34 ||                            // W-prime
-          pdgid == 37)                              // charged Higgs
+  return ((pdgid >= 1000000 && pdgid < 4000000 && pdgid != 3000022) ||  // SUSY, R-hadron, and technicolor particles
+          pdgid == 17 ||                                                // 4th generation lepton
+          pdgid == 34 ||                                                // W-prime
+          pdgid == 37)                                                  // charged Higgs
              ? true
              : false;
 }
