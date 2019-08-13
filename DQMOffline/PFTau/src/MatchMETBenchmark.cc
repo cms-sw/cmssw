@@ -12,7 +12,7 @@ using namespace std;
 
 MatchMETBenchmark::~MatchMETBenchmark() {}
 
-void MatchMETBenchmark::setup(DQMStore::IBooker &b) {
+void MatchMETBenchmark::setup(DQMStore::IBooker& b) {
   // std::cout << "FL: MatchMETBenchmark.cc: start setup()" << std::endl;
   PhaseSpace ptPS;
   PhaseSpace dptOvptPS;
@@ -46,7 +46,7 @@ void MatchMETBenchmark::setup(DQMStore::IBooker &b) {
 
   // variable bins to be done here, as they will save a lot of memory.
 
-  // float ptBins[11] = {0, 1, 2, 5, 10, 20, 50, 100, 200, 400, 1000};
+  //float ptBins[11] = {0, 1, 2, 5, 10, 20, 50, 100, 200, 400, 1000};
 
   delta_et_Over_et_VS_et_ = book2D(b,
                                    "delta_et_Over_et_VS_et_",
@@ -103,7 +103,7 @@ void MatchMETBenchmark::setup(DQMStore::IBooker &b) {
                                            setOvsetPS.M);
 }
 
-void MatchMETBenchmark::fillOne(const reco::MET &cand, const reco::MET &matchedCand) {
+void MatchMETBenchmark::fillOne(const reco::MET& cand, const reco::MET& matchedCand) {
   if (!isInRange(cand.pt(), cand.eta(), cand.phi()))
     return;
 
