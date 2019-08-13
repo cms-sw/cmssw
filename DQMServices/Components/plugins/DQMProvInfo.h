@@ -14,6 +14,7 @@
 #include <DataFormats/Scalers/interface/DcsStatus.h>
 
 #include <DataFormats/TCDS/interface/TCDSRecord.h>
+#include <DataFormats/OnlineMetaData/interface/DCSRecord.h>
 
 #include <string>
 #include <vector>
@@ -41,9 +42,14 @@ private:
   void analyzeEventInfo(const edm::Event& e);
   void analyzeProvInfo(const edm::Event& e);
 
+  void fillDcsBitsFromDCSRecord(const DCSRecord&);
+  void fillDcsBitsFromDcsStatusCollection(const edm::Handle<DcsStatusCollection>&);
+  bool isPhysicsDeclared();
+
   void endLuminosityBlockLhcInfo(const int currentLSNumber);
   void endLuminosityBlockEventInfo(const int currentLSNumber);
   void blankPreviousLumiSections(const int currentLSNumber);
+  void blankAllLumiSections();
 
   // To max amount of lumisections we foresee for the plots
   // DQM GUI renderplugins provide scaling to actual amount
@@ -106,6 +112,7 @@ private:
 
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
   edm::EDGetTokenT<TCDSRecord> tcdsrecord_;
+  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
 
   // MonitorElements for LhcInfo and corresponding variables
   MonitorElement* hBeamMode_;
