@@ -51,54 +51,20 @@ void PFJetMonitor::setParameters(const edm::ParameterSet &parameterSet) {
            parameterSet.getParameter<double>("phiMax"));
 
   candBench_.setParameters(mode_);
+  candBench_.setRange(parameterSet.getParameter<double>("ptMin"),
+                      parameterSet.getParameter<double>("ptMax"),
+                      parameterSet.getParameter<double>("etaMin"),
+                      parameterSet.getParameter<double>("etaMax"),
+                      parameterSet.getParameter<double>("phiMin"),
+                      parameterSet.getParameter<double>("phiMax"));
+
   matchCandBench_.setParameters(mode_);
-}
-
-//
-// -- Set Parameters
-//
-void PFJetMonitor::setParameters(float dRMax,
-                                 bool matchCharge,
-                                 Benchmark::Mode mode,
-                                 float ptmin,
-                                 float ptmax,
-                                 float etamin,
-                                 float etamax,
-                                 float phimin,
-                                 float phimax,
-                                 bool fracHistoFlag) {
-  dRMax_ = dRMax;
-  matchCharge_ = matchCharge;
-  mode_ = mode;
-  createPFractionHistos_ = fracHistoFlag;
-
-  setRange(ptmin, ptmax, etamin, etamax, phimin, phimax);
-
-  candBench_.setParameters(mode_);
-  matchCandBench_.setParameters(mode_);
-}
-
-void PFJetMonitor::setParameters(float dRMax,
-                                 bool onlyTwoJets,
-                                 bool matchCharge,
-                                 Benchmark::Mode mode,
-                                 float ptmin,
-                                 float ptmax,
-                                 float etamin,
-                                 float etamax,
-                                 float phimin,
-                                 float phimax,
-                                 bool fracHistoFlag) {
-  dRMax_ = dRMax;
-  onlyTwoJets_ = onlyTwoJets;
-  matchCharge_ = matchCharge;
-  mode_ = mode;
-  createPFractionHistos_ = fracHistoFlag;
-
-  setRange(ptmin, ptmax, etamin, etamax, phimin, phimax);
-
-  candBench_.setParameters(mode_);
-  matchCandBench_.setParameters(mode_);
+  matchCandBench_.setRange(parameterSet.getParameter<double>("ptMin"),
+                           parameterSet.getParameter<double>("ptMax"),
+                           parameterSet.getParameter<double>("etaMin"),
+                           parameterSet.getParameter<double>("etaMax"),
+                           parameterSet.getParameter<double>("phiMin"),
+                           parameterSet.getParameter<double>("phiMax"));
 }
 
 //
