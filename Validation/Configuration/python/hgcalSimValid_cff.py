@@ -5,9 +5,6 @@ from Validation.HGCalValidation.digiValidation_cff      import *
 from Validation.HGCalValidation.rechitValidation_cff    import *
 from Validation.HGCalValidation.hgcalHitValidation_cfi  import *
 
-# from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
-
-# hgcalValidatorSequence = cms.Sequence(hgcalValidator)
 from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1 as _hgcalPFJetValidation
 
 hgcalPFJetValidation = _hgcalPFJetValidation.clone(BenchmarkLabel = 'PFJetValidation/HGCAlCompWithGenJet',
@@ -24,7 +21,4 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalRecHitValidationHEF
                                + hgcalRecHitValidationHEB
                                + hgcalHitValidationSequence
-                            #    + hgcalValidatorSequence
                                + hgcalPFJetValidation)
-
-
