@@ -1267,14 +1267,10 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     unsigned int skipped = bufferLeft;
     auto start = std::chrono::high_resolution_clock::now();
     for (unsigned int i = 0; i < readBlocks_; i++) {
-      ssize_t last, lastAndSkipped;
-      bool lastBlock = i == readBlocks_ - 1;
-      //subtract header size if reading last block to not overrun into next chunk
-      if (lastBlock && skipped) {
-        last = ::read(fileDescriptor, (void*)(chunk->buf_ + bufferLeft), eventChunkBlock_ - skipped);
-        lastAndSkipped = last + skipped;
-      } else
-        last = lastAndSkipped = ::read(fileDescriptor, (void*)(chunk->buf_ + bufferLeft), eventChunkBlock_);
+      ssize_t last;
+
+      //protect against reading into next block
+      last = ::read(fileDescriptor, (void*)(chunk->buf_ + bufferLeft), std::min(chunk->usedSize_ - bufferLeft,eventChunkBlock_));
 
       if (last < 0) {
         edm::LogError("FedRawDataInputSource") << "readWorker failed to read file -: " << file->fileName_
@@ -1284,9 +1280,9 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
       }
       if (last > 0)
         bufferLeft += last;
-      if (lastAndSkipped < eventChunkBlock_) {  //last read
+      if (last < eventChunkBlock_) {  //last read
         //check if this is last block, then total read size must match file size
-        if (!(lastBlock && chunk->usedSize_ == skipped + i * eventChunkBlock_ + last)) {
+        if (!( chunk->usedSize_ - skipped == i * eventChunkBlock_ + last)) {
           edm::LogError("FedRawDataInputSource")
               << "readWorker failed to read file -: " << file->fileName_ << " fd:" << fileDescriptor << " last:" << last
               << " expectedChunkSize:" << chunk->usedSize_
