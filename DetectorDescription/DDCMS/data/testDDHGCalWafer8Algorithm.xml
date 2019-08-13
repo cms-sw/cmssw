@@ -11,7 +11,7 @@
 </ConstantsSection>
 
 <PosPartSection label="testDDHGCalWafer8Algorithm.xml">
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalEEWafer0Fine"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -30,7 +30,7 @@
       testDDHGCalCellAlgorithm:HGCalEECellCorner06Fine</Vector>
   </Algorithm>
   <!-- 
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalEEWafer1Fine"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -48,7 +48,7 @@
       testDDHGCalCellAlgorithm:HGCalEECellCorner14Fine,testDDHGCalCellAlgorithm:HGCalEECellCorner15Fine,
       testDDHGCalCellAlgorithm:HGCalEECellCorner16Fine</Vector>
   </Algorithm>
- <Algorithm name="HGCal:DDHGCalWafer8">
+ <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalEEWafer0Coarse1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -66,7 +66,7 @@
       testDDHGCalCellAlgorithm:HGCalEECellCorner04Coarse1,testDDHGCalCellAlgorithm:HGCalEECellCorner05Coarse1,
       testDDHGCalCellAlgorithm:HGCalEECellCorner06Coarse1</Vector>
   </Algorithm>
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalEEWafer1Coarse1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -84,7 +84,7 @@
       testDDHGCalCellAlgorithm:HGCalEECellCorner14Coarse1,testDDHGCalCellAlgorithm:HGCalEECellCorner15Coarse1,
       testDDHGCalCellAlgorithm:HGCalEECellCorner16Coarse1</Vector>
   </Algorithm>
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalEEWafer0Coarse2"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -102,7 +102,7 @@
       testDDHGCalCellAlgorithm:HGCalEECellCorner04Coarse2,testDDHGCalCellAlgorithm:HGCalEECellCorner05Coarse2,
       testDDHGCalCellAlgorithm:HGCalEECellCorner06Coarse2</Vector>
   </Algorithm>
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalEEWafer1Coarse2"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -120,7 +120,7 @@
       testDDHGCalCellAlgorithm:HGCalEECellCorner14Coarse2,testDDHGCalCellAlgorithm:HGCalEECellCorner15Coarse2,
       testDDHGCalCellAlgorithm:HGCalEECellCorner16Coarse2</Vector>
   </Algorithm>
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalHEWafer0Fine"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -138,7 +138,7 @@
       testDDHGCalCellAlgorithm:HGCalHECellCorner04Fine,testDDHGCalCellAlgorithm:HGCalHECellCorner05Fine,
       testDDHGCalCellAlgorithm:HGCalHECellCorner06Fine</Vector>
   </Algorithm>
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalHEWafer0Coarse1"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
@@ -156,7 +156,7 @@
       testDDHGCalCellAlgorithm:HGCalHECellCorner04Coarse1,testDDHGCalCellAlgorithm:HGCalHECellCorner05Coarse1,
       testDDHGCalCellAlgorithm:HGCalHECellCorner06Coarse1</Vector>
   </Algorithm>
-  <Algorithm name="HGCal:DDHGCalWafer8">
+  <Algorithm name="hgcal:DDHGCalWafer8">
     <rParent name="HGCalHEWafer0Coarse2"/>
     <Numeric name="WaferSize"        value="[WaferSize]"/>
     <Numeric name="WaferThick"       value="[WaferThickness]"/>
