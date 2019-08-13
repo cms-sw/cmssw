@@ -40,9 +40,9 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id,
   }
   //look for FRD header at beginning of the file and skip it
   if (fin_.tellg() == 0) {
-    const size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
-    char buf[buf_sz];
-    fin_.read(buf, buf_sz);
+    constexpr size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
+    FRDFileHeader_v1 fileHead;
+    fin_.read((char*)&fileHead, buf_sz);
 
     if (fin_.gcount() == 0)
       throw cms::Exception("FRDStreamSource::setRunAndEventInfo")
@@ -50,14 +50,13 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id,
     else if (fin_.gcount() < (ssize_t)buf_sz)
       fin_.seekg(0);
     else {
-      FRDFileHeader_v1 const* fileHead = reinterpret_cast<FRDFileHeader_v1 const*>(buf);
-      uint16_t frd_version = getFRDFileHeaderVersion(fileHead->id_, fileHead->version_);
+      uint16_t frd_version = getFRDFileHeaderVersion(fileHead.id_, fileHead.version_);
       if (frd_version >= 1) {
-        if (fileHead->headerSize_ < buf_sz)
+        if (fileHead.headerSize_ < buf_sz)
           throw cms::Exception("FRDStreamSource::setRunAndEventInfo")
               << "Invalid FRD file header (size mismatch) in file " << *itFileName_;
-        else if (fileHead->headerSize_ > buf_sz)
-          fin_.seekg(fileHead->headerSize_, fin_.beg);
+        else if (fileHead.headerSize_ > buf_sz)
+          fin_.seekg(fileHead.headerSize_, fin_.beg);
       } else
         fin_.seekg(0, fin_.beg);
     }

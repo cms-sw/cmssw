@@ -398,11 +398,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         maybeOpenNewLumiSection(currentFile_->lumi_);
       }
     //immediately delete empty file
-    if (currentFile_->rawFd_ != -1)
-      close(currentFile_->rawFd_);
-    deleteFile(currentFile_->fileName_);
+    std::string currentName = currentFile_->fileName_;
     delete currentFile_;
     currentFile_ = nullptr;
+    deleteFile(currentName);
     return evf::EvFDaqDirector::noFile;
   }
 
@@ -428,10 +427,10 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       filesToDelete_.push_back(std::pair<int, InputFile*>(currentFileIndex_, currentFile_));
     } else {
       //in single-thread and stream jobs, events are already processed
-      if (currentFile_->rawFd_ != -1)
-        close(currentFile_->rawFd_);
-      deleteFile(currentFile_->fileName_);
+      std::string currentName = currentFile_->fileName_;
       delete currentFile_;
+      currentFile_ = nullptr;
+      deleteFile(currentName);
     }
     currentFile_ = nullptr;
     return evf::EvFDaqDirector::noFile;
@@ -974,6 +973,7 @@ void FedRawDataInputSource::readSupervisor() {
               << ". Aborting execution." << std::endl;
           if (rawFd != -1)
             close(rawFd);
+          rawFd=-1;
           fileQueue_.push(new InputFile(evf::EvFDaqDirector::runAbort, 0));
           stop = true;
           break;
@@ -1242,13 +1242,30 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
 
     //if only one worker thread exists, use single fd for all operations
     //if more worker threads exist, use rawFd_ for only the first read operation and then close file
-    int fileDescriptor = -1;
-    if (numConcurrentReads_ == 1)
-      fileDescriptor = file->rawFd_ == -1 ? open(file->fileName_.c_str(), O_RDONLY) : file->rawFd_;
+    int fileDescriptor;
+    bool fileOpenedHere = false;
+
+    if (numConcurrentReads_ == 1) {
+      fileDescriptor = file->rawFd_;
+      if (fileDescriptor == -1) {
+        fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
+        fileOpenedHere = true;
+        file->rawFd_ = fileDescriptor;
+      }
+    }
     else {
-      fileDescriptor =
-          (chunk->offset_ != 0 || file->rawFd_ == -1) ? open(file->fileName_.c_str(), O_RDONLY) : file->rawFd_;
-      file->rawFd_ = -1;
+      if (chunk->offset_==0) {
+        fileDescriptor = file->rawFd_;
+        file->rawFd_=-1;
+        if (fileDescriptor == -1) {
+          fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
+          fileOpenedHere = true;
+        }
+      }
+      else {
+        fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
+        fileOpenedHere = true;
+      }
     }
 
     if (fileDescriptor < 0) {
@@ -1257,7 +1274,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
       setExceptionState_ = true;
       continue;
     }
-    if (file->rawFd_ == -1) {
+    if (fileOpenedHere) { //fast forward to this chunk position
       off_t pos = 0;
       pos = lseek(fileDescriptor, chunk->offset_, SEEK_SET);
       if (pos == -1) {
@@ -1315,13 +1332,13 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
                                       << " in " << msec.count() << " ms (" << (bufferLeft >> 20) / double(msec.count())
                                       << " GB/s)";
 
-    //close file if opened here or taken over
-    if (file->rawFd_ == -1)
+    if (chunk->offset_ + bufferLeft == file->fileSize_) {  //file reading finished using same fd
       close(fileDescriptor);
-    else if (chunk->offset_ + bufferLeft == file->fileSize_) {  //file reading finished using same fd
-      close(fileDescriptor);
-      file->rawFd_ = -1;
+      fileDescriptor = -1;
+      if (numConcurrentReads_ == 1) file->rawFd_=-1;
     }
+    if (numConcurrentReads_ > 1 && fileDescriptor != -1)
+      close(fileDescriptor);
 
     //detect FRD event version. Skip file Header if it exists
     if (detectedFRDversion_ == 0 && chunk->offset_ == 0) {
@@ -1441,7 +1458,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile* file) {
     if (fileDescriptor_ != -1) {
       LogDebug("FedRawDataInputSource") << "Closing input file -: " << std::endl << file->fileName_;
       close(fileDescriptor_);
-      fileDescriptor_ = -1;
+      file->rawFd_ = fileDescriptor_ = -1;
     }
   }
 }

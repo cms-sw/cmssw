@@ -980,10 +980,10 @@ namespace evf {
       }
     }
 
-    const std::size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
-    char buf[buf_sz];
+    constexpr std::size_t buf_sz = sizeof(FRDFileHeader_v1);  //try to read v1 FRD header size
+    FRDFileHeader_v1 fileHead;
 
-    ssize_t sz_read = ::read(infile, buf, buf_sz);
+    ssize_t sz_read = ::read(infile, (char*)&fileHead, buf_sz);
     if (closeFile) {
       close(infile);
       infile = -1;
@@ -1004,9 +1004,7 @@ namespace evf {
       return -1;
     }
 
-    FRDFileHeader_v1 const* fileHead = reinterpret_cast<FRDFileHeader_v1 const*>(buf);
-
-    uint16_t frd_version = getFRDFileHeaderVersion(fileHead->id_, fileHead->version_);
+    uint16_t frd_version = getFRDFileHeaderVersion(fileHead.id_, fileHead.version_);
 
     if (frd_version == 0) {
       //no header (specific sequence not detected)
@@ -1024,7 +1022,7 @@ namespace evf {
       }
     } else {
       //version 1 header
-      uint32_t headerSizeRaw = fileHead->headerSize_;
+      uint32_t headerSizeRaw = fileHead.headerSize_;
       if (headerSizeRaw < buf_sz) {
         edm::LogError("EvFDaqDirector") << "inconsistent header size: " << rawSourcePath << " size: " << headerSizeRaw
                                         << " v:" << frd_version;
@@ -1033,10 +1031,10 @@ namespace evf {
         return -1;
       }
       //allow header size to exceed read size. Future header versions will not break this, but the size can change.
-      lsFromHeader = fileHead->lumiSection_;
-      eventsFromHeader = (int32_t)fileHead->eventCount_;
-      fileSizeFromHeader = (int64_t)fileHead->fileSize_;
-      rawHeaderSize = fileHead->headerSize_;
+      lsFromHeader = fileHead.lumiSection_;
+      eventsFromHeader = (int32_t)fileHead.eventCount_;
+      fileSizeFromHeader = (int64_t)fileHead.fileSize_;
+      rawHeaderSize = fileHead.headerSize_;
     }
     rawFd = infile;
     return 0;  //OK
