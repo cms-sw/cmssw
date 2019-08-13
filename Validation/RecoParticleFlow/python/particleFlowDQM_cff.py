@@ -1,6 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name,jetResponseDir,genjetDir
 
+#----- ----- ----- ----- ----- ----- ----- -----
+# 
+# Auxiliary definitions
+# 
+
 def make_response_plot_pset(name, title, responseNbins, responseLow, responseHigh, ptBinLow, ptBinHigh, etaBinLow, etaBinHigh):
     return cms.PSet(
         name = cms.string(name),
@@ -48,10 +53,10 @@ def createGenJetPlots(ptbins, etabins):
         )]
     return plots
 
-#matchRecoJetToGenJet = cms.EDProducer('MatchRecToGen',
-#        srcGen = cms.InputTag('ak4PFJets'),
-#        srcRec = cms.InputTag('ak4GenJets')
-#    )
+#----- ----- ----- ----- ----- ----- ----- -----
+#
+# Config for analyzer and postprocessor
+#
 
 name = "genjet_pt"
 title = "genjet pt"
@@ -77,7 +82,22 @@ pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
                                        
 )
 
+#----- ----- ----- ----- ----- ----- ----- -----
+#
+# Sequence
+#
+
 pfDQM = cms.Sequence(
-#    matchRecoJetToGenJet *
     pfJetAnalyzerDQM
+)
+
+#----- ----- ----- ----- ----- ----- ----- -----
+#
+# Era dependence
+#
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(
+    pfJetAnalyzerDQM,
+    recoJetCollection = "slimmedJetsPuppi"
 )
