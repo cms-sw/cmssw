@@ -83,7 +83,7 @@ void HTXSRivetProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
         HepMC::GenVertex* HSvtx = myGenEvent->signal_process_vertex();
 
         if (HSvtx) {
-          for (auto ptcl : particles(HSvtx, HepMC::children)) {
+          for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
             if (std::abs(ptcl->pdg_id()) == 24)
               ++nWs;
             if (ptcl->pdg_id() == 23)
