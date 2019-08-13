@@ -4,6 +4,7 @@ from Validation.HGCalValidation.simhitValidation_cff    import *
 from Validation.HGCalValidation.digiValidation_cff      import *
 from Validation.HGCalValidation.rechitValidation_cff    import *
 from Validation.HGCalValidation.hgcalHitValidation_cfi  import *
+from Validation.HGCalValidation.ticlPFValidationDefault_cfi import ticlPFValidationDefault as ticlPFValidation
 
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 from Validation.RecoParticleFlow.PFJetValidation_cff import pfJetValidation1 as _hgcalPFJetValidation
@@ -24,4 +25,6 @@ hgcalValidation = cms.Sequence(hgcalSimHitValidationEE
                                + hgcalRecHitValidationHEB
                                + hgcalHitValidationSequence
                                + hgcalValidatorSequence
-                               + hgcalPFJetValidation)
+                               + hgcalPFJetValidation
+                               + ticlPFValidation)
+
