@@ -24,11 +24,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'        :   '110X_mcRun2_pA_v2',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   '110X_dataRun2_2017_2018_Candidate_2019_08_03_03_51_45',
+    'run1_data'         :   '110X_dataRun2_v4',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   '110X_dataRun2_2017_2018_Candidate_2019_08_03_03_51_45',
+    'run2_data'         :   '110X_dataRun2_v4',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'  :   '110X_dataRun2_relval_Candidate_2019_08_03_03_55_32',
+    'run2_data_relval'  :   '110X_dataRun2_relval_v4',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
     'run2_data_promptlike_HEfail' : '110X_dataRun2_PromptLike_HEfail_Candidate_2019_08_02_16_55_52',
     # GlobalTag for Run2 data 2016H relvals only: Prompt Conditions + fixed L1 menu (to be removed)
@@ -87,6 +87,10 @@ aliases = {
 # dedicated GlobalTags for HLT
 from Configuration.HLT.autoCondHLT import autoCondHLT
 autoCond = autoCondHLT(autoCond)
+
+# dedicate GlobalTags for phase-2 (specializing conditions for each geometry)
+from Configuration.AlCa.autoCondPhase2 import autoCondPhase2
+autoCond = autoCondPhase2(autoCond)
 
 ### OLD KEYS ### kept for backward compatibility
     # GlobalTag for MC production with perfectly aligned and calibrated detector

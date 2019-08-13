@@ -121,7 +121,7 @@ def main(argv):
                           help="Name of sample as defined in skimProducer_cfg.py. Multiple inputs possible")
     parser.add_argument("-c", "--consecutive", action="store_true", dest="consecutive", default=False,
                           help="Do consecutive instead of parallel skims")
-    parser.add_argument("-n", "--ncores", action="store", dest="ncores", default=-1, type="int",
+    parser.add_argument("-n", "--ncores", action="store", dest="ncores", default=-1, type=int,
                           help="Set maximum number of parallel skims to run")
     
     args = parser.parse_args()
@@ -145,6 +145,8 @@ def main(argv):
             doSkim(sample) 
     else:
         try:
+            # In a later PR, this should be migrated to condor to avoid 
+            # overloading lxplus and transfer load to lxbatch
             pool = mp.Pool(args.ncores)
             pool.map_async(doSkim, args.samples)
             pool.close()

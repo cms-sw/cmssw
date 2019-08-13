@@ -18,8 +18,6 @@ def makeStepName(key,frag,step,suffix):
 neutronKeys = [x for x in upgradeKeys[2026] if 'PU' not in x]
 neutronFrags = ['ZMM_14','MinBias_14TeV']
 
-tbmFrags = ['TTbar_13','ZMM_13']
-
 #just define all of them
 
 for year in upgradeKeys:
@@ -98,10 +96,6 @@ for year in upgradeKeys:
             # special workflows for HE
             if upgradeDatasetFromFragment[frag]=="TTbar_13" and '2018' in key:
                 workflows[numWF+upgradeSteps['heCollapse']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['heCollapse']]
-
-            # special workflows for stuck TBM
-            if any(upgradeDatasetFromFragment[frag]==nfrag for nfrag in tbmFrags) and '2018' in key:
-                workflows[numWF+upgradeSteps['killStuckTBM']['offset']] = [ upgradeDatasetFromFragment[frag], stepList['killStuckTBM']]
 
             # workflow for profiling
             if upgradeDatasetFromFragment[frag]=="TTbar_14TeV" and '2026' in key:

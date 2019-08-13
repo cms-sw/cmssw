@@ -12,7 +12,7 @@
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
@@ -32,7 +32,7 @@
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 namespace dd4hep {
 
@@ -1334,7 +1334,7 @@ void Converter<DDLCutTubs>::operator()(xml_h element) const {
            rmax,
            startPhi,
            deltaPhi);
-  ns.addSolid(nam, CutTube(rmin, rmax, dz, startPhi, deltaPhi, lx, ly, lz, tx, ty, tz));
+  ns.addSolid(nam, CutTube(rmin, rmax, dz, startPhi, startPhi + deltaPhi, lx, ly, lz, tx, ty, tz));
 }
 
 /// Converter for <TruncTubs/> tags
@@ -1640,7 +1640,7 @@ namespace {
 
     for_each_token(cbegin(str), cend(str), cbegin(delims), cend(delims), [&output](auto first, auto second) {
       if (first != second) {
-        output.emplace_back(stod(string(first, second)));
+        output.emplace_back(dd4hep::_toDouble(string(first, second)));
       }
     });
     return output;

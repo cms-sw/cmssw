@@ -129,7 +129,7 @@ int main(int argc, char const *argv[]) {
     for (unsigned long long id = cat->smallestId(); id <= last; ++id) {
       if (!cat->itemExists(id))
         continue;
-      CPP11_shared_ptr<const CatalogEntry> e = cat->retrieveEntry(id);
+      std::shared_ptr<const CatalogEntry> e = cat->retrieveEntry(id);
       const unsigned long long newid = merged.makeEntry(*e,
                                                         e->compressionCode(),
                                                         e->itemLength(),

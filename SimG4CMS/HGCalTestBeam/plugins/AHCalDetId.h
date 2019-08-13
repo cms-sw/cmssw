@@ -32,14 +32,18 @@ public:
   int zside() const { return 1; }
   /// get the row number
   int irow() const;
-  int irowAbs() const { return ((id_ >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2); }
+  int irowAbs() const { return ((id_ >> HcalDetId::kHcalEtaOffset1) & HcalDetId::kHcalEtaMask1); }
   /// get the column number
   int icol() const;
-  int icolAbs() const { return (id_ & HcalDetId::kHcalPhiMask2); }
+  int icolAbs() const { return (id_ & HcalDetId::kHcalPhiMask1); }
   /// get the layer number
   int depth() const;
 
   static const AHCalDetId Undefined;
+
+private:
+  static constexpr int kMaxRowCol = 16;
+  static constexpr uint32_t kHcalDepthMask = 0x3F;
 };
 
 std::ostream& operator<<(std::ostream&, const AHCalDetId& id);

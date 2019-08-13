@@ -327,10 +327,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
         }
       }
     }
-    if (!hTriggerLabelsIsSet_)
-      for (int i = allTriggerNames_.size(); i < hTrigger->getNbinsX(); i++) {
-        hTrigger->setBinLabel(i + 1, "");
-      }
     hTriggerLabelsIsSet_ = true;
 
     hMEx = ibooker.book1D("MEx", "MEx", 200, -500, 500);

@@ -1,16 +1,48 @@
 #include <algorithm>
 #include <cmath>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HGCalCommonData/plugins/DDHGCalWafer.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
+
+class DDHGCalWafer : public DDAlgorithm {
+public:
+  // Constructor and Destructor
+  DDHGCalWafer();
+  ~DDHGCalWafer() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double waferSize_;                     // Wafer Size
+  int cellType_;                         // Type (1 fine; 2 coarse)
+  int nColumns_;                         // Maximum number of columns
+  int nBottomY_;                         // Index of cell position of bottom row
+  std::vector<std::string> childNames_;  // Names of children
+  std::vector<int> nCellsRow_;           // Number of cells in a row
+  std::vector<int> angleEdges_;          // Rotation angles to be used for edges
+  std::vector<int> detectorType_;        // Detector type of edge cells
+  std::string idNameSpace_;              // Namespace of this and ALL sub-parts
+  DDName parentName_;                    // Parent name
+};
 
 DDHGCalWafer::DDHGCalWafer() {
 #ifdef EDM_ML_DEBUG
@@ -96,3 +128,5 @@ void DDHGCalWafer::execute(DDCompactView& cpv) {
     ny += 6;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHGCalWafer, "hgcal:DDHGCalWafer");
