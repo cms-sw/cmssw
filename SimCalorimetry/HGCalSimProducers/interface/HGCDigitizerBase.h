@@ -7,7 +7,7 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
-
+#include <fstream>
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -22,7 +22,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 namespace hgc = hgc_digi;
-
+using namespace std;
 namespace hgc_digi_utils {
   using hgc::HGCCellInfo;
 
@@ -40,7 +40,7 @@ namespace hgc_digi_utils {
                        : false);
     //base time samples for each DetId, initialized to 0
     info.size = (isHalf ? 0.5 : 1.0);
-    info.thickness = 1 + dddConst.waferType(detid);
+    info.thickness = dddConst.waferType(detid);
   }
 
   inline void addCellMetadata(HGCCellInfo& info, const CaloSubdetectorGeometry* geom, const DetId& detid) {
@@ -127,16 +127,16 @@ protected:
 
   //1keV in fC
   float keV2fC_;
-
+  ofstream mytestFile;
   //noise level
   std::vector<float> noise_fC_;
 
   //charge collection efficiency
   std::vector<double> cce_;
-
+  float cceArg_;
   //front-end electronics model
   std::unique_ptr<HGCFEElectronics<DFr> > myFEelectronics_;
-
+  uint32_t myFEelectronicstoaMode_;
   static const int samplesize_ = hgc::nSamples;
   const double NoiseMean_, NoiseStd_;
   static const long NoiseArrayLength_ = 50000;
@@ -144,7 +144,7 @@ protected:
   //bunch time
   double bxTime_;
   size_t Dim_;
-
+  int iscceEmpty_;
   //if true will put both in time and out-of-time samples in the event
   bool doTimeSamples_;
 };

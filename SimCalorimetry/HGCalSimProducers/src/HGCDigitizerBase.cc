@@ -19,6 +19,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : NoiseMean
     cce_ = myCfg_.getParameter<edm::ParameterSet>("chargeCollectionEfficiencies")
                .template getParameter<std::vector<double>>("values");
   }
+  iscceEmpty_ = cce_.empty();
 
   if (myCfg_.existsAs<double>("noise_fC")) {
     noise_fC_.reserve(1);
@@ -36,8 +37,8 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) : NoiseMean
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_ = std::unique_ptr<HGCFEElectronics<DFr>>(new HGCFEElectronics<DFr>(feCfg));
   myFEelectronics_->SetNoiseValues(noise_fC_);
+  myFEelectronicstoaMode_ = myFEelectronics_->toaMode();
   Dim_ = noise_fC_.size();
-  GenGaussianNoise(NoiseMean_, NoiseStd_);
 }
 
 template <class DFr>
@@ -73,48 +74,37 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   HGCCellInfo zeroData;
   zeroData.hit_info[0].fill(0.f);  //accumulated energy
   zeroData.hit_info[1].fill(0.f);  //time-of-flight
-
+  CLHEP::RandGaussQ randgauss(*engine, NoiseMean_, NoiseStd_);
+  double cellNoiseArray[samplesize_];
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
     HGCSimHitDataAccumulator::iterator it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
-    double randStep = CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
-    long hash_index;
-    if (randStep > 0.5)
-      hash_index = std::abs(CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) + long(id)) % NoiseArrayLength_;
-    else
-      hash_index = std::abs(CLHEP::RandFlat::shootInt(engine, (NoiseArrayLength_ - 1)) - long(id)) % NoiseArrayLength_;
-    const auto& cellNoiseArray = GaussianNoiseArray_[hash_index];
-
+    randgauss.fireArray(samplesize_, std::begin(cellNoiseArray));
+    cceArg_ = iscceEmpty_ ? 1.0 : cce_[cell.thickness - 1];
     for (size_t i = 0; i < cell.hit_info[0].size(); i++) {
       double rawCharge(cell.hit_info[0][i]);
+      int positiverawCharge = rawCharge > 0;
       float randNum = cellNoiseArray[i];
       //time of arrival
       toa[i] = cell.hit_info[1][i];
-      if (myFEelectronics_->toaMode() == HGCFEElectronics<DFr>::WEIGHTEDBYE && rawCharge > 0)
-        toa[i] = cell.hit_info[1][i] / rawCharge;
+      int runWEIGHTEDBY = myFEelectronicstoaMode_ && positiverawCharge;
+      double divisor = runWEIGHTEDBY * rawCharge + (1 - runWEIGHTEDBY);
+      toa[i] = cell.hit_info[1][i] / divisor;
+      const int thickness_end = noise_fC_[cell.thickness - 1] != 0;
 
-      float totalCharge = rawCharge;
       //add noise (in fC)
       //we assume it's randomly distributed and won't impact ToA measurement
       //also assume that it is related to the charge path only and that noise fluctuation for ToA circuit be handled separately
-      if (noise_fC_[cell.thickness - 1] != 0) {
-        totalCharge += std::max((float)(randNum * cell.size * noise_fC_[cell.thickness - 1]), 0.f);
-      }
-
-      if (totalCharge < 0.f)
-        totalCharge = 0.f;
-      chargeColl[i] = totalCharge;
+      float totalCharge =
+          rawCharge + thickness_end * std::max((float)(randNum * cell.size * noise_fC_[cell.thickness - 1]), 0.f);
+      chargeColl[i] = std::max(0.f, totalCharge);
     }
     //run the shaper to create a new data frame
     DFr rawDataFrame(id);
-    if (!cce_.empty()) {
-      myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cce_[cell.thickness - 1]);
-    } else {
-      myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine);
-    }
+    myFEelectronics_->runShaper(rawDataFrame, chargeColl, toa, cell.thickness, engine, cceArg_);
     //update the output according to the final shape
     updateOutput(coll, rawDataFrame);
   }
