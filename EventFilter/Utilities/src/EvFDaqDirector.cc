@@ -381,24 +381,7 @@ namespace evf {
     auto it = filesToDeletePtr_->begin();
     while (it != filesToDeletePtr_->end()) {
       if (it->second->lumi_ == ls) {
-        const boost::filesystem::path filePath(it->second->fileName_);
-        LogDebug("EvFDaqDirector") << "Deleting input file -:" << it->second->fileName_;
-        delete it->second;
         it = filesToDeletePtr_->erase(it);
-
-        try {
-          //rarely this fails but file gets deleted
-          boost::filesystem::remove(filePath);
-        } catch (boost::filesystem::filesystem_error const& ex) {
-          edm::LogError("EvFDaqDirector")
-              << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
-          boost::filesystem::remove(filePath);
-        } catch (std::exception const& ex) {
-          edm::LogError("EvFDaqDirector")
-              << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
-          boost::filesystem::remove(filePath);
-        }
-
       } else
         it++;
     }
