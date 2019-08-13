@@ -1,4 +1,4 @@
-#include "AHCalDetId.h"
+#include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
 #include <ostream>
 #include "FWCore/Utilities/interface/Exception.h"
 
