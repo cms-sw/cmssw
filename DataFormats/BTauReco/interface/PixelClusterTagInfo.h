@@ -14,40 +14,13 @@ namespace reco {
   };
 
   struct PixelClusterData {
-    char L1_R004 = 0;
-    char L2_R004 = 0;
-    char L3_R004 = 0;
-    char L4_R004 = 0;
-
-    char L1_R006 = 0;
-    char L2_R006 = 0;
-    char L3_R006 = 0;
-    char L4_R006 = 0;
-
-    char L1_R008 = 0;
-    char L2_R008 = 0;
-    char L3_R008 = 0;
-    char L4_R008 = 0;
-
-    char L1_R010 = 0;
-    char L2_R010 = 0;
-    char L3_R010 = 0;
-    char L4_R010 = 0;
-
-    char L1_R016 = 0;
-    char L2_R016 = 0;
-    char L3_R016 = 0;
-    char L4_R016 = 0;
-
-    char L1_RVAR = 0;
-    char L2_RVAR = 0;
-    char L3_RVAR = 0;
-    char L4_RVAR = 0;
-
-    unsigned int L1_RVWT = 0;
-    unsigned int L2_RVWT = 0;
-    unsigned int L3_RVWT = 0;
-    unsigned int L4_RVWT = 0;
+    int8_t R004[4] = {};
+    int8_t R006[4] = {};
+    int8_t R008[4] = {};
+    int8_t R010[4] = {};
+    int8_t R016[4] = {};
+    int8_t RVAR[4] = {};
+    unsigned int RVWT[4] = {};
   };
 
   class PixelClusterTagInfo : public BaseTagInfo {
