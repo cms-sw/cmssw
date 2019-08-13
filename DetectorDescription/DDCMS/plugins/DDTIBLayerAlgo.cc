@@ -278,11 +278,14 @@ static long algorithm(Detector& /* description */,
   solid = ns.addSolidNS(name, Tube(rin, rout, MFRingDz));
   LogDebug("TIBGeom") << solid.name() << " Tubs made of " << MFIntRingMat << " from 0 to " << convertRadToDeg(2_pi)
                       << " with Rin " << rin << " Rout " << rout << " ZHalf " << MFRingDz;
+
   Volume inmfr = ns.addVolumeNS(Volume(name, solid, ns.material(MFIntRingMat)));
-  layer.placeVolume(inmfr, 1, Position(0.0, 0.0, -0.5 * layerL + MFRingDz));  // Copy Nr=1
-  layer.placeVolume(inmfr, 2, Position(0.0, 0.0, +0.5 * layerL + MFRingDz));  // Copy Nr=2
-  LogDebug("TIBGeom") << inmfr.name() << " number 1 and 2 positioned in " << layer.name() << " at (0,0,+-"
-                      << 0.5 * layerL - MFRingDz << ") with no rotation";
+
+  pv = layer.placeVolume(inmfr, 1, Position(0.0, 0.0, -0.5 * layerL + MFRingDz));
+  LogPosition(pv);
+
+  pv = layer.placeVolume(inmfr, 2, Position(0.0, 0.0, +0.5 * layerL - MFRingDz));
+  LogPosition(pv);
 
   // Outer ones
   rout = MFRingOutR;
@@ -293,10 +296,11 @@ static long algorithm(Detector& /* description */,
                       << " with Rin " << rin << " Rout " << rout << " ZHalf " << MFRingDz;
 
   Volume outmfr = ns.addVolumeNS(Volume(name, solid, ns.material(MFExtRingMat)));
-  layer.placeVolume(outmfr, 1, Position(0.0, 0.0, -0.5 * layerL + MFRingDz));  // CopyNr=1
-  layer.placeVolume(outmfr, 2, Position(0.0, 0.0, +0.5 * layerL + MFRingDz));  // CopyNr=2
-  LogDebug("TIBGeom") << outmfr.name() << " number 1 and 2 positioned in " << layer.name() << " at (0,0,+-"
-                      << 0.5 * layerL - MFRingDz << ") with no rotation";
+  pv = layer.placeVolume(outmfr, 1, Position(0.0, 0.0, -0.5 * layerL + MFRingDz));
+  LogPosition(pv);
+  pv = layer.placeVolume(outmfr, 2, Position(0.0, 0.0, +0.5 * layerL - MFRingDz));
+  LogPosition(pv);
+
   //
   //Central Support rings
   //
