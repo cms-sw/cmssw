@@ -2,7 +2,8 @@
 #define SimG4CMS_HGCalTestBeam_AHCALGEOMETRY_H 1
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "AHCalDetId.h"
+#include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
+#include "Geometry/HGCalCommonData/interface/AHCalParameters.h"
 
 /** \class AHCalGeometry
  *  Gets position of AHCal cell
@@ -15,7 +16,7 @@ public:
   ~AHCalGeometry() {}
 
   /// get maximum number of layers
-  int maxDepth() const { return maxDepth_; }
+  int maxDepth() const { return ahcal_->maxDepth(); }
 
   /// get the local coordinate in the plane and along depth
   std::pair<double, double> getXY(const AHCalDetId& id) const;
@@ -23,7 +24,6 @@ public:
 
 private:
   AHCalGeometry() = delete;
-  const int maxDepth_;
-  const double deltaX_, deltaY_, deltaZ_, zFirst_;
+  std::unique_ptr<AHCalParameters> ahcal_;
 };
 #endif
