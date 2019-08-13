@@ -61,12 +61,12 @@
 RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
     : m_managerInitialized(false),
       m_runTerminated(false),
-      m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
-      m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
-      m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
+      m_PhysicsTablesDir(p.getUntrackedParameter<std::string>("PhysicsTablesDirectory", "")),
+      m_StorePhysicsTables(p.getUntrackedParameter<bool>("StorePhysicsTables", false)),
+      m_RestorePhysicsTables(p.getUntrackedParameter<bool>("RestorePhysicsTables", false)),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
-      m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
+      m_g4overlap(p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_p(p) {
   m_currentRun = nullptr;
@@ -83,7 +83,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_stateManager->SetExceptionHandler(new ExceptionHandler());
   m_geometryManager->G4GeometryManager::GetInstance();
 
-  m_check = p.getParameter<bool>("CheckGeometry");
+  m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
 RunManagerMT::~RunManagerMT() { stopG4(); }
@@ -98,8 +98,8 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   bool geoFromDD4hep = m_p.getParameter<bool>("g4GeometryDD4hepSource");
   bool cuts = m_pPhysics.getParameter<bool>("CutsPerRegion");
   bool protonCut = m_pPhysics.getParameter<bool>("CutsOnProton");
-  int verb =
-      std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0), m_p.getParameter<int>("SteppingVerbosity"));
+  int verb = std::max(m_pPhysics.getUntrackedParameter<int>("Verbosity", 0),
+                      m_p.getUntrackedParameter<int>("SteppingVerbosity", 0));
   edm::LogVerbatim("SimG4CoreApplication")
       << "RunManagerMT: start initialising of geometry DD4Hep: " << geoFromDD4hep << "\n"
       << "              cutsPerRegion: " << cuts << " cutForProton: " << protonCut << "\n"
@@ -212,7 +212,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   initializeUserActions();
 
   // geometry dump
-  auto writeFile = m_p.getParameter<std::string>("FileNameGDML");
+  auto writeFile = m_p.getUntrackedParameter<std::string>("FileNameGDML", "");
   if (!writeFile.empty()) {
     G4GDMLParser gdml;
     gdml.SetRegionExport(true);
@@ -221,7 +221,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   }
 
   // G4Region dump file name
-  auto regionFile = m_p.getParameter<std::string>("FileNameRegions");
+  auto regionFile = m_p.getUntrackedParameter<std::string>("FileNameRegions", "");
 
   // Geometry checks
   if (m_check || !regionFile.empty()) {

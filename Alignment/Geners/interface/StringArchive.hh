@@ -26,7 +26,7 @@ namespace gs {
       catalog_.search(namePattern, categoryPattern, idsFound);
     }
 
-    inline CPP11_shared_ptr<const CatalogEntry> catalogEntry(const unsigned long long id) override {
+    inline std::shared_ptr<const CatalogEntry> catalogEntry(const unsigned long long id) override {
       return catalog_.retrieveEntry(id);
     }
 

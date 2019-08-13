@@ -5,13 +5,18 @@
   </bin>
   <bin   file="ReadStreamerFile.cpp">
     <use   name="IOPool/Streamer"/>
-    <flags   TEST_RUNNER_ARGS=" bin/bash teststreamfile.dat"/>
+    <use   name="FWCore/Catalog"/>
+    <use   name="FWCore/PluginManager"/>
+    <use   name="FWCore/ServiceRegistry"/>
+    <use   name="FWCore/Services"/>
+    <use   name="FWCore/ParameterSetReader"/>
+    <flags   TEST_RUNNER_ARGS="all"/>
   </bin>
   <bin   file="WriteStreamerFile.cpp">
     <use   name="IOPool/Streamer"/>
   </bin>
   <bin   file="RunThis_t.cpp" name="NewStreamerUNCOMPRESSED">
-    <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunUNCOMPRESSED.sh"/>
+    <flags   TEST_RUNNER_ARGS="/bin/bash IOPool/Streamer/test RunUNCOMPRESSED.sh"/>
   </bin>
   <bin   file="RunThis_t.cpp" name="NewStreamerZLIB">
     <flags   TEST_RUNNER_ARGS=" /bin/bash IOPool/Streamer/test RunZLIB.sh"/>

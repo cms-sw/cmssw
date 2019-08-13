@@ -40,6 +40,9 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   for (unsigned i = 0; i < phis.size(); i++) {
     Section s = {phis[i], z_ls[i], z_ts[i]};
+
+    edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: Sections :" << phis[i] << " , " << z_ls[i] << " , "
+                                    << z_ts[i];
     sections.emplace_back(s);
   }
 
@@ -49,8 +52,9 @@ static long algorithm(dd4hep::Detector& /* description */,
   // non-zero phi distance. Sections with zero phi distance can be used to
   // create sharp jumps.
 
-  LogDebug("TrackerGeom") << "DDCutTubsFromPoints debug: Parent " << args.parentName() << "\tSolid " << solidOutput
-                          << " NameSpace " << ns.name() << "\tnumber of sections " << sections.size();
+  edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints debug: Parent " << args.parentName() << "\tSolid "
+                                  << solidOutput << " NameSpace " << ns.name() << "\tnumber of sections "
+                                  << sections.size();
 
   // radius for plane calculations
   // We use r_max here, since P3 later has a Z that is always more inside
@@ -107,6 +111,16 @@ static long algorithm(dd4hep::Detector& /* description */,
       double P3_z_l = (P1_z_l + P2_z_l) / 2;
       double P3_z_t = (P1_z_t + P2_z_t) / 2;
 
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P1 l: " << segname << P1_x_l << " , " << P1_y_l << " , "
+                                      << P1_z_l;
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P1 t: " << segname << P1_x_t << " , " << P1_y_t << " , "
+                                      << P1_z_t;
+
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P2 l: " << segname << P2_x_l << " , " << P2_y_l << " , "
+                                      << P2_z_l;
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: P2 t: " << segname << P2_x_t << " , " << P2_y_t << " , "
+                                      << P2_z_t;
+
       // we only have one dz to position both planes. The anchor is implicitly
       // between the P3's, we have to use an offset later to make the segments
       // line up correctly.
@@ -123,12 +137,16 @@ static long algorithm(dd4hep::Detector& /* description */,
       double n_y_l = (D1_z_l * P2_x_l) - (P1_x_l * D2_z_l);
       double n_z_l = (P1_x_l * P2_y_l) - (P1_y_l * P2_x_l);
 
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: l_Pos (" << n_x_l << "," << n_y_l << "," << n_z_l << ")";
+
       // ... normalized.
       // flip the sign here (but not for t) since root wants it like that.
       double norm = -sqrt(n_x_l * n_x_l + n_y_l * n_y_l + n_z_l * n_z_l);
       n_x_l /= norm;
       n_y_l /= norm;
       n_z_l /= norm;
+
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: l_norm " << norm;
 
       // same game for the t side.
       double D1_z_t = P1_z_t - P3_z_t;
@@ -138,15 +156,21 @@ static long algorithm(dd4hep::Detector& /* description */,
       double n_y_t = (D1_z_t * P2_x_t) - (P1_x_t * D2_z_t);
       double n_z_t = (P1_x_t * P2_y_t) - (P1_y_t * P2_x_t);
 
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: t_Pos (" << n_x_t << "," << n_y_t << "," << n_z_t << ")";
+
       norm = sqrt(n_x_t * n_x_t + n_y_t * n_y_t + n_z_t * n_z_t);
+
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: t_norm " << norm;
+
       n_x_t /= norm;
       n_y_t /= norm;
       n_z_t /= norm;
 
-      // the cuttubs wants a delta phi
-      double dphi = phi2 - phi1;
+      auto seg = dd4hep::CutTube(r_min, r_max, dz, phi1, phi2, n_x_l, n_y_l, n_z_l, n_x_t, n_y_t, n_z_t);
 
-      auto seg = dd4hep::CutTube(r_min, r_max, dz, phi1, dphi, n_x_l, n_y_l, n_z_l, n_x_t, n_y_t, n_z_t);
+      edm::LogVerbatim("TrackerGeom") << "DDCutTubsFromPoints: CutTube(" << r_min << "," << r_max << "," << dz << ","
+                                      << phi1 << "," << phi2 << "," << n_x_l << "," << n_y_l << "," << n_z_l << ","
+                                      << n_x_t << "," << n_y_t << "," << n_z_t << ")";
 
       segments.emplace_back(seg);
       offsets.emplace_back(offset);

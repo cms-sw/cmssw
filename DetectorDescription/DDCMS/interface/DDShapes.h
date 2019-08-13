@@ -155,7 +155,11 @@ namespace cms {
       double alpha2_;
     };
 
-    // A pseudo-trapezoid, that is, a trapezoid with a cut-out
+    // A pseudo-trapezoid, that is, a trapezoid with a cylinder.
+    // This shape is obsolete. This commented-out code can be removed after we are sure
+    // it won't be needed with DD4hep.
+    // The code does not work correctly.
+    /*
     class DDPseudoTrap {
     public:
       DDPseudoTrap(const cms::DDFilteredView &fview);
@@ -193,6 +197,7 @@ namespace cms {
       double rmax_;
       bool minusZSide_;
     };
+    */
 
     /// A truncated tube section
     class DDTruncTubs {
