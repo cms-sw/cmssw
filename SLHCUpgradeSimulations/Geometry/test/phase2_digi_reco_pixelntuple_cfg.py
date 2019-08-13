@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step2 --conditions auto:phase2_realistic -s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2,RAW2DIGI,L1Reco,RECO --datatier GEN-SIM-RECO -n 10 --geometry Extended2023D21 --era Phase2 --eventcontent FEVTDEBUGHLT --filein file:SingleMuPt1000_pythia8_cfi_GEN_SIM.root --runUnscheduled --no_exec
+# with command line options: step2 --conditions auto:phase2_realistic -s DIGI:pdigi_valid,L1,L1TrackTrigger,DIGI2RAW,HLT:@fake2,RAW2DIGI,L1Reco,RECO --datatier GEN-SIM-RECO -n 10 --geometry Extended2023D41 --era Phase2 --eventcontent FEVTDEBUGHLT --filein file:SingleMuPt1000_pythia8_cfi_GEN_SIM.root --runUnscheduled --no_exec
 import FWCore.ParameterSet.Config as cms
 
 
@@ -102,7 +102,7 @@ process.siPixelClusters.ElectronPerADCGain  = cms.double(135.)
 process.siPixelClustersPreSplitting.ElectronPerADCGain  = cms.double(135.)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T14', '')
 
 # Path and EndPath definitions
 process.digitisation_step = cms.Path(process.pdigi_valid)
