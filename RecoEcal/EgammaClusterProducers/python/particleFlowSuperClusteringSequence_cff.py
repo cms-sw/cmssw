@@ -9,7 +9,7 @@ from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi import *
 #from RecoEcal.EgammaClusterProducers.correctedDynamicHybridSuperClusters_cfi import *
 # PFECAL super clusters, either hybrid-clustering clone (Box) or mustache.
 particleFlowSuperClusteringTask = cms.Task(particleFlowSuperClusterECAL)
-#particleFlowSuperClusteringSequence = cms.Sequence(particleFlowSuperClusterECAL)
+particleFlowSuperClusteringSequence = cms.Sequence(particleFlowSuperClusteringTask)
 
 particleFlowSuperClusterHGCal = particleFlowSuperClusterECAL.clone()
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
