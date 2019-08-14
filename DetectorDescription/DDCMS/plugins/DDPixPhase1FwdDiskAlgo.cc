@@ -35,10 +35,10 @@ static long algorithm(dd4hep::Detector& /* description */,
   dd4hep::Volume mother = ns.volume(args.parentName());
   dd4hep::PlacedVolume pv;
 
-  startCopyNo = args.find("startCopyNo") ? args.value<int>("StartCopyNo") : 1;
+  startCopyNo = args.find("startCopyNo") ? args.value<int>("StartCopyNo") : 0;
   nBlades = args.value<int>("NumberOfBlades");
   bladeAngle = args.value<double>("BladeAngle");
-  bladeTilt = args.value<double>("BladeTilt");
+  bladeTilt = -1. * args.value<double>("BladeTilt");
   zPlane = args.value<double>("BladeCommonZ");
   anchorR = args.value<double>("AnchorRadius");
 
@@ -67,7 +67,6 @@ static long algorithm(dd4hep::Detector& /* description */,
 
   for (int iBlade = 0; iBlade < nBlades; ++iBlade) {
     if (flagString[iBlade] == flagSelector[0]) {
-      std::string rotstr = rotName[0] + std::to_string(double(copyNo));
       double phi = (iBlade + 0.5) * deltaPhi;
       double phiy = atan2(cos(phi), -sin(phi));
       double thety = acos(sin(bladeTilt));
@@ -78,40 +77,14 @@ static long algorithm(dd4hep::Detector& /* description */,
                           cos(phi) * sin(bladeAngle) + cos(bladeAngle) * sin(phi) * sin(bladeTilt));
       double thetz = acos(cos(bladeTilt) * cos(bladeAngle));
 
-      auto rot = dd4hep::Rotation3D();
+      dd4hep::Rotation3D rot = cms::makeRotation3D(thetx, phix, thety, phiy, thetz, phiz);
 
-      auto irot = ctxt.rotations.find(ns.prepend(rotstr));
-
-      if (irot != ctxt.rotations.end()) {
-        edm::LogVerbatim("TrackerGeom") << "DDPixPhase1FwdDiskAlgo test: Creating a new "
-                                        << "rotation: " << rotstr << "\t" << convertRadToDeg(thetx) << ", "
-                                        << convertRadToDeg(phix) << ", " << convertRadToDeg(thety) << ", "
-                                        << convertRadToDeg(phiy) << ", " << convertRadToDeg(thetz) << ", "
-                                        << convertRadToDeg(phiz);
-
-        edm::LogVerbatim("TrackerGeom") << "Rotation Matrix (" << convertRadToDeg(phi) << ", "
-                                        << convertRadToDeg(bladeAngle) << ", " << convertRadToDeg(bladeTilt) << ") "
-                                        << cos(phi) * cos(bladeAngle) << ", "
-                                        << (-sin(phi) * cos(bladeTilt) + cos(phi) * sin(bladeAngle) * sin(bladeTilt))
-                                        << ", "
-                                        << (sin(phi) * sin(bladeTilt) + cos(phi) * sin(bladeAngle) * cos(bladeTilt))
-                                        << ", " << sin(phi) * cos(bladeAngle) << ", "
-                                        << (cos(phi) * cos(bladeTilt) + sin(phi) * sin(bladeAngle) * sin(bladeTilt))
-                                        << ", "
-                                        << (-cos(phi) * sin(bladeTilt) + sin(phi) * sin(bladeAngle) * cos(bladeTilt))
-                                        << ", " << -sin(bladeAngle) << ", " << cos(bladeAngle) * sin(bladeTilt) << ", "
-                                        << cos(bladeAngle) * cos(bladeTilt);
-        rot = cms::makeRotation3D(thetx, phix, thety, phiy, thetz, phiz);
-      }
       double xpos = -anchorR * sin(phi);
       double ypos = anchorR * cos(phi);
       double zpos = zPlane + bladeZShift[iBlade % nBlades];
 
       dd4hep::Position tran(xpos, ypos, zpos);
       pv = mother.placeVolume(child, copyNo, dd4hep::Transform3D(rot, tran));
-      edm::LogVerbatim("TrackerGeom") << "DDPixFwdDiskAlgo test: " << pv.name() << ": " << childName << " number "
-                                      << copyNo << " positioned in " << mother.name() << " at " << tran << " with "
-                                      << rot;
     }
     copyNo++;
   }
