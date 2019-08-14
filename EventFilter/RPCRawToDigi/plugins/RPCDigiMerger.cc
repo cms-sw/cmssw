@@ -66,18 +66,11 @@ void RPCDigiMerger::produce(edm::Event& event, edm::EventSetup const& setup) {
 
   //Check if its Data
   if (not(cppf_token_.isUninitialized() && omtf_token_.isUninitialized() && twinMux_token_.isUninitialized())) {
-    // TwinMux
-    Handle<RPCDigiCollection> TwinMux_digis;
-    event.getByToken(twinMux_token_, TwinMux_digis);
-    // OMTF
-    Handle<RPCDigiCollection> OMTF_digis;
-    event.getByToken(omtf_token_, OMTF_digis);
-    // CPFF
-    Handle<RPCDigiCollection> CPPF_digis;
-    event.getByToken(cppf_token_, CPPF_digis);
     // loop over TwinMux digis
     // protection against empty InputTag to allow for Data/MC compatibility
     if (not twinMux_token_.isUninitialized()) {
+      Handle<RPCDigiCollection> TwinMux_digis;
+      event.getByToken(twinMux_token_, TwinMux_digis);
       for (const auto&& rpcdgIt : (*TwinMux_digis)) {
         // The layerId
         const RPCDetId& rpcId = rpcdgIt.first;
@@ -89,6 +82,8 @@ void RPCDigiMerger::produce(edm::Event& event, edm::EventSetup const& setup) {
     // loop over CPPF digis
     // protection against empty InputTag to allow for Data/MC compatibility
     if (not cppf_token_.isUninitialized()) {
+      Handle<RPCDigiCollection> CPPF_digis;
+      event.getByToken(cppf_token_, CPPF_digis);
       for (const auto&& rpcdgIt : (*CPPF_digis)) {
         // The layerId
         const RPCDetId& rpcId = rpcdgIt.first;
@@ -100,6 +95,8 @@ void RPCDigiMerger::produce(edm::Event& event, edm::EventSetup const& setup) {
     // loop over OMTF digis
     // protection against empty InputTag to allow for Data/MC compatibility
     if (not omtf_token_.isUninitialized()) {
+      Handle<RPCDigiCollection> OMTF_digis;
+      event.getByToken(omtf_token_, OMTF_digis);
       for (const auto& rpcdgIt : (*OMTF_digis)) {
         // The layerId
         const RPCDetId& rpcId = rpcdgIt.first;
