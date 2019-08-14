@@ -15,7 +15,7 @@ namespace ticl {
     PatternRecognitionbyCA(const edm::ParameterSet& conf);
     ~PatternRecognitionbyCA() override;
 
-    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input) override;
+    const void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input, std::vector<Trackster>& result) override;
 
   private:
     hgcal::RecHitTools rhtools_;

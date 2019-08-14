@@ -34,7 +34,6 @@ namespace ticl {
       const edm::ValueMap<float>& layerClustersTime;
       const TICLLayerTiles& tiles;
       const std::vector<TICLSeedingRegion>& regions;
-      std::vector<Trackster>& result;
 
       Inputs(const edm::Event& eV,
              const edm::EventSetup& eS,
@@ -42,12 +41,11 @@ namespace ticl {
              const std::vector<float>& mS,
              const edm::ValueMap<float>& lT,
              const TICLLayerTiles& tL,
-             const std::vector<TICLSeedingRegion>& rG,
-             std::vector<Trackster>& rS)
-          : ev(eV), es(eS), layerClusters(lC), mask(mS), layerClustersTime(lT), tiles(tL), regions(rG), result(rS) {}
+             const std::vector<TICLSeedingRegion>& rG)
+          : ev(eV), es(eS), layerClusters(lC), mask(mS), layerClustersTime(lT), tiles(tL), regions(rG) {}
     };
 
-    virtual void makeTracksters(const Inputs& input) = 0;
+    virtual const void makeTracksters(const Inputs& input, std::vector<Trackster>& result) = 0;
 
     enum VerbosityLevel { None = 0, Basic, Advanced, Expert, Guru };
 

@@ -19,7 +19,7 @@ SeedingRegionByTracks::SeedingRegionByTracks(const edm::ParameterSet &conf, edm:
       cutTk_(conf.getParameter<std::string>("cutTk")),
       propName_(conf.getParameter<std::string>("propagator")) {}
 
-SeedingRegionByTracks::~SeedingRegionByTracks(){};
+SeedingRegionByTracks::~SeedingRegionByTracks() {}
 
 void SeedingRegionByTracks::initialize(const edm::EventSetup &es) {
   edm::ESHandle<HGCalDDDConstants> hdc;
