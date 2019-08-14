@@ -79,7 +79,10 @@ allmuonsTask = cms.Task(glbTrackQual,
 allmuons = cms.Sequence(allmuonsTask)
 
 # Final sequence
-muonrecoforcosmicsTask = cms.Task(muontrackingforcosmicsTask)
+muonrecoforcosmicsTask = cms.Task(muontrackingforcosmicsTask,
+				  allmuonsTask,
+                                  muonsFromCosmics)
+muonrecoforcosmics = cms.Sequence(muonrecoforcosmicsTask)
 
 # 1 leg mode
 
