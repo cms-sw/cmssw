@@ -13,6 +13,7 @@
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
 <use   name="SimG4CMS/Calo"/>
+<use   name="SimG4CMS/HGCalTestBeam"/>
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Watcher"/>
 <use   name="geant4core"/>
