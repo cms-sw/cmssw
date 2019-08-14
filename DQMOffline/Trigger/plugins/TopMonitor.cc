@@ -186,12 +186,13 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
   if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
     den_genTriggerEventFlag_->initRun(iRun, iSetup);
 
-  // check if each of the HLT paths specified in numerator and denominator
-  // has a valid match in the HLT Menu; if not, skip creation of DQM outputs
+  // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
   hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
                        den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
                        den_genTriggerEventFlag_->allHLTPathsAreValid());
 
+  // if valid HLT paths are required,
+  // create DQM outputs only if all paths are valid
   if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
     return;
   }
@@ -964,79 +965,81 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
       return;
   }
 
-  int ls = iEvent.id().luminosityBlock();
+  const int ls = iEvent.id().luminosityBlock();
 
-  // filling histograms (denominator)
+  // numerator condition
+  const bool trg_passed = (num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept(iEvent, iSetup));
+
   if (applyMETcut_ || enableMETplot_) {
-    metME_.denominator->Fill(met);
-    metME_variableBinning_.denominator->Fill(met);
-    metPhiME_.denominator->Fill(phi);
-    metVsLS_.denominator->Fill(ls, met);
+    metME_.fill(trg_passed, met);
+    metME_variableBinning_.fill(trg_passed, met);
+    metPhiME_.fill(trg_passed, phi);
+    metVsLS_.fill(trg_passed, ls, met);
   }
   if (HTcut_ > 0) {
-    eventHT_.denominator->Fill(eventHT);
-    eventHT_variableBinning_.denominator->Fill(eventHT);
-    htVsLS_.denominator->Fill(ls, eventHT);
+    eventHT_.fill(trg_passed, eventHT);
+    eventHT_variableBinning_.fill(trg_passed, eventHT);
+    htVsLS_.fill(trg_passed, ls, eventHT);
   }
   //george
   if (MHTcut_ > 0) {
-    eventMHT_.denominator->Fill(eventMHT.pt());
-    eventMHT_variableBinning_.denominator->Fill(eventMHT.pt());
+    eventMHT_.fill(trg_passed, eventMHT.pt());
+    eventMHT_variableBinning_.fill(trg_passed, eventMHT.pt());
   }
 
   if (njets_ > 0) {
-    jetMulti_.denominator->Fill(jets.size());
-    jetEtaPhi_HEP17_.denominator->Fill(jets.at(0).eta(), jets.at(0).phi());  // for HEP17 monitorning
-    jetVsLS_.denominator->Fill(ls, jets.at(0).pt());
+    jetMulti_.fill(trg_passed, jets.size());
+    jetEtaPhi_HEP17_.fill(trg_passed, jets.at(0).eta(), jets.at(0).phi());  // for HEP17 monitorning
+    jetVsLS_.fill(trg_passed, ls, jets.at(0).pt());
   }
 
   if (enablePhotonPlot_) {
-    phoMulti_.denominator->Fill(photons.size());
+    phoMulti_.fill(trg_passed, photons.size());
   }
 
   // Marina
   if (nbjets_ > 0) {
-    bjetMulti_.denominator->Fill(bjets.size());
-    bjetVsLS_.denominator->Fill(ls, bjets.begin()->first->pt());
+    bjetMulti_.fill(trg_passed, bjets.size());
+    bjetVsLS_.fill(trg_passed, ls, bjets.begin()->first->pt());
   }
 
   if (nmuons_ > 0) {
-    muMulti_.denominator->Fill(muons.size());
-    muVsLS_.denominator->Fill(ls, muons.at(0).pt());
+    muMulti_.fill(trg_passed, muons.size());
+    muVsLS_.fill(trg_passed, ls, muons.at(0).pt());
     if (nmuons_ > 1) {
-      mu1Pt_mu2Pt_.denominator->Fill(muons.at(0).pt(), muons.at(1).pt());
-      mu1Eta_mu2Eta_.denominator->Fill(muons.at(0).eta(), muons.at(1).eta());
-      invMass_mumu_.denominator->Fill(mll);
-      invMass_mumu_variableBinning_.denominator->Fill(mll);
+      mu1Pt_mu2Pt_.fill(trg_passed, muons.at(0).pt(), muons.at(1).pt());
+      mu1Eta_mu2Eta_.fill(trg_passed, muons.at(0).eta(), muons.at(1).eta());
+      invMass_mumu_.fill(trg_passed, mll);
+      invMass_mumu_variableBinning_.fill(trg_passed, mll);
     }
     if (njets_ > 0) {
-      DeltaR_jet_Mu_.denominator->Fill(deltaR(jets.at(0), muons.at(0)));
+      DeltaR_jet_Mu_.fill(trg_passed, deltaR(jets.at(0), muons.at(0)));
     }
   }
 
   if (nelectrons_ > 0) {
-    eleMulti_.denominator->Fill(electrons.size());
-    eleVsLS_.denominator->Fill(ls, electrons.at(0).pt());
+    eleMulti_.fill(trg_passed, electrons.size());
+    eleVsLS_.fill(trg_passed, ls, electrons.at(0).pt());
     if (HTcut_ > 0)
-      elePt_eventHT_.denominator->Fill(electrons.at(0).pt(), eventHT);
+      elePt_eventHT_.fill(trg_passed, electrons.at(0).pt(), eventHT);
     if (njets_ > 0)
-      elePt_jetPt_.denominator->Fill(electrons.at(0).pt(), jets.at(0).pt());
+      elePt_jetPt_.fill(trg_passed, electrons.at(0).pt(), jets.at(0).pt());
     if (nmuons_ > 0) {
-      elePt_muPt_.denominator->Fill(electrons.at(0).pt(), muons.at(0).pt());
-      eleEta_muEta_.denominator->Fill(electrons.at(0).eta(), muons.at(0).eta());
+      elePt_muPt_.fill(trg_passed, electrons.at(0).pt(), muons.at(0).pt());
+      eleEta_muEta_.fill(trg_passed, electrons.at(0).eta(), muons.at(0).eta());
     }
     if (nelectrons_ > 1) {
-      ele1Pt_ele2Pt_.denominator->Fill(electrons.at(0).pt(), electrons.at(1).pt());
-      ele1Eta_ele2Eta_.denominator->Fill(electrons.at(0).eta(), electrons.at(1).eta());
+      ele1Pt_ele2Pt_.fill(trg_passed, electrons.at(0).pt(), electrons.at(1).pt());
+      ele1Eta_ele2Eta_.fill(trg_passed, electrons.at(0).eta(), electrons.at(1).eta());
     }
   }
 
   if (enablePhotonPlot_) {
     if (nphotons_ > 0) {
-      phoVsLS_.denominator->Fill(ls, photons.at(0).pt());
+      phoVsLS_.fill(trg_passed, ls, photons.at(0).pt());
       if (nmuons_ > 0) {
-        muPt_phoPt_.denominator->Fill(muons.at(0).pt(), photons.at(0).pt());
-        muEta_phoEta_.denominator->Fill(muons.at(0).eta(), photons.at(0).eta());
+        muPt_phoPt_.fill(trg_passed, muons.at(0).pt(), photons.at(0).pt());
+        muEta_phoEta_.fill(trg_passed, muons.at(0).eta(), photons.at(0).eta());
       }
     }
   }
@@ -1044,48 +1047,48 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   for (unsigned int iMu = 0; iMu < muons.size(); ++iMu) {
     if (iMu >= nmuons_)
       break;
-    muPhi_.at(iMu).denominator->Fill(muons.at(iMu).phi());
-    muEta_.at(iMu).denominator->Fill(muons.at(iMu).eta());
-    muPt_.at(iMu).denominator->Fill(muons.at(iMu).pt());
-    muEta_variableBinning_.at(iMu).denominator->Fill(muons.at(iMu).eta());
-    muPt_variableBinning_.at(iMu).denominator->Fill(muons.at(iMu).pt());
-    muPtEta_.at(iMu).denominator->Fill(muons.at(iMu).pt(), muons.at(iMu).eta());
-    muEtaPhi_.at(iMu).denominator->Fill(muons.at(iMu).eta(), muons.at(iMu).phi());
+    muPhi_.at(iMu).fill(trg_passed, muons.at(iMu).phi());
+    muEta_.at(iMu).fill(trg_passed, muons.at(iMu).eta());
+    muPt_.at(iMu).fill(trg_passed, muons.at(iMu).pt());
+    muEta_variableBinning_.at(iMu).fill(trg_passed, muons.at(iMu).eta());
+    muPt_variableBinning_.at(iMu).fill(trg_passed, muons.at(iMu).pt());
+    muPtEta_.at(iMu).fill(trg_passed, muons.at(iMu).pt(), muons.at(iMu).eta());
+    muEtaPhi_.at(iMu).fill(trg_passed, muons.at(iMu).eta(), muons.at(iMu).phi());
   }
   for (unsigned int iEle = 0; iEle < electrons.size(); ++iEle) {
     if (iEle >= nelectrons_)
       break;
-    elePhi_.at(iEle).denominator->Fill(electrons.at(iEle).phi());
-    eleEta_.at(iEle).denominator->Fill(electrons.at(iEle).eta());
-    elePt_.at(iEle).denominator->Fill(electrons.at(iEle).pt());
-    eleEta_variableBinning_.at(iEle).denominator->Fill(electrons.at(iEle).eta());
-    elePt_variableBinning_.at(iEle).denominator->Fill(electrons.at(iEle).pt());
-    elePtEta_.at(iEle).denominator->Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta());
-    eleEtaPhi_.at(iEle).denominator->Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi());
+    elePhi_.at(iEle).fill(trg_passed, electrons.at(iEle).phi());
+    eleEta_.at(iEle).fill(trg_passed, electrons.at(iEle).eta());
+    elePt_.at(iEle).fill(trg_passed, electrons.at(iEle).pt());
+    eleEta_variableBinning_.at(iEle).fill(trg_passed, electrons.at(iEle).eta());
+    elePt_variableBinning_.at(iEle).fill(trg_passed, electrons.at(iEle).pt());
+    elePtEta_.at(iEle).fill(trg_passed, electrons.at(iEle).pt(), electrons.at(iEle).eta());
+    eleEtaPhi_.at(iEle).fill(trg_passed, electrons.at(iEle).eta(), electrons.at(iEle).phi());
   }
   //Menglei
   if (enablePhotonPlot_) {
     for (unsigned int iPho = 0; iPho < photons.size(); ++iPho) {
       if (iPho >= nphotons_)
         break;
-      phoPhi_[iPho].denominator->Fill(photons[iPho].phi());
-      phoEta_[iPho].denominator->Fill(photons[iPho].eta());
-      phoPt_[iPho].denominator->Fill(photons[iPho].pt());
-      phoPtEta_[iPho].denominator->Fill(photons[iPho].pt(), photons[iPho].eta());
-      phoEtaPhi_[iPho].denominator->Fill(photons[iPho].eta(), photons[iPho].phi());
+      phoPhi_[iPho].fill(trg_passed, photons[iPho].phi());
+      phoEta_[iPho].fill(trg_passed, photons[iPho].eta());
+      phoPt_[iPho].fill(trg_passed, photons[iPho].pt());
+      phoPtEta_[iPho].fill(trg_passed, photons[iPho].pt(), photons[iPho].eta());
+      phoEtaPhi_[iPho].fill(trg_passed, photons[iPho].eta(), photons[iPho].phi());
     }
   }
 
   for (unsigned int iJet = 0; iJet < jets.size(); ++iJet) {
     if (iJet >= njets_)
       break;
-    jetPhi_.at(iJet).denominator->Fill(jets.at(iJet).phi());
-    jetEta_.at(iJet).denominator->Fill(jets.at(iJet).eta());
-    jetPt_.at(iJet).denominator->Fill(jets.at(iJet).pt());
-    jetEta_variableBinning_.at(iJet).denominator->Fill(jets.at(iJet).eta());
-    jetPt_variableBinning_.at(iJet).denominator->Fill(jets.at(iJet).pt());
-    jetPtEta_.at(iJet).denominator->Fill(jets.at(iJet).pt(), jets.at(iJet).eta());
-    jetEtaPhi_.at(iJet).denominator->Fill(jets.at(iJet).eta(), jets.at(iJet).phi());
+    jetPhi_.at(iJet).fill(trg_passed, jets.at(iJet).phi());
+    jetEta_.at(iJet).fill(trg_passed, jets.at(iJet).eta());
+    jetPt_.at(iJet).fill(trg_passed, jets.at(iJet).pt());
+    jetEta_variableBinning_.at(iJet).fill(trg_passed, jets.at(iJet).eta());
+    jetPt_variableBinning_.at(iJet).fill(trg_passed, jets.at(iJet).pt());
+    jetPtEta_.at(iJet).fill(trg_passed, jets.at(iJet).pt(), jets.at(iJet).eta());
+    jetEtaPhi_.at(iJet).fill(trg_passed, jets.at(iJet).eta(), jets.at(iJet).phi());
   }
 
   // Marina
@@ -1094,166 +1097,17 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     if (iBJet >= nbjets_)
       break;
 
-    bjetPhi_.at(iBJet).denominator->Fill(bjet.first->phi());
-    bjetEta_.at(iBJet).denominator->Fill(bjet.first->eta());
-    bjetPt_.at(iBJet).denominator->Fill(bjet.first->pt());
-    bjetCSV_.at(iBJet).denominator->Fill(std::fmax(0.0, bjet.second));
-    bjetEta_variableBinning_.at(iBJet).denominator->Fill(bjet.first->eta());
-    bjetPt_variableBinning_.at(iBJet).denominator->Fill(bjet.first->pt());
-    bjetPtEta_.at(iBJet).denominator->Fill(bjet.first->pt(), bjet.first->eta());
-    bjetEtaPhi_.at(iBJet).denominator->Fill(bjet.first->eta(), bjet.first->phi());
-    bjetCSVHT_.at(iBJet).denominator->Fill(std::fmax(0.0, bjet.second), eventHT);
+    bjetPhi_.at(iBJet).fill(trg_passed, bjet.first->phi());
+    bjetEta_.at(iBJet).fill(trg_passed, bjet.first->eta());
+    bjetPt_.at(iBJet).fill(trg_passed, bjet.first->pt());
+    bjetCSV_.at(iBJet).fill(trg_passed, std::fmax(0.0, bjet.second));
+    bjetEta_variableBinning_.at(iBJet).fill(trg_passed, bjet.first->eta());
+    bjetPt_variableBinning_.at(iBJet).fill(trg_passed, bjet.first->pt());
+    bjetPtEta_.at(iBJet).fill(trg_passed, bjet.first->pt(), bjet.first->eta());
+    bjetEtaPhi_.at(iBJet).fill(trg_passed, bjet.first->eta(), bjet.first->phi());
+    bjetCSVHT_.at(iBJet).fill(trg_passed, std::fmax(0.0, bjet.second), eventHT);
 
     iBJet++;
-  }
-
-  // applying selection for numerator
-  if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
-    return;
-
-  // filling histograms (num_genTriggerEventFlag_)
-
-  if (applyMETcut_ > 0 || enableMETplot_) {
-    metME_.numerator->Fill(met);
-    metME_variableBinning_.numerator->Fill(met);
-    metPhiME_.numerator->Fill(phi);
-    metVsLS_.numerator->Fill(ls, met);
-  }
-
-  if (HTcut_ > 0) {
-    htVsLS_.numerator->Fill(ls, eventHT);
-    eventHT_.numerator->Fill(eventHT);
-    eventHT_variableBinning_.numerator->Fill(eventHT);
-  }
-
-  if (MHTcut_ > 0) {
-    eventMHT_.numerator->Fill(eventMHT.pt());
-    eventMHT_variableBinning_.numerator->Fill(eventMHT.pt());
-  }
-
-  if (nmuons_ > 0) {
-    muMulti_.numerator->Fill(muons.size());
-    muVsLS_.numerator->Fill(ls, muons.at(0).pt());
-    if (nmuons_ > 1) {
-      mu1Pt_mu2Pt_.numerator->Fill(muons.at(0).pt(), muons.at(1).pt());
-      mu1Eta_mu2Eta_.numerator->Fill(muons.at(0).eta(), muons.at(1).eta());
-      invMass_mumu_.numerator->Fill(mll);
-      invMass_mumu_variableBinning_.numerator->Fill(mll);
-    }
-    if (njets_ > 0) {
-      DeltaR_jet_Mu_.numerator->Fill(deltaR(jets.at(0), muons.at(0)));
-    }
-  }
-  if (njets_ > 0) {
-    jetMulti_.numerator->Fill(jets.size());
-    jetVsLS_.numerator->Fill(ls, jets.at(0).pt());
-    jetEtaPhi_HEP17_.numerator->Fill(jets.at(0).eta(), jets.at(0).phi());  // for HEP17 monitorning
-  }
-
-  if (nelectrons_ > 0) {
-    eleMulti_.numerator->Fill(electrons.size());
-    eleVsLS_.numerator->Fill(ls, electrons.at(0).pt());
-    if (HTcut_ > 0)
-      elePt_eventHT_.numerator->Fill(electrons.at(0).pt(), eventHT);
-    if (njets_ > 0)
-      elePt_jetPt_.numerator->Fill(electrons.at(0).pt(), jets.at(0).pt());
-    if (nmuons_ > 0) {
-      elePt_muPt_.numerator->Fill(electrons.at(0).pt(), muons.at(0).pt());
-      eleEta_muEta_.numerator->Fill(electrons.at(0).eta(), muons.at(0).eta());
-    }
-    if (nelectrons_ > 1) {
-      ele1Pt_ele2Pt_.numerator->Fill(electrons.at(0).pt(), electrons.at(1).pt());
-      ele1Eta_ele2Eta_.numerator->Fill(electrons.at(0).eta(), electrons.at(1).eta());
-    }
-  }
-
-  //Menglei
-  if (enablePhotonPlot_) {
-    if (nphotons_ > 0) {
-      phoVsLS_.numerator->Fill(ls, photons.at(0).pt());
-      if (nmuons_ > 0) {
-        muPt_phoPt_.numerator->Fill(muons.at(0).pt(), photons.at(0).pt());
-        muEta_phoEta_.numerator->Fill(muons.at(0).eta(), photons.at(0).eta());
-      }
-    }
-  }
-
-  // Marina
-  if (nbjets_ > 0) {
-    bjetMulti_.numerator->Fill(bjets.size());
-    bjetVsLS_.numerator->Fill(ls, bjets.begin()->first->pt());
-  }
-
-  //Menglei
-  if (enablePhotonPlot_) {
-    phoMulti_.numerator->Fill(photons.size());
-  }
-
-  for (unsigned int iMu = 0; iMu < muons.size(); ++iMu) {
-    if (iMu >= nmuons_)
-      break;
-
-    muPhi_.at(iMu).numerator->Fill(muons.at(iMu).phi());
-    muEta_.at(iMu).numerator->Fill(muons.at(iMu).eta());
-    muPt_.at(iMu).numerator->Fill(muons.at(iMu).pt());
-    muEta_variableBinning_.at(iMu).numerator->Fill(muons.at(iMu).eta());
-    muPt_variableBinning_.at(iMu).numerator->Fill(muons.at(iMu).pt());
-    muPtEta_.at(iMu).numerator->Fill(muons.at(iMu).pt(), muons.at(iMu).eta());
-    muEtaPhi_.at(iMu).numerator->Fill(muons.at(iMu).eta(), muons.at(iMu).phi());
-  }
-  for (unsigned int iEle = 0; iEle < electrons.size(); ++iEle) {
-    if (iEle >= nelectrons_)
-      break;
-    elePhi_.at(iEle).numerator->Fill(electrons.at(iEle).phi());
-    eleEta_.at(iEle).numerator->Fill(electrons.at(iEle).eta());
-    elePt_.at(iEle).numerator->Fill(electrons.at(iEle).pt());
-    eleEta_variableBinning_.at(iEle).numerator->Fill(electrons.at(iEle).eta());
-    elePt_variableBinning_.at(iEle).numerator->Fill(electrons.at(iEle).pt());
-    elePtEta_.at(iEle).numerator->Fill(electrons.at(iEle).pt(), electrons.at(iEle).eta());
-    eleEtaPhi_.at(iEle).numerator->Fill(electrons.at(iEle).eta(), electrons.at(iEle).phi());
-  }
-
-  //Menglei
-  if (enablePhotonPlot_) {
-    for (unsigned int iPho = 0; iPho < photons.size(); ++iPho) {
-      if (iPho >= nphotons_)
-        break;
-      phoPhi_[iPho].numerator->Fill(photons[iPho].phi());
-      phoEta_[iPho].numerator->Fill(photons[iPho].eta());
-      phoPt_[iPho].numerator->Fill(photons[iPho].pt());
-      phoPtEta_[iPho].numerator->Fill(photons[iPho].pt(), photons[iPho].eta());
-      phoEtaPhi_[iPho].numerator->Fill(photons[iPho].eta(), photons[iPho].phi());
-    }
-  }
-
-  for (unsigned int iJet = 0; iJet < jets.size(); ++iJet) {
-    if (iJet >= njets_)
-      break;
-    jetPhi_.at(iJet).numerator->Fill(jets.at(iJet).phi());
-    jetEta_.at(iJet).numerator->Fill(jets.at(iJet).eta());
-    jetPt_.at(iJet).numerator->Fill(jets.at(iJet).pt());
-    jetEta_variableBinning_.at(iJet).numerator->Fill(jets.at(iJet).eta());
-    jetPt_variableBinning_.at(iJet).numerator->Fill(jets.at(iJet).pt());
-    jetPtEta_.at(iJet).numerator->Fill(jets.at(iJet).pt(), jets.at(iJet).eta());
-    jetEtaPhi_.at(iJet).numerator->Fill(jets.at(iJet).eta(), jets.at(iJet).phi());
-  }
-
-  // Marina
-  unsigned int j = 0;
-  for (auto& bjet : bjets) {
-    if (j >= nbjets_)
-      break;
-    bjetPhi_.at(j).numerator->Fill(bjet.first->phi());
-    bjetEta_.at(j).numerator->Fill(bjet.first->eta());
-    bjetPt_.at(j).numerator->Fill(bjet.first->pt());
-    bjetCSV_.at(j).numerator->Fill(std::fmax(0.0, bjet.second));
-    bjetEta_variableBinning_.at(j).numerator->Fill(bjet.first->eta());
-    bjetPt_variableBinning_.at(j).numerator->Fill(bjet.first->pt());
-    bjetPtEta_.at(j).numerator->Fill(bjet.first->pt(), bjet.first->eta());
-    bjetEtaPhi_.at(j).numerator->Fill(bjet.first->eta(), bjet.first->phi());
-    bjetCSVHT_.at(j).numerator->Fill(std::fmax(0.0, bjet.second), eventHT);
-
-    j++;
   }
 }
 
