@@ -63,6 +63,7 @@ private:
   const std::vector<double> timeSliceUnit_;
   const double maxEnergy_, maxTime_, tMax_, tScale_, tCut_;
   const bool testNumber_, passive_;
+  const std::vector<std::string> detNames_;
   std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > toks_calo_;
   edm::EDGetTokenT<edm::PassiveHitContainer> tok_passive_;
 
@@ -76,6 +77,7 @@ private:
   TH1F *h_eta_[nCalo_], *h_phi_[nCalo_], *h_etot_[nCalo_], *h_etotg_[nCalo_];
   TH2F *h_rz_, *h_rz1_, *h_etaphi_;
   TH1F *h_hitp_, *h_trackp_, *h_edepp_, *h_timep_;
+  std::vector<TH1F*> h_edepTk_, h_timeTk_;
 };
 
 CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
@@ -88,7 +90,8 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
       tScale_(ps.getUntrackedParameter<double>("timeScale", 1.0)),
       tCut_(ps.getUntrackedParameter<double>("timeThreshold", 15.0)),
       testNumber_(ps.getUntrackedParameter<bool>("testNumbering", false)),
-      passive_(ps.getUntrackedParameter<bool>("passiveHits", false)) {
+      passive_(ps.getUntrackedParameter<bool>("passiveHits", false)),
+      detNames_(ps.getUntrackedParameter<std::vector<std::string> >("detNames")) {
   usesResource(TFileService::kSharedResource);
 
   // register for data access
@@ -101,6 +104,8 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     edm::LogVerbatim("HitStudy") << "[" << i << "] " << hitLab_[i] << " " << timeSliceUnit_[i];
   edm::LogVerbatim("HitStudy") << "Passive Hits " << passive_ << " from AllPassiveHits";
   edm::LogVerbatim("HitStudy") << "maxEnergy: " << maxEnergy_ << " maxTime: " << maxTime_ << " tMax: " << tMax_;
+  for (unsigned int k = 0; k < detNames_.size(); ++k)
+    edm::LogVerbatim("HitStudy") << "Detector[" << k << "] " << detNames_[k];
 
   edm::Service<TFileService> tfile;
   if (!tfile.isAvailable())
@@ -210,6 +215,18 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
     h_timep_ = tfile->make<TH1F>("timep", "All Steps", 100, 0.0, 100.0);
     h_hitp_->GetXaxis()->SetTitle("Hits");
     h_hitp_->GetYaxis()->SetTitle("Hit Time (ns)");
+    for (unsigned int k = 0; k < detNames_.size(); ++k) {
+      sprintf(name, "edept%d", k);
+      sprintf(title, "Energy Deposit (MeV) in %s", detNames_[k].c_str());
+      h_edepTk_.emplace_back(tfile->make<TH1F>(name, title, 100, 0.0, 1.0));
+      h_edepTk_.back()->GetYaxis()->SetTitle("Hits");
+      h_edepTk_.back()->GetXaxis()->SetTitle(title);
+      sprintf(name, "timet%d", k);
+      sprintf(title, "Hit Time (ns) in %s", detNames_[k].c_str());
+      h_timeTk_.emplace_back(tfile->make<TH1F>(name, title, 100, 0.0, 100.0));
+      h_timeTk_.back()->GetYaxis()->SetTitle("Hits");
+      h_timeTk_.back()->GetXaxis()->SetTitle(title);
+    }
   }
 }
 
@@ -227,6 +244,8 @@ void CaloSimHitAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.addUntracked<double>("timeThreshold", 15.0);
   desc.addUntracked<bool>("testNumbering", false);
   desc.addUntracked<bool>("passiveHits", false);
+  std::vector<std::string> names = {"PixelBarrel", "PixelForward", "TIB", "TID", "TOB", "TEC"};
+  desc.addUntracked<std::vector<std::string> >("detNames", names);
   descriptions.add("caloSimHitAnalysis", desc);
 }
 
@@ -321,11 +340,10 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
     if (idx >= 0) {
       CaloHitID hid(id, time, itra, 0, timeSliceUnit_[indx]);
       auto itr = hitMap.find(hid);
-      if (itr == hitMap.end()) {
+      if (itr == hitMap.end())
         hitMap[hid] = std::make_pair(time, edep);
-      } else {
+      else
         ((itr->second).second) += edep;
-      }
       h_edepT_[idx]->Fill(edep);
       if (edepEM > 0)
         h_edepEM_[idx]->Fill(edepEM);
@@ -412,10 +430,13 @@ void CaloSimHitAnalysis::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
 }
 
 void CaloSimHitAnalysis::analyzePassiveHits(std::vector<PassiveHit>& hits) {
+  const std::string active = "Active";
+  const std::string sensor = "Sensor";
   std::map<std::pair<std::string, uint32_t>, int> hitx;
   std::map<int, int> tracks;
   for (auto& hit : hits) {
-    std::pair<std::string, uint32_t> volume = std::make_pair(hit.vname(), (hit.id() % 1000000));
+    std::string name = hit.vname();
+    std::pair<std::string, uint32_t> volume = std::make_pair(name, (hit.id() % 1000000));
     auto itr = hitx.find(volume);
     if (itr == hitx.end())
       hitx[volume] = 1;
@@ -428,6 +449,19 @@ void CaloSimHitAnalysis::analyzePassiveHits(std::vector<PassiveHit>& hits) {
       ++(ktr->second);
     h_edepp_->Fill(hit.energy());
     h_timep_->Fill(hit.time());
+    if ((name.find(active) != std::string::npos) || (name.find(sensor) != std::string::npos)) {
+      unsigned idet = detNames_.size();
+      for (unsigned int k = 0; k < detNames_.size(); ++k) {
+        if (name.find(detNames_[k]) != std::string::npos) {
+          idet = k;
+          break;
+        }
+      }
+      if (idet < detNames_.size()) {
+        h_edepTk_[idet]->Fill(hit.energy());
+        h_timeTk_[idet]->Fill(hit.time());
+      }
+    }
   }
   h_hitp_->Fill(hitx.size());
   h_trackp_->Fill(tracks.size());
