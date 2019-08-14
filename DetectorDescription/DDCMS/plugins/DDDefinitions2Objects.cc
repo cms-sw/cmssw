@@ -1771,9 +1771,9 @@ void Converter<print_xml_doc>::operator()(xml_h element) const {
 static long load_dddefinition(Detector& det, xml_h element) {
   cms::DDParsingContext context(&det);
   cms::DDNamespace ns(context);
-  ns.addConstantNS("world_x", "5*m", "number");
-  ns.addConstantNS("world_y", "5*m", "number");
-  ns.addConstantNS("world_z", "5*m", "number");
+  ns.addConstantNS("world_x", "101*m", "number");
+  ns.addConstantNS("world_y", "101*m", "number");
+  ns.addConstantNS("world_z", "450*m", "number");
   ns.addConstantNS("Air", "materials:Air", "string");
   ns.addConstantNS("Vacuum", "materials:Vacuum", "string");
   ns.addConstantNS("fm", "1e-12*m", "number");
