@@ -16,8 +16,8 @@
  *
  * */
 
-constexpr std::array<unsigned char,4> FRDFileHeader_id {{ 0x52, 0x41, 0x57, 0x5f }};
-constexpr std::array<unsigned char,4> FRDFileVersion_1 {{ 0x30, 0x30, 0x30, 0x31 }};
+constexpr std::array<unsigned char, 4> FRDFileHeader_id{{0x52, 0x41, 0x57, 0x5f}};
+constexpr std::array<unsigned char, 4> FRDFileVersion_1{{0x30, 0x30, 0x30, 0x31}};
 
 struct FRDFileHeader_v1 {
   FRDFileHeader_v1() = default;
@@ -30,15 +30,15 @@ struct FRDFileHeader_v1 {
         lumiSection_(lumiSection),
         fileSize_(fileSize) {}
 
-  std::array<uint8_t,4> id_;
-  std::array <uint8_t,4> version_;
+  std::array<uint8_t, 4> id_;
+  std::array<uint8_t, 4> version_;
   uint16_t headerSize_;
   uint16_t eventCount_;
   uint32_t lumiSection_;
   uint64_t fileSize_;
 };
 
-inline uint16_t getFRDFileHeaderVersion(const std::array<uint8_t,4>& id, const std::array<uint8_t,4>& version) {
+inline uint16_t getFRDFileHeaderVersion(const std::array<uint8_t, 4>& id, const std::array<uint8_t, 4>& version) {
   size_t i;
   for (i = 0; i < 4; i++)
     if (id[i] != FRDFileHeader_id[i])
