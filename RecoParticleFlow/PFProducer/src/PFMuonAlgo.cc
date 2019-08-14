@@ -22,16 +22,15 @@ namespace {
 
 }  // namespace
 
-PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig)
+PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig, bool postMuonCleaning)
 
     : pfCosmicsMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfCleanedTrackerAndGlobalMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfFakeMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfPunchThroughMuonCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
       pfPunchThroughHadronCleanedCandidates_(std::make_unique<reco::PFCandidateCollection>()),
-      pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>())
+      pfAddedMuonCandidates_(std::make_unique<reco::PFCandidateCollection>()),
 
-      ,
       maxDPtOPt_(getParameter<double>(iConfig, "maxDPtOPt", 1.0)),
       minTrackerHits_(getParameter<int>(iConfig, "minTrackerHits", 8)),
       minPixelHits_(getParameter<int>(iConfig, "minPixelHits", 1)),
@@ -39,8 +38,8 @@ PFMuonAlgo::PFMuonAlgo(const edm::ParameterSet& iConfig)
       errorCompScale_(getParameter<double>(iConfig, "ptErrorScale", 4.0)),
       eventFractionCleaning_(getParameter<double>(iConfig, "eventFractionForCleaning", 0.75)),
       dzPV_(getParameter<double>(iConfig, "dzPV", 0.2)),
-      postCleaning_(getParameter<bool>(iConfig, "postMuonCleaning", false))  // disable by default (for HLT)
-      ,
+      postCleaning_(postMuonCleaning),  // disable by default (for HLT)
+
       minPostCleaningPt_(getParameter<double>(iConfig, "minPtForPostCleaning", 20.)),
       eventFactorCosmics_(getParameter<double>(iConfig, "eventFactorForCosmics", 10.)),
       metSigForCleaning_(getParameter<double>(iConfig, "metSignificanceForCleaning", 3.)),
