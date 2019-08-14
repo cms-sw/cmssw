@@ -400,7 +400,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     ns.addVolumeNS(inactive);
     ypos = inactivePos - 0.5 * activeHeight;
 
-    active.placeVolume(inactive, 1, dd4hep::Transform3D(ns.rotation(standardRot), dd4hep::Position(0., ypos, 0.)));
+    active.placeVolume(inactive, 1, dd4hep::Position(0., ypos, 0.));
   }
   //Pitch Adapter
   name = idName + "PA";
