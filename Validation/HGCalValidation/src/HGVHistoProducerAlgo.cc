@@ -12,8 +12,8 @@ using namespace std;
 
 //Parameters for the score cut. Later, this will become part of the
 //configuration parameter for the HGCAL associator.
-const double ScoreCutLCtoCP_ = 0.01;
-const double ScoreCutCPtoLC_ = 0.01;
+const double ScoreCutLCtoCP_ = 0.1;
+const double ScoreCutCPtoLC_ = 0.1;
 const double ScoreCutMCLtoCP_ = 0.2;
 const double ScoreCutCPtoMCL_ = 0.2;
 
