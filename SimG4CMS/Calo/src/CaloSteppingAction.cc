@@ -44,7 +44,7 @@ CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p) : count_(0) {
   birkC1HC_ = iC.getParameter<double>("BirkC1HC");
   birkC2HC_ = iC.getParameter<double>("BirkC2HC");
   birkC3HC_ = iC.getParameter<double>("BirkC3HC");
-  timeSliceUnit_ = iC.getUntrackedParameter<double>("TimeSliceUnit",1.0);
+  timeSliceUnit_ = iC.getUntrackedParameter<double>("TimeSliceUnit", 1.0);
 
   edm::LogVerbatim("Step") << "CaloSteppingAction:: " << nameEBSD_.size() << " names for EB SD's";
   for (unsigned int k = 0; k < nameEBSD_.size(); ++k)
