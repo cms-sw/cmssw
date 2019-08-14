@@ -15,22 +15,16 @@
 
 TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
+      requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
+      hltPathsAreValid_(false),
       metToken_(consumes<reco::PFMETCollection>(iConfig.getParameter<edm::InputTag>("met"))),
       jetToken_(mayConsume<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
-      eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons")))
-      //ATHER
-      ,
+      eleToken_(mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
       elecIDToken_(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("elecID"))),
-      muoToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons")))
-      // Menglei
-      ,
-      phoToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons")))
-      // Marina
-      ,
+      muoToken_(mayConsume<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+      phoToken_(mayConsume<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
       jetTagToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("btagalgo"))),
-      jetbbTagToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("bbtagalgo")))
-      //Suvankar
-      ,
+      jetbbTagToken_(mayConsume<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("bbtagalgo"))),
       vtxToken_(mayConsume<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       met_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("metPSet"))),
@@ -45,19 +39,13 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       HT_binning_(
           getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("htPSet"))),
       DR_binning_(
-          getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("DRPSet")))
-      // Marina
-      ,
-      csv_binning_(
-          getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("csvPSet")))
-      //george
-      ,
+          getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("DRPSet"))),
+      csv_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("csvPSet"))),
       invMass_mumu_binning_(getHistoPSet(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("invMassPSet"))),
-      MHT_binning_(
-          getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("MHTPSet")))
-
-      ,
+      MHT_binning_(getHistoPSet(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("MHTPSet"))),
       met_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning")),
       HT_variable_binning_(
@@ -73,10 +61,7 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       muEta_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("muEtaBinning")),
       eleEta_variable_binning_(
-          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning"))
-
-      //george
-      ,
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("eleEtaBinning")),
       invMass_mumu_variable_binning_(iConfig.getParameter<edm::ParameterSet>("histoPSet")
                                          .getParameter<std::vector<double> >("invMassVariableBinning")),
       MHT_variable_binning_(
@@ -120,27 +105,17 @@ TopMonitor::TopMonitor(const edm::ParameterSet& iConfig)
       leptJetDeltaRmin_(iConfig.getParameter<double>("leptJetDeltaRmin")),
       bJetMuDeltaRmax_(iConfig.getParameter<double>("bJetMuDeltaRmax")),
       bJetDeltaEtaMax_(iConfig.getParameter<double>("bJetDeltaEtaMax")),
-      HTcut_(iConfig.getParameter<double>("HTcut"))
-      // Marina
-      ,
+      HTcut_(iConfig.getParameter<double>("HTcut")),
       nbjets_(iConfig.getParameter<unsigned int>("nbjets")),
-      workingpoint_(iConfig.getParameter<double>("workingpoint"))
-      //Suvankar
-      ,
-      usePVcuts_(iConfig.getParameter<bool>("applyleptonPVcuts"))
-      //george
-      ,
+      workingpoint_(iConfig.getParameter<double>("workingpoint")),
+      usePVcuts_(iConfig.getParameter<bool>("applyleptonPVcuts")),
       invMassUppercut_(iConfig.getParameter<double>("invMassUppercut")),
       invMassLowercut_(iConfig.getParameter<double>("invMassLowercut")),
       opsign_(iConfig.getParameter<bool>("oppositeSignMuons")),
       MHTdefinition_(iConfig.getParameter<std::string>("MHTdefinition")),
       MHTcut_(iConfig.getParameter<double>("MHTcut")),
-      invMassCutInAllMuPairs_(iConfig.getParameter<bool>("invMassCutInAllMuPairs"))
-      //Menglei
-      ,
-      enablePhotonPlot_(iConfig.getParameter<bool>("enablePhotonPlot"))
-      //Mateusz
-      ,
+      invMassCutInAllMuPairs_(iConfig.getParameter<bool>("invMassCutInAllMuPairs")),
+      enablePhotonPlot_(iConfig.getParameter<bool>("enablePhotonPlot")),
       enableMETplot_(iConfig.getParameter<bool>("enableMETplot")) {
   std::string metcut_str = iConfig.getParameter<std::string>("metSelection");
   metcut_str.erase(std::remove(metcut_str.begin(), metcut_str.end(), ' '), metcut_str.end());
@@ -205,6 +180,22 @@ TopMonitor::~TopMonitor() throw() {
 }
 
 void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  // Initialize the GenericTriggerEventFlag
+  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
+    num_genTriggerEventFlag_->initRun(iRun, iSetup);
+  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
+    den_genTriggerEventFlag_->initRun(iRun, iSetup);
+
+  // check if each of the HLT paths specified in numerator and denominator
+  // has a valid match in the HLT Menu; if not, skip creation of DQM outputs
+  hltPathsAreValid_ = (num_genTriggerEventFlag_ && den_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() &&
+                       den_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->allHLTPathsAreValid() &&
+                       den_genTriggerEventFlag_->allHLTPathsAreValid());
+
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_;
@@ -710,15 +701,15 @@ void TopMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
            HT_binning_.xmax);
     setMETitle(bjetCSVHT_.at(iBJet), "b-jet CSV", "event HT [GeV]");
   }
-
-  // Initialize the GenericTriggerEventFlag
-  if (num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on())
-    num_genTriggerEventFlag_->initRun(iRun, iSetup);
-  if (den_genTriggerEventFlag_ && den_genTriggerEventFlag_->on())
-    den_genTriggerEventFlag_->initRun(iRun, iSetup);
 }
 
 void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
+  // if valid HLT paths are required,
+  // analyze event only if all paths are valid
+  if (requireValidHLTPaths_ and (not hltPathsAreValid_)) {
+    return;
+  }
+
   mll = -2;
   sign = 0;
   // Filter out events if Trigger Filtering is requested
@@ -1270,14 +1261,14 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/TOP");
 
+  desc.add<bool>("requireValidHLTPaths", false);
+
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
   desc.add<edm::InputTag>("elecID", edm::InputTag("egmGsfElectronIDsForDQM:cutBasedElectronID-Fall17-94X-V1-tight"));
   desc.add<edm::InputTag>("muons", edm::InputTag("muons"));
-  //Menglei
   desc.add<edm::InputTag>("photons", edm::InputTag("photons"));
-  //Suvankar
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
 
   desc.add<edm::InputTag>("btagalgo", edm::InputTag("pfCombinedSecondaryVertexV2BJetTags"));
@@ -1286,10 +1277,8 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("eleSelection", "pt > 0");
   desc.add<std::string>("muoSelection", "pt > 0");
-  //Menglei
   desc.add<std::string>("phoSelection", "pt > 0");
   desc.add<std::string>("HTdefinition", "pt > 0");
-  //Suvankar
   desc.add<std::string>("vertexSelection", "!isFake");
   desc.add<std::string>("bjetSelection", "pt > 0");
   desc.add<unsigned int>("njets", 0);
@@ -1303,18 +1292,14 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 
   desc.add<unsigned int>("nbjets", 0);
   desc.add<double>("workingpoint", 0.4941);  // medium DeepCSV
-  //Suvankar
   desc.add<bool>("applyleptonPVcuts", false);
-  //george
   desc.add<double>("invMassUppercut", -1.0);
   desc.add<double>("invMassLowercut", -1.0);
   desc.add<bool>("oppositeSignMuons", false);
   desc.add<std::string>("MHTdefinition", "pt > 0");
   desc.add<double>("MHTcut", -1);
   desc.add<bool>("invMassCutInAllMuPairs", false);
-  //Menglei
   desc.add<bool>("enablePhotonPlot", false);
-  //Mateusz
   desc.add<bool>("enableMETplot", false);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
@@ -1341,9 +1326,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   edm::ParameterSetDescription ptPSet;
   edm::ParameterSetDescription htPSet;
   edm::ParameterSetDescription DRPSet;
-  // Marina
   edm::ParameterSetDescription csvPSet;
-  //george
   edm::ParameterSetDescription invMassPSet;
   edm::ParameterSetDescription MHTPSet;
   fillHistoPSetDescription(metPSet);
@@ -1352,9 +1335,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   fillHistoPSetDescription(etaPSet);
   fillHistoPSetDescription(htPSet);
   fillHistoPSetDescription(DRPSet);
-  // Marina
   fillHistoPSetDescription(csvPSet);
-  //george
   fillHistoPSetDescription(MHTPSet);
   fillHistoPSetDescription(invMassPSet);
   histoPSet.add<edm::ParameterSetDescription>("metPSet", metPSet);
@@ -1363,9 +1344,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   histoPSet.add<edm::ParameterSetDescription>("ptPSet", ptPSet);
   histoPSet.add<edm::ParameterSetDescription>("htPSet", htPSet);
   histoPSet.add<edm::ParameterSetDescription>("DRPSet", DRPSet);
-  // Marina
   histoPSet.add<edm::ParameterSetDescription>("csvPSet", csvPSet);
-  //george
   histoPSet.add<edm::ParameterSetDescription>("invMassPSet", invMassPSet);
   histoPSet.add<edm::ParameterSetDescription>("MHTPSet", MHTPSet);
 
@@ -1380,7 +1359,6 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   histoPSet.add<std::vector<double> >("jetEtaBinning", eta_bins);
   histoPSet.add<std::vector<double> >("eleEtaBinning", eta_bins);
   histoPSet.add<std::vector<double> >("muEtaBinning", eta_bins);
-  //george
   histoPSet.add<std::vector<double> >("invMassVariableBinning", bins);
   histoPSet.add<std::vector<double> >("MHTVariableBinning", bins);
 
@@ -1404,7 +1382,7 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
 
   desc.add<edm::ParameterSetDescription>("histoPSet", histoPSet);
-  //Suvankar
+
   edm::ParameterSetDescription lPVcutPSet;
   lPVcutPSet.add<double>("dxy", 9999.);
   lPVcutPSet.add<double>("dz", 9999.);
@@ -1414,5 +1392,4 @@ void TopMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
 }
 
 // Define this as a plug-in
-#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TopMonitor);
