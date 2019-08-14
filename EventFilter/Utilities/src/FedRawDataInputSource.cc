@@ -943,7 +943,7 @@ void FedRawDataInputSource::readSupervisor() {
               << ". Aborting execution." << std::endl;
           if (rawFd != -1)
             close(rawFd);
-          rawFd=-1;
+          rawFd = -1;
           std::unique_ptr<InputFile> inf(new InputFile(evf::EvFDaqDirector::runAbort, 0));
           fileQueue_.push(std::move(inf));
           stop = true;
@@ -1023,15 +1023,15 @@ void FedRawDataInputSource::readSupervisor() {
           neededChunks++;
 
         std::unique_ptr<InputFile> newInputFile(new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
-                                                ls,
-                                                rawFile,
-                                                !fileListMode_,
-                                                rawFd,
-                                                fileSize,
-                                                rawHeaderSize,
-                                                neededChunks,
-                                                eventsInNewFile,
-                                                this));
+                                                              ls,
+                                                              rawFile,
+                                                              !fileListMode_,
+                                                              rawFd,
+                                                              fileSize,
+                                                              rawHeaderSize,
+                                                              neededChunks,
+                                                              eventsInNewFile,
+                                                              this));
         readingFilesCount_++;
         auto newInputFilePtr = newInputFile.get();
         fileQueue_.push(std::move(newInputFile));
@@ -1111,15 +1111,15 @@ void FedRawDataInputSource::readSupervisor() {
           std::unique_lock<std::mutex> lkw(mWakeup_);
           //TODO: also file with only file header fits in this edge case. Check if read correctly in single buffer mode
           std::unique_ptr<InputFile> newInputFile(new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
-                                                  ls,
-                                                  rawFile,
-                                                  !fileListMode_,
-                                                  rawFd,
-                                                  fileSize,
-                                                  rawHeaderSize,
-                                                  (rawHeaderSize > 0),
-                                                  0,
-                                                  this));
+                                                                ls,
+                                                                rawFile,
+                                                                !fileListMode_,
+                                                                rawFd,
+                                                                fileSize,
+                                                                rawHeaderSize,
+                                                                (rawHeaderSize > 0),
+                                                                0,
+                                                                this));
           readingFilesCount_++;
           fileQueue_.push(std::move(newInputFile));
           cvWakeup_.notify_one();
@@ -1144,15 +1144,15 @@ void FedRawDataInputSource::readSupervisor() {
 
         //push file and wakeup main thread
         std::unique_ptr<InputFile> newInputFile(new InputFile(evf::EvFDaqDirector::FileStatus::newFile,
-                                                ls,
-                                                rawFile,
-                                                !fileListMode_,
-                                                rawFd,
-                                                fileSize,
-                                                rawHeaderSize,
-                                                1,
-                                                eventsInNewFile,
-                                                this));
+                                                              ls,
+                                                              rawFile,
+                                                              !fileListMode_,
+                                                              rawFd,
+                                                              fileSize,
+                                                              rawHeaderSize,
+                                                              1,
+                                                              eventsInNewFile,
+                                                              this));
         newInputFile->chunks_[0] = newChunk;
         readingFilesCount_++;
         fileQueue_.push(std::move(newInputFile));
@@ -1227,17 +1227,15 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
         fileOpenedHere = true;
         file->rawFd_ = fileDescriptor;
       }
-    }
-    else {
-      if (chunk->offset_==0) {
+    } else {
+      if (chunk->offset_ == 0) {
         fileDescriptor = file->rawFd_;
-        file->rawFd_=-1;
+        file->rawFd_ = -1;
         if (fileDescriptor == -1) {
           fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
           fileOpenedHere = true;
         }
-      }
-      else {
+      } else {
         fileDescriptor = open(file->fileName_.c_str(), O_RDONLY);
         fileOpenedHere = true;
       }
@@ -1249,7 +1247,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
       setExceptionState_ = true;
       continue;
     }
-    if (fileOpenedHere) { //fast forward to this chunk position
+    if (fileOpenedHere) {  //fast forward to this chunk position
       off_t pos = 0;
       pos = lseek(fileDescriptor, chunk->offset_, SEEK_SET);
       if (pos == -1) {
@@ -1270,7 +1268,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
       ssize_t last;
 
       //protect against reading into next block
-      last = ::read(fileDescriptor, (void*)(chunk->buf_ + bufferLeft), std::min(chunk->usedSize_ - bufferLeft,eventChunkBlock_));
+      last = ::read(
+          fileDescriptor, (void*)(chunk->buf_ + bufferLeft), std::min(chunk->usedSize_ - bufferLeft, eventChunkBlock_));
 
       if (last < 0) {
         edm::LogError("FedRawDataInputSource") << "readWorker failed to read file -: " << file->fileName_
@@ -1282,7 +1281,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
         bufferLeft += last;
       if (last < eventChunkBlock_) {  //last read
         //check if this is last block, then total read size must match file size
-        if (!( chunk->usedSize_ - skipped == i * eventChunkBlock_ + last)) {
+        if (!(chunk->usedSize_ - skipped == i * eventChunkBlock_ + last)) {
           edm::LogError("FedRawDataInputSource")
               << "readWorker failed to read file -: " << file->fileName_ << " fd:" << fileDescriptor << " last:" << last
               << " expectedChunkSize:" << chunk->usedSize_
@@ -1306,7 +1305,8 @@ void FedRawDataInputSource::readWorker(unsigned int tid) {
     if (chunk->offset_ + bufferLeft == file->fileSize_) {  //file reading finished using same fd
       close(fileDescriptor);
       fileDescriptor = -1;
-      if (numConcurrentReads_ == 1) file->rawFd_=-1;
+      if (numConcurrentReads_ == 1)
+        file->rawFd_ = -1;
     }
     if (numConcurrentReads_ > 1 && fileDescriptor != -1)
       close(fileDescriptor);
@@ -1377,8 +1377,7 @@ inline void InputFile::rewindChunk(const size_t size) {
 }
 
 InputFile::~InputFile() {
-
-  if (rawFd_!=-1)
+  if (rawFd_ != -1)
     close(rawFd_);
 
   if (deleteFile_ && !fileName_.empty()) {
