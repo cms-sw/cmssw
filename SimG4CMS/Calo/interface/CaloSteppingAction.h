@@ -98,7 +98,7 @@ private:
   int allSteps_, count_, eventID_;
   double slopeLY_, birkC1EC_, birkSlopeEC_;
   double birkCutEC_, birkC1HC_, birkC2HC_;
-  double birkC3HC_;
+  double birkC3HC_, timeSliceUnit_;
   std::map<std::pair<int, CaloHitID>, CaloGVHit> hitMap_[nSD_];
   typedef std::tuple<const G4LogicalVolume *, uint32_t, int, int> PassiveKey;
   typedef std::tuple<int, double, double, double> PassiveData;
