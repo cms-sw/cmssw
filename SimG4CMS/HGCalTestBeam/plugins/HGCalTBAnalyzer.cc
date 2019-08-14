@@ -36,8 +36,8 @@
 #include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "AHCalDetId.h"
-#include "AHCalGeometry.h"
+#include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
+#include "SimG4CMS/HGCalTestBeam/interface/AHCalGeometry.h"
 
 #include "SimDataFormats/CaloHit/interface/PassiveHit.h"
 

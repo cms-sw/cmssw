@@ -113,6 +113,9 @@ process.HGCalTBAnalyzer.maxDepth        = 39
 process.HGCalTBAnalyzer.deltaZ          = 26.2
 process.HGCalTBAnalyzer.zFirst          = 22.8
 process.HGCalTBAnalyzer.doPassive       = True
+process.HGCalTBAnalyzer.doPassiveEE     = True
+process.HGCalTBAnalyzer.doPassiveHE     = True
+process.HGCalTBAnalyzer.doPassiveBH     = True
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
