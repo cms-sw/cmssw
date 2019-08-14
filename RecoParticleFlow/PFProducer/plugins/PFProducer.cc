@@ -59,7 +59,6 @@ private:
   edm::EDGetTokenT<reco::GsfElectronCollection> inputTagEgammaElectrons_;
 
   std::vector<edm::EDGetTokenT<reco::PFRecHitCollection>> inputTagCleanedHF_;
-  std::string electronOutputCol_;
   std::string electronExtraOutputCol_;
   std::string photonExtraOutputCol_;
 
@@ -139,8 +138,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
         consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("egammaElectrons"));
   }
 
-  electronOutputCol_ = iConfig.getParameter<std::string>("pf_electron_output_col");
-
   // register products
   produces<reco::PFCandidateCollection>("CleanedCosmicsMuons");
   produces<reco::PFCandidateCollection>("CleanedTrackerAndGlobalMuons");
@@ -148,19 +145,6 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   produces<reco::PFCandidateCollection>("CleanedPunchThroughMuons");
   produces<reco::PFCandidateCollection>("CleanedPunchThroughNeutralHadrons");
   produces<reco::PFCandidateCollection>("AddedMuonsAndHadrons");
-
-  string mvaWeightFileEleID = iConfig.getParameter<string>("pf_electronID_mvaWeightFile");
-
-  string path_mvaWeightFileEleID;
-
-  //PFPhoton Configuration
-
-  string path_mvaWeightFileConvID;
-  string mvaWeightFileConvID;
-  string path_mvaWeightFileGCorr;
-  string path_mvaWeightFileLCorr;
-  string path_X0_Map;
-  string path_mvaWeightFileRes;
 
   // Reading new EGamma selection cuts
   bool useProtectionsForJetMET(false);
@@ -194,37 +178,27 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   if (useCalibrationsFromDB_)
     calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
 
-  // NEW EGamma Filters
+  // EGamma filters
   pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
 
-  if (use_EGammaFilters_)
-    pfegamma_ = std::make_unique<PFEGammaFilters>(iConfig);
+  if (use_EGammaFilters_){
+    const edm::ParameterSet pfEGammaFilterParams = iConfig.getParameter<edm::ParameterSet>("PFEGammaFilterParameters");
+    pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFilterParams);
+  }
 
-  //Secondary tracks and displaced vertices parameters
-
+  // Secondary tracks and displaced vertices parameters
   pfAlgo_.setDisplacedVerticesParameters(
       rejectTracks_Bad, rejectTracks_Step45, usePFNuclearInteractions, usePFConversions, usePFDecays, dptRel_DispVtx);
 
   if (usePFNuclearInteractions)
     pfAlgo_.setCandConnectorParameters(iConfig.getParameter<edm::ParameterSet>("iCfgCandConnector"));
 
-  //Post cleaning of the HF
+  // Post cleaning of the HF
   postHFCleaning_ = iConfig.getParameter<bool>("postHFCleaning");
-  double minHFCleaningPt = iConfig.getParameter<double>("minHFCleaningPt");
-  double minSignificance = iConfig.getParameter<double>("minSignificance");
-  double maxSignificance = iConfig.getParameter<double>("maxSignificance");
-  double minSignificanceReduction = iConfig.getParameter<double>("minSignificanceReduction");
-  double maxDeltaPhiPt = iConfig.getParameter<double>("maxDeltaPhiPt");
-  double minDeltaMet = iConfig.getParameter<double>("minDeltaMet");
+  const edm::ParameterSet pfHFCleaningParams = iConfig.getParameter<edm::ParameterSet>("PFHFCleaningParameters");
 
   // Set post HF cleaning muon parameters
-  pfAlgo_.setPostHFCleaningParameters(postHFCleaning_,
-                                      minHFCleaningPt,
-                                      minSignificance,
-                                      maxSignificance,
-                                      minSignificanceReduction,
-                                      maxDeltaPhiPt,
-                                      minDeltaMet);
+  pfAlgo_.setPostHFCleaningParameters(postHFCleaning_,pfHFCleaningParams);
 
   // Input tags for HF cleaned rechits
   std::vector<edm::InputTag> tags = iConfig.getParameter<std::vector<edm::InputTag>>("cleanedHF");
