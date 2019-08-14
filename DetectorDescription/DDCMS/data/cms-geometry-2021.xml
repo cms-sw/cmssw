@@ -212,7 +212,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tecpetal6b.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecpetal8f.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecpetal8b.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/tecwheel.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tecwheel/2021/v1/tecwheel.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecwheela.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecwheelb.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecwheelc.xml'/>
