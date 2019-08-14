@@ -116,7 +116,7 @@ void CaloSteppingAction::fillPassiveHits(edm::PassiveHitContainer& cc) {
                      std::get<3>(element.second),
                      std::get<1>(element.second),
                      std::get<2>(element.first),
-		     std::get<0>(element.second));
+                     std::get<0>(element.second));
       cc.emplace_back(hit);
     }
   }
@@ -307,8 +307,8 @@ void CaloSteppingAction::update(const G4Step* aStep) {
           store_[key] = std::make_tuple(pdg, time, energy, energy);
         } else {
           auto itr = store_.find(key);
-	  double e1 = std::get<2>(itr->second) + energy;
-	  double e2 = std::get<3>(itr->second) + energy;
+          double e1 = std::get<2>(itr->second) + energy;
+          double e2 = std::get<3>(itr->second) + energy;
           store_[key] = std::make_tuple(pdg, time, e1, e2);
         }
       } else {
@@ -316,8 +316,8 @@ void CaloSteppingAction::update(const G4Step* aStep) {
         if (itr == store_.end()) {
           store_[key] = std::make_tuple(pdg, time, energy, energy);
         } else {
-	  double e1 = std::get<2>(itr->second) + energy;
-	  double e2 = std::get<3>(itr->second) + energy;
+          double e1 = std::get<2>(itr->second) + energy;
+          double e2 = std::get<3>(itr->second) + energy;
           store_[key] = std::make_tuple(pdg, time, e1, e2);
         }
       }
