@@ -15,7 +15,7 @@ class PFMuonAlgo {
 
 public:
   /// constructor
-  PFMuonAlgo(edm::ParameterSet const&);
+  PFMuonAlgo(edm::ParameterSet const&, bool);
 
   ////STATIC MUON ID METHODS
   static bool isMuon(const reco::PFBlockElement& elt);
