@@ -14,14 +14,15 @@ namespace ticl {
     edm::InputTag vertex_src_;
 
     reco::Vertex vertex_;
+    bool energy_from_regression_;
     edm::EDGetTokenT<std::vector<reco::Vertex> > vertex_token_;
-
     edm::EDGetTokenT<std::vector<reco::CaloCluster>> layer_clusters_token_;
     edm::Handle<std::vector<reco::CaloCluster>> layer_clusters_handle_;
   };
 
   TracksterP4FromEnergySum::TracksterP4FromEnergySum(const edm::ParameterSet& ps, edm::ConsumesCollector&& ic) : 
     TracksterMomentumPluginBase(ps, std::move(ic)),
+    energy_from_regression_(ps.getParameter<bool>("energyFromRegression")),
     vertex_token_(ic.consumes<std::vector<reco::Vertex>>(ps.getParameter<edm::InputTag>("vertices"))),
     layer_clusters_token_(ic.consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layerClusters"))) {
   }
@@ -62,7 +63,7 @@ namespace ticl {
 
     math::XYZVector direction(barycentre[0] - vertex_.x(), barycentre[1] - vertex_.y(), barycentre[2] - vertex_.z());
     direction = direction.Unit();
-    direction *= energy;
+    direction *= energy_from_regression_ ? trackster.regressed_energy : energy;
 
     math::XYZTLorentzVector cartesian(direction.X(), direction.Y(), direction.Z(), energy);
     // Convert px, py, pz, E vector to CMS standard pt/eta/phi/m vector
