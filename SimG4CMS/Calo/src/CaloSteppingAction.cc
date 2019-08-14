@@ -44,6 +44,7 @@ CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p) : count_(0) {
   birkC1HC_ = iC.getParameter<double>("BirkC1HC");
   birkC2HC_ = iC.getParameter<double>("BirkC2HC");
   birkC3HC_ = iC.getParameter<double>("BirkC3HC");
+  timeSliceUnit_ = iC.getUntrackedParameter<double>("TimeSliceUnit",1.0);
 
   edm::LogVerbatim("Step") << "CaloSteppingAction:: " << nameEBSD_.size() << " names for EB SD's";
   for (unsigned int k = 0; k < nameEBSD_.size(); ++k)
@@ -58,6 +59,7 @@ CaloSteppingAction::CaloSteppingAction(const edm::ParameterSet& p) : count_(0) {
                            << birkC1EC_ << ":" << birkSlopeEC_ << ":" << birkCutEC_;
   edm::LogVerbatim("Step") << "CaloSteppingAction::Constants for HCAL: Birk "
                            << "constants " << birkC1HC_ << ":" << birkC2HC_ << ":" << birkC3HC_;
+  edm::LogVerbatim("Step") << "CaloSteppingAction::Constant for time slice " << timeSliceUnit_;
   edm::LogVerbatim("Step") << "CaloSteppingAction:: " << nameHitC_.size() << " hit collections";
   for (unsigned int k = 0; k < nameHitC_.size(); ++k)
     edm::LogVerbatim("Step") << "[" << k << "] " << nameHitC_[k];
@@ -359,7 +361,7 @@ uint32_t CaloSteppingAction::getDetIDHC(int det, int lay, int depth, const math:
 }
 
 void CaloSteppingAction::fillHit(uint32_t id, double dE, double time, int primID, uint16_t depth, double em, int flag) {
-  CaloHitID currentID(id, time, primID, depth);
+  CaloHitID currentID(id, time, primID, depth, timeSliceUnit_);
   double edepEM = (em ? dE : 0);
   double edepHAD = (em ? 0 : dE);
   std::pair<int, CaloHitID> evID = std::make_pair(eventID_, currentID);
