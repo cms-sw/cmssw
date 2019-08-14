@@ -63,8 +63,8 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   readEBEEParams_(eleProtectionsForBadHcal, "eInvPInv", badHcal_eInvPInv_);
   readEBEEParams_(eleProtectionsForBadHcal, "dEta", badHcal_dEta_);
   readEBEEParams_(eleProtectionsForBadHcal, "dPhi", badHcal_dPhi_);
-
   badHcal_eleEnable_ = eleProtectionsForBadHcal.getParameter<bool>("enableProtections");
+
   badHcal_phoTrkSolidConeIso_offs_ = phoProtectionsForBadHcal.getParameter<double>("solidConeTrkIsoOffset");
   badHcal_phoTrkSolidConeIso_slope_ = phoProtectionsForBadHcal.getParameter<double>("solidConeTrkIsoSlope");
   badHcal_phoEnable_ = phoProtectionsForBadHcal.getParameter<bool>("enableProtections");
