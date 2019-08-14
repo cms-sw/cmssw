@@ -188,6 +188,15 @@ upgradeSteps['heCollapse'] = {
     'suffix' : '_heCollapse',
     'offset' : 0.6,
 }
+upgradeSteps['trackingMkFit'] = {
+    'steps' : [
+        'RecoFull',
+        'RecoFullGlobal',
+    ],
+    'PU' : [],
+    'suffix' : '_trackingMkFit',
+    'offset' : 0.7,
+}
 upgradeSteps['ParkingBPH'] = {
     'steps' : [
         'RecoFull',
