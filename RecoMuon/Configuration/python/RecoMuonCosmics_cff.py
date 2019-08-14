@@ -47,8 +47,6 @@ muonsFromCosmics.fillGlobalTrackRefits = False
 # Stand Alone Tracking
 STAmuontrackingforcosmicsTask = cms.Task(CosmicMuonSeed,cosmicMuons)
 STAmuontrackingforcosmics = cms.Sequence(STAmuontrackingforcosmicsTask)
-# Stand Alone Tracking plus muon ID
-STAmuonrecoforcosmics = cms.Sequence(STAmuontrackingforcosmicsTask)
 
 # Stand Alone Tracking plus global tracking
 muontrackingforcosmicsTask = cms.Task(STAmuontrackingforcosmicsTask,globalCosmicMuons)
@@ -81,11 +79,7 @@ allmuonsTask = cms.Task(glbTrackQual,
 allmuons = cms.Sequence(allmuonsTask)
 
 # Final sequence
-muonrecoforcosmicsTask = cms.Task(muontrackingforcosmicsTask,
-                                  allmuonsTask,
-                                  muonsFromCosmics)
-muonrecoforcosmics = cms.Sequence(muonrecoforcosmicsTask)
-#muonRecoAllGR = cms.Sequence(muonrecoforcosmicsTask)
+muonrecoforcosmicsTask = cms.Task(muontrackingforcosmicsTask)
 
 # 1 leg mode
 
@@ -168,9 +162,6 @@ muontrackingforcosmicsWitht0Correction = cms.Sequence(muontrackingforcosmicsWith
 # Stand Alone Tracking plus muon ID
 STAmuonrecoforcosmicsWitht0Correction = cms.Sequence(STAmuontrackingforcosmicsWitht0CorrectionTask)
 
-# all muons id
-#allmuonsWitht0Correction = cms.Sequence(muonsWitht0Correction)
-
 # Final sequence
 muonrecoforcosmicsWitht0CorrectionTask = cms.Task(muontrackingforcosmicsWitht0CorrectionTask,muonsWitht0Correction)
 muonrecoforcosmicsWitht0Correction = cms.Sequence(muonrecoforcosmicsWitht0CorrectionTask)
@@ -245,15 +236,9 @@ muonsNoRPC.fillGlobalTrackRefits = False
 
 #Sequences
 
-# Stand Alone Tracking
-#STAmuontrackingforcosmicsNoRPC = cms.Sequence(cosmicMuonsNoRPC)
-
 # Stand Alone Tracking plus global tracking
 muontrackingforcosmicsNoRPCTask = cms.Task(cosmicMuonsNoRPC,globalCosmicMuonsNoRPC)
 muontrackingforcosmicsNoRPC = cms.Sequence(muontrackingforcosmicsNoRPCTask)
-
-# all muons id
-#allmuonsNoRPC = cms.Sequence(muonsNoRPC)
 
 # Final sequence
 muonrecoforcosmicsNoRPCTask = cms.Task(muontrackingforcosmicsNoRPCTask,muonsNoRPC)
