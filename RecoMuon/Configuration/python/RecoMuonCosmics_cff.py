@@ -113,9 +113,6 @@ STAmuontrackingforcosmics1LegTask = cms.Task(CosmicMuonSeed,cosmicMuons1Leg)
 # Stand Alone Tracking plus global tracking
 muontrackingforcosmics1LegTask = cms.Task(STAmuontrackingforcosmics1LegTask, globalCosmicMuons1Leg)
 
-# Stand Alone Tracking plus muon ID
-STAmuonrecoforcosmics1Leg = cms.Sequence(STAmuontrackingforcosmics1LegTask)
-
 # Final sequence
 muonrecoforcosmics1LegTask = cms.Task(muontrackingforcosmics1LegTask,muons1Leg)
 
