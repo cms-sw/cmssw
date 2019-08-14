@@ -21,6 +21,7 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf, co
   eidInputName_ = conf.getParameter<std::string>("eid_input_name");
   eidOutputNameEnergy_ = conf.getParameter<std::string>("eid_output_name_energy");
   eidOutputNameId_ = conf.getParameter<std::string>("eid_output_name_id");
+  eidMinClusterEnergy_ = conf.getParameter<double>("eid_min_cluster_energy");
   eidNLayers_ = conf.getParameter<int>("eid_n_layers");
   eidNClusters_ = conf.getParameter<int>("eid_n_clusters");
 
@@ -199,7 +200,7 @@ void PatternRecognitionbyCA::energyRegressionAndID(const std::vector<reco::CaloC
           }
         } else {
           for (int j = 0; j < eidNFeatures_; j++) {
-            *(inputData++) = float(0);
+            *(inputData++) = 0.f;
           }
         }
       }

@@ -54,14 +54,7 @@ def TICL_iterations_withReco(process):
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
-      min_cos_pointing = 0.7,
-      eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_v0.pb"),
-      eid_input_name = cms.string("input"),
-      eid_output_name_energy = cms.string(""),
-      eid_output_name_id = cms.string("output/id_probabilities"),
-      eid_min_cluster_energy = cms.double(1.),
-      eid_n_layers = cms.int32(50),
-      eid_n_clusters = cms.int32(10),
+      min_cos_pointing = 0.7
   )
 
   process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(
@@ -115,14 +108,7 @@ def TICL_iterations(process):
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
-      min_cos_pointing = 0.7,
-      eid_graph_path = cms.string("RecoHGCal/TICL/data/tf_models/energy_id_v0.pb"),
-      eid_input_name = cms.string("input"),
-      eid_output_name_energy = cms.string(""),
-      eid_output_name_id = cms.string("output/id_probabilities"),
-      eid_min_cluster_energy = cms.double(1.),
-      eid_n_layers = cms.int32(50),
-      eid_n_clusters = cms.int32(10),
+      min_cos_pointing = 0.7
   )
 
   process.MultiClustersFromTracksters = multiClustersFromTrackstersProducer.clone(

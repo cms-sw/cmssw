@@ -38,7 +38,7 @@ namespace ticl {
     std::string eidInputName_;
     std::string eidOutputNameEnergy_;
     std::string eidOutputNameId_;
-    double eidMinClusterEnergy_;
+    float eidMinClusterEnergy_;
     int eidNLayers_;
     int eidNClusters_;
 
