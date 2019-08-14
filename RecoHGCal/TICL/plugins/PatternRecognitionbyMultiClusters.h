@@ -19,7 +19,7 @@ namespace ticl {
     PatternRecognitionbyMultiClusters(const edm::ParameterSet& conf) : PatternRecognitionAlgoBase(conf) {}
     ~PatternRecognitionbyMultiClusters() override{};
 
-    void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input) override;
+    const void makeTracksters(const PatternRecognitionAlgoBase::Inputs& input, std::vector<Trackster>& result) override;
   };
 }  // namespace ticl
 #endif

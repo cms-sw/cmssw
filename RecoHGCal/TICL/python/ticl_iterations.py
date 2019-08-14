@@ -36,7 +36,6 @@ def TICL_iterations_withReco(process):
   process.trackstersTrk = trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersTrk", "Trk"),
     seeding_regions = cms.InputTag("ticlSeedingTrk"),
-    algo_verbosity = 0,
     missing_layers = 3,
     min_clusters_per_ntuplet = 5,
     min_cos_theta = 0.99, # ~10 degrees                                              
@@ -75,6 +74,8 @@ def TICL_iterations_withReco(process):
   )
 
   process.filteredLayerClusters = filteredLayerClustersProducer.clone(
+      clusterFilter = "ClusterFilterByAlgoAndSize",
+      min_cluster_size = 2,
       algo_number = 8,
       iteration_label = "algo8",
       LayerClustersInputMask = "trackstersMIP"
@@ -111,6 +112,9 @@ def TICL_iterations_withReco(process):
   process.schedule.associate(process.TICL_Task)
   return process
 
+
+## TICL_iterations: to be run with local HGCAL reco only
+## i.e. collections of generalTracks (track-seeded iteration) NOT available
 def TICL_iterations(process):
   process.FEVTDEBUGHLTEventContent.outputCommands.extend(['keep *_multiClustersFromTracksters*_*_*'])
 
@@ -141,6 +145,8 @@ def TICL_iterations(process):
   )
 
   process.filteredLayerClusters = filteredLayerClustersProducer.clone(
+      clusterFilter = "ClusterFilterByAlgoAndSize",
+      min_cluster_size = 2,
       algo_number = 8,
       iteration_label = "algo8"
   )

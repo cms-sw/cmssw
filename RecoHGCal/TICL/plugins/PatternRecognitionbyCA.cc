@@ -21,7 +21,8 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf) : 
 
 PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 
-void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input) {
+const void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
+                                                  std::vector<Trackster> &result) {
   rhtools_.getEventSetup(input.es);
 
   theGraph_->setVerbosity(algo_verbosity_);
@@ -59,9 +60,9 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
       effective_cluster_idx.insert(innerCluster);
       effective_cluster_idx.insert(outerCluster);
       if (algo_verbosity_ > Advanced) {
-        LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << input.result.size()
-                                      << " InnerCl " << innerCluster << " " << input.layerClusters[innerCluster].x()
-                                      << " " << input.layerClusters[innerCluster].y() << " "
+        LogDebug("HGCPatterRecoByCA") << "New doublet " << doublet << " for trackster: " << result.size() << " InnerCl "
+                                      << innerCluster << " " << input.layerClusters[innerCluster].x() << " "
+                                      << input.layerClusters[innerCluster].y() << " "
                                       << input.layerClusters[innerCluster].z() << " OuterCl " << outerCluster << " "
                                       << input.layerClusters[outerCluster].x() << " "
                                       << input.layerClusters[outerCluster].y() << " "
@@ -81,11 +82,11 @@ void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::In
     tmp.seedID = input.regions[0].collectionID;
     tmp.seedIndex = seedIndices[tracksterId];
     std::copy(std::begin(effective_cluster_idx), std::end(effective_cluster_idx), std::back_inserter(tmp.vertices));
-    input.result.push_back(tmp);
+    result.push_back(tmp);
     tracksterId++;
   }
 
-  for (auto &trackster : input.result) {
+  for (auto &trackster : result) {
     assert(trackster.vertices.size() <= trackster.vertex_multiplicity.size());
     for (size_t i = 0; i < trackster.vertices.size(); ++i) {
       trackster.vertex_multiplicity[i] = layer_cluster_usage[trackster.vertices[i]];
