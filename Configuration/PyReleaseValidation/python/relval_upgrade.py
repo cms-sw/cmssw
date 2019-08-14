@@ -128,10 +128,16 @@ for year in upgradeKeys:
                 workflows[numWF+premixS2_offset] = [upgradeDatasetFromFragment[frag], slist]
 
                 # Combined stage1+stage2
+                def nano(s):
+                    if "Nano" in s:
+                        if "_" in s:
+                            return s.replace("_", "PUPRMXCombined_")
+                        return s+"PUPRMXCombined"
+                    return s
                 workflows[numWF+premixS1S2_offset] = [upgradeDatasetFromFragment[frag], # Signal fragment
                                                       [slist[0]] +                      # Start with signal generation
                                                       stepList['Premix'] +              # Premixing stage1
                                                       [slist[1].replace("PUPRMX", "PUPRMXCombined")] + # Premixing stage2, customized for the combined (defined in relval_steps.py)
-                                                      filter(lambda x: "nano" not in x.lower(), slist[2:])]    # Remaining standard steps (excluding NANOAOD because of input file numbering mismatch)
+                                                      map(nano, slist[2:])]             # Remaining standard steps
 
             numWF+=1
