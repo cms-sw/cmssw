@@ -21,7 +21,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Volume mother = ns.volume(args.parentName());
   Volume child = ns.volume(args.value<string>("ChildName"));
 
-  LogDebug("TrackerGeom") << "+++ Executing Algorithm. rParent:" << mother.name();
+  LogDebug("TrackerGeom") << "DDTrackerLinear +++ Executing Algorithm. rParent:" << mother.name();
   LogDebug("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
                           << ns.name() << "\tNumber " << number << "\tAxis (theta/phi) " << theta / dd4hep::deg << ", "
                           << phi / dd4hep::deg << "\t(Offset/Delta) " << offset << ", " << delta << "\tCentre "
