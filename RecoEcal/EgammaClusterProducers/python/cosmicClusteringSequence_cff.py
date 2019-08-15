@@ -13,4 +13,5 @@ from RecoEcal.EgammaClusterProducers.cosmicSuperClusters_cfi import *
 #  SuperCluster with Preshower producer
 #include "RecoEcal/EgammaClusterProducers/data/SuperClustersWithPreshower.cfi"
 # create sequence for  clustering
-cosmicClusteringSequence = cms.Sequence(cosmicBasicClusters * cosmicSuperClusters)
+cosmicClusteringTask = cms.Task(cosmicBasicClusters, cosmicSuperClusters)
+cosmicClusteringSequence = cms.Sequence(cosmicClusteringTask)
