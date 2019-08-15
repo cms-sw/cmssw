@@ -1690,6 +1690,30 @@ if __name__ == "__main__":
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
 
+            p3 = PSet(aValue=required.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=required.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
+            p3 = PSet(aValue=required.untracked.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=required.untracked.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
+            p3 = PSet(aValue=optional.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=optional.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
+            p3 = PSet(aValue=optional.untracked.allowed(int32,uint32))
+            p3.aValue = -42
+            self.assertEqual(p3.aValue.value(), -42)
+            p3 = PSet(aValue=optional.untracked.allowed(int32,uint32))
+            self.assertRaises(RuntimeError, lambda: setattr(p3, "aValue", 42))
+
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)
