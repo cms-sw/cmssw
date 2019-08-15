@@ -12,6 +12,7 @@
 <use name="xz"/>
 <use name="hdf5"/>
 <use name="highfive"/>
+<use name="tinyxml2"/>
 <export>
   <lib name="1"/>
 </export>

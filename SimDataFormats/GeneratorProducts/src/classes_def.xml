@@ -232,12 +232,19 @@
  </class>
  <class name="gen::WeightGroupInfo"/>
  <class name="gen::PdfWeightGroupInfo"/>
+ <class name="gen::ScaleWeightGroupInfo"/>
  <class name="gen::WeightMetaInfo"/>
  <class name="std::vector<gen::WeightsInfo>"/>
  <class name="std::vector<gen::WeightGroupInfo>"/>
  <class name="std::vector<gen::WeightGroupInfo*>"/>
+ <class name="std::vector<gen::PdfWeightGroupInfo>"/>
+ <class name="std::vector<gen::PdfWeightGroupInfo*>"/>
+ <class name="std::vector<gen::ScaleWeightGroupInfo>"/>
+ <class name="std::vector<gen::ScaleWeightGroupInfo*>"/>
  <class name="edm::OwnVector<gen::WeightGroupInfo>"/>
  <class name="edm::Wrapper<gen::WeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::PdfWeightGroupInfo>"/>
+ <class name="edm::Wrapper<gen::ScaleWeightGroupInfo>"/>
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEWeightInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEWeightProduct&gt;"/>
