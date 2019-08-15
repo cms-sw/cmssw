@@ -78,6 +78,7 @@ private:
   std::string destinationDir_;
 
   int microSleep_;
+  unsigned int frdFileVersion_;
 
   uint32 adlera_;
   uint32 adlerb_;
