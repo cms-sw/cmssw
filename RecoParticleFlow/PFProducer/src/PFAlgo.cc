@@ -990,22 +990,6 @@ void PFAlgo::elementLoop(const reco::PFBlock& block,
                          const reco::PFBlockRef& blockref,
                          ElementIndices& inds,
                          std::vector<bool>& deadArea) {
-  // --------------- loop 1 ------------------
-
-  // The primary goal is to deal with tracks that are:
-  // - not associated to an HCAL cluster
-  // - not identified as an electron.
-  // Those tracks should be predominantly relatively low energy charged
-  // hadrons which are not detected in the ECAL.
-
-  // The secondary goal is to prepare for the next loops
-  // - The ecal and hcal elements are sorted in separate vectors
-  // which will be used as a base for the corresponding loops.
-  // - For tracks which are connected to more than one HCAL cluster,
-  // the links between the track and the cluster are cut for all clusters
-  // but the closest one.
-  // - HF only blocks ( HFEM, HFHAD, HFEM+HFAD) are identified
-
   LogTrace("PFAlgo|elementLoop") << "start of function PFAlgo::elementLoop, elements.size()" << elements.size();
 
   for (unsigned iEle = 0; iEle < elements.size(); iEle++) {
