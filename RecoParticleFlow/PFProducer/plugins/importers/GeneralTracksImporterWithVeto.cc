@@ -22,8 +22,9 @@ public:
         cleanBadConvBrems_(
             conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
         debug_(conf.getUntrackedParameter<bool>("debug", false)) {
-    bool postMuonCleaning = conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
-    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf,postMuonCleaning));
+    bool postMuonCleaning =
+        conf.existsAs<bool>("postMuonCleaning") ? conf.getParameter<bool>("postMuonCleaning") : false;
+    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo(conf, postMuonCleaning));
   }
 
   void importToBlock(const edm::Event&, ElementList&) const override;

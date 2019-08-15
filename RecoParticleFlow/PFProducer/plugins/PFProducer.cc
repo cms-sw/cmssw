@@ -181,7 +181,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   // EGamma filters
   pfAlgo_.setEGammaParameters(use_EGammaFilters_, useProtectionsForJetMET);
 
-  if (use_EGammaFilters_){
+  if (use_EGammaFilters_) {
     const edm::ParameterSet pfEGammaFilterParams = iConfig.getParameter<edm::ParameterSet>("PFEGammaFilterParameters");
     pfegamma_ = std::make_unique<PFEGammaFilters>(pfEGammaFilterParams);
   }
@@ -198,7 +198,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig)
   const edm::ParameterSet pfHFCleaningParams = iConfig.getParameter<edm::ParameterSet>("PFHFCleaningParameters");
 
   // Set post HF cleaning muon parameters
-  pfAlgo_.setPostHFCleaningParameters(postHFCleaning_,pfHFCleaningParams);
+  pfAlgo_.setPostHFCleaningParameters(postHFCleaning_, pfHFCleaningParams);
 
   // Input tags for HF cleaned rechits
   std::vector<edm::InputTag> tags = iConfig.getParameter<std::vector<edm::InputTag>>("cleanedHF");
