@@ -11,7 +11,10 @@ process.options = cms.untracked.PSet(
     )
 process.source = cms.Source("FRDStreamSource",
     fileNames = cms.untracked.vstring(
-'file:/home/meschi/CMSSW_7_1_X_2014-09-12-0200/src/EventFilter/FEDInterface/data/fed1024data/run226295_ls0302_index000000.raw'    )
+'file:/home/meschi/CMSSW_7_1_X_2014-09-12-0200/src/EventFilter/FEDInterface/data/fed1024data/run226295_ls0302_index000000.raw'    ),
+    firstLuminosityBlockForEachRun = cms.untracked.VLuminosityBlockID(*[cms.LuminosityBlockID(302,226295)]),
+    #useL1EventID = cms.untracked.bool(True)
+
 )
 process.a = cms.EDAnalyzer("GlobalNumbersAnalysis");
 

@@ -4,6 +4,8 @@
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
+#include "IOPool/Streamer/interface/FRDEventMessage.h"
+#include "IOPool/Streamer/interface/FRDFileHeader.h"
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -23,7 +25,8 @@ using namespace jsoncollector;
 
 RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps)
     :  // default to .5ms sleep per event
-      microSleep_(ps.getUntrackedParameter<int>("microSleep", 0))
+      microSleep_(ps.getUntrackedParameter<int>("microSleep", 0)),
+      frdFileVersion_(ps.getUntrackedParameter<unsigned int>("frdFileVersion", 0))
 //debug_(ps.getUntrackedParameter<bool>("debug", False))
 {
   //per-file JSD and FastMonitor
@@ -113,8 +116,10 @@ void RawEventFileWriterForBU::doOutputEventFragment(unsigned char* dataPtr, unsi
 void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int ls) {
   destinationDir_ = destinationDir;
 
-  if (closefd())
+  if (outfd_ != -1) {
     finishFileWrite(ls);
+    closefd();
+  }
 
   fileName_ = name;
 
@@ -156,6 +161,7 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
 
   outfd_ = open(fileName_.c_str(), O_WRONLY | O_CREAT, S_IRWXU | S_IRWXG | S_IRWXO);
   edm::LogInfo("RawEventFileWriterForBU") << " opened " << fileName_;
+
   if (outfd_ < 0) {  //attention here... it may happen that outfd_ is *not* set (e.g. missing initialize call...)
     throw cms::Exception("RawEventFileWriterForBU", "initialize")
         << "Error opening FED Raw Data event output file: " << name << ": " << strerror(errno) << "\n";
@@ -166,6 +172,14 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
 
   adlera_ = 1;
   adlerb_ = 0;
+
+  if (frdFileVersion_ > 0) {
+    assert(frdFileVersion_ == 1);
+    //reserve space for file header
+    ftruncate(outfd_, sizeof(FRDFileHeader_v1));
+    lseek(outfd_, sizeof(FRDFileHeader_v1), SEEK_SET);
+    perFileSize_.value() = sizeof(FRDFileHeader_v1);
+  }
 }
 
 void RawEventFileWriterForBU::writeJsds() {
@@ -202,21 +216,38 @@ void RawEventFileWriterForBU::writeJsds() {
 }
 
 void RawEventFileWriterForBU::finishFileWrite(int ls) {
-  //move raw file from open to run directory
-  rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
+  if (frdFileVersion_ > 0) {
+    //rewind
+    lseek(outfd_, 0, SEEK_SET);
+    FRDFileHeader_v1 frdFileHeader(perFileEventCount_.value(), (uint32_t)ls, perFileSize_.value());
+    write(outfd_, (char*)&frdFileHeader, sizeof(FRDFileHeader_v1));
+    closefd();
+    //move raw file from open to run directory
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
 
-  //create equivalent JSON file
-  std::stringstream ss;
-  //TODO:fix this to use DaqDirector convention and better extension replace
-  boost::filesystem::path source(fileName_);
-  std::string path = source.replace_extension(".jsn").string();
+    edm::LogInfo("RawEventFileWriterForBU")
+        << "Wrote RAW input file: " << fileName_ << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
+  } else {
+    closefd();
+    //move raw file from open to run directory
+    rename(fileName_.c_str(), (destinationDir_ + fileName_.substr(fileName_.rfind("/"))).c_str());
+    //create equivalent JSON file
+    //TODO:fix this to use DaqDirector convention and better extension replace
+    boost::filesystem::path source(fileName_);
+    std::string path = source.replace_extension(".jsn").string();
 
-  fileMon_->snap(ls);
-  fileMon_->outputFullJSON(path, ls);
-  fileMon_->discardCollected(ls);
+    fileMon_->snap(ls);
+    fileMon_->outputFullJSON(path, ls);
+    fileMon_->discardCollected(ls);
 
-  //move the json file from open
-  rename(path.c_str(), (destinationDir_ + path.substr(path.rfind("/"))).c_str());
+    //move the json file from open
+    rename(path.c_str(), (destinationDir_ + path.substr(path.rfind("/"))).c_str());
+
+    edm::LogInfo("RawEventFileWriterForBU")
+        << "Wrote JSON input file: " << path << " with perFileEventCount = " << perFileEventCount_.value()
+        << " and size " << perFileSize_.value();
+  }
   //there is a small chance that script gets interrupted while this isn't consistent (non-atomic)
   perLumiFileCount_.value()++;
   perLumiEventCount_.value() += perFileEventCount_.value();
@@ -224,15 +255,13 @@ void RawEventFileWriterForBU::finishFileWrite(int ls) {
   perLumiTotalEventCount_.value() += perFileEventCount_.value();
   //update open lumi value when first file is completed
   lumiOpen_ = ls;
-
-  edm::LogInfo("RawEventFileWriterForBU")
-      << "Wrote JSON input file: " << path << " with perFileEventCount = " << perFileEventCount_.value() << " and size "
-      << perFileSize_.value();
 }
 
 void RawEventFileWriterForBU::endOfLS(int ls) {
-  if (closefd())
+  if (outfd_ != -1) {
     finishFileWrite(ls);
+    closefd();
+  }
   lumiMon_->snap(ls);
 
   std::ostringstream ostr;
