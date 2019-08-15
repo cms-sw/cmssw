@@ -152,3 +152,6 @@ regressionModifier = regressionModifier94X.clone()
 
 from Configuration.Eras.Modifier_run2_egamma_2017_cff import run2_egamma_2017
 run2_egamma_2017.toReplaceWith(regressionModifier,regressionModifier106XUL)
+
+from Configuration.Eras.Modifier_run2_egamma_2018_cff import run2_egamma_2018
+run2_egamma_2018.toReplaceWith(regressionModifier,regressionModifier106XUL)
