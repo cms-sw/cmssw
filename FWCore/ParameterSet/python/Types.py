@@ -129,8 +129,8 @@ class _AllowedParameterTypes(object):
                 if chosenType is not None:
                     raise RuntimeError("Ambiguous type conversion for 'allowed' parameter")
                 chosenType = t
-            if chosenType is None:
-                raise RuntimeError("Cannot convert "+str(value)+" to 'allowed' type")
+        if chosenType is None:
+            raise RuntimeError("Cannot convert "+str(value)+" to 'allowed' type")
         return chosenType(value)
 
 
@@ -1659,11 +1659,21 @@ if __name__ == "__main__":
             p1.aValue = 1
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.int32(1)\n)')
             self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
+            p1 = PSet(aValue = required.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = "foo"
+            self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.string('foo')\n)")
+
             p1 = PSet(aValue = required.untracked.allowed(int32, string))
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
             p1.aValue = 1
             self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.untracked.int32(1)\n)')
             self.assertRaises(ValueError,setattr(p1,'aValue',PSet()))
+            p1 = PSet(aValue = required.untracked.allowed(int32, string))
+            self.assertEqual(p1.dumpPython(),'cms.PSet(\n    aValue = cms.required.untracked.allowed(cms.int32,cms.string)\n)')
+            p1.aValue = "foo"
+            self.assertEqual(p1.dumpPython(),"cms.PSet(\n    aValue = cms.untracked.string('foo')\n)")
+
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.allowed(cms.int32,cms.PSet)\n)')
             p2.aValue = 2
@@ -1671,6 +1681,7 @@ if __name__ == "__main__":
             p2 = PSet(aValue=optional.allowed(int32,PSet))
             p2.aValue = PSet(i = int32(3))
             self.assertEqual(p2.aValue.i.value(),3)
+
             p2 = PSet(aValue=optional.untracked.allowed(int32,PSet))
             self.assertEqual(p2.dumpPython(),'cms.PSet(\n    aValue = cms.optional.untracked.allowed(cms.int32,cms.PSet)\n)')
             p2.aValue = 2
