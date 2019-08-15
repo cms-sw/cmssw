@@ -450,6 +450,19 @@ class MatrixInjector(object):
                             if primary in o:
                                 #print "found",primary,"procuced by",om,"of",t_input['TaskName']
                                 t_second['InputTask'] = t_input['TaskName']
+				#ad-hoc fix due to restriction in TaskName of 50 characters
+				if (len(t_input['TaskName'])>50):
+				    t_input['TaskName'] = t_input['TaskName'].replace('_TuneCUETP8M1','')
+				    t_input['TaskName'] = t_input['TaskName'].replace('_TuneCP5','')
+				    t_input['TaskName'] = t_input['TaskName'].replace('_forSTEAM','')
+				if (len(t_input['TaskName'])>50):
+				    t_input['TaskName'] = t_input['TaskName'].replace('pythia8','')
+                                    t_input['TaskName'] = t_input['TaskName'].replace('_powhegEmissionVeto','')
+                                    t_input['TaskName'] = t_input['TaskName'].replace('_aMCatNLO','')
+                                if (len(t_input['TaskName'])>50):
+                                    t_input['TaskName'] = t_input['TaskName'].replace('GenSimFull','GS')
+                                    t_input['TaskName'] = t_input['TaskName'].replace('GammaGamma','GG')
+                                    t_input['TaskName'] = t_input['TaskName'].replace('Bottom','B')
                                 t_second['InputFromOutputModule'] = om
                                 #print 't_second',pprint.pformat(t_second)
                                 if t_second['TaskName'].startswith('HARVEST'):
