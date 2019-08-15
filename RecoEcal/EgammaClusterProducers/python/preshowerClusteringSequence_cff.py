@@ -10,5 +10,6 @@ from RecoEcal.EgammaClusterProducers.correctedEndcapSuperClustersWithPreshower_c
 # producer for preshower cluster shapes
 from RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi import *
 # create sequence for preshower clustering
-preshowerClusteringSequence = cms.Sequence(correctedEndcapSuperClustersWithPreshower*preshowerClusterShape)
+preshowerClusteringTask = cms.Task(correctedEndcapSuperClustersWithPreshower, preshowerClusterShape)
+preshowerClusteringSequence = cms.Sequence(preshowerClusteringTask)
 
