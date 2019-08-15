@@ -12,7 +12,6 @@
 // Geometry
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -26,9 +25,6 @@
 
 // Less than operator for sorting EcalRecHits according to energy.
 bool ecalRecHitGreater(EcalRecHit x, EcalRecHit y) { return (x.energy() > y.energy()); }
-
-class DQMStore;
-class MonitorElement;
 
 class DQMSourcePi0 : public DQMEDAnalyzer {
 public:

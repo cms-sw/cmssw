@@ -83,6 +83,8 @@ public:
   std::vector<int> depth_;
   std::vector<int> depthIndex_;
   std::vector<int> depthLayerF_;
+  std::vector<double> xLayerHex_;
+  std::vector<double> yLayerHex_;
   std::vector<double> zLayerHex_;
   std::vector<double> rMinLayHex_;
   std::vector<double> rMaxLayHex_;
@@ -145,6 +147,8 @@ public:
   std::vector<double> zRanges_;
   int firstLayer_;
   int firstMixedLayer_;
+  int layerOffset_;
+  std::vector<int> layerCenter_;
   wafer_map wafersInLayers_;
   wafer_map typesInLayers_;
   waferT_map waferTypes_;

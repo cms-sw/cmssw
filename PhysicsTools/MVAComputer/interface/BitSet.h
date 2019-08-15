@@ -85,7 +85,8 @@ namespace PhysicsTools {
       /// increment iterator to point at the next set bit
       Iterator &operator++() {
         if (++pos < wordSize) {
-          Word_t word = *store & -(1 << pos);
+          //Only look at bits at and beyond pos
+          Word_t word = *store & ((~(1U << pos)) + 1);
           if (word) {
             pos = ffs(word) - 1;
             return *this;

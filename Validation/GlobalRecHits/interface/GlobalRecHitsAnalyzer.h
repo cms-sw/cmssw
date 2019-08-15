@@ -135,7 +135,6 @@
 #include <cmath>
 
 #include "TString.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class GlobalRecHitsAnalyzer : public DQMEDAnalyzer {

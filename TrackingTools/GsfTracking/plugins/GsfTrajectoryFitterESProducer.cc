@@ -1,9 +1,13 @@
-#include "TrackingTools/GsfTracking/plugins/GsfTrajectoryFitterESProducer.h"
-
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
@@ -20,37 +24,43 @@
 
 #include <iostream>
 
+/** Provides a GSF fitter algorithm */
+
+class GsfTrajectoryFitterESProducer : public edm::ESProducer {
+public:
+  GsfTrajectoryFitterESProducer(const edm::ParameterSet& p);
+  ~GsfTrajectoryFitterESProducer() override;
+  std::unique_ptr<TrajectoryFitter> produce(const TrajectoryFitterRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::ESGetToken<GsfMaterialEffectsUpdator, TrackingComponentsRecord> matUpdatorToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<MultiGaussianStateMerger<5>, TrackingComponentsRecord> mergerToken_;
+  edm::ESGetToken<DetLayerGeometry, RecoGeometryRecord> geoToken_;
+};
+
 GsfTrajectoryFitterESProducer::GsfTrajectoryFitterESProducer(const edm::ParameterSet& p) {
   std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this, myname);
+  setWhatProduced(this, myname)
+      .setConsumes(matUpdatorToken_, edm::ESInputTag("", p.getParameter<std::string>("MaterialEffectsUpdator")))
+      .setConsumes(propagatorToken_, edm::ESInputTag("", p.getParameter<std::string>("GeometricalPropagator")))
+      .setConsumes(mergerToken_, edm::ESInputTag("", p.getParameter<std::string>("Merger")))
+      .setConsumes(geoToken_, edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
 }
 
 GsfTrajectoryFitterESProducer::~GsfTrajectoryFitterESProducer() {}
 
 std::unique_ptr<TrajectoryFitter> GsfTrajectoryFitterESProducer::produce(const TrajectoryFitterRecord& iRecord) {
   //
-  // material effects
-  //
-  std::string matName = pset_.getParameter<std::string>("MaterialEffectsUpdator");
-  edm::ESHandle<GsfMaterialEffectsUpdator> matProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(matName, matProducer);
-  //
   // propagator
   //
-  std::string geomName = pset_.getParameter<std::string>("GeometricalPropagator");
-  edm::ESHandle<Propagator> geomProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(geomName, geomProducer);
-  GsfPropagatorWithMaterial propagator(*geomProducer.product(), *matProducer.product());
+  GsfPropagatorWithMaterial propagator(iRecord.get(propagatorToken_), iRecord.get(matUpdatorToken_));
   //
   // merger
   //
-  std::string mergerName = pset_.getParameter<std::string>("Merger");
-  //   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
-  //   iRecord.get(mergerName,mergerProducer);
-  edm::ESHandle<MultiGaussianStateMerger<5> > mergerProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(mergerName, mergerProducer);
-  MultiTrajectoryStateMerger merger(*mergerProducer.product());
+  MultiTrajectoryStateMerger merger(iRecord.get(mergerToken_));
   //
   // estimator
   //
@@ -58,12 +68,21 @@ std::unique_ptr<TrajectoryFitter> GsfTrajectoryFitterESProducer::produce(const T
   double chi2Cut(100.);
   GsfChi2MeasurementEstimator estimator(chi2Cut);
 
-  // geometry
-  std::string gname = pset_.getParameter<std::string>("RecoGeometry");
-  edm::ESHandle<DetLayerGeometry> geo;
-  iRecord.getRecord<RecoGeometryRecord>().get(gname, geo);
   //
   // create algorithm
   //
-  return std::make_unique<GsfTrajectoryFitter>(propagator, GsfMultiStateUpdator(), estimator, merger, geo.product());
+  return std::make_unique<GsfTrajectoryFitter>(
+      propagator, GsfMultiStateUpdator(), estimator, merger, &iRecord.get(geoToken_));
 }
+
+void GsfTrajectoryFitterESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName");
+  desc.add<std::string>("MaterialEffectsUpdator");
+  desc.add<std::string>("GeometricalPropagator");
+  desc.add<std::string>("Merger");
+  desc.add<std::string>("RecoGeometry");
+  descriptions.addDefault(desc);
+}
+
+DEFINE_FWK_EVENTSETUP_MODULE(GsfTrajectoryFitterESProducer);

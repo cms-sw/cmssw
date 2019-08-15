@@ -79,6 +79,14 @@ void SiStripMonitorTrack::dqmBeginRun(const edm::Run& run, const edm::EventSetup
                                   << " detectors instantiated in the geometry" << std::endl;
   es.get<SiStripDetCablingRcd>().get(SiStripDetCabling_);
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  tTopo_ = tTopoHandle.product();
+
+  edm::ESHandle<SiStripGain> gainHandle;
+  es.get<SiStripGainRcd>().get(gainHandle);
+  stripGain_ = gainHandle.product();
+
   // Initialize the GenericTriggerEventFlag
   if (genTriggerEventFlag_->on())
     genTriggerEventFlag_->initRun(run, es);
@@ -120,6 +128,22 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
     iSubDet->second.totNClustersOnTrack = 0;
     iSubDet->second.totNClustersOffTrack = 0;
   }
+
+  if (watchertTopo_.check(es)) {
+    edm::ESHandle<TrackerTopology> tTopoHandle;
+    es.get<TrackerTopologyRcd>().get(tTopoHandle);
+    tTopo_ = tTopoHandle.product();
+  }
+
+  if (watcherStripGain_.check(es)) {
+    edm::ESHandle<SiStripGain> gainHandle;
+    es.get<SiStripGainRcd>().get(gainHandle);
+    stripGain_ = gainHandle.product();
+  }
+
+  edm::ESHandle<SiStripQuality> qualityHandle;
+  es.get<SiStripQualityRcd>().get("", qualityHandle);
+  stripQuality_ = qualityHandle.product();
 
   //Perform track study
   trackStudy(e, es);
@@ -446,11 +470,11 @@ void SiStripMonitorTrack::bookModMEs(DQMStore::IBooker& ibooker, const uint32_t 
   }
 }
 
-MonitorElement* SiStripMonitorTrack::handleBookMEs(DQMStore::IBooker& ibooker,
-                                                   std::string& viewParameter,
-                                                   std::string& id,
-                                                   std::string& histoParameters,
-                                                   std::string& histoName) {
+SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::handleBookMEs(DQMStore::IBooker& ibooker,
+                                                                        std::string& viewParameter,
+                                                                        std::string& id,
+                                                                        std::string& histoParameters,
+                                                                        std::string& histoName) {
   MonitorElement* me = nullptr;
   bool view = false;
   view = (conf_.getParameter<edm::ParameterSet>(histoParameters.c_str())).getParameter<bool>(viewParameter.c_str());
@@ -811,9 +835,9 @@ void SiStripMonitorTrack::bookSubDetMEs(DQMStore::IBooker& ibooker, std::string&
 }
 //--------------------------------------------------------------------------------
 
-inline MonitorElement* SiStripMonitorTrack::bookME1D(DQMStore::IBooker& ibooker,
-                                                     const char* ParameterSetLabel,
-                                                     const char* HistoName) {
+SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::bookME1D(DQMStore::IBooker& ibooker,
+                                                                   const char* ParameterSetLabel,
+                                                                   const char* HistoName) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book1D(HistoName,
                         HistoName,
@@ -823,9 +847,9 @@ inline MonitorElement* SiStripMonitorTrack::bookME1D(DQMStore::IBooker& ibooker,
 }
 
 //--------------------------------------------------------------------------------
-inline MonitorElement* SiStripMonitorTrack::bookME2D(DQMStore::IBooker& ibooker,
-                                                     const char* ParameterSetLabel,
-                                                     const char* HistoName) {
+SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::bookME2D(DQMStore::IBooker& ibooker,
+                                                                   const char* ParameterSetLabel,
+                                                                   const char* HistoName) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book2D(HistoName,
                         HistoName,
@@ -838,9 +862,9 @@ inline MonitorElement* SiStripMonitorTrack::bookME2D(DQMStore::IBooker& ibooker,
 }
 
 //--------------------------------------------------------------------------------
-inline MonitorElement* SiStripMonitorTrack::bookME3D(DQMStore::IBooker& ibooker,
-                                                     const char* ParameterSetLabel,
-                                                     const char* HistoName) {
+SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::bookME3D(DQMStore::IBooker& ibooker,
+                                                                   const char* ParameterSetLabel,
+                                                                   const char* HistoName) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book3D(HistoName,
                         HistoName,
@@ -856,9 +880,9 @@ inline MonitorElement* SiStripMonitorTrack::bookME3D(DQMStore::IBooker& ibooker,
 }
 
 //--------------------------------------------------------------------------------
-inline MonitorElement* SiStripMonitorTrack::bookMEProfile(DQMStore::IBooker& ibooker,
-                                                          const char* ParameterSetLabel,
-                                                          const char* HistoName) {
+SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::bookMEProfile(DQMStore::IBooker& ibooker,
+                                                                        const char* ParameterSetLabel,
+                                                                        const char* HistoName) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.bookProfile(HistoName,
                              HistoName,
@@ -872,7 +896,8 @@ inline MonitorElement* SiStripMonitorTrack::bookMEProfile(DQMStore::IBooker& ibo
 }
 
 //--------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker& ibooker, const char* HistoName) {
+SiStripMonitorTrack::MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker& ibooker,
+                                                                      const char* HistoName) {
   edm::ParameterSet ParametersTrend = conf_.getParameter<edm::ParameterSet>("Trending");
   MonitorElement* me = ibooker.bookProfile(HistoName,
                                            HistoName,
@@ -882,7 +907,7 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(DQMStore::IBooker& ibooker, con
                                            0,
                                            0,
                                            "");
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE)
+  if (me->kind() == MonitorElement::Kind::TPROFILE)
     me->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   if (!me)
@@ -1221,22 +1246,6 @@ void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit,
       << tkgeom_->idToDet(tkrecHit->geographicalId())->surface().toGlobal(tkrecHit->localPosition())
       << "\n\t\tRecHit trackLocal vector " << LV.x() << " " << LV.y() << " " << LV.z() << std::endl;
 
-  // FIXME: MOVE ALL THE EV AND ES ACCESS OUTSIDE THE LOOP!!!!
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
-  // Getting SiStrip Gain settings
-  edm::ESHandle<SiStripGain> gainHandle;
-  es.get<SiStripGainRcd>().get(gainHandle);
-  const SiStripGain* const stripGain = gainHandle.product();
-
-  edm::ESHandle<SiStripQuality> qualityHandle;
-  es.get<SiStripQualityRcd>().get("", qualityHandle);
-  const SiStripQuality* stripQuality = qualityHandle.product();
-
   //Get SiStripCluster from SiStripRecHit
   if (tkrecHit != nullptr && tkrecHit->isValid()) {
     const DetId detid = tkrecHit->geographicalId();
@@ -1258,16 +1267,16 @@ void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit,
     const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
     SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_, es, detid);
 
-    const Det2MEs MEs = findMEs(tTopo, detid);
+    const Det2MEs MEs = findMEs(tTopo_, detid);
     if (clusterInfos(&SiStripClusterInfo_,
                      detid,
                      OnTrack,
                      track_ok,
                      LV,
                      MEs,
-                     tTopo,
-                     stripGain,
-                     stripQuality,
+                     tTopo_,
+                     stripGain_,
+                     stripQuality_,
                      digilist,
                      clust_Pos1,
                      clust_Pos2)) {

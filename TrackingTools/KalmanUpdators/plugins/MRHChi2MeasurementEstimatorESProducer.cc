@@ -12,28 +12,34 @@ namespace {
   class MRHChi2MeasurementEstimatorESProducer : public edm::ESProducer {
   public:
     MRHChi2MeasurementEstimatorESProducer(const edm::ParameterSet& p);
-    ~MRHChi2MeasurementEstimatorESProducer() override;
+
     std::unique_ptr<Chi2MeasurementEstimatorBase> produce(const TrackingComponentsRecord&);
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   private:
-    edm::ParameterSet pset_;
+    const double maxChi2_;
+    const double nSigma_;
   };
 
-  MRHChi2MeasurementEstimatorESProducer::MRHChi2MeasurementEstimatorESProducer(const edm::ParameterSet& p) {
+  MRHChi2MeasurementEstimatorESProducer::MRHChi2MeasurementEstimatorESProducer(const edm::ParameterSet& p)
+      : maxChi2_(p.getParameter<double>("MaxChi2")), nSigma_(p.getParameter<double>("nSigma")) {
     std::string myname = p.getParameter<std::string>("ComponentName");
-    pset_ = p;
     setWhatProduced(this, myname);
   }
 
-  MRHChi2MeasurementEstimatorESProducer::~MRHChi2MeasurementEstimatorESProducer() {}
-
   std::unique_ptr<Chi2MeasurementEstimatorBase> MRHChi2MeasurementEstimatorESProducer::produce(
       const TrackingComponentsRecord& iRecord) {
-    double maxChi2 = pset_.getParameter<double>("MaxChi2");
-    double nSigma = pset_.getParameter<double>("nSigma");
-    return std::make_unique<MRHChi2MeasurementEstimator>(maxChi2, nSigma);
+    return std::make_unique<MRHChi2MeasurementEstimator>(maxChi2_, nSigma_);
   }
 
+  void MRHChi2MeasurementEstimatorESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.add<double>("MaxChi2");
+    desc.add<double>("nSigma");
+    desc.add<std::string>("ComponentName");
+    descriptions.addDefault(desc);
+  }
 }  // namespace
 
 DEFINE_FWK_EVENTSETUP_MODULE(MRHChi2MeasurementEstimatorESProducer);

@@ -17,13 +17,11 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
   class Jet;
 }
-
-class DQMStore;
-class MonitorElement;
 
 class QcdPhotonsDQM : public DQMEDAnalyzer {
 public:

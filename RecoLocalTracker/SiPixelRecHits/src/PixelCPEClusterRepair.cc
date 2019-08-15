@@ -80,10 +80,13 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
   speed_ = conf.getParameter<int>("speed");
   LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:") << "Template speed = " << speed_ << "\n";
 
-  GlobalPoint center(0.0, 0.0, 0.0);
-  float theMagField = mag->inTesla(center).mag();
+  // this returns the magnetic field value in kgauss (1T = 10 kgauss)
+  int theMagField = mag->nominalValue();
 
-  if (theMagField >= 3.65 && theMagField < 3.9) {
+  if (theMagField >= 36 && theMagField < 39) {
+    LogDebug("PixelCPEClusterRepair::PixelCPEClusterRepair:")
+        << "Magnetic field value is: " << theMagField << " kgauss. Algorithm is being run \n";
+
     templateDBobject2D_ = templateDBobject2D;
     fill2DTemplIDs();
   }
@@ -103,8 +106,8 @@ PixelCPEClusterRepair::PixelCPEClusterRepair(edm::ParameterSet const& conf,
     recommend2D_.push_back(str);
   }
 
-  // do not recommend 2D if theMagField!=3.8
-  if (theMagField < 3.65 || theMagField > 3.9) {
+  // do not recommend 2D if theMagField!=3.8T
+  if (theMagField < 36 || theMagField > 39) {
     recommend2D_.clear();
   }
 
@@ -123,10 +126,10 @@ void PixelCPEClusterRepair::fill2DTemplIDs() {
         << "Subdetector " << i << " GeomDetEnumerator " << GeomDetEnumerators::tkDetEnum[i] << " offset "
         << geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) << " is it strip? "
         << (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size()
-                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()
+                ? dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()
                 : false);
     if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) != dus.size() &&
-        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isTrackerStrip()) {
+        dus[geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i])]->type().isOuterTracker()) {
       if (geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]) < m_detectors)
         m_detectors = geom_.offsetDU(GeomDetEnumerators::tkDetEnum[i]);
     }

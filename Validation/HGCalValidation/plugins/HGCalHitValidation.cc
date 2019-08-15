@@ -42,7 +42,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"

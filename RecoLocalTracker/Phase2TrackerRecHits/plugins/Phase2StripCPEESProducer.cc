@@ -25,8 +25,9 @@ public:
 
 private:
   enum CPE_t { DEFAULT, GEOMETRIC };
-  std::map<std::string, CPE_t> enumMap_;
 
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> pDDToken_;
   CPE_t cpeNum_;
   edm::ParameterSet pset_;
 };
@@ -34,28 +35,29 @@ private:
 Phase2StripCPEESProducer::Phase2StripCPEESProducer(const edm::ParameterSet& p) {
   std::string name = p.getParameter<std::string>("ComponentType");
 
-  enumMap_[std::string("Phase2StripCPE")] = DEFAULT;
-  enumMap_[std::string("Phase2StripCPEGeometric")] = GEOMETRIC;
-  if (enumMap_.find(name) == enumMap_.end())
+  std::map<std::string, CPE_t> enumMap;
+  enumMap[std::string("Phase2StripCPE")] = DEFAULT;
+  enumMap[std::string("Phase2StripCPEGeometric")] = GEOMETRIC;
+  if (enumMap.find(name) == enumMap.end())
     throw cms::Exception("Unknown StripCPE type") << name;
 
-  cpeNum_ = enumMap_[name];
+  cpeNum_ = enumMap[name];
   pset_ = p.getParameter<edm::ParameterSet>("parameters");
-  setWhatProduced(this, name);
+  auto c = setWhatProduced(this, name);
+  if (cpeNum_ != GEOMETRIC) {
+    c.setConsumes(magfieldToken_);
+    c.setConsumes(pDDToken_);
+  }
 }
 
 std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > Phase2StripCPEESProducer::produce(
     const TkStripCPERecord& iRecord) {
-  edm::ESHandle<MagneticField> magfield;
-  edm::ESHandle<TrackerGeometry> pDD;
-
   std::unique_ptr<ClusterParameterEstimator<Phase2TrackerCluster1D> > cpe_;
   switch (cpeNum_) {
     case DEFAULT:
-      iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield);
-      iRecord.getRecord<TrackerDigiGeometryRecord>().get(pDD);
-      cpe_ = std::make_unique<Phase2StripCPE>(pset_, *magfield, *pDD);
+      cpe_ = std::make_unique<Phase2StripCPE>(pset_, iRecord.get(magfieldToken_), iRecord.get(pDDToken_));
       break;
+
     case GEOMETRIC:
       cpe_ = std::make_unique<Phase2StripCPEGeometric>(pset_);
       break;

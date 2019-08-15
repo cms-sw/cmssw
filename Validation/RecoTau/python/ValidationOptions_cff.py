@@ -58,13 +58,12 @@ options.register( 'dataSource',
                   "Specify where the data should come from. \n\t\tOptions: \
                         \n\t\t\trecoFiles:\t\t\tGet data from [sourceFile] (must have RECO)\
                         \n\t\t\trecoFiles+PFTau:\t\tGet reco data as above, and rerun PFTau with current tags \
-                        \n\t\t\trecoFiles+PFTau+CaloTau:\t\tRun CaloTau too \
                         \n\t\t\tdigiFiles:\t\t\tGet data from [sourceFile] (must have DIGI) and rerun RECO \
                         \n\t\t\tfastsim:\t\t\tRun FastSim \
                         \n\t\t\tfullsim:\t\t\tGen-Sim-Digi-Reco-Validate!\n"
                   )
 
-allowedOptions['dataSource'] = ['recoFiles', 'recoFiles+PFTau', 'recoFiles+PFTau+CaloTau', 'recoFiles+CaloTau', 'recoFiles+CaloTau+PFTau', 'fastsim', 'digiFiles', 'fullsim']
+allowedOptions['dataSource'] = ['recoFiles', 'recoFiles+PFTau', 'fastsim', 'digiFiles', 'fullsim']
 
 options.register( 'sourceFile',
                   'none',

@@ -2,7 +2,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-typedef CaloGeometryLoader<EcalPreshowerGeometry> EcalPGL;
+typedef CaloGeometryLoader<EcalPreshowerGeometry, DDCompactView> EcalPGL;
 
 template <>
 void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
@@ -10,11 +10,12 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
                        const HepGeom::Transform3D& tr,
                        const DetId& id);
 template <>
-void EcalPGL::fillNamedParams(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
+template <>
+void EcalPGL::fillNamedParams<>(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
-template class CaloGeometryLoader<EcalPreshowerGeometry>;
+template class CaloGeometryLoader<EcalPreshowerGeometry, DDCompactView>;
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 typedef CaloCellGeometry::Pt3D Pt3D;
 
@@ -38,10 +39,7 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
   const CCGFloat z3(Pt3D(tr * cor3).z());
 
   const CCGFloat y1(Pt3D(tr * cor3).y());
-  //   const CCGFloat y3 ( Pt3D( tr*cor3 ).y() ) ;
-
   const CCGFloat x1(Pt3D(tr * cor3).x());
-  //   const CCGFloat x2 ( Pt3D( tr*cor3 ).x() ) ;
 
   const CCGFloat zdif(0.00001 > fabs(z1 - z2) ? (y1 > 0 ? +1.0 : -1.0) * (z1 - z3)
                                               : (x1 > 0 ? +1.0 : -1.0) * (z1 - z2));
@@ -60,6 +58,7 @@ void EcalPGL::fillGeom(EcalPreshowerGeometry* geom,
 }
 
 template <>
-void EcalPGL::fillNamedParams(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/) {
+template <>
+void EcalPGL::fillNamedParams<>(const DDFilteredView& /*fv*/, EcalPreshowerGeometry* /*geom*/) {
   // nothing yet for preshower
 }

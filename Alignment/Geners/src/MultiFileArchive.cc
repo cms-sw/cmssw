@@ -245,7 +245,7 @@ namespace gs {
         }
       } else {
         // Here, we have to do a full catalog search
-        CPP11_shared_ptr<const CatalogEntry> sptr = catalog()->retrieveEntry(id);
+        std::shared_ptr<const CatalogEntry> sptr = catalog()->retrieveEntry(id);
         const CatalogEntry *pe = sptr.get();
         if (!pe) {
           std::ostringstream os;

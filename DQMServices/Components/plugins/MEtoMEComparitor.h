@@ -46,6 +46,9 @@
 //
 
 class MEtoMEComparitor : public edm::EDAnalyzer {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
 public:
   explicit MEtoMEComparitor(const edm::ParameterSet&);
   ~MEtoMEComparitor() override;

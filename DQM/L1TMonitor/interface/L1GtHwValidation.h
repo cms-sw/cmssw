@@ -32,7 +32,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
 #include "CondFormats/L1TObjects/interface/L1GtDefinitions.h"

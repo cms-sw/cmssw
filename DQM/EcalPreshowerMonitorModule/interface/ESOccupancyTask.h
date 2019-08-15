@@ -8,8 +8,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ESOccupancyTask : public DQMEDAnalyzer {
 public:

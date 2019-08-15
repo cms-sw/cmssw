@@ -7,7 +7,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DQMOffline/Trigger/interface/TopHLTOfflineDQMHelper.h"
@@ -46,7 +45,9 @@ namespace HLTOfflineDQMTopSingleLepton {
 
   class MonitorSingleLepton {
   public:
-  public:
+    typedef dqm::legacy::MonitorElement MonitorElement;
+    typedef dqm::legacy::DQMStore DQMStore;
+
     /// default contructor
     MonitorSingleLepton(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC);
     /// default destructor

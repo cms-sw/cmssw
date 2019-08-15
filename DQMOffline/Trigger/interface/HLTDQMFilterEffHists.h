@@ -22,7 +22,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
@@ -34,6 +33,9 @@
 template <typename ObjType>
 class HLTDQMFilterEffHists {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit HLTDQMFilterEffHists(const edm::ParameterSet& config, std::string baseHistName, std::string hltProcess);
 
   static edm::ParameterSetDescription makePSetDescription();

@@ -89,6 +89,8 @@ using namespace APVGain;
 
 class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripGainFromCalibTree(const edm::ParameterSet&);
   ~SiStripGainFromCalibTree() override;
 

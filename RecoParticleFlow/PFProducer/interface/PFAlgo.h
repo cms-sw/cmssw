@@ -57,8 +57,7 @@ public:
          double nSigmaHCAL,
          PFEnergyCalibration& calibration,
          PFEnergyCalibrationHF& thepfEnergyCalibrationHF,
-         const edm::ParameterSet& pset,
-         bool debug);
+         const edm::ParameterSet& pset);
 
   void setHOTag(bool ho) { useHO_ = ho; }
   void setMuonHandle(const edm::Handle<reco::MuonCollection>&);
@@ -236,7 +235,6 @@ private:
   PFEnergyCalibrationHF& thepfEnergyCalibrationHF_;
 
   bool useHO_;
-  const bool debug_;
 
   std::unique_ptr<PFMuonAlgo> pfmu_;
 

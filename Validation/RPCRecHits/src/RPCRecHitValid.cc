@@ -21,7 +21,7 @@
 
 using namespace std;
 
-typedef MonitorElement *MEP;
+typedef RPCRecHitValid::MonitorElement *MEP;
 
 RPCRecHitValid::RPCRecHitValid(const edm::ParameterSet &pset) {
   simHitToken_ = consumes<SimHits>(pset.getParameter<edm::InputTag>("simHit"));

@@ -8,7 +8,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimG4CMS/Calo/interface/HFGflash.h"
@@ -41,8 +40,6 @@ public:
   std::vector<Hit> getHits(const G4Step* aStep, double weight, bool& isKilled);
 
 private:
-  std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&);
-
   HFShowerLibrary* showerLibrary;
   HFFibre* fibre;
   HFGflash* gflash;

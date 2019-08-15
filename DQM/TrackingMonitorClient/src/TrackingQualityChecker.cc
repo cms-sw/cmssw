@@ -1,6 +1,6 @@
 #include "DQM/TrackingMonitorClient/interface/TrackingQualityChecker.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
@@ -468,7 +468,7 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker& ibooker, DQMS
 // -- Fill Report Summary Map
 //
 void TrackingQualityChecker::fillStatusHistogram(MonitorElement* me, int xbin, int ybin, float val) {
-  if (me && me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me && me->kind() == MonitorElement::Kind::TH2F) {
     TH2F* th2d = me->getTH2F();
     th2d->SetBinContent(xbin, ybin, val);
   }
@@ -527,7 +527,7 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore::IBooker& ibooker
       if (!me)
         continue;
 
-      if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+      if (me->kind() == MonitorElement::Kind::TH1F) {
         float x_mean = me->getMean();
         if (verbose_)
           std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] MEname: " << MEname << " x_mean: " << x_mean
@@ -546,7 +546,7 @@ void TrackingQualityChecker::fillTrackingStatusAtLumi(DQMStore::IBooker& ibooker
           if (!me)
             continue;
 
-          if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+          if (me->kind() == MonitorElement::Kind::TH1F) {
             float x_mean = me->getMean();
             if (verbose_)
               std::cout << "[TrackingQualityChecker::fillTrackingStatusAtLumi] MEname: " << MEname << "["

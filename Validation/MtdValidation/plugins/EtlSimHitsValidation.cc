@@ -19,13 +19,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/Common/interface/ValidHandle.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "Geometry/Records/interface/MTDDigiGeometryRecord.h"
 #include "Geometry/MTDGeometryBuilder/interface/MTDGeometry.h"
@@ -53,10 +55,9 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
-
   const float hitMinEnergy_;
 
-  edm::EDGetTokenT<edm::PSimHitContainer> etlSimHitsToken_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > etlSimHitsToken_;
 
   // --- histograms declaration
 
@@ -89,7 +90,7 @@ private:
 EtlSimHitsValidation::EtlSimHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy_(iConfig.getParameter<double>("hitMinimumEnergy")) {
-  etlSimHitsToken_ = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("inputTag"));
+  etlSimHitsToken_ = consumes<CrossingFrame<PSimHit> >(iConfig.getParameter<edm::InputTag>("inputTag"));
 }
 
 EtlSimHitsValidation::~EtlSimHitsValidation() {}
@@ -104,12 +105,13 @@ void EtlSimHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   const MTDGeometry* geom = geometryHandle.product();
 
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
+  MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
 
   std::unordered_map<uint32_t, MTDHit> m_etlHits[2];
   std::unordered_map<uint32_t, std::set<int> > m_etlTrkPerCell[2];
 
   // --- Loop over the BLT SIM hits
-  for (auto const& simHit : *etlSimHitsHandle) {
+  for (auto const& simHit : etlSimHits) {
     // --- Use only hits compatible with the in-time bunch-crossing
     if (simHit.tof() < 0 || simHit.tof() > 25.)
       continue;
@@ -261,7 +263,7 @@ void EtlSimHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& desc
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("folder", "MTD/ETL/SimHits");
-  desc.add<edm::InputTag>("inputTag", edm::InputTag("g4SimHits", "FastTimerHitsEndcap"));
+  desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
   desc.add<double>("hitMinimumEnergy", 0.1);  // [MeV]
 
   descriptions.add("etlSimHits", desc);

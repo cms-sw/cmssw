@@ -19,8 +19,6 @@
 
 #include "DataFormats/CTPPSDigi/interface/TotemVFATStatus.h"
 
-//----------------------------------------------------------------------------------------------------
-
 /**
  *\brief Class for finding the most popular both EC and BC counter, and filling the conversion
  * status 'wrong EC/BC number' for frames with different value.
@@ -82,8 +80,6 @@ private:
   /// level of verbosity
   unsigned int verbosity;
 };
-
-//-------------------------------------------------------------------------------------------------
 
 template <typename T>
 void CounterChecker::Analyze(T &status, bool error, std::ostream &es) {

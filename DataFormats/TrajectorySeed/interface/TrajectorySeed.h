@@ -41,21 +41,13 @@ public:
     std::swap(dir_, rh.dir_);
   }
 
-  TrajectorySeed(TrajectorySeed const& o) : hits_(o.hits_), tsos_(o.tsos_), dir_(o.dir_) {}
+  TrajectorySeed(TrajectorySeed const& o) = default;
 
-  TrajectorySeed& operator=(TrajectorySeed const& o) {
-    TrajectorySeed tmp(o);
-    swap(tmp);
-    return *this;
-  }
+  TrajectorySeed& operator=(TrajectorySeed const& o) = default;
 
-  TrajectorySeed(TrajectorySeed&& o) noexcept
-      : hits_(std::move(o.hits_)), tsos_(std::move(o.tsos_)), dir_(std::move(o.dir_)) {}
+  TrajectorySeed(TrajectorySeed&& o) noexcept = default;
 
-  TrajectorySeed& operator=(TrajectorySeed&& o) {
-    swap(o);
-    return *this;
-  }
+  TrajectorySeed& operator=(TrajectorySeed&& o) noexcept = default;
 
   range recHits() const { return std::make_pair(hits_.begin(), hits_.end()); }
   unsigned int nHits() const { return hits_.size(); }

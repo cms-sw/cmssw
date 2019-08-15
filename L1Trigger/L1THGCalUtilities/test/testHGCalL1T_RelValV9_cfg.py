@@ -75,9 +75,6 @@ process.load('L1Trigger.L1THGCal.hgcalTriggerPrimitives_cff')
 #process.load('L1Trigger.L1THGCalUtilities.caloTruthCellsNtuples_cff')
 
 process.hgcl1tpg_step = cms.Path(process.hgcalTriggerPrimitives)
-# To test V9Imp2
-#from L1Trigger.L1THGCal.customTriggerGeometry import custom_geometry_V9
-#process = custom_geometry_V9(process, implementation=2)
 
 
 # load ntuplizer

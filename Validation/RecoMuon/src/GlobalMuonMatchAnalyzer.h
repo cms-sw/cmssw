@@ -29,15 +29,14 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
   class Track;
 }
 
 class InputTag;
-class MonitorElement;
 class TrackAssociatorBase;
-class DQMStore;
 
 //
 // class decleration

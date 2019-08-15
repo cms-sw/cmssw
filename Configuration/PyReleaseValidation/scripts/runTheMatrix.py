@@ -22,6 +22,13 @@ def runSelected(opt):
     mrd = MatrixReader(opt)
     mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
 
+    # test for wrong input workflows
+    if opt.testList:
+        definedWF = []
+        for dwf in mrd.workFlows: definedWF.append(dwf.numId)
+        for twf in opt.testList:
+            if twf not in definedWF: raise ValueError('Not defined workflow ', twf , ' requested')
+
     ret = 0
     if opt.show:
         mrd.show(opt.testList, opt.extended, opt.cafVeto)
@@ -74,11 +81,12 @@ if __name__ == '__main__':
                      10024.0, #2017 ttbar
                      10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
-                     11624.0, #2021 ttbar
-                     20034.0, #2023D17 ttbar (TDR baseline Muon/Barrel)
-                     21234.0, #2023D21 ttbar (Inner Tracker with lower radii than in TDR)
-                     27434.0, #2023D35 to exercise new HGCal + new MTD
-                     29034.0, #2023D41 (baseline for L1T TDR)
+                     11634.0, #2021 ttbar
+                     12434.0, #2023 ttbar
+                     20034.0, #2026D35 ttbar (MTD TDR baseline)
+                     20434.0, #2026D41 ttbar (L1T TDR baseline)
+                     21234.0, #2026D44 (exercise HF nose)
+                     22034.0, #2026D46 ttbar (exercise V11 HGCal)
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],

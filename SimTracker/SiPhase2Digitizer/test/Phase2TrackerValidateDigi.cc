@@ -41,7 +41,7 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerFwd.h"
 
 // DQM Histograming
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 //
 // constructors

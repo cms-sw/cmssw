@@ -5,7 +5,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <string>
 #include <vector>
@@ -14,6 +14,8 @@
 #include <unordered_map>
 
 namespace APVGain {
+
+  typedef dqm::legacy::MonitorElement MonitorElement;
 
   int subdetectorId(uint32_t);
   int subdetectorId(const std::string&);

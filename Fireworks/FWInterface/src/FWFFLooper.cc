@@ -453,7 +453,7 @@ void FWFFLooper::requestChanges(const std::string& moduleLabel, const edm::Param
 //______________________________________________________________________________
 
 void FWFFLooper::remakeGeometry(const DisplayGeomRecord& dgRec) {
-  fwLog(fwlog::kInfo) << "FWFFLooper set TGeo geomtery from DisplayGeomRecord.\n";
+  fwLog(fwlog::kInfo) << "FWFFLooper set TGeo geometry from DisplayGeomRecord.\n";
 
   edm::ESHandle<TGeoManager> geom;
   dgRec.get(geom);

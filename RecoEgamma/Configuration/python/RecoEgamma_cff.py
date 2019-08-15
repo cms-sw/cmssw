@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
+from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from RecoEgamma.EgammaElectronProducers.uncleanedOnlyElectronSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.conversionSequence_cff import *
@@ -27,7 +27,7 @@ _fastSim_egammaGlobalReco = egammaGlobalReco.copy()
 _fastSim_egammaGlobalReco.replace(conversionTrackSequence,conversionTrackSequenceNoEcalSeeded)
 fastSim.toReplaceWith(egammaGlobalReco, _fastSim_egammaGlobalReco)
 
-egammareco = cms.Sequence(electronSequence*conversionSequence*photonSequence)
+egammareco = cms.Sequence(gsfElectronSequence*conversionSequence*photonSequence)
 egammaHighLevelRecoPrePF = cms.Sequence(gsfEcalDrivenElectronSequence*uncleanedOnlyElectronSequence*conversionSequence*photonSequence)
 # not commisoned and not relevant in FastSim (?):
 fastSim.toReplaceWith(egammareco, egammareco.copyAndExclude([conversionSequence]))
@@ -41,7 +41,7 @@ egammaHighLevelRecoPostPF = cms.Sequence(interestingEgammaIsoDetIds*egmIsolation
 
 egammarecoFull = cms.Sequence(egammareco*interestingEgammaIsoDetIds*egmIsolationSequence*photonIDSequence*eIdSequence*hfEMClusteringSequence)
 egammarecoWithID = cms.Sequence(egammareco*photonIDSequence*eIdSequence)
-egammareco_woConvPhotons = cms.Sequence(electronSequence*photonSequence)
+egammareco_woConvPhotons = cms.Sequence(gsfElectronSequence*photonSequence)
 egammareco_withIsolation = cms.Sequence(egammareco*egammaIsolationSequence)
 egammareco_withIsolation_woConvPhotons = cms.Sequence(egammareco_woConvPhotons*egammaIsolationSequence)
 egammareco_withPhotonID = cms.Sequence(egammareco*photonIDSequence)

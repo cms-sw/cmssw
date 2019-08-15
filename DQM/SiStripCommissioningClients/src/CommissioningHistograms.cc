@@ -263,7 +263,7 @@ void CommissioningHistograms::copyCustomInformation(DQMStore* const bei, const s
         continue;
       }
       // Search for calchan, isha or vfs
-      if ((*ime)->kind() == MonitorElement::DQM_KIND_INT) {
+      if ((*ime)->kind() == MonitorElement::Kind::INT) {
         std::string title = (*ime)->getName();
         std::string::size_type pos = title.find("calchan");
         if (pos == std::string::npos)

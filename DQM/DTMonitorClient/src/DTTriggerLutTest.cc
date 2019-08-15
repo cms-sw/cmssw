@@ -13,7 +13,6 @@
 // Framework headers
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 // Geometry
 #include "Geometry/Records/interface/MuonGeometryRecord.h"

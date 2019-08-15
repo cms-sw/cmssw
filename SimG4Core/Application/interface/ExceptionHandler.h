@@ -29,7 +29,6 @@ public:
               G4ExceptionSeverity severity,
               const char *description) override;
 
-private:
   ExceptionHandler(const ExceptionHandler &) = delete;
   ExceptionHandler &operator=(const ExceptionHandler &right) = delete;
 };

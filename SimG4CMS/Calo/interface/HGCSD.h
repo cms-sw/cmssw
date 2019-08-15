@@ -11,7 +11,6 @@
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4CMS/Calo/interface/HGCNumberingScheme.h"
 #include "SimG4CMS/Calo/interface/HGCMouseBite.h"
-#include "DetectorDescription/Core/interface/DDsvalues.h"
 
 #include <string>
 #include <TTree.h>

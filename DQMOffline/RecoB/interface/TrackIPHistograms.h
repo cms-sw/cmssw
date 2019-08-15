@@ -9,6 +9,9 @@
 template <class T>
 class TrackIPHistograms : public FlavourHistograms<T> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   TrackIPHistograms(const std::string& baseNameTitle_,
                     const std::string& baseNameDescription_,
                     const int& nBins_,

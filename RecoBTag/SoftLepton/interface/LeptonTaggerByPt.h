@@ -15,6 +15,8 @@
 
 class LeptonTaggerByPt : public JetTagComputer {
 public:
+  using Tokens = void;
+
   /// explicit ctor
   explicit LeptonTaggerByPt(const edm::ParameterSet& configuration) : m_selector(configuration) { uses("slTagInfos"); }
 

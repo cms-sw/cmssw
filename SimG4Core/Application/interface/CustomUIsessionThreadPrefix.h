@@ -1,7 +1,7 @@
 #ifndef SimG4Core_CustomUIsessionThreadPrefix_H
 #define SimG4Core_CustomUIsessionThreadPrefix_H
 
-#include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 /**
  * This class is intended for debugging of multithreaded simulation

@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 //
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 //
@@ -116,9 +115,9 @@ public:
   void fillMESet(const edm::Event&,
                  std::string,
                  const reco::MET&,
-                 const pat::MET&,
-                 const reco::PFMET&,
-                 const reco::CaloMET&,
+                 const pat::MET*,
+                 const reco::PFMET*,
+                 const reco::CaloMET*,
                  const reco::Candidate::PolarLorentzVector&,
                  std::map<std::string, MonitorElement*>&,
                  std::vector<bool>,
@@ -127,9 +126,9 @@ public:
                           std::string,
                           std::string,
                           const reco::MET&,
-                          const pat::MET&,
-                          const reco::PFMET&,
-                          const reco::CaloMET&,
+                          const pat::MET*,
+                          const reco::PFMET*,
+                          const reco::CaloMET*,
                           const reco::Candidate::PolarLorentzVector&,
                           std::map<std::string, MonitorElement*>&,
                           bool,

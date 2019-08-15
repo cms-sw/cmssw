@@ -8,8 +8,6 @@
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
-#include "DataFormats/TauReco/interface/CaloTauDiscriminator.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -40,7 +38,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
   tauTransverseImpactParameterSrc_ = iConfig.getParameter<edm::InputTag>("tauTransverseImpactParameterSource");
   tauTransverseImpactParameterToken_ = consumes<PFTauTIPAssociationByRef>(tauTransverseImpactParameterSrc_);
   pfTauToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("tauSource"));
-  caloTauToken_ = mayConsume<reco::CaloTauCollection>(iConfig.getParameter<edm::InputTag>("tauSource"));
   embedIsolationTracks_ = iConfig.getParameter<bool>("embedIsolationTracks");
   embedLeadTrack_ = iConfig.getParameter<bool>("embedLeadTrack");
   embedSignalTracks_ = iConfig.getParameter<bool>("embedSignalTracks");
@@ -93,8 +90,6 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet& iConfig)
                                             << "\t\tInputTag <someName> = <someTag>   // as many as you want \n "
                                             << "\t}\n";
   }
-  caloTauIDTokens_ = edm::vector_transform(
-      tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<reco::CaloTauDiscriminator>(tag.second); });
   pfTauIDTokens_ = edm::vector_transform(
       tauIDSrcs_, [this](NameTag const& tag) { return mayConsume<reco::PFTauDiscriminator>(tag.second); });
   skipMissingTauID_ = iConfig.getParameter<bool>("skipMissingTauID");
@@ -366,23 +361,6 @@ void PATTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
           }
           ids[i].first = tauIDSrcs_[i].first;
           ids[i].second = getTauIdDiscriminator(pfTauCollection, idx, pfTauIdDiscr);
-        } else if (typeid(tausDeref) == typeid(reco::CaloTau)) {
-          //std::cout << "filling CaloTauDiscriminator '" << tauIDSrcs_[i].first << "' into pat::Tau object..." << std::endl;
-          edm::Handle<reco::CaloTauCollection> caloTauCollection;
-          iEvent.getByToken(caloTauToken_, caloTauCollection);
-
-          edm::Handle<reco::CaloTauDiscriminator> caloTauIdDiscr;
-          iEvent.getByToken(caloTauIDTokens_[i], caloTauIdDiscr);
-
-          if (skipMissingTauID_ && !caloTauIdDiscr.isValid()) {
-            if (!missingDiscriminators.empty()) {
-              missingDiscriminators += ", ";
-            }
-            missingDiscriminators += tauIDSrcs_[i].first;
-            continue;
-          }
-          ids[i].first = tauIDSrcs_[i].first;
-          ids[i].second = getTauIdDiscriminator(caloTauCollection, idx, caloTauIdDiscr);
         } else {
           throw cms::Exception("Type Mismatch")
               << "PATTauProducer: unsupported datatype '" << typeid(tausDeref).name() << "' for tauSource\n";

@@ -8,7 +8,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"

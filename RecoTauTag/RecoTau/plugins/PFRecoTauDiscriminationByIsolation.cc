@@ -188,13 +188,13 @@ private:
   std::string moduleLabel_;
 
   edm::ParameterSet qualityCutsPSet_;
-  std::auto_ptr<tau::RecoTauQualityCuts> qcuts_;
+  std::unique_ptr<tau::RecoTauQualityCuts> qcuts_;
 
   // Inverted QCut which selects tracks with bad DZ/trackWeight
-  std::auto_ptr<tau::RecoTauQualityCuts> pileupQcutsPUTrackSelection_;
-  std::auto_ptr<tau::RecoTauQualityCuts> pileupQcutsGeneralQCuts_;
+  std::unique_ptr<tau::RecoTauQualityCuts> pileupQcutsPUTrackSelection_;
+  std::unique_ptr<tau::RecoTauQualityCuts> pileupQcutsGeneralQCuts_;
 
-  std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
+  std::unique_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
 
   bool includeTracks_;
   bool includeGammas_;
@@ -246,7 +246,7 @@ private:
   std::vector<reco::CandidatePtr> chargedPFCandidatesInEvent_;
   // Size of cone used to collect PU tracks
   double deltaBetaCollectionCone_;
-  std::auto_ptr<TFormula> deltaBetaFormula_;
+  std::unique_ptr<TFormula> deltaBetaFormula_;
   double deltaBetaFactorThisEvent_;
 
   // Rho correction

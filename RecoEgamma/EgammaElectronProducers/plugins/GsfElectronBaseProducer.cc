@@ -570,3 +570,6 @@ bool GsfElectronBaseProducer::isPreselected(GsfElectron const& ele) const {
 
   return true;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(GsfElectronBaseProducer);

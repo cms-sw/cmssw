@@ -19,6 +19,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 
 class DDCompactView;
 class DDFilteredView;
@@ -65,6 +66,7 @@ private:
                                          double xx,
                                          double yy);
 
+  HGCalGeomTools geomTools_;
   const double sqrt3_;
   double waferSize_;
 };

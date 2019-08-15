@@ -20,7 +20,6 @@ Implementation:
 
 // user include files
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"

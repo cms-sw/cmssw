@@ -13,7 +13,6 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"

@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // stage2 collection

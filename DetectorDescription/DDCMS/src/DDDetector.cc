@@ -15,8 +15,6 @@ DDDetector::DDDetector(const string& tag, const string& fileName) : m_tag(tag) {
   process(fileName);
 }
 
-DDDetector::~DDDetector() { Detector::destroyInstance(m_tag); }
-
 void DDDetector::process(const string& fileName) {
   std::string name("DD4hep_CompactLoader");
   const char* files[] = {fileName.c_str(), nullptr};

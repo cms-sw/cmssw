@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -33,7 +33,6 @@ namespace edm {
   class Event;
   class EventSetup;
 }  // namespace edm
-class DQMStore;
 class HTracks;
 class HResolution;
 

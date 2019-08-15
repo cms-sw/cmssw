@@ -1,4 +1,7 @@
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
+#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
+
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -9,9 +12,8 @@ DDG4SensitiveConverter::DDG4SensitiveConverter() {}
 
 DDG4SensitiveConverter::~DDG4SensitiveConverter() {}
 
-SensitiveDetectorCatalog DDG4SensitiveConverter::upDate(const DDG4DispContainer &ddg4s) {
+void DDG4SensitiveConverter::upDate(const DDG4DispContainer &ddg4s, SensitiveDetectorCatalog &catalog) {
   LogDebug("SimG4CoreGeometry") << " DDG4SensitiveConverter::upDate() starts";
-  SensitiveDetectorCatalog catalog;
 
   for (auto ddg4 : ddg4s) {
     const DDLogicalPart *part = (ddg4->getDDLogicalPart());
@@ -27,7 +29,6 @@ SensitiveDetectorCatalog DDG4SensitiveConverter::upDate(const DDG4DispContainer 
       catalog.insert(sClassName, sROUName, fff);
     }
   }
-  return catalog;
 }
 
 std::string DDG4SensitiveConverter::getString(const std::string &ss, const DDLogicalPart *part) {

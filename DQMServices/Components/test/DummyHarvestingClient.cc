@@ -50,7 +50,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #define DEBUG 0
@@ -58,6 +57,8 @@
 // class declaration
 //
 namespace {
+  using dqm::harvesting::DQMStore;
+  using dqm::harvesting::MonitorElement;
   class CumulatorBase {
   public:
     virtual ~CumulatorBase() = default;

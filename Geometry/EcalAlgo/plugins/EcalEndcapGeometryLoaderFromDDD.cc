@@ -3,7 +3,7 @@
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 
-typedef CaloGeometryLoader<EcalEndcapGeometry> EcalEGL;
+typedef CaloGeometryLoader<EcalEndcapGeometry, DDCompactView> EcalEGL;
 
 template <>
 void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
@@ -11,11 +11,12 @@ void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
                        const HepGeom::Transform3D& tr,
                        const DetId& id);
 template <>
-void EcalEGL::fillNamedParams(const DDFilteredView& fv, EcalEndcapGeometry* geom);
+template <>
+void EcalEGL::fillNamedParams<>(const DDFilteredView& fv, EcalEndcapGeometry* geom);
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.icc"
 
-template class CaloGeometryLoader<EcalEndcapGeometry>;
+template class CaloGeometryLoader<EcalEndcapGeometry, DDCompactView>;
 typedef CaloCellGeometry::CCGFloat CCGFloat;
 
 template <>
@@ -48,7 +49,8 @@ void EcalEGL::fillGeom(EcalEndcapGeometry* geom,
 }
 
 template <>
-void EcalEGL::fillNamedParams(const DDFilteredView& _fv, EcalEndcapGeometry* geom) {
+template <>
+void EcalEGL::fillNamedParams<>(const DDFilteredView& _fv, EcalEndcapGeometry* geom) {
   DDFilteredView fv = _fv;
   bool doSubDets = fv.firstChild();
   while (doSubDets) {

@@ -3,7 +3,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "SiStripCertificationInfo.h"
@@ -211,7 +210,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore& dqm_store, 
       ybin++;
       uint16_t nfaulty_layer = 0;
       for (auto me : faulty_detMEs) {
-        if (me->kind() != MonitorElement::DQM_KIND_INT)
+        if (me->kind() != MonitorElement::Kind::INT)
           continue;
         if (me->getIntValue() == 0)
           continue;
@@ -240,7 +239,7 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(DQMStore& dqm_store, 
                             "/EventInfo/reportSummaryContents/SiStrip_SToNFlag_" + name;
     MonitorElement* me_ston = dqm_store.get(full_path);
     me->Reset();
-    if (me_ston && me_ston->kind() == MonitorElement::DQM_KIND_REAL) {
+    if (me_ston && me_ston->kind() == MonitorElement::Kind::REAL) {
       float ston_flg = me_ston->getFloatValue();
       sToNTot += ston_flg;
       nSToNTot++;
@@ -314,11 +313,11 @@ void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi(DQMStore& dqm_s
   for (auto const& [type, subDetME] : SubDetMEsMap) {
     full_path = strip_dir + "/EventInfo/DCSContents/SiStrip_" + type;
     MonitorElement* me_dcs = dqm_store.get(full_path);
-    if (me_dcs && me_dcs->kind() == MonitorElement::DQM_KIND_REAL)
+    if (me_dcs && me_dcs->kind() == MonitorElement::Kind::REAL)
       dcs_flag = me_dcs->getFloatValue();
     full_path = strip_dir + "/EventInfo/reportSummaryContents/SiStrip_" + type;
     MonitorElement* me_dqm = dqm_store.get(full_path);
-    if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL)
+    if (me_dqm && me_dqm->kind() == MonitorElement::Kind::REAL)
       dqm_flag = me_dqm->getFloatValue();
     subDetME.det_fractionME->Reset();
     subDetME.det_fractionME->Fill(fminf(dqm_flag, dcs_flag));
@@ -327,11 +326,11 @@ void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi(DQMStore& dqm_s
   dqm_flag = 1.0;
   full_path = strip_dir + "/EventInfo/reportSummary";
   MonitorElement* me_dqm = dqm_store.get(full_path);
-  if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL)
+  if (me_dqm && me_dqm->kind() == MonitorElement::Kind::REAL)
     dqm_flag = me_dqm->getFloatValue();
   full_path = strip_dir + "/EventInfo/DCSSummary";
   MonitorElement* me_dcs = dqm_store.get(full_path);
-  if (me_dcs && me_dcs->kind() == MonitorElement::DQM_KIND_REAL)
+  if (me_dcs && me_dcs->kind() == MonitorElement::Kind::REAL)
     dcs_flag = me_dcs->getFloatValue();
   SiStripCertification->Reset();
   SiStripCertification->Fill(fminf(dqm_flag, dcs_flag));

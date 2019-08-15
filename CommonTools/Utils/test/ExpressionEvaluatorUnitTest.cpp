@@ -61,7 +61,7 @@ int main() {
   }
 
   try {
-    std::string cut = "bool operator()(int i, int j) override { return i<10&& j<5; }";
+    std::string cut = "bool operator()(int i, int j) const override { return i<10&& j<5; }";
     auto const& mcut =
         *reco_expressionEvaluator("CommonTools/Utils", SINGLE_ARG(reco::genericExpression<bool, int, int>), cut);
     std::cout << mcut(2, 7) << ' ' << mcut(3, 4) << std::endl;

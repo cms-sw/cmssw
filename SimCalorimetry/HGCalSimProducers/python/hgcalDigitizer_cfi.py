@@ -178,7 +178,7 @@ hgchebackDigitizer = cms.PSet(
         scaleByArea   = cms.bool(True),
         noise         = cms.PSet(refToPSet_ = cms.string("HGCAL_noise_heback")), #scales both for scint raddam and sipm dark current
         calibDigis    = cms.bool(True),
-        keV2MIP       = cms.double(1./500.0),
+        keV2MIP       = cms.double(1./675.0),
         doTimeSamples = cms.bool(False),
         nPEperMIP = cms.double(21.0),
         nTotalPE  = cms.double(7500),
@@ -188,9 +188,9 @@ hgchebackDigitizer = cms.PSet(
             # 0 only ADC, 1 ADC with pulse shape, 2 ADC+TDC with pulse shape
             fwVersion       = cms.uint32(0),
             # n bits for the ADC (same as the silicon ROC)
-            adcNbits        = cms.uint32(10),
+            adcNbits        = cms.uint32(12),
             # ADC saturation : in this case we use the same variable but fC=MIP
-            adcSaturation_fC = cms.double(68.5), #value chosen to have 1MIP at 15ADC
+            adcSaturation_fC = cms.double(275.0), #value chosen to have 1MIP at 15ADC
             # threshold for digi production : in this case we use the same variable but fC=MIP
             adcThreshold_fC = cms.double(0.5),
             thresholdFollowsMIP = cms.bool(False)

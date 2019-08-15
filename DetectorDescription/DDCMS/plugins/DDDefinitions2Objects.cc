@@ -7,11 +7,12 @@
 #include "DD4hep/detail/SegmentationsInterna.h"
 #include "DD4hep/detail/DetectorInterna.h"
 #include "DD4hep/detail/ObjectsInterna.h"
+#include "DD4hep/MatrixHelpers.h"
 
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
 #include "DetectorDescription/DDCMS/interface/DDNamespace.h"
 #include "DetectorDescription/DDCMS/interface/DDParsingContext.h"
@@ -31,7 +32,7 @@
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 namespace dd4hep {
 
@@ -103,6 +104,17 @@ namespace dd4hep {
     class vis;
     class debug;
   }  // namespace
+
+  TGeoCombiTrans* createPlacement(const Rotation3D& iRot, const Position& iTrans) {
+    double elements[9];
+    iRot.GetComponents(elements);
+    TGeoRotation r;
+    r.SetMatrix(elements);
+
+    TGeoTranslation t(iTrans.x(), iTrans.y(), iTrans.z());
+
+    return new TGeoCombiTrans(t, r);
+  }
 
   /// Converter instances implemented in this compilation unit
   template <>
@@ -745,7 +757,20 @@ void Converter<DDLLogicalPart>::operator()(xml_h element) const {
   xml_dim_t e(element);
   string sol = e.child(DD_CMU(rSolid)).attr<string>(_U(name));
   string mat = e.child(DD_CMU(rMaterial)).attr<string>(_U(name));
-  ns.addVolume(Volume(e.nameStr(), ns.solid(sol), ns.material(mat)));
+  string volName = e.attr<string>(_U(name));
+  Solid solid = ns.solid(sol);
+  Material material = ns.material(mat);
+  Volume volume = ns.addVolume(Volume(volName, solid, material));
+  printout(ns.context()->debug_volumes ? ALWAYS : DEBUG,
+           "DD4CMS",
+           "+++ %s Volume: %-24s [%s] Shape: %-32s [%s] Material: %-40s [%s]",
+           e.tag().c_str(),
+           volName.c_str(),
+           volume.isValid() ? "VALID" : "INVALID",
+           sol.c_str(),
+           solid.isValid() ? "VALID" : "INVALID",
+           mat.c_str(),
+           material.isValid() ? "VALID" : "INVALID");
 }
 
 /// Helper converter
@@ -757,6 +782,7 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
   xml_dim_t translation = e.child(DD_CMU(Translation), false);
   xml_dim_t rotation = e.child(DD_CMU(Rotation), false);
   xml_dim_t refRotation = e.child(DD_CMU(rRotation), false);
+  xml_dim_t refReflectionRotation = e.child(DD_CMU(rReflectionRotation), false);
   Position pos;
   Rotation3D rot;
 
@@ -777,6 +803,12 @@ void Converter<DDLTransform3D>::operator()(xml_h element) const {
       rotName = ns.name() + rotName;
 
     rot = ns.rotation(rotName);
+  } else if (refReflectionRotation.ptr()) {
+    string rotName = refReflectionRotation.nameStr();
+    if (strchr(rotName.c_str(), NAMESPACE_SEP) == nullptr)
+      rotName = ns.name() + rotName;
+
+    rot = ns.rotation(rotName);
   }
   *tr = Transform3D(rot, pos);
 }
@@ -789,14 +821,25 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
   int copy = e.attr<int>(DD_CMU(copyNumber));
   string parentName = ns.attr<string>(e.child(DD_CMU(rParent)), _U(name));
   string childName = ns.attr<string>(e.child(DD_CMU(rChild)), _U(name));
-
-  if (strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
-    parentName = ns.name() + parentName;
-  Volume parent = ns.volume(parentName);
-
-  if (strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
-    childName = ns.name() + childName;
+  Volume parent = ns.volume(parentName, false);
   Volume child = ns.volume(childName, false);
+  printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
+           "DD4CMS",
+           "+++ %s Parent: %-24s [%s] Child: %-32s [%s] copy:%d",
+           e.tag().c_str(),
+           parentName.c_str(),
+           parent.isValid() ? "VALID" : "INVALID",
+           childName.c_str(),
+           child.isValid() ? "VALID" : "INVALID",
+           copy);
+
+  if (!parent.isValid() && strchr(parentName.c_str(), NAMESPACE_SEP) == nullptr)
+    parentName = ns.name() + parentName;
+  parent = ns.volume(parentName);
+
+  if (!child.isValid() && strchr(childName.c_str(), NAMESPACE_SEP) == nullptr)
+    childName = ns.name() + childName;
+  child = ns.volume(childName, false);
 
   printout(ns.context()->debug_placements ? ALWAYS : DEBUG,
            "DD4CMS",
@@ -812,7 +855,44 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
   if (child.isValid()) {
     Transform3D transform;
     Converter<DDLTransform3D>(description, param, &transform)(element);
-    pv = parent.placeVolume(child, copy, transform);
+
+    // FIXME: workaround for Reflection rotation
+    // copy from DDCore/src/Volumes.cpp to replace
+    // static PlacedVolume _addNode(TGeoVolume* par, TGeoVolume* daughter, int id, TGeoMatrix* transform)
+    if (!parent) {
+      except("dd4hep", "Volume: Attempt to assign daughters to an invalid physical parent volume.");
+    }
+    if (!child) {
+      except("dd4hep", "Volume: Attempt to assign an invalid physical daughter volume.");
+    }
+    TGeoShape* shape = child->GetShape();
+    // Need to fix the daughter's BBox of assemblies, if the BBox was not calculated....
+    if (shape->IsA() == TGeoShapeAssembly::Class()) {
+      TGeoShapeAssembly* as = (TGeoShapeAssembly*)shape;
+      if (std::fabs(as->GetDX()) < numeric_limits<double>::epsilon() &&
+          std::fabs(as->GetDY()) < numeric_limits<double>::epsilon() &&
+          std::fabs(as->GetDZ()) < numeric_limits<double>::epsilon()) {
+        as->NeedsBBoxRecompute();
+        as->ComputeBBox();
+      }
+    }
+    TGeoNode* n;
+    TString nam_id = TString::Format("%s_%d", child->GetName(), copy);
+    n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
+    if (n != nullptr) {
+      printout(ERROR, "PlacedVolume", "++ Attempt to add already exiting node %s", (const char*)nam_id);
+    }
+
+    Rotation3D rot(transform.Rotation());
+    Translation3D trans(transform.Translation());
+    double x, y, z;
+    trans.GetComponents(x, y, z);
+    Position pos(x, y, z);
+    parent->AddNode(child, copy, createPlacement(rot, pos));
+
+    n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
+    n->TGeoNode::SetUserExtension(new PlacedVolume::Object());
+    pv = PlacedVolume(n);
   }
   if (!pv.isValid()) {
     printout(ERROR,
@@ -1254,7 +1334,7 @@ void Converter<DDLCutTubs>::operator()(xml_h element) const {
            rmax,
            startPhi,
            deltaPhi);
-  ns.addSolid(nam, CutTube(rmin, rmax, dz, startPhi, deltaPhi, lx, ly, lz, tx, ty, tz));
+  ns.addSolid(nam, CutTube(rmin, rmax, dz, startPhi, startPhi + deltaPhi, lx, ly, lz, tx, ty, tz));
 }
 
 /// Converter for <TruncTubs/> tags
@@ -1560,7 +1640,7 @@ namespace {
 
     for_each_token(cbegin(str), cend(str), cbegin(delims), cend(delims), [&output](auto first, auto second) {
       if (first != second) {
-        output.emplace_back(stod(string(first, second)));
+        output.emplace_back(dd4hep::_toDouble(string(first, second)));
       }
     });
     return output;
@@ -1575,7 +1655,7 @@ void Converter<DDLVector>::operator()(xml_h element) const {
   cms::DDParsingContext* const context = ns.context();
   DDVectorsMap* registry = context->description.load()->extension<DDVectorsMap>();
   xml_dim_t e(element);
-  string name = e.nameStr();
+  string name = ns.prepend(e.nameStr());
   string type = ns.attr<string>(e, _U(type));
   string nEntries = ns.attr<string>(e, DD_CMU(nEntries));
   string val = e.text();
@@ -1691,12 +1771,13 @@ void Converter<print_xml_doc>::operator()(xml_h element) const {
 static long load_dddefinition(Detector& det, xml_h element) {
   cms::DDParsingContext context(&det);
   cms::DDNamespace ns(context);
-  ns.addConstantNS("world_x", "5*m", "number");
-  ns.addConstantNS("world_y", "5*m", "number");
-  ns.addConstantNS("world_z", "5*m", "number");
+  ns.addConstantNS("world_x", "101*m", "number");
+  ns.addConstantNS("world_y", "101*m", "number");
+  ns.addConstantNS("world_z", "450*m", "number");
   ns.addConstantNS("Air", "materials:Air", "string");
   ns.addConstantNS("Vacuum", "materials:Vacuum", "string");
   ns.addConstantNS("fm", "1e-12*m", "number");
+  ns.addConstantNS("mum", "1e-6*m", "number");
 
   xml_elt_t dddef(element);
   string fname = xml::DocumentHandler::system_path(element);

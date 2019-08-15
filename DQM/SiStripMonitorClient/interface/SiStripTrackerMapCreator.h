@@ -4,7 +4,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,16 +15,17 @@
 #include <string>
 #include <vector>
 
-class DQMStore;
 class TkDetMap;
 class TrackerTopology;
-class MonitorElement;
 namespace edm {
   class EventSetup;
 }
 
 class SiStripTrackerMapCreator {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripTrackerMapCreator(edm::EventSetup const& eSetup);
   bool readConfiguration();
 

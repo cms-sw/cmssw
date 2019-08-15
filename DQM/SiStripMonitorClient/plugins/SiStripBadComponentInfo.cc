@@ -3,9 +3,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripESProducers/interface/SiStripQualityHelpers.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripMonitorClient/plugins/SiStripBadComponentInfo.h"
@@ -24,6 +24,8 @@
 //
 SiStripBadComponentInfo::SiStripBadComponentInfo(edm::ParameterSet const& pSet)
     : bookedStatus_(false), nSubSystem_(6), qualityLabel_(pSet.getParameter<std::string>("StripQualityLabel")) {
+  addBadCompFromFedErr_ = pSet.getUntrackedParameter<bool>("AddBadComponentsFromFedErrors", false);
+  fedErrCutoff_ = float(pSet.getUntrackedParameter<double>("FedErrorBadComponentsCutoff", 0.8));
   // Create MessageSender
   LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo::Deleting SiStripBadComponentInfo ";
 }
@@ -39,12 +41,17 @@ void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) 
   LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo:: Begining of Run";
 
   // Retrieve tracker topology from geometry
-  eSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
-  const TrackerTopology* const topo = tTopoHandle_.product();
+  eSetup.get<TrackerTopologyRcd>().get(tTopo_);
+  eSetup.get<SiStripFedCablingRcd>().get(fedCabling_);
 
   eSetup.get<SiStripQualityRcd>().get(qualityLabel_, siStripQuality_);
+  if (!addBadCompFromFedErr_) {
+    fillBadComponentMaps(siStripQuality_.product());
+  }
+}
 
-  auto const& BC = siStripQuality_->getBadComponentList();
+void SiStripBadComponentInfo::fillBadComponentMaps(const SiStripQuality* siStripQuality) {
+  auto const& BC = siStripQuality->getBadComponentList();
 
   for (size_t i = 0; i < BC.size(); ++i) {
     int subdet = -999;
@@ -59,31 +66,31 @@ void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) 
       // TIB
       //&&&&&&&&&&&&&&&&&
       subdet = 3;
-      component = topo->tibLayer(BC[i].detid);
+      component = tTopo_->tibLayer(BC[i].detid);
     } else if (subDet == StripSubdetector::TID) {
       //&&&&&&&&&&&&&&&&&
       // TID
       //&&&&&&&&&&&&&&&&&
-      if (topo->tidSide(BC[i].detid) == 2)
+      if (tTopo_->tidSide(BC[i].detid) == 2)
         subdet = 4;
       else
         subdet = 5;
-      component = topo->tidWheel(BC[i].detid);
+      component = tTopo_->tidWheel(BC[i].detid);
     } else if (subDet == StripSubdetector::TOB) {
       //&&&&&&&&&&&&&&&&&
       // TOB
       //&&&&&&&&&&&&&&&&&
       subdet = 6;
-      component = topo->tobLayer(BC[i].detid);
+      component = tTopo_->tobLayer(BC[i].detid);
     } else if (subDet == StripSubdetector::TEC) {
       //&&&&&&&&&&&&&&&&&
       // TEC
       //&&&&&&&&&&&&&&&&&
-      if (topo->tecSide(BC[i].detid) == 2)
+      if (tTopo_->tecSide(BC[i].detid) == 2)
         subdet = 2;
       else
         subdet = 1;
-      component = topo->tecWheel(BC[i].detid);
+      component = tTopo_->tecWheel(BC[i].detid);
     }
     fillBadComponentMaps(subdet, component, BC[i]);
   }
@@ -92,8 +99,8 @@ void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) 
   // Single Strip Info
   //&&&&&&&&&&&&&&&&&&
 
-  SiStripQuality::RegistryIterator rbegin = siStripQuality_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = siStripQuality_->getRegistryVectorEnd();
+  SiStripQuality::RegistryIterator rbegin = siStripQuality->getRegistryVectorBegin();
+  SiStripQuality::RegistryIterator rend = siStripQuality->getRegistryVectorEnd();
 
   for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
     uint32_t detid = rp->detid;
@@ -103,29 +110,29 @@ void SiStripBadComponentInfo::checkBadComponents(edm::EventSetup const& eSetup) 
     int subDet = detectorId.subdetId();
     if (subDet == StripSubdetector::TIB) {
       subdet = 3;
-      component = topo->tibLayer(detid);
+      component = tTopo_->tibLayer(detid);
     } else if (subDet == StripSubdetector::TID) {
-      if (topo->tidSide(detid) == 2)
+      if (tTopo_->tidSide(detid) == 2)
         subdet = 5;
       else
         subdet = 4;
-      component = topo->tidWheel(detid);
+      component = tTopo_->tidWheel(detid);
     } else if (subDet == StripSubdetector::TOB) {
       subdet = 6;
-      component = topo->tobLayer(detid);
+      component = tTopo_->tobLayer(detid);
     } else if (subDet == StripSubdetector::TEC) {
-      if (topo->tecSide(detid) == 2)
+      if (tTopo_->tecSide(detid) == 2)
         subdet = 2;
       else
         subdet = 1;
-      component = topo->tecWheel(detid);
+      component = tTopo_->tecWheel(detid);
     }
 
-    SiStripQuality::Range sqrange = SiStripQuality::Range(siStripQuality_->getDataVectorBegin() + rp->ibegin,
-                                                          siStripQuality_->getDataVectorBegin() + rp->iend);
+    SiStripQuality::Range sqrange = SiStripQuality::Range(siStripQuality->getDataVectorBegin() + rp->ibegin,
+                                                          siStripQuality->getDataVectorBegin() + rp->iend);
 
     for (int it = 0; it < sqrange.second - sqrange.first; it++) {
-      unsigned int range = siStripQuality_->decode(*(sqrange.first + it)).range;
+      unsigned int range = siStripQuality->decode(*(sqrange.first + it)).range;
       float val = (mapBadStrip.find(std::make_pair(subdet, component)) != mapBadStrip.end())
                       ? mapBadStrip.at(std::make_pair(subdet, component))
                       : 0.;
@@ -142,6 +149,14 @@ void SiStripBadComponentInfo::endRun(edm::Run const& run, edm::EventSetup const&
 
 void SiStripBadComponentInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   LogDebug("SiStripBadComponentInfo") << "SiStripBadComponentInfo::dqmEndRun";
+  if (addBadCompFromFedErr_) {
+    auto mergedQuality = std::make_unique<SiStripQuality>(*siStripQuality_);
+    auto fedErrQuality = sistrip::badStripFromFedErr(igetter, *fedCabling_, fedErrCutoff_);
+    mergedQuality->add(fedErrQuality.get());
+    mergedQuality->cleanUp();
+    mergedQuality->fillBadComponents();
+    fillBadComponentMaps(mergedQuality.get());
+  }
   bookBadComponentHistos(ibooker, igetter);
   createSummary(badAPVME_, mapBadAPV);
   createSummary(badFiberME_, mapBadFiber);

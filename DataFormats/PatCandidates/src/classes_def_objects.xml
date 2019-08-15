@@ -97,7 +97,8 @@
     <![CDATA[ cachedIP_ = onfile.cachedIP_[1] + 2*onfile.cachedIP_[2] + 4*onfile.cachedIP_[3] + 8*onfile.cachedIP_[4]; ]]>
   </ioread>
 
-  <class name="pat::Tau"  ClassVersion="18">
+  <class name="pat::Tau"  ClassVersion="19">
+   <version ClassVersion="19" checksum="4141787547"/>
    <version ClassVersion="18" checksum="3279584614"/>
    <version ClassVersion="17" checksum="2561486007"/>
    <version ClassVersion="16" checksum="2793593983"/>
@@ -177,11 +178,6 @@
   </class>
   <class name="std::vector<pat::tau::TauPFSpecific>" />
 
-  <class name="pat::tau::TauCaloSpecific"  ClassVersion="11">
-   <version ClassVersion="11" checksum="943826557"/>
-   <version ClassVersion="10" checksum="2692173055"/>
-  </class>
-  <class name="std::vector<pat::tau::TauCaloSpecific>" />
   <class name="pat::tau::TauPFEssential" ClassVersion="14">
     <version ClassVersion="14" checksum="524735083" /> 
     <version ClassVersion="13" checksum="1052833547" />

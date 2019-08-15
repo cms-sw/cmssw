@@ -15,12 +15,14 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   std::unique_ptr<PixelTrackCleaner> produce(const PixelTrackCleaner::Record& iRecord);
+
+private:
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> trackerToken_;
 };
 
-TrackCleanerESProducer::TrackCleanerESProducer(const edm::ParameterSet& iConfig) {
-  auto componentName = iConfig.getParameter<std::string>("ComponentName");
-  setWhatProduced(this, componentName);
-}
+TrackCleanerESProducer::TrackCleanerESProducer(const edm::ParameterSet& iConfig)
+    : trackerToken_(setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"))
+                        .consumesFrom<TrackerTopology, TrackerTopologyRcd>()) {}
 
 void TrackCleanerESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -29,11 +31,7 @@ void TrackCleanerESProducer::fillDescriptions(edm::ConfigurationDescriptions& de
 }
 
 std::unique_ptr<PixelTrackCleaner> TrackCleanerESProducer::produce(const PixelTrackCleaner::Record& iRecord) {
-  edm::ESHandle<TrackerTopology> tTopoHand;
-  iRecord.getRecord<TrackerTopologyRcd>().get(tTopoHand);
-  const TrackerTopology* tTopo = tTopoHand.product();
-
-  return std::make_unique<TrackCleaner>(tTopo);
+  return std::make_unique<TrackCleaner>(&iRecord.get(trackerToken_));
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

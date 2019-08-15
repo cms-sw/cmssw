@@ -1,17 +1,19 @@
 #ifndef _SiStripSummaryCreator_h_
 #define _SiStripSummaryCreator_h_
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <fstream>
 #include <map>
 #include <vector>
 #include <string>
 
 class SiStripConfigWriter;
-class DQMStore;
 
 class SiStripSummaryCreator {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripSummaryCreator();
   virtual ~SiStripSummaryCreator();
   bool readConfiguration(std::string const& file_path);

@@ -5,6 +5,8 @@
 #include "XML/XML.h"
 
 #include <TClass.h>
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
 
 using namespace std;
 using namespace cms;
@@ -61,7 +63,12 @@ DDNamespace::~DDNamespace() {
   }
 }
 
-string DDNamespace::prepend(const string& n) const { return m_name + n; }
+string DDNamespace::prepend(const string& n) const {
+  if (strchr(n.c_str(), NAMESPACE_SEP) == nullptr)
+    return m_name + n;
+  else
+    return n;
+}
 
 string DDNamespace::realName(const string& v) const {
   size_t idx, idq, idp;
@@ -168,8 +175,9 @@ dd4hep::Volume DDNamespace::addVolume(dd4hep::Volume vol) const {
   m_context->volumes[n] = vol;
   dd4hep::printout(m_context->debug_volumes ? dd4hep::ALWAYS : dd4hep::DEBUG,
                    "DD4CMS",
-                   "+++ Add volume:%-38s Solid:%-26s[%-16s] Material:%s",
+                   "+++ Add volume:%-38s as [%s] Solid:%-26s[%-16s] Material:%s",
                    vol.name(),
+                   n.c_str(),
                    s.name(),
                    s.type(),
                    m.name());
@@ -225,4 +233,16 @@ dd4hep::Solid DDNamespace::solid(const string& nam) const {
   if (i != m_context->shapes.end())
     return (*i).second;
   throw runtime_error("Unknown shape identifier:" + nam);
+}
+
+std::vector<double> DDNamespace::vecDbl(const std::string& name) const {
+  cms::DDVectorsMap* registry = m_context->description.load()->extension<cms::DDVectorsMap>();
+  auto it = registry->find(name);
+  if (it != registry->end()) {
+    std::vector<double> result;
+    for (auto in : it->second)
+      result.emplace_back(in);
+    return result;
+  } else
+    return std::vector<double>();
 }

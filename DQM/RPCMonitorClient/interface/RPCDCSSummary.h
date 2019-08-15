@@ -1,7 +1,6 @@
 #ifndef RPCMonitorClient_RPCDCSSummary_H
 #define RPCMonitorClient_RPCDCSSummary_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <map>

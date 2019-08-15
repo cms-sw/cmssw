@@ -25,7 +25,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //#include
 //"HiggsAnalysis/HiggsToZZ4Leptons/plugins/HZZ4LeptonsElectronAssociationMap.h"

@@ -152,6 +152,8 @@ void HitPairGeneratorFromLayerPair::doublets(const TrackingRegion& region,
     for (int j = 0; j < 3; j += 2) {
       auto b = innerRange[j];
       auto e = innerRange[j + 1];
+      if (e == b)
+        continue;
       bool ok[e - b];
       switch (checkRZ->algo()) {
         case (HitRZCompatibility::zAlgo):

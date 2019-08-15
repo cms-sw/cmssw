@@ -165,6 +165,20 @@ testProducerWithPsetDesc = cms.EDProducer('ProducerWithPSetDesc',
     'One',
     'One::Three'
   ),
+  esinputTagv1 = cms.ESInputTag('One', 'Two'),
+  esinputTagv2 = cms.ESInputTag('One', ''),
+  esinputTagv3 = cms.ESInputTag('', 'Two'),
+  vESInputTagv1 = cms.VESInputTag(),
+  vESInputTagv2 = cms.VESInputTag('One:Two'),
+  vESInputTagv3 = cms.VESInputTag(
+    'One:Two',
+    'One:'
+  ),
+  vESInputTagv4 = cms.VESInputTag(
+    'One:Two',
+    'One:',
+    ':Two'
+  ),
   fileInPath = cms.FileInPath('FWCore/Integration/test/ProducerWithPSetDesc.cc'),
   bar = cms.PSet(
     Drinks = cms.uint32(5),

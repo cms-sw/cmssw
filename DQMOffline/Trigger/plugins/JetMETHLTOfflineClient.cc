@@ -8,7 +8,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 JetMETHLTOfflineClient::JetMETHLTOfflineClient(const edm::ParameterSet& iConfig) : conf_(iConfig) {
   debug_ = false;

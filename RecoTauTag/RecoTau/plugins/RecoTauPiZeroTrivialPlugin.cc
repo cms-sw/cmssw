@@ -41,10 +41,10 @@ namespace reco::tau {
     output.reserve(pfGammaCands.size());
 
     for (auto const& gamma : pfGammaCands) {
-      std::auto_ptr<RecoTauPiZero> piZero(
+      std::unique_ptr<RecoTauPiZero> piZero(
           new RecoTauPiZero(0, (*gamma).p4(), (*gamma).vertex(), 22, 1000, true, RecoTauPiZero::kTrivial));
       piZero->addDaughter(gamma);
-      output.push_back(piZero);
+      output.push_back(std::move(piZero));
     }
     return output.release();
   }

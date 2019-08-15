@@ -5,7 +5,6 @@
 #ifndef RPCClient_H
 #define RPCClient_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
@@ -21,6 +20,9 @@
 
 class RPCClient {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   //RPCClient(const edm::ParameterSet& ps) {}
   virtual ~RPCClient(void) {}
 

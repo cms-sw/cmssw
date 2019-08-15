@@ -17,7 +17,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"

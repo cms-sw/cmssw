@@ -17,6 +17,6 @@ HGCalHESilTopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
 
 HGCalHESciTopologyBuilder = cms.ESProducer("HGCalTopologyBuilder",
                                            Name = cms.string("HGCalHEScintillatorSensitive"),
-                                           Type = cms.untracked.int32(5)
+                                           Type = cms.int32(5)
                                            )
 

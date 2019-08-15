@@ -18,7 +18,7 @@ namespace gs {
     inline bool isContiguous() const override { return false; }
     inline bool itemExists(const unsigned long long id) const override { return records_.find(id) != records_.end(); }
 
-    CPP11_shared_ptr<const CatalogEntry> retrieveEntry(const unsigned long long id) const override;
+    std::shared_ptr<const CatalogEntry> retrieveEntry(const unsigned long long id) const override;
 
     bool retrieveStreampos(unsigned long long id,
                            unsigned *compressionCode,
@@ -38,7 +38,7 @@ namespace gs {
     // Add a new entry with id (presumably, from another catalog).
     // Returns "true" on success. The entry is not included (and "false"
     // is returned) in case the entry with the given id already exists.
-    bool addEntry(CPP11_shared_ptr<const CatalogEntry> ptr);
+    bool addEntry(std::shared_ptr<const CatalogEntry> ptr);
 
     // Remove an entry with the given id. "false" is returned in case
     // an entry with the specified id does not exist.
@@ -61,7 +61,7 @@ namespace gs {
     bool isEqual(const AbsCatalog &) const override;
 
   private:
-    typedef CPP11_shared_ptr<const CatalogEntry> SPtr;
+    typedef std::shared_ptr<const CatalogEntry> SPtr;
 
     // In the following multimap, item name is the key and
     // catalog entry pointer is the value

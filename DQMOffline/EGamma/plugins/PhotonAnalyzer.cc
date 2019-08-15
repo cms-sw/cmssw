@@ -1227,7 +1227,7 @@ void PhotonAnalyzer::bookHistogramsConversions(DQMStore::IBooker& iBooker) {
 
 // Booking helper methods:
 
-MonitorElement* PhotonAnalyzer::bookHisto(
+PhotonAnalyzer::MonitorElement* PhotonAnalyzer::bookHisto(
     DQMStore::IBooker& iBooker, string histoName, string title, int bin, double min, double max) {
   int histo_index = 0;
   stringstream histo_number_stream;

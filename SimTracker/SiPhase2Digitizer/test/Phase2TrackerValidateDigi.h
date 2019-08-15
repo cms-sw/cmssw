@@ -14,9 +14,9 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // DQM Histograming
-class MonitorElement;
 class PixelDigiSimLink;
 class SimTrack;
 class SimHit;

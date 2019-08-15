@@ -18,8 +18,6 @@ namespace cms {
     explicit DDDetector(const std::string&, const std::string&);
     DDDetector() = delete;
 
-    ~DDDetector();
-
     // FIXME: remove the need for it
     Detector const* description() const { return m_description; }
 

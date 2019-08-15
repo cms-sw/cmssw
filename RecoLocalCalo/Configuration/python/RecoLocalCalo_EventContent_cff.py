@@ -73,16 +73,20 @@ phase2_hgcal.toModify( RecoLocalCaloFEVT, outputCommands = RecoLocalCaloFEVT.out
         'keep *_hgcalLayerClusters_*_*',
         'keep *_hgcalMultiClusters_*_*',
         'keep *_iterHGCalMultiClusters_*_*',
-
+        'drop DetIdfloatstdmap_hgcalLayerClusters_*_*',
     ]
 )
 phase2_hgcal.toModify( RecoLocalCaloRECO,
     outputCommands = RecoLocalCaloRECO.outputCommands + ['keep *_HGCalRecHit_*_*',
                                                          'keep *_hgcalLayerClusters_*_*',
+                                                         'drop DetIdfloatstdmap_hgcalLayerClusters_*_*',
                                                          'keep *_hgcalMultiClusters_*_*',
                                                          'keep *_iterHGCalMultiClusters_*_*'] )
 # don't modify AOD for HGCal yet, need "reduced" rechits collection first (i.e. requires reconstruction)
-phase2_hgcal.toModify( RecoLocalCaloAOD, outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*','keep *_hgcalLayerClusters_*_*'] )
+phase2_hgcal.toModify( RecoLocalCaloAOD,
+    outputCommands = RecoLocalCaloAOD.outputCommands + ['keep *_HGCalRecHit_*_*',
+                                                        'keep *_hgcalLayerClusters_*_*',
+                                                        'drop DetIdfloatstdmap_hgcalLayerClusters_*_*'])
 
 from Configuration.Eras.Modifier_pA_2016_cff import pA_2016
 from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018

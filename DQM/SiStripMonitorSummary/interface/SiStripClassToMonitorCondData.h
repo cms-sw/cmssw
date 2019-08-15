@@ -22,11 +22,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "boost/cstdint.hpp"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 #include <string>
 #include <vector>
-
-class MonitorElement;
 
 class SiStripPedestalsDQM;
 class SiStripNoisesDQM;
@@ -39,6 +38,9 @@ class SiStripThresholdDQM;
 
 class SiStripClassToMonitorCondData {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripClassToMonitorCondData(edm::ParameterSet const &iConfig);
 
   ~SiStripClassToMonitorCondData();

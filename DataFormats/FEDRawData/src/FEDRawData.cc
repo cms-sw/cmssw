@@ -21,9 +21,9 @@ FEDRawData::FEDRawData(size_t newsize) : data_(newsize) {
 
 FEDRawData::FEDRawData(const FEDRawData &in) : data_(in.data_) {}
 FEDRawData::~FEDRawData() {}
-const unsigned char *FEDRawData::data() const { return &data_[0]; }
+const unsigned char *FEDRawData::data() const { return data_.data(); }
 
-unsigned char *FEDRawData::data() { return &data_[0]; }
+unsigned char *FEDRawData::data() { return data_.data(); }
 
 void FEDRawData::resize(size_t newsize) {
   if (size() == newsize)

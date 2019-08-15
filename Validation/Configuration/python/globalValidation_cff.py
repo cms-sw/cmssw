@@ -44,6 +44,7 @@ from Validation.RecoB.BDHadronTrackValidation_cff import *
 from Validation.Configuration.hgcalSimValid_cff import *
 from Validation.Configuration.mtdSimValid_cff import *
 from Validation.SiOuterTrackerV.OuterTrackerSourceConfigV_cff import *
+from Validation.Configuration.ecalSimValid_cff import *
 
 
 # filter/producer "pre-" sequence for globalValidation

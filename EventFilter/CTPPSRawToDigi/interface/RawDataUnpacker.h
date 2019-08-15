@@ -18,8 +18,6 @@
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrameCollection.h"
 #include "EventFilter/CTPPSRawToDigi/interface/SimpleVFATFrameCollection.h"
 
-//----------------------------------------------------------------------------------------------------
-
 namespace ctpps {
   /// \brief Collection of code for unpacking of TOTEM raw-data.
   class RawDataUnpacker {

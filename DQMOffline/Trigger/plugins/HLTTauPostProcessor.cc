@@ -1,5 +1,5 @@
 #include "DQMOffline/Trigger/interface/HLTTauPostProcessor.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TEfficiency.h"

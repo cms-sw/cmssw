@@ -30,6 +30,9 @@
 
 class HistogramManager {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit HistogramManager(const edm::ParameterSet& iConfig, GeometryInterface& geo);
 
   void addSpec(SummationSpecification spec);

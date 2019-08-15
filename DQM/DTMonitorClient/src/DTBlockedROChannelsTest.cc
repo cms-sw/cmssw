@@ -11,7 +11,6 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/DTReadOutMappingRcd.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

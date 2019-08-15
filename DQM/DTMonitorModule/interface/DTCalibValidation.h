@@ -16,7 +16,6 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -30,11 +29,9 @@
 #include <vector>
 
 // To remove into CMSSW versions before 20X
-class DQMStore;
 // To add into CMSSW versions before 20X
 //class DaqMonitorBEInterface;
 
-class MonitorElement;
 class DTGeometry;
 class DTChamber;
 

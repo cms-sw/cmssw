@@ -39,7 +39,7 @@ namespace {
 
   int getCellThickness(const HGCalGeometry* geom, const DetId& detid) {
     const auto& dddConst = geom->topology().dddConstants();
-    return dddConst.waferType(detid);
+    return (1 + dddConst.waferType(detid));
   }
 
   int getCellThickness(const HcalGeometry* geom, const DetId& detid) { return 1; }
@@ -108,7 +108,7 @@ namespace {
       const auto& topo = geom->topology();
       const auto& dddConst = topo.dddConstants();
       int waferTypeL = dddConst.waferType(detid);
-      return cces[waferTypeL - 1];
+      return cces[waferTypeL];
     }
   }
 

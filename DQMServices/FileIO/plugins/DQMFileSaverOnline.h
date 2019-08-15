@@ -1,7 +1,7 @@
 #ifndef DQMSERVICES_COMPONENTS_DQMFILESAVEROUTPUT_H
 #define DQMSERVICES_COMPONENTS_DQMFILESAVEROUTPUT_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include <sys/time.h>

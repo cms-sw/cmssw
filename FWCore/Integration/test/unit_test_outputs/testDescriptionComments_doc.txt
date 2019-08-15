@@ -11,7 +11,7 @@ configurations. The label below is used when generating the cfi file.
 
     mightGet
                         type: untracked vstring optional
-                        default: none (do not write to cfi)
+                        default: none
                         List contains the branch names for the EDProducts which 
                         might be requested by the module.
                         The format for identifying the EDProduct is the same as 
@@ -85,12 +85,12 @@ configurations. The label below is used when generating the cfi file.
 
         y1
                         type: double 
-                        default: none (do not write to cfi)
+                        default: none
                         test3
 
         y2
                         type: double 
-                        default: none (do not write to cfi)
+                        default: none
                         test4
 
     Section 1.1.1.2 nested1 PSet description:

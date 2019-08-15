@@ -12,6 +12,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <set>
 #include <string>
 #include <vector>
@@ -22,8 +23,6 @@
 #else
 #include <TGraphAsymmErrors.h>
 #endif
-
-class MonitorElement;
 
 class DQMGenericClient : public DQMEDHarvester {
 public:

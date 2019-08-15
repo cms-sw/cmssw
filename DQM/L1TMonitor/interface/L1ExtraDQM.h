@@ -64,7 +64,6 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1RetrieveL1Extra.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "boost/lexical_cast.hpp"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"

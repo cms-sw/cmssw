@@ -239,13 +239,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
     reco::TrackRef tkref = reco::TrackRef(gt_h, igt);
     pat::PackedCandidateRef pcref = (*gt2pc)[tkref];
     pat::PackedCandidateRef ltref = (*gt2lt)[tkref];
-    const pat::PackedCandidate& pfCand = *(pcref.get());
-    const pat::PackedCandidate& lostTrack = *(ltref.get());
+    const pat::PackedCandidate* pfCand = pcref.get();
+    const pat::PackedCandidate* lostTrack = ltref.get();
 
     // Determine if this general track is associated with anything in packedPFCandidates or lostTracks
     // Sometimes, a track gets associated w/ a neutral pfCand.
     // In this case, ignore the pfCand and take from lostTracks
-    bool isInPackedCands = (pcref.isNonnull() && pcref.id() == pc_h.id() && pfCand.charge() != 0);
+    bool isInPackedCands = (pcref.isNonnull() && pcref.id() == pc_h.id() && pfCand->charge() != 0);
     bool isInLostTracks = (ltref.isNonnull() && ltref.id() == lt_h.id());
 
     LorentzVector p4;
@@ -257,13 +257,13 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
     // get the four-momentum and charge
     if (isInPackedCands) {
-      p4 = pfCand.p4();
-      charge = pfCand.charge();
+      p4 = pfCand->p4();
+      charge = pfCand->charge();
       pfCandInd = pcref.key();
       ltCandInd = -1;
     } else if (isInLostTracks) {
-      p4 = lostTrack.p4();
-      charge = lostTrack.charge();
+      p4 = lostTrack->p4();
+      charge = lostTrack->charge();
       pfCandInd = -1;
       ltCandInd = ltref.key();
     } else {
@@ -301,20 +301,20 @@ void pat::PATIsolatedTrackProducer::produce(edm::Event& iEvent, const edm::Event
 
     // get the rest after the pt/iso cuts. Saves some runtime
     if (isInPackedCands) {
-      pdgId = pfCand.pdgId();
-      dz = pfCand.dz();
-      dxy = pfCand.dxy();
-      dzError = pfCand.hasTrackDetails() ? pfCand.dzError() : gentk.dzError();
-      dxyError = pfCand.hasTrackDetails() ? pfCand.dxyError() : gentk.dxyError();
-      fromPV = pfCand.fromPV();
+      pdgId = pfCand->pdgId();
+      dz = pfCand->dz();
+      dxy = pfCand->dxy();
+      dzError = pfCand->hasTrackDetails() ? pfCand->dzError() : gentk.dzError();
+      dxyError = pfCand->hasTrackDetails() ? pfCand->dxyError() : gentk.dxyError();
+      fromPV = pfCand->fromPV();
       refToCand = pcref;
     } else if (isInLostTracks) {
-      pdgId = lostTrack.pdgId();
-      dz = lostTrack.dz();
-      dxy = lostTrack.dxy();
-      dzError = lostTrack.hasTrackDetails() ? lostTrack.dzError() : gentk.dzError();
-      dxyError = lostTrack.hasTrackDetails() ? lostTrack.dxyError() : gentk.dxyError();
-      fromPV = lostTrack.fromPV();
+      pdgId = lostTrack->pdgId();
+      dz = lostTrack->dz();
+      dxy = lostTrack->dxy();
+      dzError = lostTrack->hasTrackDetails() ? lostTrack->dzError() : gentk.dzError();
+      dxyError = lostTrack->hasTrackDetails() ? lostTrack->dxyError() : gentk.dxyError();
+      fromPV = lostTrack->fromPV();
       refToCand = ltref;
     } else {
       pdgId = 0;

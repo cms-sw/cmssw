@@ -855,6 +855,8 @@ void EcalSelectiveReadoutValidation::endRun(const edm::Run& r, const edm::EventS
 void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker& ibooker,
                                                     edm::Run const&,
                                                     edm::EventSetup const&) {
+  ibooker.setCurrentFolder("EcalDigisV/SelectiveReadout");
+
   meL1aRate_ = bookFloat(ibooker, "l1aRate_");
 
   meDccVol_ = bookProfile(ibooker,
@@ -1967,7 +1969,8 @@ double EcalSelectiveReadoutValidation::frame2EnergyForTp(const T& frame, int off
   return acc;
 }
 
-MonitorElement* EcalSelectiveReadoutValidation::bookFloat(DQMStore::IBooker& ibook, const std::string& name) {
+EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::bookFloat(DQMStore::IBooker& ibook,
+                                                                                          const std::string& name) {
   if (!registerHist(name, ""))
     return nullptr;  //this histo is disabled
   MonitorElement* result = ibook.bookFloat(name);
@@ -1977,7 +1980,7 @@ MonitorElement* EcalSelectiveReadoutValidation::bookFloat(DQMStore::IBooker& ibo
   return result;
 }
 
-MonitorElement* EcalSelectiveReadoutValidation::book1D(
+EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::book1D(
     DQMStore::IBooker& ibook, const std::string& name, const std::string& title, int nbins, double xmin, double xmax) {
   if (!registerHist(name, title))
     return nullptr;  //this histo is disabled
@@ -1988,15 +1991,15 @@ MonitorElement* EcalSelectiveReadoutValidation::book1D(
   return result;
 }
 
-MonitorElement* EcalSelectiveReadoutValidation::book2D(DQMStore::IBooker& ibook,
-                                                       const std::string& name,
-                                                       const std::string& title,
-                                                       int nxbins,
-                                                       double xmin,
-                                                       double xmax,
-                                                       int nybins,
-                                                       double ymin,
-                                                       double ymax) {
+EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::book2D(DQMStore::IBooker& ibook,
+                                                                                       const std::string& name,
+                                                                                       const std::string& title,
+                                                                                       int nxbins,
+                                                                                       double xmin,
+                                                                                       double xmax,
+                                                                                       int nybins,
+                                                                                       double ymin,
+                                                                                       double ymax) {
   if (!registerHist(name, title))
     return nullptr;  //this histo is disabled
   MonitorElement* result = ibook.book2D(name, title, nxbins, xmin, xmax, nybins, ymin, ymax);
@@ -2006,7 +2009,7 @@ MonitorElement* EcalSelectiveReadoutValidation::book2D(DQMStore::IBooker& ibook,
   return result;
 }
 
-MonitorElement* EcalSelectiveReadoutValidation::bookProfile(
+EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::bookProfile(
     DQMStore::IBooker& ibook, const std::string& name, const std::string& title, int nbins, double xmin, double xmax) {
   if (!registerHist(name, title))
     return nullptr;  //this histo is disabled
@@ -2017,16 +2020,16 @@ MonitorElement* EcalSelectiveReadoutValidation::bookProfile(
   return result;
 }
 
-MonitorElement* EcalSelectiveReadoutValidation::bookProfile2D(DQMStore::IBooker& ibook,
-                                                              const std::string& name,
-                                                              const std::string& title,
-                                                              int nbinx,
-                                                              double xmin,
-                                                              double xmax,
-                                                              int nbiny,
-                                                              double ymin,
-                                                              double ymax,
-                                                              const char* option) {
+EcalSelectiveReadoutValidation::MonitorElement* EcalSelectiveReadoutValidation::bookProfile2D(DQMStore::IBooker& ibook,
+                                                                                              const std::string& name,
+                                                                                              const std::string& title,
+                                                                                              int nbinx,
+                                                                                              double xmin,
+                                                                                              double xmax,
+                                                                                              int nbiny,
+                                                                                              double ymin,
+                                                                                              double ymax,
+                                                                                              const char* option) {
   if (!registerHist(name, title))
     return nullptr;  //this histo is disabled
   MonitorElement* result = ibook.bookProfile2D(name, title, nbinx, xmin, xmax, nbiny, ymin, ymax, 0, 0, 0, option);

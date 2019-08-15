@@ -1,13 +1,13 @@
 #ifndef GENERS_ABSCATALOG_HH_
 #define GENERS_ABSCATALOG_HH_
 
-#include <cassert>
-#include <vector>
-
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 #include "Alignment/Geners/interface/CatalogEntry.hh"
 #include "Alignment/Geners/interface/ItemDescriptor.hh"
 #include "Alignment/Geners/interface/SearchSpecifier.hh"
+
+#include <cassert>
+#include <memory>
+#include <vector>
 
 namespace gs {
   //
@@ -52,7 +52,7 @@ namespace gs {
 
     // The following function returns a shared pointer to the entry.
     // The pointer will contain NULL in case the item is not found.
-    virtual CPP11_shared_ptr<const CatalogEntry> retrieveEntry(unsigned long long id) const = 0;
+    virtual std::shared_ptr<const CatalogEntry> retrieveEntry(unsigned long long id) const = 0;
 
     // The following function fetches just the stream position
     // associated with the entry. "true" is returned on success.

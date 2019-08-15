@@ -1,6 +1,15 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
+<ConstantsSection label="hfnoseCons.xml" eval="true">
+  <Vector name="RadiusMixBoundary" type="numeric" nEntries="2">
+    [hfnose:HFNoseRMax1], [hfnose:HFNoseRMax3]</Vector>
+  <Vector name="ZRanges" type="numeric" nEntries="2">
+    [hfnose:HFNoseZ1], [hfnose:HFNoseZ3]</Vector>
+  <Vector name="LayerCenter" type="numeric" nEntries="8">
+    0, 0, 0, 0, 0, 0, 0, 0</Vector>
+</ConstantsSection>
+
 <SpecParSection label="hfnoseCons.xml" eval="true">
   <SpecPar name="hfnose">
     <PartSelector path="//HGCalHFNoseSensitive.*"/>  
@@ -13,6 +22,7 @@
     <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
     <Parameter name="CellThickness"       value="[hfnose:CellThicknessFine]"/>
     <Parameter name="FirstLayer"          value="1"/>
+    <Parameter name="LayerOffset"         value="0"/>
     <Parameter name="FirstMixedLayer"     value="-1"/>
     <Parameter name="DetectorType"        value="1"/>
     <Parameter name="Radius100to200"      value="[hfnose:HFNoseRMax3]"/>

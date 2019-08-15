@@ -324,7 +324,7 @@ namespace reco::tau {
     }
   }  // namespace
 
-  std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) {
+  std::unique_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) {
     LogDebug("TauConstructorGet") << "Start getting";
 
     // Copy the sorted collections into the interal tau refvectors
@@ -414,6 +414,6 @@ namespace reco::tau {
       if (leadingGammaCand != getCollection(kSignal, kGamma)->end())
         tau_->setleadNeutralCand(*leadingGammaCand);
     }
-    return tau_;
+    return std::move(tau_);
   }
 }  // end namespace reco::tau

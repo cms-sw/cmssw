@@ -175,12 +175,12 @@ namespace gs {
     return catalog.release();
   }
 
-  CPP11_shared_ptr<const CatalogEntry> ContiguousCatalog::retrieveEntry(const unsigned long long id) const {
+  std::shared_ptr<const CatalogEntry> ContiguousCatalog::retrieveEntry(const unsigned long long id) const {
     if (id >= firstId_ && id < records_.size() + firstId_)
       return records_[id - firstId_];
     else {
       CatalogEntry *ptr = nullptr;
-      return CPP11_shared_ptr<const CatalogEntry>(ptr);
+      return std::shared_ptr<const CatalogEntry>(ptr);
     }
   }
 
@@ -193,7 +193,7 @@ namespace gs {
     assert(pos);
 
     if (id >= firstId_ && id < records_.size() + firstId_) {
-      const CPP11_shared_ptr<const CatalogEntry> &rec(records_[id - firstId_]);
+      const std::shared_ptr<const CatalogEntry> &rec(records_[id - firstId_]);
       *compressionCode = rec->compressionCode();
       *length = rec->itemLength();
       *pos = rec->location().streamPosition();

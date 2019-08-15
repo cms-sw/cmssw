@@ -2,7 +2,6 @@
 #define CSCSegmentValidation_h
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegment.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"

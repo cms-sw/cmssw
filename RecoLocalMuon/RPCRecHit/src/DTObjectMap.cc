@@ -6,18 +6,11 @@
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
 #include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
 
-DTObjectMap::DTObjectMap(MuonGeometryRecord const& record) {
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  record.get(rpcGeo);
-
-  edm::ESHandle<DTGeometry> dtGeo;
-  record.get(dtGeo);
-
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
+DTObjectMap::DTObjectMap(RPCGeometry const& rpcGeo) {
+  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo.dets().begin(); it < rpcGeo.dets().end(); it++) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
       auto ch = dynamic_cast<const RPCChamber*>(*it);
       std::vector<const RPCRoll*> roles = (ch->rolls());

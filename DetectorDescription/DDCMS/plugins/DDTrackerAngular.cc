@@ -1,12 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -30,12 +30,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     delta = rangeAngle / double(n - 1);
   }
 
-  LogDebug("TrackerGeom") << "debug: Parameters for positioning:: n " << n << " Start, Range, Delta "
-                          << convertRadToDeg(startAngle) << " " << convertRadToDeg(rangeAngle) << " "
-                          << convertRadToDeg(delta) << " Radius " << radius << " Centre " << center[0] << ", "
-                          << center[1] << ", " << center[2];
-  LogDebug("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
-                          << ns.name();
+  edm::LogVerbatim("TrackerGeom") << "debug: Parameters for positioning:: n " << n << " Start, Range, Delta "
+                                  << convertRadToDeg(startAngle) << " " << convertRadToDeg(rangeAngle) << " "
+                                  << convertRadToDeg(delta) << " Radius " << radius << " Centre " << center[0] << ", "
+                                  << center[1] << ", " << center[2];
+  edm::LogVerbatim("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
+                                  << ns.name();
 
   double theta = 90._deg;
   int copy = startCopyNo;
@@ -52,9 +52,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       if (irot != ctxt.rotations.end()) {
         rotation = ns.rotation(ns.prepend(rotstr));
       } else {
-        LogDebug("TrackerGeom") << "Creating a new "
-                                << "rotation: " << rotstr << "\t90., " << convertRadToDeg(phix) << ", 90.,"
-                                << convertRadToDeg(phiy) << ", 0, 0";
+        edm::LogVerbatim("TrackerGeom") << "Creating a new "
+                                        << "rotation: " << rotstr << "\t90., " << convertRadToDeg(phix) << ", 90.,"
+                                        << convertRadToDeg(phiy) << ", 0, 0";
         RotationZYX rot;
         rotation = makeRotation3D(theta, phix, theta, phiy, 0., 0.);
       }
@@ -65,8 +65,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     double zpos = center[2];
     Position tran(xpos, ypos, zpos);
     mother.placeVolume(child, copy, Transform3D(rotation, tran));
-    LogDebug("TrackerGeom") << "test " << child.name() << " number " << copy << " positioned in " << mother.name()
-                            << " at " << tran << " with " << rotation;
+    edm::LogVerbatim("TrackerGeom") << "test " << child.name() << " number " << copy << " positioned in "
+                                    << mother.name() << " at " << tran << " with " << rotation;
     copy += incrCopyNo;
     phi += delta;
   }

@@ -17,6 +17,7 @@ int main() {
   testSerialization<HcalParameters>();
   testSerialization<PHGCalParameters>();
   testSerialization<PMTDParameters>();
+  testSerialization<HcalSimulationParameters>();
 
   return 0;
 }

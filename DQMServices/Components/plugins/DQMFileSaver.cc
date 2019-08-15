@@ -1,7 +1,6 @@
 #include "DQMFileSaver.h"
 #include "DQMServices/Components/interface/fillJson.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -150,14 +149,14 @@ void DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi
   }
 }
 
-static void doSaveForOnline(DQMStore *store,
+static void doSaveForOnline(DQMFileSaver::DQMStore *store,
                             int run,
                             bool enableMultiThread,
                             const std::string &filename,
                             const std::string &directory,
                             const std::string &rxpat,
                             const std::string &rewrite,
-                            DQMStore::SaveReferenceTag saveref,
+                            DQMFileSaver::DQMStore::SaveReferenceTag saveref,
                             int saveRefQMin,
                             const std::string &filterName,
                             DQMFileSaver::FileFormat fileFormat) {

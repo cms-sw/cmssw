@@ -20,4 +20,10 @@ inline edm::ParameterSetDescription getFilledConfigurationDescription4CCC() {
   return desc;
 }
 
+inline edm::ParameterSetDescription getFilledConfigurationDescription4CCCNoDefault() {
+  edm::ParameterSetDescription desc;
+  desc.add<double>("value");
+  return desc;
+}
+
 #endif  // RecoLocalTrackerSiStripClusterizerClusterChargeCut_H

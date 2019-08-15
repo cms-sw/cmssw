@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Run.h"
 
 #include "SimG4Core/Application/interface/RunManager.h"
-#include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 #include <memory>
 

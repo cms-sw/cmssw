@@ -9,11 +9,7 @@
 
 #include "EventFilter/CTPPSRawToDigi/interface/CounterChecker.h"
 
-//-------------------------------------------------------------------------------------------------
-
 using namespace std;
-
-//-------------------------------------------------------------------------------------------------
 
 void CounterChecker::Fill(word counter, TotemFramePosition fr) {
   pair<CounterMap::iterator, bool> ret;

@@ -5,7 +5,6 @@
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"

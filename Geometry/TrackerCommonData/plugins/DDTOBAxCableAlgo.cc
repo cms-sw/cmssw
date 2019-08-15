@@ -3,18 +3,51 @@
 // Description: Equipping the axial cylinder of TOB with cables etc
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTOBAxCableAlgo.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+class DDTOBAxCableAlgo : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDTOBAxCableAlgo();
+  ~DDTOBAxCableAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  string idNameSpace;  // Namespace of this and ALL sub-parts
+
+  vector<string> sectorNumber;  // Id. Number of the sectors
+
+  double sectorRin;                 // Inner radius of service sectors
+  double sectorRout;                // Outer radius of service sectors
+  double sectorDz;                  // Sector half-length
+  double sectorDeltaPhi_B;          // Sector B phi width [A=C=0.5*(360/sectors)]
+  vector<double> sectorStartPhi;    // Starting phi for the service sectors
+  vector<string> sectorMaterial_A;  // Material for the A sectors
+  vector<string> sectorMaterial_B;  // Material for the B sectors
+  vector<string> sectorMaterial_C;  // Material for the C sectors
+};
 
 DDTOBAxCableAlgo::DDTOBAxCableAlgo() : sectorRin(0), sectorRout(0), sectorDeltaPhi_B(0) {
   LogDebug("TOBGeom") << "DDTOBAxCableAlgo info: Creating an instance";
@@ -69,7 +102,7 @@ void DDTOBAxCableAlgo::execute(DDCompactView& cpv) {
   // Loop over sectors (sectorNumber vector)
   for (int i = 0; i < (int)(sectorNumber.size()); i++) {
     DDSolid solid;
-    std::string name;
+    string name;
     double dz, rin, rout, startphi, widthphi, deltaphi;
 
     // Axial Services
@@ -144,3 +177,5 @@ void DDTOBAxCableAlgo::execute(DDCompactView& cpv) {
 
   LogDebug("TOBGeom") << "<<== End of DDTOBAxCableAlgo construction ...";
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTOBAxCableAlgo, "track:DDTOBAxCableAlgo");

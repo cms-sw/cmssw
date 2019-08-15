@@ -501,7 +501,7 @@ std::unique_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs(const 
   //set depth segmentation for HB/HE recalib - only happens once
   if ((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)) {
     std::vector<std::vector<int>> m_segmentation;
-    int maxEta = topo->lastHERing();
+    int maxEta = topo->lastHBHERing();
     m_segmentation.resize(maxEta);
     for (int i = 0; i < maxEta; i++) {
       topo->getDepthSegmentation(i + 1, m_segmentation[i]);

@@ -71,6 +71,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
             EBSDNames       = cms.vstring('EBRY'),
             EESDNames       = cms.vstring('EFRY'),
             HCSDNames       = cms.vstring('HBS','HES','HTS'),
+            AllSteps        = cms.int32(2),
             SlopeLightYield = cms.double(0.02),
             BirkC1EC        = cms.double(0.03333),
             BirkSlopeEC     = cms.double(0.253694),

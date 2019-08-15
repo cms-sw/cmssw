@@ -1,17 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 import SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi as digiparam
-from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc
+from L1Trigger.L1THGCal.hgcalConcentratorProducer_cfi import threshold_conc_proc, best_conc_proc, supertc_conc_proc, coarsetc_onebitfraction_proc
 
 
 def create_supertriggercell(process, inputs,
-                            stcSize=supertc_conc_proc.stcSize
+                            stcSize=supertc_conc_proc.stcSize,
+                            type_energy_division=supertc_conc_proc.type_energy_division,
+                            fixedDataSizePerHGCROC=supertc_conc_proc.fixedDataSizePerHGCROC
                             ):
     producer = process.hgcalConcentratorProducer.clone(
             InputTriggerCells = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs)),
             InputTriggerSums = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
             )
     producer.ProcessorParameters = supertc_conc_proc.clone(
-            stcSize = stcSize
+            stcSize = stcSize,
+            type_energy_division = type_energy_division,
+            fixedDataSizePerHGCROC = fixedDataSizePerHGCROC
             )
     return producer
 
@@ -40,5 +44,20 @@ def create_bestchoice(process, inputs,
             )
     producer.ProcessorParameters = best_conc_proc.clone(
             NData = triggercells
+            )
+    return producer
+
+
+def create_onebitfraction(process, inputs,
+                            stcSize=coarsetc_onebitfraction_proc.stcSize,
+                            fixedDataSizePerHGCROC=coarsetc_onebitfraction_proc.fixedDataSizePerHGCROC
+                            ):
+    producer = process.hgcalConcentratorProducer.clone(
+            InputTriggerCells = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs)),
+            InputTriggerSums = cms.InputTag('{}:HGCalVFEProcessorSums'.format(inputs))
+            )
+    producer.ProcessorParameters = coarsetc_onebitfraction_proc.clone(
+            stcSize = stcSize,
+            fixedDataSizePerHGCROC = fixedDataSizePerHGCROC
             )
     return producer

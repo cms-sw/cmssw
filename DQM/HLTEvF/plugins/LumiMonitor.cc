@@ -22,6 +22,8 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 namespace {
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
   struct MEbinning {
     int nbins;
     double xmin;

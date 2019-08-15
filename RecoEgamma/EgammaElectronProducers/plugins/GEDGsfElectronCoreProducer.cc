@@ -23,9 +23,8 @@ using namespace reco;
 void GEDGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   GsfElectronCoreBaseProducer::fillDescription(desc);
-  desc.add<edm::InputTag>("GEDEMUnbiased", edm::InputTag("GEDPFCandidates"));
-
-  descriptions.add("produceEcalDrivenGsfElectronCores", desc);
+  desc.add<edm::InputTag>("GEDEMUnbiased", edm::InputTag("particleFlowEGamma"));
+  descriptions.add("gedGsfElectronCores", desc);
 }
 
 GEDGsfElectronCoreProducer::GEDGsfElectronCoreProducer(const edm::ParameterSet &config)
@@ -86,5 +85,3 @@ void GEDGsfElectronCoreProducer::produceElectronCore(const reco::PFCandidate &pf
 
   delete eleCore;
 }
-
-GEDGsfElectronCoreProducer::~GEDGsfElectronCoreProducer() {}

@@ -264,7 +264,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
       //const float nPixelTot = nPixel + sqrt(nPixel) * CLHEP::RandGaussQ::shoot(engine, 0., 0.05); //FDG: just a note for now, par to be defined
 
       //scale to calibrated response depending on the calibDigis_ flag
-      float totalMIPs = calibDigis_ ? (float)npe / scaledPePerMip : nPixel / nPEperMIP_;
+      float totalMIPs = calibDigis_ ? std::max((npe - meanN), 0.f) / scaledPePerMip : nPixel / nPEperMIP_;
 
       if (debug && totalIniMIPs > 0) {
         LogDebug("HGCHEbackDigitizer") << "npeS: " << npeS << " npeN: " << npeN << " npe: " << npe

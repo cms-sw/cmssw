@@ -13,13 +13,12 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 class DTReadOutMapping;
 
 class DTDAQInfo : public DQMEDHarvester {

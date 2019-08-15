@@ -113,7 +113,7 @@ int main(int argc, char const *argv[]) {
     if (!cat->itemExists(id))
       continue;
 
-    CPP11_shared_ptr<const CatalogEntry> e = cat->retrieveEntry(id);
+    std::shared_ptr<const CatalogEntry> e = cat->retrieveEntry(id);
     if (fullDump) {
       if (id != first)
         cout << '\n';

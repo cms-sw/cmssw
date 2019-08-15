@@ -34,7 +34,6 @@
 #include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
 
 // Root objects
 #include "TROOT.h"

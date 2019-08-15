@@ -1,15 +1,12 @@
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 
 #include "SimG4Core/Application/interface/RunManagerMT.h"
-#include "SimG4Core/Application/interface/CustomUIsession.h"
+#include "SimG4Core/Geometry/interface/CustomUIsession.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
@@ -21,11 +18,9 @@
 #include "G4PhysicalVolumeStore.hh"
 
 OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
-    : m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
-      m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
+    : m_pGeoFromDD4hep(iConfig.getParameter<bool>("g4GeometryDD4hepSource")),
       m_pDD(nullptr),
       m_pDD4hep(nullptr),
-      m_pMF(nullptr),
       m_pTable(nullptr),
       m_masterThreadState(ThreadState::NotExist),
       m_masterCanProceed(false),
@@ -57,7 +52,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
     m_runManagerMaster = runManagerMaster;
 
-    edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: initialization of RunManagerMT finished";
+    LogDebug("SimG4CoreApplication") << "OscarMTMasterThread: initialization of RunManagerMT finished";
 
     /////////////
     // State loop
@@ -65,20 +60,21 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     while (true) {
       // Signal main thread that it can proceed
       m_mainCanProceed = true;
-      LogDebug("OscarMTMasterThread") << "Master thread: State loop, notify main thread";
+      edm::LogVerbatim("OscarMTMasterThread") << "Master thread: State loop, notify main thread";
       m_notifyMainCv.notify_one();
 
       // Wait until the main thread sends signal
       m_masterCanProceed = false;
-      LogDebug("OscarMTMasterThread") << "Master thread: State loop, starting wait";
+      edm::LogVerbatim("OscarMTMasterThread") << "Master thread: State loop, starting wait";
       m_notifyMasterCv.wait(lk2, [&] { return m_masterCanProceed; });
 
       // Act according to the state
-      LogDebug("OscarMTMasterThread") << "Master thread: Woke up, state is " << static_cast<int>(m_masterThreadState);
+      edm::LogInfo("OscarMTMasterThread")
+          << "Master thread: Woke up, state is " << static_cast<int>(m_masterThreadState);
       if (m_masterThreadState == ThreadState::BeginRun) {
         // Initialize Geant4
-        LogDebug("OscarMTMasterThread") << "Master thread: Initializing Geant4";
-        runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pMF, m_pTable);
+        edm::LogInfo("OscarMTMasterThread") << "Master thread: Initializing Geant4";
+        runManagerMaster->initG4(m_pDD, m_pDD4hep, m_pTable);
         isG4Alive = true;
       } else if (m_masterThreadState == ThreadState::EndRun) {
         // Stop Geant4
@@ -194,15 +190,6 @@ void OscarMTMasterThread::readES(const edm::EventSetup& iSetup) const {
         << "The Geometry configuration is changed during the job execution\n"
         << "this is not allowed, the geometry must stay unchanged";
   }
-  if (m_pUseMagneticField) {
-    bool magChanged = idealMagRcdWatcher_.check(iSetup);
-    if (magChanged && (!m_firstRun)) {
-      throw edm::Exception(edm::errors::Configuration)
-          << "[SimG4Core OscarMTMasterThread]\n"
-          << "The MagneticField configuration is changed during the job execution\n"
-          << "this is not allowed, the MagneticField must stay unchanged";
-    }
-  }
   // Don't read from ES if not the first run, just as in
   if (!m_firstRun)
     return;
@@ -216,12 +203,6 @@ void OscarMTMasterThread::readES(const edm::EventSetup& iSetup) const {
     edm::ESTransientHandle<DDCompactView> pDD;
     iSetup.get<IdealGeometryRecord>().get(pDD);
     m_pDD = pDD.product();
-  }
-
-  if (m_pUseMagneticField) {
-    edm::ESHandle<MagneticField> pMF;
-    iSetup.get<IdealMagneticFieldRecord>().get(pMF);
-    m_pMF = pMF.product();
   }
 
   edm::ESHandle<HepPDT::ParticleDataTable> fTable;

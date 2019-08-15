@@ -50,6 +50,9 @@ const float XMAX = 3;
 
 class DQMStandaloneExample : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit DQMStandaloneExample(const edm::ParameterSet &);
   ~DQMStandaloneExample() override;
 

@@ -9,7 +9,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using edm::LogInfo;
 using edm::LogWarning;

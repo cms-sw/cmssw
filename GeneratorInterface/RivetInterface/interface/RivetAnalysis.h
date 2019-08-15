@@ -22,9 +22,9 @@ namespace Rivet {
 
   class RivetAnalysis : public Analysis {
   public:
-    ParticleVector leptons() const { return _leptons; }
-    ParticleVector photons() const { return _photons; }
-    ParticleVector neutrinos() const { return _neutrinos; }
+    Particles leptons() const { return _leptons; }
+    Particles photons() const { return _photons; }
+    Particles neutrinos() const { return _neutrinos; }
     Jets jets() const { return _jets; }
     Jets fatjets() const { return _fatjets; }
     Vector3 met() const { return _met; }
@@ -39,7 +39,7 @@ namespace Rivet {
     double _jetConeSize, _jetMinPt, _jetMaxEta;
     double _fatJetConeSize, _fatJetMinPt, _fatJetMaxEta;
 
-    ParticleVector _leptons, _photons, _neutrinos;
+    Particles _leptons, _photons, _neutrinos;
     Jets _jets, _fatjets;
     Vector3 _met;
 
@@ -82,7 +82,7 @@ namespace Rivet {
       PromptFinalState prompt_leptons(charged_leptons);
       prompt_leptons.acceptMuonDecays(true);
       prompt_leptons.acceptTauDecays(true);
-      addProjection(prompt_leptons, "PromptLeptons");
+      declare(prompt_leptons, "PromptLeptons");
 
       PromptFinalState prompt_photons(photons);
       prompt_photons.acceptMuonDecays(true);
@@ -95,28 +95,28 @@ namespace Rivet {
           prompt_photons, prompt_leptons, _lepConeSize, lepton_cut, /*useDecayPhotons*/ true);
       if (not _usePromptFinalStates)
         dressed_leptons = DressedLeptons(photons, charged_leptons, _lepConeSize, lepton_cut, /*useDecayPhotons*/ true);
-      addProjection(dressed_leptons, "DressedLeptons");
+      declare(dressed_leptons, "DressedLeptons");
 
       // Photons
       if (_usePromptFinalStates) {
         // We remove the photons used up for lepton dressing in this case
         VetoedFinalState vetoed_prompt_photons(prompt_photons);
         vetoed_prompt_photons.addVetoOnThisFinalState(dressed_leptons);
-        addProjection(vetoed_prompt_photons, "Photons");
+        declare(vetoed_prompt_photons, "Photons");
       } else
-        addProjection(photons, "Photons");
+        declare(photons, "Photons");
 
       // Jets
       VetoedFinalState fsForJets(fs);
       if (_usePromptFinalStates and _excludePromptLeptonsFromJetClustering)
         fsForJets.addVetoOnThisFinalState(dressed_leptons);
-      JetAlg::InvisiblesStrategy invisiblesStrategy = JetAlg::DECAY_INVISIBLES;
+      JetAlg::Invisibles invisiblesStrategy = JetAlg::Invisibles::DECAY;
       if (_excludeNeutrinosFromJetClustering)
-        invisiblesStrategy = JetAlg::NO_INVISIBLES;
-      addProjection(FastJets(fsForJets, FastJets::ANTIKT, _jetConeSize, JetAlg::ALL_MUONS, invisiblesStrategy), "Jets");
+        invisiblesStrategy = JetAlg::Invisibles::NONE;
+      declare(FastJets(fsForJets, FastJets::ANTIKT, _jetConeSize, JetAlg::Muons::ALL, invisiblesStrategy), "Jets");
 
       // FatJets
-      addProjection(FastJets(fsForJets, FastJets::ANTIKT, _fatJetConeSize), "FatJets");
+      declare(FastJets(fsForJets, FastJets::ANTIKT, _fatJetConeSize), "FatJets");
 
       // Neutrinos
       IdentifiedFinalState neutrinos(fs);
@@ -125,12 +125,12 @@ namespace Rivet {
         PromptFinalState prompt_neutrinos(neutrinos);
         prompt_neutrinos.acceptMuonDecays(true);
         prompt_neutrinos.acceptTauDecays(true);
-        addProjection(prompt_neutrinos, "Neutrinos");
+        declare(prompt_neutrinos, "Neutrinos");
       } else
-        addProjection(neutrinos, "Neutrinos");
+        declare(neutrinos, "Neutrinos");
 
       // MET
-      addProjection(MissingMomentum(fs), "MET");
+      declare(MissingMomentum(fs), "MET");
     };
 
     // Apply Rivet projections
@@ -145,9 +145,9 @@ namespace Rivet {
       Cut jet_cut = (Cuts::abseta < _jetMaxEta) and (Cuts::pT > _jetMinPt * GeV);
       Cut fatjet_cut = (Cuts::abseta < _fatJetMaxEta) and (Cuts::pT > _fatJetMinPt * GeV);
 
-      _leptons = applyProjection<DressedLeptons>(event, "DressedLeptons").particlesByPt();
+      _leptons = apply<DressedLeptons>(event, "DressedLeptons").particlesByPt();
       // search tau ancestors
-      Particles promptleptons = applyProjection<PromptFinalState>(event, "PromptLeptons").particles();
+      Particles promptleptons = apply<PromptFinalState>(event, "PromptLeptons").particles();
       for (auto& lepton : _leptons) {
         const auto& cl = lepton.constituents().front();  // this has no ancestors anymore :(
         for (auto const& pl : promptleptons) {
@@ -163,11 +163,11 @@ namespace Rivet {
         }
       }
 
-      _jets = applyProjection<FastJets>(event, "Jets").jetsByPt(jet_cut);
-      _fatjets = applyProjection<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
-      _photons = applyProjection<FinalState>(event, "Photons").particlesByPt();
-      _neutrinos = applyProjection<FinalState>(event, "Neutrinos").particlesByPt();
-      _met = applyProjection<MissingMomentum>(event, "MET").missingMomentum().p3();
+      _jets = apply<FastJets>(event, "Jets").jetsByPt(jet_cut);
+      _fatjets = apply<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
+      _photons = apply<FinalState>(event, "Photons").particlesByPt();
+      _neutrinos = apply<FinalState>(event, "Neutrinos").particlesByPt();
+      _met = apply<MissingMomentum>(event, "MET").missingMomentum().p3();
     };
 
     // Do nothing here

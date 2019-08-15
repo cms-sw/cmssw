@@ -1,7 +1,6 @@
 #include <limits>
 #include <random>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
@@ -11,15 +10,22 @@
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include <iostream>
 
-ElectronTagger::ElectronTagger(const edm::ParameterSet& cfg)
+ElectronTagger::Tokens::Tokens(const edm::ParameterSet& cfg, edm::ESConsumesCollector&& cc) {
+  if (cfg.getParameter<bool>("useCondDB")) {
+    cc.setConsumes(
+        gbrForest_,
+        edm::ESInputTag{
+            "", cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""});
+  }
+}
+
+ElectronTagger::ElectronTagger(const edm::ParameterSet& cfg, Tokens tokens)
     : m_selector(cfg),
-      m_useCondDB(cfg.getParameter<bool>("useCondDB")),
-      m_gbrForestLabel(cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel")
-                                                                   : ""),
       m_weightFile(cfg.existsAs<edm::FileInPath>("weightFile") ? cfg.getParameter<edm::FileInPath>("weightFile")
                                                                : edm::FileInPath()),
       m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
-      m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false) {
+      m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
+      m_tokens{std::move(tokens)} {
   uses("seTagInfos");
   mvaID.reset(new TMVAEvaluator());
 }
@@ -29,13 +35,8 @@ void ElectronTagger::initialize(const JetTagComputerRecord& record) {
   std::vector<std::string> variables({"sip3d", "sip2d", "ptRel", "deltaR", "ratio", "mva_e_pi"});
   std::vector<std::string> spectators;
 
-  if (m_useCondDB) {
-    const GBRWrapperRcd& gbrWrapperRecord = record.getRecord<GBRWrapperRcd>();
-
-    edm::ESHandle<GBRForest> gbrForestHandle;
-    gbrWrapperRecord.get(m_gbrForestLabel.c_str(), gbrForestHandle);
-
-    mvaID->initializeGBRForest(gbrForestHandle.product(), variables, spectators, m_useAdaBoost);
+  if (m_tokens.gbrForest_.isInitialized()) {
+    mvaID->initializeGBRForest(&record.get(m_tokens.gbrForest_), variables, spectators, m_useAdaBoost);
   } else
     mvaID->initialize(
         "Color:Silent:Error", "BDT", m_weightFile.fullPath(), variables, spectators, m_useGBRForest, m_useAdaBoost);

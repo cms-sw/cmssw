@@ -1,12 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -15,6 +15,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Volume child = ns.volume(args.childName());
   double startAngle = args.value<double>("StartAngle");                             //Start angle
   double incrAngle = args.value<double>("IncrAngle");                               //Increment in angle
+  double radius = args.value<double>("Radius");                                     //Radius
   double zIn = args.value<double>("ZIn");                                           //z position for the even ones
   double zOut = args.value<double>("ZOut");                                         //z position for the odd  ones
   int number = args.value<double>("Number");                                        //Number of copies
@@ -35,8 +36,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       double phiz = startAngle + i * incrAngle;
       double phix = phiz + 90._deg;
       Rotation3D rotation = makeRotation3D(theta, phix, 0e0, 0e0, theta, phiz);
-      Position tran(0., 0., (i % 2 == 0) ? zIn : zOut);
-      /* PlacedVolume pv = */ mother.placeVolume(child, copyNo, Transform3D(rotation, tran));
+      Position tran(radius * cos(phiz), radius * sin(phiz), (i % 2 == 0) ? zIn : zOut);
+      mother.placeVolume(child, copyNo, Transform3D(rotation, tran));
       LogDebug("TECGeom") << "test: " << child.name() << " number " << copyNo << " positioned in " << mother.name()
                           << " at " << tran << " with " << rotation;
       copyNo += incrCopyNo;

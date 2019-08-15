@@ -1,6 +1,6 @@
 #include "DQMServices/ClientConfig/interface/FitSlicesYTool.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "TDirectory.h"
 
 using namespace std;

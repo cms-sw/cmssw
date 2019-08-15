@@ -45,7 +45,7 @@ namespace cscdqm {
 #ifdef DQMMT
     boost::recursive_mutex mutex;
 #else
-    bool mutex;
+    bool mutex = false;
 #endif
 
     /**

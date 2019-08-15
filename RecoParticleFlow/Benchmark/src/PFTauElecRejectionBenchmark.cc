@@ -19,8 +19,6 @@
 using namespace reco;
 using namespace std;
 
-class MonitorElement;
-
 PFTauElecRejectionBenchmark::PFTauElecRejectionBenchmark() : file_(nullptr) {}
 
 PFTauElecRejectionBenchmark::~PFTauElecRejectionBenchmark() {

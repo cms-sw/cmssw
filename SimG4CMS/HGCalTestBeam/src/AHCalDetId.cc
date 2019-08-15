@@ -9,11 +9,10 @@ AHCalDetId::AHCalDetId() : DetId() {}
 AHCalDetId::AHCalDetId(uint32_t rawid) : DetId(rawid) {}
 
 AHCalDetId::AHCalDetId(int row, int col, int depth) : DetId(Hcal, HcalOther) {
-  int icol = (col > 0) ? col : 10 - col;
-  int irow = (row > 0) ? row : 10 - row;
-  id_ |= (HcalDetId::kHcalIdFormat2) | ((depth & HcalDetId::kHcalDepthMask2) << HcalDetId::kHcalDepthOffset2) |
-         (HcalDetId::kHcalZsideMask2) | ((irow & HcalDetId::kHcalEtaMask2) << HcalDetId::kHcalEtaOffset2) |
-         (icol & HcalDetId::kHcalPhiMask2);
+  int icol = (col > 0) ? col : kMaxRowCol - col;
+  int irow = (row > 0) ? row : kMaxRowCol - row;
+  id_ |= ((depth & kHcalDepthMask) << HcalDetId::kHcalDepthOffset1) | (HcalDetId::kHcalZsideMask1) |
+         ((irow & HcalDetId::kHcalEtaMask1) << HcalDetId::kHcalEtaOffset1) | (icol & HcalDetId::kHcalPhiMask1);
 }
 
 AHCalDetId::AHCalDetId(const DetId& gen) {
@@ -28,33 +27,20 @@ AHCalDetId::AHCalDetId(const DetId& gen) {
 }
 
 int AHCalDetId::irow() const {
-  int value = ((id_ >> HcalDetId::kHcalEtaOffset2) & HcalDetId::kHcalEtaMask2);
-  if (value >= 10)
-    value = -(value % 10);
+  int value = ((id_ >> HcalDetId::kHcalEtaOffset1) & HcalDetId::kHcalEtaMask1);
+  if (value >= kMaxRowCol)
+    value = (kMaxRowCol - value);
   return value;
 }
 
 int AHCalDetId::icol() const {
-  int value = (id_ & HcalDetId::kHcalPhiMask2);
-  if (value >= 10)
-    value = -(value % 10);
+  int value = (id_ & HcalDetId::kHcalPhiMask1);
+  if (value >= kMaxRowCol)
+    value = (kMaxRowCol - value);
   return value;
 }
 
-int AHCalDetId::depth() const { return ((id_ >> HcalDetId::kHcalDepthOffset2) & HcalDetId::kHcalDepthMask2); }
-
-std::pair<double, double> AHCalDetId::getXY() const {
-  int row = irow();
-  int col = icol();
-  double shiftx = (col > 0) ? -0.5 * deltaX_ : 0.5 * deltaX_;
-  double shifty = (row > 0) ? -0.5 * deltaY_ : 0.5 * deltaY_;
-  return std::pair<double, double>(col * deltaX_ + shiftx, row * deltaY_ + shifty);
-}
-
-double AHCalDetId::getZ() const {
-  int lay = depth();
-  return (zFirst_ + (lay - 1) * deltaZ_);
-}
+int AHCalDetId::depth() const { return ((id_ >> HcalDetId::kHcalDepthOffset1) & kHcalDepthMask); }
 
 std::ostream& operator<<(std::ostream& s, const AHCalDetId& id) {
   return s << "(AHCal " << id.irow() << ',' << id.icol() << ',' << id.depth() << ')';

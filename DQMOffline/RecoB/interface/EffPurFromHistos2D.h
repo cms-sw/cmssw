@@ -12,6 +12,9 @@
 
 class EffPurFromHistos2D {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   EffPurFromHistos2D(const std::string& ext,
                      TH2F* h_d,
                      TH2F* h_u,

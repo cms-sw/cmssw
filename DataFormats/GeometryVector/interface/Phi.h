@@ -3,6 +3,7 @@
 
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include <cmath>
 
 namespace Geom {

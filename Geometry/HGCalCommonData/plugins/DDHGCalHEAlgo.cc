@@ -3,18 +3,113 @@
 // Description: Geometry factory class for HGCal (Mix)
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Geometry/HGCalCommonData/plugins/DDHGCalHEAlgo.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
+
+#include <cmath>
+#include <memory>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
+
+class DDHGCalHEAlgo : public DDAlgorithm {
+public:
+  // Constructor and Destructor
+  DDHGCalHEAlgo();  // const std::string & name);
+  ~DDHGCalHEAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+  void execute(DDCompactView& cpv) override;
+
+protected:
+  void constructLayers(const DDLogicalPart&, DDCompactView& cpv);
+  void positionMix(const DDLogicalPart& glog,
+                   const std::string& name,
+                   int copy,
+                   double thick,
+                   const DDMaterial& matter,
+                   double rin,
+                   double rmid,
+                   double routF,
+                   double zz,
+                   DDCompactView& cpv);
+  void positionSensitive(const DDLogicalPart& glog,
+                         double rin,
+                         double rout,
+                         double zpos,
+                         int layertype,
+                         int layercenter,
+                         DDCompactView& cpv);
+
+private:
+  HGCalGeomTools geomTools_;
+  std::unique_ptr<HGCalWaferType> waferType_;
+
+  std::vector<std::string> wafers_;        // Wafers
+  std::vector<std::string> materials_;     // Materials
+  std::vector<std::string> names_;         // Names
+  std::vector<double> thick_;              // Thickness of the material
+  std::vector<int> copyNumber_;            // Initial copy numbers
+  std::vector<int> layers_;                // Number of layers in a section
+  std::vector<double> layerThick_;         // Thickness of each section
+  std::vector<double> rMixLayer_;          // Partition between Si/Sci part
+  std::vector<int> layerType_;             // Type of the layer
+  std::vector<int> layerSense_;            // Content of a layer (sensitive?)
+  int firstLayer_;                         // Copy # of the first sensitive layer
+  int absorbMode_;                         // Absorber mode
+  std::vector<std::string> materialsTop_;  // Materials of top layers
+  std::vector<std::string> namesTop_;      // Names of top layers
+  std::vector<double> layerThickTop_;      // Thickness of the top sections
+  std::vector<int> layerTypeTop_;          // Type of the Top layer
+  std::vector<int> copyNumberTop_;         // Initial copy numbers (top section)
+  std::vector<std::string> materialsBot_;  // Materials of bottom layers
+  std::vector<std::string> namesBot_;      // Names of bottom layers
+  std::vector<double> layerThickBot_;      // Thickness of the bottom sections
+  std::vector<int> layerTypeBot_;          // Type of the bottom layers
+  std::vector<int> copyNumberBot_;         // Initial copy numbers (bot section)
+  std::vector<int> layerSenseBot_;         // Content of bottom layer (sensitive?)
+  std::vector<int> layerCenter_;           // Centering of the wafers
+
+  double zMinBlock_;                 // Starting z-value of the block
+  std::vector<double> rad100to200_;  // Parameters for 120-200mum trans.
+  std::vector<double> rad200to300_;  // Parameters for 200-300mum trans.
+  double zMinRadPar_;                // Minimum z for radius parametriz.
+  int choiceType_;                   // Type of parametrization to be used
+  int nCutRadPar_;                   // Cut off threshold for corners
+  double fracAreaMin_;               // Minimum fractional conatined area
+  double waferSize_;                 // Width of the wafer
+  double waferSepar_;                // Sensor separation
+  int sectors_;                      // Sectors
+  std::vector<double> slopeB_;       // Slope at the lower R
+  std::vector<double> zFrontB_;      // Starting Z values for the slopes
+  std::vector<double> rMinFront_;    // Corresponding rMin's
+  std::vector<double> slopeT_;       // Slopes at the larger R
+  std::vector<double> zFrontT_;      // Starting Z values for the slopes
+  std::vector<double> rMaxFront_;    // Corresponding rMax's
+  std::string nameSpace_;            // Namespace of this and ALL sub-parts
+  std::unordered_set<int> copies_;   // List of copy #'s
+  double alpha_, cosAlpha_;
+};
 
 DDHGCalHEAlgo::DDHGCalHEAlgo() {
 #ifdef EDM_ML_DEBUG
@@ -61,8 +156,13 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   firstLayer_ = (int)(nArgs["FirstLayer"]);
   absorbMode_ = (int)(nArgs["AbsorberMode"]);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "First Layere " << firstLayer_ << " and "
+  edm::LogVerbatim("HGCalGeom") << "First Layer " << firstLayer_ << " and "
                                 << "Absober mode " << absorbMode_;
+#endif
+  layerCenter_ = dbl_to_int(vArgs["LayerCenter"]);
+#ifdef EDM_ML_DEBUG
+  for (unsigned int i = 0; i < layerCenter_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "LayerCenter [" << i << "] " << layerCenter_[i];
 #endif
   if (firstLayer_ > 0) {
     for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -112,7 +212,7 @@ void DDHGCalHEAlgo::initialize(const DDNumericArguments& nArgs,
   for (unsigned int i = 0; i < materialsBot_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesBot_[i] << " of thickness " << layerThickBot_[i]
                                   << " filled with " << materialsBot_[i] << " first copy number " << copyNumberBot_[i];
-  edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeBot_.size() << " layers in the top part";
+  edm::LogVerbatim("HGCalGeom") << "There are " << layerTypeBot_.size() << " layers in the bottom part";
   for (unsigned int i = 0; i < layerTypeBot_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Layer [" << i << "] with material type " << layerTypeBot_[i]
                                   << " sensitive class " << layerSenseBot_[i];
@@ -406,8 +506,13 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
     edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: Position " << glog2.name() << " number " << copy << " in "
                                   << glog1.name() << " at " << r1 << " with " << rot;
 #endif
-    if (layerSenseBot_[ly] != 0)
-      positionSensitive(glog2, rin, rmid, zz + zpos, layerSenseBot_[ly], cpv);
+    if (layerSenseBot_[ly] != 0) {
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: z " << (zz + zpos) << " Center " << copy << ":"
+                                    << (copy - firstLayer_) << ":" << layerCenter_[copy - firstLayer_];
+#endif
+      positionSensitive(glog2, rin, rmid, zz + zpos, layerSenseBot_[ly], layerCenter_[copy - firstLayer_], cpv);
+    }
     zpos += hthickl;
     ++copyNumberBot_[ii];
   }
@@ -422,18 +527,25 @@ void DDHGCalHEAlgo::positionMix(const DDLogicalPart& glog,
   }
 }
 
-void DDHGCalHEAlgo::positionSensitive(
-    const DDLogicalPart& glog, double rin, double rout, double zpos, int layertype, DDCompactView& cpv) {
+void DDHGCalHEAlgo::positionSensitive(const DDLogicalPart& glog,
+                                      double rin,
+                                      double rout,
+                                      double zpos,
+                                      int layertype,
+                                      int layercenter,
+                                      DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   double r = 0.5 * (waferSize_ + waferSepar_);
   double R = 2.0 * r / sqrt3;
   double dy = 0.75 * R;
   int N = (int)(0.5 * rout / r) + 2;
+  std::pair<double, double> xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), iumAll(0), ivmAll(0), kount(0), ntot(0), nin(0);
   std::vector<int> ntype(6, 0);
   edm::LogVerbatim("HGCalGeom") << "DDHGCalHEAlgo: " << glog.ddname() << " rout " << rout << " N " << N
-                                << " for maximum u, v";
+                                << " for maximum u, v Offset; Shift " << xyoff.first << ":" << xyoff.second
+                                << " WaferSize " << (waferSize_ + waferSepar_);
 #endif
   for (int u = -N; u <= N; ++u) {
     int iu = std::abs(u);
@@ -441,8 +553,8 @@ void DDHGCalHEAlgo::positionSensitive(
       int iv = std::abs(v);
       int nr = 2 * v;
       int nc = -2 * u + v;
-      double xpos = nc * r;
-      double ypos = nr * dy;
+      double xpos = xyoff.first + nc * r;
+      double ypos = xyoff.second + nr * dy;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r, R, rin, rout, false);
 #ifdef EDM_ML_DEBUG
       ++ntot;
@@ -493,3 +605,5 @@ void DDHGCalHEAlgo::positionSensitive(
                                 << ntype[5] << ") for " << glog.ddname() << " R " << rin << ":" << rout;
 #endif
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHGCalHEAlgo, "hgcal:DDHGCalHEAlgo");

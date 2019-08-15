@@ -121,7 +121,7 @@ namespace reco {
       }
 
       // Build and return the associated tau
-      std::auto_ptr<reco::PFTau> get(bool setupLeadingCandidates = true);
+      std::unique_ptr<reco::PFTau> get(bool setupLeadingCandidates = true);
 
       // Get the four vector of the signal objects added so far
       const reco::Candidate::LorentzVector& p4() const { return p4_; }
@@ -152,7 +152,7 @@ namespace reco {
       CandidatePtr convertToPtr(const CandidatePtr& candPtr) const;
 
       const edm::Handle<edm::View<reco::Candidate> >& pfCands_;
-      std::auto_ptr<reco::PFTau> tau_;
+      std::unique_ptr<reco::PFTau> tau_;
       CollectionMap collections_;
 
       // Keep sorted (by descending pt) collections

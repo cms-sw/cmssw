@@ -50,6 +50,7 @@ protected:
   edm::ESHandle<EcalChannelStatus> chStatus_;
 
   double singleRecoveryThreshold_;
+  double sum8RecoveryThreshold_;
   std::string singleRecoveryMethod_;
   bool killDeadChannels_;
 

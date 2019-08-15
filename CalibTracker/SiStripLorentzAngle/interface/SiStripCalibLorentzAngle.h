@@ -29,14 +29,16 @@
 #include <TDirectory.h>
 #include "TROOT.h"
 #include "Riostream.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <memory>
 
 class TrackerTopology;
-class MonitorElement;
 
 class SiStripCalibLorentzAngle : public ConditionDBWriter<SiStripLorentzAngle> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripCalibLorentzAngle(const edm::ParameterSet &conf);
 
   ~SiStripCalibLorentzAngle() override;
