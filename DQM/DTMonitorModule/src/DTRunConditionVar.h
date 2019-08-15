@@ -34,11 +34,10 @@
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
 class DetLayer;
 class DetId;
 

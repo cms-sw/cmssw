@@ -73,7 +73,11 @@ FWItemValueGetter::FWItemValueGetter(const edm::TypeWithDict& iType, const std::
   } else if (iPurpose == "HGCal Trigger Cell" || iPurpose == "HGCal Trigger Cluster") {
     addEntry("detId", 0);
   } else if (iPurpose == "CaloParticle") {
-    addEntry("energy", 1);
+    addEntry("energy", 3);
+    addEntry("pdgId()", 3, "pdgId");
+    addEntry("simClusters().size()", 3, "SimClSize");
+  } else if (iPurpose == "HGCal MultiCluster") {
+    addEntry("energy", 3);
   } else {
     // by the default  add pt, et, or energy
     bool x = addEntry("pt", 1);

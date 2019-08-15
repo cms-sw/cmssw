@@ -282,6 +282,8 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepVtx',
             preFilterName = 'detachedQuadStepVtxTight',
+            min_eta = -4.0, # it is particularly effective against fake tracks
+            max_eta = 4.0,
             chi2n_par = 0.9,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
@@ -295,6 +297,8 @@ detachedQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'detachedQuadStepTrk',
             preFilterName = 'detachedQuadStepTrkTight',
+            min_eta = -4.0, # it is particularly effective against fake tracks
+            max_eta = 4.0,
             chi2n_par = 0.5,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 4,

@@ -37,6 +37,13 @@ public:
 
   static void globalEndJob(gsfAlgoHelpers::HeavyObjectCache const*) {}
 
+  // ------------ method called to produce the data  ------------
+  void produce(edm::Event& event, const edm::EventSetup& setup) override {
+    reco::GsfElectronCollection electrons;
+    algo_->completeElectrons(electrons, event, setup, globalCache());
+    fillEvent(electrons, event);
+  }
+
 protected:
   std::unique_ptr<GsfElectronAlgo> algo_;
 

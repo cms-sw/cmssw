@@ -4,17 +4,83 @@
 // values within a ring. The module can also be flipped if requested.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-#include <algorithm>
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/plugins/DDTrackerRingAlgo.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+
+#include <string>
+#include <vector>
+
+/*
+  Tilts and positions n copies of a module at prescribed phi values
+  within a ring. The module can also be flipped if requested.
+
+  (radius, Phi, Z) refers to the cylindrical coordinates in the global frame of reference.
+  
+  A module's tilt angle is defined with respect to the global frame of reference's Z axis.
+  Example, in the outer tracker : For a straight barrel module, tiltAngle = 0°.
+  For a module in the endcaps, tiltAngle = 90°.
+  tiltAngle ∈ [0, 90°].
+  Please note that parameter tiltAngle has to be set regardless of any sign consideration,
+  to the absolute value of the module's tilt angle.
+
+  == Example of use : ==
+
+  <Algorithm name="track:DDTrackerRingAlgo">
+  <rParent name="tracker:Ring5Layer1Plus"/>
+  <String name="ChildName" value="tracker:BModule5Layer1"/>
+  <Numeric name="N" value="9"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo" value="2"/>
+  <Numeric name="RangeAngle" value="360*deg"/>
+  <Numeric name="StartAngle" value="90*deg"/>
+  <Numeric name="Radius" value="247"/>
+  <Vector name="Center" type="numeric" nEntries="3">0,0,-5.45415</Vector>
+  <Numeric name="IsZPlus" value="1"/>
+  <Numeric name="TiltAngle" value="47*deg"/>
+  <Numeric name="IsFlipped" value="1"/>
+  </Algorithm>
+*/
+
+using namespace std;
+
+class DDTrackerRingAlgo : public DDAlgorithm {
+public:
+  // Constructor and Destructor
+  DDTrackerRingAlgo();
+  ~DDTrackerRingAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  int n;                  //Number of copies
+  int startCopyNo;        //Start Copy number
+  int incrCopyNo;         //Increment in Copy number
+  double rangeAngle;      //Range in Phi angle
+  double startAngle;      //Start Phi angle
+  double radius;          //Radius
+  vector<double> center;  //Phi values
+  bool isZPlus;           //Is Z positive ?
+  double tiltAngle;       //Module's tilt angle (absolute value)
+  bool isFlipped;         //Is the module flipped ?
+  double delta;           //Increment in Phi
+
+  string idNameSpace;  //Namespace of this and ALL sub-parts
+  string childName;    //Child name
+};
 
 DDTrackerRingAlgo::DDTrackerRingAlgo() { LogDebug("TrackerGeom") << "DDTrackerRingAlgo info: Creating an instance"; }
 
@@ -62,11 +128,11 @@ void DDTrackerRingAlgo::initialize(const DDNumericArguments& nArgs,
 void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
   DDRotation flipRot, tiltRot, phiRot, globalRot;                          // Identity
   DDRotationMatrix flipMatrix, tiltMatrix, phiRotMatrix, globalRotMatrix;  // Identity matrix
-  std::string rotstr = "RTrackerRingAlgo";
+  string rotstr = "RTrackerRingAlgo";
 
   // flipMatrix calculus
   if (isFlipped) {
-    std::string flipRotstr = rotstr + "Flip";
+    string flipRotstr = rotstr + "Flip";
     flipRot = DDRotation(DDName(flipRotstr, idNameSpace));
     if (!flipRot) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << flipRotstr << "\t90., 180., "
@@ -84,7 +150,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
   }
   // tiltMatrix calculus
   if (isZPlus) {
-    std::string tiltRotstr = rotstr + "Tilt" + std::to_string(tiltAngle / CLHEP::deg) + "ZPlus";
+    string tiltRotstr = rotstr + "Tilt" + to_string(tiltAngle / CLHEP::deg) + "ZPlus";
     tiltRot = DDRotation(DDName(tiltRotstr, idNameSpace));
     if (!tiltRot) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << tiltRotstr << "\t90., 90., "
@@ -102,7 +168,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
       tiltMatrix *= flipMatrix;
     }
   } else {
-    std::string tiltRotstr = rotstr + "Tilt" + std::to_string(tiltAngle / CLHEP::deg) + "ZMinus";
+    string tiltRotstr = rotstr + "Tilt" + to_string(tiltAngle / CLHEP::deg) + "ZMinus";
     tiltRot = DDRotation(DDName(tiltRotstr, idNameSpace));
     if (!tiltRot) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << tiltRotstr << "\t90., 90., "
@@ -134,7 +200,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     double phiy = phix + 90. * CLHEP::deg;
     double phideg = phix / CLHEP::deg;
     if (phideg != 0) {
-      std::string phiRotstr = rotstr + "Phi" + std::to_string(phideg * 10.);
+      string phiRotstr = rotstr + "Phi" + to_string(phideg * 10.);
       phiRot = DDRotation(DDName(phiRotstr, idNameSpace));
       if (!phiRot) {
         LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << phiRotstr << "\t90., "
@@ -145,8 +211,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     }
 
     // globalRot def
-    std::string globalRotstr =
-        rotstr + "Phi" + std::to_string(phideg * 10.) + "Tilt" + std::to_string(tiltAngle / CLHEP::deg);
+    string globalRotstr = rotstr + "Phi" + to_string(phideg * 10.) + "Tilt" + to_string(tiltAngle / CLHEP::deg);
     if (isZPlus) {
       globalRotstr += "ZPlus";
       if (isFlipped) {
@@ -163,7 +228,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
       LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new "
                               << "rotation: " << globalRotstr;
       globalRotMatrix = phiRotMatrix * tiltMatrix;
-      globalRot = DDrot(DDName(globalRotstr, idNameSpace), std::make_unique<DDRotationMatrix>(globalRotMatrix));
+      globalRot = DDrot(DDName(globalRotstr, idNameSpace), make_unique<DDRotationMatrix>(globalRotMatrix));
     }
 
     // translation def
@@ -181,3 +246,5 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     phi += delta;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDTrackerRingAlgo, "track:DDTrackerRingAlgo");

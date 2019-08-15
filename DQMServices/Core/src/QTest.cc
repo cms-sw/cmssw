@@ -51,7 +51,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
   int nbins = 0;
   int nbinsref = 0;
   //-- TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     nbins = me->getTH1F()->GetXaxis()->GetNbins();
     nbinsref = me->getRefTH1F()->GetXaxis()->GetNbins();
     h = me->getTH1F();        // access Test histo
@@ -60,7 +60,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
       return -1;
   }
   //-- TH1S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  else if (me->kind() == MonitorElement::Kind::TH1S) {
     nbins = me->getTH1S()->GetXaxis()->GetNbins();
     nbinsref = me->getRefTH1S()->GetXaxis()->GetNbins();
     h = me->getTH1S();        // access Test histo
@@ -69,7 +69,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
       return -1;
   }
   //-- TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     nbins = me->getTH1D()->GetXaxis()->GetNbins();
     nbinsref = me->getRefTH1D()->GetXaxis()->GetNbins();
     h = me->getTH1D();        // access Test histo
@@ -78,7 +78,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
       return -1;
   }
   //-- TPROFILE
-  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+  else if (me->kind() == MonitorElement::Kind::TPROFILE) {
     nbins = me->getTProfile()->GetXaxis()->GetNbins();
     nbinsref = me->getRefTProfile()->GetXaxis()->GetNbins();
     h = me->getTProfile();        // access Test histo
@@ -88,7 +88,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
   }
 
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  else if (me->kind() == MonitorElement::Kind::TH2F) {
     nbins = me->getTH2F()->GetXaxis()->GetNbins() * me->getTH2F()->GetYaxis()->GetNbins();
     nbinsref = me->getRefTH2F()->GetXaxis()->GetNbins() * me->getRefTH2F()->GetYaxis()->GetNbins();
     h = me->getTH2F();        // access Test histo
@@ -98,7 +98,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
   }
 
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+  else if (me->kind() == MonitorElement::Kind::TH2S) {
     nbins = me->getTH2S()->GetXaxis()->GetNbins() * me->getTH2S()->GetYaxis()->GetNbins();
     nbinsref = me->getRefTH2S()->GetXaxis()->GetNbins() * me->getRefTH2S()->GetYaxis()->GetNbins();
     h = me->getTH2S();        // access Test histo
@@ -108,7 +108,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
   }
 
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+  else if (me->kind() == MonitorElement::Kind::TH2D) {
     nbins = me->getTH2D()->GetXaxis()->GetNbins() * me->getTH2D()->GetYaxis()->GetNbins();
     nbinsref = me->getRefTH2D()->GetXaxis()->GetNbins() * me->getRefTH2D()->GetYaxis()->GetNbins();
     h = me->getTH2D();        // access Test histo
@@ -118,7 +118,7 @@ float Comp2RefEqualH::runTest(const MonitorElement* me) {
   }
 
   //-- TH3
-  else if (me->kind() == MonitorElement::DQM_KIND_TH3F) {
+  else if (me->kind() == MonitorElement::Kind::TH3F) {
     nbins = me->getTH3F()->GetXaxis()->GetNbins() * me->getTH3F()->GetYaxis()->GetNbins() *
             me->getTH3F()->GetZaxis()->GetNbins();
     nbinsref = me->getRefTH3F()->GetXaxis()->GetNbins() * me->getRefTH3F()->GetYaxis()->GetNbins() *
@@ -167,22 +167,22 @@ float Comp2RefChi2::runTest(const MonitorElement* me) {
   if (verbose_ > 1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
   //-- TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h = me->getTH1F();        // access Test histo
     ref_ = me->getRefTH1F();  //access Ref histo
   }
   //-- TH1S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  else if (me->kind() == MonitorElement::Kind::TH1S) {
     h = me->getTH1S();        // access Test histo
     ref_ = me->getRefTH1S();  //access Ref histo
   }
   //-- TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     h = me->getTH1D();        // access Test histo
     ref_ = me->getRefTH1D();  //access Ref histo
   }
   //-- TProfile
-  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+  else if (me->kind() == MonitorElement::Kind::TPROFILE) {
     h = me->getTProfile();        // access Test histo
     ref_ = me->getRefTProfile();  //access Ref histo
   } else {
@@ -287,22 +287,22 @@ float Comp2Ref2DChi2::runTest(const MonitorElement* me) {
   if (verbose_ > 1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
   //-- TH2F
-  if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  if (me->kind() == MonitorElement::Kind::TH2F) {
     h = me->getTH2F();        // access Test histo
     ref_ = me->getRefTH2F();  //access Ref histo
   }
   //-- TH2S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+  else if (me->kind() == MonitorElement::Kind::TH2S) {
     h = me->getTH2S();        // access Test histo
     ref_ = me->getRefTH2S();  //access Ref histo
   }
   //-- TH2D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+  else if (me->kind() == MonitorElement::Kind::TH2D) {
     h = me->getTH2D();        // access Test histo
     ref_ = me->getRefTH2D();  //access Ref histo
   }
   //-- TProfile
-  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+  else if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
     h = me->getTProfile2D();        // access Test histo
     ref_ = me->getRefTProfile2D();  //access Ref histo
   } else {
@@ -375,22 +375,22 @@ float Comp2RefKolmogorov::runTest(const MonitorElement* me) {
   if (verbose_ > 1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
   //-- TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h = me->getTH1F();        // access Test histo
     ref_ = me->getRefTH1F();  //access Ref histo
   }
   //-- TH1S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  else if (me->kind() == MonitorElement::Kind::TH1S) {
     h = me->getTH1S();        // access Test histo
     ref_ = me->getRefTH1S();  //access Ref histo
   }
   //-- TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     h = me->getTH1D();        // access Test histo
     ref_ = me->getRefTH1D();  //access Ref histo
   }
   //-- TProfile
-  else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+  else if (me->kind() == MonitorElement::Kind::TPROFILE) {
     h = me->getTProfile();        // access Test histo
     ref_ = me->getRefTProfile();  //access Ref histo
   } else {
@@ -535,15 +535,15 @@ float ContentsXRange::runTest(const MonitorElement* me) {
   if (verbose_ > 1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
   // -- TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h = me->getTH1F();
   }
   // -- TH1S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  else if (me->kind() == MonitorElement::Kind::TH1S) {
     h = me->getTH1S();
   }
   // -- TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     h = me->getTH1D();
   } else {
     if (verbose_ > 0)
@@ -597,11 +597,11 @@ float ContentsYRange::runTest(const MonitorElement* me) {
   if (verbose_ > 1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
 
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h = me->getTH1F();  //access Test histo
-  } else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  } else if (me->kind() == MonitorElement::Kind::TH1S) {
     h = me->getTH1S();  //access Test histo
-  } else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  } else if (me->kind() == MonitorElement::Kind::TH1D) {
     h = me->getTH1D();  //access Test histo
   } else {
     if (verbose_ > 0)
@@ -665,27 +665,27 @@ float DeadChannel::runTest(const MonitorElement* me) {
   if (verbose_ > 1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
   //TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h1 = me->getTH1F();  //access Test histo
   }
   //TH1S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  else if (me->kind() == MonitorElement::Kind::TH1S) {
     h1 = me->getTH1S();  //access Test histo
   }
   //TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     h1 = me->getTH1D();  //access Test histo
   }
   //-- TH2F
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  else if (me->kind() == MonitorElement::Kind::TH2F) {
     h2 = me->getTH2F();  // access Test histo
   }
   //-- TH2S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+  else if (me->kind() == MonitorElement::Kind::TH2S) {
     h2 = me->getTH2S();  // access Test histo
   }
   //-- TH2D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+  else if (me->kind() == MonitorElement::Kind::TH2D) {
     h2 = me->getTH2D();  // access Test histo
   } else {
     if (verbose_ > 0)
@@ -769,34 +769,34 @@ float NoisyChannel::runTest(const MonitorElement* me) {
   int nbins = 0;
   int nbinsX = 0, nbinsY = 0;
   //-- TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     nbins = me->getTH1F()->GetXaxis()->GetNbins();
     h = me->getTH1F();  // access Test histo
   }
   //-- TH1S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  else if (me->kind() == MonitorElement::Kind::TH1S) {
     nbins = me->getTH1S()->GetXaxis()->GetNbins();
     h = me->getTH1S();  // access Test histo
   }
   //-- TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     nbins = me->getTH1D()->GetXaxis()->GetNbins();
     h = me->getTH1D();  // access Test histo
   }
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  else if (me->kind() == MonitorElement::Kind::TH2F) {
     nbinsX = me->getTH2F()->GetXaxis()->GetNbins();
     nbinsY = me->getTH2F()->GetYaxis()->GetNbins();
     h2 = me->getTH2F();  // access Test histo
   }
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+  else if (me->kind() == MonitorElement::Kind::TH2S) {
     nbinsX = me->getTH2S()->GetXaxis()->GetNbins();
     nbinsY = me->getTH2S()->GetYaxis()->GetNbins();
     h2 = me->getTH2S();  // access Test histo
   }
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+  else if (me->kind() == MonitorElement::Kind::TH2D) {
     nbinsX = me->getTH2F()->GetXaxis()->GetNbins();
     nbinsY = me->getTH2F()->GetYaxis()->GetNbins();
     h2 = me->getTH2D();  // access Test histo
@@ -994,37 +994,37 @@ float ContentSigma::runTest(const MonitorElement* me) {
   unsigned nbinsY;
 
   //-- TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     nbinsX = me->getTH1F()->GetXaxis()->GetNbins();
     nbinsY = me->getTH1F()->GetYaxis()->GetNbins();
     h = me->getTH1F();  // access Test histo
   }
   //-- TH1S
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  else if (me->kind() == MonitorElement::Kind::TH1S) {
     nbinsX = me->getTH1S()->GetXaxis()->GetNbins();
     nbinsY = me->getTH1S()->GetYaxis()->GetNbins();
     h = me->getTH1S();  // access Test histo
   }
   //-- TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     nbinsX = me->getTH1D()->GetXaxis()->GetNbins();
     nbinsY = me->getTH1D()->GetYaxis()->GetNbins();
     h = me->getTH1D();  // access Test histo
   }
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  else if (me->kind() == MonitorElement::Kind::TH2F) {
     nbinsX = me->getTH2F()->GetXaxis()->GetNbins();
     nbinsY = me->getTH2F()->GetYaxis()->GetNbins();
     h = me->getTH2F();  // access Test histo
   }
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+  else if (me->kind() == MonitorElement::Kind::TH2S) {
     nbinsX = me->getTH2S()->GetXaxis()->GetNbins();
     nbinsY = me->getTH2S()->GetYaxis()->GetNbins();
     h = me->getTH2S();  // access Test histo
   }
   //-- TH2
-  else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+  else if (me->kind() == MonitorElement::Kind::TH2D) {
     nbinsX = me->getTH2D()->GetXaxis()->GetNbins();
     nbinsY = me->getTH2D()->GetYaxis()->GetNbins();
     h = me->getTH2D();  // access Test histo
@@ -1370,31 +1370,31 @@ float ContentsWithinExpected::runTest(const MonitorElement* me) {
 
   if (useEmptyBins_) {
     //-- TH2
-    if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+    if (me->kind() == MonitorElement::Kind::TH2F) {
       ncx = me->getTH2F()->GetXaxis()->GetNbins();
       ncy = me->getTH2F()->GetYaxis()->GetNbins();
       h = me->getTH2F();  // access Test histo
     }
     //-- TH2S
-    else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+    else if (me->kind() == MonitorElement::Kind::TH2S) {
       ncx = me->getTH2S()->GetXaxis()->GetNbins();
       ncy = me->getTH2S()->GetYaxis()->GetNbins();
       h = me->getTH2S();  // access Test histo
     }
     //-- TH2D
-    else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+    else if (me->kind() == MonitorElement::Kind::TH2D) {
       ncx = me->getTH2D()->GetXaxis()->GetNbins();
       ncy = me->getTH2D()->GetYaxis()->GetNbins();
       h = me->getTH2D();  // access Test histo
     }
     //-- TProfile
-    else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+    else if (me->kind() == MonitorElement::Kind::TPROFILE) {
       ncx = me->getTProfile()->GetXaxis()->GetNbins();
       ncy = 1;
       h = me->getTProfile();  // access Test histo
     }
     //-- TProfile2D
-    else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+    else if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
       ncx = me->getTProfile2D()->GetXaxis()->GetNbins();
       ncy = me->getTProfile2D()->GetYaxis()->GetNbins();
       h = me->getTProfile2D();  // access Test histo
@@ -1413,21 +1413,21 @@ float ContentsWithinExpected::runTest(const MonitorElement* me) {
 
       for (int cx = 1; cx <= ncx; ++cx) {
         for (int cy = 1; cy <= ncy; ++cy) {
-          if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+          if (me->kind() == MonitorElement::Kind::TH2F) {
             sum += h->GetBinContent(h->GetBin(cx, cy));
             ++nsum;
-          } else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+          } else if (me->kind() == MonitorElement::Kind::TH2S) {
             sum += h->GetBinContent(h->GetBin(cx, cy));
             ++nsum;
-          } else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+          } else if (me->kind() == MonitorElement::Kind::TH2D) {
             sum += h->GetBinContent(h->GetBin(cx, cy));
             ++nsum;
-          } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+          } else if (me->kind() == MonitorElement::Kind::TPROFILE) {
             if (me->getTProfile()->GetBinEntries(h->GetBin(cx)) >= minEntries_ / (ncx)) {
               sum += h->GetBinContent(h->GetBin(cx));
               ++nsum;
             }
-          } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+          } else if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
             if (me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy)) >= minEntries_ / (ncx * ncy)) {
               sum += h->GetBinContent(h->GetBin(cx, cy));
               ++nsum;
@@ -1449,11 +1449,11 @@ float ContentsWithinExpected::runTest(const MonitorElement* me) {
         bool failRMS = false;
         bool failMeanTolerance = false;
 
-        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE &&
+        if (me->kind() == MonitorElement::Kind::TPROFILE &&
             me->getTProfile()->GetBinEntries(h->GetBin(cx)) < minEntries_ / (ncx))
           continue;
 
-        if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D &&
+        if (me->kind() == MonitorElement::Kind::TPROFILE2D &&
             me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy)) < minEntries_ / (ncx * ncy))
           continue;
 
@@ -1473,20 +1473,20 @@ float ContentsWithinExpected::runTest(const MonitorElement* me) {
         }
 
         if (failMean || failRMS || failMeanTolerance) {
-          if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+          if (me->kind() == MonitorElement::Kind::TH2F) {
             DQMChannel chan(cx, cy, 0, h->GetBinContent(h->GetBin(cx, cy)), h->GetBinError(h->GetBin(cx, cy)));
             badChannels_.push_back(chan);
-          } else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+          } else if (me->kind() == MonitorElement::Kind::TH2S) {
             DQMChannel chan(cx, cy, 0, h->GetBinContent(h->GetBin(cx, cy)), h->GetBinError(h->GetBin(cx, cy)));
             badChannels_.push_back(chan);
-          } else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+          } else if (me->kind() == MonitorElement::Kind::TH2D) {
             DQMChannel chan(cx, cy, 0, h->GetBinContent(h->GetBin(cx, cy)), h->GetBinError(h->GetBin(cx, cy)));
             badChannels_.push_back(chan);
-          } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+          } else if (me->kind() == MonitorElement::Kind::TPROFILE) {
             DQMChannel chan(
                 cx, cy, int(me->getTProfile()->GetBinEntries(h->GetBin(cx))), 0, h->GetBinError(h->GetBin(cx)));
             badChannels_.push_back(chan);
-          } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+          } else if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
             DQMChannel chan(cx,
                             cy,
                             int(me->getTProfile2D()->GetBinEntries(h->GetBin(cx, cy))),
@@ -1503,15 +1503,15 @@ float ContentsWithinExpected::runTest(const MonitorElement* me) {
 
   else  /// AS quality test !!!
   {
-    if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+    if (me->kind() == MonitorElement::Kind::TH2F) {
       ncx = me->getTH2F()->GetXaxis()->GetNbins();
       ncy = me->getTH2F()->GetYaxis()->GetNbins();
       h = me->getTH2F();  // access Test histo
-    } else if (me->kind() == MonitorElement::DQM_KIND_TH2S) {
+    } else if (me->kind() == MonitorElement::Kind::TH2S) {
       ncx = me->getTH2S()->GetXaxis()->GetNbins();
       ncy = me->getTH2S()->GetYaxis()->GetNbins();
       h = me->getTH2S();  // access Test histo
-    } else if (me->kind() == MonitorElement::DQM_KIND_TH2D) {
+    } else if (me->kind() == MonitorElement::Kind::TH2D) {
       ncx = me->getTH2D()->GetXaxis()->GetNbins();
       ncy = me->getTH2D()->GetYaxis()->GetNbins();
       h = me->getTH2D();  // access Test histo
@@ -1585,11 +1585,11 @@ float MeanWithinExpected::runTest(const MonitorElement* me) {
   if (minEntries_ != 0 && me->getEntries() < minEntries_)
     return -1;
 
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h = me->getTH1F();  //access Test histo
-  } else if (me->kind() == MonitorElement::DQM_KIND_TH1S) {
+  } else if (me->kind() == MonitorElement::Kind::TH1S) {
     h = me->getTH1S();  //access Test histo
-  } else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  } else if (me->kind() == MonitorElement::Kind::TH1D) {
     h = me->getTH1D();  //access Test histo
   } else {
     if (verbose_ > 0)
@@ -1685,7 +1685,7 @@ float CompareToMedian::runTest(const MonitorElement* me) {
     std::cout << "\tUseEmptyBins = " << (_emptyBins ? "Yes" : "No") << "\n";
   }
 
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE2D) {
+  if (me->kind() == MonitorElement::Kind::TPROFILE2D) {
     h = me->getTProfile2D();  // access Test histo
   } else {
     if (verbose_ > 0)
@@ -1806,9 +1806,9 @@ float CompareLastFilledBin::runTest(const MonitorElement* me) {
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
     std::cout << "\tMin = " << _min << "; Max = " << _max << "\n";
   }
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h1 = me->getTH1F();  // access Test histo
-  } else if (me->kind() == MonitorElement::DQM_KIND_TH2F) {
+  } else if (me->kind() == MonitorElement::Kind::TH2F) {
     h2 = me->getTH2F();  // access Test histo
   } else {
     if (verbose_ > 0)
@@ -1860,13 +1860,13 @@ float CheckVariance::runTest(const MonitorElement* me) {
   if (verbose_ > 1)
     std::cout << "QTest:" << getAlgoName() << "::runTest called on " << me->getFullname() << "\n";
   // -- TH1F
-  if (me->kind() == MonitorElement::DQM_KIND_TH1F) {
+  if (me->kind() == MonitorElement::Kind::TH1F) {
     h = me->getTH1F();
   }
   // -- TH1D
-  else if (me->kind() == MonitorElement::DQM_KIND_TH1D) {
+  else if (me->kind() == MonitorElement::Kind::TH1D) {
     h = me->getTH1D();
-  } else if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) {
+  } else if (me->kind() == MonitorElement::Kind::TPROFILE) {
     h = me->getTProfile();  // access Test histo
   } else {
     if (verbose_ > 0)

@@ -9,7 +9,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"

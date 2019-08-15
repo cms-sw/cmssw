@@ -3,7 +3,7 @@
 // step limiter and killer for e+,e- and other charged particles
 //
 #include "SimG4Core/Application/interface/ElectronLimiter.h"
-#include "SimG4Core/GFlash/interface/CMSTrackingCutModel.h"
+#include "SimG4Core/PhysicsLists/interface/CMSTrackingCutModel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4ParticleDefinition.hh"

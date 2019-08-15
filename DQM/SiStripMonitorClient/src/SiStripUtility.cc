@@ -1,5 +1,4 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
@@ -239,7 +238,7 @@ int SiStripUtility::getMEStatus(MonitorElement const* me, int& bad_channels) {
 //
 void SiStripUtility::getMEValue(MonitorElement const* me, std::string& val) {
   val = "";
-  if (me && (me->kind() == MonitorElement::DQM_KIND_REAL || me->kind() == MonitorElement::DQM_KIND_INT)) {
+  if (me && (me->kind() == MonitorElement::Kind::REAL || me->kind() == MonitorElement::Kind::INT)) {
     val = me->valueString();
     val = val.substr(val.find("=") + 1);
   }

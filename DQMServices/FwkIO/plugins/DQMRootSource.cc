@@ -29,7 +29,6 @@
 #include "FWCore/Catalog/interface/InputFileCatalog.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 //#include "FWCore/Utilities/interface/GlobalIdentifier.h"
@@ -66,6 +65,9 @@
 #include "format.h"
 
 namespace {
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   //adapter functions
   MonitorElement* createElement(DQMStore& iStore, const char* iName, TH1F* iHist) {
     //std::cout <<"create: hist size "<<iName <<" "<<iHist->GetEffectiveEntries()<<std::endl;
@@ -219,20 +221,25 @@ namespace {
     MonitorElement* doRead(ULong64_t iIndex, DQMStore& iStore, bool iIsLumi) override {
       m_tree->GetEntry(iIndex);
       MonitorElement* element = iStore.get(*m_fullName);
-      if (nullptr == element) {
-        std::string path;
-        const char* name;
-        splitName(*m_fullName, path, name);
-        iStore.setCurrentFolder(path);
-        element = createElement(iStore, name, m_buffer);
-        if (iIsLumi) {
-          element->setLumiFlag();
+      try {
+        if (nullptr == element) {
+          std::string path;
+          const char* name;
+          splitName(*m_fullName, path, name);
+          iStore.setCurrentFolder(path);
+          element = createElement(iStore, name, m_buffer);
+          if (iIsLumi) {
+            element->setLumiFlag();
+          }
+        } else {
+          mergeWithElement(element, m_buffer);
         }
-      } else {
-        mergeWithElement(element, m_buffer);
-      }
-      if (0 != m_tag) {
-        iStore.tag(element, m_tag);
+        if (0 != m_tag) {
+          iStore.tag(element, m_tag);
+        }
+      } catch (cms::Exception& e) {
+        e.addContext(std::string("While reading element ") + *m_fullName);
+        e.raise();
       }
       return element;
     }

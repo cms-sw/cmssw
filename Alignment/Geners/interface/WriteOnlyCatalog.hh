@@ -20,7 +20,7 @@ namespace gs {
 
     // The following methods will cause a run-time error: there is
     // no way to read a write-only catalog or to search it
-    CPP11_shared_ptr<const CatalogEntry> retrieveEntry(unsigned long long) const override;
+    std::shared_ptr<const CatalogEntry> retrieveEntry(unsigned long long) const override;
 
     bool retrieveStreampos(unsigned long long id,
                            unsigned *compressionCode,

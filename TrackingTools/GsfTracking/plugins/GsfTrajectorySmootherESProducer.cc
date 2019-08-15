@@ -1,9 +1,12 @@
-#include "TrackingTools/GsfTracking/plugins/GsfTrajectorySmootherESProducer.h"
-
+#include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitterRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
@@ -18,37 +21,43 @@
 #include <string>
 #include <memory>
 
-GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::ParameterSet& p) {
-  std::string myname = p.getParameter<std::string>("ComponentName");
-  pset_ = p;
-  setWhatProduced(this, myname);
-}
+/** Provides a GSF smoother algorithm */
 
-GsfTrajectorySmootherESProducer::~GsfTrajectorySmootherESProducer() {}
+class GsfTrajectorySmootherESProducer : public edm::ESProducer {
+public:
+  GsfTrajectorySmootherESProducer(const edm::ParameterSet& p);
+
+  std::unique_ptr<TrajectorySmoother> produce(const TrajectoryFitterRecord&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::ESGetToken<GsfMaterialEffectsUpdator, TrackingComponentsRecord> matToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  edm::ESGetToken<MultiGaussianStateMerger<5>, TrackingComponentsRecord> mergerToken_;
+  edm::ESGetToken<DetLayerGeometry, RecoGeometryRecord> geoToken_;
+  const double scale_;
+};
+
+GsfTrajectorySmootherESProducer::GsfTrajectorySmootherESProducer(const edm::ParameterSet& p)
+    : scale_(p.getParameter<double>("ErrorRescaling")) {
+  std::string myname = p.getParameter<std::string>("ComponentName");
+  setWhatProduced(this, myname)
+      .setConsumes(matToken_, edm::ESInputTag("", p.getParameter<std::string>("MaterialEffectsUpdator")))
+      .setConsumes(propagatorToken_, edm::ESInputTag("", p.getParameter<std::string>("GeometricalPropagator")))
+      .setConsumes(mergerToken_, edm::ESInputTag("", p.getParameter<std::string>("Merger")))
+      .setConsumes(geoToken_, edm::ESInputTag("", p.getParameter<std::string>("RecoGeometry")));
+}
 
 std::unique_ptr<TrajectorySmoother> GsfTrajectorySmootherESProducer::produce(const TrajectoryFitterRecord& iRecord) {
   //
-  // material effects
-  //
-  std::string matName = pset_.getParameter<std::string>("MaterialEffectsUpdator");
-  edm::ESHandle<GsfMaterialEffectsUpdator> matProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(matName, matProducer);
-  //
   // propagator
   //
-  std::string geomName = pset_.getParameter<std::string>("GeometricalPropagator");
-  edm::ESHandle<Propagator> geomProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(geomName, geomProducer);
-  GsfPropagatorWithMaterial propagator(*geomProducer.product(), *matProducer.product());
+  GsfPropagatorWithMaterial propagator(iRecord.get(propagatorToken_), iRecord.get(matToken_));
   //
   // merger
   //
-  std::string mergerName = pset_.getParameter<std::string>("Merger");
-  //   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
-  //   iRecord.get(mergerName,mergerProducer);
-  edm::ESHandle<MultiGaussianStateMerger<5> > mergerProducer;
-  iRecord.getRecord<TrackingComponentsRecord>().get(mergerName, mergerProducer);
-  MultiTrajectoryStateMerger merger(*mergerProducer.product());
+  MultiTrajectoryStateMerger merger(iRecord.get(mergerToken_));
   //
   // estimator
   //
@@ -57,20 +66,29 @@ std::unique_ptr<TrajectorySmoother> GsfTrajectorySmootherESProducer::produce(con
   GsfChi2MeasurementEstimator estimator(chi2Cut);
   //
   // geometry
-  std::string gname = pset_.getParameter<std::string>("RecoGeometry");
-  edm::ESHandle<DetLayerGeometry> geo;
-  iRecord.getRecord<RecoGeometryRecord>().get(gname, geo);
   // create algorithm
   //
   //   bool matBefUpd = pset_.getParameter<bool>("MaterialBeforeUpdate");
-  double scale = pset_.getParameter<double>("ErrorRescaling");
   return std::make_unique<GsfTrajectorySmoother>(
       propagator,
       GsfMultiStateUpdator(),
       estimator,
       merger,
       // 									 matBefUpd,
-      scale,
+      scale_,
       true,  //BM should this be taken from parameterSet?
-      geo.product());
+      &iRecord.get(geoToken_));
 }
+
+void GsfTrajectorySmootherESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("ComponentName");
+  desc.add<std::string>("MaterialEffectsUpdator");
+  desc.add<std::string>("GeometricalPropagator");
+  desc.add<std::string>("Merger");
+  desc.add<std::string>("RecoGeometry");
+  desc.add<double>("ErrorRescaling");
+
+  descriptions.addDefault(desc);
+}
+DEFINE_FWK_EVENTSETUP_MODULE(GsfTrajectorySmootherESProducer);

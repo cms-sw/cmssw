@@ -87,8 +87,8 @@ public:
                                         << adcLSB_ << ' ' << std::endl;
     }
 
-    int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id()) : 1;
-    amplitude_ = amplitude_ / fCPerMIP_[thickness - 1];
+    int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id()) : 0;
+    amplitude_ = amplitude_ / fCPerMIP_[thickness];
 
     LogDebug("HGCUncalibratedRecHit") << "Final uncalibrated amplitude : " << amplitude_ << std::endl;
 

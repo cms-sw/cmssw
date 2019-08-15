@@ -1,6 +1,7 @@
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4CMS/HGCalTestBeam/interface/AHCalDetId.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "Geometry/HGCalCommonData/interface/AHCalParameters.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -88,10 +89,10 @@ uint32_t AHCalSD::setDetUnitId(const G4Step* aStep) {
   const G4VTouchable* touch = preStepPoint->GetTouchable();
 
   int depth = (touch->GetReplicaNumber(1));
-  int incol = ((touch->GetReplicaNumber(0)) % 10);
-  int inrow = ((touch->GetReplicaNumber(0)) / 10) % 10;
-  int jncol = ((touch->GetReplicaNumber(0)) / 100) % 10;
-  int jnrow = ((touch->GetReplicaNumber(0)) / 1000) % 10;
+  int incol = ((touch->GetReplicaNumber(0)) % AHCalParameters::kColumn_);
+  int inrow = ((touch->GetReplicaNumber(0)) / AHCalParameters::kColumn_) % AHCalParameters::kRow_;
+  int jncol = ((touch->GetReplicaNumber(0)) / AHCalParameters::kRowColumn_) % AHCalParameters::kSign_;
+  int jnrow = ((touch->GetReplicaNumber(0)) / AHCalParameters::kSignRowColumn_) % AHCalParameters::kSign_;
   int col = (jncol == 0) ? incol : -incol;
   int row = (jnrow == 0) ? inrow : -inrow;
   uint32_t index = AHCalDetId(row, col, depth).rawId();

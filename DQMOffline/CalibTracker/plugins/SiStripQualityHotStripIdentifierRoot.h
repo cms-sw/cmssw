@@ -13,7 +13,6 @@
 
 #include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -36,6 +35,9 @@ class TrackerTopology;
 
 class SiStripQualityHotStripIdentifierRoot : public ConditionDBWriter<SiStripBadStrip> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripQualityHotStripIdentifierRoot(const edm::ParameterSet&);
   ~SiStripQualityHotStripIdentifierRoot() override;
 

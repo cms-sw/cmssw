@@ -2,7 +2,7 @@
 #define SiOuterTrackerV_OuterTrackerMonitorTrackingParticles_h
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -20,8 +20,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-class DQMStore;
 
 class OuterTrackerMonitorTrackingParticles : public DQMEDAnalyzer {
 public:

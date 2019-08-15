@@ -36,7 +36,6 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "boost/tuple/tuple.hpp"
 #include <algorithm>
@@ -52,6 +51,9 @@ const unsigned int kNull = (unsigned int)-1;
 
 class HLTMuonPlotter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HLTMuonPlotter(const edm::ParameterSet &,
                  std::string,
                  const std::vector<std::string> &,

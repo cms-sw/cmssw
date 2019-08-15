@@ -13,7 +13,6 @@
 //DQM
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 struct MEPSet {
   std::string name;

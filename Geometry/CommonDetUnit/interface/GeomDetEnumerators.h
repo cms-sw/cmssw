@@ -49,6 +49,9 @@ namespace GeomDetEnumerators {
   bool isTrackerPixel(GeomDetEnumerators::SubDetector m);
   bool isTrackerStrip(GeomDetEnumerators::SubDetector m);
   bool isTracker(GeomDetEnumerators::SubDetector m);
+  bool isInnerTracker(GeomDetEnumerators::SubDetector m);
+  bool isOuterTracker(GeomDetEnumerators::SubDetector m);
+
   bool isDT(GeomDetEnumerators::SubDetector m);
   bool isCSC(GeomDetEnumerators::SubDetector m);
   bool isRPC(GeomDetEnumerators::SubDetector m);

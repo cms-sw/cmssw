@@ -349,14 +349,14 @@ void FEDHistograms::fillLumiHistograms(const FEDErrors::LumiErrors& aLumErr) {
 
 bool FEDHistograms::cmHistosEnabled() { return (medianAPV0_.enabled || medianAPV1_.enabled); }
 
-MonitorElement* FEDHistograms::cmHistPointer(bool aApv1) {
+FEDHistograms::MonitorElement* FEDHistograms::cmHistPointer(bool aApv1) {
   if (!aApv1)
     return medianAPV0_.monitorEle;
   else
     return medianAPV1_.monitorEle;
 }
 
-MonitorElement* FEDHistograms::getFedvsAPVpointer() { return fedIdVsApvId_.monitorEle; }
+FEDHistograms::MonitorElement* FEDHistograms::getFedvsAPVpointer() { return fedIdVsApvId_.monitorEle; }
 
 void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
                                            const TkDetMap* tkDetMap,

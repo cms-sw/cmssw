@@ -41,7 +41,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 using namespace std;
 
@@ -51,6 +50,9 @@ using namespace std;
 
 class HLTOverallSummary : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit HLTOverallSummary(const edm::ParameterSet& pset);
   ~HLTOverallSummary() override;
 

@@ -24,7 +24,6 @@
 
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // GCT and RCT data formats
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
@@ -37,7 +36,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/oneDQMEDAnalyzer.h"
 
 // Trigger Headers
 //

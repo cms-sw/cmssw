@@ -2,8 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HGCalParametersTest")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
+#process.load("Geometry.HGCalCommonData.testHGCV8XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D35XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D41XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D46XML_cfi")
 process.load("Geometry.HGCalCommonData.testHGCXML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023D17XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

@@ -1,7 +1,7 @@
 #ifndef _SiStripQualityChecker_h_
 #define _SiStripQualityChecker_h_
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,13 +13,14 @@
 #include <vector>
 #include <string>
 
-class DQMStore;
-class MonitorElement;
 class TkDetMap;
 class SiStripDetCabling;
 
 class SiStripQualityChecker {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripQualityChecker(edm::ParameterSet const& ps);
   ~SiStripQualityChecker();
 

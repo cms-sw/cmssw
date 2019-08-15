@@ -30,15 +30,13 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-
-class DQMStore;
-class MonitorElement;
 
 class SiStripBadComponentInfo : public DQMEDHarvester {
 public:
@@ -54,6 +52,7 @@ protected:
 private:
   void checkBadComponents(edm::EventSetup const& eSetup);
   void bookBadComponentHistos(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter);
+  void fillBadComponentMaps(const SiStripQuality* siStripQuality);
   void fillBadComponentMaps(int xbin, int component, SiStripQuality::BadComponent const& BC);
   void createSummary(MonitorElement* me, const std::map<std::pair<int, int>, float>& map);
 
@@ -70,6 +69,9 @@ private:
   std::string qualityLabel_;
 
   edm::ESHandle<SiStripQuality> siStripQuality_;
-  edm::ESHandle<TrackerTopology> tTopoHandle_;
+  edm::ESHandle<TrackerTopology> tTopo_;
+  edm::ESHandle<SiStripFedCabling> fedCabling_;
+  bool addBadCompFromFedErr_;
+  float fedErrCutoff_;
 };
 #endif

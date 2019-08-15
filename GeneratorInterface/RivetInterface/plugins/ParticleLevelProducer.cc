@@ -69,7 +69,7 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
     if (match) {
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, iMatch)));
     } else {
-      consts->push_back(reco::GenParticle(p.charge(), pp4, genVertex_, p.pdgId(), 1, true));
+      consts->push_back(reco::GenParticle(p.charge(), pp4, genVertex_, p.pid(), 1, true));
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
     }
   }
@@ -89,7 +89,7 @@ void ParticleLevelProducer::addGenJet(Rivet::Jet jet,
     if (match) {
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, iMatch)));
     } else {
-      tags->push_back(reco::GenParticle(p.charge(), p4(p) * 1e-20, genVertex_, p.pdgId(), 2, true));
+      tags->push_back(reco::GenParticle(p.charge(), p4(p) * 1e-20, genVertex_, p.pid(), 2, true));
       genJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));
     }
   }
@@ -121,13 +121,13 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
   // Convert into edm objects
   // Prompt neutrinos
   for (auto const& p : rivetAnalysis_->neutrinos()) {
-    neutrinos->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
+    neutrinos->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pid(), 1, true));
   }
   std::sort(neutrinos->begin(), neutrinos->end(), GreaterByPt<reco::Candidate>());
 
   // Photons
   for (auto const& p : rivetAnalysis_->photons()) {
-    photons->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
+    photons->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pid(), 1, true));
   }
   std::sort(photons->begin(), photons->end(), GreaterByPt<reco::Candidate>());
 
@@ -138,18 +138,18 @@ void ParticleLevelProducer::produce(edm::Event& event, const edm::EventSetup& ev
     reco::GenJet lepJet;
     lepJet.setP4(p4(lepton));
     lepJet.setVertex(genVertex_);
-    lepJet.setPdgId(lepton.pdgId());
+    lepJet.setPdgId(lepton.pid());
     lepJet.setCharge(lepton.charge());
 
     for (auto const& p : lepton.constituents()) {
       // ghost taus (momentum scaled with 10e-20 in RivetAnalysis.h already)
       if (p.abspid() == 15) {
-        tags->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 2, true));
+        tags->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pid(), 2, true));
         lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(tagsRefHandle, ++iTag)));
       }
       // electrons, muons, photons
       else {
-        consts->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pdgId(), 1, true));
+        consts->push_back(reco::GenParticle(p.charge(), p4(p), genVertex_, p.pid(), 1, true));
         lepJet.addDaughter(edm::refToPtr(reco::GenParticleRef(constsRefHandle, ++iConstituent)));
       }
     }

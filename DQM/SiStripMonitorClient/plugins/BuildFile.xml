@@ -6,6 +6,7 @@
 <use   name="DQMServices/Core"/>
 <use   name="DQM/SiStripCommon"/>
 <use   name="DQM/SiStripMonitorClient"/>
+<use   name="CalibTracker/SiStripESProducers"/>
 <library   file="*.cc" name="DQMSiStripMonitorClientPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

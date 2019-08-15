@@ -18,6 +18,9 @@
 
 class QTestConfigure {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   ///Constructor
   QTestConfigure() {}
   ///Destructor

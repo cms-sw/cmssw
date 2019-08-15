@@ -7,7 +7,6 @@
  */
 #include "Validation/GlobalRecHits/interface/GlobalRecHitsHistogrammer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 using namespace std;
 
 GlobalRecHitsHistogrammer::GlobalRecHitsHistogrammer(const edm::ParameterSet& iPSet)

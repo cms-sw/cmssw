@@ -239,25 +239,25 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
 
     switch (it->kind()) {
         // one-dim ME
-      case MonitorElement::DQM_KIND_TH1F:
+      case MonitorElement::Kind::TH1F:
         currentSubfolder.AddBinsF(it->getNbinsX(), getEmptyMetric(it->getTH1F()->GetArray(), it->getTH1F()->fN, 0, 0));
         curr->update(it->getNbinsX(),
                      getEmptyMetric(it->getTH1F()->GetArray(), it->getTH1F()->fN, 0, 0),
                      it->getNbinsX() * sizeof(float));
         break;
-      case MonitorElement::DQM_KIND_TH1S:
+      case MonitorElement::Kind::TH1S:
         currentSubfolder.AddBinsS(it->getNbinsX(), getEmptyMetric(it->getTH1S()->GetArray(), it->getTH1S()->fN, 0, 0));
         curr->update(it->getNbinsX(),
                      getEmptyMetric(it->getTH1S()->GetArray(), it->getTH1S()->fN, 0, 0),
                      it->getNbinsX() * sizeof(short));
         break;
-      case MonitorElement::DQM_KIND_TH1D:
+      case MonitorElement::Kind::TH1D:
         currentSubfolder.AddBinsD(it->getNbinsX(), getEmptyMetric(it->getTH1D()->GetArray(), it->getTH1D()->fN, 0, 0));
         curr->update(it->getNbinsX(),
                      getEmptyMetric(it->getTH1D()->GetArray(), it->getTH1D()->fN, 0, 0),
                      it->getNbinsX() * sizeof(double));
         break;
-      case MonitorElement::DQM_KIND_TPROFILE:
+      case MonitorElement::Kind::TPROFILE:
         currentSubfolder.AddBinsD(it->getNbinsX(),
                                   getEmptyMetric(it->getTProfile()->GetArray(), it->getTProfile()->fN, 0, 0));
         curr->update(it->getNbinsX(),
@@ -266,7 +266,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
         break;
 
         // two-dim ME
-      case MonitorElement::DQM_KIND_TH2F:
+      case MonitorElement::Kind::TH2F:
         currentSubfolder.AddBinsF(
             it->getNbinsX() * it->getNbinsY(),
             getEmptyMetric(it->getTH2F()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0));
@@ -274,7 +274,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
                      getEmptyMetric(it->getTH2F()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0),
                      it->getNbinsX() * it->getNbinsY() * sizeof(float));
         break;
-      case MonitorElement::DQM_KIND_TH2S:
+      case MonitorElement::Kind::TH2S:
         currentSubfolder.AddBinsS(
             it->getNbinsX() * it->getNbinsY(),
             getEmptyMetric(it->getTH2S()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0));
@@ -282,7 +282,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
                      getEmptyMetric(it->getTH2S()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0),
                      it->getNbinsX() * it->getNbinsY() * sizeof(short));
         break;
-      case MonitorElement::DQM_KIND_TH2D:
+      case MonitorElement::Kind::TH2D:
         currentSubfolder.AddBinsD(
             it->getNbinsX() * it->getNbinsY(),
             getEmptyMetric(it->getTH2D()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0));
@@ -290,7 +290,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
                      getEmptyMetric(it->getTH2D()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0),
                      it->getNbinsX() * it->getNbinsY() * sizeof(double));
         break;
-      case MonitorElement::DQM_KIND_TPROFILE2D:
+      case MonitorElement::Kind::TPROFILE2D:
         currentSubfolder.AddBinsD(
             it->getNbinsX() * it->getNbinsY(),
             getEmptyMetric(it->getTProfile2D()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0));
@@ -300,7 +300,7 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
         break;
 
         // three-dim ME
-      case MonitorElement::DQM_KIND_TH3F:
+      case MonitorElement::Kind::TH3F:
         currentSubfolder.AddBinsF(
             it->getNbinsX() * it->getNbinsY() * it->getNbinsZ(),
             getEmptyMetric(it->getTH3F()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, it->getNbinsZ() + 2));

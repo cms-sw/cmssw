@@ -57,5 +57,12 @@ namespace cms {
         ret.emplace_back(str.substr(start, str.length() - start));
       return ret;
     }
+
+    std::string_view noNamespace(std::string_view input) {
+      std::string_view v = input;
+      auto first = v.find_first_of(":");
+      v.remove_prefix(std::min(first + 1, v.size()));
+      return v;
+    }
   }  // namespace dd
 }  // namespace cms

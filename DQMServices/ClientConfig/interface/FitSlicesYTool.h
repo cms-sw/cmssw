@@ -9,11 +9,12 @@
 
 #include <TH2F.h>
 #include <TH1F.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <string>
 
 class FitSlicesYTool {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
   FitSlicesYTool(MonitorElement*);
   /// Constructor: needs a TH2F
   /*   FitSlicesYTool(TH2F*); */

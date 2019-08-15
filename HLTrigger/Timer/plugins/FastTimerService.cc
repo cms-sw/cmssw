@@ -15,7 +15,6 @@
 
 // CMSSW headers
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -332,7 +331,7 @@ void FastTimerService::Measurement::measure_and_accumulate(AtomicResources& stor
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void FastTimerService::PlotsPerElement::book(DQMStore::ConcurrentBooker& booker,
+void FastTimerService::PlotsPerElement::book(dqm::reco::DQMStore::ConcurrentBooker& booker,
                                              std::string const& name,
                                              std::string const& title,
                                              PlotRanges const& ranges,
@@ -517,7 +516,7 @@ void FastTimerService::PlotsPerElement::fill_fraction(Resources const& data,
     deallocated_byls_.fill(lumisection, total, fraction);
 }
 
-void FastTimerService::PlotsPerPath::book(DQMStore::ConcurrentBooker& booker,
+void FastTimerService::PlotsPerPath::book(dqm::reco::DQMStore::ConcurrentBooker& booker,
                                           std::string const& prefixDir,
                                           ProcessCallGraph const& job,
                                           ProcessCallGraph::PathType const& path,
@@ -596,7 +595,7 @@ void FastTimerService::PlotsPerPath::fill(ProcessCallGraph::PathType const& desc
 FastTimerService::PlotsPerProcess::PlotsPerProcess(ProcessCallGraph::ProcessType const& process)
     : event_(), paths_(process.paths_.size()), endpaths_(process.endPaths_.size()) {}
 
-void FastTimerService::PlotsPerProcess::book(DQMStore::ConcurrentBooker& booker,
+void FastTimerService::PlotsPerProcess::book(dqm::reco::DQMStore::ConcurrentBooker& booker,
                                              ProcessCallGraph const& job,
                                              ProcessCallGraph::ProcessType const& process,
                                              PlotRanges const& event_ranges,
@@ -641,7 +640,7 @@ FastTimerService::PlotsPerJob::PlotsPerJob(ProcessCallGraph const& job, std::vec
     processes_.emplace_back(process);
 }
 
-void FastTimerService::PlotsPerJob::book(DQMStore::ConcurrentBooker& booker,
+void FastTimerService::PlotsPerJob::book(dqm::reco::DQMStore::ConcurrentBooker& booker,
                                          ProcessCallGraph const& job,
                                          std::vector<GroupOfModules> const& groups,
                                          PlotRanges const& event_ranges,
@@ -857,7 +856,7 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
     // book the DQM plots
     if (enable_dqm_) {
       // define a callback to book the MonitorElements
-      auto bookTransactionCallback = [&, this](DQMStore::ConcurrentBooker& booker) {
+      auto bookTransactionCallback = [&, this](dqm::reco::DQMStore::ConcurrentBooker& booker) {
         booker.setCurrentFolder(dqm_path_);
         plots_->book(booker,
                      callgraph_,
@@ -873,7 +872,8 @@ void FastTimerService::preGlobalBeginRun(edm::GlobalContext const& gc) {
       };
 
       // book MonitorElements for this stream
-      edm::Service<DQMStore>()->bookConcurrentTransaction(bookTransactionCallback, gc.luminosityBlockID().run());
+      edm::Service<dqm::legacy::DQMStore>()->bookConcurrentTransaction(bookTransactionCallback,
+                                                                       gc.luminosityBlockID().run());
     }
   }
 }
@@ -952,7 +952,7 @@ void FastTimerService::postBeginJob() {
   job_summary_ = temp;
 
   // check that the DQMStore service is available
-  if (enable_dqm_ and not edm::Service<DQMStore>().isAvailable()) {
+  if (enable_dqm_ and not edm::Service<dqm::legacy::DQMStore>().isAvailable()) {
     // the DQMStore is not available, disable all DQM plots
     enable_dqm_ = false;
     // FIXME issue a LogWarning ?

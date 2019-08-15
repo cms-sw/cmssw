@@ -6,8 +6,6 @@
 #include "SimG4CMS/Calo/interface/HFShowerParam.h"
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -361,26 +359,4 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(const G4Step* aStep, doub
     }
   }
   return hits;
-}
-
-std::vector<double> HFShowerParam::getDDDArray(const std::string& str, const DDsvalues_type& sv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HFShower") << "HFShowerParam:getDDDArray called for " << str;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HFShower") << value;
-#endif
-    const std::vector<double>& fvec = value.doubles();
-    int nval = fvec.size();
-    if (nval < 2) {
-      edm::LogError("HFShower") << "HFShowerParam : # of " << str << " bins " << nval << " < 2 ==> illegal";
-      throw cms::Exception("Unknown", "HFShowerParam") << "nval < 2 for array " << str << "\n";
-    }
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShowerParam : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShowerParam") << "cannot get array " << str << "\n";
-  }
 }

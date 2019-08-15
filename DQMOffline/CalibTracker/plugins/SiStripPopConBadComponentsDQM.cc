@@ -9,6 +9,9 @@
 */
 class SiStripPopConBadComponentsHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripBadStrip> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConBadComponentsHandlerFromDQM() override;
   // interface methods: implemented in template
@@ -29,7 +32,7 @@ private:
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPopConBadComponentsHandlerFromDQM::SiStripPopConBadComponentsHandlerFromDQM(const edm::ParameterSet& iConfig)
@@ -57,7 +60,9 @@ std::string SiStripPopConBadComponentsHandlerFromDQM::getMetaDataString() const 
 }
 
 namespace {
-  void getModuleFolderList(DQMStore::IGetter& getter, const std::string& pwd, std::vector<std::string>& mfolders) {
+  void getModuleFolderList(SiStripPopConBadComponentsHandlerFromDQM::DQMStore::IGetter& getter,
+                           const std::string& pwd,
+                           std::vector<std::string>& mfolders) {
     if (std::string::npos != pwd.find("module_")) {
       //    std::string mId = pwd.substr(pwd.find("module_")+7, 9);
       mfolders.push_back(pwd);

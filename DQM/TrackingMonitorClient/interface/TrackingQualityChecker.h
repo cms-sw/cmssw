@@ -1,11 +1,10 @@
 #ifndef _TrackingQualityChecker_h_
 #define _TrackingQualityChecker_h_
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -14,11 +13,13 @@
 #include <vector>
 #include <string>
 
-class MonitorElement;
 class TrackingDetCabling;
 
 class TrackingQualityChecker {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+
   TrackingQualityChecker(edm::ParameterSet const& ps);
   virtual ~TrackingQualityChecker();
 

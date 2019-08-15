@@ -8,7 +8,6 @@
  */
 
 #include <DQM/DTMonitorClient/src/DTChamberEfficiencyTest.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 // Framework

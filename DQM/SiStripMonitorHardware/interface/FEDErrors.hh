@@ -23,7 +23,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 
@@ -34,6 +34,9 @@ class TrackerTopology;
 
 class FEDErrors {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   struct FEDCounters {
     unsigned int nFEDErrors;
     unsigned int nDAQProblems;

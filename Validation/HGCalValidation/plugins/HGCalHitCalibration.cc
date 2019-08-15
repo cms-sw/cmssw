@@ -10,7 +10,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"

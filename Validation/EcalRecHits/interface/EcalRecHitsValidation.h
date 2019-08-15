@@ -35,7 +35,6 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -73,6 +72,7 @@ private:
   edm::InputTag ESrechitCollection_;
   edm::InputTag EBuncalibrechitCollection_;
   edm::InputTag EEuncalibrechitCollection_;
+  bool enableEndcaps_;
   // fix for consumes
   edm::EDGetTokenT<edm::HepMCProduct> HepMCLabel_Token_;
   edm::EDGetTokenT<EBRecHitCollection> EBrechitCollection_Token_;

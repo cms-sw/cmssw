@@ -13,6 +13,8 @@
 
 class LeptonTaggerDistance : public JetTagComputer {
 public:
+  using Tokens = void;
+
   /// default ctor
   LeptonTaggerDistance(void) : m_maxDistance(0.5) { uses("slTagInfos"); }
 

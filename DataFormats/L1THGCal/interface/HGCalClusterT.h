@@ -217,7 +217,7 @@ namespace l1t {
         centre_ = GlobalPoint(clusterCentre);
 
         if (clusterCentre.z() != 0) {
-          centreProj_ = GlobalPoint(clusterCentre / clusterCentre.z());
+          centreProj_ = GlobalPoint(clusterCentre / std::abs(clusterCentre.z()));
         }
       }
 

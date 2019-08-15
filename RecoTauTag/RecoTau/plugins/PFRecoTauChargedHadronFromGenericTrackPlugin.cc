@@ -47,6 +47,7 @@
 #include <memory>
 #include <cmath>
 #include <algorithm>
+#include <atomic>
 
 namespace reco {
   namespace tau {
@@ -56,7 +57,7 @@ namespace reco {
     public:
       explicit PFRecoTauChargedHadronFromGenericTrackPlugin(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
       ~PFRecoTauChargedHadronFromGenericTrackPlugin() override;
-      // Return type is auto_ptr<ChargedHadronVector>
+      // Return type is unique_ptr<ChargedHadronVector>
       return_type operator()(const reco::Jet&) const override;
       // Hook to update PV information
       void beginEvent() override;
@@ -81,11 +82,14 @@ namespace reco {
 
       math::XYZVector magneticFieldStrength_;
 
-      mutable int numWarnings_;
-      int maxWarnings_;
+      static std::atomic<unsigned int> numWarnings_;
+      static constexpr unsigned int maxWarnings_ = 3;
 
       int verbosity_;
     };
+
+    template <class TrackClass>
+    std::atomic<unsigned int> PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::numWarnings_{0};
 
     template <class TrackClass>
     PFRecoTauChargedHadronFromGenericTrackPlugin<TrackClass>::PFRecoTauChargedHadronFromGenericTrackPlugin(
@@ -103,9 +107,6 @@ namespace reco {
 
       dRmergeNeutralHadron_ = pset.getParameter<double>("dRmergeNeutralHadron");
       dRmergePhoton_ = pset.getParameter<double>("dRmergePhoton");
-
-      numWarnings_ = 0;
-      maxWarnings_ = 3;
 
       verbosity_ = pset.getParameter<int>("verbosity");
     }
@@ -262,7 +263,7 @@ namespace reco {
         if (vertexAssociator_.associatedVertex(jet).isNonnull())
           vtx = vertexAssociator_.associatedVertex(jet)->position();
 
-        std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(
+        std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(
             new PFRecoTauChargedHadron(trackCharge_int, chargedPionP4, vtx, 0, true, PFRecoTauChargedHadron::kTrack));
 
         setChargedHadronTrack(*chargedHadron, edm::Ptr<TrackClass>(tracks, iTrack));
@@ -341,7 +342,7 @@ namespace reco {
           edm::LogPrint("TauChHFromTrack") << *chargedHadron;
         }
 
-        output.push_back(chargedHadron);
+        output.push_back(std::move(chargedHadron));
       }
 
       return output.release();

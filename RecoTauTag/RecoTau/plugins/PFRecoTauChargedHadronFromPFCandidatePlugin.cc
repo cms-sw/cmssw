@@ -44,7 +44,7 @@ namespace reco {
     public:
       explicit PFRecoTauChargedHadronFromPFCandidatePlugin(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
       ~PFRecoTauChargedHadronFromPFCandidatePlugin() override;
-      // Return type is auto_ptr<ChargedHadronVector>
+      // Return type is unique_ptr<ChargedHadronVector>
       return_type operator()(const reco::Jet&) const override;
       // Hook to update PV information
       void beginEvent() override;
@@ -183,7 +183,7 @@ namespace reco {
           algo = PFRecoTauChargedHadron::kChargedPFCandidate;
         else
           algo = PFRecoTauChargedHadron::kPFNeutralHadron;
-        std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
+        std::unique_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
 
         const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(&**cand);
         if (pfCand) {
@@ -278,7 +278,7 @@ namespace reco {
         // Update the vertex
         if (chargedHadron->daughterPtr(0).isNonnull())
           chargedHadron->setVertex(chargedHadron->daughterPtr(0)->vertex());
-        output.push_back(chargedHadron);
+        output.push_back(std::move(chargedHadron));
       }
 
       return output.release();

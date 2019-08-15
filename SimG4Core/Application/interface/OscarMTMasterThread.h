@@ -46,7 +46,6 @@ private:
 
   enum class ThreadState { NotExist = 0, BeginRun = 1, EndRun = 2, Destruct = 3 };
 
-  const bool m_pUseMagneticField;
   const bool m_pGeoFromDD4hep;
 
   std::shared_ptr<RunManagerMT> m_runManagerMaster;
@@ -57,7 +56,6 @@ private:
   mutable edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
   mutable const DDCompactView* m_pDD;
   mutable const cms::DDCompactView* m_pDD4hep;
-  mutable const MagneticField* m_pMF;
   mutable const HepPDT::ParticleDataTable* m_pTable;
 
   mutable std::mutex m_protectMutex;

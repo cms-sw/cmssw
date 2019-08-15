@@ -28,7 +28,6 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // data format
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
@@ -55,6 +54,9 @@ class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,
                                                      edm::EndLuminosityBlockProducer,
                                                      edm::EndRunProducer> {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit EDMtoMEConverter(const edm::ParameterSet&);
   ~EDMtoMEConverter() override;
 

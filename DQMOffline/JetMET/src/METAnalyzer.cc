@@ -327,10 +327,6 @@ void METAnalyzer::bookMonitorElement(std::string DirName,
         }
       }
     }
-    if (!hTriggerLabelsIsSet_)
-      for (int i = allTriggerNames_.size(); i < hTrigger->getNbinsX(); i++) {
-        hTrigger->setBinLabel(i + 1, "");
-      }
     hTriggerLabelsIsSet_ = true;
 
     hMEx = ibooker.book1D("MEx", "MEx", 200, -500, 500);
@@ -1504,14 +1500,17 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   //met=&(tcmetcoll->front());
   //}
   if (isPFMet_) {
+    assert(!pfmetcoll->empty());
     met = &(pfmetcoll->front());
     pfmet = &(pfmetcoll->front());
   }
   if (isCaloMet_) {
+    assert(!calometcoll->empty());
     met = &(calometcoll->front());
     calomet = &(calometcoll->front());
   }
   if (isMiniAODMet_) {
+    assert(!patmetcoll->empty());
     met = &(patmetcoll->front());
     patmet = &(patmetcoll->front());
   }
@@ -1975,9 +1974,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       fillMESet(iEvent,
                 DirName_old + "/" + *ic,
                 *met,
-                *patmet,
-                *pfmet,
-                *calomet,
+                patmet,
+                pfmet,
+                calomet,
                 zCand,
                 map_dijet_MEs,
                 trigger_flag,
@@ -1989,9 +1988,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       fillMESet(iEvent,
                 DirName_old + "/" + *ic,
                 *met,
-                *patmet,
-                *pfmet,
-                *calomet,
+                patmet,
+                pfmet,
+                calomet,
                 zCand,
                 map_dijet_MEs,
                 trigger_flag,
@@ -2002,9 +2001,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       fillMESet(iEvent,
                 DirName_old + "/" + *ic,
                 *met,
-                *patmet,
-                *pfmet,
-                *calomet,
+                patmet,
+                pfmet,
+                calomet,
                 zCand,
                 map_dijet_MEs,
                 trigger_flag,
@@ -2015,9 +2014,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       fillMESet(iEvent,
                 DirName_old + "/" + *ic,
                 *met,
-                *patmet,
-                *pfmet,
-                *calomet,
+                patmet,
+                pfmet,
+                calomet,
                 zCand,
                 map_dijet_MEs,
                 trigger_flag,
@@ -2034,9 +2033,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void METAnalyzer::fillMESet(const edm::Event& iEvent,
                             std::string DirName,
                             const reco::MET& met,
-                            const pat::MET& patmet,
-                            const reco::PFMET& pfmet,
-                            const reco::CaloMET& calomet,
+                            const pat::MET* patmet,
+                            const reco::PFMET* pfmet,
+                            const reco::CaloMET* calomet,
                             const reco::Candidate::PolarLorentzVector& zCand,
                             std::map<std::string, MonitorElement*>& map_of_MEs,
                             std::vector<bool> techTriggerCase,
@@ -2142,9 +2141,9 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
                                      std::string DirName,
                                      std::string subFolderName,
                                      const reco::MET& met,
-                                     const pat::MET& patmet,
-                                     const reco::PFMET& pfmet,
-                                     const reco::CaloMET& calomet,
+                                     const pat::MET* patmet,
+                                     const reco::PFMET* pfmet,
+                                     const reco::CaloMET* calomet,
                                      const reco::Candidate::PolarLorentzVector& zCand,
                                      std::map<std::string, MonitorElement*>& map_of_MEs,
                                      bool bLumiSecPlot,
@@ -2379,16 +2378,16 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
       //const reco::CaloMET *calomet;
       //calomet = &(calometcol->front());
 
-      double caloEtFractionHadronic = calomet.etFractionHadronic();
-      double caloEmEtFraction = calomet.emEtFraction();
+      double caloEtFractionHadronic = calomet->etFractionHadronic();
+      double caloEmEtFraction = calomet->emEtFraction();
 
-      double caloHadEtInHB = calomet.hadEtInHB();
-      double caloHadEtInHO = calomet.hadEtInHO();
-      double caloHadEtInHE = calomet.hadEtInHE();
-      double caloHadEtInHF = calomet.hadEtInHF();
-      double caloEmEtInEB = calomet.emEtInEB();
-      double caloEmEtInEE = calomet.emEtInEE();
-      double caloEmEtInHF = calomet.emEtInHF();
+      double caloHadEtInHB = calomet->hadEtInHB();
+      double caloHadEtInHO = calomet->hadEtInHO();
+      double caloHadEtInHE = calomet->hadEtInHE();
+      double caloHadEtInHF = calomet->hadEtInHF();
+      double caloEmEtInEB = calomet->emEtInEB();
+      double caloEmEtInEE = calomet->emEtInEE();
+      double caloEmEtInHF = calomet->emEtInHF();
 
       hCaloHadEtInHB = map_of_MEs[DirName + "/" + "CaloHadEtInHB"];
       if (hCaloHadEtInHB && hCaloHadEtInHB->getRootObject())
@@ -2576,43 +2575,43 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
         }
         meCHF_Barrel = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionBarrel"];
         if (meCHF_Barrel && meCHF_Barrel->getRootObject())
-          meCHF_Barrel->Fill(pt_sum_CHF_Barrel / pfmet.sumEt());
+          meCHF_Barrel->Fill(pt_sum_CHF_Barrel / pfmet->sumEt());
         meCHF_EndcapPlus = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionEndcapPlus"];
         if (meCHF_EndcapPlus && meCHF_EndcapPlus->getRootObject())
-          meCHF_EndcapPlus->Fill(pt_sum_CHF_Endcap_plus / pfmet.sumEt());
+          meCHF_EndcapPlus->Fill(pt_sum_CHF_Endcap_plus / pfmet->sumEt());
         meCHF_EndcapMinus = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionEndcapMinus"];
         if (meCHF_EndcapMinus && meCHF_EndcapMinus->getRootObject())
-          meCHF_EndcapMinus->Fill(pt_sum_CHF_Endcap_minus / pfmet.sumEt());
+          meCHF_EndcapMinus->Fill(pt_sum_CHF_Endcap_minus / pfmet->sumEt());
         meNHF_Barrel = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionBarrel"];
         if (meNHF_Barrel && meNHF_Barrel->getRootObject())
-          meNHF_Barrel->Fill(pt_sum_NHF_Barrel / pfmet.sumEt());
+          meNHF_Barrel->Fill(pt_sum_NHF_Barrel / pfmet->sumEt());
         meNHF_EndcapPlus = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionEndcapPlus"];
         if (meNHF_EndcapPlus && meNHF_EndcapPlus->getRootObject())
-          meNHF_EndcapPlus->Fill(pt_sum_NHF_Endcap_plus / pfmet.sumEt());
+          meNHF_EndcapPlus->Fill(pt_sum_NHF_Endcap_plus / pfmet->sumEt());
         meNHF_EndcapMinus = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionEndcapMinus"];
         if (meNHF_EndcapMinus && meNHF_EndcapMinus->getRootObject())
-          meNHF_EndcapMinus->Fill(pt_sum_NHF_Endcap_minus / pfmet.sumEt());
+          meNHF_EndcapMinus->Fill(pt_sum_NHF_Endcap_minus / pfmet->sumEt());
         mePhF_Barrel = map_of_MEs[DirName + "/" + "PfPhotonEtFractionBarrel"];
         if (mePhF_Barrel && mePhF_Barrel->getRootObject())
-          mePhF_Barrel->Fill(pt_sum_PhF_Barrel / pfmet.sumEt());
+          mePhF_Barrel->Fill(pt_sum_PhF_Barrel / pfmet->sumEt());
         mePhF_EndcapPlus = map_of_MEs[DirName + "/" + "PfPhotonEtFractionEndcapPlus"];
         if (mePhF_EndcapPlus && mePhF_EndcapPlus->getRootObject())
-          mePhF_EndcapPlus->Fill(pt_sum_PhF_Endcap_plus / pfmet.sumEt());
+          mePhF_EndcapPlus->Fill(pt_sum_PhF_Endcap_plus / pfmet->sumEt());
         mePhF_EndcapMinus = map_of_MEs[DirName + "/" + "PfPhotonEtFractionEndcapMinus"];
         if (mePhF_EndcapMinus && mePhF_EndcapMinus->getRootObject())
-          mePhF_EndcapMinus->Fill(pt_sum_PhF_Endcap_minus / pfmet.sumEt());
+          mePhF_EndcapMinus->Fill(pt_sum_PhF_Endcap_minus / pfmet->sumEt());
         meHFHadF_Plus = map_of_MEs[DirName + "/" + "PfHFHadronEtFractionPlus"];
         if (meHFHadF_Plus && meHFHadF_Plus->getRootObject())
-          meHFHadF_Plus->Fill(pt_sum_HFH_plus / pfmet.sumEt());
+          meHFHadF_Plus->Fill(pt_sum_HFH_plus / pfmet->sumEt());
         meHFHadF_Minus = map_of_MEs[DirName + "/" + "PfHFHadronEtFractionMinus"];
         if (meHFHadF_Minus && meHFHadF_Minus->getRootObject())
-          meHFHadF_Minus->Fill(pt_sum_HFH_minus / pfmet.sumEt());
+          meHFHadF_Minus->Fill(pt_sum_HFH_minus / pfmet->sumEt());
         meHFEMF_Plus = map_of_MEs[DirName + "/" + "PfHFEMEtFractionPlus"];
         if (meHFEMF_Plus && meHFEMF_Plus->getRootObject())
-          meHFEMF_Plus->Fill(pt_sum_HFE_plus / pfmet.sumEt());
+          meHFEMF_Plus->Fill(pt_sum_HFE_plus / pfmet->sumEt());
         meHFEMF_Minus = map_of_MEs[DirName + "/" + "PfHFEMEtFractionMinus"];
         if (meHFEMF_Minus && meHFEMF_Minus->getRootObject())
-          meHFEMF_Minus->Fill(pt_sum_HFE_minus / pfmet.sumEt());
+          meHFEMF_Minus->Fill(pt_sum_HFE_minus / pfmet->sumEt());
         //sanity check if we have any type of the respective species in the events
         //else don't fill phi, as else we have a results of a biased peak at 0
         //if pt_sum of species part is 0, obviously that would be the case
@@ -2683,24 +2682,24 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
         }
         //fill other diagnostic plots based on trigger decision
         /*if(techTriggerCase[0]){//techTriggerResultBx0 && techTriggerResultBxM2 && techTriggerResultBxM1 -> both previous bunches filled
-	  meCHF_Barrel_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionBarrel_BXm2BXm1Filled"]; if(meCHF_Barrel_BXm2BXm1Filled && meCHF_Barrel_BXm2BXm1Filled->getRootObject()) meCHF_Barrel_BXm2BXm1Filled->Fill(pt_sum_CHF_Barrel/pfmet.sumEt()); 
-	  meCHF_EndcapPlus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapPlus_BXm2BXm1Filled"]; if(meCHF_EndcapPlus_BXm2BXm1Filled && meCHF_EndcapPlus_BXm2BXm1Filled->getRootObject()) meCHF_EndcapPlus_BXm2BXm1Filled->Fill(pt_sum_CHF_Endcap_plus/pfmet.sumEt()); 
-	  meCHF_EndcapMinus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapMinus_BXm2BXm1Filled"]; if(meCHF_EndcapMinus_BXm2BXm1Filled && meCHF_EndcapMinus_BXm2BXm1Filled->getRootObject()) meCHF_EndcapMinus_BXm2BXm1Filled->Fill(pt_sum_CHF_Endcap_minus/pfmet.sumEt()); 
-	  meNHF_Barrel_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionBarrel_BXm2BXm1Filled"]; if(meNHF_Barrel_BXm2BXm1Filled && meNHF_Barrel_BXm2BXm1Filled->getRootObject()) meNHF_Barrel_BXm2BXm1Filled->Fill(pt_sum_NHF_Barrel/pfmet.sumEt()); 
-	  meNHF_EndcapPlus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapPlus_BXm2BXm1Filled"]; if(meNHF_EndcapPlus_BXm2BXm1Filled && meNHF_EndcapPlus_BXm2BXm1Filled->getRootObject()) meNHF_EndcapPlus_BXm2BXm1Filled->Fill(pt_sum_NHF_Endcap_plus/pfmet.sumEt()); 
-	  meNHF_EndcapMinus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapMinus_BXm2BXm1Filled"]; if(meNHF_EndcapMinus_BXm2BXm1Filled && meNHF_EndcapMinus_BXm2BXm1Filled->getRootObject()) meNHF_EndcapMinus_BXm2BXm1Filled->Fill(pt_sum_NHF_Endcap_minus/pfmet.sumEt()); 
-	  mePhF_Barrel_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfPhotonEtFractionBarrel_BXm2BXm1Filled"]; if(mePhF_Barrel_BXm2BXm1Filled && mePhF_Barrel_BXm2BXm1Filled->getRootObject()) mePhF_Barrel_BXm2BXm1Filled->Fill(pt_sum_PhF_Barrel/pfmet.sumEt()); 
-	  mePhF_EndcapPlus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapPlus_BXm2BXm1Filled"]; if(mePhF_EndcapPlus_BXm2BXm1Filled && mePhF_EndcapPlus_BXm2BXm1Filled->getRootObject()) mePhF_EndcapPlus_BXm2BXm1Filled->Fill(pt_sum_PhF_Endcap_plus/pfmet.sumEt()); 
-	  mePhF_EndcapMinus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapMinus_BXm2BXm1Filled"]; if(mePhF_EndcapMinus_BXm2BXm1Filled && mePhF_EndcapMinus_BXm2BXm1Filled->getRootObject()) mePhF_EndcapMinus_BXm2BXm1Filled->Fill(pt_sum_PhF_Endcap_minus/pfmet.sumEt()); 
-     	  meHFHadF_Plus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionPlus_BXm2BXm1Filled"]; if(meHFHadF_Plus_BXm2BXm1Filled && meHFHadF_Plus_BXm2BXm1Filled->getRootObject()) meHFHadF_Plus_BXm2BXm1Filled->Fill(pt_sum_HFH_plus/pfmet.sumEt()); 
-	  meHFHadF_Minus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionMinus_BXm2BXm1Filled"]; if(meHFHadF_Minus_BXm2BXm1Filled && meHFHadF_Minus_BXm2BXm1Filled->getRootObject()) meHFHadF_Minus_BXm2BXm1Filled->Fill(pt_sum_HFH_minus/pfmet.sumEt()); 
-	  meHFEMF_Plus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFEMEtFractionPlus_BXm2BXm1Filled"]; if(meHFEMF_Plus_BXm2BXm1Filled && meHFEMF_Plus_BXm2BXm1Filled->getRootObject()) meHFEMF_Plus_BXm2BXm1Filled->Fill(pt_sum_HFE_plus/pfmet.sumEt()); 
-	  meHFEMF_Minus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFEMEtFractionMinus_BXm2BXm1Filled"]; if(meHFEMF_Minus_BXm2BXm1Filled && meHFEMF_Minus_BXm2BXm1Filled->getRootObject()) meHFEMF_Minus_BXm2BXm1Filled->Fill(pt_sum_HFE_minus/pfmet.sumEt());
-	  mePhotonEtFraction_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Filled"];     if (  mePhotonEtFraction_BXm2BXm1Filled  && mePhotonEtFraction_BXm2BXm1Filled ->getRootObject())  mePhotonEtFraction_BXm2BXm1Filled  ->Fill(pfmet.photonEtFraction());
-	  meNeutralHadronEtFraction_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Filled"];     if (  meNeutralHadronEtFraction_BXm2BXm1Filled  && meNeutralHadronEtFraction_BXm2BXm1Filled ->getRootObject())  meNeutralHadronEtFraction_BXm2BXm1Filled  ->Fill(pfmet.neutralHadronEtFraction());
-	  meChargedHadronEtFraction_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Filled"];     if (  meChargedHadronEtFraction_BXm2BXm1Filled  && meChargedHadronEtFraction_BXm2BXm1Filled ->getRootObject())  meChargedHadronEtFraction_BXm2BXm1Filled  ->Fill(pfmet.chargedHadronEtFraction());
-	  meMET_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Filled"];     if (  meMET_BXm2BXm1Filled  && meMET_BXm2BXm1Filled ->getRootObject())  meMET_BXm2BXm1Filled  ->Fill(pfmet.pt());
-	  meSumET_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Filled"];     if (  meSumET_BXm2BXm1Filled  && meSumET_BXm2BXm1Filled ->getRootObject())  meSumET_BXm2BXm1Filled  ->Fill(pfmet.sumEt());
+	  meCHF_Barrel_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionBarrel_BXm2BXm1Filled"]; if(meCHF_Barrel_BXm2BXm1Filled && meCHF_Barrel_BXm2BXm1Filled->getRootObject()) meCHF_Barrel_BXm2BXm1Filled->Fill(pt_sum_CHF_Barrel/pfmet->sumEt()); 
+	  meCHF_EndcapPlus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapPlus_BXm2BXm1Filled"]; if(meCHF_EndcapPlus_BXm2BXm1Filled && meCHF_EndcapPlus_BXm2BXm1Filled->getRootObject()) meCHF_EndcapPlus_BXm2BXm1Filled->Fill(pt_sum_CHF_Endcap_plus/pfmet->sumEt()); 
+	  meCHF_EndcapMinus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapMinus_BXm2BXm1Filled"]; if(meCHF_EndcapMinus_BXm2BXm1Filled && meCHF_EndcapMinus_BXm2BXm1Filled->getRootObject()) meCHF_EndcapMinus_BXm2BXm1Filled->Fill(pt_sum_CHF_Endcap_minus/pfmet->sumEt()); 
+	  meNHF_Barrel_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionBarrel_BXm2BXm1Filled"]; if(meNHF_Barrel_BXm2BXm1Filled && meNHF_Barrel_BXm2BXm1Filled->getRootObject()) meNHF_Barrel_BXm2BXm1Filled->Fill(pt_sum_NHF_Barrel/pfmet->sumEt()); 
+	  meNHF_EndcapPlus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapPlus_BXm2BXm1Filled"]; if(meNHF_EndcapPlus_BXm2BXm1Filled && meNHF_EndcapPlus_BXm2BXm1Filled->getRootObject()) meNHF_EndcapPlus_BXm2BXm1Filled->Fill(pt_sum_NHF_Endcap_plus/pfmet->sumEt()); 
+	  meNHF_EndcapMinus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapMinus_BXm2BXm1Filled"]; if(meNHF_EndcapMinus_BXm2BXm1Filled && meNHF_EndcapMinus_BXm2BXm1Filled->getRootObject()) meNHF_EndcapMinus_BXm2BXm1Filled->Fill(pt_sum_NHF_Endcap_minus/pfmet->sumEt()); 
+	  mePhF_Barrel_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfPhotonEtFractionBarrel_BXm2BXm1Filled"]; if(mePhF_Barrel_BXm2BXm1Filled && mePhF_Barrel_BXm2BXm1Filled->getRootObject()) mePhF_Barrel_BXm2BXm1Filled->Fill(pt_sum_PhF_Barrel/pfmet->sumEt()); 
+	  mePhF_EndcapPlus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapPlus_BXm2BXm1Filled"]; if(mePhF_EndcapPlus_BXm2BXm1Filled && mePhF_EndcapPlus_BXm2BXm1Filled->getRootObject()) mePhF_EndcapPlus_BXm2BXm1Filled->Fill(pt_sum_PhF_Endcap_plus/pfmet->sumEt()); 
+	  mePhF_EndcapMinus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapMinus_BXm2BXm1Filled"]; if(mePhF_EndcapMinus_BXm2BXm1Filled && mePhF_EndcapMinus_BXm2BXm1Filled->getRootObject()) mePhF_EndcapMinus_BXm2BXm1Filled->Fill(pt_sum_PhF_Endcap_minus/pfmet->sumEt()); 
+     	  meHFHadF_Plus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionPlus_BXm2BXm1Filled"]; if(meHFHadF_Plus_BXm2BXm1Filled && meHFHadF_Plus_BXm2BXm1Filled->getRootObject()) meHFHadF_Plus_BXm2BXm1Filled->Fill(pt_sum_HFH_plus/pfmet->sumEt()); 
+	  meHFHadF_Minus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionMinus_BXm2BXm1Filled"]; if(meHFHadF_Minus_BXm2BXm1Filled && meHFHadF_Minus_BXm2BXm1Filled->getRootObject()) meHFHadF_Minus_BXm2BXm1Filled->Fill(pt_sum_HFH_minus/pfmet->sumEt()); 
+	  meHFEMF_Plus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFEMEtFractionPlus_BXm2BXm1Filled"]; if(meHFEMF_Plus_BXm2BXm1Filled && meHFEMF_Plus_BXm2BXm1Filled->getRootObject()) meHFEMF_Plus_BXm2BXm1Filled->Fill(pt_sum_HFE_plus/pfmet->sumEt()); 
+	  meHFEMF_Minus_BXm2BXm1Filled=map_of_MEs[DirName+"/"+"PfHFEMEtFractionMinus_BXm2BXm1Filled"]; if(meHFEMF_Minus_BXm2BXm1Filled && meHFEMF_Minus_BXm2BXm1Filled->getRootObject()) meHFEMF_Minus_BXm2BXm1Filled->Fill(pt_sum_HFE_minus/pfmet->sumEt());
+	  mePhotonEtFraction_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Filled"];     if (  mePhotonEtFraction_BXm2BXm1Filled  && mePhotonEtFraction_BXm2BXm1Filled ->getRootObject())  mePhotonEtFraction_BXm2BXm1Filled  ->Fill(pfmet->photonEtFraction());
+	  meNeutralHadronEtFraction_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Filled"];     if (  meNeutralHadronEtFraction_BXm2BXm1Filled  && meNeutralHadronEtFraction_BXm2BXm1Filled ->getRootObject())  meNeutralHadronEtFraction_BXm2BXm1Filled  ->Fill(pfmet->neutralHadronEtFraction());
+	  meChargedHadronEtFraction_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Filled"];     if (  meChargedHadronEtFraction_BXm2BXm1Filled  && meChargedHadronEtFraction_BXm2BXm1Filled ->getRootObject())  meChargedHadronEtFraction_BXm2BXm1Filled  ->Fill(pfmet->chargedHadronEtFraction());
+	  meMET_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Filled"];     if (  meMET_BXm2BXm1Filled  && meMET_BXm2BXm1Filled ->getRootObject())  meMET_BXm2BXm1Filled  ->Fill(pfmet->pt());
+	  meSumET_BXm2BXm1Filled    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Filled"];     if (  meSumET_BXm2BXm1Filled  && meSumET_BXm2BXm1Filled ->getRootObject())  meSumET_BXm2BXm1Filled  ->Fill(pfmet->sumEt());
 	  if(pt_sum_CHF_Barrel){
 	    meMETPhiChargedHadronsBarrel_BXm2BXm1Filled     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Filled"];if(meMETPhiChargedHadronsBarrel_BXm2BXm1Filled  && meMETPhiChargedHadronsBarrel_BXm2BXm1Filled ->getRootObject())meMETPhiChargedHadronsBarrel_BXm2BXm1Filled->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
 	  }
@@ -2744,58 +2743,58 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
         if (techTriggerCase[1]) {  //techTriggerResultBx0 && techTriggerResultBxM1 -> previous bunch filled
           meCHF_Barrel_BXm1Filled = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionBarrel_BXm1Filled"];
           if (meCHF_Barrel_BXm1Filled && meCHF_Barrel_BXm1Filled->getRootObject())
-            meCHF_Barrel_BXm1Filled->Fill(pt_sum_CHF_Barrel / pfmet.sumEt());
+            meCHF_Barrel_BXm1Filled->Fill(pt_sum_CHF_Barrel / pfmet->sumEt());
           meCHF_EndcapPlus_BXm1Filled = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionEndcapPlus_BXm1Filled"];
           if (meCHF_EndcapPlus_BXm1Filled && meCHF_EndcapPlus_BXm1Filled->getRootObject())
-            meCHF_EndcapPlus_BXm1Filled->Fill(pt_sum_CHF_Endcap_plus / pfmet.sumEt());
+            meCHF_EndcapPlus_BXm1Filled->Fill(pt_sum_CHF_Endcap_plus / pfmet->sumEt());
           meCHF_EndcapMinus_BXm1Filled = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionEndcapMinus_BXm1Filled"];
           if (meCHF_EndcapMinus_BXm1Filled && meCHF_EndcapMinus_BXm1Filled->getRootObject())
-            meCHF_EndcapMinus_BXm1Filled->Fill(pt_sum_CHF_Endcap_minus / pfmet.sumEt());
+            meCHF_EndcapMinus_BXm1Filled->Fill(pt_sum_CHF_Endcap_minus / pfmet->sumEt());
           meNHF_Barrel_BXm1Filled = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionBarrel_BXm1Filled"];
           if (meNHF_Barrel_BXm1Filled && meNHF_Barrel_BXm1Filled->getRootObject())
-            meNHF_Barrel_BXm1Filled->Fill(pt_sum_NHF_Barrel / pfmet.sumEt());
+            meNHF_Barrel_BXm1Filled->Fill(pt_sum_NHF_Barrel / pfmet->sumEt());
           meNHF_EndcapPlus_BXm1Filled = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionEndcapPlus_BXm1Filled"];
           if (meNHF_EndcapPlus_BXm1Filled && meNHF_EndcapPlus_BXm1Filled->getRootObject())
-            meNHF_EndcapPlus_BXm1Filled->Fill(pt_sum_NHF_Endcap_plus / pfmet.sumEt());
+            meNHF_EndcapPlus_BXm1Filled->Fill(pt_sum_NHF_Endcap_plus / pfmet->sumEt());
           meNHF_EndcapMinus_BXm1Filled = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionEndcapMinus_BXm1Filled"];
           if (meNHF_EndcapMinus_BXm1Filled && meNHF_EndcapMinus_BXm1Filled->getRootObject())
-            meNHF_EndcapMinus_BXm1Filled->Fill(pt_sum_NHF_Endcap_minus / pfmet.sumEt());
+            meNHF_EndcapMinus_BXm1Filled->Fill(pt_sum_NHF_Endcap_minus / pfmet->sumEt());
           mePhF_Barrel_BXm1Filled = map_of_MEs[DirName + "/" + "PfPhotonEtFractionBarrel_BXm1Filled"];
           if (mePhF_Barrel_BXm1Filled && mePhF_Barrel_BXm1Filled->getRootObject())
-            mePhF_Barrel_BXm1Filled->Fill(pt_sum_PhF_Barrel / pfmet.sumEt());
+            mePhF_Barrel_BXm1Filled->Fill(pt_sum_PhF_Barrel / pfmet->sumEt());
           mePhF_EndcapPlus_BXm1Filled = map_of_MEs[DirName + "/" + "PfPhotonEtFractionEndcapPlus_BXm1Filled"];
           if (mePhF_EndcapPlus_BXm1Filled && mePhF_EndcapPlus_BXm1Filled->getRootObject())
-            mePhF_EndcapPlus_BXm1Filled->Fill(pt_sum_PhF_Endcap_plus / pfmet.sumEt());
+            mePhF_EndcapPlus_BXm1Filled->Fill(pt_sum_PhF_Endcap_plus / pfmet->sumEt());
           mePhF_EndcapMinus_BXm1Filled = map_of_MEs[DirName + "/" + "PfPhotonEtFractionEndcapMinus_BXm1Filled"];
           if (mePhF_EndcapMinus_BXm1Filled && mePhF_EndcapMinus_BXm1Filled->getRootObject())
-            mePhF_EndcapMinus_BXm1Filled->Fill(pt_sum_PhF_Endcap_minus / pfmet.sumEt());
+            mePhF_EndcapMinus_BXm1Filled->Fill(pt_sum_PhF_Endcap_minus / pfmet->sumEt());
           meHFHadF_Plus_BXm1Filled = map_of_MEs[DirName + "/" + "PfHFHadronEtFractionPlus_BXm1Filled"];
           if (meHFHadF_Plus_BXm1Filled && meHFHadF_Plus_BXm1Filled->getRootObject())
-            meHFHadF_Plus_BXm1Filled->Fill(pt_sum_HFH_plus / pfmet.sumEt());
+            meHFHadF_Plus_BXm1Filled->Fill(pt_sum_HFH_plus / pfmet->sumEt());
           meHFHadF_Minus_BXm1Filled = map_of_MEs[DirName + "/" + "PfHFHadronEtFractionMinus_BXm1Filled"];
           if (meHFHadF_Minus_BXm1Filled && meHFHadF_Minus_BXm1Filled->getRootObject())
-            meHFHadF_Minus_BXm1Filled->Fill(pt_sum_HFH_minus / pfmet.sumEt());
+            meHFHadF_Minus_BXm1Filled->Fill(pt_sum_HFH_minus / pfmet->sumEt());
           meHFEMF_Plus_BXm1Filled = map_of_MEs[DirName + "/" + "PfHFEMEtFractionPlus_BXm1Filled"];
           if (meHFEMF_Plus_BXm1Filled && meHFEMF_Plus_BXm1Filled->getRootObject())
-            meHFEMF_Plus_BXm1Filled->Fill(pt_sum_HFE_plus / pfmet.sumEt());
+            meHFEMF_Plus_BXm1Filled->Fill(pt_sum_HFE_plus / pfmet->sumEt());
           meHFEMF_Minus_BXm1Filled = map_of_MEs[DirName + "/" + "PfHFEMEtFractionMinus_BXm1Filled"];
           if (meHFEMF_Minus_BXm1Filled && meHFEMF_Minus_BXm1Filled->getRootObject())
-            meHFEMF_Minus_BXm1Filled->Fill(pt_sum_HFE_minus / pfmet.sumEt());
+            meHFEMF_Minus_BXm1Filled->Fill(pt_sum_HFE_minus / pfmet->sumEt());
           mePhotonEtFraction_BXm1Filled = map_of_MEs[DirName + "/" + "PfPhotonEtFraction_BXm1Filled"];
           if (mePhotonEtFraction_BXm1Filled && mePhotonEtFraction_BXm1Filled->getRootObject())
-            mePhotonEtFraction_BXm1Filled->Fill(pfmet.photonEtFraction());
+            mePhotonEtFraction_BXm1Filled->Fill(pfmet->photonEtFraction());
           meNeutralHadronEtFraction_BXm1Filled = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFraction_BXm1Filled"];
           if (meNeutralHadronEtFraction_BXm1Filled && meNeutralHadronEtFraction_BXm1Filled->getRootObject())
-            meNeutralHadronEtFraction_BXm1Filled->Fill(pfmet.neutralHadronEtFraction());
+            meNeutralHadronEtFraction_BXm1Filled->Fill(pfmet->neutralHadronEtFraction());
           meChargedHadronEtFraction_BXm1Filled = map_of_MEs[DirName + "/" + "PfChargedHadronEtFraction_BXm1Filled"];
           if (meChargedHadronEtFraction_BXm1Filled && meChargedHadronEtFraction_BXm1Filled->getRootObject())
-            meChargedHadronEtFraction_BXm1Filled->Fill(pfmet.chargedHadronEtFraction());
+            meChargedHadronEtFraction_BXm1Filled->Fill(pfmet->chargedHadronEtFraction());
           meMET_BXm1Filled = map_of_MEs[DirName + "/" + "MET_BXm1Filled"];
           if (meMET_BXm1Filled && meMET_BXm1Filled->getRootObject())
-            meMET_BXm1Filled->Fill(pfmet.pt());
+            meMET_BXm1Filled->Fill(pfmet->pt());
           meSumET_BXm1Filled = map_of_MEs[DirName + "/" + "SumET_BXm1Filled"];
           if (meSumET_BXm1Filled && meSumET_BXm1Filled->getRootObject())
-            meSumET_BXm1Filled->Fill(pfmet.sumEt());
+            meSumET_BXm1Filled->Fill(pfmet->sumEt());
           if (pt_sum_CHF_Barrel) {
             meMETPhiChargedHadronsBarrel_BXm1Filled =
                 map_of_MEs[DirName + "/" + "METPhiChargedHadronsBarrel_BXm1Filled"];
@@ -2877,24 +2876,24 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
           }
         }
         /*if(techTriggerCase[3]){//techTriggerResultBx0 && !techTriggerResultBxM2 && !techTriggerResultBxM1 ->previous two bunches empty
-	  meCHF_Barrel_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionBarrel_BXm2BXm1Empty"]; if(meCHF_Barrel_BXm2BXm1Empty && meCHF_Barrel_BXm2BXm1Empty->getRootObject()) meCHF_Barrel_BXm2BXm1Empty->Fill(pt_sum_CHF_Barrel/pfmet.sumEt()); 
-	  meCHF_EndcapPlus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapPlus_BXm2BXm1Empty"]; if(meCHF_EndcapPlus_BXm2BXm1Empty && meCHF_EndcapPlus_BXm2BXm1Empty->getRootObject()) meCHF_EndcapPlus_BXm2BXm1Empty->Fill(pt_sum_CHF_Endcap_plus/pfmet.sumEt()); 
-	  meCHF_EndcapMinus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapMinus_BXm2BXm1Empty"]; if(meCHF_EndcapMinus_BXm2BXm1Empty && meCHF_EndcapMinus_BXm2BXm1Empty->getRootObject()) meCHF_EndcapMinus_BXm2BXm1Empty->Fill(pt_sum_CHF_Endcap_minus/pfmet.sumEt()); 
-	  meNHF_Barrel_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionBarrel_BXm2BXm1Empty"]; if(meNHF_Barrel_BXm2BXm1Empty && meNHF_Barrel_BXm2BXm1Empty->getRootObject()) meNHF_Barrel_BXm2BXm1Empty->Fill(pt_sum_NHF_Barrel/pfmet.sumEt()); 
-	  meNHF_EndcapPlus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapPlus_BXm2BXm1Empty"]; if(meNHF_EndcapPlus_BXm2BXm1Empty && meNHF_EndcapPlus_BXm2BXm1Empty->getRootObject()) meNHF_EndcapPlus_BXm2BXm1Empty->Fill(pt_sum_NHF_Endcap_plus/pfmet.sumEt()); 
-	  meNHF_EndcapMinus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapMinus_BXm2BXm1Empty"]; if(meNHF_EndcapMinus_BXm2BXm1Empty && meNHF_EndcapMinus_BXm2BXm1Empty->getRootObject()) meNHF_EndcapMinus_BXm2BXm1Empty->Fill(pt_sum_NHF_Endcap_minus/pfmet.sumEt()); 
-	  mePhF_Barrel_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfPhotonEtFractionBarrel_BXm2BXm1Empty"]; if(mePhF_Barrel_BXm2BXm1Empty && mePhF_Barrel_BXm2BXm1Empty->getRootObject()) mePhF_Barrel_BXm2BXm1Empty->Fill(pt_sum_PhF_Barrel/pfmet.sumEt()); 
-	  mePhF_EndcapPlus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapPlus_BXm2BXm1Empty"]; if(mePhF_EndcapPlus_BXm2BXm1Empty && mePhF_EndcapPlus_BXm2BXm1Empty->getRootObject()) mePhF_EndcapPlus_BXm2BXm1Empty->Fill(pt_sum_PhF_Endcap_plus/pfmet.sumEt()); 
-	  mePhF_EndcapMinus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapMinus_BXm2BXm1Empty"]; if(mePhF_EndcapMinus_BXm2BXm1Empty && mePhF_EndcapMinus_BXm2BXm1Empty->getRootObject()) mePhF_EndcapMinus_BXm2BXm1Empty->Fill(pt_sum_PhF_Endcap_minus/pfmet.sumEt()); 
-	  meHFHadF_Plus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionPlus_BXm2BXm1Empty"]; if(meHFHadF_Plus_BXm2BXm1Empty && meHFHadF_Plus_BXm2BXm1Empty->getRootObject()) meHFHadF_Plus_BXm2BXm1Empty->Fill(pt_sum_HFH_plus/pfmet.sumEt()); 
-	  meHFHadF_Minus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionMinus_BXm2BXm1Empty"]; if(meHFHadF_Minus_BXm2BXm1Empty && meHFHadF_Minus_BXm2BXm1Empty->getRootObject()) meHFHadF_Minus_BXm2BXm1Empty->Fill(pt_sum_HFH_minus/pfmet.sumEt()); 
-	  meHFEMF_Plus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFEMEtFractionPlus_BXm2BXm1Empty"]; if(meHFEMF_Plus_BXm2BXm1Empty && meHFEMF_Plus_BXm2BXm1Empty->getRootObject()) meHFEMF_Plus_BXm2BXm1Empty->Fill(pt_sum_HFE_plus/pfmet.sumEt()); 
-	  meHFEMF_Minus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFEMEtFractionMinus_BXm2BXm1Empty"]; if(meHFEMF_Minus_BXm2BXm1Empty && meHFEMF_Minus_BXm2BXm1Empty->getRootObject()) meHFEMF_Minus_BXm2BXm1Empty->Fill(pt_sum_HFE_minus/pfmet.sumEt());
-	  mePhotonEtFraction_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Empty"];     if (  mePhotonEtFraction_BXm2BXm1Empty  && mePhotonEtFraction_BXm2BXm1Empty ->getRootObject())  mePhotonEtFraction_BXm2BXm1Empty  ->Fill(pfmet.photonEtFraction());
-	  meNeutralHadronEtFraction_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Empty"];     if (  meNeutralHadronEtFraction_BXm2BXm1Empty  && meNeutralHadronEtFraction_BXm2BXm1Empty ->getRootObject())  meNeutralHadronEtFraction_BXm2BXm1Empty  ->Fill(pfmet.neutralHadronEtFraction());
-	  meChargedHadronEtFraction_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Empty"];     if (  meChargedHadronEtFraction_BXm2BXm1Empty  && meChargedHadronEtFraction_BXm2BXm1Empty ->getRootObject())  meChargedHadronEtFraction_BXm2BXm1Empty  ->Fill(pfmet.chargedHadronEtFraction());
-	  meMET_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Empty"];     if (  meMET_BXm2BXm1Empty  && meMET_BXm2BXm1Empty ->getRootObject())  meMET_BXm2BXm1Empty  ->Fill(pfmet.pt());
-	  meSumET_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Empty"];     if (  meSumET_BXm2BXm1Empty  && meSumET_BXm2BXm1Empty ->getRootObject())  meSumET_BXm2BXm1Empty  ->Fill(pfmet.sumEt());
+	  meCHF_Barrel_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionBarrel_BXm2BXm1Empty"]; if(meCHF_Barrel_BXm2BXm1Empty && meCHF_Barrel_BXm2BXm1Empty->getRootObject()) meCHF_Barrel_BXm2BXm1Empty->Fill(pt_sum_CHF_Barrel/pfmet->sumEt()); 
+	  meCHF_EndcapPlus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapPlus_BXm2BXm1Empty"]; if(meCHF_EndcapPlus_BXm2BXm1Empty && meCHF_EndcapPlus_BXm2BXm1Empty->getRootObject()) meCHF_EndcapPlus_BXm2BXm1Empty->Fill(pt_sum_CHF_Endcap_plus/pfmet->sumEt()); 
+	  meCHF_EndcapMinus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfChargedHadronEtFractionEndcapMinus_BXm2BXm1Empty"]; if(meCHF_EndcapMinus_BXm2BXm1Empty && meCHF_EndcapMinus_BXm2BXm1Empty->getRootObject()) meCHF_EndcapMinus_BXm2BXm1Empty->Fill(pt_sum_CHF_Endcap_minus/pfmet->sumEt()); 
+	  meNHF_Barrel_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionBarrel_BXm2BXm1Empty"]; if(meNHF_Barrel_BXm2BXm1Empty && meNHF_Barrel_BXm2BXm1Empty->getRootObject()) meNHF_Barrel_BXm2BXm1Empty->Fill(pt_sum_NHF_Barrel/pfmet->sumEt()); 
+	  meNHF_EndcapPlus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapPlus_BXm2BXm1Empty"]; if(meNHF_EndcapPlus_BXm2BXm1Empty && meNHF_EndcapPlus_BXm2BXm1Empty->getRootObject()) meNHF_EndcapPlus_BXm2BXm1Empty->Fill(pt_sum_NHF_Endcap_plus/pfmet->sumEt()); 
+	  meNHF_EndcapMinus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfNeutralHadronEtFractionEndcapMinus_BXm2BXm1Empty"]; if(meNHF_EndcapMinus_BXm2BXm1Empty && meNHF_EndcapMinus_BXm2BXm1Empty->getRootObject()) meNHF_EndcapMinus_BXm2BXm1Empty->Fill(pt_sum_NHF_Endcap_minus/pfmet->sumEt()); 
+	  mePhF_Barrel_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfPhotonEtFractionBarrel_BXm2BXm1Empty"]; if(mePhF_Barrel_BXm2BXm1Empty && mePhF_Barrel_BXm2BXm1Empty->getRootObject()) mePhF_Barrel_BXm2BXm1Empty->Fill(pt_sum_PhF_Barrel/pfmet->sumEt()); 
+	  mePhF_EndcapPlus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapPlus_BXm2BXm1Empty"]; if(mePhF_EndcapPlus_BXm2BXm1Empty && mePhF_EndcapPlus_BXm2BXm1Empty->getRootObject()) mePhF_EndcapPlus_BXm2BXm1Empty->Fill(pt_sum_PhF_Endcap_plus/pfmet->sumEt()); 
+	  mePhF_EndcapMinus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfPhotonEtFractionEndcapMinus_BXm2BXm1Empty"]; if(mePhF_EndcapMinus_BXm2BXm1Empty && mePhF_EndcapMinus_BXm2BXm1Empty->getRootObject()) mePhF_EndcapMinus_BXm2BXm1Empty->Fill(pt_sum_PhF_Endcap_minus/pfmet->sumEt()); 
+	  meHFHadF_Plus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionPlus_BXm2BXm1Empty"]; if(meHFHadF_Plus_BXm2BXm1Empty && meHFHadF_Plus_BXm2BXm1Empty->getRootObject()) meHFHadF_Plus_BXm2BXm1Empty->Fill(pt_sum_HFH_plus/pfmet->sumEt()); 
+	  meHFHadF_Minus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFHadronEtFractionMinus_BXm2BXm1Empty"]; if(meHFHadF_Minus_BXm2BXm1Empty && meHFHadF_Minus_BXm2BXm1Empty->getRootObject()) meHFHadF_Minus_BXm2BXm1Empty->Fill(pt_sum_HFH_minus/pfmet->sumEt()); 
+	  meHFEMF_Plus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFEMEtFractionPlus_BXm2BXm1Empty"]; if(meHFEMF_Plus_BXm2BXm1Empty && meHFEMF_Plus_BXm2BXm1Empty->getRootObject()) meHFEMF_Plus_BXm2BXm1Empty->Fill(pt_sum_HFE_plus/pfmet->sumEt()); 
+	  meHFEMF_Minus_BXm2BXm1Empty=map_of_MEs[DirName+"/"+"PfHFEMEtFractionMinus_BXm2BXm1Empty"]; if(meHFEMF_Minus_BXm2BXm1Empty && meHFEMF_Minus_BXm2BXm1Empty->getRootObject()) meHFEMF_Minus_BXm2BXm1Empty->Fill(pt_sum_HFE_minus/pfmet->sumEt());
+	  mePhotonEtFraction_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PfPhotonEtFraction_BXm2BXm1Empty"];     if (  mePhotonEtFraction_BXm2BXm1Empty  && mePhotonEtFraction_BXm2BXm1Empty ->getRootObject())  mePhotonEtFraction_BXm2BXm1Empty  ->Fill(pfmet->photonEtFraction());
+	  meNeutralHadronEtFraction_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PfNeutralHadronEtFraction_BXm2BXm1Empty"];     if (  meNeutralHadronEtFraction_BXm2BXm1Empty  && meNeutralHadronEtFraction_BXm2BXm1Empty ->getRootObject())  meNeutralHadronEtFraction_BXm2BXm1Empty  ->Fill(pfmet->neutralHadronEtFraction());
+	  meChargedHadronEtFraction_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"PfChargedHadronEtFraction_BXm2BXm1Empty"];     if (  meChargedHadronEtFraction_BXm2BXm1Empty  && meChargedHadronEtFraction_BXm2BXm1Empty ->getRootObject())  meChargedHadronEtFraction_BXm2BXm1Empty  ->Fill(pfmet->chargedHadronEtFraction());
+	  meMET_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"MET_BXm2BXm1Empty"];     if (  meMET_BXm2BXm1Empty  && meMET_BXm2BXm1Empty ->getRootObject())  meMET_BXm2BXm1Empty  ->Fill(pfmet->pt());
+	  meSumET_BXm2BXm1Empty    = map_of_MEs[DirName+"/"+"SumET_BXm2BXm1Empty"];     if (  meSumET_BXm2BXm1Empty  && meSumET_BXm2BXm1Empty ->getRootObject())  meSumET_BXm2BXm1Empty  ->Fill(pfmet->sumEt());
 	  if(pt_sum_CHF_Barrel){
 	    meMETPhiChargedHadronsBarrel_BXm2BXm1Empty     = map_of_MEs[DirName+"/"+"METPhiChargedHadronsBarrel_BXm2BXm1Empty"];if(meMETPhiChargedHadronsBarrel_BXm2BXm1Empty  && meMETPhiChargedHadronsBarrel_BXm2BXm1Empty ->getRootObject())meMETPhiChargedHadronsBarrel_BXm2BXm1Empty->Fill(atan2(py_chargedHadronsBarrel,px_chargedHadronsBarrel));
 	  }
@@ -2938,58 +2937,58 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
         if (techTriggerCase[2]) {  //techTriggerResultBx0 && !techTriggerResultBxM1 --> previous bunch empty
           meCHF_Barrel_BXm1Empty = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionBarrel_BXm1Empty"];
           if (meCHF_Barrel_BXm1Empty && meCHF_Barrel_BXm1Empty->getRootObject())
-            meCHF_Barrel_BXm1Empty->Fill(pt_sum_CHF_Barrel / pfmet.sumEt());
+            meCHF_Barrel_BXm1Empty->Fill(pt_sum_CHF_Barrel / pfmet->sumEt());
           meCHF_EndcapPlus_BXm1Empty = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionEndcapPlus_BXm1Empty"];
           if (meCHF_EndcapPlus_BXm1Empty && meCHF_EndcapPlus_BXm1Empty->getRootObject())
-            meCHF_EndcapPlus_BXm1Empty->Fill(pt_sum_CHF_Endcap_plus / pfmet.sumEt());
+            meCHF_EndcapPlus_BXm1Empty->Fill(pt_sum_CHF_Endcap_plus / pfmet->sumEt());
           meCHF_EndcapMinus_BXm1Empty = map_of_MEs[DirName + "/" + "PfChargedHadronEtFractionEndcapMinus_BXm1Empty"];
           if (meCHF_EndcapMinus_BXm1Empty && meCHF_EndcapMinus_BXm1Empty->getRootObject())
-            meCHF_EndcapMinus_BXm1Empty->Fill(pt_sum_CHF_Endcap_minus / pfmet.sumEt());
+            meCHF_EndcapMinus_BXm1Empty->Fill(pt_sum_CHF_Endcap_minus / pfmet->sumEt());
           meNHF_Barrel_BXm1Empty = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionBarrel_BXm1Empty"];
           if (meNHF_Barrel_BXm1Empty && meNHF_Barrel_BXm1Empty->getRootObject())
-            meNHF_Barrel_BXm1Empty->Fill(pt_sum_NHF_Barrel / pfmet.sumEt());
+            meNHF_Barrel_BXm1Empty->Fill(pt_sum_NHF_Barrel / pfmet->sumEt());
           meNHF_EndcapPlus_BXm1Empty = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionEndcapPlus_BXm1Empty"];
           if (meNHF_EndcapPlus_BXm1Empty && meNHF_EndcapPlus_BXm1Empty->getRootObject())
-            meNHF_EndcapPlus_BXm1Empty->Fill(pt_sum_NHF_Endcap_plus / pfmet.sumEt());
+            meNHF_EndcapPlus_BXm1Empty->Fill(pt_sum_NHF_Endcap_plus / pfmet->sumEt());
           meNHF_EndcapMinus_BXm1Empty = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFractionEndcapMinus_BXm1Empty"];
           if (meNHF_EndcapMinus_BXm1Empty && meNHF_EndcapMinus_BXm1Empty->getRootObject())
-            meNHF_EndcapMinus_BXm1Empty->Fill(pt_sum_NHF_Endcap_minus / pfmet.sumEt());
+            meNHF_EndcapMinus_BXm1Empty->Fill(pt_sum_NHF_Endcap_minus / pfmet->sumEt());
           mePhF_Barrel_BXm1Empty = map_of_MEs[DirName + "/" + "PfPhotonEtFractionBarrel_BXm1Empty"];
           if (mePhF_Barrel_BXm1Empty && mePhF_Barrel_BXm1Empty->getRootObject())
-            mePhF_Barrel_BXm1Empty->Fill(pt_sum_PhF_Barrel / pfmet.sumEt());
+            mePhF_Barrel_BXm1Empty->Fill(pt_sum_PhF_Barrel / pfmet->sumEt());
           mePhF_EndcapPlus_BXm1Empty = map_of_MEs[DirName + "/" + "PfPhotonEtFractionEndcapPlus_BXm1Empty"];
           if (mePhF_EndcapPlus_BXm1Empty && mePhF_EndcapPlus_BXm1Empty->getRootObject())
-            mePhF_EndcapPlus_BXm1Empty->Fill(pt_sum_PhF_Endcap_plus / pfmet.sumEt());
+            mePhF_EndcapPlus_BXm1Empty->Fill(pt_sum_PhF_Endcap_plus / pfmet->sumEt());
           mePhF_EndcapMinus_BXm1Empty = map_of_MEs[DirName + "/" + "PfPhotonEtFractionEndcapMinus_BXm1Empty"];
           if (mePhF_EndcapMinus_BXm1Empty && mePhF_EndcapMinus_BXm1Empty->getRootObject())
-            mePhF_EndcapMinus_BXm1Empty->Fill(pt_sum_PhF_Endcap_minus / pfmet.sumEt());
+            mePhF_EndcapMinus_BXm1Empty->Fill(pt_sum_PhF_Endcap_minus / pfmet->sumEt());
           meHFHadF_Plus_BXm1Empty = map_of_MEs[DirName + "/" + "PfHFHadronEtFractionPlus_BXm1Empty"];
           if (meHFHadF_Plus_BXm1Empty && meHFHadF_Plus_BXm1Empty->getRootObject())
-            meHFHadF_Plus_BXm1Empty->Fill(pt_sum_HFH_plus / pfmet.sumEt());
+            meHFHadF_Plus_BXm1Empty->Fill(pt_sum_HFH_plus / pfmet->sumEt());
           meHFHadF_Minus_BXm1Empty = map_of_MEs[DirName + "/" + "PfHFHadronEtFractionMinus_BXm1Empty"];
           if (meHFHadF_Minus_BXm1Empty && meHFHadF_Minus_BXm1Empty->getRootObject())
-            meHFHadF_Minus_BXm1Empty->Fill(pt_sum_HFH_minus / pfmet.sumEt());
+            meHFHadF_Minus_BXm1Empty->Fill(pt_sum_HFH_minus / pfmet->sumEt());
           meHFEMF_Plus_BXm1Empty = map_of_MEs[DirName + "/" + "PfHFEMEtFractionPlus_BXm1Empty"];
           if (meHFEMF_Plus_BXm1Empty && meHFEMF_Plus_BXm1Empty->getRootObject())
-            meHFEMF_Plus_BXm1Empty->Fill(pt_sum_HFE_plus / pfmet.sumEt());
+            meHFEMF_Plus_BXm1Empty->Fill(pt_sum_HFE_plus / pfmet->sumEt());
           meHFEMF_Minus_BXm1Empty = map_of_MEs[DirName + "/" + "PfHFEMEtFractionMinus_BXm1Empty"];
           if (meHFEMF_Minus_BXm1Empty && meHFEMF_Minus_BXm1Empty->getRootObject())
-            meHFEMF_Minus_BXm1Empty->Fill(pt_sum_HFE_minus / pfmet.sumEt());
+            meHFEMF_Minus_BXm1Empty->Fill(pt_sum_HFE_minus / pfmet->sumEt());
           mePhotonEtFraction_BXm1Empty = map_of_MEs[DirName + "/" + "PfPhotonEtFraction_BXm1Empty"];
           if (mePhotonEtFraction_BXm1Empty && mePhotonEtFraction_BXm1Empty->getRootObject())
-            mePhotonEtFraction_BXm1Empty->Fill(pfmet.photonEtFraction());
+            mePhotonEtFraction_BXm1Empty->Fill(pfmet->photonEtFraction());
           meNeutralHadronEtFraction_BXm1Empty = map_of_MEs[DirName + "/" + "PfNeutralHadronEtFraction_BXm1Empty"];
           if (meNeutralHadronEtFraction_BXm1Empty && meNeutralHadronEtFraction_BXm1Empty->getRootObject())
-            meNeutralHadronEtFraction_BXm1Empty->Fill(pfmet.neutralHadronEtFraction());
+            meNeutralHadronEtFraction_BXm1Empty->Fill(pfmet->neutralHadronEtFraction());
           meChargedHadronEtFraction_BXm1Empty = map_of_MEs[DirName + "/" + "PfChargedHadronEtFraction_BXm1Empty"];
           if (meChargedHadronEtFraction_BXm1Empty && meChargedHadronEtFraction_BXm1Empty->getRootObject())
-            meChargedHadronEtFraction_BXm1Empty->Fill(pfmet.chargedHadronEtFraction());
+            meChargedHadronEtFraction_BXm1Empty->Fill(pfmet->chargedHadronEtFraction());
           meMET_BXm1Empty = map_of_MEs[DirName + "/" + "MET_BXm1Empty"];
           if (meMET_BXm1Empty && meMET_BXm1Empty->getRootObject())
-            meMET_BXm1Empty->Fill(pfmet.pt());
+            meMET_BXm1Empty->Fill(pfmet->pt());
           meSumET_BXm1Empty = map_of_MEs[DirName + "/" + "SumET_BXm1Empty"];
           if (meSumET_BXm1Empty && meSumET_BXm1Empty->getRootObject())
-            meSumET_BXm1Empty->Fill(pfmet.sumEt());
+            meSumET_BXm1Empty->Fill(pfmet->sumEt());
           if (pt_sum_CHF_Barrel) {
             meMETPhiChargedHadronsBarrel_BXm1Empty = map_of_MEs[DirName + "/" + "METPhiChargedHadronsBarrel_BXm1Empty"];
             if (meMETPhiChargedHadronsBarrel_BXm1Empty && meMETPhiChargedHadronsBarrel_BXm1Empty->getRootObject())
@@ -3073,18 +3072,18 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
 
       // PFMET getters
       //----------------------------------------------------------------------------
-      double pfPhotonEtFraction = pfmet.photonEtFraction();
-      double pfPhotonEt = pfmet.photonEt();
-      double pfNeutralHadronEtFraction = pfmet.neutralHadronEtFraction();
-      double pfNeutralHadronEt = pfmet.neutralHadronEt();
-      double pfElectronEt = pfmet.electronEt();
-      double pfChargedHadronEtFraction = pfmet.chargedHadronEtFraction();
-      double pfChargedHadronEt = pfmet.chargedHadronEt();
-      double pfMuonEt = pfmet.muonEt();
-      double pfHFHadronEtFraction = pfmet.HFHadronEtFraction();
-      double pfHFHadronEt = pfmet.HFHadronEt();
-      double pfHFEMEtFraction = pfmet.HFEMEtFraction();
-      double pfHFEMEt = pfmet.HFEMEt();
+      double pfPhotonEtFraction = pfmet->photonEtFraction();
+      double pfPhotonEt = pfmet->photonEt();
+      double pfNeutralHadronEtFraction = pfmet->neutralHadronEtFraction();
+      double pfNeutralHadronEt = pfmet->neutralHadronEt();
+      double pfElectronEt = pfmet->electronEt();
+      double pfChargedHadronEtFraction = pfmet->chargedHadronEtFraction();
+      double pfChargedHadronEt = pfmet->chargedHadronEt();
+      double pfMuonEt = pfmet->muonEt();
+      double pfHFHadronEtFraction = pfmet->HFHadronEtFraction();
+      double pfHFHadronEt = pfmet->HFHadronEt();
+      double pfHFEMEtFraction = pfmet->HFEMEtFraction();
+      double pfHFEMEt = pfmet->HFEMEt();
       mePhotonEtFraction = map_of_MEs[DirName + "/PfPhotonEtFraction"];
       mePhotonEt = map_of_MEs[DirName + "/PfPhotonEt"];
       meNeutralHadronEtFraction = map_of_MEs[DirName + "/PfNeutralHadronEtFraction"];
@@ -3166,15 +3165,15 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
       meHFEMEtFraction = map_of_MEs[DirName + "/PfHFEMEtFraction"];
 
       if (mePhotonEtFraction && mePhotonEtFraction->getRootObject())
-        mePhotonEtFraction->Fill(patmet.NeutralEMFraction());
+        mePhotonEtFraction->Fill(patmet->NeutralEMFraction());
       if (meNeutralHadronEtFraction && meNeutralHadronEtFraction->getRootObject())
-        meNeutralHadronEtFraction->Fill(patmet.NeutralHadEtFraction());
+        meNeutralHadronEtFraction->Fill(patmet->NeutralHadEtFraction());
       if (meChargedHadronEtFraction && meChargedHadronEtFraction->getRootObject())
-        meChargedHadronEtFraction->Fill(patmet.ChargedHadEtFraction());
+        meChargedHadronEtFraction->Fill(patmet->ChargedHadEtFraction());
       if (meHFHadronEtFraction && meHFHadronEtFraction->getRootObject())
-        meHFHadronEtFraction->Fill(patmet.Type6EtFraction());  //HFHadrons
+        meHFHadronEtFraction->Fill(patmet->Type6EtFraction());  //HFHadrons
       if (meHFEMEtFraction && meHFEMEtFraction->getRootObject())
-        meHFEMEtFraction->Fill(patmet.Type7EtFraction());
+        meHFEMEtFraction->Fill(patmet->Type7EtFraction());
 
       //NPV profiles
       mePhotonEtFraction_profile = map_of_MEs[DirName + "/PfPhotonEtFraction_profile"];
@@ -3184,15 +3183,15 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
       meHFEMEtFraction_profile = map_of_MEs[DirName + "/PfHFEMEtFraction_profile"];
 
       if (mePhotonEtFraction_profile && mePhotonEtFraction_profile->getRootObject())
-        mePhotonEtFraction_profile->Fill(numPV_, patmet.NeutralEMFraction());
+        mePhotonEtFraction_profile->Fill(numPV_, patmet->NeutralEMFraction());
       if (meNeutralHadronEtFraction_profile && meNeutralHadronEtFraction_profile->getRootObject())
-        meNeutralHadronEtFraction_profile->Fill(numPV_, patmet.NeutralHadEtFraction());
+        meNeutralHadronEtFraction_profile->Fill(numPV_, patmet->NeutralHadEtFraction());
       if (meChargedHadronEtFraction_profile && meChargedHadronEtFraction_profile->getRootObject())
-        meChargedHadronEtFraction_profile->Fill(numPV_, patmet.ChargedHadEtFraction());
+        meChargedHadronEtFraction_profile->Fill(numPV_, patmet->ChargedHadEtFraction());
       if (meHFHadronEtFraction_profile && meHFHadronEtFraction_profile->getRootObject())
-        meHFHadronEtFraction_profile->Fill(numPV_, patmet.Type6EtFraction());
+        meHFHadronEtFraction_profile->Fill(numPV_, patmet->Type6EtFraction());
       if (meHFEMEtFraction_profile && meHFEMEtFraction_profile->getRootObject())
-        meHFEMEtFraction_profile->Fill(numPV_, patmet.Type7EtFraction());
+        meHFEMEtFraction_profile->Fill(numPV_, patmet->Type7EtFraction());
 
       mePhotonEt = map_of_MEs[DirName + "/PfPhotonEt"];
       meNeutralHadronEt = map_of_MEs[DirName + "/PfNeutralHadronEt"];
@@ -3203,19 +3202,19 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
       meElectronEt = map_of_MEs[DirName + "/PfElectronEt"];
 
       if (mePhotonEt && mePhotonEt->getRootObject())
-        mePhotonEt->Fill(patmet.NeutralEMFraction() * patmet.sumEt());
+        mePhotonEt->Fill(patmet->NeutralEMFraction() * patmet->sumEt());
       if (meNeutralHadronEt && meNeutralHadronEt->getRootObject())
-        meNeutralHadronEt->Fill(patmet.NeutralHadEtFraction() * patmet.sumEt());
+        meNeutralHadronEt->Fill(patmet->NeutralHadEtFraction() * patmet->sumEt());
       if (meChargedHadronEt && meChargedHadronEt->getRootObject())
-        meChargedHadronEt->Fill(patmet.ChargedHadEtFraction() * patmet.sumEt());
+        meChargedHadronEt->Fill(patmet->ChargedHadEtFraction() * patmet->sumEt());
       if (meHFHadronEt && meHFHadronEt->getRootObject())
-        meHFHadronEt->Fill(patmet.Type6EtFraction() * patmet.sumEt());  //HFHadrons
+        meHFHadronEt->Fill(patmet->Type6EtFraction() * patmet->sumEt());  //HFHadrons
       if (meHFEMEt && meHFEMEt->getRootObject())
-        meHFEMEt->Fill(patmet.Type7EtFraction() * patmet.sumEt());
+        meHFEMEt->Fill(patmet->Type7EtFraction() * patmet->sumEt());
       if (meMuonEt && meMuonEt->getRootObject())
-        meMuonEt->Fill(patmet.MuonEtFraction() * patmet.sumEt());
+        meMuonEt->Fill(patmet->MuonEtFraction() * patmet->sumEt());
       if (meElectronEt && meElectronEt->getRootObject())
-        meElectronEt->Fill(patmet.ChargedEMEtFraction() * patmet.sumEt());
+        meElectronEt->Fill(patmet->ChargedEMEtFraction() * patmet->sumEt());
 
       //NPV profiles
       mePhotonEt_profile = map_of_MEs[DirName + "/PfPhotonEt_profile"];
@@ -3225,15 +3224,15 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
       meHFEMEt_profile = map_of_MEs[DirName + "/PfHFEMEt_profile"];
 
       if (mePhotonEt_profile && mePhotonEt_profile->getRootObject())
-        mePhotonEt_profile->Fill(numPV_, patmet.NeutralEMFraction() * patmet.sumEt());
+        mePhotonEt_profile->Fill(numPV_, patmet->NeutralEMFraction() * patmet->sumEt());
       if (meNeutralHadronEt_profile && meNeutralHadronEt_profile->getRootObject())
-        meNeutralHadronEt_profile->Fill(numPV_, patmet.NeutralHadEtFraction() * patmet.sumEt());
+        meNeutralHadronEt_profile->Fill(numPV_, patmet->NeutralHadEtFraction() * patmet->sumEt());
       if (meChargedHadronEt_profile && meChargedHadronEt_profile->getRootObject())
-        meChargedHadronEt_profile->Fill(numPV_, patmet.ChargedHadEtFraction() * patmet.sumEt());
+        meChargedHadronEt_profile->Fill(numPV_, patmet->ChargedHadEtFraction() * patmet->sumEt());
       if (meHFHadronEt_profile && meHFHadronEt_profile->getRootObject())
-        meHFHadronEt_profile->Fill(numPV_, patmet.Type6EtFraction() * patmet.sumEt());
+        meHFHadronEt_profile->Fill(numPV_, patmet->Type6EtFraction() * patmet->sumEt());
       if (meHFEMEt_profile && meHFEMEt_profile->getRootObject())
-        meHFEMEt_profile->Fill(numPV_, patmet.Type7EtFraction() * patmet.sumEt());
+        meHFEMEt_profile->Fill(numPV_, patmet->Type7EtFraction() * patmet->sumEt());
     }
 
     if (isCaloMet_) {

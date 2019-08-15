@@ -2,7 +2,7 @@
 #define DQMSERVICES_COMPONENTS_DQMFILESAVERPB_H
 
 #include "FWCore/Framework/interface/global/EDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <sys/time.h>
 #include <string>

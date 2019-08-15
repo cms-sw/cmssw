@@ -55,7 +55,6 @@
 #include "DQM/TrackingMonitor/interface/LogMessageMonitor.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"

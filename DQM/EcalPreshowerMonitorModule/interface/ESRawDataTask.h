@@ -9,8 +9,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class ESRawDataTask : public DQMEDAnalyzer {
 public:

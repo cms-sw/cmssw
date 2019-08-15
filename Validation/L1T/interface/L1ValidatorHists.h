@@ -10,7 +10,6 @@
 #include <string>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 /*#define DECLARE_HISTS(TYPE) \
 TH2F * ## TYPE ## _N_Pt; \
@@ -23,6 +22,9 @@ TH2F * ## TYPE ## _dPt;
 
 class L1ValidatorHists {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   L1ValidatorHists();
   ~L1ValidatorHists();
 

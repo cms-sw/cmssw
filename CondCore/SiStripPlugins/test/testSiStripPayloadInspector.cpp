@@ -39,27 +39,27 @@ int main(int argc, char** argv) {
   histo1.process(connectionString, tag, runTimeType, start, start);
   std::cout << histo1.data() << std::endl;
 
-  SiStripApvGainsAvgDeviationRatio1sigmaTrackerMap histo2;
+  SiStripApvGainsAvgDeviationRatio1sigmaTrackerMapSingleTag histo2;
   histo2.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo2.data() << std::endl;
 
-  SiStripApvGainsMaxDeviationRatio1sigmaTrackerMap histo3;
+  SiStripApvGainsMaxDeviationRatio1sigmaTrackerMapSingleTag histo3;
   histo3.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo3.data() << std::endl;
 
-  SiStripApvGainsValuesComparator histo4;
+  SiStripApvGainsValuesComparatorSingleTag histo4;
   histo4.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo4.data() << std::endl;
 
-  SiStripApvGainsComparator histo5;
+  SiStripApvGainsComparatorSingleTag histo5;
   histo5.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo5.data() << std::endl;
 
-  SiStripApvGainsComparatorByRegion histo6;
+  SiStripApvGainsComparatorByRegionSingleTag histo6;
   histo6.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo6.data() << std::endl;
 
-  SiStripApvGainsRatioComparatorByRegion histo7;
+  SiStripApvGainsRatioComparatorByRegionSingleTag histo7;
   histo7.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo7.data() << std::endl;
 
@@ -75,11 +75,11 @@ int main(int argc, char** argv) {
   histo8.process(connectionString, tag, runTimeType, start, start);
   std::cout << histo8.data() << std::endl;
 
-  SiStripNoiseValueComparisonPerAPV histo9;
+  SiStripNoiseValueComparisonPerAPVSingleTag histo9;
   histo9.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo9.data() << std::endl;
 
-  SiStripNoiseComparatorMeanByRegion histoCompareMeanByRegion;
+  SiStripNoiseComparatorMeanByRegionSingleTag histoCompareMeanByRegion;
   histoCompareMeanByRegion.process(connectionString, tag, runTimeType, start, start);
   std::cout << histoCompareMeanByRegion.data() << std::endl;
 
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
   histo10.process(connectionString, tag, runTimeType, start, start);
   std::cout << histo10.data() << std::endl;
 
-  SiStripPedestalValueComparisonPerModule histo11;
+  SiStripPedestalValueComparisonPerModuleSingleTag histo11;
   histo11.process(connectionString, tag, runTimeType, start, end);
   std::cout << histo11.data() << std::endl;
 

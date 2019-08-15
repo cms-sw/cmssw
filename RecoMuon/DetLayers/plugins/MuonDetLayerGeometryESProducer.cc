@@ -6,79 +6,96 @@
  *  \modified by D. Nash
  */
 
-#include <RecoMuon/DetLayers/plugins/MuonDetLayerGeometryESProducer.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/GEMGeometry/interface/GEMGeometry.h>
-#include <Geometry/GEMGeometry/interface/ME0Geometry.h>
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 
-#include <RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h>
-#include <RecoMuon/DetLayers/src/MuonME0DetLayerGeometryBuilder.h>
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
+#include "RecoMuon/DetLayers/src/MuonCSCDetLayerGeometryBuilder.h"
+#include "RecoMuon/DetLayers/src/MuonRPCDetLayerGeometryBuilder.h"
+#include "RecoMuon/DetLayers/src/MuonDTDetLayerGeometryBuilder.h"
+#include "RecoMuon/DetLayers/src/MuonGEMDetLayerGeometryBuilder.h"
+#include "RecoMuon/DetLayers/src/MuonME0DetLayerGeometryBuilder.h"
 
-#include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <FWCore/Framework/interface/NoProxyException.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/NoProxyException.h"
 
 #include <memory>
 
+class MuonDetLayerGeometryESProducer : public edm::ESProducer {
+public:
+  /// Constructor
+  MuonDetLayerGeometryESProducer(const edm::ParameterSet& p);
+
+  /// Produce MuonDeLayerGeometry.
+  std::unique_ptr<MuonDetLayerGeometry> produce(const MuonRecoGeometryRecord& record);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtToken_;
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscToken_;
+  edm::ESGetToken<GEMGeometry, MuonGeometryRecord> gemToken_;
+  edm::ESGetToken<ME0Geometry, MuonGeometryRecord> me0Token_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcToken_;
+};
+
 using namespace edm;
 
-MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet& p) { setWhatProduced(this); }
-
-MuonDetLayerGeometryESProducer::~MuonDetLayerGeometryESProducer() {}
+MuonDetLayerGeometryESProducer::MuonDetLayerGeometryESProducer(const edm::ParameterSet& p) {
+  setWhatProduced(this)
+      .setConsumes(dtToken_)
+      .setConsumes(cscToken_)
+      .setConsumes(gemToken_)
+      .setConsumes(me0Token_)
+      .setConsumes(rpcToken_);
+}
 
 std::unique_ptr<MuonDetLayerGeometry> MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord& record) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDetLayerGeometryESProducer";
   auto muonDetLayerGeometry = std::make_unique<MuonDetLayerGeometry>();
 
   // Build DT layers
-  edm::ESHandle<DTGeometry> dt;
-  record.getRecord<MuonGeometryRecord>().get(dt);
-  if (dt.isValid()) {
+  if (auto dt = record.getHandle(dtToken_)) {
     muonDetLayerGeometry->addDTLayers(MuonDTDetLayerGeometryBuilder::buildLayers(*dt));
   } else {
     LogInfo(metname) << "No DT geometry is available.";
   }
 
   // Build CSC layers
-  edm::ESHandle<CSCGeometry> csc;
-  record.getRecord<MuonGeometryRecord>().get(csc);
-  if (csc.isValid()) {
+  if (auto csc = record.getHandle(cscToken_)) {
     muonDetLayerGeometry->addCSCLayers(MuonCSCDetLayerGeometryBuilder::buildLayers(*csc));
   } else {
     LogInfo(metname) << "No CSC geometry is available.";
   }
 
   // Build GEM layers
-  edm::ESHandle<GEMGeometry> gem;
-  record.getRecord<MuonGeometryRecord>().get(gem);
-  if (gem.isValid()) {
+  if (auto gem = record.getHandle(gemToken_)) {
     muonDetLayerGeometry->addGEMLayers(MuonGEMDetLayerGeometryBuilder::buildEndcapLayers(*gem));
   } else {
     LogInfo(metname) << "No GEM geometry is available.";
   }
 
   // Build ME0 layers
-  edm::ESHandle<ME0Geometry> me0;
-  record.getRecord<MuonGeometryRecord>().get(me0);
-  if (me0.isValid()) {
+  if (auto me0 = record.getHandle(me0Token_)) {
     muonDetLayerGeometry->addME0Layers(MuonME0DetLayerGeometryBuilder::buildEndcapLayers(*me0));
   } else {
     LogDebug(metname) << "No ME0 geometry is available.";
   }
 
   // Build RPC layers
-  edm::ESHandle<RPCGeometry> rpc;
-  record.getRecord<MuonGeometryRecord>().get(rpc);
-  if (rpc.isValid()) {
+  if (auto rpc = record.getHandle(rpcToken_)) {
     muonDetLayerGeometry->addRPCLayers(MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(*rpc),
                                        MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(*rpc));
   } else {
@@ -90,3 +107,11 @@ std::unique_ptr<MuonDetLayerGeometry> MuonDetLayerGeometryESProducer::produce(co
 
   return muonDetLayerGeometry;
 }
+
+void MuonDetLayerGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  //no parameters are used
+  descriptions.addDefault(desc);
+}
+
+DEFINE_FWK_EVENTSETUP_MODULE(MuonDetLayerGeometryESProducer);

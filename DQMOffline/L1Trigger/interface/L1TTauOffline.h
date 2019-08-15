@@ -31,7 +31,7 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 // DQMServices
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DQMOffline/L1Trigger/interface/HistDefinition.h"

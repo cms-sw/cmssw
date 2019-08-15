@@ -26,6 +26,7 @@ namespace edm {
   class LuminosityBlockRange;
   class EventRange;
   class InputTag;
+  class ESInputTag;
   class FileInPath;
 
   TYPE_TO_ENUM(int, k_int32)
@@ -47,6 +48,8 @@ namespace edm {
   TYPE_TO_ENUM(std::vector<LuminosityBlockID>, k_VLuminosityBlockID)
   TYPE_TO_ENUM(InputTag, k_InputTag)
   TYPE_TO_ENUM(std::vector<InputTag>, k_VInputTag)
+  TYPE_TO_ENUM(ESInputTag, k_ESInputTag)
+  TYPE_TO_ENUM(std::vector<ESInputTag>, k_VESInputTag)
   TYPE_TO_ENUM(FileInPath, k_FileInPath)
   TYPE_TO_ENUM(LuminosityBlockRange, k_LuminosityBlockRange)
   TYPE_TO_ENUM(std::vector<LuminosityBlockRange>, k_VLuminosityBlockRange)
@@ -79,6 +82,8 @@ namespace edm {
       TYPE_TO_NAME(VLuminosityBlockID);
       TYPE_TO_NAME(InputTag);
       TYPE_TO_NAME(VInputTag);
+      TYPE_TO_NAME(ESInputTag);
+      TYPE_TO_NAME(VESInputTag);
       TYPE_TO_NAME(FileInPath);
       TYPE_TO_NAME(PSet);
       TYPE_TO_NAME(VPSet);

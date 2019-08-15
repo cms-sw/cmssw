@@ -36,7 +36,7 @@ namespace reco {
       typedef boost::ptr_vector<RecoTauPiZero> PiZeroVector;
       // Storing the result in an auto ptr on function return allows
       // allows us to safely release the ptr_vector in the virtual function
-      typedef std::auto_ptr<PiZeroVector> return_type;
+      typedef std::unique_ptr<PiZeroVector> return_type;
       explicit RecoTauPiZeroBuilderPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
           : RecoTauEventHolderPlugin(pset) {}
       ~RecoTauPiZeroBuilderPlugin() override {}

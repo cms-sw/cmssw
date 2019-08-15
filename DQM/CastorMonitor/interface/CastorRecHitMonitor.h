@@ -2,7 +2,6 @@
 #define DQM_CASTORMONITOR_CASTORRECHITMONITOR_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 //#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
@@ -20,6 +19,8 @@
 
 class CastorRecHitMonitor {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
   CastorRecHitMonitor(const edm::ParameterSet &ps);
   ~CastorRecHitMonitor();
 

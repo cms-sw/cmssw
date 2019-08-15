@@ -43,7 +43,7 @@ namespace reco {
                              const std::vector<CandidatePtr>& regionalExtras) const override;
 
     private:
-      RecoTauQualityCuts qcuts_;
+      std::unique_ptr<RecoTauQualityCuts> qcuts_;
 
       bool usePFLeptonsAsChargedHadrons_;
 
@@ -76,7 +76,7 @@ namespace reco {
     // ctor - initialize all of our variables
     RecoTauBuilderConePlugin::RecoTauBuilderConePlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC)
         : RecoTauBuilderPlugin(pset, std::move(iC)),
-          qcuts_(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts")),
+          qcuts_(new RecoTauQualityCuts(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts"))),
           usePFLeptonsAsChargedHadrons_(pset.getParameter<bool>("usePFLeptons")),
           leadObjecPtThreshold_(pset.getParameter<double>("leadObjectPt")),
           matchingCone_(pset.getParameter<std::string>("matchingCone")),
@@ -198,31 +198,31 @@ namespace reco {
                              minAbsPhotonSumPt_insideSignalCone_,
                              minRelPhotonSumPt_insideSignalCone_);
       // Setup our quality cuts to use the current vertex (supplied by base class)
-      qcuts_.setPV(primaryVertex(jet));
+      qcuts_->setPV(primaryVertex(jet));
 
       typedef std::vector<CandidatePtr> CandPtrs;
 
       // Get the PF Charged hadrons + quality cuts
       CandPtrs pfchs;
       if (!usePFLeptonsAsChargedHadrons_) {
-        pfchs = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 211));
+        pfchs = qcuts_->filterCandRefs(pfCandidatesByPdgId(*jet, 211));
       } else {
         // Check if we want to include electrons in muons in "charged hadron"
         // collection.  This is the preferred behavior, as the PF lepton selections
         // are very loose.
-        pfchs = qcuts_.filterCandRefs(pfChargedCands(*jet));
+        pfchs = qcuts_->filterCandRefs(pfChargedCands(*jet));
       }
 
       // CV: sort collection of PF Charged hadrons by descending Pt
       std::sort(pfchs.begin(), pfchs.end(), SortPFCandsDescendingPt());
 
       // Get the PF gammas
-      CandPtrs pfGammas = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 22));
+      CandPtrs pfGammas = qcuts_->filterCandRefs(pfCandidatesByPdgId(*jet, 22));
       // Neutral hadrons
-      CandPtrs pfnhs = qcuts_.filterCandRefs(pfCandidatesByPdgId(*jet, 130));
+      CandPtrs pfnhs = qcuts_->filterCandRefs(pfCandidatesByPdgId(*jet, 130));
 
       // All the extra junk
-      CandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
+      CandPtrs regionalJunk = qcuts_->filterCandRefs(regionalExtras);
 
       /***********************************************
    ******     Lead Candidate Finding    **********
@@ -408,7 +408,7 @@ namespace reco {
       // Put our built tau in the output - 'false' indicates don't build the
       // leading candidates, we already did that explicitly above.
 
-      std::auto_ptr<reco::PFTau> tauPtr = tau.get(false);
+      std::unique_ptr<reco::PFTau> tauPtr = tau.get(false);
 
       // Set event vertex position for tau
       reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
@@ -418,7 +418,7 @@ namespace reco {
       // Set missing tau quantities
       setTauQuantities(*tauPtr, minAbsPhotonSumPt_insideSignalCone_, minRelPhotonSumPt_insideSignalCone_);
 
-      output.push_back(tauPtr);
+      output.push_back(std::move(tauPtr));
       return output.release();
     }
   }  // namespace tau

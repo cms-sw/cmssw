@@ -52,6 +52,8 @@ namespace pat {
     JetCorrFactors(){};
     // constructor by value
     JetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec);
+    // add correction factor
+    void insertFactor(const unsigned int& position, const CorrectionFactor& factor);
 
     // instance label of the jet energy corrections set
     std::string jecSet() const { return label_; }
@@ -90,6 +92,7 @@ namespace pat {
     bool flavorIndependent(const CorrectionFactor& jec) const { return (jec.second.size() == 1); }
     // check consistency of input vector
     bool isValid(const CorrectionFactor& jec) const { return (flavorDependent(jec) || flavorIndependent(jec)); }
+    void invalidFactor() const;
 
   private:
     // instance label of jet energy correction factors

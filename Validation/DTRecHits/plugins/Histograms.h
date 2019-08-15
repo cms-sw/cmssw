@@ -15,11 +15,12 @@
 
 #include "DQMServices/Core/interface/ConcurrentMonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //---------------------------------------------------------------------------------------
 /// Function to fill an efficiency histograms with binomial errors
-inline void divide(MonitorElement *eff, const MonitorElement *numerator, const MonitorElement *denominator) {
+inline void divide(dqm::legacy::MonitorElement *eff,
+                   const dqm::legacy::MonitorElement *numerator,
+                   const dqm::legacy::MonitorElement *denominator) {
   TH1 *effH = eff->getTH1();
   TH1 *numH = numerator->getTH1();
   TH1 *denH = denominator->getTH1();
@@ -43,6 +44,9 @@ inline void divide(MonitorElement *eff, const MonitorElement *numerator, const M
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HRes1DHit(const std::string &name, DQMStore::ConcurrentBooker &booker, bool doall = true, bool local = true) {
     std::string pre = "1D_";
     pre += name;
@@ -134,6 +138,9 @@ private:
 /// A set of histograms fo efficiency computation for 1D RecHits (producer)
 class HEff1DHit {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HEff1DHit(const std::string &name, DQMStore::ConcurrentBooker &booker) {
     std::string pre = "1D_";
     pre += name;
@@ -176,6 +183,9 @@ private:
 /// A set of histograms fo efficiency computation for 1D RecHits (harvesting)
 class HEff1DHitHarvest {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HEff1DHitHarvest(const std::string &name, DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
     std::string pre = "1D_";
     pre += name;
@@ -207,6 +217,9 @@ private:
 // Histos of residuals for 2D rechits
 class HRes2DHit {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HRes2DHit(const std::string &name, DQMStore::ConcurrentBooker &booker, bool doall = true, bool local = true) {
     doall_ = doall;
     std::string pre = "2D_";
@@ -318,6 +331,9 @@ private:
 // Histos for 2D RecHit efficiency (producer)
 class HEff2DHit {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HEff2DHit(const std::string &name, DQMStore::ConcurrentBooker &booker) {
     std::string pre = "2D_";
     pre += name;
@@ -367,6 +383,9 @@ private:
 // Histos for 2D RecHit efficiency (harvesting)
 class HEff2DHitHarvest {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HEff2DHitHarvest(const std::string &name, DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
     std::string pre = "2D_";
     pre += name;
@@ -402,6 +421,9 @@ private:
 // Histos of residuals for 4D rechits
 class HRes4DHit {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HRes4DHit(const std::string &name, DQMStore::ConcurrentBooker &booker, bool doall = true, bool local = true)
       : local_(local) {
     std::string pre = "4D_";
@@ -919,6 +941,9 @@ private:
 /// A set of histograms for efficiency 4D RecHits (producer)
 class HEff4DHit {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HEff4DHit(const std::string &name, DQMStore::ConcurrentBooker &booker) {
     std::string pre = "4D_";
     pre += name;
@@ -998,6 +1023,9 @@ private:
 /// A set of histograms for efficiency 4D RecHits (harvesting)
 class HEff4DHitHarvest {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   HEff4DHitHarvest(const std::string &name, DQMStore::IBooker &booker, DQMStore::IGetter &getter) {
     std::string pre = "4D_";
     pre += name;

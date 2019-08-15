@@ -8,6 +8,9 @@
 */
 class SiStripPopConNoisesHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripNoises> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConNoisesHandlerFromDQM() override;
   // interface methods: implemented in template
@@ -20,7 +23,7 @@ private:
   SiStripNoises m_obj;
 };
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPopConNoisesHandlerFromDQM::SiStripPopConNoisesHandlerFromDQM(const edm::ParameterSet& iConfig)

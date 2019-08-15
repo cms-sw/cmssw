@@ -5,126 +5,29 @@ import shelve
 import sys
 import os
 import subprocess
+import threading
 import shutil
 import time
 import re
+import ROOT
+from helpers import *
 sys.path.append("../plottingTools")
 
 shelve_name = "dump.shelve" # contains all the measurement objects and plot objects
 history_file = "history.log"
 clock_interval = 20 # in seconds
-delete_logs_after_finish = True  # if it is not desired to keep the log and submit script files
-
-# regex matching on key, replacement of groups on value
-# implement any other shortcuts that you want to use
-shortcuts = {}
-#sources 
-shortcuts["mp([0-9]*)"] = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp{0}/jobData/jobm/alignments_MP.db"
-shortcuts["mp([0-9]*)_jobm([0-9]*)"] = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/mp{0}/jobData/jobm{1}/alignments_MP.db"
-shortcuts["sm([0-9]*)_iter([0-9]*)"] = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy/alignments/sm{0}/alignments_iter{1}.db"
-shortcuts["hp([0-9]*)_iter([0-9]*)"] = "sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/HipPy/alignments/hp{0}/alignments_iter{1}.db"
-shortcuts["prod"] = "frontier://FrontierProd/CMS_CONDITIONS"
-
-
-# Exact numbers don't really matter, but it is important that each one has a unique 
-# number, so that states are distinguishable
-STATE_NONE = -1
-STATE_ITERATION_START=0
-STATE_BJOBS_WAITING=1
-STATE_BJOBS_DONE=2
-STATE_BJOBS_FAILED=12
-STATE_MERGE_WAITING=3
-STATE_MERGE_DONE=4
-STATE_MERGE_FAILED=14
-STATE_SUMMARY_WAITING=5
-STATE_SUMMARY_DONE=6
-STATE_SUMMARY_FAILED=16
-STATE_LOCAL_WAITING=7
-STATE_LOCAL_DONE=8
-STATE_LOCAL_FAILED=18
-STATE_FINISHED=9
-
-status_map = {}
-status_map[STATE_NONE] = "STATE_NONE"
-status_map[STATE_ITERATION_START] = "STATE_ITERATION_START"
-status_map[STATE_BJOBS_WAITING] = "STATE_BJOBS_WAITING"
-status_map[STATE_BJOBS_DONE] = "STATE_BJOBS_DONE"
-status_map[STATE_BJOBS_FAILED] = "STATE_BJOBS_FAILED"
-status_map[STATE_MERGE_WAITING] = "STATE_MERGE_WAITING"
-status_map[STATE_MERGE_DONE] = "STATE_MERGE_DONE"
-status_map[STATE_MERGE_FAILED] = "STATE_MERGE_FAILED"
-status_map[STATE_SUMMARY_WAITING] = "STATE_SUMMARY_WAITING"
-status_map[STATE_SUMMARY_DONE] = "STATE_SUMMARY_DONE"
-status_map[STATE_SUMMARY_FAILED] = "STATE_SUMMARY_FAILED"
-status_map[STATE_LOCAL_WAITING] = "STATE_LOCAL_WAITING"
-status_map[STATE_LOCAL_DONE] = "STATE_LOCAL_DONE"
-status_map[STATE_LOCAL_FAILED] = "STATE_LOCAL_FAILED"
-status_map[STATE_FINISHED] = "STATE_FINISHED"
-base = ""
-
-
-def ensurePathExists(path):
-    import os
-    import errno
-    try:
-        os.makedirs(path)
-    except OSError as exception:
-        if exception.errno != errno.EEXIST:
-            raise
-
-
-def replaceAllRanges(string):
-    if "[" in string and "]" in string:
-        strings = []
-        posS = string.find("[")
-        posE = string.find("]")
-        nums = string[posS+1:posE].split(",")
-        expression = string[posS:posE+1]
-        
-        nums = string[string.find("[")+1:string.find("]")]
-        for interval in nums.split(","):
-            interval = interval.strip()
-            if "-" in interval:
-                lowNum = int(interval.split("-")[0])
-                upNum = int(interval.split("-")[1])
-                for i in range(lowNum, upNum+1):
-                    newstring = string[0:posS]+str(i)+string[posE+1:]
-                    newstring = replaceAllRanges(newstring)
-                    strings += newstring
-            else:
-                newstring = string[0:posS]+interval+string[posE+1:]
-                newstring = replaceAllRanges(newstring)
-                strings += newstring
-        return strings
-    else:
-        return [string,]
-
-
-def replaceShortcuts(toScan):
-    global shortcuts
-    for key, value in shortcuts.items():
-        match = re.search(key, toScan)
-        if match and match.group(0) == toScan:
-            return value.format(*match.groups())
-    # no match
-    return toScan
-    
-def loadConditions(dictionary):
-    hasAlignmentCondition = False
-    conditions = []
-    for key, value in dictionary.items():
-        if key.startswith("condition"):
-            record = key.split(" ")[1]
-            connect, tag = value.split(" ")
-            if record == "TrackerAlignmentRcd":
-                hasAlignmentCondition = True
-            conditions.append({"record":record, "connect":replaceShortcuts(connect), "tag":tag})
-    return conditions, hasAlignmentCondition
+delete_logs_after_finish = False  # if it is not desired to keep the log and submit script files
 
 def save(name, object):
-    sh = shelve.open(shelve_name)
-    sh[name] = object
-    sh.close()
+    # in case of multiple threads running this stops potentially problematic file access
+    global lock
+    lock.acquire() 
+    try:
+        sh = shelve.open(shelve_name)
+        sh[name] = object
+        sh.close()
+    finally:
+        lock.release()
 
 class Dataset:
     name = ""
@@ -237,10 +140,10 @@ class ApeMeasurement:
         
         if self.resultPlotDo == "True":
             self.resultPlotTitle = self.resultPlotTitle.replace("~", " ")
-            # Adds new section to config file so it is read in the next step
+            # Adds new section to config file, result plots are loaded from the config in a later step
             sectionName = "resultplot:{}".format(self.name)
             config.add_section(sectionName)
-            config.set(sectionName, "wait {}".format(self.resultPlotLabel), "{} {}".format(self.name, min(14, self.maxIterations-1)))
+            config.set(sectionName, "wait {}".format(self.resultPlotLabel), "{} iteration={}".format(self.name, min(14, self.maxIterations-1)))
             config.set(sectionName, "title", self.resultPlotTitle)
             config.set(sectionName, "outPath", self.resultPlotOutPath)
             
@@ -249,12 +152,13 @@ class ApeMeasurement:
     
     def print_status(self):
         print("APE Measurement {} in iteration {} is now in status {}".format(self.name, self.curIteration, self.get_status()))
-            
+    
+    # submit jobs for track refit and hit categorization
     def submit_jobs(self):
         toSubmit = []
         
         allConditions = self.alignment.conditions+self.dataset.conditions
-        allConditions = list({v['record']:v for v in allConditions}.values()) # should we clean for duplicate records? the overlap record last defined (from dataset) 
+        allConditions = list({v['record']:v for v in allConditions}.values()) # should we clean for duplicate records? the record last defined (from dataset) 
                                                                               # will be kept in case of overlap, which is the same as if there was no overlap removal
         
         # If conditions are made, create file to load them from
@@ -326,7 +230,7 @@ class ApeMeasurement:
                 
         cluster = subOut.split(" ")[-1][:-1]
         for i in range(self.dataset.nFiles):
-            # list contains condor log files from which to read when job is terminated
+            # list contains condor log files from which to read when job is terminated to detect errors
             self.runningJobs.append((logFileTemp.format(i), errorFileTemp.format(i), "{}.{}".format(cluster, i)))
         
         
@@ -334,14 +238,15 @@ class ApeMeasurement:
         self.print_status()
     
     def check_jobs(self):
-        # Job was aborted by the user.
         lastStatus = self.status
         stillRunningJobs = []
         # check all still running jobs
         for logName, errName, jobId in self.runningJobs:
+            # read condor logs instead of doing condor_q or similar, as it is much faster
             if not os.path.isfile(logName):
                 print("{} does not exist even though it should, marking job as failed".format(logName))
                 self.failedJobs.append( (logName, errName) ) 
+                break
             with open(logName, "r") as logFile:
                 log = logFile.read()
             if not "submitted" in log:
@@ -363,11 +268,11 @@ class ApeMeasurement:
                         print("Job {} of measurement {} in iteration {} finished successfully".format(jobId, self.name, self.curIteration))
                     else:
                         # Fatal error in stderr
-                        print("Job {} of measurement {} in iteration {} has a fatal error".format(jobId, self.name, self.curIteration))
+                        print("Job {} of measurement {} in iteration {} has a fatal error, check stderr".format(jobId, self.name, self.curIteration))
                         self.failedJobs.append( (logName, errName) ) 
                 else:
                     # nonzero return value
-                    print("Job {} of measurement {} in iteration {} failed".format(jobId, self.name, self.curIteration))
+                    print("Job {} of measurement {} in iteration {} failed, check stderr".format(jobId, self.name, self.curIteration))
                     self.failedJobs.append( (logName, errName) ) 
             else:
                 stillRunningJobs.append( (logName, errName, jobId) )
@@ -399,7 +304,8 @@ class ApeMeasurement:
                     
         if lastStatus != self.status:
             self.print_status() 
-        
+    
+    # merges files from jobs
     def do_merge(self):
         self.status = STATE_MERGE_WAITING
         if self.alignment.isDesign:
@@ -432,6 +338,7 @@ class ApeMeasurement:
             self.finishTime = subprocess.check_output(["date"]).strip()
         self.print_status()
     
+    # calculates APE
     def do_summary(self):
         self.status = STATE_SUMMARY_WAITING        
         from autoSubmitterTemplates import summaryTemplate
@@ -448,7 +355,8 @@ class ApeMeasurement:
             self.status = STATE_SUMMARY_FAILED
             self.finishTime = subprocess.check_output(["date"]).strip()
         self.print_status()
-        
+    
+    # saves APE to .db file so it can be read out next iteration
     def do_local_setting(self):
         self.status = STATE_LOCAL_WAITING       
         from autoSubmitterTemplates import localSettingTemplate
@@ -485,6 +393,74 @@ class ApeMeasurement:
         shutil.rmtree(folderName)
         # remove log-files as well?
         
+    def run_iteration(self):
+        global threadcounter
+        global measurements
+        threadcounter.acquire()
+        try:
+            if self.status == STATE_ITERATION_START:
+                # start bjobs
+                print("APE Measurement {} just started iteration {}".format(self.name, self.curIteration))
+                while True: 
+                    try:
+                        self.submit_jobs()
+                        save("measurements", measurements)
+                        break
+                    except KeyboardInterrupt:
+                        exit()
+                    except:
+                        # this is needed in case the scheduler goes down
+                        print("Error submitting, waiting for 1 minute")
+                        time.sleep(60)
+                    
+                    continue # no reason to immediately check jobs
+            if self.status == STATE_BJOBS_WAITING:
+                # check if bjobs are finished
+                self.check_jobs()
+                save("measurements", measurements)
+            if self.status == STATE_BJOBS_DONE:
+                # merge files
+                self.do_merge()
+                save("measurements", measurements)
+            if self.status == STATE_MERGE_DONE:
+                # start summary
+                self.do_summary()
+                save("measurements", measurements)
+            if self.status == STATE_SUMMARY_DONE:
+                # start local setting (only if not a baseline measurement)
+                if self.alignment.isDesign:
+                    self.status = STATE_LOCAL_DONE
+                else:
+                    self.do_local_setting()
+                save("measurements", measurements)
+            if self.status == STATE_LOCAL_DONE:
+                self.finish_iteration()
+                save("measurements", measurements)
+                # go to next iteration or finish measurement
+            if self.status == STATE_BJOBS_FAILED or \
+                self.status == STATE_MERGE_FAILED or \
+                self.status == STATE_SUMMARY_FAILED or \
+                self.status == STATE_LOCAL_FAILED or \
+                self.status == STATE_FINISHED:
+                    with open(history_file, "a") as fi:
+                        fi.write("APE measurement {name} which was started at {start} finished at {end} with state {state} in iteration {iteration}\n".format(name=self.name, start=self.startTime, end=self.finishTime, state=self.get_status(), iteration=self.curIteration))
+                    if self.status == STATE_FINISHED:
+                        global finished_measurements
+                        finished_measurements[self.name] = self
+                        save("finished", finished_measurements)
+                    else:
+                        global failed_measurements
+                        failed_measurements[self.name] = self
+                        self.status = STATE_NONE
+                        save("failed", failed_measurements)
+                    save("measurements", measurements)
+            if self.status == STATE_ITERATION_START: # this ensures that jobs do not go into idle if many measurements are done simultaneously
+                # start bjobs
+                print("APE Measurement {} just started iteration {}".format(self.name, self.curIteration))
+                self.submit_jobs()
+                save("measurements", measurements)   
+        finally:
+            threadcounter.release()
         
 class ResultPlot:
     def __init__(self, config, name):
@@ -498,18 +474,33 @@ class ResultPlot:
         self.granularity = "standardGranularity"
         
         for key, value in rpDict.items():
+            
+            if key.startswith("wait ") or key.startswith("load "):
+                optsList = value.split(" ")
+                val = optsList[0]
+                optsDict = {}
+                for i in range(1, len(optsList)):
+                    k, v = optsList[i].split("=")
+                    if k == "marker" or k == "color":
+                        v = eval(v) # convert to int, makes it possible to use ROOT variables
+                    optsDict[k] = v
+                
+            
             if key.startswith("wait "):
                 label = key.split(" ")[1] 
                 label = label.replace("~", " ")
-                if len(value.split(" ")) > 1:
-                    name, iteration = value.split(" ")
+                
+                if optsDict.has_key("iteration"):
+                    iteration = optsDict["iteration"]
+                    optsDict.pop("iteration")
                 else:
-                    name, iteration = value, "14"
-                self.waitingFor.append((name, iteration, label))
+                    iteration = "14"
+                
+                self.waitingFor.append((val, iteration, label, optsDict.copy()))
             elif key.startswith("load "):
                 label = key.split(" ")[1] 
                 label = label.replace("~", " ")
-                self.loadingFrom.append((value,label))
+                self.loadingFrom.append((val,label, optsDict.copy()))
             else:
                 setattr(self, key, value)
         
@@ -528,16 +519,15 @@ class ResultPlot:
         plotter.setOutputPath(self.outPath)
         plotter.setTitle(self.title)
         plotter.setGranularity(getattr(granularity, self.granularity))
-        
-        for path, label in self.loadingFrom:
-            plotter.addInputFile(label, path, label)
-        for name, iteration, label in self.waitingFor:
+        for path, label, optsDict in self.loadingFrom:
+            plotter.addInputFile(label, path, **optsDict)
+        for name, iteration, label, optsDict in self.waitingFor:
             path = '{}/hists/{}/iter{}/allData_iterationApe.root'.format(base, name, iteration)
-            plotter.addInputFile(name, path, label)
+            plotter.addInputFile(label, path, **optsDict)
         ensurePathExists(self.outPath)
         plotter.draw()
-        
-            
+
+
 def main():    
     parser = argparse.ArgumentParser(description="Automatically run APE measurements")
     parser.add_argument("-c", "--config", action="append", dest="configs", default=[],
@@ -550,16 +540,24 @@ def main():
                           help="Resume interrupted APE measurements which are stored in shelves (specify shelves)")
     parser.add_argument("-d", "--dump", action="store", dest="dump", default=None,
                           help='Specify in which .shelve file to store the measurements and plots')
+    parser.add_argument("-n", "--ncores", action="store", dest="ncores", default=1, type=int,
+                          help='Number of threads running in parallel')
 
     args = parser.parse_args()
     
     global base
     global clock_interval
     global shelve_name
+    global threadcounter
+    global lock
+    
+    threadcounter = threading.BoundedSemaphore(args.ncores)
+    lock = threading.Lock()
     
     if args.dump != None: # choose different file than default
         shelve_name = args.dump
-    
+    elif args.resume != []:
+        shelve_name = args.resume[0]
     try:
         base = os.environ['CMSSW_BASE']+"/src/Alignment/APEEstimation"
     except KeyError:
@@ -574,8 +572,12 @@ def main():
     for toConvert in args.purge:
         purgeTargets += replaceAllRanges(toConvert)
     
+    global measurements
     measurements = []
+    global finished_measurements
     finished_measurements = {}
+    global failed_measurements
+    failed_measurements = {}
     resultPlots = []
     
     if args.resume != []:
@@ -584,7 +586,11 @@ def main():
                 sh = shelve.open(resumeFile)
                 resumed = sh["measurements"]
                 resumed_plots = sh["resultPlots"]
+                
+                resumed_failed = sh["failed"]
+                resumed_finished = sh["finished"]
                 sh.close()
+                
                 for res in resumed:
                     measurements.append(res)
                     print("Measurement {} in state {} in iteration {} was resumed".format(res.name, res.get_status(), res.curIteration))
@@ -599,6 +605,10 @@ def main():
                 for res in resumed_plots:
                     resultPlots.append(res)
                     print("Result plot {} was resumed".format(res.name))
+                
+                failed_measurements.update(resumed_failed)
+                finished_measurements.update(resumed_finished)
+                
             except IOError:
                 print("Could not resume because {} could not be opened, exiting".format(shelve_name))
                 sys.exit()
@@ -628,8 +638,7 @@ def main():
             
             for i in range(2, len(settings)):
                 setting = settings[i].strip()
-                key = setting.split("=")[0]
-                value = setting.split("=")[1]
+                key, value = setting.split("=")
                 additionalOptions[key] = value
                 
             measurement = ApeMeasurement(name, dataset, alignment, config, additionalOptions)
@@ -649,57 +658,19 @@ def main():
         measurements = [measurement for measurement in measurements if not (measurement.status==STATE_NONE or measurement.status == STATE_FINISHED)]
         save("measurements", measurements)
         save("resultPlots", resultPlots)
+        save("failed", failed_measurements)
+        save("finished", finished_measurements)
         
+        list_threads = []
         for measurement in measurements:
-            if measurement.status == STATE_ITERATION_START:
-                # start bjobs
-                print("APE Measurement {} just started iteration {}".format(measurement.name, measurement.curIteration))
-                measurement.submit_jobs()
-                save("measurements", measurements)
-                continue # no reason to immediately check jobs
-            if measurement.status == STATE_BJOBS_WAITING:
-                # check if bjobs are finished
-                measurement.check_jobs()
-                save("measurements", measurements)
-            if measurement.status == STATE_BJOBS_DONE:
-                # merge files
-                measurement.do_merge()
-                save("measurements", measurements)
-            if measurement.status == STATE_MERGE_DONE:
-                # start summary
-                measurement.do_summary()
-                save("measurements", measurements)
-            if measurement.status == STATE_SUMMARY_DONE:
-                # start local setting (only if not a baseline measurement)
-                if measurement.alignment.isDesign:
-                    measurement.status = STATE_LOCAL_DONE
-                else:
-                    measurement.do_local_setting()
-                save("measurements", measurements)
-            if measurement.status == STATE_LOCAL_DONE:
-                measurement.finish_iteration()
-                save("measurements", measurements)
-                # go to next iteration or finish measurement
-            if measurement.status == STATE_BJOBS_FAILED or \
-                measurement.status == STATE_MERGE_FAILED or \
-                measurement.status == STATE_SUMMARY_FAILED or \
-                measurement.status == STATE_LOCAL_FAILED or \
-                measurement.status == STATE_FINISHED:
-                    with open(history_file, "a") as fi:
-                        fi.write("APE measurement {name} which was started at {start} finished at {end} with state {state} in iteration {iteration}\n".format(name=measurement.name, start=measurement.startTime, end=measurement.finishTime, state=measurement.get_status(), iteration=measurement.curIteration))
-                    
-                    if measurement.status == STATE_FINISHED:
-                        finished_measurements[measurement.name] = measurement
-                    else:
-                        measurement.status = STATE_NONE
-                        
-                    
-                    save("measurements", measurements)
-            if measurement.status == STATE_ITERATION_START: # this ensures that jobs do not go into idle if many measurements are done simultaneously
-                # start bjobs
-                print("APE Measurement {} just started iteration {}".format(measurement.name, measurement.curIteration))
-                measurement.submit_jobs()
-                save("measurements", measurements)           
+            t = threading.Thread(target=measurement.run_iteration)
+            list_threads.append(t)
+            t.start()
+        
+        # wait for iterations to finish
+        for t in list_threads:
+            t.join()
+     
         
         # Check if there are plots to do
         changed = False

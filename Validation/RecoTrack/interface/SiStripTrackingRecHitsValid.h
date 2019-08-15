@@ -3,7 +3,6 @@
 
 //DQM services for histogram
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/Framework/interface/EDAnalyzer.h"

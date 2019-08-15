@@ -9,6 +9,9 @@
 */
 class SiStripPopConPedestalsHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripPedestals> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConPedestalsHandlerFromDQM() override;
   // interface methods: implemented in template
@@ -21,7 +24,7 @@ private:
   SiStripPedestals m_obj;
 };
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 SiStripPopConPedestalsHandlerFromDQM::SiStripPopConPedestalsHandlerFromDQM(const edm::ParameterSet& iConfig)

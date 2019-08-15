@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // see header file for information.
 #include "FourVectorHLT.h"

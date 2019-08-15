@@ -52,7 +52,7 @@
 
 #include "DPGAnalysis/SiStripTools/interface/EventWithHistory.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include <DQMServices/Core/interface/oneDQMEDAnalyzer.h>
 
 //
 // Class declaration

@@ -11,15 +11,14 @@
 //
 
 // user include files
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB06Analysis.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB06Histo.h"
-#include "SimG4CMS/HcalTestBeam/interface/HcalTB06BeamSD.h"
-#include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
+#include "HcalTB06Histo.h"
+#include "HcalTB06BeamSD.h"
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
@@ -27,8 +26,18 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "SimDataFormats/HcalTestBeam/interface/HcalTestBeamNumbering.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -38,11 +47,48 @@
 // system include files
 #include <iostream>
 #include <iomanip>
+#include <memory>
+#include <vector>
+#include <string>
 
 //#define EDM_ML_DEBUG
-//
-// constructors and destructor
-//
+
+class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+public:
+  explicit HcalTB06Analysis(const edm::ParameterSet& p);
+  ~HcalTB06Analysis() override;
+
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+  HcalTB06Analysis(const HcalTB06Analysis&) = delete;
+  const HcalTB06Analysis& operator=(const HcalTB06Analysis&) = delete;
+
+private:
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
+  edm::EDGetTokenT<edm::PCaloHitContainer> m_BeamToken;
+  bool m_ECAL;
+
+  int count;
+  int m_idxetaEcal;
+  int m_idxphiEcal;
+  int m_idxetaHcal;
+  int m_idxphiHcal;
+
+  double m_eta;
+  double m_phi;
+  double m_ener;
+  double m_timeLimit;
+  double m_widthEcal;
+  double m_widthHcal;
+  double m_factEcal;
+  double m_factHcal;
+  std::vector<int> m_PDG;
+
+  HcalTB06Histo* m_histo;
+};
 
 HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p) : count(0) {
   usesResource("TFileService");
@@ -205,3 +251,7 @@ void HcalTB06Analysis::analyze(const edm::Event& evt, const edm::EventSetup&) {
 
   m_histo->fillTree(eCalo, eTrig);
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+
+DEFINE_FWK_MODULE(HcalTB06Analysis);

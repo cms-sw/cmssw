@@ -18,7 +18,7 @@
 
 #include <string>
 #include <map>
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 class CaloTowerAnalyzer : public DQMEDAnalyzer {

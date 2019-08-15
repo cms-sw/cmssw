@@ -18,6 +18,9 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 namespace {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   bool Contains(const std::string &text, const std::string &pattern) { return text.find(pattern) != std::string::npos; }
 
   void SetBinLabels(MonitorElement *const me) {
@@ -638,36 +641,48 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         switch (num_csvl) {
           default:
             h_btagTurnOn_den_->Fill(4);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_den_->Fill(3);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_den_->Fill(2);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_den_->Fill(1);
+            [[fallthrough]];
           case 0:
             h_btagTurnOn_den_->Fill(0);
         }
         switch (num_csvm) {
           default:
             h_btagTurnOn_den_->Fill(8);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_den_->Fill(7);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_den_->Fill(6);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_den_->Fill(5);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }
         switch (num_csvt) {
           default:
             h_btagTurnOn_den_->Fill(12);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_den_->Fill(11);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_den_->Fill(10);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_den_->Fill(9);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }
@@ -676,36 +691,48 @@ void SUSY_HLT_SingleLepton::analyze(const edm::Event &e, const edm::EventSetup &
         switch (num_csvl) {
           default:
             h_btagTurnOn_num_->Fill(4);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_num_->Fill(3);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_num_->Fill(2);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_num_->Fill(1);
+            [[fallthrough]];
           case 0:
             h_btagTurnOn_num_->Fill(0);
         }
         switch (num_csvm) {
           default:
             h_btagTurnOn_num_->Fill(8);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_num_->Fill(7);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_num_->Fill(6);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_num_->Fill(5);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }
         switch (num_csvt) {
           default:
             h_btagTurnOn_num_->Fill(12);
+            [[fallthrough]];
           case 3:
             h_btagTurnOn_num_->Fill(11);
+            [[fallthrough]];
           case 2:
             h_btagTurnOn_num_->Fill(10);
+            [[fallthrough]];
           case 1:
             h_btagTurnOn_num_->Fill(9);
+            [[fallthrough]];
           case 0:
             break;  // Don't double count in the no tag bin
         }

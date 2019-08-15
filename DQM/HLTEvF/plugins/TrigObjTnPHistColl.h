@@ -86,6 +86,9 @@
 
 class TrigObjTnPHistColl {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   class FilterSelector {
   public:
     class FilterSet {

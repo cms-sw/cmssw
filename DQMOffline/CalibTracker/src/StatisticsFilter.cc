@@ -32,7 +32,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 //
 // class declaration
@@ -40,6 +39,9 @@
 
 class StatisticsFilter : public edm::EDFilter {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit StatisticsFilter(const edm::ParameterSet&);
   ~StatisticsFilter() override;
 

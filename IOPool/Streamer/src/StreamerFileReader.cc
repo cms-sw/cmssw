@@ -13,13 +13,12 @@ namespace edm {
 
   StreamerFileReader::StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc)
       : StreamerInputSource(pset, desc),
-        streamerNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames")),
         streamReader_(),
         eventSkipperByID_(EventSkipperByID::create(pset).release()),
         initialNumberOfEventsToSkip_(pset.getUntrackedParameter<unsigned int>("skipEvents")) {
     InputFileCatalog catalog(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"),
                              pset.getUntrackedParameter<std::string>("overrideCatalog"));
-    streamerNames_ = catalog.fileNames();
+    streamerNames_ = catalog.fileCatalogItems();
     reset_();
   }
 
@@ -29,7 +28,8 @@ namespace edm {
     if (streamerNames_.size() > 1) {
       streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_, eventSkipperByID());
     } else if (streamerNames_.size() == 1) {
-      streamReader_ = std::make_unique<StreamerInputFile>(streamerNames_.at(0), eventSkipperByID());
+      streamReader_ = std::make_unique<StreamerInputFile>(
+          streamerNames_.at(0).fileName(), streamerNames_.at(0).logicalFileName(), eventSkipperByID());
     } else {
       throw Exception(errors::FileReadError, "StreamerFileReader::StreamerFileReader")
           << "No fileNames were specified\n";

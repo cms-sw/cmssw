@@ -48,7 +48,6 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 namespace edm {
   class ParameterSet;
@@ -63,6 +62,8 @@ typedef std::vector<TrackingRecHit *> RecHitVector;
 
 class MuonAlignment : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
   /// Constructor
   MuonAlignment(const edm::ParameterSet &);
 

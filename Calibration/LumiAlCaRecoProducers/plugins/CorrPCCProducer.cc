@@ -47,10 +47,6 @@ ________________________________________________________________**/
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-class DQMStore;
-class MonitorElement;
 
 class CorrPCCProducer : public one::DQMEDAnalyzer<edm::one::WatchLuminosityBlocks> {
 public:

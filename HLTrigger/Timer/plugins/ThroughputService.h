@@ -29,6 +29,8 @@
 
 class ThroughputService {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+
   ThroughputService(const edm::ParameterSet&, edm::ActivityRegistry&);
   ~ThroughputService();
 

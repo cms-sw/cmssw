@@ -21,7 +21,7 @@ Monitoring source for general quantities related to track dEdx.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -29,7 +29,6 @@ Monitoring source for general quantities related to track dEdx.
 
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-class DQMStore;
 class GenericTriggerEventFlag;
 
 class dEdxAnalyzer : public DQMEDAnalyzer {

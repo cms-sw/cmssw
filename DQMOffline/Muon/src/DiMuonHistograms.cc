@@ -15,7 +15,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TLorentzVector.h"
 #include "TFile.h"

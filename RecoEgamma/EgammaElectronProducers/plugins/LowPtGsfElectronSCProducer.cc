@@ -228,7 +228,7 @@ void LowPtGsfElectronSCProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("ecalClusters", edm::InputTag("particleFlowClusterECAL"));
   desc.add<edm::InputTag>("hcalClusters", edm::InputTag("particleFlowClusterHCAL"));
   desc.add<double>("MaxDeltaR2", 0.5);
-  descriptions.add("defaultLowPtGsfElectronSuperClusters", desc);
+  descriptions.add("lowPtGsfElectronSuperClusters", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

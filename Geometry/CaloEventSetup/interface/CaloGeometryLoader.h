@@ -1,54 +1,46 @@
 #ifndef GEOMETRY_ECALGEOMETRYLOADER_H
-#define GEOMETRY_ECALGEOMETRYLOADER_H 1
+#define GEOMETRY_ECALGEOMETRYLOADER_H
 
-#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-
 #include "CondFormats/Alignment/interface/Alignments.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
 #include <string>
 #include <vector>
 
-/** \class CaloGeometryLoader<T>
+/** \class CaloGeometryLoader<T, D>
  *
- * Templated class for calo subdetector geometry loaders from DDD.
+ * Templated class for calo subdetector geometry loaders either from DDD or DD4hep.
 */
 
-class DDCompactView;
-
-template <class T>
+template <class T, class D>
 class CaloGeometryLoader {
 public:
-  typedef std::vector<double> ParmVec;
-
+  using ParmVec = std::vector<double>;
   using PtrType = std::unique_ptr<CaloSubdetectorGeometry>;
-
-  typedef CaloSubdetectorGeometry::ParVec ParVec;
-  typedef CaloSubdetectorGeometry::ParVecVec ParVecVec;
+  using ParVec = CaloSubdetectorGeometry::ParVec;
+  using ParVecVec = CaloSubdetectorGeometry::ParVecVec;
 
   static const double k_ScaleFromDDDtoGeant;
 
-  CaloGeometryLoader<T>();
+  CaloGeometryLoader<T, D>();
 
-  virtual ~CaloGeometryLoader<T>() {}
+  virtual ~CaloGeometryLoader<T, D>() {}
 
-  PtrType load(const DDCompactView* cpv, const Alignments* alignments = nullptr, const Alignments* globals = nullptr);
+  PtrType load(const D* cpv, const Alignments* alignments = nullptr, const Alignments* globals = nullptr);
 
 private:
-  void makeGeometry(const DDCompactView* cpv, T* geom, const Alignments* alignments, const Alignments* globals);
+  void makeGeometry(const D* cpv, T* geom, const Alignments* alignments, const Alignments* globals);
 
-  void fillNamedParams(const DDFilteredView& fv, T* geom);
+  template <class F>
+  void fillNamedParams(const F& fv, T* geom);
 
   void fillGeom(T* geom, const ParmVec& pv, const HepGeom::Transform3D& tr, const DetId& id);
 
-  unsigned int getDetIdForDDDNode(const DDFilteredView& fv);
+  template <class F>
+  unsigned int getDetIdForDDDNode(const F& fv);
 
   typename T::NumberingScheme m_scheme;
-  DDAndFilter<DDSpecificsMatchesValueFilter, DDSpecificsMatchesValueFilter> m_filter;
 };
 
 #endif

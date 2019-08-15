@@ -16,7 +16,7 @@
 #include <FWCore/ServiceRegistry/interface/Service.h>
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMStore.h>
 
 //
 // class declaration

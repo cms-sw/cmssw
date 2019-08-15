@@ -6,7 +6,7 @@
  */
 
 #include "DQMServices/ClientConfig/interface/QTestStatusChecker.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <iostream>
 
 QTestStatusChecker::QTestStatusChecker() {}

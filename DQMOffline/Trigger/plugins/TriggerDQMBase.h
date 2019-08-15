@@ -1,12 +1,14 @@
 #ifndef DQMOffline_Trigger_TriggerDQMBase_H
 #define DQMOffline_Trigger_TriggerDQMBase_H
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 class TriggerDQMBase {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   TriggerDQMBase() = default;
   ;
   virtual ~TriggerDQMBase() = default;

@@ -77,7 +77,7 @@ do
 
     getPayloadData.py \
 	--plugin pluginSiStripPedestals_PayloadInspector \
-	--plot plot_SiStripPedestalValueComparisonPer${j} \
+	--plot plot_SiStripPedestalValueComparisonPer${j}SingleTag \
 	--tag SiStripPedestals_v2_prompt \
 	--time_type Run \
 	--iovs '{"start_iov": "303420", "end_iov": "313120"}' \

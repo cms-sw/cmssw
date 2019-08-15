@@ -3,7 +3,6 @@
 #define FlavourHistograms_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 // #include "BTagPlotPrintC.h"
@@ -20,14 +19,15 @@
 #include <iostream>
 #include <string>
 
-//class DQMStore;
-
 //
 // class to describe Histo
 //
 template <class T>
 class FlavourHistograms {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   FlavourHistograms(const std::string& baseNameTitle_,
                     const std::string& baseNameDescription_,
                     const int& nBins_,

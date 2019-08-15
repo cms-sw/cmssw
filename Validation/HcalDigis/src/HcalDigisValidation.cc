@@ -1311,7 +1311,7 @@ void HcalDigisValidation::bookPf(
 
 void HcalDigisValidation::fillPf(std::string name, double X, double Y) { msm_->find(name)->second->Fill(X, Y); }
 
-MonitorElement* HcalDigisValidation::monitor(std::string name) {
+HcalDigisValidation::MonitorElement* HcalDigisValidation::monitor(std::string name) {
   if (!msm_->count(name))
     return nullptr;
   else

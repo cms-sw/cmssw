@@ -6,14 +6,21 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/MVAUtils/interface/TMVAEvaluator.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 class CombinedMVAV2JetTagComputer : public JetTagComputer {
 public:
-  CombinedMVAV2JetTagComputer(const edm::ParameterSet &parameters);
+  struct Tokens {
+    Tokens(const edm::ParameterSet &parameters, edm::ESConsumesCollector &&cc);
+    edm::ESGetToken<GBRForest, GBRWrapperRcd> gbrForest_;
+    std::vector<edm::ESGetToken<JetTagComputer, JetTagComputerRecord> > computers_;
+  };
+
+  CombinedMVAV2JetTagComputer(const edm::ParameterSet &parameters, Tokens tokens);
   ~CombinedMVAV2JetTagComputer() override;
 
   void initialize(const JetTagComputerRecord &record) override;
@@ -23,15 +30,13 @@ public:
 private:
   std::vector<const JetTagComputer *> computers;
 
-  const std::vector<std::string> inputComputerNames;
   const std::string mvaName;
   const std::vector<std::string> variables;
   const std::vector<std::string> spectators;
-  const bool useCondDB;
-  const std::string gbrForestLabel;
   const edm::FileInPath weightFile;
   const bool useGBRForest;
   const bool useAdaBoost;
+  const Tokens tokens;
 
   std::unique_ptr<TMVAEvaluator> mvaID;
 };

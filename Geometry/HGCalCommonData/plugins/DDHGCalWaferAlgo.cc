@@ -5,16 +5,49 @@
 
 #include <algorithm>
 #include <cmath>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "DataFormats/Math/interface/GeantUnits.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HGCalCommonData/plugins/DDHGCalWaferAlgo.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
+
+class DDHGCalWaferAlgo : public DDAlgorithm {
+public:
+  // Constructor and Destructor
+  DDHGCalWaferAlgo();
+  ~DDHGCalWaferAlgo() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double cellSize;                      // Cell Size
+  int cellType;                         // Type (1 fine; 2 coarse)
+  std::vector<std::string> childNames;  // Names of children
+  std::vector<int> positionX;           // Position in X
+  std::vector<int> positionY;           // Position in Y
+  std::vector<double> angles;           // Rotation angle
+  std::vector<int> detectorType;        // Detector type
+  std::string idName;                   // Name of the "parent" volume.
+  std::string rotns;                    // Namespace for rotation matrix
+  std::string idNameSpace;              // Namespace of this and ALL sub-parts
+  DDName parentName;                    // Parent name
+};
 
 DDHGCalWaferAlgo::DDHGCalWaferAlgo() {
 #ifdef EDM_ML_DEBUG
@@ -86,3 +119,5 @@ void DDHGCalWaferAlgo::execute(DDCompactView& cpv) {
 #endif
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHGCalWaferAlgo, "hgcal:DDHGCalWaferAlgo");

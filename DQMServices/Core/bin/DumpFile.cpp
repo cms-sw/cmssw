@@ -11,6 +11,9 @@
 #define _NSIG NSIG
 #endif
 
+typedef dqm::legacy::DQMStore DQMStore;
+typedef dqm::legacy::MonitorElement MonitorElement;
+
 struct MEInfo {
   int runnr;
   std::string system;
@@ -36,31 +39,31 @@ static char onAssertFail(const char *message) {
 
 static const char *kindToName(MonitorElement::Kind kind) {
   switch (kind) {
-    case MonitorElement::DQM_KIND_INVALID:
+    case MonitorElement::Kind::INVALID:
       return "INVALID";
-    case MonitorElement::DQM_KIND_INT:
+    case MonitorElement::Kind::INT:
       return "INT";
-    case MonitorElement::DQM_KIND_REAL:
+    case MonitorElement::Kind::REAL:
       return "REAL";
-    case MonitorElement::DQM_KIND_STRING:
+    case MonitorElement::Kind::STRING:
       return "STRING";
-    case MonitorElement::DQM_KIND_TH1F:
+    case MonitorElement::Kind::TH1F:
       return "TH1F";
-    case MonitorElement::DQM_KIND_TH1S:
+    case MonitorElement::Kind::TH1S:
       return "TH1S";
-    case MonitorElement::DQM_KIND_TH1D:
+    case MonitorElement::Kind::TH1D:
       return "TH1D";
-    case MonitorElement::DQM_KIND_TH2F:
+    case MonitorElement::Kind::TH2F:
       return "TH2F";
-    case MonitorElement::DQM_KIND_TH2S:
+    case MonitorElement::Kind::TH2S:
       return "TH2S";
-    case MonitorElement::DQM_KIND_TH2D:
+    case MonitorElement::Kind::TH2D:
       return "TH2D";
-    case MonitorElement::DQM_KIND_TH3F:
+    case MonitorElement::Kind::TH3F:
       return "TH3F";
-    case MonitorElement::DQM_KIND_TPROFILE:
+    case MonitorElement::Kind::TPROFILE:
       return "TPROFILE";
-    case MonitorElement::DQM_KIND_TPROFILE2D:
+    case MonitorElement::Kind::TPROFILE2D:
       return "TPROFILE2D";
     default:
       assert(false);
@@ -79,9 +82,9 @@ static void getMEInfo(DQMStore &store, MonitorElement &me, MEInfo &info) {
   info.data.clear();
 
   switch (me.kind()) {
-    case MonitorElement::DQM_KIND_INT:
-    case MonitorElement::DQM_KIND_REAL:
-    case MonitorElement::DQM_KIND_STRING:
+    case MonitorElement::Kind::INT:
+    case MonitorElement::Kind::REAL:
+    case MonitorElement::Kind::STRING:
       info.data = me.tagString();
       break;
 

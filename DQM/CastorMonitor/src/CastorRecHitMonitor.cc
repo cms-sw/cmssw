@@ -9,7 +9,6 @@
 
 #include "DQM/CastorMonitor/interface/CastorRecHitMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <string>
 
 using namespace std;

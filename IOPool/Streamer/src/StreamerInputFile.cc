@@ -6,6 +6,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWCore/Catalog/interface/InputFileCatalog.h"
 
 #include "Utilities/StorageFactory/interface/IOFlags.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
@@ -17,7 +18,9 @@ namespace edm {
 
   StreamerInputFile::~StreamerInputFile() { closeStreamerFile(); }
 
-  StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID)
+  StreamerInputFile::StreamerInputFile(std::string const& name,
+                                       std::string const& LFN,
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
       : startMsg_(),
         currentEvMsg_(),
         headerBuf_(1000 * 1000),
@@ -33,11 +36,14 @@ namespace edm {
         newHeader_(false),
         storage_(),
         endOfFile_(false) {
-    openStreamerFile(name);
+    openStreamerFile(name, LFN);
     readStartMessage();
   }
 
-  StreamerInputFile::StreamerInputFile(std::vector<std::string> const& names,
+  StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID)
+      : StreamerInputFile(name, name, eventSkipperByID) {}
+
+  StreamerInputFile::StreamerInputFile(std::vector<FileCatalogItem> const& names,
                                        std::shared_ptr<EventSkipperByID> eventSkipperByID)
       : startMsg_(),
         currentEvMsg_(),
@@ -53,17 +59,28 @@ namespace edm {
         currProto_(0),
         newHeader_(false),
         endOfFile_(false) {
-    openStreamerFile(names.at(0));
+    openStreamerFile(names.at(0).fileName(), names.at(0).logicalFileName());
     ++currentFile_;
     readStartMessage();
     currRun_ = startMsg_->run();
     currProto_ = startMsg_->protocolVersion();
   }
 
-  void StreamerInputFile::openStreamerFile(std::string const& name) {
+  void StreamerInputFile::openStreamerFile(std::string const& name, std::string const& LFN) {
     closeStreamerFile();
 
     currentFileName_ = name;
+
+    // Check if the logical file name was found.
+    if (currentFileName_.empty()) {
+      // LFN not found in catalog.
+      throw cms::Exception("LogicalFileNameNotFound", "StreamerInputFile::openStreamerFile()\n")
+          << "Logical file name '" << LFN << "' was not found in the file catalog.\n"
+          << "If you wanted a local file, you forgot the 'file:' prefix\n"
+          << "before the file name in your configuration file.\n";
+      return;
+    }
+
     logFileAction("  Initiating request to open file ");
 
     IOOffset size = -1;
@@ -173,9 +190,9 @@ namespace edm {
 
   bool StreamerInputFile::openNextFile() {
     if (currentFile_ <= streamerNames_.size() - 1) {
-      FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).c_str() << std::endl;
+      FDEBUG(10) << "Opening file " << streamerNames_.at(currentFile_).fileName().c_str() << std::endl;
 
-      openStreamerFile(streamerNames_.at(currentFile_));
+      openStreamerFile(streamerNames_.at(currentFile_).fileName(), streamerNames_.at(currentFile_).logicalFileName());
 
       // If start message was already there, then compare the
       // previous and new headers
@@ -198,7 +215,7 @@ namespace edm {
     //Values from new Header should match up
     if (currRun_ != startMsg_->run() || currProto_ != startMsg_->protocolVersion()) {
       throw Exception(errors::MismatchedInputFiles, "StreamerInputFile::compareHeader")
-          << "File " << streamerNames_.at(currentFile_)
+          << "File " << streamerNames_.at(currentFile_).fileName()
           << "\nhas different run number or protocol version than previous\n";
       return false;
     }

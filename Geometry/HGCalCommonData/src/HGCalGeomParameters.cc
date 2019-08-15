@@ -1,5 +1,4 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomParameters.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -682,6 +681,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " << php.zRanges_[0] << ":" << php.zRanges_[1] << ":"
                                 << php.zRanges_[2] << ":" << php.zRanges_[3];
 #endif
+  const auto& dummy2 = getDDDArray("LayerOffset", sv, 1);
+  php.layerOffset_ = dummy2[0];
+  php.layerCenter_ = dbl_to_int(DDVectorGetter::get("LayerCenter"));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalGeomParameters: LayerOffset " << php.layerOffset_ << " in array of size "
+                                << php.layerCenter_.size();
+  for (unsigned int k = 0; k < php.layerCenter_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerCenter_[k];
+#endif
 }
 
 void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalParameters& php) {
@@ -737,6 +745,26 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   edm::LogVerbatim("HGCalGeom") << "HGCalParameters: Z-Boundary " << php.zRanges_[0] << ":" << php.zRanges_[1] << ":"
                                 << php.zRanges_[2] << ":" << php.zRanges_[3];
 #endif
+  // Offsets
+  const auto& dummy2 = getDDDArray("LayerOffset", sv, 1);
+  php.layerOffset_ = dummy2[0];
+  php.layerCenter_ = dbl_to_int(DDVectorGetter::get("LayerCenter"));
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "HGCalParameters: LayerOffset " << php.layerOffset_ << " in array of size "
+                                << php.layerCenter_.size();
+  for (unsigned int k = 0; k < php.layerCenter_.size(); ++k)
+    edm::LogVerbatim("HGCalGeom") << "[" << k << "] " << php.layerCenter_[k];
+#endif
+  php.xLayerHex_.clear();
+  php.yLayerHex_.clear();
+  for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
+    php.xLayerHex_.emplace_back(0);
+    php.yLayerHex_.emplace_back(0);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Shift " << php.xLayerHex_.back() << ":"
+                                  << php.yLayerHex_.back();
+#endif
+  }
 }
 
 void HGCalGeomParameters::loadWaferHexagon(HGCalParameters& php) {
@@ -894,10 +922,12 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         uvmax = std::max(uvmax, std::max(std::abs(u), std::abs(v)));
       }
       for (unsigned int i = 0; i < php.zLayerHex_.size(); ++i) {
+        int copy = i + php.layerOffset_;
+        std::pair<double, double> xyoff = geomTools_.shiftXY(php.layerCenter_[copy], (waferW + waferS));
         int lay = php.layer_[php.layerIndex_[i]];
         double zpos = php.zLayerHex_[i];
-        int type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos,
-                                  HGCalParameters::k_ScaleToDDD * ypos,
+        int type = wType->getType(HGCalParameters::k_ScaleToDDD * (xpos + xyoff.first),
+                                  HGCalParameters::k_ScaleToDDD * (ypos + xyoff.second),
                                   HGCalParameters::k_ScaleToDDD * zpos);
         php.waferTypeL_.emplace_back(type);
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
@@ -971,6 +1001,24 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                                   << HGCalWaferIndex::waferU(id) << ":" << HGCalWaferIndex::waferV(id);
   }
 #endif
+
+  //Wafer offset
+  php.xLayerHex_.clear();
+  php.yLayerHex_.clear();
+  double waferSize = php.waferSize_ + php.sensorSeparation_;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "WaferSize " << waferSize;
+#endif
+  for (unsigned int k = 0; k < php.zLayerHex_.size(); ++k) {
+    int copy = k + php.layerOffset_;
+    std::pair<double, double> xyoff = geomTools_.shiftXY(php.layerCenter_[copy], waferSize);
+    php.xLayerHex_.emplace_back(xyoff.first);
+    php.yLayerHex_.emplace_back(xyoff.second);
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Off " << copy << ":" << php.layerCenter_[copy] << " Shift "
+                                  << xyoff.first << ":" << xyoff.second;
+#endif
+  }
 }
 
 void HGCalGeomParameters::loadCellParsHexagon(const DDCompactView* cpv, HGCalParameters& php) {

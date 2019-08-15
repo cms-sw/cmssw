@@ -6,10 +6,9 @@
 
 class GsfElectronCoreEcalDrivenProducer : public GsfElectronCoreBaseProducer {
 public:
-  //static void fillDescriptions( edm::ConfigurationDescriptions & ) ;
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
 
   explicit GsfElectronCoreEcalDrivenProducer(const edm::ParameterSet& conf);
-  ~GsfElectronCoreEcalDrivenProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:

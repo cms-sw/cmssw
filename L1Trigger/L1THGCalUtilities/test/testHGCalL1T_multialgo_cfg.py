@@ -1,8 +1,7 @@
 import FWCore.ParameterSet.Config as cms 
-from Configuration.ProcessModifiers.convertHGCalDigisSim_cff import convertHGCalDigisSim
 
-# For old samples use the digi converter
-process = cms.Process('DIGI',eras.Phase2C4)
+from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
+process = cms.Process('DIGI',Phase2C4)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -84,10 +83,8 @@ chains.register_concentrator("Supertriggercell", concentrator.create_supertrigge
 chains.register_concentrator("Threshold", concentrator.create_threshold)
 chains.register_concentrator("Bestchoice", concentrator.create_bestchoice)
 ## BE1
-chains.register_backend1("Ref2d", clustering2d.create_constrainedtopological)
 chains.register_backend1("Dummy", clustering2d.create_dummy)
 ## BE2
-chains.register_backend2("Ref3d", clustering3d.create_distance)
 chains.register_backend2("Histomax", clustering3d.create_histoMax)
 chains.register_backend2("Histomaxvardrth0", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=0.))
 chains.register_backend2("Histomaxvardrth10", lambda p,i : clustering3d.create_histoMax_variableDr(p,i,seed_threshold=10.))
@@ -95,21 +92,16 @@ chains.register_backend2("Histomaxvardrth20", lambda p,i : clustering3d.create_h
 # Register selector
 chains.register_selector("Genmatch", selectors.create_genmatch)
 # Register ntuples
-# Store gen info only in the reference ntuple
-ntuple_list_ref = ['event', 'gen', 'multiclusters']
-ntuple_list = ['event', 'multiclusters']
-chains.register_ntuple("Genclustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list_ref))
-chains.register_ntuple("Clustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list))
+ntuple_list = ['event', 'gen', 'multiclusters']
+chains.register_ntuple("Genclustersntuple", lambda p,i : ntuple.create_ntuple(p,i, ntuple_list))
 
 # Register trigger chains
-## Reference chain
-chains.register_chain('Floatingpoint8', "Threshold", 'Ref2d', 'Ref3d', 'Genmatch', 'Genclustersntuple')
 concentrator_algos = ['Supertriggercell', 'Threshold', 'Bestchoice']
 backend_algos = ['Histomax', 'Histomaxvardrth0', 'Histomaxvardrth10', 'Histomaxvardrth20']
 ## Make cross product fo ECON and BE algos
 import itertools
 for cc,be in itertools.product(concentrator_algos,backend_algos):
-    chains.register_chain('Floatingpoint8', cc, 'Dummy', be, 'Genmatch', 'Clustersntuple')
+    chains.register_chain('Floatingpoint8', cc, 'Dummy', be, 'Genmatch', 'Genclustersntuple')
 
 process = chains.create_sequences(process)
 

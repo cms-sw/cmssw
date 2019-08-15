@@ -18,8 +18,11 @@ public:
   ~CloseComponentsMergerESProducer() override;
   std::unique_ptr<MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
 
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 private:
-  edm::ParameterSet pset_;
+  const int maxComp_;
+  edm::ESGetToken<DistanceBetweenComponents<N>, TrackingComponentsRecord> distToken_;
 };
 
 #include "TrackingTools/GsfTools/plugins/CloseComponentsMergerESProducer.icc"

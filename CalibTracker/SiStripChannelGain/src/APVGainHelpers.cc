@@ -105,9 +105,9 @@ int APVGain::subdetectorPlane(const std::string& tag) {
 
 /** Brief Fetch the Monitor Element corresponding to a DetId.
  *  */
-std::vector<MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> histos,
-                                                   uint32_t det_id,
-                                                   const TrackerTopology* topo) {
+std::vector<APVGain::MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain::APVmon> histos,
+                                                            uint32_t det_id,
+                                                            const TrackerTopology* topo) {
   std::vector<MonitorElement*> found = std::vector<MonitorElement*>();
   int sId = APVGain::subdetectorId(det_id);
   int sPlane = APVGain::subdetectorPlane(det_id, topo);

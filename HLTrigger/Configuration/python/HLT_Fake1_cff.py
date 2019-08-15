@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_11_0_0/Fake1 --type Fake1
 
-# /dev/CMSSW_11_0_0/Fake1/V2 (CMSSW_11_0_0_pre1)
+# /dev/CMSSW_11_0_0/Fake1/V3 (CMSSW_11_0_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_11_0_0/Fake1/V2')
+  tableName = cms.string('/dev/CMSSW_11_0_0/Fake1/V3')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -41,10 +41,10 @@ fragment.hltTriggerType = cms.EDFilter( "HLTTriggerTypeFilter",
 )
 fragment.hltGtDigis = cms.EDProducer( "L1GlobalTriggerRawToDigi",
     DaqGtFedId = cms.untracked.int32( 813 ),
-    Verbosity = cms.untracked.int32( 0 ),
-    UnpackBxInEvent = cms.int32( 5 ),
+    DaqGtInputTag = cms.InputTag( "rawDataCollector" ),
     ActiveBoardsMask = cms.uint32( 0xffff ),
-    DaqGtInputTag = cms.InputTag( "rawDataCollector" )
+    Verbosity = cms.untracked.int32( 0 ),
+    UnpackBxInEvent = cms.int32( 5 )
 )
 fragment.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     lenSlinkTrailer = cms.untracked.int32( 8 ),
@@ -67,12 +67,12 @@ fragment.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
 )
 fragment.hltCaloStage1LegacyFormatDigis = cms.EDProducer( "L1TCaloUpgradeToGCTConverter",
     InputHFCountsCollection = cms.InputTag( 'hltCaloStage1Digis','HFBitCounts' ),
+    InputRlxTauCollection = cms.InputTag( 'hltCaloStage1Digis','rlxTaus' ),
     InputHFSumsCollection = cms.InputTag( 'hltCaloStage1Digis','HFRingSums' ),
     bxMin = cms.int32( 0 ),
     bxMax = cms.int32( 0 ),
     InputCollection = cms.InputTag( "hltCaloStage1Digis" ),
-    InputIsoTauCollection = cms.InputTag( 'hltCaloStage1Digis','isoTaus' ),
-    InputRlxTauCollection = cms.InputTag( 'hltCaloStage1Digis','rlxTaus' )
+    InputIsoTauCollection = cms.InputTag( 'hltCaloStage1Digis','isoTaus' )
 )
 fragment.hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     TechnicalTriggersUnprescaled = cms.bool( True ),
@@ -162,8 +162,8 @@ fragment.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
 fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     moduleLabelPatternsToSkip = cms.vstring(  ),
     processName = cms.string( "@" ),
-    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' ),
-    throw = cms.bool( False )
+    throw = cms.bool( False ),
+    moduleLabelPatternsToMatch = cms.vstring( 'hlt*' )
 )
 fragment.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )

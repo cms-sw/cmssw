@@ -13,6 +13,7 @@
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/AHCalParameters.h"
 #include "Geometry/HGCalCommonData/plugins/DDAHcalModuleAlgo.h"
 
 //#define EDM_ML_DEBUG
@@ -182,11 +183,11 @@ void DDAHcalModuleAlgo::positionSensitive(DDLogicalPart& glog, DDCompactView& cp
       if (nr != 0 && nc != 0) {
         DDTranslation tran(xpos, ypos, 0.0);
         DDRotation rotation;
-        int copy = inr * 10 + inc;
+        int copy = inr * AHCalParameters::kColumn_ + inc;
         if (nc < 0)
-          copy += 100;
+          copy += AHCalParameters::kRowColumn_;
         if (nr < 0)
-          copy += 1000;
+          copy += AHCalParameters::kSignRowColumn_;
         DDName name = DDName(DDSplit(tile).first, DDSplit(tile).second);
         cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG

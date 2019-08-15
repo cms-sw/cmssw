@@ -38,6 +38,9 @@ const int NBINS = 50;
 
 class DQMStoreExample : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit DQMStoreExample(const edm::ParameterSet&);
   ~DQMStoreExample() override;
 

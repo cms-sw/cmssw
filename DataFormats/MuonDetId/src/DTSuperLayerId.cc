@@ -27,7 +27,7 @@ DTSuperLayerId::DTSuperLayerId(int wheel, int station, int sector, int superlaye
 }
 
 // Copy Constructor.
-DTSuperLayerId::DTSuperLayerId(const DTSuperLayerId& slId) {
+DTSuperLayerId::DTSuperLayerId(const DTSuperLayerId& slId) : DTChamberId() {
   // The mask is required for proper slicing, i.e. if slId is
   // actually a derived class.
   id_ = (slId.rawId() & slIdMask_);

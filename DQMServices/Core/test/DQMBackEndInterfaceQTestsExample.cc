@@ -46,6 +46,9 @@ const int sample_int_value = 5;
 
 class DQMStoreQTestsExample : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit DQMStoreQTestsExample(const edm::ParameterSet&);
   ~DQMStoreQTestsExample() override;
 

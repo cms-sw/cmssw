@@ -60,11 +60,11 @@ private:
 
   builderList builders_;
   rankerList rankers_;
-  std::auto_ptr<PiZeroPredicate> predicate_;
+  std::unique_ptr<PiZeroPredicate> predicate_;
   double piZeroMass_;
 
   // Output selector
-  std::auto_ptr<StringCutObjectSelector<reco::RecoTauPiZero>> outputSelector_;
+  std::unique_ptr<StringCutObjectSelector<reco::RecoTauPiZero>> outputSelector_;
 
   //consumes interface
   edm::EDGetTokenT<reco::JetView> cand_token;
@@ -103,7 +103,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
   }
 
   // Build the sorting predicate
-  predicate_ = std::auto_ptr<PiZeroPredicate>(new PiZeroPredicate(rankers_));
+  predicate_ = std::unique_ptr<PiZeroPredicate>(new PiZeroPredicate(rankers_));
 
   // now all producers apply a final output selection
   std::string selection = pset.getParameter<std::string>("outputSelection");
@@ -162,7 +162,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     std::set<reco::CandidatePtr> photonsInCleanCollection;
     while (!dirtyPiZeros.empty()) {
       // Pull our candidate pi zero from the front of the list
-      std::auto_ptr<reco::RecoTauPiZero> toAdd(dirtyPiZeros.pop_front().release());
+      std::unique_ptr<reco::RecoTauPiZero> toAdd(dirtyPiZeros.pop_front().release());
       // If this doesn't pass our basic selection, discard it.
       if (!(*outputSelector_)(*toAdd)) {
         continue;
@@ -197,7 +197,7 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         // Put this pi zero back into the collection of sorted dirty pizeros
         PiZeroList::iterator insertionPoint =
             std::lower_bound(dirtyPiZeros.begin(), dirtyPiZeros.end(), *toAdd, *predicate_);
-        dirtyPiZeros.insert(insertionPoint, toAdd);
+        dirtyPiZeros.insert(insertionPoint, std::move(toAdd));
       }
     }
     // Apply the mass hypothesis if desired

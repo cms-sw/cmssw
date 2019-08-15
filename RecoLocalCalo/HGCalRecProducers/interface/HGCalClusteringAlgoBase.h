@@ -64,6 +64,7 @@ public:
     lastLayerEE_ = rhtools_.lastLayerEE();
     lastLayerFH_ = rhtools_.lastLayerFH();
     firstLayerBH_ = rhtools_.firstLayerBH();
+    scintMaxIphi_ = rhtools_.getScintMaxIphi();
     getEventSetupPerAlgorithm(es);
   }
   inline void setVerbosity(VerbosityLevel the_verbosity) { verbosity_ = the_verbosity; }
@@ -75,6 +76,7 @@ public:
   unsigned int lastLayerEE_;
   unsigned int lastLayerFH_;
   unsigned int firstLayerBH_;
+  int scintMaxIphi_;
 
 protected:
   // The verbosity level

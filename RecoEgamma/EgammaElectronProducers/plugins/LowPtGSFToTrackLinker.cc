@@ -87,7 +87,7 @@ void LowPtGSFToTrackLinker::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
   desc.add<edm::InputTag>("gsfPreID", edm::InputTag("lowPtGsfElectronSeeds"));
   desc.add<edm::InputTag>("gsfTracks", edm::InputTag("lowPtGsfEleGsfTracks"));
-  descriptions.add("lowPtGsfToTrackLinksDefault", desc);
+  descriptions.add("lowPtGsfToTrackLinks", desc);
 }
 
 DEFINE_FWK_MODULE(LowPtGSFToTrackLinker);

@@ -15,7 +15,8 @@ from RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUncalibRecHit_cfi impor
 from RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalPreshowerRecHit_cfi import *
 from RecoLocalCalo.EcalRecProducers.ecalDetIdToBeRecovered_cfi import *
-ecalLocalRecoSequenceCosmics = cms.Sequence(ecalFixedAlphaBetaFitUncalibRecHit*ecalWeightUncalibRecHit*ecalDetIdToBeRecovered*ecalRecHit+ecalPreshowerRecHit)
+ecalLocalRecoTaskCosmics = cms.Task(ecalFixedAlphaBetaFitUncalibRecHit,ecalWeightUncalibRecHit,ecalDetIdToBeRecovered,ecalRecHit,ecalPreshowerRecHit)
+ecalLocalRecoSequenceCosmics = cms.Sequence(ecalLocalRecoTaskCosmics)
 ecalRecHit.EBuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEB'
 ecalRecHit.EEuncalibRecHitCollection = 'ecalFixedAlphaBetaFitUncalibRecHit:EcalUncalibRecHitsEE'
 ecalRecHit.ChannelStatusToBeExcluded = [

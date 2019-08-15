@@ -173,6 +173,9 @@ namespace pat {
                                     const unsigned int& set = 0) const {
       return correctedJet(level, flavor, set).p4();
     };
+    /// Scale energy and correspondingly adjust raw jec factors
+    void scaleEnergy(double fScale) override { scaleEnergy(fScale, "Unscaled"); }
+    void scaleEnergy(double fScale, const std::string& level);
 
   private:
     /// index of the set of jec factors with given label; returns -1 if no set

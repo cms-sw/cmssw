@@ -4,7 +4,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <sstream>
 
@@ -217,11 +216,11 @@ TH2F* L1TGMTClient::get2DHisto(std::string meName, DQMStore::IGetter& igetter) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-MonitorElement* L1TGMTClient::bookClone1D(DQMStore::IBooker& ibooker,
-                                          DQMStore::IGetter& igetter,
-                                          const std::string& name,
-                                          const std::string& title,
-                                          const std::string& hrefName) {
+L1TGMTClient::MonitorElement* L1TGMTClient::bookClone1D(DQMStore::IBooker& ibooker,
+                                                        DQMStore::IGetter& igetter,
+                                                        const std::string& name,
+                                                        const std::string& title,
+                                                        const std::string& hrefName) {
   MonitorElement* me;
 
   TH1F* href = get1DHisto(input_dir_ + "/" + hrefName, igetter);
@@ -242,11 +241,11 @@ MonitorElement* L1TGMTClient::bookClone1D(DQMStore::IBooker& ibooker,
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-MonitorElement* L1TGMTClient::bookClone1DVB(DQMStore::IBooker& ibooker,
-                                            DQMStore::IGetter& igetter,
-                                            const std::string& name,
-                                            const std::string& title,
-                                            const std::string& hrefName) {
+L1TGMTClient::MonitorElement* L1TGMTClient::bookClone1DVB(DQMStore::IBooker& ibooker,
+                                                          DQMStore::IGetter& igetter,
+                                                          const std::string& name,
+                                                          const std::string& title,
+                                                          const std::string& hrefName) {
   MonitorElement* me;
 
   TH1F* href = get1DHisto(input_dir_ + "/" + hrefName, igetter);
@@ -274,11 +273,11 @@ MonitorElement* L1TGMTClient::bookClone1DVB(DQMStore::IBooker& ibooker,
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-MonitorElement* L1TGMTClient::bookClone2D(DQMStore::IBooker& ibooker,
-                                          DQMStore::IGetter& igetter,
-                                          const std::string& name,
-                                          const std::string& title,
-                                          const std::string& hrefName) {
+L1TGMTClient::MonitorElement* L1TGMTClient::bookClone2D(DQMStore::IBooker& ibooker,
+                                                        DQMStore::IGetter& igetter,
+                                                        const std::string& name,
+                                                        const std::string& title,
+                                                        const std::string& hrefName) {
   MonitorElement* me;
 
   TH2F* href = get2DHisto(input_dir_ + "/" + hrefName, igetter);

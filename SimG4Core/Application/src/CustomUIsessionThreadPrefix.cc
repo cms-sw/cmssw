@@ -22,7 +22,7 @@ namespace {
 }  // namespace
 
 G4int CustomUIsessionThreadPrefix::ReceiveG4cout(const G4String& coutString) {
-  // edm::LogInfo("G4cout") << addThreadPrefix(m_threadPrefix, trim(coutString));
+  //edm::LogInfo("G4cout") << addThreadPrefix(m_threadPrefix, trim(coutString));
   edm::LogVerbatim("G4cout") << addThreadPrefix(m_threadPrefix, trim(coutString));
   return 0;
 }

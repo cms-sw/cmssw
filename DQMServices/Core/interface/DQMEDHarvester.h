@@ -18,6 +18,8 @@ class DQMEDHarvester : public edm::one::EDProducer<edm::Accumulator,
                                                    edm::one::WatchRuns,
                                                    edm::one::SharedResources> {
 public:
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
   DQMEDHarvester();
   ~DQMEDHarvester() override = default;
 

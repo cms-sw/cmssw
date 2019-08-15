@@ -89,6 +89,7 @@ void RecHitTools::getEventSetup(const edm::EventSetup& es) {
     bhOffset_ =
         fhOffset_ + (geomBH->topology().dddConstants()).firstLayer() - (geomEE->topology().dddConstants()).firstLayer();
     bhLastLayer_ = bhOffset_ + (geomBH->topology().dddConstants()).layers(true);
+    bhMaxIphi_ = geomBH->topology().dddConstants().maxCells(true);
   } else {
     geometryType_ = 0;
     geomEE =
@@ -138,7 +139,7 @@ GlobalPoint RecHitTools::getPosition(const DetId& id) const {
 }
 
 GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
-  int lay = std::abs(layer);
+  unsigned int lay = std::abs(layer);
   double z(0);
   if (nose) {
     auto geomNose =
@@ -150,6 +151,10 @@ GlobalPoint RecHitTools::getPositionLayer(int layer, bool nose) const {
     }
   } else {
     const HGCalDDDConstants* ddd = get_ddd(geom_, geometryType_, fhOffset_, lay);
+    if (geometryType_ == 1) {
+      if (lay > fhOffset_)
+        lay -= fhOffset_;
+    }
     z = (layer > 0) ? ddd->waferZ(lay, true) : -ddd->waferZ(lay, true);
   }
   return GlobalPoint(0, 0, z);
@@ -407,6 +412,18 @@ bool RecHitTools::isHalfCell(const DetId& id) const {
   }
   //new geometry is always false
   return ishalf;
+}
+
+bool RecHitTools::isSilicon(const DetId& id) const {
+  bool issilicon = false;
+  if (id.det() == DetId::HGCalEE || id.det() == DetId::HGCalHSi)
+    issilicon = true;
+  return issilicon;
+}
+
+bool RecHitTools::isOnlySilicon(const unsigned int layer) const {
+  bool isonlysilicon = (layer % bhLastLayer_) < bhOffset_;
+  return isonlysilicon;
 }
 
 float RecHitTools::getEta(const GlobalPoint& position, const float& vertex_z) const {

@@ -85,7 +85,7 @@ struct PFTauSelectorDefinition {
 private:
   container selected_;
   DiscCutPairVec discriminators_;
-  std::auto_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
+  std::unique_ptr<StringCutObjectSelector<reco::PFTau> > cut_;
 };
 
 #endif

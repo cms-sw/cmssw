@@ -15,7 +15,6 @@
  *********************************/
 
 #include <DQM/DTMonitorClient/src/DTRunConditionVarClient.h>
-#include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMStore.h>
 
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -311,9 +310,9 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker& ibooker,
   return;
 }
 
-MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter& igetter,
-                                                          const DTChamberId& dtCh,
-                                                          string histoType) {
+DTRunConditionVarClient::MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter& igetter,
+                                                                                   const DTChamberId& dtCh,
+                                                                                   string histoType) {
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
   int st = dtCh.station();

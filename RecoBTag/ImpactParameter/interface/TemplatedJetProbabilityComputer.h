@@ -14,6 +14,8 @@
 template <class Container, class Base>
 class TemplatedJetProbabilityComputer : public JetTagComputer {
 public:
+  using Tokens = void;
+
   typedef reco::IPTagInfo<Container, Base> TagInfo;
 
   TemplatedJetProbabilityComputer(const edm::ParameterSet& parameters) {

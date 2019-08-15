@@ -18,7 +18,6 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TH1F.h"
 #include "TFile.h"
@@ -40,6 +39,9 @@
 
 class StripValidationPlots : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit StripValidationPlots(const edm::ParameterSet&);
   ~StripValidationPlots() override;
 

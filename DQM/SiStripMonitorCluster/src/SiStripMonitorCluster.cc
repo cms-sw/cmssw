@@ -26,7 +26,6 @@
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
@@ -524,7 +523,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es, DQMStore::IBook
                                                      ParametersNclusVsCycleTimeProf2D.getParameter<double>("ymax"),
                                                      0,
                                                      0);
-      if (NclusVsCycleTimeProf2D->kind() == MonitorElement::DQM_KIND_TPROFILE2D)
+      if (NclusVsCycleTimeProf2D->kind() == MonitorElement::Kind::TPROFILE2D)
         NclusVsCycleTimeProf2D->getTH1()->SetCanExtend(TH1::kAllAxes);
     }
     if (clusterWidth_vs_amplitude_on) {
@@ -1425,7 +1424,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker
                                                          0,
                                                          "");
     subdetMEs.SubDetTotClusterProf->setAxisTitle(Parameters.getParameter<std::string>("xaxis"), 1);
-    if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::DQM_KIND_TPROFILE)
+    if (subdetMEs.SubDetTotClusterProf->kind() == MonitorElement::Kind::TPROFILE)
       subdetMEs.SubDetTotClusterProf->getTH1()->SetCanExtend(TH1::kAllAxes);
 
     Parameters = conf_.getParameter<edm::ParameterSet>("NumberOfClusterPerLayerTrendVar");
@@ -1618,7 +1617,8 @@ void SiStripMonitorCluster::fillLayerMEs(LayerMEs& layerMEs, ClusterProperties& 
   }
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorCluster::bookMETrend(const char* HistoName, DQMStore::IBooker& ibooker) {
+SiStripMonitorCluster::MonitorElement* SiStripMonitorCluster::bookMETrend(const char* HistoName,
+                                                                          DQMStore::IBooker& ibooker) {
   edm::ParameterSet ParametersTrend = trendVs10Ls_ ? conf_.getParameter<edm::ParameterSet>("TrendingLS")
                                                    : conf_.getParameter<edm::ParameterSet>("Trending");
   MonitorElement* me = ibooker.bookProfile(HistoName,
@@ -1632,15 +1632,15 @@ MonitorElement* SiStripMonitorCluster::bookMETrend(const char* HistoName, DQMSto
   if (!me)
     return me;
   me->setAxisTitle(ParametersTrend.getParameter<std::string>("xaxis"), 1);
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE)
+  if (me->kind() == MonitorElement::Kind::TPROFILE)
     me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
 
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorCluster::bookME1D(const char* ParameterSetLabel,
-                                                const char* HistoName,
-                                                DQMStore::IBooker& ibooker) {
+SiStripMonitorCluster::MonitorElement* SiStripMonitorCluster::bookME1D(const char* ParameterSetLabel,
+                                                                       const char* HistoName,
+                                                                       DQMStore::IBooker& ibooker) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book1D(HistoName,
                         HistoName,
@@ -1650,9 +1650,9 @@ MonitorElement* SiStripMonitorCluster::bookME1D(const char* ParameterSetLabel,
 }
 
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorCluster::bookME2D(const char* ParameterSetLabel,
-                                                const char* HistoName,
-                                                DQMStore::IBooker& ibooker) {
+SiStripMonitorCluster::MonitorElement* SiStripMonitorCluster::bookME2D(const char* ParameterSetLabel,
+                                                                       const char* HistoName,
+                                                                       DQMStore::IBooker& ibooker) {
   Parameters = conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book2D(HistoName,
                         HistoName,

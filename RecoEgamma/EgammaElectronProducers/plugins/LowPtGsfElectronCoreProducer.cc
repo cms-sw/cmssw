@@ -13,8 +13,6 @@ LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer(const edm::ParameterS
       consumes<edm::ValueMap<reco::SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"));
 }
 
-LowPtGsfElectronCoreProducer::~LowPtGsfElectronCoreProducer() {}
-
 void LowPtGsfElectronCoreProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // Output collection
   auto electrons = std::make_unique<reco::GsfElectronCoreCollection>();
@@ -58,9 +56,9 @@ void LowPtGsfElectronCoreProducer::produce(edm::Event& event, const edm::EventSe
 //
 void LowPtGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  GsfElectronCoreBaseProducer::fillDescription(desc);
+  GsfElectronCoreBaseProducer::fillDescription(desc, "lowPtGsfElePfGsfTracks", "lowPtGsfEleGsfTracks");
   desc.add<edm::InputTag>("superClusters", edm::InputTag("lowPtGsfElectronSuperClusters"));
-  descriptions.add("defaultLowPtGsfElectronCores", desc);
+  descriptions.add("lowPtGsfElectronCores", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

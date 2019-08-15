@@ -1,12 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
+using namespace cms_units::operators;
 
 static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -70,7 +70,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // Cooling Manifolds
     name = "TOBCoolingManifold" + names[i] + "a";
     dz = coolRout1;
-    solid = ns.addSolid(name, Torus(coolRin, coolRout1, coolR1[i], coolStartPhi1, coolDeltaPhi1));
+    solid = ns.addSolid(name, Torus(coolR1[i], coolRin, coolRout1, coolStartPhi1, coolDeltaPhi1));
     LogDebug("TOBGeom") << name << " Torus made of " << coolM1 << " from " << convertRadToDeg(coolStartPhi1) << " to "
                         << convertRadToDeg((coolStartPhi1 + coolDeltaPhi1)) << " with Rin " << coolRin << " Rout "
                         << coolRout1 << " R torus " << coolR1[i];
@@ -82,7 +82,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
     // Cooling Fluid (in Cooling Manifold)
     name = "TOBCoolingManifoldFluid" + names[i] + "a";
-    solid = ns.addSolid(name, Torus(coolRin, coolRout2, coolR1[i], coolStartPhi2, coolDeltaPhi2));
+    solid = ns.addSolid(name, Torus(coolR1[i], coolRin, coolRout2, coolStartPhi2, coolDeltaPhi2));
     LogDebug("TOBGeom") << name << " Torus made of " << coolM2 << " from " << convertRadToDeg(coolStartPhi2) << " to "
                         << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin << " Rout "
                         << coolRout2 << " R torus " << coolR1[i];
@@ -93,7 +93,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
     name = "TOBCoolingManifold" + names[i] + "r";
     dz = coolRout1;
-    solid = ns.addSolid(name, Torus(coolRin, coolRout1, coolR2[i], coolStartPhi1, coolDeltaPhi1));
+    solid = ns.addSolid(name, Torus(coolR2[i], coolRin, coolRout1, coolStartPhi1, coolDeltaPhi1));
     LogDebug("TOBGeom") << name << " Torus made of " << coolM1 << " from " << convertRadToDeg(coolStartPhi1) << " to "
                         << convertRadToDeg((coolStartPhi1 + coolDeltaPhi1)) << " with Rin " << coolRin << " Rout "
                         << coolRout1 << " R torus " << coolR2[i];
@@ -105,7 +105,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
     // Cooling Fluid (in Cooling Manifold)
     name = "TOBCoolingManifoldFluid" + names[i] + "r";
-    solid = ns.addSolid(name, Torus(coolRin, coolRout2, coolR2[i], coolStartPhi2, coolDeltaPhi2));
+    solid = ns.addSolid(name, Torus(coolR2[i], coolRin, coolRout2, coolStartPhi2, coolDeltaPhi2));
     LogDebug("TOBGeom") << name << " Torus made of " << coolM2 << " from " << convertRadToDeg(coolStartPhi2) << " to "
                         << convertRadToDeg((coolStartPhi2 + coolDeltaPhi2)) << " with Rin " << coolRin << " Rout "
                         << coolRout2 << " R torus " << coolR2[i];

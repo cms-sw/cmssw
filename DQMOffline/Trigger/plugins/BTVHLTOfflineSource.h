@@ -21,7 +21,6 @@
 // user include files
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMOffline/Trigger/plugins/TriggerDQMBase.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"

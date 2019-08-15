@@ -5,6 +5,7 @@
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorThresholdImpl.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorBestChoiceImpl.h"
 #include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorSuperTriggerCellImpl.h"
+#include "L1Trigger/L1THGCal/interface/concentrator/HGCalConcentratorCoarsenerImpl.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerTools.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
@@ -23,10 +24,14 @@ public:
 
 private:
   SelectionType selectionType_;
+  bool fixedDataSizePerHGCROC_;
+  bool coarsenTriggerCells_;
+  static constexpr int kHighDensityThickness_ = 0;
 
   std::unique_ptr<HGCalConcentratorThresholdImpl> thresholdImpl_;
   std::unique_ptr<HGCalConcentratorBestChoiceImpl> bestChoiceImpl_;
   std::unique_ptr<HGCalConcentratorSuperTriggerCellImpl> superTriggerCellImpl_;
+  std::unique_ptr<HGCalConcentratorCoarsenerImpl> coarsenerImpl_;
 
   HGCalTriggerTools triggerTools_;
 };

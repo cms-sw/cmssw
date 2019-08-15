@@ -44,6 +44,10 @@ namespace hgcal {
 
     bool isHalfCell(const DetId&) const;
 
+    bool isSilicon(const DetId&) const;
+
+    bool isOnlySilicon(const unsigned int layer) const;
+
     // 4-vector helper functions using GlobalPoint
     float getEta(const GlobalPoint& position, const float& vertex_z = 0.) const;
     float getPhi(const GlobalPoint& position) const;
@@ -62,6 +66,7 @@ namespace hgcal {
     unsigned int maxNumberOfWafersPerLayer(bool nose = false) const {
       return (nose ? maxNumberOfWafersNose_ : maxNumberOfWafersPerLayer_);
     }
+    inline int getScintMaxIphi() const { return bhMaxIphi_; }
     inline int getGeometryType() const { return geometryType_; }
     bool maskCell(const DetId& id, int corners = 3) const;
 
@@ -70,6 +75,7 @@ namespace hgcal {
     unsigned int fhOffset_, bhOffset_, bhLastLayer_, fhLastLayer_;
     unsigned int maxNumberOfWafersPerLayer_, maxNumberOfWafersNose_;
     int geometryType_;
+    int bhMaxIphi_;
   };
 }  // namespace hgcal
 

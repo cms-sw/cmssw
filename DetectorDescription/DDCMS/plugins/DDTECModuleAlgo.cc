@@ -1,49 +1,12 @@
 #include "DD4hep/DetFactoryHelper.h"
-#include "DataFormats/Math/interface/GeantUnits.h"
+#include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDPlugins.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 using namespace dd4hep;
 using namespace cms;
-using namespace geant_units::operators;
-
-static void doPos(cms::DDParsingContext& ctxt,
-                  dd4hep::Volume toPos,
-                  dd4hep::Volume mother,
-                  int copyNr,
-                  double x,
-                  double y,
-                  double z,
-                  const string& rotName) {
-  cms::DDNamespace ns(ctxt);
-  mother.placeVolume(toPos, copyNr, dd4hep::Transform3D(ns.rotation(rotName), dd4hep::Position(x, y, z)));
-  LogDebug("TECGeom") << "Volume: " << mother.name() << " positioned daughter " << mother.name();
-}
-
-static void doPos(cms::DDParsingContext& ctxt,
-                  dd4hep::Volume toPos,
-                  dd4hep::Volume mother,
-                  bool isStereo,
-                  double rPos,
-                  double posCorrectionPhi,
-                  double x,
-                  double y,
-                  double z,
-                  string rotName) {
-  int copyNr = isStereo ? 2 : 1;
-  // This has to be done so that the Mother coordinate System of a Tub resembles
-  // the coordinate System of a Trap or Box.
-  z += rPos;
-
-  if (isStereo) {
-    // z is x , x is y
-    //z+= rPos*sin(posCorrectionPhi);  <<- this is already corrected with the r position!
-    x += rPos * sin(posCorrectionPhi);
-  }
-  /////FIXME!!!  if (rotName == "NULL") rotName = standardRot;
-  doPos(ctxt, toPos, mother, copyNr, x, y, z, rotName);
-}
+using namespace cms_units::operators;
 
 static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e, SensitiveDetector& /* sens */) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -80,14 +43,17 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double topFrame2LHeight = isStereo ? args.value<double>("TopFrame2LHeight") : 0e0;  //             left  height
   double topFrame2RHeight = isStereo ? args.value<double>("TopFrame2RHeight") : 0e0;  //             right height
   double topFrameZ = args.value<double>("TopFrameZ");                                 //              z-positions
-  string sideFrameMat = args.value<string>("SideFrameMaterial");                      //Side frame    material
-  double sideFrameThick = args.value<double>("SideFrameThick");                       //              thickness
+
+  double resizeH = 0.96;
+  string sideFrameMat = args.value<string>("SideFrameMaterial");   //Side frame    material
+  double sideFrameThick = args.value<double>("SideFrameThick");    //              thickness
   double sideFrameLWidth = args.value<double>("SideFrameLWidth");  //    Left     Width (for stereo modules upper one)
   double sideFrameLWidthLow = isStereo ? args.value<double>("SideFrameLWidthLow")
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
-  double sideFrameLHeight = args.value<double>("SideFrameLHeight");  //             Height
-  double sideFrameLtheta = args.value<double>("SideFrameLtheta");    //              angle of the trapezoid shift
-  double sideFrameRWidth = args.value<double>("SideFrameRWidth");    //    Right    Width (for stereo modules upper one)
+  double sideFrameLHeight = resizeH * args.value<double>("SideFrameLHeight");  //             Height
+  double sideFrameLtheta = args.value<double>("SideFrameLtheta");  //              angle of the trapezoid shift
+  double sideFrameRWidth =
+      resizeH * args.value<double>("SideFrameRWidth");  //    Right    Width (for stereo modules upper one)
   double sideFrameRWidthLow = isStereo ? args.value<double>("SideFrameRWidthLow")
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
   double sideFrameRHeight = args.value<double>("SideFrameRHeight");  //             Height
@@ -136,57 +102,60 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   double siReenforceThick = args.value<double>("SiReenforcementThick");                     //             Thick
   string siReenforceMat = args.value<string>("SiReenforcementMaterial");                    //             Materieal
 
-  LogDebug("TECGeom") << "debug: ModuleThick " << moduleThick << " Detector Tilt " << convertRadToDeg(detTilt)
-                      << " Height " << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
-                      << " dl(Hybrid) " << dlHybrid << " rPos " << rPos << " standrad rotation " << standardRot;
-  LogDebug("TECGeom") << "debug: Frame Width " << frameWidth << " Thickness " << frameThick << " Overlap " << frameOver;
-  LogDebug("TECGeom") << "debug: Top Frame Material " << topFrameMat << " Height " << topFrameHeight << " Top Width "
-                      << topFrameTopWidth << " Bottom Width " << topFrameTopWidth << " Thickness " << topFrameThick
-                      << " positioned at" << topFrameZ;
-  LogDebug("TECGeom") << "debug : Side Frame Material " << sideFrameMat << " Thickness " << sideFrameThick
-                      << " left Leg's Width: " << sideFrameLWidth << " left Leg's Height: " << sideFrameLHeight
-                      << " left Leg's tilt(theta): " << sideFrameLtheta << " right Leg's Width: " << sideFrameRWidth
-                      << " right Leg's Height: " << sideFrameRHeight << " right Leg's tilt(theta): " << sideFrameRtheta
-                      << "Supplies Box's Material: " << siFrSuppBoxMat << " positioned at" << sideFrameZ;
+  edm::LogVerbatim("TECGeom") << "debug: ModuleThick " << moduleThick << " Detector Tilt " << convertRadToDeg(detTilt)
+                              << " Height " << fullHeight << " dl(Top) " << dlTop << " dl(Bottom) " << dlBottom
+                              << " dl(Hybrid) " << dlHybrid << " rPos " << rPos << " standrad rotation " << standardRot;
+  edm::LogVerbatim("TECGeom") << "debug: Frame Width " << frameWidth << " Thickness " << frameThick << " Overlap "
+                              << frameOver;
+  edm::LogVerbatim("TECGeom") << "debug: Top Frame Material " << topFrameMat << " Height " << topFrameHeight
+                              << " Top Width " << topFrameTopWidth << " Bottom Width " << topFrameTopWidth
+                              << " Thickness " << topFrameThick << " positioned at" << topFrameZ;
+  edm::LogVerbatim("TECGeom") << "debug : Side Frame Material " << sideFrameMat << " Thickness " << sideFrameThick
+                              << " left Leg's Width: " << sideFrameLWidth << " left Leg's Height: " << sideFrameLHeight
+                              << " left Leg's tilt(theta): " << sideFrameLtheta
+                              << " right Leg's Width: " << sideFrameRWidth
+                              << " right Leg's Height: " << sideFrameRHeight
+                              << " right Leg's tilt(theta): " << sideFrameRtheta
+                              << "Supplies Box's Material: " << siFrSuppBoxMat << " positioned at" << sideFrameZ;
   for (int i = 0; i < (int)(siFrSuppBoxWidth.size()); i++)
-    LogDebug("TECGeom") << " Supplies Box" << i << "'s Width: " << siFrSuppBoxWidth[i] << " Supplies Box" << i
-                        << "'s Height: " << siFrSuppBoxHeight[i] << " Supplies Box" << i
-                        << "'s y Position: " << siFrSuppBoxYPos[i];
-  LogDebug("TECGeom") << "debug: Wafer Material " << waferMat << " Side Width Top" << sideWidthTop
-                      << " Side Width Bottom" << sideWidthBottom << " and positioned at " << waferPosition
-                      << " positioned with rotation"
-                      << " matrix:" << waferRot;
-  LogDebug("TECGeom") << "debug: Active Material " << activeMat << " Height " << activeHeight << " rotated by "
-                      << activeRot << " translated by (0,0," << -0.5 * backplaneThick << ")"
-                      << " Thickness/Z" << waferThick - backplaneThick << "/" << activeZ;
-  LogDebug("TECGeom") << "debug: Hybrid Material " << hybridMat << " Height " << hybridHeight << " Width "
-                      << hybridWidth << " Thickness " << hybridThick << " Z" << hybridZ;
-  LogDebug("TECGeom") << "debug: Pitch Adapter Material " << pitchMat << " Height " << pitchHeight << " Thickness "
-                      << pitchThick << " position with "
-                      << " rotation " << pitchRot << " at Z" << pitchZ;
-  LogDebug("TECGeom") << "debug: Bridge Material " << bridgeMat << " Width " << bridgeWidth << " Thickness "
-                      << bridgeThick << " Height " << bridgeHeight << " Separation " << bridgeSep;
-  LogDebug("TECGeom") << "FALTBOOT DDTECModuleAlgo debug : Si-Reenforcement Material " << sideFrameMat << " Thickness "
-                      << siReenforceThick;
+    edm::LogVerbatim("TECGeom") << " Supplies Box" << i << "'s Width: " << siFrSuppBoxWidth[i] << " Supplies Box" << i
+                                << "'s Height: " << siFrSuppBoxHeight[i] << " Supplies Box" << i
+                                << "'s y Position: " << siFrSuppBoxYPos[i];
+  edm::LogVerbatim("TECGeom") << "debug: Wafer Material " << waferMat << " Side Width Top" << sideWidthTop
+                              << " Side Width Bottom" << sideWidthBottom << " and positioned at " << waferPosition
+                              << " positioned with rotation"
+                              << " matrix:" << waferRot;
+  edm::LogVerbatim("TECGeom") << "debug: Active Material " << activeMat << " Height " << activeHeight << " rotated by "
+                              << activeRot << " translated by (0,0," << -0.5 * backplaneThick << ")"
+                              << " Thickness/Z" << waferThick - backplaneThick << "/" << activeZ;
+  edm::LogVerbatim("TECGeom") << "debug: Hybrid Material " << hybridMat << " Height " << hybridHeight << " Width "
+                              << hybridWidth << " Thickness " << hybridThick << " Z" << hybridZ;
+  edm::LogVerbatim("TECGeom") << "debug: Pitch Adapter Material " << pitchMat << " Height " << pitchHeight
+                              << " Thickness " << pitchThick << " position with "
+                              << " rotation " << pitchRot << " at Z" << pitchZ;
+  edm::LogVerbatim("TECGeom") << "debug: Bridge Material " << bridgeMat << " Width " << bridgeWidth << " Thickness "
+                              << bridgeThick << " Height " << bridgeHeight << " Separation " << bridgeSep;
+  edm::LogVerbatim("TECGeom") << "FALTBOOT DDTECModuleAlgo debug : Si-Reenforcement Material " << sideFrameMat
+                              << " Thickness " << siReenforceThick;
   for (int i = 0; i < (int)(siReenforceWidth.size()); i++)
-    LogDebug("TECGeom") << " SiReenforcement" << i << "'s Width: " << siReenforceWidth[i] << " SiReenforcement" << i
-                        << "'s Height: " << siReenforceHeight[i] << " SiReenforcement" << i
-                        << "'s y Position: " << siReenforceYPos[i];
+    edm::LogVerbatim("TECGeom") << " SiReenforcement" << i << "'s Width: " << siReenforceWidth[i] << " SiReenforcement"
+                                << i << "'s Height: " << siReenforceHeight[i] << " SiReenforcement" << i
+                                << "'s y Position: " << siReenforceYPos[i];
 
   if (!isStereo) {
-    LogDebug("TECGeom") << "This is a normal module, in ring " << ringNo << "!";
+    edm::LogVerbatim("TECGeom") << "This is a normal module, in ring " << ringNo << "!";
   } else {
-    LogDebug("TECGeom") << "This is a stereo module, in ring " << ringNo << "!";
-    LogDebug("TECGeom") << "Phi Position corrected by " << posCorrectionPhi << "*rad";
-    LogDebug("TECGeom") << "debug: stereo Top Frame 2nd Part left Heigt " << topFrame2LHeight << " right Height "
-                        << topFrame2RHeight << " Width " << topFrame2Width;
-    LogDebug("TECGeom") << " left Leg's lower Width: " << sideFrameLWidthLow
-                        << " right Leg's lower Width: " << sideFrameRWidthLow;
+    edm::LogVerbatim("TECGeom") << "This is a stereo module, in ring " << ringNo << "!";
+    edm::LogVerbatim("TECGeom") << "Phi Position corrected by " << posCorrectionPhi << "*rad";
+    edm::LogVerbatim("TECGeom") << "debug: stereo Top Frame 2nd Part left Heigt " << topFrame2LHeight
+                                << " right Height " << topFrame2RHeight << " Width " << topFrame2Width;
+    edm::LogVerbatim("TECGeom") << " left Leg's lower Width: " << sideFrameLWidthLow
+                                << " right Leg's lower Width: " << sideFrameRWidthLow;
   }
 
   // Execution part:
 
-  LogDebug("TECGeom") << "==>> Constructing DDTECModuleAlgo: ";
+  edm::LogVerbatim("TECGeom") << "==>> Constructing DDTECModuleAlgo: ";
   //declarations
   double tmp;
   //names
@@ -197,7 +166,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   //usefull constants
   const double topFrameEndZ = 0.5 * (-waferPosition + fullHeight) + pitchHeight + hybridHeight - topFrameHeight;
   string idName = ns.prepend(ns.realName(mother.name()));
-  LogDebug("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name();
+  edm::LogVerbatim("TECGeom") << "idName: " << idName << " parent " << mother.name() << " namespace " << ns.name();
   Solid solid;
 
   //set global parameters
@@ -229,9 +198,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     bl1 = 0.5 * sideFrameLWidthLow;
   solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolidNS(name, solid);
-  LogDebug("TECGeom") << "Solid: " << solid.name() << " Trap made of " << sideFrameMat << " of dimensions " << dz
-                      << ",  " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
-                      << ", " << bl2 << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid: " << name << " " << solid.name() << " Trap made of " << sideFrameMat
+                              << " of dimensions " << dz << ",  " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1
+                              << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume sideFrameLeft(name, solid, ns.material(sideFrameMat));
   ns.addVolumeNS(sideFrameLeft);
   //translate
@@ -251,7 +220,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
            dz * cos(detTilt + fabs(thet)) / cos(fabs(thet)) + bl2 * sin(detTilt) - 0.1_mm;
   }
   //position
-  doPos(ctxt, sideFrameLeft, mother, isStereo, rPos, posCorrectionPhi, xpos, ypos, zpos, waferRot);
+  mother.placeVolume(
+      sideFrameLeft,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(waferRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
 
   //right Frame
   name = idName + "SideFrameRight";
@@ -263,9 +236,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     bl1 = 0.5 * sideFrameRWidthLow;
   solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolidNS(name, solid);
-  LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << sideFrameMat << " of dimensions " << dz
-                      << ", " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2
-                      << ", " << bl2 << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << sideFrameMat
+                              << " of dimensions " << dz << ", " << thet << ", 0, " << h1 << ", " << bl1 << ", " << bl1
+                              << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume sideFrameRight(name, solid, ns.material(sideFrameMat));
   ns.addVolumeNS(sideFrameRight);
   //translate
@@ -283,8 +256,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
            dz * cos(detTilt - fabs(thet)) / cos(fabs(thet)) - bl2 * sin(detTilt) - 0.1_mm;
   }
   //position it
-  doPos(ctxt, sideFrameRight, mother, isStereo, rPos, posCorrectionPhi, xpos, ypos, zpos, waferRot);
-
+  mother.placeVolume(
+      sideFrameRight,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(waferRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
   //Supplies Box(es)
   matter = ns.material(siFrSuppBoxMat);
   for (int i = 0; i < (int)(siFrSuppBoxWidth.size()); i++) {
@@ -299,9 +275,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // ^-- this calculates the lower left angel of the tipped trapezoid, which is the SideFframe...
 
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << siFrSuppBoxMat << " of dimensions " << dz
-                        << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-                        << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << siFrSuppBoxMat
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl2 << ", 0";
     Volume siFrSuppBox(name, solid, matter);
     ns.addVolumeNS(siFrSuppBox);
     //translate
@@ -322,7 +298,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
              siFrSuppBoxYPos[i] - sin(detTilt) * sideFrameRWidth;
     }
     //position it;
-    doPos(ctxt, siFrSuppBox, mother, isStereo, rPos, posCorrectionPhi, xpos, ypos, zpos, waferRot);
+    mother.placeVolume(siFrSuppBox,
+                       isStereo ? 2 : 1,
+                       dd4hep::Transform3D(
+                           ns.rotation(waferRot),
+                           dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
   }
 
   //The Hybrid
@@ -332,8 +312,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   dz = 0.5 * hybridHeight;
   solid = Box(dx, dy, dz);
   ns.addSolidNS(name, solid);
-  LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Box made of " << hybridMat << " of dimensions " << dx << ", "
-                      << dy << ", " << dz;
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Box made of " << hybridMat
+                              << " of dimensions " << dx << ", " << dy << ", " << dz;
   Volume hybrid(name, solid, ns.material(hybridMat));
   ns.addVolumeNS(hybrid);
 
@@ -342,7 +322,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   if (isRing6)
     zpos *= -1;
   //position it
-  doPos(ctxt, hybrid, mother, isStereo, rPos, posCorrectionPhi, 0, ypos, zpos, "NULL");
+  mother.placeVolume(
+      hybrid,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(standardRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0., ypos)));
 
   // Wafer
   name = idName + tag + "Wafer";
@@ -352,9 +336,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   dz = 0.5 * fullHeight;
   solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolidNS(name, solid);
-  LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << waferMat << " of dimensions " << dz
-                      << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-                      << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << waferMat
+                              << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                              << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume wafer(name, solid, ns.material(waferMat));
 
   ypos = activeZ;
@@ -362,7 +346,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   if (isRing6)
     zpos *= -1;
 
-  doPos(ctxt, wafer, mother, isStereo, rPos, posCorrectionPhi, 0, ypos, zpos, waferRot);
+  mother.placeVolume(
+      wafer,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(waferRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0., ypos)));
 
   // Active
   name = idName + tag + "Active";
@@ -377,19 +365,14 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   }
   solid = Trap(dz, 0, 0, h1, bl2, bl1, 0, h1, bl2, bl1, 0);
   ns.addSolidNS(name, solid);
-  LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << activeMat << " of dimensions " << dz
-                      << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl1
-                      << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << activeMat
+                              << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, "
+                              << h1 << ", " << bl2 << ", " << bl1 << ", 0";
   Volume active(name, solid, ns.material(activeMat));
   ns.addVolumeNS(active);
-  doPos(ctxt,
-        active,
-        wafer,
-        1,
-        -0.5 * backplaneThick,
-        0,
-        0,
-        activeRot);  // from the definition of the wafer local axes and doPos() routine
+
+  wafer.placeVolume(
+      active, 1, dd4hep::Transform3D(ns.rotation(activeRot), dd4hep::Position(0., -0.5 * backplaneThick, 0.)));
 
   //inactive part in rings > 3
   if (ringNo > 3) {
@@ -410,20 +393,14 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     }
     solid = Trap(dz, 0, 0, h1, bl2, bl1, 0, h1, bl2, bl1, 0);
     ns.addSolidNS(name, solid);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << inactiveMat << " of dimensions " << dz
-                        << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl1
-                        << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << inactiveMat
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl2 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl1 << ", 0";
     Volume inactive(name, solid, ns.material(inactiveMat));
     ns.addVolumeNS(inactive);
     ypos = inactivePos - 0.5 * activeHeight;
-    doPos(ctxt,
-          inactive,
-          active,
-          1,
-          ypos,
-          0,
-          0,
-          "NULL");  // from the definition of the wafer local axes and doPos() routine
+
+    active.placeVolume(inactive, 1, dd4hep::Position(0., ypos, 0.));
   }
   //Pitch Adapter
   name = idName + "PA";
@@ -433,8 +410,8 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     dz = 0.5 * pitchHeight;
     solid = Box(dx, dy, dz);
     ns.addSolidNS(name, solid);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Box made of " << pitchMat << " of dimensions " << dx << ", "
-                        << dy << ", " << dz;
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Box made of " << pitchMat
+                                << " of dimensions " << dx << ", " << dy << ", " << dz;
   } else {
     dz = 0.5 * pitchWidth;
     h1 = 0.5 * pitchThick;
@@ -443,9 +420,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     thet = atan((bl1 - bl2) / (2. * dz));
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
     ns.addSolidNS(name, solid);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << pitchMat << " of dimensions " << dz << ", "
-                        << convertRadToDeg(thet) << ", 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", "
-                        << bl2 << ", " << bl2 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << pitchMat
+                                << " of dimensions " << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", "
+                                << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   }
   xpos = 0;
   ypos = pitchZ;
@@ -457,9 +434,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
   Volume pa(name, solid, ns.material(pitchMat));
   if (isStereo)
-    doPos(ctxt, pa, mother, isStereo, rPos, posCorrectionPhi, xpos, ypos, zpos, pitchRot);
+    mother.placeVolume(pa,
+                       2,
+                       dd4hep::Transform3D(ns.rotation(pitchRot),
+                                           dd4hep::Position(zpos + rPos, xpos + rPos * sin(posCorrectionPhi), ypos)));
   else
-    doPos(ctxt, pa, mother, isStereo, rPos, posCorrectionPhi, xpos, ypos, zpos, "NULL");
+    mother.placeVolume(pa, 1, dd4hep::Transform3D(ns.rotation(standardRot), dd4hep::Position(zpos + rPos, xpos, ypos)));
 
   //Top of the frame
   name = idName + "TopFrame";
@@ -474,9 +454,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
   solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
   ns.addSolid(name, solid);
-  LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << topFrameMat << " of dimensions " << dz
-                      << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-                      << ", 0";
+  edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << topFrameMat
+                              << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                              << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   Volume topFrame(name, solid, ns.material(topFrameMat));
   ns.addVolumeNS(topFrame);
 
@@ -491,9 +471,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
     solid = Trap(dz, thet, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
     ns.addSolid(name, solid);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << topFrameMat << " of dimensions " << dz
-                        << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1
-                        << ", " << bl2 << ", " << bl2 << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << topFrameMat
+                                << " of dimensions " << dz << ", " << convertRadToDeg(thet) << ", 0, " << h1 << ", "
+                                << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2 << ", 0";
   }
 
   // Position the topframe
@@ -503,12 +483,19 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     zpos *= -1;
   }
 
-  doPos(ctxt, topFrame, mother, isStereo, rPos, posCorrectionPhi, 0, ypos, zpos, "NULL");
+  mother.placeVolume(
+      topFrame,
+      isStereo ? 2 : 1,
+      dd4hep::Transform3D(ns.rotation(standardRot),
+                          dd4hep::Position(zpos + rPos, isStereo ? rPos * sin(posCorrectionPhi) : 0., ypos)));
   if (isStereo) {
     //create
     Volume topFrame2(name, solid, ns.material(topFrameMat));
     zpos -= 0.5 * (topFrameHeight + 0.5 * (topFrame2LHeight + topFrame2RHeight));
-    doPos(ctxt, topFrame2, mother, isStereo, rPos, posCorrectionPhi, 0, ypos, zpos, pitchRot);
+    mother.placeVolume(
+        topFrame2,
+        2,
+        dd4hep::Transform3D(ns.rotation(pitchRot), dd4hep::Position(zpos + rPos, rPos * sin(posCorrectionPhi), ypos)));
   }
 
   //Si - Reencorcement
@@ -519,9 +506,9 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     dz = 0.5 * siReenforceHeight[i];
     bl1 = bl2 = 0.5 * siReenforceWidth[i];
     solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << matter.name() << " of dimensions " << dz
-                        << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-                        << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << matter.name()
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl2 << ", 0";
     Volume siReenforce(name, solid, matter);
     ns.addVolumeNS(siReenforce);
     //translate
@@ -538,7 +525,12 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
       //    zpos -= topFrame2RHeight + sin(thet)*(sideFrameRWidth + 0.5*dlTop);
       zpos -= topFrame2RHeight + sin(fabs(detTilt)) * 0.5 * topFrame2Width;
     }
-    doPos(ctxt, siReenforce, mother, isStereo, rPos, posCorrectionPhi, xpos, ypos, zpos, waferRot);
+
+    mother.placeVolume(siReenforce,
+                       isStereo ? 2 : 1,
+                       dd4hep::Transform3D(
+                           ns.rotation(waferRot),
+                           dd4hep::Position(zpos + rPos, isStereo ? xpos + rPos * sin(posCorrectionPhi) : xpos, ypos)));
   }
 
   //Bridge
@@ -549,24 +541,24 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     h1 = 0.5 * bridgeThick;
     dz = 0.5 * bridgeHeight;
     solid = Trap(dz, 0, 0, h1, bl1, bl1, 0, h1, bl2, bl2, 0);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Trap made of " << bridgeMat << " of dimensions " << dz
-                        << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-                        << ", 0";
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Trap made of " << bridgeMat
+                                << " of dimensions " << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " << bl1 << ", 0, "
+                                << h1 << ", " << bl2 << ", " << bl2 << ", 0";
     Volume bridge(name, solid, ns.material(bridgeMat));
     ns.addVolumeNS(bridge);
 
     name = idName + "BridgeGap";
     bl1 = 0.5 * bridgeSep;
     solid = Box(bl1, h1, dz);
-    LogDebug("TECGeom") << "Solid:\t" << solid.name() << " Box made of " << genMat << " of dimensions " << bl1 << ", "
-                        << h1 << ", " << dz;
+    edm::LogVerbatim("TECGeom") << "Solid:\t" << name << " " << solid.name() << " Box made of " << genMat
+                                << " of dimensions " << bl1 << ", " << h1 << ", " << dz;
     Volume bridgeGap(name, solid, ns.material(genMat));
     ns.addVolumeNS(bridgeGap);
     /* PlacedVolume pv = */ bridge.placeVolume(bridgeGap, 1);
-    LogDebug("TECGeom") << "Solid: " << bridgeGap.name() << " number 1 positioned in " << bridge.name()
-                        << " at (0,0,0) with no rotation";
+    edm::LogVerbatim("TECGeom") << "Solid: " << bridgeGap.name() << " number 1 positioned in " << bridge.name()
+                                << " at (0,0,0) with no rotation";
   }
-  LogDebug("TECGeom") << "<<== End of DDTECModuleAlgo construction ...";
+  edm::LogVerbatim("TECGeom") << "<<== End of DDTECModuleAlgo construction ...";
   return 1;
 }
 

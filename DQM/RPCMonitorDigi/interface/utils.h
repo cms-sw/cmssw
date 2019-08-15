@@ -2,13 +2,15 @@
 #define rpcdqm_utils_H
 
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <vector>
 #include <iomanip>
 #include <string>
 
 namespace rpcdqm {
+  using dqm::legacy::DQMStore;
+  using dqm::legacy::MonitorElement;
 
   enum RPCMeFLag { OCCUPANCY = 1, CLUSTERSIZE = 2, MULTIPLICITY = 3, BX = 4 };
 

@@ -5,10 +5,12 @@
 
 #include "CondFormats/DQMObjects/interface/HDQMSummary.h"
 #include "DQMServices/Diagnostic/interface/HDQMfitUtilities.h"
-class MonitorElement;
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class SiStripDQMHistoryHelper {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit SiStripDQMHistoryHelper(const edm::ParameterSet& pset)
       : m_useFullPath{pset.getUntrackedParameter<bool>("useFullPath", false)}, m_sep{"@"}, m_fitME{} {}
   virtual ~SiStripDQMHistoryHelper();

@@ -11,6 +11,9 @@ class SiStripFedCabling;
 */
 class SiStripPopConFEDErrorsHandlerFromDQM : public SiStripDQMPopConSourceHandler<SiStripBadStrip> {
 public:
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  typedef dqm::legacy::DQMStore DQMStore;
+
   explicit SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig);
   ~SiStripPopConFEDErrorsHandlerFromDQM() override;
   // interface methods: implemented in template
@@ -51,7 +54,7 @@ private:
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 SiStripPopConFEDErrorsHandlerFromDQM::SiStripPopConFEDErrorsHandlerFromDQM(const edm::ParameterSet& iConfig)
     : SiStripDQMPopConSourceHandler<SiStripBadStrip>(iConfig),

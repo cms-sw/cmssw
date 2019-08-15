@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C4_cff import Phase2C4
-process = cms.Process('testHGCalRecoLocal',Phase2C4)
+from Configuration.Eras.Era_Phase2C4_timing_layer_bar_cff import Phase2C4_timing_layer_bar
+process = cms.Process('testHGCalRecoLocal',Phase2C4_timing_layer_bar)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,8 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023D28Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D28_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D35Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D35_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')

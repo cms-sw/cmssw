@@ -33,7 +33,13 @@
 //----------------
 // Constructors --
 //----------------
-L1MuGMTInputEvent::L1MuGMTInputEvent() : m_runnr(0L), m_evtnr(0L), m_mip_bits(14, 18), m_iso_bits(14, 18) {
+L1MuGMTInputEvent::L1MuGMTInputEvent()
+    : m_runnr(0L),
+      m_evtnr(0L),
+      m_mip_bits(14, 18, false),
+      m_iso_bits(14, 18, true)  //this is more useful when reading a standalone input file
+                                //since "not-quiet" bits are stored there
+{
   std::vector<L1MuRegionalCand> empty_vec;
   m_inputmuons["INC"] = empty_vec;
   m_inputmuons["IND"] = empty_vec;
@@ -48,10 +54,6 @@ L1MuGMTInputEvent::L1MuGMTInputEvent() : m_runnr(0L), m_evtnr(0L), m_mip_bits(14
   m_inputmuons["IND"].reserve(4);
   m_inputmuons["INB"].reserve(4);
   m_inputmuons["INF"].reserve(4);
-
-  m_mip_bits.init(false);
-  m_iso_bits.init(true);  //this is more useful when reading a standalone input file
-                          //since "not-quiet" bits are stored there
 }
 
 //--------------
@@ -77,8 +79,8 @@ void L1MuGMTInputEvent::reset() {
     it->second.clear();
   }
 
-  m_mip_bits.init(false);
-  m_iso_bits.init(true);  //see CTOR for info on this
+  m_mip_bits.reset(false);
+  m_iso_bits.reset(true);  //see CTOR for info on this
 }
 
 const L1MuRegionalCand* L1MuGMTInputEvent::getInputMuon(std::string chipid, unsigned index) const {

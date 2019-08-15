@@ -21,7 +21,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <vector>
@@ -35,6 +34,9 @@ namespace dqmoffline {
 
     class L1TEfficiencyPlotHandler {
     public:
+      typedef dqm::legacy::DQMStore DQMStore;
+      typedef dqm::legacy::MonitorElement MonitorElement;
+
       L1TEfficiencyPlotHandler(const edm::ParameterSet &ps, std::string plotName);
 
       L1TEfficiencyPlotHandler(const L1TEfficiencyPlotHandler &handler);

@@ -1,12 +1,17 @@
 #include "RecoBTag/Combined/interface/CandidateChargeBTagComputer.h"
 
-CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet& parameters)
-    : useCondDB_(parameters.getParameter<bool>("useCondDB")),
-      gbrForestLabel_(parameters.getParameter<std::string>("gbrForestLabel")),
-      weightFile_(parameters.getParameter<edm::FileInPath>("weightFile")),
+CandidateChargeBTagComputer::Tokens::Tokens(const edm::ParameterSet& parameters, edm::ESConsumesCollector&& cc) {
+  if (parameters.getParameter<bool>("useCondDB")) {
+    cc.setConsumes(gbrForest_, edm::ESInputTag{"", parameters.getParameter<std::string>("gbrForestLabel")});
+  }
+}
+
+CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet& parameters, Tokens tokens)
+    : weightFile_(parameters.getParameter<edm::FileInPath>("weightFile")),
       useAdaBoost_(parameters.getParameter<bool>("useAdaBoost")),
       jetChargeExp_(parameters.getParameter<double>("jetChargeExp")),
-      svChargeExp_(parameters.getParameter<double>("svChargeExp")) {
+      svChargeExp_(parameters.getParameter<double>("svChargeExp")),
+      tokens_{std::move(tokens)} {
   uses(0, "pfImpactParameterTagInfos");
   uses(1, "pfInclusiveSecondaryVertexFinderCvsLTagInfos");
   uses(2, "softPFMuonsTagInfos");
@@ -37,11 +42,8 @@ void CandidateChargeBTagComputer::initialize(const JetTagComputerRecord& record)
                                       "pt3_ch/j_pt"});
   std::vector<std::string> spectators(0);
 
-  if (useCondDB_) {
-    const GBRWrapperRcd& gbrWrapperRecord = record.getRecord<GBRWrapperRcd>();
-    edm::ESHandle<GBRForest> gbrForestHandle;
-    gbrWrapperRecord.get(gbrForestLabel_.c_str(), gbrForestHandle);
-    mvaID->initializeGBRForest(gbrForestHandle.product(), variables, spectators, useAdaBoost_);
+  if (tokens_.gbrForest_.isInitialized()) {
+    mvaID->initializeGBRForest(&record.get(tokens_.gbrForest_), variables, spectators, useAdaBoost_);
   } else
     mvaID->initialize("Color:Silent:Error", "BDT", weightFile_.fullPath(), variables, spectators, true, useAdaBoost_);
 }

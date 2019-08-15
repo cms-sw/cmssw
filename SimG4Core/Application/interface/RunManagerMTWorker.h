@@ -30,6 +30,7 @@ class EventAction;
 class TrackingAction;
 class SteppingAction;
 class CMSSteppingVerbose;
+class G4Field;
 
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
@@ -74,6 +75,10 @@ private:
   G4Event* generateEvent(const edm::Event& inpevt);
   void resetGenParticleId(const edm::Event& inpevt);
 
+  void DumpMagneticField(const G4Field*, const std::string&) const;
+
+  static void resetTLS();
+
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
@@ -94,7 +99,7 @@ private:
 
   struct TLSData;
   static thread_local TLSData* m_tls;
-  static void resetTLS();
+  static thread_local bool dumpMF;
 
   G4SimEvent* m_simEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;

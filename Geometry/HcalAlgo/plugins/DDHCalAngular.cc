@@ -5,13 +5,47 @@
 
 #include <cmath>
 #include <algorithm>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "DataFormats/Math/interface/GeantUnits.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDTypes.h"
-#include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
+
+class DDHCalAngular : public DDAlgorithm {
+public:
+  //Constructor and Destructor
+  DDHCalAngular();
+  ~DDHCalAngular() override;
+
+  void initialize(const DDNumericArguments& nArgs,
+                  const DDVectorArguments& vArgs,
+                  const DDMapArguments& mArgs,
+                  const DDStringArguments& sArgs,
+                  const DDStringVectorArguments& vsArgs) override;
+
+  void execute(DDCompactView& cpv) override;
+
+private:
+  double startAngle;  //Start angle
+  double rangeAngle;  //Range angle
+  double shiftY;      //Shift along Y
+  double shiftX;      //Shift along X
+  double zoffset;     //Offset in z
+  int n;              //Mumber of copies
+  int startCopyNo;    //Start copy Number
+  int incrCopyNo;     //Increment copy Number
+
+  std::string rotns;        //Namespace for rotation matrix
+  std::string idNameSpace;  //Namespace of this and ALL sub-parts
+  std::string childName;    //Children name
+};
 
 //#define EDM_ML_DEBUG
 using namespace geant_units::operators;
@@ -91,3 +125,5 @@ void DDHCalAngular::execute(DDCompactView& cpv) {
     copyNo += incrCopyNo;
   }
 }
+
+DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDHCalAngular, "hcal:DDHCalAngular");

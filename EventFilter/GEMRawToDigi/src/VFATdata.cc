@@ -2,7 +2,7 @@
 #include <iostream>
 using namespace gem;
 
-VFATdata::VFATdata() { ver_ = 1; }
+VFATdata::VFATdata() : ver_(0), phiPos_(0), fw_(0), sw_(0), tw_(0) {}
 
 VFATdata::VFATdata(const int vfatVer,
                    const uint16_t BC,
@@ -11,13 +11,10 @@ VFATdata::VFATdata(const int vfatVer,
                    const uint64_t lsDatas,
                    const uint64_t msDatas) {
   // this constructor only used for packing sim digis
-  VFATfirst fw;
-  VFATsecond sw;
-  VFATthird tw;
+  VFATfirst fw{0};
+  VFATsecond sw{0};
+  VFATthird tw{0};
 
-  fw.word = 0;
-  sw.word = 0;
-  tw.word = 0;
   fw.header = 0x1E;
 
   if (vfatVer == 3) {

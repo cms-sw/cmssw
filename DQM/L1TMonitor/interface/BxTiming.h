@@ -19,7 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 // dqm includes
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 //dataFormats
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

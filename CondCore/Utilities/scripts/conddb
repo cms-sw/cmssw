@@ -23,6 +23,7 @@ import sqlalchemy
 import CondCore.Utilities.conddblib as conddb
 import CondCore.Utilities.cond2xml as cond2xml
 import CondCore.Utilities.conddb_serialization_metadata as serialization_metadata
+import CondCore.Utilities.conddb_time as conddb_time
 
 from CondCore.Utilities.tier0 import Tier0Handler, Tier0Error, tier0Url
 # -------------------------------------------------------------------------------------------------------
@@ -2077,6 +2078,35 @@ def dump(args):
 
     if xmlProcessor: del xmlProcessor
 
+def toLumi_(args):
+    lumiTime = conddb_time.to_lumi_time( int(args.run), int(args.lumi_id) )
+    if args.quiet:
+        print('%s' %lumiTime)
+    else:
+        output(args,'Lumi timetype for run=%s, lumisection id=%s: %s' %(args.run,args.lumi_id, lumiTime))
+
+def fromLumi_(args):
+    run, lumisection_id = conddb_time.from_lumi_time( int(args.lumiTime) )
+    if args.quiet:
+        print('%s,%s' %(run, lumisection_id))
+    else:
+        output(args,'For Lumi timetype %s: run=%s, lumisection id=%s' %(args.lumiTime,run,lumisection_id))
+
+
+def toTimestamp_( args ):
+    ts = conddb_time.string_to_timestamp( args.datetime )
+    if args.quiet:
+        print('%s' %ts)
+    else:
+        output(args,"Time timetype for string '%s': %s" %(args.datetime, ts))
+
+def fromTimestamp_( args ):
+    sdt = conddb_time.string_from_timestamp( int(args.timestamp) )
+    if args.quiet:
+        print('%s' %sdt)
+    else:
+        output(args,"String date time for timestamp %s: '%s'" %(args.timestamp, sdt))
+    
 def main():
     '''Entry point.
     '''
@@ -2188,6 +2218,23 @@ def main():
 
     parser_showFcsr =  parser_subparsers.add_parser('showFCSR', description='Dumps the FCSR values for hlt and pcl')
     parser_showFcsr.set_defaults(func=showFcsr_)
+
+    parser_toLumi = parser_subparsers.add_parser('toLumi', description='Generates the Lumi timetype from run number and lumisection id') 
+    parser_toLumi.add_argument('run', help="Run id")
+    parser_toLumi.add_argument('lumi_id', help="Lumisection id")
+    parser_toLumi.set_defaults(func=toLumi_)
+
+    parser_fromLumi = parser_subparsers.add_parser('fromLumi', description='Decodes the Lumi timetype extracting run number and lumisection id') 
+    parser_fromLumi.add_argument('lumiTime', help="The Lumi timetype value")
+    parser_fromLumi.set_defaults(func=fromLumi_)
+
+    parser_toTimestamp = parser_subparsers.add_parser('toTimestamp', description='Generates the Time timetype from the date string') 
+    parser_toTimestamp.add_argument('datetime', help="The string representing the date time, in the format 'Y-m-d H:M:S.f'" )
+    parser_toTimestamp.set_defaults(func=toTimestamp_)
+
+    parser_fromTimestamp = parser_subparsers.add_parser('fromTimestamp', description='Decodes the Time timetype extracting the date time string') 
+    parser_fromTimestamp.add_argument('timestamp', help="The Time timetype value")
+    parser_fromTimestamp.set_defaults(func=fromTimestamp_)
 
     args = parser.parse_args()
 

@@ -23,6 +23,9 @@ using namespace std;
 
 class PFTauElecRejectionBenchmarkAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit PFTauElecRejectionBenchmarkAnalyzer(const edm::ParameterSet &);
   ~PFTauElecRejectionBenchmarkAnalyzer() override;
 

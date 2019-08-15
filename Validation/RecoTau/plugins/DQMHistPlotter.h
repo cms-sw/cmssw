@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMDefinitions.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <TH1.h>
 #include <TLegend.h>
@@ -25,6 +25,9 @@
 #include <map>
 
 class TauDQMHistPlotter : public edm::EDAnalyzer {
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   typedef std::vector<std::string> vstring;
 
   struct cfgEntryProcess {

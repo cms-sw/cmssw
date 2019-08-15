@@ -18,11 +18,10 @@
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 #include "DataFormats/DTDigi/interface/DTuROSControlData.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
-class DQMStore;
-class MonitorElement;
 class DTReadOutMapping;
 
 class DTDataIntegrityTest : public DQMEDHarvester {
