@@ -1,7 +1,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "RecoHGCal/TICL/interface/TICLCandidateBuilderPlugins.h"
+#include "RecoHGCal/TICL/interface/TracksterMomentumPluginBase.h"
 
 namespace ticl {
   class TracksterP4FromEnergySum final : public TracksterMomentumPluginBase {
