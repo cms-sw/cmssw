@@ -96,6 +96,7 @@ process.out = cms.OutputModule("RawStreamFileWriterForBU",
     jsonDefLocation = cms.untracked.string(cmsswbase+"/src/EventFilter/Utilities/plugins/budef.jsd"),
     jsonEoLDefLocation = cms.untracked.string(cmsswbase+"/src/EventFilter/Utilities/plugins/eols.jsd"),
     frdVersion=cms.untracked.uint32(5),
+    #frdFileVersion=cms.untracked.uint32(1),
     debug = cms.untracked.bool(True))
 
 process.p = cms.Path(process.s+process.a)

@@ -55,7 +55,6 @@ private:
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
-  void deleteFile(std::string const&);
 
   void readSupervisor();
   void readWorker(unsigned int tid);
@@ -130,7 +129,7 @@ private:
   typedef std::pair<InputFile*, InputChunk*> ReaderInfo;
 
   uint32 detectedFRDversion_ = 0;
-  InputFile* currentFile_ = nullptr;
+  std::unique_ptr<InputFile> currentFile_;
   bool chunkIsFree_ = false;
 
   bool startedSupervisorThread_ = false;
@@ -141,7 +140,7 @@ private:
   std::vector<ReaderInfo> workerJob_;
 
   tbb::concurrent_queue<InputChunk*> freeChunks_;
-  tbb::concurrent_queue<InputFile*> fileQueue_;
+  tbb::concurrent_queue<std::unique_ptr<InputFile>> fileQueue_;
 
   std::mutex mReader_;
   std::vector<std::condition_variable*> cvReader_;
@@ -154,7 +153,7 @@ private:
   std::condition_variable startupCv_;
 
   int currentFileIndex_ = -1;
-  std::list<std::pair<int, InputFile*>> filesToDelete_;
+  std::list<std::pair<int, std::unique_ptr<InputFile>>> filesToDelete_;
   std::list<std::pair<int, std::string>> fileNamesToDelete_;
   std::mutex fileDeleteLock_;
   std::vector<int> streamFileTracker_;
@@ -205,7 +204,10 @@ struct InputFile {
   evf::EvFDaqDirector::FileStatus status_;
   unsigned int lumi_;
   std::string fileName_;
+  bool deleteFile_;
+  int rawFd_;
   uint64_t fileSize_;
+  uint16_t rawHeaderSize_;
   uint32_t nChunks_;
   int nEvents_;
   unsigned int nProcessed_;
@@ -219,7 +221,10 @@ struct InputFile {
   InputFile(evf::EvFDaqDirector::FileStatus status,
             unsigned int lumi = 0,
             std::string const& name = std::string(),
+            bool deleteFile = true,
+            int rawFd = -1,
             uint64_t fileSize = 0,
+            uint16_t rawHeaderSize = 0,
             uint32_t nChunks = 0,
             int nEvents = 0,
             FedRawDataInputSource* parent = nullptr)
@@ -227,13 +232,17 @@ struct InputFile {
         status_(status),
         lumi_(lumi),
         fileName_(name),
+        deleteFile_(deleteFile),
+        rawFd_(rawFd),
         fileSize_(fileSize),
+        rawHeaderSize_(rawHeaderSize),
         nChunks_(nChunks),
         nEvents_(nEvents),
         nProcessed_(0) {
     for (unsigned int i = 0; i < nChunks; i++)
       chunks_.push_back(nullptr);
   }
+  ~InputFile();
 
   InputFile(std::string& name) : fileName_(name) {}
 
