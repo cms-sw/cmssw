@@ -7,31 +7,31 @@ namespace gen {
     class ScaleWeightGroupInfo : public WeightGroupInfo {
         private:
             bool isFuncationFormVar_;
-            size_t icentral;
-            size_t imuR1muF2;
-            size_t imuR1muF05;
-            size_t imuR2muF05;
-            size_t imuR2muF1;
-            size_t imuR2muF2;
-            size_t imuR05muF05;
-            size_t imuR05muF1;
-            size_t imuR05muF2;
+            size_t icentral_;
+            size_t imuR1muF2_;
+            size_t imuR1muF05_;
+            size_t imuR2muF05_;
+            size_t imuR2muF1_;
+            size_t imuR2muF2_;
+            size_t imuR05muF05_;
+            size_t imuR05muF1_;
+            size_t imuR05muF2_;
         public:
             ScaleWeightGroupInfo() : ScaleWeightGroupInfo("") {}
 	        ScaleWeightGroupInfo(std::string header, std::string name) : 
                 WeightGroupInfo(header, name) { 
                 weightType_ = kScaleWeights;
                 isFuncationFormVar_ = false;
-                icentral = 0;
-                imuR1muF2 = 0;
-                imuR1muF05 = 0;
-                imuR2muF05 = 0;
-                imuR2muF1 = 0;
-                imuR2muF2 = 0;
-                imuR2muF05 = 0;
-                imuR05muF05 = 0;
-                imuR05muF1 = 0;
-                imuR05muF2 = 0;
+                icentral_ = 0;
+                imuR1muF2_ = 0;
+                imuR1muF05_ = 0;
+                imuR2muF05_ = 0;
+                imuR2muF1_ = 0;
+                imuR2muF2_ = 0;
+                imuR2muF05_ = 0;
+                imuR05muF05_ = 0;
+                imuR05muF1_ = 0;
+                imuR05muF2_ = 0;
             }
 	        ScaleWeightGroupInfo(std::string header) : 
                 ScaleWeightGroupInfo(header, header) { } 
@@ -48,16 +48,16 @@ namespace gen {
             // Is a variation of the functional form of the dynamic scale
             bool isFunctionalFormVariation();
             void setIsFunctionalFormVariation(bool functionalVar) {isFuncationFormVar_ = functionalVar; }
-            size_t centralIndex() {return icentral; }
-            size_t muR1muF2Index() { return imuR1muF2; }
-            size_t muR1muF05Index() { return imuR1muF05; }
-            size_t muR2muF05Index() { return imuR2muF05; }
-            size_t muR2muF1Index() { return imuR2muF1; }
-            size_t muR2muF2Index() { return imuR2muF2; }
-            size_t muR05muF05Index() { return imuR05muF05; }
-            size_t muR05muF1Index() { return imuR05muF1; }
-            size_t muR05muF2Index() { return imuR05muF2; }
-    };
+            size_t centralIndex() {return icentral_; }
+            size_t muR1muF2Index() { return imuR1muF2_; }
+            size_t muR1muF05Index() { return imuR1muF05_; }
+            size_t muR2muF05Index() { return imuR2muF05_; }
+            size_t muR2muF1Index() { return imuR2muF1_; }
+            size_t muR2muF2Index() { return imuR2muF2_; }
+            size_t muR05muF05Index() { return imuR05muF05_; }
+            size_t muR05muF1Index() { return imuR05muF1_; }
+            size_t muR05muF2Index() { return imuR05muF2_; }
+    }_;
 }
 
 #endif
