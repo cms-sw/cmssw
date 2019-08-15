@@ -184,7 +184,7 @@ void PFEGammaProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::list<reco::PFBlockRef> otherBlockRefs;
 
   for (unsigned i = 0; i < blocks->size(); ++i) {
-    // reco::PFBlockRef blockref( blockh,i );
+    //reco::PFBlockRef blockref( blockh,i );
     //reco::PFBlockRef blockref = createBlockRef( *blocks, i);
     reco::PFBlockRef blockref(blocks, i);
 
