@@ -16,7 +16,7 @@
 
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 #include "DataFormats/HGCalReco/interface/Trackster.h"
-#include "RecoHGCal/TICL/interface/TICLCandidateBuilderPlugins.h"
+#include "RecoHGCal/TICL/interface/TracksterMomentumPluginBase.h"
 
 using namespace ticl;
 

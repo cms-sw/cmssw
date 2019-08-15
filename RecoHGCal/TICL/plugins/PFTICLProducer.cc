@@ -6,25 +6,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DataFormats/Common/interface/View.h"
-
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
-#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
-#include <unordered_map>
-#include <memory>
-
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "FWCore/Utilities/interface/isFinite.h"
-
-#include "FWCore/Utilities/interface/transform.h"
+#include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 
 class PFTICLProducer : public edm::global::EDProducer<> {
 public:
