@@ -18,13 +18,7 @@
 // constructors and destructor
 //
 PPSPixelOrganization ::PPSPixelOrganization()
-    :  // _needUpdateUnitID(false),
-      //	_needUpdateData(false),
-      _currentUnitID(-1),
-      _currentArm(-1),
-      _currentStation(-1),
-      _currentRP(-1),
-      _currentPlane(-1) {
+    : currentUnitID_(-1), currentArm_(-1), currentStation_(-1), currentRP_(-1), currentPlane_(-1) {
   edm::LogInfo("PPSSim") << "Creating PPSPixelOrganization";
 }
 
@@ -48,18 +42,18 @@ uint32_t PPSPixelOrganization ::GetUnitID(const G4Step* aStep) {
                            << ", physVol->GetCopyNo()=" << physVol->GetCopyNo();
 
     if (physVol->GetName().contains("Envelop")) {
-      _currentPlane = physVol->GetCopyNo() - 1;
+      currentPlane_ = physVol->GetCopyNo() - 1;
     } else if (physVol->GetName() == "RP_box_primary_vacuum") {
       int cpy_no = physVol->GetCopyNo();
-      _currentArm = (cpy_no / 100) % 10;
-      _currentStation = (cpy_no / 10) % 10;
-      _currentRP = cpy_no % 10;
+      currentArm_ = (cpy_no / 100) % 10;
+      currentStation_ = (cpy_no / 10) % 10;
+      currentRP_ = cpy_no % 10;
     }
   }
 
-  edm::LogInfo("PPSSim") << _currentArm << " " << _currentRP << " " << _currentPlane;
+  edm::LogInfo("PPSSim") << currentArm_ << " " << currentRP_ << " " << currentPlane_;
 
-  CTPPSPixelDetId id(_currentArm, _currentStation, _currentRP, _currentPlane);
+  CTPPSPixelDetId id(currentArm_, currentStation_, currentRP_, currentPlane_);
   uint32_t kk = id.rawId();
   edm::LogInfo("PPSSim") << " ID " << kk;
   return id.rawId();
