@@ -34,10 +34,10 @@ public:
 
 private:
   // ---------- Private data members -----------------------
-  int _currentUnitID;
-  int _currentArm;
-  int _currentStation;
-  int _currentRP;
-  int _currentPlane;
+  int currentUnitID_;
+  int currentArm_;
+  int currentStation_;
+  int currentRP_;
+  int currentPlane_;
 };
 #endif
