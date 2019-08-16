@@ -29,18 +29,15 @@ public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
   ~GenParticles2HepMCConverter() override{};
 
-  void beginRun(edm::Run const& iRun, edm::EventSetup const&) override;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
 private:
   edm::EDGetTokenT<reco::CandidateView> genParticlesToken_;
   edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
-  edm::EDGetTokenT<GenRunInfoProduct> genRunInfoToken_;
   edm::ESHandle<ParticleDataTable> pTable_;
 
   std::vector<int> signalParticlePdgIds_;
   const double cmEnergy_;
-  HepMC::GenCrossSection xsec_;
 
 private:
   inline HepMC::FourVector FourVector(const reco::Candidate::Point& point) {
@@ -58,17 +55,9 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
     : cmEnergy_(pset.getUntrackedParameter<double>("cmEnergy", 13000)) {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
-  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genEventInfo"));
   signalParticlePdgIds_ = pset.getParameter<std::vector<int>>("signalParticlePdgIds");
 
   produces<edm::HepMCProduct>("unsmeared");
-}
-
-void GenParticles2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&) {
-  edm::Handle<GenRunInfoProduct> genRunInfoHandle;
-  iRun.getByToken(genRunInfoToken_, genRunInfoHandle);
-
-  xsec_.set_cross_section(genRunInfoHandle->internalXSec().value(), genRunInfoHandle->internalXSec().error());
 }
 
 void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSetup& eventSetup) {
@@ -88,8 +77,6 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   hepmc_event->set_alphaQCD(genEventInfoHandle->alphaQCD());
 
   hepmc_event->weights() = genEventInfoHandle->weights();
-
-  hepmc_event->set_cross_section(xsec_);
 
   // Set PDF
   const gen::PdfInfo* pdf = genEventInfoHandle->pdf();

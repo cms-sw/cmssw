@@ -32,7 +32,7 @@ namespace Rivet {
     /// follow a "propagating" particle and return its last instance
     Particle getLastInstance(Particle ptcl) {
       if (ptcl.genParticle()->end_vertex()) {
-        if (!hasChild(ptcl.genParticle(), ptcl.pid()))
+        if (!hasChild(ptcl.genParticle(), ptcl.pdgId()))
           return ptcl;
         else
           return getLastInstance(ptcl.children()[0]);
@@ -42,11 +42,11 @@ namespace Rivet {
 
     /// @brief Whether particle p originate from any of the ptcls
     bool originateFrom(const Particle &p, const Particles &ptcls) {
-      const ConstGenVertexPtr prodVtx = p.genParticle()->production_vertex();
+      const GenVertex *prodVtx = p.genParticle()->production_vertex();
       if (prodVtx == nullptr)
         return false;
       // for each ancestor, check if it matches any of the input particles
-      for (const auto &ancestor : HepMCUtils::particles(prodVtx, HepMC::ancestors)) {
+      for (const auto &ancestor : particles(prodVtx, HepMC::ancestors)) {
         for (auto part : ptcls)
           if (ancestor == part.genParticle())
             return true;
@@ -62,16 +62,16 @@ namespace Rivet {
     }
 
     /// @brief Checks whether the input particle has a child with a given PDGID
-    bool hasChild(const ConstGenParticlePtr &ptcl, int pdgID) {
+    bool hasChild(const GenParticle *ptcl, int pdgID) {
       for (auto child : Particle(*ptcl).children())
-        if (child.pid() == pdgID)
+        if (child.pdgId() == pdgID)
           return true;
       return false;
     }
 
     /// @brief Checks whether the input particle has a parent with a given PDGID
-    bool hasParent(const ConstGenParticlePtr &ptcl, int pdgID) {
-      for (auto parent : HepMCUtils::particles(ptcl->production_vertex(), HepMC::parents))
+    bool hasParent(const GenParticle *ptcl, int pdgID) {
+      for (auto parent : particles(ptcl->production_vertex(), HepMC::parents))
         if (parent->pdg_id() == pdgID)
           return true;
       return false;
@@ -80,7 +80,7 @@ namespace Rivet {
     /// @brief Return true is particle decays to quarks
     bool quarkDecay(const Particle &p) {
       for (auto child : p.children())
-        if (PID::isQuark(child.pid()))
+        if (PID::isQuark(child.pdgId()))
           return true;
       return false;
     }
@@ -133,9 +133,9 @@ namespace Rivet {
        *  There should be only one of each.
        */
 
-      ConstGenVertexPtr HSvtx = event.genEvent()->signal_process_vertex();
+      GenVertex *HSvtx = event.genEvent()->signal_process_vertex();
       int Nhiggs = 0;
-      for (const ConstGenParticlePtr ptcl : HepMCUtils::particles(event.genEvent())) {
+      for (const GenParticle *ptcl : Rivet::particles(event.genEvent())) {
         // a) Reject all non-Higgs particles
         if (!PID::isHiggs(ptcl->pdg_id()))
           continue;
@@ -173,7 +173,7 @@ namespace Rivet {
       FourVector uncatV_v4(0, 0, 0, 0);
       int nWs = 0, nZs = 0, nTop = 0;
       if (isVH(prodMode)) {
-        for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
+        for (auto ptcl : particles(HSvtx, HepMC::children)) {
           if (PID::isW(ptcl->pdg_id())) {
             ++nWs;
             cat.V = Particle(ptcl);
@@ -186,7 +186,7 @@ namespace Rivet {
         if (nWs + nZs > 0)
           cat.V = getLastInstance(cat.V);
         else {
-          for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
+          for (auto ptcl : particles(HSvtx, HepMC::children)) {
             if (!PID::isHiggs(ptcl->pdg_id())) {
               uncatV_decays += Particle(ptcl);
               uncatV_p4 += Particle(ptcl).momentum();
@@ -218,14 +218,14 @@ namespace Rivet {
       Particles Ws;
       if (prodMode == HTXS::TTH || prodMode == HTXS::TH) {
         // loop over particles produced in hard-scatter vertex
-        for (auto ptcl : HepMCUtils::particles(HSvtx, HepMC::children)) {
+        for (auto ptcl : particles(HSvtx, HepMC::children)) {
           if (!PID::isTop(ptcl->pdg_id()))
             continue;
           ++nTop;
           Particle top = getLastInstance(Particle(ptcl));
           if (top.genParticle()->end_vertex())
             for (auto child : top.children())
-              if (PID::isW(child.pid()))
+              if (PID::isW(child.pdgId()))
                 Ws += child;
         }
       }
@@ -254,7 +254,7 @@ namespace Rivet {
           leptonicVs += W;
 
       // Obtain all stable, final-state particles
-      const Particles FS = apply<FinalState>(event, "FS").particles();
+      const ParticleVector FS = applyProjection<FinalState>(event, "FS").particles();
       Particles hadrons;
       FourMomentum sum(0, 0, 0, 0), vSum(0, 0, 0, 0), hSum(0, 0, 0, 0);
       for (const Particle &p : FS) {
@@ -312,7 +312,6 @@ namespace Rivet {
 
       cat.errorCode = HTXS::SUCCESS;
       ++m_errorCount[HTXS::SUCCESS];
-      ++m_sumevents;
 
       return cat;
     }
@@ -739,12 +738,11 @@ namespace Rivet {
 
       // Projections for final state particles
       const FinalState FS;
-      declare(FS, "FS");
+      addProjection(FS, "FS");
 
       // initialize the histograms with for each of the stages
       initializeHistos();
       m_sumw = 0.0;
-      m_sumevents = 0;
       printf("==============================================================\n");
       printf("========             Higgs prod mode %d              =========\n", m_HiggsProdMode);
       printf("========          Sucessful Initialization           =========\n");
@@ -757,7 +755,7 @@ namespace Rivet {
       HiggsClassification cat = classifyEvent(event, m_HiggsProdMode);
 
       // Fill histograms: categorization --> linerize the categories
-      const double weight = 1.0;
+      const double weight = event.weight();
       m_sumw += weight;
 
       int F = cat.stage0_cat % 10, P = cat.stage1_cat_pTjet30GeV / 100;
@@ -793,7 +791,7 @@ namespace Rivet {
       MSG_INFO("      Higgs Template X-Sec Categorization Tool          ");
       MSG_INFO("                Status Code Summary                     ");
       MSG_INFO(" ====================================================== ");
-      bool allSuccess = (m_sumevents == m_errorCount[HTXS::SUCCESS]);
+      bool allSuccess = (numEvents() == m_errorCount[HTXS::SUCCESS]);
       if (allSuccess)
         MSG_INFO("     >>>> All " << m_errorCount[HTXS::SUCCESS] << " events successfully categorized!");
       else {
@@ -836,18 +834,18 @@ namespace Rivet {
      */
 
     void initializeHistos() {
-      book(hist_stage0, "HTXS_stage0", 20, 0, 20);
-      book(hist_stage1_pTjet25, "HTXS_stage1_pTjet25", 40, 0, 40);
-      book(hist_stage1_pTjet30, "HTXS_stage1_pTjet30", 40, 0, 40);
-      book(hist_pT_Higgs, "pT_Higgs", 80, 0, 400);
-      book(hist_y_Higgs, "y_Higgs", 80, -4, 4);
-      book(hist_pT_V, "pT_V", 80, 0, 400);
-      book(hist_pT_jet1, "pT_jet1", 80, 0, 400);
-      book(hist_deltay_jj, "deltay_jj", 50, 0, 10);
-      book(hist_dijet_mass, "m_jj", 50, 0, 2000);
-      book(hist_pT_Hjj, "pT_Hjj", 50, 0, 250);
-      book(hist_Njets25, "Njets25", 10, 0, 10);
-      book(hist_Njets30, "Njets30", 10, 0, 10);
+      hist_stage0 = bookHisto1D("HTXS_stage0", 20, 0, 20);
+      hist_stage1_pTjet25 = bookHisto1D("HTXS_stage1_pTjet25", 40, 0, 40);
+      hist_stage1_pTjet30 = bookHisto1D("HTXS_stage1_pTjet30", 40, 0, 40);
+      hist_pT_Higgs = bookHisto1D("pT_Higgs", 80, 0, 400);
+      hist_y_Higgs = bookHisto1D("y_Higgs", 80, -4, 4);
+      hist_pT_V = bookHisto1D("pT_V", 80, 0, 400);
+      hist_pT_jet1 = bookHisto1D("pT_jet1", 80, 0, 400);
+      hist_deltay_jj = bookHisto1D("deltay_jj", 50, 0, 10);
+      hist_dijet_mass = bookHisto1D("m_jj", 50, 0, 2000);
+      hist_pT_Hjj = bookHisto1D("pT_Hjj", 50, 0, 250);
+      hist_Njets25 = bookHisto1D("Njets25", 10, 0, 10);
+      hist_Njets30 = bookHisto1D("Njets30", 10, 0, 10);
     }
     /// @}
 
@@ -857,7 +855,6 @@ namespace Rivet {
 
   private:
     double m_sumw;
-    size_t m_sumevents;
     HTXS::HiggsProdMode m_HiggsProdMode;
     std::map<HTXS::ErrorCode, size_t> m_errorCount;
     Histo1DPtr hist_stage0;
