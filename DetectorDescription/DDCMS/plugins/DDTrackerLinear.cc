@@ -30,7 +30,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Position direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
   Position base(centre[0], centre[1], centre[2]);
 
-  Rotation3D rot = ns.rotation(rotMat);
+  const Rotation3D& rot = ns.rotation(rotMat);
 
   for (int i = 0, ci = startcn; i < number; i++, ci += incrcn) {
     Position tran = base + (offset + double(i) * delta) * direction;
