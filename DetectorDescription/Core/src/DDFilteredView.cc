@@ -15,6 +15,14 @@ DDFilteredView::DDFilteredView(const DDCompactView& cpv, const DDFilter& fltr) :
 
 const DDLogicalPart& DDFilteredView::logicalPart() const { return epv_.logicalPart(); }
 
+const std::string& DDFilteredView::name() const { return epv_.logicalPart().name().name(); }
+
+const DDSolidShape DDFilteredView::shape() const { return epv_.logicalPart().solid().shape(); }
+
+std::string const DDFilteredView::material() const { return epv_.logicalPart().material().name().fullname(); }
+
+const std::vector<double>& DDFilteredView::parameters() const { return epv_.logicalPart().solid().parameters(); }
+
 const DDTranslation& DDFilteredView::translation() const { return epv_.translation(); }
 
 const DDRotationMatrix& DDFilteredView::rotation() const { return epv_.rotation(); }

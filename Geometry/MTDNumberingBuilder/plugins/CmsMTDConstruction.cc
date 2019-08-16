@@ -10,9 +10,9 @@ void CmsMTDConstruction::buildComponent(DDFilteredView& fv, GeometricTimingDet* 
   // at this level I check whether it is a merged detector or not
   //
 
-  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname()));
+  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name()));
 
-  const std::string part_name = fv.logicalPart().name().fullname().substr(0, 11);
+  const std::string part_name = fv.name().substr(0, 7);
 
   if (theCmsMTDStringToEnum.type(part_name) == GeometricTimingDet::BTLModule) {
     bool dodets = fv.firstChild();
@@ -36,7 +36,7 @@ void CmsMTDConstruction::buildComponent(DDFilteredView& fv, GeometricTimingDet* 
 }
 
 void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* mother, const std::string& attribute) {
-  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname()));
+  GeometricTimingDet* det = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.name()));
 
   const auto& copyNumbers = fv.copyNumbers();
   auto module_number = copyNumbers[copyNumbers.size() - 2];
@@ -44,7 +44,7 @@ void CmsMTDConstruction::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* 
   constexpr char positive[] = "PositiveZ";
   constexpr char negative[] = "NegativeZ";
 
-  const std::string modname = fv.logicalPart().name().fullname();
+  const std::string modname = fv.name();
   size_t delim1 = modname.find("BModule");
   size_t delim2 = modname.find("Layer");
   module_number += atoi(modname.substr(delim1 + 7, delim2).c_str()) - 1;
@@ -68,10 +68,10 @@ void CmsMTDConstruction::buildETLModule(DDFilteredView& fv, GeometricTimingDet* 
   const auto& copyNumbers = fv.copyNumbers();
   auto module_number = copyNumbers[copyNumbers.size() - 2];
 
-  size_t delim_ring = det->name().fullname().find("EModule");
-  size_t delim_disc = det->name().fullname().find("Disc");
+  size_t delim_ring = det->name().find("EModule");
+  size_t delim_disc = det->name().find("Disc");
 
-  std::string ringN = det->name().fullname().substr(delim_ring + 7, delim_disc);
+  std::string ringN = det->name().substr(delim_ring + 7, delim_disc);
 
   const uint32_t side = det->translation().z() > 0 ? 1 : 0;
 

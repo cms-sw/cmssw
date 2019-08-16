@@ -90,17 +90,17 @@ void MTDTopologyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     size_t num = fv.geoHistory().size();
 
-    if (fv.geoHistory()[num - 1].logicalPart().name() == "btl:BarrelTimingLayer") {
+    if (fv.geoHistory()[num - 1].logicalPart().name() == "BarrelTimingLayer") {
       isBarrel = true;
       limit = num;
-      ddtop = "btl:BarrelTimingLayer";
-    } else if (fv.geoHistory()[num - 1].logicalPart().name() == "etl:EndcapTimingLayer") {
+      ddtop = "BarrelTimingLayer";
+    } else if (fv.geoHistory()[num - 1].logicalPart().name() == "EndcapTimingLayer") {
       isBarrel = false;
       limit = num;
-      ddtop = "etl:EndcapTimingLayer";
+      ddtop = "EndcapTimingLayer";
     }
 
-    if (num <= limit && fv.geoHistory()[num - 1].logicalPart().name().fullname() != ddtop) {
+    if (num <= limit && fv.geoHistory()[num - 1].logicalPart().name().name() != ddtop) {
       ddtop.clear();
     }
 
@@ -148,7 +148,7 @@ void MTDTopologyAnalyzer::theBaseNumber(const DDGeoHistory& gh) {
   thisN_.setSize(gh.size());
 
   for (uint i = gh.size(); i-- > 0;) {
-    std::string name(gh[i].logicalPart().name().fullname());
+    std::string name(gh[i].logicalPart().name().name());
     int copyN(gh[i].copyno());
     thisN_.addLevel(name, copyN);
 #ifdef EDM_ML_DEBUG

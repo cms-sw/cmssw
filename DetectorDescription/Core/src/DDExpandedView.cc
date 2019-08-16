@@ -40,6 +40,8 @@ DDExpandedView::~DDExpandedView() {}
 
 const DDLogicalPart& DDExpandedView::logicalPart() const { return history_.back().logp_; }
 
+const std::string& DDExpandedView::name() const { return history_.back().logp_.ddname().name(); }
+
 const DDTranslation& DDExpandedView::translation() const { return history_.back().trans_; }
 
 const DDRotationMatrix& DDExpandedView::rotation() const { return history_.back().rot_; }

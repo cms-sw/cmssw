@@ -13,15 +13,14 @@
 void CmsMTDTrayBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side) {
   CmsMTDModuleBuilder theCmsMTDModuleBuilder;
 
-  GeometricTimingDet* subdet =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname()));
-  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname())) {
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
+  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::BTLTray:
       theCmsMTDModuleBuilder.build(fv, subdet, side);
       break;
     default:
       throw cms::Exception("CmsMTDTrayBuilder")
-          << " ERROR - I was expecting a Tray, I got a " << fv.logicalPart().name().fullname();
+          << " ERROR - I was expecting a Tray, I got a " << fv.logicalPart().name().name();
   }
 
   g->addComponent(subdet);

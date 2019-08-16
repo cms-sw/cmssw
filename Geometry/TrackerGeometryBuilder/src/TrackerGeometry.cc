@@ -91,8 +91,7 @@ TrackerGeometry::TrackerGeometry(GeometricDet const* gd) : theTrackerDet(gd) {
   LogDebug("ThicknessAndType") << "Dump of sensors names and bounds";
   for (auto det : deepcomp) {
     fillTestMap(det);
-    LogDebug("ThicknessAndType") << det->geographicalId() << " " << det->name().fullname() << " "
-                                 << det->bounds()->thickness();
+    LogDebug("ThicknessAndType") << det->geographicalId() << " " << det->name() << " " << det->bounds()->thickness();
   }
   LogDebug("DetTypeList") << " Content of DetTypetList : size " << theDetTypetList.size();
   for (auto iVal : theDetTypetList) {
@@ -226,7 +225,7 @@ bool TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
 }
 
 void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
-  const std::string temp = gd->name().fullname();
+  const std::string& temp = gd->name();
   std::string name = temp.substr(temp.find(":") + 1);
   DetId detid = gd->geographicalId();
   float thickness = gd->bounds()->thickness();
