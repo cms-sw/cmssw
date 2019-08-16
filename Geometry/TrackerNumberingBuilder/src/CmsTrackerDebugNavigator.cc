@@ -34,9 +34,8 @@ void CmsTrackerDebugNavigator::iterate(const GeometricDet& in, int level, const 
       spaces += "  ";
     const GeometricDetExtra* extra = _helperMap[in.components()[k]->geographicalId().rawId()];
     edm::LogInfo("CmsTrackerDebugNavigator")
-        << level << spaces << "### VOLUME " << in.components()[k]->name().name() << " of type "
-        << in.components()[k]->type() << " copy number " << extra->copyno() << " positioned in " << in.name().name()
-        << " global position of centre "
+        << level << spaces << "### VOLUME " << in.components()[k]->name() << " of type " << in.components()[k]->type()
+        << " copy number " << extra->copyno() << " positioned in " << in.name() << " global position of centre "
         << in.components()[k]->translation()
         //	      << " rotation matrix " << in.components()[k]->rotation()
         << " volume = " << extra->volume() << " cm3"

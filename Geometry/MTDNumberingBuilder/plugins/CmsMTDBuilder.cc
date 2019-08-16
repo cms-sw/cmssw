@@ -16,10 +16,9 @@ void CmsMTDBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, st
   CmsMTDSubStrctBuilder theCmsMTDSubStrctBuilder;
   CmsMTDEndcapBuilder theCmsMTDEndcapBuilder;
 
-  GeometricTimingDet* subdet =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname()));
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
 
-  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname())) {
+  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::ETL:
       theCmsMTDEndcapBuilder.build(fv, subdet, s);
       break;
@@ -28,7 +27,7 @@ void CmsMTDBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, st
       break;
     default:
       throw cms::Exception("CmsMTDBuilder")
-          << " ERROR - I was expecting a SubDet, I got a " << fv.logicalPart().name().fullname();
+          << " ERROR - I was expecting a SubDet, I got a " << fv.logicalPart().name().name();
   }
 
   g->addComponent(subdet);

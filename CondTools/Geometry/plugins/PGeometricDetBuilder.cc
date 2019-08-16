@@ -118,8 +118,8 @@ void PGeometricDetBuilder::putOne(const GeometricDet* gd, PGeometricDet* pgd, in
   const DDRotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
-  item._name = gd->name().name();
-  item._ns = gd->name().ns();
+  item._name = gd->name();
+  item._ns = std::string();
   item._level = lev;
   item._x = tran.X();
   item._y = tran.Y();

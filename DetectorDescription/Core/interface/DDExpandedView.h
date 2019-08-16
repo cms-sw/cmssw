@@ -56,6 +56,9 @@ public:
   //! The logical-part of the current node in the expanded-view
   const DDLogicalPart &logicalPart() const;
 
+  //! The name of the logical-part of the current node in the expanded-view
+  const std::string &name() const;
+
   //! The absolute translation of the current node
   const DDTranslation &translation() const;
 

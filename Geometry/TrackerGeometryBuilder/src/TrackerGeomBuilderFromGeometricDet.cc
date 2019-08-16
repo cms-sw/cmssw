@@ -160,7 +160,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
   for (auto i : gdv) {
-    std::string const& detName = i->name().fullname();
+    std::string const& detName = i->name();
     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
 
@@ -198,7 +198,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
   tracker->setOffsetDU(GeomDetEnumerators::subDetGeom[det]);
 
   for (auto i : gdv) {
-    std::string const& detName = i->name().fullname();
+    std::string const& detName = i->name();
     if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
       std::unique_ptr<const Bounds> bounds(i->bounds());
       StripTopology* t = StripTopologyBuilder().build(&*bounds, i->siliconAPVNum(), part);

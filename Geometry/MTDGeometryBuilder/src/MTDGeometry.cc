@@ -80,7 +80,7 @@ MTDGeometry::MTDGeometry(GeometricTimingDet const* gd) : theTrackerDet(gd) {
   LogDebug("ThicknessAndType").log([&](auto& debugstr) {
     for (auto det : deepcomp) {
       fillTestMap(det);
-      debugstr << std::hex << det->geographicalId().rawId() << std::dec << " " << det->name().fullname() << " "
+      debugstr << std::hex << det->geographicalId().rawId() << std::dec << " " << det->name() << " "
                << det->bounds()->thickness();
     }
   });
@@ -190,7 +190,7 @@ bool MTDGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
 }
 
 void MTDGeometry::fillTestMap(const GeometricTimingDet* gd) {
-  std::string temp = gd->name().fullname();
+  const std::string& temp = gd->name();
   std::string name = temp.substr(temp.find(":") + 1);
   DetId detid = gd->geographicalId();
   float thickness = gd->bounds()->thickness();

@@ -14,17 +14,16 @@ CmsMTDSubStrctBuilder::CmsMTDSubStrctBuilder() {}
 void CmsMTDSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side) {
   CmsMTDTrayBuilder theCmsMTDTrayBuilder;
 
-  GeometricTimingDet* subdet =
-      new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname()));
+  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(fv.logicalPart().name().name()));
 
-  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().fullname())) {
+  switch (theCmsMTDStringToEnum.type(fv.logicalPart().name().name())) {
     case GeometricTimingDet::BTLLayer:
       theCmsMTDTrayBuilder.build(fv, subdet, side);
       break;
 
     default:
       throw cms::Exception("CmsMTDSubStrctBuilder")
-          << " ERROR - I was expecting a BTLLayer... I got a " << fv.logicalPart().name().fullname();
+          << " ERROR - I was expecting a BTLLayer... I got a " << fv.logicalPart().name().name();
   }
 
   g->addComponent(subdet);
