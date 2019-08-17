@@ -52,12 +52,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
   double sideFrameLHeight = resizeH * args.value<double>("SideFrameLHeight");  //             Height
   double sideFrameLtheta = args.value<double>("SideFrameLtheta");  //              angle of the trapezoid shift
-  double sideFrameRWidth =
-      resizeH * args.value<double>("SideFrameRWidth");  //    Right    Width (for stereo modules upper one)
+  double sideFrameRWidth = args.value<double>("SideFrameRWidth");  //    Right    Width (for stereo modules upper one)
   double sideFrameRWidthLow = isStereo ? args.value<double>("SideFrameRWidthLow")
                                        : 0e0;  //           Width (only for stereo modules: lower Width)
-  double sideFrameRHeight = args.value<double>("SideFrameRHeight");  //             Height
-  double sideFrameRtheta = args.value<double>("SideFrameRtheta");    //              angle of the trapezoid shift
+  double sideFrameRHeight = resizeH * args.value<double>("SideFrameRHeight");  //             Height
+  double sideFrameRtheta = args.value<double>("SideFrameRtheta");  //              angle of the trapezoid shift
   vector<double> siFrSuppBoxWidth = args.value<vector<double> >("SiFrSuppBoxWidth");    //    Supp.Box Width
   vector<double> siFrSuppBoxHeight = args.value<vector<double> >("SiFrSuppBoxHeight");  //            Height
   vector<double> siFrSuppBoxYPos = args.value<vector<double> >(
