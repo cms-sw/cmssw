@@ -21,7 +21,7 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   Volume mother = ns.volume(args.parentName());
   Volume child = ns.volume(args.value<string>("ChildName"));
 
-  LogDebug("TrackerGeom") << "+++ Executing Algorithm. rParent:" << mother.name();
+  LogDebug("TrackerGeom") << "DDTrackerLinear +++ Executing Algorithm. rParent:" << mother.name();
   LogDebug("TrackerGeom") << "debug: Parent " << mother.name() << "\tChild " << child.name() << " NameSpace "
                           << ns.name() << "\tNumber " << number << "\tAxis (theta/phi) " << theta / dd4hep::deg << ", "
                           << phi / dd4hep::deg << "\t(Offset/Delta) " << offset << ", " << delta << "\tCentre "
@@ -29,19 +29,17 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
 
   Position direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
   Position base(centre[0], centre[1], centre[2]);
-  RotationZYX rot;
-  if (!rotMat.empty()) {
-    rot = ns.rotation(rotMat);
-  }
+
+  const Rotation3D& rot = ns.rotation(rotMat);
+
   for (int i = 0, ci = startcn; i < number; i++, ci += incrcn) {
     Position tran = base + (offset + double(i) * delta) * direction;
-    // Copy number ???
-    /* PlacedVolume pv = */ rotMat.empty() ? mother.placeVolume(child, ci, Transform3D(rot, tran))
-                                           : mother.placeVolume(child, ci, tran);
+    mother.placeVolume(child, ci, Transform3D(rot, tran));
+
     LogDebug("TrackerGeom") << child.name() << " number " << ci << " positioned in " << mother.name() << " at " << tran
                             << " with " << rot;
   }
-  return 1;
+  return cms::s_executed;
 }
 
 // first argument is the type from the xml file

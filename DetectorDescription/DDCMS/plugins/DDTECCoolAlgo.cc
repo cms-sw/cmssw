@@ -20,15 +20,15 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
   vector<string> coolInsert = args.value<vector<string> >("CoolInsert");
   Volume mother = ns.volume(args.parentName());
 
-  LogDebug("TECGeom") << "debug: Parent " << mother.name() << " NameSpace " << ns.name() << " at radial Position "
-                      << rPosition;
+  LogDebug("TECGeom") << "DDTECCoolAlgo debug: Parent " << mother.name() << " NameSpace " << ns.name()
+                      << " at radial Position " << rPosition;
   if (phiPosition.size() == coolInsert.size()) {
     for (int i = 0; i < (int)(phiPosition.size()); i++) {
-      LogDebug("TECGeom") << "debug: Insert[" << i << "]: " << coolInsert.at(i) << " at Phi "
+      LogDebug("TECGeom") << "DDTECCoolAlgo debug: Insert[" << i << "]: " << coolInsert.at(i) << " at Phi "
                           << convertRadToDeg(phiPosition.at(i));
     }
   } else {
-    LogDebug("TECGeom") << "ERROR: Number of inserts does not match the numer of PhiPositions!";
+    LogDebug("TECGeom") << "DDTECCoolAlgo ERROR: Number of inserts does not match the numer of PhiPositions!";
   }
 
   int copyNo = startCopyNo;
@@ -41,11 +41,11 @@ static long algorithm(Detector& /* description */, cms::DDParsingContext& ctxt, 
     // place inserts
     Position tran(xpos, ypos, 0.0);
     mother.placeVolume(child, copyNo, tran);
-    LogDebug("TECGeom") << "test " << child.name() << "[" << copyNo << "] positioned in " << mother.name() << " at "
-                        << tran << " phi " << convertRadToDeg(phiPosition.at(i)) << " r " << rPosition;
+    LogDebug("TECGeom") << "DDTECCoolAlgo test " << child.name() << "[" << copyNo << "] positioned in " << mother.name()
+                        << " at " << tran << " phi " << convertRadToDeg(phiPosition.at(i)) << " r " << rPosition;
     copyNo++;
   }
-  LogDebug("TECGeom") << "Finished....";
+  LogDebug("TECGeom") << "DDTECCoolAlgo Finished....";
   return 1;
 }
 
