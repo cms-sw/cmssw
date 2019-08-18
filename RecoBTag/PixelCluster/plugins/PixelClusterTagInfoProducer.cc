@@ -1,3 +1,27 @@
+// -*- C++ -*-
+//
+// Package:    RecoBTag/PixelCluster
+// Class:      PixelClusterTagInfoProducer
+//
+/**\class PixelClusterTagInfoProducer PixelCluster RecoBTag/PixelCluster/plugins/PixelClusterTagInfoProducer.cc
+
+ Description: Produces a collection of PixelClusterTagInfo objects,
+  that contain the pixel cluster hit multiplicity in each pixel layer or disk
+  in a narrow cone around the jet axis.
+
+ Implementation:
+     If the event does not fulfill minimum conditions (at least one jet above threshold,
+     and a valid primary vertex) and empty collection is filled. Otherwise, a loop over
+     the pixel cluster collection fills a vector of reco::PixelClusterProperties that
+     contains the geometrical position and the charge of the cluster above threshold.
+     A second loop on jets performs the dR association, and fills the TagInfo collection.
+*/
+//
+// Original Author:  Alberto Zucchetta, Manuel Sommerhalder (UniZ) [zucchett]
+//         Created:  Wed, 03 Jul 2019 12:37:30 GMT
+//
+//
+
 #include "RecoBTag/PixelCluster/interface/PixelClusterTagInfoProducer.h"
 
 PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet& iConfig)
@@ -8,10 +32,12 @@ PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet
       m_addFPIX(iConfig.getParameter<bool>("addForward")),
       m_minADC(iConfig.getParameter<int>("minAdcCount")),
       m_minJetPt(iConfig.getParameter<double>("minJetPtCut")),
-      m_maxJetEta(iConfig.getParameter<double>("maxJetEtaCut")) {
+      m_maxJetEta(iConfig.getParameter<double>("maxJetEtaCut")),
+      m_hadronMass(iConfig.getParameter<double>("hadronMass")) {
   produces<reco::PixelClusterTagInfoCollection>();
 
-  m_nLayers = (m_isPhase1 ? 4 : 3);
+  nLayers = (m_isPhase1 ? 4 : 3);
+  hadronMass = m_hadronMass;
 }
 
 PixelClusterTagInfoProducer::~PixelClusterTagInfoProducer() {}
@@ -37,11 +63,6 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
   iEvent.getByToken(m_vertices, collectionPVs);
   reco::VertexCollection::const_iterator firstPV = collectionPVs->begin();
 
-  for (reco::VertexCollection::const_iterator vtxIt = collectionPVs->begin(); vtxIt != collectionPVs->end(); ++vtxIt) {
-    firstPV = vtxIt;
-    break;
-  }
-
   // If no suitable Jet and PV is available, skip the event without opening pixel collection
   if (collectionPVs->empty() || nJets <= 0) {
     iEvent.put(std::move(pixelTagInfo));
@@ -49,8 +70,9 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
   }
 
   // Open Pixel Cluster collection
-  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > collectionClusters;
-  iEvent.getByToken(m_pixelhit, collectionClusters);
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > collectionHandle;
+  iEvent.getByToken(m_pixelhit, collectionHandle);
+  const edmNew::DetSetVector<SiPixelCluster>& collectionClusters(*collectionHandle);
 
   // Open Geometry
   edm::ESHandle<TrackerGeometry> geom;
@@ -65,14 +87,11 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
   std::vector<reco::PixelClusterProperties> clusters;
 
   // Get vector of detunit ids, and fill a vector of PixelClusterProperties in the loop
-  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator detUnit = collectionClusters->begin();
-       detUnit != collectionClusters->end();
-       ++detUnit) {
-    if (detUnit->empty())
+  for (auto& detUnit : collectionClusters) {
+    if (detUnit.empty())
       continue;
-    unsigned int detid = detUnit->detId();
-    DetId detId = DetId(detid);          // Get the Detid object
-    unsigned int detType = detId.det();  // det type, pixel = 1
+    DetId detId = DetId(detUnit.detId());  // Get the Detid object
+    unsigned int detType = detId.det();    // det type, pixel = 1
     if (detType != 1)
       continue;                             // Consider only pixels
     unsigned int subid = detId.subdetId();  // Subdetector type, pix barrel = 1, forward = 2
@@ -83,23 +102,22 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
     int layer = 0;  // The layer index is in range 1-4
 
     if (subid == 1) {  // pixel barrel
-      PixelBarrelName pbn(detid, tTopo, m_isPhase1);
+      PixelBarrelName pbn(detId, tTopo, m_isPhase1);
       layer = pbn.layerName();
     } else if (m_addFPIX && subid == 2) {  // pixel forward
-      PixelEndcapName pen(detid, tTopo, m_isPhase1);
+      PixelEndcapName pen(detId, tTopo, m_isPhase1);
       layer = pen.diskName();
     }
-    if (layer == 0 || layer > m_nLayers)
+    if (layer == 0 || layer > nLayers)
       continue;
 
-    for (edmNew::DetSet<SiPixelCluster>::const_iterator clustIt = detUnit->begin(); clustIt != detUnit->end();
-         ++clustIt) {
+    for (auto& clUnit : detUnit) {
       // get global position of the cluster
-      LocalPoint lp = topol->localPosition(MeasurementPoint(clustIt->x(), clustIt->y()));
+      LocalPoint lp = topol->localPosition(MeasurementPoint(clUnit.x(), clUnit.y()));
       GlobalPoint clustgp = geomDet->surface().toGlobal(lp);
-      if (m_minADC > 0 and clustIt->charge() < m_minADC)
+      if (m_minADC > 0 and clUnit.charge() < m_minADC)
         continue;  // skip cluster if below threshold
-      reco::PixelClusterProperties cp = {clustgp.x(), clustgp.y(), clustgp.z(), clustIt->charge(), layer};
+      reco::PixelClusterProperties cp = {clustgp.x(), clustgp.y(), clustgp.z(), clUnit.charge(), layer};
       clusters.push_back(cp);
     }
   }
@@ -111,31 +129,32 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
 
     edm::RefToBase<reco::Jet> jetRef = collectionJets->refAt(j);  // Get jet RefToBase
 
-    reco::PixelClusterData data = {};  // Initialize new Data to 0
-    reco::PixelClusterTagInfo tagInfo = {};
+    reco::PixelClusterData data(nLayers);
+    reco::PixelClusterTagInfo tagInfo;
 
-    for (auto cluIt = clusters.begin(); cluIt != clusters.end(); ++cluIt) {
-      TVector3 c3(cluIt->x - firstPV->x(), cluIt->y - firstPV->y(), cluIt->z - firstPV->z());
+    for (auto& cluster : clusters) {
+      TVector3 c3(cluster.x - firstPV->x(), cluster.y - firstPV->y(), cluster.z - firstPV->z());
       TVector3 j3(jetRef->px(), jetRef->py(), jetRef->pz());
       float dR = j3.DeltaR(c3);
-      float sC = 12. * 2. / (jetRef->pt());
+      float sC = hadronMass * 2. / (jetRef->pt());  // 2 mX / pT
 
       // Match pixel clusters to jets and fill Data struct
-      if (cluIt->layer >= 1 && cluIt->layer <= m_nLayers) {
+      if (cluster.layer >= 1 && cluster.layer <= nLayers) {
+        int idx(cluster.layer - 1);
         if (dR < 0.04)
-          data.R004[cluIt->layer]++;
+          data.r004[idx]++;
         if (dR < 0.06)
-          data.R006[cluIt->layer]++;
+          data.r006[idx]++;
         if (dR < 0.08)
-          data.R008[cluIt->layer]++;
+          data.r008[idx]++;
         if (dR < 0.10)
-          data.R010[cluIt->layer]++;
+          data.r010[idx]++;
         if (dR < 0.16)
-          data.R016[cluIt->layer]++;
+          data.r016[idx]++;
         if (dR < sC)
-          data.RVAR[cluIt->layer]++;
+          data.rvar[idx]++;
         if (dR < sC)
-          data.RVWT[cluIt->layer] += cluIt->charge;
+          data.rvwt[idx] += cluster.charge;
       }
     }
 
@@ -154,8 +173,16 @@ void PixelClusterTagInfoProducer::fillDescriptions(edm::ConfigurationDescription
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
+  desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<edm::InputTag>("pixelhit", edm::InputTag("siPixelClusters"));
+  desc.add<bool>("isPhase1", true);
+  desc.add<bool>("addForward", true);
+  desc.add<int>("minAdcCount", -1);
+  desc.add<double>("minJetPtCut", 100.);
+  desc.add<double>("maxJetEtaCut", 2.5);
+  desc.add<double>("hadronMass", 12.);
+  descriptions.add("pixelClusterTagInfos", desc);
 }
 
 //define this as a plug-in

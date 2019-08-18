@@ -85,7 +85,7 @@ MicroEventContent = cms.PSet(
         # L1 prefiring weights
         'keep *_prefiringweight_*_*',
         # Pixel Cluster
-        'keep *_pixelClusterTagInfos*_*_*',
+        'keep *_pixelClusterTagInfos_*_*',
     )
 )
 
