@@ -1,23 +1,5 @@
-// -*- C++ -*-
 //
-// Package:    RecoBTag/PixelCluster
-// Class:      PixelClusterTagInfoProducer
-//
-/**\class PixelClusterTagInfoProducer PixelCluster RecoBTag/PixelCluster/plugins/PixelClusterTagInfoProducer.cc
-
- Description: Produces a collection of PixelClusterTagInfo objects,
-  that contain the pixel cluster hit multiplicity in each pixel layer or disk
-  in a narrow cone around the jet axis.
-
- Implementation:
-     If the event does not fulfill minimum conditions (at leats one jet above threshold,
-     and a valid primary vertex) and empty collection is filled. Otherwise, a loop over
-     the pixel cluster collection filles a vector of reco::PixelClusterProperties that
-     contains the geometrical position and the charge of the cluster above threshold.
-     A second loop on jets performs the dR association, and fills the TagInfo collection.
-*/
-//
-// Original Author:  Alberto Zucchetta (UniZ) [zucchett]
+// Original Author:  Alberto Zucchetta, Manuel Sommerhalder (UniZ) [zucchett]
 //         Created:  Wed, 03 Jul 2019 12:37:30 GMT
 //
 //
@@ -99,7 +81,9 @@ private:
   int m_minADC;
   double m_minJetPt;
   double m_maxJetEta;
-  int m_nLayers;
+  double m_hadronMass;
+  double hadronMass;
+  int nLayers;
 };
 
 #endif

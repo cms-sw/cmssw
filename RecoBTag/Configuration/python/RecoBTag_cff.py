@@ -11,7 +11,7 @@ from RecoBTag.TensorFlow.pfDeepFlavour_cff import *
 from RecoBTag.TensorFlow.pfDeepDoubleX_cff import *
 from RecoBTag.MXNet.pfDeepBoostedJet_cff import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
-from RecoBTag.PixelCluster.pixelCluster_cff import *
+from RecoBTag.PixelCluster.pixelClusterTagInfos_cfi import *
 
 legacyBTaggingTask = cms.Task(
     # impact parameters and IP-only algorithms

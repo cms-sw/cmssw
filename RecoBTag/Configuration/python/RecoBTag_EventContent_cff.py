@@ -33,7 +33,7 @@ RecoBTagFEVT = cms.PSet(
         # DeepCMVA
         'keep *_pfDeepCMVAJetTags_*_*',
         # Pixel Cluster
-        'keep *_pixelClusterTagInfos*_*_*',
+        'keep *_pixelClusterTagInfos_*_*',
     )
 )
 #RECO content
@@ -69,7 +69,7 @@ RecoBTagRECO = cms.PSet(
         # DeepCMVA
         'keep *_pfDeepCMVAJetTags_*_*',
         # Pixel Cluster
-        'keep *_pixelClusterTagInfos*_*_*',
+        'keep *_pixelClusterTagInfos_*_*',
     )
 )
 #AOD content
@@ -98,6 +98,6 @@ RecoBTagAOD = cms.PSet(
         # DeepCMVA
         'keep *_pfDeepCMVAJetTags_*_*',
         # Pixel Cluster
-        'keep *_pixelClusterTagInfos*_*_*',
+        'keep *_pixelClusterTagInfos_*_*',
     )
 )

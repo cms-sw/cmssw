@@ -9,5 +9,6 @@ pixelClusterTagInfos = cms.EDProducer("PixelClusterTagInfoProducer",
     minAdcCount = cms.int32(-1), # set to -1 to remove cut
     minJetPtCut = cms.double(100.),
     maxJetEtaCut = cms.double(2.5),
+    hadronMass = cms.double(12.), # indicative mass to derive the shrinking cone radius
 )
 

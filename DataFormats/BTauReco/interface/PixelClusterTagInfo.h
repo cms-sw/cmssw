@@ -14,21 +14,30 @@ namespace reco {
   };
 
   struct PixelClusterData {
-    int8_t R004[4] = {};
-    int8_t R006[4] = {};
-    int8_t R008[4] = {};
-    int8_t R010[4] = {};
-    int8_t R016[4] = {};
-    int8_t RVAR[4] = {};
-    unsigned int RVWT[4] = {};
+    std::vector<int8_t> r004;
+    std::vector<int8_t> r006;
+    std::vector<int8_t> r008;
+    std::vector<int8_t> r010;
+    std::vector<int8_t> r016;
+    std::vector<int8_t> rvar;
+    std::vector<int8_t> rvwt;
+    PixelClusterData(unsigned int l = 4) {
+      r004.resize(l, 0);
+      r006.resize(l, 0);
+      r008.resize(l, 0);
+      r010.resize(l, 0);
+      r016.resize(l, 0);
+      rvar.resize(l, 0);
+      rvwt.resize(l, 0);
+    }
   };
 
   class PixelClusterTagInfo : public BaseTagInfo {
   public:
     PixelClusterTagInfo() {}
 
-    PixelClusterTagInfo(const PixelClusterData& data, const edm::RefToBase<Jet>& jet_ref)
-        : pixelClusters(data), jetRef(jet_ref) {}
+    PixelClusterTagInfo(const PixelClusterData& data_, const edm::RefToBase<Jet>& ref_)
+        : pixelClusters(data_), jetRef(ref_) {}
 
     ~PixelClusterTagInfo() override {}
 
@@ -36,13 +45,13 @@ namespace reco {
     PixelClusterTagInfo* clone(void) const override { return new PixelClusterTagInfo(*this); }
 
     // method to set the jet RefToBase
-    void setJetRef(const edm::RefToBase<Jet>& ref) { jetRef = ref; }
+    void setJetRef(const edm::RefToBase<Jet>& ref_) { jetRef = ref_; }
 
     // method to jet the jet RefToBase
     edm::RefToBase<Jet> jet() const override { return jetRef; }
 
     // method to set the PixelClusterData
-    void setData(const PixelClusterData& data) { pixelClusters = data; }
+    void setData(const PixelClusterData& data_) { pixelClusters = data_; }
 
     // method to get the PixelClusterData struct
     const PixelClusterData& data() const { return pixelClusters; }
