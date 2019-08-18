@@ -31,7 +31,6 @@ public:
   struct DecodingStructure {
     unsigned int gain : 8;
     unsigned int ped : 8;
-    //    unsigned int ped :10;
   };
 
   struct DetRegistry {
