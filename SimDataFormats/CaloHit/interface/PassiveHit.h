@@ -8,9 +8,9 @@
 
 class PassiveHit {
 public:
-  PassiveHit(std::string vname, unsigned int id, float e = 0, float etot = 0, float t = 0, int it = 0)
-      : vname_(vname), id_(id), energy_(e), etotal_(etot), time_(t), it_(it) {}
-  PassiveHit() : vname_(""), id_(0), energy_(0), etotal_(0), time_(0), it_(0) {}
+  PassiveHit(std::string vname, unsigned int id, float e = 0, float etot = 0, float t = 0, int it = 0, int ip = 0)
+      : vname_(vname), id_(id), energy_(e), etotal_(etot), time_(t), it_(it), ip_(ip) {}
+  PassiveHit() : vname_(""), id_(0), energy_(0), etotal_(0), time_(0), it_(0), ip_(0) {}
 
   //Names
   static const char *name() { return "PassiveHit"; }
@@ -39,6 +39,10 @@ public:
   std::string vname() const { return vname_; }
   unsigned int id() const { return id_; }
 
+  //PDGId of the track causing the Hit
+  int pdgId() const { return ip_; }
+  void setPDGId(int ip) { ip_ = ip; }
+
   //Comparisons
   bool operator<(const PassiveHit &d) const { return energy_ < d.energy_; }
 
@@ -52,6 +56,7 @@ protected:
   float etotal_;
   float time_;
   int it_;
+  int ip_;
 };
 
 namespace edm {
