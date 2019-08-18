@@ -103,13 +103,13 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
                     MinStep = cms.double(0.1),      ## in mm
                     DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
                     DeltaIntersection = cms.double(0.0001),## in mm
-                    MaxStep = cms.double(100000.),         ## in cm
+                    MaxStep = cms.double(150.),            ## in cm
                     MinimumEpsilonStep = cms.untracked.double(1e-05), ## in mm
-                    EnergyThSimple = cms.double(0.002),               ## in GeV
+                    EnergyThSimple = cms.double(0.015),               ## in GeV
                     DeltaChordSimple = cms.double(0.1),    ## in mm
                     DeltaOneStepSimple = cms.double(0.1),  ## in mm
                     DeltaIntersectionSimple = cms.double(0.01),       ## in mm
-                    MaxStepSimple = cms.double(100000.),   ## in cm
+                    MaxStepSimple = cms.double(50.),       ## in cm
                 )
             )
         ),
