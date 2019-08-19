@@ -47,14 +47,14 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
   const auto ticl_candidates = *ticl_cand_h;
 
   auto candidates = std::make_unique<reco::PFCandidateCollection>();
-  // in good particle flow fashion, start from the tracks and go out
+
   for (const auto& ticl_cand : ticl_candidates) {
-    const auto absPdgId = std::abs(ticl_cand.pdgId());
+    const auto abs_pdg_id = std::abs(ticl_cand.pdgId());
     const auto charge = ticl_cand.charge();
     const auto four_mom = ticl_cand.p4();
 
     reco::PFCandidate::ParticleType part_type;
-    switch (absPdgId) {
+    switch (abs_pdg_id) {
       case 11:
         part_type = reco::PFCandidate::e;
         break;
