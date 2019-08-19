@@ -56,7 +56,7 @@ namespace {
   }
 
   __attribute__((unused)) int nvtxDomainRangePushColor(nvtxDomainHandle_t domain, const char* message, uint32_t color) {
-    nvtxEventAttributes_t eventAttrib ;
+    nvtxEventAttributes_t eventAttrib;
     memset(&eventAttrib, 0, sizeof(eventAttrib));
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
@@ -68,7 +68,7 @@ namespace {
   }
 
   __attribute__((unused)) nvtxRangeId_t nvtxDomainRangeStart(nvtxDomainHandle_t domain, const char* message) {
-    nvtxEventAttributes_t eventAttrib ;
+    nvtxEventAttributes_t eventAttrib;
     memset(&eventAttrib, 0, sizeof(eventAttrib));
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
@@ -78,7 +78,7 @@ namespace {
   }
 
   nvtxRangeId_t nvtxDomainRangeStartColor(nvtxDomainHandle_t domain, const char* message, uint32_t color) {
-    nvtxEventAttributes_t eventAttrib ;
+    nvtxEventAttributes_t eventAttrib;
     memset(&eventAttrib, 0, sizeof(eventAttrib));
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
@@ -90,7 +90,7 @@ namespace {
   }
 
   void nvtxDomainMark(nvtxDomainHandle_t domain, const char* message) {
-    nvtxEventAttributes_t eventAttrib ;
+    nvtxEventAttributes_t eventAttrib;
     memset(&eventAttrib, 0, sizeof(eventAttrib));
     eventAttrib.version = NVTX_VERSION;
     eventAttrib.size = NVTX_EVENT_ATTRIB_STRUCT_SIZE;
