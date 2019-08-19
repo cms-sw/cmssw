@@ -172,7 +172,8 @@ void popcon::EcalSRPHandler::getNewObjects() {
       RunConfigDat dat = it->second;
       myconfig_tag = dat.getConfigTag();
       //      if (myconfig_tag.substr(0, 15) == "ZeroSuppression") {
-      if(myconfig_tag.substr(0,15) == "ZeroSuppression" || myconfig_tag.substr(0,11) == "FullReadout" || myconfig_tag.substr(0,11) == "AlmostEmpty")  {
+      if (myconfig_tag.substr(0, 15) == "ZeroSuppression" || myconfig_tag.substr(0, 11) == "FullReadout" ||
+          myconfig_tag.substr(0, 11) == "AlmostEmpty") {
         if (m_debug)
           fout << " run " << irun << " tag " << myconfig_tag << " giving up " << std::endl;
         continue;
