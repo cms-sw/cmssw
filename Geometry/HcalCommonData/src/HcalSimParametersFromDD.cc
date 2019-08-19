@@ -164,13 +164,15 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimulationPara
 #endif
   fillNameVector(cpv, attribute, "HFFibreBundleStraight", php.hfFibreStraightNames_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "HcalSimParameters: " << php.hfFibreStraightNames_.size() << " names of HFFibreBundleStraight";
+  edm::LogVerbatim("HCalGeom") << "HcalSimParameters: " << php.hfFibreStraightNames_.size()
+                               << " names of HFFibreBundleStraight";
   for (unsigned int k = 0; k < php.hfFibreStraightNames_.size(); ++k)
     edm::LogVerbatim("HCalGeom") << "[" << k << "] " << php.hfFibreStraightNames_[k];
 #endif
   fillNameVector(cpv, attribute, "HFFibreBundleConical", php.hfFibreConicalNames_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HCalGeom") << "HcalSimParameters: " << php.hfFibreConicalNames_.size() << " names of FibreBundleConical";
+  edm::LogVerbatim("HCalGeom") << "HcalSimParameters: " << php.hfFibreConicalNames_.size()
+                               << " names of FibreBundleConical";
   for (unsigned int k = 0; k < php.hfFibreConicalNames_.size(); ++k)
     edm::LogVerbatim("HCalGeom") << "[" << k << "] " << php.hfFibreConicalNames_[k];
 #endif
@@ -205,8 +207,10 @@ bool HcalSimParametersFromDD::build(const DDCompactView* cpv, HcalSimulationPara
   return true;
 }
 
-void HcalSimParametersFromDD::fillNameVector(const DDCompactView* cpv, const std::string& attribute, const std::string& value, std::vector<std::string>& lvnames) {
-
+void HcalSimParametersFromDD::fillNameVector(const DDCompactView* cpv,
+                                             const std::string& attribute,
+                                             const std::string& value,
+                                             std::vector<std::string>& lvnames) {
   DDSpecificsMatchesValueFilter filter{DDValue(attribute, value, 0)};
   DDFilteredView fv(*cpv, filter);
   lvnames = getNames(fv);
@@ -214,16 +218,21 @@ void HcalSimParametersFromDD::fillNameVector(const DDCompactView* cpv, const std
 
 bool HcalSimParametersFromDD::isItHF(const std::string& name, const HcalSimulationParameters& php) {
   for (auto nam : php.hfNames_)
-    if (name == nam) return true;
+    if (name == nam)
+      return true;
   for (auto nam : php.hfFibreNames_)
-    if (name == nam) return true;
+    if (name == nam)
+      return true;
   for (auto nam : php.hfPMTNames_)
-    if (name == nam) return true;
+    if (name == nam)
+      return true;
   for (auto nam : php.hfFibreStraightNames_)
-    if (name == nam) return true;
+    if (name == nam)
+      return true;
   for (auto nam : php.hfFibreConicalNames_)
-    if (name == nam) return true;
-   
+    if (name == nam)
+      return true;
+
   return false;
 }
 
