@@ -22,15 +22,15 @@ public:
   void Print() override;
 
 public:
-  const G4ThreeVector& getEntry() const;
-  void setEntry(const G4ThreeVector& xyz);
-  const G4ThreeVector& getExit() const;
-  void setExit(const G4ThreeVector& xyz);
+  const G4ThreeVector &getEntry() const;
+  void setEntry(const G4ThreeVector &xyz);
+  const G4ThreeVector &getExit() const;
+  void setExit(const G4ThreeVector &xyz);
 
   void setLocalEntry(const G4ThreeVector &theLocalEntryPoint);
   void setLocalExit(const G4ThreeVector &theLocalExitPoint);
-  const G4ThreeVector& getLocalEntry() const;
-  const G4ThreeVector& getLocalExit() const;
+  const G4ThreeVector &getLocalEntry() const;
+  const G4ThreeVector &getLocalExit() const;
 
   double getIncidentEnergy() const;
   void setIncidentEnergy(double e);
