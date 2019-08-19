@@ -126,13 +126,13 @@ void PPSPixelG4Hit::addEnergyDeposit(const PPSPixelG4Hit& aHit) {
 
 void PPSPixelG4Hit::Print() { edm::LogInfo("PPSPixelG4Hit") << (*this); }
 
-G4ThreeVector PPSPixelG4Hit::getEntryPoint() const { return theEntryPoint; }
+const G4ThreeVector& PPSPixelG4Hit::getEntryPoint() const { return theEntryPoint; }
 
-void PPSPixelG4Hit::setEntryPoint(G4ThreeVector xyz) { theEntryPoint = xyz; }
+void PPSPixelG4Hit::setEntryPoint(const G4ThreeVector& xyz) { theEntryPoint = xyz; }
 
-G4ThreeVector PPSPixelG4Hit::getExitPoint() const { return theExitPoint; }
+const G4ThreeVector& PPSPixelG4Hit::getExitPoint() const { return theExitPoint; }
 
-void PPSPixelG4Hit::setExitPoint(G4ThreeVector xyz) { theExitPoint = xyz; }
+void PPSPixelG4Hit::setExitPoint(const G4ThreeVector& xyz) { theExitPoint = xyz; }
 
 double PPSPixelG4Hit::getEM() const { return elem; }
 void PPSPixelG4Hit::setEM(double e) { elem = e; }

@@ -124,7 +124,7 @@ bool TotemRPSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   }
 }
 
-void TotemRPSD::GetStepInfo(G4Step* aStep) {
+void TotemRPSD::GetStepInfo(const G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint();
   postStepPoint = aStep->GetPostStepPoint();
   theTrack = aStep->GetTrack();
@@ -229,7 +229,7 @@ void TotemRPSD::CreateNewHit() {
   StoreHit(currentHit);
 }
 
-G4ThreeVector TotemRPSD::SetToLocal(G4ThreeVector global) {
+G4ThreeVector TotemRPSD::SetToLocal(const G4ThreeVector& global) {
   G4ThreeVector localPoint;
   const G4VTouchable* touch = preStepPoint->GetTouchable();
   localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);

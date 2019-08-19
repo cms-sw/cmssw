@@ -2,13 +2,12 @@
 #define TotemRPVDetectorOrganization_h
 
 #include "G4Step.hh"
-#include <boost/cstdint.hpp>
 
 class TotemRPVDetectorOrganization {
 public:
   TotemRPVDetectorOrganization(){};
   virtual ~TotemRPVDetectorOrganization(){};
-  virtual uint32_t GetUnitID(const G4Step* aStep) const = 0;
+  virtual uint32_t GetUnitID(const G4Step* aStep) = 0;
 };
 
 #endif  //TotemRPVDetectorOrganization_h

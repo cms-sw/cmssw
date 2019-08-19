@@ -26,10 +26,6 @@ PPSPixelOrganization ::PPSPixelOrganization()
 // member functions
 //
 
-uint32_t PPSPixelOrganization ::GetUnitID(const G4Step* aStep) const {
-  return const_cast<PPSPixelOrganization*>(this)->GetUnitID(aStep);
-}
-
 uint32_t PPSPixelOrganization ::GetUnitID(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
   G4VPhysicalVolume* physVol;

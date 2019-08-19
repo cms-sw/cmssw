@@ -33,7 +33,6 @@
 
 #include "G4VHit.hh"
 #include "G4ThreeVector.hh"
-#include <boost/cstdint.hpp>
 #include <iostream>
 
 class PPSPixelG4Hit : public G4VHit {
@@ -51,13 +50,13 @@ public:
   void Draw() override {}
   void Print() override;
 
-  G4ThreeVector getMeanPosition() const { return MeanPosition; };
-  void setMeanPosition(G4ThreeVector a) { MeanPosition = a; };
+  const G4ThreeVector& getMeanPosition() const { return MeanPosition; };
+  void setMeanPosition(const G4ThreeVector& a) { MeanPosition = a; };
 
-  G4ThreeVector getEntryPoint() const;
-  void setEntryPoint(G4ThreeVector);
-  G4ThreeVector getExitPoint() const;
-  void setExitPoint(G4ThreeVector);
+  const G4ThreeVector& getEntryPoint() const;
+  void setEntryPoint(const G4ThreeVector&);
+  const G4ThreeVector& getExitPoint() const;
+  void setExitPoint(const G4ThreeVector&);
 
   double getEM() const;
   void setEM(double e);
