@@ -123,21 +123,15 @@ bool MuonSensitiveDetector::ProcessHits(G4Step* aStep, G4TouchableHistory* ROhis
   if (aStep->GetTotalEnergyDeposit() > 0.) {
     newDetUnitId = setDetUnitId(aStep);
 
-    // do not count neutrals that are killed by User Limits MinEKine
-    //---VI: this is incorrect, neutral particle, like neutron may have local
-    //       energy deposit, which potentially may make a hit
-    if (aStep->GetTrack()->GetDynamicParticle()->GetCharge() != 0) {
-      if (newHit(aStep)) {
-        saveHit();
-        createHit(aStep);
-      } else {
-        updateHit(aStep);
-      }
+    if (newHit(aStep)) {
+      saveHit();
+      createHit(aStep);
     } else {
-      thePV = aStep->GetPreStepPoint()->GetPhysicalVolume();
-      theTrackID = aStep->GetTrack()->GetTrackID();
-      theDetUnitId = newDetUnitId;
+      updateHit(aStep);
     }
+    thePV = aStep->GetPreStepPoint()->GetPhysicalVolume();
+    theTrackID = aStep->GetTrack()->GetTrackID();
+    theDetUnitId = newDetUnitId;
   }
   return true;
 }

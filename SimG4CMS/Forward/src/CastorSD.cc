@@ -436,18 +436,6 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   // Use Castor shower library if energy is above threshold, is not a muon
   // and is not moving backward
   if (!particleWithinShowerLibrary) {
-    //---VI: This code is for backward compatibility and should be removed
-
-    if (currentLV == lvC3EF || currentLV == lvC4EF || currentLV == lvC3HF || currentLV == lvC4HF) {
-      G4double edep = aStep->GetTotalEnergyDeposit();
-      G4double beta = preStepPoint->GetBeta();
-      G4double charge = preStepPoint->GetCharge();
-      double bThreshold = 0.67;
-      if (edep == 0.0 && charge != 0.0 && beta > bThreshold) {
-        G4Poisson(0.0);
-      }
-    }
-    //---
     return false;
   }
 
@@ -455,9 +443,6 @@ bool CastorSD::getFromLibrary(const G4Step* aStep) {
   // always kill primary
   bool isKilled(true);
   CastorShowerEvent hits = showerLibrary->getShowerHits(aStep, isKilled);
-
-  //---VI:
-  //if(!isKilled) { return false; }
 
   int primaryID = setTrackID(aStep);
 
