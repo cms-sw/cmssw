@@ -9,10 +9,6 @@
 
 #include <iostream>
 
-uint32_t PPSStripOrganization::GetUnitID(const G4Step* aStep) const {
-  return const_cast<PPSStripOrganization*>(this)->GetUnitID(aStep);
-}
-
 uint32_t PPSStripOrganization::GetUnitID(const G4Step* aStep) {
   G4VPhysicalVolume* physVol;
   unsigned int arm = 0;

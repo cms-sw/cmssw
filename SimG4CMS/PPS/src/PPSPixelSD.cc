@@ -165,7 +165,7 @@ G4ThreeVector PPSPixelSD::SetToLocal(const G4ThreeVector& global) {
   return localPoint;
 }
 
-void PPSPixelSD::GetStepInfo(G4Step* aStep) {
+void PPSPixelSD::GetStepInfo(const G4Step* aStep) {
   preStepPoint = aStep->GetPreStepPoint();
   postStepPoint = aStep->GetPostStepPoint();
   theTrack = aStep->GetTrack();

@@ -141,7 +141,7 @@ bool PPSDiamondSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   }
 }
 
-void PPSDiamondSD::GetStepInfo(G4Step* aStep) {
+void PPSDiamondSD::GetStepInfo(const G4Step* aStep) {
   theTrack = aStep->GetTrack();
   preStepPoint = aStep->GetPreStepPoint();
   postStepPoint = aStep->GetPostStepPoint();
@@ -233,7 +233,7 @@ void PPSDiamondSD::ImportInfotoHit() {
   LogDebug("PPSSimDiamond") << "STORED HIT IN: " << unitID << "\n";
 }
 
-G4ThreeVector PPSDiamondSD::SetToLocal(G4ThreeVector global) {
+G4ThreeVector PPSDiamondSD::SetToLocal(const G4ThreeVector& global) {
   G4ThreeVector localPoint;
   const G4VTouchable* touch = preStepPoint->GetTouchable();
   localPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);

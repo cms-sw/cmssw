@@ -6,13 +6,12 @@
 #define _PPS_VDetectorOrganization_h
 
 #include "G4Step.hh"
-#include <boost/cstdint.hpp>
 
 class PPSVDetectorOrganization {
 public:
   PPSVDetectorOrganization(){};
   virtual ~PPSVDetectorOrganization(){};
-  virtual uint32_t GetUnitID(const G4Step* aStep) const = 0;
+  virtual uint32_t GetUnitID(const G4Step* aStep) = 0;
 };
 
 #endif

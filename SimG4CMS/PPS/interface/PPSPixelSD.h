@@ -76,7 +76,7 @@ private:
 
 private:
   G4ThreeVector SetToLocal(const G4ThreeVector& globalPoint);
-  void GetStepInfo(G4Step* aStep);
+  void GetStepInfo(const G4Step* aStep);
   bool HitExists();
   void CreateNewHit();
   void CreateNewHitEvo();

@@ -25,7 +25,6 @@
 #include "G4VHit.hh"
 #include "G4ThreeVector.hh"
 #include "DataFormats/Math/interface/Point3D.h"
-#include <boost/cstdint.hpp>
 #include <iostream>
 
 class TotemRPG4Hit : public G4VHit {

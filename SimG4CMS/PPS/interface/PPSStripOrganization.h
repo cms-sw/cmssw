@@ -10,8 +10,7 @@ public:
   inline PPSStripOrganization();
   ~PPSStripOrganization() override = default;
 
-  uint32_t GetUnitID(const G4Step* aStep);
-  uint32_t GetUnitID(const G4Step* aStep) const override;
+  uint32_t GetUnitID(const G4Step* aStep) override;
 };
 
 inline PPSStripOrganization ::PPSStripOrganization() = default;

@@ -60,8 +60,8 @@ private:
   int verbosity_;
   int theMPDebug_;
 
-  G4ThreeVector SetToLocal(G4ThreeVector globalPoint);
-  void GetStepInfo(G4Step* aStep);
+  G4ThreeVector SetToLocal(const G4ThreeVector& globalPoint);
+  void GetStepInfo(const G4Step* aStep);
   G4bool HitExists();
   void ImportInfotoHit();  //added pps
   void UpdateHit();

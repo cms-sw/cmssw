@@ -8,7 +8,6 @@
 
 #include "G4VHit.hh"
 #include "G4ThreeVector.hh"
-#include <boost/cstdint.hpp>
 #include <iostream>
 
 class PPSDiamondG4Hit : public G4VHit {
@@ -23,15 +22,15 @@ public:
   void Print() override;
 
 public:
-  G4ThreeVector getEntry() const;
-  void setEntry(G4ThreeVector xyz);
-  G4ThreeVector getExit() const;
-  void setExit(G4ThreeVector xyz);
+  const G4ThreeVector& getEntry() const;
+  void setEntry(const G4ThreeVector& xyz);
+  const G4ThreeVector& getExit() const;
+  void setExit(const G4ThreeVector& xyz);
 
   void setLocalEntry(const G4ThreeVector &theLocalEntryPoint);
   void setLocalExit(const G4ThreeVector &theLocalExitPoint);
-  G4ThreeVector getLocalEntry() const;
-  G4ThreeVector getLocalExit() const;
+  const G4ThreeVector& getLocalEntry() const;
+  const G4ThreeVector& getLocalExit() const;
 
   double getIncidentEnergy() const;
   void setIncidentEnergy(double e);

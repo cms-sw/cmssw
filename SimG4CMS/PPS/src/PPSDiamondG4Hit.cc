@@ -89,15 +89,15 @@ const PPSDiamondG4Hit& PPSDiamondG4Hit::operator=(const PPSDiamondG4Hit& right) 
 
 void PPSDiamondG4Hit::Print() { edm::LogInfo("PPSSimDiamond") << (*this); }
 
-G4ThreeVector PPSDiamondG4Hit::getEntry() const { return entry; }
-void PPSDiamondG4Hit::setEntry(G4ThreeVector xyz) { entry = xyz; }
+const G4ThreeVector& PPSDiamondG4Hit::getEntry() const { return entry; }
+void PPSDiamondG4Hit::setEntry(const G4ThreeVector& xyz) { entry = xyz; }
 
-G4ThreeVector PPSDiamondG4Hit::getExit() const { return exit; }
-void PPSDiamondG4Hit::setExit(G4ThreeVector xyz) { exit = xyz; }
+const G4ThreeVector& PPSDiamondG4Hit::getExit() const { return exit; }
+void PPSDiamondG4Hit::setExit(const G4ThreeVector& xyz) { exit = xyz; }
 
-G4ThreeVector PPSDiamondG4Hit::getLocalEntry() const { return local_entry; }
+const G4ThreeVector& PPSDiamondG4Hit::getLocalEntry() const { return local_entry; }
 void PPSDiamondG4Hit::setLocalEntry(const G4ThreeVector& xyz) { local_entry = xyz; }
-G4ThreeVector PPSDiamondG4Hit::getLocalExit() const { return local_exit; }
+const G4ThreeVector& PPSDiamondG4Hit::getLocalExit() const { return local_exit; }
 void PPSDiamondG4Hit::setLocalExit(const G4ThreeVector& xyz) { local_exit = xyz; }
 
 double PPSDiamondG4Hit::getIncidentEnergy() const { return theIncidentEnergy; }
