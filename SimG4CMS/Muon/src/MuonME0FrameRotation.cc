@@ -3,8 +3,7 @@
 
 #include "G4Step.hh"
 
-MuonME0FrameRotation::MuonME0FrameRotation(const MuonDDDConstants&)
-    : MuonFrameRotation::MuonFrameRotation() {}
+MuonME0FrameRotation::MuonME0FrameRotation(const MuonDDDConstants&) : MuonFrameRotation::MuonFrameRotation() {}
 
 MuonME0FrameRotation::~MuonME0FrameRotation() {}
 
