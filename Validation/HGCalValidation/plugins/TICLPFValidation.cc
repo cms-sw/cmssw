@@ -23,7 +23,8 @@ struct Histogram_TICLPFValidation {
   ConcurrentMonitorElement pt_;
   ConcurrentMonitorElement eta_;
   ConcurrentMonitorElement phi_;
-  ConcurrentMonitorElement vect_sum_pt_;  // This is indeed a cumulative istogram
+  ConcurrentMonitorElement charge_;
+  ConcurrentMonitorElement vect_sum_pt_;  // cumulative histogram
 };
 
 using Histograms_TICLPFValidation = std::unordered_map<int, Histogram_TICLPFValidation>;
@@ -99,6 +100,7 @@ void TICLPFValidation::dqmAnalyze(edm::Event const& iEvent,
     histo.pt_.fill(pfc.pt());
     histo.eta_.fill(pfc.eta());
     histo.phi_.fill(pfc.phi());
+    histo.charge_.fill(pfc.charge());
   }
   auto& histo = histos.at(0);
   histo.vect_sum_pt_.fill(std::sqrt(ptx_tot * ptx_tot + pty_tot * pty_tot));
@@ -109,7 +111,7 @@ void TICLPFValidation::bookHistograms(DQMStore::ConcurrentBooker& ibook,
                                             edm::EventSetup const& iSetup,
                                             Histograms_TICLPFValidation& histos) const {
   ibook.setCurrentFolder(folder_ + "TICLPFCandidates/");
-  histos[0].type_ = ibook.book1D("Type", "Type", 10, 0, 10);
+  histos[0].type_ = ibook.book1D("Type", "Type", 10, -0.5, 9.5);
   histos[0].vect_sum_pt_ = ibook.book1D("PtVectSum", "PtVectSum", 200, 0., 200.);
   for (size_t type = reco::PFCandidate::h; type <= reco::PFCandidate::egamma_HF; type++) {
     ibook.setCurrentFolder(folder_ + "TICLPFCandidates/" + std::to_string(type));
@@ -118,6 +120,7 @@ void TICLPFValidation::bookHistograms(DQMStore::ConcurrentBooker& ibook,
     histo.pt_ = ibook.book1D("Pt", "Pt", 250, 0., 250.);
     histo.eta_ = ibook.book1D("Eta", "Eta", 100, -5., 5.);
     histo.phi_ = ibook.book1D("Phi", "Phi", 100, -4., 4.);
+    histo.charge_ = ibook.book1D("Charge", "Charge", 3, -1.5, 1.5);
   }
 }
 

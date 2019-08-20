@@ -1,3 +1,5 @@
+// Base class for plugins that set the track reference(s) in the Trackster -> TICLCandidate conversion.
+
 #ifndef RecoHGCal_TICL_TracksterTrackPluginBase_H__
 #define RecoHGCal_TICL_TracksterTrackPluginBase_H__
 

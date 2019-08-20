@@ -75,9 +75,12 @@ void PFTICLProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSet
 
     auto& candidate = candidates->back();
     if (candidate.charge()) { // otherwise PFCandidate throws
-      candidate.setTrackRef(ticl_cand.track_ref());
+      // Construct edm::Ref from edm::Ptr. As of now, assumes type to be reco::Track. To be extended (either via
+      // dynamic type checking or configuration) if additional track types are needed.
+      reco::TrackRef ref(ticl_cand.trackPtr().id(), int(ticl_cand.trackPtr().key()), &evt.productGetter());
+      candidate.setTrackRef(ref);
     }
-    candidate.setTime(ticl_cand.time(), ticl_cand.time_error());
+    candidate.setTime(ticl_cand.time(), ticl_cand.timeError());
   }
 
   evt.put(std::move(candidates));
