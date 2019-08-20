@@ -591,26 +591,37 @@ void EcalMatacqAnalyzer::endJob() {
           switch (iVar) {
             case TMTQ::iPeak:
               Peak[i] = val[iVar].at(i);
+              break;
             case TMTQ::iSigma:
               Sigma[i] = val[iVar].at(i);
+              break;
             case TMTQ::iFit:
               Fit[i] = val[iVar].at(i);
+              break;
             case TMTQ::iAmpl:
               Ampl[i] = val[iVar].at(i);
+              break;
             case TMTQ::iFwhm:
               Fwhm[i] = val[iVar].at(i);
+              break;
             case TMTQ::iFw20:
               Fw20[i] = val[iVar].at(i);
+              break;
             case TMTQ::iFw80:
               Fw80[i] = val[iVar].at(i);
+              break;
             case TMTQ::iTrise:
               Trise[i] = val[iVar].at(i);
+              break;
             case TMTQ::iPed:
               Ped[i] = val[iVar].at(i);
+              break;
             case TMTQ::iPedsig:
               Pedsig[i] = val[iVar].at(i);
+              break;
             case TMTQ::iSlide:
               Sliding[i] = val[iVar].at(i);
+              break;
           }
         }
       }
