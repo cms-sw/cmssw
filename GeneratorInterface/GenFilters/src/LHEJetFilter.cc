@@ -20,11 +20,11 @@
 using namespace std;
 using namespace fastjet;
 
-class TopLHEFilter : public edm::EDFilter
+class LHEJetFilter : public edm::EDFilter
 {
 	public:
-		explicit TopLHEFilter(const edm::ParameterSet&);
-		virtual ~TopLHEFilter() {}
+		explicit LHEJetFilter(const edm::ParameterSet&);
+		virtual ~LHEJetFilter() {}
 
 	private:
 		bool filter(edm::Event&, const edm::EventSetup&) override;
@@ -38,7 +38,7 @@ class TopLHEFilter : public edm::EDFilter
 
 };
  
-TopLHEFilter::TopLHEFilter(const edm::ParameterSet& params)
+LHEJetFilter::LHEJetFilter(const edm::ParameterSet& params)
 	: tokenLHEEvent_(consumes<LHEEventProduct>(params.getParameter<edm::InputTag>("src"))),
 	jetPtMin_(params.getParameter<double>("jetPtMin")),
 	jetdef_(antikt_algorithm, params.getParameter<double>("jetR"))
@@ -46,9 +46,8 @@ TopLHEFilter::TopLHEFilter(const edm::ParameterSet& params)
 
 }
 
-bool TopLHEFilter::filter(edm::Event& evt, const edm::EventSetup& params)
+bool LHEJetFilter::filter(edm::Event& evt, const edm::EventSetup& params)
 {
-
 	edm::Handle<LHEEventProduct> lheinfo;
 	evt.getByToken(tokenLHEEvent_, lheinfo);
 
@@ -75,4 +74,4 @@ bool TopLHEFilter::filter(edm::Event& evt, const edm::EventSetup& params)
 }
  
  // Define module as a plug-in
- DEFINE_FWK_MODULE(TopLHEFilter);
+ DEFINE_FWK_MODULE(LHEJetFilter);
