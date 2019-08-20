@@ -75,6 +75,16 @@ namespace edm {
       std::type_info const& operator()() { return typeid(T); }
     };
 
+    template <typename T, typename Deleter>
+    struct has_typedef_member_type<std::vector<std::unique_ptr<T, Deleter> > > {
+      static constexpr bool value = true;
+    };
+
+    template <typename T, typename Deleter>
+    struct getMemberType<std::vector<std::unique_ptr<T, Deleter> >, true> {
+      std::type_info const& operator()() { return typeid(T); }
+    };
+
     // bool isMergeable_() will return true if T::mergeProduct(T const&) is declared and false otherwise
     // bool mergeProduct_(WrapperBase const*) will merge products if T::mergeProduct(T const&) is defined
     // Definitions for the following struct and function templates are not needed; we only require the declarations.
