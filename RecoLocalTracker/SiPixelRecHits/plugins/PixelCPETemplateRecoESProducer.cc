@@ -78,7 +78,7 @@ void PixelCPETemplateRecoESProducer::fillDescriptions(edm::ConfigurationDescript
 
   // specific to PixelCPETemplateRecoESProducer
   desc.add<std::string>("ComponentName", "PixelCPETemplateReco");
-  descriptions.add("templates", desc);
+  descriptions.add("_templates_default", desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPETemplateRecoESProducer);

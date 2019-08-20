@@ -114,7 +114,7 @@ void PixelCPEGenericESProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.addOptional<double>("TanLorentzAnglePerTesla");
   desc.addOptional<std::string>("PixelErrorParametrization");
 
-  descriptions.add("PixelCPEGenericESProducer", desc);
+  descriptions.add("_generic_default", desc);
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEGenericESProducer);

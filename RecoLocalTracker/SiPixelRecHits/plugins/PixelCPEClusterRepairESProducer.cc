@@ -71,8 +71,7 @@ void PixelCPEClusterRepairESProducer::fillDescriptions(edm::ConfigurationDescrip
 
   // from PixelCPEClusterRepair
   PixelCPEClusterRepair::fillPSetDescription(desc);
-
-  descriptions.add("templates2", desc);
+  descriptions.add("_templates2_default", desc);
 }
 
 std::unique_ptr<PixelClusterParameterEstimator> PixelCPEClusterRepairESProducer::produce(
