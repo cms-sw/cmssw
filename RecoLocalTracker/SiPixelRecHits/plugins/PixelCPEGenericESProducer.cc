@@ -109,11 +109,6 @@ void PixelCPEGenericESProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<std::string>("ComponentName", "PixelCPEGeneric");
   desc.add<edm::ESInputTag>("MagneticFieldRecord", edm::ESInputTag(""));
   desc.add<bool>("useLAAlignmentOffsets", false);
-
-  // vestigial (present in certain HLT menus)
-  desc.addOptional<double>("TanLorentzAnglePerTesla");
-  desc.addOptional<std::string>("PixelErrorParametrization");
-
   descriptions.add("_generic_default", desc);
 }
 
