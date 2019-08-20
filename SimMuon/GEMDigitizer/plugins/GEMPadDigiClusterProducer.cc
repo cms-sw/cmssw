@@ -85,6 +85,8 @@ private:
    Further, a second step of cluster merging that is required in the full
    algorithm is avoided, which reduces latency by an additional bunch
    crossing and significantly reduces resource usage as well.
+
+   The sorting of the clusters favors lower eta partitions and lower pad numbers
   */
 
   void buildClusters(const GEMPadDigiCollection& pads, GEMPadDigiClusterContainer& out_clusters) const;
@@ -205,17 +207,17 @@ void GEMPadDigiClusterProducer::selectClusters(GEMPadDigiClusterContainer& proto
 
     // loop over all the optohybrids
     for (unsigned int iOH = 0; iOH < nOH; iOH++) {
-      // all clusters per combined eta partitions
+      // all clusters for a set of eta partitions
       GEMPadDigiClusterContainer temp_clusters;
 
-      // loop over the eta partitions for this optohybrid
-      for (unsigned iPart = iOH; iPart < nPartOH; iPart++) {
+      // loop over the 4 or 2 eta partitions for this optohybrid
+      for (unsigned iPart = 0; iPart < nPartOH; iPart++) {
         // get the clusters for this eta partition
-        const GEMDetId& partId = ch->etaPartition(iPart + nPartOH)->id();
+        const GEMDetId& partId = ch->etaPartition(iPart + iOH * nPartOH)->id();
         temp_clusters.emplace(partId, proto_clusters[partId]);
       }
 
-      // cluster selection: pick first maxClusters for now
+      // cluster selection: pick first maxClusters for now for each OH
       unsigned loopMax = std::min(maxClustersOH, unsigned(temp_clusters.size()));
       unsigned nClusters = 0;
       for (const auto& p : temp_clusters) {
@@ -232,4 +234,5 @@ void GEMPadDigiClusterProducer::selectClusters(GEMPadDigiClusterContainer& proto
 }
 
 DEFINE_FWK_MODULE(GEMPadDigiClusterProducer);
+
 #endif
