@@ -22,13 +22,13 @@ namespace reco {
     std::vector<int8_t> rvar;
     std::vector<int8_t> rvwt;
     PixelClusterData(unsigned int l = 4) {
-      r004.resize(l, 0);
-      r006.resize(l, 0);
-      r008.resize(l, 0);
-      r010.resize(l, 0);
-      r016.resize(l, 0);
-      rvar.resize(l, 0);
-      rvwt.resize(l, 0);
+      r004 = std::vector<int8_t>(l, 0);
+      r006 = std::vector<int8_t>(l, 0);
+      r008 = std::vector<int8_t>(l, 0);
+      r010 = std::vector<int8_t>(l, 0);
+      r016 = std::vector<int8_t>(l, 0);
+      rvar = std::vector<int8_t>(l, 0);
+      rvwt = std::vector<int8_t>(l, 0);
     }
   };
 
@@ -36,8 +36,8 @@ namespace reco {
   public:
     PixelClusterTagInfo() {}
 
-    PixelClusterTagInfo(const PixelClusterData& data_, const edm::RefToBase<Jet>& ref_)
-        : pixelClusters(data_), jetRef(ref_) {}
+    PixelClusterTagInfo(const PixelClusterData& data, const edm::RefToBase<Jet>& ref)
+        : pixelClusters_(data), jetRef_(ref) {}
 
     ~PixelClusterTagInfo() override {}
 
@@ -45,21 +45,21 @@ namespace reco {
     PixelClusterTagInfo* clone(void) const override { return new PixelClusterTagInfo(*this); }
 
     // method to set the jet RefToBase
-    void setJetRef(const edm::RefToBase<Jet>& ref_) { jetRef = ref_; }
+    void setJetRef(const edm::RefToBase<Jet>& ref) { jetRef_ = ref; }
 
     // method to jet the jet RefToBase
-    edm::RefToBase<Jet> jet() const override { return jetRef; }
+    edm::RefToBase<Jet> jet() const override { return jetRef_; }
 
     // method to set the PixelClusterData
-    void setData(const PixelClusterData& data_) { pixelClusters = data_; }
+    void setData(const PixelClusterData& data) { pixelClusters_ = data; }
 
     // method to get the PixelClusterData struct
-    const PixelClusterData& data() const { return pixelClusters; }
+    const PixelClusterData& data() const { return pixelClusters_; }
 
   private:
-    PixelClusterData pixelClusters;
+    PixelClusterData pixelClusters_;
 
-    edm::RefToBase<Jet> jetRef;
+    edm::RefToBase<Jet> jetRef_;
   };
 
   typedef std::vector<reco::PixelClusterTagInfo> PixelClusterTagInfoCollection;
