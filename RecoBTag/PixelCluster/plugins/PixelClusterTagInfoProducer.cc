@@ -22,9 +22,6 @@
 //
 //
 
-#ifndef RecoBTag_PixelCluster_PixelClusterTagInfoProducer_h
-#define RecoBTag_PixelCluster_PixelClusterTagInfoProducer_h
-
 // system include files
 #include <memory>
 
@@ -103,8 +100,6 @@ private:
   const float m_hadronMass;
   const int m_nLayers;
 };
-
-#endif
 
 PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet& iConfig)
     : m_jets(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
