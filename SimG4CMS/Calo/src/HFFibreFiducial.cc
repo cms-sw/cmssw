@@ -4,7 +4,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 int HFFibreFiducial::PMTNumber(const G4ThreeVector& pe_effect) {
   double xv = pe_effect.x();   // X in global system

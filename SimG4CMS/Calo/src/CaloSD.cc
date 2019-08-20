@@ -153,9 +153,6 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   }
 
   if (aStep->GetTotalEnergyDeposit() == 0.0) {
-    //---VI: This line is for backward compatibility and should be removed
-    hitExists(aStep);
-    //---
     return false;
   }
 
