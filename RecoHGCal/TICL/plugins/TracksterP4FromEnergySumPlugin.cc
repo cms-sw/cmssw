@@ -1,3 +1,7 @@
+// Plugin for getting the four-vector from a Trackster from a simple energy sum and weighted cluster position.
+// A simplistic 1/N(tracksters) sharing is applied for hits that belong to multiple tracksters.
+// Alternatively takes the energy value from the pre-calculated regressed energy value in the Trackster.
+
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"

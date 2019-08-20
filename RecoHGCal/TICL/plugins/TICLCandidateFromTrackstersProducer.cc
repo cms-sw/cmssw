@@ -115,8 +115,8 @@ void TICLCandidateFromTrackstersProducer::produce(edm::Event& evt, const edm::Ev
 
       track_algo_->setTrack(trackster, ticl_cand);
 
-      if (ticl_cand.track_ref().isNonnull()) {
-        auto charge = ticl_cand.track_ref()->charge();
+      if (ticl_cand.trackPtr().isNonnull()) {
+        auto charge = ticl_cand.trackPtr()->charge();
         ticl_cand.setCharge(charge);
         ticl_cand.setPdgId(pdg_id*charge);
       } else if (pdg_id == -11 || pdg_id == -13 || pdg_id == 211) {
