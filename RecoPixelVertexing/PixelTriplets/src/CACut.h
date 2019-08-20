@@ -8,10 +8,10 @@
 class CACut {
 public:
     explicit CACut(const double defaultCut, const edm::ParameterSet& tripletCuts) {
-        setCutValuesByTripletNames(tripletCuts, defaultCut);
+        setCutValuesByTripletNames(defaultCut, tripletCuts);
     }
 
-    void setCutValuesByTripletNames(const edm::ParameterSet& tripletCuts, double defaultCut) {
+    void setCutValuesByTripletNames(double defaultCut, const edm::ParameterSet& tripletCuts) {
         std::vector<std::string> tripletNames = tripletCuts.getParameterNames();
 
         for(const std::string &thisTripletName : tripletNames) {
@@ -24,7 +24,7 @@ public:
                 thisTriplet.cutValue = thisCutValue;
             }
             else {
-                //TODO: Uncomment the following line once the cut values are added to the PSet
+                //TODO: Uncomment the following line once the tuned values are added to the PSet
                 //edm::LogWarning("Configuration") << "Layer triplet '" << tripletName <<"' not in the CACuts parameter set. Using default cut value: " << defaultCut;                
                 thisTriplet.cutValue = defaultCut;
             }
@@ -55,7 +55,6 @@ public:
                 layersToSet = layersToSet.substr(layerPos+2);
 
                 // Get layer ID
-                thisCACut.layerNames.emplace_back(layerName);
                 thisCACut.layerIds.emplace_back(caLayers.getLayerId(layerName));
                 if (thisCACut.layerIds.at(thisLayer)==-1) {
                     edm::LogWarning("Configuration") << "Layer name '" << layerName <<"' not found in the CAGraph. Please enter a valid layer name in the CACuts parameter set";
@@ -72,7 +71,7 @@ public:
     }
 
 
-    class CAValueByInnerLayerId {
+    class CAValuesByInnerLayerIds {
     public:
 
         float at(int layerId) {
@@ -88,12 +87,12 @@ public:
     };
 
     // Check all triplets with outer cell (layerId1, layerId2) and return a map of (layerId0, cut)
-    CAValueByInnerLayerId getCutsByInnerLayer(int layer1, int layer2) const {
+    CAValuesByInnerLayerIds getCutsByInnerLayer(int layerIds1, int layerIds2) const {
 
-        CAValueByInnerLayerId cutsByInnerLayer;
+        CAValuesByInnerLayerIds cutsByInnerLayer;
 
         for(const auto &thisCut : valuesByLayerIds_) {
-            if(thisCut.layerIds[1] == layer1 && thisCut.layerIds[2] == layer2) {
+            if(thisCut.layerIds[1] == layerIds1 && thisCut.layerIds[2] == layerIds2) {
                 cutsByInnerLayer.layerIds.emplace_back(thisCut.layerIds[0]);
                 cutsByInnerLayer.cutValues.emplace_back(thisCut.cutValue);
             }
@@ -113,7 +112,6 @@ private:
     class CAValueByLayerIds {
     public:
         std::vector<int> layerIds;
-        std::vector<std::string> layerNames;
         float cutValue;
     }; 
 
