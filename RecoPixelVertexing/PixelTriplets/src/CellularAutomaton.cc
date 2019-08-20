@@ -42,8 +42,8 @@ void CellularAutomaton::createAndConnectCells(const std::vector<const HitDoublet
       auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
       bool allInnerLayerPairsAlreadyVisited{true};
 
-      CACut::CAValueByInnerLayerId caThetaCut = thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
-      CACut::CAValueByInnerLayerId caPhiCut = phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
+      CACut::CAValuesByInnerLayerIds caThetaCut = thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
+      CACut::CAValuesByInnerLayerIds caPhiCut = phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
 
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
         allInnerLayerPairsAlreadyVisited &= alreadyVisitedLayerPairs[innerLayerPair];
@@ -179,8 +179,8 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
       auto &currentOuterLayerRef = theLayerGraph.theLayers[currentLayerPairRef.theLayers[1]];
       bool allInnerLayerPairsAlreadyVisited{true};
 
-      CACut::CAValueByInnerLayerId caThetaCut = thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
-      CACut::CAValueByInnerLayerId caPhiCut = phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
+      CACut::CAValuesByInnerLayerIds caThetaCut = thetaCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
+      CACut::CAValuesByInnerLayerIds caPhiCut = phiCut.getCutsByInnerLayer(currentInnerLayerRef.seqNum(),currentOuterLayerRef.seqNum());
 
       for (auto innerLayerPair : currentInnerLayerRef.theInnerLayerPairs) {
         allInnerLayerPairsAlreadyVisited &= alreadyVisitedLayerPairs[innerLayerPair];
@@ -208,7 +208,7 @@ void CellularAutomaton::findTriplets(std::vector<const HitDoublets *> const &hit
                                                        region_origin_y,
                                                        region_origin_radius,                
                                                        caThetaCut,
-                                                       caPphiCut,
+                                                       caPhiCut,
                                                        hardPtCut);
         }
         assert(cellId == currentLayerPairRef.theFoundCells[1]);
