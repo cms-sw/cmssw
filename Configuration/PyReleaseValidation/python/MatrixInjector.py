@@ -449,13 +449,13 @@ class MatrixInjector(object):
                         for (om,o) in t_input['nowmIO'].items():
                             if primary in o:
                                 #print "found",primary,"procuced by",om,"of",t_input['TaskName']
-                                t_second['InputTask'] = t_input['TaskName']
 				#ad-hoc fix due to restriction in TaskName of 50 characters
 				if (len(t_input['TaskName'])>50):
 				     if (t_input['TaskName'].find('GenSim') != -1):
-                                        t_input['TaskName'] = 'GenSim'
+                                        t_input['TaskName'] = 'GenSimFull'
                                      if (t_input['TaskName'].find('Hadronizer') != -1):
-                                        t_input['TaskName'] = 'Hadronizer'
+                                        t_input['TaskName'] = 'HadronizerFull'
+				t_second['InputTask'] = t_input['TaskName']
                                 t_second['InputFromOutputModule'] = om
                                 #print 't_second',pprint.pformat(t_second)
                                 if t_second['TaskName'].startswith('HARVEST'):
