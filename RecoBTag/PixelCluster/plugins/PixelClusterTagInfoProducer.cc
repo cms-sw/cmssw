@@ -22,7 +22,89 @@
 //
 //
 
-#include "RecoBTag/PixelCluster/interface/PixelClusterTagInfoProducer.h"
+#ifndef RecoBTag_PixelCluster_PixelClusterTagInfoProducer_h
+#define RecoBTag_PixelCluster_PixelClusterTagInfoProducer_h
+
+// system include files
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
+
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+// TagInfo
+#include "DataFormats/BTauReco/interface/PixelClusterTagInfo.h"
+
+// For vertices
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+// For jet
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
+// For pixel clusters
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
+// Pixel topology
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
+#include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
+// Geometry
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+
+// ROOT
+#include "TVector3.h"
+#include "TLorentzVector.h"
+
+class PixelClusterTagInfoProducer : public edm::global::EDProducer<> {
+public:
+  explicit PixelClusterTagInfoProducer(const edm::ParameterSet&);
+  ~PixelClusterTagInfoProducer() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  const edm::ParameterSet iConfig;
+
+  const edm::EDGetTokenT<edm::View<reco::Jet> > m_jets;
+  const edm::EDGetTokenT<reco::VertexCollection> m_vertices;
+  const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > m_pixelhit;
+  const bool m_isPhase1;
+  const bool m_addFPIX;
+  const int m_minADC;
+  const float m_minJetPt;
+  const float m_maxJetEta;
+  const float m_hadronMass;
+  const int m_nLayers;
+};
+
+#endif
 
 PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet& iConfig)
     : m_jets(consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),
@@ -31,19 +113,17 @@ PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet
       m_isPhase1(iConfig.getParameter<bool>("isPhase1")),
       m_addFPIX(iConfig.getParameter<bool>("addForward")),
       m_minADC(iConfig.getParameter<int>("minAdcCount")),
-      m_minJetPt(iConfig.getParameter<double>("minJetPtCut")),
-      m_maxJetEta(iConfig.getParameter<double>("maxJetEtaCut")),
-      m_hadronMass(iConfig.getParameter<double>("hadronMass")) {
+      m_minJetPt((float)iConfig.getParameter<double>("minJetPtCut")),
+      m_maxJetEta((float)iConfig.getParameter<double>("maxJetEtaCut")),
+      m_hadronMass((float)iConfig.getParameter<double>("hadronMass")),
+      m_nLayers(m_isPhase1 ? 4 : 3) {
   produces<reco::PixelClusterTagInfoCollection>();
-
-  nLayers = (m_isPhase1 ? 4 : 3);
-  hadronMass = m_hadronMass;
 }
 
 PixelClusterTagInfoProducer::~PixelClusterTagInfoProducer() {}
 
 // ------------ method called to produce the data  ------------
-void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Declare produced collection
   auto pixelTagInfo = std::make_unique<reco::PixelClusterTagInfoCollection>();
 
@@ -108,7 +188,7 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
       PixelEndcapName pen(detId, tTopo, m_isPhase1);
       layer = pen.diskName();
     }
-    if (layer == 0 || layer > nLayers)
+    if (layer == 0 || layer > m_nLayers)
       continue;
 
     for (auto& clUnit : detUnit) {
@@ -129,17 +209,17 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
 
     edm::RefToBase<reco::Jet> jetRef = collectionJets->refAt(j);  // Get jet RefToBase
 
-    reco::PixelClusterData data(nLayers);
+    reco::PixelClusterData data(m_nLayers);
     reco::PixelClusterTagInfo tagInfo;
 
     for (auto& cluster : clusters) {
       TVector3 c3(cluster.x - firstPV->x(), cluster.y - firstPV->y(), cluster.z - firstPV->z());
       TVector3 j3(jetRef->px(), jetRef->py(), jetRef->pz());
       float dR = j3.DeltaR(c3);
-      float sC = hadronMass * 2. / (jetRef->pt());  // 2 mX / pT
+      float sC = m_hadronMass * 2. / (jetRef->pt());  // 2 mX / pT
 
       // Match pixel clusters to jets and fill Data struct
-      if (cluster.layer >= 1 && cluster.layer <= nLayers) {
+      if (cluster.layer >= 1 && cluster.layer <= m_nLayers) {
         int idx(cluster.layer - 1);
         if (dR < 0.04)
           data.r004[idx]++;
@@ -170,8 +250,6 @@ void PixelClusterTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void PixelClusterTagInfoProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
