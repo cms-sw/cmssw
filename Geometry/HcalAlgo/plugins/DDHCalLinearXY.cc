@@ -17,6 +17,8 @@
 #include "DetectorDescription/Core/interface/DDAlgorithm.h"
 #include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
+//#define EDM_ML_DEBUG
+
 class DDHCalLinearXY : public DDAlgorithm {
 public:
   //Constructor and Destructor
@@ -40,8 +42,6 @@ private:
   double deltaY;                       //Increment               .........
   std::vector<double> centre;          //Centre
 };
-
-//#define EDM_ML_DEBUG
 
 DDHCalLinearXY::DDHCalLinearXY() {
 #ifdef EDM_ML_DEBUG
