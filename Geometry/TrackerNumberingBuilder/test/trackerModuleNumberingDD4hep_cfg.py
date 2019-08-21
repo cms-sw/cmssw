@@ -1,21 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDVectorsTest")
+process = cms.Process("NumberingTest")
+
+process.load("FWCore.MessageLogger.MessageLogger_cfi")
+
+process.load("Configuration.Geometry.DD4hep_GeometrySim_cff")
+process.load("Geometry.TrackerNumberingBuilder.DD4hep_trackerNumberingGeometry_cfi")
+
+#this is always needed if users want access to the vector<GeometricDetExtra>
+process.load("Geometry.TrackerNumberingBuilder.DD4hep_trackerNumberingExtraGeometry_cfi")
+
+process.load("Geometry.TrackerGeometryBuilder.DD4hep_trackerParameters_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerTopology_cfi")
+process.load("Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff")
+process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 
 process.source = cms.Source("EmptySource")
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
-    )
-
+)
 process.MessageLogger = cms.Service(
     "MessageLogger",
-    statistics = cms.untracked.vstring('cout', 'vecregistry'),
+    statistics = cms.untracked.vstring('cout', 'tkmodulenumbering'),
     categories = cms.untracked.vstring('Geometry'),
     cout = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         noLineBreaks = cms.untracked.bool(True)
         ),
-    vecregistry = cms.untracked.PSet(
+    tkmodulenumbering = cms.untracked.PSet(
         INFO = cms.untracked.PSet(
             limit = cms.untracked.int32(0)
             ),
@@ -35,20 +48,13 @@ process.MessageLogger = cms.Service(
             )
         ),
     destinations = cms.untracked.vstring('cout',
-                                         'vecregistry')
+                                         'tkmodulenumbering')
     )
 
-
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            appendToDataLabel = cms.string('CMS'),
-                                            confGeomXMLFiles = cms.FileInPath('DetectorDescription/DDCMS/data/cms-2015-muon-geometry.xml')
-                                            )
-
-process.DDVectorRegistryESProducer = cms.ESProducer("DDVectorRegistryESProducer",
-                                                    appendToDataLabel = cms.string('CMS'))
-
+process.prod = cms.EDAnalyzer("ModuleNumbering")
 process.test = cms.EDAnalyzer("DDTestVectors",
-                              DDDetector = cms.ESInputTag('','CMS')
-                              )
+                              DDDetector = cms.ESInputTag('','')
+)
+process.p1 = cms.Path(process.prod)
 
-process.p = cms.Path(process.test)
+

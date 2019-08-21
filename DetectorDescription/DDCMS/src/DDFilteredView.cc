@@ -1,4 +1,5 @@
 #include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "DetectorDescription/DDCMS/interface/DDDetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DD4hep/Detector.h"
@@ -21,11 +22,62 @@ DDFilteredView::DDFilteredView(const DDDetector* det, const Volume volume) : reg
   it_.emplace_back(Iterator(volume));
 }
 
+DDFilteredView::DDFilteredView(const DDCompactView &cpv, const DDFilter &attribute) : registry_(&cpv.specpars()) {
+  it_.emplace_back(Iterator(cpv.detector()->worldVolume()));
+  DDSpecParRefs refs;
+  registry_->filter(refs, attribute);
+  mergedSpecifics(refs);
+  LogVerbatim("Geometry").log([&refs](auto& log) {
+     log << "Filtered DD SpecPar Registry size: " << refs.size() << "\n";
+     for (const auto& t : refs) {
+       log << "\nRegExps { ";
+       for (const auto& ki : t->paths)
+         log << ki << " ";
+       log << "};\n ";
+       for (const auto& kl : t->spars) {
+         log << kl.first << " = ";
+         for (const auto& kil : kl.second) {
+           log << kil << " ";
+         }
+         log << "\n ";
+       }
+     }
+   });
+}
+
 const PlacedVolume DDFilteredView::volume() const { return PlacedVolume(node_); }
 
 const Double_t* DDFilteredView::trans() const { return it_.back().GetCurrentMatrix()->GetTranslation(); }
 
+const Translation DDFilteredView::translation() const {
+  const Double_t* translation = it_.back().GetCurrentMatrix()->GetTranslation();
+  assert(translation);
+  return Translation(translation[0], translation[1], translation[2]);
+}
+
 const Double_t* DDFilteredView::rot() const { return it_.back().GetCurrentMatrix()->GetRotationMatrix(); }
+
+const RotationMatrix DDFilteredView::rotation() const {
+  const Double_t* rotation = it_.back().GetCurrentMatrix()->GetRotationMatrix();
+  if (rotation == nullptr) {
+     LogError("DDFilteredView") << "Current node has no valid rotation matrix.";
+     return RotationMatrix();
+  }
+
+  LogVerbatim("DDFilteredView") << "Rotation matrix components (1st 3) = " << rotation[0] << ", " << rotation[1] << ", "
+                                << rotation[2];
+  RotationMatrix rotMatrix;
+  rotMatrix.SetComponents(rotation[0],
+			  rotation[1],
+			  rotation[2],
+			  rotation[3],
+			  rotation[4],
+			  rotation[5],
+			  rotation[6],
+			  rotation[7],
+			  rotation[8]);
+  return rotMatrix;
+}
 
 void DDFilteredView::rot(dd4hep::Rotation3D& matrixOut) const {
   const Double_t* rotation = it_.back().GetCurrentMatrix()->GetRotationMatrix();
@@ -222,6 +274,7 @@ bool DDFilteredView::accept(std::string_view name) {
   return result;
 }
 
+// FIXME: obsolete
 vector<double> DDFilteredView::extractParameters() const {
   Volume currVol = node_->GetVolume();
   if (currVol->GetShape()->IsA() == TGeoBBox::Class()) {
@@ -237,6 +290,26 @@ vector<double> DDFilteredView::extractParameters() const {
     return {box->GetDX(), box->GetDY(), box->GetDZ()};
   } else
     return {1, 1, 1};
+}
+
+const std::vector<double> DDFilteredView::parameters() const {
+  Volume currVol = node_->GetVolume();
+  return currVol.solid().dimensions();
+}
+
+const DDSolidShape DDFilteredView::shape() const {
+  //FIXME
+  return DDSolidShape::dd_not_init;
+}
+
+double DDFilteredView::getDouble(std::string_view key) const {
+  //FIXME
+  return 0;
+}
+
+std::string DDFilteredView::getString(std::string_view key) const {
+  //FIXME
+  return std::string("none");
 }
 
 bool DDFilteredView::addPath(Node* const node) {
