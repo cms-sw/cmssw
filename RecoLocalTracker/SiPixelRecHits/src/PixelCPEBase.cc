@@ -466,9 +466,8 @@ void PixelCPEBase::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("LoadTemplatesFromDB", true);
   desc.add<bool>("Alpha2Order", true);
   desc.add<int>("ClusterProbComputationFlag", 0);
-  desc.add<bool>("useLAWidthFromDB", false);
+  desc.add<bool>("useLAWidthFromDB", true);
   desc.add<double>("lAOffset", 0.0);
   desc.add<double>("lAWidthBPix", 0.0);
   desc.add<double>("lAWidthFPix", 0.0);
-  desc.add<bool>("DoLorentz", false);
 }

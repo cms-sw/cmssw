@@ -78,6 +78,7 @@ void PixelCPETemplateRecoESProducer::fillDescriptions(edm::ConfigurationDescript
 
   // specific to PixelCPETemplateRecoESProducer
   desc.add<std::string>("ComponentName", "PixelCPETemplateReco");
+  desc.add<bool>("DoLorentz", true);
   descriptions.add("_templates_default", desc);
 }
 
