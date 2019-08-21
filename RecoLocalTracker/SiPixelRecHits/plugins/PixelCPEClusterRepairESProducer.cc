@@ -71,6 +71,9 @@ void PixelCPEClusterRepairESProducer::fillDescriptions(edm::ConfigurationDescrip
 
   // from PixelCPEClusterRepair
   PixelCPEClusterRepair::fillPSetDescription(desc);
+
+  // specific to PixelCPEClusterRepairESProducer
+  desc.add<bool>("DoLorentz", true);
   descriptions.add("_templates2_default", desc);
 }
 
