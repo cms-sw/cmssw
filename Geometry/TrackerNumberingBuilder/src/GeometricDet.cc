@@ -1,6 +1,7 @@
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/interface/TrackerShapeToBounds.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/DDCMS/interface/DDFilteredView.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -87,6 +88,33 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type)
   //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
   const DDFilteredView::nav_type& nt = fv->navPos();
   _ddd = nav_type(nt.begin(), nt.end());
+}
+
+GeometricDet::GeometricDet(cms::DDFilteredView* fv, GeometricEnumType type)
+    :  //
+      // Set by hand the _ddd
+      //
+      _trans(fv->translation()),
+      _phi(_trans.Phi()),
+      _rho(_trans.Rho()),
+      _rot(fv->rotation()),
+      _shape(DDSolidShape(static_cast<int>(fv->shape()))),
+      _ddd(),
+      _ddname(fv->name()),
+      _type(type),
+      _params(fv->parameters()),
+      _radLength(fv->getDouble("TrackerRadLength")),
+      _xi(fv->getDouble("TrackerXi")),
+      _pixROCRows(fv->getDouble("PixelROCRows")),
+      _pixROCCols(fv->getDouble("PixelROCCols")),
+      _pixROCx(fv->getDouble("PixelROC_X")),
+      _pixROCy(fv->getDouble("PixelROC_Y")),
+      _stereo(fv->getString("TrackerStereoDetectors") == strue),
+      _siliconAPVNum(fv->getDouble("SiliconAPVNumber")) {
+  //  workaround instead of this at initialization _ddd(fv->navPos().begin(),fv->navPos().end()),
+  // FIXME:
+  // const DDFilteredView::nav_type& nt = fv->navPos();
+  // _ddd = nav_type(nt.begin(), nt.end());
 }
 
 // PGeometricDet is persistent version... make it... then come back here and make the
