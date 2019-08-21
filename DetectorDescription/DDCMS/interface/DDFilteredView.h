@@ -64,7 +64,7 @@ namespace cms {
     const Double_t* rot() const;
     const RotationMatrix rotation() const;
     void rot(dd4hep::Rotation3D& matrixOut) const;
-
+    
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
 
