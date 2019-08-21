@@ -4,7 +4,6 @@
 #include <iosfwd>
 
 namespace cms {
-
   namespace dd {
     template <class T>
     struct NameValuePair {
