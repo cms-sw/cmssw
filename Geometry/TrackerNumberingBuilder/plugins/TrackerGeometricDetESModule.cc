@@ -36,8 +36,7 @@ private:
 using namespace edm;
 
 TrackerGeometricDetESModule::TrackerGeometricDetESModule(const edm::ParameterSet& p)
-  : fromDDD_(p.getParameter<bool>("fromDDD")),
-    fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
+    : fromDDD_(p.getParameter<bool>("fromDDD")), fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
   auto cc = setWhatProduced(this);
   if (fromDDD_) {
     ddToken_ = cc.consumes<DDCompactView>(edm::ESInputTag());
@@ -77,11 +76,11 @@ std::unique_ptr<GeometricDet> TrackerGeometricDetESModule::produce(const IdealGe
     edm::ESTransientHandle<cms::DDCompactView> cpv = iRecord.getTransientHandle(dd4hepToken_);
     cms::DDVectorsMap vmap = cpv->detector()->vectors();
     std::vector<int> detIdShifts;
-    for(auto const &it : vmap) {
+    for (auto const& it : vmap) {
       if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), "detIdShifts")) {
-	for (const auto& i : it.second) {
-	  detIdShifts.emplace_back(std::round(i));
-	}
+        for (const auto& i : it.second) {
+          detIdShifts.emplace_back(std::round(i));
+        }
       }
     }
     return DDDCmsTrackerContruction::construct(*cpv, detIdShifts);

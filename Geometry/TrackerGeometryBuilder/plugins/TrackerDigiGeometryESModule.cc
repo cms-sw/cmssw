@@ -30,11 +30,11 @@
 
 class TrackerDigiGeometryESModule : public edm::ESProducer {
 public:
-  TrackerDigiGeometryESModule(const edm::ParameterSet &p);
+  TrackerDigiGeometryESModule(const edm::ParameterSet& p);
   ~TrackerDigiGeometryESModule() override;
-  std::unique_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord &);
+  std::unique_ptr<TrackerGeometry> produce(const TrackerDigiGeometryRecord&);
 
-  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   /// Called when geometry description changes

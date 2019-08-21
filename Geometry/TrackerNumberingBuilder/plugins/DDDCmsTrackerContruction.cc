@@ -52,17 +52,17 @@ std::unique_ptr<GeometricDet> DDDCmsTrackerContruction::construct(const cms::DDC
   cms::DDFilteredView fv(cpv, attribute);
   std::string name{fv.name().data(), fv.name().size()};
   edm::LogVerbatim("Geometry") << "Before the first child: " << name << ".";
-  
+
   if (name != "Tracker") {
     bool flag = fv.firstChild();
     name = {fv.name().data(), fv.name().size()};
     edm::LogVerbatim("Geometry") << "After the firat child: " << name << ".";
     if (!flag || name != "Tracker") {
       throw cms::Exception("Configuration") << " The first child of the DDFilteredView is not what is expected \n"
-					    << name << "\n";
+                                            << name << "\n";
     }
   }
-  
+
   auto tracker = std::make_unique<GeometricDet>(&fv, GeometricDet::Tracker);
   return tracker;
 }

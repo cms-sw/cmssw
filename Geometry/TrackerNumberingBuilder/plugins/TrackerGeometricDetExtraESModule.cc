@@ -43,8 +43,7 @@ private:
 using namespace edm;
 
 TrackerGeometricDetExtraESModule::TrackerGeometricDetExtraESModule(const edm::ParameterSet& p)
-    : fromDDD_(p.getParameter<bool>("fromDDD")),
-      fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
+    : fromDDD_(p.getParameter<bool>("fromDDD")), fromDD4hep_(p.getParameter<bool>("fromDD4hep")) {
   auto c = setWhatProduced(this);
   geometricDetToken_ = c.consumes<GeometricDet>(edm::ESInputTag());
   if (fromDDD_) {

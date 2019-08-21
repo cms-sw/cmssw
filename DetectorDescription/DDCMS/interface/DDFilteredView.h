@@ -38,13 +38,13 @@ namespace cms {
   using Iterator = TGeoIterator;
   using Node = TGeoNode;
   using DDFilter = std::string_view;
-  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> >;
+  using Translation = ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>>;
   using RotationMatrix = ROOT::Math::Rotation3D;
 
   class DDFilteredView {
   public:
     DDFilteredView(const DDDetector*, const Volume);
-    DDFilteredView(const DDCompactView &, const DDFilter &);
+    DDFilteredView(const DDCompactView&, const DDFilter&);
     DDFilteredView() = delete;
 
     //! The numbering history of the current node
@@ -62,7 +62,7 @@ namespace cms {
     const Double_t* rot() const;
     const RotationMatrix rotation() const;
     void rot(dd4hep::Rotation3D& matrixOut) const;
-    
+
     //! User specific data
     void mergedSpecifics(DDSpecParRefs const&);
 
@@ -131,7 +131,7 @@ namespace cms {
     const std::vector<double> parameters() const;
 
     const DDSolidShape shape() const;
- 
+
     //! extract attribute numeric value
     double getDouble(std::string_view) const;
 
