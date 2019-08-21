@@ -12,3 +12,5 @@ pixelClusterTagInfos = cms.EDProducer("PixelClusterTagInfoProducer",
     hadronMass = cms.double(12.), # indicative mass to derive the shrinking cone radius
 )
 
+from Configuration.Eras.Modifier_pixel_2016_cff import pixel_2016
+pixel_2016.toModify(pixelClusterTagInfos, isPhase1 = False )

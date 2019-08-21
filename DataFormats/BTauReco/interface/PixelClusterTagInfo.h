@@ -1,6 +1,8 @@
 #ifndef DataFormats_BTauReco_PixelClusterTagInfo_h
 #define DataFormats_BTauReco_PixelClusterTagInfo_h
 
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 
 namespace reco {
@@ -10,7 +12,7 @@ namespace reco {
     float y = 0;
     float z = 0;
     int charge = 0;
-    int layer = 0;
+    unsigned int layer = 0;
   };
 
   struct PixelClusterData {
@@ -30,6 +32,7 @@ namespace reco {
       rvar = std::vector<int8_t>(l, 0);
       rvwt = std::vector<int8_t>(l, 0);
     }
+    CMS_CLASS_VERSION(3)
   };
 
   class PixelClusterTagInfo : public BaseTagInfo {
@@ -55,6 +58,8 @@ namespace reco {
 
     // method to get the PixelClusterData struct
     const PixelClusterData& data() const { return pixelClusters_; }
+
+    CMS_CLASS_VERSION(3)
 
   private:
     PixelClusterData pixelClusters_;
