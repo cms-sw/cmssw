@@ -465,9 +465,13 @@
   <class name="reco::DeepBoostedJetTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::DeepBoostedJetTagInfoCollection>" persistent="false"/>
 
-  <class name="reco::PixelClusterData"/>
   <class name="reco::PixelClusterProperties"/>
-  <class name="reco::PixelClusterTagInfo"/>
+  <class name="reco::PixelClusterData" ClassVersion="3">
+    <version ClassVersion="3" checksum="1605881046"/>
+  </class>
+  <class name="reco::PixelClusterTagInfo" ClassVersion="3">
+    <version ClassVersion="3" checksum="2876828956"/>
+  </class>
   <class name="reco::PixelClusterTagInfoCollection"/>
   <class name="edm::Wrapper<reco::PixelClusterTagInfoCollection>"/>
 

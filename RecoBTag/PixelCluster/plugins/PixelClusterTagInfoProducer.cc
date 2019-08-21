@@ -27,7 +27,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -65,6 +64,8 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 // Geometry
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
@@ -72,10 +73,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
-
-// ROOT
-#include "TVector3.h"
-#include "TLorentzVector.h"
 
 class PixelClusterTagInfoProducer : public edm::global::EDProducer<> {
 public:
@@ -98,7 +95,7 @@ private:
   const float m_minJetPt;
   const float m_maxJetEta;
   const float m_hadronMass;
-  const int m_nLayers;
+  const unsigned int m_nLayers;
 };
 
 PixelClusterTagInfoProducer::PixelClusterTagInfoProducer(const edm::ParameterSet& iConfig)
@@ -162,7 +159,7 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
   std::vector<reco::PixelClusterProperties> clusters;
 
   // Get vector of detunit ids, and fill a vector of PixelClusterProperties in the loop
-  for (auto& detUnit : collectionClusters) {
+  for (auto const& detUnit : collectionClusters) {
     if (detUnit.empty())
       continue;
     DetId detId = DetId(detUnit.detId());  // Get the Detid object
@@ -170,23 +167,17 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
     if (detType != 1)
       continue;                             // Consider only pixels
     unsigned int subid = detId.subdetId();  // Subdetector type, pix barrel = 1, forward = 2
+    if (!(subid == PixelSubdetector::PixelBarrel || (m_addFPIX && subid == PixelSubdetector::PixelEndcap)))
+      continue;
+    unsigned int layer = tTopo->layer(detId);  // The layer index is in range 1-4 or 1-3
+    if (layer == 0 || layer > m_nLayers)
+      continue;
 
     // Get the geom-detector
     const PixelGeomDetUnit* geomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
     const PixelTopology* topol = &(geomDet->specificTopology());
-    int layer = 0;  // The layer index is in range 1-4
 
-    if (subid == 1) {  // pixel barrel
-      PixelBarrelName pbn(detId, tTopo, m_isPhase1);
-      layer = pbn.layerName();
-    } else if (m_addFPIX && subid == 2) {  // pixel forward
-      PixelEndcapName pen(detId, tTopo, m_isPhase1);
-      layer = pen.diskName();
-    }
-    if (layer == 0 || layer > m_nLayers)
-      continue;
-
-    for (auto& clUnit : detUnit) {
+    for (auto const& clUnit : detUnit) {
       // get global position of the cluster
       LocalPoint lp = topol->localPosition(MeasurementPoint(clUnit.x(), clUnit.y()));
       GlobalPoint clustgp = geomDet->surface().toGlobal(lp);
@@ -207,10 +198,10 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
     reco::PixelClusterData data(m_nLayers);
     reco::PixelClusterTagInfo tagInfo;
 
-    for (auto& cluster : clusters) {
-      TVector3 c3(cluster.x - firstPV->x(), cluster.y - firstPV->y(), cluster.z - firstPV->z());
-      TVector3 j3(jetRef->px(), jetRef->py(), jetRef->pz());
-      float dR = j3.DeltaR(c3);
+    for (auto const& cluster : clusters) {
+      GlobalPoint c3(cluster.x, cluster.y, cluster.z);
+      GlobalPoint v3(firstPV->x(), firstPV->y(), firstPV->z());
+      float dR = reco::deltaR(c3 - v3, jetRef->momentum());
       float sC = m_hadronMass * 2. / (jetRef->pt());  // 2 mX / pT
 
       // Match pixel clusters to jets and fill Data struct
