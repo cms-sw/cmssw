@@ -46,7 +46,8 @@ bool LHEJetFilter::filter(edm::StreamID strid, edm::Event& evt, const edm::Event
     return true;
   }
 
-  vector<PseudoJet> jetconsts(6);
+  vector<PseudoJet> jetconsts;
+  jetconsts.reserve(10);
   const lhef::HEPEUP& hepeup = lheinfo->hepeup();
   for (size_t p = 0; p < hepeup.IDUP.size(); ++p) {
     if (hepeup.ISTUP[p] == 1) {
