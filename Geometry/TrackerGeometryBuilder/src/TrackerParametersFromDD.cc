@@ -29,16 +29,16 @@ bool TrackerParametersFromDD::build(const cms::DDCompactView* cvp, PTrackerParam
     std::stringstream sstm;
     sstm << "Subdetector" << subdet;
     std::string name = sstm.str();
-    for(auto const &it : vmap) {
+    for (auto const& it : vmap) {
       if (cms::dd::compareEqual(cms::dd::noNamespace(it.first), name)) {
-	std::vector<int> subdetPars;
-	for (const auto& i : it.second)
-	  subdetPars.emplace_back(std::round(i));
-	putOne(subdet, subdetPars, ptp);
+        std::vector<int> subdetPars;
+        for (const auto& i : it.second)
+          subdetPars.emplace_back(std::round(i));
+        putOne(subdet, subdetPars, ptp);
       }
     }
   }
-  
+
   auto it = vmap.find("vPars");
   if (it != end(vmap)) {
     std::vector<int> tmpVec;
