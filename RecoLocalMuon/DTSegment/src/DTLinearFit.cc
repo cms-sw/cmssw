@@ -275,15 +275,9 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
   double chi2fit3 = -1.;
   double chi2fitN3 = -1.;
   double chi2fitN4 = -1.;
-  float bminf3 = bminf;
-  float aminf3 = aminf;
-  float cminf3 = cminf;
   int nppar2 = 0;
   int nppar3 = 0;
   int nppar4 = 0;
-
-  cminf = -999.;
-  vminf = 0.;
 
   for (int j = 0; j < nptfit; j++)
     sigy.push_back(sigma);
@@ -316,9 +310,9 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
       chi2fitN3 = chi2fit / (nptfit - 2);
     }
 
-    bminf3 = bminf;
-    aminf3 = aminf;
-    cminf3 = cminf;
+    float aminf3 = aminf;
+    float bminf3 = bminf;
+    float cminf3 = cminf;
     nppar3 = nppar;
 
     if (debug) {
@@ -349,9 +343,9 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
       if (fabs(vminf) >= 0.29) {
         // for safety and for code construction..dont accept correction on dv/vdrift greater then 0.09
         vminf = 0.;
-        cminf = cminf3;
         aminf = aminf3;
         bminf = bminf3;
+        cminf = cminf3;
         nppar = 3;
         chi2fit = chi2fit3;
       }
@@ -359,9 +353,9 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
 
     if (!vdrift_4parfit) {  //if not required explicitly leave the t0 and track step as at step 3
                             // just update vdrift value vmin for storing in the segments for monitoring
-      cminf = cminf3;
       aminf = aminf3;
       bminf = bminf3;
+      cminf = cminf3;
       nppar = 3;
       chi2fit = chi2fit3;
     }
