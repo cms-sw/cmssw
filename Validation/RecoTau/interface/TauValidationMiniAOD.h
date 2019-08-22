@@ -28,6 +28,7 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 // Include DQM core
 #include <DQMServices/Core/interface/DQMStore.h>
@@ -62,8 +63,10 @@ public:
 
 private:
   edm::EDGetTokenT<std::vector<pat::Tau> > tauCollection_;
-  std::map<std::string,  MonitorElement *> ptTauVisibleMap, etaTauVisibleMap, byDeepTau2017v2VSerawVisibleMap, byDeepTau2017v2VSjetrawVisibleMap, byDeepTau2017v2VSmurawVisibleMap;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > refCollectionInputTagToken_;
+  std::map<std::string,  MonitorElement *> ptTauVisibleMap, etaTauVisibleMap, phiTauVisibleMap, massTauVisibleMap, decayModeFindingTauVisibleMap, byDeepTau2017v2VSerawVisibleMap, byDeepTau2017v2VSjetrawVisibleMap, byDeepTau2017v2VSmurawVisibleMap;
   edm::ParameterSet histoSettings_;
+  std::string extensionName_;
 };
 
 #endif
