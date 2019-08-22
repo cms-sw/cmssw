@@ -456,7 +456,11 @@ GsfElectronAlgo::EventData GsfElectronAlgo::beginEvent(edm::Event const& event) 
                                                 eventSetupData_.caloGeom,
                                                 *endcapRecHits,
                                                 eventSetupData_.sevLevel.product(),
-                                                DetId::Ecal)};
+                                                DetId::Ecal),
+      .pfIsolationValues = {},
+      .edIsolationValues = {},
+      .originalCtfTracks = {},
+      .originalGsfTracks = {}};
 
   eventData.ecalBarrelIsol03.setUseNumCrystals(generalData_.isoCfg.useNumCrystals);
   eventData.ecalBarrelIsol03.setVetoClustered(generalData_.isoCfg.vetoClustered);
