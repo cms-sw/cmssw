@@ -10,7 +10,4 @@ from Geometry.HcalCommonData.hcalParameters_cfi      import *
 from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *
 from Geometry.HGCalCommonData.hgcalParametersInitialization_cfi import *
 from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *
-from Geometry.ForwardCommonData.hfnoseParametersInitialization_cfi import *
-from Geometry.ForwardCommonData.hfnoseNumberingInitialization_cfi  import *
-
 from Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cfi import *
