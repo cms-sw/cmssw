@@ -35,7 +35,7 @@ def TICL_iterations_withReco(process):
 
   process.trackstersTrk = trackstersProducer.clone(
     filtered_mask = cms.InputTag("filteredLayerClustersTrk", "Trk"),
-    seeding_regions = cms.InputTag("ticlSeedingTrk"),
+    seeding_regions = "ticlSeedingTrk",
     missing_layers = 3,
     min_clusters_per_ntuplet = 5,
     min_cos_theta = 0.99, # ~10 degrees                                              
@@ -61,7 +61,7 @@ def TICL_iterations_withReco(process):
 
   process.trackstersMIP = trackstersProducer.clone(
       filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
-      seeding_regions = cms.InputTag("ticlSeedingGlobal"),
+      seeding_regions = "ticlSeedingGlobal",
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.99, # ~10 degrees
@@ -84,7 +84,7 @@ def TICL_iterations_withReco(process):
   process.tracksters = trackstersProducer.clone(
       original_mask = "trackstersMIP",
       filtered_mask = cms.InputTag("filteredLayerClusters", "algo8"),
-      seeding_regions = cms.InputTag("ticlSeedingGlobal"),
+      seeding_regions = "ticlSeedingGlobal",
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
@@ -133,7 +133,7 @@ def TICL_iterations(process):
 
   process.trackstersMIP = trackstersProducer.clone(
       filtered_mask = cms.InputTag("filteredLayerClustersMIP", "MIP"),
-      seeding_regions = cms.InputTag("ticlSeedingGlobal"),
+      seeding_regions = "ticlSeedingGlobal",
       missing_layers = 3,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.99 # ~10 degrees
@@ -154,7 +154,7 @@ def TICL_iterations(process):
   process.tracksters = trackstersProducer.clone(
       original_mask = "trackstersMIP",
       filtered_mask = cms.InputTag("filteredLayerClusters", "algo8"),
-      seeding_regions = cms.InputTag("ticlSeedingGlobal"),
+      seeding_regions = "ticlSeedingGlobal",
       missing_layers = 2,
       min_clusters_per_ntuplet = 15,
       min_cos_theta = 0.94, # ~20 degrees
