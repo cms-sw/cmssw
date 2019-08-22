@@ -43,12 +43,6 @@ int doWrite( const std::string& connectionString ){
     std::string d(sVal);
     cond::Hash p3 = session.storePayload( d, boost::posix_time::microsec_clock::universal_time() );
 
-    // ArrayPayload arrayPl( );
-    // cond::Hash ap0 = session.storePayload( arrayPl, boost::posix_time::microsec_clock::universal_time() );
-
-    // SimplePayload simplePl( 43 );
-    // cond::Hash sp0 = session.storePayload( simplePl, boost::posix_time::microsec_clock::universal_time() );
-
     IOVEditor editor;
     if( !session.existsIov( "MyNewIOV" ) ){
       editor = session.createIov<MyTestData>( "MyNewIOV", cond::runnumber ); 
@@ -67,22 +61,6 @@ int doWrite( const std::string& connectionString ){
       editor.insert( 2000000, p3 );
       editor.flush();
     }
-
-//     if( !session.existsIov( "ArrayData" ) ){
-//       editor = session.createIov<ArrayPayload>( "ArrayData", cond::timestamp );
-//       editor.setDescription("Test with ArrayPayload class");
-//       editor.insert( 1000000, ap0 );
-//       editor.insert( 2000000, ap0 );
-//       editor.flush();
-//     }
-// 
-//     if( !session.existsIov( "SimpleData" ) ){
-//       editor = session.createIov<SimplePayload>( "SimpleData", cond::timestamp );
-//       editor.setDescription("Test with SimplePayload class");
-//       editor.insert( 1000000, sp0 );
-//       editor.insert( 2000000, sp0 );
-//       editor.flush();
-//     }
 
     session.transaction().commit();
     std::cout <<"> iov changes committed!..."<<std::endl;
@@ -184,29 +162,6 @@ int doRead( const std::string& connectionString ){
       }
     }
 
-//     proxy = session.readIov( "ArrayData" ); 
-//     auto iov3It = proxy.find( 1000022 );
-//     if(iov3It == proxy.end() ){
-//       std::cout<<"#[5] not found!"<<std::endl;
-//     } else {
-//       cond::Iov_t val =*iov3It;
-//       std::cout <<"#[5] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-//       std::shared_ptr<ArrayPayload> pay5 = session.fetchPayload<ArrayPayload>( val.payloadId );
-//       // std::cout << "#pay5=" << (*pay5==arrayPl ? "OK" : "NOT OK") << std::endl;
-//     }
-// 
-//     proxy = session.readIov( "SimpleData" ); 
-//     auto iov4It = proxy.find( 1000022 );
-//     if(iov4It == proxy.end() ){
-//       std::cout<<"#[6] not found!"<<std::endl;
-//     } else {
-//       cond::Iov_t val =*iov4It;
-//       std::cout <<"#[6] iov since="<<val.since<<" till="<<val.till<<" pid="<<val.payloadId<<std::endl;
-//       std::shared_ptr<SimplePayload> pay5 = session.fetchPayload<SimplePayload>( val.payloadId );
-//       // std::cout << "#pay6=" << (*pay6==simplePl ? "OK" : "NOT OK") << std::endl;
-//     }
-
-
     session.transaction().commit();
   } catch (const std::exception& e){
     std::cout << "ERROR: " << e.what() << std::endl;
@@ -250,7 +205,7 @@ int main (int argc, char** argv)
     return 0;
   }
 
-  std::string connectionString0("sqlite_file:cms_conditions_v2.db");
+  std::string connectionString0("sqlite_file:ReadWritePayloads.db");
   if ( std::string(argv[2]).size() > 3 ) {
     connectionString0 = std::string( argv[2] );
   }

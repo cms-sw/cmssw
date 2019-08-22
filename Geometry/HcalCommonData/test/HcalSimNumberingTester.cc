@@ -63,7 +63,7 @@ void HcalSimNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
     edm::LogVerbatim("HcalGeom") << "about to de-reference the edm::ESHandle<HcalDDDSimConstants> pHSNDC";
     const HcalDDDSimConstants hdc (*pHSNDC);
     edm::LogVerbatim("HcalGeom") << "about to getConst for 0..1";
-    for (int i=0; i<1; ++i) {
+    for (int i=0; i<=1; ++i) {
       std::vector<std::pair<double,double> > gcons = hdc.getConstHBHE(i);
       edm::LogVerbatim("HcalGeom") << "Geometry Constants for [" << i 
 				   << "] with " << gcons.size() << "  elements";
@@ -72,6 +72,9 @@ void HcalSimNumberingTester::analyze( const edm::Event& iEvent, const edm::Event
 				     << gcons[k].first << " : "
 				     << gcons[k].second;
     }
+    for (int i=0; i<4; ++i) 
+      edm::LogVerbatim("HcalGeom") << "MaxDepth[" << i << "] = "
+				   << hdc.getMaxDepth(i);
     hdc.printTiles();
   } else {
     edm::LogVerbatim("HcalGeom") << "No record found with HcalDDDSimConstants";

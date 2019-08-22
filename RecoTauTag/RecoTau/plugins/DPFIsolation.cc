@@ -67,18 +67,15 @@ public:
 
     explicit DPFIsolation(const edm::ParameterSet& cfg,const deep_tau::DeepTauCache* cache) :
         DeepTauBase(cfg, GetOutputs(), cache),
-        pfcand_token(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
-        vtx_token(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
         graphVersion(cfg.getParameter<unsigned>("version"))
     {
         const auto& shape = cache_->getGraph().node(0).attr().at("shape").shape();
 
         if(!(graphVersion == 1 || graphVersion == 0 ))
-            throw cms::Exception("DPFIsolation") << "unknown version of the graph_ file.";
+            throw cms::Exception("DPFIsolation") << "unknown version of the graph file.";
 
         if(!(shape.dim(1).size() == getNumberOfParticles(graphVersion) && shape.dim(2).size() == GetNumberOfFeatures(graphVersion)))
             throw cms::Exception("DPFIsolation") << "number of inputs does not match the expected inputs for the given version";
-
     }
 
 private:
@@ -86,10 +83,10 @@ private:
                                               edm::Handle<TauCollection> taus) override
     {
         edm::Handle<pat::PackedCandidateCollection> pfcands;
-        event.getByToken(pfcand_token, pfcands);
+        event.getByToken(pfcandToken_, pfcands);
 
         edm::Handle<reco::VertexCollection> vertices;
-        event.getByToken(vtx_token, vertices);
+        event.getByToken(vtxToken_, vertices);
 
         tensorflow::Tensor tensor(tensorflow::DT_FLOAT, {1,
             static_cast<int>(getNumberOfParticles(graphVersion)), static_cast<int>(GetNumberOfFeatures(graphVersion))});
@@ -394,8 +391,6 @@ private:
     }
 
 private:
-    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcand_token;
-    edm::EDGetTokenT<reco::VertexCollection> vtx_token;
     unsigned graphVersion;
 };
 

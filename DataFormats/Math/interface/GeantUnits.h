@@ -113,6 +113,12 @@ namespace geant_units {
     }
 
     template <class NumType>
+    inline constexpr NumType convertCmToMm(NumType centimeters) // Centimeters -> Milliimeters
+    {
+      return (centimeters * 10.);
+    }
+
+    template <class NumType>
     inline constexpr NumType convertMm3ToM3(NumType mm3) // Cubic millimeters -> cubic meters
     {
       return (mm3 / 1.e9);

@@ -29,9 +29,17 @@ TpSelectorForEfficiencyVsVTXZBlock = generalTpSelectorBlock.clone()
 def _modifyForPhase1(pset):
     pset.minRapidity = -3
     pset.maxRapidity = 3
+    pset.tip = 2.5 # beampipe is around 2.0, BPIX1 is at 2.9
+
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(generalTpSelectorBlock, _modifyForPhase1)
 phase1Pixel.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase1)
+
+def _modifyForPhase2(pset):
+    pset.minRapidity = -4.5
+    pset.maxRapidity = 4.5
+    pset.tip = 2.5 # IT1 will be around 3.0 (as in Phase1)
+
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase2_tracker.toModify(generalTpSelectorBlock, minRapidity=-4.5, maxRapidity=4.5)
-phase2_tracker.toModify(TpSelectorForEfficiencyVsEtaBlock, minRapidity=-4.5, maxRapidity=4.5)
+phase2_tracker.toModify(generalTpSelectorBlock, _modifyForPhase2)
+phase2_tracker.toModify(TpSelectorForEfficiencyVsEtaBlock, _modifyForPhase2)

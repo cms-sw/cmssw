@@ -53,6 +53,7 @@ class PFClusterEMEnergyCorrector {
   bool srfAwareCorrection_;
   bool applyCrackCorrections_;
   bool applyMVACorrections_;
+  bool setEnergyUncertainty_;
 
   bool autoDetectBunchSpacing_;
   int bunchSpacingManual_;

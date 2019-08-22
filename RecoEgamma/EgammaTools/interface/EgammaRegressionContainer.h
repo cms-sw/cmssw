@@ -33,10 +33,11 @@ public:
 
   float operator()(const float et,const bool isEB,const bool isSaturated,const float* data)const;
 
-private:
   bool useLowEtBin(const float et,const bool isSaturated)const;
 
-  const EgammaBDTOutputTransformer outputTransformer_;
+private:
+  const EgammaBDTOutputTransformer outputTransformerLowEt_;
+  const EgammaBDTOutputTransformer outputTransformerHighEt_;
   
   bool forceHighEnergyTrainingIfSaturated_;
   const float lowEtHighEtBoundary_;

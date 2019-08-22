@@ -43,7 +43,7 @@ namespace HTXS {
       QQ2HLNU_FWDH = 30, QQ2HLNU = 31, QQ2HLL_FWDH = 40, QQ2HLL = 41, GG2HLL_FWDH = 50, GG2HLL = 51,
       TTH_FWDH = 60, TTH = 61, BBH_FWDH = 70, BBH = 71, TH_FWDH = 80, TH = 81 };
   }
- 
+
   /// Categorization Stage 1:
   /// Three digit integer of format PF
   /// Where P is a digit representing the process
@@ -89,7 +89,178 @@ namespace HTXS {
     };
   } // namespace Stage1
 
-  
+namespace Stage1_1 {
+    enum Category {
+      UNKNOWN  = 0,
+      // Gluon fusion
+      GG2H_FWDH = 100,
+      GG2H_PTH_GT200 = 101,
+      GG2H_0J_PTH_0_10   = 102,
+      GG2H_0J_PTH_GT10   = 103,
+      GG2H_1J_PTH_0_60 = 104,
+      GG2H_1J_PTH_60_120 = 105,
+      GG2H_1J_PTH_120_200 = 106,
+      GG2H_GE2J_MJJ_0_350_PTH_0_60 = 107,
+      GG2H_GE2J_MJJ_0_350_PTH_60_120 = 108,
+      GG2H_GE2J_MJJ_0_350_PTH_120_200 = 109,
+      GG2H_MJJ_350_700_PTHJJ_0_25 = 110,
+      GG2H_MJJ_350_700_PTHJJ_GT25 = 111,
+      GG2H_MJJ_GT700_PTHJJ_0_25 = 112,
+      GG2H_MJJ_GT700_PTHJJ_GT25 = 113,
+      // "VBF"
+      QQ2HQQ_FWDH = 200,
+      QQ2HQQ_0J = 201,
+      QQ2HQQ_1J = 202,
+      QQ2HQQ_MJJ_0_60 = 203,
+      QQ2HQQ_MJJ_60_120 = 204,
+      QQ2HQQ_MJJ_120_350 = 205,
+      QQ2HQQ_MJJ_GT350_PTH_GT200 = 206,
+      QQ2HQQ_MJJ_350_700_PTHJJ_0_25 = 207,
+      QQ2HQQ_MJJ_350_700_PTHJJ_GT25 = 208,
+      QQ2HQQ_MJJ_GT700_PTHJJ_0_25 = 209,
+      QQ2HQQ_MJJ_GT700_PTHJJ_GT25 = 210,
+      // qq -> WH
+      QQ2HLNU_FWDH = 300,
+      QQ2HLNU_PTV_0_75 = 301,
+      QQ2HLNU_PTV_75_150 = 302,
+      QQ2HLNU_PTV_150_250_0J = 303,
+      QQ2HLNU_PTV_150_250_GE1J = 304,
+      QQ2HLNU_PTV_GT250 = 305,
+      // qq -> ZH
+      QQ2HLL_FWDH = 400,
+      QQ2HLL_PTV_0_75 = 401,
+      QQ2HLL_PTV_75_150 = 402,
+      QQ2HLL_PTV_150_250_0J = 403,
+      QQ2HLL_PTV_150_250_GE1J = 404,
+      QQ2HLL_PTV_GT250 = 405,
+      // gg -> ZH
+      GG2HLL_FWDH = 500,
+      GG2HLL_PTV_0_75 = 501,
+      GG2HLL_PTV_75_150 = 502,
+      GG2HLL_PTV_150_250_0J = 503,
+      GG2HLL_PTV_150_250_GE1J = 504,
+      GG2HLL_PTV_GT250 = 505,
+      // ttH
+      TTH_FWDH = 600, TTH = 601,
+      // bbH
+      BBH_FWDH = 700, BBH = 701,
+      // tH
+      TH_FWDH = 800, TH = 801
+    };
+  } // namespace Stage1_1
+
+  namespace Stage1_1_Fine {
+    enum Category {
+      UNKNOWN  = 0,
+      // Gluon fusion
+      GG2H_FWDH = 100,
+      GG2H_PTH_GT200 = 101,
+      GG2H_0J_PTH_0_10   = 102,
+      GG2H_0J_PTH_GT10   = 103,
+      GG2H_1J_PTH_0_60 = 104,
+      GG2H_1J_PTH_60_120 = 105,
+      GG2H_1J_PTH_120_200 = 106,
+      GG2H_GE2J_MJJ_0_350_PTH_0_60_PTHJJ_0_25 = 107,
+      GG2H_GE2J_MJJ_0_350_PTH_60_120_PTHJJ_0_25 = 108,
+      GG2H_GE2J_MJJ_0_350_PTH_120_200_PTHJJ_0_25 = 109,
+      GG2H_GE2J_MJJ_0_350_PTH_0_60_PTHJJ_GT25 = 110,
+      GG2H_GE2J_MJJ_0_350_PTH_60_120_PTHJJ_GT25 = 111,
+      GG2H_GE2J_MJJ_0_350_PTH_120_200_PTHJJ_GT25 = 112,
+      GG2H_MJJ_350_700_PTHJJ_0_25 = 113,
+      GG2H_MJJ_350_700_PTHJJ_GT25 = 114,
+      GG2H_MJJ_700_1000_PTHJJ_0_25 = 115,
+      GG2H_MJJ_700_1000_PTHJJ_GT25 = 116,
+      GG2H_MJJ_1000_1500_PTHJJ_0_25 = 117,
+      GG2H_MJJ_1000_1500_PTHJJ_GT25 = 118,
+      GG2H_MJJ_GT1500_PTHJJ_0_25 = 119,
+      GG2H_MJJ_GT1500_PTHJJ_GT25 = 120,
+      // "VBF"
+      QQ2HQQ_FWDH = 200,
+      QQ2HQQ_0J = 201,
+      QQ2HQQ_1J = 202,
+      QQ2HQQ_MJJ_0_60_PTHJJ_0_25 = 203,
+      QQ2HQQ_MJJ_60_120_PTHJJ_0_25 = 204,
+      QQ2HQQ_MJJ_120_350_PTHJJ_0_25 = 205,
+      QQ2HQQ_MJJ_0_60_PTHJJ_GT25 = 206,
+      QQ2HQQ_MJJ_60_120_PTHJJ_GT25 = 207,
+      QQ2HQQ_MJJ_120_350_PTHJJ_GT25 = 208,
+      QQ2HQQ_MJJ_350_700_PTHJJ_0_25 = 209,
+      QQ2HQQ_MJJ_350_700_PTHJJ_GT25 = 210,
+      QQ2HQQ_MJJ_700_1000_PTHJJ_0_25 = 211,
+      QQ2HQQ_MJJ_700_1000_PTHJJ_GT25 = 212,
+      QQ2HQQ_MJJ_1000_1500_PTHJJ_0_25 = 213,
+      QQ2HQQ_MJJ_1000_1500_PTHJJ_GT25 = 214,
+      QQ2HQQ_MJJ_GT1500_PTHJJ_0_25 = 215,
+      QQ2HQQ_MJJ_GT1500_PTHJJ_GT25 = 216,
+      QQ2HQQ_PTH_GT200_MJJ_350_700_PTHJJ_0_25 = 217,
+      QQ2HQQ_PTH_GT200_MJJ_350_700_PTHJJ_GT25 = 218,
+      QQ2HQQ_PTH_GT200_MJJ_700_1000_PTHJJ_0_25 = 219,
+      QQ2HQQ_PTH_GT200_MJJ_700_1000_PTHJJ_GT25 = 220,
+      QQ2HQQ_PTH_GT200_MJJ_1000_1500_PTHJJ_0_25 = 221,
+      QQ2HQQ_PTH_GT200_MJJ_1000_1500_PTHJJ_GT25 = 222,
+      QQ2HQQ_PTH_GT200_MJJ_GT1500_PTHJJ_0_25 = 223,
+      QQ2HQQ_PTH_GT200_MJJ_GT1500_PTHJJ_GT25 = 224,
+      // qq -> WH
+      QQ2HLNU_FWDH = 300,
+      QQ2HLNU_PTV_0_75_0J = 301,
+      QQ2HLNU_PTV_75_150_0J = 302,
+      QQ2HLNU_PTV_150_250_0J = 303,
+      QQ2HLNU_PTV_250_400_0J = 304,
+      QQ2HLNU_PTV_GT400_0J = 305,
+      QQ2HLNU_PTV_0_75_1J = 306,
+      QQ2HLNU_PTV_75_150_1J = 307,
+      QQ2HLNU_PTV_150_250_1J = 308,
+      QQ2HLNU_PTV_250_400_1J = 309,
+      QQ2HLNU_PTV_GT400_1J = 310,
+      QQ2HLNU_PTV_0_75_GE2J = 311,
+      QQ2HLNU_PTV_75_150_GE2J = 312,
+      QQ2HLNU_PTV_150_250_GE2J = 313,
+      QQ2HLNU_PTV_250_400_GE2J = 314,
+      QQ2HLNU_PTV_GT400_GE2J = 315,
+      // qq -> ZH
+      QQ2HLL_FWDH = 400,
+      QQ2HLL_PTV_0_75_0J = 401,
+      QQ2HLL_PTV_75_150_0J = 402,
+      QQ2HLL_PTV_150_250_0J = 403,
+      QQ2HLL_PTV_250_400_0J = 404,
+      QQ2HLL_PTV_GT400_0J = 405,
+      QQ2HLL_PTV_0_75_1J = 406,
+      QQ2HLL_PTV_75_150_1J = 407,
+      QQ2HLL_PTV_150_250_1J = 408,
+      QQ2HLL_PTV_250_400_1J = 409,
+      QQ2HLL_PTV_GT400_1J = 410,
+      QQ2HLL_PTV_0_75_GE2J = 411,
+      QQ2HLL_PTV_75_150_GE2J = 412,
+      QQ2HLL_PTV_150_250_GE2J = 413,
+      QQ2HLL_PTV_250_400_GE2J = 414,
+      QQ2HLL_PTV_GT400_GE2J = 415,
+      // gg -> ZH
+      GG2HLL_FWDH = 500,
+      GG2HLL_PTV_0_75_0J = 501,
+      GG2HLL_PTV_75_150_0J = 502,
+      GG2HLL_PTV_150_250_0J = 503,
+      GG2HLL_PTV_250_400_0J = 504,
+      GG2HLL_PTV_GT400_0J = 505,
+      GG2HLL_PTV_0_75_1J = 506,
+      GG2HLL_PTV_75_150_1J = 507,
+      GG2HLL_PTV_150_250_1J = 508,
+      GG2HLL_PTV_250_400_1J = 509,
+      GG2HLL_PTV_GT400_1J = 510,
+      GG2HLL_PTV_0_75_GE2J = 511,
+      GG2HLL_PTV_75_150_GE2J = 512,
+      GG2HLL_PTV_150_250_GE2J = 513,
+      GG2HLL_PTV_250_400_GE2J = 514,
+      GG2HLL_PTV_GT400_GE2J = 515,
+      // ttH
+      TTH_FWDH = 600, TTH = 601,
+      // bbH
+      BBH_FWDH = 700, BBH = 701,
+      // tH
+      TH_FWDH = 800, TH = 801
+    };
+  } // namespace Stage1_1_Fine
+
+
 //#ifdef ROOT_TLorentzVector
     //typedef TLorentzVector TLV;
     typedef math::XYZTLorentzVectorD TLV;
@@ -126,6 +297,10 @@ namespace HTXS {
       HTXS::Stage0::Category stage0_cat;
       HTXS::Stage1::Category stage1_cat_pTjet25GeV;
       HTXS::Stage1::Category stage1_cat_pTjet30GeV;
+      HTXS::Stage1_1::Category stage1_1_cat_pTjet25GeV;
+      HTXS::Stage1_1::Category stage1_1_cat_pTjet30GeV;
+      HTXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet25GeV;
+      HTXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet30GeV;
       // Error code :: classification was succesful or some error occured
       HTXS::ErrorCode errorCode;
     };
@@ -144,6 +319,10 @@ namespace HTXS {
       cat.stage0_cat = htxs_cat_rivet.stage0_cat;
       cat.stage1_cat_pTjet25GeV = htxs_cat_rivet.stage1_cat_pTjet25GeV;
       cat.stage1_cat_pTjet30GeV = htxs_cat_rivet.stage1_cat_pTjet30GeV;
+      cat.stage1_1_cat_pTjet25GeV = htxs_cat_rivet.stage1_1_cat_pTjet25GeV;
+      cat.stage1_1_cat_pTjet30GeV = htxs_cat_rivet.stage1_1_cat_pTjet30GeV;
+      cat.stage1_1_fine_cat_pTjet25GeV = htxs_cat_rivet.stage1_1_fine_cat_pTjet25GeV;
+      cat.stage1_1_fine_cat_pTjet30GeV = htxs_cat_rivet.stage1_1_fine_cat_pTjet30GeV;
       return cat;    
     }
     
@@ -227,6 +406,14 @@ namespace Rivet {
     HTXS::Stage1::Category stage1_cat_pTjet25GeV;
     /// Stage-1 HTXS event classifcation, see: https://cds.cern.ch/record/2138079
     HTXS::Stage1::Category stage1_cat_pTjet30GeV;
+    /// Error code: Whether classification was succesful or some error occured
+    HTXS::Stage1_1::Category stage1_1_cat_pTjet25GeV;
+    /// Stage-1 STXS event classifcation, see: https://cds.cern.ch/record/2138079
+    HTXS::Stage1_1::Category stage1_1_cat_pTjet30GeV;
+    /// Stage-1_1 STXS event classifcation, see: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGFiducialAndSTXS#Stage_1_1
+    HTXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet25GeV;
+    /// Stage-1_1 STXS event classifcation, see: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGFiducialAndSTXS#Stage_1_1
+    HTXS::Stage1_1_Fine::Category stage1_1_fine_cat_pTjet30GeV;
     /// Error code: Whether classification was succesful or some error occured
     HTXS::ErrorCode errorCode;
   };

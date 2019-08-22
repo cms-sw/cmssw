@@ -64,9 +64,6 @@ class IsoValueMapProducer : public edm::global::EDProducer<> {
     else if ((typeid(T) == typeid(pat::Photon))) {
       produces<edm::ValueMap<float>>("PFIsoChg");
       produces<edm::ValueMap<float>>("PFIsoAll");
-      mapIsoChg_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mapIsoChg"));
-      mapIsoNeu_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mapIsoNeu"));
-      mapIsoPho_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("mapIsoPho"));
       ea_pfiso_chg_.reset(new EffectiveAreas((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Chg")).fullPath()));
       ea_pfiso_neu_.reset(new EffectiveAreas((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Neu")).fullPath()));
       ea_pfiso_pho_.reset(new EffectiveAreas((iConfig.getParameter<edm::FileInPath>("EAFile_PFIso_Pho")).fullPath()));
@@ -87,9 +84,6 @@ class IsoValueMapProducer : public edm::global::EDProducer<> {
   bool relative_;
   edm::EDGetTokenT<double> rho_miniiso_;
   edm::EDGetTokenT<double> rho_pfiso_;
-  edm::EDGetTokenT<edm::ValueMap<float>> mapIsoChg_;
-  edm::EDGetTokenT<edm::ValueMap<float>> mapIsoNeu_;
-  edm::EDGetTokenT<edm::ValueMap<float>> mapIsoPho_;
   std::unique_ptr<EffectiveAreas> ea_miniiso_;
   std::unique_ptr<EffectiveAreas> ea_pfiso_;
   std::unique_ptr<EffectiveAreas> ea_pfiso_chg_;
@@ -241,12 +235,6 @@ IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
   iEvent.getByToken(src_, src);
   edm::Handle<double> rho;
   iEvent.getByToken(rho_pfiso_,rho);
-  edm::Handle<edm::ValueMap<float> > mapIsoChg;
-  iEvent.getByToken(mapIsoChg_, mapIsoChg);
-  edm::Handle<edm::ValueMap<float> > mapIsoNeu;
-  iEvent.getByToken(mapIsoNeu_, mapIsoNeu);
-  edm::Handle<edm::ValueMap<float> > mapIsoPho;
-  iEvent.getByToken(mapIsoPho_, mapIsoPho);
   
   unsigned int nInput = src->size();
 
@@ -254,15 +242,14 @@ IsoValueMapProducer<pat::Photon>::doPFIsoPho(edm::Event& iEvent) const {
   PFIsoChg.reserve(nInput);
   PFIsoAll.reserve(nInput);
   
-  for (unsigned int i=0; i<nInput; i++){
-    auto obj = src->ptrAt(i);
-    auto chg = (*mapIsoChg)[obj];
-    auto neu = (*mapIsoNeu)[obj];
-    auto pho = (*mapIsoPho)[obj];
-    auto ea_chg = ea_pfiso_chg_->getEffectiveArea(fabs(getEtaForEA(obj.get())));
-    auto ea_neu = ea_pfiso_neu_->getEffectiveArea(fabs(getEtaForEA(obj.get())));
-    auto ea_pho = ea_pfiso_pho_->getEffectiveArea(fabs(getEtaForEA(obj.get())));
-    float scale = relative_ ? 1.0/obj->pt() : 1;
+  for (const auto & obj : *src) { 
+    auto chg = obj.chargedHadronIso();
+    auto neu = obj.neutralHadronIso();
+    auto pho = obj.photonIso();
+    auto ea_chg = ea_pfiso_chg_->getEffectiveArea(fabs(getEtaForEA(&obj)));
+    auto ea_neu = ea_pfiso_neu_->getEffectiveArea(fabs(getEtaForEA(&obj)));
+    auto ea_pho = ea_pfiso_pho_->getEffectiveArea(fabs(getEtaForEA(&obj)));
+    float scale = relative_ ? 1.0/obj.pt() : 1;
     PFIsoChg.push_back(scale*std::max(0.0,chg-(*rho)*ea_chg));
     PFIsoAll.push_back(PFIsoChg.back()+scale*(std::max(0.0,neu-(*rho)*ea_neu)+std::max(0.0,pho-(*rho)*ea_pho)));
   }

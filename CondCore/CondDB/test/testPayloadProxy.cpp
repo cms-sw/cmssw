@@ -21,7 +21,7 @@ int main (int argc, char** argv)
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
-  std::string connectionString("sqlite_file:cms_conditions_2.db");
+  std::string connectionString("sqlite_file:PayloadProxy.db");
   std::cout <<"# Connecting with db in "<<connectionString<<std::endl;
   try{
 

@@ -14,28 +14,15 @@ using namespace pat;
 JetCorrFactors::JetCorrFactors(const std::string& label, const std::vector<CorrectionFactor>& jec): label_(label), jec_(jec)
 {
   for(std::vector<CorrectionFactor>::const_iterator corrFactor=jec.begin(); corrFactor!=jec.end(); ++corrFactor){
-    if(!isValid(*corrFactor)){
-      throw cms::Exception("InvalidRequest") << "You try to create a CorrectionFactor which is neither flavor dependent nor \n"
-					     << "flavor independent. The CorrectionFactor should obey the following rules:  \n"
-					     << "\n"
-					     << " * CorrectionFactor is a std::pair<std::string, std::vector<float> >.      \n"
-					     << " * The std::string holds the label of the correction level (following the  \n"
-					     << "   conventions of JetMET.                                                  \n"
-					     << " * The std::vector<float> holds the correction factors, these factors are  \n"
-					     << "   up to the given level. They include all previous correction steps.      \n"
-					     << " * The vector has the length *1* for flavor independent correction factors \n"
-					     << "   or *5* for flavor dependent correction factors.                         \n"
-					     << " * The expected order of flavor dependent correction factors is: NONE,     \n"
-					     << "   GLUON, UDS, CHARM, BOTTOM. If follows the JetMET conventions and is     \n"
-					     << "   in the Flavor enumerator of the JetCorrFactos class.                    \n"
-					     << " * For flavor depdendent correction factors the first entry in the vector  \n"
-					     << "   (corresponding to NONE) is invalid and should be set to -1. It will not \n"
-					     << "   be considered by the class structure though.                            \n"
-					     << "\n"
-					     << "Make sure that all elements of the argument vector to this contructor are  \n"
-					     << "in accordance with these rules.\n";
-    }
+    if (!isValid(*corrFactor))
+      invalidFactor();
   }
+}
+
+void JetCorrFactors::insertFactor(const unsigned int& position, const CorrectionFactor& corrFactor) {
+  if (!isValid(corrFactor))
+    invalidFactor();
+  jec_.insert(jec_.begin() + position, corrFactor);
 }
 
 std::string 
@@ -124,4 +111,27 @@ JetCorrFactors::print() const
     }
     message << "\n";
   }
+}
+
+void JetCorrFactors::invalidFactor() const {
+  throw cms::Exception("InvalidRequest")
+      << "You try to create a CorrectionFactor which is neither flavor dependent nor \n"
+      << "flavor independent. The CorrectionFactor should obey the following rules:  \n"
+      << "\n"
+      << " * CorrectionFactor is a std::pair<std::string, std::vector<float> >.      \n"
+      << " * The std::string holds the label of the correction level (following the  \n"
+      << "   conventions of JetMET.						      \n"
+      << " * The std::vector<float> holds the correction factors, these factors are  \n"
+      << "   up to the given level. They include all previous correction steps.      \n"
+      << " * The vector has the length *1* for flavor independent correction factors \n"
+      << "   or *5* for flavor dependent correction factors.			      \n"
+      << " * The expected order of flavor dependent correction factors is: NONE,     \n"
+      << "   GLUON, UDS, CHARM, BOTTOM. If follows the JetMET conventions and is     \n"
+      << "   in the Flavor enumerator of the JetCorrFactos class.		      \n"
+      << " * For flavor depdendent correction factors the first entry in the vector  \n"
+      << "   (corresponding to NONE) is invalid and should be set to -1. It will not \n"
+      << "   be considered by the class structure though.			      \n"
+      << "\n"
+      << "Make sure that all elements of the argument vector to this contructor are  \n"
+      << "in accordance with these rules.\n";
 }

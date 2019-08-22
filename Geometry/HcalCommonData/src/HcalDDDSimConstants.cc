@@ -2,12 +2,10 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include <cmath>
+#include "DataFormats/Math/interface/GeantUnits.h"
 
 //#define EDM_ML_DEBUG
+using namespace geant_units::operators;
 
 HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
 
@@ -215,8 +213,8 @@ std::pair<int,double> HcalDDDSimConstants::getDetEta(const double& eta,
   for (int i = 0; i < nEta; i++)
     if (heta > hpar->etaTable[i]) ieta = i + 1;
   if (heta <= hpar->etaRange[1]) {
-    if ((ieta == hpar->etaMin[1] && depth==depthEta16[1]) ||
-	(ieta > hpar->etaMax[0])) {
+    if (((ieta == hpar->etaMin[1] && depth==depthEta16[1]) ||
+	 (ieta > hpar->etaMax[0])) && (ieta <= hpar->etaMax[1])) {
       hsubdet = static_cast<int>(HcalEndcap);
     } else {
       hsubdet = static_cast<int>(HcalBarrel);
@@ -377,7 +375,7 @@ int HcalDDDSimConstants::getLayerFront(const int& det, const int& eta,
     if (det == 1 || det == 2) {
       layer = 1;
       for (int l=0; l<getLayerMax(eta,depth); ++l) {
-	if ((int)(layerGroup(eta-1,l)) == depth+1) {
+	if ((int)(layerGroup(eta-1,l)) == depth) {
 	  layer = l+1; break;
 	}
       }
@@ -422,7 +420,7 @@ int HcalDDDSimConstants::getMaxDepth(const int& det, const int& eta,
     if (ldmap_.isValid(det,phi,zside))
       dmax = ldmap_.getDepths(eta).second;
     else if (det == 2)               
-      dmax = layerGroup(eta-1,maxLayer_);
+      dmax = (maxDepth[1] > 0) ? layerGroup(eta-1,maxLayer_) : 0;
     else if (eta == hpar->etaMax[0]) 
       dmax = getDepthEta16(det,phi,zside);
     else                             
@@ -501,7 +499,7 @@ HcalDDDSimConstants::getPhis(const int& subdet, const int& ieta) const {
   std::vector<std::pair<int,double> > phis;
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
   std::pair<double,double> ficons = getPhiCons(subdet, ietaAbs);
-  int nphi    = int((CLHEP::twopi+0.1*ficons.second)/ficons.second);
+  int nphi    = int((2._pi+0.1*ficons.second)/ficons.second);
   int units   = unitPhi(subdet, ietaAbs);
   for (int ifi = 0; ifi < nphi; ++ifi) {
     double phi =-ficons.first + (ifi+0.5)*ficons.second;
@@ -514,7 +512,7 @@ HcalDDDSimConstants::getPhis(const int& subdet, const int& ieta) const {
 			       << " phi bins";
   for (unsigned int k=0; k<phis.size(); ++k)
     edm::LogVerbatim("HcalGeom") << "[" << k << "] iphi " << phis[k].first 
-				 << " phi " << phis[k].second/CLHEP::deg;
+				 << " phi " << convertRadToDeg(phis[k].second);
 #endif
   return phis;
 }
@@ -571,7 +569,7 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
   double hsize = 0;
   switch(subdet) {
   case HcalEndcap:
-    dmin = 1; dmax = maxLayer_+1; indx = 1; nz = nzHE;
+    dmin = 1; dmax = (maxDepth[1] > 0) ? maxLayer_+1 : 0; indx = 1; nz = nzHE;
     break;
   case HcalForward:
     dmin = 1; dmax = (!idHF2QIE.empty()) ? 2 : maxDepth[2]; indx = 2; nz = 2;
@@ -810,7 +808,7 @@ void HcalDDDSimConstants::initialize( void ) {
     }
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HcalGeom") << "Depth " << i << " with " 
+    edm::LogVerbatim("HcalGeom") << "Depth " << i+1 << " with " 
 				 << depths[i].size() << " etas:";
     for (int k=0; k<nEta-1; ++k) 
       edm::LogVerbatim("HcalGeom") << " [" << k << "] " << depths[i][k];
@@ -892,8 +890,13 @@ void HcalDDDSimConstants::initialize( void ) {
 
   layFHB[0] = 0;  layFHB[1] = 1;
   layBHB[0] = 16; layBHB[1] = 15; layBHB[2] = 8;
-  layFHE[0] = 1;  layFHE[1] = 4;  layFHE[2] = 0;
-  layBHE[0] = 18; layBHE[1] = 9;  layBHE[2] = 14; layBHE[3] = 16;
+  if (maxDepth[1] == 0) {
+    layFHE[0] = layFHE[1] = layFHE[2] = 0;
+    layBHE[0] = layBHE[1] = layBHE[2] = layBHE[3] = 0;
+  } else {
+    layFHE[0] = 1;  layFHE[1] = 4;  layFHE[2] = 0;
+    layBHE[0] = 18; layBHE[1] = 9;  layBHE[2] = 14; layBHE[3] = 16;
+  }
   depthMaxSp_ = std::pair<int,int>(0,0);
   int noffk(noffsize+5);
   if ((int)(hpar->noff.size()) > (noffsize+5)) {
@@ -1123,10 +1126,10 @@ void HcalDDDSimConstants::printTileHB(const int& eta,   const int& phi,
   int    layL   = getLayerFront(1,eta,phi,zside,depth);
   int    layH   = getLayerBack(1,eta,phi,zside,depth);
   edm::LogVerbatim("HcalGeom") << "\ntileHB:: eta|depth " << zside*eta << "|" 
-			       << depth << " theta " << thetaH/CLHEP::deg 
-			       << ":" << thetaL/CLHEP::deg << " Layer " 
-			       << layL << ":" << layH-1;
-  for (int lay=layL; lay<layH; ++lay) {
+			       << depth << " theta " << convertRadToDeg(thetaH)
+			       << ":" << convertRadToDeg(thetaL) << " Layer " 
+			       << layL-1 << ":" << layH-1;
+  for (int lay=layL-1; lay<layH; ++lay) {
     std::vector<double> area(2,0);
     int    kk(0);
     double mean(0);
@@ -1163,12 +1166,12 @@ void HcalDDDSimConstants::printTileHE(const int& eta,   const int& phi,
   int    layH   = getLayerBack(2,eta,phi,zside,depth);
   double phib  = hpar->phibin[eta-1];
   int nphi = 2;
-  if (phib > 6*CLHEP::deg) nphi = 1;
+  if (phib > 6._deg) nphi = 1;
   edm::LogVerbatim("HcalGeom") << "\ntileHE:: Eta/depth " << zside*eta << "|" 
-			       << depth << " theta " << thetaH/CLHEP::deg 
-			       << ":" << thetaL/CLHEP::deg << " Layer " 
-			       << layL << ":" << layH-1 << " phi " << nphi;
-  for (int lay=layL; lay<layH; ++lay) {
+			       << depth << " theta " << convertRadToDeg(thetaH)
+			       << ":" << convertRadToDeg(thetaL) << " Layer " 
+			       << layL-1 << ":" << layH-1 << " phi " << nphi;
+  for (int lay=layL-1; lay<layH; ++lay) {
     std::vector<double> area(4,0);
     int    kk(0);
     double mean(0);
@@ -1191,7 +1194,7 @@ void HcalDDDSimConstants::printTileHE(const int& eta,   const int& phi,
 	    mean += ar1;
 	  } else {
 	    ar1 = 0.5*(rmax-rmin)*(dx1+dx2-2.*hpar->dx1HE[k]);
-	    ar2 = 0.5*(rmax-rmin)*((rmax+rmin)*tan(10.*CLHEP::deg)-4*hpar->dx1HE[k])-ar1;
+	    ar2 = 0.5*(rmax-rmin)*((rmax+rmin)*tan(10._deg)-4*hpar->dx1HE[k])-ar1;
 	    mean += (ar1+ar2);
 	  }
 	  area[kk]   = ar1;

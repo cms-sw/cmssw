@@ -370,7 +370,9 @@ void TrackingQualityChecker::fillTrackingStatus(DQMStore::IBooker & ibooker, DQM
     std::string localMEdirpath = it->second.HistoDir;
     std::vector<MonitorElement*> tmpMEvec = igetter.getContents(ibooker.pwd()+"/"+localMEdirpath);
     for ( auto ime : tmpMEvec ) {
-      ime->Reset();
+      if (ime->getLumiFlag()) {
+        ime->Reset();
+      }
     }
   }
 

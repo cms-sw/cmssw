@@ -40,7 +40,8 @@ particleFlowSuperClusterECALBox = cms.EDProducer(
        uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
+       applySigmaIetaIphiBug = cms.bool(False)
        ),
 
     #threshold for final SuperCluster Et
@@ -109,7 +110,8 @@ particleFlowSuperClusterECALMustache = cms.EDProducer(
        uncertaintyKeyEE = cms.string('pfscecal_EEUncertainty_offline_v2'),
        vertexCollection = cms.InputTag("offlinePrimaryVertices"),
        ecalRecHitsEB = cms.InputTag('ecalRecHit','EcalRecHitsEB'),
-       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE')
+       ecalRecHitsEE = cms.InputTag('ecalRecHit','EcalRecHitsEE'),
+       applySigmaIetaIphiBug = cms.bool(False)
        ),
        
     #threshold for final SuperCluster Et

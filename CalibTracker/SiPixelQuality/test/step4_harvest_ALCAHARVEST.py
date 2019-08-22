@@ -2,12 +2,12 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step4 --conditions 100X_dataRun2_Express_v2 -s ALCAHARVEST:SiPixelQuality --data --era Run2_2017 --filein file:PromptCalibProdSiPixel.root --scenario pp -n 1 --fileout file:step4.root
+# with command line options: step4_harvest --conditions auto:run2_data_promptlike -s ALCAHARVEST:SiPixelQuality --data --era Run2_2017 --filein file:PromptCalibProdSiPixel.root -n -1 --customise_commands=process.GlobalTag.toGet.append(cms.PSet(record=cms.string("SiPixelQualityFromDbRcd"), tag=cms.string("SiPixelQuality_v04_offline"), connect=cms.string("frontier://FrontierProd/CMS_CONDITIONS")))\n --no_exec
 import FWCore.ParameterSet.Config as cms
 
 
-from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
-process = cms.Process('ALCAHARVEST',Run2_2018)
+from Configuration.Eras.Era_Run2_2017_cff import Run2_2017
+process = cms.Process('ALCAHARVEST',Run2_2017)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -19,20 +19,16 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 process.load('Configuration.StandardSequences.AlCaHarvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.MessageLogger.cerr.FwkReport.reportEvery = 50000
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
-    secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring(),
-    processingMode = cms.untracked.string('RunsAndLumis')
+    fileNames = cms.untracked.vstring('file:PromptCalibProdSiPixel.root'),
+    processingMode = cms.untracked.string('RunsAndLumis'),
+    secondaryFileNames = cms.untracked.vstring()
 )
-
-process.source.fileNames.extend(['file:SiPixelCalZeroBias.root'])
 
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound'),
@@ -41,25 +37,32 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('step4 nevts:1'),
+    annotation = cms.untracked.string('step4_harvest nevts:-1'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
 
 # Output definition
 
+# Additional output definition
+
 # Other statements
 process.PoolDBOutputService.toPut.extend(process.ALCAHARVESTSiPixelQuality_dbOutput)
 process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVESTSiPixelQuality_metadata)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_Express_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_promptlike', '')
 
 # Path and EndPath definitions
+process.BeamSpotHPLowPUByRun = cms.Path(process.ALCAHARVESTBeamSpotHPLowPUByRun)
 process.ALCAHARVESTDQMSaveAndMetadataWriter = cms.Path(process.dqmSaver+process.pclMetadataWriter)
 process.EcalPedestals = cms.Path(process.ALCAHARVESTEcalPedestals)
 process.LumiPCC = cms.Path(process.ALCAHARVESTLumiPCC)
 process.BeamSpotByRun = cms.Path(process.ALCAHARVESTBeamSpotByRun)
+
+process.ALCAHARVESTSiPixelQuality.SiPixelStatusManagerParameters.threshold = cms.untracked.double(0.01)
 process.SiPixelQuality = cms.Path(process.ALCAHARVESTSiPixelQuality)#+process.siPixelPhase1DQMHarvester)
+
+process.BeamSpotHPLowPUByLumi = cms.Path(process.ALCAHARVESTBeamSpotHPLowPUByLumi)
 process.SiStripGains = cms.Path(process.ALCAHARVESTSiStripGains)
 process.BeamSpotHPByRun = cms.Path(process.ALCAHARVESTBeamSpotHPByRun)
 process.SiPixelAli = cms.Path(process.ALCAHARVESTSiPixelAli)
@@ -75,6 +78,8 @@ associatePatAlgosToolsTask(process)
 
 
 # Customisation from command line
+
+process.GlobalTag.toGet.append(cms.PSet(record=cms.string("SiPixelQualityFromDbRcd"), tag=cms.string("SiPixelQuality_v04_offline"), connect=cms.string("frontier://FrontierProd/CMS_CONDITIONS")))
 
 # Add early deletion of temporary data products to reduce peak memory need
 from Configuration.StandardSequences.earlyDeleteSettings_cff import customiseEarlyDelete

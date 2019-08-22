@@ -148,9 +148,15 @@ siPixelStatusHarvester = DQMEDAnalyzer("SiPixelStatusHarvester",
     geometry = SiPixelPhase1Geometry,
     #triggerflags = trigger.SiPixelPhase1Triggers SiPixelQuality ALCARECO doesn't contain any trigger infor
     SiPixelStatusManagerParameters = cms.PSet(
+        thresholdL1  = cms.untracked.double(0.1),
+        thresholdL2  = cms.untracked.double(0.2),
+        thresholdL3  = cms.untracked.double(0.2),
+        thresholdL4  = cms.untracked.double(0.2),
+        thresholdRNG1  = cms.untracked.double(0.1),
+        thresholdRNG2  = cms.untracked.double(0.1),
         outputBase = cms.untracked.string("runbased"), #nLumibased #runbased #dynamicLumibased
         aveDigiOcc = cms.untracked.int32(20000),
-        resetEveryNLumi = cms.untracked.int32(10),
+        resetEveryNLumi = cms.untracked.int32(1),
         moduleName = cms.untracked.string("siPixelStatusProducer"),
         label      = cms.untracked.string("siPixelStatus"),
     ),

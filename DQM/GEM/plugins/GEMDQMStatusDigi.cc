@@ -75,7 +75,7 @@ void GEMDQMStatusDigi::fillDescriptions(edm::ConfigurationDescriptions & descrip
 {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("VFATInputLabel", edm::InputTag("muonGEMDigis", "vfatStatus")); 
-  desc.add<edm::InputTag>("GEBInputLabel", edm::InputTag("muonGEMDigis", "GEBStatus")); 
+  desc.add<edm::InputTag>("GEBInputLabel", edm::InputTag("muonGEMDigis", "gebStatus")); 
   desc.add<edm::InputTag>("AMCInputLabel", edm::InputTag("muonGEMDigis", "AMCStatus")); 
   descriptions.add("GEMDQMStatusDigi", desc);  
 }
@@ -93,7 +93,7 @@ void GEMDQMStatusDigi::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const
   h2_vfat_flag_ = ibooker.book2D("vfat flag per geb", "flag", 5, 0, 5, 36, 0, 36);
 
   h1_geb_inputStatus_ = ibooker.book1D("geb input status", "inputStatus", 10, 0, 10);
-  h1_geb_vfatWordCnt_ = ibooker.book1D("geb no. vfats", "nvfats", 25, 0, 25);
+  h1_geb_vfatWordCnt_ = ibooker.book1D("geb no vfats", "nvfats", 25, 0, 25);
   h1_geb_zeroSupWordsCnt_ = ibooker.book1D("geb zeroSupWordsCnt", "zeroSupWordsCnt", 10, 0, 10);
   h1_geb_stuckData_ = ibooker.book1D("geb stuckData", "stuckData", 10, 0, 10);
   h1_geb_inFIFOund_ = ibooker.book1D("geb inFIFOund", "inFIFOund", 10, 0, 10);

@@ -78,7 +78,8 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
     php.etaMin   = dbl_to_int( DDVectorGetter::get( "etaMin" ));
     php.etaMax   = dbl_to_int( DDVectorGetter::get( "etaMax" ));
     php.etaMin[0] = 1;
-    php.etaMax[1] = (int)(php.etaTable.size())-1;
+    if (php.etaMax[1] >= php.etaMin[1])
+      php.etaMax[1] = static_cast<int>(php.etaTable.size())-1;
     php.etaMax[2] = php.etaMin[2]+(int)(php.rTable.size())-2;
     php.etaRange = DDVectorGetter::get( "etaRange" );
     php.gparHF   = DDVectorGetter::get( "gparHF" );

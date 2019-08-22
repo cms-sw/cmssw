@@ -23,7 +23,7 @@ private:
   EBEECutValues slopeTerm_;
   EBEECutValues slopeStart_;
   EBEECutValues constTerm_;
-  
+  bool useHEEPIso_;
   
   edm::Handle<double> rhoHandle_;
   
@@ -37,7 +37,8 @@ GsfEleTrkPtIsoCut::GsfEleTrkPtIsoCut(const edm::ParameterSet& params) :
   CutApplicatorBase(params),
   slopeTerm_(params,"slopeTerm"),
   slopeStart_(params,"slopeStart"),
-  constTerm_(params,"constTerm")
+  constTerm_(params,"constTerm"),
+  useHEEPIso_(params.getParameter<bool>("useHEEPIso"))
 {
 
 }
@@ -47,7 +48,7 @@ CutApplicatorBase::result_type
 GsfEleTrkPtIsoCut::
 operator()(const reco::GsfElectronPtr& cand) const{  
   
-  const float isolTrkPt = cand->dr03TkSumPt();
+  const float isolTrkPt = useHEEPIso_ ? cand->dr03TkSumPtHEEP() : cand->dr03TkSumPt();
 
   const float et = cand->et();
   const float cutValue = et > slopeStart_(cand)  ? slopeTerm_(cand)*(et-slopeStart_(cand)) + constTerm_(cand) : constTerm_(cand);

@@ -76,8 +76,11 @@ DeepTauBase::Output::ResultMap DeepTauBase::Output::get_value(const edm::Handle<
     return output;
 }
 
-DeepTauBase::DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputCollection, const DeepTauCache* cache) :
+DeepTauBase::DeepTauBase(const edm::ParameterSet& cfg, const OutputCollection& outputCollection,
+                         const DeepTauCache* cache) :
     tausToken_(consumes<TauCollection>(cfg.getParameter<edm::InputTag>("taus"))),
+    pfcandToken_(consumes<pat::PackedCandidateCollection>(cfg.getParameter<edm::InputTag>("pfcands"))),
+    vtxToken_(consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("vertices"))),
     outputs_(outputCollection),
     cache_(cache)
 {
@@ -112,44 +115,66 @@ void DeepTauBase::createOutputs(edm::Event& event, const tensorflow::Tensor& pre
 
 std::unique_ptr<DeepTauCache> DeepTauBase::initializeGlobalCache(const edm::ParameterSet& cfg )
 {
-    std::string graph_name = edm::FileInPath(cfg.getParameter<std::string>("graph_file")).fullPath();
+    const auto graph_name_vector = cfg.getParameter<std::vector<std::string>>("graph_file");
+    std::map<std::string, std::string> graph_names;
+    for(const auto& entry : graph_name_vector) {
+        const size_t sep_pos = entry.find(':');
+        std::string entry_name, graph_file;
+        if(sep_pos != std::string::npos) {
+            entry_name = entry.substr(0, sep_pos);
+            graph_file = entry.substr(sep_pos + 1);
+        } else {
+            entry_name = "";
+            graph_file = entry;
+        }
+        graph_file = edm::FileInPath(graph_file).fullPath();
+        if(graph_names.count(entry_name))
+            throw cms::Exception("DeepTauCache") << "Duplicated graph entries";
+        graph_names[entry_name] = graph_file;
+    }
     bool mem_mapped = cfg.getParameter<bool>("mem_mapped");
-    return std::make_unique<DeepTauCache>(graph_name, mem_mapped);
+    return std::make_unique<DeepTauCache>(graph_names, mem_mapped);
 }
 
-DeepTauCache::DeepTauCache(const std::string& graph_name, bool mem_mapped)
+DeepTauCache::DeepTauCache(const std::map<std::string, std::string>& graph_names, bool mem_mapped)
 {
-    tensorflow::SessionOptions options;
-    tensorflow::setThreading(options, 1, "no_threads");
+    for(const auto& graph_entry : graph_names) {
+        tensorflow::SessionOptions options;
+        tensorflow::setThreading(options, 1, "no_threads");
 
-    if(mem_mapped) {
-        memmappedEnv_ = std::make_unique<tensorflow::MemmappedEnv>(tensorflow::Env::Default());
-        const tensorflow::Status mmap_status = memmappedEnv_.get()->InitializeFromFile(graph_name);
-        if(!mmap_status.ok())
-            throw cms::Exception("DeepTauCache: unable to initalize memmapped environment for ") << graph_name << ". \n"
-                                                                                                 << mmap_status.ToString();
+        const std::string& entry_name = graph_entry.first;
+        const std::string& graph_file = graph_entry.second;
+        if(mem_mapped) {
+            memmappedEnv_[entry_name] = std::make_unique<tensorflow::MemmappedEnv>(tensorflow::Env::Default());
+            const tensorflow::Status mmap_status = memmappedEnv_.at(entry_name)->InitializeFromFile(graph_file);
+            if(!mmap_status.ok()) {
+                throw cms::Exception("DeepTauCache: unable to initalize memmapped environment for ")
+                    << graph_file << ". \n" << mmap_status.ToString();
+            }
 
-        graph_ = std::make_unique<tensorflow::GraphDef>();
-        const tensorflow::Status load_graph_status = ReadBinaryProto(memmappedEnv_.get(),
-                                                                     tensorflow::MemmappedFileSystem::kMemmappedPackageDefaultGraphDef,
-                                                                     graph_.get());
-        if(!load_graph_status.ok())
-            throw cms::Exception("DeepTauCache: unable to load graph_ from ") << graph_name << ". \n"
-                                                                             << mmap_status.ToString();
-        options.config.mutable_graph_options()->mutable_optimizer_options()->set_opt_level(::tensorflow::OptimizerOptions::L0);
-        options.env = memmappedEnv_.get();
+            graphs_[entry_name] = std::make_unique<tensorflow::GraphDef>();
+            const tensorflow::Status load_graph_status = ReadBinaryProto(memmappedEnv_.at(entry_name).get(),
+                                                                         tensorflow::MemmappedFileSystem::kMemmappedPackageDefaultGraphDef,
+                                                                         graphs_.at(entry_name).get());
+            if(!load_graph_status.ok())
+                throw cms::Exception("DeepTauCache: unable to load graph from ") << graph_file << ". \n"
+                                                                                  << mmap_status.ToString();
+            options.config.mutable_graph_options()->mutable_optimizer_options()->set_opt_level(::tensorflow::OptimizerOptions::L0);
+            options.env = memmappedEnv_.at(entry_name).get();
 
-        session_ = tensorflow::createSession(graph_.get(), options);
+            sessions_[entry_name] = tensorflow::createSession(graphs_.at(entry_name).get(), options);
 
-    } else {
-        graph_.reset(tensorflow::loadGraphDef(graph_name));
-        session_ = tensorflow::createSession(graph_.get(), options);
-      }
+        } else {
+            graphs_[entry_name].reset(tensorflow::loadGraphDef(graph_file));
+            sessions_[entry_name] = tensorflow::createSession(graphs_.at(entry_name).get(), options);
+        }
+    }
 }
 
 DeepTauCache::~DeepTauCache()
 {
-    tensorflow::closeSession(session_);
+    for(auto& session_entry : sessions_)
+        tensorflow::closeSession(session_entry.second);
 }
 
 } // namespace deep_tau
