@@ -157,11 +157,9 @@ void PFPhotonClusters::FillClusterShape() {
       if (std::abs(deta) > 2 || std::abs(dphi) > 2)
         continue;
 
-      //if(std::abs(dphi)<=2 && std::abs(deta)<=2){
       EBDetId EBidSeed = EBDetId(idseed_.rawId());
       EBDetId EBid = EBDetId(id.rawId());
-      int ind1 = EBidSeed.ieta() - EBid.ieta();
-      int ind2 = EBidSeed.iphi() - EBid.iphi();
+      int ind1;
       if (EBidSeed.ieta() * EBid.ieta() > 0) {
         ind1 = EBid.ieta() - EBidSeed.ieta();
       } else {  //near EB+ EB-
@@ -170,10 +168,10 @@ void PFPhotonClusters::FillClusterShape() {
       }
 
       // more tricky edges in phi. Note that distance is already <2 at this point
+      int ind2 = EBidSeed.iphi() - EBid.iphi();
       if ((EBidSeed.iphi() < 5 && EBid.iphi() > 355) || (EBidSeed.iphi() > 355 && EBid.iphi() < 5)) {
         int shift(EBidSeed.iphi() < 180 ? EBDetId::MAX_IPHI : -EBDetId::MAX_IPHI);
         ind2 = shift + EBidSeed.iphi() - EBid.iphi();
-        //	std::cout << " Phi check " << EBidSeed.iphi() << " " <<  EBid.iphi() << " " << ind2 << std::endl;
       }
 
       int iEta = ind1 + 2;
