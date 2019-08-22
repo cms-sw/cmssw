@@ -21,7 +21,7 @@ namespace edm {
 
   private:
     // data members
-    double zpos_;
+    double xoff_, yoff_, zpos_;
     TFile *fFile_;
     TTree *fTree_;
     long int nentries_;
