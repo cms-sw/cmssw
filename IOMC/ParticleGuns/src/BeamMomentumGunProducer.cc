@@ -44,8 +44,8 @@ namespace edm {
     yoff_ = pgun_params.getParameter<double>("YOffset");
     zpos_ = pgun_params.getParameter<double>("ZPosition");
     if (fVerbosity > 0)
-      edm::LogVerbatim("BeamMomentumGun") << "Beam vertex offset (cm) " << xoff_ << ":" << yoff_ << " and z position "
-					  << zpos_;
+      edm::LogVerbatim("BeamMomentumGun")
+          << "Beam vertex offset (cm) " << xoff_ << ":" << yoff_ << " and z position " << zpos_;
 
     edm::FileInPath fp = pgun_params.getParameter<edm::FileInPath>("FileName");
     std::string infileName = fp.fullPath();
@@ -66,8 +66,8 @@ namespace edm {
     int parpx = fTree_->SetBranchAddress("parPx", &parPx_, &b_parPx_);
     int parpy = fTree_->SetBranchAddress("parPy", &parPy_, &b_parPy_);
     int parpz = fTree_->SetBranchAddress("parPz", &parPz_, &b_parPz_);
-    if ((npart != 0) || (event != 0) || (pdgid != 0) || (parxx != 0) || (paryy != 0) ||
-	(parzz != 0) || (parpx != 0) || (parpy != 0) || (parpz != 0))
+    if ((npart != 0) || (event != 0) || (pdgid != 0) || (parxx != 0) || (paryy != 0) || (parzz != 0) || (parpx != 0) ||
+        (parpy != 0) || (parpz != 0))
       throw cms::Exception("GenException") << "Branch address wrong in i/p file\n";
 
     produces<HepMCProduct>("unsmeared");
