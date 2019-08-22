@@ -71,7 +71,7 @@ void ME0TriggerBuilder::build(const T* me0Pads, ME0TriggerDigiCollection& oc_tri
 
       tmb->run(me0Pads);
 
-      std::vector<ME0TriggerDigi> trigV = tmb->readoutTriggers();
+      const std::vector<ME0TriggerDigi>& trigV = tmb->readoutTriggers();
 
       if (!trigV.empty()) {
         LogTrace("L1ME0Trigger") << "ME0TriggerBuilder got results in " << detid << std::endl
