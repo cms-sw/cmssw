@@ -292,7 +292,7 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
   aminf = a;
   nppar = 2;
   nppar2 = nppar;
-  chi2fitN2 = chi2fit / (nptfit - 2);
+  chi2fitN2 = chi2fit / (nptfit - nppar);
 
   // cout << "dt0 = 0  chi2fit = " << chi2fit << "  slope = "<<b<<endl;
 
@@ -302,13 +302,11 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
 
     if (cminf != -999.) {
       nppar = 3;
-      if (nptfit > 3)
-        chi2fitN3 = chi2fit / (nptfit - 3);
     } else {
       bminf = b;
       aminf = a;
-      chi2fitN3 = chi2fit / (nptfit - 2);
     }
+    chi2fitN3 = (nptfit > nppar)? chi2fit / (nptfit - nppar) : -1.;
 
     float aminf3 = aminf;
     float bminf3 = bminf;
@@ -326,19 +324,10 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
     if (nptfit >= 5) {
       fitNpar(4, xfit, yfit, lfit, tfit, sigy, bminf, aminf, cminf, vminf, chi2fit, debug);
 
-      if (vminf != 0) {
+      if (vminf != 0)
         nppar = 4;
-        if (nptfit <= nppar) {
-          chi2fitN4 = -1;
-        } else {
-          chi2fitN4 = chi2fit / (nptfit - nppar);
-        }
-      } else {
-        if (nptfit <= nppar)
-          chi2fitN4 = -1;
-        else
-          chi2fitN4 = chi2fit / (nptfit - nppar);
-      }
+
+      chi2fitN4 = (nptfit > nppar)? chi2fit / (nptfit - nppar) : -1.;
 
       if (fabs(vminf) >= 0.29) {
         // for safety and for code construction..dont accept correction on dv/vdrift greater then 0.09
