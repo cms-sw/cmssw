@@ -231,7 +231,7 @@ void PixelForwardLayerPhase1::searchNeighbors(const TrajectoryStateOnSurface& ts
   int negStart = min(crossings.closestIndex, crossings.nextIndex) - 1;
   int posStart = max(crossings.closestIndex, crossings.nextIndex) + 1;
 
-  int quarter = (innerDisk ? _num_innerpanels / 4 :  _num_outerpanels / 4);
+  int quarter = (innerDisk ? _num_innerpanels / 4 : _num_outerpanels / 4);
 
   for (int idet = negStart; idet >= negStart - quarter + 1; idet--) {
     std::vector<DetGroup> tmp1;

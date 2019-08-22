@@ -306,7 +306,7 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
       bminf = b;
       aminf = a;
     }
-    chi2fitN3 = (nptfit > nppar)? chi2fit / (nptfit - nppar) : -1.;
+    chi2fitN3 = (nptfit > nppar) ? chi2fit / (nptfit - nppar) : -1.;
 
     float aminf3 = aminf;
     float bminf3 = bminf;
@@ -327,7 +327,7 @@ void DTLinearFit::fit4Var(const vector<float>& xfit,
       if (vminf != 0)
         nppar = 4;
 
-      chi2fitN4 = (nptfit > nppar)? chi2fit / (nptfit - nppar) : -1.;
+      chi2fitN4 = (nptfit > nppar) ? chi2fit / (nptfit - nppar) : -1.;
 
       if (fabs(vminf) >= 0.29) {
         // for safety and for code construction..dont accept correction on dv/vdrift greater then 0.09
