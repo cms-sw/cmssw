@@ -108,6 +108,8 @@ public:
   void initRun(const edm::Run& run, const edm::EventSetup& setup);     // To be called from beginRun() methods
   bool accept(const edm::Event& event, const edm::EventSetup& setup);  // To be called from analyze/filter() methods
 
+  bool allHLTPathsAreValid() const;
+
 private:
   GenericTriggerEventFlag(const edm::ParameterSet& config, edm::ConsumesCollector& iC, bool stage1Valid);
   // Private methods
