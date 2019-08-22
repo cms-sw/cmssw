@@ -21,7 +21,6 @@
 //         Created:
 //
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -29,6 +28,9 @@
 
 class SiPixelRawDataErrorModule {
 public:
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   /// Default constructor
   SiPixelRawDataErrorModule();
   /// Constructor with raw DetId

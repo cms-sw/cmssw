@@ -2,6 +2,4 @@
 
 typedef MuonSelectorVIDWrapper<muon::GlobalMuonPromptTight> GlobalMuonPromptTightCut;
 
-DEFINE_EDM_PLUGIN(CutApplicatorFactory,
-		  GlobalMuonPromptTightCut,
-		  "GlobalMuonPromptTightCut");
+DEFINE_EDM_PLUGIN(CutApplicatorFactory, GlobalMuonPromptTightCut, "GlobalMuonPromptTightCut");

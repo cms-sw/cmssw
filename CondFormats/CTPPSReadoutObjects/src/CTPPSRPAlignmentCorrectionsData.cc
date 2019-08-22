@@ -15,138 +15,117 @@
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentCorrectionData&
-CTPPSRPAlignmentCorrectionsData::getRPCorrection( unsigned int id )
-{
-  return rps_[id];
+CTPPSRPAlignmentCorrectionData& CTPPSRPAlignmentCorrectionsData::getRPCorrection(unsigned int id) { return rps_[id]; }
+
+//----------------------------------------------------------------------------------------------------
+
+CTPPSRPAlignmentCorrectionData CTPPSRPAlignmentCorrectionsData::getRPCorrection(unsigned int id) const {
+  CTPPSRPAlignmentCorrectionData align_corr;
+  auto it = rps_.find(id);
+  if (it != rps_.end())
+    align_corr = it->second;
+  return align_corr;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentCorrectionData
-CTPPSRPAlignmentCorrectionsData::getRPCorrection( unsigned int id ) const
-{
-  CTPPSRPAlignmentCorrectionData align_corr;
-  auto it = rps_.find( id );
-  if ( it != rps_.end() )
-    align_corr = it->second;
-  return align_corr;
-} 
-
-//----------------------------------------------------------------------------------------------------
-
-CTPPSRPAlignmentCorrectionData&
-CTPPSRPAlignmentCorrectionsData::getSensorCorrection( unsigned int id )
-{
+CTPPSRPAlignmentCorrectionData& CTPPSRPAlignmentCorrectionsData::getSensorCorrection(unsigned int id) {
   return sensors_[id];
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentCorrectionData
-CTPPSRPAlignmentCorrectionsData::getSensorCorrection( unsigned int id ) const
-{
+CTPPSRPAlignmentCorrectionData CTPPSRPAlignmentCorrectionsData::getSensorCorrection(unsigned int id) const {
   CTPPSRPAlignmentCorrectionData align_corr;
-  auto it = sensors_.find( id );
-  if ( it != sensors_.end() )
+  auto it = sensors_.find(id);
+  if (it != sensors_.end())
     align_corr = it->second;
   return align_corr;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSRPAlignmentCorrectionData
-CTPPSRPAlignmentCorrectionsData::getFullSensorCorrection( unsigned int id, bool useRPErrors ) const
-{
+CTPPSRPAlignmentCorrectionData CTPPSRPAlignmentCorrectionsData::getFullSensorCorrection(unsigned int id,
+                                                                                        bool useRPErrors) const {
   CTPPSRPAlignmentCorrectionData align_corr;
 
   // try to get alignment correction of the full RP
-  auto rpIt = rps_.find( CTPPSDetId( id ).getRPId() );
-  if ( rpIt != rps_.end() )
+  auto rpIt = rps_.find(CTPPSDetId(id).getRPId());
+  if (rpIt != rps_.end())
     align_corr = rpIt->second;
 
   // try to get sensor alignment correction
-  auto sIt = sensors_.find( id );
+  auto sIt = sensors_.find(id);
 
   // merge the corrections
-  if ( sIt != sensors_.end() )
-    align_corr.add( sIt->second, useRPErrors );
+  if (sIt != sensors_.end())
+    align_corr.add(sIt->second, useRPErrors);
 
   return align_corr;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSRPAlignmentCorrectionsData::setRPCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData& ac )
-{
+void CTPPSRPAlignmentCorrectionsData::setRPCorrection(unsigned int id, const CTPPSRPAlignmentCorrectionData& ac) {
   rps_[id] = ac;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSRPAlignmentCorrectionsData::setSensorCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData& ac )
-{
+void CTPPSRPAlignmentCorrectionsData::setSensorCorrection(unsigned int id, const CTPPSRPAlignmentCorrectionData& ac) {
   sensors_[id] = ac;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSRPAlignmentCorrectionsData::addRPCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
-{
-  auto it = rps_.find( id );
-  if ( it == rps_.end() )
-    rps_.insert( mapType::value_type( id, a ) );
+void CTPPSRPAlignmentCorrectionsData::addRPCorrection(
+    unsigned int id, const CTPPSRPAlignmentCorrectionData& a, bool sumErrors, bool addSh, bool addRot) {
+  auto it = rps_.find(id);
+  if (it == rps_.end())
+    rps_.insert(mapType::value_type(id, a));
   else
-    it->second.add( a, sumErrors, addSh, addRot );
+    it->second.add(a, sumErrors, addSh, addRot);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSRPAlignmentCorrectionsData::addSensorCorrection( unsigned int id, const CTPPSRPAlignmentCorrectionData &a, bool sumErrors, bool addSh, bool addRot )
-{
-  auto it = sensors_.find( id );
-  if ( it == sensors_.end() )
-    sensors_.insert( mapType::value_type( id, a ) );
+void CTPPSRPAlignmentCorrectionsData::addSensorCorrection(
+    unsigned int id, const CTPPSRPAlignmentCorrectionData& a, bool sumErrors, bool addSh, bool addRot) {
+  auto it = sensors_.find(id);
+  if (it == sensors_.end())
+    sensors_.insert(mapType::value_type(id, a));
   else
-    it->second.add( a, sumErrors, addSh, addRot );
+    it->second.add(a, sumErrors, addSh, addRot);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSRPAlignmentCorrectionsData::addCorrections( const CTPPSRPAlignmentCorrectionsData &nac, bool sumErrors, bool addSh, bool addRot )
-{
-  for ( const auto& it : nac.rps_ )
-    addRPCorrection( it.first, it.second, sumErrors, addSh, addRot );
+void CTPPSRPAlignmentCorrectionsData::addCorrections(const CTPPSRPAlignmentCorrectionsData& nac,
+                                                     bool sumErrors,
+                                                     bool addSh,
+                                                     bool addRot) {
+  for (const auto& it : nac.rps_)
+    addRPCorrection(it.first, it.second, sumErrors, addSh, addRot);
 
-  for ( const auto& it : nac.sensors_ )
-    addSensorCorrection( it.first, it.second, sumErrors, addSh, addRot );
+  for (const auto& it : nac.sensors_)
+    addSensorCorrection(it.first, it.second, sumErrors, addSh, addRot);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSRPAlignmentCorrectionsData::clear()
-{
+void CTPPSRPAlignmentCorrectionsData::clear() {
   rps_.clear();
   sensors_.clear();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::ostream& operator<<(std::ostream& s, const CTPPSRPAlignmentCorrectionsData &corr)
-{
-  for (const auto &p : corr.getRPMap())
-  {
+std::ostream& operator<<(std::ostream& s, const CTPPSRPAlignmentCorrectionsData& corr) {
+  for (const auto& p : corr.getRPMap()) {
     s << "RP " << p.first << ": " << p.second << std::endl;
   }
 
-  for (const auto &p : corr.getSensorMap())
-  {
+  for (const auto& p : corr.getSensorMap()) {
     s << "sensor " << p.first << ": " << p.second << std::endl;
   }
 

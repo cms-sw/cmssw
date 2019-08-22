@@ -7,8 +7,9 @@
 #include "Geometry/Records/interface/PMTDParametersRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class MTDTopologyRcd :
-public edm::eventsetup::DependentRecordImplementation<MTDTopologyRcd,
-  boost::mpl::vector<IdealGeometryRecord, PMTDParametersRcd> > {};
+class MTDTopologyRcd
+    : public edm::eventsetup::DependentRecordImplementation<MTDTopologyRcd,
+                                                            boost::mpl::vector<IdealGeometryRecord, PMTDParametersRcd> > {
+};
 
 #endif

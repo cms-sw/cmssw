@@ -5,7 +5,6 @@
 #include <numeric>
 #include <vector>
 
-
 /*  AlphaT
  *
  *  Calculates the AlphaT event variable for a given input jet collection
@@ -16,14 +15,12 @@
 
 namespace heppy {
 
-struct AlphaT {
+  struct AlphaT {
+    static double getAlphaT(const std::vector<double>& et,
+                            const std::vector<double>& px,
+                            const std::vector<double>& py);
+  };
 
-  static double getAlphaT( const std::vector<double>& et,
-		    const std::vector<double>& px,
-		    const std::vector<double>& py );
-   
-};
+};  // namespace heppy
 
-};
-
-#endif // AlphaT_h
+#endif  // AlphaT_h

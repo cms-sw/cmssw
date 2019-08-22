@@ -39,7 +39,7 @@ namespace edm {
   class TriggerResults;
   class TriggerNames;
   class TriggerResultsByName;
-}
+}  // namespace edm
 
 namespace fwlite {
 
@@ -47,131 +47,112 @@ namespace fwlite {
     class MultiProductGetter;
   }
 
-class MultiChainEvent: public EventBase
-{
+  class MultiChainEvent : public EventBase {
+  public:
+    typedef std::map<edm::EventID, Long64_t> sec_file_index_map;
+    typedef std::pair<edm::EventID, edm::EventID> event_id_range;
+    typedef std::map<event_id_range, Long64_t> sec_file_range_index_map;
 
-   public:
+    MultiChainEvent(std::vector<std::string> const& iFileNames1,
+                    std::vector<std::string> const& iFileNames2,
+                    bool useSecFileMapSorted = false);
+    ~MultiChainEvent() override;
 
-      typedef std::map<edm::EventID, Long64_t>      sec_file_index_map;
-      typedef std::pair<edm::EventID, edm::EventID> event_id_range;
-      typedef std::map<event_id_range, Long64_t>    sec_file_range_index_map;
+    const MultiChainEvent& operator++() override;
 
-      MultiChainEvent(std::vector<std::string> const& iFileNames1,
-		      std::vector<std::string> const& iFileNames2,
-		      bool useSecFileMapSorted = false);
-      ~MultiChainEvent() override;
+    ///Go to the event at index iIndex
+    bool to(Long64_t iIndex);
 
-      const MultiChainEvent& operator++() override;
+    //If lumi is non-zero, Go to event by Run, Lumi, and Event number
+    //If lumi is zero, Go to event by Run and Event number
+    bool to(edm::EventID id);
+    bool to(edm::RunNumber_t run, edm::EventNumber_t event);
+    bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
-      ///Go to the event at index iIndex
-      bool to(Long64_t iIndex);
+    // Go to the very first Event.
+    const MultiChainEvent& toBegin() override;
 
-      //If lumi is non-zero, Go to event by Run, Lumi, and Event number
-      //If lumi is zero, Go to event by Run and Event number
-      bool to(edm::EventID id);
-      bool to(edm::RunNumber_t run, edm::EventNumber_t event);
-      bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
+    // ---------- const member functions ---------------------
+    std::string const getBranchNameFor(std::type_info const&, char const*, char const*, char const*) const override;
 
-      // Go to the very first Event.
-      const MultiChainEvent& toBegin() override;
+    using fwlite::EventBase::getByLabel;
 
-      // ---------- const member functions ---------------------
-      std::string const getBranchNameFor(std::type_info const&,
-                                                 char const*,
-                                                 char const*,
-                                                 char const*) const override;
+    /** This function should only be called by fwlite::Handle<>*/
+    bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
+    //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
-      using fwlite::EventBase::getByLabel;
+    bool isValid() const;
+    operator bool() const;
+    bool atEnd() const override;
 
-      /** This function should only be called by fwlite::Handle<>*/
-      bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
-      //void getByBranchName(std::type_info const&, char const*, void*&) const;
+    Long64_t size() const;
 
-      bool isValid() const;
-      operator bool() const;
-      bool atEnd() const override;
+    edm::EventAuxiliary const& eventAuxiliary() const override;
 
-      Long64_t size() const;
+    std::vector<edm::BranchDescription> const& getBranchDescriptions() const;
+    std::vector<std::string> const& getProcessHistory() const;
+    edm::ProcessHistory const& processHistory() const override;
+    TFile* getTFile() const { return event1_->getTFile(); }
+    TFile* getTFileSec() const { return event2_->getTFile(); }
 
-      edm::EventAuxiliary const& eventAuxiliary() const override;
+    Long64_t eventIndex() const { return event1_->eventIndex(); }
+    Long64_t eventIndexSec() const { return event2_->eventIndex(); }
 
-      std::vector<edm::BranchDescription> const& getBranchDescriptions() const;
-      std::vector<std::string> const& getProcessHistory() const;
-      edm::ProcessHistory const& processHistory() const override;
-      TFile* getTFile() const {
-        return event1_->getTFile();
-      }
-      TFile* getTFileSec() const {
-        return event2_->getTFile();
-      }
+    fwlite::LuminosityBlock const& getLuminosityBlock() { return event1_->getLuminosityBlock(); }
 
-      Long64_t eventIndex()    const { return event1_->eventIndex(); }
-      Long64_t eventIndexSec() const { return event2_->eventIndex(); }
+    fwlite::Run const& getRun() { return event1_->getRun(); }
 
-      fwlite::LuminosityBlock const& getLuminosityBlock() {
-        return event1_->getLuminosityBlock();
-      }
+    Long64_t fileIndex() const override { return event1_->eventIndex(); }
+    Long64_t secondaryFileIndex() const override { return event2_->eventIndex(); }
 
-      fwlite::Run const& getRun() {
-        return event1_->getRun();
-      }
+    edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
+    edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
 
+    edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
 
-      Long64_t fileIndex()          const override
-      { return event1_->eventIndex(); }
-      Long64_t secondaryFileIndex() const override
-      { return event2_->eventIndex(); }
+    // ---------- static member functions --------------------
+    static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
 
-      edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
-      edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+    // return the two chain events
+    ChainEvent const* primary() const { return &*event1_; }
+    ChainEvent const* secondary() const { return &*event2_; }
 
-      edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
+    // ---------- member functions ---------------------------
 
-      // ---------- static member functions --------------------
-      static void throwProductNotFoundException(std::type_info const&, char const*, char const*, char const*);
+    edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
 
-      // return the two chain events
-      ChainEvent const* primary  () const { return &*event1_;}
-      ChainEvent const* secondary() const { return &*event2_;}
+    edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
 
-      // ---------- member functions ---------------------------
+    void getThinnedProducts(edm::ProductID const& pid,
+                            std::vector<edm::WrapperBase const*>& foundContainers,
+                            std::vector<unsigned int>& keys) const;
 
-      edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
+  private:
+    MultiChainEvent(Event const&);  // stop default
 
-      edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
+    const MultiChainEvent& operator=(Event const&);  // stop default
 
-      void getThinnedProducts(edm::ProductID const& pid,
-                              std::vector<edm::WrapperBase const*>& foundContainers,
-                              std::vector<unsigned int>& keys) const;
+    ///Go to the event from secondary files at index iIndex
+    bool toSec(Long64_t iIndex);
 
-   private:
+    //Go to event from secondary files by Run, Lumi (if non-zero), and  Event number
+    bool toSec(const edm::EventID& id);
+    bool toSec(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
+    bool toSec(edm::RunNumber_t run, edm::EventNumber_t event);
 
-      MultiChainEvent(Event const&); // stop default
+    // ---------- member data --------------------------------
 
-      const MultiChainEvent& operator= (Event const&); // stop default
+    std::shared_ptr<ChainEvent> event1_;  // primary files
+    std::shared_ptr<ChainEvent> event2_;  // secondary files
+    std::shared_ptr<internal::MultiProductGetter const> getter_;
 
-      ///Go to the event from secondary files at index iIndex
-      bool toSec(Long64_t iIndex);
+    // speed up secondary file access with a (run range)_1 ---> index_2 map,
+    // when the files are sorted by run,event within the file.
+    // in this case, it is sufficient to store only a run-range to index mapping.
+    // with this, the solution becomes more performant.
+    bool useSecFileMapSorted_;
+    sec_file_range_index_map secFileMapSorted_;
+  };
 
-      //Go to event from secondary files by Run, Lumi (if non-zero), and  Event number
-      bool toSec(const edm::EventID &id);
-      bool toSec(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
-      bool toSec(edm::RunNumber_t run, edm::EventNumber_t event);
-
-
-      // ---------- member data --------------------------------
-
-      std::shared_ptr<ChainEvent> event1_;  // primary files
-      std::shared_ptr<ChainEvent> event2_;  // secondary files
-      std::shared_ptr<internal::MultiProductGetter const> getter_;
-
-      // speed up secondary file access with a (run range)_1 ---> index_2 map,
-      // when the files are sorted by run,event within the file.
-      // in this case, it is sufficient to store only a run-range to index mapping.
-      // with this, the solution becomes more performant.
-      bool                     useSecFileMapSorted_;
-      sec_file_range_index_map secFileMapSorted_;
-};
-
-}
+}  // namespace fwlite
 #endif

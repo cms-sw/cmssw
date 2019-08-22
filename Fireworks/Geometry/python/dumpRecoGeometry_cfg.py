@@ -3,9 +3,9 @@ import FWCore.ParameterSet.Config as cms
 import sys, os
 import FWCore.ParameterSet.VarParsing as VarParsing
 from FWCore.Utilities.Enumerate import Enumerate
-from Configuration.Geometry.dict2023Geometry import detectorVersionDict
+from Configuration.Geometry.dict2026Geometry import detectorVersionDict
 
-varType = Enumerate ("Run1 2015 2017 2021 2023 MaPSA")
+varType = Enumerate ("Run1 2015 2017 2021 2026 MaPSA")
 defaultVersion=str();
 
 def help():
@@ -15,7 +15,7 @@ def help():
    print("      ", varType.keys())
    print("")
    print("   version=versionNumber")
-   print("       scenario version from 2023 dictionary")
+   print("       scenario version from 2026 dictionary")
    print("")
    print("   tgeo=bool")
    print("       dump in TGeo format to browse in geometry viewer")
@@ -38,7 +38,7 @@ def help():
 
 def versionCheck(ver):
    if ver == "":
-      print("Please, specify 2023 scenario version\n")
+      print("Please, specify 2026 scenario version\n")
       print(sorted([x[1] for x in detectorVersionDict.items()]))
       print("")
       help()
@@ -75,12 +75,12 @@ def recoGeoLoad(score):
        process.DTGeometryESModule.applyAlignment = cms.bool(False)
        process.CSCGeometryESModule.applyAlignment = cms.bool(False)
        
-    elif "2023" in score:
+    elif "2026" in score:
        versionCheck(options.version)
        process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
        from Configuration.AlCa.autoCond import autoCond
        process.GlobalTag.globaltag = autoCond['run2_mc']
-       process.load('Configuration.Geometry.GeometryExtended2023'+options.version+'Reco_cff')
+       process.load('Configuration.Geometry.GeometryExtended2026'+options.version+'Reco_cff')
        
     elif score == "MaPSA":
        process.load('Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff')
@@ -131,7 +131,7 @@ options.register ('version',
                   defaultVersion, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "info about 2023 geometry scenario version")
+                  "info about 2026 geometry scenario version")
 
 options.register ('tgeo',
                   False, # default value

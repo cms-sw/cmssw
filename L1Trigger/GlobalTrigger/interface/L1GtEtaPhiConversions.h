@@ -34,7 +34,6 @@ class L1MuTriggerScales;
 
 // class interface
 class L1GtEtaPhiConversions {
-
 public:
   /// constructor
   L1GtEtaPhiConversions();
@@ -45,8 +44,7 @@ public:
 public:
   /// return the index of a pair in the vector m_gtObjectPairVec, to be used to
   /// extract the number of phi bins, the conversion of the indices, etc
-  const unsigned int gtObjectPairIndex(const L1GtObject &,
-                                       const L1GtObject &) const;
+  const unsigned int gtObjectPairIndex(const L1GtObject &, const L1GtObject &) const;
 
   /// convert the phi index initialIndex for an object from pair pairIndex, with
   /// position of object in pair positionPair to common scale for the L1GtObject
@@ -61,25 +59,21 @@ public:
   /// converted index returned by reference
   /// method return true, if initial index within scale size
   /// otherwise (hardware error), return false
-  const bool convertEtaIndex(const L1GtObject &,
-                             const unsigned int initialIndex,
-                             unsigned int &convertedIndex) const;
+  const bool convertEtaIndex(const L1GtObject &, const unsigned int initialIndex, unsigned int &convertedIndex) const;
 
   /// return the number of phi bins for a GT object
   const unsigned int gtObjectNrBinsPhi(const L1GtObject &) const;
 
   /// return the number of phi bins for a pair of GT objects, according to
   /// conversion rules
-  const unsigned int gtObjectNrBinsPhi(const L1GtObject &,
-                                       const L1GtObject &) const;
+  const unsigned int gtObjectNrBinsPhi(const L1GtObject &, const L1GtObject &) const;
 
   /// return the number of phi bins for a pair of GT objects, according to
   /// conversion rules, when the index of the pair is used
   const unsigned int gtObjectNrBinsPhi(const unsigned int) const;
 
   /// perform all scale conversions
-  void convertL1Scales(const L1CaloGeometry *, const L1MuTriggerScales *,
-                       const int, const int);
+  void convertL1Scales(const L1CaloGeometry *, const L1MuTriggerScales *, const int, const int);
 
   inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
 

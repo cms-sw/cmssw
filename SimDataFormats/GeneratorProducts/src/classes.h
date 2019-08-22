@@ -24,14 +24,13 @@ namespace hepmc_rootio {
   void add_to_particles_in(HepMC::GenVertex*, HepMC::GenParticle*);
   void clear_particles_in(HepMC::GenVertex*);
 
-  inline void weightcontainer_set_default_names(unsigned int n, std::map<std::string,HepMC::WeightContainer::size_type>& names) {
-      std::ostringstream name;
-      for ( HepMC::WeightContainer::size_type count = 0; count<n; ++count ) 
-      { 
+  inline void weightcontainer_set_default_names(unsigned int n,
+                                                std::map<std::string, HepMC::WeightContainer::size_type>& names) {
+    std::ostringstream name;
+    for (HepMC::WeightContainer::size_type count = 0; count < n; ++count) {
       name.str(std::string());
       name << count;
       names[name.str()] = count;
-      }
+    }
   }
-}
-
+}  // namespace hepmc_rootio

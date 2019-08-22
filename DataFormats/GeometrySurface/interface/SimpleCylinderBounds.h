@@ -16,27 +16,23 @@
 #include <cmath>
 #include <algorithm>
 
-
 class SimpleCylinderBounds final : public Bounds {
 public:
-
-  SimpleCylinderBounds( float rmin, float rmax, float zmin, float zmax);
+  SimpleCylinderBounds(float rmin, float rmax, float zmin, float zmax);
 
   /// Lenght of the cylinder
-  float length()    const override { return theZmax - theZmin;}
+  float length() const override { return theZmax - theZmin; }
   /// Outer diameter of the cylinder
-  float width()     const override { return 2*theRmax;}
+  float width() const override { return 2 * theRmax; }
   /// Thikness of the "pipe", i.e. difference between outer and inner radius
-  float thickness() const override { return theRmax-theRmin;}
+  float thickness() const override { return theRmax - theRmin; }
 
   using Bounds::inside;
-  bool inside( const Local3DPoint& p) const override;
+  bool inside(const Local3DPoint& p) const override;
 
-    
-  bool inside( const Local3DPoint& p, const LocalError& err,float scale) const override;
+  bool inside(const Local3DPoint& p, const LocalError& err, float scale) const override;
 
-  virtual bool inside( const Local2DPoint& p, const LocalError& err) const;
- 
+  virtual bool inside(const Local2DPoint& p, const LocalError& err) const;
 
   Bounds* clone() const override;
 
@@ -47,4 +43,4 @@ private:
   float theZmax;
 };
 
-#endif // Geom_SimpleCylinderBounds_H
+#endif  // Geom_SimpleCylinderBounds_H

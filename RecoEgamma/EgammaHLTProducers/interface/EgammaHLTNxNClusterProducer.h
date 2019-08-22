@@ -28,49 +28,49 @@ Description: simple NxN ( 3x3 etc) clustering ,( for low energy photon reconstru
 #include <memory>
 #include <ctime>
 
-
 namespace edm {
   class ConfigurationDescriptions;
 }
 
 class EgammaHLTNxNClusterProducer : public edm::stream::EDProducer<> {
- public:
-
-  EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps);
+public:
+  EgammaHLTNxNClusterProducer(const edm::ParameterSet &ps);
   ~EgammaHLTNxNClusterProducer() override;
-  
-  void produce(edm::Event&, const edm::EventSetup&) override ;
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-  
-  void makeNxNClusters(edm::Event &evt, const edm::EventSetup &es,const EcalRecHitCollection *hits, const reco::CaloID::Detectors detector); 
-  
+  void produce(edm::Event &, const edm::EventSetup &) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
+private:
+  void makeNxNClusters(edm::Event &evt,
+                       const edm::EventSetup &es,
+                       const EcalRecHitCollection *hits,
+                       const reco::CaloID::Detectors detector);
+
   bool checkStatusOfEcalRecHit(const EcalChannelStatus &channelStatus, const EcalRecHit &rh);
-        
+
   //std::map<std::string,double> providedParameters;
-      
+
   const bool doBarrel_;
-  const bool doEndcaps_;  
+  const bool doEndcaps_;
   const edm::EDGetTokenT<EcalRecHitCollection> barrelHitProducer_;
   const edm::EDGetTokenT<EcalRecHitCollection> endcapHitProducer_;
-  const int clusEtaSize_ ;
+  const int clusEtaSize_;
   const int clusPhiSize_;
   const std::string barrelClusterCollection_;
   const std::string endcapClusterCollection_;
   const double clusSeedThr_;
   const double clusSeedThrEndCap_;
 
-  const bool useRecoFlag_; 
-  const int flagLevelRecHitsToUse_; 
-  const bool useDBStatus_; 
+  const bool useRecoFlag_;
+  const int flagLevelRecHitsToUse_;
+  const bool useDBStatus_;
   const int statusLevelRecHitsToUse_;
 
-  const int maxNumberofSeeds_ ; 
-  const int maxNumberofClusters_; 
+  const int maxNumberofSeeds_;
+  const int maxNumberofClusters_;
 
-  const int debug_; 
+  const int debug_;
 
-  PositionCalc posCalculator_; // position calculation algorithm
+  PositionCalc posCalculator_;  // position calculation algorithm
 };
 #endif

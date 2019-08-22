@@ -10,14 +10,12 @@
 #include "CondFormats/ESObjects/interface/ESAngleCorrectionFactors.h"
 
 class ESRecHitAnalyticAlgo {
-
- public:
-
+public:
   ESRecHitAnalyticAlgo();
   ~ESRecHitAnalyticAlgo();
 
   void setESGain(const double& value) { gain_ = value; }
-  void setMIPGeV(const double& value) { MIPGeV_ = value; } 
+  void setMIPGeV(const double& value) { MIPGeV_ = value; }
   void setPedestals(const ESPedestals* peds) { peds_ = peds; }
   void setIntercalibConstants(const ESIntercalibConstants* mips) { mips_ = mips; }
   void setChannelStatus(const ESChannelStatus* status) { channelStatus_ = status; }
@@ -26,16 +24,14 @@ class ESRecHitAnalyticAlgo {
   double* EvalAmplitude(const ESDataFrame& digi, double ped) const;
   EcalRecHit reconstruct(const ESDataFrame& digi) const;
 
- private:
-
+private:
   double gain_;
-  const ESPedestals *peds_;
-  const ESIntercalibConstants *mips_;
-  const ESChannelStatus *channelStatus_;
-  const ESRecHitRatioCuts *ratioCuts_;
-  const ESAngleCorrectionFactors *ang_;
+  const ESPedestals* peds_;
+  const ESIntercalibConstants* mips_;
+  const ESChannelStatus* channelStatus_;
+  const ESRecHitRatioCuts* ratioCuts_;
+  const ESAngleCorrectionFactors* ang_;
   double MIPGeV_;
-
 };
 
 #endif

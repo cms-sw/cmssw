@@ -10,7 +10,7 @@ namespace ecaldqm {
   class TowerStatusTask : public DQWorkerClient {
   public:
     TowerStatusTask();
-    ~TowerStatusTask() {}
+    ~TowerStatusTask() override {}
 
     void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
@@ -26,7 +26,6 @@ namespace ecaldqm {
     float dcsStatus_[nDCC];
   };
 
-}
+}  // namespace ecaldqm
 
 #endif
-

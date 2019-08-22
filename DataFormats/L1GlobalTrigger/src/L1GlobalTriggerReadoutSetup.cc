@@ -21,14 +21,11 @@
 // forward declarations
 
 // constructor
-L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
-{
-    // empty
+L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup() {
+  // empty
 }
 
 // destructor
-L1GlobalTriggerReadoutSetup::~L1GlobalTriggerReadoutSetup()
-{
-    // empty
+L1GlobalTriggerReadoutSetup::~L1GlobalTriggerReadoutSetup() {
+  // empty
 }
-

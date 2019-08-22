@@ -9,7 +9,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 class MuonHitHelper {
- public:
+public:
   /// CSC chamber types, according to CSCDetId::iChamberType()
   enum CSCType {
     CSC_ALL = 0,

@@ -10,10 +10,10 @@
 
 namespace reco {
 
-typedef TemplatedSoftLeptonTagInfo<CandidatePtr> CandSoftLeptonTagInfo;
+  typedef TemplatedSoftLeptonTagInfo<CandidatePtr> CandSoftLeptonTagInfo;
 
-DECLARE_EDM_REFS( CandSoftLeptonTagInfo )
+  DECLARE_EDM_REFS(CandSoftLeptonTagInfo)
 
-}
+}  // namespace reco
 
-#endif // DataFormats_BTauReco_CandSoftLeptonTagInfo_h
+#endif  // DataFormats_BTauReco_CandSoftLeptonTagInfo_h

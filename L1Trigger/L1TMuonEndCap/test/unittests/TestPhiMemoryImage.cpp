@@ -3,9 +3,7 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 
-
-class TestPhiMemoryImage: public CppUnit::TestFixture
-{
+class TestPhiMemoryImage : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(TestPhiMemoryImage);
   CPPUNIT_TEST(test_bitset);
   CPPUNIT_TEST(test_rotation);
@@ -28,41 +26,39 @@ public:
 ///registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestPhiMemoryImage);
 
-
-void TestPhiMemoryImage::test_bitset()
-{
+void TestPhiMemoryImage::test_bitset() {
   PhiMemoryImage image;
 
   image.set_bit(1, 31);
   CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31), true);
-  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 0), 1ul<<31);
+  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 0), 1ul << 31);
 
   image.clear_bit(1, 31);
   CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31), false);
   CPPUNIT_ASSERT_EQUAL(image.get_word(1, 0), 0ul);
 
-  image.set_bit(1, 31+64);
-  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31+64), true);
-  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 1), 1ul<<31);
+  image.set_bit(1, 31 + 64);
+  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31 + 64), true);
+  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 1), 1ul << 31);
 
-  image.clear_bit(1, 31+64);
-  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31+64), false);
+  image.clear_bit(1, 31 + 64);
+  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31 + 64), false);
   CPPUNIT_ASSERT_EQUAL(image.get_word(1, 1), 0ul);
 
-  image.set_bit(1, 31+128);
-  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31+128), true);
-  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 2), 1ul<<31);
+  image.set_bit(1, 31 + 128);
+  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31 + 128), true);
+  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 2), 1ul << 31);
 
-  image.clear_bit(1, 31+128);
-  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31+128), false);
+  image.clear_bit(1, 31 + 128);
+  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 31 + 128), false);
   CPPUNIT_ASSERT_EQUAL(image.get_word(1, 2), 0ul);
 
-  image.set_bit(1, 57+64);
-  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 57+64), true);
-  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 1), 1ul<<57);
+  image.set_bit(1, 57 + 64);
+  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 57 + 64), true);
+  CPPUNIT_ASSERT_EQUAL(image.get_word(1, 1), 1ul << 57);
 
-  image.clear_bit(1, 57+64);
-  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 57+64), false);
+  image.clear_bit(1, 57 + 64);
+  CPPUNIT_ASSERT_EQUAL(image.test_bit(1, 57 + 64), false);
   CPPUNIT_ASSERT_EQUAL(image.get_word(1, 1), 0ul);
 
   image.set_bit(3, 99);
@@ -70,8 +66,7 @@ void TestPhiMemoryImage::test_bitset()
   CPPUNIT_ASSERT_EQUAL(image.test_bit(3, 99), false);
 }
 
-void TestPhiMemoryImage::test_rotation()
-{
+void TestPhiMemoryImage::test_rotation() {
   PhiMemoryImage image;
 
   uint64_t word0 = 0x0000000011111111;
@@ -99,15 +94,15 @@ void TestPhiMemoryImage::test_rotation()
     if (i == 0)
       CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0 << i));
     else if (i < 64)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0 << i) | (word2 >> (64-i)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0 << i) | (word2 >> (64 - i)));
     else if (i == 64)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word2 << (i-64)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word2 << (i - 64)));
     else if (i < 128)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word2 << (i-64)) | (word1 >> (128-i)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word2 << (i - 64)) | (word1 >> (128 - i)));
     else if (i == 128)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i-128)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i - 128)));
     else if (i < 192)
-      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i-128)) | (word0 >> (192-i)));
+      CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word1 << (i - 128)) | (word0 >> (192 - i)));
     else
       CPPUNIT_ASSERT_EQUAL(image.get_word(0, 0), (word0));
 
@@ -126,11 +121,9 @@ void TestPhiMemoryImage::test_rotation()
     CPPUNIT_ASSERT_EQUAL(image.get_word(3, 1), word8);
     CPPUNIT_ASSERT_EQUAL(image.get_word(3, 2), word8);
   }
-
 }
 
-void TestPhiMemoryImage::test_out_of_range()
-{
+void TestPhiMemoryImage::test_out_of_range() {
   PhiMemoryImage image;
 
   CPPUNIT_ASSERT_THROW(image.set_word(0, 3, 0x0), std::out_of_range);
@@ -139,8 +132,7 @@ void TestPhiMemoryImage::test_out_of_range()
   CPPUNIT_ASSERT_THROW(image.test_bit(5, 4), std::out_of_range);
 }
 
-void TestPhiMemoryImage::test_z130()
-{
+void TestPhiMemoryImage::test_z130() {
   PhiMemoryImage image;
   PhiMemoryImage pattern;
 
@@ -150,11 +142,11 @@ void TestPhiMemoryImage::test_z130()
 
   for (i = 0; i <= 7; ++i)
     pattern.set_bit(0, i);
-  for (i = 7+8; i <= 7+8; ++i)
+  for (i = 7 + 8; i <= 7 + 8; ++i)
     pattern.set_bit(1, i);
-  for (i = 7+8; i <= 14+8; ++i)
+  for (i = 7 + 8; i <= 14 + 8; ++i)
     pattern.set_bit(2, i);
-  for (i = 7+8; i <= 14+8; ++i)
+  for (i = 7 + 8; i <= 14 + 8; ++i)
     pattern.set_bit(3, i);
   pattern.rotr(8);
 

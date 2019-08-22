@@ -27,46 +27,39 @@ public:
   void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override;
 
-private:  
+private:
   const ESInputTag m_tag;
 };
 
-DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig)
-  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector"))
-{}
+DDCMSDetector::DDCMSDetector(const ParameterSet& iConfig) : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")) {}
 
-void
-DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup)
-{
+void DDCMSDetector::analyze(const Event&, const EventSetup& iEventSetup) {
   ESTransientHandle<DDDetector> det;
-  iEventSetup.get<GeometryFileRcd>().get(m_tag.module(), det);
+  iEventSetup.get<GeometryFileRcd>().get(m_tag, det);
 
   LogVerbatim("Geometry") << "Iterate over the detectors:\n";
   LogVerbatim("Geometry").log([&](auto& log) {
-      for(auto const& it : det->description()->detectors()) {
-	dd4hep::DetElement det(it.second);
-	log << it.first << ": " << det.path();
-      }
-    });
+    for (auto const& it : det->description()->detectors()) {
+      dd4hep::DetElement det(it.second);
+      log << it.first << ": " << det.path();
+    }
+  });
   LogVerbatim("Geometry") << "..done!";
-  
+
   ESTransientHandle<DDVectorRegistry> registry;
-  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag.module(), registry);
+  iEventSetup.get<DDVectorRegistryRcd>().get(m_tag, registry);
 
   LogVerbatim("Geometry") << "DD Vector Registry size: " << registry->vectors.size();
   LogVerbatim("Geometry").log([&](auto& log) {
-      for(const auto& p: registry->vectors) {
-	log << " " << p.first << " => ";
-	for(const auto& i : p.second)
-	  log << i << ", ";
-	log << '\n';
-      }
-    });
+    for (const auto& p : registry->vectors) {
+      log << " " << p.first << " => ";
+      for (const auto& i : p.second)
+        log << i << ", ";
+      log << '\n';
+    }
+  });
 }
 
-void
-DDCMSDetector::endJob()
-{
-}
+void DDCMSDetector::endJob() {}
 
-DEFINE_FWK_MODULE( DDCMSDetector );
+DEFINE_FWK_MODULE(DDCMSDetector);

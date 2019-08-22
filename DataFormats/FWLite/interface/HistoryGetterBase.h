@@ -21,22 +21,21 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 
 namespace fwlite {
-    class HistoryGetterBase {
-        public:
-            HistoryGetterBase();
-            virtual ~HistoryGetterBase();
+  class HistoryGetterBase {
+  public:
+    HistoryGetterBase();
+    virtual ~HistoryGetterBase();
 
-            // ---------- const member functions ---------------------
-            virtual const edm::ProcessHistory& history() const = 0;
+    // ---------- const member functions ---------------------
+    virtual const edm::ProcessHistory& history() const = 0;
 
-        private:
-            HistoryGetterBase(const HistoryGetterBase&) = delete; // stop default
+  private:
+    HistoryGetterBase(const HistoryGetterBase&) = delete;  // stop default
 
-            const HistoryGetterBase& operator=(const HistoryGetterBase&) = delete; // stop default
+    const HistoryGetterBase& operator=(const HistoryGetterBase&) = delete;  // stop default
 
-            // ---------- member data --------------------------------
-    };
-}
-
+    // ---------- member data --------------------------------
+  };
+}  // namespace fwlite
 
 #endif

@@ -16,7 +16,6 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -31,9 +30,6 @@
 #include <fstream>
 #include <iostream>
 #include <vector>
-
-class DQMStore;
-class MonitorElement;
 
 class HcalNoiseRatesClient : public DQMEDHarvester {
 private:

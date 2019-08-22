@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats
 // Class  :     EcalShowerContainmentCorrections
-// 
+//
 /**\class EcalShowerContainmentCorrections EcalShowerContainmentCorrections.h src/CondFormats/interface/EcalShowerContainmentCorrections.h
 
  * Description: Holds the coefficients of a polynomial that describes
@@ -44,9 +44,7 @@
 class EBDetId;
 
 class EcalShowerContainmentCorrections {
-
- public:
-
+public:
   /// Structure defining the container for correction coefficients
   /**  data[0-3]    : 3x3, x, right
    *   data[4-7]    : 3x3, x, left
@@ -58,18 +56,17 @@ class EcalShowerContainmentCorrections {
    *   data[28-31]  : 5x5, y, left
    */
 
-  struct Coefficients{
-
-    Coefficients(){for(unsigned int i=0; i<Coefficients::kSize; ++i) data[i]=0;}
-    Coefficients(const Coefficients& coeff){
-      std::copy(coeff.data,
-		coeff.data+Coefficients::kSize,
-		data);
+  struct Coefficients {
+    Coefficients() {
+      for (unsigned int i = 0; i < Coefficients::kSize; ++i)
+        data[i] = 0;
     }
- 
-    Coefficients& operator=(const Coefficients& coeff){
-      if (this == &coeff) return *this; 
-      std::copy(coeff.data,coeff.data+Coefficients::kSize,data);
+    Coefficients(const Coefficients& coeff) { std::copy(coeff.data, coeff.data + Coefficients::kSize, data); }
+
+    Coefficients& operator=(const Coefficients& coeff) {
+      if (this == &coeff)
+        return *this;
+      std::copy(coeff.data, coeff.data + Coefficients::kSize, data);
       return *this;
     }
 
@@ -77,15 +74,13 @@ class EcalShowerContainmentCorrections {
     static const int kPolynomialDegree = 4;
 
     ///Number of types of correction:  Left, right, 3x3, 5x5, x, y
-    static const int kNTypes           = 8; 
-    static const unsigned int kSize    = kPolynomialDegree* kNTypes  ;
+    static const int kNTypes = 8;
+    static const unsigned int kSize = kPolynomialDegree * kNTypes;
 
     double data[kSize];
 
-  
- COND_SERIALIZABLE;
-};
-
+    COND_SERIALIZABLE;
+  };
 
   /// Get the correction coefficients for the given xtal
   /** Return zero coefficients in case the correction is not available
@@ -94,16 +89,12 @@ class EcalShowerContainmentCorrections {
 
   /// Fill the correction coefficients for a given xtal, part of group @group
   /** Do not replace if xtal is already there*/
-  void fillCorrectionCoefficients(const EBDetId& xtal, 
-                                  int   group, 
-				  const Coefficients&  coefficients);
+  void fillCorrectionCoefficients(const EBDetId& xtal, int group, const Coefficients& coefficients);
 
   /// Fill the correction coefficients for a given Ecal module
   /** Assume that corresponding  modules in different supermodules use
       the same coefficients*/
-  void fillCorrectionCoefficients(const int supermodule, const int module, 
-				  const Coefficients&  coefficients);
-
+  void fillCorrectionCoefficients(const int supermodule, const int module, const Coefficients& coefficients);
 
   /// The correction factor for 3x3 matrix
   /** @param pos is the distance in cm from the center of the xtal
@@ -111,43 +102,32 @@ class EcalShowerContainmentCorrections {
    *  The valid return value is in the range (0,1] (divide by this
    *  value to apply the correction)
    *  Returns -1 if correction is not avaiable for that xtal*/
-  const double correction3x3(const EBDetId& xtal, 
-			     const  math::XYZPoint& pos) const;
+  const double correction3x3(const EBDetId& xtal, const math::XYZPoint& pos) const;
 
-
- /// The correction factor for 5x5 matrix
+  /// The correction factor for 5x5 matrix
   /** @param pos is the distance in cm from the center of the xtal
    *  as calculated in RecoEcal/EgammaCoreTools/interface/PositionCalc.h 
    *  The return value is in the range (0,1] (divide by this
    *  value to apply the correction)
    *  Returns -1 if correction is not avaiable for that xtal*/
-  const double correction5x5(const EBDetId& xtal, 
-			     const  math::XYZPoint& pos) const;
+  const double correction5x5(const EBDetId& xtal, const math::XYZPoint& pos) const;
 
-
-
- private:
-  enum  Direction{eX,eY};
-  enum  Type{e3x3,e5x5};
+private:
+  enum Direction { eX, eY };
+  enum Type { e3x3, e5x5 };
 
   /** Calculate the correction for the given direction and type  */
-  const double correctionXY(const EBDetId& xtal, 
-			    double position, 
-			    Direction dir,
-			    Type type) const ;
+  const double correctionXY(const EBDetId& xtal, double position, Direction dir, Type type) const;
 
-
-  typedef std::map<EBDetId,int> GroupMap;
+  typedef std::map<EBDetId, int> GroupMap;
 
   /// Maps in which group a particular xtal has been placed
-  GroupMap     groupmap_;
-
+  GroupMap groupmap_;
 
   /// Holds the coeffiecients. The index corresponds to the group
-  std::vector<Coefficients> coefficients_;  
+  std::vector<Coefficients> coefficients_;
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

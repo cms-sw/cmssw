@@ -16,77 +16,65 @@
 //
 // constructors and destructor
 //
-FWCaloTowerDetailView::FWCaloTowerDetailView():
-  m_data(nullptr),
-  m_builder(nullptr)
-{ 
-}
+FWCaloTowerDetailView::FWCaloTowerDetailView() : m_data(nullptr), m_builder(nullptr) {}
 
-FWCaloTowerDetailView::~FWCaloTowerDetailView()
-{
-}
+FWCaloTowerDetailView::~FWCaloTowerDetailView() {}
 
 //
 // member functions
 //
-void FWCaloTowerDetailView::build(const FWModelId &id, const CaloTower* iTower)
-{
-   if(!iTower) return;
+void FWCaloTowerDetailView::build(const FWModelId& id, const CaloTower* iTower) {
+  if (!iTower)
+    return;
 
-   // build ECAL objects
-   m_builder = new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(),
-					   iTower->eta(), iTower->phi(), 25);
-   m_builder->showSuperClusters();
-   
-   TEveCaloLego* lego = m_builder->build();
-   m_data = lego->GetData();
-   m_data->IncDenyDestroy();
-   m_eveScene->AddElement(lego);
+  // build ECAL objects
+  m_builder =
+      new FWECALDetailViewBuilder(id.item()->getEvent(), id.item()->getGeom(), iTower->eta(), iTower->phi(), 25);
+  m_builder->showSuperClusters();
 
-   // draw axis at the window corners
-   TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
-   overlay->SetShowPlane(kFALSE);
-   overlay->SetShowPerspective(kFALSE);
-   overlay->SetCaloLego(lego);
-   overlay->SetShowScales(true); // temporary
-   viewerGL()->AddOverlayElement(overlay);
+  TEveCaloLego* lego = m_builder->build();
+  m_data = lego->GetData();
+  m_data->IncDenyDestroy();
+  m_eveScene->AddElement(lego);
 
-   // set event handler and flip camera to top view at beginning
-   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-   FWGLEventHandler* eh =
-      new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
-   viewerGL()->SetEventHandler(eh);
-   viewerGL()->UpdateScene();
-   viewerGL()->CurrentCamera().Reset();
+  // draw axis at the window corners
+  TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
+  overlay->SetShowPlane(kFALSE);
+  overlay->SetShowPerspective(kFALSE);
+  overlay->SetCaloLego(lego);
+  overlay->SetShowScales(true);  // temporary
+  viewerGL()->AddOverlayElement(overlay);
 
-   viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
+  // set event handler and flip camera to top view at beginning
+  viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
+  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+  viewerGL()->SetEventHandler(eh);
+  viewerGL()->UpdateScene();
+  viewerGL()->CurrentCamera().Reset();
 
-   setTextInfo(id, iTower);
+  viewerGL()->RequestDraw(TGLRnrCtx::kLODHigh);
 
+  setTextInfo(id, iTower);
 }
 
-void
-FWCaloTowerDetailView::setTextInfo(const FWModelId& id, const CaloTower* tower)
-{
-   m_infoCanvas->cd();
-   float_t x = 0.02;
-   float y = 0.97;
-   TLatex* latex = new TLatex(x, y, "");
-   const double textsize(0.05);
-   latex->SetTextSize(textsize);
+void FWCaloTowerDetailView::setTextInfo(const FWModelId& id, const CaloTower* tower) {
+  m_infoCanvas->cd();
+  float_t x = 0.02;
+  float y = 0.97;
+  TLatex* latex = new TLatex(x, y, "");
+  const double textsize(0.05);
+  latex->SetTextSize(textsize);
 
-   float h = latex->GetTextSize()*0.6;
-   latex->DrawLatex(x, y, "ECAL hit detail view centered on tower:" );
-   y -= h;
-   latex->DrawLatex(x, y, Form(" %s",id.item()->modelName(id.index()).c_str()) );
-   y -= h;
-   latex->DrawLatex(x, y, Form(" E_{T}(em) = %.1f GeV, E_{T}(had) = %.1f GeV",
-                               tower->emEt(), tower->hadEt()) );
-   y -= h;
-   latex->DrawLatex(x, y, Form(" #eta = %0.2f, #varphi = %0.2f",
-                               tower->eta(), tower->phi()) );
-   y -= h;
-   m_builder->makeLegend(x, y);
+  float h = latex->GetTextSize() * 0.6;
+  latex->DrawLatex(x, y, "ECAL hit detail view centered on tower:");
+  y -= h;
+  latex->DrawLatex(x, y, Form(" %s", id.item()->modelName(id.index()).c_str()));
+  y -= h;
+  latex->DrawLatex(x, y, Form(" E_{T}(em) = %.1f GeV, E_{T}(had) = %.1f GeV", tower->emEt(), tower->hadEt()));
+  y -= h;
+  latex->DrawLatex(x, y, Form(" #eta = %0.2f, #varphi = %0.2f", tower->eta(), tower->phi()));
+  y -= h;
+  m_builder->makeLegend(x, y);
 }
 
 REGISTER_FWDETAILVIEW(FWCaloTowerDetailView, Tower);

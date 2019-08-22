@@ -16,7 +16,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 class CollectionFromZLegProducer : public edm::global::EDProducer<> {
 public:
-
   explicit CollectionFromZLegProducer(edm::ParameterSet const& iConfig);
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
@@ -24,15 +23,13 @@ private:
   edm::EDGetTokenT<std::vector<reco::CompositeCandidate>> v_RecoCompositeCandidateToken_;
 };
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // construction
 ////////////////////////////////////////////////////////////////////////////////
 
 CollectionFromZLegProducer::CollectionFromZLegProducer(edm::ParameterSet const& iConfig)
-  : v_RecoCompositeCandidateToken_{consumes<std::vector<reco::CompositeCandidate>>(iConfig.getParameter<edm::InputTag>("ZCandidateCollection"))}
-{
+    : v_RecoCompositeCandidateToken_{consumes<std::vector<reco::CompositeCandidate>>(
+          iConfig.getParameter<edm::InputTag>("ZCandidateCollection"))} {
   produces<std::vector<reco::CompositeCandidate>>("theTagLeg");
   produces<std::vector<reco::CompositeCandidate>>("theProbeLeg");
 }
@@ -42,8 +39,7 @@ CollectionFromZLegProducer::CollectionFromZLegProducer(edm::ParameterSet const& 
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-void CollectionFromZLegProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const
-{
+void CollectionFromZLegProducer::produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
   auto tagLegs = std::make_unique<std::vector<reco::CompositeCandidate>>();
   auto probeLegs = std::make_unique<std::vector<reco::CompositeCandidate>>();
 
@@ -52,15 +48,13 @@ void CollectionFromZLegProducer::produce(edm::StreamID, edm::Event& iEvent, edm:
 
   // this is specific for our 'tag and probe'
   for (auto const& z : *zs) {
-    int c {};
+    int c{};
     for (auto const& leg : z) {
       if (c == 0) {
         tagLegs->emplace_back(leg);
-      }
-      else if (c == 1){
+      } else if (c == 1) {
         probeLegs->emplace_back(leg);
-      }
-      else {
+      } else {
         break;
       }
       ++c;

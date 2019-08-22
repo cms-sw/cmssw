@@ -5,7 +5,7 @@
 //
 // Package:    InterestingDetIdFromSuperClusterProducer
 // Class:      InterestingDetIdFromSuperClusterProducer
-// 
+//
 /**\class InterestingDetIdFromSuperClusterProducer 
 Adapted from InterestingDetIdCollectionProducer by J.Bendavid
  
@@ -23,8 +23,6 @@ The following classes of "interesting id" are considered
     3. Channels next to dead ones,  keepNextToDead_ is true
     4. Channels next to the EB/EE transition if keepNextToBoundary_ is true
 */
-
-
 
 // system include files
 #include <memory>
@@ -45,27 +43,26 @@ class CaloTopology;
 class EcalSeverityLevelAlgo;
 
 class InterestingDetIdFromSuperClusterProducer : public edm::stream::EDProducer<> {
-   public:
-      //! ctor
-      explicit InterestingDetIdFromSuperClusterProducer(const edm::ParameterSet&);
-      void beginRun (edm::Run const&, const edm::EventSetup&) final;
-      //! producer
-      void produce(edm::Event &, const edm::EventSetup&) override;
+public:
+  //! ctor
+  explicit InterestingDetIdFromSuperClusterProducer(const edm::ParameterSet&);
+  void beginRun(edm::Run const&, const edm::EventSetup&) final;
+  //! producer
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-   private:
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<EcalRecHitCollection>         recHitsToken_;
-      edm::EDGetTokenT<reco::SuperClusterCollection> superClustersToken_;
-      std::string interestingDetIdCollection_;
-      int minimalEtaSize_;
-      int minimalPhiSize_;
-      const CaloTopology* caloTopology_;
+private:
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> superClustersToken_;
+  std::string interestingDetIdCollection_;
+  int minimalEtaSize_;
+  int minimalPhiSize_;
+  const CaloTopology* caloTopology_;
 
-      int severityLevel_;
-      const EcalSeverityLevelAlgo * severity_;
-      bool  keepNextToDead_;
-      bool  keepNextToBoundary_;
-
+  int severityLevel_;
+  const EcalSeverityLevelAlgo* severity_;
+  bool keepNextToDead_;
+  bool keepNextToBoundary_;
 };
 
 #endif

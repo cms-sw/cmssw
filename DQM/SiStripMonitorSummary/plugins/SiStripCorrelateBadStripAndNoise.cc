@@ -2,20 +2,13 @@
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 
 SiStripCorrelateBadStripAndNoise::SiStripCorrelateBadStripAndNoise(const edm::ParameterSet &iConfig)
     : cacheID_quality(0xFFFFFFFF), cacheID_noise(0xFFFFFFFF) {
   // now do what ever initialization is needed
-  if (!edm::Service<SiStripDetInfoFileReader>().isAvailable()) {
-    edm::LogError("TkLayerMap") << "\n------------------------------------------"
-                                   "\nUnAvailable Service SiStripDetInfoFileReader: please insert in "
-                                   "the configuration file an instance like"
-                                   "\n\tprocess.SiStripDetInfoFileReader = "
-                                   "cms.Service(\"SiStripDetInfoFileReader\")"
-                                   "\n------------------------------------------";
-  }
-
-  fr = edm::Service<SiStripDetInfoFileReader>().operator->();
   file = new TFile("correlTest.root", "RECREATE");
   tkmap = new TrackerMap();
 }
@@ -43,7 +36,8 @@ void SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup &es) {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  edm::ESHandle<TrackerGeometry> tGeomHandle;
+  es.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
 
   // Loop on quality bad stirps
   // for each strip, look at the noise
@@ -53,10 +47,10 @@ void SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup &es) {
 
   // Fill an histo per subdet and layer (and plus && minus for TEC/TID)
   edm::LogInfo("") << "[Doanalysis]";
-  iterateOnDets(tTopo);
+  iterateOnDets(tTopoHandle.product(), tGeomHandle.product());
 }
 
-void SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology *tTopo) {
+void SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology *tTopo, const TrackerGeometry *tGeom) {
   SiStripQuality::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
   SiStripQuality::RegistryIterator rend = qualityHandle_->getRegistryVectorEnd();
 
@@ -65,12 +59,13 @@ void SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology *tTop
 
     SiStripQuality::Range sqrange = SiStripQuality::Range(qualityHandle_->getDataVectorBegin() + rp->ibegin,
                                                           qualityHandle_->getDataVectorBegin() + rp->iend);
-    iterateOnBadStrips(detid, tTopo, sqrange);
+    iterateOnBadStrips(detid, tTopo, tGeom, sqrange);
   }
 }
 
 void SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t &detid,
                                                           const TrackerTopology *tTopo,
+                                                          const TrackerGeometry *tGeom,
                                                           SiStripQuality::Range &sqrange) {
   float percentage = 0;
   for (int it = 0; it < sqrange.second - sqrange.first; it++) {
@@ -83,7 +78,7 @@ void SiStripCorrelateBadStripAndNoise::iterateOnBadStrips(const uint32_t &detid,
     percentage += range;
   }
   if (percentage != 0)
-    percentage /= 128. * fr->getNumberOfApvsAndStripLength(detid).first;
+    percentage /= dynamic_cast<const StripGeomDetUnit *>(tGeom->idToDet(detid))->specificTopology().nstrips();
   if (percentage > 1)
     edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << detid << " value " << percentage << std::endl;
 

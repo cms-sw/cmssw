@@ -4,5 +4,4 @@
 
 #include "CalibTracker/SiStripESProducers/test/testSiStripQualityESProducer.h"
 
-
 DEFINE_FWK_MODULE(testSiStripQualityESProducer);

@@ -9,44 +9,36 @@
 #include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
 #include "CondFormats/DataRecord/interface/RPCInverseOMTFLinkMapRcd.h"
 
-RPCInverseOMTFLinkMapESProducer::RPCInverseOMTFLinkMapESProducer(edm::ParameterSet const & _config)
-{
-    setWhatProduced(this);
+RPCInverseOMTFLinkMapESProducer::RPCInverseOMTFLinkMapESProducer(edm::ParameterSet const& _config) {
+  setWhatProduced(this);
 }
 
-void RPCInverseOMTFLinkMapESProducer::fillDescriptions(edm::ConfigurationDescriptions & _descs)
-{
-    edm::ParameterSetDescription _desc;
-    _descs.add("RPCInverseOMTFLinkMapESProducer", _desc);
+void RPCInverseOMTFLinkMapESProducer::fillDescriptions(edm::ConfigurationDescriptions& _descs) {
+  edm::ParameterSetDescription _desc;
+  _descs.add("RPCInverseOMTFLinkMapESProducer", _desc);
 }
 
-void RPCInverseOMTFLinkMapESProducer::setupRPCOMTFLinkMap(RPCOMTFLinkMapRcd const & _rcd,
-                                                          RPCInverseAMCLinkMap* inverse_linkmap)
-{
-    RPCInverseAMCLinkMap::map_type & _inverse_map(inverse_linkmap->getMap());
-    _inverse_map.clear();
+void RPCInverseOMTFLinkMapESProducer::setupRPCOMTFLinkMap(RPCOMTFLinkMapRcd const& _rcd,
+                                                          RPCInverseAMCLinkMap* inverse_linkmap) {
+  RPCInverseAMCLinkMap::map_type& _inverse_map(inverse_linkmap->getMap());
+  _inverse_map.clear();
 
-    edm::ESHandle<RPCAMCLinkMap> _es_map;
-    _rcd.get(_es_map);
+  edm::ESHandle<RPCAMCLinkMap> _es_map;
+  _rcd.get(_es_map);
 
-    RPCAMCLinkMap const & _map = *(_es_map.product());
-    for (auto const & _link : _map.getMap()) {
-        _inverse_map.insert(RPCInverseAMCLinkMap::map_type::value_type(_link.second, _link.first));
-    }
+  RPCAMCLinkMap const& _map = *(_es_map.product());
+  for (auto const& _link : _map.getMap()) {
+    _inverse_map.insert(RPCInverseAMCLinkMap::map_type::value_type(_link.second, _link.first));
+  }
 }
 
-std::shared_ptr<RPCInverseAMCLinkMap> RPCInverseOMTFLinkMapESProducer::produce(RPCInverseOMTFLinkMapRcd const & _rcd)
-{
-    auto host = holder_.makeOrGet([]() {
-        return new HostType;
-    });
+std::shared_ptr<RPCInverseAMCLinkMap> RPCInverseOMTFLinkMapESProducer::produce(RPCInverseOMTFLinkMapRcd const& _rcd) {
+  auto host = holder_.makeOrGet([]() { return new HostType; });
 
-    host->ifRecordChanges<RPCOMTFLinkMapRcd>(_rcd,
-                                             [this,h=host.get()](auto const& rec) {
-        setupRPCOMTFLinkMap(rec, h);
-    });
+  host->ifRecordChanges<RPCOMTFLinkMapRcd>(_rcd,
+                                           [this, h = host.get()](auto const& rec) { setupRPCOMTFLinkMap(rec, h); });
 
-    return host;
+  return host;
 }
 
 //define this as a module

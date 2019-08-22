@@ -5,7 +5,7 @@
 //
 // Package:     ParticleFlow
 // Class  :     FWPFEcalRecHitLegoProxyBuilder
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -33,47 +33,47 @@
 // FWPFEcalRecHitLegoProxyBuilder
 //-----------------------------------------------------------------------------
 
-class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit>
-{
-   public:
-   // ---------------- Constructor(s)/Destructor ----------------------
-      FWPFEcalRecHitLegoProxyBuilder() : m_maxEnergy(0), m_maxEt(0), m_maxEnergyLog(0), m_maxEtLog(0) {}
-      ~FWPFEcalRecHitLegoProxyBuilder() override{}
+class FWPFEcalRecHitLegoProxyBuilder : public FWProxyBuilderTemplate<EcalRecHit> {
+public:
+  // ---------------- Constructor(s)/Destructor ----------------------
+  FWPFEcalRecHitLegoProxyBuilder() : m_maxEnergy(0), m_maxEt(0), m_maxEnergyLog(0), m_maxEtLog(0) {}
+  ~FWPFEcalRecHitLegoProxyBuilder() override {}
 
-      static std::string typeOfBuilder() { return "simple#"; }
+  static std::string typeOfBuilder() { return "simple#"; }
 
-   // --------------------- Member Functions --------------------------
-      void build( const FWEventItem *iItem, TEveElementList *product, const FWViewContext* ) override;
+  // --------------------- Member Functions --------------------------
+  void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 
-      void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc ) override;
-      bool havePerViewProduct( FWViewType::EType ) const override { return true; }
-      void cleanLocal() override;
+  void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc) override;
+  bool havePerViewProduct(FWViewType::EType) const override { return true; }
+  void cleanLocal() override;
 
-      // Needed by FWPFLegoRecHit
-      TEveVector  calculateCentre( const std::vector<TEveVector> & corners ) const;
-      float getMaxValLog(bool et) const { return et ? m_maxEtLog : m_maxEnergyLog; }
-      float getMaxVal( bool et ) const { return et ? m_maxEt : m_maxEnergy; }
+  // Needed by FWPFLegoRecHit
+  TEveVector calculateCentre(const std::vector<TEveVector>& corners) const;
+  float getMaxValLog(bool et) const { return et ? m_maxEtLog : m_maxEnergyLog; }
+  float getMaxVal(bool et) const { return et ? m_maxEt : m_maxEnergy; }
 
-      REGISTER_PROXYBUILDER_METHODS();
+  REGISTER_PROXYBUILDER_METHODS();
 
-   protected:
+protected:
+  // --------------------- Member Functions --------------------------
+  void localModelChanges(const FWModelId& iId,
+                         TEveElement* iCompound,
+                         FWViewType::EType viewType,
+                         const FWViewContext* vc) override;
 
-   // --------------------- Member Functions --------------------------
-      void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                     FWViewType::EType viewType, const FWViewContext* vc) override;
+private:
+  // Disable default copy constructor
+  FWPFEcalRecHitLegoProxyBuilder(const FWPFEcalRecHitLegoProxyBuilder&) = delete;
+  // Disable default assignment operator
+  const FWPFEcalRecHitLegoProxyBuilder& operator=(const FWPFEcalRecHitLegoProxyBuilder&) = delete;
 
-   private:
-      // Disable default copy constructor
-      FWPFEcalRecHitLegoProxyBuilder( const FWPFEcalRecHitLegoProxyBuilder& ) = delete;
-      // Disable default assignment operator
-      const FWPFEcalRecHitLegoProxyBuilder& operator=( const FWPFEcalRecHitLegoProxyBuilder& ) = delete;
-
-   // ----------------------- Data Members ----------------------------
-      float m_maxEnergy;
-      float m_maxEt;
-      float m_maxEnergyLog;
-      float m_maxEtLog;
-      std::vector<FWPFLegoRecHit*> m_recHits;
+  // ----------------------- Data Members ----------------------------
+  float m_maxEnergy;
+  float m_maxEt;
+  float m_maxEnergyLog;
+  float m_maxEtLog;
+  std::vector<FWPFLegoRecHit*> m_recHits;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

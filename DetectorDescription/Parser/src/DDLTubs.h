@@ -18,13 +18,11 @@ class DDLElementRegistry;
  *
  */
 
-class DDLTubs final : public DDLSolid
-{
- public:
+class DDLTubs final : public DDLSolid {
+public:
+  DDLTubs(DDLElementRegistry* myreg);
 
-  DDLTubs( DDLElementRegistry* myreg );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
+  void processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) override;
 };
 
 #endif

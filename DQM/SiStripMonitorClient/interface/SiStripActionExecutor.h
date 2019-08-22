@@ -6,7 +6,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripSummaryCreator.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripTrackerMapCreator.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,13 +17,15 @@
 #include <string>
 #include <TTree.h>
 
-class DQMStore;
 class MonitorUserInterface;
 class SiStripFedCabling;
 class SiStripDetCabling;
 
 class SiStripActionExecutor {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripActionExecutor(edm::ParameterSet const& ps);
   virtual ~SiStripActionExecutor();
 
@@ -41,9 +43,7 @@ public:
                           DQMStore& dqm_store,
                           std::string& map_type,
                           const edm::EventSetup& eSetup);
-  void createTkInfoFile(std::vector<std::string> tkhmap_names,
-                        TTree* tkinfo_tree,
-                        DQMStore& dqm_store);
+  void createTkInfoFile(std::vector<std::string> tkhmap_names, TTree* tkinfo_tree, DQMStore& dqm_store);
 
   void createStatus(DQMStore& dqm_store);
   void fillDummyStatus();
@@ -54,13 +54,10 @@ public:
 
   void createDummyShiftReport();
   void createShiftReport(DQMStore& dqm_store);
-  void printReportSummary(MonitorElement* me,
-                          std::ostringstream& str_val,
-                          std::string name);
-  void printShiftHistoParameters(
-    DQMStore& dqm_store,
-    std::map<std::string, std::vector<std::string>> const& layout_map,
-    std::ostringstream& str_val);
+  void printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name);
+  void printShiftHistoParameters(DQMStore& dqm_store,
+                                 std::map<std::string, std::vector<std::string>> const& layout_map,
+                                 std::ostringstream& str_val);
   void printFaultyModuleList(DQMStore& dqm_store, std::ostringstream& str_val);
   void createFaultyModuleMEs(DQMStore& dqm_store);
 

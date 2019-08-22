@@ -11,25 +11,23 @@
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 using namespace edm;
 
-class GEMDQMHarvester: public DQMEDHarvester
-{  
+class GEMDQMHarvester : public DQMEDHarvester {
 public:
-  GEMDQMHarvester(const edm::ParameterSet&) {};
-  ~GEMDQMHarvester() override {};
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  GEMDQMHarvester(const edm::ParameterSet &){};
+  ~GEMDQMHarvester() override{};
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
+
 protected:
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override {};
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};
 };
 
-void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void GEMDQMHarvester::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
-  descriptions.add("GEMDQMHarvester", desc);  
+  descriptions.add("GEMDQMHarvester", desc);
 }
 
 DEFINE_FWK_MODULE(GEMDQMHarvester);

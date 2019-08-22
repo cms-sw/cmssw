@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <utility>
+#include <memory>
 
 class AlignableTracker;
 class AlignableMuon;
@@ -49,6 +50,9 @@ namespace reco {
 /*** Global typedefs part I (see EOF for part II) ***/
 typedef std::pair<const Trajectory *, const reco::Track *> ConstTrajTrackPair;
 typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairs;
+
+typedef std::vector<IntegratedCalibrationBase *> Calibrations;
+typedef std::vector<std::unique_ptr<IntegratedCalibrationBase>> CalibrationsOwner;
 
 typedef std::vector<IntegratedCalibrationBase *> Calibrations;
 
@@ -125,6 +129,15 @@ public:
   /// Pass integrated calibrations to algorithm, to be called after initialize()
   /// Calibrations' ownership is NOT passed to algorithm
   virtual bool addCalibrations(const Calibrations &) { return false; }
+  // Overloading for the owning vector
+  bool addCalibrations(const CalibrationsOwner &cals) {
+    Calibrations tmp;
+    tmp.reserve(cals.size());
+    for (const auto &ptr : cals) {
+      tmp.push_back(ptr.get());
+    }
+    return addCalibrations(tmp);
+  }
 
   /// Returns whether algorithm proccesses events in current configuration
   virtual bool processesEvents() { return true; }

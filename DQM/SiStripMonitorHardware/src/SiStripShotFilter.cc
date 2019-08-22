@@ -2,7 +2,7 @@
 // -*- C++ -*-
 //
 // Class:      SiStripShotFilterPlugins
-// 
+//
 /* Description: DQM source application to filter "shots" for SiStrip data
 */
 //
@@ -50,14 +50,12 @@
 // Class declaration
 //
 
-class SiStripShotFilter : public edm::EDFilter
-{
- public:
-
+class SiStripShotFilter : public edm::EDFilter {
+public:
   explicit SiStripShotFilter(const edm::ParameterSet&);
   ~SiStripShotFilter() override;
- private:
 
+private:
   void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
@@ -75,51 +73,40 @@ class SiStripShotFilter : public edm::EDFilter
   edm::InputTag digicollection_;
   edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > digiToken_;
   bool zs_;
-
 };
-
 
 //
 // Constructors and destructor
 //
 
 SiStripShotFilter::SiStripShotFilter(const edm::ParameterSet& iConfig)
-  : fOutPath_(iConfig.getUntrackedParameter<std::string>("OutputFilePath","shotChannels.dat")),
-    cablingCacheId_(0),
-    digicollection_(iConfig.getParameter<edm::InputTag>("DigiCollection")),
-    zs_(iConfig.getUntrackedParameter<bool>("ZeroSuppressed",true))
- 
-{
+    : fOutPath_(iConfig.getUntrackedParameter<std::string>("OutputFilePath", "shotChannels.dat")),
+      cablingCacheId_(0),
+      digicollection_(iConfig.getParameter<edm::InputTag>("DigiCollection")),
+      zs_(iConfig.getUntrackedParameter<bool>("ZeroSuppressed", true))
 
+{
   digiToken_ = consumes<edm::DetSetVector<SiStripDigi> >(digicollection_);
-
 }
 
-SiStripShotFilter::~SiStripShotFilter()
-{
-}
-
+SiStripShotFilter::~SiStripShotFilter() {}
 
 //
 // Member functions
 //
 
 // ------------ method called to for each event  ------------
-bool
-SiStripShotFilter::filter(edm::Event& iEvent, 
-				 const edm::EventSetup& iSetup)
-{
-
+bool SiStripShotFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //update cabling
   updateCabling(iSetup);
-  
+
   //get digi data
   edm::Handle<edm::DetSetVector<SiStripDigi> > digis;
-  iEvent.getByToken(digiToken_,digis);
+  iEvent.getByToken(digiToken_, digis);
 
   // loop on detector with digis
 
-  APVShotFinder apvsf(*digis,zs_);
+  APVShotFinder apvsf(*digis, zs_);
   const std::vector<APVShot>& shots = apvsf.getShots();
 
   //loop on feds first: there should be only a small number of shots...
@@ -128,60 +115,50 @@ SiStripShotFilter::filter(edm::Event& iEvent,
 
   unsigned int lShots = 0;
 
-  for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; 
-       fedId <= FEDNumbering::MAXSiStripFEDID; 
-       fedId++) {//loop over FED IDs
+  for (unsigned int fedId = FEDNumbering::MINSiStripFEDID; fedId <= FEDNumbering::MAXSiStripFEDID;
+       fedId++) {  //loop over FED IDs
 
-    for (unsigned int iCh = 0; 
-	 iCh < sistrip::FEDCH_PER_FED; 
-	 iCh++) {//loop on channels
-	  
-      const FedChannelConnection & lConnection = cabling_->fedConnection(fedId,iCh);
+    for (unsigned int iCh = 0; iCh < sistrip::FEDCH_PER_FED; iCh++) {  //loop on channels
+
+      const FedChannelConnection& lConnection = cabling_->fedConnection(fedId, iCh);
 
       uint32_t lDetId = lConnection.detId();
       short lAPVPair = lConnection.apvPairNumber();
 
-      for(std::vector<APVShot>::const_iterator shot=shots.begin();shot!=shots.end();++shot) {//loop on shots
+      for (std::vector<APVShot>::const_iterator shot = shots.begin(); shot != shots.end(); ++shot) {  //loop on shots
 
-	if (shot->detId() == lDetId && 
-	    static_cast<short>(shot->apvNumber()/2.) == lAPVPair)
-	  {
-	    if(shot->isGenuine()) {//genuine shot
-  
-	      fOut_ << fedId << " " << iCh << " " << shot->detId() << " " << shot->apvNumber() << std::endl;
-	      lShots++;
-	    }//genuine shot
-	    if (shot->apvNumber()%2==1) break;
-	  }
-      }//loop on shots
-    }//loop on channels
-  }//loop on FEDs.
+        if (shot->detId() == lDetId && static_cast<short>(shot->apvNumber() / 2.) == lAPVPair) {
+          if (shot->isGenuine()) {  //genuine shot
 
-  if (lShots > 0) fOut_ << "### " << iEvent.id().event() << " " << lShots << std::endl;
+            fOut_ << fedId << " " << iCh << " " << shot->detId() << " " << shot->apvNumber() << std::endl;
+            lShots++;
+          }  //genuine shot
+          if (shot->apvNumber() % 2 == 1)
+            break;
+        }
+      }  //loop on shots
+    }    //loop on channels
+  }      //loop on FEDs.
+
+  if (lShots > 0)
+    fOut_ << "### " << iEvent.id().event() << " " << lShots << std::endl;
 
   return lShots;
 
-}//analyze method
+}  //analyze method
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
-SiStripShotFilter::beginJob()
-{
-  fOut_.open(fOutPath_.c_str(),std::ios::out);
-  if (!fOut_) std::cout << " WARNING ! Cannot open file " << fOutPath_ << " for writting. List of shot channels will not be saved." << std::endl;
+void SiStripShotFilter::beginJob() {
+  fOut_.open(fOutPath_.c_str(), std::ios::out);
+  if (!fOut_)
+    std::cout << " WARNING ! Cannot open file " << fOutPath_
+              << " for writting. List of shot channels will not be saved." << std::endl;
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripShotFilter::endJob()
-{
+void SiStripShotFilter::endJob() { fOut_.close(); }
 
-  fOut_.close();
-
-}
-
-void SiStripShotFilter::updateCabling(const edm::EventSetup& eventSetup)
-{
+void SiStripShotFilter::updateCabling(const edm::EventSetup& eventSetup) {
   uint32_t currentCacheId = eventSetup.get<SiStripFedCablingRcd>().cacheIdentifier();
   if (cablingCacheId_ != currentCacheId) {
     edm::ESHandle<SiStripFedCabling> cablingHandle;

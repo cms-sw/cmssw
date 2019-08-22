@@ -5,11 +5,10 @@
 
 #include "CondFormats/RPCObjects/interface/RPCLBLink.h"
 
-class RPCLBLinkNameParser
-{
+class RPCLBLinkNameParser {
 public:
-    static void parse(std::string const & name, RPCLBLink & lb_link);
-    static RPCLBLink parse(std::string const & name);
+  static void parse(std::string const& name, RPCLBLink& lb_link);
+  static RPCLBLink parse(std::string const& name);
 };
 
-#endif // CondTools_RPC_RPCLBLinkNameParser_h
+#endif  // CondTools_RPC_RPCLBLinkNameParser_h

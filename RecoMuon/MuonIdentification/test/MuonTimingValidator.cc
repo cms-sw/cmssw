@@ -2,7 +2,7 @@
 //
 // Package:    MuonTimingValidator
 // Class:      MuonTimingValidator
-// 
+//
 /**\class MuonTimingValidator MuonTimingValidator.cc 
 
  Description: An example analyzer that fills muon timing information histograms 
@@ -82,91 +82,84 @@
 //
 // constructors and destructor
 //
-MuonTimingValidator::MuonTimingValidator(const edm::ParameterSet& iConfig) 
-  :
-  TKtrackTags_(iConfig.getUntrackedParameter<edm::InputTag>("TKtracks")),
-  TKtrackTokens_(consumes<reco::TrackCollection>(TKtrackTags_)),
-  MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
-  MuonTokens_(consumes<reco::MuonCollection>(MuonTags_)),
-  CombinedTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("CombinedTiming")),
-  CombinedTimeTokens_(consumes<reco::MuonTimeExtraMap>(CombinedTimeTags_)),
-  DtTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("DtTiming")),
-  DtTimeTokens_(consumes<reco::MuonTimeExtraMap>(DtTimeTags_)),
-  CscTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("CscTiming")),
-  CscTimeTokens_(consumes<reco::MuonTimeExtraMap>(CscTimeTags_)),
-  out(iConfig.getParameter<std::string>("out")),
-  open(iConfig.getParameter<std::string>("open")),
-  theMinEta(iConfig.getParameter<double>("etaMin")),
-  theMaxEta(iConfig.getParameter<double>("etaMax")),
-  theMinPt(iConfig.getParameter<double>("simPtMin")),
-  thePtCut(iConfig.getParameter<double>("PtCut")),
-  theMinPtres(iConfig.getParameter<double>("PtresMin")),
-  theMaxPtres(iConfig.getParameter<double>("PtresMax")),
-  theScale(iConfig.getParameter<double>("PlotScale")),
-  theDtCut(iConfig.getParameter<int>("DTcut")),
-  theCscCut(iConfig.getParameter<int>("CSCcut")),
-  theNBins(iConfig.getParameter<int>("nbins"))
-{
+MuonTimingValidator::MuonTimingValidator(const edm::ParameterSet& iConfig)
+    : TKtrackTags_(iConfig.getUntrackedParameter<edm::InputTag>("TKtracks")),
+      TKtrackTokens_(consumes<reco::TrackCollection>(TKtrackTags_)),
+      MuonTags_(iConfig.getUntrackedParameter<edm::InputTag>("Muons")),
+      MuonTokens_(consumes<reco::MuonCollection>(MuonTags_)),
+      CombinedTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("CombinedTiming")),
+      CombinedTimeTokens_(consumes<reco::MuonTimeExtraMap>(CombinedTimeTags_)),
+      DtTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("DtTiming")),
+      DtTimeTokens_(consumes<reco::MuonTimeExtraMap>(DtTimeTags_)),
+      CscTimeTags_(iConfig.getUntrackedParameter<edm::InputTag>("CscTiming")),
+      CscTimeTokens_(consumes<reco::MuonTimeExtraMap>(CscTimeTags_)),
+      out(iConfig.getParameter<std::string>("out")),
+      open(iConfig.getParameter<std::string>("open")),
+      theMinEta(iConfig.getParameter<double>("etaMin")),
+      theMaxEta(iConfig.getParameter<double>("etaMax")),
+      theMinPt(iConfig.getParameter<double>("simPtMin")),
+      thePtCut(iConfig.getParameter<double>("PtCut")),
+      theMinPtres(iConfig.getParameter<double>("PtresMin")),
+      theMaxPtres(iConfig.getParameter<double>("PtresMax")),
+      theScale(iConfig.getParameter<double>("PlotScale")),
+      theDtCut(iConfig.getParameter<int>("DTcut")),
+      theCscCut(iConfig.getParameter<int>("CSCcut")),
+      theNBins(iConfig.getParameter<int>("nbins")) {
   //now do what ever initialization is needed
 }
 
-
-MuonTimingValidator::~MuonTimingValidator()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-  if (hFile!=0) {
+MuonTimingValidator::~MuonTimingValidator() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
+  if (hFile != 0) {
     hFile->Close();
     delete hFile;
   }
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void
-MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-//  std::cout << "*** Begin Muon Timing Validatior " << std::endl;
-//  std::cout << " Event: " << iEvent.id() << "  Orbit: " << iEvent.orbitNumber() << "  BX: " << iEvent.bunchCrossing() << std::endl;
+void MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  //  std::cout << "*** Begin Muon Timing Validatior " << std::endl;
+  //  std::cout << " Event: " << iEvent.id() << "  Orbit: " << iEvent.orbitNumber() << "  BX: " << iEvent.bunchCrossing() << std::endl;
 
-  iEvent.getByToken( TKtrackTokens_, TKTrackCollection);
+  iEvent.getByToken(TKtrackTokens_, TKTrackCollection);
   reco::TrackCollection tkTC;
   const reco::TrackCollection tkTC1 = *(TKTrackCollection.product());
 
-  iEvent.getByToken(MuonTokens_,MuCollection);
+  iEvent.getByToken(MuonTokens_, MuCollection);
   const reco::MuonCollection muonC = *(MuCollection.product());
-  if (!muonC.size()) return;
+  if (!muonC.size())
+    return;
 
-  iEvent.getByToken(CombinedTimeTokens_,timeMap1);
-  const reco::MuonTimeExtraMap & timeMapCmb = *timeMap1;
-  iEvent.getByToken(DtTimeTokens_,timeMap2);
-  const reco::MuonTimeExtraMap & timeMapDT = *timeMap2;
-  iEvent.getByToken(CscTimeTokens_,timeMap3);
-  const reco::MuonTimeExtraMap & timeMapCSC = *timeMap3;
+  iEvent.getByToken(CombinedTimeTokens_, timeMap1);
+  const reco::MuonTimeExtraMap& timeMapCmb = *timeMap1;
+  iEvent.getByToken(DtTimeTokens_, timeMap2);
+  const reco::MuonTimeExtraMap& timeMapDT = *timeMap2;
+  iEvent.getByToken(CscTimeTokens_, timeMap3);
+  const reco::MuonTimeExtraMap& timeMapCSC = *timeMap3;
 
   edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
   reco::MuonCollection::const_iterator imuon;
-  
-  int imucount=0;
-  for(imuon = muonC.begin(); imuon != muonC.end(); ++imuon){
-        
+
+  int imucount = 0;
+  for (imuon = muonC.begin(); imuon != muonC.end(); ++imuon) {
     LogDebug("RecoMuonIdentification") << " Event: " << iEvent.id() << " Found muon. Pt: " << imuon->p();
-    
-    if ((fabs(imuon->eta())<theMinEta) || (fabs(imuon->eta())>theMaxEta)) continue;
-    
+
+    if ((fabs(imuon->eta()) < theMinEta) || (fabs(imuon->eta()) > theMaxEta))
+      continue;
+
     reco::TrackRef trkTrack = imuon->track();
-    if (trkTrack.isNonnull()) { 
+    if (trkTrack.isNonnull()) {
       hi_tk_pt->Fill(((*trkTrack).pt()));
       hi_tk_phi->Fill(((*trkTrack).phi()));
       hi_tk_eta->Fill(((*trkTrack).eta()));
-    }  
+    }
 
     reco::TrackRef staTrack = imuon->standAloneMuon();
     if (staTrack.isNonnull()) {
@@ -179,57 +172,60 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (glbTrack.isNonnull()) {
       hi_glb_pt->Fill((*glbTrack).pt());
       hi_glb_phi->Fill((*glbTrack).phi());
-      hi_glb_eta->Fill((*glbTrack).eta()); 
-      
-       LogDebug("RecoMuonIdentification") << " Global Pt: " << (*glbTrack).pt();
+      hi_glb_eta->Fill((*glbTrack).eta());
+
+      LogDebug("RecoMuonIdentification") << " Global Pt: " << (*glbTrack).pt();
     }
 
     // Analyze the short info stored directly in reco::Muon
-    
+
     reco::MuonTime muonTime;
-    if (imuon->isTimeValid()) { 
+    if (imuon->isTimeValid()) {
       muonTime = imuon->time();
-//      std::cout << "    Time points: " << muonTime.nDof << "  time: " << muonTime.timeAtIpInOut << std::endl;
+      //      std::cout << "    Time points: " << muonTime.nDof << "  time: " << muonTime.timeAtIpInOut << std::endl;
       if (muonTime.nDof) {
         hi_mutime_vtx->Fill(muonTime.timeAtIpInOut);
         hi_mutime_vtx_err->Fill(muonTime.timeAtIpInOutErr);
       }
     }
-    
+
     reco::MuonEnergy muonE;
-//    if (imuon->isEnergyValid() && fabs(imuon->eta())<1.5) { 
-    if (imuon->isEnergyValid()) { 
+    //    if (imuon->isEnergyValid() && fabs(imuon->eta())<1.5) {
+    if (imuon->isEnergyValid()) {
       muonE = imuon->calEnergy();
-      if (muonE.emMax>0.25) {
+      if (muonE.emMax > 0.25) {
         hi_ecal_time->Fill(muonE.ecal_time);
-        if (muonE.emMax>1.) hi_ecal_time_ecut->Fill(muonE.ecal_time);
+        if (muonE.emMax > 1.)
+          hi_ecal_time_ecut->Fill(muonE.ecal_time);
         hi_ecal_energy->Fill(muonE.emMax);
-        if (muonE.hadMax>0.25) hi_hcalecal_vtx->Fill(muonE.hcal_time-muonE.ecal_time);
-        
-        double emErr = 1.5/muonE.emMax;
-        
-        if (emErr>0.) {
+        if (muonE.hadMax > 0.25)
+          hi_hcalecal_vtx->Fill(muonE.hcal_time - muonE.ecal_time);
+
+        double emErr = 1.5 / muonE.emMax;
+
+        if (emErr > 0.) {
           hi_ecal_time_err->Fill(emErr);
-          hi_ecal_time_pull->Fill((muonE.ecal_time-1.)/emErr);
-	  LogDebug("RecoMuonIdentification") << "     ECAL time: " << muonE.ecal_time << " +/- " << emErr;
+          hi_ecal_time_pull->Fill((muonE.ecal_time - 1.) / emErr);
+          LogDebug("RecoMuonIdentification") << "     ECAL time: " << muonE.ecal_time << " +/- " << emErr;
         }
       }
 
-      if (muonE.hadMax>0.25) {
+      if (muonE.hadMax > 0.25) {
         hi_hcal_time->Fill(muonE.hcal_time);
-        if (muonE.hadMax>1.) hi_hcal_time_ecut->Fill(muonE.hcal_time);
+        if (muonE.hadMax > 1.)
+          hi_hcal_time_ecut->Fill(muonE.hcal_time);
         hi_hcal_energy->Fill(muonE.hadMax);
-        
-        double hadErr = 1.; // DUMMY!!!
-        
+
+        double hadErr = 1.;  // DUMMY!!!
+
         hi_hcal_time_err->Fill(hadErr);
-        hi_hcal_time_pull->Fill((muonE.hcal_time-1.)/hadErr);
+        hi_hcal_time_pull->Fill((muonE.hcal_time - 1.) / hadErr);
         LogDebug("RecoMuonIdentification") << "     HCAL time: " << muonE.hcal_time << " +/- " << hadErr;
       }
     }
-    
+
     // Analyze the MuonTimeExtra information
-    reco::MuonRef muonR(MuCollection,imucount);
+    reco::MuonRef muonR(MuCollection, imucount);
     reco::MuonTimeExtra timec = timeMapCmb[muonR];
     reco::MuonTimeExtra timedt = timeMapDT[muonR];
     reco::MuonTimeExtra timecsc = timeMapCSC[muonR];
@@ -238,13 +234,15 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     hi_dttime_ndof->Fill(timedt.nDof());
     hi_csctime_ndof->Fill(timecsc.nDof());
 
-    if (timedt.nDof()>theDtCut) {
+    if (timedt.nDof() > theDtCut) {
       LogDebug("RecoMuonIdentification") << "          DT nDof: " << timedt.nDof();
-      LogDebug("RecoMuonIdentification") << "          DT Time: " << timedt.timeAtIpInOut() << " +/- " << timedt.inverseBetaErr();
-      LogDebug("RecoMuonIdentification") << "         DT FreeB: " << timedt.freeInverseBeta() << " +/- " << timedt.freeInverseBetaErr();
-      
+      LogDebug("RecoMuonIdentification") << "          DT Time: " << timedt.timeAtIpInOut() << " +/- "
+                                         << timedt.inverseBetaErr();
+      LogDebug("RecoMuonIdentification") << "         DT FreeB: " << timedt.freeInverseBeta() << " +/- "
+                                         << timedt.freeInverseBetaErr();
+
       hi_dttime_ibt->Fill(timedt.inverseBeta());
-      hi_dttime_ibt_pt->Fill(imuon->pt(),timedt.inverseBeta());
+      hi_dttime_ibt_pt->Fill(imuon->pt(), timedt.inverseBeta());
       hi_dttime_ibt_err->Fill(timedt.inverseBetaErr());
       hi_dttime_fib->Fill(timedt.freeInverseBeta());
       hi_dttime_fib_err->Fill(timedt.freeInverseBetaErr());
@@ -252,33 +250,36 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       hi_dttime_vtx_err->Fill(timedt.timeAtIpInOutErr());
       hi_dttime_vtxr->Fill(timedt.timeAtIpOutIn());
       hi_dttime_vtxr_err->Fill(timedt.timeAtIpOutInErr());
-      hi_dttime_errdiff->Fill(timedt.timeAtIpInOutErr()-timedt.timeAtIpOutInErr());
+      hi_dttime_errdiff->Fill(timedt.timeAtIpInOutErr() - timedt.timeAtIpOutInErr());
 
-      if (timedt.inverseBetaErr()>0.)
-        hi_dttime_ibt_pull->Fill((timedt.inverseBeta()-1.)/timedt.inverseBetaErr());
-      if (timedt.freeInverseBetaErr()>0.)    
-        hi_dttime_fib_pull->Fill((timedt.freeInverseBeta()-1.)/timedt.freeInverseBetaErr());
-      if (timedt.timeAtIpInOutErr()>0.)
-        hi_dttime_vtx_pull->Fill(timedt.timeAtIpInOut()/timedt.timeAtIpInOutErr());
-      if (timedt.timeAtIpOutInErr()>0.)
-        hi_dttime_vtxr_pull->Fill(timedt.timeAtIpOutIn()/timedt.timeAtIpOutInErr());
+      if (timedt.inverseBetaErr() > 0.)
+        hi_dttime_ibt_pull->Fill((timedt.inverseBeta() - 1.) / timedt.inverseBetaErr());
+      if (timedt.freeInverseBetaErr() > 0.)
+        hi_dttime_fib_pull->Fill((timedt.freeInverseBeta() - 1.) / timedt.freeInverseBetaErr());
+      if (timedt.timeAtIpInOutErr() > 0.)
+        hi_dttime_vtx_pull->Fill(timedt.timeAtIpInOut() / timedt.timeAtIpInOutErr());
+      if (timedt.timeAtIpOutInErr() > 0.)
+        hi_dttime_vtxr_pull->Fill(timedt.timeAtIpOutIn() / timedt.timeAtIpOutInErr());
 
-      if (timecsc.nDof()>theCscCut)
-        hi_dtcsc_vtx->Fill(timedt.timeAtIpInOut()-timecsc.timeAtIpInOut());
+      if (timecsc.nDof() > theCscCut)
+        hi_dtcsc_vtx->Fill(timedt.timeAtIpInOut() - timecsc.timeAtIpInOut());
       if (imuon->isEnergyValid()) {
-        if (muonE.emMax>0.25) hi_dtecal_vtx->Fill(timedt.timeAtIpInOut()-muonE.ecal_time);
-        if (muonE.hadMax>0.25) hi_dthcal_vtx->Fill(timedt.timeAtIpInOut()-muonE.hcal_time);
-      }    
-
+        if (muonE.emMax > 0.25)
+          hi_dtecal_vtx->Fill(timedt.timeAtIpInOut() - muonE.ecal_time);
+        if (muonE.hadMax > 0.25)
+          hi_dthcal_vtx->Fill(timedt.timeAtIpInOut() - muonE.hcal_time);
+      }
     }
 
-    if (timecsc.nDof()>theCscCut) {
+    if (timecsc.nDof() > theCscCut) {
       LogDebug("RecoMuonIdentification") << "         CSC nDof: " << timecsc.nDof();
-      LogDebug("RecoMuonIdentification") << "         CSC Time: " << timecsc.timeAtIpInOut() << " +/- " << timecsc.inverseBetaErr();
-      LogDebug("RecoMuonIdentification") << "        CSC FreeB: " << timecsc.freeInverseBeta() << " +/- " << timecsc.freeInverseBetaErr();
-      
+      LogDebug("RecoMuonIdentification") << "         CSC Time: " << timecsc.timeAtIpInOut() << " +/- "
+                                         << timecsc.inverseBetaErr();
+      LogDebug("RecoMuonIdentification") << "        CSC FreeB: " << timecsc.freeInverseBeta() << " +/- "
+                                         << timecsc.freeInverseBetaErr();
+
       hi_csctime_ibt->Fill(timecsc.inverseBeta());
-      hi_csctime_ibt_pt->Fill(imuon->pt(),timecsc.inverseBeta());
+      hi_csctime_ibt_pt->Fill(imuon->pt(), timecsc.inverseBeta());
       hi_csctime_ibt_err->Fill(timecsc.inverseBetaErr());
       hi_csctime_fib->Fill(timecsc.freeInverseBeta());
       hi_csctime_fib_err->Fill(timecsc.freeInverseBetaErr());
@@ -287,28 +288,32 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       hi_csctime_vtxr->Fill(timecsc.timeAtIpOutIn());
       hi_csctime_vtxr_err->Fill(timecsc.timeAtIpOutInErr());
 
-      if (timec.inverseBetaErr()>0.)
-        hi_csctime_ibt_pull->Fill((timecsc.inverseBeta()-1.)/timecsc.inverseBetaErr());
-      if (timecsc.freeInverseBetaErr()>0.)    
-        hi_csctime_fib_pull->Fill((timecsc.freeInverseBeta()-1.)/timecsc.freeInverseBetaErr());
-      if (timecsc.timeAtIpInOutErr()>0.)
-        hi_csctime_vtx_pull->Fill(timecsc.timeAtIpInOut()/timecsc.timeAtIpInOutErr());
-      if (timecsc.timeAtIpOutInErr()>0.)
-        hi_csctime_vtxr_pull->Fill(timecsc.timeAtIpOutIn()/timecsc.timeAtIpOutInErr());
+      if (timec.inverseBetaErr() > 0.)
+        hi_csctime_ibt_pull->Fill((timecsc.inverseBeta() - 1.) / timecsc.inverseBetaErr());
+      if (timecsc.freeInverseBetaErr() > 0.)
+        hi_csctime_fib_pull->Fill((timecsc.freeInverseBeta() - 1.) / timecsc.freeInverseBetaErr());
+      if (timecsc.timeAtIpInOutErr() > 0.)
+        hi_csctime_vtx_pull->Fill(timecsc.timeAtIpInOut() / timecsc.timeAtIpInOutErr());
+      if (timecsc.timeAtIpOutInErr() > 0.)
+        hi_csctime_vtxr_pull->Fill(timecsc.timeAtIpOutIn() / timecsc.timeAtIpOutInErr());
 
       if (imuon->isEnergyValid()) {
-        if (muonE.emMax>0.25) hi_ecalcsc_vtx->Fill(muonE.ecal_time-timecsc.timeAtIpInOut());
-        if (muonE.hadMax>0.25) hi_hcalcsc_vtx->Fill(muonE.hcal_time-timecsc.timeAtIpInOut());
+        if (muonE.emMax > 0.25)
+          hi_ecalcsc_vtx->Fill(muonE.ecal_time - timecsc.timeAtIpInOut());
+        if (muonE.hadMax > 0.25)
+          hi_hcalcsc_vtx->Fill(muonE.hcal_time - timecsc.timeAtIpInOut());
       }
     }
-    
-    if (timec.nDof()>0) {
+
+    if (timec.nDof() > 0) {
       LogDebug("RecoMuonIdentification") << "    Combined nDof: " << timec.nDof();
-      LogDebug("RecoMuonIdentification") << "    Combined Time: " << timec.timeAtIpInOut() << " +/- " << timec.inverseBetaErr();
-      LogDebug("RecoMuonIdentification") << "   Combined FreeB: " << timec.freeInverseBeta() << " +/- " << timec.freeInverseBetaErr();
+      LogDebug("RecoMuonIdentification") << "    Combined Time: " << timec.timeAtIpInOut() << " +/- "
+                                         << timec.inverseBetaErr();
+      LogDebug("RecoMuonIdentification") << "   Combined FreeB: " << timec.freeInverseBeta() << " +/- "
+                                         << timec.freeInverseBetaErr();
 
       hi_cmbtime_ibt->Fill(timec.inverseBeta());
-      hi_cmbtime_ibt_pt->Fill(imuon->pt(),timec.inverseBeta());
+      hi_cmbtime_ibt_pt->Fill(imuon->pt(), timec.inverseBeta());
       hi_cmbtime_ibt_err->Fill(timec.inverseBetaErr());
       hi_cmbtime_fib->Fill(timec.freeInverseBeta());
       hi_cmbtime_fib_err->Fill(timec.freeInverseBetaErr());
@@ -317,133 +322,134 @@ MuonTimingValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       hi_cmbtime_vtxr->Fill(timec.timeAtIpOutIn());
       hi_cmbtime_vtxr_err->Fill(timec.timeAtIpOutInErr());
 
-      if (timec.inverseBetaErr()>0.)
-        hi_cmbtime_ibt_pull->Fill((timec.inverseBeta()-1.)/timec.inverseBetaErr());
-      if (timec.freeInverseBetaErr()>0.)    
-        hi_cmbtime_fib_pull->Fill((timec.freeInverseBeta()-1.)/timec.freeInverseBetaErr());
-      if (timec.timeAtIpInOutErr()>0.)
-        hi_cmbtime_vtx_pull->Fill(timec.timeAtIpInOut()/timec.timeAtIpInOutErr());
-      if (timec.timeAtIpOutInErr()>0.)
-        hi_cmbtime_vtxr_pull->Fill(timec.timeAtIpOutIn()/timec.timeAtIpOutInErr());
+      if (timec.inverseBetaErr() > 0.)
+        hi_cmbtime_ibt_pull->Fill((timec.inverseBeta() - 1.) / timec.inverseBetaErr());
+      if (timec.freeInverseBetaErr() > 0.)
+        hi_cmbtime_fib_pull->Fill((timec.freeInverseBeta() - 1.) / timec.freeInverseBetaErr());
+      if (timec.timeAtIpInOutErr() > 0.)
+        hi_cmbtime_vtx_pull->Fill(timec.timeAtIpInOut() / timec.timeAtIpInOutErr());
+      if (timec.timeAtIpOutInErr() > 0.)
+        hi_cmbtime_vtxr_pull->Fill(timec.timeAtIpOutIn() / timec.timeAtIpOutInErr());
     }
 
-    imucount++;    
-  }  
+    imucount++;
+  }
 }
 
-
 // ------------ method called once each job just before starting event loop  ------------
-void 
-MuonTimingValidator::beginJob()
-{
-   hFile = new TFile( out.c_str(), open.c_str() );
-   hFile->cd();
+void MuonTimingValidator::beginJob() {
+  hFile = new TFile(out.c_str(), open.c_str());
+  hFile->cd();
 
-   effStyle = new TStyle("effStyle","Efficiency Study Style");   
-   effStyle->SetCanvasBorderMode(0);
-   effStyle->SetPadBorderMode(1);
-   effStyle->SetOptTitle(0);
-   effStyle->SetStatFont(42);
-   effStyle->SetTitleFont(22);
-   effStyle->SetCanvasColor(10);
-   effStyle->SetPadColor(0);
-   effStyle->SetLabelFont(42,"x");
-   effStyle->SetLabelFont(42,"y");
-   effStyle->SetHistFillStyle(1001);
-   effStyle->SetHistFillColor(0);
-   effStyle->SetOptStat(0);
-   effStyle->SetOptFit(0111);
-   effStyle->SetStatH(0.05);
+  effStyle = new TStyle("effStyle", "Efficiency Study Style");
+  effStyle->SetCanvasBorderMode(0);
+  effStyle->SetPadBorderMode(1);
+  effStyle->SetOptTitle(0);
+  effStyle->SetStatFont(42);
+  effStyle->SetTitleFont(22);
+  effStyle->SetCanvasColor(10);
+  effStyle->SetPadColor(0);
+  effStyle->SetLabelFont(42, "x");
+  effStyle->SetLabelFont(42, "y");
+  effStyle->SetHistFillStyle(1001);
+  effStyle->SetHistFillColor(0);
+  effStyle->SetOptStat(0);
+  effStyle->SetOptFit(0111);
+  effStyle->SetStatH(0.05);
 
-   hi_sta_pt   = new TH1F("hi_sta_pt","P_{T}^{STA}",theNBins,0.0,theMaxPtres);
-   hi_tk_pt   = new TH1F("hi_tk_pt","P_{T}^{TK}",theNBins,0.0,theMaxPtres);
-   hi_glb_pt   = new TH1F("hi_glb_pt","P_{T}^{GLB}",theNBins,0.0,theMaxPtres);
+  hi_sta_pt = new TH1F("hi_sta_pt", "P_{T}^{STA}", theNBins, 0.0, theMaxPtres);
+  hi_tk_pt = new TH1F("hi_tk_pt", "P_{T}^{TK}", theNBins, 0.0, theMaxPtres);
+  hi_glb_pt = new TH1F("hi_glb_pt", "P_{T}^{GLB}", theNBins, 0.0, theMaxPtres);
 
-   hi_sta_phi = new TH1F("hi_sta_phi","#phi^{STA}",theNBins,-3.0,3.);
-   hi_tk_phi  = new TH1F("hi_tk_phi","#phi^{TK}",theNBins,-3.0,3.);
-   hi_glb_phi = new TH1F("hi_glb_phi","#phi^{GLB}",theNBins,-3.0,3.);
+  hi_sta_phi = new TH1F("hi_sta_phi", "#phi^{STA}", theNBins, -3.0, 3.);
+  hi_tk_phi = new TH1F("hi_tk_phi", "#phi^{TK}", theNBins, -3.0, 3.);
+  hi_glb_phi = new TH1F("hi_glb_phi", "#phi^{GLB}", theNBins, -3.0, 3.);
 
-   hi_mutime_vtx = new TH1F("hi_mutime_vtx","Time at Vertex (inout)",theNBins,-25.*theScale,25.*theScale);
-   hi_mutime_vtx_err = new TH1F("hi_mutime_vtx_err","Time at Vertex Error (inout)",theNBins,0.,25.0);
+  hi_mutime_vtx = new TH1F("hi_mutime_vtx", "Time at Vertex (inout)", theNBins, -25. * theScale, 25. * theScale);
+  hi_mutime_vtx_err = new TH1F("hi_mutime_vtx_err", "Time at Vertex Error (inout)", theNBins, 0., 25.0);
 
-   hi_dtcsc_vtx = new TH1F("hi_dtcsc_vtx","Time at Vertex (DT-CSC)",theNBins,-25.*theScale,25.*theScale);
-   hi_dtecal_vtx = new TH1F("hi_dtecal_vtx","Time at Vertex (DT-ECAL)",theNBins,-25.*theScale,25.*theScale);
-   hi_ecalcsc_vtx = new TH1F("hi_ecalcsc_vtx","Time at Vertex (ECAL-CSC)",theNBins,-25.*theScale,25.*theScale);
-   hi_dthcal_vtx = new TH1F("hi_dthcal_vtx","Time at Vertex (DT-HCAL)",theNBins,-25.*theScale,25.*theScale);
-   hi_hcalcsc_vtx = new TH1F("hi_hcalcsc_vtx","Time at Vertex (HCAL-CSC)",theNBins,-25.*theScale,25.*theScale);
-   hi_hcalecal_vtx = new TH1F("hi_hcalecal_vtx","Time at Vertex (HCAL-ECAL)",theNBins,-25.*theScale,25.*theScale);
+  hi_dtcsc_vtx = new TH1F("hi_dtcsc_vtx", "Time at Vertex (DT-CSC)", theNBins, -25. * theScale, 25. * theScale);
+  hi_dtecal_vtx = new TH1F("hi_dtecal_vtx", "Time at Vertex (DT-ECAL)", theNBins, -25. * theScale, 25. * theScale);
+  hi_ecalcsc_vtx = new TH1F("hi_ecalcsc_vtx", "Time at Vertex (ECAL-CSC)", theNBins, -25. * theScale, 25. * theScale);
+  hi_dthcal_vtx = new TH1F("hi_dthcal_vtx", "Time at Vertex (DT-HCAL)", theNBins, -25. * theScale, 25. * theScale);
+  hi_hcalcsc_vtx = new TH1F("hi_hcalcsc_vtx", "Time at Vertex (HCAL-CSC)", theNBins, -25. * theScale, 25. * theScale);
+  hi_hcalecal_vtx =
+      new TH1F("hi_hcalecal_vtx", "Time at Vertex (HCAL-ECAL)", theNBins, -25. * theScale, 25. * theScale);
 
-   hi_cmbtime_ibt = new TH1F("hi_cmbtime_ibt","Inverse Beta",theNBins,0.,1.6);
-   hi_cmbtime_ibt_pt = new TH2F("hi_cmbtime_ibt_pt","P{T} vs Inverse Beta",theNBins,0.0,theMaxPtres,theNBins,0.7,2.0);
-   hi_cmbtime_ibt_err = new TH1F("hi_cmbtime_ibt_err","Inverse Beta Error",theNBins,0.,1.0);
-   hi_cmbtime_fib = new TH1F("hi_cmbtime_fib","Free Inverse Beta",theNBins,-5.*theScale,7.*theScale);
-   hi_cmbtime_fib_err = new TH1F("hi_cmbtime_fib_err","Free Inverse Beta Error",theNBins,0,5.);
-   hi_cmbtime_vtx = new TH1F("hi_cmbtime_vtx","Time at Vertex (inout)",theNBins,-25.*theScale,25.*theScale);
-   hi_cmbtime_vtx_err = new TH1F("hi_cmbtime_vtx_err","Time at Vertex Error (inout)",theNBins,0.,25.0);
-   hi_cmbtime_vtxr = new TH1F("hi_cmbtime_vtxR","Time at Vertex (inout)",theNBins,0.,75.*theScale);
-   hi_cmbtime_vtxr_err = new TH1F("hi_cmbtime_vtxR_err","Time at Vertex Error (inout)",theNBins,0.,25.0);
-   hi_cmbtime_ibt_pull = new TH1F("hi_cmbtime_ibt_pull","Inverse Beta Pull",theNBins,-5.,5.0);
-   hi_cmbtime_fib_pull = new TH1F("hi_cmbtime_fib_pull","Free Inverse Beta Pull",theNBins,-5.,5.0);
-   hi_cmbtime_vtx_pull = new TH1F("hi_cmbtime_vtx_pull","Time at Vertex Pull (inout)",theNBins,-5.,5.0);
-   hi_cmbtime_vtxr_pull = new TH1F("hi_cmbtime_vtxR_pull","Time at Vertex Pull (inout)",theNBins,-5.,5.0);
+  hi_cmbtime_ibt = new TH1F("hi_cmbtime_ibt", "Inverse Beta", theNBins, 0., 1.6);
+  hi_cmbtime_ibt_pt =
+      new TH2F("hi_cmbtime_ibt_pt", "P{T} vs Inverse Beta", theNBins, 0.0, theMaxPtres, theNBins, 0.7, 2.0);
+  hi_cmbtime_ibt_err = new TH1F("hi_cmbtime_ibt_err", "Inverse Beta Error", theNBins, 0., 1.0);
+  hi_cmbtime_fib = new TH1F("hi_cmbtime_fib", "Free Inverse Beta", theNBins, -5. * theScale, 7. * theScale);
+  hi_cmbtime_fib_err = new TH1F("hi_cmbtime_fib_err", "Free Inverse Beta Error", theNBins, 0, 5.);
+  hi_cmbtime_vtx = new TH1F("hi_cmbtime_vtx", "Time at Vertex (inout)", theNBins, -25. * theScale, 25. * theScale);
+  hi_cmbtime_vtx_err = new TH1F("hi_cmbtime_vtx_err", "Time at Vertex Error (inout)", theNBins, 0., 25.0);
+  hi_cmbtime_vtxr = new TH1F("hi_cmbtime_vtxR", "Time at Vertex (inout)", theNBins, 0., 75. * theScale);
+  hi_cmbtime_vtxr_err = new TH1F("hi_cmbtime_vtxR_err", "Time at Vertex Error (inout)", theNBins, 0., 25.0);
+  hi_cmbtime_ibt_pull = new TH1F("hi_cmbtime_ibt_pull", "Inverse Beta Pull", theNBins, -5., 5.0);
+  hi_cmbtime_fib_pull = new TH1F("hi_cmbtime_fib_pull", "Free Inverse Beta Pull", theNBins, -5., 5.0);
+  hi_cmbtime_vtx_pull = new TH1F("hi_cmbtime_vtx_pull", "Time at Vertex Pull (inout)", theNBins, -5., 5.0);
+  hi_cmbtime_vtxr_pull = new TH1F("hi_cmbtime_vtxR_pull", "Time at Vertex Pull (inout)", theNBins, -5., 5.0);
 
-   hi_cmbtime_ndof = new TH1F("hi_cmbtime_ndof","Number of timing measurements",48,0.,48.0);
+  hi_cmbtime_ndof = new TH1F("hi_cmbtime_ndof", "Number of timing measurements", 48, 0., 48.0);
 
-   hi_dttime_ibt = new TH1F("hi_dttime_ibt","DT Inverse Beta",theNBins,0.,1.6);
-   hi_dttime_ibt_pt = new TH2F("hi_dttime_ibt_pt","P{T} vs DT Inverse Beta",theNBins,0.0,theMaxPtres,theNBins,0.7,2.0);
-   hi_dttime_ibt_err = new TH1F("hi_dttime_ibt_err","DT Inverse Beta Error",theNBins,0.,0.3);
-   hi_dttime_fib = new TH1F("hi_dttime_fib","DT Free Inverse Beta",theNBins,-5.*theScale,7.*theScale);
-   hi_dttime_fib_err = new TH1F("hi_dttime_fib_err","DT Free Inverse Beta Error",theNBins,0,5.);
-   hi_dttime_vtx = new TH1F("hi_dttime_vtx","DT Time at Vertex (inout)",theNBins,-25.*theScale,25.*theScale);
-   hi_dttime_vtx_err = new TH1F("hi_dttime_vtx_err","DT Time at Vertex Error (inout)",theNBins,0.,10.0);
-   hi_dttime_vtxr = new TH1F("hi_dttime_vtxR","DT Time at Vertex (inout)",theNBins,0.,75.*theScale);
-   hi_dttime_vtxr_err = new TH1F("hi_dttime_vtxR_err","DT Time at Vertex Error (inout)",theNBins,0.,10.0);
-   hi_dttime_ibt_pull = new TH1F("hi_dttime_ibt_pull","DT Inverse Beta Pull",theNBins,-5.,5.0);
-   hi_dttime_fib_pull = new TH1F("hi_dttime_fib_pull","DT Free Inverse Beta Pull",theNBins,-5.,5.0);
-   hi_dttime_vtx_pull = new TH1F("hi_dttime_vtx_pull","DT Time at Vertex Pull (inout)",theNBins,-5.,5.0);
-   hi_dttime_vtxr_pull = new TH1F("hi_dttime_vtxR_pull","DT Time at Vertex Pull (inout)",theNBins,-5.,5.0);
-   hi_dttime_errdiff = new TH1F("hi_dttime_errdiff","DT Time at Vertex inout-outin error difference",theNBins,-2.*theScale,2.*theScale);
+  hi_dttime_ibt = new TH1F("hi_dttime_ibt", "DT Inverse Beta", theNBins, 0., 1.6);
+  hi_dttime_ibt_pt =
+      new TH2F("hi_dttime_ibt_pt", "P{T} vs DT Inverse Beta", theNBins, 0.0, theMaxPtres, theNBins, 0.7, 2.0);
+  hi_dttime_ibt_err = new TH1F("hi_dttime_ibt_err", "DT Inverse Beta Error", theNBins, 0., 0.3);
+  hi_dttime_fib = new TH1F("hi_dttime_fib", "DT Free Inverse Beta", theNBins, -5. * theScale, 7. * theScale);
+  hi_dttime_fib_err = new TH1F("hi_dttime_fib_err", "DT Free Inverse Beta Error", theNBins, 0, 5.);
+  hi_dttime_vtx = new TH1F("hi_dttime_vtx", "DT Time at Vertex (inout)", theNBins, -25. * theScale, 25. * theScale);
+  hi_dttime_vtx_err = new TH1F("hi_dttime_vtx_err", "DT Time at Vertex Error (inout)", theNBins, 0., 10.0);
+  hi_dttime_vtxr = new TH1F("hi_dttime_vtxR", "DT Time at Vertex (inout)", theNBins, 0., 75. * theScale);
+  hi_dttime_vtxr_err = new TH1F("hi_dttime_vtxR_err", "DT Time at Vertex Error (inout)", theNBins, 0., 10.0);
+  hi_dttime_ibt_pull = new TH1F("hi_dttime_ibt_pull", "DT Inverse Beta Pull", theNBins, -5., 5.0);
+  hi_dttime_fib_pull = new TH1F("hi_dttime_fib_pull", "DT Free Inverse Beta Pull", theNBins, -5., 5.0);
+  hi_dttime_vtx_pull = new TH1F("hi_dttime_vtx_pull", "DT Time at Vertex Pull (inout)", theNBins, -5., 5.0);
+  hi_dttime_vtxr_pull = new TH1F("hi_dttime_vtxR_pull", "DT Time at Vertex Pull (inout)", theNBins, -5., 5.0);
+  hi_dttime_errdiff = new TH1F(
+      "hi_dttime_errdiff", "DT Time at Vertex inout-outin error difference", theNBins, -2. * theScale, 2. * theScale);
 
-   hi_dttime_ndof = new TH1F("hi_dttime_ndof","Number of DT timing measurements",48,0.,48.0);
+  hi_dttime_ndof = new TH1F("hi_dttime_ndof", "Number of DT timing measurements", 48, 0., 48.0);
 
-   hi_csctime_ibt = new TH1F("hi_csctime_ibt","CSC Inverse Beta",theNBins,0.,1.6);
-   hi_csctime_ibt_pt = new TH2F("hi_csctime_ibt_pt","P{T} vs CSC Inverse Beta",theNBins,0.0,theMaxPtres,theNBins,0.7,2.0);
-   hi_csctime_ibt_err = new TH1F("hi_csctime_ibt_err","CSC Inverse Beta Error",theNBins,0.,1.0);
-   hi_csctime_fib = new TH1F("hi_csctime_fib","CSC Free Inverse Beta",theNBins,-5.*theScale,7.*theScale);
-   hi_csctime_fib_err = new TH1F("hi_csctime_fib_err","CSC Free Inverse Beta Error",theNBins,0,5.);
-   hi_csctime_vtx = new TH1F("hi_csctime_vtx","CSC Time at Vertex (inout)",theNBins,-25.*theScale,25.*theScale);
-   hi_csctime_vtx_err = new TH1F("hi_csctime_vtx_err","CSC Time at Vertex Error (inout)",theNBins,0.,25.0);
-   hi_csctime_vtxr = new TH1F("hi_csctime_vtxR","CSC Time at Vertex (inout)",theNBins,0.,75.*theScale);
-   hi_csctime_vtxr_err = new TH1F("hi_csctime_vtxR_err","CSC Time at Vertex Error (inout)",theNBins,0.,25.0);
-   hi_csctime_ibt_pull = new TH1F("hi_csctime_ibt_pull","CSC Inverse Beta Pull",theNBins,-5.,5.0);
-   hi_csctime_fib_pull = new TH1F("hi_csctime_fib_pull","CSC Free Inverse Beta Pull",theNBins,-5.,5.0);
-   hi_csctime_vtx_pull = new TH1F("hi_csctime_vtx_pull","CSC Time at Vertex Pull (inout)",theNBins,-5.,5.0);
-   hi_csctime_vtxr_pull = new TH1F("hi_csctime_vtxR_pull","CSC Time at Vertex Pull (inout)",theNBins,-5.,5.0);
+  hi_csctime_ibt = new TH1F("hi_csctime_ibt", "CSC Inverse Beta", theNBins, 0., 1.6);
+  hi_csctime_ibt_pt =
+      new TH2F("hi_csctime_ibt_pt", "P{T} vs CSC Inverse Beta", theNBins, 0.0, theMaxPtres, theNBins, 0.7, 2.0);
+  hi_csctime_ibt_err = new TH1F("hi_csctime_ibt_err", "CSC Inverse Beta Error", theNBins, 0., 1.0);
+  hi_csctime_fib = new TH1F("hi_csctime_fib", "CSC Free Inverse Beta", theNBins, -5. * theScale, 7. * theScale);
+  hi_csctime_fib_err = new TH1F("hi_csctime_fib_err", "CSC Free Inverse Beta Error", theNBins, 0, 5.);
+  hi_csctime_vtx = new TH1F("hi_csctime_vtx", "CSC Time at Vertex (inout)", theNBins, -25. * theScale, 25. * theScale);
+  hi_csctime_vtx_err = new TH1F("hi_csctime_vtx_err", "CSC Time at Vertex Error (inout)", theNBins, 0., 25.0);
+  hi_csctime_vtxr = new TH1F("hi_csctime_vtxR", "CSC Time at Vertex (inout)", theNBins, 0., 75. * theScale);
+  hi_csctime_vtxr_err = new TH1F("hi_csctime_vtxR_err", "CSC Time at Vertex Error (inout)", theNBins, 0., 25.0);
+  hi_csctime_ibt_pull = new TH1F("hi_csctime_ibt_pull", "CSC Inverse Beta Pull", theNBins, -5., 5.0);
+  hi_csctime_fib_pull = new TH1F("hi_csctime_fib_pull", "CSC Free Inverse Beta Pull", theNBins, -5., 5.0);
+  hi_csctime_vtx_pull = new TH1F("hi_csctime_vtx_pull", "CSC Time at Vertex Pull (inout)", theNBins, -5., 5.0);
+  hi_csctime_vtxr_pull = new TH1F("hi_csctime_vtxR_pull", "CSC Time at Vertex Pull (inout)", theNBins, -5., 5.0);
 
-   hi_csctime_ndof = new TH1F("hi_csctime_ndof","Number of CSC timing measurements",48,0.,48.0);
+  hi_csctime_ndof = new TH1F("hi_csctime_ndof", "Number of CSC timing measurements", 48, 0., 48.0);
 
-   hi_ecal_time = new TH1F("hi_ecal_time","ECAL Time at Vertex (inout)",theNBins,-40.*theScale,40.*theScale);
-   hi_ecal_time_err = new TH1F("hi_ecal_time_err","ECAL Time at Vertex Error",theNBins,0.,20.0);
-   hi_ecal_time_pull = new TH1F("hi_ecal_time_pull","ECAL Time at Vertex Pull",theNBins,-7.0,7.0);
-   hi_ecal_time_ecut = new TH1F("hi_ecal_time_ecut","ECAL Time at Vertex (inout) after energy cut",theNBins,-20.*theScale,20.*theScale);
-   hi_ecal_energy = new TH1F("hi_ecal_energy","ECAL max energy in 5x5 crystals",theNBins,.0,5.0);
+  hi_ecal_time = new TH1F("hi_ecal_time", "ECAL Time at Vertex (inout)", theNBins, -40. * theScale, 40. * theScale);
+  hi_ecal_time_err = new TH1F("hi_ecal_time_err", "ECAL Time at Vertex Error", theNBins, 0., 20.0);
+  hi_ecal_time_pull = new TH1F("hi_ecal_time_pull", "ECAL Time at Vertex Pull", theNBins, -7.0, 7.0);
+  hi_ecal_time_ecut = new TH1F(
+      "hi_ecal_time_ecut", "ECAL Time at Vertex (inout) after energy cut", theNBins, -20. * theScale, 20. * theScale);
+  hi_ecal_energy = new TH1F("hi_ecal_energy", "ECAL max energy in 5x5 crystals", theNBins, .0, 5.0);
 
-   hi_hcal_time = new TH1F("hi_hcal_time","HCAL Time at Vertex (inout)",theNBins,-40.*theScale,40.*theScale);
-   hi_hcal_time_err = new TH1F("hi_hcal_time_err","HCAL Time at Vertex Error",theNBins,0.,20.0);
-   hi_hcal_time_pull = new TH1F("hi_hcal_time_pull","HCAL Time at Vertex Pull",theNBins,-7.0,7.0);
-   hi_hcal_time_ecut = new TH1F("hi_hcal_time_ecut","HCAL Time at Vertex (inout) after energy cut",theNBins,-20.*theScale,20.*theScale);
-   hi_hcal_energy = new TH1F("hi_hcal_energy","HCAL max energy in 5x5 crystals",theNBins,.0,5.0);
+  hi_hcal_time = new TH1F("hi_hcal_time", "HCAL Time at Vertex (inout)", theNBins, -40. * theScale, 40. * theScale);
+  hi_hcal_time_err = new TH1F("hi_hcal_time_err", "HCAL Time at Vertex Error", theNBins, 0., 20.0);
+  hi_hcal_time_pull = new TH1F("hi_hcal_time_pull", "HCAL Time at Vertex Pull", theNBins, -7.0, 7.0);
+  hi_hcal_time_ecut = new TH1F(
+      "hi_hcal_time_ecut", "HCAL Time at Vertex (inout) after energy cut", theNBins, -20. * theScale, 20. * theScale);
+  hi_hcal_energy = new TH1F("hi_hcal_energy", "HCAL max energy in 5x5 crystals", theNBins, .0, 5.0);
 
-   hi_sta_eta = new TH1F("hi_sta_eta","#eta^{STA}",theNBins/2,theMinEta,theMaxEta);
-   hi_tk_eta  = new TH1F("hi_tk_eta","#eta^{TK}",theNBins/2,theMinEta,theMaxEta);
-   hi_glb_eta = new TH1F("hi_glb_eta","#eta^{GLB}",theNBins/2,theMinEta,theMaxEta);
-
+  hi_sta_eta = new TH1F("hi_sta_eta", "#eta^{STA}", theNBins / 2, theMinEta, theMaxEta);
+  hi_tk_eta = new TH1F("hi_tk_eta", "#eta^{TK}", theNBins / 2, theMinEta, theMaxEta);
+  hi_glb_eta = new TH1F("hi_glb_eta", "#eta^{GLB}", theNBins / 2, theMinEta, theMaxEta);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-MuonTimingValidator::endJob() {
-
+void MuonTimingValidator::endJob() {
   hFile->cd();
 
   gROOT->SetStyle("effStyle");
@@ -554,11 +560,10 @@ MuonTimingValidator::endJob() {
   hFile->Write();
 }
 
-float 
-MuonTimingValidator::calculateDistance(const math::XYZVector& vect1, const math::XYZVector& vect2) {
+float MuonTimingValidator::calculateDistance(const math::XYZVector& vect1, const math::XYZVector& vect2) {
   float dEta = vect1.eta() - vect2.eta();
   float dPhi = fabs(Geom::Phi<float>(vect1.phi()) - Geom::Phi<float>(vect2.phi()));
-  float distance = sqrt(pow(dEta,2) + pow(dPhi,2) );
+  float distance = sqrt(pow(dEta, 2) + pow(dPhi, 2));
 
   return distance;
 }
@@ -567,17 +572,18 @@ MuonTimingValidator::calculateDistance(const math::XYZVector& vect1, const math:
 // return h1/h2 with recalculated errors
 //
 TH1F* MuonTimingValidator::divideErr(TH1F* h1, TH1F* h2, TH1F* hout) {
-
   hout->Reset();
-  hout->Divide(h1,h2,1.,1.,"B");
+  hout->Divide(h1, h2, 1., 1., "B");
 
-  for (int i = 0; i <= hout->GetNbinsX()+1; i++ ) {
-    Float_t tot   = h2->GetBinContent(i) ;
+  for (int i = 0; i <= hout->GetNbinsX() + 1; i++) {
+    Float_t tot = h2->GetBinContent(i);
     Float_t tot_e = h2->GetBinError(i);
-    Float_t eff = hout->GetBinContent(i) ;
+    Float_t eff = hout->GetBinContent(i);
     Float_t Err = 0.;
-    if (tot > 0) Err = tot_e / tot * sqrt( eff* (1-eff) );
-    if (eff == 1. || edm::isNotFinite(Err)) Err=1.e-3;
+    if (tot > 0)
+      Err = tot_e / tot * sqrt(eff * (1 - eff));
+    if (eff == 1. || edm::isNotFinite(Err))
+      Err = 1.e-3;
     hout->SetBinError(i, Err);
   }
   return hout;

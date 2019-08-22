@@ -36,10 +36,8 @@
 //----------------
 // Constructors --
 //----------------
-DTTracoCand::DTTracoCand(DTTracoChip *tc, const DTBtiTrigData *btitr, int pos,
-                         int step)
+DTTracoCand::DTTracoCand(DTTracoChip *tc, const DTBtiTrigData *btitr, int pos, int step)
     : _traco(tc), _btitr(btitr), _step(step), _position(pos), _usable(1) {
-
   if (pos < 1 || pos > 4 * DTConfigTraco::NBTITC) {
     std::cout << "DTTracoCand::DTTracoCand: wrong position: " << pos;
     std::cout << ", dummy coordinates set!" << std::endl;
@@ -55,10 +53,8 @@ DTTracoCand::DTTracoCand(DTTracoChip *tc, const DTBtiTrigData *btitr, int pos,
   // X in local TRACO frame (position conversion): Xtr = Xbti + BTIC*(i+4 or
   // o-4)
   int lstep = tc->BTIC();
-  _tcX = btitr->X() + lstep * ((pos <= DTConfigTraco::NBTITC) *
-                                   (pos - 1 + DTConfigTraco::NBTITC) + // inner
-                               (pos > DTConfigTraco::NBTITC) *
-                                   (pos - 1 - DTConfigTraco::NBTITC)); // outer
+  _tcX = btitr->X() + lstep * ((pos <= DTConfigTraco::NBTITC) * (pos - 1 + DTConfigTraco::NBTITC) +  // inner
+                               (pos > DTConfigTraco::NBTITC) * (pos - 1 - DTConfigTraco::NBTITC));   // outer
 
   // NEWGEO add phi sl offset to inner positions
   if (btitr->btiSL() == 1)
@@ -91,8 +87,12 @@ DTTracoCand::DTTracoCand(DTTracoChip *tc, const DTBtiTrigData *btitr, int pos,
 }
 
 DTTracoCand::DTTracoCand(const DTTracoCand &tccand)
-    : _traco(tccand._traco), _btitr(tccand._btitr), _step(tccand._step),
-      _position(tccand._position), _usable(tccand._usable), _tcX(tccand._tcX),
+    : _traco(tccand._traco),
+      _btitr(tccand._btitr),
+      _step(tccand._step),
+      _position(tccand._position),
+      _usable(tccand._usable),
+      _tcX(tccand._tcX),
       _tcK(tccand._tcK) {}
 
 //--------------

@@ -13,70 +13,63 @@
 #include <xercesc/dom/DOMDocument.hpp>
 
 class XMLDocument {
-    public:
-	XMLDocument(const std::string &fileName, bool write = false);
-	XMLDocument(const std::string &fileName, const std::string &command);
-	~XMLDocument();
+public:
+  XMLDocument(const std::string &fileName, bool write = false);
+  XMLDocument(const std::string &fileName, const std::string &command);
+  ~XMLDocument();
 
-	inline XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *
-	getDocument() const { return doc; }
+  inline XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *getDocument() const { return doc; }
 
-	inline XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *
-	getRootNode() const { return rootNode; }
+  inline XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *getRootNode() const { return rootNode; }
 
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *
-	createDocument(const std::string &root);
+  XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *createDocument(const std::string &root);
 
-	static bool hasAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                         const char *name);
-	template<typename T>
-	static T readAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                       const char *name);
-	template<typename T>
-	static T readAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                       const char *name, const T &defValue);
-	template<typename T>
-	static void writeAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                           const char *name, const T &value);
+  static bool hasAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem, const char *name);
+  template <typename T>
+  static T readAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem, const char *name);
+  template <typename T>
+  static T readAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem, const char *name, const T &defValue);
+  template <typename T>
+  static void writeAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem, const char *name, const T &value);
 
-	template<typename T>
-	static T readContent(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node);
-	template<typename T>
-	static void writeContent(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node,
-			XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc,
-			const T &value);
+  template <typename T>
+  static T readContent(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node);
+  template <typename T>
+  static void writeContent(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node,
+                           XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc,
+                           const T &value);
 
-    private:
-	class XercesPlatform {
-	    public:
-		XercesPlatform();
-		~XercesPlatform();
+private:
+  class XercesPlatform {
+  public:
+    XercesPlatform();
+    ~XercesPlatform();
 
-	    private:
-		// do not make any kind of copies
-		XercesPlatform(const XercesPlatform &orig) = delete;
-		XercesPlatform &operator = (const XercesPlatform &orig) = delete;
+  private:
+    // do not make any kind of copies
+    XercesPlatform(const XercesPlatform &orig) = delete;
+    XercesPlatform &operator=(const XercesPlatform &orig) = delete;
 
-		static unsigned int instances;
-	};
+    static unsigned int instances;
+  };
 
-	void openForRead(std::unique_ptr<std::istream> &inputStream);
-	void openForWrite(const std::string &fileName);
+  void openForRead(std::unique_ptr<std::istream> &inputStream);
+  void openForWrite(const std::string &fileName);
 
-	std::unique_ptr<XercesPlatform>					platform;
-	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER InputSource>	inputSource;
+  std::unique_ptr<XercesPlatform> platform;
+  std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER InputSource> inputSource;
 
-	std::string							fileName;
-	bool								write;
+  std::string fileName;
+  bool write;
 
-	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser>	parser;
-	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER HandlerBase>	errHandler;
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementation		*impl;
+  std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER XercesDOMParser> parser;
+  std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER HandlerBase> errHandler;
+  XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementation *impl;
 
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument			*doc;
-	XERCES_CPP_NAMESPACE_QUALIFIER DOMElement			*rootNode;
+  XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc;
+  XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *rootNode;
 };
 
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.icc"
 
-#endif // PhysicsTools_MVATrainer_XMLDocument_h
+#endif  // PhysicsTools_MVATrainer_XMLDocument_h

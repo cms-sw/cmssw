@@ -6,22 +6,23 @@
 
 namespace l1t {
   class MicroGMTRelativeIsolationCheckLUT : public MicroGMTLUT {
-    public: 
-      MicroGMTRelativeIsolationCheckLUT() {};
-      explicit MicroGMTRelativeIsolationCheckLUT(const std::string& fname);
-      explicit MicroGMTRelativeIsolationCheckLUT(l1t::LUT* lut);
-      ~MicroGMTRelativeIsolationCheckLUT() override {};
+  public:
+    MicroGMTRelativeIsolationCheckLUT(){};
+    explicit MicroGMTRelativeIsolationCheckLUT(const std::string& fname);
+    explicit MicroGMTRelativeIsolationCheckLUT(l1t::LUT* lut);
+    ~MicroGMTRelativeIsolationCheckLUT() override{};
 
-      // returns the index corresponding to the calo tower sum 
-      int lookup(int energySum, int pt) const;
-      
-      int hashInput(int energySum, int pt) const;
-      void unHashInput(int input, int& energySum, int& pt) const;
-    private:
-      int m_ptMask; 
-      int m_energySumMask;
-      int m_energySumInWidth;
-      int m_ptInWidth;
+    // returns the index corresponding to the calo tower sum
+    int lookup(int energySum, int pt) const;
+
+    int hashInput(int energySum, int pt) const;
+    void unHashInput(int input, int& energySum, int& pt) const;
+
+  private:
+    int m_ptMask;
+    int m_energySumMask;
+    int m_energySumInWidth;
+    int m_ptInWidth;
   };
-}
+}  // namespace l1t
 #endif /* defined(__l1microgmtrelativeisolationlut_h) */

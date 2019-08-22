@@ -9,17 +9,15 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
- 
 class SiStripDCSStatus {
- public:
-  SiStripDCSStatus(edm::ConsumesCollector && iC) : SiStripDCSStatus( iC ) {};
-  SiStripDCSStatus(edm::ConsumesCollector & iC);
- ~SiStripDCSStatus();
+public:
+  SiStripDCSStatus(edm::ConsumesCollector&& iC) : SiStripDCSStatus(iC){};
+  SiStripDCSStatus(edm::ConsumesCollector& iC);
+  ~SiStripDCSStatus();
 
   bool getStatus(edm::Event const& e, edm::EventSetup const& eSetup);
 
- private: 
-
+private:
   void initialise(edm::Event const& e, edm::EventSetup const& eSetup);
 
   bool TIBTIDinDAQ, TOBinDAQ, TECFinDAQ, TECBinDAQ;
@@ -28,9 +26,8 @@ class SiStripDCSStatus {
   bool rawdataAbsent;
   bool initialised;
 
-  edm::EDGetTokenT<DcsStatusCollection>  dcsStatusToken_;
+  edm::EDGetTokenT<DcsStatusCollection> dcsStatusToken_;
   edm::EDGetTokenT<FEDRawDataCollection> rawDataToken_;
-
 };
 
 #endif

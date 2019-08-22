@@ -30,35 +30,31 @@ class Propagator;
 /* Class HLTMuonPointingFilter Interface */
 
 class HLTMuonPointingFilter : public edm::EDFilter {
-
 public:
-
   /// Constructor
-  HLTMuonPointingFilter(const edm::ParameterSet&) ;
+  HLTMuonPointingFilter(const edm::ParameterSet &);
 
   /// Destructor
-  ~HLTMuonPointingFilter() override ;
+  ~HLTMuonPointingFilter() override;
 
   /* Operations */
   bool filter(edm::Event &, edm::EventSetup const &) override;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
   const edm::EDGetTokenT<reco::TrackCollection> theSTAMuonToken;
-  const std::string thePropagatorName;      // name of propagator to be used
-  const double theRadius;                   // radius of cylinder
-  const double theMaxZ;                     // half length of cylinder
-  const unsigned int thePixHits;            // number of pixel hits
-  const unsigned int theTkLayers;           // number of tracker layers with measurements
-  const unsigned int theMuonHits;           // number of valid muon hits
+  const std::string thePropagatorName;  // name of propagator to be used
+  const double theRadius;               // radius of cylinder
+  const double theMaxZ;                 // half length of cylinder
+  const unsigned int thePixHits;        // number of pixel hits
+  const unsigned int theTkLayers;       // number of tracker layers with measurements
+  const unsigned int theMuonHits;       // number of valid muon hits
 
   Cylinder::CylinderPointer theCyl;
   Plane::PlanePointer thePosPlane, theNegPlane;
 
-  mutable Propagator* thePropagator;
-  unsigned long long  m_cacheRecordId;
-
+  mutable Propagator *thePropagator;
+  unsigned long long m_cacheRecordId;
 };
-#endif // Muon_HLTMuonPointingFilter_h
-
+#endif  // Muon_HLTMuonPointingFilter_h

@@ -30,29 +30,24 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-class  EcalGetLaserData : public edm::EDAnalyzer {
- public:
- 
-  explicit  EcalGetLaserData(const edm::ParameterSet& iConfig );
+class EcalGetLaserData : public edm::EDAnalyzer {
+public:
+  explicit EcalGetLaserData(const edm::ParameterSet& iConfig);
   ~EcalGetLaserData() override;
-  
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
- private:
- 
+private:
   //std::string m_timetype;
   std::map<std::string, unsigned long long> m_cacheIDs;
   std::map<std::string, std::string> m_records;
   //unsigned long m_firstRun ;
   //unsigned long m_lastRun ;
 
-  void beginJob() override ;
-  void endJob() override ;
-
-
+  void beginJob() override;
+  void endJob() override;
 };
 
 #endif

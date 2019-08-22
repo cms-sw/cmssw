@@ -20,27 +20,27 @@ const int kMaxDaughters = 3;
 const int kNonsensePDG = 1000000000;
 
 class DecayChannel {
- private:
-  int    fMotherPDG;
+private:
+  int fMotherPDG;
   double fBranchingRatio;
-  int    fNDaughters;
-  int    fDaughtersPDG[kMaxDaughters];
-  
- public:
-  DecayChannel();                                                                           // default constructor
-  DecayChannel(const DecayChannel &copy);                                                   // copy constructor
-  DecayChannel(int mother, double branching, int nDaughters, int *daughters);       // explicit constructor
-  ~DecayChannel() {};                                                                       // destructor
-  
-  void     SetMotherPDG(int value)              {fMotherPDG = value;}
-  void     SetBranching(double value)           {fBranchingRatio = value;}
-  void     SetDaughters(int *values, int n);
-  void     AddDaughter(int pdg);
-  int    GetMotherPDG()                         {return fMotherPDG;}
-  double GetBranching()                         {return fBranchingRatio;}
-  int    GetNDaughters()                        {return fNDaughters;}
-  int*   GetDaughters()                         {return fDaughtersPDG;}
-  int    GetDaughterPDG(int i);                                                         // i --> must be the zero-based index of daughter
+  int fNDaughters;
+  int fDaughtersPDG[kMaxDaughters];
+
+public:
+  DecayChannel();                                                              // default constructor
+  DecayChannel(const DecayChannel &copy);                                      // copy constructor
+  DecayChannel(int mother, double branching, int nDaughters, int *daughters);  // explicit constructor
+  ~DecayChannel(){};                                                           // destructor
+
+  void SetMotherPDG(int value) { fMotherPDG = value; }
+  void SetBranching(double value) { fBranchingRatio = value; }
+  void SetDaughters(int *values, int n);
+  void AddDaughter(int pdg);
+  int GetMotherPDG() { return fMotherPDG; }
+  double GetBranching() { return fBranchingRatio; }
+  int GetNDaughters() { return fNDaughters; }
+  int *GetDaughters() { return fDaughtersPDG; }
+  int GetDaughterPDG(int i);  // i --> must be the zero-based index of daughter
 };
 
 #endif

@@ -20,7 +20,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -199,7 +198,8 @@ void SiStripMonitorQuality::endJob(void) {
 //
 // -- End Job
 //
-MonitorElement *SiStripMonitorQuality::getQualityME(uint32_t idet, const TrackerTopology *tTopo) {
+SiStripMonitorQuality::MonitorElement *SiStripMonitorQuality::getQualityME(uint32_t idet,
+                                                                           const TrackerTopology *tTopo) {
   std::map<uint32_t, MonitorElement *>::iterator pos = QualityMEs.find(idet);
   MonitorElement *det_me = nullptr;
   if (pos != QualityMEs.end()) {

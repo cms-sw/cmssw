@@ -208,7 +208,7 @@
 #include "CondFormats/HcalObjects/interface/HcalPedestalWidths.h"
 #include "CondFormats/HcalObjects/interface/HcalPedestals.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEData.h"
-#include "CondFormats/HcalObjects/interface/HcalQIETypes.h" 
+#include "CondFormats/HcalObjects/interface/HcalQIETypes.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/HcalObjects/interface/HcalSiPMParameters.h"

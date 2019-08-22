@@ -89,6 +89,7 @@ namespace edm {
         if (stopProcessingEvent_) {
           *stopProcessingEvent_ = true;
         }
+        break;
       }
       default: {
         if (isEvent)

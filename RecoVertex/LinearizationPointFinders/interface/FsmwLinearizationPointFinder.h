@@ -3,7 +3,7 @@
 
 #include "RecoVertex/LinearizationPointFinders/interface/CrossingPtBasedLinearizationPointFinder.h"
 
-  /** A linearization point finder. It works the following way:
+/** A linearization point finder. It works the following way:
    *  1. Calculate in an optimal way 'n_pairs' different crossing points.
    *     Optimal in this context means the following:
    *     a. Try to use as many different tracks as possible;
@@ -20,8 +20,7 @@
    *  2. Do a Fsmw on the n points.
    */
 
-class FsmwLinearizationPointFinder : public CrossingPtBasedLinearizationPointFinder
-{
+class FsmwLinearizationPointFinder : public CrossingPtBasedLinearizationPointFinder {
 public:
   /**
    *  \param n_pairs how many track pairs are considered
@@ -31,15 +30,17 @@ public:
    *  \param cut cut parameter of the weight function
    *  \param fraction Fraction that is considered
    */
-  FsmwLinearizationPointFinder( signed int n_pairs = 250,
-                                float weight_exp = -2., float fraction = .5,
-                                float cut=10, int no_weight_above = 10 );
+  FsmwLinearizationPointFinder(
+      signed int n_pairs = 250, float weight_exp = -2., float fraction = .5, float cut = 10, int no_weight_above = 10);
 
-  FsmwLinearizationPointFinder( const RecTracksDistanceMatrix * m,
-      signed int n_pairs = 250, float weight_exp = -2., float fraction = .5,
-      float cut=10, int no_weight_above = 10 );
+  FsmwLinearizationPointFinder(const RecTracksDistanceMatrix* m,
+                               signed int n_pairs = 250,
+                               float weight_exp = -2.,
+                               float fraction = .5,
+                               float cut = 10,
+                               int no_weight_above = 10);
 
-  FsmwLinearizationPointFinder * clone() const override;
+  FsmwLinearizationPointFinder* clone() const override;
 };
 
 #endif

@@ -22,11 +22,8 @@ class DetId;
 
 class TrackerTopology;
 
-
 class CheckHitPattern {
-
 public:
-
   struct Result {
     // Number of hits track has in front of the vertex.
     unsigned int hitsInFrontOfVert;
@@ -41,12 +38,10 @@ public:
   // Print hit pattern on track
   static void print(const reco::Track& track);
 
-
   // Create map indicating r/z values of all layers/disks.
-  void init (const edm::EventSetup& iSetup);
+  void init(const edm::EventSetup& iSetup);
 
-
-  // Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
+  // Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to
   // identify subdetector and layer number respectively.
   typedef std::pair<uint32_t, uint32_t> DetInfo;
   static DetInfo interpretDetId(DetId detId, const TrackerTopology* tTopo);
@@ -58,14 +53,14 @@ public:
 
 private:
   // Note if geometry info is already initialized.
-  bool geomInitDone_=false;
+  bool geomInitDone_ = false;
 
   // For a given subdetector & layer number, this stores the minimum and maximum
   // r (or z) values if it is barrel (or endcap) respectively.
-  typedef std::map< DetInfo, std::pair< double, double> > RZrangeMap;
+  typedef std::map<DetInfo, std::pair<double, double> > RZrangeMap;
   RZrangeMap rangeRorZ_;
 
- // Makes TransientTracks needed for vertex fitting.
+  // Makes TransientTracks needed for vertex fitting.
   edm::ESHandle<TransientTrackBuilder> trkTool_;
 };
 

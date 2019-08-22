@@ -22,49 +22,50 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
 class MuonServiceProxy;
 class Trajectory;
 class TrajectoryCleaner;
 
 class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
+public:
+  /// Constructor with Parameter Set and MuonServiceProxy
+  L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
 
-  public:
+  /// Destructor
+  ~L3MuonTrajectoryBuilder() override;
 
-    /// Constructor with Parameter Set and MuonServiceProxy
-	L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
+  /// Reconstruct trajectories from standalone and tracker only Tracks
+  using GlobalTrajectoryBuilderBase::trajectories;
+  MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&) override;
 
-    /// Destructor
-    ~L3MuonTrajectoryBuilder() override;
+  /// Pass the Event to the algo at each event
+  void setEvent(const edm::Event&) override;
 
-    /// Reconstruct trajectories from standalone and tracker only Tracks
-    using GlobalTrajectoryBuilderBase::trajectories;
-    MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&) override;
+  /// Add default values for fillDescriptions
+  static void fillDescriptions(edm::ParameterSetDescription& descriptions);
 
-    /// Pass the Event to the algo at each event
-    void setEvent(const edm::Event&) override;
+private:
+  /// Make a TrackCand collection using tracker Track, Trajectory information
+  std::vector<TrackCand> makeTkCandCollection(const TrackCand&) override;
 
-    /// Add default values for fillDescriptions
-    static void fillDescriptions(edm::ParameterSetDescription& descriptions);
-
-  private:
-
-    /// Make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&) override;
-
-    TrajectoryCleaner* theTrajectoryCleaner;
-    edm::InputTag theTkCollName;
-    edm::Handle<reco::TrackCollection> allTrackerTracks;
-    reco::BeamSpot beamSpot;
-    edm::Handle<reco::BeamSpot> beamSpotHandle;
-    edm::InputTag theBeamSpotInputTag;
-    reco::Vertex vtx;
-    edm::Handle<reco::VertexCollection> pvHandle;
-    edm::InputTag theVertexCollInputTag;
-    bool theUseVertex;
-    double theMaxChi2;
-    double theDXYBeamSpot;
-    edm::EDGetTokenT<reco::TrackCollection> theTrackToken;
+  TrajectoryCleaner* theTrajectoryCleaner;
+  edm::InputTag theTkCollName;
+  edm::Handle<reco::TrackCollection> allTrackerTracks;
+  reco::BeamSpot beamSpot;
+  edm::Handle<reco::BeamSpot> beamSpotHandle;
+  edm::InputTag theBeamSpotInputTag;
+  reco::Vertex vtx;
+  edm::Handle<reco::VertexCollection> pvHandle;
+  edm::InputTag theVertexCollInputTag;
+  bool theUseVertex;
+  double theMaxChi2;
+  double theDXYBeamSpot;
+  edm::EDGetTokenT<reco::TrackCollection> theTrackToken;
 };
 #endif

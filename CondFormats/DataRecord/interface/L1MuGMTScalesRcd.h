@@ -9,7 +9,9 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyRcd.h"
 
 //class L1MuGMTScalesRcd : public edm::eventsetup::EventSetupRecordImplementation<L1MuGMTScalesRcd> {};
-class L1MuGMTScalesRcd : public edm::eventsetup::DependentRecordImplementation<L1MuGMTScalesRcd, boost::mpl::vector<L1TriggerKeyListRcd,L1TriggerKeyRcd> > {};
-
+class L1MuGMTScalesRcd
+    : public edm::eventsetup::DependentRecordImplementation<L1MuGMTScalesRcd,
+                                                            boost::mpl::vector<L1TriggerKeyListRcd, L1TriggerKeyRcd> > {
+};
 
 #endif

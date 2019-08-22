@@ -25,29 +25,25 @@
 // forward declarations
 class FWConfiguration;
 
-class FWConfigurable
-{
-
+class FWConfigurable {
 public:
-   FWConfigurable();
-   virtual ~FWConfigurable();
+  FWConfigurable();
+  virtual ~FWConfigurable();
 
-   // ---------- const member functions ---------------------
-   virtual void addTo(FWConfiguration&) const = 0;
+  // ---------- const member functions ---------------------
+  virtual void addTo(FWConfiguration&) const = 0;
 
-   // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
-   virtual void setFrom(const FWConfiguration&) = 0;
+  // ---------- member functions ---------------------------
+  virtual void setFrom(const FWConfiguration&) = 0;
 
 private:
-   FWConfigurable(const FWConfigurable&) = delete;    // stop default
+  FWConfigurable(const FWConfigurable&) = delete;  // stop default
 
-   const FWConfigurable& operator=(const FWConfigurable&) = delete;    // stop default
+  const FWConfigurable& operator=(const FWConfigurable&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-
+  // ---------- member data --------------------------------
 };
-
 
 #endif

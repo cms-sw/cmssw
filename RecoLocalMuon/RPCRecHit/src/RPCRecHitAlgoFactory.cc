@@ -8,5 +8,4 @@
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-EDM_REGISTER_PLUGINFACTORY(RPCRecHitAlgoFactory,"RPCRecHitAlgoFactory");
-
+EDM_REGISTER_PLUGINFACTORY(RPCRecHitAlgoFactory, "RPCRecHitAlgoFactory");

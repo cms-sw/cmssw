@@ -22,25 +22,25 @@ class DTT0;
 
 namespace dtCalibration {
 
-class DTT0ChamberReferenceCorrection: public DTT0BaseCorrection {
-public:
-  // Constructor
-  DTT0ChamberReferenceCorrection(const edm::ParameterSet&);
+  class DTT0ChamberReferenceCorrection : public DTT0BaseCorrection {
+  public:
+    // Constructor
+    DTT0ChamberReferenceCorrection(const edm::ParameterSet&);
 
-  // Destructor
-  ~DTT0ChamberReferenceCorrection() override;
+    // Destructor
+    ~DTT0ChamberReferenceCorrection() override;
 
-  void setES(const edm::EventSetup& setup) override;
-  DTT0Data correction(const DTWireId&) override;
+    void setES(const edm::EventSetup& setup) override;
+    DTT0Data correction(const DTWireId&) override;
 
-private:
-  DTT0Data defaultT0(const DTWireId&);
+  private:
+    DTT0Data defaultT0(const DTWireId&);
 
-  std::string calibChamber_;
+    std::string calibChamber_;
 
-  DTChamberId chosenChamberId_;
-  const DTT0 *t0Map_;
-};
+    DTChamberId chosenChamberId_;
+    const DTT0* t0Map_;
+  };
 
-} // namespace
+}  // namespace dtCalibration
 #endif

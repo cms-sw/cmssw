@@ -18,6 +18,6 @@ namespace edm {
     ProcessHistoryID processHistoryID_;
     RunNumber_t id_;
   };
-  void conversion(RunAux const& from, RunAuxiliary & to);
-}
+  void conversion(RunAux const& from, RunAuxiliary& to);
+}  // namespace edm
 #endif

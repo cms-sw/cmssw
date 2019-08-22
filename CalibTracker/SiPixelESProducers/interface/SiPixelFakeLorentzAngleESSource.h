@@ -4,7 +4,7 @@
 //
 // Package:    SiPixelFakeLorentzAngleESSource
 // Class:      SiPixelFakeLorentzAngleESSource
-// 
+//
 /**\class SiPixelFakeLorentzAngleESSource SiPixelFakeLorentzAngleESSource.h CalibTracker/SiPixelGainESProducer/src/SiPixelFakeLorentzAngleESSource.cc
 
  Description: <one line class summary>
@@ -17,7 +17,6 @@
 //         Created:  Jan. 31st, 2008
 //
 //
-
 
 // system include files
 #include <memory>
@@ -33,26 +32,21 @@
 // class decleration
 //
 
-class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder  {
-
- public:
+class SiPixelFakeLorentzAngleESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
   SiPixelFakeLorentzAngleESSource(const edm::ParameterSet &);
   ~SiPixelFakeLorentzAngleESSource() override;
-  
-  //      typedef edm::ESProducts<> ReturnType;
-  
-  virtual std::unique_ptr<SiPixelLorentzAngle>  produce(const SiPixelLorentzAngleRcd &);
-  
- protected:
-  
-  void setIntervalFor( const edm::eventsetup::EventSetupRecordKey&,
-			       const edm::IOVSyncValue&,
-			       edm::ValidityInterval& ) override;
-  
-  
- private:
-  
-  edm::FileInPath fp_;
 
+  //      typedef edm::ESProducts<> ReturnType;
+
+  virtual std::unique_ptr<SiPixelLorentzAngle> produce(const SiPixelLorentzAngleRcd &);
+
+protected:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                      const edm::IOVSyncValue &,
+                      edm::ValidityInterval &) override;
+
+private:
+  edm::FileInPath fp_;
 };
 #endif

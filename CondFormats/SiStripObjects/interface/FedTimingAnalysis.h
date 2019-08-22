@@ -14,39 +14,36 @@
 */
 
 class FedTimingAnalysis : public CommissioningAnalysis {
-  
- public:
-  
-  FedTimingAnalysis( const uint32_t& key );
+public:
+  FedTimingAnalysis(const uint32_t& key);
 
   FedTimingAnalysis();
 
-  ~FedTimingAnalysis() override {;}
+  ~FedTimingAnalysis() override { ; }
 
   friend class FedTimingAlgorithm;
-  
-  inline const float& time() const; 
 
-  inline const float& max() const; 
+  inline const float& time() const;
 
-  inline const float& delay() const; 
+  inline const float& max() const;
 
-  inline const float& error() const; 
+  inline const float& delay() const;
 
-  inline const float& base() const; 
+  inline const float& error() const;
 
-  inline const float& peak() const; 
+  inline const float& base() const;
+
+  inline const float& peak() const;
 
   inline const float& height() const;
-  
-  void max( const float& ); 
-  
-  void print( std::stringstream&, uint32_t not_used = 0 ) override;
-  
+
+  void max(const float&);
+
+  void print(std::stringstream&, uint32_t not_used = 0) override;
+
   void reset() override;
-  
- private:
-  
+
+private:
   /** Time of tick mark rising edge [ns] */
   float time_;
 
@@ -67,10 +64,9 @@ class FedTimingAnalysis : public CommissioningAnalysis {
 
   /** Tick mark height [adc] */
   float height_;
-  
+
   /** */
   float optimumSamplingPoint_;
-  
 };
 
 const float& FedTimingAnalysis::time() const { return time_; }
@@ -81,7 +77,4 @@ const float& FedTimingAnalysis::base() const { return base_; }
 const float& FedTimingAnalysis::peak() const { return peak_; }
 const float& FedTimingAnalysis::height() const { return height_; }
 
-#endif // CondFormats_SiStripObjects_FedTimingAnalysis_H
-
-
-
+#endif  // CondFormats_SiStripObjects_FedTimingAnalysis_H

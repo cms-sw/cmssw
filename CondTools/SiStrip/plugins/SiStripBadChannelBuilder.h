@@ -1,4 +1,4 @@
- #ifndef SiStripBadChannelBuilder_H
+#ifndef SiStripBadChannelBuilder_H
 #define SiStripBadChannelBuilder_H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -18,21 +18,17 @@
 #include <ext/hash_map>
 
 class SiStripBadChannelBuilder : public ConditionDBWriter<SiStripBadStrip> {
-
 public:
-
   explicit SiStripBadChannelBuilder(const edm::ParameterSet&);
   ~SiStripBadChannelBuilder() override;
 
 private:
-
   std::unique_ptr<SiStripBadStrip> getNewObject() override;
 
   edm::FileInPath fp_;
   bool printdebug_;
 
-  typedef std::vector< edm::ParameterSet > Parameters;
+  typedef std::vector<edm::ParameterSet> Parameters;
   Parameters BadComponentList_;
-  
 };
 #endif

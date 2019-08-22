@@ -16,10 +16,9 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 namespace fftjetcms {
-    math::XYZTLorentzVector adjustForPileup(
-        const math::XYZTLorentzVector& jet,
-        const math::XYZTLorentzVector& pileup,
-        bool subtractPileupAs4Vec);
+  math::XYZTLorentzVector adjustForPileup(const math::XYZTLorentzVector& jet,
+                                          const math::XYZTLorentzVector& pileup,
+                                          bool subtractPileupAs4Vec);
 }
 
-#endif // RecoJets_FFTJetAlgorithms_adjustForPileup_h
+#endif  // RecoJets_FFTJetAlgorithms_adjustForPileup_h

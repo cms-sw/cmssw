@@ -7,8 +7,7 @@
 #include <unordered_map>
 
 class SpikeAndDoubleSpikeCleaner : public RecHitTopologicalCleanerBase {
- public:
-  
+public:
   struct spike_cleaning {
     double _singleSpikeThresh;
     double _minS4S1_a;
@@ -23,16 +22,13 @@ class SpikeAndDoubleSpikeCleaner : public RecHitTopologicalCleanerBase {
   SpikeAndDoubleSpikeCleaner(const SpikeAndDoubleSpikeCleaner&) = delete;
   SpikeAndDoubleSpikeCleaner& operator=(const SpikeAndDoubleSpikeCleaner&) = delete;
 
-  void clean( const edm::Handle<reco::PFRecHitCollection>& input,
-	      std::vector<bool>& mask ) override;
+  void clean(const edm::Handle<reco::PFRecHitCollection>& input, std::vector<bool>& mask) override;
 
- private:
-  const std::unordered_map<std::string,int> _layerMap;
-  std::unordered_map<int,spike_cleaning> _thresholds;
-  
+private:
+  const std::unordered_map<std::string, int> _layerMap;
+  std::unordered_map<int, spike_cleaning> _thresholds;
 };
 
-DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory,
-		  SpikeAndDoubleSpikeCleaner,"SpikeAndDoubleSpikeCleaner");
+DEFINE_EDM_PLUGIN(RecHitTopologicalCleanerFactory, SpikeAndDoubleSpikeCleaner, "SpikeAndDoubleSpikeCleaner");
 
 #endif

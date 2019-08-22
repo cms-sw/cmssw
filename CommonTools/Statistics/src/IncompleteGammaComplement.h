@@ -7,13 +7,10 @@
  *  source: Numerical Recipes
  */
 class IncompleteGammaComplement {
-
 public:
+  static float value(float a, float x);
 
-  static float value( float a, float x );
-
-  static float ln( float a, float x );
-
+  static float ln(float a, float x);
 };
 
 #endif

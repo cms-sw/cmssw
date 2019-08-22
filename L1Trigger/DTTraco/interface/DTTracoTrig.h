@@ -38,7 +38,6 @@ class DTTracoChip;
 //              ---------------------
 
 class DTTracoTrig : public DTTrigData {
-
 public:
   /// Constructors
   DTTracoTrig();
@@ -56,14 +55,10 @@ public:
   inline void setParent(DTTracoChip *parent) { _tparent = parent; }
 
   /// Add a BTI trigger to the list
-  inline void addDTBtiTrig(const DTBtiTrigData *btitrig) {
-    _btitrig.push_back(btitrig);
-  }
+  inline void addDTBtiTrig(const DTBtiTrigData *btitrig) { _btitrig.push_back(btitrig); }
 
   /// Set trigger preview parameters
-  inline void setPV(int first, int code, int K, int io) {
-    _data.setPV(first, code, K, io);
-  }
+  inline void setPV(int first, int code, int K, int io) { _data.setPV(first, code, K, io); }
 
   /// Set trigger preview correlation bit
   inline void setPVCorr(int ic) { _data.setPVCorr(ic); }
@@ -93,9 +88,7 @@ public:
   inline void setX(int x) { _data.setX(x); }
 
   /// Set trigger angles
-  inline void setAngles(int psi, int psir, int dpsir) {
-    _data.setAngles(psi, psir, dpsir);
-  }
+  inline void setAngles(int psi, int psir, int dpsir) { _data.setAngles(psi, psir, dpsir); }
 
   /// Reset all variables but preview
   inline void resetVar() { _data.resetVar(); }

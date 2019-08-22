@@ -14,17 +14,15 @@
 #pragma GCC visibility push(hidden)
 class LayerCrossingSide {
 public:
-
   /// returns 0 if barrel layer crossed from inside, 1 if from outside
   static int barrelSide(const TrajectoryStateOnSurface& startingState, const Propagator& prop) {
     auto pos = startingState.globalPosition();
     auto dir = startingState.globalMomentum();
-    bool outwards = (pos.x()*dir.x() + pos.y()*dir.y()) > 0;
+    bool outwards = (pos.x() * dir.x() + pos.y() * dir.y()) > 0;
 
-    auto inout = outwards ? alongMomentum :  oppositeToMomentum;
+    auto inout = outwards ? alongMomentum : oppositeToMomentum;
 
     return (prop.propagationDirection() == inout ? 0 : 1);
-    
   }
 
   /** returns 0 if endcap layer crossed from inside, ie from the side of the 
@@ -32,14 +30,12 @@ public:
    */
   static int endcapSide(const TrajectoryStateOnSurface& startingState, const Propagator& prop) {
     auto zpos = startingState.globalPosition().z();
-    bool outwards = (startingState.globalMomentum().z() * zpos) > 0; 
+    bool outwards = (startingState.globalMomentum().z() * zpos) > 0;
 
-    auto inout = outwards ? alongMomentum :  oppositeToMomentum;
+    auto inout = outwards ? alongMomentum : oppositeToMomentum;
 
     return (prop.propagationDirection() == inout ? 0 : 1);
-
   }
-
 };
 
 #pragma GCC visibility pop

@@ -26,7 +26,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 // C++ Headers
 #include <map>
 
@@ -34,134 +33,132 @@ using namespace std;
 using namespace edm;
 
 // Constructor
-MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeometry(nullptr),theMGField(nullptr),theDetLayerGeometry(nullptr),theEventSetup(nullptr),theSchool(nullptr){
-  
+MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par)
+    : theTrackingGeometry(nullptr),
+      theMGField(nullptr),
+      theDetLayerGeometry(nullptr),
+      theEventSetup(nullptr),
+      theSchool(nullptr) {
   // load the propagators map
   vector<string> noPropagators;
   vector<string> propagatorNames;
 
-  theMuonNavigationFlag = par.getUntrackedParameter<bool>("UseMuonNavigation",true);
+  theMuonNavigationFlag = par.getUntrackedParameter<bool>("UseMuonNavigation", true);
 
-  if(theMuonNavigationFlag) {
+  if (theMuonNavigationFlag) {
     theRPCLayer = par.getParameter<bool>("RPCLayers");
 
-    if( par.existsAs<bool>("CSCLayers"))
-      theCSCLayer = par.getParameter< bool >("CSCLayers");
-    else theCSCLayer = true ;
+    if (par.existsAs<bool>("CSCLayers"))
+      theCSCLayer = par.getParameter<bool>("CSCLayers");
+    else
+      theCSCLayer = true;
 
-    if( par.existsAs<bool>("GEMLayers"))
-      theGEMLayer = par.getParameter< bool >("GEMLayers");
-    else theGEMLayer = false ;  
+    if (par.existsAs<bool>("GEMLayers"))
+      theGEMLayer = par.getParameter<bool>("GEMLayers");
+    else
+      theGEMLayer = false;
 
-    if( par.existsAs<bool>("ME0Layers"))
-      theME0Layer = par.getParameter< bool >("ME0Layers");
-    else theME0Layer = false ;  
+    if (par.existsAs<bool>("ME0Layers"))
+      theME0Layer = par.getParameter<bool>("ME0Layers");
+    else
+      theME0Layer = false;
 
-  }
-  else {
-  	theRPCLayer = true;
-  	theCSCLayer = true;
-  	theGEMLayer = true;
-  	theME0Layer = true;
+  } else {
+    theRPCLayer = true;
+    theCSCLayer = true;
+    theGEMLayer = true;
+    theME0Layer = true;
   }
 
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
-  
-  if(propagatorNames.empty())
+
+  if (propagatorNames.empty())
     LogDebug("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
-  
-  for(vector<string>::iterator propagatorName = propagatorNames.begin();
-      propagatorName != propagatorNames.end(); ++propagatorName)
-    thePropagators[ *propagatorName ] = ESHandle<Propagator>(nullptr);
+
+  for (vector<string>::iterator propagatorName = propagatorNames.begin(); propagatorName != propagatorNames.end();
+       ++propagatorName)
+    thePropagators[*propagatorName] = ESHandle<Propagator>(nullptr);
 
   theCacheId_GTG = 0;
-  theCacheId_MG = 0;  
+  theCacheId_MG = 0;
   theCacheId_DG = 0;
   theCacheId_P = 0;
   theChangeInTrackingComponentsRecord = false;
-
 }
 
-
 // Destructor
-MuonServiceProxy::~MuonServiceProxy(){
-  
+MuonServiceProxy::~MuonServiceProxy() {
   // FIXME: how do that?
   // delete theTrackingGeometry;
   // delete theMGField;
   // delete theDetLayerGeometry;
-  
+
   // FIXME: is it enough?
   thePropagators.clear();
-  if(theSchool) delete theSchool;
+  if (theSchool)
+    delete theSchool;
 }
 
 // Operations
 
 // update the services each event
-void MuonServiceProxy::update(const edm::EventSetup& setup){
+void MuonServiceProxy::update(const edm::EventSetup& setup) {
   const std::string metname = "Muon|RecoMuon|MuonServiceProxy";
-  
+
   theEventSetup = &setup;
 
   // Global Tracking Geometry
   unsigned long long newCacheId_GTG = setup.get<GlobalTrackingGeometryRecord>().cacheIdentifier();
-  if ( newCacheId_GTG != theCacheId_GTG ) {
+  if (newCacheId_GTG != theCacheId_GTG) {
     LogTrace(metname) << "GlobalTrackingGeometry changed!";
     theCacheId_GTG = newCacheId_GTG;
-    setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry); 
+    setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
   }
-  
+
   // Magfield Field
   unsigned long long newCacheId_MG = setup.get<IdealMagneticFieldRecord>().cacheIdentifier();
-  if ( newCacheId_MG != theCacheId_MG ) {
+  if (newCacheId_MG != theCacheId_MG) {
     LogTrace(metname) << "Magnetic Field changed!";
     theCacheId_MG = newCacheId_MG;
     setup.get<IdealMagneticFieldRecord>().get(theMGField);
   }
-  
+
   // DetLayer Geometry
   unsigned long long newCacheId_DG = setup.get<MuonRecoGeometryRecord>().cacheIdentifier();
-  if ( newCacheId_DG != theCacheId_DG ) {
+  if (newCacheId_DG != theCacheId_DG) {
     LogTrace(metname) << "Muon Reco Geometry changed!";
     theCacheId_DG = newCacheId_DG;
     setup.get<MuonRecoGeometryRecord>().get(theDetLayerGeometry);
     // MuonNavigationSchool should live until its validity expires, and then DELETE
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
-    if ( theMuonNavigationFlag ) {
-      if(theSchool) delete theSchool;
-      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer,theCSCLayer,theGEMLayer,theME0Layer);
+    if (theMuonNavigationFlag) {
+      if (theSchool)
+        delete theSchool;
+      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry, theRPCLayer, theCSCLayer, theGEMLayer, theME0Layer);
     }
   }
-  
+
   // Propagators
   unsigned long long newCacheId_P = setup.get<TrackingComponentsRecord>().cacheIdentifier();
-  if ( newCacheId_P != theCacheId_P ) {
+  if (newCacheId_P != theCacheId_P) {
     LogTrace(metname) << "Tracking Component changed!";
     theChangeInTrackingComponentsRecord = true;
     theCacheId_P = newCacheId_P;
-    for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
-	++prop)
-      setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
-  }
-  else
+    for (propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end(); ++prop)
+      setup.get<TrackingComponentsRecord>().get(prop->first, prop->second);
+  } else
     theChangeInTrackingComponentsRecord = false;
-
 }
 
 // get the propagator
-ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const{
-  
+ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const {
   propagators::const_iterator prop = thePropagators.find(propagatorName);
-  
-  if (prop == thePropagators.end()){
-    LogError("Muon|RecoMuon|MuonServiceProxy") 
-      << "MuonServiceProxy: propagator with name: "<< propagatorName <<" not found! Please load it in the MuonServiceProxy.cff"; 
+
+  if (prop == thePropagators.end()) {
+    LogError("Muon|RecoMuon|MuonServiceProxy") << "MuonServiceProxy: propagator with name: " << propagatorName
+                                               << " not found! Please load it in the MuonServiceProxy.cff";
     return ESHandle<Propagator>(nullptr);
   }
-  
+
   return prop->second;
 }
-
-
- 

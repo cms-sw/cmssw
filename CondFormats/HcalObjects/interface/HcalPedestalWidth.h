@@ -14,23 +14,23 @@ $Revision: 1.9 $
 #include <boost/cstdint.hpp>
 
 class HcalPedestalWidth {
- public:
+public:
   /// get value for all capId = 0..3, 10 values in total
-  const float* getValues () const {return &mSigma00;}
+  const float* getValues() const { return &mSigma00; }
 
   /// get width (sqrt(sigma_i_i)) for capId = 0..3
-  float getWidth (int fCapId) const;
+  float getWidth(int fCapId) const;
 
   /// get correlation element for capId1/2 = 0..3
-  float getSigma (int fCapId1, int fCapId2) const;
+  float getSigma(int fCapId1, int fCapId2) const;
 
   // functions below are not supposed to be used by consumer applications
-  HcalPedestalWidth (int fId = 0);
-  void setSigma (int fCapId1, int fCapId2, float fSigma);
+  HcalPedestalWidth(int fId = 0);
+  void setSigma(int fCapId1, int fCapId2, float fSigma);
 
-  uint32_t rawId () const {return mId;}
+  uint32_t rawId() const { return mId; }
 
- private:
+private:
   uint32_t mId;
   float mSigma00;
   float mSigma01;
@@ -49,7 +49,7 @@ class HcalPedestalWidth {
   float mSigma32;
   float mSigma33;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

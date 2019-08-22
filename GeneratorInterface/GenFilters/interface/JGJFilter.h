@@ -28,22 +28,20 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
+class JGJFilter : public edm::EDFilter {
+public:
+  explicit JGJFilter(const edm::ParameterSet&);
+  ~JGJFilter() override;
 
-class JGJFilter : public edm::EDFilter 
-{
-   public:
-      explicit JGJFilter(const edm::ParameterSet&);
-      ~JGJFilter() override;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
-    unsigned int nEvents;
-    unsigned int nAccepted;
+  unsigned int nEvents;
+  unsigned int nAccepted;
 };
 
 #endif

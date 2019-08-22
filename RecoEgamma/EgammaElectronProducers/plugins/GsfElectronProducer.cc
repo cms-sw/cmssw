@@ -18,18 +18,14 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
-
 #include <iostream>
 
 using namespace reco;
 
-GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet & cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc )
-  : GsfElectronBaseProducer(cfg,hoc), pfTranslatorParametersChecked_(false)
- {}
+GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc)
+    : GsfElectronBaseProducer(cfg, hoc), pfTranslatorParametersChecked_(false) {}
 
-
-reco::GsfElectronCollection GsfElectronProducer::clonePreviousElectrons(edm::Event const& event) const
-{
+reco::GsfElectronCollection GsfElectronProducer::clonePreviousElectrons(edm::Event const& event) const {
   reco::GsfElectronCollection electrons;
 
   auto coreElectrons = event.getHandle(inputCfg_.gsfElectronCores);
@@ -50,71 +46,61 @@ reco::GsfElectronCollection GsfElectronProducer::clonePreviousElectrons(edm::Eve
   return electrons;
 }
 
-
-void GsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & setup )
- {
-  auto electrons = clonePreviousElectrons(event) ;
+void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
+  auto electrons = clonePreviousElectrons(event);
   // don't add pflow only electrons if one so wish
-  if (strategyCfg_.addPflowElectrons)
-    { algo_->completeElectrons(electrons, event, setup, globalCache()) ; }
-  addPflowInfo(electrons, event) ;
-  fillEvent(electrons, event) ;
- }
+  if (strategyCfg_.addPflowElectrons) {
+    algo_->completeElectrons(electrons, event, setup, globalCache());
+  }
+  addPflowInfo(electrons, event);
+  fillEvent(electrons, event);
+}
 
-void GsfElectronProducer::beginEvent( edm::Event & event, const edm::EventSetup & setup )
- {
+void GsfElectronProducer::beginEvent(edm::Event& event, const edm::EventSetup& setup) {
   // extra configuration checks
-  if (!pfTranslatorParametersChecked_)
-   {
-    pfTranslatorParametersChecked_ = true ;
-    edm::Handle<edm::ValueMap<float> > pfMva ;
-    event.getByToken(pfMVA_,pfMva) ;
-    checkPfTranslatorParameters(edm::parameterSet(*pfMva.provenance())) ;
-   }
+  if (!pfTranslatorParametersChecked_) {
+    pfTranslatorParametersChecked_ = true;
+    edm::Handle<edm::ValueMap<float> > pfMva;
+    event.getByToken(pfMVA_, pfMva);
+    checkPfTranslatorParameters(edm::parameterSet(*pfMva.provenance()));
+  }
 
   // call to base class
-  return GsfElectronBaseProducer::beginEvent(event,setup) ;
- }
+  return GsfElectronBaseProducer::beginEvent(event, setup);
+}
 
-void GsfElectronProducer::checkPfTranslatorParameters( edm::ParameterSet const & pset )
- {
-  edm::ParameterSet mvaBlock = pset.getParameter<edm::ParameterSet>("MVACutBlock") ;
-  double pfTranslatorMinMva = mvaBlock.getParameter<double>("MVACut") ;
-  double pfTranslatorUndefined = -99. ;
-  if (strategyCfg_.applyPreselection&&(cutsCfgPflow_.minMVA<pfTranslatorMinMva))
-   {
+void GsfElectronProducer::checkPfTranslatorParameters(edm::ParameterSet const& pset) {
+  edm::ParameterSet mvaBlock = pset.getParameter<edm::ParameterSet>("MVACutBlock");
+  double pfTranslatorMinMva = mvaBlock.getParameter<double>("MVACut");
+  double pfTranslatorUndefined = -99.;
+  if (strategyCfg_.applyPreselection && (cutsCfgPflow_.minMVA < pfTranslatorMinMva)) {
     // For pure tracker seeded electrons, if MVA is under translatorMinMva, there is no supercluster
     // of any kind available, so GsfElectronCoreProducer has already discarded the electron.
     edm::LogWarning("GsfElectronAlgo|MvaCutTooLow")
-      <<"Parameter minMVAPflow ("<<cutsCfgPflow_.minMVA<<") will have no effect on purely tracker seeded electrons."
-      <<" It is inferior to the cut already applied by PFlow translator ("<<pfTranslatorMinMva<<")." ;
-   }
-  if (strategyCfg_.applyPreselection&&(cutsCfg_.minMVA<pfTranslatorMinMva))
-   {
+        << "Parameter minMVAPflow (" << cutsCfgPflow_.minMVA
+        << ") will have no effect on purely tracker seeded electrons."
+        << " It is inferior to the cut already applied by PFlow translator (" << pfTranslatorMinMva << ").";
+  }
+  if (strategyCfg_.applyPreselection && (cutsCfg_.minMVA < pfTranslatorMinMva)) {
     // For ecal seeded electrons, there is a cluster and GsfElectronCoreProducer has kept all electrons,
     // but when MVA is under translatorMinMva, the translator has not stored the supercluster and
     // forced the MVA value to translatorUndefined
-    if (cutsCfg_.minMVA>pfTranslatorUndefined)
-     {
+    if (cutsCfg_.minMVA > pfTranslatorUndefined) {
       edm::LogWarning("GsfElectronAlgo|IncompletePflowInformation")
-        <<"Parameter minMVA  ("<<cutsCfg_.minMVA<<")is inferior to the cut applied by PFlow translator ("<<pfTranslatorMinMva<<")."
-        <<" Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster." ;
-     }
-    else
-     {
+          << "Parameter minMVA  (" << cutsCfg_.minMVA << ")is inferior to the cut applied by PFlow translator ("
+          << pfTranslatorMinMva << ")."
+          << " Some ecal (and eventually tracker) seeded electrons may lack their MVA value and PFlow supercluster.";
+    } else {
       // the MVA value has been forced to translatorUndefined, inferior minMVAPflow
       // so the cut actually applied is the PFlow one
-      throw cms::Exception("GsfElectronAlgo|BadMvaCut")
-        <<"Parameter minMVA is inferior to the lowest possible value."
-        <<" Every electron will be blessed whatever other criteria." ;
-     }
-   }
- }
-
+      throw cms::Exception("GsfElectronAlgo|BadMvaCut") << "Parameter minMVA is inferior to the lowest possible value."
+                                                        << " Every electron will be blessed whatever other criteria.";
+    }
+  }
+}
 
 // now deprecated
-void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection& electrons, edm::Event const& event) const
-{
+void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection& electrons, edm::Event const& event) const {
   //Isolation Value Maps for PF and EcalDriven electrons
   typedef std::vector<edm::Handle<edm::ValueMap<double> > > IsolationValueMaps;
   IsolationValueMaps pfIsolationValues;
@@ -177,11 +163,15 @@ void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection& electrons, e
           el.setMvaInput(pfElectron->mvaInput());
           el.setMvaOutput(pfElectron->mvaOutput());
           if (el.ecalDrivenSeed()) {
-            el.setP4(GsfElectron::P4_PFLOW_COMBINATION, pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),
-                     pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION), false);
+            el.setP4(GsfElectron::P4_PFLOW_COMBINATION,
+                     pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),
+                     pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),
+                     false);
           } else {
-            el.setP4(GsfElectron::P4_PFLOW_COMBINATION, pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),
-                     pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION), true);
+            el.setP4(GsfElectron::P4_PFLOW_COMBINATION,
+                     pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),
+                     pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),
+                     true);
           }
           double noCutMin = -999999999.;
           if (el.mva_e_pi() < noCutMin) {
@@ -220,9 +210,7 @@ void GsfElectronProducer::addPflowInfo(reco::GsfElectronCollection& electrons, e
   }
 }
 
-
-void GsfElectronProducer::setPflowPreselectionFlag(GsfElectron& ele) const
-{
+void GsfElectronProducer::setPflowPreselectionFlag(GsfElectron& ele) const {
   ele.setPassMvaPreselection(false);
 
   if (ele.core()->ecalDrivenSeed()) {

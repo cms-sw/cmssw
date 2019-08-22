@@ -4,12 +4,12 @@ RecHitProcessor::RecHitProcessor() {}
 
 RecHitProcessor::~RecHitProcessor() {}
 
-void RecHitProcessor::processLook(
-    const edm::Event &iEvent, const edm::EventSetup &iSetup,
-    const edm::EDGetToken &recHitToken,
-    std::vector<RecHitProcessor::CppfItem> &CppfVec1,
-    l1t::CPPFDigiCollection &cppfDigis, const int MaxClusterSize) const {
-
+void RecHitProcessor::processLook(const edm::Event &iEvent,
+                                  const edm::EventSetup &iSetup,
+                                  const edm::EDGetToken &recHitToken,
+                                  std::vector<RecHitProcessor::CppfItem> &CppfVec1,
+                                  l1t::CPPFDigiCollection &cppfDigis,
+                                  const int MaxClusterSize) const {
   edm::Handle<RPCRecHitCollection> recHits;
   iEvent.getByToken(recHitToken, recHits);
 
@@ -19,10 +19,8 @@ void RecHitProcessor::processLook(
   // The loop is over the detector container in the rpc geometry collection. We
   // are interested in the RPDdetID (inside of RPCChamber vectors),
   // specifically, the RPCrechits. to assignment the CPPFDigis.
-  for (TrackingGeometry::DetContainer::const_iterator iDet =
-           rpcGeom->dets().begin();
-       iDet < rpcGeom->dets().end(); iDet++) {
-
+  for (TrackingGeometry::DetContainer::const_iterator iDet = rpcGeom->dets().begin(); iDet < rpcGeom->dets().end();
+       iDet++) {
     //  we do a cast over the class RPCChamber to obtain the RPCroll vectors,
     //  inside of them, the RPCRechits are found. in other words, the method
     //  ->rolls() does not exist for other kind of vector within DetContainer
@@ -36,19 +34,14 @@ void RecHitProcessor::processLook(
 
     // Loop over rolls in the chamber
     for (auto &iRoll : rolls) {
-
       RPCDetId rpcId = (*iRoll).id();
 
-      typedef std::pair<RPCRecHitCollection::const_iterator,
-                        RPCRecHitCollection::const_iterator>
-          rangeRecHits;
+      typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
       rangeRecHits recHitCollection = recHits->get(rpcId);
 
       // Loop over the RPC digis
-      for (RPCRecHitCollection::const_iterator rechit_it =
-               recHitCollection.first;
-           rechit_it != recHitCollection.second; rechit_it++) {
-
+      for (RPCRecHitCollection::const_iterator rechit_it = recHitCollection.first; rechit_it != recHitCollection.second;
+           rechit_it++) {
         // const RPCDetId& rpcId = rechit_it->rpcId();
         int rawId = rpcId.rawId();
         // int station = rpcId.station();
@@ -170,10 +163,8 @@ void RecHitProcessor::processLook(
         std::vector<RecHitProcessor::CppfItem>::iterator cppf1;
         std::vector<RecHitProcessor::CppfItem>::iterator cppf;
         for (cppf1 = CppfVec1.begin(); cppf1 != CppfVec1.end(); cppf1++) {
-
           // Condition to save the CPPFDigi
           if (((*cppf1).rawId == rawId) && ((*cppf1).strip == rechitstrip)) {
-
             int old_strip = (*cppf1).strip;
             int before = 0;
             int after = 0;
@@ -193,7 +184,6 @@ void RecHitProcessor::processLook(
             cppf = cppf1;
 
             if (clustersize == 2) {
-
               if (firststrip == 1) {
                 if (before < after)
                   cppf = (cppf1 - 1);
@@ -208,14 +198,32 @@ void RecHitProcessor::processLook(
             }
             // Using the RPCGeometry
             if (Geo) {
-              std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(
-                  rpcId, Bx, (*cppf).int_phi, (*cppf).int_theta, isValid,
-                  (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1,
-                  old_strip, clustersize, global_phi, global_theta));
-              std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(
-                  rpcId, Bx, (*cppf).int_phi, (*cppf).int_theta, isValid,
-                  (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2,
-                  old_strip, clustersize, global_phi, global_theta));
+              std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(rpcId,
+                                                                              Bx,
+                                                                              (*cppf).int_phi,
+                                                                              (*cppf).int_theta,
+                                                                              isValid,
+                                                                              (*cppf).lb,
+                                                                              (*cppf).halfchannel,
+                                                                              EMTFsector1,
+                                                                              EMTFLink1,
+                                                                              old_strip,
+                                                                              clustersize,
+                                                                              global_phi,
+                                                                              global_theta));
+              std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(rpcId,
+                                                                              Bx,
+                                                                              (*cppf).int_phi,
+                                                                              (*cppf).int_theta,
+                                                                              isValid,
+                                                                              (*cppf).lb,
+                                                                              (*cppf).halfchannel,
+                                                                              EMTFsector2,
+                                                                              EMTFLink2,
+                                                                              old_strip,
+                                                                              clustersize,
+                                                                              global_phi,
+                                                                              global_theta));
 
               if ((EMTFsector1 > 0) && (EMTFsector2 == 0)) {
                 cppfDigis.push_back(*MainVariables1.get());
@@ -225,18 +233,36 @@ void RecHitProcessor::processLook(
               } else if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
                 continue;
               }
-            } // Geo is true
+            }  // Geo is true
             else {
               global_phi = 0.;
               global_theta = 0.;
-              std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(
-                  rpcId, Bx, (*cppf).int_phi, (*cppf).int_theta, isValid,
-                  (*cppf).lb, (*cppf).halfchannel, EMTFsector1, EMTFLink1,
-                  old_strip, clustersize, global_phi, global_theta));
-              std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(
-                  rpcId, Bx, (*cppf).int_phi, (*cppf).int_theta, isValid,
-                  (*cppf).lb, (*cppf).halfchannel, EMTFsector2, EMTFLink2,
-                  old_strip, clustersize, global_phi, global_theta));
+              std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(rpcId,
+                                                                              Bx,
+                                                                              (*cppf).int_phi,
+                                                                              (*cppf).int_theta,
+                                                                              isValid,
+                                                                              (*cppf).lb,
+                                                                              (*cppf).halfchannel,
+                                                                              EMTFsector1,
+                                                                              EMTFLink1,
+                                                                              old_strip,
+                                                                              clustersize,
+                                                                              global_phi,
+                                                                              global_theta));
+              std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(rpcId,
+                                                                              Bx,
+                                                                              (*cppf).int_phi,
+                                                                              (*cppf).int_theta,
+                                                                              isValid,
+                                                                              (*cppf).lb,
+                                                                              (*cppf).halfchannel,
+                                                                              EMTFsector2,
+                                                                              EMTFLink2,
+                                                                              old_strip,
+                                                                              clustersize,
+                                                                              global_phi,
+                                                                              global_theta));
               if ((EMTFsector1 > 0) && (EMTFsector2 == 0)) {
                 cppfDigis.push_back(*MainVariables1.get());
               } else if ((EMTFsector1 > 0) && (EMTFsector2 > 0)) {
@@ -246,20 +272,19 @@ void RecHitProcessor::processLook(
                 continue;
               }
             }
-          } // Condition to save the CPPFDigi
-        }   // Loop over the LUTVector
-      }     // Loop over the recHits
-    }       // End loop: for (std::vector<const RPCRoll*>::const_iterator r =
-            // rolls.begin(); r != rolls.end(); ++r)
-  } // End loop: for (TrackingGeometry::DetContainer::const_iterator iDet =
-    // rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++)
+          }  // Condition to save the CPPFDigi
+        }    // Loop over the LUTVector
+      }      // Loop over the recHits
+    }        // End loop: for (std::vector<const RPCRoll*>::const_iterator r =
+             // rolls.begin(); r != rolls.end(); ++r)
+  }          // End loop: for (TrackingGeometry::DetContainer::const_iterator iDet =
+             // rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++)
 }
 
 void RecHitProcessor::process(const edm::Event &iEvent,
                               const edm::EventSetup &iSetup,
                               const edm::EDGetToken &recHitToken,
                               l1t::CPPFDigiCollection &cppfDigis) const {
-
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
   iSetup.get<MuonGeometryRecord>().get(rpcGeom);
@@ -271,10 +296,8 @@ void RecHitProcessor::process(const edm::Event &iEvent,
   // The loop is over the detector container in the rpc geometry collection. We
   // are interested in the RPDdetID (inside of RPCChamber vectors),
   // specifically, the RPCrechits. to assignment the CPPFDigis.
-  for (TrackingGeometry::DetContainer::const_iterator iDet =
-           rpcGeom->dets().begin();
-       iDet < rpcGeom->dets().end(); iDet++) {
-
+  for (TrackingGeometry::DetContainer::const_iterator iDet = rpcGeom->dets().begin(); iDet < rpcGeom->dets().end();
+       iDet++) {
     //  we do a cast over the class RPCChamber to obtain the RPCroll vectors,
     //  inside of them, the RPCRechits are found. in other words, the method
     //  ->rolls() does not exist for other kind of vector within DetContainer
@@ -287,18 +310,13 @@ void RecHitProcessor::process(const edm::Event &iEvent,
 
     // Loop over rolls in the chamber
     for (auto &iRoll : rolls) {
-
       RPCDetId rpcId = (*iRoll).id();
 
-      typedef std::pair<RPCRecHitCollection::const_iterator,
-                        RPCRecHitCollection::const_iterator>
-          rangeRecHits;
+      typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
       rangeRecHits recHitCollection = recHits->get(rpcId);
 
-      for (RPCRecHitCollection::const_iterator rechit_it =
-               recHitCollection.first;
-           rechit_it != recHitCollection.second; rechit_it++) {
-
+      for (RPCRecHitCollection::const_iterator rechit_it = recHitCollection.first; rechit_it != recHitCollection.second;
+           rechit_it++) {
         // const RPCDetId& rpcId = rechit_it->rpcId();
         // int rawId = rpcId.rawId();
         int region = rpcId.region();
@@ -316,10 +334,8 @@ void RecHitProcessor::process(const edm::Event &iEvent,
         // Endcap region only
 
         if (region != 0) {
-
-          int int_theta = (region == -1 ? 180. * 32. / 36.5 : 0.) +
-                          (float)region * global_theta * 32. / 36.5 -
-                          8.5 * 32 / 36.5;
+          int int_theta =
+              (region == -1 ? 180. * 32. / 36.5 : 0.) + (float)region * global_theta * 32. / 36.5 - 8.5 * 32 / 36.5;
 
           if (region == 1) {
             if (global_theta < 8.5)
@@ -444,14 +460,32 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           assert(0 <= int_phi && int_phi < 1250);
           assert(0 <= int_theta && int_theta < 32);
 
-          std::shared_ptr<l1t::CPPFDigi> MainVariables1(
-              new l1t::CPPFDigi(rpcId, Bx, int_phi, int_theta, isValid, lb,
-                                halfchannel, EMTFsector1, EMTFLink1, firststrip,
-                                clustersize, global_phi, global_theta));
-          std::shared_ptr<l1t::CPPFDigi> MainVariables2(
-              new l1t::CPPFDigi(rpcId, Bx, int_phi, int_theta, isValid, lb,
-                                halfchannel, EMTFsector2, EMTFLink2, firststrip,
-                                clustersize, global_phi, global_theta));
+          std::shared_ptr<l1t::CPPFDigi> MainVariables1(new l1t::CPPFDigi(rpcId,
+                                                                          Bx,
+                                                                          int_phi,
+                                                                          int_theta,
+                                                                          isValid,
+                                                                          lb,
+                                                                          halfchannel,
+                                                                          EMTFsector1,
+                                                                          EMTFLink1,
+                                                                          firststrip,
+                                                                          clustersize,
+                                                                          global_phi,
+                                                                          global_theta));
+          std::shared_ptr<l1t::CPPFDigi> MainVariables2(new l1t::CPPFDigi(rpcId,
+                                                                          Bx,
+                                                                          int_phi,
+                                                                          int_theta,
+                                                                          isValid,
+                                                                          lb,
+                                                                          halfchannel,
+                                                                          EMTFsector2,
+                                                                          EMTFLink2,
+                                                                          firststrip,
+                                                                          clustersize,
+                                                                          global_phi,
+                                                                          global_theta));
           if (int_theta == 31)
             continue;
           if ((EMTFsector1 > 0) && (EMTFsector2 == 0)) {
@@ -464,13 +498,13 @@ void RecHitProcessor::process(const edm::Event &iEvent,
           if ((EMTFsector1 == 0) && (EMTFsector2 == 0)) {
             continue;
           }
-        } // No barrel rechits
+        }  // No barrel rechits
 
-      } // End loop: for (RPCRecHitCollection::const_iterator recHit =
-        // recHitCollection.first; recHit != recHitCollection.second; recHit++)
+      }  // End loop: for (RPCRecHitCollection::const_iterator recHit =
+         // recHitCollection.first; recHit != recHitCollection.second; recHit++)
 
-    } // End loop: for (std::vector<const RPCRoll*>::const_iterator r =
-      // rolls.begin(); r != rolls.end(); ++r)
-  }   // End loop: for (TrackingGeometry::DetContainer::const_iterator iDet =
-      // rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++)
-} // End function: void RecHitProcessor::process()
+    }  // End loop: for (std::vector<const RPCRoll*>::const_iterator r =
+       // rolls.begin(); r != rolls.end(); ++r)
+  }    // End loop: for (TrackingGeometry::DetContainer::const_iterator iDet =
+       // rpcGeom->dets().begin(); iDet < rpcGeom->dets().end(); iDet++)
+}  // End function: void RecHitProcessor::process()

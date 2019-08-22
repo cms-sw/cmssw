@@ -13,16 +13,14 @@
     @brief Histogram-based analysis for pedestal run.
 */
 class PedestalsAnalysis : public CommissioningAnalysis {
-  
- public:
-
+public:
   // ---------- con(de)structors ----------
 
-  PedestalsAnalysis( const uint32_t& key );
+  PedestalsAnalysis(const uint32_t& key);
 
   PedestalsAnalysis();
 
-  ~PedestalsAnalysis() override {;}
+  ~PedestalsAnalysis() override { ; }
 
   friend class PedestalsAlgorithm;
 
@@ -30,14 +28,14 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
   /** Identifies if analysis is valid or not. */
   bool isValid() const override;
-  
+
   // Pedestal, noise and raw noise (128-strip vector per APV)
   inline const VVFloat& peds() const;
   inline const VVFloat& noise() const;
   inline const VVFloat& raw() const;
 
   // Dead and noisy strips (vector per APV)
-  inline const VVInt& dead() const; 
+  inline const VVInt& dead() const;
   inline const VVInt& noisy() const;
 
   // Mean and rms spread (value per APV)
@@ -50,27 +48,26 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
   // Max and min values (value per APV)
   inline const VFloat& pedsMax() const;
-  inline const VFloat& pedsMin() const; 
+  inline const VFloat& pedsMin() const;
   inline const VFloat& noiseMax() const;
   inline const VFloat& noiseMin() const;
   inline const VFloat& rawMax() const;
   inline const VFloat& rawMin() const;
 
   // ---------- misc ----------
-  
+
   /** Prints analysis results. */
-  void print( std::stringstream&, uint32_t apv_number = 0 ) override;
-  
+  void print(std::stringstream&, uint32_t apv_number = 0) override;
+
   /** Overrides base method. */
-  void summary( std::stringstream& ) const override;
-  
+  void summary(std::stringstream&) const override;
+
   /** Resets analysis member data. */
   void reset() override;
-  
+
   // ---------- private member data ----------
 
- private:
-  
+private:
   // VVFloats means: 1 vector per APV, 1 value per strip.
 
   /** Peds values. */
@@ -85,7 +82,7 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   // VVInts means: 1 vector per APV, values are strip numbers.
 
   /** Dead strips. */
-  VVInt dead_; 
+  VVInt dead_;
 
   /** Noisy strips. */
   VVInt noisy_;
@@ -114,7 +111,7 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   VFloat pedsMax_;
 
   /** Min peds value. */
-  VFloat pedsMin_; 
+  VFloat pedsMin_;
 
   /** Max noise value. */
   VFloat noiseMax_;
@@ -127,10 +124,9 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
   /** Min raw noise value. */
   VFloat rawMin_;
-  
+
   // true if legacy histogram naming is used
   bool legacy_;
-  
 };
 
 // ---------- Inline methods ----------
@@ -139,7 +135,7 @@ const PedestalsAnalysis::VVFloat& PedestalsAnalysis::peds() const { return peds_
 const PedestalsAnalysis::VVFloat& PedestalsAnalysis::noise() const { return noise_; }
 const PedestalsAnalysis::VVFloat& PedestalsAnalysis::raw() const { return raw_; }
 
-const PedestalsAnalysis::VVInt& PedestalsAnalysis::dead() const { return dead_; } 
+const PedestalsAnalysis::VVInt& PedestalsAnalysis::dead() const { return dead_; }
 const PedestalsAnalysis::VVInt& PedestalsAnalysis::noisy() const { return noisy_; }
 
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsMean() const { return pedsMean_; }
@@ -150,10 +146,10 @@ const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMean() const { return raw
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawSpread() const { return rawSpread_; }
 
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsMax() const { return pedsMax_; }
-const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsMin() const { return pedsMin_; } 
+const PedestalsAnalysis::VFloat& PedestalsAnalysis::pedsMin() const { return pedsMin_; }
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseMax() const { return noiseMax_; }
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::noiseMin() const { return noiseMin_; }
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMax() const { return rawMax_; }
 const PedestalsAnalysis::VFloat& PedestalsAnalysis::rawMin() const { return rawMin_; }
 
-#endif // CondFormats_SiStripObjects_PedestalsAnalysis_H
+#endif  // CondFormats_SiStripObjects_PedestalsAnalysis_H

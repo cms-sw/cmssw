@@ -26,10 +26,9 @@ using namespace std;
 using namespace edm;
 using namespace magneticfield;
 
-
 AutoMagneticFieldESProducer::AutoMagneticFieldESProducer(const edm::ParameterSet& iConfig) : pset(iConfig) {
-  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label",""));
-  nominalCurrents = pset.getUntrackedParameter<vector<int> >("nominalCurrents"); 
+  setWhatProduced(this, pset.getUntrackedParameter<std::string>("label", ""));
+  nominalCurrents = pset.getUntrackedParameter<vector<int> >("nominalCurrents");
   maps = pset.getUntrackedParameter<vector<string> >("mapLabels");
 
   if (maps.empty() || (maps.size() != nominalCurrents.size())) {
@@ -37,15 +36,9 @@ AutoMagneticFieldESProducer::AutoMagneticFieldESProducer(const edm::ParameterSet
   }
 }
 
+AutoMagneticFieldESProducer::~AutoMagneticFieldESProducer() {}
 
-AutoMagneticFieldESProducer::~AutoMagneticFieldESProducer()
-{
-}
-
-
-std::unique_ptr<MagneticField>
-AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
-{
+std::unique_ptr<MagneticField> AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord) {
   float current = pset.getParameter<int>("valueOverride");
 
   string message;
@@ -59,33 +52,28 @@ AutoMagneticFieldESProducer::produce(const IdealMagneticFieldRecord& iRecord)
     message = " (from valueOverride card)";
   }
 
-  string model  = closerModel(current);
+  string model = closerModel(current);
 
-  edm::LogInfo("MagneticField|AutoMagneticField") << "Current: " << current << message << "; using map with label: " << model;
-
+  edm::LogInfo("MagneticField|AutoMagneticField")
+      << "Current: " << current << message << "; using map with label: " << model;
 
   edm::ESHandle<MagneticField> map;
-  
-  iRecord.get(model,map);
+
+  iRecord.get(model, map);
 
   MagneticField* result = map.product()->clone();
 
   return std::unique_ptr<MagneticField>(result);
 }
 
-
 std::string AutoMagneticFieldESProducer::closerModel(float current) {
-  int i=0;
-  for(;i<(int)maps.size()-1;i++) {
-    if(2*current < nominalCurrents[i]+nominalCurrents[i+1] )
+  int i = 0;
+  for (; i < (int)maps.size() - 1; i++) {
+    if (2 * current < nominalCurrents[i] + nominalCurrents[i + 1])
       return maps[i];
   }
-  return  maps[i];
+  return maps[i];
 }
-
-
 
 #include "FWCore/Framework/interface/ModuleFactory.h"
 DEFINE_FWK_EVENTSETUP_MODULE(AutoMagneticFieldESProducer);
-
-

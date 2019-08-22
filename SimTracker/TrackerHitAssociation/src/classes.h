@@ -9,10 +9,12 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 namespace SimTracker_TrackerHitAssociation {
   struct dictionary {
-    edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int > > dummy01;
-    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int > > > dummy02;
+    edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int> > dummy01;
+    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int> > >
+        dummy02;
     edm::helpers::KeyVal<edm::RefProd<std::vector<SimTrack> >, edm::RefProd<std::vector<OmniClusterRef> > > dummy03;
-    edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<SimTrack> >, edm::RefProd<std::vector<OmniClusterRef> > > > dummy04;
+    edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<SimTrack> >, edm::RefProd<std::vector<OmniClusterRef> > > >
+        dummy04;
     std::vector<OmniClusterRef> dummy05;
     edm::Wrapper<std::vector<OmniClusterRef> > dummy06;
     std::pair<OmniClusterRef, TrackingParticleRef> dummy13;
@@ -24,4 +26,4 @@ namespace SimTracker_TrackerHitAssociation {
     std::map<OmniClusterRef, std::vector<TrackingParticleRef> > dummy11;
     edm::Wrapper<std::map<OmniClusterRef, std::vector<TrackingParticleRef> > > dummy12;
   };
-}
+}  // namespace SimTracker_TrackerHitAssociation

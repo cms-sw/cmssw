@@ -3,7 +3,7 @@
 // -*- C++ -*-
 //
 // Class:      SiPixelCoordinates
-// 
+//
 // This class provides floating point numbers for
 // digis, clusters and hits that can be used to
 // easily plot various geometry related histograms
@@ -31,11 +31,8 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 
-
 class SiPixelCoordinates {
-
- public:
-
+public:
   SiPixelCoordinates();
   SiPixelCoordinates(int);
   virtual ~SiPixelCoordinates();
@@ -162,11 +159,11 @@ class SiPixelCoordinates {
   float signed_shifted_blade_panel_coord(const SiPixelRecHit*);
   float signed_shifted_blade_panel_coord(const TrackingRecHit*);
 
- private:
+private:
   int phase_;
 
-  const TrackerTopology*      tTopo_;
-  const TrackerGeometry*      tGeom_;
+  const TrackerTopology* tTopo_;
+  const TrackerGeometry* tGeom_;
   const SiPixelFedCablingMap* cablingMap_;
 
   // Internal containers for optimal speed
@@ -202,7 +199,6 @@ class SiPixelCoordinates {
   std::pair<int, int> pixel_(const SiPixelRecHit*);
   float xcoord_on_module_(const DetId&, const std::pair<int, int>&);
   float ycoord_on_module_(const DetId&, const std::pair<int, int>&);
-
 };
 
 #endif

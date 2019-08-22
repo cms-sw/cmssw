@@ -7,14 +7,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-  class EcalTrivialObjectAnalyzer : public edm::EDAnalyzer
-  {
-  public:
-    explicit  EcalTrivialObjectAnalyzer(edm::ParameterSet const& p) 
-    { }
-    explicit  EcalTrivialObjectAnalyzer(int i) 
-    { }
-    ~ EcalTrivialObjectAnalyzer() override { }
-    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  private:
-  };
+class EcalTrivialObjectAnalyzer : public edm::EDAnalyzer {
+public:
+  explicit EcalTrivialObjectAnalyzer(edm::ParameterSet const& p) {}
+  explicit EcalTrivialObjectAnalyzer(int i) {}
+  ~EcalTrivialObjectAnalyzer() override {}
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+};

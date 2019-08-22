@@ -17,41 +17,33 @@
  *        \---------- system
  */
 class LMFPnPrimDat : public LMFColoredTable {
- public:
+public:
   LMFPnPrimDat();
-  LMFPnPrimDat(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn);
+  LMFPnPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   LMFPnPrimDat(EcalDBConnection *c);
   LMFPnPrimDat(std::string color, std::string system);
-  LMFPnPrimDat(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn, std::string color,
-	      std::string system);
+  LMFPnPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, std::string color, std::string system);
   LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string system);
-  LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string system,
-	       bool debug);
+  LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string system, bool debug);
   LMFPnPrimDat(int color, std::string system);
-  LMFPnPrimDat(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn, int color,
-	      std::string system);
+  LMFPnPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, int color, std::string system);
   LMFPnPrimDat(EcalDBConnection *c, int color, std::string system);
   ~LMFPnPrimDat() override {}
 
-  std::string getTableName() const override {
-    return "LMF_" + getSystem() + "_" + getColor() + "_PN_PRIM_DAT";
-  }
+  std::string getTableName() const override { return "LMF_" + getSystem() + "_" + getColor() + "_PN_PRIM_DAT"; }
 
-  LMFPnPrimDat& setMean(EcalLogicID &id, float v);
-  LMFPnPrimDat& setRMS(EcalLogicID &id, float v);
-  LMFPnPrimDat& setM3(EcalLogicID &id, float v);
-  LMFPnPrimDat& setPN(EcalLogicID &id, float mean, float rms, float m3);
-  LMFPnPrimDat& setShapeCorr(EcalLogicID &id, float mean);
-  LMFPnPrimDat& setPNAoverBMean(EcalLogicID &id, float v);
-  LMFPnPrimDat& setPNAoverBRMS(EcalLogicID &id, float v);
-  LMFPnPrimDat& setPNAoverBM3(EcalLogicID &id, float v);
-  LMFPnPrimDat& setPNAoverB(EcalLogicID &id, float mean, float rms, float m3);
-  LMFPnPrimDat& setFlag(EcalLogicID &id, int v);
+  LMFPnPrimDat &setMean(EcalLogicID &id, float v);
+  LMFPnPrimDat &setRMS(EcalLogicID &id, float v);
+  LMFPnPrimDat &setM3(EcalLogicID &id, float v);
+  LMFPnPrimDat &setPN(EcalLogicID &id, float mean, float rms, float m3);
+  LMFPnPrimDat &setShapeCorr(EcalLogicID &id, float mean);
+  LMFPnPrimDat &setPNAoverBMean(EcalLogicID &id, float v);
+  LMFPnPrimDat &setPNAoverBRMS(EcalLogicID &id, float v);
+  LMFPnPrimDat &setPNAoverBM3(EcalLogicID &id, float v);
+  LMFPnPrimDat &setPNAoverB(EcalLogicID &id, float mean, float rms, float m3);
+  LMFPnPrimDat &setFlag(EcalLogicID &id, int v);
 
-  LMFPnPrimDat& setSystem(std::string s) override;
+  LMFPnPrimDat &setSystem(std::string s) override;
 
   float getMean(EcalLogicID &id);
   float getRMS(EcalLogicID &id);
@@ -74,7 +66,7 @@ class LMFPnPrimDat : public LMFColoredTable {
   bool isValid() override;
   // to do: complete list of set/get methods
 
- private:
+private:
   void init();
 };
 

@@ -1,6 +1,5 @@
-#ifndef CSCRecHitD_CSCRecHitDBuilder_h 
-#define CSCRecHitD_CSCRecHitDBuilder_h 
-
+#ifndef CSCRecHitD_CSCRecHitDBuilder_h
+#define CSCRecHitD_CSCRecHitDBuilder_h
 
 /** \class CSCRecHitDBuilder 
  *
@@ -36,18 +35,16 @@ class CSCHitFromWireOnly;
 class CSCMake2DRecHit;
 class CSCRecoConditions;
 
-class CSCRecHitDBuilder
-{
- public:
-  
+class CSCRecHitDBuilder {
+public:
   /** Configure the algorithm via ctor.
    * Receives ParameterSet percolated down from EDProducer
    * which owns this Builder.
    */
-  explicit CSCRecHitDBuilder( const edm::ParameterSet& ps);
-  
+  explicit CSCRecHitDBuilder(const edm::ParameterSet& ps);
+
   ~CSCRecHitDBuilder();
-  
+
   /** Find digis in each CSCLayer, build strip and wire proto-hits in 
    *  each layer from which pseudo-segments are build to select hits.
    *  Then, strip/wire hits are combined to form 2-D hits, whereas
@@ -55,25 +52,22 @@ class CSCRecHitDBuilder
    *  into output collection.
    *
    */
-  
-  void build( const CSCStripDigiCollection* stripds, const CSCWireDigiCollection* wireds,
-	      CSCRecHit2DCollection& oc );
-  
+
+  void build(const CSCStripDigiCollection* stripds, const CSCWireDigiCollection* wireds, CSCRecHit2DCollection& oc);
+
   /**
    * Cache pointer to geometry so it can be passed downstream
    */
-  void setGeometry   ( const CSCGeometry* geom ) {geom_ = geom;}
+  void setGeometry(const CSCGeometry* geom) { geom_ = geom; }
 
   /**
    * Pass conditions downstream
    */
-  void setConditions ( CSCRecoConditions* reco );
+  void setConditions(CSCRecoConditions* reco);
 
-  const CSCLayer* getLayer( const CSCDetId& detId );
+  const CSCLayer* getLayer(const CSCDetId& detId);
 
-
- private:
-
+private:
   bool useCalib;
   int stripWireDeltaT;
   bool makePseudo2DHits;
@@ -83,10 +77,10 @@ class CSCRecHitDBuilder
    *  it stores in a special collection.  Proto strip/wire segments
    *  are then build from these hits and allow to clean up up the list of hits.
    */
-  CSCHitFromStripOnly*   hitsFromStripOnly_;
-  CSCHitFromWireOnly*    hitsFromWireOnly_;
+  CSCHitFromStripOnly* hitsFromStripOnly_;
+  CSCHitFromWireOnly* hitsFromWireOnly_;
 
-  CSCMake2DRecHit*       make2DHits_;
+  CSCMake2DRecHit* make2DHits_;
 
   /*
    * Cache geometry for current event

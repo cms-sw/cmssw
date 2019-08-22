@@ -17,7 +17,7 @@
 #include "DetectorDescription/Parser/src/DDLRotationAndReflection.h"
 #include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
 #include "DetectorDescription/Parser/src/DDLRotationSequence.h"
-#include "DetectorDescription/Parser/src/DDLShapelessSolid.h" 
+#include "DetectorDescription/Parser/src/DDLShapelessSolid.h"
 #include "DetectorDescription/Parser/src/DDLSpecPar.h"
 #include "DetectorDescription/Parser/src/DDLSphere.h"
 #include "DetectorDescription/Parser/src/DDLString.h"
@@ -35,141 +35,85 @@
 #include <utility>
 #include <vector>
 
-DDLElementRegistry::DDLElementRegistry( void )
-{}
+DDLElementRegistry::DDLElementRegistry(void) {}
 
-DDLElementRegistry::~DDLElementRegistry( void ) 
-{
-  registry_.clear();
-}
+DDLElementRegistry::~DDLElementRegistry(void) { registry_.clear(); }
 
-std::shared_ptr<DDXMLElement>
-DDLElementRegistry::getElement( const std::string& name )
-{
-  RegistryMap::iterator it = registry_.find( name );
-  std::shared_ptr<DDXMLElement> myret( nullptr );
-  if( it != registry_.end())
-  {
+std::shared_ptr<DDXMLElement> DDLElementRegistry::getElement(const std::string& name) {
+  RegistryMap::iterator it = registry_.find(name);
+  std::shared_ptr<DDXMLElement> myret(nullptr);
+  if (it != registry_.end()) {
     return it->second;
   } else {
     // Make the Solid handlers and register them.
-    if (name == "Box")
-    {
+    if (name == "Box") {
       myret = std::make_shared<DDLBox>(this);
-    }
-    else if (name == "Cone")
-    {
+    } else if (name == "Cone") {
       myret = std::make_shared<DDLCone>(this);
-    }
-    else if (name == "Polyhedra" || name == "Polycone")
-    {
+    } else if (name == "Polyhedra" || name == "Polycone") {
       myret = std::make_shared<DDLPolyGenerator>(this);
-    }
-    else if (name == "Trapezoid" || name == "Trd1")
-    {
+    } else if (name == "Trapezoid" || name == "Trd1") {
       myret = std::make_shared<DDLTrapezoid>(this);
-    }
-    else if (name == "PseudoTrap")
-    {
+    } else if (name == "PseudoTrap") {
       myret = std::make_shared<DDLPseudoTrap>(this);
-    }
-    else if (name == "Tubs" || name == "CutTubs" || name == "Tube" || name == "TruncTubs")
-    {
+    } else if (name == "Tubs" || name == "CutTubs" || name == "Tube" || name == "TruncTubs") {
       myret = std::make_shared<DDLTubs>(this);
-    }
-    else if (name == "Torus")
-    {
+    } else if (name == "Torus") {
       myret = std::make_shared<DDLTorus>(this);
-    }
-    else if (name == "UnionSolid" || name == "SubtractionSolid"
-	     || name == "IntersectionSolid")
-    {
+    } else if (name == "UnionSolid" || name == "SubtractionSolid" || name == "IntersectionSolid") {
       myret = std::make_shared<DDLBooleanSolid>(this);
-    }
-    else if (name == "ShapelessSolid")
-    {
+    } else if (name == "ShapelessSolid") {
       myret = std::make_shared<DDLShapelessSolid>(this);
-    }
-    else if (name == "Sphere")
-    {
+    } else if (name == "Sphere") {
       myret = std::make_shared<DDLSphere>(this);
-    }
-    else if (name == "EllipticalTube")
-    {
+    } else if (name == "EllipticalTube") {
       myret = std::make_shared<DDLEllipticalTube>(this);
-    }
-    else if (name == "ExtrudedPolygon")
+    } else if (name == "ExtrudedPolygon")
       myret = std::make_shared<DDLPgonGenerator>(this);
 
     //  LogicalParts, Positioners, Materials, Rotations, Reflections
     //  and Specific (Specified?) Parameters
-    else if (name == "PosPart")
-    {
+    else if (name == "PosPart") {
       myret = std::make_shared<DDLPosPart>(this);
-    }
-    else if (name == "CompositeMaterial")
-    {
+    } else if (name == "CompositeMaterial") {
       myret = std::make_shared<DDLCompositeMaterial>(this);
-    }
-    else if (name == "ElementaryMaterial")
-    {
+    } else if (name == "ElementaryMaterial") {
       myret = std::make_shared<DDLElementaryMaterial>(this);
-    }
-    else if (name == "LogicalPart")
-    {
+    } else if (name == "LogicalPart") {
       myret = std::make_shared<DDLLogicalPart>(this);
-    }
-    else if (name == "ReflectionRotation" || name == "Rotation" )
-    {
+    } else if (name == "ReflectionRotation" || name == "Rotation") {
       myret = std::make_shared<DDLRotationAndReflection>(this);
-    }
-    else if (name == "SpecPar")
-    {
+    } else if (name == "SpecPar") {
       myret = std::make_shared<DDLSpecPar>(this);
-    }
-    else if (name == "RotationSequence")
-    {
+    } else if (name == "RotationSequence") {
       myret = std::make_shared<DDLRotationSequence>(this);
-    }
-    else if (name == "RotationByAxis")
-    {
+    } else if (name == "RotationByAxis") {
       myret = std::make_shared<DDLRotationByAxis>(this);
     }
     // Special, need them around.
     else if (name == "SpecParSection") {
       myret = std::make_shared<DDXMLElement>(this, true);
-    }
-    else if (name == "Vector") {
+    } else if (name == "Vector") {
       myret = std::make_shared<DDLVector>(this);
-    }
-    else if (name == "Map") {
+    } else if (name == "Map") {
       myret = std::make_shared<DDLMap>(this);
-    }
-    else if (name == "String") {
+    } else if (name == "String") {
       myret = std::make_shared<DDLString>(this);
-    }
-    else if (name == "Numeric") {
+    } else if (name == "Numeric") {
       myret = std::make_shared<DDLNumeric>(this);
-    }
-    else if (name == "Algorithm") {
+    } else if (name == "Algorithm") {
       myret = std::make_shared<DDLAlgorithm>(this);
-    }
-    else if (name == "Division") {
+    } else if (name == "Division") {
       myret = std::make_shared<DDLDivision>(this);
     }
 
     // Supporting Cast of elements.
     //  All elements which simply accumulate attributes which are then used
     //  by one of the above elements.
-    else if (name == "MaterialFraction"
-	     || name == "RZPoint" || name == "XYPoint" || name == "PartSelector"
-	     || name == "Parameter" || name == "ZSection" || name == "ZXYSection"
-	     || name == "Translation" 
-	     || name == "rSolid" || name == "rMaterial" 
-	     || name == "rParent" || name == "rChild"
-	     || name == "rRotation" || name == "rReflectionRotation"
-	     || name == "DDDefinition" )
-    {
+    else if (name == "MaterialFraction" || name == "RZPoint" || name == "XYPoint" || name == "PartSelector" ||
+             name == "Parameter" || name == "ZSection" || name == "ZXYSection" || name == "Translation" ||
+             name == "rSolid" || name == "rMaterial" || name == "rParent" || name == "rChild" || name == "rRotation" ||
+             name == "rReflectionRotation" || name == "DDDefinition") {
       myret = std::make_shared<DDXMLElement>(this);
     }
 
@@ -179,14 +123,12 @@ DDLElementRegistry::getElement( const std::string& name )
     //  XML document (i.e. validated with XML Schema) will work properly.
     //  As of 8/16/2002:  Elements like LogicalPartSection and any other *Section
     //  XML elements of the DDLSchema are taken care of by this.
-    else
-    {
+    else {
       myret = std::make_shared<DDXMLElement>(this);
     }
-    
+
     // Actually register the thing
     registry_[name] = myret;
   }
   return myret;
 }
-

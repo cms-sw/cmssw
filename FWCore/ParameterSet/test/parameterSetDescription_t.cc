@@ -1481,6 +1481,12 @@ int main(int, char**) try {
   assert(par->type() == edm::k_InputTag);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("InputTag"));
 
+  edm::ESInputTag k;
+  par = psetDesc.add<edm::ESInputTag>("esinput", k);
+  pset.addParameter<edm::ESInputTag>("esinput", k);
+  assert(par->type() == edm::k_ESInputTag);
+  assert(edm::parameterTypeEnumToString(par->type()) == std::string("ESInputTag"));
+
   std::vector<int> v1;
   par = psetDesc.add<std::vector<int>>("v1", v1);
   pset.addParameter<std::vector<int>>("v1", v1);
@@ -1534,6 +1540,12 @@ int main(int, char**) try {
   pset.addParameter<std::vector<edm::InputTag>>("v9", v9);
   assert(par->type() == edm::k_VInputTag);
   assert(edm::parameterTypeEnumToString(par->type()) == std::string("VInputTag"));
+
+  std::vector<edm::ESInputTag> v11;
+  par = psetDesc.add<std::vector<edm::ESInputTag>>("v11", v11);
+  pset.addParameter<std::vector<edm::ESInputTag>>("v11", v11);
+  assert(par->type() == edm::k_VESInputTag);
+  assert(edm::parameterTypeEnumToString(par->type()) == std::string("VESInputTag"));
 
   edm::ParameterSetDescription m;
   par = psetDesc.add<edm::ParameterSetDescription>("psetDesc", m);

@@ -4,7 +4,7 @@
 //
 // Package:     TableWidget
 // Class  :     FWColumnLabelCellRenderer
-// 
+//
 /**\class FWColumnLabelCellRenderer FWColumnLabelCellRenderer.h Fireworks/TableWidget/interface/FWColumnLabelCellRenderer.h
 
  Description: Cell Renderer which handles the labels at the top of columns
@@ -27,39 +27,35 @@
 
 // forward declarations
 
-class FWColumnLabelCellRenderer : public FWTextTableCellRenderer
-{
+class FWColumnLabelCellRenderer : public FWTextTableCellRenderer {
+public:
+  FWColumnLabelCellRenderer(const TGGC* iContext = &(getDefaultGC()), bool isSortable = true);
+  ~FWColumnLabelCellRenderer() override;
 
-   public:
-      FWColumnLabelCellRenderer(const TGGC* iContext=&(getDefaultGC()), bool isSortable = true);
-      ~FWColumnLabelCellRenderer() override;
+  // ---------- const member functions ---------------------
+  fireworks::table::SortOrder sortOrder() const;
 
-      // ---------- const member functions ---------------------
-      fireworks::table::SortOrder sortOrder() const;
+  UInt_t width() const override;
 
-      UInt_t width() const override;
+  // ---------- static member functions --------------------
 
-      // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
+  void setSortOrder(fireworks::table::SortOrder);
 
-      // ---------- member functions ---------------------------
-      void setSortOrder(fireworks::table::SortOrder);
+  void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
 
-      void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight) override;
+private:
+  //FWColumnLabelCellRenderer(const FWColumnLabelCellRenderer&); // stop default
 
-   private:
-      //FWColumnLabelCellRenderer(const FWColumnLabelCellRenderer&); // stop default
+  //const FWColumnLabelCellRenderer& operator=(const FWColumnLabelCellRenderer&); // stop default
 
-      //const FWColumnLabelCellRenderer& operator=(const FWColumnLabelCellRenderer&); // stop default
+  // ---------- member data --------------------------------
+  static const UInt_t kGap = 2;
+  fireworks::table::SortOrder m_sortOrder;
+  int m_sizeOfOrderIcon;
+  int m_sizeOfOrderIconStartX;
 
-      // ---------- member data --------------------------------
-      static const UInt_t kGap = 2;
-      fireworks::table::SortOrder m_sortOrder;
-      int m_sizeOfOrderIcon;
-      int m_sizeOfOrderIconStartX;
-  
-      bool m_isSortable;
-
+  bool m_isSortable;
 };
-
 
 #endif

@@ -33,40 +33,35 @@
 
 // class declaration
 
-class L1GtPackUnpackAnalyzer : public edm::EDAnalyzer
-{
-
+class L1GtPackUnpackAnalyzer : public edm::EDAnalyzer {
 public:
-    explicit L1GtPackUnpackAnalyzer(const edm::ParameterSet&);
-    ~L1GtPackUnpackAnalyzer() override;
+  explicit L1GtPackUnpackAnalyzer(const edm::ParameterSet&);
+  ~L1GtPackUnpackAnalyzer() override;
 
 private:
+  void beginJob() override;
 
-    void beginJob() override;
+  /// GT comparison
+  virtual void analyzeGT(const edm::Event&, const edm::EventSetup&);
 
-    /// GT comparison
-    virtual void analyzeGT(const edm::Event&, const edm::EventSetup&);
-    
-    /// GMT comparison
-    virtual void analyzeGMT(const edm::Event&, const edm::EventSetup&);
-    
-    /// analyze each event
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+  /// GMT comparison
+  virtual void analyzeGMT(const edm::Event&, const edm::EventSetup&);
 
-    /// end of job
-    void endJob() override;
+  /// analyze each event
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  /// end of job
+  void endJob() override;
 
 private:
+  /// input tag for the initial GT DAQ record:
+  edm::InputTag m_initialDaqGtInputTag;
 
-    /// input tag for the initial GT DAQ record: 
-    edm::InputTag m_initialDaqGtInputTag;
+  /// input tag for the initial GMT readout collection:
+  edm::InputTag m_initialMuGmtInputTag;
 
-    /// input tag for the initial GMT readout collection: 
-    edm::InputTag m_initialMuGmtInputTag;
-
-    /// input tag for the final GT DAQ and GMT records: 
-    edm::InputTag m_finalGtGmtInputTag;
-    
+  /// input tag for the final GT DAQ and GMT records:
+  edm::InputTag m_finalGtGmtInputTag;
 };
 
 #endif /*GlobalTriggerAnalyzer_L1GtPackUnpackAnalyzer_h*/

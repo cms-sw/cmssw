@@ -10,13 +10,13 @@
 
 namespace reco {
   namespace modulesNew {
-    template<typename S, typename C1, typename C2, typename D = DeltaR<reco::Candidate> >
+    template <typename S, typename C1, typename C2, typename D = DeltaR<reco::Candidate> >
     class CandMatcher : public Matcher<C1, C2, S, D> {
     public:
-      CandMatcher(const edm::ParameterSet & cfg ) : Matcher<C1, C2, S, D>( cfg ) { }
-      ~CandMatcher() override { }
+      CandMatcher(const edm::ParameterSet& cfg) : Matcher<C1, C2, S, D>(cfg) {}
+      ~CandMatcher() override {}
     };
 
-  }
-}
+  }  // namespace modulesNew
+}  // namespace reco
 #endif

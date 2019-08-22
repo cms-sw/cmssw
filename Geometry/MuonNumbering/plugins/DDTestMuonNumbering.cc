@@ -8,27 +8,25 @@
 
 class DDTestMuonNumbering : public edm::one::EDAnalyzer<> {
 public:
-  explicit DDTestMuonNumbering(const edm::ParameterSet&){}
+  explicit DDTestMuonNumbering(const edm::ParameterSet&) {}
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 };
 
-void
-DDTestMuonNumbering::analyze(const edm::Event&, const edm::EventSetup& iEventSetup)
-{
+void DDTestMuonNumbering::analyze(const edm::Event&, const edm::EventSetup& iEventSetup) {
   edm::LogVerbatim("Geometry") << "DDTestMuonNumbering::analyze";
   edm::ESTransientHandle<cms::MuonNumbering> numbering;
   iEventSetup.get<MuonNumberingRecord>().get(numbering);
 
   edm::LogVerbatim("Geometry") << "MuonNumbering size: " << numbering->values().size();
   edm::LogVerbatim("Geometry").log([&numbering](auto& log) {
-      for(const auto& i: numbering->values()) {
-	log << " " << i.first << " = " << i.second;
-	log << '\n';
-      }
-    });
+    for (const auto& i : numbering->values()) {
+      log << " " << i.first << " = " << i.second;
+      log << '\n';
+    }
+  });
 }
 
 DEFINE_FWK_MODULE(DDTestMuonNumbering);

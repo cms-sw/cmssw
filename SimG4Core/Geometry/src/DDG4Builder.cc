@@ -1,20 +1,17 @@
-#include "DetectorDescription/Core/interface/DDSpecifics.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
 #include "SimG4Core/Geometry/interface/DDG4SolidConverter.h"
+#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
-#include "G4Box.hh"
-#include "G4Cons.hh"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDSpecifics.h"
+
 #include "G4LogicalVolume.hh"
 #include "G4Material.hh"
 #include "G4PVPlacement.hh"
 #include "G4ReflectionFactory.hh"
-#include "G4Trap.hh"
-#include "G4Tubs.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VSolid.hh"
 
@@ -25,12 +22,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDG4DispContainer *DDG4Builder::theVectorOfDDG4Dispatchables_ = nullptr;
-
-DDG4DispContainer *DDG4Builder::theVectorOfDDG4Dispatchables() { return theVectorOfDDG4Dispatchables_; }
-
-DDG4Builder::DDG4Builder(const DDCompactView *cpv, bool check)
-    : solidConverter_(new DDG4SolidConverter), compactView(cpv), check_(check) {
+DDG4Builder::DDG4Builder(const DDCompactView *cpv, G4LogicalVolumeToDDLogicalPartMap &lvmap, bool check)
+    : solidConverter_(new DDG4SolidConverter), compactView_(cpv), map_(lvmap), check_(check) {
   theVectorOfDDG4Dispatchables_ = new DDG4DispContainer();
 }
 
@@ -104,12 +97,12 @@ G4Material *DDG4Builder::convertMaterial(const DDMaterial &material) {
   return result;
 }
 
-DDGeometryReturnType DDG4Builder::BuildGeometry() {
+G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
   G4ReflectionFactory *refFact = G4ReflectionFactory::Instance();
   refFact->SetScalePrecision(100. * refFact->GetScalePrecision());
 
   using Graph = DDCompactView::Graph;
-  const auto &gra = compactView->graph();
+  const auto &gra = compactView_->graph();
   using adjl_iterator = Graph::const_adj_iterator;
   adjl_iterator git = gra.begin();
   adjl_iterator gend = gra.end();
@@ -148,15 +141,15 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
         DD3Vector x, y, z;
         rm.GetComponents(x, y, z);
         if ((x.Cross(y)).Dot(z) < 0)
-          edm::LogInfo("SimG4CoreGeometry")
-              << ">>Reflection encountered: " << gra.edgeData(cit->second)->ddrot()
+          edm::LogVerbatim("SimG4CoreGeometry")
+              << "DDG4Builder: Reflection: " << gra.edgeData(cit->second)->ddrot()
               << ">>Placement d=" << gra.nodeData(cit->first).ddname() << " m=" << ddLP.ddname()
               << " cp=" << gra.edgeData(cit->second)->copyno() << " r=" << gra.edgeData(cit->second)->ddrot().ddname();
         G4ThreeVector tempTran(gra.edgeData(cit->second)->trans().X(),
                                gra.edgeData(cit->second)->trans().Y(),
                                gra.edgeData(cit->second)->trans().Z());
         G4Translate3D transl = tempTran;
-        CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z());  // matrix representation
+        CLHEP::HepRep3x3 temp(x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z());  // matrix
         CLHEP::HepRotation hr(temp);
 
         // G3 convention of defining rot-matrices ...
@@ -183,20 +176,20 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
       map_.insert(reflLogicalVolume, ddlv);
       DDG4Dispatchable *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      edm::LogInfo("SimG4CoreGeometry") << "DDG4Builder: newEvent: dd=" << ddlv.ddname()
-                                        << " g4=" << reflLogicalVolume->GetName();
+      edm::LogVerbatim("SimG4CoreGeometry")
+          << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();
     }
   }
 
-  G4LogicalVolume *world = logs_[compactView->root()];
+  G4LogicalVolume *world = logs_[compactView_->root()];
 
   //
   //  needed for building sensitive detectors
   //
-  DDG4SensitiveConverter conv_;
-  SensitiveDetectorCatalog catalog = conv_.upDate(*theVectorOfDDG4Dispatchables_);
+  DDG4SensitiveConverter conv;
+  conv.upDate(*theVectorOfDDG4Dispatchables_, catalog);
 
-  return DDGeometryReturnType(world, map_, catalog);
+  return world;
 }
 
 int DDG4Builder::getInt(const std::string &ss, const DDLogicalPart &part) {

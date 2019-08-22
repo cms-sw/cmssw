@@ -33,44 +33,42 @@
 
 #include <cstdint>
 
-class WriteCTPPSBeamParameters : public edm::one::EDAnalyzer<>
-{
-  public:
-    WriteCTPPSBeamParameters(const edm::ParameterSet&) {}
-    ~WriteCTPPSBeamParameters() override = default;
+class WriteCTPPSBeamParameters : public edm::one::EDAnalyzer<> {
+public:
+  WriteCTPPSBeamParameters(const edm::ParameterSet&) {}
+  ~WriteCTPPSBeamParameters() override = default;
 
-  private:
-    void analyze(const edm::Event&, const edm::EventSetup&) override;
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 };
 
 //---------------------------------------------------------------------------------------
 
-void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-  edm::ESHandle<CTPPSBeamParameters> bp ;
-  iSetup.get<CTPPSBeamParametersRcd>().get(bp) ;
+void WriteCTPPSBeamParameters::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::ESHandle<CTPPSBeamParameters> bp;
+  iSetup.get<CTPPSBeamParametersRcd>().get(bp);
 
   // Pointer for the conditions data object
-  const CTPPSBeamParameters *p = bp.product() ;
+  const CTPPSBeamParameters* p = bp.product();
 
   // Using "lumiid" as IOV
-  const edm::LuminosityBlock &iLBlock = iEvent.getLuminosityBlock() ;
-  edm::LuminosityBlockID lu(iLBlock.run(), iLBlock.id().luminosityBlock()) ;
-  cond::Time_t ilumi = (cond::Time_t)(lu.value()) ;
+  const edm::LuminosityBlock& iLBlock = iEvent.getLuminosityBlock();
+  edm::LuminosityBlockID lu(iLBlock.run(), iLBlock.id().luminosityBlock());
+  cond::Time_t ilumi = (cond::Time_t)(lu.value());
   // cond::Time_t itime = (cond::Time_t)(iEvent.time().value()) ;  //  use this for timestamp
 
-  edm::LogInfo("WriteCTPPSBeamParameters::analyze") << "cond::Time_t ilumi = " << ilumi
-    << " = " << boost::posix_time::to_iso_extended_string( cond::time::to_boost( ilumi ) ) << "\n" ;
+  edm::LogInfo("WriteCTPPSBeamParameters::analyze")
+      << "cond::Time_t ilumi = " << ilumi << " = "
+      << boost::posix_time::to_iso_extended_string(cond::time::to_boost(ilumi)) << "\n";
 
   // Write to database or sqlite file
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  if( poolDbService.isAvailable() )
-    poolDbService->writeOne( p, ilumi, "CTPPSBeamParametersRcd"  );
-    // poolDbService->writeOne( p, poolDbService->currentTime(), "CTPPSBeamParametersRcd"  );
+  if (poolDbService.isAvailable())
+    poolDbService->writeOne(p, ilumi, "CTPPSBeamParametersRcd");
+  // poolDbService->writeOne( p, poolDbService->currentTime(), "CTPPSBeamParametersRcd"  );
   else
     throw std::runtime_error("PoolDBService required.");
 }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(WriteCTPPSBeamParameters);
-

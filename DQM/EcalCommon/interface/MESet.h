@@ -4,7 +4,6 @@
 #include "DQM/EcalCommon/interface/MESetBinningUtils.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
@@ -27,6 +26,8 @@ namespace ecaldqm {
 
   class MESet {
   public:
+    typedef dqm::legacy::DQMStore DQMStore;
+    typedef dqm::legacy::MonitorElement MonitorElement;
     typedef std::map<std::string, std::string> PathReplacements;
 
     MESet();

@@ -36,7 +36,6 @@ class DTPosNegCompare {
 */
 
 class DTPosNegType {
-
 public:
   /** Constructor
    */
@@ -68,4 +67,4 @@ private:
   static int getData(int whe, int sec, int sta);
 };
 
-#endif // DTPosNegType_H
+#endif  // DTPosNegType_H

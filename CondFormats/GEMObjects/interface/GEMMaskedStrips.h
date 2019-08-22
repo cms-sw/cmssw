@@ -6,21 +6,20 @@
 #include <iostream>
 
 class GEMMaskedStrips {
-
- public:
+public:
   struct MaskItem {
     int rawId;
     int strip;
     COND_SERIALIZABLE;
   };
-  
-  GEMMaskedStrips(){}
-  ~GEMMaskedStrips(){}
 
-  std::vector<MaskItem> const & getMaskVec() const {return maskVec_;}
-  void fillMaskVec(MaskItem m) {maskVec_.push_back(m);}
+  GEMMaskedStrips() {}
+  ~GEMMaskedStrips() {}
 
- private:
+  std::vector<MaskItem> const& getMaskVec() const { return maskVec_; }
+  void fillMaskVec(MaskItem m) { maskVec_.push_back(m); }
+
+private:
   std::vector<MaskItem> maskVec_;
 
   COND_SERIALIZABLE;

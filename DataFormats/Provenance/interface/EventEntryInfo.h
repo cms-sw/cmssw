@@ -27,33 +27,26 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    BranchID const& branchID() const {return branchID_;}
-    ProductID const& productID() const {return productID_;}
-    EntryDescriptionID const& entryDescriptionID() const {return entryDescriptionID_;}
+    BranchID const& branchID() const { return branchID_; }
+    ProductID const& productID() const { return productID_; }
+    EntryDescriptionID const& entryDescriptionID() const { return entryDescriptionID_; }
 
   private:
-
     BranchID branchID_;
     ProductID productID_;
     EntryDescriptionID entryDescriptionID_;
   };
 
-  inline
-  bool
-  operator < (EventEntryInfo const& a, EventEntryInfo const& b) {
-    return a.branchID() < b.branchID();
-  }
-  
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, EventEntryInfo const& p) {
+  inline bool operator<(EventEntryInfo const& a, EventEntryInfo const& b) { return a.branchID() < b.branchID(); }
+
+  inline std::ostream& operator<<(std::ostream& os, EventEntryInfo const& p) {
     p.write(os);
     return os;
   }
 
   // Only the 'salient attributes' are testing in equality comparison.
   bool operator==(EventEntryInfo const& a, EventEntryInfo const& b);
-  inline bool operator!=(EventEntryInfo const& a, EventEntryInfo const& b) { return !(a==b); }
+  inline bool operator!=(EventEntryInfo const& a, EventEntryInfo const& b) { return !(a == b); }
   typedef std::vector<EventEntryInfo> EventEntryInfoVector;
-}
+}  // namespace edm
 #endif

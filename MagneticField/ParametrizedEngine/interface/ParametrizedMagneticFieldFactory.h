@@ -8,40 +8,35 @@
  *  \author N. Amapane - Torino
  */
 
-
 #include <MagneticField/Engine/interface/MagneticField.h>
 #include <vector>
 #include <string>
 #include <memory>
 
-namespace edm{
+namespace edm {
   class ParameterSet;
 }
 
-namespace magneticfield{
+namespace magneticfield {
   class ParametrizedMagneticFieldProducer;
   class AutoParametrizedMagneticFieldProducer;
   class VolumeBasedMagneticFieldESProducerFromDB;
-}
+}  // namespace magneticfield
 
 class ParametrizedMagneticFieldFactory {
- public:
+public:
   /// Constructor
   ParametrizedMagneticFieldFactory();
-  
- private:
+
+private:
   friend class magneticfield::ParametrizedMagneticFieldProducer;
   friend class magneticfield::AutoParametrizedMagneticFieldProducer;
   friend class magneticfield::VolumeBasedMagneticFieldESProducerFromDB;
 
   // Get map configured from pset (deprecated)
-  std::unique_ptr<MagneticField>
-  static get(std::string version, const edm::ParameterSet& parameters);
-  
-  // Get map configured from type name and numerical parameters
-  std::unique_ptr<MagneticField>
-  static get(std::string version, std::vector<double> parameters);
+  std::unique_ptr<MagneticField> static get(std::string version, const edm::ParameterSet& parameters);
 
+  // Get map configured from type name and numerical parameters
+  std::unique_ptr<MagneticField> static get(std::string version, std::vector<double> parameters);
 };
 #endif
-

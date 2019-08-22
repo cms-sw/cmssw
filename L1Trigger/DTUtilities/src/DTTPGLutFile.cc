@@ -53,13 +53,11 @@ DTTPGLutFile::~DTTPGLutFile() {}
 //--------------
 
 DTTPGLutFile &DTTPGLutFile::operator=(const DTTPGLutFile &lut) {
-
   m_file = lut.m_file;
   return *this;
 }
 
 int DTTPGLutFile::open() {
-
   const char *file_name = m_file.c_str();
   m_fin.open(file_name, ios::in);
   if (!m_fin) {
@@ -71,28 +69,24 @@ int DTTPGLutFile::open() {
 }
 
 void DTTPGLutFile::ignoreLines(int n) {
-
   char buf[256];
   for (int i = 0; i < n; i++)
     m_fin.getline(buf, 256);
 }
 
 int DTTPGLutFile::readInteger() {
-
   int tmp = 0;
   m_fin >> tmp;
   return tmp;
 }
 
 int DTTPGLutFile::readHex() {
-
   int tmp = 0;
   m_fin >> hex >> tmp;
   return tmp;
 }
 
 string DTTPGLutFile::readString() {
-
   string tmp;
   m_fin >> tmp;
   return tmp;

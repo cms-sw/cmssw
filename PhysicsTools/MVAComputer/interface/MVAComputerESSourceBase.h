@@ -14,21 +14,21 @@
 
 namespace PhysicsTools {
 
-class MVAComputerESSourceBase : public edm::ESProducer {
-    public:
-	using ReturnType = std::unique_ptr<Calibration::MVAComputerContainer>;
+  class MVAComputerESSourceBase : public edm::ESProducer {
+  public:
+    using ReturnType = std::unique_ptr<Calibration::MVAComputerContainer>;
 
-	MVAComputerESSourceBase(const edm::ParameterSet &params);
-	~MVAComputerESSourceBase() override;
+    MVAComputerESSourceBase(const edm::ParameterSet &params);
+    ~MVAComputerESSourceBase() override;
 
-    protected:
-	ReturnType produce() const;
+  protected:
+    ReturnType produce() const;
 
-	typedef std::map<std::string, std::string> LabelFileMap;
+    typedef std::map<std::string, std::string> LabelFileMap;
 
-	LabelFileMap	mvaCalibrations;
-};
+    LabelFileMap mvaCalibrations;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVAComputer_MVAComputerESSourceBase_h
+#endif  // PhysicsTools_MVAComputer_MVAComputerESSourceBase_h

@@ -4,7 +4,7 @@
 //
 // Package:     FWLite
 // Class  :     format_type_name
-// 
+//
 /**\class format_type_name format_type_name.h DataFormats/FWLite/interface/format_type_name.h
 
  Description: functions used to format and unformat class names for conditions access
@@ -14,7 +14,7 @@
 
 */
 //
-// Original Author:  
+// Original Author:
 //         Created:  Thu Dec  3 16:52:43 CST 2009
 
 // system include files
@@ -26,12 +26,12 @@
 
 namespace fwlite {
 
-  ///given a C++ class name returned a mangled name 
+  ///given a C++ class name returned a mangled name
   std::string format_type_to_mangled(const std::string&);
 
   ///given a mangled name return the C++ class name
   std::string unformat_mangled_to_type(const std::string&);
 
-}
+}  // namespace fwlite
 
 #endif

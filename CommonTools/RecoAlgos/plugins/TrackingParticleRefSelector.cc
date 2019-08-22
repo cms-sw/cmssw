@@ -15,9 +15,9 @@
 
 namespace reco {
   namespace modules {
-    typedef SingleObjectSelector<TrackingParticleCollection,::TrackingParticleSelector,TrackingParticleRefVector> 
-    TrackingParticleRefSelector ;
+    typedef SingleObjectSelector<TrackingParticleCollection, ::TrackingParticleSelector, TrackingParticleRefVector>
+        TrackingParticleRefSelector;
 
-    DEFINE_FWK_MODULE( TrackingParticleRefSelector );
-  }
-}
+    DEFINE_FWK_MODULE(TrackingParticleRefSelector);
+  }  // namespace modules
+}  // namespace reco

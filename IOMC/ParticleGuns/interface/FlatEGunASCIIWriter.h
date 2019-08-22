@@ -5,7 +5,7 @@
 // This code has been molded after examples in HepMC and HepPDT, and
 // after single particle gun example (private contacts with Lynn Garren)
 //
-// Plus, it uses the ParameterSet funtionalities for "user interface"  
+// Plus, it uses the ParameterSet funtionalities for "user interface"
 //
 // ----------------------------------------------------------------------
 
@@ -28,52 +28,44 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-namespace edm 
-{
+namespace edm {
 
-   class FlatEGunASCIIWriter : public edm::EDAnalyzer 
-   {
+  class FlatEGunASCIIWriter : public edm::EDAnalyzer {
+  public:
+    // The following is not yet used, but will be the primary
+    // constructor when the parameter set system is available.
+    //
+    explicit FlatEGunASCIIWriter(const edm::ParameterSet&);
 
-      public:
+    ~FlatEGunASCIIWriter() override;
 
-     // The following is not yet used, but will be the primary
-     // constructor when the parameter set system is available.
-     //
-     explicit FlatEGunASCIIWriter( const edm::ParameterSet& ) ;
-     
-     ~FlatEGunASCIIWriter() override ;
-     
-     void analyze(  const edm::Event&, const edm::EventSetup&) override;
-	 void beginJob() override ;
-	 void beginRun(const edm::Run&, const EventSetup&) override;
-     
-   private:
-     
-     
-     // gun particle(s) characteristics
-     std::vector<int>        fPartIDs ;
-     double                  fMinEta ;
-     double                  fMaxEta ;
-     double                  fMinPhi ;
-     double                  fMaxPhi ;
-     double                  fMinE   ;
-     double                  fMaxE   ;
-     
-     // the event format itself
-     HepMC::GenEvent*  fEvt;
-     
-     
-     // HepMC/HepPDT related things 
-     ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-	 
-     std::string    fOutFileName;
-     HepMC::IO_GenEvent * fOutStream ;
-     
-     int            fCurrentEvent ; // event counter - untill I learn how to get it
-	                                // from edm::Event ) EventID ??? or what ?)
-     
-   };
-   
-}
+    void analyze(const edm::Event&, const edm::EventSetup&) override;
+    void beginJob() override;
+    void beginRun(const edm::Run&, const EventSetup&) override;
+
+  private:
+    // gun particle(s) characteristics
+    std::vector<int> fPartIDs;
+    double fMinEta;
+    double fMaxEta;
+    double fMinPhi;
+    double fMaxPhi;
+    double fMinE;
+    double fMaxE;
+
+    // the event format itself
+    HepMC::GenEvent* fEvt;
+
+    // HepMC/HepPDT related things
+    ESHandle<HepPDT::ParticleDataTable> fPDGTable;
+
+    std::string fOutFileName;
+    HepMC::IO_GenEvent* fOutStream;
+
+    int fCurrentEvent;  // event counter - untill I learn how to get it
+                        // from edm::Event ) EventID ??? or what ?)
+  };
+
+}  // namespace edm
 
 #endif

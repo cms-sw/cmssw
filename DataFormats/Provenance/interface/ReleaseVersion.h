@@ -2,8 +2,7 @@
 #define DataFormats_Provenance_ReleaseVersion_h
 
 #include <string>
-namespace edm
-{
+namespace edm {
   typedef std::string ReleaseVersion;
 }
 

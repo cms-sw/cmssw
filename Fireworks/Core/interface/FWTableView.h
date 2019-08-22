@@ -48,57 +48,56 @@ class FWGUIValidatingTextEntry;
 class FWExpressionValidator;
 
 class FWTableView : public FWViewBase {
-     friend class FWTableViewTableManager;
+  friend class FWTableViewTableManager;
 
 public:
-     FWTableView(TEveWindowSlot *, FWTableViewManager *);
-     ~FWTableView() override;
+  FWTableView(TEveWindowSlot *, FWTableViewManager *);
+  ~FWTableView() override;
 
-     // ---------- const member functions ---------------------
-     void addTo(FWConfiguration&) const override;
+  // ---------- const member functions ---------------------
+  void addTo(FWConfiguration &) const override;
 
-     void saveImageTo(const std::string& iName) const override;
+  void saveImageTo(const std::string &iName) const override;
 
-     // ---------- static member functions --------------------
+  // ---------- static member functions --------------------
 
-     // ---------- member functions ---------------------------
-     void setFrom(const FWConfiguration&) override;
-     void setBackgroundColor(Color_t);
-     void resetColors (const class FWColorManager &);
-     void updateItems ();
-     void updateEvaluators ();
-     void selectCollection (Int_t);
-     void dataChanged ();
-     const FWEventItem *item () const;
-     void modelSelected(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
-     void columnSelected (Int_t iCol, Int_t iButton, Int_t iKeyMod);
-     void toggleShowHide ();
-     void addColumn ();
-     void deleteColumn ();
-     void modifyColumn ();
+  // ---------- member functions ---------------------------
+  void setFrom(const FWConfiguration &) override;
+  void setBackgroundColor(Color_t);
+  void resetColors(const class FWColorManager &);
+  void updateItems();
+  void updateEvaluators();
+  void selectCollection(Int_t);
+  void dataChanged();
+  const FWEventItem *item() const;
+  void modelSelected(Int_t iRow, Int_t iButton, Int_t iKeyMod, Int_t, Int_t);
+  void columnSelected(Int_t iCol, Int_t iButton, Int_t iKeyMod);
+  void toggleShowHide();
+  void addColumn();
+  void deleteColumn();
+  void modifyColumn();
 
 private:
-     FWTableView(const FWTableView&) = delete;    // stop default
-     const FWTableView& operator=(const FWTableView&) = delete;    // stop default
+  FWTableView(const FWTableView &) = delete;                   // stop default
+  const FWTableView &operator=(const FWTableView &) = delete;  // stop default
 
 protected:
-     // ---------- member data --------------------------------
-     TEveWindowFrame *m_eveWindow;
-     TGComboBox *m_collection;
-     TGCompositeFrame *m_vert, *m_column_control;
-     int m_iColl;
-     FWTableViewManager *m_manager;
-     FWTableViewTableManager *m_tableManager;
-     FWTableWidget *m_tableWidget;
-     bool m_showColumnUI;
-     FWCustomIconsButton *m_columnUIButton;
-     TGTextEntry *m_column_name_field;
-     FWGUIValidatingTextEntry *m_column_expr_field;
-     FWExpressionValidator *m_validator;
-     TGTextEntry *m_column_prec_field;
-     int m_currentColumn;
-     bool m_useColumnsFromConfig;
+  // ---------- member data --------------------------------
+  TEveWindowFrame *m_eveWindow;
+  TGComboBox *m_collection;
+  TGCompositeFrame *m_vert, *m_column_control;
+  int m_iColl;
+  FWTableViewManager *m_manager;
+  FWTableViewTableManager *m_tableManager;
+  FWTableWidget *m_tableWidget;
+  bool m_showColumnUI;
+  FWCustomIconsButton *m_columnUIButton;
+  TGTextEntry *m_column_name_field;
+  FWGUIValidatingTextEntry *m_column_expr_field;
+  FWExpressionValidator *m_validator;
+  TGTextEntry *m_column_prec_field;
+  int m_currentColumn;
+  bool m_useColumnsFromConfig;
 };
-
 
 #endif

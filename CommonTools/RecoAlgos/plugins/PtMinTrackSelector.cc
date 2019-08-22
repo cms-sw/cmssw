@@ -11,9 +11,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
- typedef SingleObjectSelector<
-           reco::TrackCollection, 
-           PtMinSelector
-         > PtMinTrackSelector;
+typedef SingleObjectSelector<reco::TrackCollection, PtMinSelector> PtMinTrackSelector;
 
-DEFINE_FWK_MODULE( PtMinTrackSelector );
+DEFINE_FWK_MODULE(PtMinTrackSelector);

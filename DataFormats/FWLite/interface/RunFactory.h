@@ -23,24 +23,22 @@
 #include "DataFormats/FWLite/interface/Run.h"
 
 namespace fwlite {
-    class RunFactory {
-        public:
-            RunFactory();
-            virtual ~RunFactory();
+  class RunFactory {
+  public:
+    RunFactory();
+    virtual ~RunFactory();
 
-            // ---------- const member functions ---------------------
-            std::shared_ptr<fwlite::Run> makeRun(std::shared_ptr<BranchMapReader> branchMap) const;
+    // ---------- const member functions ---------------------
+    std::shared_ptr<fwlite::Run> makeRun(std::shared_ptr<BranchMapReader> branchMap) const;
 
-        private:
-            RunFactory(const RunFactory&) = delete; // stop default
+  private:
+    RunFactory(const RunFactory&) = delete;  // stop default
 
-            const RunFactory& operator=(const RunFactory&) = delete; // stop default
-            mutable std::shared_ptr<fwlite::Run> run_;
+    const RunFactory& operator=(const RunFactory&) = delete;  // stop default
+    mutable std::shared_ptr<fwlite::Run> run_;
 
-
-            // ---------- member data --------------------------------
-    };
-}
-
+    // ---------- member data --------------------------------
+  };
+}  // namespace fwlite
 
 #endif

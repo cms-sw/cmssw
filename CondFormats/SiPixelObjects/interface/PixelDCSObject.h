@@ -19,13 +19,11 @@
 #include <vector>
 
 template <class T>
-struct PixelDCSObject
-{
+struct PixelDCSObject {
   typedef T Type;
 
-  struct Item
-  {
-    std::string name; // name of detector element
+  struct Item {
+    std::string name;  // name of detector element
 
     Type value;
 
@@ -37,11 +35,10 @@ struct PixelDCSObject
   COND_SERIALIZABLE;
 };
 
-struct CaenChannel
-{
-  bool isOn;  // true if channel is on
-  float iMon; // current value
-  float vMon; // voltage value
+struct CaenChannel {
+  bool isOn;   // true if channel is on
+  float iMon;  // current value
+  float vMon;  // voltage value
 
   COND_SERIALIZABLE;
 };

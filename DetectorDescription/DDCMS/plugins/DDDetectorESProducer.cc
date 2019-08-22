@@ -2,7 +2,7 @@
 //
 // Package:    DetectorDescription/DDDetectorESProducer
 // Class:      DDDetectorESProducer
-// 
+//
 /**\class DDDetectorESProducer
 
  Description: Produce Detector description
@@ -32,12 +32,11 @@ using namespace std;
 using namespace cms;
 using namespace edm;
 
-class DDDetectorESProducer : public ESProducer,
-			     public EventSetupRecordIntervalFinder {
+class DDDetectorESProducer : public ESProducer, public EventSetupRecordIntervalFinder {
 public:
   DDDetectorESProducer(const ParameterSet&);
   ~DDDetectorESProducer() override;
-  
+
   using ReturnType = unique_ptr<DDDetector>;
   using Detector = dd4hep::Detector;
 
@@ -45,44 +44,36 @@ public:
   static void fillDescriptions(ConfigurationDescriptions&);
 
 protected:
-  void setIntervalFor(const eventsetup::EventSetupRecordKey&,
-		      const IOVSyncValue&, ValidityInterval&) override;
-  
+  void setIntervalFor(const eventsetup::EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) override;
+
 private:
   const string m_confGeomXMLFiles;
   const string m_label;
 };
 
 DDDetectorESProducer::DDDetectorESProducer(const ParameterSet& iConfig)
-  : m_confGeomXMLFiles(iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
-    m_label(iConfig.getParameter<string>("appendToDataLabel"))
-{
+    : m_confGeomXMLFiles(iConfig.getParameter<FileInPath>("confGeomXMLFiles").fullPath()),
+      m_label(iConfig.getParameter<string>("appendToDataLabel")) {
   setWhatProduced(this);
   findingRecord<GeometryFileRcd>();
 }
 
-DDDetectorESProducer::~DDDetectorESProducer()
-{
-}
+DDDetectorESProducer::~DDDetectorESProducer() {}
 
-void
-DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions & descriptions)
-{
+void DDDetectorESProducer::fillDescriptions(ConfigurationDescriptions& descriptions) {
   ParameterSetDescription desc;
 
   desc.add<FileInPath>("confGeomXMLFiles");
   descriptions.addDefault(desc);
 }
 
-void
-DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
-				     const IOVSyncValue& iTime, ValidityInterval& oInterval) {
-  oInterval = ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime()); //infinite
+void DDDetectorESProducer::setIntervalFor(const eventsetup::EventSetupRecordKey& iKey,
+                                          const IOVSyncValue& iTime,
+                                          ValidityInterval& oInterval) {
+  oInterval = ValidityInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());  //infinite
 }
 
-DDDetectorESProducer::ReturnType
-DDDetectorESProducer::produce(const GeometryFileRcd& iRecord)
-{
+DDDetectorESProducer::ReturnType DDDetectorESProducer::produce(const GeometryFileRcd& iRecord) {
   LogDebug("Geometry") << "DDDetectorESProducer::Produce " << m_label;
   return make_unique<DDDetector>(m_label, m_confGeomXMLFiles);
 }

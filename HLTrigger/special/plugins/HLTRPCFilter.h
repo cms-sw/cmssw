@@ -18,18 +18,18 @@
 //
 
 class HLTRPCFilter : public edm::global::EDFilter<> {
-   public:
-      explicit HLTRPCFilter(const edm::ParameterSet&);
-      ~HLTRPCFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+public:
+  explicit HLTRPCFilter(const edm::ParameterSet&);
+  ~HLTRPCFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-   private:
-      bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+private:
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-      edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
-      edm::EDGetTokenT<RPCRecHitCollection> rpcDTPointsToken;
-      edm::EDGetTokenT<RPCRecHitCollection> rpcCSCPointsToken;
-      double rangestrips;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcDTPointsToken;
+  edm::EDGetTokenT<RPCRecHitCollection> rpcCSCPointsToken;
+  double rangestrips;
 };
 
 #endif

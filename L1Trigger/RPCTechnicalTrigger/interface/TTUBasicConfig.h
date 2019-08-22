@@ -1,4 +1,4 @@
-#ifndef INTERFACE_TTUBASICCONFIG_H 
+#ifndef INTERFACE_TTUBASICCONFIG_H
 #define INTERFACE_TTUBASICCONFIG_H 1
 
 // Include files
@@ -14,24 +14,21 @@
  */
 class TTUBasicConfig : public TTUConfiguration {
 public:
-  TTUBasicConfig( const char * );
-  
-  TTUBasicConfig( const TTUBoardSpecs * );
-  
-  ~TTUBasicConfig( ) override; ///< Destructor
+  TTUBasicConfig(const char*);
 
-  bool initialise( int , int ) override;
+  TTUBasicConfig(const TTUBoardSpecs*);
 
-  void preprocess( TTUInput & ) override;
-  
+  ~TTUBasicConfig() override;  ///< Destructor
+
+  bool initialise(int, int) override;
+
+  void preprocess(TTUInput&) override;
+
 protected:
-  
 private:
-
   std::vector<int> m_vecmask;
   std::vector<int> m_vecforce;
 
   bool m_debug;
-    
 };
-#endif // INTERFACE_TTUBASICCONFIG_H
+#endif  // INTERFACE_TTUBASICCONFIG_H

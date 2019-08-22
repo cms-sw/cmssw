@@ -6,11 +6,10 @@
 
 #include "DataFormats/JetReco/interface/Jet.h"
 
-
 namespace reco {
   /// edm references
   typedef edm::View<Jet> JetView;
   typedef edm::RefToBase<Jet> JetBaseRef;
   typedef edm::RefToBaseProd<reco::Jet> JetRefBaseProd;
-}
+}  // namespace reco
 #endif

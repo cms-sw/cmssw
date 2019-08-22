@@ -10,58 +10,51 @@
  */
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
-
 
 #include <vector>
 #include <algorithm>
 
 class ForwardDetLayer : public DetLayer {
 public:
-
-  ForwardDetLayer(bool doHaveGroups): DetLayer(doHaveGroups,false) {}
+  ForwardDetLayer(bool doHaveGroups) : DetLayer(doHaveGroups, false) {}
 
   ~ForwardDetLayer() override;
 
   // GeometricSearchDet interface
-  const BoundSurface&  surface() const final { return *theDisk;}
+  const BoundSurface& surface() const final { return *theDisk; }
 
-  std::pair<bool, TrajectoryStateOnSurface>
-  compatible( const TrajectoryStateOnSurface&, const Propagator&, 
-	      const MeasurementEstimator&) const override;
+  std::pair<bool, TrajectoryStateOnSurface> compatible(const TrajectoryStateOnSurface&,
+                                                       const Propagator&,
+                                                       const MeasurementEstimator&) const override;
 
   // DetLayer interface
-  Location location() const  final {return GeomDetEnumerators::endcap;}
+  Location location() const final { return GeomDetEnumerators::endcap; }
 
   // Extension of the interface
-  virtual const BoundDisk& specificSurface() const  final { return *theDisk;}
+  virtual const BoundDisk& specificSurface() const final { return *theDisk; }
 
-  bool contains( const Local3DPoint& p) const;  
-  
- protected:
+  bool contains(const Local3DPoint& p) const;
 
+protected:
   virtual void initialize();
 
+  float rmin() const { return theDisk->innerRadius(); }
+  float rmax() const { return theDisk->outerRadius(); }
+  float zmin() const { return (theDisk->position().z() - bounds().thickness() * 0.5f); }
+  float zmax() const { return (theDisk->position().z() + bounds().thickness() * 0.5f); }
 
-  float rmin() const { return theDisk->innerRadius();}
-  float rmax() const { return theDisk->outerRadius();}
-  float zmin() const { return (theDisk->position().z() - bounds().thickness()*0.5f);}
-  float zmax() const { return (theDisk->position().z() + bounds().thickness()*0.5f);}
-
-  void setSurface( BoundDisk* cp);
+  void setSurface(BoundDisk* cp);
   virtual BoundDisk* computeSurface();
 
-  SimpleDiskBounds const & bounds() const { return static_cast<SimpleDiskBounds const &>(theDisk->bounds());} 
+  SimpleDiskBounds const& bounds() const { return static_cast<SimpleDiskBounds const&>(theDisk->bounds()); }
 
- private:
+private:
   ReferenceCountingPointer<BoundDisk> theDisk;
-
-
 };
 
-
-#endif 
+#endif

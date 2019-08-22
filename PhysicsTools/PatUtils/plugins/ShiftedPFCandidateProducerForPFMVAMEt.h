@@ -30,14 +30,12 @@
 #include <string>
 #include <vector>
 
-class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<>
-{
- public:
-
+class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<> {
+public:
   explicit ShiftedPFCandidateProducerForPFMVAMEt(const edm::ParameterSet&);
   ~ShiftedPFCandidateProducerForPFMVAMEt() override;
 
- private:
+private:
   typedef edm::View<reco::Candidate> CandidateView;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -45,8 +43,8 @@ class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<>
   std::string moduleLabel_;
 
   edm::EDGetTokenT<reco::PFCandidateCollection> srcPFCandidatesToken_;
-  edm::EDGetTokenT<CandidateView>               srcUnshiftedObjectsToken_;
-  edm::EDGetTokenT<CandidateView>               srcShiftedObjectsToken_;
+  edm::EDGetTokenT<CandidateView> srcUnshiftedObjectsToken_;
+  edm::EDGetTokenT<CandidateView> srcShiftedObjectsToken_;
 
   double dRmatch_PFCandidate_;
   double dRmatch_Object_;
@@ -54,19 +52,17 @@ class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<>
   double dR2match_PFCandidate_;
   double dR2match_Object_;
 
-
-  struct objectEntryType
-  {
+  struct objectEntryType {
     objectEntryType(const reco::Candidate::LorentzVector& shiftedObjectP4,
-		    const reco::Candidate::LorentzVector& unshiftedObjectP4, double dRmatch)
-      : shiftedObjectP4_(shiftedObjectP4),
-	unshiftedObjectP4_(unshiftedObjectP4),
-	dRmatch_(dRmatch),
-	isValidMatch_(false)
-    {
-      if ( unshiftedObjectP4.energy() > 0. ) {
-	shift_ = (shiftedObjectP4.energy()/unshiftedObjectP4.energy()) - 1.;
-	isValidMatch_ = true;
+                    const reco::Candidate::LorentzVector& unshiftedObjectP4,
+                    double dRmatch)
+        : shiftedObjectP4_(shiftedObjectP4),
+          unshiftedObjectP4_(unshiftedObjectP4),
+          dRmatch_(dRmatch),
+          isValidMatch_(false) {
+      if (unshiftedObjectP4.energy() > 0.) {
+        shift_ = (shiftedObjectP4.energy() / unshiftedObjectP4.energy()) - 1.;
+        isValidMatch_ = true;
       }
     }
     ~objectEntryType() {}
@@ -81,7 +77,3 @@ class ShiftedPFCandidateProducerForPFMVAMEt : public edm::stream::EDProducer<>
 };
 
 #endif
-
-
-
-

@@ -14,20 +14,18 @@
 #include <RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h>
 #include <memory>
 
-
-class  MTDDetLayerGeometryESProducer: public edm::ESProducer{
- public:
+class MTDDetLayerGeometryESProducer : public edm::ESProducer {
+public:
   /// Constructor
-  MTDDetLayerGeometryESProducer(const edm::ParameterSet & p);
+  MTDDetLayerGeometryESProducer(const edm::ParameterSet& p);
 
   /// Destructor
-  ~MTDDetLayerGeometryESProducer() override; 
+  ~MTDDetLayerGeometryESProducer() override;
 
   /// Produce MuonDeLayerGeometry.
-  std::unique_ptr<MTDDetLayerGeometry> produce(const MTDRecoGeometryRecord & record);
+  std::unique_ptr<MTDDetLayerGeometry> produce(const MTDRecoGeometryRecord& record);
 
- private:
+private:
 };
-
 
 #endif

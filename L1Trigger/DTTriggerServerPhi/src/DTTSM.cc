@@ -62,15 +62,13 @@ void DTTSM::clear() {
 }
 
 void DTTSM::run(int bkmod) {
-
   if (config()->debug()) {
     std::cout << "DTTSM::run: Processing DTTSM: ";
-    std::cout << nFirstT() << " first & " << nSecondT() << " second tracks"
-              << std::endl;
+    std::cout << nFirstT() << " first & " << nSecondT() << " second tracks" << std::endl;
   }
 
   if (nFirstT() < 1)
-    return; // skip if no first tracks
+    return;  // skip if no first tracks
   //
   // SORT 1
   //
@@ -90,7 +88,7 @@ void DTTSM::run(int bkmod) {
     _outcand.push_back(first);
   }
   if (nSecondT() < 1)
-    return; // skip if no second tracks
+    return;  // skip if no second tracks
 
   //
   // SORT 2
@@ -99,8 +97,7 @@ void DTTSM::run(int bkmod) {
   // debugging
   if (config()->debug()) {
     std::vector<DTTSCand *>::const_iterator p;
-    std::cout << "Vector of second tracks (including carry) in DTTSM: "
-              << std::endl;
+    std::cout << "Vector of second tracks (including carry) in DTTSM: " << std::endl;
     for (p = _incand[1].begin(); p != _incand[1].end(); p++) {
       (*p)->print();
     }
@@ -109,7 +106,6 @@ void DTTSM::run(int bkmod) {
 
   DTTSCand *second = sortTSM2(bkmod);
   if (second != nullptr) {
-
     _outcand.push_back(second);
   }
 }
@@ -122,15 +118,13 @@ DTTSCand *DTTSM::sortTSM1(int bkmod) {
   for (p = _incand[0].begin(); p != _incand[0].end(); p++) {
     DTTSCand *curr = (*p);
 
-    if (bkmod == 1) {     // NORMAL mode ---> sorting on dataword
-      curr->setBitsTss(); // maybe not necessary, as they are the same as for
-                          // TSS in the default
-    } else if (bkmod ==
-               0) { //  { // BACKUP mode ---> sorting on modified dataword
+    if (bkmod == 1) {         // NORMAL mode ---> sorting on dataword
+      curr->setBitsTss();     // maybe not necessary, as they are the same as for
+                              // TSS in the default
+    } else if (bkmod == 0) {  //  { // BACKUP mode ---> sorting on modified dataword
       curr->setBitsBkmod();
     } else {
-      std::cout << "DTTSM::sortTSM1:  bkmod not properly assigned!"
-                << std::endl;
+      std::cout << "DTTSM::sortTSM1:  bkmod not properly assigned!" << std::endl;
     }
 
     if (best == nullptr) {
@@ -142,11 +136,11 @@ DTTSCand *DTTSM::sortTSM1(int bkmod) {
       carry = curr;
     } else if ((*curr) < (*carry)) {
       carry = curr;
-    } // else { }
+    }  // else { }
   }
 
   // Ghost 1 suppression: use carry only if not suppressed
-  if (carry != nullptr) { // A carry is present
+  if (carry != nullptr) {  // A carry is present
 
     // Carry enabled if correlated and TRACO is next to best
     bool inner_or_corr;
@@ -156,26 +150,25 @@ DTTSCand *DTTSM::sortTSM1(int bkmod) {
       inner_or_corr = carry->isInner();
     }
 
-    if (config()->TsmGhost1Flag() < 2) { // Carry isn't always suppressed
+    if (config()->TsmGhost1Flag() < 2) {  // Carry isn't always suppressed
       // check if adjacent DTTracoChips
-      int adj =
-          (carry->tssNumber() == best->tssNumber() + 1 && // next DTTracoChip
-           best->TcPos() == DTConfigTSPhi::NTCTSS && carry->TcPos() == 1) ||
-          (carry->tssNumber() == best->tssNumber() - 1 && // prev DTTracoChip
-           best->TcPos() == 1 && carry->TcPos() == DTConfigTSPhi::NTCTSS) ||
-          (carry->tssNumber() == best->tssNumber() && // same DTTracoChip
-           abs(carry->TcPos() - best->TcPos()) == 1);
+      int adj = (carry->tssNumber() == best->tssNumber() + 1 &&  // next DTTracoChip
+                 best->TcPos() == DTConfigTSPhi::NTCTSS && carry->TcPos() == 1) ||
+                (carry->tssNumber() == best->tssNumber() - 1 &&  // prev DTTracoChip
+                 best->TcPos() == 1 && carry->TcPos() == DTConfigTSPhi::NTCTSS) ||
+                (carry->tssNumber() == best->tssNumber() &&  // same DTTracoChip
+                 abs(carry->TcPos() - best->TcPos()) == 1);
 
-      if (config()->TsmGhost1Flag() == 0 || // Carry always enabled
-                                            //       carry->isInner() || //
-                                            //       Carry is inner
-          inner_or_corr ||                  // Carry is inner or corr
-          !adj) {                           // Carry not adj. to best
+      if (config()->TsmGhost1Flag() == 0 ||  // Carry always enabled
+                                             //       carry->isInner() || //
+                                             //       Carry is inner
+          inner_or_corr ||                   // Carry is inner or corr
+          !adj) {                            // Carry not adj. to best
         // add carry to second tracks to for sort 2
-        carry->setSecondTrack(); // change value of first/second track bit
+        carry->setSecondTrack();  // change value of first/second track bit
         // NEW DESIGN: DTTSM is not configurable!
         // carry->setBitsTsm();     // set quality bits as for second tracks
-        _incand[1].push_back(carry); // add to list of second tracks
+        _incand[1].push_back(carry);  // add to list of second tracks
       }
     }
   }
@@ -184,7 +177,6 @@ DTTSCand *DTTSM::sortTSM1(int bkmod) {
 }
 
 DTTSCand *DTTSM::sortTSM2(int bkmod) {
-
   // If second tracks are always suppressed skip processing
   if (config()->TsmGhost2Flag() == 3)
     return nullptr;
@@ -223,31 +215,27 @@ DTTSCand *DTTSM::sortTSM2(int bkmod) {
       inner_or_corr = curr->isInner();
     }
 
-    if (config()->TsmGhost2Flag() != 0) { // 2nd tracks not always enabled
+    if (config()->TsmGhost2Flag() != 0) {  // 2nd tracks not always enabled
       if (
           //! curr->isInner() &&                // outer track
-          !inner_or_corr && // outer and not corr
-          (curr->tssNumber() == best->tssNumber() &&
-           curr->TcPos() == best->TcPos())) { // same correlator of 1st track
-        if (config()->TsmGhost2Flag() == 2 || // do not look to corr bit of 1st
-            ((!best->isCorr()) &&
-             config()->TsmGhost2Flag() != 4) || // skip if best is not corr
+          !inner_or_corr &&                                                              // outer and not corr
+          (curr->tssNumber() == best->tssNumber() && curr->TcPos() == best->TcPos())) {  // same correlator of 1st track
+        if (config()->TsmGhost2Flag() == 2 ||                         // do not look to corr bit of 1st
+            ((!best->isCorr()) && config()->TsmGhost2Flag() != 4) ||  // skip if best is not corr
             ((!best->isCorr()) && best->isInner() &&
-             config()->TsmGhost2Flag() ==
-                 4)) // skip only if best is inner and not corr
+             config()->TsmGhost2Flag() == 4))  // skip only if best is inner and not corr
         {
-          continue; // skip track
+          continue;  // skip track
         }
       }
     }
 
     // added DBSM
     // SM double TSM    if ( bkmod == 1 ) { // NORMAL mode ---> sorting with <
-    if (bkmod == 1) {     // NORMAL mode ---> sorting on dataword
-      curr->setBitsTss(); // maybe not necessary, as they are the same as for
-                          // TSS in the default
-    } else if (bkmod ==
-               0) { //  { // BACKUP mode ---> sorting on modified dataword
+    if (bkmod == 1) {         // NORMAL mode ---> sorting on dataword
+      curr->setBitsTss();     // maybe not necessary, as they are the same as for
+                              // TSS in the default
+    } else if (bkmod == 0) {  //  { // BACKUP mode ---> sorting on modified dataword
       curr->setBitsBkmod();
     } else {
       std::cout << " DTTSM::sortTSM2 bkmod not properly assigned!" << std::endl;
@@ -312,7 +300,6 @@ const DTTracoTrigData *DTTSM::getTracoT(int ifs, unsigned n) const {
 }
 
 DTTSCand *DTTSM::getTrack(int n) const {
-
   if (n < 1 || n > nTracks()) {
     std::cout << "DTTSM::getTrack: requested track not present: " << n;
     std::cout << " empty pointer returned!" << std::endl;

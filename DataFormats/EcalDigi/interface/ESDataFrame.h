@@ -8,37 +8,34 @@
 #include <ostream>
 
 class ESDataFrame {
+public:
+  typedef ESDetId key_type;  ///< For the sorted collection
 
- public:
-
-  typedef ESDetId key_type; ///< For the sorted collection
-
-  ESDataFrame(); 
+  ESDataFrame();
   explicit ESDataFrame(const ESDetId& id);
 
-  ESDataFrame( const edm::DataFrame& df ) ;
-    
+  ESDataFrame(const edm::DataFrame& df);
+
   const ESDetId& id() const { return id_; }
-    
+
   int size() const { return size_; }
 
   const ESSample& operator[](int i) const { return data_[i]; }
   const ESSample& sample(int i) const { return data_[i]; }
-    
+
   void setSize(int size);
 
   void setSample(int i, const ESSample& sam) { data_[i] = sam; }
 
   static const int MAXSAMPLES = 3;
 
- private:
-
+private:
   ESDetId id_;
   int size_;
 
-  ESSample data_[MAXSAMPLES] ;
+  ESSample data_[MAXSAMPLES];
 };
-  
+
 std::ostream& operator<<(std::ostream&, const ESDataFrame&);
 
 #endif

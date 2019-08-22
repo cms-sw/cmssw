@@ -5,4 +5,3 @@
 #include <DataFormats/L1CSCTrackFinder/interface/TrackStub.h>
 #include <DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h>
 #include <DataFormats/Common/interface/Wrapper.h>
-

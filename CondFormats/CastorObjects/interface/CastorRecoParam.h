@@ -12,23 +12,23 @@ POOL object to store timeslice reco values
 #include <boost/cstdint.hpp>
 
 class CastorRecoParam {
- public:
-  CastorRecoParam():mId(0), mFirstSample(0), mSamplesToAdd(0) {}
+public:
+  CastorRecoParam() : mId(0), mFirstSample(0), mSamplesToAdd(0) {}
 
-  CastorRecoParam(unsigned long fId, unsigned int fFirstSample, unsigned int fSamplesToAdd):
-    mId(fId), mFirstSample(fFirstSample), mSamplesToAdd(fSamplesToAdd) {}
+  CastorRecoParam(unsigned long fId, unsigned int fFirstSample, unsigned int fSamplesToAdd)
+      : mId(fId), mFirstSample(fFirstSample), mSamplesToAdd(fSamplesToAdd) {}
 
-  uint32_t rawId () const {return mId;}
+  uint32_t rawId() const { return mId; }
 
-  unsigned int firstSample() const {return mFirstSample;}
-  unsigned int samplesToAdd() const {return mSamplesToAdd;}
+  unsigned int firstSample() const { return mFirstSample; }
+  unsigned int samplesToAdd() const { return mSamplesToAdd; }
 
- private:
+private:
   uint32_t mId;
   uint32_t mFirstSample;
   uint32_t mSamplesToAdd;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -7,123 +7,97 @@
 using namespace std;
 using namespace oracle::occi;
 
-ODDCUConfig::ODDCUConfig()
-{
+ODDCUConfig::ODDCUConfig() {
   m_env = nullptr;
   m_conn = nullptr;
   m_writeStmt = nullptr;
   m_readStmt = nullptr;
-  m_config_tag="";
-  m_ID=0;
+  m_config_tag = "";
+  m_ID = 0;
   clear();
-
 }
 
-void ODDCUConfig::clear(){
-}
+void ODDCUConfig::clear() {}
 
+ODDCUConfig::~ODDCUConfig() {}
 
+void ODDCUConfig::setParameters(const std::map<string, string>& my_keys_map) {
+  // parses the result of the XML parser that is a map of
+  // string string with variable name variable value
 
-ODDCUConfig::~ODDCUConfig()
-{
-}
-
-void ODDCUConfig::setParameters(const std::map<string,string>& my_keys_map){
-  
-  // parses the result of the XML parser that is a map of 
-  // string string with variable name variable value 
-  
-  for( std::map<std::string, std::string >::const_iterator ci=
-	 my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
-
-    if(ci->first==  "DCU_CONFIGURATION_ID") setConfigTag(ci->second);
+  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
+    if (ci->first == "DCU_CONFIGURATION_ID")
+      setConfigTag(ci->second);
   }
-  
 }
 
-int ODDCUConfig::fetchNextId()  noexcept(false) {
-
-  int result=0;
+int ODDCUConfig::fetchNextId() noexcept(false) {
+  int result = 0;
   try {
     this->checkConnection();
 
-    m_readStmt = m_conn->createStatement(); 
+    m_readStmt = m_conn->createStatement();
     m_readStmt->setSQL("select ecal_dcu_config_sq.NextVal from dual");
     ResultSet* rset = m_readStmt->executeQuery();
-    while (rset->next ()){
-      result= rset->getInt(1);
+    while (rset->next()) {
+      result = rset->getInt(1);
     }
     m_conn->terminateStatement(m_readStmt);
-    return result; 
+    return result;
 
-  } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUConfig::fetchNextId():  ")+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error(std::string("ODDCUConfig::fetchNextId():  ") + e.getMessage()));
   }
-
 }
 
-
-void ODDCUConfig::prepareWrite()
-  noexcept(false)
-{
+void ODDCUConfig::prepareWrite() noexcept(false) {
   this->checkConnection();
-  int next_id=fetchNextId();
+  int next_id = fetchNextId();
 
   try {
     m_writeStmt = m_conn->createStatement();
-    m_writeStmt->setSQL("INSERT INTO ECAL_DCU_CONFIGURATION ( dcu_configuration_id, dcu_tag ) "
-			"VALUES (  "
-			":1, :2 )");
+    m_writeStmt->setSQL(
+        "INSERT INTO ECAL_DCU_CONFIGURATION ( dcu_configuration_id, dcu_tag ) "
+        "VALUES (  "
+        ":1, :2 )");
     m_writeStmt->setInt(1, next_id);
-    m_ID=next_id;
+    m_ID = next_id;
 
-  } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUConfig::prepareWrite():  ")+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error(std::string("ODDCUConfig::prepareWrite():  ") + e.getMessage()));
   }
 }
 
-
-
-void ODDCUConfig::writeDB()
-  noexcept(false)
-{
+void ODDCUConfig::writeDB() noexcept(false) {
   this->checkConnection();
   this->checkPrepare();
 
   try {
-
     m_writeStmt->setString(2, this->getConfigTag());
 
     m_writeStmt->executeUpdate();
 
-
-  } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUConfig::writeDB():  ")+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error(std::string("ODDCUConfig::writeDB():  ") + e.getMessage()));
   }
   // Now get the ID
   if (!this->fetchID()) {
     throw(std::runtime_error("ODDCUConfig::writeDB:  Failed to write"));
   }
-
-
 }
 
-
-
-void ODDCUConfig::fetchData(ODDCUConfig * result)
-  noexcept(false)
-{
+void ODDCUConfig::fetchData(ODDCUConfig* result) noexcept(false) {
   this->checkConnection();
   result->clear();
-  if(result->getId()==0 && (result->getConfigTag().empty()) ){
+  if (result->getId() == 0 && (result->getConfigTag().empty())) {
     throw(std::runtime_error("ODDCUConfig::fetchData(): no Id defined for this ODDCUConfig "));
   }
 
   try {
-
-    m_readStmt->setSQL("SELECT * "
-		       "FROM ECAL_DCU_CONFIGURATION  "
-		       " where ( dcu_configuration_id = :1 or dcu_tag=:2 ) " );
+    m_readStmt->setSQL(
+        "SELECT * "
+        "FROM ECAL_DCU_CONFIGURATION  "
+        " where ( dcu_configuration_id = :1 or dcu_tag=:2 ) ");
     m_readStmt->setInt(1, result->getId());
     m_readStmt->setString(2, result->getConfigTag());
     ResultSet* rset = m_readStmt->executeQuery();
@@ -133,16 +107,14 @@ void ODDCUConfig::fetchData(ODDCUConfig * result)
     result->setId(rset->getInt(1));
     result->setConfigTag(rset->getString(2));
 
-
-  } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUConfig::fetchData():  ")+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error(std::string("ODDCUConfig::fetchData():  ") + e.getMessage()));
   }
 }
 
-int ODDCUConfig::fetchID()    noexcept(false)
-{
+int ODDCUConfig::fetchID() noexcept(false) {
   // Return from memory if available
-  if (m_ID!=0) {
+  if (m_ID != 0) {
     return m_ID;
   }
 
@@ -150,8 +122,9 @@ int ODDCUConfig::fetchID()    noexcept(false)
 
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT dcu_configuration_id FROM ecal_dcu_configuration "
-                 "WHERE  dcu_tag=:dcu_tag  " );
+    stmt->setSQL(
+        "SELECT dcu_configuration_id FROM ecal_dcu_configuration "
+        "WHERE  dcu_tag=:dcu_tag  ");
 
     stmt->setString(1, getConfigTag());
 
@@ -163,8 +136,8 @@ int ODDCUConfig::fetchID()    noexcept(false)
       m_ID = 0;
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error(std::string("ODDCUConfig::fetchID:  ")+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error(std::string("ODDCUConfig::fetchID:  ") + e.getMessage()));
   }
 
   return m_ID;

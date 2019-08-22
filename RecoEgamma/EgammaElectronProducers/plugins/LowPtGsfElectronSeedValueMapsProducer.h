@@ -11,23 +11,19 @@
 #include <string>
 
 class LowPtGsfElectronSeedValueMapsProducer : public edm::stream::EDProducer<> {
-  
- public:
-  
-  explicit LowPtGsfElectronSeedValueMapsProducer( const edm::ParameterSet& );
-  
+public:
+  explicit LowPtGsfElectronSeedValueMapsProducer(const edm::ParameterSet&);
+
   ~LowPtGsfElectronSeedValueMapsProducer() override;
-  
-  void produce( edm::Event&, const edm::EventSetup& ) override;
-  
-  static void fillDescriptions( edm::ConfigurationDescriptions& );
 
- private:
-  
+  void produce(edm::Event&, const edm::EventSetup&) override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
+private:
   const edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracks_;
-  const edm::EDGetTokenT< edm::ValueMap<reco::PreIdRef> > preIdsValueMap_;
+  const edm::EDGetTokenT<edm::ValueMap<reco::PreIdRef> > preIdsValueMap_;
   const std::vector<std::string> names_;
-
 };
 
-#endif // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedValueMapsProducer_h
+#endif  // RecoEgamma_EgammaElectronProducers_LowPtGsfElectronSeedValueMapsProducer_h

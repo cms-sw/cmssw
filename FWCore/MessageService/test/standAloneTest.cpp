@@ -1,3 +1,4 @@
+#define EDM_ML_DEBUG
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace edmtest {

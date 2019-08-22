@@ -26,9 +26,9 @@ Modified for CASTOR by L. Mundim
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/CastorElectronicsId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-// 
+//
 class CastorElectronicsMap {
- public:
+public:
   CastorElectronicsMap();
   ~CastorElectronicsMap();
 
@@ -63,46 +63,45 @@ class CastorElectronicsMap {
   /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/slb/slbchan) id
   bool lookup(const CastorElectronicsId pId, CastorElectronicsId& eid, HcalTrigTowerDetId& did) const;
 
-  std::vector <CastorElectronicsId> allElectronicsId () const;
-  std::vector <CastorElectronicsId> allElectronicsIdPrecision() const;
-  std::vector <CastorElectronicsId> allElectronicsIdTrigger() const;
-  std::vector <HcalGenericDetId> allPrecisionId () const;
-  std::vector <HcalTrigTowerDetId> allTriggerId () const;
+  std::vector<CastorElectronicsId> allElectronicsId() const;
+  std::vector<CastorElectronicsId> allElectronicsIdPrecision() const;
+  std::vector<CastorElectronicsId> allElectronicsIdTrigger() const;
+  std::vector<HcalGenericDetId> allPrecisionId() const;
+  std::vector<HcalTrigTowerDetId> allTriggerId() const;
 
   // map channels
-  bool mapEId2tId (CastorElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
-  bool mapEId2chId (CastorElectronicsId fElectronicsId, DetId fId);
+  bool mapEId2tId(CastorElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
+  bool mapEId2chId(CastorElectronicsId fElectronicsId, DetId fId);
   // sorting
-  void sortById () const;
-  void sortByTriggerId () const;
+  void sortById() const;
+  void sortByTriggerId() const;
   void sort() {}
 
-  class PrecisionItem { 
+  class PrecisionItem {
   public:
-    PrecisionItem () {mId = mElId = 0;}
-    PrecisionItem (uint32_t fId, uint32_t fElId) 
-      : mId (fId), mElId (fElId) {}
+    PrecisionItem() { mId = mElId = 0; }
+    PrecisionItem(uint32_t fId, uint32_t fElId) : mId(fId), mElId(fElId) {}
     uint32_t mId;
     uint32_t mElId;
-  
-  COND_SERIALIZABLE;
-};
-  class TriggerItem { 
+
+    COND_SERIALIZABLE;
+  };
+  class TriggerItem {
   public:
-    TriggerItem () {mElId = mTrigId = 0;}
-    TriggerItem (uint32_t fTrigId, uint32_t fElId) 
-      : mTrigId (fTrigId), mElId (fElId) { }
+    TriggerItem() { mElId = mTrigId = 0; }
+    TriggerItem(uint32_t fTrigId, uint32_t fElId) : mTrigId(fTrigId), mElId(fElId) {}
     uint32_t mTrigId;
     uint32_t mElId;
-  
-  COND_SERIALIZABLE;
-};
- protected:
-  const PrecisionItem* findById (unsigned long fId) const;
-  const PrecisionItem* findPByElId (unsigned long fElId) const;
-  const TriggerItem* findTByElId (unsigned long fElId) const;
-  const TriggerItem* findByTrigId (unsigned long fTrigId) const;
-  
+
+    COND_SERIALIZABLE;
+  };
+
+protected:
+  const PrecisionItem* findById(unsigned long fId) const;
+  const PrecisionItem* findPByElId(unsigned long fElId) const;
+  const TriggerItem* findTByElId(unsigned long fElId) const;
+  const TriggerItem* findByTrigId(unsigned long fTrigId) const;
+
   std::vector<PrecisionItem> mPItems;
   std::vector<TriggerItem> mTItems;
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
@@ -113,7 +112,7 @@ class CastorElectronicsMap {
   mutable std::vector<const TriggerItem*>* mTItemsByTrigId COND_TRANSIENT;
 #endif
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

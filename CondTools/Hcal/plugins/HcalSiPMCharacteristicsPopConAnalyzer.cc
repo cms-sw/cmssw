@@ -2,15 +2,14 @@
 #include "CondTools/Hcal/interface/HcalSiPMCharacteristicsHandler.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-
-class HcalSiPMCharacteristicsPopConAnalyzer: public popcon::PopConAnalyzer<HcalSiPMCharacteristicsHandler> {
+class HcalSiPMCharacteristicsPopConAnalyzer : public popcon::PopConAnalyzer<HcalSiPMCharacteristicsHandler> {
 public:
   typedef HcalSiPMCharacteristicsHandler SourceHandler;
 
-  HcalSiPMCharacteristicsPopConAnalyzer(const edm::ParameterSet& pset): 
-    popcon::PopConAnalyzer<HcalSiPMCharacteristicsHandler>(pset),
-    m_populator(pset),
-    m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
+  HcalSiPMCharacteristicsPopConAnalyzer(const edm::ParameterSet& pset)
+      : popcon::PopConAnalyzer<HcalSiPMCharacteristicsHandler>(pset),
+        m_populator(pset),
+        m_source(pset.getParameter<edm::ParameterSet>("Source")) {}
 
 private:
   void endJob() override {
@@ -23,7 +22,7 @@ private:
 
     edm::ESHandle<HcalSiPMCharacteristics> objecthandle;
     esetup.get<HcalSiPMCharacteristicsRcd>().get(objecthandle);
-    myDBObject = new HcalSiPMCharacteristics(*objecthandle.product() );
+    myDBObject = new HcalSiPMCharacteristics(*objecthandle.product());
   }
 
   void write() { m_populator.write(m_source); }

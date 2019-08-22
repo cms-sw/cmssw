@@ -32,23 +32,17 @@
 
 /// print condition
 void L1GtConditionEvaluation::print(std::ostream &myCout) const {
-
   myCout << "\n  L1GtConditionEvaluation print...\n" << std::endl;
-  myCout << "  Maximum number of objects in condition: "
-         << m_condMaxNumberObjects << std::endl;
-  myCout << "  Condition result:                       " << m_condLastResult
-         << std::endl;
+  myCout << "  Maximum number of objects in condition: " << m_condMaxNumberObjects << std::endl;
+  myCout << "  Condition result:                       " << m_condLastResult << std::endl;
 
   CombinationsInCond::const_iterator itVV;
   std::ostringstream myCout1;
 
-  for (itVV = (m_combinationsInCond).begin();
-       itVV != (m_combinationsInCond).end(); itVV++) {
-
+  for (itVV = (m_combinationsInCond).begin(); itVV != (m_combinationsInCond).end(); itVV++) {
     myCout1 << "( ";
 
-    std::copy((*itVV).begin(), (*itVV).end(),
-              std::ostream_iterator<int>(myCout1, " "));
+    std::copy((*itVV).begin(), (*itVV).end(), std::ostream_iterator<int>(myCout1, " "));
 
     myCout1 << "); ";
   }

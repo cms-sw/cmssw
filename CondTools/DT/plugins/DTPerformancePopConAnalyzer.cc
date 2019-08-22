@@ -4,6 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTPerformanceHandler> DTPerformancePopConAnalyzer;
 
-
 DEFINE_FWK_MODULE(DTPerformancePopConAnalyzer);
-

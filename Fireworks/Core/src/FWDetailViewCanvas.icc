@@ -3,57 +3,48 @@
 #include "TEveWindow.h"
 #include "TRootEmbeddedCanvas.h"
 
+template <typename T>
+FWDetailViewCanvas<T>::FWDetailViewCanvas() : m_infoCanvas(0), m_guiFrame(0), m_viewCanvas(0) {}
 
 template <typename T>
-FWDetailViewCanvas<T>::FWDetailViewCanvas ():
-m_infoCanvas(0),
-m_guiFrame(0),
-m_viewCanvas(0)
-{
-}
+FWDetailViewCanvas<T>::~FWDetailViewCanvas() {}
 
 template <typename T>
-FWDetailViewCanvas<T>::~FWDetailViewCanvas ()
-{
-}
+void FWDetailViewCanvas<T>::init(TEveWindowSlot* slot) {
+  TEveWindowPack* pack = slot->MakePack();
+  pack->SetHorizontal();
+  pack->SetShowTitleBar(kFALSE);
+  pack->SetElementNameTitle("DetalView pack", "DetailViewPack");
 
-template <typename T>
-void  FWDetailViewCanvas<T>::init(TEveWindowSlot* slot)
-{
-   TEveWindowPack* pack = slot->MakePack();
-   pack->SetHorizontal();
-   pack->SetShowTitleBar(kFALSE);
-   pack->SetElementNameTitle("DetalView pack","DetailViewPack" );
+  // canvas & widgets
+  TEveWindowFrame* frame = pack->NewSlotWithWeight(1)->MakeFrame();
+  frame->SetShowTitleBar(kFALSE);
+  TGCompositeFrame* cf = frame->GetGUICompositeFrame();
 
-   // canvas & widgets
-   TEveWindowFrame* frame = pack->NewSlotWithWeight(1)->MakeFrame();
-   frame->SetShowTitleBar(kFALSE);
-   TGCompositeFrame* cf = frame->GetGUICompositeFrame();
+  TGCompositeFrame* hf = new TGVerticalFrame(cf);
+  hf->SetCleanup(kLocalCleanup);
+  cf->AddFrame(hf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+  {
+    m_guiFrame = new TGVerticalFrame(hf);
+    hf->AddFrame(m_guiFrame, new TGLayoutHints(kLHintsExpandX));
+    m_guiFrame->SetCleanup(kDeepCleanup);
 
-   TGCompositeFrame* hf = new TGVerticalFrame(cf);
-   hf->SetCleanup(kLocalCleanup);
-   cf->AddFrame(hf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
-   {
-      m_guiFrame = new TGVerticalFrame(hf);
-      hf->AddFrame(m_guiFrame, new TGLayoutHints(kLHintsExpandX));
-      m_guiFrame->SetCleanup(kDeepCleanup);
+    // legend
+    TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 100, 100, 0);
+    hf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+    m_infoCanvas = ec->GetCanvas();
+    m_infoCanvas->SetHighLightColor(-1);
+  }
 
-      // legend
-      TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 100, 100, 0);
-      hf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY));
-      m_infoCanvas = ec->GetCanvas();
-      m_infoCanvas->SetHighLightColor(-1);
-   }
-  
-   cf->MapSubwindows();
-   cf->Layout();
-   cf->MapWindow();
+  cf->MapSubwindows();
+  cf->Layout();
+  cf->MapWindow();
 
-   // view canvas
-   TRootEmbeddedCanvas *ec = new TRootEmbeddedCanvas();
-   TEveWindowFrame     *wf = pack->NewSlotWithWeight(3)->MakeFrame(ec);
-   wf->GetEveFrame()->SetShowTitleBar(kFALSE);
-   m_viewCanvas = ec->GetCanvas();
+  // view canvas
+  TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas();
+  TEveWindowFrame* wf = pack->NewSlotWithWeight(3)->MakeFrame(ec);
+  wf->GetEveFrame()->SetShowTitleBar(kFALSE);
+  m_viewCanvas = ec->GetCanvas();
 
-   pack->GetEveFrame()->Layout();
+  pack->GetEveFrame()->Layout();
 }

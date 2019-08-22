@@ -11,6 +11,7 @@
 
 // to retreive hits
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/Math/interface/GeantUnits.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "SimG4CMS/Calo/interface/CaloG4Hit.h"
 #include "SimG4CMS/Calo/interface/CaloG4HitCollection.h"
@@ -24,16 +25,13 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "G4HCofThisEvent.hh"
 #include "G4SDManager.hh"
 #include "G4Step.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
-#include <cmath>
-#include <iomanip>
-#include <iostream>
+
+using namespace geant_units::operators;
 
 SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
     : jetf(nullptr), numberingFromDDD(nullptr), org(nullptr) {
@@ -60,29 +58,29 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p)
   if (infolevel > 1)
     produces<PHcalValidInfoJets>(labelJets);
 
-  edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialised as observer of "
-                            << "begin/end events and of G4step with Parameter "
-                            << "values: \n\tInfoLevel     = " << infolevel << "\n\thcalOnly      = " << hcalOnly
-                            << "\n\tapplySampling = " << applySampling << "\n\tconeSize      = " << coneSize
-                            << "\n\tehitThreshold = " << ehitThreshold << "\n\thhitThreshold = " << hhitThreshold
-                            << "\n\tttimeLowlim   = " << timeLowlim << "\n\tttimeUplim    = " << timeUplim
-                            << "\n\teta0          = " << eta0 << "\n\tphi0          = " << phi0
-                            << "\nLabels (Layer): " << labelLayer << " (NxN): " << labelNxN << " (Jets): " << labelJets;
+  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialised as observer of begin/end events and "
+                                << "of G4step with Parameter values: \n\tInfoLevel     = " << infolevel
+                                << "\n\thcalOnly      = " << hcalOnly << "\n\tapplySampling = " << applySampling
+                                << "\n\tconeSize      = " << coneSize << "\n\tehitThreshold = " << ehitThreshold
+                                << "\n\thhitThreshold = " << hhitThreshold << "\n\tttimeLowlim   = " << timeLowlim
+                                << "\n\tttimeUplim    = " << timeUplim << "\n\teta0          = " << eta0
+                                << "\n\tphi0          = " << phi0 << "\nLabels (Layer): " << labelLayer
+                                << " (NxN): " << labelNxN << " (Jets): " << labelJets;
 
   init();
 }
 
 SimG4HcalValidation::~SimG4HcalValidation() {
-  edm::LogInfo("ValidHcal") << "\n -------->  Total number of selected entries"
-                            << " : " << count << "\nPointers:: JettFinder " << jetf << ", Numbering Scheme " << org
-                            << " and FromDDD " << numberingFromDDD;
+  edm::LogVerbatim("ValidHcal") << "\n -------->  Total number of selected entries"
+                                << " : " << count << "\nPointers:: JettFinder " << jetf << ", Numbering Scheme " << org
+                                << " and FromDDD " << numberingFromDDD;
   if (jetf) {
-    edm::LogInfo("ValidHcal") << "Delete Jetfinder";
+    edm::LogVerbatim("ValidHcal") << "Delete Jetfinder";
     delete jetf;
     jetf = nullptr;
   }
   if (numberingFromDDD) {
-    edm::LogInfo("ValidHcal") << "Delete HcalNumberingFromDDD";
+    edm::LogVerbatim("ValidHcal") << "Delete HcalNumberingFromDDD";
     delete numberingFromDDD;
     numberingFromDDD = nullptr;
   }
@@ -144,8 +142,8 @@ void SimG4HcalValidation::update(const BeginOfJob *job) {
   edm::ESHandle<HcalDDDSimConstants> hdc;
   (*job)()->get<HcalSimNumberingRecord>().get(hdc);
   const HcalDDDSimConstants *hcons = hdc.product();
-  edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialise "
-                            << "HcalNumberingFromDDD";
+  edm::LogVerbatim("ValidHcal") << "HcalTestAnalysis:: Initialise "
+                                << "HcalNumberingFromDDD";
   numberingFromDDD = new HcalNumberingFromDDD(hcons);
 
   // Numbering scheme
@@ -155,7 +153,7 @@ void SimG4HcalValidation::update(const BeginOfJob *job) {
 void SimG4HcalValidation::update(const BeginOfRun *run) {
   int irun = (*run)()->GetRunID();
 
-  edm::LogInfo("ValidHcal") << " =====> Begin of Run = " << irun;
+  edm::LogVerbatim("ValidHcal") << " =====> Begin of Run = " << irun;
 
   std::string sdname = names[0];
   G4SDManager *sd = G4SDManager::GetSDMpointerIfExist();
@@ -167,12 +165,11 @@ void SimG4HcalValidation::update(const BeginOfRun *run) {
                                    << "Setup";
     } else {
       HCalSD *theCaloSD = dynamic_cast<HCalSD *>(aSD);
-      edm::LogInfo("ValidHcal") << "SimG4HcalValidation::beginOfRun: Finds SD"
-                                << "with name " << theCaloSD->GetName() << " in this Setup";
+      edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: Finds SD with name " << theCaloSD->GetName()
+                                    << " in this Setup";
       if (org) {
         theCaloSD->setNumberingScheme(org);
-        edm::LogInfo("ValidHcal") << "SimG4HcalValidation::beginOfRun: set a "
-                                  << "new numbering scheme";
+        edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::beginOfRun: set a new numbering scheme";
       }
     }
   } else {
@@ -309,9 +306,9 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
         else if (layer == 0)
           vhitec += e;
         else
-          edm::LogInfo("ValidHcal") << "SimG4HcalValidation::HitPMT " << subdet << " " << (2 * zside - 1) * etaIndex
-                                    << " " << phiIndex << " " << layer + 1 << " R " << pos.rho() << " Phi " << phi / deg
-                                    << " Edep " << e << " Time " << time;
+          edm::LogVerbatim("ValidHcal") << "SimG4HcalValidation::HitPMT " << subdet << " " << (2 * zside - 1) * etaIndex
+                                        << " " << phiIndex << " " << layer + 1 << " R " << pos.rho() << " Phi "
+                                        << convertRadToDeg(phi) << " Edep " << e << " Time " << time;
       } else if (subdet == static_cast<int>(HcalEndcap)) {
         if (etaIndex <= 20) {
           det = "HES";

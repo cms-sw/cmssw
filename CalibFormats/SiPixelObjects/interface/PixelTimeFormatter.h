@@ -23,97 +23,92 @@
 
 #define USE_TIMER_ 0
 
-namespace pos{
-  class PixelTimeFormatter
-  {
+namespace pos {
+  class PixelTimeFormatter {
   public:
-
     //---------------------------------------------------------------------------------
-    PixelTimeFormatter(std::string source ) 
-    {
-     if( !USE_TIMER_) return ;
-     origin_ = source ;
-     std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_ << std::endl ;
-     startTime_ = getImSecTime() ;
+    PixelTimeFormatter(std::string source) {
+      if (!USE_TIMER_)
+        return;
+      origin_ = source;
+      std::cout << "[PixelTimeFormatter::PixelTimeFormatter()]\t\t    Time counter started for " << origin_
+                << std::endl;
+      startTime_ = getImSecTime();
     }
 
     virtual ~PixelTimeFormatter() = default;
-    
-    void stopTimer(void) 
-    {
-     if( !USE_TIMER_ ) return ;
-     endTime_ = getImSecTime() ;
-     double start = startTime_.tv_sec + startTime_.tv_usec/1000000. ;  
-     double stop  = endTime_.tv_sec   + endTime_.tv_usec/1000000. ;  
-     std::cout << "[PixelTimeFormatter::stopTimer()]\t\t\t    Elapsed time: " << stop-start << " seconds for " << origin_ << std::endl ;
+
+    void stopTimer(void) {
+      if (!USE_TIMER_)
+        return;
+      endTime_ = getImSecTime();
+      double start = startTime_.tv_sec + startTime_.tv_usec / 1000000.;
+      double stop = endTime_.tv_sec + endTime_.tv_usec / 1000000.;
+      std::cout << "[PixelTimeFormatter::stopTimer()]\t\t\t    Elapsed time: " << stop - start << " seconds for "
+                << origin_ << std::endl;
     }
-    
+
     virtual void writeXMLHeader(pos::PixelConfigKey key,
-                                int version, std::string path,
+                                int version,
+                                std::string path,
                                 std::ofstream *out,
                                 std::ofstream *out1 = nullptr,
-                                std::ofstream *out2 = nullptr
-                                ) const {;}
+                                std::ofstream *out2 = nullptr) const {
+      ;
+    }
 
     //---------------------------------------------------------------------------------
-    static std::string getTime(void) 
-    {
+    static std::string getTime(void) {
       constexpr size_t kBufferLength = 72;
-      char theDate[kBufferLength] ;
+      char theDate[kBufferLength];
       struct tm *thisTime;
       time_t aclock;
-      std::string date ;
-      time( &aclock );		  
-      thisTime = localtime( &aclock ); 
-       
+      std::string date;
+      time(&aclock);
+      thisTime = localtime(&aclock);
+
       snprintf(theDate,
                kBufferLength,
-	      "%d-%02d-%02d %02d:%02d:%02d", thisTime->tm_year+1900,
-	      thisTime->tm_mon+1,
-	      thisTime->tm_mday,
-	      thisTime->tm_hour,
-	      thisTime->tm_min,
-	      thisTime->tm_sec ); 
-      date = theDate ;
-      //std::cout << "[PixelTimeFormatter::getTime()]\t\t\t\t    Time: " << date << std::endl ;					  
-      return date ;
+               "%d-%02d-%02d %02d:%02d:%02d",
+               thisTime->tm_year + 1900,
+               thisTime->tm_mon + 1,
+               thisTime->tm_mday,
+               thisTime->tm_hour,
+               thisTime->tm_min,
+               thisTime->tm_sec);
+      date = theDate;
+      //std::cout << "[PixelTimeFormatter::getTime()]\t\t\t\t    Time: " << date << std::endl ;
+      return date;
     }
 
     //---------------------------------------------------------------------------------
-    struct tm * getITime(void) 
-    {
+    struct tm *getITime(void) {
       struct tm *thisTime;
       time_t aclock;
-      time( &aclock );		  
-      thisTime = localtime( &aclock ); 
-      return thisTime ;
+      time(&aclock);
+      thisTime = localtime(&aclock);
+      return thisTime;
     }
 
     //---------------------------------------------------------------------------------
-    static std::string getmSecTime(void) 
-    {
+    static std::string getmSecTime(void) {
       constexpr size_t kBufferSize = 20;
-      char theDate[kBufferSize] ;
+      char theDate[kBufferSize];
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
-      
-      snprintf(theDate,
-               kBufferSize,
-	      "%d-%d", 
-	      (unsigned int)msecTime.tv_sec,
-	      (unsigned int)msecTime.tv_usec ); 
-      return std::string(theDate) ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr);
+
+      snprintf(theDate, kBufferSize, "%d-%d", (unsigned int)msecTime.tv_sec, (unsigned int)msecTime.tv_usec);
+      return std::string(theDate);
     }
 
     //---------------------------------------------------------------------------------
-    struct timeval getImSecTime(void) 
-    {
+    struct timeval getImSecTime(void) {
       struct timeval msecTime;
-      gettimeofday(&msecTime, (struct timezone *)nullptr) ;
-      
-      return msecTime ;
+      gettimeofday(&msecTime, (struct timezone *)nullptr);
+
+      return msecTime;
     }
-/*    
+    /*    
     //---------------------------------------------------------------------------------
     static double timeDiff(std::string firstTime, std::string secondTime)
     {
@@ -144,16 +139,15 @@ namespace pos{
   
       return difftime(ft, st) ;
     }
-*/    
+*/
     //=================================================================================
-    
-    private:
-    
-     struct timeval startTime_      ;
-     struct timeval endTime_        ;
-     std::string    origin_         ;
-     bool           verbose_        ;
-  } ;
-}
+
+  private:
+    struct timeval startTime_;
+    struct timeval endTime_;
+    std::string origin_;
+    bool verbose_;
+  };
+}  // namespace pos
 
 #endif

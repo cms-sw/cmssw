@@ -10,21 +10,19 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
 class FEDRawData;
-class EcalSupervisorTBDataFormatter   {
-
- public:
-
-  EcalSupervisorTBDataFormatter() ;
-  virtual ~EcalSupervisorTBDataFormatter(){LogDebug("EcalTBRawToDigi") << "@SUB=EcalSupervisorTBDataFormatter" << "\n"; };
+class EcalSupervisorTBDataFormatter {
+public:
+  EcalSupervisorTBDataFormatter();
+  virtual ~EcalSupervisorTBDataFormatter() {
+    LogDebug("EcalTBRawToDigi") << "@SUB=EcalSupervisorTBDataFormatter"
+                                << "\n";
+  };
 
   //Method to be implemented
-  void  interpretRawData( const FEDRawData & data, EcalTBEventHeader& tbEventHeader ) ;
+  void interpretRawData(const FEDRawData& data, EcalTBEventHeader& tbEventHeader);
 
- private:
-
-  static const int nWordsPerEvent = 14;    
-
+private:
+  static const int nWordsPerEvent = 14;
 };
 #endif

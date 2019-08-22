@@ -14,19 +14,17 @@
 
 using namespace CLHEP;
 
-void OptOCameraDetector::participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav )
-{
- std::cerr << "object not implemented yet " << std::endl;
- exit(1);
+void OptOCameraDetector::participateInMeasurement(LightRay& lightray, Measurement& meas, const ALIstring& behav) {
+  std::cerr << "object not implemented yet " << std::endl;
+  exit(1);
 }
 
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptOCameraDetector::constructSolidShape()
-{
+void OptOCameraDetector::constructSolidShape() {
   ALIdouble go;
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("VisScale", go );
+  gomgr->getGlobalOptionValue("VisScale", go);
 
-  theSolidShape = new CocoaSolidShapeBox( "Box", go*4.*cm/m, go*4.*cm/m, go*1.*cm/m ); //COCOA internal units are meters
+  theSolidShape = new CocoaSolidShapeBox(
+      "Box", go * 4. * cm / m, go * 4. * cm / m, go * 1. * cm / m);  //COCOA internal units are meters
 }

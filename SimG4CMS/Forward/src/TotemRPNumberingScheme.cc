@@ -6,7 +6,7 @@
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author: 
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
 
@@ -23,5 +23,4 @@ TotemRPNumberingScheme::TotemRPNumberingScheme(int i) {
   edm::LogInfo("ForwardSim") << " Creating TotemRPNumberingScheme";
 }
 
-TotemRPNumberingScheme::~TotemRPNumberingScheme() {
-}
+TotemRPNumberingScheme::~TotemRPNumberingScheme() {}

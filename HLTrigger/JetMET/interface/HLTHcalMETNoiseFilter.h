@@ -17,18 +17,17 @@
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTHcalMETNoiseFilter : public edm::EDFilter {
-  
- public:
+public:
   explicit HLTHcalMETNoiseFilter(const edm::ParameterSet&);
   ~HLTHcalMETNoiseFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  
- private:
+
+private:
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
   // parameters
   edm::InputTag HcalNoiseRBXCollectionTag_;
@@ -52,15 +51,15 @@ class HLTHcalMETNoiseFilter : public edm::EDFilter {
 
   double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;
-  std::vector<std::pair<double, double> > TS4TS5LowerCut_;  
-    
+  std::vector<std::pair<double, double> > TS4TS5LowerCut_;
+
   // helper function to compare noise data energies
   struct noisedatacomp {
-    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const{
-      return t1.energy()>t2.energy();
+    inline bool operator()(const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const {
+      return t1.energy() > t2.energy();
     }
   };
   typedef std::set<CommonHcalNoiseRBXData, noisedatacomp> noisedataset_t;
 };
 
-#endif //HLTHcalMETNoiseFilter_h
+#endif  //HLTHcalMETNoiseFilter_h

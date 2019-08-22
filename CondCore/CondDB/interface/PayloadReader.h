@@ -3,7 +3,7 @@
 //
 // Package:     CondDB
 // Class  :     PayloadReader
-// 
+//
 /**\class PayloadReader PayloadReader.h CondCore/CondDB/interface/PayloadReader.h
    Description: service for accessing conditions payloads from DB.  
 */
@@ -22,53 +22,53 @@ namespace cond {
 
     class PayloadReader {
     public:
-
       static constexpr const char* const PRODUCTION_DB = "oracle://cms_orcon_adg/CMS_CONDITIONS";
 
     public:
-
       // default constructor
       PayloadReader();
-      
-      // 
-      PayloadReader( const PayloadReader& rhs );
-      
-      // 
-      virtual ~PayloadReader();
-      
+
       //
-      PayloadReader& operator=( const PayloadReader& rhs );
+      PayloadReader(const PayloadReader& rhs);
+
+      //
+      virtual ~PayloadReader();
+
+      //
+      PayloadReader& operator=(const PayloadReader& rhs);
 
       //
       ConnectionPool& connection();
 
       //
-      void open( const std::string& connectionString );
+      void open(const std::string& connectionString);
 
       //
       void open();
-      
-      // 
-      void close();
-      
+
       //
-      template <typename T> std::shared_ptr<T> fetch( const cond::Hash& payloadHash );
-      
-   private:
-      
+      void close();
+
+      //
+      template <typename T>
+      std::shared_ptr<T> fetch(const cond::Hash& payloadHash);
+
+    private:
       std::shared_ptr<ConnectionPool> m_connection;
       Session m_session;
     };
-        
-    template <typename T> inline std::shared_ptr<T> PayloadReader::fetch( const cond::Hash& payloadHash ){
+
+    template <typename T>
+    inline std::shared_ptr<T> PayloadReader::fetch(const cond::Hash& payloadHash) {
       std::shared_ptr<T> ret;
-      if(m_session.connectionString().empty()) open( PRODUCTION_DB );
-      m_session.transaction().start( true );
-      ret = m_session.fetchPayload<T>( payloadHash );
+      if (m_session.connectionString().empty())
+        open(PRODUCTION_DB);
+      m_session.transaction().start(true);
+      ret = m_session.fetchPayload<T>(payloadHash);
       m_session.transaction().commit();
       return ret;
     }
 
-  }
-}
-#endif // CondCore_CondDB_PayloadReader_h
+  }  // namespace persistency
+}  // namespace cond
+#endif  // CondCore_CondDB_PayloadReader_h

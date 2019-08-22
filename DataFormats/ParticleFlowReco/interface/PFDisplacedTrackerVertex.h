@@ -12,35 +12,33 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
 
 namespace reco {
-class PFDisplacedTrackerVertex {
+  class PFDisplacedTrackerVertex {
+  public:
+    PFDisplacedTrackerVertex() {}
+    PFDisplacedTrackerVertex(const PFDisplacedVertexRef& nuclref, const PFRecTrackRefVector& pfRecTracks)
+        : displacedVertexRef_(nuclref), pfRecTracks_(pfRecTracks) {}
 
-  public :
-  
-   PFDisplacedTrackerVertex() {}
-   PFDisplacedTrackerVertex( const PFDisplacedVertexRef& nuclref, const PFRecTrackRefVector& pfRecTracks) : displacedVertexRef_(nuclref), pfRecTracks_(pfRecTracks) {}
+    const PFRecTrackRefVector& pfRecTracks() const { return pfRecTracks_; }
 
-     const PFRecTrackRefVector& pfRecTracks() const {return pfRecTracks_;}
+    const bool isIncomingTrack(const reco::PFRecTrackRef originalTrack) const {
+      reco::TrackBaseRef trackBaseRef(originalTrack->trackRef());
+      return displacedVertexRef_->isIncomingTrack(trackBaseRef);
+    }
 
-     const bool isIncomingTrack(const reco::PFRecTrackRef originalTrack) const {
-       reco::TrackBaseRef trackBaseRef(originalTrack->trackRef());
-       return displacedVertexRef_->isIncomingTrack(trackBaseRef);
-     }
+    const bool isOutgoingTrack(const reco::PFRecTrackRef originalTrack) const {
+      reco::TrackBaseRef trackBaseRef(originalTrack->trackRef());
+      return displacedVertexRef_->isOutgoingTrack(trackBaseRef);
+    }
 
-     const bool isOutgoingTrack(const reco::PFRecTrackRef originalTrack) const {
-       reco::TrackBaseRef trackBaseRef(originalTrack->trackRef());
-       return displacedVertexRef_->isOutgoingTrack(trackBaseRef);
-     }
+    const PFDisplacedVertexRef& displacedVertexRef() const { return displacedVertexRef_; }
 
-     const PFDisplacedVertexRef& displacedVertexRef() const {return displacedVertexRef_;}
-
-  private :
+  private:
     // Reference to the initial DisplacedTrackerVertex
     PFDisplacedVertexRef displacedVertexRef_;
-    
+
     // Collection of the secondary PFRecTracks
     PFRecTrackRefVector pfRecTracks_;
-
- };
+  };
 
   /// collection of DisplacedTrackerVertexs
   typedef std::vector<PFDisplacedTrackerVertex> PFDisplacedTrackerVertexCollection;
@@ -48,5 +46,5 @@ class PFDisplacedTrackerVertex {
   typedef edm::Ref<PFDisplacedTrackerVertexCollection> PFDisplacedTrackerVertexRef;
   /// vector of reference to Track in the same collection
   typedef edm::RefVector<PFDisplacedTrackerVertexCollection> PFDisplacedTrackerVertexRefVector;
-}
+}  // namespace reco
 #endif

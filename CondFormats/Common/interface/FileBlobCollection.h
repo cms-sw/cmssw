@@ -15,17 +15,17 @@
 #include <vector>
 
 class FileBlobCollection {
- public:
-  FileBlobCollection() {};
-  ~FileBlobCollection() {};
+public:
+  FileBlobCollection(){};
+  ~FileBlobCollection(){};
   void addFileBlob(FileBlob &fileBlob);
   int size() const;
   std::vector<FileBlob>::const_iterator begin() const;
   std::vector<FileBlob>::const_iterator end() const;
   bool mergeProduct(FileBlobCollection const &other);
-  void swap(FileBlobCollection& iOther);
+  void swap(FileBlobCollection &iOther);
 
- private:
+private:
   std::vector<FileBlob> fileBlobs;
 };
 

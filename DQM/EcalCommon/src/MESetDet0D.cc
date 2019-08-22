@@ -7,7 +7,7 @@ namespace ecaldqm {
                          MonitorElement::Kind _kind)
       : MESetEcal(_fullPath, _otype, _btype, _kind, 0, nullptr, nullptr) {
     switch (kind_) {
-      case MonitorElement::DQM_KIND_REAL:
+      case MonitorElement::Kind::REAL:
         break;
       default:
         throw_("Unsupported MonitorElement kind");

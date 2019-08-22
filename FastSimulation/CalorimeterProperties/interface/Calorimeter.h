@@ -19,24 +19,23 @@ class EcalBarrelGeometry;
 class EcalEndcapGeometry;
 class EcalPreshowerGeometry;
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
-class Calorimeter{
- public:
+class Calorimeter {
+public:
   Calorimeter();
   Calorimeter(const edm::ParameterSet& caloParameters);
   ~Calorimeter();
 
-    // Setup the geometry
+  // Setup the geometry
   void setupGeometry(const CaloGeometry& pG);
 
   // Setup the topology
   void setupTopology(const CaloTopology&);
 
-
- /// ECAL properties
+  /// ECAL properties
   const ECALProperties* ecalProperties(int onEcal) const;
 
   /// HCAL properties
@@ -48,30 +47,27 @@ class Calorimeter{
   /// Preshower Layer2 properties
   const PreshowerLayer2Properties* layer2Properties(int onLayer2) const;
 
-  inline const EcalBarrelGeometry * getEcalBarrelGeometry() const {return EcalBarrelGeometry_;} 
-  
-  inline const EcalEndcapGeometry * getEcalEndcapGeometry() const {return EcalEndcapGeometry_;}
+  inline const EcalBarrelGeometry* getEcalBarrelGeometry() const { return EcalBarrelGeometry_; }
 
-  inline const EcalPreshowerGeometry * getEcalPreshowerGeometry() const {return PreshowerGeometry_;}
+  inline const EcalEndcapGeometry* getEcalEndcapGeometry() const { return EcalEndcapGeometry_; }
 
-  inline const CaloSubdetectorGeometry * getHcalGeometry() const {return HcalGeometry_;}
+  inline const EcalPreshowerGeometry* getEcalPreshowerGeometry() const { return PreshowerGeometry_; }
 
-  const CaloSubdetectorGeometry * getEcalGeometry(int subdetn) const;
+  inline const CaloSubdetectorGeometry* getHcalGeometry() const { return HcalGeometry_; }
 
-  const CaloSubdetectorTopology * getEcalTopology(int subdetn) const;
+  const CaloSubdetectorGeometry* getEcalGeometry(int subdetn) const;
 
+  const CaloSubdetectorTopology* getEcalTopology(int subdetn) const;
 
-
- protected:
-
+protected:
   //Calorimeter properties
-  PreshowerLayer1Properties*     myPreshowerLayer1Properties_  ;
-  PreshowerLayer2Properties*     myPreshowerLayer2Properties_  ;
-  ECALBarrelProperties*          myECALBarrelProperties_       ;
-  ECALEndcapProperties*	         myECALEndcapProperties_       ;
-  HCALBarrelProperties*	         myHCALBarrelProperties_       ;
-  HCALEndcapProperties*          myHCALEndcapProperties_       ;
-  HCALForwardProperties*         myHCALForwardProperties_      ;
+  PreshowerLayer1Properties* myPreshowerLayer1Properties_;
+  PreshowerLayer2Properties* myPreshowerLayer2Properties_;
+  ECALBarrelProperties* myECALBarrelProperties_;
+  ECALEndcapProperties* myECALEndcapProperties_;
+  HCALBarrelProperties* myHCALBarrelProperties_;
+  HCALEndcapProperties* myHCALEndcapProperties_;
+  HCALForwardProperties* myHCALForwardProperties_;
 
   // The subdetectors geometry
   const EcalBarrelGeometry* EcalBarrelGeometry_;
@@ -79,10 +75,9 @@ class Calorimeter{
   const CaloSubdetectorGeometry* HcalGeometry_;
   const EcalPreshowerGeometry* PreshowerGeometry_;
 
-  // The ECAL topologies 
+  // The ECAL topologies
   const CaloSubdetectorTopology* EcalBarrelTopology_;
   const CaloSubdetectorTopology* EcalEndcapTopology_;
-
 };
 
 #endif

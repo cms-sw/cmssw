@@ -20,7 +20,6 @@
 // TAU includes
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TauReco/interface/CaloTau.h"
 
 // ELECTRON includes
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -49,20 +48,18 @@
 
 class HLTTauRefProducer : public edm::global::EDProducer<> {
 public:
-
   explicit HLTTauRefProducer(const edm::ParameterSet&);
 
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
 private:
-
   using LorentzVector = math::XYZTLorentzVectorD;
   using LorentzVectorCollection = std::vector<LorentzVector>;
 
   edm::EDGetTokenT<reco::PFTauCollection> PFTaus_;
   std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator>> PFTauDis_;
   bool doPFTaus_;
-  double ptMinPFTau_,etaMinPFTau_,etaMaxPFTau_,phiMinPFTau_,phiMaxPFTau_;
+  double ptMinPFTau_, etaMinPFTau_, etaMaxPFTau_, phiMinPFTau_, phiMaxPFTau_;
 
   edm::EDGetTokenT<reco::GsfElectronCollection> Electrons_;
   bool doElectrons_;
@@ -103,7 +100,7 @@ private:
   bool doMET_;
   double ptMinMET_;
 
-  double etaMin_,etaMax_,phiMin_,phiMax_;
+  double etaMin_, etaMax_, phiMin_, phiMax_;
 
   void doPFTaus(edm::Event&) const;
   void doMuons(edm::Event&) const;

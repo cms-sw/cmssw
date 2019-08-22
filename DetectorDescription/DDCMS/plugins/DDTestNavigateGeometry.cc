@@ -29,60 +29,54 @@ public:
   void analyze(Event const& iEvent, EventSetup const&) override;
   void endJob() override {}
 
-private:  
+private:
   const ESInputTag m_tag;
   const string m_detElementPath;
   const string m_placedVolPath;
-
 };
 
 DDTestNavigateGeometry::DDTestNavigateGeometry(const ParameterSet& iConfig)
-  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")),
-    m_detElementPath(iConfig.getParameter<string>("detElementPath")),
-    m_placedVolPath(iConfig.getParameter<string>("placedVolumePath"))
-{}
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")),
+      m_detElementPath(iConfig.getParameter<string>("detElementPath")),
+      m_placedVolPath(iConfig.getParameter<string>("placedVolumePath")) {}
 
-void
-DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup)
-{
+void DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup) {
   LogVerbatim("Geometry") << "\nDDTestNavigateGeometry::analyze: " << m_tag;
 
   const DDVectorRegistryRcd& regRecord = iEventSetup.get<DDVectorRegistryRcd>();
   ESTransientHandle<DDVectorRegistry> reg;
-  regRecord.get(m_tag.module(), reg);
+  regRecord.get(m_tag, reg);
 
   LogVerbatim("Geometry").log([&reg](auto& log) {
-      for(const auto& p: reg->vectors) {
-	log << "\n " << p.first << " => ";
-	for(const auto& i : p.second)
-	  log << i << ", ";
-      }
-    });
-  
+    for (const auto& p : reg->vectors) {
+      log << "\n " << p.first << " => ";
+      for (const auto& i : p.second)
+        log << i << ", ";
+    }
+  });
+
   const GeometryFileRcd& ddRecord = iEventSetup.get<GeometryFileRcd>();
   ESTransientHandle<DDDetector> ddd;
-  ddRecord.get(m_tag.module(), ddd);
-    
+  ddRecord.get(m_tag, ddd);
+
   const dd4hep::Detector& detector = *ddd->description();
- 
+
   DetElement startDetEl, world = detector.world();
-  LogVerbatim("Geometry") << "World placement path " << world.placementPath()
-			  << ", path " << world.path();
+  LogVerbatim("Geometry") << "World placement path " << world.placementPath() << ", path " << world.path();
   PlacedVolume startPVol = world.placement();
-  if( !m_detElementPath.empty()) {
+  if (!m_detElementPath.empty()) {
     LogVerbatim("Geometry") << "Det element path is " << m_detElementPath;
     startDetEl = dd4hep::detail::tools::findElement(detector, m_detElementPath);
-    if(startDetEl.isValid())
+    if (startDetEl.isValid())
       LogVerbatim("Geometry") << "Found starting DetElement!\n";
-  }
-  else if( !m_placedVolPath.empty()) {
+  } else if (!m_placedVolPath.empty()) {
     LogVerbatim("Geometry") << "Placed volume path is " << m_placedVolPath;
     startPVol = dd4hep::detail::tools::findNode(world.placement(), m_placedVolPath);
-    if(startPVol.isValid())
+    if (startPVol.isValid())
       LogVerbatim("Geometry") << "Found srarting PlacedVolume!\n";
   }
-  if( !startPVol.isValid()) {
-    if( !startDetEl.isValid()) {      
+  if (!startPVol.isValid()) {
+    if (!startDetEl.isValid()) {
       except("VolumeScanner", "Failed to find start conditions for the volume scan");
     }
     startPVol = startDetEl.placement();
@@ -91,8 +85,9 @@ DDTestNavigateGeometry::analyze(const Event&, const EventSetup& iEventSetup)
   DDVolumeProcessor proc;
   LogVerbatim("Geometry") << startPVol.name();
   PlacedVolumeScanner().scanPlacements(proc, startPVol, 0, true);
-  
-  LogVerbatim("Geometry") << "VolumeScanner" << "+++ Visited a total of %d placed volumes." << proc.count();
+
+  LogVerbatim("Geometry") << "VolumeScanner"
+                          << "+++ Visited a total of %d placed volumes." << proc.count();
 }
 
 DEFINE_FWK_MODULE(DDTestNavigateGeometry);

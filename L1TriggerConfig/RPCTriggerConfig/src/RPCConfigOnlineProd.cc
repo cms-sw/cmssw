@@ -2,7 +2,7 @@
 //
 // Package:    RPCConfigOnlineProd
 // Class:      RPCConfigOnlineProd
-// 
+//
 /**\class RPCConfigOnlineProd RPCConfigOnlineProd.h L1Trigger/RPCConfigProducers/src/RPCConfigOnlineProd.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id$
 //
 //
-
 
 // system include files
 
@@ -32,17 +31,15 @@
 // class declaration
 //
 
-class RPCConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCConfigRcd,
-							   L1RPCConfig > {
-   public:
-      RPCConfigOnlineProd(const edm::ParameterSet&);
-      ~RPCConfigOnlineProd() override;
+class RPCConfigOnlineProd : public L1ConfigOnlineProdBase<L1RPCConfigRcd, L1RPCConfig> {
+public:
+  RPCConfigOnlineProd(const edm::ParameterSet&);
+  ~RPCConfigOnlineProd() override;
 
-  std::unique_ptr< L1RPCConfig > newObject(
-    const std::string& objectKey ) override ;
+  std::unique_ptr<L1RPCConfig> newObject(const std::string& objectKey) override;
 
-   private:
-      // ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -57,39 +54,29 @@ class RPCConfigOnlineProd : public L1ConfigOnlineProdBase< L1RPCConfigRcd,
 // constructors and destructor
 //
 RPCConfigOnlineProd::RPCConfigOnlineProd(const edm::ParameterSet& iConfig)
-  : L1ConfigOnlineProdBase< L1RPCConfigRcd, L1RPCConfig >( iConfig )
-{
-   //the following line is needed to tell the framework what
-   // data is being produced
+    : L1ConfigOnlineProdBase<L1RPCConfigRcd, L1RPCConfig>(iConfig) {
+  //the following line is needed to tell the framework what
+  // data is being produced
 
-   //now do what ever other initialization is needed
+  //now do what ever other initialization is needed
 }
 
-
-RPCConfigOnlineProd::~RPCConfigOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+RPCConfigOnlineProd::~RPCConfigOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
 
-std::unique_ptr< L1RPCConfig >
-RPCConfigOnlineProd::newObject( const std::string& objectKey )
-{
-  edm::LogError( "L1-O2O" ) << "L1RPCConfig object with key "
-			    << objectKey << " not in ORCON!" ;
+std::unique_ptr<L1RPCConfig> RPCConfigOnlineProd::newObject(const std::string& objectKey) {
+  edm::LogError("L1-O2O") << "L1RPCConfig object with key " << objectKey << " not in ORCON!";
 
-  return std::unique_ptr< L1RPCConfig >() ;
+  return std::unique_ptr<L1RPCConfig>();
 }
 
 //
 // member functions
 //
 
-
 // ------------ method called to produce the data  ------------
-
 
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(RPCConfigOnlineProd);

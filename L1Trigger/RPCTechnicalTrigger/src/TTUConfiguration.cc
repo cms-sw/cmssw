@@ -2,7 +2,7 @@
 //
 // Package:     L1Trigger/RPCTechnicalTrigger
 // Class  :     TTUConfiguration
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -15,7 +15,6 @@
 // user include files
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUConfiguration.h"
 
-
 //
 // constants, enums and typedefs
 //
@@ -27,13 +26,6 @@
 //
 // constructors and destructor
 //
-TTUConfiguration::TTUConfiguration(const char* logic):
-  m_ttuboardspecs{nullptr},
-  m_ttulogic{ logic }
-{
-}
+TTUConfiguration::TTUConfiguration(const char* logic) : m_ttuboardspecs{nullptr}, m_ttulogic{logic} {}
 
-TTUConfiguration::TTUConfiguration( const TTUBoardSpecs* ttuspecs):
-  m_ttuboardspecs{ttuspecs},
-  m_ttulogic{}
-{}
+TTUConfiguration::TTUConfiguration(const TTUBoardSpecs* ttuspecs) : m_ttuboardspecs{ttuspecs}, m_ttulogic{} {}

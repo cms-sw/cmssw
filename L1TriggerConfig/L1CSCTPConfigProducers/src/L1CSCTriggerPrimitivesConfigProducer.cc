@@ -30,80 +30,52 @@ L1CSCTriggerPrimitivesConfigProducer::L1CSCTriggerPrimitivesConfigProducer(const
   tmbParamSet = "tmbParam";
 
   // get ALCT parameters from the config file
-  edm::ParameterSet alctParams =
-    iConfig.getParameter<edm::ParameterSet>(alctParamSet);
-  m_alct_fifo_tbins   =
-    alctParams.getParameter<unsigned int>("alctFifoTbins");
-  m_alct_fifo_pretrig =
-    alctParams.getParameter<unsigned int>("alctFifoPretrig");
-  m_alct_drift_delay  =
-    alctParams.getParameter<unsigned int>("alctDriftDelay");
-  m_alct_nplanes_hit_pretrig =
-    alctParams.getParameter<unsigned int>("alctNplanesHitPretrig");
-  m_alct_nplanes_hit_pattern =
-    alctParams.getParameter<unsigned int>("alctNplanesHitPattern");
-  m_alct_nplanes_hit_accel_pretrig =
-    alctParams.getParameter<unsigned int>("alctNplanesHitAccelPretrig");
-  m_alct_nplanes_hit_accel_pattern =
-    alctParams.getParameter<unsigned int>("alctNplanesHitAccelPattern");
-  m_alct_trig_mode  =
-    alctParams.getParameter<unsigned int>("alctTrigMode");
-  m_alct_accel_mode =
-    alctParams.getParameter<unsigned int>("alctAccelMode");
-  m_alct_l1a_window_width =
-    alctParams.getParameter<unsigned int>("alctL1aWindowWidth");
+  edm::ParameterSet alctParams = iConfig.getParameter<edm::ParameterSet>(alctParamSet);
+  m_alct_fifo_tbins = alctParams.getParameter<unsigned int>("alctFifoTbins");
+  m_alct_fifo_pretrig = alctParams.getParameter<unsigned int>("alctFifoPretrig");
+  m_alct_drift_delay = alctParams.getParameter<unsigned int>("alctDriftDelay");
+  m_alct_nplanes_hit_pretrig = alctParams.getParameter<unsigned int>("alctNplanesHitPretrig");
+  m_alct_nplanes_hit_pattern = alctParams.getParameter<unsigned int>("alctNplanesHitPattern");
+  m_alct_nplanes_hit_accel_pretrig = alctParams.getParameter<unsigned int>("alctNplanesHitAccelPretrig");
+  m_alct_nplanes_hit_accel_pattern = alctParams.getParameter<unsigned int>("alctNplanesHitAccelPattern");
+  m_alct_trig_mode = alctParams.getParameter<unsigned int>("alctTrigMode");
+  m_alct_accel_mode = alctParams.getParameter<unsigned int>("alctAccelMode");
+  m_alct_l1a_window_width = alctParams.getParameter<unsigned int>("alctL1aWindowWidth");
 
   // get CLCT parameters from the config file
-  edm::ParameterSet clctParams =
-    iConfig.getParameter<edm::ParameterSet>(clctParamSet);
-  m_clct_fifo_tbins   =
-    clctParams.getParameter<unsigned int>("clctFifoTbins");
-  m_clct_fifo_pretrig =
-    clctParams.getParameter<unsigned int>("clctFifoPretrig");
-  m_clct_hit_persist  =
-    clctParams.getParameter<unsigned int>("clctHitPersist");
-  m_clct_drift_delay  =
-    clctParams.getParameter<unsigned int>("clctDriftDelay");
-  m_clct_nplanes_hit_pretrig =
-    clctParams.getParameter<unsigned int>("clctNplanesHitPretrig");
-  m_clct_nplanes_hit_pattern =
-    clctParams.getParameter<unsigned int>("clctNplanesHitPattern");
-  m_clct_pid_thresh_pretrig  =
-    clctParams.getParameter<unsigned int>("clctPidThreshPretrig");
-  m_clct_min_separation =
-    clctParams.getParameter<unsigned int>("clctMinSeparation");
+  edm::ParameterSet clctParams = iConfig.getParameter<edm::ParameterSet>(clctParamSet);
+  m_clct_fifo_tbins = clctParams.getParameter<unsigned int>("clctFifoTbins");
+  m_clct_fifo_pretrig = clctParams.getParameter<unsigned int>("clctFifoPretrig");
+  m_clct_hit_persist = clctParams.getParameter<unsigned int>("clctHitPersist");
+  m_clct_drift_delay = clctParams.getParameter<unsigned int>("clctDriftDelay");
+  m_clct_nplanes_hit_pretrig = clctParams.getParameter<unsigned int>("clctNplanesHitPretrig");
+  m_clct_nplanes_hit_pattern = clctParams.getParameter<unsigned int>("clctNplanesHitPattern");
+  m_clct_pid_thresh_pretrig = clctParams.getParameter<unsigned int>("clctPidThreshPretrig");
+  m_clct_min_separation = clctParams.getParameter<unsigned int>("clctMinSeparation");
 
   // get TMB parameters from the config file
-  edm::ParameterSet tmbParams =
-    iConfig.getParameter<edm::ParameterSet>(tmbParamSet);
-  m_tmb_mpc_block_me1a =
-    tmbParams.getParameter<unsigned int>("tmbMpcBlockMe1a");
-  m_tmb_alct_trig_enable =
-    tmbParams.getParameter<unsigned int>("tmbAlctTrigEnable");
-  m_tmb_clct_trig_enable =
-    tmbParams.getParameter<unsigned int>("tmbClctTrigEnable");
-  m_tmb_match_trig_enable =
-    tmbParams.getParameter<unsigned int>("tmbMatchTrigEnable");
-  m_tmb_match_trig_window_size =
-    tmbParams.getParameter<unsigned int>("tmbMatchTrigWindowSize");
-  m_tmb_tmb_l1a_window_size =
-    tmbParams.getParameter<unsigned int>("tmbTmbL1aWindowSize");
+  edm::ParameterSet tmbParams = iConfig.getParameter<edm::ParameterSet>(tmbParamSet);
+  m_tmb_mpc_block_me1a = tmbParams.getParameter<unsigned int>("tmbMpcBlockMe1a");
+  m_tmb_alct_trig_enable = tmbParams.getParameter<unsigned int>("tmbAlctTrigEnable");
+  m_tmb_clct_trig_enable = tmbParams.getParameter<unsigned int>("tmbClctTrigEnable");
+  m_tmb_match_trig_enable = tmbParams.getParameter<unsigned int>("tmbMatchTrigEnable");
+  m_tmb_match_trig_window_size = tmbParams.getParameter<unsigned int>("tmbMatchTrigWindowSize");
+  m_tmb_tmb_l1a_window_size = tmbParams.getParameter<unsigned int>("tmbTmbL1aWindowSize");
 }
 
 //----------------
 // Destructors  --
 //----------------
 
-L1CSCTriggerPrimitivesConfigProducer::~L1CSCTriggerPrimitivesConfigProducer() {
-}
+L1CSCTriggerPrimitivesConfigProducer::~L1CSCTriggerPrimitivesConfigProducer() {}
 
 //------------------
 // Member functions
 //------------------
 
 // ------------ method called to produce the data  ------------
-std::unique_ptr<CSCDBL1TPParameters>
-L1CSCTriggerPrimitivesConfigProducer::produce(const CSCDBL1TPParametersRcd& iRecord) {
+std::unique_ptr<CSCDBL1TPParameters> L1CSCTriggerPrimitivesConfigProducer::produce(
+    const CSCDBL1TPParametersRcd& iRecord) {
   using namespace edm::es;
   //std::shared_ptr<L1CSCTriggerPrimitivesConfigProducer> pL1CSCTPConfigProducer;
 

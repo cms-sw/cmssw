@@ -34,7 +34,6 @@
 #include <iomanip>
 #include <cmath>
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -53,72 +52,62 @@
 
 using namespace std;
 using namespace reco;
-namespace cms{
+namespace cms {
 
-  JetVertexAssociation::JetVertexAssociation(const edm::ParameterSet& iConfig): m_algo(iConfig),
-                                                                                jet_token(consumes<CaloJetCollection>(edm::InputTag(iConfig.getParameter<std::string>("JET_ALGO")))),
-                                                                                track_token(consumes<TrackCollection>(edm::InputTag(iConfig.getParameter<std::string>("TRACK_ALGO")))),
-                                                                                vertex_token(consumes<VertexCollection>(edm::InputTag(iConfig.getParameter<std::string>("VERTEX_ALGO")))) {
-
-
-
+  JetVertexAssociation::JetVertexAssociation(const edm::ParameterSet& iConfig)
+      : m_algo(iConfig),
+        jet_token(consumes<CaloJetCollection>(edm::InputTag(iConfig.getParameter<std::string>("JET_ALGO")))),
+        track_token(consumes<TrackCollection>(edm::InputTag(iConfig.getParameter<std::string>("TRACK_ALGO")))),
+        vertex_token(consumes<VertexCollection>(edm::InputTag(iConfig.getParameter<std::string>("VERTEX_ALGO")))) {
     produces<ResultCollection1>("Var");
     produces<ResultCollection2>("JetType");
-
-
   }
 
-  void JetVertexAssociation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+  void JetVertexAssociation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+    edm::Handle<CaloJetCollection> jets;
+    iEvent.getByToken(jet_token, jets);
 
-   edm::Handle<CaloJetCollection> jets;
-   iEvent.getByToken(jet_token, jets);
+    edm::Handle<TrackCollection> tracks;
+    iEvent.getByToken(track_token, tracks);
 
-   edm::Handle<TrackCollection> tracks;
-   iEvent.getByToken(track_token, tracks);
+    edm::Handle<VertexCollection> vertexes;
+    iEvent.getByToken(vertex_token, vertexes);
 
-   edm::Handle<VertexCollection> vertexes;
-   iEvent.getByToken(vertex_token, vertexes);
+    double SIGNAL_V_Z = 0.;
+    double SIGNAL_V_Z_ERROR = 0.;
+    double ptmax = -100.;
 
-   double SIGNAL_V_Z = 0.;
-   double SIGNAL_V_Z_ERROR = 0.;
-   double ptmax = -100.;
+    VertexCollection::const_iterator vert = vertexes->begin();
+    if (!vertexes->empty()) {
+      for (; vert != vertexes->end(); vert++) {
+        SIGNAL_V_Z = vert->z();
+        double pt = 0.;
+        reco::Vertex::trackRef_iterator tr = vert->tracks_begin();
+        for (; tr != vert->tracks_end(); tr++)
+          pt += (*tr)->pt();
+        if (pt >= ptmax) {
+          ptmax = pt;
+          SIGNAL_V_Z = vert->z();
+          SIGNAL_V_Z_ERROR = vert->zError();
+        }
+      }
+    }
 
-   VertexCollection::const_iterator vert = vertexes->begin ();
-   if(!vertexes->empty() )   {
-        for (; vert != vertexes->end (); vert++) {
+    pair<double, bool> result;
+    std::unique_ptr<ResultCollection1> result1(new ResultCollection1);
+    std::unique_ptr<ResultCollection2> result2(new ResultCollection2);
 
-                SIGNAL_V_Z = vert->z();
-                double pt = 0.;
-                reco::Vertex::trackRef_iterator tr = vert->tracks_begin();
-                for (; tr != vert->tracks_end(); tr++)  pt += (*tr)->pt();
-                if( pt >= ptmax ){
+    CaloJetCollection::const_iterator jet = jets->begin();
 
-	                  ptmax = pt;
-		          SIGNAL_V_Z = vert->z();
-                          SIGNAL_V_Z_ERROR = vert->zError();
+    if (!jets->empty()) {
+      for (; jet != jets->end(); jet++) {
+        result = m_algo.Main(*jet, tracks, SIGNAL_V_Z, SIGNAL_V_Z_ERROR);
+        result1->push_back(result.first);
+        result2->push_back(result.second);
+      }
+    }
 
-		}
-
-	}
-   }
-
-   pair<double, bool> result;
-   std::unique_ptr<ResultCollection1> result1 (new ResultCollection1) ;
-   std::unique_ptr<ResultCollection2> result2 (new ResultCollection2) ;
-
-   CaloJetCollection::const_iterator jet = jets->begin ();
-
-   if(!jets->empty() )   {
-        for (; jet != jets->end (); jet++) {
-	     result = m_algo.Main(*jet, tracks, SIGNAL_V_Z, SIGNAL_V_Z_ERROR);
-             result1->push_back(result.first);
-             result2->push_back(result.second);
-
-	}
-   }
-
-   iEvent.put(std::move(result1), "Var");
-   iEvent.put(std::move(result2), "JetType");
-
+    iEvent.put(std::move(result1), "Var");
+    iEvent.put(std::move(result2), "JetType");
   }
-}
+}  // namespace cms

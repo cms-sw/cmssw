@@ -22,49 +22,41 @@
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
-namespace edm
-{
-  
-  class BaseRandomtXiGunProducer : public one::EDProducer<one::WatchRuns,
-                                                          EndRunProducer>
-  {
-  
+namespace edm {
+
+  class BaseRandomtXiGunProducer : public one::EDProducer<one::WatchRuns, EndRunProducer> {
   public:
-    BaseRandomtXiGunProducer(const ParameterSet &);
+    BaseRandomtXiGunProducer(const ParameterSet&);
     ~BaseRandomtXiGunProducer() override;
-    void beginRun(const edm::Run & r, const edm::EventSetup& ) override ;
-    void endRun(const edm::Run& r, const edm::EventSetup& ) override;
+    void beginRun(const edm::Run& r, const edm::EventSetup&) override;
+    void endRun(const edm::Run& r, const edm::EventSetup&) override;
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
 
   private:
-   
   protected:
-  
     // non-virtuals ! this and only way !
     //
     // data members
-    
+
     // gun particle(s) characteristics
-    std::vector<int> fPartIDs ;
-    double           fMinPhi ;
-    double           fMaxPhi ;
-    double           fpEnergy;
-    double           fECMS;
+    std::vector<int> fPartIDs;
+    double fMinPhi;
+    double fMaxPhi;
+    double fpEnergy;
+    double fECMS;
 
     // the event format itself
     HepMC::GenEvent* fEvt;
 
-    ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-            	    	
-    int              fVerbosity ;
+    ESHandle<HepPDT::ParticleDataTable> fPDGTable;
 
-    const HepPDT::ParticleData*   PData;
+    int fVerbosity;
 
-    bool             fFireForward;
-    bool             fFireBackward;
-    bool             fLog_t;
+    const HepPDT::ParticleData* PData;
 
-    
+    bool fFireForward;
+    bool fFireBackward;
+    bool fLog_t;
   };
-} 
+}  // namespace edm
 #endif

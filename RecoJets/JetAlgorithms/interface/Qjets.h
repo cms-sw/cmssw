@@ -13,67 +13,72 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-struct JetDistance{
+struct JetDistance {
   double dij;
   int j1;
   int j2;
 };
 
-class JetDistanceCompare{
- public:
+class JetDistanceCompare {
+public:
   JetDistanceCompare(){};
-  bool operator() (const JetDistance& lhs, const JetDistance&rhs) const {return lhs.dij > rhs.dij;};
+  bool operator()(const JetDistance& lhs, const JetDistance& rhs) const { return lhs.dij > rhs.dij; };
 };
 
-class Qjets{
- private:
+class Qjets {
+private:
   double omega;
   bool _rand_seed_set;
   unsigned int _seed;
   double _zcut, _dcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr;
-  std::map<int,bool> _merged_jets;
-  std::priority_queue <JetDistance, std::vector<JetDistance>, JetDistanceCompare> _distances;
+  std::map<int, bool> _merged_jets;
+  std::priority_queue<JetDistance, std::vector<JetDistance>, JetDistanceCompare> _distances;
   CLHEP::HepRandomEngine* _rnEngine;
 
-  double d_ij(const fastjet::PseudoJet& v1, const fastjet::PseudoJet& v2) const; 
-  void computeDCut(fastjet::ClusterSequence & cs);
+  double d_ij(const fastjet::PseudoJet& v1, const fastjet::PseudoJet& v2) const;
+  void computeDCut(fastjet::ClusterSequence& cs);
 
   double Rand();
-  bool Prune(JetDistance& jd,fastjet::ClusterSequence & cs);
+  bool Prune(JetDistance& jd, fastjet::ClusterSequence& cs);
   bool JetsUnmerged(const JetDistance& jd) const;
   bool JetUnmerged(int num) const;
-  void ComputeNewDistanceMeasures(fastjet::ClusterSequence & cs, unsigned int new_jet);
-  void ComputeAllDistances(const std::vector<fastjet::PseudoJet>& inp);  
+  void ComputeNewDistanceMeasures(fastjet::ClusterSequence& cs, unsigned int new_jet);
+  void ComputeAllDistances(const std::vector<fastjet::PseudoJet>& inp);
   double ComputeMinimumDistance();
   double ComputeNormalization(double dmin);
   JetDistance GetNextDistance();
   bool Same(const JetDistance& lhs, const JetDistance& rhs);
 
- public:
-  Qjets(double zcut, double dcut_fctr, double exp_min, double exp_max, double rigidity, double truncation_fctr, CLHEP::HepRandomEngine* rnEngine)  : _rand_seed_set(false),
-    _zcut(zcut),
-    _dcut(-1.),
-    _dcut_fctr(dcut_fctr),
-    _exp_min(exp_min),
-    _exp_max(exp_max),
-    _rigidity(rigidity),
-    _truncation_fctr(truncation_fctr),
-    _rnEngine(rnEngine)
-    {};
-    
-  void Cluster(fastjet::ClusterSequence & cs);
+public:
+  Qjets(double zcut,
+        double dcut_fctr,
+        double exp_min,
+        double exp_max,
+        double rigidity,
+        double truncation_fctr,
+        CLHEP::HepRandomEngine* rnEngine)
+      : _rand_seed_set(false),
+        _zcut(zcut),
+        _dcut(-1.),
+        _dcut_fctr(dcut_fctr),
+        _exp_min(exp_min),
+        _exp_max(exp_max),
+        _rigidity(rigidity),
+        _truncation_fctr(truncation_fctr),
+        _rnEngine(rnEngine){};
+
+  void Cluster(fastjet::ClusterSequence& cs);
   void SetRandSeed(unsigned int seed); /* In case you want reproducible behavior */
 };
 
-
 class QjetsBaseExtras : public fastjet::ClusterSequence::Extras {
 public:
- QjetsBaseExtras():_wij(-1.) {}
+  QjetsBaseExtras() : _wij(-1.) {}
   ~QjetsBaseExtras() override {}
-  virtual double weight() const {return _wij;}
+  virtual double weight() const { return _wij; }
   friend class Qjets;
 
-  protected:
+protected:
   double _wij;
 };
 

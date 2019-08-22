@@ -2,10 +2,9 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSet.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/LHCOpticalFunctionsSetCollection.h"
 
-int main()
-{
-    testSerialization<LHCOpticalFunctionsSet>() ;
-    testSerialization<LHCOpticalFunctionsSetCollection>() ;
-    
-    return 0 ;
+int main() {
+  testSerialization<LHCOpticalFunctionsSet>();
+  testSerialization<LHCOpticalFunctionsSetCollection>();
+
+  return 0;
 }

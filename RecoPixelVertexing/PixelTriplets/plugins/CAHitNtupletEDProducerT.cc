@@ -13,16 +13,15 @@
 #include "RecoTracker/TkHitPairs/interface/IntermediateHitDoublets.h"
 
 namespace {
-  void fillNtuplets(RegionsSeedingHitSets::RegionFiller& seedingHitSetsFiller,
-                    const OrderedHitSeeds& quadruplets) {
-    for(const auto& quad: quadruplets) {
+  void fillNtuplets(RegionsSeedingHitSets::RegionFiller& seedingHitSetsFiller, const OrderedHitSeeds& quadruplets) {
+    for (const auto& quad : quadruplets) {
       seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2], quad[3]);
     }
   }
-}
+}  // namespace
 
 template <typename T_Generator>
-class CAHitNtupletEDProducerT: public edm::stream::EDProducer<> {
+class CAHitNtupletEDProducerT : public edm::stream::EDProducer<> {
 public:
   CAHitNtupletEDProducerT(const edm::ParameterSet& iConfig);
   ~CAHitNtupletEDProducerT() override = default;
@@ -40,10 +39,9 @@ private:
 };
 
 template <typename T_Generator>
-CAHitNtupletEDProducerT<T_Generator>::CAHitNtupletEDProducerT(const edm::ParameterSet& iConfig):
-  doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
-  generator_(iConfig, consumesCollector())
-{
+CAHitNtupletEDProducerT<T_Generator>::CAHitNtupletEDProducerT(const edm::ParameterSet& iConfig)
+    : doubletToken_(consumes<IntermediateHitDoublets>(iConfig.getParameter<edm::InputTag>("doublets"))),
+      generator_(iConfig, consumesCollector()) {
   produces<RegionsSeedingHitSets>();
 }
 
@@ -65,26 +63,32 @@ void CAHitNtupletEDProducerT<T_Generator>::produce(edm::Event& iEvent, const edm
   const auto& regionDoublets = *hdoublets;
 
   const SeedingLayerSetsHits& seedingLayerHits = regionDoublets.seedingLayerHits();
-  if(seedingLayerHits.numberOfLayersInSet() < T_Generator::minLayers) {
-    throw cms::Exception("LogicError") << "CAHitNtupletEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= " << T_Generator::minLayers << ", got " << seedingLayerHits.numberOfLayersInSet() << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or SeedingLayersEDProducer.";
+  if (seedingLayerHits.numberOfLayersInSet() < T_Generator::minLayers) {
+    throw cms::Exception("LogicError")
+        << "CAHitNtupletEDProducer expects SeedingLayerSetsHits::numberOfLayersInSet() to be >= "
+        << T_Generator::minLayers << ", got " << seedingLayerHits.numberOfLayersInSet()
+        << ". This is likely caused by a configuration error of this module, HitPairEDProducer, or "
+           "SeedingLayersEDProducer.";
   }
 
   auto seedingHitSets = std::make_unique<RegionsSeedingHitSets>();
-  if(regionDoublets.empty()) {
+  if (regionDoublets.empty()) {
     iEvent.put(std::move(seedingHitSets));
     return;
   }
   seedingHitSets->reserve(regionDoublets.regionSize(), localRA_.upper());
   generator_.initEvent(iEvent, iSetup);
 
-  LogDebug("CAHitNtupletEDProducer") << "Creating ntuplets for " << regionDoublets.regionSize() << " regions, and " << regionDoublets.layerPairsSize() << " layer pairs";
+  LogDebug("CAHitNtupletEDProducer") << "Creating ntuplets for " << regionDoublets.regionSize() << " regions, and "
+                                     << regionDoublets.layerPairsSize() << " layer pairs";
   std::vector<OrderedHitSeeds> ntuplets;
   ntuplets.resize(regionDoublets.regionSize());
-  for(auto& ntuplet : ntuplets)  ntuplet.reserve(localRA_.upper());
+  for (auto& ntuplet : ntuplets)
+    ntuplet.reserve(localRA_.upper());
 
   generator_.hitNtuplets(regionDoublets, ntuplets, iSetup, seedingLayerHits);
   int index = 0;
-  for(const auto& regionLayerPairs: regionDoublets) {
+  for (const auto& regionLayerPairs : regionDoublets) {
     const TrackingRegion& region = regionLayerPairs.region();
     auto seedingHitSetsFiller = seedingHitSets->beginRegion(&region);
 

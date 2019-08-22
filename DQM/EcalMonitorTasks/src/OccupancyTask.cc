@@ -5,59 +5,42 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace ecaldqm
-{
-  OccupancyTask::OccupancyTask() :
-    DQWorkerTask(),
-    recHitThreshold_(0.),
-    tpThreshold_(0.)
-  {
-  }
+namespace ecaldqm {
+  OccupancyTask::OccupancyTask() : DQWorkerTask(), recHitThreshold_(0.), tpThreshold_(0.) {}
 
-  void
-  OccupancyTask::setParams(edm::ParameterSet const& _params)
-  {
+  void OccupancyTask::setParams(edm::ParameterSet const& _params) {
     recHitThreshold_ = _params.getUntrackedParameter<double>("recHitThreshold");
     tpThreshold_ = _params.getUntrackedParameter<double>("tpThreshold");
   }
 
-  bool
-  OccupancyTask::filterRunType(short const* _runType)
-  {
-    for(int iFED(0); iFED < 54; iFED++){
-      if(_runType[iFED] == EcalDCCHeaderBlock::COSMIC ||
-	 _runType[iFED] == EcalDCCHeaderBlock::MTCC ||
-	 _runType[iFED] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-	 _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-	 _runType[iFED] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-	 _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_LOCAL) return true;
+  bool OccupancyTask::filterRunType(short const* _runType) {
+    for (int iFED(0); iFED < 54; iFED++) {
+      if (_runType[iFED] == EcalDCCHeaderBlock::COSMIC || _runType[iFED] == EcalDCCHeaderBlock::MTCC ||
+          _runType[iFED] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+          _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_GLOBAL || _runType[iFED] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+          _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_LOCAL)
+        return true;
     }
 
     return false;
   }
 
-  void
-  OccupancyTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-  {
+  void OccupancyTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
     // Reset by LS plots at beginning of every LS
     MEs_.at("DigiAllByLumi").reset();
     MEs_.at("TPDigiThrAllByLumi").reset();
     MEs_.at("RecHitThrAllByLumi").reset();
   }
 
-  void
-  OccupancyTask::runOnRawData(EcalRawDataCollection const& _dcchs)
-  {
+  void OccupancyTask::runOnRawData(EcalRawDataCollection const& _dcchs) {
     MESet& meDCC(MEs_.at("DCC"));
 
-    for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr)
+    for (EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr)
       meDCC.fill(dcchItr->id());
   }
 
-  template<typename DigiCollection>
-  void
-  OccupancyTask::runOnDigis(DigiCollection const& _digis, Collections _collection)
-  {
+  template <typename DigiCollection>
+  void OccupancyTask::runOnDigis(DigiCollection const& _digis, Collections _collection) {
     MESet& meDigi(MEs_.at("Digi"));
     MESet& meDigiProjEta(MEs_.at("DigiProjEta"));
     MESet& meDigiProjPhi(MEs_.at("DigiProjPhi"));
@@ -67,24 +50,22 @@ namespace ecaldqm
     MESet& meDigi1D(MEs_.at("Digi1D"));
     MESet& meTrendNDigi(MEs_.at("TrendNDigi"));
 
-    std::for_each(_digis.begin(), _digis.end(), [&](typename DigiCollection::Digi const& digi){
-                    DetId id(digi.id());
-                    meDigi.fill(id);
-                    meDigiProjEta.fill(id);
-                    meDigiProjPhi.fill(id);
-                    meDigiAll.fill(id);
-                    meDigiAllByLumi.fill(id);
-                    meDigiDCC.fill(id);
-                  });
+    std::for_each(_digis.begin(), _digis.end(), [&](typename DigiCollection::Digi const& digi) {
+      DetId id(digi.id());
+      meDigi.fill(id);
+      meDigiProjEta.fill(id);
+      meDigiProjPhi.fill(id);
+      meDigiAll.fill(id);
+      meDigiAllByLumi.fill(id);
+      meDigiDCC.fill(id);
+    });
 
     int iSubdet(_collection == kEBDigi ? EcalBarrel : EcalEndcap);
     meDigi1D.fill(iSubdet, double(_digis.size()));
     meTrendNDigi.fill(iSubdet, double(timestamp_.iLumi), double(_digis.size()));
   }
 
-  void
-  OccupancyTask::runOnTPDigis(EcalTrigPrimDigiCollection const& _digis)
-  {
+  void OccupancyTask::runOnTPDigis(EcalTrigPrimDigiCollection const& _digis) {
     //    MESet& meTPDigiAll(MEs_.at("TPDigiAll"));
     //    MESet& meTPDigiProjEta(MEs_.at("TPDigiProjEta"));
     //    MESet& meTPDigiProjPhi(MEs_.at("TPDigiProjPhi"));
@@ -98,29 +79,29 @@ namespace ecaldqm
     double nFilteredEB(0.);
     double nFilteredEE(0.);
 
-    std::for_each(_digis.begin(), _digis.end(), [&](EcalTrigPrimDigiCollection::value_type const& digi){
-                    EcalTrigTowerDetId const& id(digi.id());
-                    //       meTPDigiProjEta.fill(id);
-                    //       meTPDigiProjPhi.fill(id);
-                    //       meTPDigiAll.fill(id);
-                    if(digi.compressedEt() > tpThreshold_){
-                      meTPDigiThrProjEta.fill(id);
-                      meTPDigiThrProjPhi.fill(id);
-                      meTPDigiThrAll.fill(id);
-                      meTPDigiThrAllByLumi.fill(id);
-                      meTPDigiRCT.fill(id);
-                      if(id.subDet() == EcalBarrel) nFilteredEB += 1.;
-                      else nFilteredEE += 1.;
-                    }
-                  });
+    std::for_each(_digis.begin(), _digis.end(), [&](EcalTrigPrimDigiCollection::value_type const& digi) {
+      EcalTrigTowerDetId const& id(digi.id());
+      //       meTPDigiProjEta.fill(id);
+      //       meTPDigiProjPhi.fill(id);
+      //       meTPDigiAll.fill(id);
+      if (digi.compressedEt() > tpThreshold_) {
+        meTPDigiThrProjEta.fill(id);
+        meTPDigiThrProjPhi.fill(id);
+        meTPDigiThrAll.fill(id);
+        meTPDigiThrAllByLumi.fill(id);
+        meTPDigiRCT.fill(id);
+        if (id.subDet() == EcalBarrel)
+          nFilteredEB += 1.;
+        else
+          nFilteredEE += 1.;
+      }
+    });
 
     meTrendNTPDigi.fill(EcalBarrel, double(timestamp_.iLumi), nFilteredEB);
     meTrendNTPDigi.fill(EcalEndcap, double(timestamp_.iLumi), nFilteredEE);
   }
 
-  void
-  OccupancyTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection)
-  {
+  void OccupancyTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection) {
     MESet& meRecHitAll(MEs_.at("RecHitAll"));
     MESet& meRecHitProjEta(MEs_.at("RecHitProjEta"));
     MESet& meRecHitProjPhi(MEs_.at("RecHitProjPhi"));
@@ -138,33 +119,32 @@ namespace ecaldqm
 
     float nRHThrp(0), nRHThrm(0);
     int iSubdet(_collection == kEBRecHit ? EcalBarrel : EcalEndcap);
-    std::for_each(_hits.begin(), _hits.end(), [&](EcalRecHitCollection::value_type const& hit){
-                    DetId id(hit.id());
+    std::for_each(_hits.begin(), _hits.end(), [&](EcalRecHitCollection::value_type const& hit) {
+      DetId id(hit.id());
 
-                    meRecHitAll.fill(id);
-                    meRecHitProjEta.fill(id);
-                    meRecHitProjPhi.fill(id);
+      meRecHitAll.fill(id);
+      meRecHitProjEta.fill(id);
+      meRecHitProjPhi.fill(id);
 
-                    if(!hit.checkFlagMask(mask) && hit.energy() > recHitThreshold_){
-                      meRecHitThrProjEta.fill(id);
-                      meRecHitThrProjPhi.fill(id);
-                      meRecHitThrAll.fill(id);
-                      meRecHitThrAllByLumi.fill(id);
-                      nFiltered += 1.;
-                      bool isPlusFar ( iSubdet == EcalBarrel ? (EBDetId(id).iphi() > 100 && EBDetId(id).iphi() < 280) : zside(id) > 0 );
-                      if ( isPlusFar )
-                        nRHThrp++;
-                      else
-                        nRHThrm++;
-                    }
-                  });
+      if (!hit.checkFlagMask(mask) && hit.energy() > recHitThreshold_) {
+        meRecHitThrProjEta.fill(id);
+        meRecHitThrProjPhi.fill(id);
+        meRecHitThrAll.fill(id);
+        meRecHitThrAllByLumi.fill(id);
+        nFiltered += 1.;
+        bool isPlusFar(iSubdet == EcalBarrel ? (EBDetId(id).iphi() > 100 && EBDetId(id).iphi() < 280) : zside(id) > 0);
+        if (isPlusFar)
+          nRHThrp++;
+        else
+          nRHThrm++;
+      }
+    });
 
     meRecHitThr1D.fill(iSubdet, nFiltered);
     meTrendNRecHitThr.fill(iSubdet, double(timestamp_.iLumi), nFiltered);
-    meRecHitThrmvp.fill(iSubdet,nRHThrp,nRHThrm);
-    meRecHitThrpm.fill(iSubdet,nRHThrp-nRHThrm);
+    meRecHitThrmvp.fill(iSubdet, nRHThrp, nRHThrm);
+    meRecHitThrpm.fill(iSubdet, nRHThrp - nRHThrm);
   }
 
   DEFINE_ECALDQM_WORKER(OccupancyTask);
-}
-
+}  // namespace ecaldqm

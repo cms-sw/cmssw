@@ -40,82 +40,81 @@
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
-template<typename T>
+template <typename T>
 class DeltaRNearestObjectComputer : public edm::EDProducer {
-    public:
-        explicit DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig);
-        ~DeltaRNearestObjectComputer() override ;
+public:
+  explicit DeltaRNearestObjectComputer(const edm::ParameterSet& iConfig);
+  ~DeltaRNearestObjectComputer() override;
 
-        void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-    private:
-        edm::EDGetTokenT<edm::View<reco::Candidate> > probesToken_;
-        edm::EDGetTokenT<edm::View<T> > objectsToken_;
-        StringCutObjectSelector<T,true> objCut_; // lazy parsing, to allow cutting on variables not in reco::Candidate class
+private:
+  edm::EDGetTokenT<edm::View<reco::Candidate>> probesToken_;
+  edm::EDGetTokenT<edm::View<T>> objectsToken_;
+  StringCutObjectSelector<T, true> objCut_;  // lazy parsing, to allow cutting on variables not in reco::Candidate class
 };
 
-template<typename T>
-DeltaRNearestObjectComputer<T>::DeltaRNearestObjectComputer(const edm::ParameterSet & iConfig) :
-    probesToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("probes"))),
-    objectsToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("objects"))),
-    objCut_(iConfig.existsAs<std::string>("objectSelection") ? iConfig.getParameter<std::string>("objectSelection") : "", true)
-{
-    produces<edm::ValueMap<float> >();
+template <typename T>
+DeltaRNearestObjectComputer<T>::DeltaRNearestObjectComputer(const edm::ParameterSet& iConfig)
+    : probesToken_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("probes"))),
+      objectsToken_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("objects"))),
+      objCut_(
+          iConfig.existsAs<std::string>("objectSelection") ? iConfig.getParameter<std::string>("objectSelection") : "",
+          true) {
+  produces<edm::ValueMap<float>>();
 }
 
+template <typename T>
+DeltaRNearestObjectComputer<T>::~DeltaRNearestObjectComputer() {}
 
-template<typename T>
-DeltaRNearestObjectComputer<T>::~DeltaRNearestObjectComputer()
-{
-}
+template <typename T>
+void DeltaRNearestObjectComputer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  using namespace edm;
 
-template<typename T>
-void
-DeltaRNearestObjectComputer<T>::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
-    using namespace edm;
+  // read input
+  Handle<View<reco::Candidate>> probes;
+  iEvent.getByToken(probesToken_, probes);
 
-    // read input
-    Handle<View<reco::Candidate> > probes;
-    iEvent.getByToken(probesToken_,  probes);
+  Handle<View<T>> objects;
+  iEvent.getByToken(objectsToken_, objects);
 
-    Handle<View<T> > objects;
-    iEvent.getByToken(objectsToken_, objects);
+  // prepare vector for output
+  std::vector<float> values;
 
-    // prepare vector for output
-    std::vector<float> values;
-
-    // fill
-    View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
-    for (probe = probes->begin(); probe != endprobes; ++probe) {
-        double dr2min = 10000;
-        for (unsigned int iObj=0; iObj<objects->size(); iObj++) {
-	  const T& obj = objects->at(iObj);
-	  if (!objCut_(obj)) continue;
-            double dr2 = deltaR2(*probe, obj);
-            if (dr2 < dr2min) { dr2min = dr2; }
-        }
-        values.push_back(sqrt(dr2min));
+  // fill
+  View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
+  for (probe = probes->begin(); probe != endprobes; ++probe) {
+    double dr2min = 10000;
+    for (unsigned int iObj = 0; iObj < objects->size(); iObj++) {
+      const T& obj = objects->at(iObj);
+      if (!objCut_(obj))
+        continue;
+      double dr2 = deltaR2(*probe, obj);
+      if (dr2 < dr2min) {
+        dr2min = dr2;
+      }
     }
+    values.push_back(sqrt(dr2min));
+  }
 
-    // convert into ValueMap and store
-    auto valMap = std::make_unique<ValueMap<float>>();
-    ValueMap<float>::Filler filler(*valMap);
-    filler.insert(probes, values.begin(), values.end());
-    filler.fill();
-    iEvent.put(std::move(valMap));
+  // convert into ValueMap and store
+  auto valMap = std::make_unique<ValueMap<float>>();
+  ValueMap<float>::Filler filler(*valMap);
+  filler.insert(probes, values.begin(), values.end());
+  filler.fill();
+  iEvent.put(std::move(valMap));
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // plugin definition
 ////////////////////////////////////////////////////////////////////////////////
 
-typedef DeltaRNearestObjectComputer<reco::Candidate>     DeltaRNearestCandidateComputer;
-typedef DeltaRNearestObjectComputer<reco::Muon>          DeltaRNearestMuonComputer;
-typedef DeltaRNearestObjectComputer<reco::Electron>      DeltaRNearestElectronComputer;
-typedef DeltaRNearestObjectComputer<reco::GsfElectron>   DeltaRNearestGsfElectronComputer;
-typedef DeltaRNearestObjectComputer<reco::Photon>        DeltaRNearestPhotonComputer;
-typedef DeltaRNearestObjectComputer<reco::Jet>           DeltaRNearestJetComputer;
+typedef DeltaRNearestObjectComputer<reco::Candidate> DeltaRNearestCandidateComputer;
+typedef DeltaRNearestObjectComputer<reco::Muon> DeltaRNearestMuonComputer;
+typedef DeltaRNearestObjectComputer<reco::Electron> DeltaRNearestElectronComputer;
+typedef DeltaRNearestObjectComputer<reco::GsfElectron> DeltaRNearestGsfElectronComputer;
+typedef DeltaRNearestObjectComputer<reco::Photon> DeltaRNearestPhotonComputer;
+typedef DeltaRNearestObjectComputer<reco::Jet> DeltaRNearestJetComputer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(DeltaRNearestCandidateComputer);

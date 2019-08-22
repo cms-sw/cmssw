@@ -4,10 +4,9 @@
 #include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainForHLTReader.h"
 #include "CalibTracker/SiPixelESProducers/test/SiPixelFakeGainOfflineReader.h"
 
-using cms::SiPixelFakeGainReader;
 using cms::SiPixelFakeGainForHLTReader;
 using cms::SiPixelFakeGainOfflineReader;
-
+using cms::SiPixelFakeGainReader;
 
 DEFINE_FWK_MODULE(SiPixelFakeGainReader);
 DEFINE_FWK_MODULE(SiPixelFakeGainForHLTReader);

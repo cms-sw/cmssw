@@ -3,23 +3,26 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
-
 class PtAssignmentEngine;
 class PtAssignmentEngineAux;
 
 class PtAssignment {
 public:
-  void configure(
-      PtAssignmentEngine* pt_assign_engine,
-      int verbose, int endcap, int sector, int bx,
-      bool readPtLUTFile, bool fixMode15HighPt,
-      bool bug9BitDPhi, bool bugMode7CLCT, bool bugNegPt,
-      bool bugGMTPhi, bool promoteMode7, int modeQualVer
-  );
+  void configure(PtAssignmentEngine* pt_assign_engine,
+                 int verbose,
+                 int endcap,
+                 int sector,
+                 int bx,
+                 bool readPtLUTFile,
+                 bool fixMode15HighPt,
+                 bool bug9BitDPhi,
+                 bool bugMode7CLCT,
+                 bool bugNegPt,
+                 bool bugGMTPhi,
+                 bool promoteMode7,
+                 int modeQualVer);
 
-  void process(
-      EMTFTrackCollection& best_tracks
-  );
+  void process(EMTFTrackCollection& best_tracks);
 
   const PtAssignmentEngineAux& aux() const;
 

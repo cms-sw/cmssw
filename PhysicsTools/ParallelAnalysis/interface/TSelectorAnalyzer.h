@@ -3,22 +3,19 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "TList.h"
 
-template<typename Algo>
+template <typename Algo>
 class TSelectorAnalyzer : public edm::EDAnalyzer {
 public:
-  TSelectorAnalyzer( const edm::ParameterSet & cfg ) :
-    list_(), algo_( nullptr, list_ ) {
-  }
-  void analyze( const edm::Event & evt, const edm::EventSetup & ) override {
-    algo_.process( evt );
-  }  
+  TSelectorAnalyzer(const edm::ParameterSet& cfg) : list_(), algo_(nullptr, list_) {}
+  void analyze(const edm::Event& evt, const edm::EventSetup&) override { algo_.process(evt); }
   void endJob() override {
-    algo_.postProcess( list_ );
-    algo_.terminate( list_ );
+    algo_.postProcess(list_);
+    algo_.terminate(list_);
   }
+
 private:
   TList list_;
-  Algo algo_; 
+  Algo algo_;
 };
 
 #endif

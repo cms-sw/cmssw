@@ -17,7 +17,6 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-
 def customiseFor2017DtUnpacking(process):
     """Adapt the HLT to run the legacy DT unpacking
     for pre2018 data/MC workflows as the default"""

@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h" 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
@@ -30,40 +30,37 @@ public:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
 private:
-  int iev; // events through
+  int iev;  // events through
   edm::EDGetTokenT<GEMRecHitCollection> theGEMRecHitToken;
   std::unique_ptr<GEMSegmentBuilder> segmentBuilder_;
 };
 
 GEMSegmentProducer::GEMSegmentProducer(const edm::ParameterSet& ps) : iev(0) {
-	
   theGEMRecHitToken = consumes<GEMRecHitCollection>(ps.getParameter<edm::InputTag>("gemRecHitLabel"));
-  segmentBuilder_ = std::make_unique<GEMSegmentBuilder>(ps); // pass on the Parameter Set
+  segmentBuilder_ = std::make_unique<GEMSegmentBuilder>(ps);  // pass on the Parameter Set
 
   // register what this produces
   produces<GEMSegmentCollection>();
 }
 
 void GEMSegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
-
   LogDebug("GEMSegmentProducer") << "start producing segments for " << ++iev << "th event with GEM data";
-	
+
   // find the geometry (& conditions?) for this event & cache it in the builder
   edm::ESHandle<GEMGeometry> gemg;
   setup.get<MuonGeometryRecord>().get(gemg);
   const GEMGeometry* mgeom = &*gemg;
   segmentBuilder_->setGeometry(mgeom);
-  
 
   // get the collection of GEMRecHit
   edm::Handle<GEMRecHitCollection> gemRecHits;
-  ev.getByToken(theGEMRecHitToken,gemRecHits);
+  ev.getByToken(theGEMRecHitToken, gemRecHits);
 
   // create empty collection of Segments
   auto oc = std::make_unique<GEMSegmentCollection>();
 
   // fill the collection
-  segmentBuilder_->build(gemRecHits.product(), *oc); //@@ FILL oc
+  segmentBuilder_->build(gemRecHits.product(), *oc);  //@@ FILL oc
 
   // put collection in event
   ev.put(std::move(oc));

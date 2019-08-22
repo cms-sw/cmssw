@@ -15,33 +15,36 @@ namespace cms {
       produces<SeedStopInfo>();
     }
 
-    void beginRun (edm::Run const & run, edm::EventSetup const & es) override {
-      beginRunBase(run,es); 
+    void beginRun(edm::Run const& run, edm::EventSetup const& es) override {
+      beginRunBase(run, es);
       initDebugger(es);
     }
 
-    void produce(edm::Event& e, const edm::EventSetup& es) override {produceBase(e,es);}
-    void endJob() override {delete dbg; }
+    void produce(edm::Event& e, const edm::EventSetup& es) override { produceBase(e, es); }
+    void endJob() override { delete dbg; }
 
   private:
-    virtual TrajectorySeedCollection::const_iterator 
-      lastSeed(TrajectorySeedCollection const& theSeedColl) override {return theSeedColl.begin()+1;}
+    TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl) override {
+      return theSeedColl.begin() + 1;
+    }
 
-    void initDebugger(edm::EventSetup const & es){
+    void initDebugger(edm::EventSetup const& es) {
       dbg = new CkfDebugger(es, consumesCollector());
       myTrajectoryBuilder = dynamic_cast<const CkfDebugTrajectoryBuilder*>(theTrajectoryBuilder.get());
-      if (myTrajectoryBuilder) myTrajectoryBuilder->setDebugger( dbg);
-      else throw cms::Exception("CkfDebugger") << "please use CkfDebugTrajectoryBuilder";
-	//theTrajectoryBuilder->setDebugger( dbg);
+      if (myTrajectoryBuilder)
+        myTrajectoryBuilder->setDebugger(dbg);
+      else
+        throw cms::Exception("CkfDebugger") << "please use CkfDebugTrajectoryBuilder";
+      //theTrajectoryBuilder->setDebugger( dbg);
     };
-    
-    void printHitsDebugger(edm::Event& e) override{dbg->printSimHits(e);};
-    void countSeedsDebugger() override{dbg->countSeed();};
-    void deleteAssocDebugger() override{dbg->deleteHitAssociator();};
-    void deleteDebugger(){delete dbg;};
-    CkfDebugger *  dbg;
+
+    void printHitsDebugger(edm::Event& e) override { dbg->printSimHits(e); };
+    void countSeedsDebugger() override { dbg->countSeed(); };
+    void deleteAssocDebugger() override { dbg->deleteHitAssociator(); };
+    void deleteDebugger() { delete dbg; };
+    CkfDebugger* dbg;
     const CkfDebugTrajectoryBuilder* myTrajectoryBuilder;
   };
-}
+}  // namespace cms
 
 #endif

@@ -6,7 +6,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "boost/mpl/vector.hpp"
 
-class PTrackerParametersRcd : public edm::eventsetup::DependentRecordImplementation<PTrackerParametersRcd,
-  boost::mpl::vector<IdealGeometryRecord> > {};
+class PTrackerParametersRcd
+    : public edm::eventsetup::DependentRecordImplementation<PTrackerParametersRcd,
+                                                            boost::mpl::vector<IdealGeometryRecord> > {};
 
-#endif // PTrackerParameters_H
+#endif  // PTrackerParameters_H

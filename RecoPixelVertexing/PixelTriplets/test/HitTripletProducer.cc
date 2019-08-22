@@ -20,40 +20,35 @@
 #include "TH1D.h"
 #include "TFile.h"
 
-
-
 class HitTripletProducer : public edm::EDAnalyzer {
 public:
   explicit HitTripletProducer(const edm::ParameterSet& conf);
   ~HitTripletProducer();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
 private:
   std::unique_ptr<OrderedHitsGenerator> theGenerator;
   std::unique_ptr<TrackingRegionProducer> theRegionProducer;
   TH1D *hCPU, *hNum;
 };
 
-HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) 
-{
-  edm::LogInfo("HitTripletProducer")<<" CTOR";
-  hCPU = new TH1D ("hCPU","hCPU",140,0.,0.070);
-  hNum = new TH1D ("hNum","hNum",250,0.,500.);
+HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) {
+  edm::LogInfo("HitTripletProducer") << " CTOR";
+  hCPU = new TH1D("hCPU", "hCPU", 140, 0., 0.070);
+  hNum = new TH1D("hNum", "hNum", 250, 0., 500.);
 
-  edm::ParameterSet orderedPSet =
-      conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+  edm::ParameterSet orderedPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
   edm::ConsumesCollector iC = consumesCollector();
-  theGenerator = std::unique_ptr<OrderedHitsGenerator>{OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet, iC)};
+  theGenerator = OrderedHitsGeneratorFactory::get()->create(orderedName, orderedPSet, iC);
 
-  edm::ParameterSet regfactoryPSet =
-      conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+  edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-  theRegionProducer = std::unique_ptr<TrackingRegionProducer>{TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet,consumesCollector())};
+  theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName, regfactoryPSet, consumesCollector());
 }
 
-HitTripletProducer::~HitTripletProducer() 
-{ 
-  edm::LogInfo("HitTripletProducer")<<" DTOR";
+HitTripletProducer::~HitTripletProducer() {
+  edm::LogInfo("HitTripletProducer") << " DTOR";
 
   TFile rootFile("analysis.root", "RECREATE", "my histograms");
   hCPU->Write();
@@ -61,24 +56,21 @@ HitTripletProducer::~HitTripletProducer()
   rootFile.Close();
 }
 
-void HitTripletProducer::analyze(
-    const edm::Event& ev, const edm::EventSetup& es)
-{
+void HitTripletProducer::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
-  Regions regions = theRegionProducer->regions(ev,es);
-  const TrackingRegion & region = *regions[0];
+  Regions regions = theRegionProducer->regions(ev, es);
+  const TrackingRegion& region = *regions[0];
 
-//  static R2DTimerObserver timer("**** MY TIMING REPORT ***");
-//  timer.start();
+  //  static R2DTimerObserver timer("**** MY TIMING REPORT ***");
+  //  timer.start();
   edm::LogInfo("HitTripletProducer") << "call triplets! ";
-  const OrderedSeedingHits & triplets = theGenerator->run(region,ev,es);
-//  timer.stop(); 
-//  hCPU->Fill( timer.lastMeasurement().real() );
+  const OrderedSeedingHits& triplets = theGenerator->run(region, ev, es);
+  //  timer.stop();
+  //  hCPU->Fill( timer.lastMeasurement().real() );
   hNum->Fill(triplets.size());
-  edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
+  edm::LogInfo("HitTripletProducer") << "size of triplets: " << triplets.size();
 
   theGenerator->clear();
-
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

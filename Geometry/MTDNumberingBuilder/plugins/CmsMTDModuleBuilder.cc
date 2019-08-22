@@ -7,25 +7,18 @@
 #include "Geometry/MTDNumberingBuilder/plugins/CmsMTDConstruction.h"
 #include <vector>
 
-void CmsMTDModuleBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side){
-  
+void CmsMTDModuleBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string side) {
   CmsMTDConstruction theCmsMTDConstruction;
-  theCmsMTDConstruction.buildComponent(fv,g,side);  
+  theCmsMTDConstruction.buildComponent(fv, g, side);
 }
-
 
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
-void CmsMTDModuleBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
-  GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
+void CmsMTDModuleBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det) {
+  GeometricTimingDet::ConstGeometricTimingDetContainer& comp = det->components();
 
-  std::stable_sort(comp.begin(),comp.end(),isLessZ);
+  std::stable_sort(comp.begin(), comp.end(), isLessZ);
 
-  if (comp.empty() ){
-   edm::LogError("CmsMTDModuleBuilder") << "Where are the ETL modules?";
-  } 
-
+  if (comp.empty()) {
+    edm::LogError("CmsMTDModuleBuilder") << "Where are the ETL modules?";
+  }
 }
-
-
-
-

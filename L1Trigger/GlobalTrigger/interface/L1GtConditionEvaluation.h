@@ -36,11 +36,9 @@
 
 // class interface
 class L1GtConditionEvaluation {
-
 public:
   /// constructor
-  L1GtConditionEvaluation()
-      : m_condMaxNumberObjects(0), m_condLastResult(false), m_verbosity(0) {}
+  L1GtConditionEvaluation() : m_condMaxNumberObjects(0), m_condLastResult(false), m_verbosity(0) {}
 
   /// destructor
   virtual ~L1GtConditionEvaluation() {}
@@ -58,9 +56,7 @@ public:
   inline bool condLastResult() const { return m_condLastResult; }
 
   /// call evaluateCondition and save last result
-  inline void evaluateConditionStoreResult() {
-    m_condLastResult = evaluateCondition();
-  }
+  inline void evaluateConditionStoreResult() { m_condLastResult = evaluateCondition(); }
 
   /// the core function to check if the condition matches
   virtual const bool evaluateCondition() const = 0;
@@ -75,9 +71,7 @@ public:
   }
 
   /// get all the object combinations evaluated to true in the condition
-  inline CombinationsInCond const &getCombinationsInCond() const {
-    return m_combinationsInCond;
-  }
+  inline CombinationsInCond const &getCombinationsInCond() const { return m_combinationsInCond; }
 
   /// print condition
   virtual void print(std::ostream &myCout) const;
@@ -86,15 +80,12 @@ public:
 
 protected:
   /// get all the object combinations (to fill it...)
-  inline CombinationsInCond &combinationsInCond() const {
-    return m_combinationsInCond;
-  }
+  inline CombinationsInCond &combinationsInCond() const { return m_combinationsInCond; }
 
   /// check if a value is greater than a threshold or
   /// greater-or-equal depending on the value of the condGEqValue flag
   template <class Type1, class Type2>
-  const bool checkThreshold(const Type1 &threshold, const Type2 &value,
-                            const bool condGEqValue) const;
+  const bool checkThreshold(const Type1 &threshold, const Type2 &value, const bool condGEqValue) const;
 
   /// check if a bit with a given number is set in a mask
   template <class Type1>
@@ -120,9 +111,9 @@ protected:
 // check if a value is greater than a threshold or
 // greater-or-equal depending on the value of the condGEqValue flag
 template <class Type1, class Type2>
-const bool L1GtConditionEvaluation::checkThreshold(
-    const Type1 &threshold, const Type2 &value, const bool condGEqValue) const {
-
+const bool L1GtConditionEvaluation::checkThreshold(const Type1 &threshold,
+                                                   const Type2 &value,
+                                                   const bool condGEqValue) const {
   // if (value > 0) {
   //    LogTrace("L1GlobalTrigger") << "  threshold check for condGEqValue = "
   //        << condGEqValue << "\n    hex: " << std::hex << "threshold = " <<
@@ -134,7 +125,6 @@ const bool L1GtConditionEvaluation::checkThreshold(
 
   if (condGEqValue) {
     if (value >= threshold) {
-
       // LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
       //    << std::endl;
 
@@ -144,9 +134,7 @@ const bool L1GtConditionEvaluation::checkThreshold(
     return false;
 
   } else {
-
     if (value == threshold) {
-
       // LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
       //    << std::endl;
 
@@ -159,20 +147,14 @@ const bool L1GtConditionEvaluation::checkThreshold(
 
 // check if a bit with a given number is set in a mask
 template <class Type1>
-const bool
-L1GtConditionEvaluation::checkBit(const Type1 &mask,
-                                  const unsigned int bitNumber) const {
-
+const bool L1GtConditionEvaluation::checkBit(const Type1 &mask, const unsigned int bitNumber) const {
   boost::uint64_t oneBit = 1ULL;
 
   if (bitNumber >= (sizeof(oneBit) * 8)) {
-
     if (m_verbosity) {
-
-      LogTrace("L1GlobalTrigger")
-          << "    checkBit "
-          << "\n     Bit number = " << bitNumber
-          << " larger than maximum allowed " << sizeof(oneBit) * 8 << std::endl;
+      LogTrace("L1GlobalTrigger") << "    checkBit "
+                                  << "\n     Bit number = " << bitNumber << " larger than maximum allowed "
+                                  << sizeof(oneBit) * 8 << std::endl;
     }
 
     return false;

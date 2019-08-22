@@ -2,7 +2,7 @@
 //
 // Package:    L1GctTest
 // Class:      L1GctTest
-// 
+//
 /**\class L1GctTest L1GctTest.cc L1Trigger/GlobalCaloTrigger/test/L1GctTest.cc
 
  Description: a collection of GCT tests
@@ -13,7 +13,6 @@
 //         Created:  Mon Mar 12 16:36:35 CET 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,22 +36,20 @@ class gctTestFunctions;
 
 class L1GctTest : public edm::EDAnalyzer {
 public:
-
   /// typedefs
-  typedef L1GlobalCaloTrigger::lutPtr       lutPtr;
+  typedef L1GlobalCaloTrigger::lutPtr lutPtr;
   typedef L1GlobalCaloTrigger::lutPtrVector lutPtrVector;
 
   explicit L1GctTest(const edm::ParameterSet&);
   ~L1GctTest();
 
-
 private:
-  virtual void beginJob() ;
+  virtual void beginJob();
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob() ;
+  virtual void endJob();
 
   void configureGct(const edm::EventSetup& c);
-  void configParamsPrint(std::ostream & out);
+  void configParamsPrint(std::ostream& out);
 
   // ----------member data ---------------------------
 

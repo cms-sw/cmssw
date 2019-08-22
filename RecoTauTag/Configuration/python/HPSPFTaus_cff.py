@@ -584,6 +584,8 @@ hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminat
         )
     )
 )
+hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
+hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff95")
 hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
 hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBnewDMwLT2017v2_WPEff80")
 hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT.clone()
@@ -726,6 +728,8 @@ hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscrim
         )
     )
 )
+hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
+hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff95")
 hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
 hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT.mapping[0].cut = cms.string("RecoTauTag_tauIdMVAIsoDBoldDMdR0p3wLT2017v2_WPEff80")
 hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT = hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT.clone()
@@ -789,6 +793,7 @@ hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTTask = cms.Task(
 
 hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw,
+    hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT,
@@ -828,6 +833,7 @@ hpsPFTauIsolationSums03Task = cms.Task(
 
 hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTTask = cms.Task(
     hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLTraw,
+    hpsPFTauDiscriminationByVVLooseIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT,
     hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT,

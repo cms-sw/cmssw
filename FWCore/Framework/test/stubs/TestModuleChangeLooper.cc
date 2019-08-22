@@ -52,8 +52,8 @@ public:
 
     edm::ParameterSet newPSet(*pset);
     newPSet.addParameter<int>("ivalue", ++m_expectedValue);
-
-    assert(moduleChanger()->changeModule(m_tag.label(), newPSet));
+    auto success = moduleChanger()->changeModule(m_tag.label(), newPSet);
+    assert(success && "moduleChanger()->changeModule(m_tag.label(), newPSet)");
 
     return iCount == 2 ? kStop : kContinue;
   }

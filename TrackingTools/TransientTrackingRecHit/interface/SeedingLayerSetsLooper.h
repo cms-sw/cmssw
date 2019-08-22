@@ -18,12 +18,12 @@ public:
     using value_type = typename T::value_type;
     using difference_type = typename internal_iterator_type::difference_type;
 
-    LayerSet(const T *container, internal_iterator_type begin, internal_iterator_type end):
-      container_(container), begin_(begin), end_(end) {}
+    LayerSet(const T *container, internal_iterator_type begin, internal_iterator_type end)
+        : container_(container), begin_(begin), end_(end) {}
 
-    LayerSetIndex size() const { return end_-begin_; }
+    LayerSetIndex size() const { return end_ - begin_; }
 
-    const value_type& operator[](size_t i) const { return (*container_)[*(begin_+i)]; }
+    const value_type &operator[](size_t i) const { return (*container_)[*(begin_ + i)]; }
 
   private:
     const T *container_ = nullptr;
@@ -34,9 +34,7 @@ public:
   template <typename T>
   class LayerSetRange {
   public:
-    LayerSetRange(const T *container, const SeedingLayerSetsLooper *info):
-      container_(container), info_(info)
-    {}
+    LayerSetRange(const T *container, const SeedingLayerSetsLooper *info) : container_(container), info_(info) {}
 
     class const_iterator {
     public:
@@ -45,20 +43,23 @@ public:
       using difference_type = typename internal_iterator_type::difference_type;
 
       //const_iterator() = default;
-      const_iterator(const T *container, const SeedingLayerSetsLooper *info, internal_iterator_type iter):
-        container_(container), info_(info), iter_(iter) {}
+      const_iterator(const T *container, const SeedingLayerSetsLooper *info, internal_iterator_type iter)
+          : container_(container), info_(info), iter_(iter) {}
 
-      value_type operator*() const { return value_type(container_, iter_, iter_+info_->nlayers_); }
+      value_type operator*() const { return value_type(container_, iter_, iter_ + info_->nlayers_); }
 
-      const_iterator& operator++() { std::advance(iter_, info_->nlayers_); return *this; }
+      const_iterator &operator++() {
+        std::advance(iter_, info_->nlayers_);
+        return *this;
+      }
       const_iterator operator++(int) {
         const_iterator clone(*this);
         ++(*this);
         return clone;
       }
 
-      bool operator==(const const_iterator& other) const { return iter_ == other.iter_; }
-      bool operator!=(const const_iterator& other) const { return !operator==(other); }
+      bool operator==(const const_iterator &other) const { return iter_ == other.iter_; }
+      bool operator!=(const const_iterator &other) const { return !operator==(other); }
 
     private:
       const T *container_ = nullptr;
@@ -76,8 +77,6 @@ public:
     const SeedingLayerSetsLooper *info_;
   };
 
-
-
   SeedingLayerSetsLooper() = default;
 
   /**
@@ -86,14 +85,11 @@ public:
    * \param nlayers         Number of layers in each SeedingLayerSet
    * \param layerSetIndices Pointer to a vector holding the indices of layer sets (pointer to vector is stored)
    */
-  SeedingLayerSetsLooper(unsigned short nlayers,
-                         const std::vector<LayerSetIndex> *layerSetIndices):
-    nlayers_(nlayers),
-    layerSetIndices_(layerSetIndices)
-  {}
+  SeedingLayerSetsLooper(unsigned short nlayers, const std::vector<LayerSetIndex> *layerSetIndices)
+      : nlayers_(nlayers), layerSetIndices_(layerSetIndices) {}
 
   template <typename T>
-  LayerSetRange<T> makeRange(const T& container) const {
+  LayerSetRange<T> makeRange(const T &container) const {
     return LayerSetRange<T>(&container, this);
   }
 

@@ -1,7 +1,6 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include <cstdlib>
 
 using namespace std;

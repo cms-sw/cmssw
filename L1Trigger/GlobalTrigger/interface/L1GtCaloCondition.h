@@ -33,17 +33,20 @@ class L1GlobalTriggerPSB;
 
 // class declaration
 class L1GtCaloCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
   L1GtCaloCondition();
 
   ///     from base template condition (from event setup usually)
-  L1GtCaloCondition(const L1GtCondition *, const L1GlobalTriggerPSB *,
-                    const int nrL1NoIsoEG, const int nrL1IsoEG,
-                    const int nrL1CenJet, const int nrL1ForJet,
-                    const int nrL1TauJet, const int ifCaloEtaNumberBits);
+  L1GtCaloCondition(const L1GtCondition *,
+                    const L1GlobalTriggerPSB *,
+                    const int nrL1NoIsoEG,
+                    const int nrL1IsoEG,
+                    const int nrL1CenJet,
+                    const int nrL1ForJet,
+                    const int nrL1TauJet,
+                    const int ifCaloEtaNumberBits);
 
   // copy constructor
   L1GtCaloCondition(const L1GtCaloCondition &);
@@ -63,9 +66,7 @@ public:
 
 public:
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtCaloTemplate *gtCaloTemplate() const {
-    return m_gtCaloTemplate;
-  }
+  inline const L1GtCaloTemplate *gtCaloTemplate() const { return m_gtCaloTemplate; }
 
   void setGtCaloTemplate(const L1GtCaloTemplate *);
 
@@ -75,16 +76,12 @@ public:
   void setGtPSB(const L1GlobalTriggerPSB *);
 
   ///   get / set the number of bits for eta of calorimeter objects
-  inline const int gtIfCaloEtaNumberBits() const {
-    return m_ifCaloEtaNumberBits;
-  }
+  inline const int gtIfCaloEtaNumberBits() const { return m_ifCaloEtaNumberBits; }
 
   void setGtIfCaloEtaNumberBits(const int &);
 
   ///   get / set maximum number of bins for the delta phi scales
-  inline const int gtCorrParDeltaPhiNrBins() const {
-    return m_corrParDeltaPhiNrBins;
-  }
+  inline const int gtCorrParDeltaPhiNrBins() const { return m_corrParDeltaPhiNrBins; }
 
   void setGtCorrParDeltaPhiNrBins(const int &);
 
@@ -96,8 +93,7 @@ private:
   const L1GctCand *getCandidate(const int indexCand) const;
 
   /// function to check a single object if it matches a condition
-  const bool checkObjectParameter(const int iCondition,
-                                  const L1GctCand &cand) const;
+  const bool checkObjectParameter(const int iCondition, const L1GctCand &cand) const;
 
 private:
   /// pointer to a L1GtCaloTemplate

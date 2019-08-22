@@ -6,38 +6,34 @@
 #include "DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h"
 #include "DataFormats/EcalDigi/interface/EcalFEMSample.h"
 
-
-
 /** \class EcalPnDiodeDigi
       
 */
 
 class EcalPnDiodeDigi {
- public:
-  typedef EcalPnDiodeDetId key_type; ///< For the sorted collection
+public:
+  typedef EcalPnDiodeDetId key_type;  ///< For the sorted collection
 
-  EcalPnDiodeDigi(); // for persistence
+  EcalPnDiodeDigi();  // for persistence
   explicit EcalPnDiodeDigi(const EcalPnDiodeDetId& id);
-    
+
   const EcalPnDiodeDetId& id() const { return id_; }
   int size() const { return size_; }
-    
+
   const EcalFEMSample& operator[](int i) const { return data_[i]; }
   const EcalFEMSample& sample(int i) const { return data_[i]; }
-    
+
   void setSize(int size);
-  void setSample(int i, const EcalFEMSample& sam) { data_[i]=sam; }
-    
+  void setSample(int i, const EcalFEMSample& sam) { data_[i] = sam; }
+
   static const int MAXSAMPLES = 50;
- private:
+
+private:
   EcalPnDiodeDetId id_;
   int size_;
   std::vector<EcalFEMSample> data_;
 };
 
-
 std::ostream& operator<<(std::ostream& s, const EcalPnDiodeDigi& digi);
-
-
 
 #endif

@@ -1,4 +1,4 @@
-#ifndef RBCLINKBOARDSIGNAL_H 
+#ifndef RBCLINKBOARDSIGNAL_H
 #define RBCLINKBOARDSIGNAL_H 1
 
 // Include files
@@ -12,16 +12,14 @@
  *  @date   2008-11-27
  */
 class RBCLinkBoardSignal : public RPCInputSignal {
-public: 
-  RBCLinkBoardSignal( RBCInput * ); 
-  
-  void clear() override { };
+public:
+  RBCLinkBoardSignal(RBCInput*);
 
-  RBCInput   m_linkboardin;
-  
+  void clear() override{};
+
+  RBCInput m_linkboardin;
+
 protected:
-
 private:
-
 };
-#endif // RBCLINKBOARDSIGNAL_H
+#endif  // RBCLINKBOARDSIGNAL_H

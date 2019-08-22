@@ -15,35 +15,35 @@ class GeometricTimingDet;
 
 class CmsMTDLevelBuilder : public CmsMTDAbstractConstruction {
 public:
-    // it relies on the fact that the GeometricTimingDet::GDEnumType enumerators
-    // used to identify the subdetectors in the upgrade geometries are equal to the
-    // ones of the present detector + n*100
-    static bool subDetByType(const GeometricTimingDet* a, const GeometricTimingDet* b);
-    // NP** Phase2 BarrelEndcap
-    static bool phiSortNP(const GeometricTimingDet* a, const GeometricTimingDet* b);
-    static bool isLessZ(const GeometricTimingDet* a, const GeometricTimingDet* b);
-    static bool isLessModZ(const GeometricTimingDet* a, const GeometricTimingDet* b);
-    static double getPhi(const GeometricTimingDet* a);
-    static double getPhiModule(const GeometricTimingDet* a);
-    static double getPhiGluedModule(const GeometricTimingDet* a);
-    static double getPhiMirror(const GeometricTimingDet* a);
-    static double getPhiModuleMirror(const GeometricTimingDet* a);
-    static double getPhiGluedModuleMirror(const GeometricTimingDet* a);
-    static bool isLessRModule(const GeometricTimingDet* a, const GeometricTimingDet* b);
-    static bool isLessR(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  // it relies on the fact that the GeometricTimingDet::GDEnumType enumerators
+  // used to identify the subdetectors in the upgrade geometries are equal to the
+  // ones of the present detector + n*100
+  static bool subDetByType(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  // NP** Phase2 BarrelEndcap
+  static bool phiSortNP(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  static bool isLessZ(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  static bool isLessModZ(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  static double getPhi(const GeometricTimingDet* a);
+  static double getPhiModule(const GeometricTimingDet* a);
+  static double getPhiGluedModule(const GeometricTimingDet* a);
+  static double getPhiMirror(const GeometricTimingDet* a);
+  static double getPhiModuleMirror(const GeometricTimingDet* a);
+  static double getPhiGluedModuleMirror(const GeometricTimingDet* a);
+  static bool isLessRModule(const GeometricTimingDet* a, const GeometricTimingDet* b);
+  static bool isLessR(const GeometricTimingDet* a, const GeometricTimingDet* b);
 
-    void build(DDFilteredView&, GeometricTimingDet*, std::string) override;
-    ~CmsMTDLevelBuilder() override {}
+  void build(DDFilteredView&, GeometricTimingDet*, std::string) override;
+  ~CmsMTDLevelBuilder() override {}
 
 private:
-    virtual void buildComponent(DDFilteredView&, GeometricTimingDet*, std::string) = 0;
+  virtual void buildComponent(DDFilteredView&, GeometricTimingDet*, std::string) = 0;
 
 protected:
-    CmsMTDStringToEnum theCmsMTDStringToEnum;
+  CmsMTDStringToEnum theCmsMTDStringToEnum;
 
 private:
-    virtual void sortNS(DDFilteredView&, GeometricTimingDet*) {}
-    CmsMTDStringToEnum _CmsMTDStringToEnum;
+  virtual void sortNS(DDFilteredView&, GeometricTimingDet*) {}
+  CmsMTDStringToEnum _CmsMTDStringToEnum;
 };
 
 #endif

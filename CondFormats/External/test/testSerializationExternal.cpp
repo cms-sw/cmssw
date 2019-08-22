@@ -9,18 +9,17 @@
 #include "CondFormats/External/interface/Timestamp.h"
 #include "CondFormats/External/interface/PixelFEDChannel.h"
 
-int main()
-{
-    testSerialization<DetId>();
-    testSerialization<EBDetId>();
-    testSerialization<EcalContainer<EBDetId, float>>();
-    testSerialization<trigger::HLTPrescaleTable>();
-    testSerialization<L1GtLogicParser::TokenRPN>();
-    testSerialization<edm::Timestamp>();
-    testSerialization<CLHEP::Hep3Vector>();
-    testSerialization<CLHEP::HepEulerAngles>();
-    testSerialization<ROOT::Math::SMatrix<double, 2, 3>>();
-    testSerialization<PixelFEDChannel>();
+int main() {
+  testSerialization<DetId>();
+  testSerialization<EBDetId>();
+  testSerialization<EcalContainer<EBDetId, float>>();
+  testSerialization<trigger::HLTPrescaleTable>();
+  testSerialization<L1GtLogicParser::TokenRPN>();
+  testSerialization<edm::Timestamp>();
+  testSerialization<CLHEP::Hep3Vector>();
+  testSerialization<CLHEP::HepEulerAngles>();
+  testSerialization<ROOT::Math::SMatrix<double, 2, 3>>();
+  testSerialization<PixelFEDChannel>();
 
-    return 0;
+  return 0;
 }

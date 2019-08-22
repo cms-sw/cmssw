@@ -4,15 +4,12 @@
 #include "L1Trigger/L1TNtuples/interface/L1TPFMetNoMuProducer.h"
 
 L1TPFMetNoMuProducer::L1TPFMetNoMuProducer(const edm::ParameterSet &ps)
-    : thePFMETCollection_(consumes<reco::PFMETCollection>(
-          ps.getParameter<edm::InputTag>("pfMETCollection"))),
-      theMuonCollection_(consumes<reco::MuonCollection>(
-          ps.getParameter<edm::InputTag>("muonCollection"))) {
+    : thePFMETCollection_(consumes<reco::PFMETCollection>(ps.getParameter<edm::InputTag>("pfMETCollection"))),
+      theMuonCollection_(consumes<reco::MuonCollection>(ps.getParameter<edm::InputTag>("muonCollection"))) {
   produces<reco::PFMETCollection>();
 }
 
-void L1TPFMetNoMuProducer::produce(edm::Event &event,
-                                   const edm::EventSetup &eventSetup) {
+void L1TPFMetNoMuProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   edm::Handle<reco::PFMETCollection> pfMet;
   event.getByToken(thePFMETCollection_, pfMet);
 
@@ -20,13 +17,11 @@ void L1TPFMetNoMuProducer::produce(edm::Event &event,
   event.getByToken(theMuonCollection_, muons);
 
   if (!pfMet.isValid()) {
-    edm::LogWarning("L1TPFMetNoMuProducer")
-        << "invalid collection for pfMet" << std::endl;
+    edm::LogWarning("L1TPFMetNoMuProducer") << "invalid collection for pfMet" << std::endl;
     return;
   }
   if (!muons.isValid()) {
-    edm::LogWarning("L1TPFMetNoMuProducer")
-        << "invalid collection for muons" << std::endl;
+    edm::LogWarning("L1TPFMetNoMuProducer") << "invalid collection for muons" << std::endl;
     return;
   }
 
@@ -45,14 +40,12 @@ void L1TPFMetNoMuProducer::produce(edm::Event &event,
 
   pfMetNoMuPx += muPx;
   pfMetNoMuPy += muPy;
-  math::XYZTLorentzVector pfMetNoMuP4(pfMetNoMuPx, pfMetNoMuPy, 0,
-                                      hypot(pfMetNoMuPx, pfMetNoMuPy));
+  math::XYZTLorentzVector pfMetNoMuP4(pfMetNoMuPx, pfMetNoMuPy, 0, hypot(pfMetNoMuPx, pfMetNoMuPy));
 
   thePFMetNoMu.setP4(pfMetNoMuP4);
 
   std::unique_ptr<reco::PFMETCollection> product(new reco::PFMETCollection);
-  product->emplace_back(thePFMetNoMu.getSpecific(), thePFMetNoMu.sumEt(),
-                        thePFMetNoMu.p4(), thePFMetNoMu.vertex());
+  product->emplace_back(thePFMetNoMu.getSpecific(), thePFMetNoMu.sumEt(), thePFMetNoMu.p4(), thePFMetNoMu.vertex());
 
   event.put(std::move(product));
 }

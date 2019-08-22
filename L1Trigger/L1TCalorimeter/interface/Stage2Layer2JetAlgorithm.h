@@ -19,18 +19,17 @@
 
 #include <vector>
 
-
 namespace l1t {
-    
-  class Stage2Layer2JetAlgorithm { 
+
+  class Stage2Layer2JetAlgorithm {
   public:
-    virtual void processEvent(const std::vector<l1t::CaloTower> & towers,
-			      std::vector<l1t::Jet> & jets, std::vector<l1t::Jet> & alljets ) = 0;    
+    virtual void processEvent(const std::vector<l1t::CaloTower>& towers,
+                              std::vector<l1t::Jet>& jets,
+                              std::vector<l1t::Jet>& alljets) = 0;
 
     virtual ~Stage2Layer2JetAlgorithm(){};
+  };
 
-  }; 
-  
-} 
+}  // namespace l1t
 
 #endif

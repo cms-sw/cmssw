@@ -19,7 +19,6 @@ class EEDataFrame;
     *
     */
 class EcalFenixStripFgvbEE {
-
 private:
   int threshold_fg_;
   int lut_fg_;
@@ -30,8 +29,7 @@ public:
   EcalFenixStripFgvbEE();
   virtual ~EcalFenixStripFgvbEE();
   void setParameters(int identif, uint32_t id, const EcalTPGFineGrainStripEE *);
-  void process(std::vector<std::vector<int>> &lin_out,
-               std::vector<int> &output);
+  void process(std::vector<std::vector<int>> &lin_out, std::vector<int> &output);
 
   void setbadStripMissing(bool flag) { flagBadStripMiss_ = flag; }
   bool getMissedStripFlag() const { return flagBadStripMiss_; }

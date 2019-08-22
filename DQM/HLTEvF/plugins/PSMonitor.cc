@@ -19,6 +19,9 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
 namespace {
+  typedef dqm::reco::DQMStore DQMStore;
+  typedef dqm::reco::MonitorElement MonitorElement;
+
   struct MEbinning {
     int nbins;
     double xmin;

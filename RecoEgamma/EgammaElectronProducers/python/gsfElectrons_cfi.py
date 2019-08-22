@@ -8,7 +8,7 @@ from RecoEgamma.EgammaIsolationAlgos.electronTrackIsolations_cfi import trkIsol0
 # Producer of transient ecal driven gsf electrons
 #==============================================================================
 
-ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
+ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronBaseProducer",
 
     # input collections
     previousGsfElectronsTag = cms.InputTag(""),

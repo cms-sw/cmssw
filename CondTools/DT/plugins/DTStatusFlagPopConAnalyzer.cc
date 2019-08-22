@@ -4,6 +4,4 @@
 
 typedef popcon::PopConAnalyzer<DTStatusFlagHandler> DTStatusFlagPopConAnalyzer;
 
-
 DEFINE_FWK_MODULE(DTStatusFlagPopConAnalyzer);
-

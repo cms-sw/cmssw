@@ -14,20 +14,13 @@
 #include <string>
 
 class EcalChannelStatusXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalChannelStatus& record);
 
-  static int readXML  (const std::string& filename,
-		       EcalCondHeader& header,
-		       EcalChannelStatus& record);
+  static int writeXML(const std::string& filename, const EcalCondHeader& header, const EcalChannelStatus& record);
 
-  static int writeXML (const std::string& filename,
-		       const EcalCondHeader& header,
-		       const EcalChannelStatus& record);
 private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalChannelStatus& record);
+  static std::string dumpXML(const EcalCondHeader& header, const EcalChannelStatus& record);
 };
 
-#endif // __EcalChannelStatusXMLTranslator_h_
+#endif  // __EcalChannelStatusXMLTranslator_h_

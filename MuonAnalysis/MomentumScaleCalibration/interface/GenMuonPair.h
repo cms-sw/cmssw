@@ -16,35 +16,32 @@ typedef reco::Particle::LorentzVector lorentzVector;
  * If it will be needed, it will be straightforward to migrate also the genMuons to use the MuonPair class.
  */
 
-class GenMuonPair : public TObject
-{
+class GenMuonPair : public TObject {
 public:
-  GenMuonPair() :
-    mu1(lorentzVector(0,0,0,0),-1),
-    mu2(lorentzVector(0,0,0,0),1),
-    motherId(0)//,
-    //    statusMu(-1),
+  GenMuonPair()
+      : mu1(lorentzVector(0, 0, 0, 0), -1),
+        mu2(lorentzVector(0, 0, 0, 0), 1),
+        motherId(0)  //,
+  //    statusMu(-1),
   {}
 
-  GenMuonPair(const MuScleFitMuon & initMu1, const MuScleFitMuon & initMu2,
-	      const int initMotherId) :
-    //	      const int initMotherId, const int initStatusMu) :
-    mu1(initMu1),
-    mu2(initMu2),
-    motherId(initMotherId)//,
-    //    statusMu(initStatusMu)
-    // ,
-    // motherId(initMotherId)
+  GenMuonPair(const MuScleFitMuon& initMu1, const MuScleFitMuon& initMu2, const int initMotherId)
+      :  //	      const int initMotherId, const int initStatusMu) :
+        mu1(initMu1),
+        mu2(initMu2),
+        motherId(initMotherId)  //,
+  //    statusMu(initStatusMu)
+  // ,
+  // motherId(initMotherId)
   {
     // Put this in the initialization list and root will not compile...
     // Probably some conflict with the other MuonPair class that also contains integers or
     // something even weirder...
-/*     motherId = initMotherId; */
+    /*     motherId = initMotherId; */
   }
 
   /// Used to copy the content of another GenMuonPair
-  void copy(const GenMuonPair & copyPair)
-  {
+  void copy(const GenMuonPair& copyPair) {
     mu1 = copyPair.mu1;
     mu2 = copyPair.mu2;
     motherId = copyPair.motherId;
@@ -57,7 +54,7 @@ public:
   //  Int_t statusMu;
 
   ClassDef(GenMuonPair, 3)
-    };
+};
 ClassImp(GenMuonPair);
-  
+
 #endif

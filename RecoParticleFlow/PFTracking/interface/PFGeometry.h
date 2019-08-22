@@ -1,5 +1,5 @@
 #ifndef RecoParticleFlow_PFTracking_PFGeometry_h
-#define RecoParticleFlow_PFTracking_PFGeometry_h 
+#define RecoParticleFlow_PFTracking_PFGeometry_h
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
@@ -21,7 +21,7 @@ class Disk;
 class Plane;
 
 class PFGeometry {
- public:
+public:
   typedef enum {
     BeamPipe = 0,
     PS1 = 1,
@@ -50,34 +50,29 @@ class PFGeometry {
   PFGeometry();
 
   /// destructor
-  virtual ~PFGeometry() { }
+  virtual ~PFGeometry() {}
 
   /// return inner radius of a given layer
-  float innerRadius(PFGeometry::Layers_t layer) const
-    { return innerRadius_[layer]; }
+  float innerRadius(PFGeometry::Layers_t layer) const { return innerRadius_[layer]; }
 
   /// return outer radius of a given layer
-  float outerRadius(PFGeometry::Layers_t layer) const
-    { return outerRadius_[layer]; }
+  float outerRadius(PFGeometry::Layers_t layer) const { return outerRadius_[layer]; }
 
   /// return inner position along z axis of a given layer
-  float innerZ(PFGeometry::Layers_t layer) const
-    { return innerZ_[layer]; }
+  float innerZ(PFGeometry::Layers_t layer) const { return innerZ_[layer]; }
 
   /// return outer position along z axis of a given layer
-  float outerZ(PFGeometry::Layers_t layer) const
-    { return outerZ_[layer]; }
+  float outerZ(PFGeometry::Layers_t layer) const { return outerZ_[layer]; }
 
   /// return tan(theta) of the cylinder corner
-  float tanTh(PFGeometry::Surface_t iSurf) const
-  { return tanTh_[unsigned(iSurf)]; }
+  float tanTh(PFGeometry::Surface_t iSurf) const { return tanTh_[unsigned(iSurf)]; }
 
- private:
-  std::vector< float > innerRadius_;
-  std::vector< float > outerRadius_;
-  std::vector< float > innerZ_;
-  std::vector< float > outerZ_;
-  std::vector< float > tanTh_;
+private:
+  std::vector<float> innerRadius_;
+  std::vector<float> outerRadius_;
+  std::vector<float> innerZ_;
+  std::vector<float> outerZ_;
+  std::vector<float> tanTh_;
 };
 
 #endif

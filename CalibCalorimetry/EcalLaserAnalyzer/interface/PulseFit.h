@@ -1,48 +1,46 @@
 // PulseFit.h
 //
-// Class which computes 
+// Class which computes
 //
 //
 
 #ifndef PulseFit_H
 #define PulseFit_H
 
-
 #include "TObject.h"
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/Shape.h>
 
-class PulseFit: public TObject
-{
- public:
+class PulseFit : public TObject {
+public:
   // Default Constructor, mainly for Root
-  PulseFit() ;
+  PulseFit();
 
   // Destructor: Does nothing?
-  ~PulseFit() override ;
+  ~PulseFit() override;
 
   // Get reconstructed values
-  double getAmplitude() const ;
-  double getTime() const ;
-  double getPedestal() const ;
-  double getChi2() const ;
-  
-  //! return the cristal number (supermodule convention [0-1699])
-  int getSmCrystalNb() const ;
-  
-  //! set the cristal number (supermodule convention [0-1699])
-  void setSmCrystalNb(const int & crystalNb) ;
+  double getAmplitude() const;
+  double getTime() const;
+  double getPedestal() const;
+  double getChi2() const;
 
- protected:
-  double amplitude_ ;    /// amplitude of the pulse
-  double time_ ;         /// position (in clock unit) of the maximum of the pulse
-  double pedestal_ ;     /// remaining pedestal 
-  double chi2_ ; 	 /// chi2 of the fit
-  int smCrystalNb_ ;     /// cristal number in the supermodule
-  
+  //! return the cristal number (supermodule convention [0-1699])
+  int getSmCrystalNb() const;
+
+  //! set the cristal number (supermodule convention [0-1699])
+  void setSmCrystalNb(const int& crystalNb);
+
+protected:
+  double amplitude_;  /// amplitude of the pulse
+  double time_;       /// position (in clock unit) of the maximum of the pulse
+  double pedestal_;   /// remaining pedestal
+  double chi2_;       /// chi2 of the fit
+  int smCrystalNb_;   /// cristal number in the supermodule
+
   //H4Analysis * h4ana_ ;  //!< pointer to current analysis
   //H4Shape * shape_ ;     //!< pointer to current shape
 
   // ClassDef(PulseFit,1)     //!< The processed part of the class is persistant
-} ;
+};
 
 #endif

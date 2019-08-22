@@ -27,33 +27,17 @@
 // forward declarations
 namespace edm {
   template <typename T, typename A>
-  void
-  setPtr(std::vector<T, A> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr);
+  void setPtr(std::vector<T, A> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr);
 
   template <typename T, typename A>
-  void
-  setPtr(std::list<T, A> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr);
+  void setPtr(std::list<T, A> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr);
 
   template <typename T, typename A>
-  void
-  setPtr(std::deque<T, A> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr);
+  void setPtr(std::deque<T, A> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr);
 
   template <typename T, typename A, typename Comp>
-  void
-  setPtr(std::set<T, A, Comp> const& obj,
-         std::type_info const& iToType,
-         unsigned long iIndex,
-         void const*& oPtr);
+  void setPtr(std::set<T, A, Comp> const& obj, std::type_info const& iToType, unsigned long iIndex, void const*& oPtr);
 
-}
+}  // namespace edm
 
 #endif

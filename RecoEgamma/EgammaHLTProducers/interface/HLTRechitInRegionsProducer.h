@@ -34,24 +34,21 @@
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
 
-
-template<typename T1>
+template <typename T1>
 class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
- typedef std::vector<T1> T1Collection;
- typedef typename T1::const_iterator T1iterator;
-  
- public:
-  
+  typedef std::vector<T1> T1Collection;
+  typedef typename T1::const_iterator T1iterator;
+
+public:
   HLTRechitInRegionsProducer(const edm::ParameterSet& ps);
   ~HLTRechitInRegionsProducer() override;
 
   void produce(edm::Event&, const edm::EventSetup&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
-    
-  void getEtaPhiRegions(std::vector<RectangularEtaPhiRegion> *, T1Collection, const L1CaloGeometry&, bool);
-    
+private:
+  void getEtaPhiRegions(std::vector<RectangularEtaPhiRegion>*, T1Collection, const L1CaloGeometry&, bool);
+
   const bool useUncalib_;
 
   const bool doIsolated_;
@@ -72,7 +69,4 @@ class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
   std::vector<edm::EDGetTokenT<EcalUncalibratedRecHitCollection>> uncalibHitTokens;
 };
 
-
 #endif
-
-

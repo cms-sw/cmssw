@@ -2,7 +2,7 @@
 //
 // Package:    L1GctTestAnalyzer
 // Class:      L1GctTestAnalyzer
-// 
+//
 /**\class L1GctTestAnalyzer L1GctTestAnalyzer.cc L1Trigger/GlobalCaloTrigger/test/L1GctTestAnalyzer.cc
 
  Description: <one line class summary>
@@ -15,7 +15,6 @@
 //         Created:  Thu May 18 16:45:23 CEST 2006
 //
 //
-
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -36,18 +35,18 @@ class L1GctTestAnalyzer : public edm::EDAnalyzer {
 public:
   explicit L1GctTestAnalyzer(const edm::ParameterSet&);
   ~L1GctTestAnalyzer();
-  
+
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  
+
   void doRctEM(const edm::Event&, edm::InputTag label);
   void doInternEM(const edm::Event&, edm::InputTag label);
   void doEM(const edm::Event&, edm::InputTag label);
   void doJets(const edm::Event&, edm::InputTag label);
   void doEnergySums(const edm::Event&, edm::InputTag label);
-  
+
 private:
   // ----------member data ---------------------------
-  
+
   edm::InputTag rawLabel_;
   edm::InputTag emuLabel_;
   std::string outFilename_;
@@ -62,7 +61,6 @@ private:
   bool doEnergySums_;
 
   unsigned rctEmMinRank_;
-  
 };
 
 //

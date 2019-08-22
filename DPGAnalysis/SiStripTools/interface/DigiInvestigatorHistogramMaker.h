@@ -10,14 +10,13 @@ namespace edm {
   class ParameterSet;
   class Event;
   class Run;
-}
+}  // namespace edm
 class TH1F;
 class TProfile;
 class TFileDirectory;
 
 class DigiInvestigatorHistogramMaker {
-
- public:
+public:
   DigiInvestigatorHistogramMaker(edm::ConsumesCollector&& iC);
   DigiInvestigatorHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
 
@@ -26,10 +25,9 @@ class DigiInvestigatorHistogramMaker {
   void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);
   void book(const std::string dirname);
   void beginRun(const edm::Run& iRun);
-  void fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi);
+  void fill(const edm::Event& iEvent, const std::map<unsigned int, int>& ndigi);
 
- private:
-
+private:
   std::string _hitname;
   const int _nbins;
   const unsigned int m_maxLS;
@@ -37,19 +35,16 @@ class DigiInvestigatorHistogramMaker {
   int _scalefact;
   const bool _runHisto;
   const bool _fillHisto;
-  std::map<unsigned int,int> _binmax;
+  std::map<unsigned int, int> _binmax;
   std::map<unsigned int, std::string> _labels;
-
 
   RunHistogramManager _rhm;
   RunHistogramManager _fhm;
-  std::map<unsigned int,TProfile**> _nmultvsorbrun;
-  std::map<unsigned int,TProfile**> _nmultvsbxrun;
-  std::map<unsigned int,TProfile**> _nmultvsbxfill;
-  std::map<unsigned int,TH1F*> _nmult;
-  std::map<unsigned int,TFileDirectory*> _subdirs;
-
+  std::map<unsigned int, TProfile**> _nmultvsorbrun;
+  std::map<unsigned int, TProfile**> _nmultvsbxrun;
+  std::map<unsigned int, TProfile**> _nmultvsbxfill;
+  std::map<unsigned int, TH1F*> _nmult;
+  std::map<unsigned int, TFileDirectory*> _subdirs;
 };
 
-
-#endif //  DPGAnalysis_SiStripTools_DigiInvestigatorHistogramMaker_H
+#endif  //  DPGAnalysis_SiStripTools_DigiInvestigatorHistogramMaker_H

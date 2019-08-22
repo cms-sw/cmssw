@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTEcalIsolationProducersRegional
-// 
+//
 /**\class EgammaHLTEcalIsolationProducersRegional EgammaHLTEcalIsolationProducersRegional.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTEcalIsolationProducersRegional.h
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 // $Id: EgammaHLTEcalIsolationProducersRegional.h,v 1.2 2008/05/12 08:48:22 ghezzi Exp $
 //
 //
-
 
 // system include files
 #include <memory>
@@ -58,9 +57,8 @@ private:
   const edm::EDGetTokenT<reco::SuperClusterCollection> scIslandBarrelProducer_;
   const edm::EDGetTokenT<reco::SuperClusterCollection> scIslandEndcapProducer_;
 
-  const double  egEcalIsoEtMin_;
-  const double  egEcalIsoConeSize_;
+  const double egEcalIsoEtMin_;
+  const double egEcalIsoConeSize_;
   const int algoType_;
-  EgammaHLTEcalIsolation const * const test_;
+  EgammaHLTEcalIsolation const* const test_;
 };
-

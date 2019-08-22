@@ -16,23 +16,20 @@
  *
  * \author Patrick Janot
  * $Date: 24-Dec-2003
- */ 
+ */
 
 class ParticlePropagator;
 class RandomEngineAndDistribution;
 
-class PairProductionSimulator : public MaterialEffectsSimulator
-{
- public:
-
+class PairProductionSimulator : public MaterialEffectsSimulator {
+public:
   /// Constructor
   PairProductionSimulator(double photonEnergyCut);
 
   /// Default Destructor
   ~PairProductionSimulator() override {}
 
- private:
-
+private:
   /// The minimal photon energy for possible conversion
   double photonEnergy;
 
@@ -40,6 +37,6 @@ class PairProductionSimulator : public MaterialEffectsSimulator
   void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) override;
 
   /// A universal angular distribution - still from GEANT.
-  double gbteth(double ener,double partm,double efrac, RandomEngineAndDistribution const*);
+  double gbteth(double ener, double partm, double efrac, RandomEngineAndDistribution const*);
 };
-#endif // PAIRPRODUCTIONSIMULATOR
+#endif  // PAIRPRODUCTIONSIMULATOR

@@ -14,36 +14,29 @@
 
 using namespace std;
 
-MuonDTDetLayerGeometryBuilder::MuonDTDetLayerGeometryBuilder() {
-}
+MuonDTDetLayerGeometryBuilder::MuonDTDetLayerGeometryBuilder() {}
 
-MuonDTDetLayerGeometryBuilder::~MuonDTDetLayerGeometryBuilder() {
-}
+MuonDTDetLayerGeometryBuilder::~MuonDTDetLayerGeometryBuilder() {}
 
-vector<DetLayer*> 
-MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
-        
+vector<DetLayer*> MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonDTDetLayerGeometryBuilder";
 
   vector<DetLayer*> detlayers;
   vector<MuRodBarrelLayer*> result;
-            
-  for(int station = DTChamberId::minStationId; station <= DTChamberId::maxStationId; station++) {
-    
+
+  for (int station = DTChamberId::minStationId; station <= DTChamberId::maxStationId; station++) {
     vector<const DetRod*> muDetRods;
-    for(int sector = DTChamberId::minSectorId; sector <= DTChamberId::maxSectorId; sector++) {
-      
+    for (int sector = DTChamberId::minSectorId; sector <= DTChamberId::maxSectorId; sector++) {
       vector<const GeomDet*> geomDets;
-      for(int wheel = DTChamberId::minWheelId; wheel <= DTChamberId::maxWheelId; wheel++) {		  
+      for (int wheel = DTChamberId::minWheelId; wheel <= DTChamberId::maxWheelId; wheel++) {
         const GeomDet* geomDet = geo.idToDet(DTChamberId(wheel, station, sector));
         if (geomDet) {
           geomDets.push_back(geomDet);
-          LogTrace(metname) << "get DT chamber " <<  DTChamberId(wheel, station, sector)
-                            << " at R=" << geomDet->position().perp()
-                            << ", phi=" << geomDet->position().phi() ;
+          LogTrace(metname) << "get DT chamber " << DTChamberId(wheel, station, sector)
+                            << " at R=" << geomDet->position().perp() << ", phi=" << geomDet->position().phi();
         }
       }
-      
+
       if (!geomDets.empty()) {
         precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetZ());
         muDetRods.push_back(new MuDetRod(geomDets));
@@ -52,14 +45,14 @@ MuonDTDetLayerGeometryBuilder::buildLayers(const DTGeometry& geo) {
                           << ", phi=" << muDetRods.back()->position().phi();
       }
     }
-    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractPhi<GeometricSearchDet,float>());
-    result.push_back(new MuRodBarrelLayer(muDetRods));  
-    LogDebug(metname) << "    New MuRodBarrelLayer with " << muDetRods.size()
-                      << " rods, at R " << result.back()->specificSurface().radius();
+    precomputed_value_sort(muDetRods.begin(), muDetRods.end(), geomsort::ExtractPhi<GeometricSearchDet, float>());
+    result.push_back(new MuRodBarrelLayer(muDetRods));
+    LogDebug(metname) << "    New MuRodBarrelLayer with " << muDetRods.size() << " rods, at R "
+                      << result.back()->specificSurface().radius();
   }
-  
-  for(vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
+
+  for (vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
     detlayers.push_back((DetLayer*)(*it));
-  
+
   return detlayers;
 }

@@ -29,24 +29,27 @@ class SiStripGainCosmicCalculator : public ConditionDBWriter<SiStripApvGain> {
 public:
   explicit SiStripGainCosmicCalculator(const edm::ParameterSet&);
   ~SiStripGainCosmicCalculator() override;
+
 private:
-  void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
+  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override;
   void algoBeginJob(const edm::EventSetup&) override;
   void algoEndJob() override;
   std::unique_ptr<SiStripApvGain> getNewObject() override;
+
 private:
-  std::pair<double,double> getPeakOfLandau( TH1F * inputHisto );
+  std::pair<double, double> getPeakOfLandau(TH1F* inputHisto);
   double moduleWidth(const uint32_t detid);
   double moduleThickness(const uint32_t detid);
+
 private:
   std::string TrackProducer;
   std::string TrackLabel;
   //
-  TObjArray * HlistAPVPairs;
-  TObjArray * HlistOtherHistos;
+  TObjArray* HlistAPVPairs;
+  TObjArray* HlistOtherHistos;
   uint32_t total_nr_of_events;
   double ExpectedChargeDeposition;
-  std::map<uint32_t, double> thickness_map; // map of detector id to respective thickness
+  std::map<uint32_t, double> thickness_map;  // map of detector id to respective thickness
   std::vector<uint32_t> SelectedDetIds;
   std::vector<uint32_t> detModulesToBeExcluded;
   SiStripDetCabling const* siStripDetCabling = nullptr;
@@ -54,7 +57,7 @@ private:
   unsigned int MinNrEntries;
   double MaxChi2OverNDF;
   bool outputHistogramsInRootFile;
-  TString outputFileName ;
+  TString outputFileName;
   bool printdebug_;
   const TrackerTopology* tTopo;
 };

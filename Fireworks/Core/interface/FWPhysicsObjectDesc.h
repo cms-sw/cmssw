@@ -20,73 +20,68 @@
 
 // system include files
 #include <string>
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 
 // forward declarations
 
-class FWPhysicsObjectDesc
-{
-
+class FWPhysicsObjectDesc {
 public:
-   FWPhysicsObjectDesc(const std::string& iName,
-                       const TClass* iClass,
-                       const std::string& iPurpose,
-                       const FWDisplayProperties& iProperties =
-                          FWDisplayProperties::defaultProperties,
-                       const std::string& iModuleLabel = std::string(),
-                       const std::string& iProductInstanceLabel = std::string(),
-                       const std::string& iProcessName = std::string(),
-                       const std::string& iFilterExpression = std::string(),
-                       unsigned int iLayer=1);
-   //virtual ~FWPhysicsObjectDesc();
+  FWPhysicsObjectDesc(const std::string& iName,
+                      const TClass* iClass,
+                      const std::string& iPurpose,
+                      const FWDisplayProperties& iProperties = FWDisplayProperties::defaultProperties,
+                      const std::string& iModuleLabel = std::string(),
+                      const std::string& iProductInstanceLabel = std::string(),
+                      const std::string& iProcessName = std::string(),
+                      const std::string& iFilterExpression = std::string(),
+                      unsigned int iLayer = 1);
+  //virtual ~FWPhysicsObjectDesc();
 
-   // ---------- const member functions ---------------------
-   const FWDisplayProperties& displayProperties() const;
-   const std::string& name() const;
+  // ---------- const member functions ---------------------
+  const FWDisplayProperties& displayProperties() const;
+  const std::string& name() const;
 
-   const TClass* type() const;
-   const std::string& purpose() const;
+  const TClass* type() const;
+  const std::string& purpose() const;
 
-   const std::string& moduleLabel() const;
-   const std::string& productInstanceLabel() const;
-   const std::string& processName() const;
+  const std::string& moduleLabel() const;
+  const std::string& productInstanceLabel() const;
+  const std::string& processName() const;
 
-   //objects with a larger layer number are draw on top of objects with a lower layer number
-   unsigned int layer() const;
+  //objects with a larger layer number are draw on top of objects with a lower layer number
+  unsigned int layer() const;
 
-   const std::string& filterExpression() const;
-   // ---------- static member functions --------------------
+  const std::string& filterExpression() const;
+  // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
+  // ---------- member functions ---------------------------
 
-   void setLabels(const std::string& iModule,
-                  const std::string& iProductInstance,
-                  const std::string& iProcess);
-   void setName(const std::string& iName);
+  void setLabels(const std::string& iModule, const std::string& iProductInstance, const std::string& iProcess);
+  void setName(const std::string& iName);
 
-   void setDisplayProperties( const FWDisplayProperties&);
+  void setDisplayProperties(const FWDisplayProperties&);
+
 private:
-   //FWPhysicsObjectDesc(const FWPhysicsObjectDesc&); // stop default
+  //FWPhysicsObjectDesc(const FWPhysicsObjectDesc&); // stop default
 
-   //const FWPhysicsObjectDesc& operator=(const FWPhysicsObjectDesc&); // stop default
+  //const FWPhysicsObjectDesc& operator=(const FWPhysicsObjectDesc&); // stop default
 
-   // ---------- member data --------------------------------
-   std::string m_name;
-   const TClass* m_type;
-   const std::string m_purpose;
-   FWDisplayProperties m_displayProperties;
+  // ---------- member data --------------------------------
+  std::string m_name;
+  const TClass* m_type;
+  const std::string m_purpose;
+  FWDisplayProperties m_displayProperties;
 
-   std::string m_moduleLabel;
-   std::string m_productInstanceLabel;
-   std::string m_processName;
+  std::string m_moduleLabel;
+  std::string m_productInstanceLabel;
+  std::string m_processName;
 
-   unsigned int m_layer;
+  unsigned int m_layer;
 
-   std::string m_filterExpression;
+  std::string m_filterExpression;
 };
-
 
 #endif

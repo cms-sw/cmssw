@@ -27,7 +27,7 @@ int ReadRepacker::pack(long long int *pos, int *len, int nbuf, char *buf, IOSize
   IOSize tmp_size;
   if (buffer_size < TEMPORARY_BUFFER_SIZE) {
     m_spare_buffer.resize(TEMPORARY_BUFFER_SIZE);
-    tmp_buf = &m_spare_buffer[0];
+    tmp_buf = m_spare_buffer.data();
     tmp_size = TEMPORARY_BUFFER_SIZE;
   } else {
     tmp_buf = buf;
@@ -36,8 +36,8 @@ int ReadRepacker::pack(long long int *pos, int *len, int nbuf, char *buf, IOSize
 
   int pack_count = packInternal(pos, len, nbuf, tmp_buf, tmp_size);
 
-  if ((nbuf - pack_count > 0) &&          // If there is remaining work..
-      (tmp_buf != &m_spare_buffer[0]) &&  // and the spare buffer isn't already used
+  if ((nbuf - pack_count > 0) &&             // If there is remaining work..
+      (tmp_buf != m_spare_buffer.data()) &&  // and the spare buffer isn't already used
       ((IOSize)len[pack_count] <
        TEMPORARY_BUFFER_SIZE)) {  // And the spare buffer is big enough to hold at least one read.
 
@@ -48,8 +48,8 @@ int ReadRepacker::pack(long long int *pos, int *len, int nbuf, char *buf, IOSize
     // If there are remaining chunks and we aren't already using the spare
     // buffer, try using that too.
     // This clutters up the code badly, but could save a network round-trip.
-    pack_count +=
-        packInternal(&pos[pack_count], &len[pack_count], nbuf - pack_count, &m_spare_buffer[0], TEMPORARY_BUFFER_SIZE);
+    pack_count += packInternal(
+        &pos[pack_count], &len[pack_count], nbuf - pack_count, m_spare_buffer.data(), TEMPORARY_BUFFER_SIZE);
   }
 
   return pack_count;

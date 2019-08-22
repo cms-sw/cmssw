@@ -6,29 +6,25 @@
 #include "TGLabel.h"
 #include "TGWidget.h"
 
-namespace fireworks_root_gui
-{
+namespace fireworks_root_gui {
 
-TGHorizontalFrame* makeHorizontalFrame(TGCompositeFrame* p)
-{
-   // Make standard horizontal frame.
+  TGHorizontalFrame* makeHorizontalFrame(TGCompositeFrame* p) {
+    // Make standard horizontal frame.
 
-   TGHorizontalFrame* f = new TGHorizontalFrame(p);
-   p->AddFrame(f, new TGLayoutHints(kLHintsNormal|kLHintsExpandX));
-   return f;
-}
+    TGHorizontalFrame* f = new TGHorizontalFrame(p);
+    p->AddFrame(f, new TGLayoutHints(kLHintsNormal | kLHintsExpandX));
+    return f;
+  }
 
-TGLabel* makeLabel(TGCompositeFrame* p, const char* txt, int width,
-                   int lo, int ro, int to, int bo)
-{
-   // Make standard label.
+  TGLabel* makeLabel(TGCompositeFrame* p, const char* txt, int width, int lo, int ro, int to, int bo) {
+    // Make standard label.
 
-   TGLabel *l = new TGLabel(p, txt);
-   p->AddFrame(l, new TGLayoutHints(kLHintsNormal, lo,ro,to,bo));
-   l->SetTextJustify(kTextRight);
-   l->SetWidth(width);
-   l->ChangeOptions(l->GetOptions() | kFixedWidth);
-   return l;
-}
+    TGLabel* l = new TGLabel(p, txt);
+    p->AddFrame(l, new TGLayoutHints(kLHintsNormal, lo, ro, to, bo));
+    l->SetTextJustify(kTextRight);
+    l->SetWidth(width);
+    l->ChangeOptions(l->GetOptions() | kFixedWidth);
+    return l;
+  }
 
-}
+}  // namespace fireworks_root_gui

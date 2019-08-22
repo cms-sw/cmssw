@@ -9,6 +9,6 @@
 
 using dtCalibration::DTVDriftBaseAlgo;
 
-DTVDriftBaseAlgo::DTVDriftBaseAlgo(){}
+DTVDriftBaseAlgo::DTVDriftBaseAlgo() {}
 
-DTVDriftBaseAlgo::~DTVDriftBaseAlgo(){}
+DTVDriftBaseAlgo::~DTVDriftBaseAlgo() {}

@@ -348,6 +348,8 @@ trackingPhase2PU140.toModify(lowPtTripletStepSelector,
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'lowPtTripletStep',
             preFilterName = 'lowPtTripletStepTight',
+            min_eta = -4.0,
+            max_eta = 4.0,
             chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
             min_nhits = 3,

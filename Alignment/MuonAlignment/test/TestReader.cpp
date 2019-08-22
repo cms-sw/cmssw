@@ -5,7 +5,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <string>
@@ -20,7 +19,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignTransform.h"
@@ -39,7 +37,7 @@
 
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
-#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h" 
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
@@ -50,56 +48,45 @@
 
 class TestMuonReader : public edm::EDAnalyzer {
 public:
-  explicit TestMuonReader( const edm::ParameterSet& );
+  explicit TestMuonReader(const edm::ParameterSet&);
   ~TestMuonReader();
 
   void recursiveGetMuChambers(const align::Alignables& composite, align::Alignables& chambers, int kind);
-  align::EulerAngles toPhiXYZ(const align::RotationType &);
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  align::EulerAngles toPhiXYZ(const align::RotationType&);
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
 private:
   // ----------member data ---------------------------
   TTree* theTree;
   TFile* theFile;
-  float x,y,z,phi,theta,length,thick,width;
+  float x, y, z, phi, theta, length, thick, width;
   TRotMatrix* rot;
-
 };
 
 //
 // constructors and destructor
 //
-TestMuonReader::TestMuonReader( const edm::ParameterSet& iConfig ) :
-  theTree(0), theFile(0),
-  x(0.), y(0.), z(0.), phi(0.), theta(0.), length(0.), thick(0.), width(0.),
-  rot(0)
-{ 
-}
+TestMuonReader::TestMuonReader(const edm::ParameterSet& iConfig)
+    : theTree(0), theFile(0), x(0.), y(0.), z(0.), phi(0.), theta(0.), length(0.), thick(0.), width(0.), rot(0) {}
 
+TestMuonReader::~TestMuonReader() {}
 
-TestMuonReader::~TestMuonReader()
-{ 
-}
-
-void TestMuonReader::recursiveGetMuChambers(const align::Alignables& composites, align::Alignables& chambers, int kind)
-{
-  for (const auto& cit: composites)
-  {
-    if (cit->alignableObjectId() == kind)
-    {
+void TestMuonReader::recursiveGetMuChambers(const align::Alignables& composites,
+                                            align::Alignables& chambers,
+                                            int kind) {
+  for (const auto& cit : composites) {
+    if (cit->alignableObjectId() == kind) {
       chambers.push_back(cit);
       continue;
-    }
-    else 
-    {
+    } else {
       const auto& components = cit->components();
       recursiveGetMuChambers(components, chambers, kind);
     }
   }
 }
 
-align::EulerAngles TestMuonReader::toPhiXYZ(const align::RotationType& rot)
-{
+align::EulerAngles TestMuonReader::toPhiXYZ(const align::RotationType& rot) {
   align::EulerAngles angles(3);
   angles(1) = std::atan2(rot.yz(), rot.zz());
   angles(2) = std::asin(-rot.xz());
@@ -107,10 +94,7 @@ align::EulerAngles TestMuonReader::toPhiXYZ(const align::RotationType& rot)
   return angles;
 }
 
-
-void
-TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
+void TestMuonReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // first, get chamber alignables from ideal geometry:
 
   edm::ESTransientHandle<DDCompactView> cpv;
@@ -137,8 +121,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   recursiveGetMuChambers(ideal_endcaps, ideal_me_chambers, align::AlignableCSCChamber);
   //std::cout<<" #ideals dts="<<ideal_mb_chambers.size()<<" cscs="<<ideal_me_chambers.size()<<std::endl;
 
-
-/*   
+  /*   
   edm::LogInfo("MuonAlignment") << "Starting!";
 
   // Retrieve DT alignment[Error]s from DBase
@@ -179,36 +162,42 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 	}
 */
 
-
   // Retrieve CSC alignment[Error]s from DBase
   edm::ESHandle<Alignments> cscAlignments;
-  iSetup.get<CSCAlignmentRcd>().get( cscAlignments );
+  iSetup.get<CSCAlignmentRcd>().get(cscAlignments);
   //edm::ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
   //iSetup.get<CSCAlignmentErrorExtendedRcd>().get( cscAlignmentErrorsExtended );
 
   //align::Alignables::const_iterator csc_ideal = ideal_endcaps.begin();
-  std::cout<<std::setprecision(3)<<std::fixed;
+  std::cout << std::setprecision(3) << std::fixed;
   //std::cout<<" lens : "<<ideal_me_chambers.size()<<" "<<cscAlignments->m_align.size()<<std::endl;
 
-  for ( std::vector<AlignTransform>::const_iterator it = cscAlignments->m_align.begin(); it != cscAlignments->m_align.end(); it++ )
-  {
+  for (std::vector<AlignTransform>::const_iterator it = cscAlignments->m_align.begin();
+       it != cscAlignments->m_align.end();
+       it++) {
     CSCDetId id((*it).rawId());
-    if (id.layer()>0) continue; // look at chambers only, skip layers
+    if (id.layer() > 0)
+      continue;  // look at chambers only, skip layers
 
-    if (id.station()==1 && id.ring()==4) continue; // not interested in duplicated ME1/4 
+    if (id.station() == 1 && id.ring() == 4)
+      continue;  // not interested in duplicated ME1/4
 
     char nme[100];
-    sprintf(nme,"%d/%d/%02d",id.station(),id.ring(),id.chamber());
+    sprintf(nme, "%d/%d/%02d", id.station(), id.ring(), id.chamber());
     std::string me = "ME+";
-    if (id.endcap()==2) me = "ME-";
+    if (id.endcap() == 2)
+      me = "ME-";
     me += nme;
-    
+
     // find this chamber in ideal geometry
     const Alignable* ideal{nullptr};
-    for (const auto& cideal: ideal_me_chambers)
-      if (cideal->geomDetId().rawId() == (*it).rawId()) { ideal = cideal; break; }
-    if (ideal==nullptr) {
-      std::cout<<" no ideal chamber for "<<id<<std::endl;
+    for (const auto& cideal : ideal_me_chambers)
+      if (cideal->geomDetId().rawId() == (*it).rawId()) {
+        ideal = cideal;
+        break;
+      }
+    if (ideal == nullptr) {
+      std::cout << " no ideal chamber for " << id << std::endl;
       continue;
     }
 
@@ -216,10 +205,9 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     align::PositionType position((*it).translation().x(), (*it).translation().y(), (*it).translation().z());
 
-    CLHEP::HepRotation rot( (*it).rotation() );
-    align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
-                                  rot.yx(), rot.yy(), rot.yz(),
-                                  rot.zx(), rot.zy(), rot.zz() );
+    CLHEP::HepRotation rot((*it).rotation());
+    align::RotationType rotation(
+        rot.xx(), rot.xy(), rot.xz(), rot.yx(), rot.yy(), rot.yz(), rot.zx(), rot.zy(), rot.zz());
     //align::EulerAngles abg = align::toAngles(rotation);
 
     align::PositionType idealPosition = ideal->globalPosition();
@@ -228,27 +216,28 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     //std::cout << me <<" "<< (*it).rawId()<<"  "<<idealPosition.basicVector()<<" "<<abg<<std::endl;continue;
 
     // compute transformations relative to ideal
-    align::PositionType rposition = align::PositionType( idealRotation * (position.basicVector() - idealPosition.basicVector()) );
+    align::PositionType rposition =
+        align::PositionType(idealRotation * (position.basicVector() - idealPosition.basicVector()));
     align::RotationType rrotation = rotation * idealRotation.transposed();
     align::EulerAngles rabg = align::toAngles(rrotation);
-    
+
     //align::EulerAngles rxyz = toPhiXYZ(rrotation);
     //if (fabs(rabg[0]-rxyz[0])>0.00001 || fabs(rabg[1]-rxyz[1])>0.00001 ||fabs(rabg[1]-rxyz[1])>0.00001)
     //  std::cout << me <<" large angle diff = "<<fabs(rabg[0]-rxyz[0])*1000.<<" "<<fabs(rabg[1]-rxyz[1])*1000.<<" "<<fabs(rabg[2]-rxyz[2])*1000.<<" = "
     //        << 1000.*rabg[0] <<" "<< 1000.*rabg[1] <<" "<< 1000.*rabg[2] <<" - " << 1000.*rxyz[0] <<" "<< 1000.*rxyz[1] <<" "<< 1000.*rxyz[2]<<std::endl;
 
-    std::cout << me <<" "<< (*it).rawId()
-      //<< "  " << (*it).translation().x() << " " << (*it).translation().y() << " " << (*it).translation().z()
-      //<< "  " << abg[0] << " " << abg[1] << " " << abg[2] 
-      //<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
-      //<< " " << rotation.yx() << " " << rotation.yy() << " " << rotation.yz()
-      //<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz()
+    std::cout << me << " "
+              << (*it).rawId()
+              //<< "  " << (*it).translation().x() << " " << (*it).translation().y() << " " << (*it).translation().z()
+              //<< "  " << abg[0] << " " << abg[1] << " " << abg[2]
+              //<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
+              //<< " " << rotation.yx() << " " << rotation.yy() << " " << rotation.yz()
+              //<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz()
 
-      <<"  "<< 10.*rposition.x() <<" "<< 10.*rposition.y() <<" "<< 10.*rposition.z()
-      <<"  "<< 1000.*rabg[0] <<" "<< 1000.*rabg[1] <<" "<< 1000.*rabg[2]
-      << std::endl;
+              << "  " << 10. * rposition.x() << " " << 10. * rposition.y() << " " << 10. * rposition.z() << "  "
+              << 1000. * rabg[0] << " " << 1000. * rabg[1] << " " << 1000. * rabg[2] << std::endl;
   }
-/*
+  /*
   std::cout << std::endl << "----------------------" << std::endl;
 
   for ( std::vector<AlignTransformErrorExtended>::const_iterator it = cscAlignmentErrorsExtended->m_alignError.begin();

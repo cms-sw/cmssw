@@ -15,39 +15,34 @@ class TH1;
 */
 
 class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
-  
- public:
+public:
+  PedsFullNoiseAlgorithm(const edm::ParameterSet& pset, PedsFullNoiseAnalysis* const);
 
-  PedsFullNoiseAlgorithm( const edm::ParameterSet & pset, PedsFullNoiseAnalysis* const );
-
-  ~PedsFullNoiseAlgorithm() override {;}
+  ~PedsFullNoiseAlgorithm() override { ; }
 
   inline const Histo& hPeds() const;
   inline const Histo& hNoise() const;
   inline const Histo& hNoise2D() const;
-  
 
- private:
-
-  PedsFullNoiseAlgorithm() {;}
+private:
+  PedsFullNoiseAlgorithm() { ; }
 
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1*>&) override;
 
   /** Performs histogram anaysis. */
   void analyse() override;
 
   /** reset vector */
-  void reset(PedsFullNoiseAnalysis*);     
+  void reset(PedsFullNoiseAnalysis*);
 
- private:
-
+private:
   /** Pedestals and raw noise */
   Histo hPeds_;
   /** Noise and residuals */
   Histo hNoise_;
   Histo hNoise2D_;
-  
+
   /** Analysis parameters */
   float maxDriftResidualCut_;
   float minStripNoiseCut_;
@@ -55,19 +50,18 @@ class PedsFullNoiseAlgorithm : public CommissioningAlgorithm {
   float maxStripNoiseSignificanceCut_;
   float adProbabCut_;
   float ksProbabCut_;
-  bool  generateRandomHisto_;
+  bool generateRandomHisto_;
   float jbProbabCut_;
   float chi2ProbabCut_;
   float kurtosisCut_;
   float integralTailCut_;
-  int   integralNsigma_;
+  int integralNsigma_;
   float ashmanDistance_;
   float amplitudeRatio_;
-
 };
 
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hPeds() const { return hPeds_; }
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hNoise2D() const { return hNoise2D_; }
 const PedsFullNoiseAlgorithm::Histo& PedsFullNoiseAlgorithm::hNoise() const { return hNoise_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_PedsFullNoiseAlgorithm_H
+#endif  // DQM_SiStripCommissioningAnalysis_PedsFullNoiseAlgorithm_H

@@ -27,8 +27,7 @@ public:
   typedef std::vector<HcalDcsValue> DcsSet;
 
   //The subdetectors of interest to the Hcal run certification
-  enum DcsSubDet{ HcalHB = 1, HcalHE = 2, HcalHO0 = 3, HcalHO12 = 4,
-		  HcalHF = 5 };
+  enum DcsSubDet { HcalHB = 1, HcalHE = 2, HcalHO0 = 3, HcalHO12 = 4, HcalHF = 5 };
 
   HcalDcsValues();
 
@@ -42,9 +41,9 @@ public:
   // get a list of values that are for the give id
   DcsSet getValues(HcalDcsDetId const& fid);
 
-  DcsSet const & getAllSubdetValues(DcsSubDet subd) const;
+  DcsSet const& getAllSubdetValues(DcsSubDet subd) const;
 
-  std::string myname() const { return (std::string)"HcalDcsValues"; }
+  std::string myname() const { return (std::string) "HcalDcsValues"; }
 
   //Check the values of a subdetector.  If LS is -1 then for the whole run
   //otherwise for the given LS.

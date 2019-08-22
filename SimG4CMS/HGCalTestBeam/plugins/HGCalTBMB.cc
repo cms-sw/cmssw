@@ -25,11 +25,11 @@ class HGCalTBMB : public SimWatcher,
                   public Observer<const BeginOfTrack*>,
                   public Observer<const G4Step*>,
                   public Observer<const EndOfTrack*> {
- public:
+public:
   HGCalTBMB(const edm::ParameterSet&);
   ~HGCalTBMB() override;
 
- private:
+private:
   HGCalTBMB(const HGCalTBMB&) = delete;                   // stop default
   const HGCalTBMB& operator=(const HGCalTBMB&) = delete;  // ...
 
@@ -54,12 +54,10 @@ HGCalTBMB::HGCalTBMB(const edm::ParameterSet& p) {
   stopName_ = m_p.getParameter<std::string>("StopName");
   stopZ_ = m_p.getParameter<double>("MaximumZ");
   nList_ = listNames_.size();
-  edm::LogVerbatim("HGCSim")
-      << "HGCalTBMB initialized for " << nList_ << " volumes";
+  edm::LogVerbatim("HGCSim") << "HGCalTBMB initialized for " << nList_ << " volumes";
   for (unsigned int k = 0; k < nList_; ++k)
     edm::LogVerbatim("HGCSim") << " [" << k << "] " << listNames_[k];
-  edm::LogVerbatim("HGCSim")
-      << "Stop after " << stopZ_ << " or reaching volume " << stopName_;
+  edm::LogVerbatim("HGCSim") << "Stop after " << stopZ_ << " or reaching volume " << stopName_;
 
   edm::Service<TFileService> tfile;
   if (!tfile.isAvailable())
@@ -100,10 +98,8 @@ void HGCalTBMB::update(const BeginOfTrack* trk) {
   const G4ThreeVector& mom = aTrack->GetMomentum();
   double theEnergy = aTrack->GetTotalEnergy();
   int theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
-  edm::LogVerbatim("HGCSim")
-      << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code "
-      << theID << " Energy " << theEnergy / CLHEP::GeV << " GeV; Momentum "
-      << mom;
+  edm::LogVerbatim("HGCSim") << "MaterialBudgetHcalHistos: Track " << aTrack->GetTrackID() << " Code " << theID
+                             << " Energy " << theEnergy / CLHEP::GeV << " GeV; Momentum " << mom;
 #endif
 }
 
@@ -125,10 +121,8 @@ void HGCalTBMB::update(const G4Step* aStep) {
   radLen_[nList_] += (step / radl);
   intLen_[nList_] += (step / intl);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim")
-      << "HGCalTBMB::Step in "
-      << touch->GetVolume(0)->GetLogicalVolume()->GetName() << " Index " << indx
-      << " Step " << step << " RadL " << step / radl << " IntL " << step / intl;
+  edm::LogVerbatim("HGCSim") << "HGCalTBMB::Step in " << touch->GetVolume(0)->GetLogicalVolume()->GetName() << " Index "
+                             << indx << " Step " << step << " RadL " << step / radl << " IntL " << step / intl;
 #endif
 
   if (stopAfter(aStep)) {
@@ -144,10 +138,10 @@ void HGCalTBMB::update(const EndOfTrack* trk) {
     me300_[ii]->Fill(stepLen_[ii]);
 #ifdef EDM_ML_DEBUG
     std::string name("Total");
-    if (ii < nList_) name = listNames_[ii];
-    edm::LogVerbatim("HGCSim")
-        << "HGCalTBMB::Volume[" << ii << "]: " << name << " == Step "
-        << stepLen_[ii] << " RadL " << radLen_[ii] << " IntL " << intLen_[ii];
+    if (ii < nList_)
+      name = listNames_[ii];
+    edm::LogVerbatim("HGCSim") << "HGCalTBMB::Volume[" << ii << "]: " << name << " == Step " << stepLen_[ii] << " RadL "
+                               << radLen_[ii] << " IntL " << intLen_[ii];
 #endif
   }
 }
@@ -160,11 +154,10 @@ bool HGCalTBMB::stopAfter(const G4Step* aStep) {
     hitPoint = aStep->GetPostStepPoint()->GetPosition();
   double zz = hitPoint.z();
 
-  if ((findVolume(touch, true) == 0) || (zz > stopZ_)) flag = true;
+  if ((findVolume(touch, true) == 0) || (zz > stopZ_))
+    flag = true;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim")
-      << " HGCalTBMB::Name " << touch->GetVolume(0)->GetName() << " z " << zz
-      << " Flag" << flag;
+  edm::LogVerbatim("HGCSim") << " HGCalTBMB::Name " << touch->GetVolume(0)->GetName() << " z " << zz << " Flag" << flag;
 #endif
   return flag;
 }
@@ -175,7 +168,8 @@ int HGCalTBMB::findVolume(const G4VTouchable* touch, bool stop) const {
   for (int ii = 0; ii < level; ii++) {
     std::string name = touch->GetVolume(ii)->GetName();
     if (stop) {
-      if (strcmp(name.c_str(), stopName_.c_str()) == 0) ivol = 0;
+      if (strcmp(name.c_str(), stopName_.c_str()) == 0)
+        ivol = 0;
     } else {
       for (unsigned int k = 0; k < nList_; ++k) {
         if (strcmp(name.c_str(), listNames_[k].c_str()) == 0) {
@@ -184,7 +178,8 @@ int HGCalTBMB::findVolume(const G4VTouchable* touch, bool stop) const {
         }
       }
     }
-    if (ivol >= 0) break;
+    if (ivol >= 0)
+      break;
   }
   return ivol;
 }

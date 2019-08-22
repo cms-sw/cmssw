@@ -24,23 +24,20 @@ namespace edm {
 }
 
 class BCToEFilterAlgo {
- public:
-  BCToEFilterAlgo(const edm::ParameterSet&, edm::ConsumesCollector && iC);
+public:
+  BCToEFilterAlgo(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
   ~BCToEFilterAlgo();
-  
+
   bool filter(const edm::Event& iEvent);
 
   bool hasBCAncestors(const reco::GenParticle& gp);
 
- private:
-
+private:
   bool isBCHadron(const reco::GenParticle& gp);
   bool isBCMeson(const reco::GenParticle& gp);
   bool isBCBaryon(const reco::GenParticle& gp);
 
-  
-
- private:
+private:
   //constants:
   float FILTER_ETA_MAX_;
   //filter parameters:

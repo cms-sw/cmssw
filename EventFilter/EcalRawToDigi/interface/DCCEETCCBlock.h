@@ -13,12 +13,11 @@
  *
 */
 
-#include <iostream>                  
+#include <iostream>
 #include <string>
 #include <vector>
 #include <map>
 #include <utility>
-
 
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h>
@@ -27,25 +26,21 @@
 
 #include "DCCTCCBlock.h"
 
-class DCCEETCCBlock : public DCCTCCBlock{
-	
-  public :
-    /**
+class DCCEETCCBlock : public DCCTCCBlock {
+public:
+  /**
       Class constructor
     */
-    DCCEETCCBlock( DCCDataUnpacker * u, EcalElectronicsMapper * m, DCCEventBlock * e, bool unpacking );    
-  
-    void updateCollectors() override;
-	 
-    void addTriggerPrimitivesToCollection() override;
-	
-	unsigned int getLength() override;
-  
-  protected :
-  
-    bool checkTccIdAndNumbTTs() override;
+  DCCEETCCBlock(DCCDataUnpacker* u, EcalElectronicsMapper* m, DCCEventBlock* e, bool unpacking);
 
+  void updateCollectors() override;
 
+  void addTriggerPrimitivesToCollection() override;
+
+  unsigned int getLength() override;
+
+protected:
+  bool checkTccIdAndNumbTTs() override;
 };
 
 #endif

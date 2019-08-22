@@ -7,9 +7,7 @@
 #include <utility>
 
 class PixelDigiCollection {
-
- public:
-
+public:
   typedef std::vector<PixelDigi>::const_iterator ContainerIterator;
   typedef std::pair<ContainerIterator, ContainerIterator> Range;
   typedef std::pair<unsigned int, unsigned int> IndexRange;
@@ -17,17 +15,14 @@ class PixelDigiCollection {
   typedef std::map<unsigned int, IndexRange>::const_iterator RegistryIterator;
 
   PixelDigiCollection() {}
-  
+
   void put(Range input, unsigned int detID);
   const Range get(unsigned int detID) const;
   const std::vector<unsigned int> detIDs() const;
-  
- private:
+
+private:
   std::vector<PixelDigi> container_;
   Registry map_;
-
 };
 
-#endif // TRACKINGOBJECTS_PIXELDIGICOLLECTION_H
-
-
+#endif  // TRACKINGOBJECTS_PIXELDIGICOLLECTION_H

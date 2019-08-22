@@ -1,25 +1,24 @@
 #ifndef CommonDet_MuonGeomDet_H
 #define CommonDet_MuonGeomDet_H
 
-
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/LocalErrorExtended.h"
 
 class MuonGeomDet : public GeomDet {
-protected :
-  explicit MuonGeomDet(Plane * plane) : GeomDet(plane), theLocalAlignmentError(InvalidError()){}
-  explicit MuonGeomDet(const ReferenceCountingPointer<Plane>& plane) : GeomDet(plane), theLocalAlignmentError(InvalidError()){}
+protected:
+  explicit MuonGeomDet(Plane* plane) : GeomDet(plane), theLocalAlignmentError(InvalidError()) {}
+  explicit MuonGeomDet(const ReferenceCountingPointer<Plane>& plane)
+      : GeomDet(plane), theLocalAlignmentError(InvalidError()) {}
 
 public:
   /// Return local alligment error
-  LocalErrorExtended const & localAlignmentError() const { return theLocalAlignmentError;}
+  LocalErrorExtended const& localAlignmentError() const { return theLocalAlignmentError; }
 
 private:
-
-  LocalErrorExtended  theLocalAlignmentError;
+  LocalErrorExtended theLocalAlignmentError;
 
 private:
-  bool setAlignmentPositionError (const AlignmentPositionError& ape) final;
-
+  bool setAlignmentPositionError(const AlignmentPositionError& ape) final;
 };
 #endif

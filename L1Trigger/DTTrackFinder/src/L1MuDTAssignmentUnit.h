@@ -48,70 +48,65 @@ class L1MuDTSectorProcessor;
 //              ---------------------
 
 class L1MuDTAssignmentUnit : public L1AbstractProcessor {
+public:
+  /// constructor
+  L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id);
 
-  public:
+  /// destructor
+  ~L1MuDTAssignmentUnit() override;
 
-    /// constructor
-    L1MuDTAssignmentUnit(L1MuDTSectorProcessor& sp, int id );
+  /// run Assignment Unit
+  void run(const edm::EventSetup& c) override;
 
-    /// destructor
-    ~L1MuDTAssignmentUnit() override;
+  /// reset Assignment Unit
+  void reset() override;
 
-    /// run Assignment Unit
-    void run(const edm::EventSetup& c) override;
-    
-    /// reset Assignment Unit
-    void reset() override;
-    
-    /// assign phi
-    void PhiAU(const edm::EventSetup& c);
-    
-    /// assign pt and charge
-    void PtAU(const edm::EventSetup& c);
-    
-    /// assign quality
-    void QuaAU();
+  /// assign phi
+  void PhiAU(const edm::EventSetup& c);
 
-    /// set precision of phi and phib 
-    void setPrecision();
+  /// assign pt and charge
+  void PtAU(const edm::EventSetup& c);
 
-  private:
+  /// assign quality
+  void QuaAU();
 
-    /// Track Segment Router
-    void TSR();
-    
-    /// get track segment from a given station
-    const L1MuDTTrackSegPhi* getTSphi(int station) const;
-    
-    /// convert sector Id to 8 bit code (= sector center)
-    int convertSector(int);
-    
-    /// determine charge
-    int getCharge(PtAssMethod);
-    
-    /// determine pt assignment method
-    PtAssMethod getPtMethod() const;
-    
-    /// calculate bend angle
-    int getPtAddress(PtAssMethod, int bendcharge=0) const;
-    
-    /// build difference of two phi values
-    int phiDiff(int stat1, int stat2) const;
-    
-  private:
+  /// set precision of phi and phib
+  void setPrecision();
 
-    L1MuDTSectorProcessor& m_sp;
-    int                    m_id;
+private:
+  /// Track Segment Router
+  void TSR();
 
-    L1MuDTAddressArray                    m_addArray;
-    std::vector<const L1MuDTTrackSegPhi*> m_TSphi;
-    PtAssMethod                           m_ptAssMethod;
+  /// get track segment from a given station
+  const L1MuDTTrackSegPhi* getTSphi(int station) const;
 
-    edm::ESHandle< L1MuDTPhiLut > thePhiLUTs;  ///< phi-assignment look-up tables
-    edm::ESHandle< L1MuDTPtaLut > thePtaLUTs;  ///< pt-assignment look-up tables
-    unsigned short      nbit_phi;       ///< # of bits used for pt-assignment
-    unsigned short      nbit_phib;      ///< # of bits used for pt-assignment
+  /// convert sector Id to 8 bit code (= sector center)
+  int convertSector(int);
 
+  /// determine charge
+  int getCharge(PtAssMethod);
+
+  /// determine pt assignment method
+  PtAssMethod getPtMethod() const;
+
+  /// calculate bend angle
+  int getPtAddress(PtAssMethod, int bendcharge = 0) const;
+
+  /// build difference of two phi values
+  int phiDiff(int stat1, int stat2) const;
+
+private:
+  L1MuDTSectorProcessor& m_sp;
+  int m_id;
+
+  L1MuDTAddressArray m_addArray;
+  std::vector<const L1MuDTTrackSegPhi*> m_TSphi;
+  PtAssMethod m_ptAssMethod;
+
+  edm::ESHandle<L1MuDTPhiLut> thePhiLUTs;  ///< phi-assignment look-up tables
+  edm::ESHandle<L1MuDTPtaLut> thePtaLUTs;  ///< pt-assignment look-up tables
+  unsigned short nbit_phi;                 ///< # of bits used for pt-assignment
+  unsigned short nbit_phib;                ///< # of bits used for pt-assignment
 };
 
 #endif

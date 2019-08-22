@@ -1,7 +1,7 @@
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXML.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/MiscalibReaderFromXMLDomUtils.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMap.h"
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include "Utilities/Xerces/interface/Xerces.h"
 #include <cstdio>
 #include <cstdlib>
 #include <string>

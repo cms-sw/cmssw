@@ -27,14 +27,11 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepJetCombMVA);  // defines TtSemiLepJetComb
 #endif
 
 class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
-
- public:
-
+public:
   explicit TtSemiLepJetCombMVATrainer(const edm::ParameterSet&);
   ~TtSemiLepJetCombMVATrainer() override;
 
- private:
-
+private:
   void beginJob() override;
   void analyze(const edm::Event& evt, const edm::EventSetup& setup) override;
   void endJob() override;
@@ -42,10 +39,10 @@ class TtSemiLepJetCombMVATrainer : public edm::EDAnalyzer {
   WDecay::LeptonType readLeptonType(const std::string& str);
 
   edm::EDGetTokenT<TtGenEvent> genEvtToken_;
-  edm::EDGetTokenT< edm::View<reco::RecoCandidate> > lepsToken_;
-  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
-  edm::EDGetTokenT< std::vector<pat::MET> > metsToken_;
-  edm::EDGetTokenT< std::vector< std::vector<int> > > matchingToken_;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate> > lepsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET> > metsToken_;
+  edm::EDGetTokenT<std::vector<std::vector<int> > > matchingToken_;
 
   int maxNJets_;
 

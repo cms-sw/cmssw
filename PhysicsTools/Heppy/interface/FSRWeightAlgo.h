@@ -5,19 +5,18 @@
 
 namespace heppy {
 
-class FSRWeightAlgo {
+  class FSRWeightAlgo {
+  public:
+    FSRWeightAlgo() {}
+    virtual ~FSRWeightAlgo() {}
+    void addGenParticle(const reco::GenParticle& gen) { genParticles_.push_back(gen); }
+    void clear() { genParticles_.clear(); }
+    double weight() const;
 
- public:
-  FSRWeightAlgo() {}
-  virtual ~FSRWeightAlgo() {}
-  void addGenParticle(const reco::GenParticle& gen) {genParticles_.push_back(gen);}
-  void clear() {genParticles_.clear();}
-  double weight() const;
-  
- private:
-  double alphaRatio(double) const;
-  
-  std::vector< reco::GenParticle > genParticles_;
+  private:
+    double alphaRatio(double) const;
+
+    std::vector<reco::GenParticle> genParticles_;
   };
-}
+}  // namespace heppy
 #endif

@@ -31,8 +31,7 @@
 
 using namespace std;
 
-RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
-  
+RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config) {
   resRPC = config.getParameter<double>("timeResolution");
   timOff = config.getParameter<double>("timingRPCOffset");
   dtimCs = config.getParameter<double>("deltatimeAdjacentStrip");
@@ -45,221 +44,194 @@ RPCSynchronizer::RPCSynchronizer(const edm::ParameterSet& config){
   irpc_electronics_jitter = config.getParameter<double>("IRPC_electronics_jitter");
   N_BX = config.getParameter<int>("BX_range");
   //"magic" parameter for cosmics
-  cosmicPar=37.62;
+  cosmicPar = 37.62;
 
-  double c=299792458;// [m/s]
+  double c = 299792458;  // [m/s]
   //light speed in [cm/ns]
-  cspeed=c*1e+2*1e-9;
+  cspeed = c * 1e+2 * 1e-9;
   //signal propagation speed [cm/ns]
-  sspeed=sspeed*cspeed; 
+  sspeed = sspeed * cspeed;
 }
 
-RPCSynchronizer::~RPCSynchronizer(){}
+RPCSynchronizer::~RPCSynchronizer() {}
 
-int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* engine)
-{
+int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* engine) {
   RPCSimSetUp* simsetup = this->getRPCSimSetUp();
-  const RPCGeometry * geometry = simsetup->getGeometry();
+  const RPCGeometry* geometry = simsetup->getGeometry();
   float timeref = simsetup->getTime(simhit->detUnitId());
-  
+
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
   float tof = simhit->timeOfFlight();
-  
+
   //automatic variable to prevent memory leak
-  
-  float rr_el = CLHEP::RandGaussQ::shoot(engine, 0.,resEle);
-  
+
+  float rr_el = CLHEP::RandGaussQ::shoot(engine, 0., resEle);
+
   RPCDetId SimDetId(simhit->detUnitId());
-  
+
   const RPCRoll* SimRoll = nullptr;
-  
-  for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
-    
-    if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
-      
-      auto ch = dynamic_cast<const RPCChamber* >( *it ); 
-      
-      std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
-      for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
-	  r != rollsRaf.end(); ++r){
-	
-	if((*r)->id() == SimDetId) {
-	  SimRoll = &(*(*r));
-	  break;
-	}
+
+  for (TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end();
+       it++) {
+    if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
+      auto ch = dynamic_cast<const RPCChamber*>(*it);
+
+      std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
+      for (std::vector<const RPCRoll*>::iterator r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
+        if ((*r)->id() == SimDetId) {
+          SimRoll = &(*(*r));
+          break;
+        }
       }
     }
   }
-  
-  if(SimRoll != nullptr){
-    
+
+  if (SimRoll != nullptr) {
     float distanceFromEdge = 0;
     float half_stripL = 0.;
-    
-    if(SimRoll->id().region() == 0){
-      const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(SimRoll->topology()));
-      half_stripL = top_->stripLength()/2;
+
+    if (SimRoll->id().region() == 0) {
+      const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(SimRoll->topology()));
+      half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL + simHitPos.y();
-    }else{
-      const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(SimRoll->topology()));
-      half_stripL = top_->stripLength()/2;
+    } else {
+      const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(SimRoll->topology()));
+      half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL - simHitPos.y();
     }
-    
-    
-    float prop_time =  distanceFromEdge/sspeed;
-    
-    double rr_tim1 = CLHEP::RandGaussQ::shoot(engine, 0.,resRPC);
+
+    float prop_time = distanceFromEdge / sspeed;
+
+    double rr_tim1 = CLHEP::RandGaussQ::shoot(engine, 0., resRPC);
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
-    
+
     // Bunch crossing assignment
     double time_differ = 0.;
-    
-    if(cosmics){
-      time_differ = (total_time - (timeref + ((half_stripL/sspeed ) + timOff)))/cosmicPar;
+
+    if (cosmics) {
+      time_differ = (total_time - (timeref + ((half_stripL / sspeed) + timOff))) / cosmicPar;
+    } else if (!cosmics) {
+      time_differ = total_time - (timeref + (half_stripL / sspeed) + timOff);
     }
-    else if(!cosmics){
-      time_differ = total_time - (timeref + ( half_stripL/sspeed ) + timOff);
-    }
-    
+
     double inf_time = 0;
     double sup_time = 0;
-    
-    
-    for(int n = -N_BX; n <= N_BX; ++n){
-      
-      if(cosmics){
-	inf_time = (-lbGate/2 + n*LHCGate )/cosmicPar;
-	sup_time = ( lbGate/2 + n*LHCGate )/cosmicPar;
+
+    for (int n = -N_BX; n <= N_BX; ++n) {
+      if (cosmics) {
+        inf_time = (-lbGate / 2 + n * LHCGate) / cosmicPar;
+        sup_time = (lbGate / 2 + n * LHCGate) / cosmicPar;
+      } else if (!cosmics) {
+        inf_time = -lbGate / 2 + n * LHCGate;
+        sup_time = lbGate / 2 + n * LHCGate;
       }
-      else if(!cosmics){
-	inf_time = -lbGate/2 + n*LHCGate;
-	sup_time =  lbGate/2 + n*LHCGate;
-      }
-      
-      if(inf_time < time_differ && time_differ < sup_time) {
-	bx = n;
-	break;
+
+      if (inf_time < time_differ && time_differ < sup_time) {
+        bx = n;
+        break;
       }
     }
   }
-  
-  
+
   return bx;
 }
 
-int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::HepRandomEngine* engine)
-{
-  
+int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::HepRandomEngine* engine) {
   RPCSimSetUp* simsetup = this->getRPCSimSetUp();
-  const RPCGeometry * geometry = simsetup->getGeometry();
+  const RPCGeometry* geometry = simsetup->getGeometry();
   float timeref = simsetup->getTime(simhit->detUnitId());
-  
+
   int bx = -999;
   LocalPoint simHitPos = simhit->localPosition();
   float tof = simhit->timeOfFlight();
-  
+
   //automatic variable to prevent memory leak
-  
+
   //  float rr_el = CLHEP::RandGaussQ::shoot(engine, 0.,resEle);
   float rr_el = CLHEP::RandGaussQ::shoot(engine, 0., irpc_electronics_jitter);
-  
+
   RPCDetId SimDetId(simhit->detUnitId());
-  
+
   const RPCRoll* SimRoll = nullptr;
-  
-  for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
-    
-    if( dynamic_cast< const RPCChamber* >( *it ) != nullptr ){
-      
-      auto ch = dynamic_cast<const RPCChamber* >( *it ); 
-      
-      std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
-      for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
-	  r != rollsRaf.end(); ++r){
-	
-	if((*r)->id() == SimDetId) {
-	  SimRoll = &(*(*r));
-	  break;
-	}
+
+  for (TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end();
+       it++) {
+    if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
+      auto ch = dynamic_cast<const RPCChamber*>(*it);
+
+      std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
+      for (std::vector<const RPCRoll*>::iterator r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
+        if ((*r)->id() == SimDetId) {
+          SimRoll = &(*(*r));
+          break;
+        }
       }
     }
   }
-  
-  if(SimRoll != nullptr){
-    
+
+  if (SimRoll != nullptr) {
     float distanceFromEdge = 0;
     float half_stripL = 0.;
-    
-    if(SimRoll->id().region() == 0){
-      const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&(SimRoll->topology()));
-      half_stripL = top_->stripLength()/2;
+
+    if (SimRoll->id().region() == 0) {
+      const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(SimRoll->topology()));
+      half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL + simHitPos.y();
-    } 
-    else{
-      const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&(SimRoll->topology()));
-      half_stripL = top_->stripLength()/2;
+    } else {
+      const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(SimRoll->topology()));
+      half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL - simHitPos.y();
     }
-    
-    
-    float prop_time =  distanceFromEdge/sspeed;
-    
+
+    float prop_time = distanceFromEdge / sspeed;
+
     //    double rr_tim1 = CLHEP::RandGaussQ::shoot(engine, 0.,resRPC);
     double rr_tim1 = CLHEP::RandGaussQ::shoot(engine, 0., irpc_timing_res);
-    
+
     double total_time = tof + prop_time + timOff + rr_tim1 + rr_el;
-    
-    
+
     // Bunch crossing assignment
     double time_differ = 0.;
-    
-    if(cosmics){
-      time_differ = (total_time - (timeref + ((half_stripL/sspeed ) + timOff)))/cosmicPar;
+
+    if (cosmics) {
+      time_differ = (total_time - (timeref + ((half_stripL / sspeed) + timOff))) / cosmicPar;
+    } else if (!cosmics) {
+      time_differ = total_time - (timeref + (half_stripL / sspeed) + timOff);
     }
-    else if(!cosmics){
-      time_differ = total_time - (timeref + ( half_stripL/sspeed ) + timOff);
-    }
-    
+
     double exact_total_time = tof + prop_time + timOff;
     double exact_time_differ = 0.;
-    
-    if(cosmics){
-      exact_time_differ = (exact_total_time - (timeref + ((half_stripL/sspeed ) + timOff)))/cosmicPar;
+
+    if (cosmics) {
+      exact_time_differ = (exact_total_time - (timeref + ((half_stripL / sspeed) + timOff))) / cosmicPar;
+    } else if (!cosmics) {
+      exact_time_differ = exact_total_time - (timeref + (half_stripL / sspeed) + timOff);
     }
-    else if(!cosmics){
-      exact_time_differ = exact_total_time - (timeref + ( half_stripL/sspeed ) + timOff);
-    }
-    
-    
+
     double inf_time = 0;
     double sup_time = 0;
-    
-    
-    for(int n = -N_BX; n <= N_BX; ++n){
-      
-      if(cosmics){
-	inf_time = (-lbGate/2 + n*LHCGate )/cosmicPar;
-	sup_time = ( lbGate/2 + n*LHCGate )/cosmicPar;
+
+    for (int n = -N_BX; n <= N_BX; ++n) {
+      if (cosmics) {
+        inf_time = (-lbGate / 2 + n * LHCGate) / cosmicPar;
+        sup_time = (lbGate / 2 + n * LHCGate) / cosmicPar;
+      } else if (!cosmics) {
+        inf_time = -lbGate / 2 + n * LHCGate;
+        sup_time = lbGate / 2 + n * LHCGate;
       }
-      else if(!cosmics){
-	inf_time = -lbGate/2 + n*LHCGate;
-	sup_time =  lbGate/2 + n*LHCGate;
-      }
-      
-      if(inf_time < time_differ && time_differ < sup_time) {
-	bx = n;
-	the_exact_time=exact_time_differ;
-	the_smeared_time=time_differ;
-	
-	//cout<<"Debug\t"<<inf_time<<'\t'<<sup_time<<endl;
-	////if(bx)
-	//	cout<<"Bingo\t"<<time_differ<<'\t'<<bx<<'\t'<<exact_time_differ<<'\t'<<exact_time_differ-time_differ<<'\t'<<exact_time_differ-bx*25.<<endl;
-	break;
+
+      if (inf_time < time_differ && time_differ < sup_time) {
+        bx = n;
+        the_exact_time = exact_time_differ;
+        the_smeared_time = time_differ;
+
+        //cout<<"Debug\t"<<inf_time<<'\t'<<sup_time<<endl;
+        ////if(bx)
+        //	cout<<"Bingo\t"<<time_differ<<'\t'<<bx<<'\t'<<exact_time_differ<<'\t'<<exact_time_differ-time_differ<<'\t'<<exact_time_differ-bx*25.<<endl;
+        break;
       }
     }
   }
   return bx;
 }
-

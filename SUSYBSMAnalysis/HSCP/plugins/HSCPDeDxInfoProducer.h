@@ -13,7 +13,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h" 
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -39,13 +39,17 @@ private:
   void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  void   makeCalibrationMap(const TrackerGeometry& tkGeom);
-  void   processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, susybsm::HSCPDeDxInfo& hscpDeDxInfo,  LocalPoint HitLocalPos);
+  void makeCalibrationMap(const TrackerGeometry& tkGeom);
+  void processHit(const TrackingRecHit* recHit,
+                  float trackMomentum,
+                  float& cosine,
+                  susybsm::HSCPDeDxInfo& hscpDeDxInfo,
+                  LocalPoint HitLocalPos);
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<TrajTrackAssociationCollection>   m_trajTrackAssociationTag;
-  edm::EDGetTokenT<reco::TrackCollection>  m_tracksTag;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> m_trajTrackAssociationTag;
+  edm::EDGetTokenT<reco::TrackCollection> m_tracksTag;
 
   bool useTrajectory;
   bool usePixel;
@@ -55,23 +59,22 @@ private:
 
   unsigned int MaxNrStrips;
   unsigned int MinTrackHits;
-  float        MinTrackMomentum;
-  float        MaxTrackMomentum;
-  float        MinTrackEta;
-  float        MaxTrackEta;
-  float        MaxTrackChiOverNdf;
+  float MinTrackMomentum;
+  float MaxTrackMomentum;
+  float MinTrackEta;
+  float MaxTrackEta;
+  float MaxTrackChiOverNdf;
 
-  std::string                       m_calibrationPath;
-  bool                              useCalibration;
-  bool                              shapetest;
+  std::string m_calibrationPath;
+  bool useCalibration;
+  bool shapetest;
 
-  std::vector< std::vector<float> > calibGains; 
+  std::vector<std::vector<float> > calibGains;
   unsigned int m_off;
 
-  std::string       Reccord;
-  std::string       ProbabilityMode;
-  TH3F*             Prob_ChargePath;
+  std::string Reccord;
+  std::string ProbabilityMode;
+  TH3F* Prob_ChargePath;
 };
 
 #endif
-

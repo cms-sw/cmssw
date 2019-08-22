@@ -10,17 +10,11 @@
 
 namespace btagbtvdeep {
 
-class DeepDoubleXFeatures {
-
+  class DeepDoubleXFeatures {
   public:
+    bool empty() const { return is_empty_; }
 
-    bool empty() const {
-      return is_empty_;
-    }  
-  
-    void filled(){
-      is_empty_ = false;
-    } 
+    void filled() { is_empty_ = false; }
 
     JetFeatures jet_features;
     BoostedDoubleSVTagInfoFeatures tag_info_features;
@@ -29,13 +23,12 @@ class DeepDoubleXFeatures {
 
     std::vector<ChargedCandidateFeatures> c_pf_features;
 
-    std::size_t npv; // used by deep flavour     
+    std::size_t npv;  // used by deep flavour
 
   private:
     bool is_empty_ = true;
+  };
 
-};    
+}  // namespace btagbtvdeep
 
-}  
-
-#endif //DataFormats_BTauReco_DeepDoubleXFeatures_h
+#endif  //DataFormats_BTauReco_DeepDoubleXFeatures_h

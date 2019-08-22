@@ -13,7 +13,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  DDDetector = cms.ESInputTag('MagneticField')
+                                  DDDetector = cms.ESInputTag('','MagneticField')
                                   )
 
 process.p = cms.Path(process.testDump)

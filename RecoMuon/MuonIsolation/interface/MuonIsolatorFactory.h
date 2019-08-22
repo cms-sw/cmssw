@@ -6,6 +6,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-typedef edmplugin::PluginFactory<muonisolation::MuIsoBaseIsolator* (const edm::ParameterSet&, edm::ConsumesCollector && iC) >  MuonIsolatorFactory;
+typedef edmplugin::PluginFactory<muonisolation::MuIsoBaseIsolator*(const edm::ParameterSet&,
+                                                                   edm::ConsumesCollector&& iC)>
+    MuonIsolatorFactory;
 
 #endif

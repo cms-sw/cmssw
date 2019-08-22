@@ -3,25 +3,20 @@
 
 namespace root {
   namespace helper {
-  
-    template<typename F, unsigned int args>
-    struct RootVarsAdapter {
-    };
-    
-    template<typename F>
+
+    template <typename F, unsigned int args>
+    struct RootVarsAdapter {};
+
+    template <typename F>
     struct RootVarsAdapter<F, 1> {
-      static double value(F& f, const double * var) {
-        return f(var[0]);
-      }
+      static double value(F& f, const double* var) { return f(var[0]); }
     };
-    
-    template<typename F>
+
+    template <typename F>
     struct RootVarsAdapter<F, 2> {
-      static double value(F& f, const double * var) {
-        return f(var[0], var[1]);
-      }
+      static double value(F& f, const double* var) { return f(var[0], var[1]); }
     };
-  }
-}
+  }  // namespace helper
+}  // namespace root
 
 #endif

@@ -18,7 +18,6 @@
 // system include files
 #include <memory>
 
-
 // user include files
 //   base class
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -37,127 +36,104 @@
 
 #include "L1TriggerConfig/L1GtConfigProducers/interface/L1GtTriggerMenuXmlParser.h"
 
-
-
 // forward declarations
 
 // constructor(s)
-L1GtTriggerMenuXmlProducer::L1GtTriggerMenuXmlProducer(
-    const edm::ParameterSet& parSet)
-{
-    // tell the framework what data is being produced
-    setWhatProduced(this, &L1GtTriggerMenuXmlProducer::produceGtTriggerMenu);
+L1GtTriggerMenuXmlProducer::L1GtTriggerMenuXmlProducer(const edm::ParameterSet& parSet) {
+  // tell the framework what data is being produced
+  setWhatProduced(this, &L1GtTriggerMenuXmlProducer::produceGtTriggerMenu);
 
+  // now do what ever other initialization is needed
 
-    // now do what ever other initialization is needed
+  // directory in /data/Luminosity for the trigger menu
+  std::string menuDir = parSet.getParameter<std::string>("TriggerMenuLuminosity");
 
+  // def.xml file
+  std::string defXmlFileName = parSet.getParameter<std::string>("DefXmlFile");
 
-    // directory in /data/Luminosity for the trigger menu
-    std::string menuDir = parSet.getParameter<std::string>("TriggerMenuLuminosity");
+  edm::FileInPath f1("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/" + menuDir + "/" + defXmlFileName);
 
+  m_defXmlFile = f1.fullPath();
 
-    // def.xml file
-    std::string defXmlFileName = parSet.getParameter<std::string>("DefXmlFile");
+  // vme.xml file
+  std::string vmeXmlFileName = parSet.getParameter<std::string>("VmeXmlFile");
 
-    edm::FileInPath f1("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/" +
-                       menuDir + "/" + defXmlFileName);
+  if (!vmeXmlFileName.empty()) {
+    edm::FileInPath f2("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/" + menuDir + "/" + vmeXmlFileName);
 
-    m_defXmlFile = f1.fullPath();
+    m_vmeXmlFile = f2.fullPath();
+  }
 
-
-    // vme.xml file
-    std::string vmeXmlFileName = parSet.getParameter<std::string>("VmeXmlFile");
-
-    if (!vmeXmlFileName.empty()) {
-        edm::FileInPath f2("L1TriggerConfig/L1GtConfigProducers/data/Luminosity/" +
-                           menuDir + "/" + vmeXmlFileName);
-
-        m_vmeXmlFile = f2.fullPath();
-
-    }
-
-    edm::LogInfo("L1GtConfigProducers")
-    << "\n\nL1 Trigger Menu: "
-    << "\n\n  def.xml file: \n    " << m_defXmlFile
-    << "\n\n  vme.xml file: \n    " << m_vmeXmlFile
-    << "\n\n"
-    << std::endl;
-
+  edm::LogInfo("L1GtConfigProducers") << "\n\nL1 Trigger Menu: "
+                                      << "\n\n  def.xml file: \n    " << m_defXmlFile << "\n\n  vme.xml file: \n    "
+                                      << m_vmeXmlFile << "\n\n"
+                                      << std::endl;
 }
 
 // destructor
-L1GtTriggerMenuXmlProducer::~L1GtTriggerMenuXmlProducer()
-{
-
-    // empty
-
+L1GtTriggerMenuXmlProducer::~L1GtTriggerMenuXmlProducer() {
+  // empty
 }
-
 
 // member functions
 
 // method called to produce the data
 std::unique_ptr<L1GtTriggerMenu> L1GtTriggerMenuXmlProducer::produceGtTriggerMenu(
-    const L1GtTriggerMenuRcd& l1MenuRecord)
-{
+    const L1GtTriggerMenuRcd& l1MenuRecord) {
+  // get the parameters needed from other records
+  const L1GtStableParametersRcd& stableParametersRcd = l1MenuRecord.getRecord<L1GtStableParametersRcd>();
 
-    // get the parameters needed from other records
-    const L1GtStableParametersRcd& stableParametersRcd =
-        l1MenuRecord.getRecord<L1GtStableParametersRcd>();
+  edm::ESHandle<L1GtStableParameters> stableParameters;
+  stableParametersRcd.get(stableParameters);
 
-    edm::ESHandle<L1GtStableParameters> stableParameters;
-    stableParametersRcd.get(stableParameters);
+  unsigned int numberConditionChips = stableParameters->gtNumberConditionChips();
+  unsigned int pinsOnConditionChip = stableParameters->gtPinsOnConditionChip();
+  std::vector<int> orderConditionChip = stableParameters->gtOrderConditionChip();
+  unsigned int numberPhysTriggers = stableParameters->gtNumberPhysTriggers();
+  unsigned int numberTechTriggers = stableParameters->gtNumberTechnicalTriggers();
+  unsigned int numberL1JetCounts = stableParameters->gtNumberL1JetCounts();
 
-    unsigned int numberConditionChips = stableParameters->gtNumberConditionChips();
-    unsigned int pinsOnConditionChip = stableParameters->gtPinsOnConditionChip();
-    std::vector<int> orderConditionChip = stableParameters->gtOrderConditionChip();
-    unsigned int numberPhysTriggers = stableParameters->gtNumberPhysTriggers();
-    unsigned int numberTechTriggers = stableParameters->gtNumberTechnicalTriggers();
-    unsigned int numberL1JetCounts = stableParameters->gtNumberL1JetCounts();
+  L1GtTriggerMenuXmlParser gtXmlParser = L1GtTriggerMenuXmlParser();
 
-    L1GtTriggerMenuXmlParser gtXmlParser = L1GtTriggerMenuXmlParser();
+  gtXmlParser.setGtNumberConditionChips(numberConditionChips);
+  gtXmlParser.setGtPinsOnConditionChip(pinsOnConditionChip);
+  gtXmlParser.setGtOrderConditionChip(orderConditionChip);
+  gtXmlParser.setGtNumberPhysTriggers(numberPhysTriggers);
+  gtXmlParser.setGtNumberTechTriggers(numberTechTriggers);
+  gtXmlParser.setGtNumberL1JetCounts(numberL1JetCounts);
 
-    gtXmlParser.setGtNumberConditionChips(numberConditionChips);
-    gtXmlParser.setGtPinsOnConditionChip(pinsOnConditionChip);
-    gtXmlParser.setGtOrderConditionChip(orderConditionChip);
-    gtXmlParser.setGtNumberPhysTriggers(numberPhysTriggers);
-    gtXmlParser.setGtNumberTechTriggers(numberTechTriggers);
-    gtXmlParser.setGtNumberL1JetCounts(numberL1JetCounts);
+  gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
 
-    gtXmlParser.parseXmlFile(m_defXmlFile, m_vmeXmlFile);
+  // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
 
-    // transfer the condition map and algorithm map from parser to L1GtTriggerMenu
+  auto pL1GtTriggerMenu = std::make_unique<L1GtTriggerMenu>(gtXmlParser.gtTriggerMenuName(),
+                                                            numberConditionChips,
+                                                            gtXmlParser.vecMuonTemplate(),
+                                                            gtXmlParser.vecCaloTemplate(),
+                                                            gtXmlParser.vecEnergySumTemplate(),
+                                                            gtXmlParser.vecJetCountsTemplate(),
+                                                            gtXmlParser.vecCastorTemplate(),
+                                                            gtXmlParser.vecHfBitCountsTemplate(),
+                                                            gtXmlParser.vecHfRingEtSumsTemplate(),
+                                                            gtXmlParser.vecBptxTemplate(),
+                                                            gtXmlParser.vecExternalTemplate(),
+                                                            gtXmlParser.vecCorrelationTemplate(),
+                                                            gtXmlParser.corMuonTemplate(),
+                                                            gtXmlParser.corCaloTemplate(),
+                                                            gtXmlParser.corEnergySumTemplate());
 
-    auto pL1GtTriggerMenu = std::make_unique<L1GtTriggerMenu>(
-                        gtXmlParser.gtTriggerMenuName(), numberConditionChips,
-                        gtXmlParser.vecMuonTemplate(),
-                        gtXmlParser.vecCaloTemplate(),
-                        gtXmlParser.vecEnergySumTemplate(),
-                        gtXmlParser.vecJetCountsTemplate(),
-                        gtXmlParser.vecCastorTemplate(),
-                        gtXmlParser.vecHfBitCountsTemplate(),
-                        gtXmlParser.vecHfRingEtSumsTemplate(),
-                        gtXmlParser.vecBptxTemplate(),
-                        gtXmlParser.vecExternalTemplate(),
-                        gtXmlParser.vecCorrelationTemplate(),
-                        gtXmlParser.corMuonTemplate(),
-                        gtXmlParser.corCaloTemplate(),
-                        gtXmlParser.corEnergySumTemplate());
+  pL1GtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
+  pL1GtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
+  pL1GtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
 
+  pL1GtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
+  pL1GtTriggerMenu->setGtAlgorithmAliasMap(gtXmlParser.gtAlgorithmAliasMap());
+  pL1GtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
 
-    pL1GtTriggerMenu->setGtTriggerMenuInterface(gtXmlParser.gtTriggerMenuInterface());
-    pL1GtTriggerMenu->setGtTriggerMenuImplementation(gtXmlParser.gtTriggerMenuImplementation());
-    pL1GtTriggerMenu->setGtScaleDbKey(gtXmlParser.gtScaleDbKey());
+  //LogDebug("L1GtConfigProducers")
+  //<< "\n\nReturning L1 Trigger Menu!"
+  //<< "\n\n"
+  //<< std::endl;
 
-    pL1GtTriggerMenu->setGtAlgorithmMap(gtXmlParser.gtAlgorithmMap());
-    pL1GtTriggerMenu->setGtAlgorithmAliasMap(gtXmlParser.gtAlgorithmAliasMap());
-    pL1GtTriggerMenu->setGtTechnicalTriggerMap(gtXmlParser.gtTechnicalTriggerMap());
-
-    //LogDebug("L1GtConfigProducers")
-    //<< "\n\nReturning L1 Trigger Menu!"
-    //<< "\n\n"
-    //<< std::endl;
-
-    return pL1GtTriggerMenu ;
+  return pL1GtTriggerMenu;
 }
-

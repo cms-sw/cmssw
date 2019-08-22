@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     SiPixelStatusScenarioProbabilityRcd
-// 
+//
 /**\class SiPixelStatusScenarioProbabilityRcd SiPixelStatusScenarioProbabilityRcd.h CondFormats/DataRecord/interface/SiPixelStatusScenarioProbabilityRcd.h
  Description: [one line class summary]
  Usage:
@@ -15,5 +15,6 @@
 // Created:     Wed, 30 Nov 2018 11:44:30 GMT
 //
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
-class SiPixelStatusScenarioProbabilityRcd : public edm::eventsetup::EventSetupRecordImplementation<SiPixelStatusScenarioProbabilityRcd> {};
+class SiPixelStatusScenarioProbabilityRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<SiPixelStatusScenarioProbabilityRcd> {};
 #endif

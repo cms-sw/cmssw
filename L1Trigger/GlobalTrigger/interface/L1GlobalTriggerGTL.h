@@ -43,7 +43,6 @@ class L1GtEtaPhiConversions;
 
 // class declaration
 class L1GlobalTriggerGTL {
-
 public:
   // constructors
   L1GlobalTriggerGTL(const edm::InputTag &mutag, edm::ConsumesCollector &&iC);
@@ -53,22 +52,29 @@ public:
 
 public:
   /// receive data from Global Muon Trigger
-  void receiveGmtObjectData(edm::Event &, const edm::InputTag &,
-                            const int iBxInEvent, const bool receiveMu,
-                            const int nrL1Mu);
+  void receiveGmtObjectData(
+      edm::Event &, const edm::InputTag &, const int iBxInEvent, const bool receiveMu, const int nrL1Mu);
 
   /// initialize the class (mainly reserve)
   void init(const int nrL1Mu, const int numberPhysTriggers);
 
   /// run the GTL
-  void run(edm::Event &iEvent, const edm::EventSetup &evSetup,
+  void run(edm::Event &iEvent,
+           const edm::EventSetup &evSetup,
            const L1GlobalTriggerPSB *ptrGtPSB,
-           const bool produceL1GtObjectMapRecord, const int iBxInEvent,
+           const bool produceL1GtObjectMapRecord,
+           const int iBxInEvent,
            L1GlobalTriggerObjectMapRecord *gtObjectMapRecord,
-           const unsigned int numberPhysTriggers, const int nrL1Mu,
-           const int nrL1NoIsoEG, const int nrL1IsoEG, const int nrL1CenJet,
-           const int nrL1ForJet, const int nrL1TauJet, const int nrL1JetCounts,
-           const int ifMuEtaNumberBits, const int ifCaloEtaNumberBits);
+           const unsigned int numberPhysTriggers,
+           const int nrL1Mu,
+           const int nrL1NoIsoEG,
+           const int nrL1IsoEG,
+           const int nrL1CenJet,
+           const int nrL1ForJet,
+           const int nrL1TauJet,
+           const int nrL1JetCounts,
+           const int ifMuEtaNumberBits,
+           const int ifCaloEtaNumberBits);
 
   /// clear GTL
   void reset();
@@ -77,21 +83,17 @@ public:
   void printGmtData(const int iBxInEvent) const;
 
   /// return decision
-  inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> &
-  getDecisionWord() const {
+  inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> &getDecisionWord() const {
     return m_gtlDecisionWord;
   }
 
   /// return algorithm OR decision
-  inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> &
-  getAlgorithmOR() const {
+  inline const std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> &getAlgorithmOR() const {
     return m_gtlAlgorithmOR;
   }
 
   /// return global muon trigger candidate
-  inline const std::vector<const L1MuGMTCand *> *getCandL1Mu() const {
-    return m_candL1Mu;
-  }
+  inline const std::vector<const L1MuGMTCand *> *getCandL1Mu() const { return m_candL1Mu; }
 
 public:
   inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
@@ -117,12 +119,10 @@ private:
   std::vector<const L1MuGMTCand *> *m_candL1Mu;
 
   std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
-  std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers>
-      m_gtlDecisionWord;
+  std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
 
   // cache of maps
-  std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>
-      m_conditionResultMaps;
+  std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
 
 private:
   /// verbosity level

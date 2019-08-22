@@ -6,7 +6,7 @@
 // Class:      GeometryInterface
 //
 // The histogram manager uses this class to gather information about a sample.
-// All geometry dependence goes here. 
+// All geometry dependence goes here.
 //
 // Original Author: Marcel Schneider
 //
@@ -22,10 +22,10 @@
 #include <array>
 
 class GeometryInterface {
- public:
+public:
   // an ID is produced by interning a string name.
   typedef int ID;
-  // A column could have multiple IDs if it is a or-form. 
+  // A column could have multiple IDs if it is a or-form.
   // Not used atm, makes many things much easier.
   typedef ID Column;
   typedef double Value;
@@ -51,8 +51,7 @@ class GeometryInterface {
   };
 
   // This has to be fast, _should_ not malloc.
-  void extractColumns(std::vector<Column> const& names,
-                      InterestingQuantities const& iq, Values& out) {
+  void extractColumns(std::vector<Column> const& names, InterestingQuantities const& iq, Values& out) {
     out.clear();
     for (Column const& col : names) {
       auto val = extract(col, iq);
@@ -68,9 +67,7 @@ class GeometryInterface {
     assert(ID(extractors.size()) > id || !"extractors vector too small!");
     auto& ex = extractors[id];
     if (!ex) {  // we have never heard about this. This is a typo for sure.
-      edm::LogError("GeometryInterface")
-          << "Undefined column used: " << unintern(id)
-          << ". Check your spelling.\n";
+      edm::LogError("GeometryInterface") << "Undefined column used: " << unintern(id) << ". Check your spelling.\n";
     } else {
       auto val = ex(iq);
       if (val != UNDEFINED) {
@@ -80,17 +77,14 @@ class GeometryInterface {
     return std::make_pair(col, UNDEFINED);
   }
 
-  Value extract(ID id, DetId did, edm::Event* ev = nullptr, int16_t col = 0,
-                int16_t row = 0) {
+  Value extract(ID id, DetId did, edm::Event* ev = nullptr, int16_t col = 0, int16_t row = 0) {
     InterestingQuantities iq = {ev, did, col, row};
     return extractors[id](iq);
   }
 
   // TODO: for Phase0 (and maybe also Phase2) this should include the 4 corners
   // of each ROC (or the *correct* corners of the respective modules).
-  std::vector<InterestingQuantities> const& allModules() {
-    return all_modules;
-  }
+  std::vector<InterestingQuantities> const& allModules() { return all_modules; }
 
   Value maxValue(ID id) { return max_value[id]; };
   Value minValue(ID id) { return min_value[id]; };
@@ -111,27 +105,21 @@ class GeometryInterface {
   // either).
   std::string unintern(ID id) {
     for (auto& e : ids)
-      if (e.second == id) return e.first;
+      if (e.second == id)
+        return e.first;
     return "INVALID";
   }
 
-  std::string pretty(Column col) {
-    return unintern(col);
-  }
+  std::string pretty(Column col) { return unintern(col); }
 
   std::string formatValue(Column, Value);
 
- private:
-  void loadFromTopology(edm::EventSetup const& iSetup,
-                        const edm::ParameterSet& iConfig);
-  void loadFromSiPixelCoordinates(edm::EventSetup const& iSetup,
-                        const edm::ParameterSet& iConfig);
-  void loadTimebased(edm::EventSetup const& iSetup,
-                     const edm::ParameterSet& iConfig);
-  void loadModuleLevel(edm::EventSetup const& iSetup,
-                       const edm::ParameterSet& iConfig);
-  void loadFEDCabling(edm::EventSetup const& iSetup,
-                      const edm::ParameterSet& iConfig);
+private:
+  void loadFromTopology(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void loadFromSiPixelCoordinates(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void loadTimebased(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void loadModuleLevel(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
+  void loadFEDCabling(edm::EventSetup const& iSetup, const edm::ParameterSet& iConfig);
 
   const edm::ParameterSet iConfig;
 
@@ -152,7 +140,9 @@ class GeometryInterface {
 
   void addExtractor(ID id,
                     std::function<Value(InterestingQuantities const& iq)> func,
-                    Value min = UNDEFINED, Value max = UNDEFINED, Value binwidth = 1) {
+                    Value min = UNDEFINED,
+                    Value max = UNDEFINED,
+                    Value binwidth = 1) {
     max_value[id] = max;
     min_value[id] = min;
     bin_width[id] = binwidth;

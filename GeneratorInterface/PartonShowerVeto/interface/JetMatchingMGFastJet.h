@@ -1,12 +1,12 @@
 #ifndef gen_JetMatchingMGFastJet_h
 #define gen_JetMatchingMGFastJet_h
 
-// 
+//
 //  Julia V. Yarba, Feb.10, 2013
 //
-//  This code takes inspirations in the original implemetation 
+//  This code takes inspirations in the original implemetation
 //  by Steve Mrenna of FNAL (example main32), but is structured
-//  somewhat differently, and is also using FastJet package 
+//  somewhat differently, and is also using FastJet package
 //  instead of Pythia8's native SlowJet
 //
 
@@ -22,101 +22,96 @@
 // FastJet package/tools
 // Also gives PseudoJet & JetDefinition
 //
-#include "fastjet/ClusterSequence.hh"  
+#include "fastjet/ClusterSequence.hh"
 
 #include <iostream>
 #include <fstream>
 
-namespace gen
-{
-class JetMatchingMGFastJet : public JetMatching
-{
+namespace gen {
+  class JetMatchingMGFastJet : public JetMatching {
+  public:
+    JetMatchingMGFastJet(const edm::ParameterSet &params);
 
-   public:
-   
-      JetMatchingMGFastJet(const edm::ParameterSet& params);
+    ~JetMatchingMGFastJet() override {
+      if (fJetFinder)
+        delete fJetFinder;
+    }
 
-      ~JetMatchingMGFastJet() override { if (fJetFinder) delete fJetFinder; }
-            
-      const std::vector<int>* getPartonList() override { return typeIdx; }
-   
-   protected:
+    const std::vector<int> *getPartonList() override { return typeIdx; }
 
-      void init( const lhef::LHERunInfo* runInfo ) override;
+  protected:
+    void init(const lhef::LHERunInfo *runInfo) override;
 
-      bool initAfterBeams() override;
-      void beforeHadronisation( const lhef::LHEEvent* ) override;
-      void beforeHadronisationExec() override { return; }
-      
-      int match( const lhef::LHEEvent* partonLevel, const std::vector<fastjet::PseudoJet>* jetInput ) override;
+    bool initAfterBeams() override;
+    void beforeHadronisation(const lhef::LHEEvent *) override;
+    void beforeHadronisationExec() override { return; }
 
-      double getJetEtaMax() const override;
+    int match(const lhef::LHEEvent *partonLevel, const std::vector<fastjet::PseudoJet> *jetInput) override;
 
-   private:
-               
-      //parameters staff from Madgraph
+    double getJetEtaMax() const override;
 
-      template<typename T>
-      static T parseParameter(const std::string &value);
-      template<typename T>
-      static T getParameter(const std::map<std::string, std::string> &params,
-                            const std::string &var, const T &defValue = T());
-      template<typename T>
-      T getParameter(const std::string &var, const T &defValue = T()) const;
+  private:
+    //parameters staff from Madgraph
 
-      template<typename T>
-      static void updateOrDie(
-                      const std::map<std::string, std::string> &params,
-                      T &param, const std::string &name);
+    template <typename T>
+    static T parseParameter(const std::string &value);
+    template <typename T>
+    static T getParameter(const std::map<std::string, std::string> &params,
+                          const std::string &var,
+                          const T &defValue = T());
+    template <typename T>
+    T getParameter(const std::string &var, const T &defValue = T()) const;
 
-      std::map<std::string, std::string>      mgParams;
+    template <typename T>
+    static void updateOrDie(const std::map<std::string, std::string> &params, T &param, const std::string &name);
 
-      // ----------------------------
+    std::map<std::string, std::string> mgParams;
 
-      enum vetoStatus { NONE, LESS_JETS, MORE_JETS, HARD_JET, UNMATCHED_PARTON };
-      enum partonTypes { ID_TOP=6, ID_GLUON=21, ID_PHOTON=22 };
-     
-      double qCut, qCutSq;
-      double clFact;
-      int nQmatch;
-      
-      // Master switch for merging
-      bool   doMerge;
+    // ----------------------------
 
-      // Maximum and current number of jets
-      int    nJetMax, nJetMin; 
+    enum vetoStatus { NONE, LESS_JETS, MORE_JETS, HARD_JET, UNMATCHED_PARTON };
+    enum partonTypes { ID_TOP = 6, ID_GLUON = 21, ID_PHOTON = 22 };
 
-      // Jet algorithm parameters
-      int    jetAlgoPower; //  similar to memain_.mektsc ?
-      double coneRadius, etaJetMax ;
+    double qCut, qCutSq;
+    double clFact;
+    int nQmatch;
 
-      // Merging procedure control flag(s)
-      // (there're also inclusive, exclusive, and soup/auto in JetMatchingMGFastJet)
-      //
-      bool fExcLocal; // this is similar to memaev_.iexc
+    // Master switch for merging
+    bool doMerge;
 
-      // Sort final-state of incoming process into light/heavy jets and 'other'
-      std::vector < int > typeIdx[3];
-            
-      bool runInitialized;
-      bool soup;
-      bool exclusive;
+    // Maximum and current number of jets
+    int nJetMax, nJetMin;
 
-      // 
-      // FastJets tool(s)
-      //
-      fastjet::JetDefinition* fJetFinder;
-      std::vector<fastjet::PseudoJet> fClusJets, fPtSortedJets;      
-      
-      // output for DJR analysis
-      //
-      std::ofstream            fDJROutput;   
-      int                      fDJROutFlag;     
+    // Jet algorithm parameters
+    int jetAlgoPower;  //  similar to memain_.mektsc ?
+    double coneRadius, etaJetMax;
 
-      bool fIsInit;
+    // Merging procedure control flag(s)
+    // (there're also inclusive, exclusive, and soup/auto in JetMatchingMGFastJet)
+    //
+    bool fExcLocal;  // this is similar to memaev_.iexc
 
-};
+    // Sort final-state of incoming process into light/heavy jets and 'other'
+    std::vector<int> typeIdx[3];
 
-} // end namespace
+    bool runInitialized;
+    bool soup;
+    bool exclusive;
+
+    //
+    // FastJets tool(s)
+    //
+    fastjet::JetDefinition *fJetFinder;
+    std::vector<fastjet::PseudoJet> fClusJets, fPtSortedJets;
+
+    // output for DJR analysis
+    //
+    std::ofstream fDJROutput;
+    int fDJROutFlag;
+
+    bool fIsInit;
+  };
+
+}  // namespace gen
 
 #endif

@@ -7,12 +7,12 @@
 
 namespace PhysicsTools {
 
-/// for internal use by MVATrainer
-class TrainMVAComputerCalibration : public Calibration::MVAComputer {
-    public:
-	virtual void initFlags(std::vector<Variable::Flags> &flags) const = 0;
-};
+  /// for internal use by MVATrainer
+  class TrainMVAComputerCalibration : public Calibration::MVAComputer {
+  public:
+    virtual void initFlags(std::vector<Variable::Flags> &flags) const = 0;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVAComputer_Calibration_h
+#endif  // PhysicsTools_MVAComputer_Calibration_h

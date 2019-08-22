@@ -15,13 +15,15 @@
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCUpgradeMotherboard.h"
 
-class CSCMotherboardME11 : public CSCUpgradeMotherboard
-{
- public:
+class CSCMotherboardME11 : public CSCUpgradeMotherboard {
+public:
   /** Normal constructor. */
-  CSCMotherboardME11(unsigned endcap, unsigned station, unsigned sector,
-		 unsigned subsector, unsigned chamber,
-		 const edm::ParameterSet& conf);
+  CSCMotherboardME11(unsigned endcap,
+                     unsigned station,
+                     unsigned sector,
+                     unsigned subsector,
+                     unsigned chamber,
+                     const edm::ParameterSet& conf);
 
   /** Constructor for use during testing. */
   CSCMotherboardME11();
@@ -31,8 +33,7 @@ class CSCMotherboardME11 : public CSCUpgradeMotherboard
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
-  void run(const CSCWireDigiCollection* wiredc,
-           const CSCComparatorDigiCollection* compdc) override;
+  void run(const CSCWireDigiCollection* wiredc, const CSCComparatorDigiCollection* compdc) override;
 
   /** Returns vectors of found correlated LCTs in ME1a and ME1b, if any. */
   std::vector<CSCCorrelatedLCTDigi> getLCTs1a() const;
@@ -51,14 +52,13 @@ class CSCMotherboardME11 : public CSCUpgradeMotherboard
   using CSCUpgradeMotherboard::readoutLCTs;
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs(int me1ab) const;
 
- private:
-
+private:
   std::unique_ptr<CSCMotherboardLUTME11> cscTmbLUT_;
 
   /** labels for ME1a and ME1B */
-  enum {ME1B = 1, ME1A=4};
+  enum { ME1B = 1, ME1A = 4 };
 
-  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c) const;
+  bool doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const;
 
   void correlateLCTsME11(const CSCALCTDigi& bestALCT,
                          const CSCALCTDigi& secondALCT,

@@ -3,6 +3,5 @@
 #include "CalibMuon/DTCalibration/test/stubs/DTMeanTimerPlotter.h"
 
 namespace CalibMuon_DTCalibration_test {
-  struct dictionary {
-  };
-}
+  struct dictionary {};
+}  // namespace CalibMuon_DTCalibration_test

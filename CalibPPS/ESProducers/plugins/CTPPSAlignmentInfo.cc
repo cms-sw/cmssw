@@ -24,20 +24,19 @@
 /**
  * \brief Class to print out information on current geometry.
  **/
-class CTPPSAlignmentInfo : public edm::one::EDAnalyzer<>
-{
-  public:
-    explicit CTPPSAlignmentInfo( const edm::ParameterSet& );
+class CTPPSAlignmentInfo : public edm::one::EDAnalyzer<> {
+public:
+  explicit CTPPSAlignmentInfo(const edm::ParameterSet&);
 
-  private: 
-    std::string alignmentType_;
+private:
+  std::string alignmentType_;
 
-    edm::ESWatcher<RPRealAlignmentRecord> watcherRealAlignments_;
-    edm::ESWatcher<RPMisalignedAlignmentRecord> watcherMisalignedAlignments_;
+  edm::ESWatcher<RPRealAlignmentRecord> watcherRealAlignments_;
+  edm::ESWatcher<RPMisalignedAlignmentRecord> watcherMisalignedAlignments_;
 
-    void analyze( const edm::Event&, const edm::EventSetup& ) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    void printInfo(const CTPPSRPAlignmentCorrectionsData &alignments, const edm::Event& event) const;
+  void printInfo(const CTPPSRPAlignmentCorrectionsData& alignments, const edm::Event& event) const;
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -48,32 +47,25 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSAlignmentInfo::CTPPSAlignmentInfo( const edm::ParameterSet& iConfig ) :
-  alignmentType_   ( iConfig.getUntrackedParameter<std::string>( "alignmentType", "real" ) )
-{
-}
+CTPPSAlignmentInfo::CTPPSAlignmentInfo(const edm::ParameterSet& iConfig)
+    : alignmentType_(iConfig.getUntrackedParameter<std::string>("alignmentType", "real")) {}
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSAlignmentInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
-{
+void CTPPSAlignmentInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::ESHandle<CTPPSRPAlignmentCorrectionsData> alignments;
-  
-  if ( alignmentType_ == "real" )
-  {
-    if ( watcherRealAlignments_.check( iSetup ) )
-    {
-      iSetup.get<RPRealAlignmentRecord>().get( alignments );
+
+  if (alignmentType_ == "real") {
+    if (watcherRealAlignments_.check(iSetup)) {
+      iSetup.get<RPRealAlignmentRecord>().get(alignments);
       printInfo(*alignments, iEvent);
     }
     return;
   }
 
-  else if ( alignmentType_ == "misaligned" )
-  {
-    if ( watcherMisalignedAlignments_.check( iSetup ) )
-    {
-      iSetup.get<RPMisalignedAlignmentRecord>().get( alignments );
+  else if (alignmentType_ == "misaligned") {
+    if (watcherMisalignedAlignments_.check(iSetup)) {
+      iSetup.get<RPMisalignedAlignmentRecord>().get(alignments);
       printInfo(*alignments, iEvent);
     }
     return;
@@ -84,19 +76,17 @@ void CTPPSAlignmentInfo::analyze( const edm::Event& iEvent, const edm::EventSetu
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSAlignmentInfo::printInfo(const CTPPSRPAlignmentCorrectionsData &alignments, const edm::Event& event) const
-{
+void CTPPSAlignmentInfo::printInfo(const CTPPSRPAlignmentCorrectionsData& alignments, const edm::Event& event) const {
   time_t unixTime = event.time().unixTime();
   char timeStr[50];
-  strftime( timeStr, 50, "%F %T", localtime( &unixTime ) );
+  strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
-  edm::LogInfo("CTPPSAlignmentInfo")
-    << "New " << alignmentType_ << " alignments found in run="
-    << event.id().run() << ", event=" << event.id().event() << ", UNIX timestamp=" << unixTime
-    << " (" << timeStr << "):\n"
-    << alignments;
+  edm::LogInfo("CTPPSAlignmentInfo") << "New " << alignmentType_ << " alignments found in run=" << event.id().run()
+                                     << ", event=" << event.id().event() << ", UNIX timestamp=" << unixTime << " ("
+                                     << timeStr << "):\n"
+                                     << alignments;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE( CTPPSAlignmentInfo );
+DEFINE_FWK_MODULE(CTPPSAlignmentInfo);

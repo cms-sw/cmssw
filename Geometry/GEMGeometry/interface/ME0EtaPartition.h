@@ -9,10 +9,8 @@
 class StripTopology;
 class ME0EtaPartitionSpecs;
 
-class ME0EtaPartition : public GeomDet
-{
+class ME0EtaPartition : public GeomDet {
 public:
-
   ME0EtaPartition(ME0DetId id, const BoundPlane::BoundPlanePointer& bp, ME0EtaPartitionSpecs* rrs);
   ~ME0EtaPartition() override;
 
@@ -37,12 +35,12 @@ public:
 
   /// returns center of strip position for INTEGER strip number
   /// that has a value range of [1, nstrip]
-  LocalPoint  centreOfStrip(int strip) const;
+  LocalPoint centreOfStrip(int strip) const;
 
   /// returns center of strip position for FRACTIONAL strip number
   /// that has a value range of [0., nstrip]
-  LocalPoint  centreOfStrip(float strip) const;
-  LocalError  localError(float strip, float cluster_size = 1.) const;
+  LocalPoint centreOfStrip(float strip) const;
+  LocalError localError(float strip, float cluster_size = 1.) const;
 
   /// returns fractional strip number [0..nstrips] for a LocalPoint
   /// E.g., if local point hit strip #2, the fractional strip number would be
@@ -52,7 +50,6 @@ public:
   float pitch() const;
   float localPitch(const LocalPoint& lp) const;
 
-
   // ME0-CSC pad-related methods:
 
   /// number of ME0-CSC trigger readout pads in partition
@@ -60,11 +57,11 @@ public:
 
   /// returns center of pad position for INTEGER pad number
   /// that has a value range of [1, npads]
-  LocalPoint  centreOfPad(int pad) const;
+  LocalPoint centreOfPad(int pad) const;
 
   /// returns center of pad position for FRACTIONAL pad number
   /// that has a value range of [0., npads]
-  LocalPoint  centreOfPad(float pad) const;
+  LocalPoint centreOfPad(float pad) const;
 
   /// returns FRACTIONAL pad number [0.,npads] for a point
   float pad(const LocalPoint& lp) const;
@@ -73,7 +70,6 @@ public:
   float padPitch() const;
   /// pad pitch at a particular point
   float localPadPitch(const LocalPoint& lp) const;
-
 
   // relations between strips and pads:
 
@@ -87,10 +83,8 @@ public:
   int lastStripInPad(int pad) const;
 
 private:
-
   ME0DetId id_;
   ME0EtaPartitionSpecs* specs_;
 };
 
 #endif
-

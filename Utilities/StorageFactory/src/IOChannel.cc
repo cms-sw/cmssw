@@ -58,26 +58,19 @@
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 
-IOChannel::IOChannel (IOFD fd /* = EDM_IOFD_INVALID */)
-  : m_fd (fd)
-{}
+IOChannel::IOChannel(IOFD fd /* = EDM_IOFD_INVALID */) : m_fd(fd) {}
 
-IOChannel::~IOChannel (void)
-{}
+IOChannel::~IOChannel(void) {}
 
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 /** Get the system file descriptor of the channel.  */
-IOFD
-IOChannel::fd (void) const
-{ return m_fd; }
+IOFD IOChannel::fd(void) const { return m_fd; }
 
 /** Set the system file descriptor of the channel.  (FIXME: This is
     dangerous.  How to deal with WIN32 flags and state object?)  */
-void
-IOChannel::fd (IOFD value)
-{
+void IOChannel::fd(IOFD value) {
   // FIXME: close old one?
   // FIXME: reset state?
   m_fd = value;
@@ -88,16 +81,13 @@ IOChannel::fd (IOFD value)
 //////////////////////////////////////////////////////////////////////
 /** Close the channel.  By default closes the underlying operating
     system file descriptor.  */
-void
-IOChannel::close (void)
-{
-  if (fd () == EDM_IOFD_INVALID)
+void IOChannel::close(void) {
+  if (fd() == EDM_IOFD_INVALID)
     return;
 
   int error = 0;
-  if (! sysclose (fd (), &error))
-    throwStorageError ("FileCloseError", "Calling IOChannel::close()",
-                       "sysclose()", error);
+  if (!sysclose(fd(), &error))
+    throwStorageError("FileCloseError", "Calling IOChannel::close()", "sysclose()", error);
 
-  fd (EDM_IOFD_INVALID);
+  fd(EDM_IOFD_INVALID);
 }

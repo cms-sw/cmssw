@@ -11,7 +11,6 @@
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -22,8 +21,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-
-
 
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
 #include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
@@ -42,41 +39,41 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 namespace popcon {
 
   class EcalTPGWeightGroupHandler : public popcon::PopConSourceHandler<EcalTPGWeightGroup> {
   public:
-    EcalTPGWeightGroupHandler(edm::ParameterSet const & );
-    ~EcalTPGWeightGroupHandler() override; 
-			
+    EcalTPGWeightGroupHandler(edm::ParameterSet const&);
+    ~EcalTPGWeightGroupHandler() override;
+
     std::map<std::string, int> makeStripId();
-			
+
     void getNewObjects() override;
-			
-    std::string id() const override { return m_name;}
-			
-    void readtxtFile() ;
+
+    std::string id() const override { return m_name; }
+
+    void readtxtFile();
     void readxmlFile();
 
-    void readFromFile(const char* inputFile) ;
+    void readFromFile(const char* inputFile);
     void writeFile(const char* inputFile);
-			
+
     EcalCondDBInterface* econn;
 
   private:
-    std::string to_string( char value[]) {
+    std::string to_string(char value[]) {
       std::ostringstream streamOut;
       streamOut << value;
       return streamOut.str();
     }
 
-    unsigned int m_firstRun ;
-    unsigned int m_lastRun ;
-			
+    unsigned int m_firstRun;
+    unsigned int m_lastRun;
+
     std::map<std::string, int> correspId;
-			
+
     const EcalElectronicsMapping* ecalMapping_;
     std::string m_location;
     std::string m_gentag;
@@ -90,10 +87,9 @@ namespace popcon {
     std::string m_i_tag;
     std::string m_file_type;
     std::string m_file_name;
-   int m_i_version;
+    int m_i_version;
     unsigned int m_i_run_number;
     int m_i_weightGroup;
   };
-}
+}  // namespace popcon
 #endif
-

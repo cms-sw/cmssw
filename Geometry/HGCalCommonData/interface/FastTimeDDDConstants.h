@@ -17,15 +17,14 @@
 #include "Geometry/HGCalCommonData/interface/FastTimeParameters.h"
 
 class FastTimeDDDConstants {
- public:
+public:
   FastTimeDDDConstants(const FastTimeParameters* ftp);
   ~FastTimeDDDConstants();
 
   std::pair<int, int> getZPhi(double z, double phi) const;
   std::pair<int, int> getEtaPhi(double r, double phi) const;
   GlobalPoint getPosition(int type, int izeta, int iphi, int zside) const;
-  std::vector<GlobalPoint> getCorners(int type, int izeta, int iphi,
-                                      int zside) const;
+  std::vector<GlobalPoint> getCorners(int type, int izeta, int iphi, int zside) const;
   int getCells(int type) const;
   double getRin(int type) const;
   double getRout(int type) const;
@@ -35,7 +34,7 @@ class FastTimeDDDConstants {
   int numberEtaZ(int type) const;
   int numberPhi(int type) const;
 
- private:
+private:
   void initialize();
 
   const FastTimeParameters* ftpar_;

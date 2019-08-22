@@ -1,8 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/TrackerGeometricDetESModule.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/DDDCmsTrackerContruction.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/CondDBCmsTrackerConstruction.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDutils.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -16,45 +14,38 @@
 
 using namespace edm;
 
-TrackerGeometricDetESModule::TrackerGeometricDetESModule( const edm::ParameterSet & p ) 
-  : fromDDD_( p.getParameter<bool>( "fromDDD" ))
-{
-  setWhatProduced( this );
+TrackerGeometricDetESModule::TrackerGeometricDetESModule(const edm::ParameterSet& p)
+    : fromDDD_(p.getParameter<bool>("fromDDD")) {
+  auto cc = setWhatProduced(this);
+  if (fromDDD_) {
+    ddToken_ = cc.consumes<DDCompactView>(edm::ESInputTag());
+  } else {
+    pgToken_ = cc.consumes<PGeometricDet>(edm::ESInputTag());
+  }
 }
 
-TrackerGeometricDetESModule::~TrackerGeometricDetESModule( void ) {}
+TrackerGeometricDetESModule::~TrackerGeometricDetESModule(void) {}
 
-void
-TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
-{
+void TrackerGeometricDetESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription descDB;
-  descDB.add<bool>( "fromDDD", false );
-  descriptions.add( "trackerNumberingGeometryDB", descDB );
+  descDB.add<bool>("fromDDD", false);
+  descriptions.add("trackerNumberingGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;
-  desc.add<bool>( "fromDDD", true );
-  descriptions.add( "trackerNumberingGeometry", desc );
+  desc.add<bool>("fromDDD", true);
+  descriptions.add("trackerNumberingGeometry", desc);
 }
 
-std::unique_ptr<GeometricDet> 
-TrackerGeometricDetESModule::produce( const IdealGeometryRecord & iRecord )
-{ 
-  if( fromDDD_ )
-  {
-    edm::ESTransientHandle<DDCompactView> cpv;
-    iRecord.get( cpv );
+std::unique_ptr<GeometricDet> TrackerGeometricDetESModule::produce(const IdealGeometryRecord& iRecord) {
+  if (fromDDD_) {
+    edm::ESTransientHandle<DDCompactView> cpv = iRecord.getTransientHandle(ddToken_);
 
-    DDDCmsTrackerContruction theDDDCmsTrackerContruction;
-    return std::unique_ptr<GeometricDet> (const_cast<GeometricDet*>( theDDDCmsTrackerContruction.construct(&(*cpv), dbl_to_int( DDVectorGetter::get( "detIdShifts" )))));
-  }
-  else
-  {
-    edm::ESHandle<PGeometricDet> pgd;
-    iRecord.get( pgd );
-    
-    CondDBCmsTrackerConstruction cdbtc;
-    return std::unique_ptr<GeometricDet> ( const_cast<GeometricDet*>( cdbtc.construct( *pgd )));
+    return DDDCmsTrackerContruction::construct(*cpv, dbl_to_int(DDVectorGetter::get("detIdShifts")));
+  } else {
+    auto const& pgd = iRecord.get(pgToken_);
+
+    return CondDBCmsTrackerConstruction::construct(pgd);
   }
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE( TrackerGeometricDetESModule );
+DEFINE_FWK_EVENTSETUP_MODULE(TrackerGeometricDetESModule);

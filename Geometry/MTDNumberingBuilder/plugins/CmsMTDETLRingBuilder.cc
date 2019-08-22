@@ -9,20 +9,16 @@
 
 #include <vector>
 
-void CmsMTDETLRingBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string s){
-
+void CmsMTDETLRingBuilder::buildComponent(DDFilteredView& fv, GeometricTimingDet* g, std::string s) {
   CmsMTDConstruction theCmsMTDConstruction;
-  theCmsMTDConstruction.buildComponent(fv,g,s);
-  
+  theCmsMTDConstruction.buildComponent(fv, g, s);
 }
 
 #include "DataFormats/ForwardDetId/interface/ETLDetId.h"
 
-void CmsMTDETLRingBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det){
-
-  GeometricTimingDet::ConstGeometricTimingDetContainer & comp = det->components();
+void CmsMTDETLRingBuilder::sortNS(DDFilteredView& fv, GeometricTimingDet* det) {
+  GeometricTimingDet::ConstGeometricTimingDetContainer& comp = det->components();
 
   //increasing phi taking into account the sub-modules
   mtdStablePhiSort(comp.begin(), comp.end(), getPhiGluedModule);
-  
 }

@@ -302,6 +302,8 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'highPtTripletStep',
             preFilterName = 'highPtTripletStepTight',
+            min_eta = -4.1,
+            max_eta = 4.1,
             chi2n_par = 0.8,
             res_par = ( 0.003, 0.001 ),
             min_nhits = 4,

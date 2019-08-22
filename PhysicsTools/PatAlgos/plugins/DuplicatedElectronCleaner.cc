@@ -29,52 +29,51 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "PhysicsTools/PatUtils/interface/DuplicatedElectronRemover.h"
 
-namespace pat{
+namespace pat {
   class DuplicatedElectronCleaner : public edm::global::EDProducer<> {
   public:
-    explicit DuplicatedElectronCleaner(const edm::ParameterSet & iConfig);
+    explicit DuplicatedElectronCleaner(const edm::ParameterSet& iConfig);
     ~DuplicatedElectronCleaner() override;
 
-    void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const final;
+    void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const final;
 
   private:
-    const edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronSrcToken_;
+    const edm::EDGetTokenT<edm::View<reco::GsfElectron>> electronSrcToken_;
     const pat::DuplicatedElectronRemover duplicateRemover_;
     mutable std::atomic<uint64_t> try_, pass_;
   };
-} // namespace
+}  // namespace pat
 
-pat::DuplicatedElectronCleaner::DuplicatedElectronCleaner(const edm::ParameterSet & iConfig):
-  electronSrcToken_(consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electronSource"))),
-  duplicateRemover_(),
-  try_(0), pass_(0)
-{
+pat::DuplicatedElectronCleaner::DuplicatedElectronCleaner(const edm::ParameterSet& iConfig)
+    : electronSrcToken_(consumes<edm::View<reco::GsfElectron>>(iConfig.getParameter<edm::InputTag>("electronSource"))),
+      duplicateRemover_(),
+      try_(0),
+      pass_(0) {
   //produces<edm::RefVector<reco::GsfElectronCollection> >();
-  produces<edm::RefToBaseVector<reco::GsfElectron> >();
+  produces<edm::RefToBaseVector<reco::GsfElectron>>();
   //produces<edm::PtrVector<reco::GsfElectron> >();
 }
 
-pat::DuplicatedElectronCleaner::~DuplicatedElectronCleaner()
-{
-}
+pat::DuplicatedElectronCleaner::~DuplicatedElectronCleaner() {}
 
-void
-pat::DuplicatedElectronCleaner::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const 
-{
+void pat::DuplicatedElectronCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
-  Handle<View<reco::GsfElectron> > electrons;
+  Handle<View<reco::GsfElectron>> electrons;
   iEvent.getByToken(electronSrcToken_, electrons);
   try_ += electrons->size();
 
   //auto result = std::make_unique<RefVector<reco::GsfElectronCollection>>();
   auto result = std::make_unique<RefToBaseVector<reco::GsfElectron>>();
   //auto result = std::make_unique<PtrVector<reco::GsfElectron>>();
-  std::unique_ptr< std::vector<size_t> > duplicates = duplicateRemover_.duplicatesToRemove(*electrons);
+  std::unique_ptr<std::vector<size_t>> duplicates = duplicateRemover_.duplicatesToRemove(*electrons);
 
   std::vector<size_t>::const_iterator itdup = duplicates->begin(), enddup = duplicates->end();
   for (size_t i = 0, n = electrons->size(); i < n; ++i) {
-    while ((itdup != enddup) && (*itdup < i)) { ++itdup; }
-    if ((itdup != enddup) && (*itdup == i)) continue;
+    while ((itdup != enddup) && (*itdup < i)) {
+      ++itdup;
+    }
+    if ((itdup != enddup) && (*itdup == i))
+      continue;
     //result->push_back(electrons->refAt(i).castTo<edm::Ref<reco::GsfElectronCollection> >());
     result->push_back(electrons->refAt(i));
     //result->push_back(electrons->ptrAt(i));

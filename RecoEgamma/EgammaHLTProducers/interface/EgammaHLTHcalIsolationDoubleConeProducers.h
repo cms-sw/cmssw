@@ -2,7 +2,7 @@
 //
 // Package:    EgammaHLTProducers
 // Class:      EgammaHLTHcalIsolationDoubleConeProducers
-// 
+//
 /**\class EgammaHLTHcalIsolationDoubleConeProducers EgammaHLTHcalIsolationDoubleConeProducers.cc RecoEgamma/EgammaHLTProducers/interface/EgammaHLTHcalIsolationDoubleConeProducers.h
 */
 //
@@ -11,9 +11,8 @@
 // $Id: EgammaHLTHcalIsolationDoubleConeProducers.h,v 1.4 2006/10/24 15:25:53 monicava Exp $
 //
 //
-// mostly identical to EgammaHLTHcalIsolationRegionalProducers, but produces excludes  
+// mostly identical to EgammaHLTHcalIsolationRegionalProducers, but produces excludes
 // Hcal energy in an exclusion cone around the eg candidate
-
 
 // system include files
 #include <memory>
@@ -42,7 +41,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
   const edm::ParameterSet conf_;
 
   const edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
@@ -52,7 +50,6 @@ private:
   const double egHcalIsoPtMin_;
   const double egHcalIsoConeSize_;
   const double egHcalExclusion_;
-  
-  EgammaHLTHcalIsolationDoubleCone const * const test_;
-};
 
+  EgammaHLTHcalIsolationDoubleCone const* const test_;
+};

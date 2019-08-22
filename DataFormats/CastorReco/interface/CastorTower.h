@@ -25,37 +25,49 @@ namespace reco {
 
   class CastorTower : public LeafCandidate {
   public:
-     
     typedef edm::SortedCollection<CastorRecHit> CastorRecHitCollection;
     typedef edm::Ref<CastorRecHitCollection> CastorRecHitRef;
     typedef edm::RefVector<CastorRecHitCollection> CastorRecHitRefs;
-    
+
     // default constructor. Set energy and position to zero
- 
-    CastorTower() : energy_(0.), position_(ROOT::Math::XYZPoint(0.,0.,0.)), emEnergy_(0.), hadEnergy_(0.), fem_(0.), depth_(0.), fhot_(0.) { }
+
+    CastorTower()
+        : energy_(0.),
+          position_(ROOT::Math::XYZPoint(0., 0., 0.)),
+          emEnergy_(0.),
+          hadEnergy_(0.),
+          fem_(0.),
+          depth_(0.),
+          fhot_(0.) {}
 
     // constructor from values
-    CastorTower(const double energy, const ROOT::Math::XYZPoint& position, const double emEnergy, const double hadEnergy, const double fem,
-		const double depth, const double fhot, const CastorRecHitRefs& usedRecHits);
+    CastorTower(const double energy,
+                const ROOT::Math::XYZPoint& position,
+                const double emEnergy,
+                const double hadEnergy,
+                const double fem,
+                const double depth,
+                const double fhot,
+                const CastorRecHitRefs& usedRecHits);
 
     /// destructor
     ~CastorTower() override;
 
     /// tower centroid position
     ROOT::Math::XYZPoint position() const { return position_; }
-    
+
     /// tower em energy
     double emEnergy() const { return emEnergy_; }
-    
+
     /// tower had energy
     double hadEnergy() const { return hadEnergy_; }
-    
+
     /// tower em/tot ratio
     double fem() const { return fem_; }
-    
+
     /// tower depth in z
     double depth() const { return depth_; }
-    
+
     /// tower  hotcell/tot ratio
     double fhot() const { return fhot_; }
 
@@ -72,19 +84,19 @@ namespace reco {
     size_t rechitsSize() const { return usedRecHits_.size(); }
 
     /// add reference to constituent CastorRecHit
-    void add( const CastorRecHitRef& rechit ) { usedRecHits_.push_back( rechit ); }
+    void add(const CastorRecHitRef& rechit) { usedRecHits_.push_back(rechit); }
 
     /// comparison >= operator
-    bool operator >=(const CastorTower& rhs) const { return (energy_>=rhs.energy_); }
+    bool operator>=(const CastorTower& rhs) const { return (energy_ >= rhs.energy_); }
 
     /// comparison > operator
-    bool operator > (const CastorTower& rhs) const { return (energy_> rhs.energy_); }
+    bool operator>(const CastorTower& rhs) const { return (energy_ > rhs.energy_); }
 
     /// comparison <= operator
-    bool operator <=(const CastorTower& rhs) const { return (energy_<=rhs.energy_); }
+    bool operator<=(const CastorTower& rhs) const { return (energy_ <= rhs.energy_); }
 
     /// comparison <= operator
-    bool operator < (const CastorTower& rhs) const { return (energy_< rhs.energy_); }
+    bool operator<(const CastorTower& rhs) const { return (energy_ < rhs.energy_); }
 
     /// x of tower centroid
     double xPos() const { return position_.x(); }
@@ -96,22 +108,21 @@ namespace reco {
     double rho() const { return position_.rho(); }
 
   private:
-
     /// tower energy
     double energy_;
-    
+
     /// tower centroid position
     ROOT::Math::XYZPoint position_;
-    
+
     /// tower em energy
     double emEnergy_;
-    
+
     /// tower had energy
     double hadEnergy_;
-    
+
     /// tower em/tot Ratio
     double fem_;
-    
+
     /// tower depth
     double depth_;
 
@@ -121,7 +132,7 @@ namespace reco {
     /// references to CastorRecHit constituents
     CastorRecHitRefs usedRecHits_;
   };
-  
+
   /// collection of CastorTower objects
   typedef std::vector<CastorTower> CastorTowerCollection;
 
@@ -134,6 +145,6 @@ namespace reco {
   /// iterator over a vector of references to CastorTower objects all in the same collection
   typedef CastorTowerRefVector::iterator CastorTower_iterator;
 
-}
+}  // namespace reco
 
 #endif

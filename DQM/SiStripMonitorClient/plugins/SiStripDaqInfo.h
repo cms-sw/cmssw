@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,35 +35,31 @@
 #include <vector>
 #include <map>
 
-class DQMStore;
-class MonitorElement;
 class SiStripFedCabling;
 class TrackerTopology;
 
-class SiStripDaqInfo: public edm::EDAnalyzer {
+class SiStripDaqInfo : public edm::EDAnalyzer {
 public:
+  typedef dqm::harvesting::MonitorElement MonitorElement;
+  typedef dqm::harvesting::DQMStore DQMStore;
+
   SiStripDaqInfo(edm::ParameterSet const& ps);
 
 private:
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
 
-  void readFedIds(edm::ESHandle<SiStripFedCabling> const& fedcabling,
-                  edm::EventSetup const& iSetup);
-  void readSubdetFedFractions(DQMStore& dqm_store,
-                              std::vector<int> const& fed_ids,
-                              edm::EventSetup const& iSetup);
+  void readFedIds(edm::ESHandle<SiStripFedCabling> const& fedcabling, edm::EventSetup const& iSetup);
+  void readSubdetFedFractions(DQMStore& dqm_store, std::vector<int> const& fed_ids, edm::EventSetup const& iSetup);
   void bookStatus(DQMStore& dqm_store);
   void fillDummyStatus(DQMStore& dqm_store);
-  void findExcludedModule(DQMStore& dqm_store,
-                          unsigned short fed_id,
-                          TrackerTopology const* tTopo);
+  void findExcludedModule(DQMStore& dqm_store, unsigned short fed_id, TrackerTopology const* tTopo);
 
   std::map<std::string, std::vector<unsigned short>> subDetFedMap_;
 
   MonitorElement* daqFraction_{nullptr};
 
-  struct SubDetMEs{
+  struct SubDetMEs {
     MonitorElement* daqFractionME;
     int connectedFeds;
   };

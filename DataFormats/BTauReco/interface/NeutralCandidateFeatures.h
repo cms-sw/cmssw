@@ -3,10 +3,8 @@
 
 namespace btagbtvdeep {
 
-class NeutralCandidateFeatures {
-
+  class NeutralCandidateFeatures {
   public:
-
     float ptrel;
 
     float puppiw;
@@ -15,9 +13,8 @@ class NeutralCandidateFeatures {
 
     float hadFrac;
     float drminsv;
+  };
 
-};
+}  // namespace btagbtvdeep
 
-}
-
-#endif //DataFormats_BTauReco_NeutralCandidateFeatures_h
+#endif  //DataFormats_BTauReco_NeutralCandidateFeatures_h

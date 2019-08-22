@@ -15,77 +15,65 @@
 
 #include <map>
 
-using namespace reco ;
+using namespace reco;
 
-// void GsfElectronCoreEcalDrivenProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
-//  {
-//   edm::ParameterSetDescription desc ;
-//   GsfElectronCoreBaseProducer::fillDescriptions(desc) ;
-//   descriptions.add("produceEcalDrivenGsfElectronCores",desc) ;
-//  }
+void GsfElectronCoreEcalDrivenProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  GsfElectronCoreBaseProducer::fillDescription(desc);
+  descriptions.add("ecalDrivenGsfElectronCores", desc);
+}
 
-GsfElectronCoreEcalDrivenProducer::GsfElectronCoreEcalDrivenProducer( const edm::ParameterSet & config )
- : GsfElectronCoreBaseProducer(config)
- {}
+GsfElectronCoreEcalDrivenProducer::GsfElectronCoreEcalDrivenProducer(const edm::ParameterSet& config)
+    : GsfElectronCoreBaseProducer(config) {}
 
-void GsfElectronCoreEcalDrivenProducer::produce( edm::Event & event, const edm::EventSetup & setup )
- {
+void GsfElectronCoreEcalDrivenProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // base input
-  GsfElectronCoreBaseProducer::initEvent(event,setup) ;
+  GsfElectronCoreBaseProducer::initEvent(event, setup);
 
   // output
   auto electrons = std::make_unique<GsfElectronCoreCollection>();
 
   // loop on ecal driven tracks
-  if (useGsfPfRecTracks_)
-   {
-    const GsfPFRecTrackCollection * gsfPfRecTrackCollection = gsfPfRecTracksH_.product() ;
-    GsfPFRecTrackCollection::const_iterator gsfPfRecTrack ;
-    for ( gsfPfRecTrack=gsfPfRecTrackCollection->begin() ;
-          gsfPfRecTrack!=gsfPfRecTrackCollection->end() ;
-          ++gsfPfRecTrack )
-     {
-      const GsfTrackRef gsfTrackRef = gsfPfRecTrack->gsfTrackRef() ;
-      produceEcalDrivenCore(gsfTrackRef,electrons.get()) ;
-     }
-   }
-  else
-   {
-    const GsfTrackCollection * gsfTrackCollection = gsfTracksH_.product() ;
-    for ( unsigned int i=0 ; i<gsfTrackCollection->size() ; ++i )
-     {
-      const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH_,i) ;
-      produceEcalDrivenCore(gsfTrackRef,electrons.get()) ;
-     }
-   }
+  if (useGsfPfRecTracks_) {
+    const GsfPFRecTrackCollection* gsfPfRecTrackCollection = gsfPfRecTracksH_.product();
+    GsfPFRecTrackCollection::const_iterator gsfPfRecTrack;
+    for (gsfPfRecTrack = gsfPfRecTrackCollection->begin(); gsfPfRecTrack != gsfPfRecTrackCollection->end();
+         ++gsfPfRecTrack) {
+      const GsfTrackRef gsfTrackRef = gsfPfRecTrack->gsfTrackRef();
+      produceEcalDrivenCore(gsfTrackRef, electrons.get());
+    }
+  } else {
+    const GsfTrackCollection* gsfTrackCollection = gsfTracksH_.product();
+    for (unsigned int i = 0; i < gsfTrackCollection->size(); ++i) {
+      const GsfTrackRef gsfTrackRef = edm::Ref<GsfTrackCollection>(gsfTracksH_, i);
+      produceEcalDrivenCore(gsfTrackRef, electrons.get());
+    }
+  }
 
   event.put(std::move(electrons));
- }
+}
 
-void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore( const GsfTrackRef & gsfTrackRef, GsfElectronCoreCollection * electrons )
- {
-  GsfElectronCore * eleCore = new GsfElectronCore(gsfTrackRef) ;
+void GsfElectronCoreEcalDrivenProducer::produceEcalDrivenCore(const GsfTrackRef& gsfTrackRef,
+                                                              GsfElectronCoreCollection* electrons) {
+  GsfElectronCore* eleCore = new GsfElectronCore(gsfTrackRef);
 
-  if (!eleCore->ecalDrivenSeed())
-   { delete eleCore ; return ; }
+  if (!eleCore->ecalDrivenSeed()) {
+    delete eleCore;
+    return;
+  }
 
-  GsfElectronCoreBaseProducer::fillElectronCore(eleCore) ;
+  GsfElectronCoreBaseProducer::fillElectronCore(eleCore);
 
-  edm::RefToBase<TrajectorySeed> seed = gsfTrackRef->extra()->seedRef() ;
-  ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>() ;
-  edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster() ;
-  SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>() ;
-  if (!scRef.isNull())
-   {
-    eleCore->setSuperCluster(scRef) ;
-    electrons->push_back(*eleCore) ;
-   }
-  else
-   { edm::LogWarning("GsfElectronCoreEcalDrivenProducer")<<"Seed CaloCluster is not a SuperCluster, unexpected..." ; }
+  edm::RefToBase<TrajectorySeed> seed = gsfTrackRef->extra()->seedRef();
+  ElectronSeedRef elseed = seed.castTo<ElectronSeedRef>();
+  edm::RefToBase<CaloCluster> caloCluster = elseed->caloCluster();
+  SuperClusterRef scRef = caloCluster.castTo<SuperClusterRef>();
+  if (!scRef.isNull()) {
+    eleCore->setSuperCluster(scRef);
+    electrons->push_back(*eleCore);
+  } else {
+    edm::LogWarning("GsfElectronCoreEcalDrivenProducer") << "Seed CaloCluster is not a SuperCluster, unexpected...";
+  }
 
-  delete eleCore ;
- }
-
-GsfElectronCoreEcalDrivenProducer::~GsfElectronCoreEcalDrivenProducer()
- {}
-
+  delete eleCore;
+}

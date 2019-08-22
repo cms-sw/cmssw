@@ -15,11 +15,8 @@ namespace ihd {
    */
   class RegionIndex {
   public:
-    RegionIndex(const TrackingRegion *reg, unsigned int ind):
-      region_(reg),
-      layerSetBeginIndex_(ind),
-      layerSetEndIndex_(ind)
-    {}
+    RegionIndex(const TrackingRegion* reg, unsigned int ind)
+        : region_(reg), layerSetBeginIndex_(ind), layerSetEndIndex_(ind) {}
     RegionIndex(RegionIndex&&) = default;
     RegionIndex& operator=(RegionIndex&&) = default;
 
@@ -34,10 +31,10 @@ namespace ihd {
     unsigned int layerSetEndIndex() const { return layerSetEndIndex_; }
 
   private:
-    const TrackingRegion *region_;    /// pointer to TrackingRegion (owned elsewhere)
+    const TrackingRegion* region_;  /// pointer to TrackingRegion (owned elsewhere)
     LayerHitMapCache cache_;
-    unsigned int layerSetBeginIndex_; /// index of the beginning of layer sets of this region
-    unsigned int layerSetEndIndex_;   /// index of the end (one-past-last) of layer sets of this region
+    unsigned int layerSetBeginIndex_;  /// index of the beginning of layer sets of this region
+    unsigned int layerSetEndIndex_;    /// index of the end (one-past-last) of layer sets of this region
   };
 
   /**
@@ -54,8 +51,12 @@ namespace ihd {
 
     // Taking T* to have compatible interface with IntermediateHitTriplets::RegionLayerSets
     template <typename TMP>
-    RegionLayerSets(const TrackingRegion* region, const LayerHitMapCache *cache, const TMP*, const_iterator begin, const_iterator end):
-      region_(region), cache_(cache), layerSetsBegin_(begin), layerSetsEnd_(end) {}
+    RegionLayerSets(const TrackingRegion* region,
+                    const LayerHitMapCache* cache,
+                    const TMP*,
+                    const_iterator begin,
+                    const_iterator end)
+        : region_(region), cache_(cache), layerSetsBegin_(begin), layerSetsEnd_(end) {}
 
     const TrackingRegion& region() const { return *region_; }
     const LayerHitMapCache& layerHitMapCache() const { return *cache_; }
@@ -66,8 +67,8 @@ namespace ihd {
     const_iterator cend() const { return end(); }
 
   private:
-    const TrackingRegion *region_;
-    const LayerHitMapCache *cache_;
+    const TrackingRegion* region_;
+    const LayerHitMapCache* cache_;
     const const_iterator layerSetsBegin_;
     const const_iterator layerSetsEnd_;
   };
@@ -80,14 +81,14 @@ namespace ihd {
    * \tparam ValueType   Type to be returned by operator*() (should be something inexpensive)
    * \tparam HitSetType  Type of the holder of data (currently IntermediateHitDoublets, IntermediateHitTriplets, or RegionsSeedingHitSets)
    */
-  template<typename ValueType, typename HitSetType>
+  template <typename ValueType, typename HitSetType>
   class const_iterator {
   public:
     using internal_iterator_type = typename std::vector<RegionIndex>::const_iterator;
     using value_type = ValueType;
     using difference_type = internal_iterator_type::difference_type;
 
-    const_iterator(const HitSetType *hst, internal_iterator_type iter): hitSets_(hst), iter_(iter) {}
+    const_iterator(const HitSetType* hst, internal_iterator_type iter) : hitSets_(hst), iter_(iter) {}
 
     value_type operator*() const {
       return value_type(&(iter_->region()),
@@ -97,7 +98,10 @@ namespace ihd {
                         hitSets_->layerSetsBegin() + iter_->layerSetEndIndex());
     }
 
-    const_iterator& operator++() { ++iter_; return *this; }
+    const_iterator& operator++() {
+      ++iter_;
+      return *this;
+    }
     const_iterator operator++(int) {
       const_iterator clone(*this);
       ++iter_;
@@ -108,10 +112,10 @@ namespace ihd {
     bool operator!=(const const_iterator& other) const { return !operator==(other); }
 
   private:
-    const HitSetType *hitSets_;
+    const HitSetType* hitSets_;
     internal_iterator_type iter_;
   };
-}
+}  // namespace ihd
 
 /**
  * Container of temporary information delivered from hit pair
@@ -140,10 +144,8 @@ public:
    */
   class LayerPairHitDoublets {
   public:
-    LayerPairHitDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets):
-      layerPair_(layerSet[0].index(), layerSet[1].index()),
-      doublets_(std::move(doublets))
-    {}
+    LayerPairHitDoublets(const SeedingLayerSetsHits::SeedingLayerSet& layerSet, HitDoublets&& doublets)
+        : layerPair_(layerSet[0].index(), layerSet[1].index()), doublets_(std::move(doublets)) {}
 
     const LayerPair& layerPair() const { return layerPair_; }
     SeedingLayerSetsHits::LayerIndex innerLayerIndex() const { return std::get<0>(layerPair_); }
@@ -152,8 +154,8 @@ public:
     const HitDoublets& doublets() const { return doublets_; }
 
   private:
-    LayerPair layerPair_;  /// pair of indices to the layer
-    HitDoublets doublets_; /// container of the doublets
+    LayerPair layerPair_;   /// pair of indices to the layer
+    HitDoublets doublets_;  /// container of the doublets
   };
 
   ////////////////////
@@ -171,8 +173,8 @@ public:
   /// Helper class enforcing correct way of filling the doublets of a region
   class RegionFiller {
   public:
-    RegionFiller(): obj_(nullptr) {}
-    explicit RegionFiller(IntermediateHitDoublets *obj): obj_(obj) {}
+    RegionFiller() : obj_(nullptr) {}
+    explicit RegionFiller(IntermediateHitDoublets* obj) : obj_(obj) {}
 
     ~RegionFiller() = default;
 
@@ -184,8 +186,9 @@ public:
       obj_->layerPairs_.emplace_back(layerSet, std::move(doublets));
       obj_->regions_.back().setLayerSetsEnd(obj_->layerPairs_.size());
     }
+
   private:
-    IntermediateHitDoublets *obj_;
+    IntermediateHitDoublets* obj_;
   };
 
   // allows declaring local variables with auto
@@ -193,16 +196,16 @@ public:
 
   ////////////////////
 
-  IntermediateHitDoublets(): seedingLayers_(nullptr) {}
-  explicit IntermediateHitDoublets(const SeedingLayerSetsHits *seedingLayers): seedingLayers_(seedingLayers) {}
-  IntermediateHitDoublets(const IntermediateHitDoublets& rh); // only to make ROOT dictionary generation happy
+  IntermediateHitDoublets() : seedingLayers_(nullptr) {}
+  explicit IntermediateHitDoublets(const SeedingLayerSetsHits* seedingLayers) : seedingLayers_(seedingLayers) {}
+  IntermediateHitDoublets(const IntermediateHitDoublets& rh);  // only to make ROOT dictionary generation happy
   IntermediateHitDoublets(IntermediateHitDoublets&&) = default;
   IntermediateHitDoublets& operator=(IntermediateHitDoublets&&) = default;
   ~IntermediateHitDoublets() = default;
 
   void reserve(size_t nregions, size_t nlayersets) {
     regions_.reserve(nregions);
-    layerPairs_.reserve(nregions*nlayersets);
+    layerPairs_.reserve(nregions * nlayersets);
   }
 
   void shrink_to_fit() {
@@ -210,7 +213,7 @@ public:
     layerPairs_.shrink_to_fit();
   }
 
-  RegionFiller beginRegion(const TrackingRegion *region) {
+  RegionFiller beginRegion(const TrackingRegion* region) {
     regions_.emplace_back(region, layerPairs_.size());
     return RegionFiller(this);
   }
@@ -232,10 +235,10 @@ public:
   std::vector<LayerPairHitDoublets>::const_iterator layerSetsEnd() const { return layerPairs_.end(); }
 
 private:
-  const SeedingLayerSetsHits *seedingLayers_;    /// Pointer to SeedingLayerSetsHits (owned elsewhere)
+  const SeedingLayerSetsHits* seedingLayers_;  /// Pointer to SeedingLayerSetsHits (owned elsewhere)
 
-  std::vector<RegionIndex> regions_;             /// Container of regions, each element has indices pointing to layerPairs_
-  std::vector<LayerPairHitDoublets> layerPairs_; /// Container of layer pairs and doublets for all regions
+  std::vector<RegionIndex> regions_;  /// Container of regions, each element has indices pointing to layerPairs_
+  std::vector<LayerPairHitDoublets> layerPairs_;  /// Container of layer pairs and doublets for all regions
 };
 
 #endif

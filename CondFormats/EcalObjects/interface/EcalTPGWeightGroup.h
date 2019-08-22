@@ -10,17 +10,12 @@
 P.P.
 */
 
+class EcalTPGWeightGroup : public EcalTPGGroups {
+public:
+  EcalTPGWeightGroup();
+  ~EcalTPGWeightGroup();
 
-
-class EcalTPGWeightGroup : public EcalTPGGroups
-{
- public:
-
-  EcalTPGWeightGroup() ;
-  ~EcalTPGWeightGroup() ;
-
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif

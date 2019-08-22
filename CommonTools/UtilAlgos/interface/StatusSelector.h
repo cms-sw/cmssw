@@ -7,15 +7,14 @@
 namespace reco {
   namespace modules {
 
-    template<>
+    template <>
     struct ParameterAdapter<StatusSelector> {
-      static StatusSelector make( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) {
-	return StatusSelector( cfg.getParameter<std::vector<int> >( "status" ) );
+      static StatusSelector make(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC) {
+        return StatusSelector(cfg.getParameter<std::vector<int> >("status"));
       }
     };
 
-  }
-}
+  }  // namespace modules
+}  // namespace reco
 
 #endif
-

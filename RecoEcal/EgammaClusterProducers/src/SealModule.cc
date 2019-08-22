@@ -20,7 +20,6 @@
 #include "RecoEcal/EgammaClusterProducers/interface/PFECALSuperClusterProducer.h"
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerPhiClusterProducer.h"
 
-
 DEFINE_FWK_MODULE(IslandClusterProducer);
 DEFINE_FWK_MODULE(HybridClusterProducer);
 DEFINE_FWK_MODULE(EgammaSCCorrectionMaker);
@@ -40,4 +39,3 @@ DEFINE_FWK_MODULE(UnifiedSCCollectionProducer);
 DEFINE_FWK_MODULE(CleanAndMergeProducer);
 DEFINE_FWK_MODULE(PFECALSuperClusterProducer);
 DEFINE_FWK_MODULE(PreshowerPhiClusterProducer);
-

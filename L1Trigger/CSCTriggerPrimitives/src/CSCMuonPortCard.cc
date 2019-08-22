@@ -2,20 +2,16 @@
 #include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
 #include <algorithm>
 
-CSCMuonPortCard::CSCMuonPortCard()
-{
-}
+CSCMuonPortCard::CSCMuonPortCard() {}
 
-CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf)
-{
+CSCMuonPortCard::CSCMuonPortCard(const edm::ParameterSet& conf) {
   edm::ParameterSet mpcRun2Params = conf.getParameter<edm::ParameterSet>("mpcRun2");
   sort_stubs_ = mpcRun2Params.getParameter<bool>("sortStubs");
   drop_invalid_stubs_ = mpcRun2Params.getParameter<bool>("dropInvalidStubs");
   drop_low_quality_stubs_ = mpcRun2Params.getParameter<bool>("dropLowQualityStubs");
 }
 
-void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
-{
+void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis) {
   // Put everything from the digi container into a trigger container.
   // This allows us to sort per BX more easily.
   clear();
@@ -33,9 +29,8 @@ void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis)
   }
 }
 
-std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const unsigned station,
-						    const unsigned sector, const unsigned subsector, const int bx)
-{
+std::vector<csctf::TrackStub> CSCMuonPortCard::sort(
+    const unsigned endcap, const unsigned station, const unsigned sector, const unsigned subsector, const int bx) {
   std::vector<csctf::TrackStub> result;
   std::vector<csctf::TrackStub>::iterator LCT;
 
@@ -43,13 +38,13 @@ std::vector<csctf::TrackStub> CSCMuonPortCard::sort(const unsigned endcap, const
 
   // Make sure no Quality 0 or non-valid LCTs come through the portcard.
   for (LCT = result.begin(); LCT != result.end(); LCT++) {
-    if ( (drop_invalid_stubs_ && !LCT->isValid()) ||
-         (drop_low_quality_stubs_ && LCT->getQuality()==0) )
+    if ((drop_invalid_stubs_ && !LCT->isValid()) || (drop_low_quality_stubs_ && LCT->getQuality() == 0))
       result.erase(LCT, LCT);
   }
 
   if (!result.empty()) {
-    if (sort_stubs_) std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
+    if (sort_stubs_)
+      std::sort(result.begin(), result.end(), std::greater<csctf::TrackStub>());
 
     // Can return up to MAX_LCTS_PER_MPC (default 18) per bunch crossing.
     if (result.size() > CSCConstants::MAX_LCTS_PER_MPC)

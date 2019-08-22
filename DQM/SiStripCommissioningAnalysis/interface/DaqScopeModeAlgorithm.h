@@ -14,29 +14,25 @@ class DaqScopeModeAnalysis;
 */
 
 class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
-  
- public:
-  
-  DaqScopeModeAlgorithm( const edm::ParameterSet & pset, DaqScopeModeAnalysis* const );
+public:
+  DaqScopeModeAlgorithm(const edm::ParameterSet& pset, DaqScopeModeAnalysis* const);
 
-  ~DaqScopeModeAlgorithm() override {;} 
-  
+  ~DaqScopeModeAlgorithm() override { ; }
+
   inline const Histo& hPeds() const;
   inline const Histo& hNoise() const;
   inline const Histo& histo() const;
   inline const Histo& headerLow() const;
-  inline const Histo& headerHigh() const;  
+  inline const Histo& headerHigh() const;
 
- private:
-  
-  DaqScopeModeAlgorithm() {;}
-  
-  void extract( const std::vector<TH1*>& ) override;
+private:
+  DaqScopeModeAlgorithm() { ; }
+
+  void extract(const std::vector<TH1*>&) override;
 
   void analyse() override;
-  
- private:
-  
+
+private:
   /** Histogram of scope mode data. */
   Histo histo_;
   /** Histogram of header low. */
@@ -47,11 +43,10 @@ class DaqScopeModeAlgorithm : public CommissioningAlgorithm {
   Histo hPeds_;
   /** Residuals and noise */
   Histo hNoise_;
-  
+
   /** Analysis parameters */
   float deadStripMax_;
   float noisyStripMin_;
-  
 };
 
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::histo() const { return histo_; }
@@ -60,7 +55,4 @@ const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::headerHigh() const { 
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hPeds() const { return hPeds_; }
 const DaqScopeModeAlgorithm::Histo& DaqScopeModeAlgorithm::hNoise() const { return hNoise_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_DaqScopeModeAlgorithm_H
-
-
-
+#endif  // DQM_SiStripCommissioningAnalysis_DaqScopeModeAlgorithm_H

@@ -35,15 +35,14 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-class  EcalTestDevDB : public edm::EDAnalyzer {
- public:
-  explicit  EcalTestDevDB(const edm::ParameterSet& iConfig );
+class EcalTestDevDB : public edm::EDAnalyzer {
+public:
+  explicit EcalTestDevDB(const edm::ParameterSet& iConfig);
   ~EcalTestDevDB() override;
 
-
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
   EcalPedestals* generateEcalPedestals();
   EcalADCToGeVConstant* generateEcalADCToGeVConstant();
@@ -55,16 +54,14 @@ class  EcalTestDevDB : public edm::EDAnalyzer {
   EcalLaserAPDPNRatios* generateEcalLaserAPDPNRatios(uint32_t i_run);
   EcalLaserAlphas* generateEcalLaserAlphas();
   EcalLaserAPDPNRatiosRef* generateEcalLaserAPDPNRatiosRef();
-  
 
- private:
- 
+private:
   std::string m_timetype;
   std::map<std::string, unsigned long long> m_cacheIDs;
   std::map<std::string, std::string> m_records;
-  unsigned long m_firstRun ;
-  unsigned long m_lastRun ;
-  unsigned int m_interval ;
+  unsigned long m_firstRun;
+  unsigned long m_lastRun;
+  unsigned int m_interval;
 };
 
 #endif

@@ -12,41 +12,35 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 #include <map>
 
-class DQMStore;
-class MonitorElement;
-
 class DTDCSSummary : public DQMEDHarvester {
 public:
   /// Constructor
-  DTDCSSummary(const edm::ParameterSet& pset);
+  DTDCSSummary(const edm::ParameterSet &pset);
 
   /// Destructor
   ~DTDCSSummary() override;
 
   // Operations
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, 
-                               edm::LuminosityBlock const &, edm::EventSetup const &) override;
+  void dqmEndLuminosityBlock(DQMStore::IBooker &,
+                             DQMStore::IGetter &,
+                             edm::LuminosityBlock const &,
+                             edm::EventSetup const &) override;
 
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-
 protected:
-  
 private:
-
-  MonitorElement*  totalDCSFraction;
-  std::map<int, MonitorElement*> dcsFractions;
+  MonitorElement *totalDCSFraction;
+  std::map<int, MonitorElement *> dcsFractions;
 
   bool bookingdone;
-
 };
 
-
 #endif
-

@@ -13,17 +13,14 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 class TopJetAnalyzer : public edm::EDAnalyzer {
-
- public:
-
-  explicit TopJetAnalyzer(const edm::ParameterSet&);
+public:
+  explicit TopJetAnalyzer(const edm::ParameterSet &);
   ~TopJetAnalyzer() override;
 
- private:
-
-  void beginJob() override ;
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override ;
+private:
+  void beginJob() override;
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endJob() override;
 
   edm::EDGetTokenT<std::vector<pat::Jet> > inputToken_;
   bool verbose_;

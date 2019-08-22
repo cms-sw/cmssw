@@ -23,13 +23,12 @@ namespace l1t {
   public:
     Stage2TowerDecompressAlgorithmFirmwareImp1(CaloParamsHelper const* params);
     ~Stage2TowerDecompressAlgorithmFirmwareImp1() override;
-    void processEvent(const std::vector<l1t::CaloTower> & inTowers,
-			      std::vector<l1t::CaloTower> & outTowers) override;
+    void processEvent(const std::vector<l1t::CaloTower>& inTowers, std::vector<l1t::CaloTower>& outTowers) override;
+
   private:
     CaloParamsHelper const* params_;
-
   };
 
-}
+}  // namespace l1t
 
 #endif

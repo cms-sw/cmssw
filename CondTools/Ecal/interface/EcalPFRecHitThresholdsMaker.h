@@ -13,20 +13,18 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
-class  EcalPFRecHitThresholdsMaker : public edm::EDAnalyzer {
- public:
-  explicit  EcalPFRecHitThresholdsMaker(const edm::ParameterSet& iConfig );
+class EcalPFRecHitThresholdsMaker : public edm::EDAnalyzer {
+public:
+  explicit EcalPFRecHitThresholdsMaker(const edm::ParameterSet& iConfig);
   ~EcalPFRecHitThresholdsMaker() override;
 
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
- private:
-
+private:
   std::string m_timetype;
   double m_nsigma;
-
 };
 
 #endif

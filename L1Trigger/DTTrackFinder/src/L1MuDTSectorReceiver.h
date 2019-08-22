@@ -41,7 +41,8 @@ class L1MuDTChambPhContainer;
 class L1MuDTSectorProcessor;
 class L1MuDTTFParameters;
 class L1MuDTTFMasks;
-template<typename T> class CSCTriggerContainer;
+template <typename T>
+class CSCTriggerContainer;
 namespace csctf {
   class TrackStub;
 }
@@ -51,44 +52,39 @@ namespace csctf {
 //              ---------------------
 
 class L1MuDTSectorReceiver {
+public:
+  /// constructor
+  L1MuDTSectorReceiver(L1MuDTSectorProcessor&, edm::ConsumesCollector&& iC);
 
-  public:
+  /// destructor
+  virtual ~L1MuDTSectorReceiver();
 
-    /// constructor
-    L1MuDTSectorReceiver(L1MuDTSectorProcessor&, edm::ConsumesCollector&& iC);
+  /// receive track segment data from the DTBX and CSC chamber triggers
+  void run(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-    /// destructor
-    virtual ~L1MuDTSectorReceiver();
+  /// clear Sector Receiver
+  void reset();
 
-    /// receive track segment data from the DTBX and CSC chamber triggers
-    void run(int bx, const edm::Event& e, const edm::EventSetup& c);
-    
-    /// clear Sector Receiver
-    void reset();
+private:
+  /// receive track segment data from DTBX chamber trigger
+  void receiveDTBXData(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-  private:
+  /// receive track segment data from CSC chamber trigger
+  void receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c);
 
-    /// receive track segment data from DTBX chamber trigger
-    void receiveDTBXData(int bx, const edm::Event& e, const edm::EventSetup& c);
+  /// find the right sector for a given address
+  int address2sector(int adr) const;
 
-    /// receive track segment data from CSC chamber trigger
-    void receiveCSCData(int bx, const edm::Event& e, const edm::EventSetup& c);
-    
-    /// find the right sector for a given address
-    int address2sector(int adr) const;
-    
-    /// find the right wheel for a given address
-    int address2wheel(int adr) const;
+  /// find the right wheel for a given address
+  int address2wheel(int adr) const;
 
-  private:
+private:
+  L1MuDTSectorProcessor& m_sp;
+  edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
+  edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > m_CSCTrSToken;
 
-    L1MuDTSectorProcessor& m_sp;
-    edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
-    edm::EDGetTokenT<CSCTriggerContainer<csctf::TrackStub> > m_CSCTrSToken;
-
-    edm::ESHandle< L1MuDTTFParameters > pars;
-    edm::ESHandle< L1MuDTTFMasks >      msks;
-
+  edm::ESHandle<L1MuDTTFParameters> pars;
+  edm::ESHandle<L1MuDTTFMasks> msks;
 };
-  
+
 #endif

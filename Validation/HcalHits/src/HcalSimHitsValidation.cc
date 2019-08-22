@@ -58,7 +58,7 @@ void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   // int iphi_bins = (int) (iphi_max - iphi_min);
 
   int iEtaHBMax = hcons->getEtaRange(0).second;
-  int iEtaHEMax = hcons->getEtaRange(1).second;
+  int iEtaHEMax = std::max(hcons->getEtaRange(1).second, 1);
   int iEtaHFMax = hcons->getEtaRange(2).second;
   int iEtaHOMax = hcons->getEtaRange(3).second;
 
@@ -392,7 +392,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         occupancy_vs_ieta_HB[depth]->Fill(double(ieta));
       }
       // HE
-      if (sub == 2) {
+      if (sub == 2 && maxDepthHE_ > 0) {
         meSimHitsEnergyHE[0]->Fill(en);
         meSimHitsEnergyHE[depth]->Fill(en);
 

@@ -25,7 +25,10 @@ public:
   virtual void initializeEvent(edm::Event const& iEvent, edm::EventSetup const& iSetup) = 0;
   virtual void addSignals(edm::Event const& iEvent, edm::EventSetup const& iSetup) = 0;
   virtual void addPileups(PileUpEventPrincipal const& pep, edm::EventSetup const& iSetup) = 0;
-  virtual void put(edm::Event& iEvent, edm::EventSetup const& iSetup, std::vector<PileupSummaryInfo> const& ps, int bunchSpacing) = 0;
+  virtual void put(edm::Event& iEvent,
+                   edm::EventSetup const& iSetup,
+                   std::vector<PileupSummaryInfo> const& ps,
+                   int bunchSpacing) = 0;
 };
 
 #endif

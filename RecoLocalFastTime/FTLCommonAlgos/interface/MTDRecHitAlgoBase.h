@@ -16,18 +16,16 @@
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class MTDRecHitAlgoBase {
- public:
-
+public:
   /// Constructor
-  MTDRecHitAlgoBase(const edm::ParameterSet& conf,
-                    edm::ConsumesCollector& sumes):
-    name_( conf.getParameter<std::string>("algoName") ){ };
+  MTDRecHitAlgoBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes)
+      : name_(conf.getParameter<std::string>("algoName")){};
 
   /// Destructor
-  virtual ~MTDRecHitAlgoBase() { };
+  virtual ~MTDRecHitAlgoBase(){};
 
   /// get event and eventsetup information
   virtual void getEvent(const edm::Event&) = 0;
@@ -35,16 +33,15 @@ class MTDRecHitAlgoBase {
 
   /// make rechits from dataframes
   virtual FTLRecHit makeRecHit(const FTLUncalibratedRecHit& uRecHit, uint32_t& flags) const = 0;
- 
+
   const std::string& name() const { return name_; }
 
- private:
+private:
   std::string name_;
-
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< MTDRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > MTDRecHitAlgoFactory;
-
+typedef edmplugin::PluginFactory<MTDRecHitAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    MTDRecHitAlgoFactory;
 
 #endif

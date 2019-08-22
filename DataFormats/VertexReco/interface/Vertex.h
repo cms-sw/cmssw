@@ -22,10 +22,10 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/Common/interface/RefToBase.h" 
-#include <Math/GenVector/PxPyPzE4D.h>                                                                                                   
-#include <Math/GenVector/PxPyPzM4D.h> 
-#include "DataFormats/Math/interface/LorentzVector.h"                                                                                   
+#include "DataFormats/Common/interface/RefToBase.h"
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/GenVector/PxPyPzM4D.h>
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 namespace reco {
 
@@ -34,7 +34,7 @@ namespace reco {
   class Vertex {
   public:
     /// The iteratator for the vector<TrackRef>
-    typedef std::vector<TrackBaseRef >::const_iterator trackRef_iterator;
+    typedef std::vector<TrackBaseRef>::const_iterator trackRef_iterator;
     /// point in the space
     typedef math::XYZPoint Point;
     /// error matrix dimension
@@ -46,42 +46,46 @@ namespace reco {
     /// covariance error matrix (4x4)
     typedef math::Error<dimension4D>::type Error4D;
     /// covariance error matrix (4x4)
-    typedef math::Error<dimension4D>::type CovarianceMatrix4D;    
+    typedef math::Error<dimension4D>::type CovarianceMatrix4D;
     /// matix size
-    enum { size = dimension * ( dimension + 1 ) / 2, size4D = ( dimension4D ) * ( dimension4D + 1 ) / 2 };    
+    enum { size = dimension * (dimension + 1) / 2, size4D = (dimension4D) * (dimension4D + 1) / 2 };
     /// index type
     typedef unsigned int index;
     /// default constructor - The vertex will not be valid. Position, error,
     /// chi2, ndof will have random entries, and the vectors of tracks will be empty
-    /// Use the isValid method to check that your vertex is valid. 
-    Vertex():  chi2_( 0.0 ), ndof_( 0 ), position_(0.,0.,0.), time_(0.) { validity_ = false; for(int i = 0; i < size4D; ++ i ) covariance_[i]=0.;
-}
+    /// Use the isValid method to check that your vertex is valid.
+    Vertex() : chi2_(0.0), ndof_(0), position_(0., 0., 0.), time_(0.) {
+      validity_ = false;
+      for (int i = 0; i < size4D; ++i)
+        covariance_[i] = 0.;
+    }
     /// Constructor for a fake vertex.
-    Vertex( const Point &, const Error &);
+    Vertex(const Point &, const Error &);
     /// Constructor for a fake vertex. 4D
-    Vertex( const Point &, const Error4D &, double);
+    Vertex(const Point &, const Error4D &, double);
     /// constructor for a valid vertex, with all data
-    Vertex( const Point &, const Error &, double chi2, double ndof, size_t size );
+    Vertex(const Point &, const Error &, double chi2, double ndof, size_t size);
     /// constructor for a valid vertex, with all data 4D
-    Vertex( const Point &, const Error4D &, double time, double chi2, double ndof, size_t size );
+    Vertex(const Point &, const Error4D &, double time, double chi2, double ndof, size_t size);
     /// Tells whether the vertex is valid.
-    bool isValid() const {return validity_;}
+    bool isValid() const { return validity_; }
     /// Tells whether a Vertex is fake, i.e. not a vertex made out of a proper
     /// fit with tracks.
     /// For a primary vertex, it could simply be the beam line.
-    bool isFake() const {return (chi2_==0 && ndof_==0 && tracks_.empty());}
+    bool isFake() const { return (chi2_ == 0 && ndof_ == 0 && tracks_.empty()); }
     /// add a reference to a Track
-    void add( const TrackBaseRef & r, float w=1.0 );
+    void add(const TrackBaseRef &r, float w = 1.0);
     /// add the original a Track(reference) and the smoothed Track
-    void add( const TrackBaseRef & r, const Track & refTrack, float w=1.0 );
+    void add(const TrackBaseRef &r, const Track &refTrack, float w = 1.0);
     void removeTracks();
 
     ///returns the weight with which a Track has contributed to the vertex-fit.
-    template<typename TREF> 
-    float trackWeight ( const TREF & r ) const {
-      int i=0;
-      for(auto const & t : tracks_) {
-        if ( (r.id()==t.id()) & (t.key()==r.key()) ) return weights_[i]/255.f;
+    template <typename TREF>
+    float trackWeight(const TREF &r) const {
+      int i = 0;
+      for (auto const &t : tracks_) {
+        if ((r.id() == t.id()) & (t.key() == r.key()))
+          return weights_[i] / 255.f;
         ++i;
       }
       return 0;
@@ -93,7 +97,7 @@ namespace reco {
     /// number of tracks
     size_t tracksSize() const;
     /// python friendly track getting
-    const TrackBaseRef& trackRefAt(size_t idx) const { return tracks_[idx]; }
+    const TrackBaseRef &trackRefAt(size_t idx) const { return tracks_[idx]; }
     /// chi-squares
     double chi2() const { return chi2_; }
     /** Number of degrees of freedom
@@ -105,76 +109,91 @@ namespace reco {
     double ndof() const { return ndof_; }
     /// chi-squared divided by n.d.o.f.
     double normalizedChi2() const { return ndof_ != 0 ? chi2_ / ndof_ : chi2_ * 1e6; }
-    /// position 
-    const Point & position() const { return position_; }
-    /// x coordinate 
+    /// position
+    const Point &position() const { return position_; }
+    /// x coordinate
     double x() const { return position_.X(); }
-    /// y coordinate 
+    /// y coordinate
     double y() const { return position_.Y(); }
-    /// z coordinate 
+    /// z coordinate
     double z() const { return position_.Z(); }
     /// t coordinate
-    double t() const { return time_; } 
+    double t() const { return time_; }
     /// error on x
-    double xError() const { return sqrt( covariance(0, 0) ); }
+    double xError() const { return sqrt(covariance(0, 0)); }
     /// error on y
-    double yError() const { return sqrt( covariance(1, 1) ); }
+    double yError() const { return sqrt(covariance(1, 1)); }
     /// error on z
-    double zError() const { return sqrt( covariance(2, 2) ); }
+    double zError() const { return sqrt(covariance(2, 2)); }
     /// error on t
-    double tError() const { return sqrt( covariance(3, 3) ); }
+    double tError() const { return sqrt(covariance(3, 3)); }
     /// (i, j)-th element of error matrix, i, j = 0, ... 2
     // Note that:
-    //   double error( int i, int j ) const 
+    //   double error( int i, int j ) const
     // is OBSOLETE, use covariance(i, j)
-    double covariance( int i, int j ) const { 
-      return covariance_[ idx( i, j ) ]; 
+    double covariance(int i, int j) const { return covariance_[idx(i, j)]; }
+    /// return SMatrix
+    CovarianceMatrix covariance() const {
+      Error m;
+      fill(m);
+      return m;
+    }
+    /// return SMatrix 4D
+    CovarianceMatrix4D covariance4D() const {
+      Error4D m;
+      fill(m);
+      return m;
+    }
+
+    /// return SMatrix
+    Error error() const {
+      Error m;
+      fill(m);
+      return m;
     }
     /// return SMatrix
-    CovarianceMatrix covariance() const { Error m; fill( m ); return m; }
-    /// return SMatrix 4D
-    CovarianceMatrix4D covariance4D() const { Error4D m; fill( m ); return m; }
+    Error4D error4D() const {
+      Error4D m;
+      fill(m);
+      return m;
+    }
 
-    /// return SMatrix
-    Error error() const { Error m; fill( m ); return m; }
-    /// return SMatrix
-    Error4D error4D() const { Error4D m; fill( m ); return m; }
-    
     /// fill SMatrix
-    void fill( CovarianceMatrix & v ) const;
+    void fill(CovarianceMatrix &v) const;
     /// 4D version
-    void fill( CovarianceMatrix4D & v ) const;
+    void fill(CovarianceMatrix4D &v) const;
 
     /// Checks whether refitted tracks are stored.
-    bool hasRefittedTracks() const {return !refittedTracks_.empty();}
-    
+    bool hasRefittedTracks() const { return !refittedTracks_.empty(); }
+
     /// Returns the original track which corresponds to a particular refitted Track
     /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
-    TrackBaseRef originalTrack(const Track & refTrack) const;
+    TrackBaseRef originalTrack(const Track &refTrack) const;
 
     /// Returns the refitted track which corresponds to a particular original Track
     /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
-    Track refittedTrack(const TrackBaseRef & track) const;
+    Track refittedTrack(const TrackBaseRef &track) const;
 
     /// Returns the refitted track which corresponds to a particular original Track
     /// Throws an exception if now refitted tracks are stored ot the track is not found in the list
-    Track refittedTrack(const TrackRef & track) const;
+    Track refittedTrack(const TrackRef &track) const;
 
     /// Returns the container of refitted tracks
-    const std::vector<Track> & refittedTracks() const { return refittedTracks_;}
+    const std::vector<Track> &refittedTracks() const { return refittedTracks_; }
 
     /// Returns the four momentum of the sum of the tracks, assuming the given mass for the decay products
-    math::XYZTLorentzVectorD p4(float mass=0.13957018,float minWeight=0.5) const; 
+    math::XYZTLorentzVectorD p4(float mass = 0.13957018, float minWeight = 0.5) const;
 
     /// Returns the number of tracks in the vertex with weight above minWeight
-    unsigned int nTracks(float minWeight=0.5) const; 
+    unsigned int nTracks(float minWeight = 0.5) const;
 
     class TrackEqual {
-      public:
-	TrackEqual( const Track & t) : track_( t ) { }
-	bool operator()( const Track & t ) const { return t.pt()==track_.pt();}
-      private:
-	const Track & track_;
+    public:
+      TrackEqual(const Track &t) : track_(t) {}
+      bool operator()(const Track &t) const { return t.pt() == track_.pt(); }
+
+    private:
+      const Track &track_;
     };
 
   private:
@@ -196,12 +215,12 @@ namespace reco {
     double time_;
 
     /// position index
-    index idx( index i, index j ) const {
-      int a = ( i <= j ? i : j ), b = ( i <= j ? j : i );
-      return b * ( b + 1 ) / 2 + a;
+    index idx(index i, index j) const {
+      int a = (i <= j ? i : j), b = (i <= j ? j : i);
+      return b * (b + 1) / 2 + a;
     }
   };
-  
-}
+
+}  // namespace reco
 
 #endif

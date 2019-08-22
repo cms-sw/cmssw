@@ -2,7 +2,7 @@
 //
 // Package:    L1CaloInputScaleTester
 // Class:      L1CaloInputScaleTester
-// 
+//
 /**\class L1CaloInputScaleTester L1CaloInputScaleTester.cc L1TriggerConfig/L1ScalesProducers/src/L1CaloInputScaleTester.cc
 
  Description: <one line class summary>
@@ -25,15 +25,14 @@
 //
 
 class L1CaloInputScaleTester : public edm::EDAnalyzer {
-   public:
-      explicit L1CaloInputScaleTester(const edm::ParameterSet&);
-      ~L1CaloInputScaleTester() override;
+public:
+  explicit L1CaloInputScaleTester(const edm::ParameterSet&);
+  ~L1CaloInputScaleTester() override;
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 };

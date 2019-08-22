@@ -1,4 +1,5 @@
 <use   name="FWCore/Framework"/>
+<use   name="DataFormats/Common"/>
 <use   name="DataFormats/L1THGCal"/>
 <use   name="CommonTools/Utils"/>
 <export>

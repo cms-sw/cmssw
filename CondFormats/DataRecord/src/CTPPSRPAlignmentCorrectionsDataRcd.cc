@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     CTPPSRPAlignmentCorrectionsDataRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

@@ -25,82 +25,74 @@
 using namespace PhysicsTools;
 
 class testMVATrainerLooper : public edm::EDAnalyzer {
-    public:
-	explicit testMVATrainerLooper(const edm::ParameterSet &params);
+public:
+  explicit testMVATrainerLooper(const edm::ParameterSet &params);
 
-	virtual void beginRun(const edm::Run &run, const edm::EventSetup &iSetup);
+  virtual void beginRun(const edm::Run &run, const edm::EventSetup &iSetup);
 
-	virtual void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
 
-    private:
-	MVAComputerCache		mvaComputer;
+private:
+  MVAComputerCache mvaComputer;
 };
 
-testMVATrainerLooper::testMVATrainerLooper(const edm::ParameterSet &params)
-{
+testMVATrainerLooper::testMVATrainerLooper(const edm::ParameterSet &params) {}
+
+void testMVATrainerLooper::beginRun(const edm::Run &run, const edm::EventSetup &iSetup) {
+  // reset the random number generator here
+  // we are expected to feed the same training events for
+  // each loop iteration. We normally run from a ROOT file,
+  // so we wouldn't need to care... (don't do this with real data!)
+
+  gRandom->SetSeed(12345);
 }
 
-void testMVATrainerLooper::beginRun(const edm::Run &run, const edm::EventSetup &iSetup)
-{
-	// reset the random number generator here
-	// we are expected to feed the same training events for
-	// each loop iteration. We normally run from a ROOT file,
-	// so we wouldn't need to care... (don't do this with real data!)
+void testMVATrainerLooper::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+  // Note that the code here is almost IDENTICAL
+  // to the code when just evaluating the MVA
+  // The only differences are:
+  // * EventSetup::get is called with additional argument "trainer"
+  // * the variables contain a value for kTargetId with the truth
+  // * the result of MVAComputer::eval is to be ignored
+  //
+  // So: When possible try to share the filling routine!
 
-	gRandom->SetSeed(12345);
-}
+  // update the cached MVAComputer from calibrations
+  // passed via EventSetup.
+  // you can use a MVAComputerContainer to pass around
+  // multiple different MVA's in one event setup record
+  // identify the right one by a definable name string
+  mvaComputer.update<MVADemoRcd>("trainer", iSetup, "testMVA");
 
-void testMVATrainerLooper::analyze(const edm::Event& iEvent,
-                                   const edm::EventSetup& iSetup)
-{
-	// Note that the code here is almost IDENTICAL
-	// to the code when just evaluating the MVA
-	// The only differences are:
-	// * EventSetup::get is called with additional argument "trainer"
-	// * the variables contain a value for kTargetId with the truth
-	// * the result of MVAComputer::eval is to be ignored
-	//
-	// So: When possible try to share the filling routine!
+  // can occur in last iteration, when MVATrainer has completed
+  // and is about to save the result
+  if (!mvaComputer)
+    return;
 
-	// update the cached MVAComputer from calibrations
-	// passed via EventSetup.
-	// you can use a MVAComputerContainer to pass around
-	// multiple different MVA's in one event setup record
-	// identify the right one by a definable name string
-	mvaComputer.update<MVADemoRcd>("trainer", iSetup, "testMVA");
+  // Produce some random values to train on
 
-	// can occur in last iteration, when MVATrainer has completed
-	// and is about to save the result
-	if (!mvaComputer)
-		return;
+  bool target = gRandom->Uniform() > 0.5;  // true = signal, false = bkg
+  double x, y;
 
-	// Produce some random values to train on
+  if (target) {
+    x = gRandom->Gaus(+2, 2);
+    y = gRandom->Gaus(+1, 2);
+  } else {
+    x = gRandom->Gaus(-1, 2);
+    y = gRandom->Gaus(-2, 2);
+  }
 
-	bool target = gRandom->Uniform() > 0.5; // true = signal, false = bkg
-	double x, y;
+  Variable::Value values[] = {Variable::Value(MVATrainer::kTargetId, target),
+                              //	Variable::Value(MVATrainer::kWeightId, 1.0) // default = 1
+                              Variable::Value("x", x),
+                              Variable::Value("y", y)};
 
-	if (target) {
-		x = gRandom->Gaus(+2, 2);
-		y = gRandom->Gaus(+1, 2);
-	} else {
-		x = gRandom->Gaus(-1, 2);
-		y = gRandom->Gaus(-2, 2);
-	}
+  mvaComputer->eval(values, values + 3);
+  // arguments are begin() and end() (for plain C++ arrays done this way)
+  // std::vector also works, but plain array has better performance
+  // for fixed-size arrays (no internal malloc/free)
 
-	Variable::Value values[] = {
-		Variable::Value(MVATrainer::kTargetId, target),
-	//	Variable::Value(MVATrainer::kWeightId, 1.0) // default = 1
-		Variable::Value("x", x),
-		Variable::Value("y", y)
-	};
-
-	mvaComputer->eval(values, values + 3);
-	// arguments are begin() and end() (for plain C++ arrays done this way)
-	// std::vector also works, but plain array has better performance
-	// for fixed-size arrays (no internal malloc/free)
-
-	// mvaComputer->eval() can be called as many times per event as needed
+  // mvaComputer->eval() can be called as many times per event as needed
 }
 
 // define this as a plug-in
@@ -124,7 +116,6 @@ MVA_TRAINER_IMPLEMENT(MVADemo);
 // - or to the conditions database via the other module
 //   (in conjuction with PoolDBOutputService)
 
-
 /**********************************************************************
  *
  * ATTENTION: instead off calling this here, please link against
@@ -134,4 +125,5 @@ MVA_TRAINER_IMPLEMENT(MVADemo);
  *             a file from the MVAComputer/test directory, which is
  *             not possible in example code)
  *
- */	EVENTSETUP_RECORD_REG(MVADemoRcd);
+ */
+EVENTSETUP_RECORD_REG(MVADemoRcd);

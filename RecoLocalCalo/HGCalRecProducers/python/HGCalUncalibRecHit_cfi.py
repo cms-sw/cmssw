@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer, hfnoseDigitizer
 
 fCPerMIP_v9 = cms.vdouble(2.06,3.43,5.15) #120um, 200um, 300um
 
@@ -15,6 +15,8 @@ HGCalUncalibRecHit = cms.EDProducer(
     HGCHEFhitCollection = cms.string('HGCHEFUncalibRecHits'),
     HGCHEBdigiCollection = cms.InputTag('hgcalDigis:HEback'),
     HGCHEBhitCollection = cms.string('HGCHEBUncalibRecHits'),
+    HGCHFNosedigiCollection = cms.InputTag('hfnoseDigis:HFNose'),
+    HGCHFNosehitCollection = cms.string('HGCHFNoseUncalibRecHits'),
     
     HGCEEConfig = cms.PSet(
         isSiFE = cms.bool(True),
@@ -49,6 +51,19 @@ HGCalUncalibRecHit = cms.EDProducer(
         fCPerMIP      = cms.vdouble(1.0,1.0,1.0) #dummy values, it's scintillator
         ),
 
+    HGCHFNoseConfig = cms.PSet(
+        isSiFE = cms.bool(False),
+        # adc information
+        adcNbits      = hfnoseDigitizer.digiCfg.feCfg.adcNbits,
+        adcSaturation = hfnoseDigitizer.digiCfg.feCfg.adcSaturation_fC,
+        #tdc information
+        tdcNbits      = hfnoseDigitizer.digiCfg.feCfg.tdcNbits,
+        tdcSaturation = hfnoseDigitizer.digiCfg.feCfg.tdcSaturation_fC,
+        tdcOnset      = hfnoseDigitizer.digiCfg.feCfg.tdcOnset_fC,
+        toaLSB_ns     = hfnoseDigitizer.digiCfg.feCfg.toaLSB_ns,
+        fCPerMIP      = cms.vdouble(1.25,2.57,3.88) #100um, 200um, 300um
+        ),
+
     algo = cms.string("HGCalUncalibRecHitWorkerWeights")
 )
 
@@ -60,5 +75,6 @@ from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCEEConfig , fCPerMIP = fCPerMIP_v10 ) 
 phase2_hgcalV10.toModify( HGCalUncalibRecHit.HGCHEFConfig , fCPerMIP = fCPerMIP_v10 )
 
-
+from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
+phase2_hfnose.toModify( HGCalUncalibRecHit.HGCHFNoseConfig , isSiFE = True )
 

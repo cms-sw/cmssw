@@ -43,12 +43,11 @@ L1Scalers::L1Scalers(const edm::ParameterSet& ps)
       denomBit_(ps.getUntrackedParameter<unsigned int>("denomBit", 40)),
       tfIsTech_(ps.getUntrackedParameter<bool>("tfIsTech", true)),
       tfBit_(ps.getUntrackedParameter<unsigned int>("tfBit", 41)),
-      algoSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >(
-          "algoMonitorBits", std::vector<unsigned int>())),
-      techSelected_(ps.getUntrackedParameter<std::vector<unsigned int> >(
-          "techMonitorBits", std::vector<unsigned int>())),
-      folderName_(ps.getUntrackedParameter<std::string>(
-          "dqmFolder", std::string("L1T/L1Scalers_EvF"))),
+      algoSelected_(
+          ps.getUntrackedParameter<std::vector<unsigned int> >("algoMonitorBits", std::vector<unsigned int>())),
+      techSelected_(
+          ps.getUntrackedParameter<std::vector<unsigned int> >("techMonitorBits", std::vector<unsigned int>())),
+      folderName_(ps.getUntrackedParameter<std::string>("dqmFolder", std::string("L1T/L1Scalers_EvF"))),
       l1scalers_(nullptr),
       l1techScalers_(nullptr),
       l1Correlations_(nullptr),
@@ -63,34 +62,44 @@ L1Scalers::L1Scalers(const edm::ParameterSet& ps)
       rateAlgoCounter_(0),
       rateTtCounter_(0),
       fedRawCollection_(ps.getParameter<edm::InputTag>("fedRawData")),
-      maskedList_(ps.getUntrackedParameter<std::vector<int> >(
-          "maskedChannels",
-          std::vector<int>())),  // this is using the ashed index
-      HcalRecHitCollection_(
-          ps.getParameter<edm::InputTag>("HFRecHitCollection")) {
+      maskedList_(ps.getUntrackedParameter<std::vector<int> >("maskedChannels",
+                                                              std::vector<int>())),  // this is using the ashed index
+      HcalRecHitCollection_(ps.getParameter<edm::InputTag>("HFRecHitCollection")) {
   LogDebug("Status") << "constructor";
 }
 
-void L1Scalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
-                               edm::EventSetup const&) {
+void L1Scalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(folderName_);
-  l1scalers_ =
-      iBooker.book1D("l1AlgoBits", "L1 Algorithm Bits", 128, -0.5, 127.5);
+  l1scalers_ = iBooker.book1D("l1AlgoBits", "L1 Algorithm Bits", 128, -0.5, 127.5);
   l1scalersBx_ = iBooker.book2D("l1AlgoBits_Vs_Bx",
-                              "L1 Algorithm Bits vs "
-                              "Bunch Number",
-                              3600, -0.5, 3599.5, 128, -0.5, 127.5);
+                                "L1 Algorithm Bits vs "
+                                "Bunch Number",
+                                3600,
+                                -0.5,
+                                3599.5,
+                                128,
+                                -0.5,
+                                127.5);
   l1Correlations_ = iBooker.book2D("l1Correlations",
-                                 "L1 Algorithm Bits "
-                                 "Correlations",
-                                 128, -0.5, 127.5, 128, -0.5, 127.5);
-  l1techScalers_ =
-      iBooker.book1D("l1TechBits", "L1 Tech. Trigger Bits", 64, -0.5, 63.5);
+                                   "L1 Algorithm Bits "
+                                   "Correlations",
+                                   128,
+                                   -0.5,
+                                   127.5,
+                                   128,
+                                   -0.5,
+                                   127.5);
+  l1techScalers_ = iBooker.book1D("l1TechBits", "L1 Tech. Trigger Bits", 64, -0.5, 63.5);
   l1techScalersBx_ = iBooker.book2D("l1TechBits_Vs_Bx",
-                                  "L1 Technical "
-                                  "Trigger "
-                                  "Bits vs Bunch Number",
-                                  3600, -0.5, 3599.5, 64, -0.5, 63.5);
+                                    "L1 Technical "
+                                    "Trigger "
+                                    "Bits vs Bunch Number",
+                                    3600,
+                                    -0.5,
+                                    3599.5,
+                                    64,
+                                    -0.5,
+                                    63.5);
   bxNum_ = iBooker.book1D("bxNum", "Bunch number from GTFE", 3600, -0.5, 3599.5);
 
   nLumiBlock_ = iBooker.bookInt("nLumiBlock");
@@ -114,47 +123,71 @@ void L1Scalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
   for (uint ibit = 0; ibit < algoSelected_.size(); ibit++) {
     std::stringstream ss;
     ss << algoSelected_[ibit] << "_" << sdenom.str() << denomBit_;
-    algoBxDiff_.push_back(iBooker.book1D("BX_diff_algo" + ss.str(),
-                                       "BX_diff_algo" + ss.str(), 9, -4, 5));
-    algoBxDiffLumi_.push_back(
-        iBooker.book2D("BX_diffvslumi_algo" + ss.str(), "BX_diff_algo" + ss.str(),
-                     MAX_LUMI_BIN, -0.5, double(MAX_LUMI_SEG) - 0.5, 9, -4, 5));
+    algoBxDiff_.push_back(iBooker.book1D("BX_diff_algo" + ss.str(), "BX_diff_algo" + ss.str(), 9, -4, 5));
+    algoBxDiffLumi_.push_back(iBooker.book2D("BX_diffvslumi_algo" + ss.str(),
+                                             "BX_diff_algo" + ss.str(),
+                                             MAX_LUMI_BIN,
+                                             -0.5,
+                                             double(MAX_LUMI_SEG) - 0.5,
+                                             9,
+                                             -4,
+                                             5));
     // algoBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
   }
   for (uint ibit = 0; ibit < techSelected_.size(); ibit++) {
     std::stringstream ss;
     ss << techSelected_[ibit] << "_" << sdenom.str() << denomBit_;
-    techBxDiff_.push_back(iBooker.book1D("BX_diff_tech" + ss.str(),
-                                       "BX_diff_tech" + ss.str(), 9, -4, 5));
-    techBxDiffLumi_.push_back(
-        iBooker.book2D("BX_diffvslumi_tech" + ss.str(), "BX_diff_tech" + ss.str(),
-                     MAX_LUMI_BIN, -0.5, double(MAX_LUMI_SEG) - 0.5, 9, -4, 5));
+    techBxDiff_.push_back(iBooker.book1D("BX_diff_tech" + ss.str(), "BX_diff_tech" + ss.str(), 9, -4, 5));
+    techBxDiffLumi_.push_back(iBooker.book2D("BX_diffvslumi_tech" + ss.str(),
+                                             "BX_diff_tech" + ss.str(),
+                                             MAX_LUMI_BIN,
+                                             -0.5,
+                                             double(MAX_LUMI_SEG) - 0.5,
+                                             9,
+                                             -4,
+                                             5));
     // techBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
   }
 
   // GMT timing plots
   std::stringstream ss1;
   ss1 << "_" << sdenom.str() << denomBit_;
-  dtBxDiff_ = iBooker.book1D("BX_diff_DT" + ss1.str(), "BX_diff_DT" + ss1.str(),
-                           9, -4, 5);
+  dtBxDiff_ = iBooker.book1D("BX_diff_DT" + ss1.str(), "BX_diff_DT" + ss1.str(), 9, -4, 5);
   dtBxDiffLumi_ = iBooker.book2D("BX_diffvslumi_DT" + ss1.str(),
-                               "BX_diffvslumi_DT" + ss1.str(), MAX_LUMI_BIN,
-                               -0.5, double(MAX_LUMI_SEG) - 0.5, 9, -4, 5);
-  cscBxDiff_ = iBooker.book1D("BX_diff_CSC" + ss1.str(),
-                            "BX_diff_CSC" + ss1.str(), 9, -4, 5);
+                                 "BX_diffvslumi_DT" + ss1.str(),
+                                 MAX_LUMI_BIN,
+                                 -0.5,
+                                 double(MAX_LUMI_SEG) - 0.5,
+                                 9,
+                                 -4,
+                                 5);
+  cscBxDiff_ = iBooker.book1D("BX_diff_CSC" + ss1.str(), "BX_diff_CSC" + ss1.str(), 9, -4, 5);
   cscBxDiffLumi_ = iBooker.book2D("BX_diffvslumi_CSC" + ss1.str(),
-                                "BX_diffvslumi_CSC" + ss1.str(), MAX_LUMI_BIN,
-                                -0.5, double(MAX_LUMI_SEG) - 0.5, 9, -4, 5);
-  rpcbBxDiff_ = iBooker.book1D("BX_diff_RPCb" + ss1.str(),
-                             "BX_diff_RPCb" + ss1.str(), 9, -4, 5);
+                                  "BX_diffvslumi_CSC" + ss1.str(),
+                                  MAX_LUMI_BIN,
+                                  -0.5,
+                                  double(MAX_LUMI_SEG) - 0.5,
+                                  9,
+                                  -4,
+                                  5);
+  rpcbBxDiff_ = iBooker.book1D("BX_diff_RPCb" + ss1.str(), "BX_diff_RPCb" + ss1.str(), 9, -4, 5);
   rpcbBxDiffLumi_ = iBooker.book2D("BX_diffvslumi_RPCb" + ss1.str(),
-                                 "BX_diffvslumi_RPCb" + ss1.str(), MAX_LUMI_BIN,
-                                 -0.5, double(MAX_LUMI_SEG) - 0.5, 9, -4, 5);
-  rpcfBxDiff_ = iBooker.book1D("BX_diff_RPCf" + ss1.str(),
-                             "BX_diff_RPCf" + ss1.str(), 9, -4, 5);
+                                   "BX_diffvslumi_RPCb" + ss1.str(),
+                                   MAX_LUMI_BIN,
+                                   -0.5,
+                                   double(MAX_LUMI_SEG) - 0.5,
+                                   9,
+                                   -4,
+                                   5);
+  rpcfBxDiff_ = iBooker.book1D("BX_diff_RPCf" + ss1.str(), "BX_diff_RPCf" + ss1.str(), 9, -4, 5);
   rpcfBxDiffLumi_ = iBooker.book2D("BX_diffvslumi_RPCf" + ss1.str(),
-                                 "BX_diffvslumi_RPCf" + ss1.str(), MAX_LUMI_BIN,
-                                 -0.5, double(MAX_LUMI_SEG) - 0.5, 9, -4, 5);
+                                   "BX_diffvslumi_RPCf" + ss1.str(),
+                                   MAX_LUMI_BIN,
+                                   -0.5,
+                                   double(MAX_LUMI_SEG) - 0.5,
+                                   9,
+                                   -4,
+                                   5);
 }
 
 void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
@@ -231,7 +264,8 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
         // (anywhere in the bx window)
         if (tfIsTech_) {
           if (tfBit_ < tw.size()) {
-            if (tw[tfBit_]) tfBitGood = true;
+            if (tw[tfBit_])
+              tfBitGood = true;
           }
         }
       }  // ! tw.empty
@@ -242,16 +276,17 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
     earliestDenom_ = 9;
     earliestAlgo_.clear();
     earliestTech_.clear();
-    for (uint i = 0; i < techSelected_.size(); i++) earliestTech_.push_back(9);
-    for (uint i = 0; i < algoSelected_.size(); i++) earliestAlgo_.push_back(9);
+    for (uint i = 0; i < techSelected_.size(); i++)
+      earliestTech_.push_back(9);
+    for (uint i = 0; i < algoSelected_.size(); i++)
+      earliestAlgo_.push_back(9);
 
     // GMT information
     edm::Handle<L1MuGMTReadoutCollection> gmtCollection;
     e.getByToken(l1GmtDataSource_, gmtCollection);
 
     if (!gmtCollection.isValid()) {
-      edm::LogInfo("DataNotFound")
-	<< "can't find L1MuGMTReadoutCollection with label";
+      edm::LogInfo("DataNotFound") << "can't find L1MuGMTReadoutCollection with label";
     }
 
     // remember the bx of 1st candidate of each system (9=none)
@@ -270,7 +305,8 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
           if (!tw.empty()) {
             if (denomBit_ < tw.size()) {
               denomBitGood = true;
-              if (tw[denomBit_] && earliestDenom_ == 9) earliestDenom_ = iebx;
+              if (tw[denomBit_] && earliestDenom_ == 9)
+                earliestDenom_ = iebx;
             }
           }
         } else {
@@ -298,8 +334,7 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
           if (!gtDecisionWord.empty()) {
             for (uint ibit = 0; ibit < algoSelected_.size(); ibit++) {
               if (algoSelected_[ibit] < gtDecisionWord.size()) {
-                if (gtDecisionWord[algoSelected_[ibit]] &&
-                    earliestAlgo_[ibit] == 9)
+                if (gtDecisionWord[algoSelected_[ibit]] && earliestAlgo_[ibit] == 9)
                   earliestAlgo_[ibit] = iebx;
               }
             }
@@ -316,22 +351,18 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
         // loop over records of individual bx's
         std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
 
-        for (RRItr = gmt_records.begin(); RRItr != gmt_records.end();
-             RRItr++) {  // loop from BX=-2 to BX=2
+        for (RRItr = gmt_records.begin(); RRItr != gmt_records.end(); RRItr++) {  // loop from BX=-2 to BX=2
           std::vector<L1MuRegionalCand> INPCands[4] = {
-              RRItr->getDTBXCands(), RRItr->getBrlRPCCands(),
-              RRItr->getCSCCands(), RRItr->getFwdRPCCands()};
+              RRItr->getDTBXCands(), RRItr->getBrlRPCCands(), RRItr->getCSCCands(), RRItr->getFwdRPCCands()};
           std::vector<L1MuRegionalCand>::const_iterator INPItr;
           int BxInEvent = RRItr->getBxInEvent();
 
           // find the first non-empty candidate in this bx
           for (int i = 0; i < 4; i++) {  // for each single muon trigger system
-            for (INPItr = INPCands[i].begin(); INPItr != INPCands[i].end();
-                 ++INPItr) {
+            for (INPItr = INPCands[i].begin(); INPItr != INPCands[i].end(); ++INPItr) {
               if (!INPItr->empty()) {
                 if (bx1st[i] == 9)
-                  bx1st[i] = BxInEvent +
-                             2;  // must go from 0 to 4 (consistent with above)
+                  bx1st[i] = BxInEvent + 2;  // must go from 0 to 4 (consistent with above)
               }
             }
           }
@@ -380,12 +411,11 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   return;
 }
 
-std::shared_ptr<l1s::Empty> L1Scalers::globalBeginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                                            const edm::EventSetup &c) const {
+std::shared_ptr<l1s::Empty> L1Scalers::globalBeginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
+                                                                  const edm::EventSetup& c) const {
   return std::shared_ptr<l1s::Empty>();
 }
 
-void L1Scalers::globalEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                         const edm::EventSetup& iSetup) {
+void L1Scalers::globalEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
   nLumiBlock_->Fill(lumiSeg.id().luminosityBlock());
 }

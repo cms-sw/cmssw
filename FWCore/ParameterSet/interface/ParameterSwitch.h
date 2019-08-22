@@ -86,12 +86,13 @@ namespace edm {
       }
     }
 
-    void writeCfi_(std::ostream& os, bool& startWithComma, int indentation, bool& wroteSomething) const override {
-      switch_.writeCfi(os, startWithComma, indentation, wroteSomething);
+    void writeCfi_(
+        std::ostream& os, bool optional, bool& startWithComma, int indentation, bool& wroteSomething) const override {
+      switch_.writeCfi(os, optional, startWithComma, indentation, wroteSomething);
 
       typename CaseMap::const_iterator selectedCase = cases_.find(switch_.getDefaultValue());
       if (selectedCase != cases_.end()) {
-        selectedCase->second->writeCfi(os, startWithComma, indentation, wroteSomething);
+        selectedCase->second->writeCfi(os, optional, startWithComma, indentation, wroteSomething);
       }
     }
 

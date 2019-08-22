@@ -18,22 +18,15 @@ namespace edm {
   // once a module is born, these parts of the module's product provenance
   // are constant   (change to ModuleDescription)
 
-
   class ModuleDescription {
   public:
-
     ModuleDescription();
 
-    ModuleDescription(std::string const& modName,
-                      std::string const& modLabel);
+    ModuleDescription(std::string const& modName, std::string const& modLabel);
 
-    ModuleDescription(std::string const& modName,
-                      std::string const& modLabel,
-                      ProcessConfiguration const* procConfig);
+    ModuleDescription(std::string const& modName, std::string const& modLabel, ProcessConfiguration const* procConfig);
 
-    ModuleDescription(ParameterSetID const& pid,
-                      std::string const& modName,
-                      std::string const& modLabel);
+    ModuleDescription(ParameterSetID const& pid, std::string const& modName, std::string const& modLabel);
 
     ModuleDescription(ParameterSetID const& pid,
                       std::string const& modName,
@@ -45,12 +38,12 @@ namespace edm {
 
     void write(std::ostream& os) const;
 
-    ParameterSetID const& parameterSetID() const {return parameterSetID_;}
-    std::string const& moduleName() const {return moduleName_;}
-    std::string const& moduleLabel() const {return moduleLabel_;}
+    ParameterSetID const& parameterSetID() const { return parameterSetID_; }
+    std::string const& moduleName() const { return moduleName_; }
+    std::string const& moduleLabel() const { return moduleLabel_; }
     ///A unique ID for a module declared in the Process. The id is only unique for the Process and not across different Processes.
     ///If the id is invalid, will return the max unsigned int value.
-    unsigned int id() const {return id_;}
+    unsigned int id() const { return id_; }
     ProcessConfiguration const& processConfiguration() const;
 
     std::string const& processName() const;
@@ -70,12 +63,9 @@ namespace edm {
     static unsigned int getUniqueID();
 
     ///Returns a value identifying an invalid id (the max unsigned int value)
-    static constexpr unsigned int invalidID() {
-        return std::numeric_limits<unsigned int>::max();
-    }
+    static constexpr unsigned int invalidID() { return std::numeric_limits<unsigned int>::max(); }
 
   private:
-
     // ID of parameter set of the creator
     ParameterSetID parameterSetID_;
 
@@ -92,12 +82,10 @@ namespace edm {
     unsigned int id_;
   };
 
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, ModuleDescription const& p) {
+  inline std::ostream& operator<<(std::ostream& os, ModuleDescription const& p) {
     p.write(os);
     return os;
   }
 
-}
+}  // namespace edm
 #endif

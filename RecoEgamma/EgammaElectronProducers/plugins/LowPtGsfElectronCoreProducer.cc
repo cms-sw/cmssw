@@ -7,29 +7,27 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoEgamma/EgammaElectronProducers/plugins/LowPtGsfElectronCoreProducer.h"
 
-LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer( const edm::ParameterSet& config )
-  : GsfElectronCoreBaseProducer(config)
-{
-  superClusterRefs_ = consumes< edm::ValueMap<reco::SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"));
+LowPtGsfElectronCoreProducer::LowPtGsfElectronCoreProducer(const edm::ParameterSet& config)
+    : GsfElectronCoreBaseProducer(config) {
+  superClusterRefs_ =
+      consumes<edm::ValueMap<reco::SuperClusterRef> >(config.getParameter<edm::InputTag>("superClusters"));
 }
 
-LowPtGsfElectronCoreProducer::~LowPtGsfElectronCoreProducer() {}
-
-void LowPtGsfElectronCoreProducer::produce( edm::Event& event, const edm::EventSetup& setup ) {
-
+void LowPtGsfElectronCoreProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   // Output collection
   auto electrons = std::make_unique<reco::GsfElectronCoreCollection>();
 
   // Init
-  GsfElectronCoreBaseProducer::initEvent(event,setup) ;
-  if ( !useGsfPfRecTracks_ ) { edm::LogError("useGsfPfRecTracks_ is (redundantly) set to False!"); }
+  GsfElectronCoreBaseProducer::initEvent(event, setup);
+  if (!useGsfPfRecTracks_) {
+    edm::LogError("useGsfPfRecTracks_ is (redundantly) set to False!");
+  }
 
-  edm::Handle< edm::ValueMap<reco::SuperClusterRef> > superClusterRefs;
-  event.getByToken(superClusterRefs_,superClusterRefs);
+  edm::Handle<edm::ValueMap<reco::SuperClusterRef> > superClusterRefs;
+  event.getByToken(superClusterRefs_, superClusterRefs);
 
   // Create ElectronCore objects
-  for ( size_t ipfgsf = 0; ipfgsf < gsfPfRecTracksH_->size(); ++ipfgsf ) {
-
+  for (size_t ipfgsf = 0; ipfgsf < gsfPfRecTracksH_->size(); ++ipfgsf) {
     // Refs to GSF(PF) objects and SC
     reco::GsfPFRecTrackRef pfgsf(gsfPfRecTracksH_, ipfgsf);
     reco::GsfTrackRef gsf = pfgsf->gsfTrackRef();
@@ -39,7 +37,7 @@ void LowPtGsfElectronCoreProducer::produce( edm::Event& event, const edm::EventS
     electrons->emplace_back(gsf);
 
     // Do not consider ECAL-driven objects
-    if( electrons->back().ecalDrivenSeed() ) {
+    if (electrons->back().ecalDrivenSeed()) {
       electrons->pop_back();
       continue;
     }
@@ -49,21 +47,18 @@ void LowPtGsfElectronCoreProducer::produce( edm::Event& event, const edm::EventS
 
     // Add super cluster information
     electrons->back().setSuperCluster(sc);
-
   }
 
   event.put(std::move(electrons));
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
 //
-void LowPtGsfElectronCoreProducer::fillDescriptions( edm::ConfigurationDescriptions& descriptions )
-{
+void LowPtGsfElectronCoreProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  GsfElectronCoreBaseProducer::fillDescription(desc);
-  desc.add<edm::InputTag>("superClusters",edm::InputTag("lowPtGsfElectronSuperClusters"));
-  descriptions.add("defaultLowPtGsfElectronCores",desc);
+  GsfElectronCoreBaseProducer::fillDescription(desc, "lowPtGsfElePfGsfTracks", "lowPtGsfEleGsfTracks");
+  desc.add<edm::InputTag>("superClusters", edm::InputTag("lowPtGsfElectronSuperClusters"));
+  descriptions.add("lowPtGsfElectronCores", desc);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

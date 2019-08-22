@@ -13,26 +13,24 @@
 
 namespace PhysicsTools {
 
-class MVATrainerSave : public edm::EDAnalyzer {
-    public:
-	explicit MVATrainerSave(const edm::ParameterSet &params);
+  class MVATrainerSave : public edm::EDAnalyzer {
+  public:
+    explicit MVATrainerSave(const edm::ParameterSet& params);
 
-	void analyze(const edm::Event& iEvent,
-	                     const edm::EventSetup& iSetup) override;
+    void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-	void endJob() override;
+    void endJob() override;
 
-    protected:
-	virtual const Calibration::MVAComputer *
-	getToPut(const edm::EventSetup& es) const = 0;
+  protected:
+    virtual const Calibration::MVAComputer* getToPut(const edm::EventSetup& es) const = 0;
 
-	virtual std::string getRecordName() const = 0;
+    virtual std::string getRecordName() const = 0;
 
-    private:
-	std::unique_ptr<Calibration::MVAComputer>	calib;
-	bool					saved;
-};
+  private:
+    std::unique_ptr<Calibration::MVAComputer> calib;
+    bool saved;
+  };
 
-} // namespace PhysicsTools
+}  // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_MVATrainerSave_h
+#endif  // PhysicsTools_MVATrainer_MVATrainerSave_h

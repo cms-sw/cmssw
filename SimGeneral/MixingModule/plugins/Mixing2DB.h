@@ -4,7 +4,7 @@
 //
 // Package:    Mixing2DB
 // Class:      Mixing2DB
-// 
+//
 /**\class Mixing2DB Mixing2DB.cc SimGeneral/Mixing2DB/src/Mixing2DB.cc
 
  Description: [one line class summary]
@@ -17,7 +17,6 @@
 //         Created:  Mon Jan  9 17:27:59 CET 2012
 //
 //
-
 
 // system include files
 #include <memory>
@@ -35,21 +34,19 @@
 //
 
 class Mixing2DB : public edm::one::EDAnalyzer<> {
-   public:
-      explicit Mixing2DB(const edm::ParameterSet&);
-      ~Mixing2DB() override;
+public:
+  explicit Mixing2DB(const edm::ParameterSet&);
+  ~Mixing2DB() override;
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+private:
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void beginJob() override ;
-      void analyze(const edm::Event&, const edm::EventSetup&) override;
-      void endJob()  override;
-
-
-      // ----------member data ---------------------------
-      edm::ParameterSet cfi_;
+  // ----------member data ---------------------------
+  edm::ParameterSet cfi_;
 };
 
 #endif

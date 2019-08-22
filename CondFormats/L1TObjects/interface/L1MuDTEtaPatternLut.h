@@ -27,7 +27,6 @@
 // Base Class Headers --
 //----------------------
 
-
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
@@ -39,44 +38,40 @@
 //              ---------------------
 
 class L1MuDTEtaPatternLut {
+public:
+  typedef std::map<short, L1MuDTEtaPattern, std::less<short> > LUT;
+  typedef LUT::const_iterator ETFLut_iter;
+  typedef LUT::iterator ETFLut_Iter;
 
-  public:
+  /// constructor
+  L1MuDTEtaPatternLut();
 
-    typedef std::map<short, L1MuDTEtaPattern, std::less<short> > LUT;
-    typedef LUT::const_iterator ETFLut_iter;
-    typedef LUT::iterator       ETFLut_Iter;
-    
-    /// constructor
-    L1MuDTEtaPatternLut();
+  /// destructor
+  virtual ~L1MuDTEtaPatternLut();
 
-    /// destructor
-    virtual ~L1MuDTEtaPatternLut();
+  /// reset pattern look-up table
+  void reset();
 
-    /// reset pattern look-up table
-    void reset();
-    
-    /// load pattern look-up table
-    int load();
+  /// load pattern look-up table
+  int load();
 
-    /// print pattern look-up table
-    void print() const;
+  /// print pattern look-up table
+  void print() const;
 
-    /// get pattern with a given ID
-    L1MuDTEtaPattern getPattern(int id) const;
-    
-    /// return number of entries in the LUT
-    inline int size() const { return m_lut.size(); }
+  /// get pattern with a given ID
+  L1MuDTEtaPattern getPattern(int id) const;
 
-    /// return iterator which points to the first entry of the LUT
-    inline ETFLut_iter begin() const { return m_lut.begin(); }
+  /// return number of entries in the LUT
+  inline int size() const { return m_lut.size(); }
 
-    /// return iterator which points to the one-past-last entry of the LUT
-    inline ETFLut_iter end() const { return m_lut.end(); }
+  /// return iterator which points to the first entry of the LUT
+  inline ETFLut_iter begin() const { return m_lut.begin(); }
 
-  public:
+  /// return iterator which points to the one-past-last entry of the LUT
+  inline ETFLut_iter end() const { return m_lut.end(); }
 
-    LUT m_lut;
-    
+public:
+  LUT m_lut;
 
   COND_SERIALIZABLE;
 };

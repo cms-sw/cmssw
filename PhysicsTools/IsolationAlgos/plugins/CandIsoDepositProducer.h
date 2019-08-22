@@ -14,27 +14,29 @@
 
 #include <string>
 
-namespace edm { class Event; }
-namespace edm { class EventSetup; }
+namespace edm {
+  class Event;
+}
+namespace edm {
+  class EventSetup;
+}
 
 class CandIsoDepositProducer : public edm::stream::EDProducer<> {
-
 public:
-  CandIsoDepositProducer(const edm::ParameterSet&);
+  CandIsoDepositProducer(const edm::ParameterSet &);
 
   ~CandIsoDepositProducer() override;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event &, const edm::EventSetup &) override;
 
 private:
   inline const reco::Track *extractTrack(const reco::Candidate &cand, reco::Track *dummyStorage) const;
   enum TrackType { FakeT, BestT, StandAloneMuonT, CombinedMuonT, TrackT, GsfT, CandidateT };
   edm::ParameterSet theConfig;
-  edm::EDGetTokenT< edm::View<reco::Candidate> > theCandCollectionToken;
-  TrackType     theTrackType;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > theCandCollectionToken;
+  TrackType theTrackType;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
-
 };
 #endif

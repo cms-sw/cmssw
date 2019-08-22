@@ -1,4 +1,4 @@
- /** \file DQMOffline/Trigger/HLTMuonMatchAndPlotContainer.cc
+/** \file DQMOffline/Trigger/HLTMuonMatchAndPlotContainer.cc
  *
  */
 
@@ -18,12 +18,10 @@ using namespace trigger;
 ///Container Class Members (this is what is used by the DQM module) //////////
 
 /// Constructor
-HLTMuonMatchAndPlotContainer::HLTMuonMatchAndPlotContainer(ConsumesCollector && iC, const ParameterSet & pset) 
-{
-
+HLTMuonMatchAndPlotContainer::HLTMuonMatchAndPlotContainer(ConsumesCollector&& iC, const ParameterSet& pset) {
   plotters_.clear();
 
-  string hltProcessName  = pset.getParameter<string>("hltProcessName");
+  string hltProcessName = pset.getParameter<string>("hltProcessName");
 
   ParameterSet inputTags = pset.getParameter<ParameterSet>("inputTags");
 
@@ -31,69 +29,50 @@ HLTMuonMatchAndPlotContainer::HLTMuonMatchAndPlotContainer(ConsumesCollector && 
   InputTag sumTag = inputTags.getParameter<InputTag>("triggerSummary");
   resTag = InputTag(resTag.label(), resTag.instance(), hltProcessName);
   sumTag = InputTag(sumTag.label(), sumTag.instance(), hltProcessName);
-  
+
   trigSummaryToken_ = iC.consumes<TriggerEvent>(sumTag);
   trigResultsToken_ = iC.consumes<TriggerResults>(resTag);
-  
-  bsToken_   = iC.consumes<BeamSpot>(inputTags.getParameter<InputTag>("beamSpot"));
+
+  bsToken_ = iC.consumes<BeamSpot>(inputTags.getParameter<InputTag>("beamSpot"));
   muonToken_ = iC.consumes<MuonCollection>(inputTags.getParameter<InputTag>("recoMuon"));
-  pvToken_   = iC.consumes<VertexCollection>(inputTags.getParameter<InputTag>("offlinePVs"));
-
+  pvToken_ = iC.consumes<VertexCollection>(inputTags.getParameter<InputTag>("offlinePVs"));
 }
-
 
 /// Add a HLTMuonMatchAndPlot for a given path
-void HLTMuonMatchAndPlotContainer::addPlotter(const edm::ParameterSet &pset , std::string path,
-					      std::string label, bool islastfilter)
-{
-
-  plotters_.emplace_back(pset,std::move(path),std::move(label),islastfilter);
-
+void HLTMuonMatchAndPlotContainer::addPlotter(const edm::ParameterSet& pset,
+                                              std::string path,
+                                              std::string label,
+                                              bool islastfilter) {
+  plotters_.emplace_back(pset, std::move(path), std::move(label), islastfilter);
 }
 
-
-void HLTMuonMatchAndPlotContainer::beginRun(DQMStore::IBooker & iBooker,
-					    const edm::Run & iRun, 
-					    const edm::EventSetup & iSetup)
-{
-
+void HLTMuonMatchAndPlotContainer::beginRun(DQMStore::IBooker& iBooker,
+                                            const edm::Run& iRun,
+                                            const edm::EventSetup& iSetup) {
   auto iter = plotters_.begin();
-  auto end  = plotters_.end();
+  auto end = plotters_.end();
 
-  for (; iter != end; ++iter) 
-    {
-      iter->beginRun(iBooker, iRun, iSetup);
-    }
-
+  for (; iter != end; ++iter) {
+    iter->beginRun(iBooker, iRun, iSetup);
+  }
 }
 
-
-void HLTMuonMatchAndPlotContainer::endRun(const edm::Run & iRun, 
-					  const edm::EventSetup & iSetup)
-{
-
+void HLTMuonMatchAndPlotContainer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   auto iter = plotters_.begin();
-  auto end  = plotters_.end();
+  auto end = plotters_.end();
 
-  for (; iter != end; ++iter) 
-    {
-      iter->endRun(iRun, iSetup);
-    }
-  
+  for (; iter != end; ++iter) {
+    iter->endRun(iRun, iSetup);
+  }
 }
 
-
-void HLTMuonMatchAndPlotContainer::analyze(const edm::Event & iEvent, 
-					   const edm::EventSetup & iSetup)
-{  
-
-  // Get objects from the event.  
+void HLTMuonMatchAndPlotContainer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  // Get objects from the event.
   Handle<TriggerEvent> triggerSummary;
   iEvent.getByToken(trigSummaryToken_, triggerSummary);
 
-  if(!triggerSummary.isValid()) 
-  {
-    LogError("HLTMuonMatchAndPlot")<<"Missing triggerSummary collection" << endl;
+  if (!triggerSummary.isValid()) {
+    LogError("HLTMuonMatchAndPlot") << "Missing triggerSummary collection" << endl;
     return;
   }
 
@@ -101,47 +80,39 @@ void HLTMuonMatchAndPlotContainer::analyze(const edm::Event & iEvent,
   iEvent.getByToken(trigResultsToken_, triggerResults);
   const edm::TriggerNames& trigNames = iEvent.triggerNames(*triggerResults);
 
-  if(!triggerResults.isValid()) 
-  {
-    LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults collection" << endl;
+  if (!triggerResults.isValid()) {
+    LogError("HLTMuonMatchAndPlot") << "Missing triggerResults collection" << endl;
     return;
   }
 
   Handle<MuonCollection> allMuons;
   iEvent.getByToken(muonToken_, allMuons);
 
-  if(!allMuons.isValid()) 
-  {
-    LogError("HLTMuonMatchAndPlot")<<"Missing muon collection " << endl;
+  if (!allMuons.isValid()) {
+    LogError("HLTMuonMatchAndPlot") << "Missing muon collection " << endl;
     return;
   }
 
   Handle<BeamSpot> beamSpot;
   iEvent.getByToken(bsToken_, beamSpot);
 
-  if(!beamSpot.isValid()) 
-  {
-    LogError("HLTMuonMatchAndPlot")<<"Missing beam spot collection " << endl;
+  if (!beamSpot.isValid()) {
+    LogError("HLTMuonMatchAndPlot") << "Missing beam spot collection " << endl;
     return;
   }
 
   Handle<VertexCollection> vertices;
   iEvent.getByToken(pvToken_, vertices);
 
-  if(!vertices.isValid()) 
-  {
-    LogError("HLTMuonMatchAndPlot")<<"Missing vertices collection " << endl;
+  if (!vertices.isValid()) {
+    LogError("HLTMuonMatchAndPlot") << "Missing vertices collection " << endl;
     return;
   }
-  
 
   auto iter = plotters_.begin();
-  auto end  = plotters_.end();
+  auto end = plotters_.end();
 
-  for (; iter != end; ++iter) 
-    {
-      iter->analyze(allMuons, beamSpot, vertices, triggerSummary, triggerResults, trigNames);
-    }
-  
+  for (; iter != end; ++iter) {
+    iter->analyze(allMuons, beamSpot, vertices, triggerSummary, triggerResults, trigNames);
+  }
 }
-

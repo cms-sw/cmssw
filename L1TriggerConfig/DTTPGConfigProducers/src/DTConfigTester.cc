@@ -15,7 +15,6 @@ using std::cout;
 using std::endl;
 
 DTConfigTester::DTConfigTester(const edm::ParameterSet &ps) {
-
   cout << "DTConfigTester::DTConfigTester()" << endl;
 
   my_wh = ps.getUntrackedParameter<int>("wheel");
@@ -27,12 +26,10 @@ DTConfigTester::DTConfigTester(const edm::ParameterSet &ps) {
 }
 
 DTConfigTester::~DTConfigTester() {
-
   // cout << "DTConfigTester::~DTConfigTester()" << endl;
 }
 
 void DTConfigTester::analyze(const edm::Event &e, const edm::EventSetup &es) {
-
   cout << "DTConfigTester::analyze()" << endl;
   cout << "\tRun number :" << e.id().run() << endl;
   cout << "\tEvent number :" << e.id().event() << endl;

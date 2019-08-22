@@ -61,14 +61,26 @@ namespace edm {
     }
 
     // ---------- const member functions ---------------------
-    element_type const* get() const { return &(*m_value); }
+    element_type const* get() const {
+      if constexpr (std::is_pointer<T>::value) {
+        return m_value;
+      } else {
+        return m_value.get();
+      }
+    }
     element_type const* operator->() const { return this->get(); }
     element_type const& operator*() const { return *m_value; }
 
     operator element_type const*() const { return this->get(); }
 
     // ---------- member functions ---------------------------
-    element_type* get() { return &(*m_value); }
+    element_type* get() {
+      if constexpr (std::is_pointer<T>::value) {
+        return m_value;
+      } else {
+        return m_value.get();
+      }
+    }
     element_type* operator->() { return this->get(); }
     element_type& operator*() { return *m_value; }
 

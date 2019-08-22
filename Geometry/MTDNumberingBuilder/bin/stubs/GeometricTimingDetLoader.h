@@ -12,9 +12,8 @@ class GeometricTimingDet;
 class PGeometricTimingDet;
 
 class GeometricTimingDetLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
-
- public:
-  explicit GeometricTimingDetLoader( const edm::ParameterSet& iConfig );
+public:
+  explicit GeometricTimingDetLoader(const edm::ParameterSet& iConfig);
   ~GeometricTimingDetLoader() override;
 
   void beginJob() override {}
@@ -22,9 +21,9 @@ class GeometricTimingDetLoader : public edm::one::EDAnalyzer<edm::one::WatchRuns
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
   void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
   void endJob() override {}
-  
- private:
-  void putOne ( const GeometricTimingDet* gd, PGeometricTimingDet* pgd, int lev );
+
+private:
+  void putOne(const GeometricTimingDet* gd, PGeometricTimingDet* pgd, int lev);
 };
 
 #endif

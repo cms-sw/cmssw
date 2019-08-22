@@ -7,9 +7,9 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Utilities/interface/DictionaryTools.h"
+#include "FWCore/Reflection/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include <vector>
 #include <typeindex>

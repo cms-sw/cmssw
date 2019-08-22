@@ -4,7 +4,7 @@
 //
 // Package:    SiStripApvGainCalculator
 // Class:      SiStripApvGainCalculator
-// 
+//
 /**\class SiStripApvGainCalculator SiStripApvGainCalculator.cc CalibTracker/SiStripChannelGain/src/SiStripApvGainCalculator.cc
 
  Description: <one line class summary>
@@ -18,7 +18,6 @@
 //
 //
 
-
 #include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 
@@ -26,27 +25,22 @@
 #include <memory>
 
 class SiStripGainRandomCalculator : public ConditionDBWriter<SiStripApvGain> {
-
 public:
-
-  explicit SiStripGainRandomCalculator(const edm::ParameterSet&);
+  explicit SiStripGainRandomCalculator(const edm::ParameterSet &);
   ~SiStripGainRandomCalculator() override;
 
 private:
-
   void algoAnalyze(const edm::Event &, const edm::EventSetup &) override;
 
   std::unique_ptr<SiStripApvGain> getNewObject() override;
 
 private:
-
   double meanGain_;
   double sigmaGain_;
   double minimumPosValue_;
 
-  std::vector< std::pair<uint32_t, unsigned short> > detid_apvs_;
+  std::vector<std::pair<uint32_t, unsigned short> > detid_apvs_;
   unsigned long long m_cacheID_;
   bool printdebug_;
-
 };
 #endif

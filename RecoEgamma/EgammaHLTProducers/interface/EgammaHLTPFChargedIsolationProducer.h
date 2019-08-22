@@ -29,23 +29,22 @@ namespace edm {
 }
 
 class EgammaHLTPFChargedIsolationProducer : public edm::global::EDProducer<> {
- public:
+public:
   explicit EgammaHLTPFChargedIsolationProducer(const edm::ParameterSet&);
-  ~EgammaHLTPFChargedIsolationProducer() override {};
+  ~EgammaHLTPFChargedIsolationProducer() override{};
 
   void produce(edm::StreamID sid, edm::Event&, const edm::EventSetup&) const override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
- 
-private:
 
+private:
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   const edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
   const edm::EDGetTokenT<reco::BeamSpot> beamSpotProducer_;
-  
+
   const bool useGsfTrack_;
   const bool useSCRefs_;
-  
+
   const double drMax_;
   const double drVetoBarrel_;
   const double drVetoEndcap_;
@@ -53,7 +52,6 @@ private:
   const double dzMax_;
   const double dxyMax_;
   const int pfToUse_;
-
 };
 
 #endif

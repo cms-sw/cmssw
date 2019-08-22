@@ -10,15 +10,9 @@
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "boost/mpl/vector.hpp"
 
-class MTDGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   MTDGeometryRecord,
-     boost::mpl::vector<
-     IdealGeometryRecord,
-     BTLGeometryRcd,
-     ETLGeometryRcd,
-     GlobalPositionRcd,
-     PFastTimeRcd                 > > {};
+class MTDGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<
+          MTDGeometryRecord,
+          boost::mpl::vector<IdealGeometryRecord, BTLGeometryRcd, ETLGeometryRcd, GlobalPositionRcd, PFastTimeRcd> > {};
 
 #endif /* RECORDS_MTDGEOMETRYRECORD_H */
-

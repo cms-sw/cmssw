@@ -21,57 +21,60 @@ class HLTScoutingPrimaryVertexProducer : public edm::global::EDProducer<> {
 public:
   explicit HLTScoutingPrimaryVertexProducer(const edm::ParameterSet&);
   ~HLTScoutingPrimaryVertexProducer() override;
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  void produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const final;
+  void produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& setup) const final;
   const edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
 };
 
 //
 // constructors and destructor
 //
-HLTScoutingPrimaryVertexProducer::HLTScoutingPrimaryVertexProducer(const edm::ParameterSet& iConfig):
-  vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection")))
-{
+HLTScoutingPrimaryVertexProducer::HLTScoutingPrimaryVertexProducer(const edm::ParameterSet& iConfig)
+    : vertexCollection_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection"))) {
   //register products
   produces<ScoutingVertexCollection>("primaryVtx");
-  
 }
 
 HLTScoutingPrimaryVertexProducer::~HLTScoutingPrimaryVertexProducer() = default;
 
 // ------------ method called to produce the data  ------------
-void
-HLTScoutingPrimaryVertexProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventSetup const & setup) const
-{
+void HLTScoutingPrimaryVertexProducer::produce(edm::StreamID sid,
+                                               edm::Event& iEvent,
+                                               edm::EventSetup const& setup) const {
   using namespace edm;
-  
+
   //get vertices
   Handle<reco::VertexCollection> vertexCollection;
-  
+
   std::unique_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
-  
-  if(iEvent.getByToken(vertexCollection_, vertexCollection)){
-    for(auto &vtx : *vertexCollection){
-      outVertices->emplace_back(
-				vtx.x(), vtx.y(), vtx.z(), vtx.zError(), vtx.xError(), vtx.yError(), vtx.tracksSize(), vtx.chi2(), vtx.ndof(), vtx.isValid()
-				);
+
+  if (iEvent.getByToken(vertexCollection_, vertexCollection)) {
+    for (auto& vtx : *vertexCollection) {
+      outVertices->emplace_back(vtx.x(),
+                                vtx.y(),
+                                vtx.z(),
+                                vtx.zError(),
+                                vtx.xError(),
+                                vtx.yError(),
+                                vtx.tracksSize(),
+                                vtx.chi2(),
+                                vtx.ndof(),
+                                vtx.isValid());
     }
   }
-  
+
   //put output
   iEvent.put(std::move(outVertices), "primaryVtx");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-HLTScoutingPrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTScoutingPrimaryVertexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
   descriptions.add("hltScoutingPrimaryVertexProducer", desc);
-
 }
 
 // declare this class as a framework plugin

@@ -2,7 +2,7 @@
 #define EcalFEDMonitor_H
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -24,27 +24,19 @@
 #include <iostream>
 
 // Making the class templated temporarily, until HLT sequence can be fixed (is using EBHltTask and EEHltTask currently)
-template<int SUBDET>
-class EcalFEDMonitorTemp : public DQMEDAnalyzer{
- public:
+template <int SUBDET>
+class EcalFEDMonitorTemp : public DQMEDAnalyzer {
+public:
   EcalFEDMonitorTemp(edm::ParameterSet const&);
-  ~EcalFEDMonitorTemp() {}
+  ~EcalFEDMonitorTemp() override {}
 
- private:
+private:
   void analyze(edm::Event const&, edm::EventSetup const&) override;
   void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
-  enum MEs {
-    kEBOccupancy,
-    kEBFatal,
-    kEBNonFatal,
-    kEEOccupancy,
-    kEEFatal,
-    kEENonFatal,
-    nMEs
-  };
+  enum MEs { kEBOccupancy, kEBFatal, kEBNonFatal, kEEOccupancy, kEEFatal, kEENonFatal, nMEs };
 
   std::string folderName_;
 

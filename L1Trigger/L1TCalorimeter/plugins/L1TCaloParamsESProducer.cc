@@ -12,9 +12,6 @@
 //
 //
 
-
-
-
 // system include files
 #include <memory>
 #include <iostream>
@@ -51,7 +48,7 @@ public:
   ReturnType produce(const L1TCaloParamsRcd&);
 
 private:
-  CaloParams  m_params ;
+  CaloParams m_params;
   std::string m_label;
 };
 
@@ -66,9 +63,7 @@ private:
 //
 // constructors and destructor
 //
-L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
-{
-
+L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf) {
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this);
@@ -89,7 +84,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   // regions
   m_params_helper.setRegionLsb(conf.getParameter<double>("regionLsb"));
   m_params_helper.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
-  m_params_helper.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
+  m_params_helper.setRegionPUSParams(conf.getParameter<std::vector<double>>("regionPUSParams"));
 
   // EG
   m_params_helper.setEgEtaCut(conf.getParameter<int>("egEtaCut"));
@@ -157,7 +152,6 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   //auto egIsoLUTEndcaps = std::make_shared<LUT>(egIsoLUTEndcapsStream);
   //m_params_helper.setEgIsolationLUTEndcaps(egIsoLUTEndcaps);
 
-
   m_params_helper.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
   m_params_helper.setEgIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("egIsoAreaNrTowersPhi"));
   m_params_helper.setEgIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("egIsoVetoNrTowersPhi"));
@@ -194,12 +188,12 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
 
   edm::FileInPath tauIsoLUTFile2 = conf.getParameter<edm::FileInPath>("tauIsoLUTFile2");
   std::ifstream tauIsoLUTStream2(tauIsoLUTFile2.fullPath());
-  std::shared_ptr<LUT> tauIsoLUT2( new LUT(tauIsoLUTStream2) );
+  std::shared_ptr<LUT> tauIsoLUT2(new LUT(tauIsoLUTStream2));
   m_params_helper.setTauIsolationLUT2(*tauIsoLUT2);
 
   edm::FileInPath tauTrimmingShapeVetoLUTFile = conf.getParameter<edm::FileInPath>("tauTrimmingShapeVetoLUTFile");
   std::ifstream tauTrimmingShapeVetoLUTStream(tauTrimmingShapeVetoLUTFile.fullPath());
-  std::shared_ptr<LUT> tauTrimmingShapeVetoLUT( new LUT(tauTrimmingShapeVetoLUTStream) );
+  std::shared_ptr<LUT> tauTrimmingShapeVetoLUT(new LUT(tauTrimmingShapeVetoLUTStream));
   m_params_helper.setTauTrimmingShapeVetoLUT(*tauTrimmingShapeVetoLUT);
 
   edm::FileInPath tauCalibrationLUTFile = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFile");
@@ -217,8 +211,8 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   auto tauEtToHFRingEtLUT = std::make_shared<LUT>(tauEtToHFRingEtLUTStream);
   m_params_helper.setTauEtToHFRingEtLUT(*tauEtToHFRingEtLUT);
 
-  m_params_helper.setIsoTauEtaMin(conf.getParameter<int> ("isoTauEtaMin"));
-  m_params_helper.setIsoTauEtaMax(conf.getParameter<int> ("isoTauEtaMax"));
+  m_params_helper.setIsoTauEtaMin(conf.getParameter<int>("isoTauEtaMin"));
+  m_params_helper.setIsoTauEtaMax(conf.getParameter<int>("isoTauEtaMax"));
 
   m_params_helper.setTauPUSParams(conf.getParameter<std::vector<double>>("tauPUSParams"));
 
@@ -231,26 +225,26 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setJetBypassPUS(conf.getParameter<unsigned>("jetBypassPUS"));
   m_params_helper.setJetPUSUsePhiRing(conf.getParameter<unsigned>("jetPUSUsePhiRing"));
   m_params_helper.setJetCalibrationType(conf.getParameter<std::string>("jetCalibrationType"));
-  m_params_helper.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
+  m_params_helper.setJetCalibrationParams(conf.getParameter<std::vector<double>>("jetCalibrationParams"));
   edm::FileInPath jetCalibrationLUTFile = conf.getParameter<edm::FileInPath>("jetCalibrationLUTFile");
   std::ifstream jetCalibrationLUTStream(jetCalibrationLUTFile.fullPath());
   auto jetCalibrationLUT = std::make_shared<LUT>(jetCalibrationLUTStream);
   m_params_helper.setJetCalibrationLUT(*jetCalibrationLUT);
   edm::FileInPath jetCompressEtaLUTFile = conf.getParameter<edm::FileInPath>("jetCompressEtaLUTFile");
   std::ifstream jetCompressEtaLUTStream(jetCompressEtaLUTFile.fullPath());
-  std::shared_ptr<LUT> jetCompressEtaLUT( new LUT(jetCompressEtaLUTStream) );
+  std::shared_ptr<LUT> jetCompressEtaLUT(new LUT(jetCompressEtaLUTStream));
   m_params_helper.setJetCompressEtaLUT(*jetCompressEtaLUT);
   edm::FileInPath jetCompressPtLUTFile = conf.getParameter<edm::FileInPath>("jetCompressPtLUTFile");
   std::ifstream jetCompressPtLUTStream(jetCompressPtLUTFile.fullPath());
-  std::shared_ptr<LUT> jetCompressPtLUT( new LUT(jetCompressPtLUTStream) );
+  std::shared_ptr<LUT> jetCompressPtLUT(new LUT(jetCompressPtLUTStream));
   m_params_helper.setJetCompressPtLUT(*jetCompressPtLUT);
 
   // sums
   m_params_helper.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
 
-  std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int> >("etSumEtaMin");
-  std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int> >("etSumEtaMax");
-  std::vector<double> etSumEtThreshold = conf.getParameter<std::vector<double> >("etSumEtThreshold");
+  std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int>>("etSumEtaMin");
+  std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int>>("etSumEtaMax");
+  std::vector<double> etSumEtThreshold = conf.getParameter<std::vector<double>>("etSumEtThreshold");
   m_params_helper.setEtSumBypassMetPUS(conf.getParameter<unsigned>("etSumBypassMetPUS"));
   m_params_helper.setEtSumBypassEttPUS(conf.getParameter<unsigned>("etSumBypassEttPUS"));
   m_params_helper.setEtSumBypassEcalSumPUS(conf.getParameter<unsigned>("etSumBypassEcalSumPUS"));
@@ -262,72 +256,70 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setEtSumEttCalibrationType(conf.getParameter<std::string>("etSumEttCalibrationType"));
   m_params_helper.setEtSumEcalSumCalibrationType(conf.getParameter<std::string>("etSumEcalSumCalibrationType"));
 
-  if ((etSumEtaMin.size() == etSumEtaMax.size()) &&  (etSumEtaMin.size() == etSumEtThreshold.size())) {
-    for (unsigned i=0; i<etSumEtaMin.size(); ++i) {
+  if ((etSumEtaMin.size() == etSumEtaMax.size()) && (etSumEtaMin.size() == etSumEtThreshold.size())) {
+    for (unsigned i = 0; i < etSumEtaMin.size(); ++i) {
       m_params_helper.setEtSumEtaMin(i, etSumEtaMin.at(i));
       m_params_helper.setEtSumEtaMax(i, etSumEtaMax.at(i));
       m_params_helper.setEtSumEtThreshold(i, etSumEtThreshold.at(i));
     }
-  }
-  else {
+  } else {
     edm::LogError("l1t|calo") << "Inconsistent number of EtSum parameters" << std::endl;
   }
 
   edm::FileInPath etSumMetPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumMetPUSLUTFile");
   std::ifstream etSumMetPUSLUTStream(etSumMetPUSLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumMetPUSLUT( new LUT(etSumMetPUSLUTStream) );
+  std::shared_ptr<LUT> etSumMetPUSLUT(new LUT(etSumMetPUSLUTStream));
   m_params_helper.setEtSumMetPUSLUT(*etSumMetPUSLUT);
 
   edm::FileInPath etSumEttPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEttPUSLUTFile");
   std::ifstream etSumEttPUSLUTStream(etSumEttPUSLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEttPUSLUT( new LUT(etSumEttPUSLUTStream) );
+  std::shared_ptr<LUT> etSumEttPUSLUT(new LUT(etSumEttPUSLUTStream));
   m_params_helper.setEtSumEttPUSLUT(*etSumEttPUSLUT);
-  
+
   edm::FileInPath etSumEcalSumPUSLUTFile = conf.getParameter<edm::FileInPath>("etSumEcalSumPUSLUTFile");
   std::ifstream etSumEcalSumPUSLUTStream(etSumEcalSumPUSLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEcalSumPUSLUT( new LUT(etSumEcalSumPUSLUTStream) );
+  std::shared_ptr<LUT> etSumEcalSumPUSLUT(new LUT(etSumEcalSumPUSLUTStream));
   m_params_helper.setEtSumEcalSumPUSLUT(*etSumEcalSumPUSLUT);
-  
+
   edm::FileInPath metCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metCalibrationLUTFile");
   std::ifstream metCalibrationLUTStream(metCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metCalibrationLUT( new LUT(metCalibrationLUTStream) );
+  std::shared_ptr<LUT> metCalibrationLUT(new LUT(metCalibrationLUTStream));
   m_params_helper.setMetCalibrationLUT(*metCalibrationLUT);
-  
+
   edm::FileInPath metHFCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metHFCalibrationLUTFile");
   std::ifstream metHFCalibrationLUTStream(metHFCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metHFCalibrationLUT( new LUT(metHFCalibrationLUTStream) );
+  std::shared_ptr<LUT> metHFCalibrationLUT(new LUT(metHFCalibrationLUTStream));
   m_params_helper.setMetHFCalibrationLUT(*metHFCalibrationLUT);
 
   edm::FileInPath etSumEttCalibrationLUTFile = conf.getParameter<edm::FileInPath>("etSumEttCalibrationLUTFile");
   std::ifstream etSumEttCalibrationLUTStream(etSumEttCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEttCalibrationLUT( new LUT(etSumEttCalibrationLUTStream) );
+  std::shared_ptr<LUT> etSumEttCalibrationLUT(new LUT(etSumEttCalibrationLUTStream));
   m_params_helper.setEtSumEttCalibrationLUT(*etSumEttCalibrationLUT);
 
   edm::FileInPath etSumEcalSumCalibrationLUTFile = conf.getParameter<edm::FileInPath>("etSumEcalSumCalibrationLUTFile");
   std::ifstream etSumEcalSumCalibrationLUTStream(etSumEcalSumCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> etSumEcalSumCalibrationLUT( new LUT(etSumEcalSumCalibrationLUTStream) );
+  std::shared_ptr<LUT> etSumEcalSumCalibrationLUT(new LUT(etSumEcalSumCalibrationLUTStream));
   m_params_helper.setEtSumEcalSumCalibrationLUT(*etSumEcalSumCalibrationLUT);
 
   edm::FileInPath metPhiCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metPhiCalibrationLUTFile");
   std::ifstream metPhiCalibrationLUTStream(metPhiCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metPhiCalibrationLUT( new LUT(metPhiCalibrationLUTStream) );
+  std::shared_ptr<LUT> metPhiCalibrationLUT(new LUT(metPhiCalibrationLUTStream));
   m_params_helper.setMetPhiCalibrationLUT(*metPhiCalibrationLUT);
 
   edm::FileInPath metHFPhiCalibrationLUTFile = conf.getParameter<edm::FileInPath>("metHFPhiCalibrationLUTFile");
   std::ifstream metHFPhiCalibrationLUTStream(metHFPhiCalibrationLUTFile.fullPath());
-  std::shared_ptr<LUT> metHFPhiCalibrationLUT( new LUT(metHFPhiCalibrationLUTStream) );
+  std::shared_ptr<LUT> metHFPhiCalibrationLUT(new LUT(metHFPhiCalibrationLUTStream));
   m_params_helper.setMetHFPhiCalibrationLUT(*metHFPhiCalibrationLUT);
 
   // HI centrality trigger
   std::vector<double> etSumCentLower = conf.getParameter<std::vector<double>>("etSumCentralityLower");
   std::vector<double> etSumCentUpper = conf.getParameter<std::vector<double>>("etSumCentralityUpper");
-  if (etSumCentLower.size() == etSumCentUpper.size()){
-    for (unsigned i=0; i<etSumCentLower.size(); ++i) {
+  if (etSumCentLower.size() == etSumCentUpper.size()) {
+    for (unsigned i = 0; i < etSumCentLower.size(); ++i) {
       m_params_helper.setEtSumCentLower(i, etSumCentLower.at(i));
       m_params_helper.setEtSumCentUpper(i, etSumCentUpper.at(i));
     }
-  }
-  else {
+  } else {
     edm::LogError("l1t|calo") << "Inconsistent number of Centrality boundaries" << std::endl;
   }
 
@@ -336,8 +328,8 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   auto centralityLUT = std::make_shared<LUT>(centralityLUTStream);
   m_params_helper.setCentralityLUT(*centralityLUT);
   m_params_helper.setCentralityRegionMask(conf.getParameter<int>("centralityRegionMask"));
-  std::vector<int> minbiasThresholds = conf.getParameter<std::vector<int> >("minimumBiasThresholds");
-  if(minbiasThresholds.size() == 4) {
+  std::vector<int> minbiasThresholds = conf.getParameter<std::vector<int>>("minimumBiasThresholds");
+  if (minbiasThresholds.size() == 4) {
     m_params_helper.setMinimumBiasThresholds(minbiasThresholds);
   } else {
     edm::LogError("l1t|calo") << "Incorrect number of minimum bias thresholds set.";
@@ -352,43 +344,35 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   // Layer 1 LUT specification
   m_params_helper.setLayer1ECalScaleFactors(conf.getParameter<std::vector<double>>("layer1ECalScaleFactors"));
   m_params_helper.setLayer1HCalScaleFactors(conf.getParameter<std::vector<double>>("layer1HCalScaleFactors"));
-  m_params_helper.setLayer1HFScaleFactors  (conf.getParameter<std::vector<double>>("layer1HFScaleFactors"));
+  m_params_helper.setLayer1HFScaleFactors(conf.getParameter<std::vector<double>>("layer1HFScaleFactors"));
 
   m_params_helper.setLayer1ECalScaleETBins(conf.getParameter<std::vector<int>>("layer1ECalScaleETBins"));
   m_params_helper.setLayer1HCalScaleETBins(conf.getParameter<std::vector<int>>("layer1HCalScaleETBins"));
-  m_params_helper.setLayer1HFScaleETBins  (conf.getParameter<std::vector<int>>("layer1HFScaleETBins"));
+  m_params_helper.setLayer1HFScaleETBins(conf.getParameter<std::vector<int>>("layer1HFScaleETBins"));
 
   m_params_helper.setLayer1ECalScalePhiBins(conf.getParameter<std::vector<unsigned>>("layer1ECalScalePhiBins"));
   m_params_helper.setLayer1HCalScalePhiBins(conf.getParameter<std::vector<unsigned>>("layer1HCalScalePhiBins"));
-  m_params_helper.setLayer1HFScalePhiBins  (conf.getParameter<std::vector<unsigned>>("layer1HFScalePhiBins"));
+  m_params_helper.setLayer1HFScalePhiBins(conf.getParameter<std::vector<unsigned>>("layer1HFScalePhiBins"));
 
   if (conf.existsAs<std::vector<unsigned>>("layer1SecondStageLUT")) {
     m_params_helper.setLayer1SecondStageLUT(conf.getParameter<std::vector<unsigned>>("layer1SecondStageLUT"));
   }
-   
+
   m_params = (CaloParams)m_params_helper;
-
 }
 
-
-L1TCaloParamsESProducer::~L1TCaloParamsESProducer()
-{
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+L1TCaloParamsESProducer::~L1TCaloParamsESProducer() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-L1TCaloParamsESProducer::ReturnType
-L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
-{
-   return std::make_unique<CaloParams>(m_params);
+L1TCaloParamsESProducer::ReturnType L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord) {
+  return std::make_unique<CaloParams>(m_params);
 }
 
 //define this as a plug-in

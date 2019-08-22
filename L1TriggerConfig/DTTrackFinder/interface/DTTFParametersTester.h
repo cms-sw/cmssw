@@ -20,18 +20,15 @@
 #include "CondFormats/L1TObjects/interface/L1MuDTTFParameters.h"
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 
-
 class DTTFParametersTester : public edm::EDAnalyzer {
- public:
-
+public:
   DTTFParametersTester(const edm::ParameterSet& ps);
 
   ~DTTFParametersTester() override;
-  
+
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
- private:
-
+private:
 };
 
 #endif

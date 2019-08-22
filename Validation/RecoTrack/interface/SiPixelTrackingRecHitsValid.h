@@ -11,7 +11,6 @@
 
 //DQM services for histogram
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
@@ -30,7 +29,7 @@
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h" 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
@@ -49,12 +48,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //--- for SimHit association
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"  
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -66,24 +65,23 @@
 class TTree;
 class TFile;
 
-class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
-{
- public:
-  
+class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer {
+public:
   explicit SiPixelTrackingRecHitsValid(const edm::ParameterSet& conf);
-  
+
   ~SiPixelTrackingRecHitsValid() override;
 
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es) override;
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& es) override;
   void beginJob() override;
   void endJob() override;
 
   //xt std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,const BoundPlane& plane);
-  std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const PixelGeomDetUnit* pixelDet,const BoundPlane& plane);
+  std::pair<LocalPoint, LocalVector> projectHit(const PSimHit& hit,
+                                                const PixelGeomDetUnit* pixelDet,
+                                                const BoundPlane& plane);
 
- private:
-
+private:
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   //TrackLocalAngle *anglefinder_;
   DQMStore* dbe_;
@@ -95,11 +93,11 @@ class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
   edm::EDGetTokenT<reco::TrackCollection> recoTrackCollectionToken_;
   bool MTCCtrack_;
 
-  bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?
-  int genType_; // the type of particle that the simHit associated with recHits should be
+  bool checkType_;  // do we check that the simHit associated with recHit is of the expected particle type ?
+  int genType_;     // the type of particle that the simHit associated with recHits should be
 
   // Pixel barrel detector has 3 layers and 8 modules; book histograms for each module = (layer, ring) pair
-  
+
   MonitorElement* mePosxBarrelLayerModule[3][8];
   MonitorElement* mePosyBarrelLayerModule[3][8];
   MonitorElement* meErrxBarrelLayerModule[3][8];
@@ -124,7 +122,7 @@ class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
   MonitorElement* mePullYvsPhiBarrelLayerModule[3][8];
   MonitorElement* mePullXvsEtaBarrelLayerModule[3][8];
   MonitorElement* mePullYvsEtaBarrelLayerModule[3][8];
-  
+
   // All layers and modules together
   MonitorElement* mePosxBarrel;
   MonitorElement* mePosyBarrel;
@@ -195,7 +193,7 @@ class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
   MonitorElement* meWPullXvsBetaBarrelNonFlippedLadders;
   MonitorElement* meWPullYvsBetaBarrelNonFlippedLadders;
 
-  // Split barrel x/y residuals and pulls in 3 layers  
+  // Split barrel x/y residuals and pulls in 3 layers
   MonitorElement* meResxBarrelLayer[3];
   MonitorElement* meResyBarrelLayer[3];
   MonitorElement* mePullxBarrelLayer[3];
@@ -447,71 +445,70 @@ class SiPixelTrackingRecHitsValid : public DQMEDAnalyzer
   MonitorElement* meWPullXvsBetaZpPanel2;
   MonitorElement* meWPullYvsBetaZpPanel2;
 
-  // all hits (not only from tracks) 
+  // all hits (not only from tracks)
   MonitorElement* mePosxBarrel_all_hits;
   MonitorElement* mePosyBarrel_all_hits;
-  
+
   MonitorElement* mePosxZmPanel1_all_hits;
   MonitorElement* mePosyZmPanel1_all_hits;
   MonitorElement* mePosxZmPanel2_all_hits;
   MonitorElement* mePosyZmPanel2_all_hits;
-  
+
   MonitorElement* mePosxZpPanel1_all_hits;
   MonitorElement* mePosyZpPanel1_all_hits;
   MonitorElement* mePosxZpPanel2_all_hits;
   MonitorElement* mePosyZpPanel2_all_hits;
-  
+
   // control histograms
   MonitorElement* meTracksPerEvent;
   MonitorElement* mePixRecHitsPerTrack;
 
-
   // variables that go in the output tree
-  float rechitx; // x position of hit 
-  float rechity; // y position of hit
-  float rechitz; // z position of hit
-  float rechiterrx; // x position error of hit (error not squared)
-  float rechiterry; // y position error of hit (error not squared)
+  float rechitx;     // x position of hit
+  float rechity;     // y position of hit
+  float rechitz;     // z position of hit
+  float rechiterrx;  // x position error of hit (error not squared)
+  float rechiterry;  // y position error of hit (error not squared)
 
-  float rechitresx; // difference between reconstructed hit x position and 'true' x position
-  float rechitresy; // difference between reconstructed hit y position and 'true' y position
-  float rechitpullx; // x residual divideded by error
-  float rechitpully; // y residual divideded by error
+  float rechitresx;   // difference between reconstructed hit x position and 'true' x position
+  float rechitresy;   // difference between reconstructed hit y position and 'true' y position
+  float rechitpullx;  // x residual divideded by error
+  float rechitpully;  // y residual divideded by error
 
-  int npix; // number of pixel in the cluster
-  int nxpix; // size of cluster (number of pixels) along x direction
-  int nypix; // size of cluster (number of pixels) along y direction
-  float charge; // total charge in cluster
+  int npix;      // number of pixel in the cluster
+  int nxpix;     // size of cluster (number of pixels) along x direction
+  int nypix;     // size of cluster (number of pixels) along y direction
+  float charge;  // total charge in cluster
 
-  float alpha; // track angle in the xz plane of the module local coordinate system  
-  float beta;  // track angle in the yz plane of the module local coordinate system  
+  float alpha;  // track angle in the xz plane of the module local coordinate system
+  float beta;   // track angle in the yz plane of the module local coordinate system
 
-  float phi;   // polar track angle
-  float eta;   // pseudo-rapidity (function of theta, the azimuthal angle)
+  float phi;  // polar track angle
+  float eta;  // pseudo-rapidity (function of theta, the azimuthal angle)
 
   int subdetId;
-  int layer;  
-  int ladder; 
-  int mod;    
-  int side;    
-  int disk;   
-  int blade;  
-  int panel;  
-  int plaq;   
-  int half; // half = 1 if the barrel module is half size and 0 if it is full size (only defined for barrel) 
-  int flipped; // flipped = 1 if the module is flipped and 0 if non-flipped (only defined for barrel) 
+  int layer;
+  int ladder;
+  int mod;
+  int side;
+  int disk;
+  int blade;
+  int panel;
+  int plaq;
+  int half;     // half = 1 if the barrel module is half size and 0 if it is full size (only defined for barrel)
+  int flipped;  // flipped = 1 if the module is flipped and 0 if non-flipped (only defined for barrel)
 
-  int nsimhit; // number of simhits associated with a rechit
-  int pidhit; // PID of the particle that produced the simHit associated with the recHit
+  int nsimhit;  // number of simhits associated with a rechit
+  int pidhit;   // PID of the particle that produced the simHit associated with the recHit
 
-  float simhitx; // true x position of hit 
-  float simhity; // true y position of hit
+  float simhitx;  // true x position of hit
+  float simhity;  // true y position of hit
 
   edm::EventNumber_t evt;
   edm::RunNumber_t run;
 
-  TFile * tfile_;
-  TTree * t_;
+  TFile* tfile_;
+  TTree* t_;
 };
 
 #endif

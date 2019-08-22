@@ -23,56 +23,49 @@
 
 //
 
+class IslandClusterProducer : public edm::stream::EDProducer<> {
+public:
+  IslandClusterProducer(const edm::ParameterSet& ps);
 
-class IslandClusterProducer : public edm::stream::EDProducer<> 
-{
-  public:
+  ~IslandClusterProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event&, const edm::EventSetup&) override;
 
-      IslandClusterProducer(const edm::ParameterSet& ps);
+private:
+  int nMaxPrintout_;  // max # of printouts
+  int nEvt_;          // internal counter of events
 
-      ~IslandClusterProducer() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-      void produce(edm::Event&, const edm::EventSetup&) override;
+  IslandClusterAlgo::VerbosityLevel verbosity;
 
-   private:
+  edm::EDGetTokenT<EcalRecHitCollection> barrelRecHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapRecHits_;
 
-      int nMaxPrintout_; // max # of printouts
-      int nEvt_;         // internal counter of events
+  std::string barrelClusterCollection_;
+  std::string endcapClusterCollection_;
 
-      IslandClusterAlgo::VerbosityLevel verbosity;
+  std::string clustershapecollectionEB_;
+  std::string clustershapecollectionEE_;
 
+  //BasicClusterShape AssociationMap
+  std::string barrelClusterShapeAssociation_;
+  std::string endcapClusterShapeAssociation_;
 
- 	  edm::EDGetTokenT<EcalRecHitCollection> barrelRecHits_;
-	  edm::EDGetTokenT<EcalRecHitCollection> endcapRecHits_;
+  PositionCalc posCalculator_;  // position calculation algorithm
+  ClusterShapeAlgo shapeAlgo_;  // cluster shape algorithm
+  IslandClusterAlgo* island_p;
 
-      std::string barrelClusterCollection_;
-      std::string endcapClusterCollection_;
+  bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
 
-      std::string clustershapecollectionEB_;
-      std::string clustershapecollectionEE_;
+  const EcalRecHitCollection* getCollection(edm::Event& evt, const edm::EDGetTokenT<EcalRecHitCollection>& token);
 
-      //BasicClusterShape AssociationMap
-      std::string barrelClusterShapeAssociation_;
-      std::string endcapClusterShapeAssociation_; 
+  void clusterizeECALPart(edm::Event& evt,
+                          const edm::EventSetup& es,
+                          const edm::EDGetTokenT<EcalRecHitCollection>& token,
+                          const std::string& clusterCollection,
+                          const std::string& clusterShapeAssociation,
+                          const IslandClusterAlgo::EcalPart& ecalPart);
 
-      PositionCalc posCalculator_; // position calculation algorithm
-      ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
-      IslandClusterAlgo * island_p;
-
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0)); }
-
-      const EcalRecHitCollection * getCollection(edm::Event& evt,
-                                   const edm::EDGetTokenT<EcalRecHitCollection>& token);
-
-
-      void clusterizeECALPart(edm::Event &evt, const edm::EventSetup &es,
-							  const edm::EDGetTokenT<EcalRecHitCollection>& token,
-                              const std::string& clusterCollection,
-			      const std::string& clusterShapeAssociation,
-                              const IslandClusterAlgo::EcalPart& ecalPart);
-
-      void outputValidationInfo(reco::CaloClusterPtrVector &clusterPtrVector);
+  void outputValidationInfo(reco::CaloClusterPtrVector& clusterPtrVector);
 };
-
 
 #endif

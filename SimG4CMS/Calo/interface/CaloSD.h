@@ -44,7 +44,7 @@ class CaloSD : public SensitiveCaloDetector,
                public Observer<const EndOfEvent*> {
 public:
   CaloSD(const std::string& aSDname,
-         const DDCompactView& cpv,
+         const edm::EventSetup& es,
          const SensitiveDetectorCatalog& clg,
          edm::ParameterSet const& p,
          const SimTrackManager*,

@@ -39,7 +39,6 @@
 typedef unsigned char myint8;
 
 class DTChambPhSegm : public DTTrigData {
-
 public:
   /// Constructor
   DTChambPhSegm(DTChamberId, int);
@@ -60,7 +59,6 @@ public:
   DTChambPhSegm &operator=(const DTChambPhSegm &);
   /// Associate a TRACO trigger
   inline void setTracoTrig(const DTTracoTrigData *tracotrig, int isFirst) {
-
     m_tracotrig = tracotrig;
     m_isFirst = isFirst;
   }

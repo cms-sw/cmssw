@@ -32,50 +32,78 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   ConcurrentMonitorElement h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM, h_bunchxSIM;
 
   //1D
-  std::vector<ConcurrentMonitorElement> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed, h_seedsFitFailedFraction;
-  std::vector<ConcurrentMonitorElement> h_recoeta, h_reco2eta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_pileupeta;
-  std::vector<ConcurrentMonitorElement> h_recopT, h_reco2pT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_pileuppT;
-  std::vector<ConcurrentMonitorElement> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_pileuphit;
-  std::vector<ConcurrentMonitorElement> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer, h_misidlayer, h_pileuplayer;
-  std::vector<ConcurrentMonitorElement> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer, h_looperpixellayer, h_misidpixellayer, h_pileuppixellayer;
-  std::vector<ConcurrentMonitorElement> h_reco3Dlayer, h_assoc3Dlayer, h_assoc23Dlayer, h_simul3Dlayer, h_looper3Dlayer, h_misid3Dlayer, h_pileup3Dlayer;
-  std::vector<ConcurrentMonitorElement> h_recopu, h_reco2pu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_pileuppu;
-  std::vector<ConcurrentMonitorElement> h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_pileupphi;
-  std::vector<ConcurrentMonitorElement> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_pileupdxy;
+  std::vector<ConcurrentMonitorElement> h_tracks, h_fakes, h_hits, h_charge, h_algo, h_seedsFitFailed,
+      h_seedsFitFailedFraction;
+  std::vector<ConcurrentMonitorElement> h_recoeta, h_reco2eta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta,
+      h_misideta, h_pileupeta;
+  std::vector<ConcurrentMonitorElement> h_recopT, h_reco2pT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT,
+      h_pileuppT;
+  std::vector<ConcurrentMonitorElement> h_recopTvseta, h_reco2pTvseta, h_assocpTvseta, h_assoc2pTvseta, h_simulpTvseta,
+      h_looperpTvseta, h_misidpTvseta, h_pileuppTvseta;
+  std::vector<ConcurrentMonitorElement> h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit,
+      h_pileuphit;
+  std::vector<ConcurrentMonitorElement> h_recolayer, h_assoclayer, h_assoc2layer, h_simullayer, h_looperlayer,
+      h_misidlayer, h_pileuplayer;
+  std::vector<ConcurrentMonitorElement> h_recopixellayer, h_assocpixellayer, h_assoc2pixellayer, h_simulpixellayer,
+      h_looperpixellayer, h_misidpixellayer, h_pileuppixellayer;
+  std::vector<ConcurrentMonitorElement> h_reco3Dlayer, h_assoc3Dlayer, h_assoc23Dlayer, h_simul3Dlayer, h_looper3Dlayer,
+      h_misid3Dlayer, h_pileup3Dlayer;
+  std::vector<ConcurrentMonitorElement> h_recopu, h_reco2pu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu,
+      h_pileuppu;
+  std::vector<ConcurrentMonitorElement> h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi,
+      h_pileupphi;
+  std::vector<ConcurrentMonitorElement> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy,
+      h_pileupdxy;
   std::vector<ConcurrentMonitorElement> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_pileupdz;
-  std::vector<ConcurrentMonitorElement> h_recodxypv, h_assocdxypv, h_assoc2dxypv, h_simuldxypv, h_looperdxypv, h_misiddxypv, h_pileupdxypv;
-  std::vector<ConcurrentMonitorElement> h_recodzpv, h_assocdzpv, h_assoc2dzpv, h_simuldzpv, h_looperdzpv, h_misiddzpv, h_pileupdzpv;
-  std::vector<ConcurrentMonitorElement> h_recodxypvzoomed, h_assocdxypvzoomed, h_assoc2dxypvzoomed, h_simuldxypvzoomed, h_looperdxypvzoomed, h_misiddxypvzoomed, h_pileupdxypvzoomed;
-  std::vector<ConcurrentMonitorElement> h_recodzpvzoomed, h_assocdzpvzoomed, h_assoc2dzpvzoomed, h_simuldzpvzoomed, h_looperdzpvzoomed, h_misiddzpvzoomed, h_pileupdzpvzoomed;
+  std::vector<ConcurrentMonitorElement> h_recodxypv, h_assocdxypv, h_assoc2dxypv, h_simuldxypv, h_looperdxypv,
+      h_misiddxypv, h_pileupdxypv;
+  std::vector<ConcurrentMonitorElement> h_recodzpv, h_assocdzpv, h_assoc2dzpv, h_simuldzpv, h_looperdzpv, h_misiddzpv,
+      h_pileupdzpv;
+  std::vector<ConcurrentMonitorElement> h_recodxypvzoomed, h_assocdxypvzoomed, h_assoc2dxypvzoomed, h_simuldxypvzoomed,
+      h_looperdxypvzoomed, h_misiddxypvzoomed, h_pileupdxypvzoomed;
+  std::vector<ConcurrentMonitorElement> h_recodzpvzoomed, h_assocdzpvzoomed, h_assoc2dzpvzoomed, h_simuldzpvzoomed,
+      h_looperdzpvzoomed, h_misiddzpvzoomed, h_pileupdzpvzoomed;
 
-  std::vector<ConcurrentMonitorElement> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos, h_pileupvertpos;
+  std::vector<ConcurrentMonitorElement> h_recovertpos, h_assocvertpos, h_assoc2vertpos, h_simulvertpos, h_loopervertpos,
+      h_pileupvertpos;
   std::vector<ConcurrentMonitorElement> h_recozpos, h_assoczpos, h_assoc2zpos, h_simulzpos, h_looperzpos, h_pileupzpos;
   std::vector<ConcurrentMonitorElement> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_looperdr, h_pileupdr;
-  std::vector<ConcurrentMonitorElement> h_assocdrj, h_assoc2drj, h_simuldrj , h_recodrj, h_looperdrj, h_pileupdrj;
+  std::vector<ConcurrentMonitorElement> h_assocdrj, h_assoc2drj, h_simuldrj, h_recodrj, h_looperdrj, h_pileupdrj;
   std::vector<ConcurrentMonitorElement> h_recochi2, h_assoc2chi2, h_looperchi2, h_misidchi2, h_pileupchi2;
-  std::vector<ConcurrentMonitorElement> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
+  std::vector<ConcurrentMonitorElement> h_recochi2prob, h_assoc2chi2prob, h_looperchi2prob, h_misidchi2prob,
+      h_pileupchi2prob;
+  std::vector<ConcurrentMonitorElement> h_pt, h_eta, h_pullTheta, h_pullPhi, h_pullDxy, h_pullDz, h_pullQoverp;
   std::vector<ConcurrentMonitorElement> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
   std::vector<ConcurrentMonitorElement> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;
   std::vector<ConcurrentMonitorElement> h_assoc2_ootpu_eta, h_assoc2_ootpu_vertcount;
   std::vector<ConcurrentMonitorElement> h_reco_ootpu_eta, h_reco_ootpu_vertcount;
   std::vector<ConcurrentMonitorElement> h_con_eta, h_con_vertcount, h_con_zpos;
 
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvcut, h_assoc_dzpvcut, h_assoc2_dzpvcut, h_simul_dzpvcut, h_simul2_dzpvcut, h_pileup_dzpvcut;
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvsigcut, h_assoc_dzpvsigcut, h_assoc2_dzpvsigcut, h_simul_dzpvsigcut, h_simul2_dzpvsigcut, h_pileup_dzpvsigcut;
+  std::vector<ConcurrentMonitorElement> h_reco_dzpvcut, h_assoc_dzpvcut, h_assoc2_dzpvcut, h_simul_dzpvcut,
+      h_simul2_dzpvcut, h_pileup_dzpvcut;
+  std::vector<ConcurrentMonitorElement> h_reco_dzpvsigcut, h_assoc_dzpvsigcut, h_assoc2_dzpvsigcut, h_simul_dzpvsigcut,
+      h_simul2_dzpvsigcut, h_pileup_dzpvsigcut;
 
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt, h_simul2_dzpvcut_pt, h_pileup_dzpvcut_pt;
-  std::vector<ConcurrentMonitorElement> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt, h_simul_dzpvsigcut_pt, h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
-  std::vector<ConcurrentMonitorElement> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_looper_simpvz, h_pileup_simpvz;
+  std::vector<ConcurrentMonitorElement> h_reco_dzpvcut_pt, h_assoc_dzpvcut_pt, h_assoc2_dzpvcut_pt, h_simul_dzpvcut_pt,
+      h_simul2_dzpvcut_pt, h_pileup_dzpvcut_pt;
+  std::vector<ConcurrentMonitorElement> h_reco_dzpvsigcut_pt, h_assoc_dzpvsigcut_pt, h_assoc2_dzpvsigcut_pt,
+      h_simul_dzpvsigcut_pt, h_simul2_dzpvsigcut_pt, h_pileup_dzpvsigcut_pt;
+  std::vector<ConcurrentMonitorElement> h_reco_simpvz, h_assoc_simpvz, h_assoc2_simpvz, h_simul_simpvz, h_looper_simpvz,
+      h_pileup_simpvz;
 
-  std::vector<ConcurrentMonitorElement> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet, h_pileup_seedingLayerSet;
+  std::vector<ConcurrentMonitorElement> h_reco_seedingLayerSet, h_assoc2_seedingLayerSet, h_looper_seedingLayerSet,
+      h_pileup_seedingLayerSet;
 
-  std::vector<std::vector<ConcurrentMonitorElement> > h_reco_mva, h_assoc2_mva;
-  std::vector<std::vector<ConcurrentMonitorElement> > h_reco_mvacut, h_assoc_mvacut, h_assoc2_mvacut, h_simul2_mvacut;
-  std::vector<std::vector<ConcurrentMonitorElement> > h_reco_mva_hp, h_assoc2_mva_hp;
-  std::vector<std::vector<ConcurrentMonitorElement> > h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp, h_simul2_mvacut_hp;
+  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mva, h_assoc2_mva;
+  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mvacut, h_assoc_mvacut, h_assoc2_mvacut, h_simul2_mvacut;
+  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mva_hp, h_assoc2_mva_hp;
+  std::vector<std::vector<ConcurrentMonitorElement>> h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp,
+      h_simul2_mvacut_hp;
 
-  std::vector<std::vector<ConcurrentMonitorElement> > h_assoc2_mva_vs_pt, h_fake_mva_vs_pt, h_assoc2_mva_vs_pt_hp, h_fake_mva_vs_pt_hp;
-  std::vector<std::vector<ConcurrentMonitorElement> > h_assoc2_mva_vs_eta, h_fake_mva_vs_eta, h_assoc2_mva_vs_eta_hp, h_fake_mva_vs_eta_hp;
+  std::vector<std::vector<ConcurrentMonitorElement>> h_assoc2_mva_vs_pt, h_fake_mva_vs_pt, h_assoc2_mva_vs_pt_hp,
+      h_fake_mva_vs_pt_hp;
+  std::vector<std::vector<ConcurrentMonitorElement>> h_assoc2_mva_vs_eta, h_fake_mva_vs_eta, h_assoc2_mva_vs_eta_hp,
+      h_fake_mva_vs_eta_hp;
 
   // dE/dx
   // in the future these might become an array
@@ -93,13 +121,10 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
   std::vector<ConcurrentMonitorElement> h_assocFraction, h_assocSharedHit;
 
   //#hit vs eta: to be used with doProfileX
-  std::vector<ConcurrentMonitorElement> nhits_vs_eta,
-    nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta,
-    nTIBhits_vs_eta,nTIDhits_vs_eta,
-    nTOBhits_vs_eta,nTEChits_vs_eta, nSTRIPhits_vs_eta,
-    nLayersWithMeas_vs_eta, nPXLlayersWithMeas_vs_eta,
-    nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta, nSTRIPlayersWith2dMeas_vs_eta;
-
+  std::vector<ConcurrentMonitorElement> nhits_vs_eta, nPXBhits_vs_eta, nPXFhits_vs_eta, nPXLhits_vs_eta,
+      nTIBhits_vs_eta, nTIDhits_vs_eta, nTOBhits_vs_eta, nTEChits_vs_eta, nSTRIPhits_vs_eta, nLayersWithMeas_vs_eta,
+      nPXLlayersWithMeas_vs_eta, nSTRIPlayersWithMeas_vs_eta, nSTRIPlayersWith1dMeas_vs_eta,
+      nSTRIPlayersWith2dMeas_vs_eta;
 
   //---- second set of histograms (originally not used by the SeedGenerator)
   //1D
@@ -118,6 +143,7 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 
   //chi2 and # lost hits vs eta: to be used with doProfileX
   std::vector<ConcurrentMonitorElement> chi2_vs_eta, nlosthits_vs_eta;
+  std::vector<ConcurrentMonitorElement> assoc_chi2_vs_eta, assoc_chi2prob_vs_eta;
 
   //resolution of track params: to be used with fitslicesytool
   std::vector<ConcurrentMonitorElement> dxyres_vs_eta, ptres_vs_eta, dzres_vs_eta, phires_vs_eta, cotThetares_vs_eta;
@@ -129,11 +155,14 @@ struct MTVHistoProducerAlgoForTrackerHistograms {
 };
 
 class MTVHistoProducerAlgoForTracker {
- public:
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots) ;
+public:
+  typedef dqm::reco::DQMStore DQMStore;
+
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const bool doSeedPlots);
   ~MTVHistoProducerAlgoForTracker();
 
-  static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset);
+  static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(
+      const edm::ParameterSet& pset);
 
   using Histograms = MTVHistoProducerAlgoForTrackerHistograms;
   void bookSimHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
@@ -145,35 +174,46 @@ class MTVHistoProducerAlgoForTracker {
   void bookSeedHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms);
   void bookMVAHistos(DQMStore::ConcurrentBooker& ibook, Histograms& histograms, size_t nMVAs);
 
-  void fill_generic_simTrack_histos(const Histograms& histograms,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx) const;
-  void fill_simTrackBased_histos(const Histograms& histograms,int numSimTracks) const;
-
+  void fill_generic_simTrack_histos(const Histograms& histograms,
+                                    const TrackingParticle::Vector&,
+                                    const TrackingParticle::Point& vertex,
+                                    int bx) const;
+  void fill_simTrackBased_histos(const Histograms& histograms, int numSimTracks) const;
 
   void fill_recoAssociated_simTrack_histos(const Histograms& histograms,
                                            int count,
-					   const TrackingParticle& tp,
-					   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
-					   double dxy, double dz,
-                                           double dxyPV, double dzPV,
+                                           const TrackingParticle& tp,
+                                           const TrackingParticle::Vector& momentumTP,
+                                           const TrackingParticle::Point& vertexTP,
+                                           double dxy,
+                                           double dz,
+                                           double dxyPV,
+                                           double dzPV,
                                            int nSimHits,
-                                           int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
-					   const reco::Track* track,
-					   int numVertices,
-					   double dR,
+                                           int nSimLayers,
+                                           int nSimPixelLayers,
+                                           int nSimStripMonoAndStereoLayers,
+                                           const reco::Track* track,
+                                           int numVertices,
+                                           double dR,
                                            double dR_jet,
-					   const math::XYZPoint *pvPosition,
-                                           const TrackingVertex::LorentzVector *simPVPosition,
+                                           const math::XYZPoint* pvPosition,
+                                           const TrackingVertex::LorentzVector* simPVPosition,
                                            const math::XYZPoint& bsPosition,
                                            const std::vector<float>& mvas,
-                                           unsigned int selectsLoose, unsigned int selectsHP) const;
+                                           unsigned int selectsLoose,
+                                           unsigned int selectsHP) const;
 
   void fill_recoAssociated_simTrack_histos(const Histograms& histograms,
                                            int count,
-					   const reco::GenParticle& tp,
-					   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
-					   double dxy, double dz, int nSimHits,
-					   const reco::Track* track,
-					   int numVertices) const;
+                                           const reco::GenParticle& tp,
+                                           const TrackingParticle::Vector& momentumTP,
+                                           const TrackingParticle::Point& vertexTP,
+                                           double dxy,
+                                           double dz,
+                                           int nSimHits,
+                                           const reco::Track* track,
+                                           int numVertices) const;
 
   void fill_duplicate_histos(const Histograms& histograms,
                              int count,
@@ -182,57 +222,69 @@ class MTVHistoProducerAlgoForTracker {
 
   void fill_generic_recoTrack_histos(const Histograms& histograms,
                                      int count,
-				     const reco::Track& track,
+                                     const reco::Track& track,
                                      const TrackerTopology& ttopo,
-				     const math::XYZPoint& bsPosition,
-				     const math::XYZPoint *pvPosition,
-                                     const TrackingVertex::LorentzVector *simPVPosition,
-				     bool isMatched,
-				     bool isSigMatched,
-				     bool isChargeMatched,
-				     int numAssocRecoTracks,
-				     int numVertices,
-				     int nSimHits,
-				     double sharedFraction,
-				     double dR,
+                                     const math::XYZPoint& bsPosition,
+                                     const math::XYZPoint* pvPosition,
+                                     const TrackingVertex::LorentzVector* simPVPosition,
+                                     bool isMatched,
+                                     bool isSigMatched,
+                                     bool isChargeMatched,
+                                     int numAssocRecoTracks,
+                                     int numVertices,
+                                     int nSimHits,
+                                     double sharedFraction,
+                                     double dR,
                                      double dR_jet,
                                      const std::vector<float>& mvas,
-                                     unsigned int selectsLoose, unsigned int selectsHP) const;
+                                     unsigned int selectsLoose,
+                                     unsigned int selectsHP) const;
 
-  void fill_dedx_recoTrack_histos(const Histograms& histograms, int count, const edm::RefToBase<reco::Track>& trackref, const std::vector< const edm::ValueMap<reco::DeDxData> *>& v_dEdx) const;
+  void fill_dedx_recoTrack_histos(const Histograms& histograms,
+                                  int count,
+                                  const edm::RefToBase<reco::Track>& trackref,
+                                  const std::vector<const edm::ValueMap<reco::DeDxData>*>& v_dEdx) const;
 
-  void fill_simAssociated_recoTrack_histos(const Histograms& histograms,
-                                           int count,
-					   const reco::Track& track) const;
+  void fill_simAssociated_recoTrack_histos(const Histograms& histograms, int count, const reco::Track& track) const;
 
   void fill_trackBased_histos(const Histograms& histograms,
                               int count,
-		 	      int assTracks,
-			      int numRecoTracks,
-			      int numRecoTracksSelected,
-			      int numSimTracksSelected) const;
-
+                              int assTracks,
+                              int numRecoTracks,
+                              int numRecoTracksSelected,
+                              int numSimTracksSelected) const;
 
   void fill_ResoAndPull_recoTrack_histos(const Histograms& histograms,
                                          int count,
-					 const TrackingParticle::Vector& momentumTP,
-					 const TrackingParticle::Point& vertexTP,
-					 int chargeTP,
-					 const reco::Track& track,
-					 const math::XYZPoint& bsPosition) const;
+                                         const TrackingParticle::Vector& momentumTP,
+                                         const TrackingParticle::Point& vertexTP,
+                                         int chargeTP,
+                                         const reco::Track& track,
+                                         const math::XYZPoint& bsPosition) const;
 
   void fill_seed_histos(const Histograms& histograms, int count, int seedsFitFailed, int seedsTotal) const;
 
- private:
-
+private:
   /// retrieval of reconstructed momentum components from reco::Track (== mean values for GSF)
-  void getRecoMomentum (const reco::Track& track, double& pt, double& ptError,
-			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
-			double& phi, double& phiError ) const;
+  void getRecoMomentum(const reco::Track& track,
+                       double& pt,
+                       double& ptError,
+                       double& qoverp,
+                       double& qoverpError,
+                       double& lambda,
+                       double& lambdaError,
+                       double& phi,
+                       double& phiError) const;
   /// retrieval of reconstructed momentum components based on the mode of a reco::GsfTrack
-  void getRecoMomentum (const reco::GsfTrack& gsfTrack, double& pt, double& ptError,
-			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
-			double& phi, double& phiError) const;
+  void getRecoMomentum(const reco::GsfTrack& gsfTrack,
+                       double& pt,
+                       double& ptError,
+                       double& qoverp,
+                       double& qoverpError,
+                       double& lambda,
+                       double& lambdaError,
+                       double& phi,
+                       double& phiError) const;
 
   double getEta(double eta) const;
 
@@ -259,40 +311,70 @@ class MTVHistoProducerAlgoForTracker {
   std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsVTXR;
   std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsVTXZ;
 
-  double minEta, maxEta;  int nintEta;  bool useFabsEta;
-  double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;
-  double minHit, maxHit;  int nintHit;
-  double minPu, maxPu;  int nintPu;
-  double minLayers, maxLayers;  int nintLayers;
-  double minPhi, maxPhi;  int nintPhi;
-  double minDxy, maxDxy;  int nintDxy;
-  double minDz, maxDz;  int nintDz;
+  double minEta, maxEta;
+  int nintEta;
+  bool useFabsEta;
+  double minPt, maxPt;
+  int nintPt;
+  bool useInvPt;
+  bool useLogPt;
+  double minHit, maxHit;
+  int nintHit;
+  double minPu, maxPu;
+  int nintPu;
+  double minLayers, maxLayers;
+  int nintLayers;
+  double minPhi, maxPhi;
+  int nintPhi;
+  double minDxy, maxDxy;
+  int nintDxy;
+  double minDz, maxDz;
+  int nintDz;
   double dxyDzZoom;
-  double minVertpos, maxVertpos;  int nintVertpos; bool useLogVertpos;
-  double minZpos, maxZpos;  int nintZpos;
-  double mindr, maxdr;  int nintdr;
-  double mindrj, maxdrj;  int nintdrj;
-  double minChi2, maxChi2; int nintChi2;
-  double minDeDx, maxDeDx;  int nintDeDx;
-  double minVertcount, maxVertcount;  int nintVertcount;
-  double minTracks, maxTracks; int nintTracks;
-  double minPVz, maxPVz; int nintPVz;
-  double minMVA, maxMVA; int nintMVA;
+  double minVertpos, maxVertpos;
+  int nintVertpos;
+  bool useLogVertpos;
+  double minZpos, maxZpos;
+  int nintZpos;
+  double mindr, maxdr;
+  int nintdr;
+  double mindrj, maxdrj;
+  int nintdrj;
+  double minChi2, maxChi2;
+  int nintChi2;
+  double minDeDx, maxDeDx;
+  int nintDeDx;
+  double minVertcount, maxVertcount;
+  int nintVertcount;
+  double minTracks, maxTracks;
+  int nintTracks;
+  double minPVz, maxPVz;
+  int nintPVz;
+  double minMVA, maxMVA;
+  int nintMVA;
 
   const bool doSeedPlots_;
 
   //
-  double ptRes_rangeMin,ptRes_rangeMax; int ptRes_nbin;
-  double phiRes_rangeMin,phiRes_rangeMax; int phiRes_nbin;
-  double cotThetaRes_rangeMin,cotThetaRes_rangeMax; int cotThetaRes_nbin;
-  double dxyRes_rangeMin,dxyRes_rangeMax; int dxyRes_nbin;
-  double dzRes_rangeMin,dzRes_rangeMax; int dzRes_nbin;
+  double ptRes_rangeMin, ptRes_rangeMax;
+  int ptRes_nbin;
+  double phiRes_rangeMin, phiRes_rangeMax;
+  int phiRes_nbin;
+  double cotThetaRes_rangeMin, cotThetaRes_rangeMax;
+  int cotThetaRes_nbin;
+  double dxyRes_rangeMin, dxyRes_rangeMax;
+  int dxyRes_nbin;
+  double dzRes_rangeMin, dzRes_rangeMax;
+  int dzRes_nbin;
 
-  double maxDzpvCum; int nintDzpvCum;
-  double maxDzpvsigCum; int nintDzpvsigCum;
+  double maxDzpvCum;
+  int nintDzpvCum;
+  double maxDzpvsigCum;
+  int nintDzpvsigCum;
 
   std::vector<std::string> seedingLayerSetNames;
-  using SeedingLayerId = std::tuple<SeedingLayerSetsBuilder::SeedingLayerId, bool>; // last bool for strip mono (true) or not (false)
+  using SeedingLayerId =
+      std::tuple<SeedingLayerSetsBuilder::SeedingLayerId, bool>;  // last bool for strip mono (true) or not (false)
   using SeedingLayerSetId = std::array<SeedingLayerId, 4>;
   std::map<SeedingLayerSetId, unsigned int> seedingLayerSetToBin;
 };

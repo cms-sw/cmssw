@@ -4,7 +4,7 @@
 //
 // Package:    MCSingleParticleYPt
 // Class:      MCSingleParticleYPt
-// 
+//
 /* 
 
  Description: filter events based on the Pythia particleID, Pt, Y and status. It is based on MCSingleParticleFilter.
@@ -17,7 +17,6 @@
 // Adapted on: August 2016
 //
 //
-
 
 // system include files
 #include <memory>
@@ -37,21 +36,22 @@ namespace edm {
 }
 
 class MCSingleParticleYPt : public edm::EDFilter {
-   public:
-      explicit MCSingleParticleYPt(const edm::ParameterSet&);
-      ~MCSingleParticleYPt() override;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-   private:
-      // ----------member data ---------------------------
-     
-       int fVerbose; 
-       bool fchekantiparticle;
-       edm::EDGetTokenT<edm::HepMCProduct> token_;
-       std::vector<int> particleID;  
-       std::vector<double> ptMin;
-       std::vector<double> rapMin;  
-       std::vector<double> rapMax;
-       std::vector<int> status;
-       double rapidity;
+public:
+  explicit MCSingleParticleYPt(const edm::ParameterSet&);
+  ~MCSingleParticleYPt() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+private:
+  // ----------member data ---------------------------
+
+  int fVerbose;
+  bool fchekantiparticle;
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
+  std::vector<int> particleID;
+  std::vector<double> ptMin;
+  std::vector<double> rapMin;
+  std::vector<double> rapMax;
+  std::vector<int> status;
+  double rapidity;
 };
 #endif

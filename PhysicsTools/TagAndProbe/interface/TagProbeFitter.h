@@ -9,9 +9,16 @@
 #include "RooDataSet.h"
 
 class TagProbeFitter {
-  public:
-  ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin 
-  TagProbeFitter(const std::vector<std::string>& inputFileNames, std::string inputDirectoryName, std::string inputTreeName, std::string outputFileName, int numCPU = 1, bool saveWorkspace_ = false, bool floatShapeParameters = true, const std::vector<std::string>& fixVars_ = std::vector<std::string>() );
+public:
+  ///construct the fitter with the inputFileName, inputDirectoryName, inputTreeName, outputFileName and specify wether to save the workspace with data for each bin
+  TagProbeFitter(const std::vector<std::string>& inputFileNames,
+                 std::string inputDirectoryName,
+                 std::string inputTreeName,
+                 std::string outputFileName,
+                 int numCPU = 1,
+                 bool saveWorkspace_ = false,
+                 bool floatShapeParameters = true,
+                 const std::vector<std::string>& fixVars_ = std::vector<std::string>());
 
   ///destructor closes the files
   ~TagProbeFitter();
@@ -23,7 +30,10 @@ class TagProbeFitter {
   bool addCategory(std::string categoryName, std::string title, std::string expression);
 
   ///adds a new category based on a cut
-  bool addExpression(std::string expressionName, std::string title, std::string expression, const std::vector<std::string>& arguments);
+  bool addExpression(std::string expressionName,
+                     std::string title,
+                     std::string expression,
+                     const std::vector<std::string>& arguments);
 
   ///adds a new category based on a cut
   bool addThresholdCategory(std::string categoryName, std::string title, std::string varName, double cutValue);
@@ -36,35 +46,51 @@ class TagProbeFitter {
   void addFixedVariavles(const std::vector<std::string>&);
 
   ///calculate the efficiency for a particular binning of the data; it saves everything in the directory "dirName", uses the previously defined PDF with name "pdfName"
-  std::string calculateEfficiency(std::string dirName, std::string efficiencyCategory, std::string efficiencyState, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap) {
-    std::vector<std::string> efficiencyCategories(1,efficiencyCategory);
-    std::vector<std::string> efficiencyStates(1,efficiencyState);
-    return calculateEfficiency(dirName, efficiencyCategories, efficiencyStates, unbinnedVariables, binnedReals, binnedCategories, binToPDFmap);
+  std::string calculateEfficiency(std::string dirName,
+                                  std::string efficiencyCategory,
+                                  std::string efficiencyState,
+                                  std::vector<std::string>& unbinnedVariables,
+                                  std::map<std::string, std::vector<double> >& binnedReals,
+                                  std::map<std::string, std::vector<std::string> >& binnedCategories,
+                                  std::vector<std::string>& binToPDFmap) {
+    std::vector<std::string> efficiencyCategories(1, efficiencyCategory);
+    std::vector<std::string> efficiencyStates(1, efficiencyState);
+    return calculateEfficiency(
+        dirName, efficiencyCategories, efficiencyStates, unbinnedVariables, binnedReals, binnedCategories, binToPDFmap);
   }
 
-  std::string calculateEfficiency(std::string dirName,const std::vector<std::string>& efficiencyCategories, const std::vector<std::string>& efficiencyStates, std::vector<std::string>& unbinnedVariables, std::map<std::string, std::vector<double> >& binnedReals, std::map<std::string, std::vector<std::string> >& binnedCategories, std::vector<std::string>& binToPDFmap);
+  std::string calculateEfficiency(std::string dirName,
+                                  const std::vector<std::string>& efficiencyCategories,
+                                  const std::vector<std::string>& efficiencyStates,
+                                  std::vector<std::string>& unbinnedVariables,
+                                  std::map<std::string, std::vector<double> >& binnedReals,
+                                  std::map<std::string, std::vector<std::string> >& binnedCategories,
+                                  std::vector<std::string>& binToPDFmap);
 
-  /// set if to do a binned fit 
-  void setBinnedFit(bool binned, int bins=0) { binnedFit = binned; massBins = bins; }
+  /// set if to do a binned fit
+  void setBinnedFit(bool binned, int bins = 0) {
+    binnedFit = binned;
+    massBins = bins;
+  }
 
   /// set number of bins to use when making the plots; 0 = automatic
-  void setBinsForMassPlots(int bins) ;
+  void setBinsForMassPlots(int bins);
 
   //// turn on or off the saving of distribution plots)
   void setSaveDistributionsPlot(bool saveDistributionsPlot_) { doSaveDistributionsPlot = saveDistributionsPlot_; }
 
   /// set a variable to be used as weight for a dataset. empty string means no weights.
-  void setWeightVar(const std::string &weight);
+  void setWeightVar(const std::string& weight);
 
   /// suppress most of the output from RooFit and Minuit
-  void setQuiet(bool quiet_=true);
-  
+  void setQuiet(bool quiet_ = true);
+
   /// split mode - use it for very large input files (slower that non-split mode, which is the default)
   ///    0 - import input TTree as a whole (non-split mode)
   ///    non-zero value - use split reading mode and read specified number of events for each iteration
   void setSplitMode(unsigned int nevents);
 
-  protected:
+protected:
   ///pointer to the input TTree Chain of data
   TChain* inputTree;
 
@@ -100,11 +126,12 @@ class TagProbeFitter {
 
   ///expressions computed almost on the fly
   //RooArgSet expressionVars;
-  std::vector<std::pair<std::pair<std::string,std::string>, std::pair<std::string, std::vector<std::string> > > > expressionVars;
+  std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::vector<std::string> > > >
+      expressionVars;
 
   // Threshold categories have to be created at the last minute
   // so we store just the info about them
-  std::vector<std::pair<std::pair<std::string,std::string>, std::pair<std::string, double> > > thresholdCategories;
+  std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, double> > > thresholdCategories;
 
   ///list of variables fo fix (see below)
   std::vector<std::string> fixVars;
@@ -155,14 +182,29 @@ class TagProbeFitter {
   void saveDistributionsPlot(RooWorkspace* w);
 
   ///saves the efficiency plots
-  void saveEfficiencyPlots(RooDataSet& eff, const TString& effName, RooArgSet& binnedVariables, RooArgSet& mappedCategories);
-  
+  void saveEfficiencyPlots(RooDataSet& eff,
+                           const TString& effName,
+                           RooArgSet& binnedVariables,
+                           RooArgSet& mappedCategories);
+
   ///makes the 1D plot
-  void makeEfficiencyPlot1D(RooDataSet& eff, RooRealVar& v, const TString& plotName, const TString& plotTitle, const TString& effName, const char *catName = nullptr, int catIndex = -1);
-   
+  void makeEfficiencyPlot1D(RooDataSet& eff,
+                            RooRealVar& v,
+                            const TString& plotName,
+                            const TString& plotTitle,
+                            const TString& effName,
+                            const char* catName = nullptr,
+                            int catIndex = -1);
+
   ///makes the 2D plot
-  void makeEfficiencyPlot2D(RooDataSet& eff, RooRealVar& v1, RooRealVar& v2, const TString& plotName, const TString& plotTitle, const TString& effName, const char *catName = nullptr, int catIndex = -1);
-  
+  void makeEfficiencyPlot2D(RooDataSet& eff,
+                            RooRealVar& v1,
+                            RooRealVar& v2,
+                            const TString& plotName,
+                            const TString& plotTitle,
+                            const TString& effName,
+                            const char* catName = nullptr,
+                            int catIndex = -1);
 };
 
-#endif //TagProbeFitter_h
+#endif  //TagProbeFitter_h

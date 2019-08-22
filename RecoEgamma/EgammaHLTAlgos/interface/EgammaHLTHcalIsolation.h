@@ -4,7 +4,7 @@
 //
 // Package:     EgammaHLTAlgos
 // Class  :     EgammaHLTHcalIsolation
-// 
+//
 /**\class EgammaHLTHcalIsolation EgammaHLTHcalIsolation.h RecoEgamma/EgammaHLTAlgos/interface/EgammaHLTHcalIsolation.h
 
  Description: sum pt hcal hits in cone around egamma candidate
@@ -40,59 +40,71 @@
 class HcalSeverityLevelComputer;
 class HcalChannelQuality;
 
-class EgammaHLTHcalIsolation
-{
+class EgammaHLTHcalIsolation {
+public:
+  EgammaHLTHcalIsolation(
+      float eMinHB, float eMinHE, float etMinHB, float etMinHE, float innerCone, float outerCone, int depth)
+      : eMinHB_(eMinHB),
+        eMinHE_(eMinHE),
+        etMinHB_(etMinHB),
+        etMinHE_(etMinHE),
+        innerCone_(innerCone),
+        outerCone_(outerCone),
+        depth_(depth),
+        useRecoveredHcalHits_(true),
+        hcalAcceptSeverityLevel_(9) {}  //{std::cout <<"innerCone "<<innerCone<<" outerCone "<<outerCone<<std::endl;}
 
- public:
-  
-  EgammaHLTHcalIsolation(float eMinHB,float eMinHE,float etMinHB,float etMinHE,
-			 float innerCone,float outerCone,int depth) :
-    eMinHB_(eMinHB),eMinHE_(eMinHE),etMinHB_(etMinHB),etMinHE_(etMinHE),
-    innerCone_(innerCone),outerCone_(outerCone),depth_(depth),
-    useRecoveredHcalHits_(true),hcalAcceptSeverityLevel_(9){}//{std::cout <<"innerCone "<<innerCone<<" outerCone "<<outerCone<<std::endl;}
-    
-    //first is the sum E, second is the sum Et
-    std::pair<float,float> getSum(float candEta,float candPhi,
-				  const HBHERecHitCollection* hbhe, const CaloGeometry* geometry,
-				  const HcalSeverityLevelComputer* hcalSevLvlAlgo=nullptr,
-				  const HcalChannelQuality* dbHcalChStatus=nullptr)const;
-    float getESum(float candEta,float candPhi, 
-		  const HBHERecHitCollection* hbhe,
-		  const CaloGeometry* geometry)const{return getSum(candEta,candPhi,hbhe,geometry).first;}
-    float getEtSum(float candEta,float candPhi, 
-		   const HBHERecHitCollection* hbhe, 
-		   const CaloGeometry* geometry)const{return getSum(candEta,candPhi,hbhe,geometry).second;}
-    float getESum(float candEta,float candPhi, 
-		  const HBHERecHitCollection* hbhe,
-		  const CaloGeometry* geometry,
-		  const HcalSeverityLevelComputer* hcalSevLvlAlgo,
-		  const HcalChannelQuality* dbHcalChStatus)const{return getSum(candEta,candPhi,hbhe,geometry,
-									       hcalSevLvlAlgo,dbHcalChStatus).first;}
-    float getEtSum(float candEta,float candPhi, 
-		   const HBHERecHitCollection* hbhe, 
-		   const CaloGeometry* geometry,
-		   const HcalSeverityLevelComputer* hcalSevLvlAlgo,
-		   const HcalChannelQuality* dbHcalChStatus)const{return getSum(candEta,candPhi,hbhe,geometry,
-										hcalSevLvlAlgo,dbHcalChStatus).second;}
+  //first is the sum E, second is the sum Et
+  std::pair<float, float> getSum(float candEta,
+                                 float candPhi,
+                                 const HBHERecHitCollection* hbhe,
+                                 const CaloGeometry* geometry,
+                                 const HcalSeverityLevelComputer* hcalSevLvlAlgo = nullptr,
+                                 const HcalChannelQuality* dbHcalChStatus = nullptr) const;
+  float getESum(float candEta, float candPhi, const HBHERecHitCollection* hbhe, const CaloGeometry* geometry) const {
+    return getSum(candEta, candPhi, hbhe, geometry).first;
+  }
+  float getEtSum(float candEta, float candPhi, const HBHERecHitCollection* hbhe, const CaloGeometry* geometry) const {
+    return getSum(candEta, candPhi, hbhe, geometry).second;
+  }
+  float getESum(float candEta,
+                float candPhi,
+                const HBHERecHitCollection* hbhe,
+                const CaloGeometry* geometry,
+                const HcalSeverityLevelComputer* hcalSevLvlAlgo,
+                const HcalChannelQuality* dbHcalChStatus) const {
+    return getSum(candEta, candPhi, hbhe, geometry, hcalSevLvlAlgo, dbHcalChStatus).first;
+  }
+  float getEtSum(float candEta,
+                 float candPhi,
+                 const HBHERecHitCollection* hbhe,
+                 const CaloGeometry* geometry,
+                 const HcalSeverityLevelComputer* hcalSevLvlAlgo,
+                 const HcalChannelQuality* dbHcalChStatus) const {
+    return getSum(candEta, candPhi, hbhe, geometry, hcalSevLvlAlgo, dbHcalChStatus).second;
+  }
 
-    //this is the effective depth of the rec-hit, basically converts 3 depth towers to 2 depths and all barrel to depth 1
-    //this is defined when making the calotowers
-    static int getEffectiveDepth(const HcalDetId id);
+  //this is the effective depth of the rec-hit, basically converts 3 depth towers to 2 depths and all barrel to depth 1
+  //this is defined when making the calotowers
+  static int getEffectiveDepth(const HcalDetId id);
 
- private:  
-    bool acceptHit_(const HcalDetId id,const GlobalPoint& pos,const float hitEnergy,
-		    const float candEta,const float candPhi)const; 
-    bool passMinE_(float energy,const HcalDetId id)const;
-    bool passMinEt_(float et,const HcalDetId id)const;
-    bool passDepth_(const HcalDetId id)const;
-    //inspired from CaloTowersCreationAlgo::hcalChanStatusForCaloTower, we dont distingush from good from recovered and prob channels
-    bool passCleaning_(const CaloRecHit* hit,const HcalSeverityLevelComputer* hcalSevLvlComp,
-		       const HcalChannelQuality* hcalChanStatus)const;
+private:
+  bool acceptHit_(const HcalDetId id,
+                  const GlobalPoint& pos,
+                  const float hitEnergy,
+                  const float candEta,
+                  const float candPhi) const;
+  bool passMinE_(float energy, const HcalDetId id) const;
+  bool passMinEt_(float et, const HcalDetId id) const;
+  bool passDepth_(const HcalDetId id) const;
+  //inspired from CaloTowersCreationAlgo::hcalChanStatusForCaloTower, we dont distingush from good from recovered and prob channels
+  bool passCleaning_(const CaloRecHit* hit,
+                     const HcalSeverityLevelComputer* hcalSevLvlComp,
+                     const HcalChannelQuality* hcalChanStatus) const;
 
- private:
-
+private:
   // ---------- member data --------------------------------
-   // Parameters of isolation cone geometry. 
+  // Parameters of isolation cone geometry.
   float eMinHB_;
   float eMinHE_;
   float etMinHB_;
@@ -100,11 +112,10 @@ class EgammaHLTHcalIsolation
   float innerCone_;
   float outerCone_;
   int depth_;
-  
+
   //cleaning parameters
   bool useRecoveredHcalHits_;
   int hcalAcceptSeverityLevel_;
 };
-
 
 #endif

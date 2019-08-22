@@ -41,105 +41,102 @@ class NavigationSchool;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
 
 class CkfDebugger {
- public:
-  CkfDebugger( edm::EventSetup const & es, edm::ConsumesCollector&& iC );
+public:
+  CkfDebugger(edm::EventSetup const& es, edm::ConsumesCollector&& iC);
 
   ~CkfDebugger();
-  
-  void printSimHits( const edm::Event& iEvent);
 
-  void countSeed(){totSeeds++;}
+  void printSimHits(const edm::Event& iEvent);
 
-  void fillSeedHist(CTTRHp h1,CTTRHp h2, TrajectoryStateOnSurface t) {
+  void countSeed() { totSeeds++; }
+
+  void fillSeedHist(CTTRHp h1, CTTRHp h2, TrajectoryStateOnSurface t) {
     //edm::LogVerbatim("CkfDebugger") << "CkfDebugger::fillSeedHist";
-    hchi2seedAll->Fill( testSeed(h1,h2,t) );
+    hchi2seedAll->Fill(testSeed(h1, h2, t));
   }
 
-  bool analyseCompatibleMeasurements( const Trajectory&,
-				      const std::vector<TrajectoryMeasurement>&,
-				      const MeasurementTrackerEvent*,
-				      const Propagator*,
-				      const Chi2MeasurementEstimatorBase*,
-				      const TransientTrackingRecHitBuilder*);
+  bool analyseCompatibleMeasurements(const Trajectory&,
+                                     const std::vector<TrajectoryMeasurement>&,
+                                     const MeasurementTrackerEvent*,
+                                     const Propagator*,
+                                     const Chi2MeasurementEstimatorBase*,
+                                     const TransientTrackingRecHitBuilder*);
 
-  void deleteHitAssociator(){
-    delete hitAssociator;
-  }
+  void deleteHitAssociator() { delete hitAssociator; }
 
- private:
-  typedef TrajectoryMeasurement        TM;
-  typedef TrajectoryStateOnSurface     TSOS;
+private:
+  typedef TrajectoryMeasurement TM;
+  typedef TrajectoryStateOnSurface TSOS;
 
   class SimHit {
   public:
-
-    SimHit( const PSimHit* phit, const GeomDetUnit* gdu) : thePHit( phit), theDet(gdu) {}
-    LocalPoint localPosition() const {return thePHit->localPosition();}
-    GlobalPoint globalPosition() const {return theDet->toGlobal( thePHit->localPosition());}
-    const GeomDetUnit* det() const {return theDet;}
-    unsigned int trackId()      const {return thePHit->trackId();}
-    LocalVector  localDirection()  const {return thePHit->localDirection();}
-    Geom::Theta<float> thetaAtEntry() const {return thePHit->thetaAtEntry();}
-    Geom::Phi<float>   phiAtEntry()   const {return thePHit->phiAtEntry();}
-    float        pabs()         const {return thePHit->pabs();}
-    float        timeOfFlight() const {return thePHit->timeOfFlight();}
-    float        energyLoss()   const {return thePHit->energyLoss();}
-    int          particleType() const {return thePHit->particleType();}
-    unsigned int detUnitId()    const {return thePHit->detUnitId();}
-    unsigned short processType() const {return thePHit->processType();}
-    const PSimHit& psimHit() const { return *thePHit;}
+    SimHit(const PSimHit* phit, const GeomDetUnit* gdu) : thePHit(phit), theDet(gdu) {}
+    LocalPoint localPosition() const { return thePHit->localPosition(); }
+    GlobalPoint globalPosition() const { return theDet->toGlobal(thePHit->localPosition()); }
+    const GeomDetUnit* det() const { return theDet; }
+    unsigned int trackId() const { return thePHit->trackId(); }
+    LocalVector localDirection() const { return thePHit->localDirection(); }
+    Geom::Theta<float> thetaAtEntry() const { return thePHit->thetaAtEntry(); }
+    Geom::Phi<float> phiAtEntry() const { return thePHit->phiAtEntry(); }
+    float pabs() const { return thePHit->pabs(); }
+    float timeOfFlight() const { return thePHit->timeOfFlight(); }
+    float energyLoss() const { return thePHit->energyLoss(); }
+    int particleType() const { return thePHit->particleType(); }
+    unsigned int detUnitId() const { return thePHit->detUnitId(); }
+    unsigned short processType() const { return thePHit->processType(); }
+    const PSimHit& psimHit() const { return *thePHit; }
 
   private:
-
-    const PSimHit*     thePHit;
+    const PSimHit* thePHit;
     const GeomDetUnit* theDet;
-
   };
 
-  const TrackerGeometry*           theTrackerGeom;
-  const MagneticField*             theMagField;
-  const GeometricSearchTracker*    theGeomSearchTracker;
-  const MeasurementEstimator*  theChi2;
-  const Propagator*                theForwardPropagator;
-  TrackerHitAssociator::Config     trackerHitAssociatorConfig_; 
-  TrackerHitAssociator*      hitAssociator;
-  const MeasurementTrackerEvent*   theMeasurementTracker;
+  const TrackerGeometry* theTrackerGeom;
+  const MagneticField* theMagField;
+  const GeometricSearchTracker* theGeomSearchTracker;
+  const MeasurementEstimator* theChi2;
+  const Propagator* theForwardPropagator;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  TrackerHitAssociator* hitAssociator;
+  const MeasurementTrackerEvent* theMeasurementTracker;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const TrackerTopology *theTopo;
-  NavigationSchool const * theNavSchool;
+  const TrackerTopology* theTopo;
+  NavigationSchool const* theNavSchool;
 
   std::map<unsigned int, std::vector<PSimHit*> > idHitsMap;
 
-  void dumpSimHit( const SimHit& hit) const;
+  void dumpSimHit(const SimHit& hit) const;
 
-  bool correctTrajectory( const Trajectory&, unsigned int&) const;
+  bool correctTrajectory(const Trajectory&, unsigned int&) const;
 
   int assocTrackId(CTTRHp rechit) const;
 
   //const PSimHit* nextCorrectHit( const Trajectory&, unsigned int&) ;
-  std::vector<const PSimHit*> nextCorrectHits( const Trajectory&, unsigned int&) ;
+  std::vector<const PSimHit*> nextCorrectHits(const Trajectory&, unsigned int&);
 
   bool associated(CTTRHp rechit, const PSimHit& sh) const;
 
   bool goodSimHit(const PSimHit& sh) const;
 
-  bool correctMeas( const TM& tm, const PSimHit* correctHit) const;
+  bool correctMeas(const TM& tm, const PSimHit* correctHit) const;
 
-  std::pair<CTTRHp, double> analyseRecHitExistance( const PSimHit& sh, const TSOS& startingState);
+  std::pair<CTTRHp, double> analyseRecHitExistance(const PSimHit& sh, const TSOS& startingState);
 
-  int analyseRecHitNotFound(const Trajectory&,CTTRHp);
+  int analyseRecHitNotFound(const Trajectory&, CTTRHp);
 
-  double testSeed(CTTRHp,CTTRHp, TrajectoryStateOnSurface);
+  double testSeed(CTTRHp, CTTRHp, TrajectoryStateOnSurface);
 
   const PSimHit* pSimHit(unsigned int tkId, DetId detId);
 
-  bool hasDelta(const PSimHit* correctHit){
+  bool hasDelta(const PSimHit* correctHit) {
     bool delta = false;
     for (std::vector<PSimHit>::iterator isim = hitAssociator->SimHitMap[correctHit->detUnitId()].begin();
-	 isim != hitAssociator->SimHitMap[correctHit->detUnitId()].end(); ++isim){ 
-/*       edm::LogVerbatim("CkfDebugger") << "SimHit on this det at pos="<< position(&*isim)  */
-/* 	     << " det=" << isim->detUnitId() << " process=" << isim->processType() ; */
-      if (isim->processType() == 9) delta = true;
+         isim != hitAssociator->SimHitMap[correctHit->detUnitId()].end();
+         ++isim) {
+      /*       edm::LogVerbatim("CkfDebugger") << "SimHit on this det at pos="<< position(&*isim)  */
+      /* 	     << " det=" << isim->detUnitId() << " process=" << isim->processType() ; */
+      if (isim->processType() == 9)
+        delta = true;
     }
     return delta;
   }
@@ -147,79 +144,83 @@ class CkfDebugger {
   Global3DPoint position(const PSimHit* sh) const {
     return theTrackerGeom->idToDetUnit(DetId(sh->detUnitId()))->toGlobal(sh->localPosition());
   };
-  const GeomDetUnit* det(const PSimHit* sh) const {return theTrackerGeom->idToDetUnit(DetId(sh->detUnitId()));};
+  const GeomDetUnit* det(const PSimHit* sh) const { return theTrackerGeom->idToDetUnit(DetId(sh->detUnitId())); };
 
-  int layer(const GeomDet* det){
+  int layer(const GeomDet* det) {
     //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
     return theTopo->layer(det->geographicalId());
   }
 
-  template<unsigned int D>  
-  std::pair<double,double> computePulls(CTTRHp recHit, TSOS startingState){
+  template <unsigned int D>
+  std::pair<double, double> computePulls(CTTRHp recHit, TSOS startingState) {
     typedef typename AlgebraicROOTObject<D>::Vector VecD;
-    typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
-    TSOS detState = theForwardPropagator->propagate(startingState,recHit->det()->surface());
-    LogTrace("CkfDebugger") << "parameters=" << recHit->parameters() ;
-    LogTrace("CkfDebugger") << "parametersError=" << recHit->parametersError() ;
+    typedef typename AlgebraicROOTObject<D, D>::SymMatrix SMatDD;
+    TSOS detState = theForwardPropagator->propagate(startingState, recHit->det()->surface());
+    LogTrace("CkfDebugger") << "parameters=" << recHit->parameters();
+    LogTrace("CkfDebugger") << "parametersError=" << recHit->parametersError();
     MeasurementExtractor me(detState);
     VecD r = asSVector<D>(recHit->parameters()) - me.measuredParameters<D>(*recHit);
-    LogTrace("CkfDebugger") << "me.measuredParameters=" << me.measuredParameters<D>(*recHit) ;
-    LogTrace("CkfDebugger") << "me.measuredError=" << me.measuredError<D>(*recHit) ;
+    LogTrace("CkfDebugger") << "me.measuredParameters=" << me.measuredParameters<D>(*recHit);
+    LogTrace("CkfDebugger") << "me.measuredError=" << me.measuredError<D>(*recHit);
     SMatDD R = asSMatrix<D>(recHit->parametersError()) + me.measuredError<D>(*recHit);
-    LogTrace("CkfDebugger") << "r=" << r ;
-    LogTrace("CkfDebugger") << "R=" << R ;
+    LogTrace("CkfDebugger") << "r=" << r;
+    LogTrace("CkfDebugger") << "R=" << R;
     R.Invert();
-    LogTrace("CkfDebugger") << "R(-1)=" << R ;
-    LogTrace("CkfDebugger") << "chi2=" << ROOT::Math::Similarity(r,R) ;
-    double pullX=(-r[0])*sqrt(R(0,0));
+    LogTrace("CkfDebugger") << "R(-1)=" << R;
+    LogTrace("CkfDebugger") << "chi2=" << ROOT::Math::Similarity(r, R);
+    double pullX = (-r[0]) * sqrt(R(0, 0));
     double r_1 = 0;
-    if ( VecD::Dim() >= 2 )
-      {
-	r_1 = r[1];
-      }
-    double pullY=(-r_1)*sqrt(R(1,1));
-    LogTrace("CkfDebugger") << "pullX=" << pullX ;
-    LogTrace("CkfDebugger") << "pullY=" << pullY ;
-    return  std::pair<double,double>(pullX,pullY);
+    if (VecD::Dim() >= 2) {
+      r_1 = r[1];
+    }
+    double pullY = (-r_1) * sqrt(R(1, 1));
+    LogTrace("CkfDebugger") << "pullX=" << pullX;
+    LogTrace("CkfDebugger") << "pullY=" << pullY;
+    return std::pair<double, double>(pullX, pullY);
   }
-  std::pair<double,double> computePulls(CTTRHp recHit, TSOS startingState) {
-        switch (recHit->dimension()) {
-                case 1: return computePulls<1>(recHit,startingState);
-                case 2: return computePulls<2>(recHit,startingState);
-                case 3: return computePulls<3>(recHit,startingState);
-                case 4: return computePulls<4>(recHit,startingState);
-                case 5: return computePulls<5>(recHit,startingState);
-        }
-        throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
+  std::pair<double, double> computePulls(CTTRHp recHit, TSOS startingState) {
+    switch (recHit->dimension()) {
+      case 1:
+        return computePulls<1>(recHit, startingState);
+      case 2:
+        return computePulls<2>(recHit, startingState);
+      case 3:
+        return computePulls<3>(recHit, startingState);
+      case 4:
+        return computePulls<4>(recHit, startingState);
+      case 5:
+        return computePulls<5>(recHit, startingState);
+    }
+    throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
   }
 
   std::vector<int> dump;
-  std::map<std::pair<int,int>, int> dump2;
-  std::map<std::pair<int,int>, int> dump3;
-  std::map<std::pair<int,int>, int> dump4;
-  std::map<std::pair<int,int>, int> dump5;
-  std::map<std::pair<int,int>, int> dump6;
+  std::map<std::pair<int, int>, int> dump2;
+  std::map<std::pair<int, int>, int> dump3;
+  std::map<std::pair<int, int>, int> dump4;
+  std::map<std::pair<int, int>, int> dump5;
+  std::map<std::pair<int, int>, int> dump6;
 
-  TFile*  file;
-  TH1F* hchi2seedAll, *hchi2seedProb;
+  TFile* file;
+  TH1F *hchi2seedAll, *hchi2seedProb;
 
-  std::map<std::string,TH1F*> hPullX_shrh;
-  std::map<std::string,TH1F*> hPullY_shrh;
-  std::map<std::string,TH1F*> hPullX_shst;
-  std::map<std::string,TH1F*> hPullY_shst;
-  std::map<std::string,TH1F*> hPullX_strh;
-  std::map<std::string,TH1F*> hPullY_strh;
+  std::map<std::string, TH1F*> hPullX_shrh;
+  std::map<std::string, TH1F*> hPullY_shrh;
+  std::map<std::string, TH1F*> hPullX_shst;
+  std::map<std::string, TH1F*> hPullY_shst;
+  std::map<std::string, TH1F*> hPullX_strh;
+  std::map<std::string, TH1F*> hPullY_strh;
 
-  std::map<std::string,TH1F*> hPullM_shrh;
-  std::map<std::string,TH1F*> hPullS_shrh;
-  std::map<std::string,TH1F*> hPullM_shst;
-  std::map<std::string,TH1F*> hPullS_shst;
-  std::map<std::string,TH1F*> hPullM_strh;
-  std::map<std::string,TH1F*> hPullS_strh;
+  std::map<std::string, TH1F*> hPullM_shrh;
+  std::map<std::string, TH1F*> hPullS_shrh;
+  std::map<std::string, TH1F*> hPullM_shst;
+  std::map<std::string, TH1F*> hPullS_shst;
+  std::map<std::string, TH1F*> hPullM_strh;
+  std::map<std::string, TH1F*> hPullS_strh;
 
-  std::map<std::string,TH1F*> hPullGP_X_shst;
-  std::map<std::string,TH1F*> hPullGP_Y_shst;
-  std::map<std::string,TH1F*> hPullGP_Z_shst;
+  std::map<std::string, TH1F*> hPullGP_X_shst;
+  std::map<std::string, TH1F*> hPullGP_Y_shst;
+  std::map<std::string, TH1F*> hPullGP_Z_shst;
 
   TH2F* hPullGPXvsGPX_shst;
   TH2F* hPullGPXvsGPY_shst;

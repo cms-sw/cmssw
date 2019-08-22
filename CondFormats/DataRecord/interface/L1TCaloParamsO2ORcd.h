@@ -4,7 +4,7 @@
 /// Description: Record for CaloParams
 ///
 /// Implementation:
-///    
+///
 ///
 /// \author: Jim Brooke, University of Bristol
 ///
@@ -15,7 +15,8 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyListExtRcd.h"
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
-class L1TCaloParamsO2ORcd : public edm::eventsetup::DependentRecordImplementation<L1TCaloParamsO2ORcd, boost::mpl::vector<L1TriggerKeyListExtRcd,L1TriggerKeyExtRcd,L1TCaloParamsRcd> > {};
-
+class L1TCaloParamsO2ORcd : public edm::eventsetup::DependentRecordImplementation<
+                                L1TCaloParamsO2ORcd,
+                                boost::mpl::vector<L1TriggerKeyListExtRcd, L1TriggerKeyExtRcd, L1TCaloParamsRcd> > {};
 
 #endif

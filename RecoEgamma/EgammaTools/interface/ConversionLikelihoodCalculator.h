@@ -7,24 +7,21 @@
 #include "TMVA/Reader.h"
 #include <memory>
 
-class ConversionLikelihoodCalculator
-{
-    public:
-        ConversionLikelihoodCalculator();
-        void setWeightsFile(const char * weightsFile);
+class ConversionLikelihoodCalculator {
+public:
+  ConversionLikelihoodCalculator();
+  void setWeightsFile(const char* weightsFile);
 
-        double calculateLikelihood(reco::ConversionRef conversion);
-        double calculateLikelihood(reco::Conversion & conversion);
+  double calculateLikelihood(reco::ConversionRef conversion);
+  double calculateLikelihood(reco::Conversion& conversion);
 
-    private:
-        std::unique_ptr<TMVA::Reader> reader_;
-        float log_e_over_p_;
-        float log_abs_cot_theta_;
-        float log_abs_delta_phi_;
-        float log_chi2_max_pt_;
-        float log_chi2_min_pt_;
-
+private:
+  std::unique_ptr<TMVA::Reader> reader_;
+  float log_e_over_p_;
+  float log_abs_cot_theta_;
+  float log_abs_delta_phi_;
+  float log_chi2_max_pt_;
+  float log_chi2_min_pt_;
 };
 
 #endif
-

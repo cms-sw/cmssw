@@ -1,17 +1,16 @@
 <?xml version="1.0"?>
 <DDDefinition>
   <debug>
-    <!-- debug_shapes/>
-    <debug_includes/>
+    <debug_shapes/>
+    <!--debug_includes/>
     <debug_rotations/>
-    <debug_includes/>
+    <debug_includes/-->
     <debug_volumes/>
-    <debug_constants/>
+    <!--debug_constants/-->
     <debug_materials/>
-    <debug_namespaces/>
+    <!--debug_namespaces/>
     <debug_placements/>
     <debug_algorithms/>
-    <debug_materials/>
     <debug_visattr/>
     <debug_specpars/ -->
   </debug>
@@ -51,14 +50,15 @@
     <Include ref='Geometry/MuonCommonData/data/mb2/2015/v2/mb2.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/design/muonYoke.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonYoke/2021/v2/muonYoke.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mf/2015/v1/mf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/rpcf/2015/v1/rpcf.xml'/>
     <Include ref='Geometry/MuonCommonData/data/csc/2015/v2/csc.xml'/>
     <Include ref='Geometry/MuonCommonData/data/mfshield/2015/v1/mfshield.xml'/>
     <Include ref='Geometry/MuonCommonData/data/muonNumbering/2015/v2/muonNumbering.xml'/>
     <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2021/v1/dtSpecsFilter.xml'/>
-    <Include ref='Geometry/MuonSimData/data/muonProdCuts.xml'/>
+    <Include ref='Geometry/MuonSimData/data/muonProdCuts/2021/v2/muonProdCuts.xml'/>
+    <Include ref='Geometry/MuonSimData/data/muonSens.xml'/>
     <Include ref='DetectorDescription/DDCMS/data/trackerParameters.xml'/>
   </IncludeSection>
   

@@ -13,4 +13,3 @@
 typedef MuonDigiCollection<GEMDetId, GEMPadDigi> GEMPadDigiCollection;
 
 #endif
-

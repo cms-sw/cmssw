@@ -126,7 +126,7 @@ namespace cms {
       for (const auto& track : *(tracks.product())) {
         edm::LogVerbatim("HcalAlCa") << " P track " << track.p() << " eta " << track.eta() << " phi " << track.phi()
                                      << " Outer " << track.outerMomentum() << " " << track.outerPosition();
-        const TrackExtraRef & myextra = track.extra();
+        const TrackExtraRef& myextra = track.extra();
         edm::LogVerbatim("HcalAlCa") << " Track extra " << myextra->outerMomentum() << " " << myextra->outerPosition();
       }
 

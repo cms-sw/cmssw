@@ -14,15 +14,13 @@
 
 class L1MuRegionalCand;
 
-class CSCTFCandidateProducer : public edm::global::EDProducer<>
-{
- public:
-
+class CSCTFCandidateProducer : public edm::global::EDProducer<> {
+public:
   explicit CSCTFCandidateProducer(const edm::ParameterSet&);
 
-  void produce(edm::StreamID, edm::Event & e, const edm::EventSetup& c) const override;
+  void produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const override;
 
- private:
+private:
   const edm::EDGetTokenT<L1CSCTrackCollection> input_module;
   const edm::EDPutTokenT<std::vector<L1MuRegionalCand>> putToken_;
   const CSCTFCandidateBuilder my_builder;

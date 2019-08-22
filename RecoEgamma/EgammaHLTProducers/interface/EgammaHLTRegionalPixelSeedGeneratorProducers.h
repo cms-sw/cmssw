@@ -4,10 +4,9 @@
 //
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
-// 
+//
 // Description:     Calls RoadSeachSeedFinderAlgorithm
 //                  to find TrajectorySeeds.
-
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,10 +27,8 @@ namespace edm {
   class ConfigurationDescriptions;
 }
 
-class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::stream::EDProducer<>
-{
- public:
-
+class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::stream::EDProducer<> {
+public:
   explicit EgammaHLTRegionalPixelSeedGeneratorProducers(const edm::ParameterSet& conf);
 
   ~EgammaHLTRegionalPixelSeedGeneratorProducers() override;
@@ -39,7 +36,7 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::stream::EDProdu
   void produce(edm::Event& e, const edm::EventSetup& c) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
- private:
+private:
   std::unique_ptr<SeedGeneratorFromRegionHits> combinatorialSeedGenerator;
   double ptmin_;
   double vertexz_;
@@ -54,7 +51,6 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::stream::EDProdu
   edm::EDGetTokenT<reco::BeamSpot> BSProducer_;
 
   bool useZvertex_;
-
 };
 
 #endif

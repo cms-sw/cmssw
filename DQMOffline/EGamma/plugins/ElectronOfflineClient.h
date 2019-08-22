@@ -3,19 +3,15 @@
 
 #include "DQMOffline/EGamma/interface/ElectronDqmHarvesterBase.h"
 
-class ElectronOfflineClient : public ElectronDqmHarvesterBase
- {
-  public:
+class ElectronOfflineClient : public ElectronDqmHarvesterBase {
+public:
+  explicit ElectronOfflineClient(const edm::ParameterSet&);
+  ~ElectronOfflineClient() override;
 
-    explicit ElectronOfflineClient( const edm::ParameterSet & ) ;
-    ~ElectronOfflineClient() override ;
+  void finalize(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter) override;
 
-    void finalize( DQMStore::IBooker & iBooker,DQMStore::IGetter & iGetter ) override ;
-
-  private:
-
-    std::string effHistoTitle_ ;
-
- } ;
+private:
+  std::string effHistoTitle_;
+};
 
 #endif

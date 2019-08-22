@@ -5,7 +5,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "RecoBTag/SecondaryVertex/interface/TemplatedSimpleSecondaryVertexComputer.h"
 
+typedef TemplatedSimpleSecondaryVertexComputer<reco::CandIPTagInfo, reco::VertexCompositePtrCandidate>
+    CandidateSimpleSecondaryVertexComputer;
 
-typedef TemplatedSimpleSecondaryVertexComputer<reco::CandIPTagInfo,reco::VertexCompositePtrCandidate> CandidateSimpleSecondaryVertexComputer;
-
-#endif // RecoBTag_SecondaryVertex_CandidateSimpleSecondaryVertexComputer_h
+#endif  // RecoBTag_SecondaryVertex_CandidateSimpleSecondaryVertexComputer_h

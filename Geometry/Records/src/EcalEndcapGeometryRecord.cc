@@ -2,7 +2,7 @@
 //
 // Package:     Records
 // Class  :     EcalEndcapGeometryRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

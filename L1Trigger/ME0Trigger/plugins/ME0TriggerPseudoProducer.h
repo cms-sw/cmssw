@@ -20,16 +20,15 @@
 
 class ME0TriggerPseudoBuilder;
 
-class ME0TriggerPseudoProducer : public edm::global::EDProducer<>
-{
- public:
+class ME0TriggerPseudoProducer : public edm::global::EDProducer<> {
+public:
   explicit ME0TriggerPseudoProducer(const edm::ParameterSet&);
   ~ME0TriggerPseudoProducer() override;
 
   //virtual void beginRun(const edm::EventSetup& setup);
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
- private:
+private:
   edm::InputTag me0segmentProducer_;
   edm::EDGetTokenT<ME0SegmentCollection> me0segment_token_;
   edm::ParameterSet config_;

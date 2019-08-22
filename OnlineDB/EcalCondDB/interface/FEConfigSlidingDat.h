@@ -9,8 +9,8 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class FEConfigSlidingDat : public IDataItem {
- public:
-  friend class EcalCondDBInterface; // XXX temp should not need
+public:
+  friend class EcalCondDBInterface;  // XXX temp should not need
   FEConfigSlidingDat();
   ~FEConfigSlidingDat() override;
 
@@ -20,20 +20,17 @@ class FEConfigSlidingDat : public IDataItem {
   inline void setSliding(float mean) { m_sliding = mean; }
   inline float getSliding() const { return m_sliding; }
 
- private:
+private:
   void prepareWrite() noexcept(false) override;
 
   void writeDB(const EcalLogicID* ecid, const FEConfigSlidingDat* item, FEConfigSlidingInfo* iconf) noexcept(false);
 
+  void writeArrayDB(const std::map<EcalLogicID, FEConfigSlidingDat>* data, FEConfigSlidingInfo* iconf) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigSlidingDat>* data, FEConfigSlidingInfo* iconf) noexcept(false);
-
-
-  void fetchData(std::map< EcalLogicID, FEConfigSlidingDat >* fillMap, FEConfigSlidingInfo* iconf) noexcept(false);
+  void fetchData(std::map<EcalLogicID, FEConfigSlidingDat>* fillMap, FEConfigSlidingInfo* iconf) noexcept(false);
 
   // User data
   float m_sliding;
-
 };
 
 #endif

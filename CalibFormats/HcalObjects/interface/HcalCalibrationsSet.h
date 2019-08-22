@@ -20,11 +20,10 @@ public:
   void setCalibrations(const DetId id, const HcalCalibrations& ca);
   void clear();
   std::vector<DetId> getAllChannels() const;
+
 private:
   struct CalibSetObject {
-    CalibSetObject(const DetId& aid) {
-      id = hcalTransformedId(aid);
-    }
+    CalibSetObject(const DetId& aid) { id = hcalTransformedId(aid); }
     DetId id;
     HcalCalibrations calib;
     bool operator<(const CalibSetObject& cso) const { return id < cso.id; }
@@ -32,7 +31,7 @@ private:
   };
   typedef CalibSetObject Item;
   HcalCalibrations dummy;
-  std::unordered_map<uint32_t,CalibSetObject> mItems;
+  std::unordered_map<uint32_t, CalibSetObject> mItems;
 };
 
 #endif

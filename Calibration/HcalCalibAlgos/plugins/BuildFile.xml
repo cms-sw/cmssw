@@ -12,6 +12,7 @@
 <use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/HcalIsolatedTrack"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>

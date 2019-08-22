@@ -4,8 +4,7 @@
 
 //----------------------------------------------------------------------------------------------------
 
-void LHCInterpolatedOpticalFunctionsSet::initializeSplines()
-{
+void LHCInterpolatedOpticalFunctionsSet::initializeSplines() {
   const unsigned int num_xi_vals = m_xi_values.size();
 
   m_splines.resize(m_fcn_values.size());
@@ -16,21 +15,23 @@ void LHCInterpolatedOpticalFunctionsSet::initializeSplines()
 //----------------------------------------------------------------------------------------------------
 
 void LHCInterpolatedOpticalFunctionsSet::transport(const LHCInterpolatedOpticalFunctionsSet::Kinematics &input,
-  LHCInterpolatedOpticalFunctionsSet::Kinematics &output, bool calculateAngles) const
-{
+                                                   LHCInterpolatedOpticalFunctionsSet::Kinematics &output,
+                                                   bool calculateAngles) const {
   const double xi = input.xi;
 
-  output.x = m_splines[exd]->Eval(xi) + m_splines[evx]->Eval(xi) * input.x
-    + m_splines[eLx]->Eval(xi) * input.th_x + m_splines[e14]->Eval(xi) * input.th_y;
+  output.x = m_splines[exd]->Eval(xi) + m_splines[evx]->Eval(xi) * input.x + m_splines[eLx]->Eval(xi) * input.th_x +
+             m_splines[e14]->Eval(xi) * input.th_y;
 
-  output.th_x = (!calculateAngles) ? 0. : m_splines[expd]->Eval(xi) + m_splines[evpx]->Eval(xi) * input.x
-    + m_splines[eLpx]->Eval(xi) * input.th_x + m_splines[e24]->Eval(xi) * input.th_y;
+  output.th_x = (!calculateAngles) ? 0.
+                                   : m_splines[expd]->Eval(xi) + m_splines[evpx]->Eval(xi) * input.x +
+                                         m_splines[eLpx]->Eval(xi) * input.th_x + m_splines[e24]->Eval(xi) * input.th_y;
 
-  output.y = m_splines[eyd]->Eval(xi) + m_splines[evy]->Eval(xi) * input.y
-    + m_splines[eLy]->Eval(xi) * input.th_y + m_splines[e32]->Eval(xi) * input.th_x;
+  output.y = m_splines[eyd]->Eval(xi) + m_splines[evy]->Eval(xi) * input.y + m_splines[eLy]->Eval(xi) * input.th_y +
+             m_splines[e32]->Eval(xi) * input.th_x;
 
-  output.th_y = (!calculateAngles) ? 0. : m_splines[eypd]->Eval(xi) + m_splines[evpy]->Eval(xi) * input.y
-    + m_splines[eLpy]->Eval(xi) * input.th_y + m_splines[e42]->Eval(xi) * input.th_x;
+  output.th_y = (!calculateAngles) ? 0.
+                                   : m_splines[eypd]->Eval(xi) + m_splines[evpy]->Eval(xi) * input.y +
+                                         m_splines[eLpy]->Eval(xi) * input.th_y + m_splines[e42]->Eval(xi) * input.th_x;
 
   output.xi = input.xi;
 }

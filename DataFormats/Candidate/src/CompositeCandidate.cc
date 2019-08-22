@@ -3,57 +3,50 @@
 
 using namespace reco;
 
-CompositeCandidate::CompositeCandidate(const Candidate & c,
-				       const std::string& name) :
-  LeafCandidate(c), name_(name) {
+CompositeCandidate::CompositeCandidate(const Candidate& c, const std::string& name) : LeafCandidate(c), name_(name) {
   size_t n = c.numberOfDaughters();
-  for(size_t i = 0; i != n; ++i) {
-      addDaughter(*c.daughter(i));
+  for (size_t i = 0; i != n; ++i) {
+    addDaughter(*c.daughter(i));
   }
 }
 
-CompositeCandidate::CompositeCandidate(const Candidate & c,
-				       const std::string& name,
-				       role_collection const & roles) :
-  LeafCandidate(c), name_(name), roles_(roles) {
+CompositeCandidate::CompositeCandidate(const Candidate& c, const std::string& name, role_collection const& roles)
+    : LeafCandidate(c), name_(name), roles_(roles) {
   size_t n = c.numberOfDaughters();
   size_t r = roles_.size();
   bool sameSize = (n == r);
-  for(size_t i = 0; i != n; ++i) {
-    if (sameSize && r > 0) 
+  for (size_t i = 0; i != n; ++i) {
+    if (sameSize && r > 0)
       addDaughter(*c.daughter(i), roles_[i]);
     else
       addDaughter(*c.daughter(i));
   }
 }
 
-CompositeCandidate::~CompositeCandidate() { }
+CompositeCandidate::~CompositeCandidate() {}
 
-CompositeCandidate * CompositeCandidate::clone() const { return new CompositeCandidate(* this); }
+CompositeCandidate* CompositeCandidate::clone() const { return new CompositeCandidate(*this); }
 
-const Candidate * CompositeCandidate::daughter(size_type i) const { 
-  return (i < numberOfDaughters()) ? & dau[ i ] : nullptr; // i >= 0, since i is unsigned
+const Candidate* CompositeCandidate::daughter(size_type i) const {
+  return (i < numberOfDaughters()) ? &dau[i] : nullptr;  // i >= 0, since i is unsigned
 }
 
-Candidate * CompositeCandidate::daughter(size_type i) { 
-  Candidate * d = (i < numberOfDaughters()) ? & dau[ i ] : nullptr; // i >= 0, since i is unsigned
+Candidate* CompositeCandidate::daughter(size_type i) {
+  Candidate* d = (i < numberOfDaughters()) ? &dau[i] : nullptr;  // i >= 0, since i is unsigned
   return d;
 }
 
-const Candidate * CompositeCandidate::mother(size_type i) const { 
-  return nullptr;
-}
+const Candidate* CompositeCandidate::mother(size_type i) const { return nullptr; }
 
 size_t CompositeCandidate::numberOfDaughters() const { return dau.size(); }
 
 size_t CompositeCandidate::numberOfMothers() const { return 0; }
 
-bool CompositeCandidate::overlap(const Candidate & c2) const {
+bool CompositeCandidate::overlap(const Candidate& c2) const {
   throw cms::Exception("Error") << "can't check overlap internally for CompositeCanddate";
 }
 
 void CompositeCandidate::applyRoles() {
-
   if (roles_.empty())
     return;
 
@@ -62,21 +55,21 @@ void CompositeCandidate::applyRoles() {
   int N2 = numberOfDaughters();
   if (N1 != N2) {
     throw cms::Exception("InvalidReference")
-      << "CompositeCandidate::applyRoles : Number of roles and daughters differ, this is an error.\n";
+        << "CompositeCandidate::applyRoles : Number of roles and daughters differ, this is an error.\n";
   }
   // Set up the daughter roles
-  for (int i = 0 ; i < N1; ++i) {
+  for (int i = 0; i < N1; ++i) {
     std::string role = roles_[i];
-    Candidate * c = CompositeCandidate::daughter(i);
+    Candidate* c = CompositeCandidate::daughter(i);
 
-    CompositeCandidate * c1 = dynamic_cast<CompositeCandidate *>(c);
+    CompositeCandidate* c1 = dynamic_cast<CompositeCandidate*>(c);
     if (c1 != nullptr) {
       c1->setName(role);
     }
   }
 }
 
-Candidate * CompositeCandidate::daughter(const std::string& s) {
+Candidate* CompositeCandidate::daughter(const std::string& s) {
   int ret = -1;
   int i = 0, N = roles_.size();
   bool found = false;
@@ -88,14 +81,13 @@ Candidate * CompositeCandidate::daughter(const std::string& s) {
   }
 
   if (ret < 0) {
-    throw cms::Exception("InvalidReference")
-      << "CompositeCandidate::daughter: Cannot find role " << s << "\n";
+    throw cms::Exception("InvalidReference") << "CompositeCandidate::daughter: Cannot find role " << s << "\n";
   }
-  
+
   return daughter(ret);
 }
 
-const Candidate * CompositeCandidate::daughter(const std::string& s) const  {
+const Candidate* CompositeCandidate::daughter(const std::string& s) const {
   int ret = -1;
   int i = 0, N = roles_.size();
   bool found = false;
@@ -107,25 +99,23 @@ const Candidate * CompositeCandidate::daughter(const std::string& s) const  {
   }
 
   if (ret < 0) {
-    throw cms::Exception("InvalidReference")
-      << "CompositeCandidate::daughter: Cannot find role " << s << "\n";
+    throw cms::Exception("InvalidReference") << "CompositeCandidate::daughter: Cannot find role " << s << "\n";
   }
-  
+
   return daughter(ret);
 }
 
-void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& s) {
-  Candidate * c = cand.clone();
-  if (s != "") {
+void CompositeCandidate::addDaughter(const Candidate& cand, const std::string& s) {
+  Candidate* c = cand.clone();
+  if (!s.empty()) {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);
     if (isFound) {
-      throw cms::Exception("InvalidReference")
-	<< "CompositeCandidate::addDaughter: Already have role with name \"" << s 
-	<< "\", please clearDaughters, or use a new name\n";
+      throw cms::Exception("InvalidReference") << "CompositeCandidate::addDaughter: Already have role with name \"" << s
+                                               << "\", please clearDaughters, or use a new name\n";
     }
     roles_.push_back(s);
-    CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*c);
+    CompositeCandidate* c1 = dynamic_cast<CompositeCandidate*>(&*c);
     if (c1 != nullptr) {
       c1->setName(s);
     }
@@ -134,21 +124,18 @@ void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& 
 }
 
 void CompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const std::string& s) {
-  if (s != "") {
+  if (!s.empty()) {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);
     if (isFound) {
-      throw cms::Exception("InvalidReference")
-	<< "CompositeCandidate::addDaughter: Already have role with name \"" << s 
-	<< "\", please clearDaughters, or use a new name\n";
+      throw cms::Exception("InvalidReference") << "CompositeCandidate::addDaughter: Already have role with name \"" << s
+                                               << "\", please clearDaughters, or use a new name\n";
     }
-    roles_.push_back(s);  
-    CompositeCandidate * c1 = dynamic_cast<CompositeCandidate*>(&*cand);
+    roles_.push_back(s);
+    CompositeCandidate* c1 = dynamic_cast<CompositeCandidate*>(&*cand);
     if (c1 != nullptr) {
       c1->setName(s);
     }
   }
   dau.push_back(std::move(cand));
 }
-
-

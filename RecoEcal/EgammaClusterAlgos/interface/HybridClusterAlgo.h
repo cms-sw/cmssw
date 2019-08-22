@@ -16,7 +16,6 @@
 #include "RecoEcal/EgammaCoreTools/interface/BremRecoveryPhiRoadAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
@@ -24,9 +23,8 @@
 
 class EcalSeverityLevelAlgo;
 
-class HybridClusterAlgo
-{
- private:
+class HybridClusterAlgo {
+private:
   //Quick typedef for position calculation.
   typedef math::XYZPoint Point;
 
@@ -40,13 +38,12 @@ class HybridClusterAlgo
 
   // et in 25
   double et25(EcalBarrelNavigatorHT &navigator,
-                const EcalRecHitCollection *hits,
-                const CaloSubdetectorGeometry *geometry);
+              const EcalRecHitCollection *hits,
+              const CaloSubdetectorGeometry *geometry);
   // ratio Et/e
   double e2Et(EcalBarrelNavigatorHT &navigator,
-                const EcalRecHitCollection *hits,
-                const CaloSubdetectorGeometry *geometry);
-
+              const EcalRecHitCollection *hits,
+              const CaloSubdetectorGeometry *geometry);
 
   BremRecoveryPhiRoadAlgo *phiRoadAlgo_;
 
@@ -58,13 +55,13 @@ class HybridClusterAlgo
   //Threshold for becoming a sub-peak in the supercluster.
   double Eseed;
 
-  //Coefficient to increase Eseed as a function of 5x5  
+  //Coefficient to increase Eseed as a function of 5x5
   double Xi;
 
-  //Increase Eseed as a function of et_5x5 (othwewise it's e_5x5)  
+  //Increase Eseed as a function of et_5x5 (othwewise it's e_5x5)
   bool UseEtForXi;
 
-  //Threshold for adding the additional two 'wing' cells to domino. 
+  //Threshold for adding the additional two 'wing' cells to domino.
   double Ewing;
 
   // do dynamic phi road
@@ -74,7 +71,7 @@ class HybridClusterAlgo
   bool dynamicEThres_;
 
   //Map of DetId, RecHit relationship.  EcalRecHit knows what DetId it is,
-  //but DetId doesn't  know what EcalRecHit it is. 
+  //but DetId doesn't  know what EcalRecHit it is.
   //  std::map<DetId, EcalRecHit>  rechits_m;
 
   // colection of all rechits
@@ -99,9 +96,9 @@ class HybridClusterAlgo
 
   //algo to calulate position of clusters
   PositionCalc posCalculator_;
-  
-  // channels not to be used for seeding 
-  std::vector<int> v_chstatus_; 
+
+  // channels not to be used for seeding
+  std::vector<int> v_chstatus_;
 
   // severity levels to discriminate against
   std::vector<int> v_severitylevel_;
@@ -111,64 +108,59 @@ class HybridClusterAlgo
   bool excludeFromCluster_;
   std::set<DetId> excludedCrys_;
 
- public:
-  
+public:
   //The default constructor
-  HybridClusterAlgo(){ }
-  
+  HybridClusterAlgo() {}
+
   //The real constructor
-  HybridClusterAlgo(double eb_str, 
-		    int step,
-		    double ethres,
-		    double eseed,
-		    double xi,
-		    bool useEtForXi,
+  HybridClusterAlgo(double eb_str,
+                    int step,
+                    double ethres,
+                    double eseed,
+                    double xi,
+                    bool useEtForXi,
                     double ewing,
-		    const std::vector<int>& v_chstatus,
-                    const PositionCalc& posCalculator,
-		    bool dynamicEThres = false,
+                    const std::vector<int> &v_chstatus,
+                    const PositionCalc &posCalculator,
+                    bool dynamicEThres = false,
                     double eThresA = 0,
                     double eThresB = 0.1,
-		    const std::vector<int>& severityToExclude=std::vector<int>().operator=(std::vector<int>(999)),
-		    //double severityRecHitThreshold=0.08,
-		    //int severitySpikeId=1,
-		    //double severitySpikeThreshold=0,
-		    bool excludeFromCluster=false
-		    );
-//                    const edm::ParameterSet &bremRecoveryPset,
+                    const std::vector<int> &severityToExclude = std::vector<int>().operator=(std::vector<int>(999)),
+                    //double severityRecHitThreshold=0.08,
+                    //int severitySpikeId=1,
+                    //double severitySpikeThreshold=0,
+                    bool excludeFromCluster = false);
+  //                    const edm::ParameterSet &bremRecoveryPset,
 
   // destructor
-  ~HybridClusterAlgo() 
-  {
-     if (dynamicPhiRoad_) delete phiRoadAlgo_;
-     delete topo_; 
+  ~HybridClusterAlgo() {
+    if (dynamicPhiRoad_)
+      delete phiRoadAlgo_;
+    delete topo_;
     //     delete SCShape_;
-  } 
+  }
 
-  void setDynamicPhiRoad(const edm::ParameterSet &bremRecoveryPset)
-  {
-     dynamicPhiRoad_ = true;
-     phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
+  void setDynamicPhiRoad(const edm::ParameterSet &bremRecoveryPset) {
+    dynamicPhiRoad_ = true;
+    phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
   }
 
   //Hand over the map, the geometry, and I'll hand you back clusters.
-  void makeClusters(const EcalRecHitCollection*,
-		    const CaloSubdetectorGeometry * geometry,
-		    reco::BasicClusterCollection &basicClusters,
-                    const EcalSeverityLevelAlgo * sevLv,
-		    bool regional = false,
-		    const std::vector<RectangularEtaPhiRegion>& regions = std::vector<RectangularEtaPhiRegion>()
-		    );
+  void makeClusters(const EcalRecHitCollection *,
+                    const CaloSubdetectorGeometry *geometry,
+                    reco::BasicClusterCollection &basicClusters,
+                    const EcalSeverityLevelAlgo *sevLv,
+                    bool regional = false,
+                    const std::vector<RectangularEtaPhiRegion> &regions = std::vector<RectangularEtaPhiRegion>());
 
   //Make superclusters from the references to the BasicClusters in the event.
-  reco::SuperClusterCollection makeSuperClusters(const reco::CaloClusterPtrVector&);
+  reco::SuperClusterCollection makeSuperClusters(const reco::CaloClusterPtrVector &);
 
   //The routine doing the real work.
-  void mainSearch(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry * geometry);
-  
-  //Make dominos for the hybrid method.
-  double makeDomino(EcalBarrelNavigatorHT &navigator, std::vector <EcalRecHit> &cells);
+  void mainSearch(const EcalRecHitCollection *hits, const CaloSubdetectorGeometry *geometry);
 
+  //Make dominos for the hybrid method.
+  double makeDomino(EcalBarrelNavigatorHT &navigator, std::vector<EcalRecHit> &cells);
 };
 
 #endif

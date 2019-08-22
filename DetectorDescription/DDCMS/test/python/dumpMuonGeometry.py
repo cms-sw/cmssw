@@ -13,7 +13,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  DDDetector = cms.ESInputTag('MUON')
+                                  DDDetector = cms.ESInputTag('','MUON')
                                   )
 
 process.p = cms.Path(process.testDump)

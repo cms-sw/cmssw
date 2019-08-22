@@ -7,8 +7,8 @@
 
 namespace cms {
   struct DDVectorRegistry {
-    tbb::concurrent_unordered_map< std::string, tbb::concurrent_vector<double> > vectors;
+    tbb::concurrent_unordered_map<std::string, tbb::concurrent_vector<double> > vectors;
   };
-}
+}  // namespace cms
 
 #endif

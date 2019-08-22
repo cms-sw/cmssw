@@ -22,29 +22,28 @@
 
 class ME0SegmentAlgorithmBase {
 public:
+  struct HitAndPosition {
+    HitAndPosition(const ME0RecHit* rh, const LocalPoint& lp, const GlobalPoint& gp, unsigned int idx)
+        : rh(rh), lp(lp), gp(gp), layer(rh->me0Id().layer()), idx(idx) {}
+    const ME0RecHit* rh;
+    LocalPoint lp;
+    GlobalPoint gp;
+    unsigned int layer;
+    unsigned int idx;
+  };
 
-	struct HitAndPosition {
-		HitAndPosition (const ME0RecHit * rh, const LocalPoint& lp, const GlobalPoint& gp, unsigned int idx ) :
-			rh(rh),lp(lp),gp(gp), layer(rh->me0Id().layer()), idx(idx){}
-		const ME0RecHit * rh;
-		LocalPoint lp;
-		GlobalPoint gp;
-		unsigned int layer;
-		unsigned int idx;
-	};
+  typedef std::vector<HitAndPosition> HitAndPositionContainer;
+  typedef std::vector<const HitAndPosition*> HitAndPositionPtrContainer;
 
-	typedef std::vector<HitAndPosition> HitAndPositionContainer;
-	typedef std::vector<const HitAndPosition*> HitAndPositionPtrContainer;
+  /// Constructor
+  explicit ME0SegmentAlgorithmBase(const edm::ParameterSet&){};
+  /// Destructor
+  virtual ~ME0SegmentAlgorithmBase(){};
 
-    /// Constructor
-    explicit ME0SegmentAlgorithmBase(const edm::ParameterSet&) {};
-    /// Destructor
-    virtual ~ME0SegmentAlgorithmBase() {};
-
-    /** Run the algorithm = build the segments in this chamber
+  /** Run the algorithm = build the segments in this chamber
     */
-    virtual std::vector<ME0Segment> run(const ME0Chamber * chamber, const HitAndPositionContainer& rechits ) = 0;
+  virtual std::vector<ME0Segment> run(const ME0Chamber* chamber, const HitAndPositionContainer& rechits) = 0;
 
-    private:
+private:
 };
 #endif

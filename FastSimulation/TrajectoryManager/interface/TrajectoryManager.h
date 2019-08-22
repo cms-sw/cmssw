@@ -52,64 +52,62 @@ class GeometricSearchTracker;
 class TrackerGeometry;
 class TrackerTopology;
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
 class TrajectoryManager
 
 {
- public:
-
+public:
   typedef ROOT::Math::AxisAngle Rotation;
 
   /// Default Constructor
-  TrajectoryManager() {;}
+  TrajectoryManager() { ; }
 
   /// Constructor from a FSimEvent
-  TrajectoryManager(FSimEvent* aSimEvent, 
-		    const edm::ParameterSet& matEff,
-		    const edm::ParameterSet& simHits,
-		    const edm::ParameterSet& decays);
+  TrajectoryManager(FSimEvent* aSimEvent,
+                    const edm::ParameterSet& matEff,
+                    const edm::ParameterSet& simHits,
+                    const edm::ParameterSet& decays);
 
   /// Default Destructor
   ~TrajectoryManager();
-  
+
   /// Does the real job
-  void reconstruct(const TrackerTopology *tTopo, RandomEngineAndDistribution const*);
+  void reconstruct(const TrackerTopology* tTopo, RandomEngineAndDistribution const*);
 
-  /// Create a vector of PSimHits 
+  /// Create a vector of PSimHits
   void createPSimHits(const TrackerLayer& layer,
-		      const ParticlePropagator& P_before,
-		      std::map<double,PSimHit>& theHitMap,
-		      int trackID, int partID, const TrackerTopology *tTopo);
+                      const ParticlePropagator& P_before,
+                      std::map<double, PSimHit>& theHitMap,
+                      int trackID,
+                      int partID,
+                      const TrackerTopology* tTopo);
 
-/// Propagate the particle through the calorimeters
-  void propagateToCalorimeters(ParticlePropagator& PP,
-                               int fsimi,
-                               RandomEngineAndDistribution const*);
+  /// Propagate the particle through the calorimeters
+  void propagateToCalorimeters(ParticlePropagator& PP, int fsimi, RandomEngineAndDistribution const*);
 
-  /// Propagate a particle to a given tracker layer 
+  /// Propagate a particle to a given tracker layer
   /// (for electron pixel matching mostly)
-  bool propagateToLayer(ParticlePropagator& PP,unsigned layer);
+  bool propagateToLayer(ParticlePropagator& PP, unsigned layer);
 
   /// Returns the pointer to geometry
   const TrackerInteractionGeometry* theGeometry();
 
   /// Initialize the Reconstruction Geometry
   void initializeRecoGeometry(const GeometricSearchTracker* geomSearchTracker,
-			      const TrackerInteractionGeometry* interactionGeometry,
-			      const MagneticFieldMap* aFieldMap);
+                              const TrackerInteractionGeometry* interactionGeometry,
+                              const MagneticFieldMap* aFieldMap);
 
   /// Initialize the full Tracker Geometry
   void initializeTrackerGeometry(const TrackerGeometry* geomTracker);
 
   // load container from edm::Event
-  void loadSimHits(edm::PSimHitContainer & c) const;
+  void loadSimHits(edm::PSimHitContainer& c) const;
 
- private:
-
-  /// Decay the particle and update the SimEvent with daughters 
+private:
+  /// Decay the particle and update the SimEvent with daughters
   void updateWithDaughters(ParticlePropagator& PP, int fsimi, RandomEngineAndDistribution const*);
 
   /// Move, rescale and rotate all daughters after propagation, material effects and decay of the mother.
@@ -119,29 +117,37 @@ class TrajectoryManager
   void initializeLayerMap();
 
   /// Teddy, you must put comments there
-  TrajectoryStateOnSurface makeTrajectoryState( const DetLayer* layer, 
-						const ParticlePropagator& pp,
-						const MagneticField* field) const;
+  TrajectoryStateOnSurface makeTrajectoryState(const DetLayer* layer,
+                                               const ParticlePropagator& pp,
+                                               const MagneticField* field) const;
 
   /// and there
-  void makePSimHits( const GeomDet* det, const TrajectoryStateOnSurface& ts,
-		     std::map<double,PSimHit>& theHitMap,
-		     int tkID, float el, float thick, int pID, const TrackerTopology *tTopo);
+  void makePSimHits(const GeomDet* det,
+                    const TrajectoryStateOnSurface& ts,
+                    std::map<double, PSimHit>& theHitMap,
+                    int tkID,
+                    float el,
+                    float thick,
+                    int pID,
+                    const TrackerTopology* tTopo);
   /// and there
-  std::pair<double,PSimHit> makeSinglePSimHit( const GeomDetUnit& det,
-					       const TrajectoryStateOnSurface& ts, 
-					       int tkID, float el, float thick, int pID, const TrackerTopology *tTopo) const;
+  std::pair<double, PSimHit> makeSinglePSimHit(const GeomDetUnit& det,
+                                               const TrajectoryStateOnSurface& ts,
+                                               int tkID,
+                                               float el,
+                                               float thick,
+                                               int pID,
+                                               const TrackerTopology* tTopo) const;
 
-  /// Returns the DetLayer pointer corresponding to the FAMOS layer 
-  const DetLayer* detLayer( const TrackerLayer& layer, float zpos) const;
+  /// Returns the DetLayer pointer corresponding to the FAMOS layer
+  const DetLayer* detLayer(const TrackerLayer& layer, float zpos) const;
 
- private:
-
+private:
   FSimEvent* mySimEvent;
 
   const TrackerInteractionGeometry* _theGeometry;
   const MagneticFieldMap* _theFieldMap;
-  
+
   MaterialEffects* theMaterialEffects;
 
   PythiaDecays* myDecayEngine;
@@ -150,16 +156,15 @@ class TrajectoryManager
 
   double pTmin;
   bool firstLoop;
-  std::map<unsigned,std::map<double,PSimHit> > thePSimHits;
+  std::map<unsigned, std::map<double, PSimHit> > thePSimHits;
 
-  const TrackerGeometry*                      theGeomTracker;
-  const GeometricSearchTracker*               theGeomSearchTracker;
-  std::vector<const DetLayer*>                theLayerMap;
-  int                                         theNegLayerOffset;
+  const TrackerGeometry* theGeomTracker;
+  const GeometricSearchTracker* theGeomSearchTracker;
+  std::vector<const DetLayer*> theLayerMap;
+  int theNegLayerOffset;
 
   //  Histos* myHistos;
 
   bool use_hardcoded;
-
 };
 #endif

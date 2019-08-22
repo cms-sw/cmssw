@@ -2,7 +2,7 @@
 //
 // Package:     Core
 // Class  :     unittest_changemanager
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -27,59 +27,56 @@
 //
 // constants, enums and typedefs
 //
-namespace  {
-   class TestAccessor : public FWItemAccessorBase {
-   public:
-      TestAccessor(const reco::TrackCollection* iCollection):
-      m_collection(iCollection) {}
-      virtual const void* modelData(int iIndex) const {return &((*m_collection)[iIndex]);}
-      virtual const void* data() const {return m_collection;}
-      virtual unsigned int size() const {return m_collection->size();}
-      virtual const TClass* modelType() const {return TClass::GetClass("reco::Track");}
-      virtual const TClass* type() const {return TClass::GetClass("reco::TrackCollection");}
-      
-      virtual bool isCollection() const {return true;}
-      
-      ///override if id of an object should be different than the index
-      //virtual std::string idForIndex(int iIndex) const;
-      // ---------- member functions ---------------------------
-      virtual void setData(const edm::ObjectWithDict& ) {}
-      virtual void reset(){}
-      
-   private:
-      const reco::TrackCollection* m_collection;
-   };
-}
+namespace {
+  class TestAccessor : public FWItemAccessorBase {
+  public:
+    TestAccessor(const reco::TrackCollection* iCollection) : m_collection(iCollection) {}
+    virtual const void* modelData(int iIndex) const { return &((*m_collection)[iIndex]); }
+    virtual const void* data() const { return m_collection; }
+    virtual unsigned int size() const { return m_collection->size(); }
+    virtual const TClass* modelType() const { return TClass::GetClass("reco::Track"); }
+    virtual const TClass* type() const { return TClass::GetClass("reco::TrackCollection"); }
 
-BOOST_AUTO_TEST_CASE( itemfilter )
-{
-   FWModelChangeManager cm;
-   
-   FWSelectionManager sm(&cm);
+    virtual bool isCollection() const { return true; }
 
+    ///override if id of an object should be different than the index
+    //virtual std::string idForIndex(int iIndex) const;
+    // ---------- member functions ---------------------------
+    virtual void setData(const edm::ObjectWithDict&) {}
+    virtual void reset() {}
 
-   reco::TrackCollection fVector;
-   fVector.push_back(reco::Track());
-   fVector.push_back(reco::Track(20,20,reco::Track::Point(), 
-                                 reco::Track::Vector(20,0,0), -1, reco::Track::CovarianceMatrix()));
-   fVector.push_back(reco::Track());
-   
-   TClass* cls=TClass::GetClass("std::vector<reco::Track>");
-   assert(0!=cls);
-   
-   fireworks::Context context(&cm,&sm,0,0,0);
-   
-   auto accessor = std::make_shared<TestAccessor>(&fVector);
-   FWPhysicsObjectDesc pObj("Tracks",cls,"Tracks");
-   FWEventItem item(&context, 0,accessor,pObj);
+  private:
+    const reco::TrackCollection* m_collection;
+  };
+}  // namespace
 
-   cm.newItemSlot(&item);
-   
-   FWModelFilter filter("$.pt() > 10","reco::Track");
-   BOOST_CHECK(not filter.passesFilter(item.modelData(0)));
-   BOOST_CHECK(filter.passesFilter(item.modelData(1)));
-   
-   filter.setExpression(std::string());
-   BOOST_CHECK(filter.passesFilter(item.modelData(0)));
-   BOOST_CHECK(filter.passesFilter(item.modelData(1)));
+BOOST_AUTO_TEST_CASE(itemfilter) {
+  FWModelChangeManager cm;
+
+  FWSelectionManager sm(&cm);
+
+  reco::TrackCollection fVector;
+  fVector.push_back(reco::Track());
+  fVector.push_back(
+      reco::Track(20, 20, reco::Track::Point(), reco::Track::Vector(20, 0, 0), -1, reco::Track::CovarianceMatrix()));
+  fVector.push_back(reco::Track());
+
+  TClass* cls = TClass::GetClass("std::vector<reco::Track>");
+  assert(0 != cls);
+
+  fireworks::Context context(&cm, &sm, 0, 0, 0);
+
+  auto accessor = std::make_shared<TestAccessor>(&fVector);
+  FWPhysicsObjectDesc pObj("Tracks", cls, "Tracks");
+  FWEventItem item(&context, 0, accessor, pObj);
+
+  cm.newItemSlot(&item);
+
+  FWModelFilter filter("$.pt() > 10", "reco::Track");
+  BOOST_CHECK(not filter.passesFilter(item.modelData(0)));
+  BOOST_CHECK(filter.passesFilter(item.modelData(1)));
+
+  filter.setExpression(std::string());
+  BOOST_CHECK(filter.passesFilter(item.modelData(0)));
+  BOOST_CHECK(filter.passesFilter(item.modelData(1)));
 }

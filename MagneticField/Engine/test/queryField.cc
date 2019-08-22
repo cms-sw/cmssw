@@ -19,7 +19,6 @@
 //#include "DataFormats/GeometryVector/interface/Pi.h"
 //#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
 
-
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -31,39 +30,35 @@ using namespace Geom;
 using namespace std;
 
 class queryField : public edm::EDAnalyzer {
- public:
-  queryField(const edm::ParameterSet& pset) {    
-  }
+public:
+  queryField(const edm::ParameterSet& pset) {}
 
-  ~queryField(){}
+  ~queryField() {}
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
-   ESHandle<MagneticField> magfield;
-   setup.get<IdealMagneticFieldRecord>().get(magfield);
+    ESHandle<MagneticField> magfield;
+    setup.get<IdealMagneticFieldRecord>().get(magfield);
 
-   field = magfield.product();
+    field = magfield.product();
 
-   cout << "Field Nominal Value: " << field->nominalValue() << endl;
+    cout << "Field Nominal Value: " << field->nominalValue() << endl;
 
-   double x,y,z;
+    double x, y, z;
 
-   while (1) {
-     
-     cout << "Enter X Y Z (cm): ";
+    while (1) {
+      cout << "Enter X Y Z (cm): ";
 
-     if (!(cin >> x >>  y >>  z)) exit(0);
+      if (!(cin >> x >> y >> z))
+        exit(0);
 
-     GlobalPoint g(x,y,z);
-     
-     cout << "At R=" << g.perp() << " phi=" << g.phi()<< " B=" << field->inTesla(g) << endl;
-   }
-   
+      GlobalPoint g(x, y, z);
+
+      cout << "At R=" << g.perp() << " phi=" << g.phi() << " B=" << field->inTesla(g) << endl;
+    }
   }
-   
- private:
+
+private:
   const MagneticField* field;
 };
 
-
 DEFINE_FWK_MODULE(queryField);
-

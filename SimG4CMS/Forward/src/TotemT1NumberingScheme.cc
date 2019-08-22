@@ -6,7 +6,7 @@
 // Implementation:
 //     <Notes on implementation>
 //
-// Original Author: 
+// Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
 //
 
@@ -20,10 +20,8 @@
 // constructors and destructor
 //
 TotemT1NumberingScheme::TotemT1NumberingScheme(int i) {
-
   edm::LogInfo("ForwardSim") << " Creating TotemT1NumberingScheme";
   setCurrentDetectorPosition(i);
 }
 
-TotemT1NumberingScheme::~TotemT1NumberingScheme() {
-}
+TotemT1NumberingScheme::~TotemT1NumberingScheme() {}

@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     PixelCPEParmErrorsRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Aug 17 08:18:51 CDT 2007
 // $Id$
 

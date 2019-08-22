@@ -7,21 +7,18 @@
 class RKLocalFieldProvider;
 
 template <typename T, int N>
-class dso_internal CurvilinearLorentzForce final : public RKDerivative<T,N> {
+class dso_internal CurvilinearLorentzForce final : public RKDerivative<T, N> {
 public:
+  typedef RKDerivative<T, N> Base;
+  typedef typename Base::Scalar Scalar;
+  typedef typename Base::Vector Vector;
 
-    typedef RKDerivative<T,N>                   Base;
-    typedef typename Base::Scalar               Scalar;
-    typedef typename Base::Vector               Vector;
+  CurvilinearLorentzForce(const RKLocalFieldProvider& field) : theField(field) {}
 
-    CurvilinearLorentzForce( const RKLocalFieldProvider& field) : theField(field) {}
-
-    Vector operator()( Scalar z, const Vector& state) const override;
+  Vector operator()(Scalar z, const Vector& state) const override;
 
 private:
-
-    const RKLocalFieldProvider& theField;
-
+  const RKLocalFieldProvider& theField;
 };
 
 #include "TrackPropagation/RungeKutta/src/CurvilinearLorentzForce.icc"

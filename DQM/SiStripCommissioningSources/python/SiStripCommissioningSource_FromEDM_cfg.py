@@ -30,6 +30,7 @@ process.SiStripConfigDb.Partitions.PrimaryPartition.RunNumber     = RUNNUMBER
 process.SiStripConfigDb.TNS_ADMIN = '/etc'
 
 process.SiStripCondObjBuilderFromDb = cms.Service("SiStripCondObjBuilderFromDb")
+process.SiStripCondObjBuilderFromDb.SiStripDetInfoFile = cms.FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat")
 process.SiStripCondObjBuilderFromDb.UseFEC = cms.untracked.bool(True)
 process.SiStripCondObjBuilderFromDb.UseFED = cms.untracked.bool(True)
 
@@ -37,7 +38,6 @@ process.FedCablingFromConfigDb = cms.ESSource("SiStripFedCablingBuilderFromDb",
     CablingSource = cms.untracked.string('UNDEFINED')  
 )
 
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 process.PedestalsFromConfigDb = cms.ESSource("SiStripPedestalsBuilderFromDb")
 process.NoiseFromConfigDb = cms.ESSource("SiStripNoiseBuilderFromDb")
 process.sistripconn = cms.ESProducer("SiStripConnectivity")

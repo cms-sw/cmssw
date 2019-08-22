@@ -4,7 +4,7 @@
 //
 // Package:     CondFormats/JetMETObjects
 // Class  :     QGLikelihoodRcd
-// 
+//
 /**\class QGLikelihoodRcd QGLikelihoodRcd.h CondFormats/JetMETObjects/interface/QGLikelihoodRcd.h
 
  Description: [one line class summary]

@@ -28,96 +28,99 @@
 
 #include <functional>
 
-namespace reco { namespace tau {
+namespace reco {
+  namespace tau {
 
-class RecoTauQualityCuts 
-{
- public:
-  // Quality cut types
-  typedef std::function<bool (const TrackBaseRef&)> TrackQCutFunc;
-  typedef std::vector<TrackQCutFunc> TrackQCutFuncCollection;
-  typedef std::function<bool (const Candidate&)> CandQCutFunc;
-  typedef std::vector<CandQCutFunc> CandQCutFuncCollection;
-  typedef std::map<int, CandQCutFuncCollection> CandQCutFuncMap;
-  
-  explicit RecoTauQualityCuts(const edm::ParameterSet& qcuts);
+    class RecoTauQualityCuts {
+    public:
+      // Quality cut types
+      typedef std::function<bool(const TrackBaseRef&)> TrackQCutFunc;
+      typedef std::vector<TrackQCutFunc> TrackQCutFuncCollection;
+      typedef std::function<bool(const Candidate&)> CandQCutFunc;
+      typedef std::vector<CandQCutFunc> CandQCutFuncCollection;
+      typedef std::map<int, CandQCutFuncCollection> CandQCutFuncMap;
 
-  /// Update the primary vertex
-  void setPV(const reco::VertexRef& vtx) const { pv_ = vtx; }
-    
-  /// Update the leading track
-  void setLeadTrack(const reco::Track& leadTrack) const;
-  void setLeadTrack(const reco::Candidate& leadCand) const;
+      explicit RecoTauQualityCuts(const edm::ParameterSet& qcuts);
 
-  /// Update the leading track (using reference)
-  /// If null, this will set the lead track ref null.
-  void setLeadTrack(const reco::CandidateRef& leadCand) const;
+      /// Update the primary vertex
+      void setPV(const reco::VertexRef& vtx) { pv_ = vtx; }
 
-  /// Filter a single Track
-  bool filterTrack(const reco::TrackBaseRef& track) const;
-  bool filterTrack(const reco::TrackRef& track) const;
-  bool filterTrack(const reco::Track& track) const;
-  /// or a single charged candidate
-  bool filterChargedCand(const reco::Candidate& cand) const;
+      /// Update the leading track
+      void setLeadTrack(const reco::Track& leadTrack);
+      void setLeadTrack(const reco::Candidate& leadCand);
 
-  /// Filter a collection of Tracks
-  template<typename Coll> 
-  Coll filterTracks(const Coll& coll, bool invert = false) const 
-  {
-    Coll output;
-    for(auto const& track : coll ) {
-      if ( filterTrack(track)^invert ) output.push_back(track);
-    }
-    return output;
-  }
+      /// Update the leading track (using reference)
+      /// If null, this will set the lead track ref null.
+      void setLeadTrack(const reco::CandidateRef& leadCand);
 
-  /// Filter a single Candidate
-  bool filterCand(const reco::Candidate& cand) const;
+      /// Filter a single Track
+      bool filterTrack(const reco::TrackBaseRef& track) const;
+      bool filterTrack(const reco::TrackRef& track) const;
+      bool filterTrack(const reco::Track& track) const;
+      /// or a single charged candidate
+      bool filterChargedCand(const reco::Candidate& cand) const;
 
-  /// Filter a Candidate held by a smart pointer or Ref
-  template<typename CandRefType>
-  bool filterCandRef(const CandRefType& cand) const { return filterCand(*cand); }
+      /// Filter a collection of Tracks
+      template <typename Coll>
+      Coll filterTracks(const Coll& coll, bool invert = false) const {
+        Coll output;
+        for (auto const& track : coll) {
+          if (filterTrack(track) ^ invert)
+            output.push_back(track);
+        }
+        return output;
+      }
 
-  /// Filter a ref vector of Candidates
-  template<typename Coll> 
-  Coll filterCandRefs(const Coll& refcoll, bool invert = false) const 
-  {
-    Coll output;
-    for(auto const& cand : refcoll ) {
-      if ( filterCandRef(cand)^invert ) output.push_back(cand);
-    }
-    return output;
-  }
+      /// Filter a single Candidate
+      bool filterCand(const reco::Candidate& cand) const;
 
- private:
-  bool filterTrack_(const reco::Track* track) const;
-  bool filterGammaCand(const reco::Candidate& cand) const;
-  bool filterNeutralHadronCand(const reco::Candidate& cand) const;
-  bool filterCandByType(const reco::Candidate& cand) const;
+      /// Filter a Candidate held by a smart pointer or Ref
+      template <typename CandRefType>
+      bool filterCandRef(const CandRefType& cand) const {
+        return filterCand(*cand);
+      }
 
-  // The current primary vertex
-  mutable reco::VertexRef pv_;
-  // The current lead track references
-  mutable const reco::Track* leadTrack_;
+      /// Filter a ref vector of Candidates
+      template <typename Coll>
+      Coll filterCandRefs(const Coll& refcoll, bool invert = false) const {
+        Coll output;
+        for (auto const& cand : refcoll) {
+          if (filterCandRef(cand) ^ invert)
+            output.push_back(cand);
+        }
+        return output;
+      }
 
-  double minTrackPt_;
-  double maxTrackChi2_;
-  int minTrackPixelHits_;
-  int minTrackHits_;
-  double maxTransverseImpactParameter_;
-  double maxDeltaZ_;
-  double maxDeltaZToLeadTrack_;
-  double minTrackVertexWeight_;
-  double minGammaEt_;
-  double minNeutralHadronEt_;
-  bool checkHitPattern_;
-  bool checkPV_;
-};
+    private:
+      bool filterTrack_(const reco::Track* track) const;
+      bool filterGammaCand(const reco::Candidate& cand) const;
+      bool filterNeutralHadronCand(const reco::Candidate& cand) const;
+      bool filterCandByType(const reco::Candidate& cand) const;
 
-// Split an input set of quality cuts into those that need to be inverted
-// to select PU (the first member) and those that are general quality cuts.
-std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(const edm::ParameterSet& inputSet);
+      // The current primary vertex
+      reco::VertexRef pv_;
+      // The current lead track references
+      const reco::Track* leadTrack_;
 
-}} // end reco::tau:: namespace
+      double minTrackPt_;
+      double maxTrackChi2_;
+      int minTrackPixelHits_;
+      int minTrackHits_;
+      double maxTransverseImpactParameter_;
+      double maxDeltaZ_;
+      double maxDeltaZToLeadTrack_;
+      double minTrackVertexWeight_;
+      double minGammaEt_;
+      double minNeutralHadronEt_;
+      bool checkHitPattern_;
+      bool checkPV_;
+    };
+
+    // Split an input set of quality cuts into those that need to be inverted
+    // to select PU (the first member) and those that are general quality cuts.
+    std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(const edm::ParameterSet& inputSet);
+
+  }  // namespace tau
+}  // namespace reco
 
 #endif

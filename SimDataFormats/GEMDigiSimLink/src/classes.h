@@ -12,5 +12,4 @@
 #include "SimDataFormats/GEMDigiSimLink/interface/GEMDigiSimLink.h"
 #include "SimDataFormats/GEMDigiSimLink/interface/ME0DigiSimLink.h"
 
-#endif // GEMDIGISIMLINK_CLASSES_H
-
+#endif  // GEMDIGISIMLINK_CLASSES_H

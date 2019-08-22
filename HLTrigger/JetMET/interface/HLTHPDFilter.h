@@ -15,26 +15,24 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTHPDFilter : public edm::stream::EDFilter<> {
+public:
+  explicit HLTHPDFilter(const edm::ParameterSet&);
+  ~HLTHPDFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  bool filter(edm::Event&, const edm::EventSetup&) override;
 
-   public:
-      explicit HLTHPDFilter(const edm::ParameterSet&);
-      ~HLTHPDFilter() override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-
-   private:
-      edm::EDGetTokenT<HBHERecHitCollection> m_theRecHitCollectionToken;
-      edm::InputTag mInputTag; // input tag for HCAL HBHE digis
-      double mEnergyThreshold;
-      double mHPDSpikeEnergyThreshold;
-      double mHPDSpikeIsolationEnergyThreshold;
-      double mRBXSpikeEnergyThreshold;
-      double mRBXSpikeUnbalanceThreshold;
+private:
+  edm::EDGetTokenT<HBHERecHitCollection> m_theRecHitCollectionToken;
+  edm::InputTag mInputTag;  // input tag for HCAL HBHE digis
+  double mEnergyThreshold;
+  double mHPDSpikeEnergyThreshold;
+  double mHPDSpikeIsolationEnergyThreshold;
+  double mRBXSpikeEnergyThreshold;
+  double mRBXSpikeUnbalanceThreshold;
 };
 
-#endif //HLTHPDFilter_h
- 
+#endif  //HLTHPDFilter_h

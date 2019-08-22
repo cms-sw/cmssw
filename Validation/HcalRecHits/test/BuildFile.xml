@@ -1,0 +1,15 @@
+<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/HcalRecHit"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="Geometry/HcalCommonData"/>
+<use   name="Geometry/Records"/>
+<use   name="SimDataFormats/CaloHit"/>
+<use   name="SimDataFormats/CaloTest"/>
+<use   name="boost"/>
+<use   name="root"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="*.cc" name="testValidationHcalRecHits">
+</library>

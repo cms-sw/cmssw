@@ -3,8 +3,6 @@
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
-class CSCZSensorsRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCZSensorsRcd> {
-    
-};
+class CSCZSensorsRcd : public edm::eventsetup::EventSetupRecordImplementation<CSCZSensorsRcd> {};
 
 #endif

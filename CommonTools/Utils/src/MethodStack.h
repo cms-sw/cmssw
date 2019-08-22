@@ -13,10 +13,10 @@
 #include <vector>
 
 namespace reco {
-namespace parser {
-typedef std::vector<MethodInvoker> MethodStack;
-typedef std::vector<LazyInvoker> LazyMethodStack;
-} // namespace parser
-} // namespace reco
+  namespace parser {
+    typedef std::vector<MethodInvoker> MethodStack;
+    typedef std::vector<LazyInvoker> LazyMethodStack;
+  }  // namespace parser
+}  // namespace reco
 
-#endif // CommonTools_Utils_MethodStack_h
+#endif  // CommonTools_Utils_MethodStack_h

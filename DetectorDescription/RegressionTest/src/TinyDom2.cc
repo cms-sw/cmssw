@@ -2,7 +2,4 @@
 
 using namespace std;
 
-void TinyDom2PrettyPrint(ostream & os , const TinyDom2 & dom)
-{
-  TinyDom2Walker walker(dom);
-}
+void TinyDom2PrettyPrint(ostream& os, const TinyDom2& dom) { TinyDom2Walker walker(dom); }

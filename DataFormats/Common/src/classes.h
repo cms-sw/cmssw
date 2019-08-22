@@ -33,4 +33,3 @@
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 
 #include <vector>
-

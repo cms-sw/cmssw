@@ -45,7 +45,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
 )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-    DDDetector = cms.ESInputTag('TestTIDAxialCable')
+    DDDetector = cms.ESInputTag('','TestTIDAxialCable')
 )
 
 process.p = cms.Path(process.testDump)

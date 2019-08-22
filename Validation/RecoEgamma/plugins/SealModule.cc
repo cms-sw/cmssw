@@ -15,7 +15,6 @@
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalValidator.h"
 #include "Validation/RecoEgamma/plugins/ElectronMcMiniAODSignalPostValidator.h"
 
-
 DEFINE_FWK_MODULE(EgammaObjects);
 DEFINE_FWK_MODULE(ElectronMcSignalValidatorMiniAOD);
 DEFINE_FWK_MODULE(ElectronMcSignalPostValidatorMiniAOD);
@@ -29,5 +28,3 @@ DEFINE_FWK_MODULE(ElectronMcSignalPostValidator);
 DEFINE_FWK_MODULE(ElectronMcFakeValidator);
 DEFINE_FWK_MODULE(ElectronMcFakePostValidator);
 DEFINE_FWK_MODULE(ElectronConversionRejectionValidator);
-
-

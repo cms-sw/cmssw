@@ -6,12 +6,9 @@
 
 #include <vector>
 
-
 // ----------------------------------------------------------------------
 class SiPixelModuleStatus {
-
 public:
-
   SiPixelModuleStatus(int det = 0, int nrocs = 16);
   ~SiPixelModuleStatus();
 
@@ -22,7 +19,7 @@ public:
   void updateDIGI(int iroc, unsigned int nhit);
 
   /// fill FEDerror25
-  void fillFEDerror25( PixelFEDChannel ch );
+  void fillFEDerror25(PixelFEDChannel ch);
 
   /// return ROC status (= hits on ROC iroc)
   unsigned int digiOccROC(int iroc);
@@ -34,9 +31,9 @@ public:
   SiPixelRocStatus* getRoc(int i);
 
   /// accessors and setters
-  int    detid();
-  int    nrocs();
-  void   setNrocs(int iroc);
+  int detid();
+  int nrocs();
+  void setNrocs(int iroc);
 
   /// calculate (averaged over this module's ROCs) mean hit number and its sigma
   double perRocDigiOcc();
@@ -47,10 +44,8 @@ public:
   void updateModuleStatus(SiPixelModuleStatus newData);
 
 private:
-
   int fDetid, fNrocs;
   std::vector<SiPixelRocStatus> fRocs;
-
 };
 
 #endif

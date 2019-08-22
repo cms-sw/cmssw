@@ -15,5 +15,4 @@
 // user include files
 #include "Fireworks/Core/interface/FWDetailViewFactory.h"
 
-
-EDM_REGISTER_PLUGINFACTORY(FWDetailViewFactory,"cmsShow FWDetailView");
+EDM_REGISTER_PLUGINFACTORY(FWDetailViewFactory, "cmsShow FWDetailView");

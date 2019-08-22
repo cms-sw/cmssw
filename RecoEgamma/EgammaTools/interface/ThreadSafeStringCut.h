@@ -13,32 +13,24 @@
  *
  */
 
-template<class F, class T>
-class ThreadSafeStringCut
-{
-  public:
+template <class F, class T>
+class ThreadSafeStringCut {
+public:
+  ThreadSafeStringCut(const std::string& expr)  // constructor
+      : func_(expr), expr_(expr) {}
 
-    ThreadSafeStringCut(const std::string & expr) // constructor
-      : func_(expr)
-      , expr_(expr)
-    {}
+  ThreadSafeStringCut(ThreadSafeStringCut&& other) noexcept  // move constructor
+      : func_(std::move(other.func_)), expr_(std::move(other.expr_)) {}
 
-    ThreadSafeStringCut(ThreadSafeStringCut&& other) noexcept // move constructor
-      : func_(std::move(other.func_))
-      , expr_(std::move(other.expr_))
-    {}
+  typename std::invoke_result_t<F, T> operator()(const T& t) const {
+    std::lock_guard<std::mutex> guard(mutex_);
+    return func_(t);
+  }
 
-    typename std::invoke_result_t<F,T> operator()(const T & t) const
-    {
-        std::lock_guard<std::mutex> guard(mutex_);
-        return func_(t);
-    }
-
-  private:
-
-    const F func_;
-    const std::string expr_;
-    CMS_THREAD_SAFE mutable std::mutex mutex_;
+private:
+  const F func_;
+  const std::string expr_;
+  CMS_THREAD_SAFE mutable std::mutex mutex_;
 };
 
 #endif

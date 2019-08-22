@@ -21,37 +21,36 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "RecoJets/JetProducers/interface/JetIDHelper.h"
 
-
 namespace edm {
-    class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 namespace reco {
-    namespace helper {
-        class JetIDHelper;
-    }
-}
+  namespace helper {
+    class JetIDHelper;
+  }
+}  // namespace reco
 
 // Class declaration
 class HLTCaloJetIDProducer : public edm::stream::EDProducer<> {
-  public:
-    explicit HLTCaloJetIDProducer(const edm::ParameterSet & iConfig);
-    ~HLTCaloJetIDProducer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+public:
+  explicit HLTCaloJetIDProducer(const edm::ParameterSet& iConfig);
+  ~HLTCaloJetIDProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-  private:
-    int min_N90_;                     ///< mininum N90
-    int min_N90hits_;                 ///< mininum N90hits
-    double min_EMF_;                  ///< minimum EMF
-    double max_EMF_;                  ///< maximum EMF
-    edm::InputTag inputTag_;          ///< input CaloJet collection
-    edm::ParameterSet jetIDParams_;   ///< CaloJet ID parameters
+private:
+  int min_N90_;                    ///< mininum N90
+  int min_N90hits_;                ///< mininum N90hits
+  double min_EMF_;                 ///< minimum EMF
+  double max_EMF_;                 ///< maximum EMF
+  edm::InputTag inputTag_;         ///< input CaloJet collection
+  edm::ParameterSet jetIDParams_;  ///< CaloJet ID parameters
 
-    /// A helper to calculates calo jet ID variables.
-    reco::helper::JetIDHelper jetIDHelper_;
+  /// A helper to calculates calo jet ID variables.
+  reco::helper::JetIDHelper jetIDHelper_;
 
-    edm::EDGetTokenT<reco::CaloJetCollection> m_theCaloJetToken;
+  edm::EDGetTokenT<reco::CaloJetCollection> m_theCaloJetToken;
 };
 
 #endif  // HLTCaloJetIDProducer_h_

@@ -2,7 +2,7 @@
 #define SiOuterTrackerV_OuterTrackerMonitorTrackingParticles_h
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -21,15 +21,12 @@
 #include <string>
 #include <vector>
 
-class DQMStore;
-
 class OuterTrackerMonitorTrackingParticles : public DQMEDAnalyzer {
 public:
   explicit OuterTrackerMonitorTrackingParticles(const edm::ParameterSet &);
   ~OuterTrackerMonitorTrackingParticles() override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  int Layer(const float R_, const float Z_) const;
 
   // Tracking particle distributions
   MonitorElement *trackParts_Eta = nullptr;
@@ -106,8 +103,6 @@ public:
 private:
   edm::ParameterSet conf_;
   edm::EDGetTokenT<std::vector<TrackingParticle>> trackingParticleToken_;
-  edm::EDGetTokenT<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>> ttStubToken_;
-  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> ttTrackToken_;
   edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>
       ttClusterMCTruthToken_;  // MC truth association map for clusters
   edm::EDGetTokenT<TTStubAssociationMap<Ref_Phase2TrackerDigi_>>
@@ -119,25 +114,12 @@ private:
   double L1Tk_maxChi2;
   double L1Tk_maxChi2dof;
   int TP_minNStub;
+  int TP_minNLayersStub;
   double TP_minPt;
   double TP_maxPt;
   double TP_maxEta;
   double TP_maxVtxZ;
   int TP_select_eventid;
   std::string topFolderName_;
-
-  // The following adds a variable that is the number of layers hit for each
-  // tracking particle
-  struct TpStruct {
-    int TpId;
-    std::vector<bool> layer;
-    int Nlayers() {  // Counts how many layers are set to "true" for their hit status
-      int layers = 0;
-      for (unsigned l = 0; l < layer.size(); ++l)
-        if (layer[l])
-          ++layers;
-      return layers;
-    }
-  };
 };
 #endif

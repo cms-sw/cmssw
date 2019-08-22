@@ -9,31 +9,30 @@
  *  Class that wraps the MultiVertexFitter, together with
  *  a user-supplied VertexReconstructor into a VertexReconstructor.
  */
-class MultiVertexReconstructor : public VertexReconstructor
-{
+class MultiVertexReconstructor : public VertexReconstructor {
 public:
-  MultiVertexReconstructor ( const VertexReconstructor &,
-                             const AnnealingSchedule & s = DefaultMVFAnnealing(),
-                             float revive=-1. );
-  MultiVertexReconstructor ( const MultiVertexReconstructor & );
+  MultiVertexReconstructor(const VertexReconstructor &,
+                           const AnnealingSchedule &s = DefaultMVFAnnealing(),
+                           float revive = -1.);
+  MultiVertexReconstructor(const MultiVertexReconstructor &);
   ~MultiVertexReconstructor() override;
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
-      const reco::BeamSpot & ) const override; 
-  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const override; 
+                                        const reco::BeamSpot &) const override;
+  std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &) const override;
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
-      const std::vector < reco::TransientTrack > & primaries ) const;
+                                        const std::vector<reco::TransientTrack> &primaries) const;
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> &,
-      const std::vector < reco::TransientTrack > & primaries,
-      const reco::BeamSpot & spot ) const override;
+                                        const std::vector<reco::TransientTrack> &primaries,
+                                        const reco::BeamSpot &spot) const override;
 
-  VertexReconstructor * reconstructor() const;
+  VertexReconstructor *reconstructor() const;
 
-  MultiVertexReconstructor * clone() const override;
+  MultiVertexReconstructor *clone() const override;
 
 private:
-  VertexReconstructor * theOldReconstructor;
+  VertexReconstructor *theOldReconstructor;
   mutable MultiVertexFitter theFitter;
 };
 

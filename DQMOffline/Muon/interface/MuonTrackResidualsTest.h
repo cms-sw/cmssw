@@ -1,7 +1,6 @@
 #ifndef MuonTrackResidualsTest_H
 #define MuonTrackResidualsTest_H
 
-
 /** \class MuonTrackResidualsTest
  * *
  *  DQMOffline Test Client
@@ -10,7 +9,6 @@
  *  \author  G. Mila - INFN Torino
  *   
  */
-
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -21,7 +19,6 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -33,22 +30,18 @@
 #include <vector>
 #include <map>
 
-class MuonTrackResidualsTest: public DQMEDHarvester {
-
+class MuonTrackResidualsTest : public DQMEDHarvester {
 public:
-
   /// Constructor
   MuonTrackResidualsTest(const edm::ParameterSet& ps);
-  
+
   /// Destructor
-  ~MuonTrackResidualsTest() override {};
+  ~MuonTrackResidualsTest() override{};
 
 protected:
-  
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-  
-private:
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;  //performed in the endJob
 
+private:
   // Switch for verbosity
   std::string metname;
   edm::ParameterSet parameters;
@@ -57,15 +50,13 @@ private:
   int prescaleFactor;
   std::string GaussianCriterionName;
   std::string MeanCriterionName;
-  std::string SigmaCriterionName; 
+  std::string SigmaCriterionName;
 
-  std::map< std::string, std::vector<std::string> > histoNames;
+  std::map<std::string, std::vector<std::string> > histoNames;
 
   // test histograms
-  std::map< std::string, MonitorElement* > MeanHistos;
-  std::map< std::string ,MonitorElement* > SigmaHistos;
-
-
+  std::map<std::string, MonitorElement*> MeanHistos;
+  std::map<std::string, MonitorElement*> SigmaHistos;
 };
 
 #endif

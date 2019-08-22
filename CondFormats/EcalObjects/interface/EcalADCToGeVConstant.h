@@ -11,20 +11,21 @@
 #include <iostream>
 
 class EcalADCToGeVConstant {
-  public:
-    EcalADCToGeVConstant();
-    EcalADCToGeVConstant(const float & EBvalue, const float & EEvalue);
-    ~EcalADCToGeVConstant();
-    void  setEBValue(const float& value) { EBvalue_ = value; }
-    void  setEEValue(const float& value) { EEvalue_ = value; }
-    float getEBValue() const { return EBvalue_; }
-    float getEEValue() const { return EEvalue_; }
-    void print(std::ostream& s) const {
-      s << "EcalADCToGeVConstant: EB " << EBvalue_ << "; EE " << EEvalue_ << " [GeV/ADC count]";
-    }
-  private:
-    float EBvalue_;
-    float EEvalue_;
+public:
+  EcalADCToGeVConstant();
+  EcalADCToGeVConstant(const float& EBvalue, const float& EEvalue);
+  ~EcalADCToGeVConstant();
+  void setEBValue(const float& value) { EBvalue_ = value; }
+  void setEEValue(const float& value) { EEvalue_ = value; }
+  float getEBValue() const { return EBvalue_; }
+  float getEEValue() const { return EEvalue_; }
+  void print(std::ostream& s) const {
+    s << "EcalADCToGeVConstant: EB " << EBvalue_ << "; EE " << EEvalue_ << " [GeV/ADC count]";
+  }
+
+private:
+  float EBvalue_;
+  float EEvalue_;
 
   COND_SERIALIZABLE;
 };

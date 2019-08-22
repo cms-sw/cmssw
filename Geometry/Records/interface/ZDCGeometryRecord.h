@@ -4,7 +4,7 @@
 //
 // Package:     Records
 // Class  :     ZDCGeometryRecord
-// 
+//
 //
 // Author:      Brian Heltsley
 // Created:     Tue April 1, 2008
@@ -20,17 +20,13 @@
 #include "Geometry/Records/interface/PZdcRcd.h"
 #include "boost/mpl/vector.hpp"
 
-
-class ZDCGeometryRecord : 
-   public edm::eventsetup::DependentRecordImplementation<
-   ZDCGeometryRecord,
-		boost::mpl::vector<
-                IdealGeometryRecord,
-		ZDCAlignmentRcd, 
-		ZDCAlignmentErrorRcd,
-                ZDCAlignmentErrorExtendedRcd,
-		GlobalPositionRcd,
-		PZdcRcd         	> > {};
+class ZDCGeometryRecord
+    : public edm::eventsetup::DependentRecordImplementation<ZDCGeometryRecord,
+                                                            boost::mpl::vector<IdealGeometryRecord,
+                                                                               ZDCAlignmentRcd,
+                                                                               ZDCAlignmentErrorRcd,
+                                                                               ZDCAlignmentErrorExtendedRcd,
+                                                                               GlobalPositionRcd,
+                                                                               PZdcRcd> > {};
 
 #endif /* RECORDS_ZDCGEOMETRYRECORD_H */
-

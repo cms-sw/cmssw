@@ -11,31 +11,22 @@
 
 class DetPositioner {
 public:
-
   virtual ~DetPositioner() {}
 
 protected:
-
-  void moveGeomDet( GeomDet& det, const GlobalVector& displacement) {
-    det.move( displacement);
-  }
-
+  void moveGeomDet(GeomDet& det, const GlobalVector& displacement) { det.move(displacement); }
 
   /** Relative rotation (with respect to current orientation)
    * Does not move components (if any).
    */
-  void rotateGeomDet( GeomDet& det, const Surface::RotationType& rotation) {
-    det. rotate( rotation);
-  }
+  void rotateGeomDet(GeomDet& det, const Surface::RotationType& rotation) { det.rotate(rotation); }
 
   /** Replaces the current position and rotation with new ones; actually replaces the 
    *  surface with a new surface.
    *  Does not move components (if any).
    */
-  void setGeomDetPosition( GeomDet& det, 
-			   const Surface::PositionType& position, 
-			   const Surface::RotationType& rotation) {
-    det.setPosition( position, rotation);
+  void setGeomDetPosition(GeomDet& det, const Surface::PositionType& position, const Surface::RotationType& rotation) {
+    det.setPosition(position, rotation);
   }
 
   /** create the AlignmentPositionError for this Det if not existing yet,
@@ -43,19 +34,16 @@ protected:
    *  +=,-=  methods of the AlignmentPositionError
    *  Does not affect the AlignmentPositionError of components (if any).
    */
-  bool setAlignmentPositionError (GeomDet& det, 
-				  const AlignmentPositionError& ape) {
-    return det.setAlignmentPositionError( ape);
+  bool setAlignmentPositionError(GeomDet& det, const AlignmentPositionError& ape) {
+    return det.setAlignmentPositionError(ape);
   }
 
   /** set the SurfaceDeformation for this DetUnit.
    *  Does not affect the SurfaceDeformation of components (if any).
    */
-  void setSurfaceDeformation (GeomDetUnit& detUnit, 
-			      const SurfaceDeformation* deformation) {
-    detUnit.setSurfaceDeformation( deformation );
+  void setSurfaceDeformation(GeomDetUnit& detUnit, const SurfaceDeformation* deformation) {
+    detUnit.setSurfaceDeformation(deformation);
   }
-
 };
 
 #endif

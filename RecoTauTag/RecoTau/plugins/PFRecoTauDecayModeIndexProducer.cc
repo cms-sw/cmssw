@@ -19,47 +19,46 @@
 
 namespace {
 
-using namespace reco;
+  using namespace reco;
 
-class PFRecoTauDecayModeIndexProducer final : public PFTauDiscriminationProducerBase {
-   public:
-      explicit PFRecoTauDecayModeIndexProducer(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
-         PFTauDecayModeProducer_     = iConfig.getParameter<edm::InputTag>("PFTauDecayModeProducer");
-      }
-      ~PFRecoTauDecayModeIndexProducer() override{} 
-      double discriminate(const PFTauRef& thePFTauRef) const override ;
-      void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
-      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-   private:
-      edm::InputTag PFTauDecayModeProducer_;
-      edm::Handle<PFTauDecayModeAssociation> decayModes_; // holds the PFTauDecayModes for the current event
-};
+  class PFRecoTauDecayModeIndexProducer final : public PFTauDiscriminationProducerBase {
+  public:
+    explicit PFRecoTauDecayModeIndexProducer(const edm::ParameterSet& iConfig)
+        : PFTauDiscriminationProducerBase(iConfig) {
+      PFTauDecayModeProducer_ = iConfig.getParameter<edm::InputTag>("PFTauDecayModeProducer");
+    }
+    ~PFRecoTauDecayModeIndexProducer() override {}
+    double discriminate(const PFTauRef& thePFTauRef) const override;
+    void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
+  private:
+    edm::InputTag PFTauDecayModeProducer_;
+    edm::Handle<PFTauDecayModeAssociation> decayModes_;  // holds the PFTauDecayModes for the current event
+  };
 
-void PFRecoTauDecayModeIndexProducer::beginEvent(const edm::Event& event, const edm::EventSetup& evtSetup)
-{
-   // Get the PFTau Decay Modes
-   event.getByLabel(PFTauDecayModeProducer_, decayModes_);
-}
+  void PFRecoTauDecayModeIndexProducer::beginEvent(const edm::Event& event, const edm::EventSetup& evtSetup) {
+    // Get the PFTau Decay Modes
+    event.getByLabel(PFTauDecayModeProducer_, decayModes_);
+  }
 
-double PFRecoTauDecayModeIndexProducer::discriminate(const PFTauRef& thePFTauRef) const
-{
-   int theDecayModeIndex = -1;
+  double PFRecoTauDecayModeIndexProducer::discriminate(const PFTauRef& thePFTauRef) const {
+    int theDecayModeIndex = -1;
 
-   const PFTauDecayMode& theDecayMode = (*decayModes_)[thePFTauRef];
+    const PFTauDecayMode& theDecayMode = (*decayModes_)[thePFTauRef];
 
-   // retrieve decay mode
-   theDecayModeIndex = static_cast<int>(theDecayMode.getDecayMode()); 
+    // retrieve decay mode
+    theDecayModeIndex = static_cast<int>(theDecayMode.getDecayMode());
 
-   if (theDecayModeIndex < 0) theDecayModeIndex = -1;
+    if (theDecayModeIndex < 0)
+      theDecayModeIndex = -1;
 
-   return theDecayModeIndex;
-}
-  
-}
+    return theDecayModeIndex;
+  }
 
-void
-PFRecoTauDecayModeIndexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+}  // namespace
+
+void PFRecoTauDecayModeIndexProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // pfTauDecayModeIndexProducer
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("PFTauDecayModeProducer", edm::InputTag("pfRecoTauDecayModeProducer"));

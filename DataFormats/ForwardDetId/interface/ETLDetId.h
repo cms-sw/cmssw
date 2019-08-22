@@ -13,49 +13,44 @@
 */
 
 class ETLDetId : public MTDDetId {
-  
- public:
-  
-  static const uint32_t kETLmoduleOffset           = 7;
-  static const uint32_t kETLmoduleMask             = 0xFF;
-  static const uint32_t kETLmodTypeOffset          = 5;
-  static const uint32_t kETLmodTypeMask            = 0x3;
-  
+public:
+  static const uint32_t kETLmoduleOffset = 7;
+  static const uint32_t kETLmoduleMask = 0xFF;
+  static const uint32_t kETLmodTypeOffset = 5;
+  static const uint32_t kETLmodTypeMask = 0x3;
+
   // ---------- Constructors, enumerated types ----------
-  
+
   /** Construct a null id */
- ETLDetId() : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) { id_ |= ( MTDType::ETL& kMTDsubdMask ) << kMTDsubdOffset ;}
-  
-  /** Construct from a raw value */
- ETLDetId( const uint32_t& raw_id ) : MTDDetId( raw_id ) {;}
-  
-  /** Construct from generic DetId */
- ETLDetId( const DetId& det_id )  : MTDDetId( det_id.rawId() ) {;}
-  
-  /** Construct and fill only the det and sub-det fields. */
- ETLDetId( uint32_t zside, 
-           uint32_t ring, 
-           uint32_t module, 
-           uint32_t modtyp ) : MTDDetId( DetId::Forward, ForwardSubdetector::FastTime ) {
-    id_ |= ( MTDType::ETL& kMTDsubdMask ) << kMTDsubdOffset |
-      ( zside& kZsideMask ) << kZsideOffset |
-      ( ring& kRodRingMask ) << kRodRingOffset |
-      ( module& kETLmoduleMask ) << kETLmoduleOffset |
-      ( modtyp& kETLmodTypeMask ) << kETLmodTypeOffset ;
+  ETLDetId() : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset;
   }
-  
+
+  /** Construct from a raw value */
+  ETLDetId(const uint32_t& raw_id) : MTDDetId(raw_id) { ; }
+
+  /** Construct from generic DetId */
+  ETLDetId(const DetId& det_id) : MTDDetId(det_id.rawId()) { ; }
+
+  /** Construct and fill only the det and sub-det fields. */
+  ETLDetId(uint32_t zside, uint32_t ring, uint32_t module, uint32_t modtyp)
+      : MTDDetId(DetId::Forward, ForwardSubdetector::FastTime) {
+    id_ |= (MTDType::ETL & kMTDsubdMask) << kMTDsubdOffset | (zside & kZsideMask) << kZsideOffset |
+           (ring & kRodRingMask) << kRodRingOffset | (module & kETLmoduleMask) << kETLmoduleOffset |
+           (modtyp & kETLmodTypeMask) << kETLmodTypeOffset;
+  }
+
   // ---------- Common methods ----------
-  
+
   /** Returns ETL module number. */
-  inline int module() const { return (id_>>kETLmoduleOffset)&kETLmoduleMask; }
-  
+  inline int module() const { return (id_ >> kETLmoduleOffset) & kETLmoduleMask; }
+
   /** Returns ETL crystal type number. */
-  inline int modType() const { return (id_>>kETLmodTypeOffset)&kETLmodTypeMask; }
+  inline int modType() const { return (id_ >> kETLmodTypeOffset) & kETLmodTypeMask; }
 
   ETLDetId geographicalId() const;
 };
 
-std::ostream& operator<< ( std::ostream&, const ETLDetId& );
+std::ostream& operator<<(std::ostream&, const ETLDetId&);
 
-#endif // DataFormats_ETLDetId_ETLDetId_h
-
+#endif  // DataFormats_ETLDetId_ETLDetId_h

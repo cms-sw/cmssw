@@ -5,10 +5,9 @@
 
 typedef ConstrainedFitCandProducer<CandCommonVertexFitter<KalmanVertexFitter>,
                                    edm::View<reco::Candidate>,
-                                   std::vector<reco::VertexCompositeCandidate> > KalmanVertexFitCompositeCandProducer;
+                                   std::vector<reco::VertexCompositeCandidate> >
+    KalmanVertexFitCompositeCandProducer;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( KalmanVertexFitCompositeCandProducer );
-
-
+DEFINE_FWK_MODULE(KalmanVertexFitCompositeCandProducer);

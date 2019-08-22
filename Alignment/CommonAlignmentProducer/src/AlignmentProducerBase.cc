@@ -56,16 +56,16 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::AlignmentProducerBase";
 
   const auto& algoConfig = config_.getParameterSet("algoConfig");
-  if (hasParameter<bool>(config_, "runAtPCL")) {
+  if (config_.existsAs<bool>("runAtPCL")) {
     // configured in main config?
     runAtPCL_ = config_.getParameter<bool>("runAtPCL");
 
-    if (hasParameter<bool>(algoConfig, "runAtPCL") && (runAtPCL_ != algoConfig.getParameter<bool>("runAtPCL"))) {
+    if (algoConfig.existsAs<bool>("runAtPCL") && (runAtPCL_ != algoConfig.getParameter<bool>("runAtPCL"))) {
       throw cms::Exception("BadConfig") << "Inconsistent settings for 'runAtPCL' in configuration of the "
                                         << "alignment producer and the alignment algorithm.";
     }
 
-  } else if (hasParameter<bool>(algoConfig, "runAtPCL")) {
+  } else if (algoConfig.existsAs<bool>("runAtPCL")) {
     // configured in algo config?
     runAtPCL_ = algoConfig.getParameter<bool>("runAtPCL");
 
@@ -80,15 +80,7 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config)
 }
 
 //------------------------------------------------------------------------------
-AlignmentProducerBase::~AlignmentProducerBase() noexcept(false) {
-  for (auto& iCal : calibrations_)
-    delete iCal;
-
-  delete alignmentParameterStore_;
-  delete alignableExtras_;
-  delete alignableTracker_;
-  delete alignableMuon_;
-}
+AlignmentProducerBase::~AlignmentProducerBase() noexcept(false) {}
 
 //------------------------------------------------------------------------------
 void AlignmentProducerBase::startProcessing() {
@@ -274,12 +266,7 @@ void AlignmentProducerBase::createAlignmentAlgorithm() {
   algoConfig.addUntrackedParameter("enableAlignableUpdates", enableAlignableUpdates_);
 
   const auto& algoName = algoConfig.getParameter<std::string>("algoName");
-  alignmentAlgo_ =
-      std::unique_ptr<AlignmentAlgorithmBase>{AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig)};
-
-  if (!alignmentAlgo_) {
-    throw cms::Exception("BadConfig") << "Couldn't find the called alignment algorithm: " << algoName;
-  }
+  alignmentAlgo_ = AlignmentAlgorithmPluginFactory::get()->create(algoName, algoConfig);
 }
 
 //------------------------------------------------------------------------------
@@ -287,13 +274,8 @@ void AlignmentProducerBase::createMonitors() {
   const auto& monitorConfig = config_.getParameter<edm::ParameterSet>("monitorConfig");
   auto monitors = monitorConfig.getUntrackedParameter<std::vector<std::string> >("monitors");
   for (const auto& miter : monitors) {
-    std::unique_ptr<AlignmentMonitorBase> newMonitor{
-        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter))};
-
-    if (!newMonitor) {
-      throw cms::Exception("BadConfig") << "Couldn't find monitor named " << miter;
-    }
-    monitors_.emplace_back(std::move(newMonitor));
+    monitors_.emplace_back(
+        AlignmentMonitorPluginFactory::get()->create(miter, monitorConfig.getUntrackedParameterSet(miter)));
   }
 }
 
@@ -301,7 +283,7 @@ void AlignmentProducerBase::createMonitors() {
 void AlignmentProducerBase::createCalibrations() {
   const auto& calibrations = config_.getParameter<edm::VParameterSet>("calibrations");
   for (const auto& iCalib : calibrations) {
-    calibrations_.push_back(
+    calibrations_.emplace_back(
         IntegratedCalibrationPluginFactory::get()->create(iCalib.getParameter<std::string>("calibrationName"), iCalib));
   }
 }
@@ -382,7 +364,8 @@ void AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
   // latter to algorithm
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::initAlignmentAlgorithm"
                             << "Initializing alignment algorithm.";
-  alignmentAlgo_->initialize(setup, alignableTracker_, alignableMuon_, alignableExtras_, alignmentParameterStore_);
+  alignmentAlgo_->initialize(
+      setup, alignableTracker_.get(), alignableMuon_.get(), alignableExtras_.get(), alignmentParameterStore_.get());
 
   // Not all algorithms support calibrations - so do not pass empty vector
   // and throw if non-empty and not supported:
@@ -402,10 +385,10 @@ void AlignmentProducerBase::initAlignmentAlgorithm(const edm::EventSetup& setup,
 
   if (!isTrueUpdate) {  // only needed the first time
     for (const auto& iCal : calibrations_) {
-      iCal->beginOfJob(alignableTracker_, alignableMuon_, alignableExtras_);
+      iCal->beginOfJob(alignableTracker_.get(), alignableMuon_.get(), alignableExtras_.get());
     }
     for (const auto& monitor : monitors_) {
-      monitor->beginOfJob(alignableTracker_, alignableMuon_, alignmentParameterStore_);
+      monitor->beginOfJob(alignableTracker_.get(), alignableMuon_.get(), alignmentParameterStore_.get());
     }
   }
   startProcessing();  // needed if derived class is non-EDLooper-based
@@ -490,7 +473,7 @@ void AlignmentProducerBase::createAlignables(const TrackerTopology* tTopo, bool 
     if (update) {
       alignableTracker_->update(trackerGeometry_.get(), tTopo);
     } else {
-      alignableTracker_ = new AlignableTracker(trackerGeometry_.get(), tTopo);
+      alignableTracker_ = std::make_unique<AlignableTracker>(trackerGeometry_.get(), tTopo);
     }
   }
 
@@ -498,7 +481,7 @@ void AlignmentProducerBase::createAlignables(const TrackerTopology* tTopo, bool 
     if (update) {
       alignableMuon_->update(muonDTGeometry_.get(), muonCSCGeometry_.get());
     } else {
-      alignableMuon_ = new AlignableMuon(muonDTGeometry_.get(), muonCSCGeometry_.get());
+      alignableMuon_ = std::make_unique<AlignableMuon>(muonDTGeometry_.get(), muonCSCGeometry_.get());
     }
   }
 
@@ -506,7 +489,7 @@ void AlignmentProducerBase::createAlignables(const TrackerTopology* tTopo, bool 
     if (update) {
       // FIXME: Requires further code changes to track beam spot condition changes
     } else {
-      alignableExtras_ = new AlignableExtras();
+      alignableExtras_ = std::make_unique<AlignableExtras>();
     }
   }
 }
@@ -521,7 +504,7 @@ void AlignmentProducerBase::buildParameterStore() {
   const auto& alParamStoreCfg = config_.getParameter<edm::ParameterSet>("ParameterStore");
 
   AlignmentParameterBuilder alignmentParameterBuilder{
-      alignableTracker_, alignableMuon_, alignableExtras_, alParamBuildCfg};
+      alignableTracker_.get(), alignableMuon_.get(), alignableExtras_.get(), alParamBuildCfg};
 
   // Fix alignables if requested
   if (stNFixAlignables_ > 0) {
@@ -534,7 +517,7 @@ void AlignmentProducerBase::buildParameterStore() {
                             << "got " << alignables.size() << " alignables";
 
   // Create AlignmentParameterStore
-  alignmentParameterStore_ = new AlignmentParameterStore(alignables, alParamStoreCfg);
+  alignmentParameterStore_ = std::make_unique<AlignmentParameterStore>(alignables, alParamStoreCfg);
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducerBase::buildParameterStore"
                             << "AlignmentParameterStore created!";
 }
@@ -552,11 +535,11 @@ void AlignmentProducerBase::applyMisalignment() {
     const auto& scenarioConfig = config_.getParameterSet("MisalignmentScenario");
 
     if (doTracker_) {
-      TrackerScenarioBuilder scenarioBuilder(alignableTracker_);
+      TrackerScenarioBuilder scenarioBuilder(alignableTracker_.get());
       scenarioBuilder.applyScenario(scenarioConfig);
     }
     if (doMuon_) {
-      MuonScenarioBuilder muonScenarioBuilder(alignableMuon_);
+      MuonScenarioBuilder muonScenarioBuilder(alignableMuon_.get());
       muonScenarioBuilder.applyScenario(scenarioConfig);
     }
 
@@ -702,7 +685,7 @@ void AlignmentProducerBase::readInSurveyRcds(const edm::EventSetup& iSetup) {
       surveyIndex_ = 0;
       surveyValues_ = &*surveys;
       surveyErrors_ = &*surveyErrors;
-      addSurveyInfo(alignableTracker_);
+      addSurveyInfo(alignableTracker_.get());
     }
   }
 
@@ -948,24 +931,4 @@ void AlignmentProducerBase::writeDB(AlignmentSurfaceDeformations* alignmentSurfa
   } else {                                // poolDb->writeOne(..) takes over 'surfaceDeformation' ownership,...
     delete alignmentSurfaceDeformations;  // ...otherwise we have to delete, as promised!
   }
-}
-
-//------------------------------------------------------------------------------
-template <typename T>
-bool AlignmentProducerBase::hasParameter(const edm::ParameterSet& config, const std::string& name) {
-  try {
-    config.getParameter<T>(name);
-  } catch (const edm::Exception& e) {
-    if (e.categoryCode() == edm::errors::Configuration) {
-      if (e.message().find("MissingParameter") != std::string::npos) {
-        return false;
-      } else {
-        throw;
-      }
-    } else {
-      throw;
-    }
-  }
-
-  return true;
 }

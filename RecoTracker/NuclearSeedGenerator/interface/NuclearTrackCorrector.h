@@ -1,12 +1,11 @@
 #ifndef CD_NuclearTrackCorrector_H_
 #define CD_NuclearTrackCorrector_H_
 
-
 // -*- C++ -*-
 //
 // Package:    NuclearTrackCorrector
 // Class:      NuclearTrackCorrector
-// 
+//
 /**\class NuclearTrackCorrector NuclearTrackCorrector.h RecoTracker/NuclearSeedGenerator/interface/NuclearTrackCorrector.h
 
  Description: <one line class summary>
@@ -19,7 +18,6 @@
 //         Created:  Tue Sep 18 14:22:48 CEST 2007
 //
 //
-
 
 // system include files
 #include <memory>
@@ -61,72 +59,69 @@
 
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
-
-
 class TransientInitialStateEstimator;
 
 //
 // class decleration
 //
 
-class NuclearTrackCorrector :  public edm::EDProducer {
-
+class NuclearTrackCorrector : public edm::EDProducer {
 public:
   typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
   typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
   typedef edm::Ref<TrackCandidateCollection> TrackCandidateRef;
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  using AlgoProductCollection =  TrackProducerAlgorithm<reco::Track>::AlgoProductCollection;
+  using AlgoProductCollection = TrackProducerAlgorithm<reco::Track>::AlgoProductCollection;
 
-   public:
+public:
+  explicit NuclearTrackCorrector(const edm::ParameterSet&);
+  ~NuclearTrackCorrector() override;
 
-      explicit NuclearTrackCorrector(const edm::ParameterSet&);
-      ~NuclearTrackCorrector() override;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+  /// check if the trajectory has to be refitted and get the new trajectory
+  bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const reco::NuclearInteraction& ni);
 
-      /// check if the trajectory has to be refitted and get the new trajectory
-      bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const reco::NuclearInteraction& ni);
+  /// get a new TrackExtra from an AlgoProductCollection
+  reco::TrackExtra getNewTrackExtra(const AlgoProductCollection& algoresults);
 
-      /// get a new TrackExtra from an AlgoProductCollection
-      reco::TrackExtra getNewTrackExtra(const AlgoProductCollection& algoresults);
+  /// Get the refitted track from the Trajectory
+  bool getTrackFromTrajectory(const Trajectory& newTraj,
+                              const TrajectoryRef& initialTrajRef,
+                              AlgoProductCollection& algoResults);
 
-      /// Get the refitted track from the Trajectory
-      bool getTrackFromTrajectory(const Trajectory& newTraj , const TrajectoryRef& initialTrajRef, AlgoProductCollection& algoResults);
+  /// Calculate the inital state to be used to buil the track
+  TrajectoryStateOnSurface getInitialState(const reco::Track* theT,
+                                           TransientTrackingRecHit::RecHitContainer& hits,
+                                           const TrackingGeometry* theG,
+                                           const MagneticField* theMF);
 
-      /// Calculate the inital state to be used to buil the track
-      TrajectoryStateOnSurface getInitialState(const reco::Track * theT,
-                                            TransientTrackingRecHit::RecHitContainer& hits,
-                                            const TrackingGeometry * theG,
-                                            const MagneticField * theMF);
+  void swap_map(const edm::Handle<TrajectoryCollection>& trajColl,
+                std::map<reco::TrackRef, edm::Ref<TrajectoryCollection> >& result);
 
-      void  swap_map(const  edm::Handle< TrajectoryCollection >& trajColl , std::map< reco::TrackRef, edm::Ref<TrajectoryCollection> >& result);
-      
-      // ----------member data ---------------------------
+  // ----------member data ---------------------------
 
+  std::string str_Input_Trajectory;
+  std::string str_Input_NuclearInteraction;
+  int int_Input_Hit_Distance;
 
-      std::string str_Input_Trajectory;
-      std::string str_Input_NuclearInteraction;
-      int    int_Input_Hit_Distance;
+  int verbosity;
+  int KeepOnlyCorrectedTracks;
 
-      int    verbosity;
-      int    KeepOnlyCorrectedTracks;
+  std::vector<std::pair<unsigned int, unsigned int> > Indice_Map;
 
-      std::vector< std::pair<unsigned int, unsigned int> > Indice_Map;
+  edm::ESHandle<TrackerGeometry> theG;
+  edm::ESHandle<MagneticField> theMF;
+  edm::ESHandle<TrajectoryFitter> theFitter;
+  edm::ESHandle<Propagator> thePropagator;
+  edm::ParameterSet conf_;
+  TransientInitialStateEstimator* theInitialState;
 
-      
-      edm::ESHandle<TrackerGeometry> theG;
-      edm::ESHandle<MagneticField> theMF;
-      edm::ESHandle<TrajectoryFitter> theFitter;
-      edm::ESHandle<Propagator> thePropagator;
-      edm::ParameterSet conf_;
-      TransientInitialStateEstimator*  theInitialState;
-
-      TrackProducerAlgorithm<reco::Track>* theAlgo;
-      const TrajTrackAssociationCollection* m_TrajToTrackCollection;
+  TrackProducerAlgorithm<reco::Track>* theAlgo;
+  const TrajTrackAssociationCollection* m_TrajToTrackCollection;
 };
 
 #endif

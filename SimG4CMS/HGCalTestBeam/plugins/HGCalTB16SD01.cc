@@ -1,9 +1,3 @@
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
-#include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -19,20 +13,21 @@
 //#define EDM_ML_DEBUG
 
 class HGCalTB16SD01 : public CaloSD {
- public:
-  HGCalTB16SD01(const std::string&, const DDCompactView&,
-                const SensitiveDetectorCatalog&, edm::ParameterSet const&,
+public:
+  HGCalTB16SD01(const std::string&,
+                const edm::EventSetup&,
+                const SensitiveDetectorCatalog&,
+                edm::ParameterSet const&,
                 const SimTrackManager*);
   ~HGCalTB16SD01() override = default;
   uint32_t setDetUnitId(const G4Step* step) override;
   static uint32_t packIndex(int det, int lay, int x, int y);
-  static void unpackIndex(const uint32_t& idx, int& det, int& lay, int& x,
-                          int& y);
+  static void unpackIndex(const uint32_t& idx, int& det, int& lay, int& x, int& y);
 
- protected:
+protected:
   double getEnergyDeposit(const G4Step*) override;
 
- private:
+private:
   void initialize(const G4StepPoint* point);
 
   std::string matName_;
@@ -42,11 +37,12 @@ class HGCalTB16SD01 : public CaloSD {
   G4Material* matScin_;
 };
 
-HGCalTB16SD01::HGCalTB16SD01(const std::string& name, const DDCompactView& cpv,
+HGCalTB16SD01::HGCalTB16SD01(const std::string& name,
+                             const edm::EventSetup& es,
                              const SensitiveDetectorCatalog& clg,
                              edm::ParameterSet const& p,
                              const SimTrackManager* manager)
-    : CaloSD(name, cpv, clg, p, manager), initialize_(true) {
+    : CaloSD(name, es, clg, p, manager), initialize_(true) {
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HGCalTestBeamSD");
   matName_ = m_HC.getParameter<std::string>("Material");
@@ -56,15 +52,14 @@ HGCalTB16SD01::HGCalTB16SD01(const std::string& name, const DDCompactView& cpv,
   birk3_ = m_HC.getParameter<double>("BirkC3");
   matScin_ = nullptr;
 
-  edm::LogVerbatim("HGCSim")
-      << "HGCalTB16SD01:: Use of Birks law is set to " << useBirk_ << " for "
-      << matName_ << " with three constants kB = " << birk1_
-      << ", C1 = " << birk2_ << ", C2 = " << birk3_;
+  edm::LogVerbatim("HGCSim") << "HGCalTB16SD01:: Use of Birks law is set to " << useBirk_ << " for " << matName_
+                             << " with three constants kB = " << birk1_ << ", C1 = " << birk2_ << ", C2 = " << birk3_;
 }
 
 double HGCalTB16SD01::getEnergyDeposit(const G4Step* aStep) {
   auto const point = aStep->GetPreStepPoint();
-  if (initialize_) initialize(point);
+  if (initialize_)
+    initialize(point);
   double destep = aStep->GetTotalEnergyDeposit();
   double wt2 = aStep->GetTrack()->GetWeight();
   double weight = (wt2 > 0.0) ? wt2 : 1.0;
@@ -72,10 +67,8 @@ double HGCalTB16SD01::getEnergyDeposit(const G4Step* aStep) {
     weight *= getAttenuation(aStep, birk1_, birk2_, birk3_);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim")
-      << "HGCalTB16SD01: Detector "
-      << point->GetTouchable()->GetVolume()->GetName() << " with "
-      << point->GetMaterial()->GetName() << " weight " << weight << ":" << wt2;
+  edm::LogVerbatim("HGCSim") << "HGCalTB16SD01: Detector " << point->GetTouchable()->GetVolume()->GetName() << " with "
+                             << point->GetMaterial()->GetName() << " weight " << weight << ":" << wt2;
 #endif
   return weight * destep;
 }
@@ -109,22 +102,21 @@ uint32_t HGCalTB16SD01::packIndex(int det, int lay, int x, int y) {
   idx += (ixx & 511);               // bits  0-8
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim")
-      << "HGCalTB16SD01: Detector " << det << " Layer " << lay << " x " << x
-      << " " << ix << " " << ixx << " y " << y << " " << iy << " " << iyy
-      << " ID " << std::hex << idx << std::dec;
+  edm::LogVerbatim("HGCSim") << "HGCalTB16SD01: Detector " << det << " Layer " << lay << " x " << x << " " << ix << " "
+                             << ixx << " y " << y << " " << iy << " " << iyy << " ID " << std::hex << idx << std::dec;
 #endif
   return idx;
 }
 
-void HGCalTB16SD01::unpackIndex(const uint32_t& idx, int& det, int& lay, int& x,
-                                int& y) {
+void HGCalTB16SD01::unpackIndex(const uint32_t& idx, int& det, int& lay, int& x, int& y) {
   det = (idx >> 28) & 15;
   lay = (idx >> 21) & 127;
   y = (idx >> 10) & 511;
-  if (((idx >> 19) & 1) == 1) y = -y;
+  if (((idx >> 19) & 1) == 1)
+    y = -y;
   x = (idx)&511;
-  if (((idx >> 9) & 1) == 1) x = -x;
+  if (((idx >> 9) & 1) == 1)
+    x = -x;
 }
 
 void HGCalTB16SD01::initialize(const G4StepPoint* point) {
@@ -133,8 +125,8 @@ void HGCalTB16SD01::initialize(const G4StepPoint* point) {
     initialize_ = false;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTB16SD01: Material pointer for "
-                             << matName_ << " is initialized to : " << matScin_;
+  edm::LogVerbatim("HGCSim") << "HGCalTB16SD01: Material pointer for " << matName_
+                             << " is initialized to : " << matScin_;
 #endif
 }
 

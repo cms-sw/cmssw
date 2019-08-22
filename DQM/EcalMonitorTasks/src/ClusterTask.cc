@@ -17,32 +17,27 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-namespace ecaldqm
-{
-  ClusterTask::ClusterTask() :
-    DQWorkerTask(),
-    ebHits_(nullptr),
-    eeHits_(nullptr),
-    //    ievt_(0),
-    //    massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale")),
-    doExtra_(true),
-    energyThreshold_(0.),
-    swissCrossMaxThreshold_(3.),
-    egTriggerAlgos_(),
-    trigTypeToME_{0, 1, 2, 3, 4},
-    L1GlobalTriggerReadoutRecordTag_(),
-    L1MuGMTReadoutCollectionTag_(),
-    L1GlobalTriggerReadoutRecordToken_(),
-    L1MuGMTReadoutCollectionToken_()
-  {
-  }
+namespace ecaldqm {
+  ClusterTask::ClusterTask()
+      : DQWorkerTask(),
+        ebHits_(nullptr),
+        eeHits_(nullptr),
+        //    ievt_(0),
+        //    massCalcPrescale_(_workerParams.getUntrackedParameter<int>("massCalcPrescale")),
+        doExtra_(true),
+        energyThreshold_(0.),
+        swissCrossMaxThreshold_(3.),
+        egTriggerAlgos_(),
+        trigTypeToME_{0, 1, 2, 3, 4},
+        L1GlobalTriggerReadoutRecordTag_(),
+        L1MuGMTReadoutCollectionTag_(),
+        L1GlobalTriggerReadoutRecordToken_(),
+        L1MuGMTReadoutCollectionToken_() {}
 
-  void
-  ClusterTask::setParams(edm::ParameterSet const& _params)
-  {
+  void ClusterTask::setParams(edm::ParameterSet const& _params) {
     doExtra_ = _params.getUntrackedParameter<bool>("doExtra");
 
-    if(!doExtra_){
+    if (!doExtra_) {
       MEs_.erase(std::string("SCSizeVsEnergy"));
       MEs_.erase(std::string("SCSeedOccupancyHighE"));
       MEs_.erase(std::string("SCSeedOccupancyTrig"));
@@ -65,32 +60,23 @@ namespace ecaldqm
 
     MESet::PathReplacements repl;
 
-    std::string triggerTypeNames[nTriggerTypes] = {
-      "ECAL",
-      "HCAL",
-      "CSC",
-      "DT",
-      "RPC"
-    };
+    std::string triggerTypeNames[nTriggerTypes] = {"ECAL", "HCAL", "CSC", "DT", "RPC"};
 
     MESetMulti& occupancy(static_cast<MESetMulti&>(MEs_.at("SCSeedOccupancyTrig")));
-    for(unsigned iT(0); iT != nTriggerTypes; ++iT){
+    for (unsigned iT(0); iT != nTriggerTypes; ++iT) {
       repl["trig"] = triggerTypeNames[iT];
       trigTypeToME_[iT] = occupancy.getIndex(repl);
     }
   }
 
-  void
-  ClusterTask::addDependencies(DependencySet& _dependencies)
-  {
+  void ClusterTask::addDependencies(DependencySet& _dependencies) {
     _dependencies.push_back(Dependency(kEBSuperCluster, kEBRecHit));
     _dependencies.push_back(Dependency(kEESuperCluster, kEERecHit));
   }
 
-  void
-  ClusterTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es)
-  {
-    if(!doExtra_) return;
+  void ClusterTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
+    if (!doExtra_)
+      return;
 
     triggered_.reset();
 
@@ -102,15 +88,15 @@ namespace ecaldqm
 
     //Ecal
     edm::ESHandle<L1GtTriggerMenu> menuRcd;
-    _es.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
+    _es.get<L1GtTriggerMenuRcd>().get(menuRcd);
     L1GtTriggerMenu const* menu(menuRcd.product());
 
-    if ( !dWord.empty())  { //protect against no L1GT in run
-      for(unsigned iT(0); iT != egTriggerAlgos_.size(); ++iT){
-	if(menu->gtAlgorithmResult(egTriggerAlgos_[iT], dWord)){
-	  triggered_.set(kEcalTrigger);
-	  break;
-	}
+    if (!dWord.empty()) {  //protect against no L1GT in run
+      for (unsigned iT(0); iT != egTriggerAlgos_.size(); ++iT) {
+        if (menu->gtAlgorithmResult(egTriggerAlgos_[iT], dWord)) {
+          triggered_.set(kEcalTrigger);
+          break;
+        }
       }
     }
 
@@ -118,102 +104,114 @@ namespace ecaldqm
     bool hcal_top = false;
     bool hcal_bot = false;
     const L1GtPsbWord psb = l1GTHndl->gtPsbWord(0xbb0d, 0);
-    std::vector<int> valid_phi; 
-    if((psb.aData(4)&0x3f) >= 1) {valid_phi.push_back( (psb.aData(4)>>10)&0x1f ); }
-    if((psb.bData(4)&0x3f) >= 1) {valid_phi.push_back( (psb.bData(4)>>10)&0x1f ); }
-    if((psb.aData(5)&0x3f) >= 1) {valid_phi.push_back( (psb.aData(5)>>10)&0x1f ); }
-    if((psb.bData(5)&0x3f) >= 1) {valid_phi.push_back( (psb.bData(5)>>10)&0x1f ); }
-    std::vector<int>::const_iterator iphi;
-    for(iphi=valid_phi.begin(); iphi!=valid_phi.end(); iphi++) {
-      if(*iphi<9) hcal_top=true;
-      if(*iphi>8) hcal_bot=true;
+    std::vector<int> valid_phi;
+    if ((psb.aData(4) & 0x3f) >= 1) {
+      valid_phi.push_back((psb.aData(4) >> 10) & 0x1f);
     }
-    if(hcal_top && hcal_bot) triggered_.set(kHcalTrigger);
+    if ((psb.bData(4) & 0x3f) >= 1) {
+      valid_phi.push_back((psb.bData(4) >> 10) & 0x1f);
+    }
+    if ((psb.aData(5) & 0x3f) >= 1) {
+      valid_phi.push_back((psb.aData(5) >> 10) & 0x1f);
+    }
+    if ((psb.bData(5) & 0x3f) >= 1) {
+      valid_phi.push_back((psb.bData(5) >> 10) & 0x1f);
+    }
+    std::vector<int>::const_iterator iphi;
+    for (iphi = valid_phi.begin(); iphi != valid_phi.end(); iphi++) {
+      if (*iphi < 9)
+        hcal_top = true;
+      if (*iphi > 8)
+        hcal_bot = true;
+    }
+    if (hcal_top && hcal_bot)
+      triggered_.set(kHcalTrigger);
 
     //Muons
     edm::Handle<L1MuGMTReadoutCollection> l1MuHndl;
-    if(!_evt.getByToken(L1MuGMTReadoutCollectionToken_, l1MuHndl)) return;
+    if (!_evt.getByToken(L1MuGMTReadoutCollectionToken_, l1MuHndl))
+      return;
     std::vector<L1MuGMTReadoutRecord> const& records(l1MuHndl->getRecords());
 
-    for(unsigned iR(0); iR != records.size(); ++iR){
-      if(records[iR].getBxInEvent() != 0) continue;
+    for (unsigned iR(0); iR != records.size(); ++iR) {
+      if (records[iR].getBxInEvent() != 0)
+        continue;
 
       unsigned iC(0);
 
       //DT triggers
       std::vector<L1MuRegionalCand> dtBXCands(records[iR].getDTBXCands());
-      for(iC = 0; iC != dtBXCands.size(); ++iC)
-        if(!dtBXCands[iC].empty()) break;
-      if(iC != dtBXCands.size()) triggered_.set(kDTTrigger);
+      for (iC = 0; iC != dtBXCands.size(); ++iC)
+        if (!dtBXCands[iC].empty())
+          break;
+      if (iC != dtBXCands.size())
+        triggered_.set(kDTTrigger);
 
       //RPC triggers
       std::vector<L1MuRegionalCand> brlRPCCands(records[iR].getBrlRPCCands());
-      for(iC = 0; iC != brlRPCCands.size(); ++iC)
-        if(!brlRPCCands[iC].empty()) break;
-      if(iC != brlRPCCands.size()) triggered_.set(kRPCTrigger);
+      for (iC = 0; iC != brlRPCCands.size(); ++iC)
+        if (!brlRPCCands[iC].empty())
+          break;
+      if (iC != brlRPCCands.size())
+        triggered_.set(kRPCTrigger);
 
       //CSC Triggers
       std::vector<L1MuRegionalCand> cscCands(records[iR].getCSCCands());
-      for(iC = 0; iC != cscCands.size(); ++iC)
-        if(!cscCands[iC].empty()) break;
-      if(iC != cscCands.size()) triggered_.set(kCSCTrigger);
+      for (iC = 0; iC != cscCands.size(); ++iC)
+        if (!cscCands[iC].empty())
+          break;
+      if (iC != cscCands.size())
+        triggered_.set(kCSCTrigger);
     }
 
-    if(triggered_.none()) return;
+    if (triggered_.none())
+      return;
 
     MESet& meTriggers(MEs_.at("Triggers"));
     MESet& meExclusiveTriggers(MEs_.at("ExclusiveTriggers"));
 
-    for(unsigned iT(0); iT != nTriggerTypes; ++iT){
-      if(!triggered_[iT]) continue;
+    for (unsigned iT(0); iT != nTriggerTypes; ++iT) {
+      if (!triggered_[iT])
+        continue;
       meTriggers.fill(iT + 0.5);
-      if(triggered_.count() == 1)
+      if (triggered_.count() == 1)
         meExclusiveTriggers.fill(iT + 0.5);
     }
   }
 
-  void
-  ClusterTask::endEvent(edm::Event const&, edm::EventSetup const&)
-  {
+  void ClusterTask::endEvent(edm::Event const&, edm::EventSetup const&) {
     //    ++ievt_;
 
     ebHits_ = nullptr;
     eeHits_ = nullptr;
   }
-  
-  bool
-  ClusterTask::filterRunType(short const* _runType)
-  {
-    for(unsigned iFED(0); iFED != nDCC; iFED++){
-      if(_runType[iFED] == EcalDCCHeaderBlock::COSMIC ||
-         _runType[iFED] == EcalDCCHeaderBlock::MTCC ||
-         _runType[iFED] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
-         _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
-         _runType[iFED] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
-         _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_LOCAL) return true;
+
+  bool ClusterTask::filterRunType(short const* _runType) {
+    for (unsigned iFED(0); iFED != nDCC; iFED++) {
+      if (_runType[iFED] == EcalDCCHeaderBlock::COSMIC || _runType[iFED] == EcalDCCHeaderBlock::MTCC ||
+          _runType[iFED] == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+          _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_GLOBAL || _runType[iFED] == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+          _runType[iFED] == EcalDCCHeaderBlock::PHYSICS_LOCAL)
+        return true;
     }
 
     return false;
   }
 
-  void 
-  ClusterTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection)
-  {
-    switch(_collection){
-    case kEBRecHit:
-      ebHits_ = &_hits;
-      break;
-    case kEERecHit:
-      eeHits_ = &_hits;
-      break;
-    default:
-      break;
+  void ClusterTask::runOnRecHits(EcalRecHitCollection const& _hits, Collections _collection) {
+    switch (_collection) {
+      case kEBRecHit:
+        ebHits_ = &_hits;
+        break;
+      case kEERecHit:
+        eeHits_ = &_hits;
+        break;
+      default:
+        break;
     }
   }
 
-  void
-  ClusterTask::runOnBasicClusters(edm::View<reco::CaloCluster> const& _bcs, Collections _collection)
-  {
+  void ClusterTask::runOnBasicClusters(edm::View<reco::CaloCluster> const& _bcs, Collections _collection) {
     MESet& meBCE(MEs_.at("BCE"));
     MESet& meBCEMap(MEs_.at("BCEMap"));
     MESet& meBCEMapProjEta(MEs_.at("BCEMapProjEta"));
@@ -236,30 +234,35 @@ namespace ecaldqm
 
     //    vector<reco::BasicCluster const*> lowMassCands;
 
-    for(edm::View<reco::CaloCluster>::const_iterator bcItr(_bcs.begin()); bcItr != _bcs.end(); ++bcItr){
-      if(bcItr->caloID().detectors() != 0){
-        if(isBarrel && !bcItr->caloID().detector(reco::CaloID::DET_ECAL_BARREL)) continue;
-        if(!isBarrel && !bcItr->caloID().detector(reco::CaloID::DET_ECAL_ENDCAP)) continue;
+    for (edm::View<reco::CaloCluster>::const_iterator bcItr(_bcs.begin()); bcItr != _bcs.end(); ++bcItr) {
+      if (bcItr->caloID().detectors() != 0) {
+        if (isBarrel && !bcItr->caloID().detector(reco::CaloID::DET_ECAL_BARREL))
+          continue;
+        if (!isBarrel && !bcItr->caloID().detector(reco::CaloID::DET_ECAL_ENDCAP))
+          continue;
       }
 
       math::XYZPoint const& position(bcItr->position());
 
       DetId id(bcItr->seed());
-      if(id.null()){
+      if (id.null()) {
         GlobalPoint gp(position.x(), position.y(), position.z());
-        CaloSubdetectorGeometry const* subgeom(getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
+        CaloSubdetectorGeometry const* subgeom(
+            getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
 
         id = subgeom->getClosestCell(gp);
       }
 
-      if(id.null() || (id.subdetId() == EcalBarrel && !isBarrel) || (id.subdetId() == EcalEndcap && isBarrel)) continue;
+      if (id.null() || (id.subdetId() == EcalBarrel && !isBarrel) || (id.subdetId() == EcalEndcap && isBarrel))
+        continue;
 
       float energy(bcItr->energy());
       float posEta(position.eta());
       float posPhi(phi(position.phi()));
       float et(energy / std::cosh(posEta));
       int subdet(isBarrel ? EcalBarrel : EcalEndcap);
-      if(subdet == EcalEndcap && position.z() < 0.) subdet = -EcalEndcap;
+      if (subdet == EcalEndcap && position.z() < 0.)
+        subdet = -EcalEndcap;
 
       meBCE.fill(id, energy);
 
@@ -300,10 +303,10 @@ namespace ecaldqm
       //       lowMassCands.push_back(&(*bcItr));
     }
 
-    if(isBarrel){
+    if (isBarrel) {
       meBCNum.fill(EcalBarrel, nBC[0] + nBC[1]);
       meTrendNBC.fill(EcalBarrel, double(timestamp_.iLumi), nBC[0] + nBC[1]);
-    }else{
+    } else {
       meBCNum.fill(-EcalEndcap, nBC[0]);
       meBCNum.fill(EcalEndcap, nBC[1]);
       meTrendNBC.fill(EcalEndcap, double(timestamp_.iLumi), nBC[0] + nBC[1]);
@@ -336,7 +339,7 @@ namespace ecaldqm
 
     //         float m2(epair * epair - pzpair * pzpair - ptpair * ptpair);
     //         if(m2 < 0.) continue;
- 
+
     //  float eta(0.5 * log((epair + pzpair)/(epair - pzpair)));
     //  float phi(atan2(px1 + px2, py1 + py2));
 
@@ -357,9 +360,7 @@ namespace ecaldqm
     //     }
   }
 
-  void
-  ClusterTask::runOnSuperClusters(reco::SuperClusterCollection const& _scs, Collections _collection)
-  {
+  void ClusterTask::runOnSuperClusters(reco::SuperClusterCollection const& _scs, Collections _collection) {
     bool isBarrel(_collection == kEBSuperCluster);
     EcalSubdetector subdet(isBarrel ? EcalBarrel : EcalEndcap);
 
@@ -390,22 +391,25 @@ namespace ecaldqm
 
     int nSC(0);
 
-    for(reco::SuperClusterCollection::const_iterator scItr(_scs.begin()); scItr != _scs.end(); ++scItr){
+    for (reco::SuperClusterCollection::const_iterator scItr(_scs.begin()); scItr != _scs.end(); ++scItr) {
       DetId seedId(scItr->seed()->seed());
-      if(seedId.null()){
+      if (seedId.null()) {
         math::XYZPoint const& position(scItr->position());
 
-	GlobalPoint gp(position.x(), position.y(), position.z());
+        GlobalPoint gp(position.x(), position.y(), position.z());
 
-	CaloSubdetectorGeometry const* subgeom(getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
+        CaloSubdetectorGeometry const* subgeom(
+            getGeometry()->getSubdetectorGeometry(DetId::Ecal, isBarrel ? EcalBarrel : EcalEndcap));
 
-	seedId = subgeom->getClosestCell(gp);
+        seedId = subgeom->getClosestCell(gp);
       }
 
-      if(seedId.null() || (seedId.subdetId() != subdet)) continue;
+      if (seedId.null() || (seedId.subdetId() != subdet))
+        continue;
 
       EcalRecHitCollection::const_iterator seedItr(hits->find(seedId));
-      if(seedItr == hits->end()) continue;
+      if (seedItr == hits->end())
+        continue;
 
       ++nSC;
 
@@ -418,7 +422,8 @@ namespace ecaldqm
       meSCNBCs.fill(seedId, scItr->clustersSize());
       meSCNcrystals.fill(seedId, size);
 
-      if(doExtra_) meSCSizeVsEnergy->fill(subdet, energy, size);
+      if (doExtra_)
+        meSCSizeVsEnergy->fill(subdet, energy, size);
 
       meTrendSCSize.fill(seedId, double(timestamp_.iLumi), size);
 
@@ -426,22 +431,25 @@ namespace ecaldqm
       meSCClusterVsSeed.fill(seedId, seedItr->energy(), energy);
 
       meSCSeedOccupancy.fill(seedId);
-      if(doExtra_ && energy > energyThreshold_) meSCSeedOccupancyHighE->fill(seedId);
+      if (doExtra_ && energy > energyThreshold_)
+        meSCSeedOccupancyHighE->fill(seedId);
 
-      if(scItr->size() == 1) meSingleCrystalCluster.fill(seedId);
+      if (scItr->size() == 1)
+        meSingleCrystalCluster.fill(seedId);
 
       float e3x3(EcalClusterTools::e3x3(*scItr->seed(), hits, getTopology()));
       meSCR9.fill(seedId, e3x3 / energy);
 
-      if(doExtra_){
-        for(unsigned iT(0); iT != nTriggerTypes; ++iT){
-          if(!triggered_[iT]) continue;
+      if (doExtra_) {
+        for (unsigned iT(0); iT != nTriggerTypes; ++iT) {
+          if (!triggered_[iT])
+            continue;
 
           static_cast<MESetMulti*>(meSCSeedOccupancyTrig)->use(trigTypeToME_[iT]);
           meSCSeedOccupancyTrig->fill(seedId);
 
           // exclusive
-          if(triggered_.count() == 1){
+          if (triggered_.count() == 1) {
             static_cast<MESetMulti*>(meSCSeedTimeTrigEx)->use(trigTypeToME_[iT]);
             static_cast<MESetMulti*>(meSCSeedTimeMapTrigEx)->use(trigTypeToME_[iT]);
             meSCSeedTimeTrigEx->fill(subdet, seedItr->time());
@@ -452,9 +460,9 @@ namespace ecaldqm
         meSCOccupancyProjEta->fill(subdet, scItr->eta());
         meSCOccupancyProjPhi->fill(subdet, phi(scItr->phi()));
 
-        if(isBarrel){
+        if (isBarrel) {
           float e1(EcalClusterTools::eMax(*scItr, ebHits_));
-          if(e1 > swissCrossMaxThreshold_){
+          if (e1 > swissCrossMaxThreshold_) {
             float e4(EcalClusterTools::eTop(*scItr, ebHits_, getTopology()) +
                      EcalClusterTools::eRight(*scItr, ebHits_, getTopology()) +
                      EcalClusterTools::eBottom(*scItr, ebHits_, getTopology()) +
@@ -493,15 +501,13 @@ namespace ecaldqm
     //     float mass(sqrt(m2));
     //     MEs_[kZ]->fill(mass);
     //     MEs_[kHighMass]->fill(mass);
-
   }
 
-  void
-  ClusterTask::setTokens(edm::ConsumesCollector& _collector)
-  {
-    L1GlobalTriggerReadoutRecordToken_ = _collector.consumes<L1GlobalTriggerReadoutRecord>(L1GlobalTriggerReadoutRecordTag_);
+  void ClusterTask::setTokens(edm::ConsumesCollector& _collector) {
+    L1GlobalTriggerReadoutRecordToken_ =
+        _collector.consumes<L1GlobalTriggerReadoutRecord>(L1GlobalTriggerReadoutRecordTag_);
     L1MuGMTReadoutCollectionToken_ = _collector.consumes<L1MuGMTReadoutCollection>(L1MuGMTReadoutCollectionTag_);
   }
 
   DEFINE_ECALDQM_WORKER(ClusterTask);
-}
+}  // namespace ecaldqm

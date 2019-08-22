@@ -19,115 +19,107 @@
 #include <cmath>
 #include <algorithm>
 
-
 const std::map<std::string, unsigned int> L1TEGammaOffline::PlotConfigNames = {
-  {"nVertex", PlotConfig::nVertex},
-  {"ETvsET", PlotConfig::ETvsET},
-  {"PHIvsPHI", PlotConfig::PHIvsPHI}
-};
+    {"nVertex", PlotConfig::nVertex}, {"ETvsET", PlotConfig::ETvsET}, {"PHIvsPHI", PlotConfig::PHIvsPHI}};
 
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
-L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps) :
-        theGsfElectronCollection_(
-            consumes < reco::GsfElectronCollection > (ps.getParameter < edm::InputTag > ("electronCollection"))),
-        thePhotonCollection_(
-            consumes < std::vector<reco::Photon> > (ps.getParameter < edm::InputTag > ("photonCollection"))),
-        thePVCollection_(consumes < reco::VertexCollection > (ps.getParameter < edm::InputTag > ("PVCollection"))),
-        theBSCollection_(consumes < reco::BeamSpot > (ps.getParameter < edm::InputTag > ("beamSpotCollection"))),
-        triggerInputTag_(consumes < trigger::TriggerEvent > (ps.getParameter < edm::InputTag > ("triggerInputTag"))),
-        triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
-        triggerProcess_(ps.getParameter < std::string > ("triggerProcess")),
-        triggerNames_(ps.getParameter < std::vector<std::string> > ("triggerNames")),
-        histFolder_(ps.getParameter < std::string > ("histFolder")),
-        efficiencyFolder_(histFolder_ + "/efficiency_raw"),
-        stage2CaloLayer2EGammaToken_(
-            consumes < l1t::EGammaBxCollection > (ps.getParameter < edm::InputTag > ("stage2CaloLayer2EGammaSource"))),
-        electronEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("electronEfficiencyThresholds")),
-        electronEfficiencyBins_(ps.getParameter < std::vector<double> > ("electronEfficiencyBins")),
-        probeToL1Offset_(ps.getParameter <double> ("probeToL1Offset")),
-        deepInspectionElectronThresholds_(ps.getParameter < std::vector<double> > ("deepInspectionElectronThresholds")),
-        photonEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("photonEfficiencyThresholds")),
-        photonEfficiencyBins_(ps.getParameter < std::vector<double> > ("photonEfficiencyBins")),
-        maxDeltaRForL1Matching_(ps.getParameter <double> ("maxDeltaRForL1Matching")),
-        maxDeltaRForHLTMatching_(ps.getParameter <double> ("maxDeltaRForHLTMatching")),
-        recoToL1TThresholdFactor_(ps.getParameter <double> ("recoToL1TThresholdFactor")),
-        tagElectron_(),
-        probeElectron_(),
-        tagAndProbleInvariantMass_(-1.),
-        hltConfig_(),
-        triggerIndices_(),
-        triggerResults_(),
-        triggerEvent_(),
-        histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
-        h_nVertex_(),
-        h_tagAndProbeMass_(),
-        h_L1EGammaETvsElectronET_EB_(),
-        h_L1EGammaETvsElectronET_EE_(),
-        h_L1EGammaETvsElectronET_EB_EE_(),
-        h_L1EGammaPhivsElectronPhi_EB_(),
-        h_L1EGammaPhivsElectronPhi_EE_(),
-        h_L1EGammaPhivsElectronPhi_EB_EE_(),
-        h_L1EGammaEtavsElectronEta_(),
-        h_resolutionElectronET_EB_(),
-        h_resolutionElectronET_EE_(),
-        h_resolutionElectronET_EB_EE_(),
-        h_resolutionElectronPhi_EB_(),
-        h_resolutionElectronPhi_EE_(),
-        h_resolutionElectronPhi_EB_EE_(),
-        h_resolutionElectronEta_(),
-        h_efficiencyElectronET_EB_pass_(),
-        h_efficiencyElectronET_EE_pass_(),
-        h_efficiencyElectronET_EB_EE_pass_(),
-        h_efficiencyElectronPhi_vs_Eta_pass_(),
-        h_efficiencyElectronEta_pass_(),
-        h_efficiencyElectronPhi_pass_(),
-        h_efficiencyElectronNVertex_pass_(),
-        h_efficiencyElectronET_EB_total_(),
-        h_efficiencyElectronET_EE_total_(),
-        h_efficiencyElectronET_EB_EE_total_(),
-        h_efficiencyElectronPhi_vs_Eta_total_(),
-        h_efficiencyElectronEta_total_(),
-        h_efficiencyElectronPhi_total_(),
-        h_efficiencyElectronNVertex_total_(),
-        h_L1EGammaETvsPhotonET_EB_(),
-        h_L1EGammaETvsPhotonET_EE_(),
-        h_L1EGammaETvsPhotonET_EB_EE_(),
-        h_L1EGammaPhivsPhotonPhi_EB_(),
-        h_L1EGammaPhivsPhotonPhi_EE_(),
-        h_L1EGammaPhivsPhotonPhi_EB_EE_(),
-        h_L1EGammaEtavsPhotonEta_(),
-        h_resolutionPhotonEta_(),
-        h_efficiencyPhotonET_EB_pass_(),
-        h_efficiencyPhotonET_EE_pass_(),
-        h_efficiencyPhotonET_EB_EE_pass_(),
-        h_efficiencyPhotonET_EB_total_(),
-        h_efficiencyPhotonET_EE_total_(),
-        h_efficiencyPhotonET_EB_EE_total_()
-{
-  edm::LogInfo("L1TEGammaOffline") << "Constructor " << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
+L1TEGammaOffline::L1TEGammaOffline(const edm::ParameterSet& ps)
+    : theGsfElectronCollection_(
+          consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("electronCollection"))),
+      thePhotonCollection_(consumes<std::vector<reco::Photon> >(ps.getParameter<edm::InputTag>("photonCollection"))),
+      thePVCollection_(consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("PVCollection"))),
+      theBSCollection_(consumes<reco::BeamSpot>(ps.getParameter<edm::InputTag>("beamSpotCollection"))),
+      triggerInputTag_(consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("triggerInputTag"))),
+      triggerResultsInputTag_(consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"))),
+      triggerProcess_(ps.getParameter<std::string>("triggerProcess")),
+      triggerNames_(ps.getParameter<std::vector<std::string> >("triggerNames")),
+      histFolder_(ps.getParameter<std::string>("histFolder")),
+      efficiencyFolder_(histFolder_ + "/efficiency_raw"),
+      stage2CaloLayer2EGammaToken_(
+          consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaSource"))),
+      electronEfficiencyThresholds_(ps.getParameter<std::vector<double> >("electronEfficiencyThresholds")),
+      electronEfficiencyBins_(ps.getParameter<std::vector<double> >("electronEfficiencyBins")),
+      probeToL1Offset_(ps.getParameter<double>("probeToL1Offset")),
+      deepInspectionElectronThresholds_(ps.getParameter<std::vector<double> >("deepInspectionElectronThresholds")),
+      photonEfficiencyThresholds_(ps.getParameter<std::vector<double> >("photonEfficiencyThresholds")),
+      photonEfficiencyBins_(ps.getParameter<std::vector<double> >("photonEfficiencyBins")),
+      maxDeltaRForL1Matching_(ps.getParameter<double>("maxDeltaRForL1Matching")),
+      maxDeltaRForHLTMatching_(ps.getParameter<double>("maxDeltaRForHLTMatching")),
+      recoToL1TThresholdFactor_(ps.getParameter<double>("recoToL1TThresholdFactor")),
+      tagElectron_(),
+      probeElectron_(),
+      tagAndProbleInvariantMass_(-1.),
+      hltConfig_(),
+      triggerIndices_(),
+      triggerResults_(),
+      triggerEvent_(),
+      histDefinitions_(dqmoffline::l1t::readHistDefinitions(ps.getParameterSet("histDefinitions"), PlotConfigNames)),
+      h_nVertex_(),
+      h_tagAndProbeMass_(),
+      h_L1EGammaETvsElectronET_EB_(),
+      h_L1EGammaETvsElectronET_EE_(),
+      h_L1EGammaETvsElectronET_EB_EE_(),
+      h_L1EGammaPhivsElectronPhi_EB_(),
+      h_L1EGammaPhivsElectronPhi_EE_(),
+      h_L1EGammaPhivsElectronPhi_EB_EE_(),
+      h_L1EGammaEtavsElectronEta_(),
+      h_resolutionElectronET_EB_(),
+      h_resolutionElectronET_EE_(),
+      h_resolutionElectronET_EB_EE_(),
+      h_resolutionElectronPhi_EB_(),
+      h_resolutionElectronPhi_EE_(),
+      h_resolutionElectronPhi_EB_EE_(),
+      h_resolutionElectronEta_(),
+      h_efficiencyElectronET_EB_pass_(),
+      h_efficiencyElectronET_EE_pass_(),
+      h_efficiencyElectronET_EB_EE_pass_(),
+      h_efficiencyElectronPhi_vs_Eta_pass_(),
+      h_efficiencyElectronEta_pass_(),
+      h_efficiencyElectronPhi_pass_(),
+      h_efficiencyElectronNVertex_pass_(),
+      h_efficiencyElectronET_EB_total_(),
+      h_efficiencyElectronET_EE_total_(),
+      h_efficiencyElectronET_EB_EE_total_(),
+      h_efficiencyElectronPhi_vs_Eta_total_(),
+      h_efficiencyElectronEta_total_(),
+      h_efficiencyElectronPhi_total_(),
+      h_efficiencyElectronNVertex_total_(),
+      h_L1EGammaETvsPhotonET_EB_(),
+      h_L1EGammaETvsPhotonET_EE_(),
+      h_L1EGammaETvsPhotonET_EB_EE_(),
+      h_L1EGammaPhivsPhotonPhi_EB_(),
+      h_L1EGammaPhivsPhotonPhi_EE_(),
+      h_L1EGammaPhivsPhotonPhi_EB_EE_(),
+      h_L1EGammaEtavsPhotonEta_(),
+      h_resolutionPhotonEta_(),
+      h_efficiencyPhotonET_EB_pass_(),
+      h_efficiencyPhotonET_EE_pass_(),
+      h_efficiencyPhotonET_EB_EE_pass_(),
+      h_efficiencyPhotonET_EB_total_(),
+      h_efficiencyPhotonET_EE_total_(),
+      h_efficiencyPhotonET_EB_EE_total_() {
+  edm::LogInfo("L1TEGammaOffline") << "Constructor "
+                                   << "L1TEGammaOffline::L1TEGammaOffline " << std::endl;
 }
 
 //
 // -- Destructor
 //
-L1TEGammaOffline::~L1TEGammaOffline()
-{
+L1TEGammaOffline::~L1TEGammaOffline() {
   edm::LogInfo("L1TEGammaOffline") << "Destructor L1TEGammaOffline::~L1TEGammaOffline " << std::endl;
 }
 
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void L1TEGammaOffline::dqmBeginRun(edm::Run const & iRun, edm::EventSetup const & iSetup)
-{
+void L1TEGammaOffline::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::beginRun" << std::endl;
   bool changed(true);
   if (!hltConfig_.init(iRun, iSetup, triggerProcess_, changed)) {
-    edm::LogError("L1TEGammaOffline")
-        << " HLT config extraction failure with process name "
-        << triggerProcess_<< std::endl;
+    edm::LogError("L1TEGammaOffline") << " HLT config extraction failure with process name " << triggerProcess_
+                                      << std::endl;
     triggerNames_.clear();
   } else {
     triggerIndices_ = dqmoffline::l1t::getTriggerIndices(triggerNames_, hltConfig_.triggerNames());
@@ -137,8 +129,7 @@ void L1TEGammaOffline::dqmBeginRun(edm::Run const & iRun, edm::EventSetup const 
 //
 // -------------------------------------- bookHistos --------------------------------------------
 //
-void L1TEGammaOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &, edm::EventSetup const &)
-{
+void L1TEGammaOffline::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const&) {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::bookHistograms" << std::endl;
 
   //book at beginRun
@@ -149,8 +140,7 @@ void L1TEGammaOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
 //
 // -------------------------------------- Analyze --------------------------------------------
 //
-void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
-{
+void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup) {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::analyze" << std::endl;
 
   edm::Handle<edm::TriggerResults> triggerResultHandle;
@@ -169,7 +159,7 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   }
   triggerEvent_ = *triggerEventHandle;
 
-  edm::Handle < reco::VertexCollection > vertexHandle;
+  edm::Handle<reco::VertexCollection> vertexHandle;
   e.getByToken(thePVCollection_, vertexHandle);
   if (!vertexHandle.isValid()) {
     edm::LogWarning("L1TEGammaOffline") << "invalid collection: vertex " << std::endl;
@@ -179,7 +169,7 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   unsigned int nVertex = vertexHandle->size();
   dqmoffline::l1t::fillWithinLimits(h_nVertex_, nVertex);
 
-  if(!dqmoffline::l1t::passesAnyTriggerFromList(triggerIndices_, triggerResults_)){
+  if (!dqmoffline::l1t::passesAnyTriggerFromList(triggerIndices_, triggerResults_)) {
     return;
   }
   // L1T
@@ -187,12 +177,11 @@ void L1TEGammaOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   // fillPhotons(e, nVertex);
 }
 
-void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVertex)
-{
+void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVertex) {
   edm::Handle<l1t::EGammaBxCollection> l1EGamma;
   e.getByToken(stage2CaloLayer2EGammaToken_, l1EGamma);
 
-  edm::Handle < reco::GsfElectronCollection > gsfElectrons;
+  edm::Handle<reco::GsfElectronCollection> gsfElectrons;
   e.getByToken(theGsfElectronCollection_, gsfElectrons);
 
   if (!gsfElectrons.isValid()) {
@@ -209,7 +198,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   }
   if (!findTagAndProbePair(gsfElectrons)) {
     LogDebug("L1TEGammaOffline") << "Could not find a tag & probe pair" << std::endl;
-    return; //continue to next event
+    return;  //continue to next event
   }
 
   auto probeElectron = probeElectron_;
@@ -229,7 +218,6 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
       closestL1EGamma = *egamma;
       foundMatch = true;
     }
-
   }
 
   if (!foundMatch) {
@@ -259,27 +247,27 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
   // plots for deeper inspection
   for (auto threshold : deepInspectionElectronThresholds_) {
     if (recoEt > threshold * recoToL1TThresholdFactor_) {
-        fillWithinLimits(h_efficiencyElectronEta_total_[threshold], recoEta);
-        fillWithinLimits(h_efficiencyElectronPhi_total_[threshold], recoPhi);
-        fillWithinLimits(h_efficiencyElectronNVertex_total_[threshold], nVertex);
-        if (l1Et > threshold + probeToL1Offset_) {
-            fillWithinLimits(h_efficiencyElectronEta_pass_[threshold], recoEta);
-            fillWithinLimits(h_efficiencyElectronPhi_pass_[threshold], recoPhi);
-            fillWithinLimits(h_efficiencyElectronNVertex_pass_[threshold], nVertex);
-        }
+      fillWithinLimits(h_efficiencyElectronEta_total_[threshold], recoEta);
+      fillWithinLimits(h_efficiencyElectronPhi_total_[threshold], recoPhi);
+      fillWithinLimits(h_efficiencyElectronNVertex_total_[threshold], nVertex);
+      if (l1Et > threshold + probeToL1Offset_) {
+        fillWithinLimits(h_efficiencyElectronEta_pass_[threshold], recoEta);
+        fillWithinLimits(h_efficiencyElectronPhi_pass_[threshold], recoPhi);
+        fillWithinLimits(h_efficiencyElectronNVertex_pass_[threshold], nVertex);
+      }
     }
-}
+  }
 
   for (auto threshold : electronEfficiencyThresholds_) {
     if (recoEt > threshold * recoToL1TThresholdFactor_) {
-        fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_total_[threshold], recoEta, recoPhi);
-        if (l1Et > threshold + probeToL1Offset_) {
-            fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_pass_[threshold], recoEta, recoPhi);
-        }
+      fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_total_[threshold], recoEta, recoPhi);
+      if (l1Et > threshold + probeToL1Offset_) {
+        fill2DWithinLimits(h_efficiencyElectronPhi_vs_Eta_pass_[threshold], recoEta, recoPhi);
+      }
     }
-}
+  }
 
-  if (std::abs(recoEta) <= 1.479) { // barrel
+  if (std::abs(recoEta) <= 1.479) {  // barrel
     // et
     fill2DWithinLimits(h_L1EGammaETvsElectronET_EB_, recoEt, l1Et);
     fill2DWithinLimits(h_L1EGammaETvsElectronET_EB_EE_, recoEt, l1Et);
@@ -302,7 +290,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
         fillWithinLimits(h_efficiencyElectronET_EB_EE_pass_[threshold], recoEt);
       }
     }
-  } else { // end-cap
+  } else {  // end-cap
     // et
     fill2DWithinLimits(h_L1EGammaETvsElectronET_EE_, recoEt, l1Et);
     fill2DWithinLimits(h_L1EGammaETvsElectronET_EB_EE_, recoEt, l1Et);
@@ -346,8 +334,7 @@ void L1TEGammaOffline::fillElectrons(edm::Event const& e, const unsigned int nVe
  * @param electrons
  * @return
  */
-bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons)
-{
+bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollection> const& electrons) {
   bool foundBoth(false);
   auto nElectrons = electrons->size();
   if (nElectrons < 2)
@@ -373,8 +360,8 @@ bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollecti
       bool passesInvariantMass = combined.M() > 60 && combined.M() < 120;
       bool tagMatchesHLTObject = matchesAnHLTObject(tagElectron.eta(), tagElectron.phi());
 
-      if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID &&
-          probePassesLooseID && tagMatchesHLTObject) {
+      if (passesEta && passesInvariantMass && passesCharge && tagPassesMediumID && probePassesLooseID &&
+          tagMatchesHLTObject) {
         foundBoth = true;
         tagElectron_ = tagElectron;
         probeElectron_ = probeElectron;
@@ -383,7 +370,6 @@ bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollecti
         return foundBoth;
       }
     }
-
   }
   return foundBoth;
 }
@@ -394,8 +380,7 @@ bool L1TEGammaOffline::findTagAndProbePair(edm::Handle<reco::GsfElectronCollecti
  * Values from
  * https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
  */
-bool L1TEGammaOffline::passesLooseEleId(reco::GsfElectron const& electron) const
-{
+bool L1TEGammaOffline::passesLooseEleId(reco::GsfElectron const& electron) const {
   const float ecal_energy_inverse = 1.0 / electron.ecalEnergy();
   const float eSCoverP = electron.eSuperClusterOverP();
   const float eOverP = std::abs(1.0 - eSCoverP) * ecal_energy_inverse;
@@ -429,8 +414,7 @@ bool L1TEGammaOffline::passesLooseEleId(reco::GsfElectron const& electron) const
  * Values from
  * https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
  */
-bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) const
-{
+bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) const {
   const float ecal_energy_inverse = 1.0 / electron.ecalEnergy();
   const float eSCoverP = electron.eSuperClusterOverP();
   const float eOverP = std::abs(1.0 - eSCoverP) * ecal_energy_inverse;
@@ -458,25 +442,25 @@ bool L1TEGammaOffline::passesMediumEleId(reco::GsfElectron const& electron) cons
   return true;
 }
 
-bool L1TEGammaOffline::matchesAnHLTObject(double eta, double phi) const{
+bool L1TEGammaOffline::matchesAnHLTObject(double eta, double phi) const {
   // get HLT objects of fired triggers
   using namespace dqmoffline::l1t;
   std::vector<bool> results = getTriggerResults(triggerIndices_, triggerResults_);
   std::vector<unsigned int> firedTriggers = getFiredTriggerIndices(triggerIndices_, results);
   std::vector<edm::InputTag> hltFilters = getHLTFilters(firedTriggers, hltConfig_, triggerProcess_);
   const trigger::TriggerObjectCollection hltObjects = getTriggerObjects(hltFilters, triggerEvent_);
-  const trigger::TriggerObjectCollection matchedObjects = getMatchedTriggerObjects(eta, phi, maxDeltaRForHLTMatching_, hltObjects);
+  const trigger::TriggerObjectCollection matchedObjects =
+      getMatchedTriggerObjects(eta, phi, maxDeltaRForHLTMatching_, hltObjects);
 
   return !matchedObjects.empty();
 }
 
-void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex)
-{
+void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVertex) {
   // TODO - just an example here
   edm::Handle<l1t::EGammaBxCollection> l1EGamma;
   e.getByToken(stage2CaloLayer2EGammaToken_, l1EGamma);
 
-  edm::Handle < reco::PhotonCollection > photons;
+  edm::Handle<reco::PhotonCollection> photons;
   e.getByToken(thePhotonCollection_, photons);
 
   if (!photons.isValid()) {
@@ -484,11 +468,11 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
     return;
   }
   if (!l1EGamma.isValid()) {
-     edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
+    edm::LogWarning("L1TEGammaOffline") << "invalid collection: L1 EGamma " << std::endl;
     return;
   }
 
-  if(photons->empty()){
+  if (photons->empty()) {
     LogDebug("L1TEGammaOffline") << "No photons found in event." << std::endl;
     return;
   }
@@ -509,7 +493,6 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
       closestL1EGamma = *egamma;
       foundMatch = true;
     }
-
   }
 
   if (!foundMatch) {
@@ -536,7 +519,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
   fill2DWithinLimits(h_L1EGammaEtavsPhotonEta_, recoEta, l1Eta);
   fillWithinLimits(h_resolutionPhotonEta_, resolutionEta);
 
-  if (std::abs(recoEta) <= 1.479) { // barrel
+  if (std::abs(recoEta) <= 1.479) {  // barrel
     // et
     fill2DWithinLimits(h_L1EGammaETvsPhotonET_EB_, recoEt, l1Et);
     fill2DWithinLimits(h_L1EGammaETvsPhotonET_EB_EE_, recoEt, l1Et);
@@ -559,7 +542,7 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
         fillWithinLimits(h_efficiencyPhotonET_EB_EE_pass_[threshold], recoEt);
       }
     }
-  } else { // end-cap
+  } else {  // end-cap
     // et
     fill2DWithinLimits(h_L1EGammaETvsPhotonET_EE_, recoEt, l1Et);
     fill2DWithinLimits(h_L1EGammaETvsPhotonET_EB_EE_, recoEt, l1Et);
@@ -588,76 +571,127 @@ void L1TEGammaOffline::fillPhotons(edm::Event const& e, const unsigned int nVert
 //
 // -------------------------------------- endRun --------------------------------------------
 //
-void L1TEGammaOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
+void L1TEGammaOffline::endRun(edm::Run const& run, edm::EventSetup const& eSetup) {
   edm::LogInfo("L1TEGammaOffline") << "L1TEGammaOffline::endRun" << std::endl;
 }
 
 //
 // -------------------------------------- book histograms --------------------------------------------
 //
-void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
-{
+void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker& ibooker) {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
 
   dqmoffline::l1t::HistDefinition nVertexDef = histDefinitions_[PlotConfig::nVertex];
-  h_nVertex_ = ibooker.book1D(
-    nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax
-  );
+  h_nVertex_ = ibooker.book1D(nVertexDef.name, nVertexDef.title, nVertexDef.nbinsX, nVertexDef.xmin, nVertexDef.xmax);
   h_tagAndProbeMass_ = ibooker.book1D("tagAndProbeMass", "Invariant mass of tag & probe pair", 100, 40, 140);
   // electron reco vs L1
   dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
-  h_L1EGammaETvsElectronET_EB_ = ibooker.book2D("L1EGammaETvsElectronET_EB",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
-      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
-  h_L1EGammaETvsElectronET_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
-      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
-  h_L1EGammaETvsElectronET_EB_EE_ = ibooker.book2D("L1EGammaETvsElectronET_EB_EE",
-      "L1 EGamma E_{T} vs GSF Electron E_{T} (EB+EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
-      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1EGammaETvsElectronET_EB_ =
+      ibooker.book2D("L1EGammaETvsElectronET_EB",
+                     "L1 EGamma E_{T} vs GSF Electron E_{T} (EB); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+                     templateETvsET.nbinsX,
+                     &templateETvsET.binsX[0],
+                     templateETvsET.nbinsY,
+                     &templateETvsET.binsY[0]);
+  h_L1EGammaETvsElectronET_EE_ =
+      ibooker.book2D("L1EGammaETvsElectronET_EE",
+                     "L1 EGamma E_{T} vs GSF Electron E_{T} (EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+                     templateETvsET.nbinsX,
+                     &templateETvsET.binsX[0],
+                     templateETvsET.nbinsY,
+                     &templateETvsET.binsY[0]);
+  h_L1EGammaETvsElectronET_EB_EE_ =
+      ibooker.book2D("L1EGammaETvsElectronET_EB_EE",
+                     "L1 EGamma E_{T} vs GSF Electron E_{T} (EB+EE); GSF Electron E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+                     templateETvsET.nbinsX,
+                     &templateETvsET.binsX[0],
+                     templateETvsET.nbinsY,
+                     &templateETvsET.binsY[0]);
 
   dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
-  h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB",
+  h_L1EGammaPhivsElectronPhi_EB_ = ibooker.book2D(
+      "L1EGammaPhivsElectronPhi_EB",
       "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
-      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
-      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
-  h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EE",
+      templatePHIvsPHI.nbinsX,
+      templatePHIvsPHI.xmin,
+      templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY,
+      templatePHIvsPHI.ymin,
+      templatePHIvsPHI.ymax);
+  h_L1EGammaPhivsElectronPhi_EE_ = ibooker.book2D(
+      "L1EGammaPhivsElectronPhi_EE",
       "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
-      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
-      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
-  h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsElectronPhi_EB_EE",
+      templatePHIvsPHI.nbinsX,
+      templatePHIvsPHI.xmin,
+      templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY,
+      templatePHIvsPHI.ymin,
+      templatePHIvsPHI.ymax);
+  h_L1EGammaPhivsElectronPhi_EB_EE_ = ibooker.book2D(
+      "L1EGammaPhivsElectronPhi_EB_EE",
       "#phi_{electron}^{L1} vs #phi_{electron}^{offline} (EB+EE); #phi_{electron}^{offline}; #phi_{electron}^{L1}",
-      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
-      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
+      templatePHIvsPHI.nbinsX,
+      templatePHIvsPHI.xmin,
+      templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY,
+      templatePHIvsPHI.ymin,
+      templatePHIvsPHI.ymax);
 
   h_L1EGammaEtavsElectronEta_ = ibooker.book2D("L1EGammaEtavsElectronEta",
-      "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
+                                               "L1 EGamma #eta vs GSF Electron #eta; GSF Electron #eta; L1 EGamma #eta",
+                                               100,
+                                               -3,
+                                               3,
+                                               100,
+                                               -3,
+                                               3);
 
   // electron resolutions
-  h_resolutionElectronET_EB_ = ibooker.book1D("resolutionElectronET_EB",
-      "electron ET resolution (EB); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
-  h_resolutionElectronET_EE_ = ibooker.book1D("resolutionElectronET_EE",
-      "electron ET resolution (EE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
-  h_resolutionElectronET_EB_EE_ = ibooker.book1D("resolutionElectronET_EB_EE",
-      "electron ET resolution (EB+EE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events", 50, -1, 1.5);
+  h_resolutionElectronET_EB_ =
+      ibooker.book1D("resolutionElectronET_EB",
+                     "electron ET resolution (EB); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events",
+                     50,
+                     -1,
+                     1.5);
+  h_resolutionElectronET_EE_ =
+      ibooker.book1D("resolutionElectronET_EE",
+                     "electron ET resolution (EE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events",
+                     50,
+                     -1,
+                     1.5);
+  h_resolutionElectronET_EB_EE_ = ibooker.book1D(
+      "resolutionElectronET_EB_EE",
+      "electron ET resolution (EB+EE); (L1 EGamma E_{T} - GSF Electron E_{T})/GSF Electron E_{T}; events",
+      50,
+      -1,
+      1.5);
 
   h_resolutionElectronPhi_EB_ =
       ibooker.book1D("resolutionElectronPhi_EB",
-          "#phi_{electron} resolution (EB); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
-          120, -0.3, 0.3);
+                     "#phi_{electron} resolution (EB); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
+                     120,
+                     -0.3,
+                     0.3);
   h_resolutionElectronPhi_EE_ =
       ibooker.book1D("resolutionElectronPhi_EE",
-          "electron #phi resolution (EE); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
-          120, -0.3, 0.3);
+                     "electron #phi resolution (EE); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
+                     120,
+                     -0.3,
+                     0.3);
   h_resolutionElectronPhi_EB_EE_ =
       ibooker.book1D("resolutionElectronPhi_EB_EE",
-          "electron #phi resolution (EB+EE); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
-          120, -0.3, 0.3);
+                     "electron #phi resolution (EB+EE); #phi_{electron}^{L1} - #phi_{electron}^{offline}; events",
+                     120,
+                     -0.3,
+                     0.3);
 
-  h_resolutionElectronEta_ = ibooker.book1D("resolutionElectronEta",
-      "electron #eta resolution  (EB); L1 EGamma #eta - GSF Electron #eta; events", 120, -0.3, 0.3);
+  h_resolutionElectronEta_ =
+      ibooker.book1D("resolutionElectronEta",
+                     "electron #eta resolution  (EB); L1 EGamma #eta - GSF Electron #eta; events",
+                     120,
+                     -0.3,
+                     0.3);
 
   // electron turn-ons
   ibooker.setCurrentFolder(efficiencyFolder_);
@@ -667,115 +701,201 @@ void L1TEGammaOffline::bookElectronHistos(DQMStore::IBooker & ibooker)
 
   for (auto threshold : electronEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
-    h_efficiencyElectronET_EB_pass_[threshold] = ibooker.book1D(
-        "efficiencyElectronET_EB_threshold_" + str_threshold + "_Num",
-        "electron efficiency (EB) (numerator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
-    h_efficiencyElectronET_EE_pass_[threshold] = ibooker.book1D(
-        "efficiencyElectronET_EE_threshold_" + str_threshold + "_Num",
-        "electron efficiency (EE) (numerator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
-    h_efficiencyElectronET_EB_EE_pass_[threshold] = ibooker.book1D(
-        "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Num",
-        "electron efficiency (EB+EE) (numerator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
-    h_efficiencyElectronPhi_vs_Eta_pass_[threshold] = ibooker.book2D(
-      "efficiencyElectronPhi_vs_Eta_threshold_" + str_threshold + "_Num",
-      "electron efficiency (numerator); GSF Electron #eta; GSF Electron #phi",
-      50, -2.5, 2.5, 32, -3.2, 3.2);
+    h_efficiencyElectronET_EB_pass_[threshold] =
+        ibooker.book1D("efficiencyElectronET_EB_threshold_" + str_threshold + "_Num",
+                       "electron efficiency (EB) (numerator); GSF Electron E_{T} (GeV); events",
+                       nBins,
+                       electronBinArray);
+    h_efficiencyElectronET_EE_pass_[threshold] =
+        ibooker.book1D("efficiencyElectronET_EE_threshold_" + str_threshold + "_Num",
+                       "electron efficiency (EE) (numerator); GSF Electron E_{T} (GeV); events",
+                       nBins,
+                       electronBinArray);
+    h_efficiencyElectronET_EB_EE_pass_[threshold] =
+        ibooker.book1D("efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Num",
+                       "electron efficiency (EB+EE) (numerator); GSF Electron E_{T} (GeV); events",
+                       nBins,
+                       electronBinArray);
+    h_efficiencyElectronPhi_vs_Eta_pass_[threshold] =
+        ibooker.book2D("efficiencyElectronPhi_vs_Eta_threshold_" + str_threshold + "_Num",
+                       "electron efficiency (numerator); GSF Electron #eta; GSF Electron #phi",
+                       50,
+                       -2.5,
+                       2.5,
+                       32,
+                       -3.2,
+                       3.2);
 
-    h_efficiencyElectronET_EB_total_[threshold] = ibooker.book1D(
-        "efficiencyElectronET_EB_threshold_" + str_threshold + "_Den",
-        "electron efficiency (EB) (denominator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
-    h_efficiencyElectronET_EE_total_[threshold] = ibooker.book1D(
-        "efficiencyElectronET_EE_threshold_" + str_threshold + "_Den",
-        "electron efficiency (EE) (denominator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
-    h_efficiencyElectronET_EB_EE_total_[threshold] = ibooker.book1D(
-        "efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Den",
-        "electron efficiency (EB+EE) (denominator); GSF Electron E_{T} (GeV); events", nBins, electronBinArray);
-    h_efficiencyElectronPhi_vs_Eta_total_[threshold] = ibooker.book2D(
-        "efficiencyElectronPhi_vs_Eta_threshold_" + str_threshold + "_Den",
-        "electron efficiency (denominator); GSF Electron #eta; GSF Electron #phi",
-        50, -2.5, 2.5, 32, -3.2, 3.2);
+    h_efficiencyElectronET_EB_total_[threshold] =
+        ibooker.book1D("efficiencyElectronET_EB_threshold_" + str_threshold + "_Den",
+                       "electron efficiency (EB) (denominator); GSF Electron E_{T} (GeV); events",
+                       nBins,
+                       electronBinArray);
+    h_efficiencyElectronET_EE_total_[threshold] =
+        ibooker.book1D("efficiencyElectronET_EE_threshold_" + str_threshold + "_Den",
+                       "electron efficiency (EE) (denominator); GSF Electron E_{T} (GeV); events",
+                       nBins,
+                       electronBinArray);
+    h_efficiencyElectronET_EB_EE_total_[threshold] =
+        ibooker.book1D("efficiencyElectronET_EB_EE_threshold_" + str_threshold + "_Den",
+                       "electron efficiency (EB+EE) (denominator); GSF Electron E_{T} (GeV); events",
+                       nBins,
+                       electronBinArray);
+    h_efficiencyElectronPhi_vs_Eta_total_[threshold] =
+        ibooker.book2D("efficiencyElectronPhi_vs_Eta_threshold_" + str_threshold + "_Den",
+                       "electron efficiency (denominator); GSF Electron #eta; GSF Electron #phi",
+                       50,
+                       -2.5,
+                       2.5,
+                       32,
+                       -3.2,
+                       3.2);
   }
 
-  for (auto threshold: deepInspectionElectronThresholds_) {
+  for (auto threshold : deepInspectionElectronThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
-    h_efficiencyElectronEta_pass_[threshold] = ibooker.book1D(
-      "efficiencyElectronEta_threshold_" + str_threshold + "_Num",
-      "electron efficiency (numerator); GSF Electron #eta; events", 50, -2.5, 2.5);
-    h_efficiencyElectronPhi_pass_[threshold] = ibooker.book1D(
-      "efficiencyElectronPhi_threshold_" + str_threshold + "_Num",
-      "electron efficiency (numerator); GSF Electron #phi; events", 32, -3.2, 3.2);
-    h_efficiencyElectronNVertex_pass_[threshold] = ibooker.book1D(
-      "efficiencyElectronNVertex_threshold_" + str_threshold + "_Num",
-      "electron efficiency (numerator); Nvtx; events", 30, 0, 60);
+    h_efficiencyElectronEta_pass_[threshold] =
+        ibooker.book1D("efficiencyElectronEta_threshold_" + str_threshold + "_Num",
+                       "electron efficiency (numerator); GSF Electron #eta; events",
+                       50,
+                       -2.5,
+                       2.5);
+    h_efficiencyElectronPhi_pass_[threshold] =
+        ibooker.book1D("efficiencyElectronPhi_threshold_" + str_threshold + "_Num",
+                       "electron efficiency (numerator); GSF Electron #phi; events",
+                       32,
+                       -3.2,
+                       3.2);
+    h_efficiencyElectronNVertex_pass_[threshold] =
+        ibooker.book1D("efficiencyElectronNVertex_threshold_" + str_threshold + "_Num",
+                       "electron efficiency (numerator); Nvtx; events",
+                       30,
+                       0,
+                       60);
 
-    h_efficiencyElectronEta_total_[threshold] = ibooker.book1D(
-      "efficiencyElectronEta_threshold_" + str_threshold + "_Den",
-      "electron efficiency (denominator); GSF Electron #eta; events", 50, -2.5, 2.5);
-    h_efficiencyElectronPhi_total_[threshold] = ibooker.book1D(
-      "efficiencyElectronPhi_threshold_" + str_threshold + "_Den",
-      "electron efficiency (denominator); GSF Electron #phi; events", 32, -3.2, 3.2);
-    h_efficiencyElectronNVertex_total_[threshold] = ibooker.book1D(
-      "efficiencyElectronNVertex_threshold_" + str_threshold + "_Den",
-      "electron efficiency (denominator); Nvtx; events", 30, 0, 60);
+    h_efficiencyElectronEta_total_[threshold] =
+        ibooker.book1D("efficiencyElectronEta_threshold_" + str_threshold + "_Den",
+                       "electron efficiency (denominator); GSF Electron #eta; events",
+                       50,
+                       -2.5,
+                       2.5);
+    h_efficiencyElectronPhi_total_[threshold] =
+        ibooker.book1D("efficiencyElectronPhi_threshold_" + str_threshold + "_Den",
+                       "electron efficiency (denominator); GSF Electron #phi; events",
+                       32,
+                       -3.2,
+                       3.2);
+    h_efficiencyElectronNVertex_total_[threshold] =
+        ibooker.book1D("efficiencyElectronNVertex_threshold_" + str_threshold + "_Den",
+                       "electron efficiency (denominator); Nvtx; events",
+                       30,
+                       0,
+                       60);
   }
-
 
   ibooker.cd();
 }
 
-void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
-{
+void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker& ibooker) {
   ibooker.cd();
   ibooker.setCurrentFolder(histFolder_);
 
   dqmoffline::l1t::HistDefinition templateETvsET = histDefinitions_[PlotConfig::ETvsET];
-  h_L1EGammaETvsPhotonET_EB_ = ibooker.book2D("L1EGammaETvsPhotonET_EB",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
-      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
-  h_L1EGammaETvsPhotonET_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EE",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
-      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
-  h_L1EGammaETvsPhotonET_EB_EE_ = ibooker.book2D("L1EGammaETvsPhotonET_EB_EE",
-      "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
-      templateETvsET.nbinsX, &templateETvsET.binsX[0], templateETvsET.nbinsY, &templateETvsET.binsY[0]);
+  h_L1EGammaETvsPhotonET_EB_ =
+      ibooker.book2D("L1EGammaETvsPhotonET_EB",
+                     "L1 EGamma E_{T} vs  Photon E_{T} (EB);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+                     templateETvsET.nbinsX,
+                     &templateETvsET.binsX[0],
+                     templateETvsET.nbinsY,
+                     &templateETvsET.binsY[0]);
+  h_L1EGammaETvsPhotonET_EE_ =
+      ibooker.book2D("L1EGammaETvsPhotonET_EE",
+                     "L1 EGamma E_{T} vs  Photon E_{T} (EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+                     templateETvsET.nbinsX,
+                     &templateETvsET.binsX[0],
+                     templateETvsET.nbinsY,
+                     &templateETvsET.binsY[0]);
+  h_L1EGammaETvsPhotonET_EB_EE_ =
+      ibooker.book2D("L1EGammaETvsPhotonET_EB_EE",
+                     "L1 EGamma E_{T} vs  Photon E_{T} (EB+EE);  Photon E_{T} (GeV); L1 EGamma E_{T} (GeV)",
+                     templateETvsET.nbinsX,
+                     &templateETvsET.binsX[0],
+                     templateETvsET.nbinsY,
+                     &templateETvsET.binsY[0]);
 
   dqmoffline::l1t::HistDefinition templatePHIvsPHI = histDefinitions_[PlotConfig::PHIvsPHI];
-  h_L1EGammaPhivsPhotonPhi_EB_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
-      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
-      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
-  h_L1EGammaPhivsPhotonPhi_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EE",
-      "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
-      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
-      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
-  h_L1EGammaPhivsPhotonPhi_EB_EE_ = ibooker.book2D("L1EGammaPhivsPhotonPhi_EB_EE",
+  h_L1EGammaPhivsPhotonPhi_EB_ =
+      ibooker.book2D("L1EGammaPhivsPhotonPhi_EB",
+                     "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+                     templatePHIvsPHI.nbinsX,
+                     templatePHIvsPHI.xmin,
+                     templatePHIvsPHI.xmax,
+                     templatePHIvsPHI.nbinsY,
+                     templatePHIvsPHI.ymin,
+                     templatePHIvsPHI.ymax);
+  h_L1EGammaPhivsPhotonPhi_EE_ =
+      ibooker.book2D("L1EGammaPhivsPhotonPhi_EE",
+                     "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
+                     templatePHIvsPHI.nbinsX,
+                     templatePHIvsPHI.xmin,
+                     templatePHIvsPHI.xmax,
+                     templatePHIvsPHI.nbinsY,
+                     templatePHIvsPHI.ymin,
+                     templatePHIvsPHI.ymax);
+  h_L1EGammaPhivsPhotonPhi_EB_EE_ = ibooker.book2D(
+      "L1EGammaPhivsPhotonPhi_EB_EE",
       "#phi_{photon}^{L1} vs #phi_{photon}^{offline} (EB+EE); #phi_{photon}^{offline}; #phi_{photon}^{L1}",
-      templatePHIvsPHI.nbinsX, templatePHIvsPHI.xmin, templatePHIvsPHI.xmax,
-      templatePHIvsPHI.nbinsY, templatePHIvsPHI.ymin, templatePHIvsPHI.ymax);
+      templatePHIvsPHI.nbinsX,
+      templatePHIvsPHI.xmin,
+      templatePHIvsPHI.xmax,
+      templatePHIvsPHI.nbinsY,
+      templatePHIvsPHI.ymin,
+      templatePHIvsPHI.ymax);
 
-  h_L1EGammaEtavsPhotonEta_ = ibooker.book2D("L1EGammaEtavsPhotonEta",
-      "L1 EGamma #eta vs  Photon #eta;  Photon #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
+  h_L1EGammaEtavsPhotonEta_ = ibooker.book2D(
+      "L1EGammaEtavsPhotonEta", "L1 EGamma #eta vs  Photon #eta;  Photon #eta; L1 EGamma #eta", 100, -3, 3, 100, -3, 3);
 
   // photon resolutions
-  h_resolutionPhotonET_EB_ = ibooker.book1D("resolutionPhotonET_EB",
-      "photon ET resolution (EB); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events", 50, -1, 1.5);
-  h_resolutionPhotonET_EE_ = ibooker.book1D("resolutionPhotonET_EE",
-      "photon ET resolution (EE); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events", 50, -1, 1.5);
-  h_resolutionPhotonET_EB_EE_ = ibooker.book1D("resolutionPhotonET_EB_EE",
-      "photon ET resolution (EB+EE); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events", 50, -1, 1.5);
+  h_resolutionPhotonET_EB_ =
+      ibooker.book1D("resolutionPhotonET_EB",
+                     "photon ET resolution (EB); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events",
+                     50,
+                     -1,
+                     1.5);
+  h_resolutionPhotonET_EE_ =
+      ibooker.book1D("resolutionPhotonET_EE",
+                     "photon ET resolution (EE); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events",
+                     50,
+                     -1,
+                     1.5);
+  h_resolutionPhotonET_EB_EE_ =
+      ibooker.book1D("resolutionPhotonET_EB_EE",
+                     "photon ET resolution (EB+EE); (L1 EGamma E_{T} -  Photon E_{T})/ Photon E_{T}; events",
+                     50,
+                     -1,
+                     1.5);
 
-  h_resolutionPhotonPhi_EB_ = ibooker.book1D("resolutionPhotonPhi_EB",
-      "#phi_{photon} resolution (EB); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
-      120, -0.3, 0.3);
-  h_resolutionPhotonPhi_EE_ = ibooker.book1D("resolutionPhotonPhi_EE",
-      "photon #phi resolution (EE); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
-      120, -0.3, 0.3);
-  h_resolutionPhotonPhi_EB_EE_ = ibooker.book1D("resolutionPhotonPhi_EB_EE",
-      "photon #phi resolution (EB+EE); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
-      120, -0.3, 0.3);
+  h_resolutionPhotonPhi_EB_ =
+      ibooker.book1D("resolutionPhotonPhi_EB",
+                     "#phi_{photon} resolution (EB); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
+                     120,
+                     -0.3,
+                     0.3);
+  h_resolutionPhotonPhi_EE_ =
+      ibooker.book1D("resolutionPhotonPhi_EE",
+                     "photon #phi resolution (EE); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
+                     120,
+                     -0.3,
+                     0.3);
+  h_resolutionPhotonPhi_EB_EE_ =
+      ibooker.book1D("resolutionPhotonPhi_EB_EE",
+                     "photon #phi resolution (EB+EE); #phi_{photon}^{L1} - #phi_{photon}^{offline}; events",
+                     120,
+                     -0.3,
+                     0.3);
 
-  h_resolutionPhotonEta_ = ibooker.book1D("resolutionPhotonEta",
-      "photon #eta resolution  (EB); L1 EGamma #eta -  Photon #eta; events", 120, -0.3, 0.3);
+  h_resolutionPhotonEta_ = ibooker.book1D(
+      "resolutionPhotonEta", "photon #eta resolution  (EB); L1 EGamma #eta -  Photon #eta; events", 120, -0.3, 0.3);
 
   // photon turn-ons
   ibooker.setCurrentFolder(efficiencyFolder_);
@@ -785,44 +905,59 @@ void L1TEGammaOffline::bookPhotonHistos(DQMStore::IBooker & ibooker)
 
   for (auto threshold : photonEfficiencyThresholds_) {
     std::string str_threshold = std::to_string(int(threshold));
-    h_efficiencyPhotonET_EB_pass_[threshold] = ibooker.book1D(
-        "efficiencyPhotonET_EB_threshold_" + str_threshold + "_Num",
-        "photon efficiency (EB) (numerator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
-    h_efficiencyPhotonET_EE_pass_[threshold] = ibooker.book1D(
-        "efficiencyPhotonET_EE_threshold_" + str_threshold + "_Num",
-        "photon efficiency (EE) (numerator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
-    h_efficiencyPhotonET_EB_EE_pass_[threshold] = ibooker.book1D(
-        "efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Num",
-        "photon efficiency (EB+EE) (numerator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+    h_efficiencyPhotonET_EB_pass_[threshold] =
+        ibooker.book1D("efficiencyPhotonET_EB_threshold_" + str_threshold + "_Num",
+                       "photon efficiency (EB) (numerator);  Photon E_{T} (GeV); events",
+                       nBins,
+                       photonBinArray);
+    h_efficiencyPhotonET_EE_pass_[threshold] =
+        ibooker.book1D("efficiencyPhotonET_EE_threshold_" + str_threshold + "_Num",
+                       "photon efficiency (EE) (numerator);  Photon E_{T} (GeV); events",
+                       nBins,
+                       photonBinArray);
+    h_efficiencyPhotonET_EB_EE_pass_[threshold] =
+        ibooker.book1D("efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Num",
+                       "photon efficiency (EB+EE) (numerator);  Photon E_{T} (GeV); events",
+                       nBins,
+                       photonBinArray);
 
-    h_efficiencyPhotonET_EB_total_[threshold] = ibooker.book1D(
-        "efficiencyPhotonET_EB_threshold_" + str_threshold + "_Den",
-        "photon efficiency (EB) (denominator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
-    h_efficiencyPhotonET_EE_total_[threshold] = ibooker.book1D(
-        "efficiencyPhotonET_EE_threshold_" + str_threshold + "_Den",
-        "photon efficiency (EE) (denominator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
-    h_efficiencyPhotonET_EB_EE_total_[threshold] = ibooker.book1D(
-        "efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Den",
-        "photon efficiency (EB+EE) (denominator);  Photon E_{T} (GeV); events", nBins, photonBinArray);
+    h_efficiencyPhotonET_EB_total_[threshold] =
+        ibooker.book1D("efficiencyPhotonET_EB_threshold_" + str_threshold + "_Den",
+                       "photon efficiency (EB) (denominator);  Photon E_{T} (GeV); events",
+                       nBins,
+                       photonBinArray);
+    h_efficiencyPhotonET_EE_total_[threshold] =
+        ibooker.book1D("efficiencyPhotonET_EE_threshold_" + str_threshold + "_Den",
+                       "photon efficiency (EE) (denominator);  Photon E_{T} (GeV); events",
+                       nBins,
+                       photonBinArray);
+    h_efficiencyPhotonET_EB_EE_total_[threshold] =
+        ibooker.book1D("efficiencyPhotonET_EB_EE_threshold_" + str_threshold + "_Den",
+                       "photon efficiency (EB+EE) (denominator);  Photon E_{T} (GeV); events",
+                       nBins,
+                       photonBinArray);
   }
 
   ibooker.cd();
 }
 
-void L1TEGammaOffline::endJob(){
-  normalise2DHistogramsToBinArea();
-}
+void L1TEGammaOffline::endJob() { normalise2DHistogramsToBinArea(); }
 
 void L1TEGammaOffline::normalise2DHistogramsToBinArea() {
-  std::vector<MonitorElement *> monElementstoNormalize = {
-      h_L1EGammaETvsElectronET_EB_,    h_L1EGammaETvsElectronET_EE_,
-      h_L1EGammaETvsElectronET_EB_EE_, h_L1EGammaPhivsElectronPhi_EB_,
-      h_L1EGammaPhivsElectronPhi_EE_,  h_L1EGammaPhivsElectronPhi_EB_EE_,
-      h_L1EGammaEtavsElectronEta_,     h_L1EGammaETvsPhotonET_EB_,
-      h_L1EGammaETvsPhotonET_EE_,      h_L1EGammaETvsPhotonET_EB_EE_,
-      h_L1EGammaPhivsPhotonPhi_EB_,    h_L1EGammaPhivsPhotonPhi_EE_,
-      h_L1EGammaPhivsPhotonPhi_EB_EE_, h_L1EGammaEtavsPhotonEta_
-  };
+  std::vector<MonitorElement*> monElementstoNormalize = {h_L1EGammaETvsElectronET_EB_,
+                                                         h_L1EGammaETvsElectronET_EE_,
+                                                         h_L1EGammaETvsElectronET_EB_EE_,
+                                                         h_L1EGammaPhivsElectronPhi_EB_,
+                                                         h_L1EGammaPhivsElectronPhi_EE_,
+                                                         h_L1EGammaPhivsElectronPhi_EB_EE_,
+                                                         h_L1EGammaEtavsElectronEta_,
+                                                         h_L1EGammaETvsPhotonET_EB_,
+                                                         h_L1EGammaETvsPhotonET_EE_,
+                                                         h_L1EGammaETvsPhotonET_EB_EE_,
+                                                         h_L1EGammaPhivsPhotonPhi_EB_,
+                                                         h_L1EGammaPhivsPhotonPhi_EE_,
+                                                         h_L1EGammaPhivsPhotonPhi_EB_EE_,
+                                                         h_L1EGammaEtavsPhotonEta_};
 
   for (auto mon : monElementstoNormalize) {
     if (mon != nullptr) {
@@ -835,4 +970,4 @@ void L1TEGammaOffline::normalise2DHistogramsToBinArea() {
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE (L1TEGammaOffline);
+DEFINE_FWK_MODULE(L1TEGammaOffline);

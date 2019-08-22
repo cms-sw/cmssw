@@ -442,7 +442,7 @@ Bool_t TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, In
   std::vector<IOPosBuffer> iov;
   iov.reserve(nbuf);
   for (Int_t i = 0; i < nbuf; ++i) {
-    iov.push_back(IOPosBuffer(pos[i], nobuf, len[i]));
+    iov.emplace_back(pos[i], nobuf, len[i]);
     total += len[i];
   }
 
@@ -451,7 +451,7 @@ Bool_t TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, In
   StorageAccount::Stamp astats(storageCounter(s_statsARead, StorageAccount::Operation::readAsync));
   // Synchronise low-level cache with the supposed cache in TFile.
   // storage_->caching(true, -1, 0);
-  success = storage_->prefetch(&iov[0], nbuf);
+  success = storage_->prefetch(iov.data(), nbuf);
   astats.tick(total);
 
   // If it didn't suceeed, pass down to the base class.

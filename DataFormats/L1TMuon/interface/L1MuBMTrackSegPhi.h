@@ -39,103 +39,107 @@ class L1MuBMTrackSegPhi;
 typedef std::vector<L1MuBMTrackSegPhi> L1MuBMTrackSegPhiCollection;
 
 class L1MuBMTrackSegPhi {
+public:
+  /// quality code of BBMX phi track segments
+  enum TSQuality { Li, Lo, Hi, Ho, LL, HL, HH, Null };
 
-  public:
+  /// default constructor
+  L1MuBMTrackSegPhi();
 
-    /// quality code of BBMX phi track segments
-    enum TSQuality { Li, Lo, Hi, Ho, LL, HL, HH, Null };
+  /// constructor
+  L1MuBMTrackSegPhi(int wheel_id,
+                    int sector_id,
+                    int station_id,
+                    int phi = 0,
+                    int phib = 0,
+                    TSQuality quality = Null,
+                    bool tag = false,
+                    int bx = 17,
+                    bool etaFlag = false);
 
-    /// default constructor
-    L1MuBMTrackSegPhi();
+  /// constructor
+  L1MuBMTrackSegPhi(const L1MuBMTrackSegLoc&,
+                    int phi = 0,
+                    int phib = 0,
+                    TSQuality quality = Null,
+                    bool tag = false,
+                    int bx = 17,
+                    bool etaFlag = false);
 
-    /// constructor
-    L1MuBMTrackSegPhi(int wheel_id, int sector_id, int station_id,
-                      int phi = 0, int phib = 0,
-                      TSQuality quality = Null, bool tag = false, int bx = 17,
-                      bool etaFlag = false);
+  /// copy constructor
+  L1MuBMTrackSegPhi(const L1MuBMTrackSegPhi&);
 
-    /// constructor
-    L1MuBMTrackSegPhi(const L1MuBMTrackSegLoc&,
-                      int phi = 0, int phib = 0,
-                      TSQuality quality = Null, bool tag = false, int bx = 17,
-                      bool etaFlag = false);
+  /// destructor
+  virtual ~L1MuBMTrackSegPhi();
 
-    /// copy constructor
-    L1MuBMTrackSegPhi(const L1MuBMTrackSegPhi&);
+  /// reset phi track segment
+  void reset();
 
-    /// destructor
-    virtual ~L1MuBMTrackSegPhi();
+  /// return phi-value in global coordinates [0,2pi]
+  double phiValue() const;
 
-    /// reset phi track segment
-    void reset();
+  /// return phib-value in global coordinates [0,2pi]
+  double phibValue() const;
 
-    /// return phi-value in global coordinates [0,2pi]
-    double phiValue() const;
+  /// return wheel
+  inline int wheel() const { return m_location.wheel(); }
 
-    /// return phib-value in global coordinates [0,2pi]
-    double phibValue() const;
+  /// return sector
+  inline int sector() const { return m_location.sector(); }
 
-    /// return wheel
-    inline int wheel() const { return m_location.wheel(); }
+  /// return station
+  inline int station() const { return m_location.station(); }
 
-    /// return sector
-    inline int sector() const { return m_location.sector(); }
+  /// return location of phi track segment
+  inline const L1MuBMTrackSegLoc& where() const { return m_location; }
 
-    /// return station
-    inline int station() const { return m_location.station(); }
+  /// return phi
+  inline int phi() const { return m_phi; }
 
-    /// return location of phi track segment
-    inline const L1MuBMTrackSegLoc& where() const{ return m_location; }
+  /// return phib
+  inline int phib() const { return m_phib; }
 
-    /// return phi
-    inline int phi() const { return m_phi; }
+  /// return quality code
+  inline int quality() const { return m_quality; }
 
-    /// return phib
-    inline int phib() const { return m_phib; }
+  /// return tag (second TS tag)
+  inline int tag() const { return m_tag; }
 
-    /// return quality code
-    inline int quality() const { return m_quality; }
+  /// return bunch crossing
+  inline int bx() const { return m_bx; }
 
-    /// return tag (second TS tag)
-    inline int tag() const { return m_tag; }
+  /// return eta flag
+  inline bool etaFlag() const { return m_etaFlag; }
 
-    /// return bunch crossing
-    inline int bx() const { return m_bx; }
+  /// is it an empty phi track segment?
+  inline bool empty() const { return m_quality == Null; }
 
-    /// return eta flag
-    inline bool etaFlag() const { return m_etaFlag; }
+  /// set eta flag
+  inline void setEtaFlag(bool flag) { m_etaFlag = flag; }
 
-    /// is it an empty phi track segment?
-    inline bool empty() const { return m_quality == Null; }
+  /// assignment operator
+  L1MuBMTrackSegPhi& operator=(const L1MuBMTrackSegPhi&);
 
-    /// set eta flag
-    inline void setEtaFlag(bool flag) { m_etaFlag = flag; }
+  /// equal operator
+  bool operator==(const L1MuBMTrackSegPhi&) const;
 
-    /// assignment operator
-    L1MuBMTrackSegPhi& operator=(const L1MuBMTrackSegPhi&);
+  /// unequal operator
+  bool operator!=(const L1MuBMTrackSegPhi&) const;
 
-    /// equal operator
-    bool operator==(const L1MuBMTrackSegPhi&) const;
+  /// overload output stream operator for phi track segment quality
+  friend std::ostream& operator<<(std::ostream&, const TSQuality&);
 
-    /// unequal operator
-    bool operator!=(const L1MuBMTrackSegPhi&) const;
+  /// overload output stream operator for phi track segments
+  friend std::ostream& operator<<(std::ostream&, const L1MuBMTrackSegPhi&);
 
-    /// overload output stream operator for phi track segment quality
-    friend std::ostream& operator<<(std::ostream&, const TSQuality&);
-
-    /// overload output stream operator for phi track segments
-    friend std::ostream& operator<<(std::ostream&, const L1MuBMTrackSegPhi&);
-
-  private:
-
-    L1MuBMTrackSegLoc m_location;   // logical location of TS
-    int               m_phi;        // 12 bits
-    int               m_phib;       // 10 bits
-    TSQuality         m_quality;    // 3 bits
-    bool              m_tag;        // tag for second TS (of chamber)
-    int               m_bx;         // bunch crossing identifier
-    bool              m_etaFlag;    // eta flag (for overlap region)
-
+private:
+  L1MuBMTrackSegLoc m_location;  // logical location of TS
+  int m_phi;                     // 12 bits
+  int m_phib;                    // 10 bits
+  TSQuality m_quality;           // 3 bits
+  bool m_tag;                    // tag for second TS (of chamber)
+  int m_bx;                      // bunch crossing identifier
+  bool m_etaFlag;                // eta flag (for overlap region)
 };
 
 #endif

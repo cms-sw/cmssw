@@ -9,12 +9,10 @@
  * \date 05 Aug 2005
  */
 
-
 #include <vector>
 #include <map>
 #include <iterator>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
 
 /**
  * \class DigiContainerIteratorAdaptor MuonDigiCollection.h "/MuonDigiCollection.h"
@@ -30,52 +28,42 @@
 */
 
 template <typename IndexType, typename DigiType>
-  class DigiContainerIterator {
-  public:
-    typedef typename std::vector<DigiType>::const_iterator  DigiRangeIterator;
-    typedef std::map<IndexType, std::vector<DigiType> >     BaseContainer;
-    typedef typename BaseContainer::const_iterator          BaseIterator;
+class DigiContainerIterator {
+public:
+  typedef typename std::vector<DigiType>::const_iterator DigiRangeIterator;
+  typedef std::map<IndexType, std::vector<DigiType> > BaseContainer;
+  typedef typename BaseContainer::const_iterator BaseIterator;
 
-    typedef std::pair<IndexType,
-		      std::pair<DigiRangeIterator,
-				DigiRangeIterator> >        value_type;
-    typedef value_type                                      reference;
-    typedef void                                            pointer;
-    typedef typename DigiRangeIterator::difference_type     difference_type;
-    typedef typename DigiRangeIterator::iterator_category   iterator_category;
+  typedef std::pair<IndexType, std::pair<DigiRangeIterator, DigiRangeIterator> > value_type;
+  typedef value_type reference;
+  typedef void pointer;
+  typedef typename DigiRangeIterator::difference_type difference_type;
+  typedef typename DigiRangeIterator::iterator_category iterator_category;
 
-    DigiContainerIterator (void) {}
-    DigiContainerIterator (BaseIterator i) : base_ (i) {}
-    // implicit copy constructor
-    // implicit assignment operator
-    // implicit destructor
+  DigiContainerIterator(void) {}
+  DigiContainerIterator(BaseIterator i) : base_(i) {}
+  // implicit copy constructor
+  // implicit assignment operator
+  // implicit destructor
 
-    DigiContainerIterator operator++ (int)
-    { return DigiContainerIterator (base_++); }
-    
-    DigiContainerIterator &operator++ (void)
-    { ++base_; return *this; }
+  DigiContainerIterator operator++(int) { return DigiContainerIterator(base_++); }
 
-    bool operator== (const DigiContainerIterator &x) const
-    { return x.base_ == base_; }
+  DigiContainerIterator& operator++(void) {
+    ++base_;
+    return *this;
+  }
 
-    bool operator!= (const DigiContainerIterator &x) const
-    { return x.base_ != base_; }
+  bool operator==(const DigiContainerIterator& x) const { return x.base_ == base_; }
 
-    value_type operator* (void) const
-    {
-      return std::make_pair(base_->first,
-			    std::make_pair(base_->second.begin(), 
-					   base_->second.end()));
-    }
+  bool operator!=(const DigiContainerIterator& x) const { return x.base_ != base_; }
 
+  value_type operator*(void)const {
+    return std::make_pair(base_->first, std::make_pair(base_->second.begin(), base_->second.end()));
+  }
 
-  private:
-    BaseIterator base_;
-  };
-
-
-
+private:
+  BaseIterator base_;
+};
 
 /**
  * \class MuonDigiCollection MuonDigiCollection.h "/MuonDigiCollection.h"
@@ -96,80 +84,67 @@ template <typename IndexType, typename DigiType>
  *   \date 05 Aug 2005
  */
 
-template <typename IndexType, 
-	  typename DigiType>
+template <typename IndexType, typename DigiType>
 class MuonDigiCollection {
-  
 public:
+  MuonDigiCollection() {}
 
-  MuonDigiCollection(){}
-
-//  void swap(MuonDigiCollection<IndexType,DigiType> & rh) { std::swap(data_,rh.data_);}
-  void swap(MuonDigiCollection & rh) { std::swap(data_,rh.data_);}
+  //  void swap(MuonDigiCollection<IndexType,DigiType> & rh) { std::swap(data_,rh.data_);}
+  void swap(MuonDigiCollection& rh) { std::swap(data_, rh.data_); }
 
   typedef typename std::vector<DigiType>::const_iterator const_iterator;
-  typedef typename std::pair<const_iterator,const_iterator> Range;
-  
-  
-  /// insert a digi for a given DetUnit  @deprecated 
-  void insertDigi(const IndexType& index, const DigiType& digi){
-    std::vector<DigiType> &digis = data_[index];
+  typedef typename std::pair<const_iterator, const_iterator> Range;
+
+  /// insert a digi for a given DetUnit  @deprecated
+  void insertDigi(const IndexType& index, const DigiType& digi) {
+    std::vector<DigiType>& digis = data_[index];
     digis.push_back(digi);
   }
-  
+
   /// insert a range of digis for a  given DetUnit
-  void put(Range range, const IndexType& index){
-    std::vector<DigiType> &digis = data_[index];
-    digis.reserve (digis.size () + (range.second - range.first));
-    std::copy (range.first, range.second, std::back_inserter (digis));
-    
+  void put(Range range, const IndexType& index) {
+    std::vector<DigiType>& digis = data_[index];
+    digis.reserve(digis.size() + (range.second - range.first));
+    std::copy(range.first, range.second, std::back_inserter(digis));
   }
- 
+
 #ifndef CMS_NOCXX11
   /// insert a range of digis for a  given DetUnit
-  template<typename IRange>
-  void move(IRange range, const IndexType& index){
-    std::vector<DigiType> &digis = data_[index];
-    digis.reserve (digis.size () + (range.second - range.first));
-    digis.insert(digis.end(),std::make_move_iterator(range.first), std::make_move_iterator(range.second));    
+  template <typename IRange>
+  void move(IRange range, const IndexType& index) {
+    std::vector<DigiType>& digis = data_[index];
+    digis.reserve(digis.size() + (range.second - range.first));
+    digis.insert(digis.end(), std::make_move_iterator(range.first), std::make_move_iterator(range.second));
   }
 #endif
 
-
-  /// return the digis for a given DetUnit 
-  Range get(const IndexType& index) const{
+  /// return the digis for a given DetUnit
+  Range get(const IndexType& index) const {
     typename container::const_iterator it = data_.find(index);
-    if (it==data_.end()) {
+    if (it == data_.end()) {
       // if data_ is empty there is no other way to get an empty range
       static const std::vector<DigiType> empty;
-      return std::make_pair(empty.end(),empty.end());
-    } 
+      return std::make_pair(empty.end(), empty.end());
+    }
     const std::vector<DigiType>& digis = (*it).second;
-    return std::make_pair(digis.begin(),digis.end());
+    return std::make_pair(digis.begin(), digis.end());
   }
-  
-  typedef DigiContainerIterator<IndexType,DigiType> DigiRangeIterator;
-  
-  DigiRangeIterator begin() const { 
-    return data_.begin();}
-  
-  DigiRangeIterator end() const {
-    return data_.end();}
-  
-  
+
+  typedef DigiContainerIterator<IndexType, DigiType> DigiRangeIterator;
+
+  DigiRangeIterator begin() const { return data_.begin(); }
+
+  DigiRangeIterator end() const { return data_.end(); }
+
 private:
-
-  typedef  std::map<IndexType,std::vector<DigiType> > container;  
+  typedef std::map<IndexType, std::vector<DigiType> > container;
   container data_;
-  
 
-}; // MuonDigiCollection
+};  // MuonDigiCollection
 
-template <typename IndexType,
-          typename DigiType>
-inline
-void swap(MuonDigiCollection<IndexType,DigiType> & rh,
-          MuonDigiCollection<IndexType,DigiType> & lh){ rh.swap(lh);}
+template <typename IndexType, typename DigiType>
+inline void swap(MuonDigiCollection<IndexType, DigiType>& rh, MuonDigiCollection<IndexType, DigiType>& lh) {
+  rh.swap(lh);
+}
 
 #endif
-

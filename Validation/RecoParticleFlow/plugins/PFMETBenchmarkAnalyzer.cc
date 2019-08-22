@@ -28,7 +28,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -51,6 +50,9 @@ using namespace std;
 
 class PFMETBenchmarkAnalyzer : public edm::EDAnalyzer {
 public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
   explicit PFMETBenchmarkAnalyzer(const edm::ParameterSet &);
   ~PFMETBenchmarkAnalyzer() override;
 
@@ -72,7 +74,7 @@ string OutputFileName;
 bool pfmBenchmarkDebug;
 bool xplotAgainstReco;
 string xbenchmarkLabel_;
-DQMStore *xdbe_;
+dqm::legacy::DQMStore *xdbe_;
 //
 // constants, enums and typedefs
 //

@@ -34,7 +34,6 @@
 #ifndef HITFIT_FIT_RESULT_H
 #define HITFIT_FIT_RESULT_H
 
-
 #include "TopQuarkAnalysis/TopHitFit/interface/Lepjets_Event.h"
 #include "TopQuarkAnalysis/TopHitFit/interface/matutil.h"
 #include <iosfwd>
@@ -42,21 +41,20 @@
 
 namespace hitfit {
 
-
-/**
+  /**
     @class Fit_Result
 
     @brief Hold the result of one kinematic fit.
 
  */
-class Fit_Result
-//
-// Purpose: Hold the result from a single kinematic fit.
-//
-{
-public:
-  // Constructor.  Provide the results of the fit.
-  /**
+  class Fit_Result
+  //
+  // Purpose: Hold the result from a single kinematic fit.
+  //
+  {
+  public:
+    // Constructor.  Provide the results of the fit.
+    /**
      @brief Constructor, provide the results of the fit.
 
      @param chisq The  \f$ \chi^{2} \f$  of the fit.
@@ -69,115 +67,113 @@ public:
      @param mt The top quark mass after the fit.
      @param sigmt The top quark mass uncertainty after the fit.
    */
-  Fit_Result (double chisq,
-              const Lepjets_Event& ev,
-              const Column_Vector& pullx,
-              const Column_Vector& pully,
-              double umwhad,
-              double utmass,
-              double mt,
-              double sigmt);
+    Fit_Result(double chisq,
+               const Lepjets_Event& ev,
+               const Column_Vector& pullx,
+               const Column_Vector& pully,
+               double umwhad,
+               double utmass,
+               double mt,
+               double sigmt);
 
-  // Get back the fit result.
-  /**
+    // Get back the fit result.
+    /**
      @brief Return the  \f$ \chi^{2} \f$  of the fit.
    */
-  double chisq () const;
+    double chisq() const;
 
-  /**
+    /**
      @brief Return the hadronic  \f$ W- \f$ boson mass before the fit.
    */
-  double umwhad () const;
+    double umwhad() const;
 
-  /**
+    /**
      @brief Return the top quark mass before the fit.
    */
-  double utmass () const;
+    double utmass() const;
 
-  /**
+    /**
      @brief Return the top quark mass after the fit.
    */
-  double mt () const;
+    double mt() const;
 
-  /**
+    /**
      @brief Return the top quark mass uncertainty after the fit.
    */
-  double sigmt () const;
+    double sigmt() const;
 
-  /**
+    /**
      @brief Return the pull quantities for the well-measured variables.
    */
-  const Column_Vector& pullx () const;
+    const Column_Vector& pullx() const;
 
-  /**
+    /**
      @brief Return the pull quantities for the poorly-measured variables.
    */
-  const Column_Vector& pully () const;
+    const Column_Vector& pully() const;
 
-  /**
+    /**
      @brief Return the event kinematics quantities after the fit.
    */
-  const Lepjets_Event& ev () const;
+    const Lepjets_Event& ev() const;
 
-  // For sorting by chisq.
-  friend bool operator< (const Fit_Result& a, const Fit_Result& b);
+    // For sorting by chisq.
+    friend bool operator<(const Fit_Result& a, const Fit_Result& b);
 
-  // Print this object.
-  friend std::ostream& operator<< (std::ostream& s, const Fit_Result& res);
+    // Print this object.
+    friend std::ostream& operator<<(std::ostream& s, const Fit_Result& res);
 
-  // Get the jet-types permutation
-  /**
+    // Get the jet-types permutation
+    /**
      @brief Return the list of jet types for this event.
 
    */
-  std::vector<int> jet_types();
+    std::vector<int> jet_types();
 
-private:
-  // Store the results of the kinematic fit.
+  private:
+    // Store the results of the kinematic fit.
 
-  /**
+    /**
      The  \f$ \chi^{2} \f$  of the fit.
    */
-  double _chisq;
+    double _chisq;
 
-  /**
+    /**
      The hadronic  \f$ W- \f$ boson mass before the fit.
    */
-  double _umwhad;
+    double _umwhad;
 
-  /**
+    /**
      The top quark mass before the fit.
    */
-  double _utmass;
+    double _utmass;
 
-  /**
+    /**
      The top quark mass after the fit.
    */
-  double _mt;
+    double _mt;
 
-  /**
+    /**
      The top quark mass uncertainty after the fit.
    */
-  double _sigmt;
+    double _sigmt;
 
-  /**
+    /**
      Pull quantities for the well-measured variables.
    */
-  Column_Vector _pullx;
+    Column_Vector _pullx;
 
-  /**
+    /**
      Pull quantities for the poorly-measured variables.
    */
-  Column_Vector _pully;
+    Column_Vector _pully;
 
-  /**
+    /**
      The event kinematics after the fit.
    */
-  Lepjets_Event _ev;
-};
+    Lepjets_Event _ev;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_FIT_RESULT_H
+#endif  // not HITFIT_FIT_RESULT_H

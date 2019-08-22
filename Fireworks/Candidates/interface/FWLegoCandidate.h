@@ -18,36 +18,39 @@
 // Forward declarations
 class FWViewContext;
 
-namespace fireworks
-{
-   class Context;
+namespace fireworks {
+  class Context;
 }
 
 //-----------------------------------------------------------------------------
 // FWLegoCandidate
 //-----------------------------------------------------------------------------
-class FWLegoCandidate : public TEveStraightLineSet
-{
-   public:
-   // ---------------- Constructor(s)/Destructor ----------------------
-      FWLegoCandidate( const FWViewContext *vc, const fireworks::Context &context, 
-            float et, float energy, float pt, float eta, float phi );
-      FWLegoCandidate(){}
-      ~FWLegoCandidate() override{}
+class FWLegoCandidate : public TEveStraightLineSet {
+public:
+  // ---------------- Constructor(s)/Destructor ----------------------
+  FWLegoCandidate(const FWViewContext* vc,
+                  const fireworks::Context& context,
+                  float et,
+                  float energy,
+                  float pt,
+                  float eta,
+                  float phi);
+  FWLegoCandidate() {}
+  ~FWLegoCandidate() override {}
 
-   // --------------------- Member Functions --------------------------
-      void updateScale( const FWViewContext *vc, const fireworks::Context& );
+  // --------------------- Member Functions --------------------------
+  void updateScale(const FWViewContext* vc, const fireworks::Context&);
 
-   private:
-      FWLegoCandidate( const FWLegoCandidate& ) = delete;                    // Disable default copy constructor
-      const FWLegoCandidate& operator=( const FWLegoCandidate& ) = delete;   // Disable default assignment operator
+private:
+  FWLegoCandidate(const FWLegoCandidate&) = delete;                   // Disable default copy constructor
+  const FWLegoCandidate& operator=(const FWLegoCandidate&) = delete;  // Disable default assignment operator
 
-   // ----------------------- Data Members ----------------------------
-      float m_energy;
-      float m_et;
-      float m_pt;
-      float m_eta;
-      float m_phi;
+  // ----------------------- Data Members ----------------------------
+  float m_energy;
+  float m_et;
+  float m_pt;
+  float m_eta;
+  float m_phi;
 };
 #endif
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

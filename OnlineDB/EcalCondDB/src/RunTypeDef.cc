@@ -6,8 +6,7 @@
 using namespace std;
 using namespace oracle::occi;
 
-RunTypeDef::RunTypeDef()
-{
+RunTypeDef::RunTypeDef() {
   m_env = nullptr;
   m_conn = nullptr;
   m_ID = 0;
@@ -15,75 +14,50 @@ RunTypeDef::RunTypeDef()
   m_desc = "";
 }
 
+RunTypeDef::~RunTypeDef() {}
 
+string RunTypeDef::getRunType() const { return m_runType; }
 
-RunTypeDef::~RunTypeDef()
-{
-}
-
-
-
-string RunTypeDef::getRunType() const
-{
-  return m_runType;
-}
-
-
-
-void RunTypeDef::setRunType(string runtype)
-{
+void RunTypeDef::setRunType(string runtype) {
   if (runtype != m_runType) {
     m_ID = 0;
     m_runType = runtype;
   }
 }
 
+string RunTypeDef::getDescription() const { return m_desc; }
 
-
-string RunTypeDef::getDescription() const
-{
-  return m_desc;
-}
-
-
-  
-int RunTypeDef::fetchID()
-  noexcept(false)
-{
+int RunTypeDef::fetchID() noexcept(false) {
   // Return def from memory if available
   if (m_ID) {
     return m_ID;
   }
 
   this->checkConnection();
-  
+
   try {
     Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT def_id FROM run_type_def WHERE "
-		 "run_type   = :1"
-		 );
+    stmt->setSQL(
+        "SELECT def_id FROM run_type_def WHERE "
+        "run_type   = :1");
     stmt->setString(1, m_runType);
 
     ResultSet* rset = stmt->executeQuery();
-    
+
     if (rset->next()) {
       m_ID = rset->getInt(1);
     } else {
       m_ID = 0;
     }
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunTypeDef::fetchID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunTypeDef::fetchID:  " + e.getMessage()));
   }
 
   return m_ID;
 }
 
-
-
-void RunTypeDef::setByID(int id) 
-  noexcept(false)
-{
+void RunTypeDef::setByID(int id) noexcept(false) {
   this->checkConnection();
 
   try {
@@ -99,32 +73,28 @@ void RunTypeDef::setByID(int id)
     } else {
       throw(std::runtime_error("RunTypeDef::setByID:  Given def_id is not in the database"));
     }
-    
+
     m_conn->terminateStatement(stmt);
-  } catch (SQLException &e) {
-   throw(std::runtime_error("RunTypeDef::setByID:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunTypeDef::setByID:  " + e.getMessage()));
   }
 }
 
-
-
-void RunTypeDef::fetchAllDefs( std::vector<RunTypeDef>* fillVec) 
-  noexcept(false)
-{
+void RunTypeDef::fetchAllDefs(std::vector<RunTypeDef>* fillVec) noexcept(false) {
   this->checkConnection();
   try {
     Statement* stmt = m_conn->createStatement();
     stmt->setSQL("SELECT def_id FROM run_type_def ORDER BY def_id");
     ResultSet* rset = stmt->executeQuery();
-    
+
     RunTypeDef runTypeDef;
     runTypeDef.setConnection(m_env, m_conn);
 
-    while(rset->next()) {
-      runTypeDef.setByID( rset->getInt(1) );
-      fillVec->push_back( runTypeDef );
+    while (rset->next()) {
+      runTypeDef.setByID(rset->getInt(1));
+      fillVec->push_back(runTypeDef);
     }
-  } catch (SQLException &e) {
-    throw(std::runtime_error("RunTypeDef::fetchAllDefs:  "+e.getMessage()));
+  } catch (SQLException& e) {
+    throw(std::runtime_error("RunTypeDef::fetchAllDefs:  " + e.getMessage()));
   }
 }

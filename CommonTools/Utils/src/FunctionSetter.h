@@ -13,34 +13,34 @@
 #include "CommonTools/Utils/src/FunctionStack.h"
 
 namespace reco {
-  namespace parser {    
+  namespace parser {
     struct FunctionSetter {
-      FunctionSetter(Function fun, FunctionStack& stack):
-	fun_(fun), stack_(stack) {}
-      
-      void operator()(const char *, const char *) const { 
-#ifdef BOOST_SPIRIT_DEBUG 
-	BOOST_SPIRIT_DEBUG_OUT << "pushing math function: " << functionNames[ fun_ ] << std::endl;
+      FunctionSetter(Function fun, FunctionStack& stack) : fun_(fun), stack_(stack) {}
+
+      void operator()(const char*, const char*) const {
+#ifdef BOOST_SPIRIT_DEBUG
+        BOOST_SPIRIT_DEBUG_OUT << "pushing math function: " << functionNames[fun_] << std::endl;
 #endif
-	stack_.push_back(fun_); 
+        stack_.push_back(fun_);
       }
+
     private:
       Function fun_;
-      FunctionStack & stack_;
+      FunctionStack& stack_;
     };
 
-    struct FunctionSetterCommit { 
-        FunctionSetterCommit(FunctionStack& stackFrom, FunctionStack& stackTo):
-            from_(stackFrom), to_(stackTo) {}
-        void operator()(const char &) const { 
-            to_.push_back(from_.back());
-            from_.clear();
-        }
-        private:
-            FunctionStack & from_;
-            FunctionStack & to_;
+    struct FunctionSetterCommit {
+      FunctionSetterCommit(FunctionStack& stackFrom, FunctionStack& stackTo) : from_(stackFrom), to_(stackTo) {}
+      void operator()(const char&) const {
+        to_.push_back(from_.back());
+        from_.clear();
+      }
+
+    private:
+      FunctionStack& from_;
+      FunctionStack& to_;
     };
-  }
-}
+  }  // namespace parser
+}  // namespace reco
 
 #endif

@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C6_cff import Phase2C6
-process = cms.Process('PROD',Phase2C6)
+from Configuration.Eras.Era_Phase2C6_timing_layer_bar_cff import Phase2C6_timing_layer_bar
+process = cms.Process('PROD',Phase2C6_timing_layer_bar)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load('Configuration.Geometry.GeometryExtended2023D31_cff')
-process.load('Configuration.Geometry.GeometryExtended2023D31Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D44_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D44Reco_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -21,7 +21,6 @@ if hasattr(process,'MessageLogger'):
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
         'file:step2.root',
-#       'root://cms-xrd-global.cern.ch//store/relval/CMSSW_9_1_1_patch1/RelValSingleElectronPt35Extended/GEN-SIM-RECO/91X_upgrade2023_realistic_v1_D17-v1/10000/10D95AC2-B14A-E711-BC4A-0CC47A7C3638.root',
         )
                             )
 

@@ -38,7 +38,7 @@
 #include "TF2.h"
 #include <iostream>
 #include <fstream>
-#include <memory> // to use the auto_ptr
+#include <memory>  // to use the auto_ptr
 
 // Includes the definitions of all the bias and scale functions
 // These functions are selected in the constructor according
@@ -53,15 +53,15 @@
 
 // Lorenzian Peak function
 // -----------------------
-Double_t lorentzianPeak (Double_t *x, Double_t *par) {
-  return (0.5*par[0]*par[1]/TMath::Pi()) /
-  TMath::Max(1.e-10,(x[0]-par[2])*(x[0]-par[2]) + .25*par[1]*par[1]);
+Double_t lorentzianPeak(Double_t *x, Double_t *par) {
+  return (0.5 * par[0] * par[1] / TMath::Pi()) /
+         TMath::Max(1.e-10, (x[0] - par[2]) * (x[0] - par[2]) + .25 * par[1] * par[1]);
 }
 
 // Gaussian function
 // -----------------
-Double_t Gaussian (Double_t *x, Double_t *par) {
-  return par[0]*exp(-0.5*((x[0]-par[1])/par[2])*((x[0]-par[1])/par[2]));
+Double_t Gaussian(Double_t *x, Double_t *par) {
+  return par[0] * exp(-0.5 * ((x[0] - par[1]) / par[2]) * ((x[0] - par[1]) / par[2]));
 }
 
 // Array with number of parameters in the fitting functions
@@ -80,13 +80,15 @@ double g[11][100];
 
 // Lorentzian convoluted with a gaussian:
 // --------------------------------------
-TF1 * GL = new TF1 ("GL",
-		    "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))",
-		    0, 1000);
+TF1 *GL = new TF1(
+    "GL", "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-[2])/[3],2))/([3]*sqrt(6.283185))", 0, 1000);
 
-TF2 * GL2= new TF2 ("GL2",
-  "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-y)/[2],2))/([2]*sqrt(6.283185))",
-  0, 200, 0, 200);
+TF2 *GL2 = new TF2("GL2",
+                   "0.5/3.1415926*[0]/(pow(x-[1],2)+pow(0.5*[0],2))*exp(-0.5*pow((x-y)/[2],2))/([2]*sqrt(6.283185))",
+                   0,
+                   200,
+                   0,
+                   200);
 
 // // Lorentzian convoluted with a gaussian over a linear background:
 // // ---------------------------------------------------------------
@@ -106,32 +108,32 @@ std::vector<int> MuScleFitUtils::doCrossSectionFit;
 std::vector<int> MuScleFitUtils::doBackgroundFit;
 
 int MuScleFitUtils::minuitLoop_ = 0;
-TH1D* MuScleFitUtils::likelihoodInLoop_ = nullptr;
-TH1D* MuScleFitUtils::signalProb_ = nullptr;
-TH1D* MuScleFitUtils::backgroundProb_ = nullptr;
+TH1D *MuScleFitUtils::likelihoodInLoop_ = nullptr;
+TH1D *MuScleFitUtils::signalProb_ = nullptr;
+TH1D *MuScleFitUtils::backgroundProb_ = nullptr;
 
 bool MuScleFitUtils::duringMinos_ = false;
 
 const int MuScleFitUtils::totalResNum = 6;
 
 int MuScleFitUtils::SmearType = 0;
-smearFunctionBase * MuScleFitUtils::smearFunction = nullptr;
-int MuScleFitUtils::BiasType  = 0;
+smearFunctionBase *MuScleFitUtils::smearFunction = nullptr;
+int MuScleFitUtils::BiasType = 0;
 // No error, we take functions from the same group for bias and scale.
-scaleFunctionBase<std::vector<double> > * MuScleFitUtils::biasFunction = nullptr;
+scaleFunctionBase<std::vector<double> > *MuScleFitUtils::biasFunction = nullptr;
 int MuScleFitUtils::ResolFitType = 0;
-resolutionFunctionBase<double *> * MuScleFitUtils::resolutionFunction = nullptr;
-resolutionFunctionBase<std::vector<double> > * MuScleFitUtils::resolutionFunctionForVec = nullptr;
+resolutionFunctionBase<double *> *MuScleFitUtils::resolutionFunction = nullptr;
+resolutionFunctionBase<std::vector<double> > *MuScleFitUtils::resolutionFunctionForVec = nullptr;
 int MuScleFitUtils::ScaleFitType = 0;
-scaleFunctionBase<double*> * MuScleFitUtils::scaleFunction = nullptr;
-scaleFunctionBase<std::vector<double> > * MuScleFitUtils::scaleFunctionForVec = nullptr;
-int MuScleFitUtils::BgrFitType   = 0;
+scaleFunctionBase<double *> *MuScleFitUtils::scaleFunction = nullptr;
+scaleFunctionBase<std::vector<double> > *MuScleFitUtils::scaleFunctionForVec = nullptr;
+int MuScleFitUtils::BgrFitType = 0;
 
-CrossSectionHandler * MuScleFitUtils::crossSectionHandler;
+CrossSectionHandler *MuScleFitUtils::crossSectionHandler;
 // const int MuScleFitUtils::backgroundFunctionsRegions = 3;
 // backgroundFunctionBase * MuScleFitUtils::backgroundFunctionForRegion[MuScleFitUtils::backgroundFunctionsRegions];
 // backgroundFunctionBase * MuScleFitUtils::backgroundFunction[MuScleFitUtils::totalResNum];
-BackgroundHandler * MuScleFitUtils::backgroundHandler;
+BackgroundHandler *MuScleFitUtils::backgroundHandler;
 std::vector<double> MuScleFitUtils::parBias;
 std::vector<double> MuScleFitUtils::parSmear;
 std::vector<double> MuScleFitUtils::parResol;
@@ -162,16 +164,22 @@ int MuScleFitUtils::counter_resprob = 0;
 
 std::vector<std::vector<double> > MuScleFitUtils::parvalue;
 
-int MuScleFitUtils::FitStrategy = 1; // Strategy in likelihood fit (1 or 2)
-bool MuScleFitUtils::speedup = false; // Whether to cut corners (no sim study, fewer histos)
+int MuScleFitUtils::FitStrategy = 1;   // Strategy in likelihood fit (1 or 2)
+bool MuScleFitUtils::speedup = false;  // Whether to cut corners (no sim study, fewer histos)
 
-std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::SavedPair; // Pairs of reconstructed muons making resonances
-std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::ReducedSavedPair; // Pairs of reconstructed muons making resonances inside smaller windows
-std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::genPair; // Pairs of generated muons making resonances
-std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> > MuScleFitUtils::SavedPairMuScleFitMuons; // Pairs of reconstructed muons making resonances
-std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> > MuScleFitUtils::genMuscleFitPair; // Pairs of generated muons making resonances
+std::vector<std::pair<lorentzVector, lorentzVector> >
+    MuScleFitUtils::SavedPair;  // Pairs of reconstructed muons making resonances
+std::vector<std::pair<lorentzVector, lorentzVector> >
+    MuScleFitUtils::ReducedSavedPair;  // Pairs of reconstructed muons making resonances inside smaller windows
+std::vector<std::pair<lorentzVector, lorentzVector> >
+    MuScleFitUtils::genPair;  // Pairs of generated muons making resonances
+std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >
+    MuScleFitUtils::SavedPairMuScleFitMuons;  // Pairs of reconstructed muons making resonances
+std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >
+    MuScleFitUtils::genMuscleFitPair;  // Pairs of generated muons making resonances
 //std::vector<GenMuonPair> MuScleFitUtils::genPairMuScleMuons; // Pairs of generated muons making resonances
-std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::simPair; // Pairs of simulated muons making resonances
+std::vector<std::pair<lorentzVector, lorentzVector> >
+    MuScleFitUtils::simPair;  // Pairs of simulated muons making resonances
 
 // Smearing parameters
 // -------------------
@@ -196,7 +204,7 @@ double MuScleFitUtils::massWindowHalfWidth[][6];
 int MuScleFitUtils::MuonType;
 int MuScleFitUtils::MuonTypeForCheckMassWindow;
 
-double MuScleFitUtils::ResGamma[] = {2.4952, 0.000020, 0.000032, 0.000054, 0.000317, 0.0000932 };
+double MuScleFitUtils::ResGamma[] = {2.4952, 0.000020, 0.000032, 0.000054, 0.000317, 0.0000932};
 // ATTENTION:
 // This is left because the values are used by the BackgroundHandler to define the center of the regions windows,
 // but the values used in the code are read computed using the probability histograms ranges.
@@ -254,7 +262,7 @@ bool MuScleFitUtils::debugMassResol_;
 MuScleFitUtils::massResolComponentsStruct MuScleFitUtils::massResolComponents;
 
 bool MuScleFitUtils::normalizeLikelihoodByEventNumber_ = true;
-TMinuit * MuScleFitUtils::rminPtr_ = nullptr;
+TMinuit *MuScleFitUtils::rminPtr_ = nullptr;
 double MuScleFitUtils::oldNormalization_ = 0.;
 unsigned int MuScleFitUtils::normalizationChanged_ = 0;
 
@@ -268,31 +276,30 @@ int MuScleFitUtils::iev_ = 0;
 // Find the best simulated resonance from a vector of simulated muons (SimTracks)
 // and return its decay muons
 // ------------------------------------------------------------------------------
-std::pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (const std::vector<SimTrack>& simMuons) {
-
+std::pair<SimTrack, SimTrack> MuScleFitUtils::findBestSimuRes(const std::vector<SimTrack> &simMuons) {
   std::pair<SimTrack, SimTrack> simMuFromBestRes;
   double maxprob = -0.1;
 
   // Double loop on muons
   // --------------------
-  for (std::vector<SimTrack>::const_iterator simMu1=simMuons.begin(); simMu1!=simMuons.end(); simMu1++) {
-    for (std::vector<SimTrack>::const_iterator simMu2=simMu1+1; simMu2!=simMuons.end(); simMu2++) {
-      if (((*simMu1).charge()*(*simMu2).charge())>0) {
-	continue; // this also gets rid of simMu1==simMu2...
+  for (std::vector<SimTrack>::const_iterator simMu1 = simMuons.begin(); simMu1 != simMuons.end(); simMu1++) {
+    for (std::vector<SimTrack>::const_iterator simMu2 = simMu1 + 1; simMu2 != simMuons.end(); simMu2++) {
+      if (((*simMu1).charge() * (*simMu2).charge()) > 0) {
+        continue;  // this also gets rid of simMu1==simMu2...
       }
       // Choose the best resonance using its mass. Check Z, Y(3S,2S,1S), Psi(2S), J/Psi in order
       // ---------------------------------------------------------------------------------------
-      double mcomb = ((*simMu1).momentum()+(*simMu2).momentum()).mass();
-      double Y = ((*simMu1).momentum()+(*simMu2).momentum()).Rapidity();
-      for (int ires=0; ires<6; ires++) {
-	if (resfind[ires]>0) {
-	  double prob = massProb( mcomb, Y, ires, 0. );
-	  if (prob>maxprob) {
-	    simMuFromBestRes.first = (*simMu1);
-	    simMuFromBestRes.second = (*simMu2);
-	    maxprob = prob;
-	  }
-	}
+      double mcomb = ((*simMu1).momentum() + (*simMu2).momentum()).mass();
+      double Y = ((*simMu1).momentum() + (*simMu2).momentum()).Rapidity();
+      for (int ires = 0; ires < 6; ires++) {
+        if (resfind[ires] > 0) {
+          double prob = massProb(mcomb, Y, ires, 0.);
+          if (prob > maxprob) {
+            simMuFromBestRes.first = (*simMu1);
+            simMuFromBestRes.second = (*simMu2);
+            maxprob = prob;
+          }
+        }
       }
     }
   }
@@ -305,11 +312,12 @@ std::pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (const std::vector<
 // Find the best reconstructed resonance from a collection of reconstructed muons
 // (MuonCollection) and return its decay muons
 // ------------------------------------------------------------------------------
-std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const std::vector<MuScleFitMuon>& muons){
+std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const std::vector<MuScleFitMuon> &muons) {
   // NB this routine returns the resonance, but it also sets the ResFound flag, which
   // is used in MuScleFit to decide whether to use the event or not.
   // --------------------------------------------------------------------------------
-  if (debug>0) std::cout << "In findBestRecoRes" << std::endl;
+  if (debug > 0)
+    std::cout << "In findBestRecoRes" << std::endl;
   ResFound = false;
   std::pair<MuScleFitMuon, MuScleFitMuon> recMuFromBestRes;
 
@@ -318,14 +326,16 @@ std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const st
   double maxprob = -0.1;
   double minDeltaMass = 999999;
   std::pair<MuScleFitMuon, MuScleFitMuon> bestMassMuons;
-  for (std::vector<MuScleFitMuon>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {
+  for (std::vector<MuScleFitMuon>::const_iterator Muon1 = muons.begin(); Muon1 != muons.end(); ++Muon1) {
     //rc2010
-    if (debug>0) std::cout << "muon_1_charge:"<<(*Muon1).charge() << std::endl;
-    for (std::vector<MuScleFitMuon>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) {
+    if (debug > 0)
+      std::cout << "muon_1_charge:" << (*Muon1).charge() << std::endl;
+    for (std::vector<MuScleFitMuon>::const_iterator Muon2 = Muon1 + 1; Muon2 != muons.end(); ++Muon2) {
       //rc2010
-      if (debug>0) std::cout << "after_2" << std::endl;
-      if ((((*Muon1).charge())*((*Muon2).charge()))>0) {
-        continue; // This also gets rid of Muon1==Muon2...
+      if (debug > 0)
+        std::cout << "after_2" << std::endl;
+      if ((((*Muon1).charge()) * ((*Muon2).charge())) > 0) {
+        continue;  // This also gets rid of Muon1==Muon2...
       }
       // To allow the selection of ranges at negative and positive eta independently we define two
       // ranges of eta: (minMuonEtaFirstRange_, maxMuonEtaFirstRange_) and (minMuonEtaSecondRange_, maxMuonEtaSecondRange_).
@@ -335,53 +345,50 @@ std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const st
       double pt2 = (*Muon2).Pt();
       double eta1 = (*Muon1).Eta();
       double eta2 = (*Muon2).Eta();
-      if (
-        pt1 >= minMuonPt_ && pt1 < maxMuonPt_ &&
-        pt2 >= minMuonPt_ && pt2 < maxMuonPt_ &&
-        (
-        (
-        eta1 >= minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ && eta2 >= minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ && ch1>=ch2 // In the configuration file, MuonOne==MuonPlus
-        ) || (
-        eta1 >= minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ && eta2 >= minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_ && ch1<ch2
-        )
-        )
-        ){
-        double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
-        double Y = ((*Muon1).p4()+(*Muon2).p4()).Rapidity();
-        if (debug>1) {
-          std::cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<", "<<(*Muon1).charge()<<std::endl;
-          std::cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<", "<<(*Muon2).charge()<<std::endl;
-          std::cout<<"mcomb "<<mcomb<<std::endl;
+      if (pt1 >= minMuonPt_ && pt1 < maxMuonPt_ && pt2 >= minMuonPt_ && pt2 < maxMuonPt_ &&
+          ((eta1 >= minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ && eta2 >= minMuonEtaSecondRange_ &&
+            eta2 < maxMuonEtaSecondRange_ && ch1 >= ch2  // In the configuration file, MuonOne==MuonPlus
+            ) ||
+           (eta1 >= minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ && eta2 >= minMuonEtaFirstRange_ &&
+            eta2 < maxMuonEtaFirstRange_ && ch1 < ch2))) {
+        double mcomb = ((*Muon1).p4() + (*Muon2).p4()).mass();
+        double Y = ((*Muon1).p4() + (*Muon2).p4()).Rapidity();
+        if (debug > 1) {
+          std::cout << "muon1 " << (*Muon1).p4().Px() << ", " << (*Muon1).p4().Py() << ", " << (*Muon1).p4().Pz()
+                    << ", " << (*Muon1).p4().E() << ", " << (*Muon1).charge() << std::endl;
+          std::cout << "muon2 " << (*Muon2).p4().Px() << ", " << (*Muon2).p4().Py() << ", " << (*Muon2).p4().Pz()
+                    << ", " << (*Muon2).p4().E() << ", " << (*Muon2).charge() << std::endl;
+          std::cout << "mcomb " << mcomb << std::endl;
         }
         double massResol = 0.;
         if (useProbsFile_) {
           massResol = massResolution((*Muon1).p4(), (*Muon2).p4(), parResol);
         }
         double prob = 0;
-        for (int ires=0; ires<6; ires++) {
-          if (resfind[ires]>0) {
+        for (int ires = 0; ires < 6; ires++) {
+          if (resfind[ires] > 0) {
             if (useProbsFile_) {
               prob = massProb(mcomb, Y, ires, massResol);
             }
-            if (prob>maxprob) {
-              if (ch1<0) { // store first the mu minus and then the mu plus
+            if (prob > maxprob) {
+              if (ch1 < 0) {  // store first the mu minus and then the mu plus
                 recMuFromBestRes.first = (*Muon1);
                 recMuFromBestRes.second = (*Muon2);
-              }
-              else {
+              } else {
                 recMuFromBestRes.first = (*Muon2);
                 recMuFromBestRes.second = (*Muon1);
               }
-              if (debug>0) std::cout << "muon_1_charge (after swapping):"<<recMuFromBestRes.first.charge() << std::endl;
-              ResFound = true; // NNBB we accept "resonances" even outside mass bounds
+              if (debug > 0)
+                std::cout << "muon_1_charge (after swapping):" << recMuFromBestRes.first.charge() << std::endl;
+              ResFound = true;  // NNBB we accept "resonances" even outside mass bounds
               maxprob = prob;
             }
             // if( ResMass[ires] == 0 ) {
             //   std::cout << "Error: ResMass["<<ires<<"] = " << ResMass[ires] << std::endl;
             //   exit(1);
             // }
-            double deltaMass = std::abs(mcomb-ResMass[ires])/ResMass[ires];
-            if (deltaMass<minDeltaMass){
+            double deltaMass = std::abs(mcomb - ResMass[ires]) / ResMass[ires];
+            if (deltaMass < minDeltaMass) {
               bestMassMuons = std::make_pair((*Muon1), (*Muon2));
               minDeltaMass = deltaMass;
             }
@@ -392,12 +399,11 @@ std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const st
   }
   //If outside mass window (maxprob==0) then take the two muons with best invariant mass
   //(anyway they will not be used in the likelihood calculation, only to fill plots)
-  if (!maxprob){
-    if (bestMassMuons.first.charge()<0){
+  if (!maxprob) {
+    if (bestMassMuons.first.charge() < 0) {
       recMuFromBestRes.first = bestMassMuons.first;
       recMuFromBestRes.second = bestMassMuons.second;
-    }
-    else{
+    } else {
       recMuFromBestRes.second = bestMassMuons.first;
       recMuFromBestRes.first = bestMassMuons.second;
     }
@@ -407,41 +413,39 @@ std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const st
 
 // Resolution smearing function called to worsen muon Pt resolution at start
 // -------------------------------------------------------------------------
-lorentzVector MuScleFitUtils::applySmearing (const lorentzVector& muon)
-{
+lorentzVector MuScleFitUtils::applySmearing(const lorentzVector &muon) {
   double pt = muon.Pt();
   double eta = muon.Eta();
   double phi = muon.Phi();
   double E = muon.E();
 
   double y[7] = {};
-  for (int i=0; i<SmearType+3; i++) {
-    y[i] = x[i][goodmuon%10000];
+  for (int i = 0; i < SmearType + 3; i++) {
+    y[i] = x[i][goodmuon % 10000];
   }
 
   // Use the smear function selected in the constructor
-  smearFunction->smear( pt, eta, phi, y, parSmear );
+  smearFunction->smear(pt, eta, phi, y, parSmear);
 
-  if (debug>9) {
-    std::cout << "Smearing Pt,eta,phi = " << pt << " " <<  eta << " "
-	 << phi << "; x = ";
-    for (int i=0; i<SmearType+3; i++) {
+  if (debug > 9) {
+    std::cout << "Smearing Pt,eta,phi = " << pt << " " << eta << " " << phi << "; x = ";
+    for (int i = 0; i < SmearType + 3; i++) {
       std::cout << y[i];
     }
     std::cout << std::endl;
   }
 
   double ptEtaPhiE[4] = {pt, eta, phi, E};
-  return( fromPtEtaPhiToPxPyPz(ptEtaPhiE) );
+  return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
 
 // Biasing function called to modify muon Pt scale at the start.
 // -------------------------------------------------------------
-lorentzVector MuScleFitUtils::applyBias( const lorentzVector& muon, const int chg )
-{
-  double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
+lorentzVector MuScleFitUtils::applyBias(const lorentzVector &muon, const int chg) {
+  double ptEtaPhiE[4] = {muon.Pt(), muon.Eta(), muon.Phi(), muon.E()};
 
-  if (MuScleFitUtils::debug>1) std::cout << "pt before bias = " << ptEtaPhiE[0] << std::endl;
+  if (MuScleFitUtils::debug > 1)
+    std::cout << "pt before bias = " << ptEtaPhiE[0] << std::endl;
 
   // Use functors (although not with the () operator)
   // Note that we always pass pt, eta and phi, but internally only the needed
@@ -450,81 +454,76 @@ lorentzVector MuScleFitUtils::applyBias( const lorentzVector& muon, const int ch
   // thus the name of the method used is "scale".
   ptEtaPhiE[0] = biasFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, MuScleFitUtils::parBias);
 
-  if (MuScleFitUtils::debug>1) std::cout << "pt after bias = " << ptEtaPhiE[0] << std::endl;
+  if (MuScleFitUtils::debug > 1)
+    std::cout << "pt after bias = " << ptEtaPhiE[0] << std::endl;
 
-  return( fromPtEtaPhiToPxPyPz(ptEtaPhiE) );
+  return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
 
 // Version of applyScale accepting a std::vector<double> of parameters
 // --------------------------------------------------------------
-lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
-                                          const std::vector<double> & parval, const int chg)
-{
-  double * p = new double[(int)(parval.size())];
+lorentzVector MuScleFitUtils::applyScale(const lorentzVector &muon, const std::vector<double> &parval, const int chg) {
+  double *p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   // std::unique_ptr<double> p(new double[(int)(parval.size())]);
   // Removed auto_ptr, check massResolution for an explanation.
   int id = 0;
-  for (std::vector<double>::const_iterator it=parval.begin(); it!=parval.end(); ++it, ++id) {
+  for (std::vector<double>::const_iterator it = parval.begin(); it != parval.end(); ++it, ++id) {
     //(&*p)[id] = *it;
     // Also ok would be (p.get())[id] = *it;
     p[id] = *it;
   }
-  lorentzVector tempScaleVec( applyScale (muon, p, chg) );
+  lorentzVector tempScaleVec(applyScale(muon, p, chg));
   delete[] p;
   return tempScaleVec;
 }
 
 // This is called by the likelihood to "taste" different values for additional corrections
 // ---------------------------------------------------------------------------------------
-lorentzVector MuScleFitUtils::applyScale (const lorentzVector& muon,
-                                          double* parval, const int chg)
-{
-  double ptEtaPhiE[4] = {muon.Pt(),muon.Eta(),muon.Phi(),muon.E()};
+lorentzVector MuScleFitUtils::applyScale(const lorentzVector &muon, double *parval, const int chg) {
+  double ptEtaPhiE[4] = {muon.Pt(), muon.Eta(), muon.Phi(), muon.E()};
   int shift = parResol.size();
 
-  if (MuScleFitUtils::debug>1) std::cout << "pt before scale = " << ptEtaPhiE[0] << std::endl;
+  if (MuScleFitUtils::debug > 1)
+    std::cout << "pt before scale = " << ptEtaPhiE[0] << std::endl;
 
   // the address of parval[shift] is passed as pointer to double. Internally it is used as a normal array, thus:
   // array[0] = parval[shift], array[1] = parval[shift+1], ...
   ptEtaPhiE[0] = scaleFunction->scale(ptEtaPhiE[0], ptEtaPhiE[1], ptEtaPhiE[2], chg, &(parval[shift]));
 
-  if (MuScleFitUtils::debug>1) std::cout << "pt after scale = " << ptEtaPhiE[0] << std::endl;
+  if (MuScleFitUtils::debug > 1)
+    std::cout << "pt after scale = " << ptEtaPhiE[0] << std::endl;
 
-  return( fromPtEtaPhiToPxPyPz(ptEtaPhiE) );
+  return (fromPtEtaPhiToPxPyPz(ptEtaPhiE));
 }
 
 // Useful function to convert 4-vector coordinates
 // -----------------------------------------------
-lorentzVector MuScleFitUtils::fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE )
-{
-  double px = ptEtaPhiE[0]*cos(ptEtaPhiE[2]);
-  double py = ptEtaPhiE[0]*sin(ptEtaPhiE[2]);
-  double tmp = 2*atan(exp(-ptEtaPhiE[1]));
-  double pz = ptEtaPhiE[0]*cos(tmp)/sin(tmp);
-  double E  = sqrt(px*px+py*py+pz*pz+muMass*muMass);
+lorentzVector MuScleFitUtils::fromPtEtaPhiToPxPyPz(const double *ptEtaPhiE) {
+  double px = ptEtaPhiE[0] * cos(ptEtaPhiE[2]);
+  double py = ptEtaPhiE[0] * sin(ptEtaPhiE[2]);
+  double tmp = 2 * atan(exp(-ptEtaPhiE[1]));
+  double pz = ptEtaPhiE[0] * cos(tmp) / sin(tmp);
+  double E = sqrt(px * px + py * py + pz * pz + muMass * muMass);
 
   // lorentzVector corrMu(px,py,pz,E);
   // To fix memory leaks, this is to be substituted with
   // std::unique_ptr<lorentzVector> corrMu(new lorentzVector(px, py, pz, E));
 
-  return lorentzVector(px,py,pz,E);
+  return lorentzVector(px, py, pz, E);
 }
 
 // Dimuon mass
 // -----------
-inline double MuScleFitUtils::invDimuonMass( const lorentzVector& mu1,
-                                             const lorentzVector& mu2 )
-{
-  return (mu1+mu2).mass();
+inline double MuScleFitUtils::invDimuonMass(const lorentzVector &mu1, const lorentzVector &mu2) {
+  return (mu1 + mu2).mass();
 }
 
 // Mass resolution - version accepting a std::vector<double> parval
 // -----------------------------------------------------------
-double MuScleFitUtils::massResolution( const lorentzVector& mu1,
-                                       const lorentzVector& mu2,
-                                       const std::vector<double> & parval )
-{
+double MuScleFitUtils::massResolution(const lorentzVector &mu1,
+                                      const lorentzVector &mu2,
+                                      const std::vector<double> &parval) {
   // double * p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   // --------- //
@@ -536,14 +535,14 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   // alternative seems to be to switch to vector though.
   // std::unique_ptr<double> p(new double[(int)(parval.size())]);
 
-  double * p = new double[(int)(parval.size())];
+  double *p = new double[(int)(parval.size())];
   std::vector<double>::const_iterator it = parval.begin();
   int id = 0;
-  for ( ; it!=parval.end(); ++it, ++id) {
+  for (; it != parval.end(); ++it, ++id) {
     // (&*p)[id] = *it;
     p[id] = *it;
   }
-  double massRes = massResolution (mu1, mu2, p);
+  double massRes = massResolution(mu1, mu2, p);
   delete[] p;
   return massRes;
 }
@@ -565,34 +564,37 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
  *
  * and derive WRT Pt1, Pt2, phi1, phi2, theta1, theta2 to get the resolution.
  */
-double MuScleFitUtils::massResolution( const lorentzVector& mu1,
-                                       const lorentzVector& mu2,
-                                       double* parval )
-{
-  double mass   = (mu1+mu2).mass();
-  double pt1    = mu1.Pt();
-  double phi1   = mu1.Phi();
-  double eta1   = mu1.Eta();
-  double theta1 = 2*atan(exp(-eta1));
-  double pt2    = mu2.Pt();
-  double phi2   = mu2.Phi();
-  double eta2   = mu2.Eta();
-  double theta2 = 2*atan(exp(-eta2));
+double MuScleFitUtils::massResolution(const lorentzVector &mu1, const lorentzVector &mu2, double *parval) {
+  double mass = (mu1 + mu2).mass();
+  double pt1 = mu1.Pt();
+  double phi1 = mu1.Phi();
+  double eta1 = mu1.Eta();
+  double theta1 = 2 * atan(exp(-eta1));
+  double pt2 = mu2.Pt();
+  double phi2 = mu2.Phi();
+  double eta2 = mu2.Eta();
+  double theta2 = 2 * atan(exp(-eta2));
 
-  double dmdpt1  = (pt1/std::pow(sin(theta1),2)*sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2))-
-		    pt2*(cos(phi1-phi2)+cos(theta1)*cos(theta2)/(sin(theta1)*sin(theta2))))/mass;
-  double dmdpt2  = (pt2/std::pow(sin(theta2),2)*sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2))-
-		    pt1*(cos(phi2-phi1)+cos(theta2)*cos(theta1)/(sin(theta2)*sin(theta1))))/mass;
-  double dmdphi1 = pt1*pt2/mass*sin(phi1-phi2);
-  double dmdphi2 = pt2*pt1/mass*sin(phi2-phi1);
-  double dmdcotgth1 = (pt1*pt1*cos(theta1)/sin(theta1)*
-                       sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2)) -
-		       pt1*pt2*cos(theta2)/sin(theta2))/mass;
-  double dmdcotgth2 = (pt2*pt2*cos(theta2)/sin(theta2)*
-                       sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2)) -
-		       pt2*pt1*cos(theta1)/sin(theta1))/mass;
+  double dmdpt1 = (pt1 / std::pow(sin(theta1), 2) *
+                       sqrt((std::pow(pt2 / sin(theta2), 2) + mMu2) / (std::pow(pt1 / sin(theta1), 2) + mMu2)) -
+                   pt2 * (cos(phi1 - phi2) + cos(theta1) * cos(theta2) / (sin(theta1) * sin(theta2)))) /
+                  mass;
+  double dmdpt2 = (pt2 / std::pow(sin(theta2), 2) *
+                       sqrt((std::pow(pt1 / sin(theta1), 2) + mMu2) / (std::pow(pt2 / sin(theta2), 2) + mMu2)) -
+                   pt1 * (cos(phi2 - phi1) + cos(theta2) * cos(theta1) / (sin(theta2) * sin(theta1)))) /
+                  mass;
+  double dmdphi1 = pt1 * pt2 / mass * sin(phi1 - phi2);
+  double dmdphi2 = pt2 * pt1 / mass * sin(phi2 - phi1);
+  double dmdcotgth1 = (pt1 * pt1 * cos(theta1) / sin(theta1) *
+                           sqrt((std::pow(pt2 / sin(theta2), 2) + mMu2) / (std::pow(pt1 / sin(theta1), 2) + mMu2)) -
+                       pt1 * pt2 * cos(theta2) / sin(theta2)) /
+                      mass;
+  double dmdcotgth2 = (pt2 * pt2 * cos(theta2) / sin(theta2) *
+                           sqrt((std::pow(pt1 / sin(theta1), 2) + mMu2) / (std::pow(pt2 / sin(theta2), 2) + mMu2)) -
+                       pt2 * pt1 * cos(theta1) / sin(theta1)) /
+                      mass;
 
-  if( debugMassResol_ ) {
+  if (debugMassResol_) {
     massResolComponents.dmdpt1 = dmdpt1;
     massResolComponents.dmdpt2 = dmdpt2;
     massResolComponents.dmdphi1 = dmdphi1;
@@ -603,46 +605,45 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
 
   // Resolution parameters:
   // ----------------------
-  double sigma_pt1 = resolutionFunction->sigmaPt( pt1,eta1,parval );
-  double sigma_pt2 = resolutionFunction->sigmaPt( pt2,eta2,parval );
-  double sigma_phi1 = resolutionFunction->sigmaPhi( pt1,eta1,parval );
-  double sigma_phi2 = resolutionFunction->sigmaPhi( pt2,eta2,parval );
-  double sigma_cotgth1 = resolutionFunction->sigmaCotgTh( pt1,eta1,parval );
-  double sigma_cotgth2 = resolutionFunction->sigmaCotgTh( pt2,eta2,parval );
-  double cov_pt1pt2 = resolutionFunction->covPt1Pt2( pt1, eta1, pt2, eta2, parval );
+  double sigma_pt1 = resolutionFunction->sigmaPt(pt1, eta1, parval);
+  double sigma_pt2 = resolutionFunction->sigmaPt(pt2, eta2, parval);
+  double sigma_phi1 = resolutionFunction->sigmaPhi(pt1, eta1, parval);
+  double sigma_phi2 = resolutionFunction->sigmaPhi(pt2, eta2, parval);
+  double sigma_cotgth1 = resolutionFunction->sigmaCotgTh(pt1, eta1, parval);
+  double sigma_cotgth2 = resolutionFunction->sigmaCotgTh(pt2, eta2, parval);
+  double cov_pt1pt2 = resolutionFunction->covPt1Pt2(pt1, eta1, pt2, eta2, parval);
 
   // Sigma_Pt is defined as a relative sigmaPt/Pt for this reason we need to
   // multiply it by pt.
-  double mass_res = sqrt(std::pow(dmdpt1*sigma_pt1*pt1,2)+std::pow(dmdpt2*sigma_pt2*pt2,2)+
-  			 std::pow(dmdphi1*sigma_phi1,2)+std::pow(dmdphi2*sigma_phi2,2)+
-  			 std::pow(dmdcotgth1*sigma_cotgth1,2)+std::pow(dmdcotgth2*sigma_cotgth2,2)+
-  			 2*dmdpt1*dmdpt2*cov_pt1pt2*sigma_pt1*sigma_pt2);
+  double mass_res = sqrt(std::pow(dmdpt1 * sigma_pt1 * pt1, 2) + std::pow(dmdpt2 * sigma_pt2 * pt2, 2) +
+                         std::pow(dmdphi1 * sigma_phi1, 2) + std::pow(dmdphi2 * sigma_phi2, 2) +
+                         std::pow(dmdcotgth1 * sigma_cotgth1, 2) + std::pow(dmdcotgth2 * sigma_cotgth2, 2) +
+                         2 * dmdpt1 * dmdpt2 * cov_pt1pt2 * sigma_pt1 * sigma_pt2);
 
-  if (debug>19) {
-    std::cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2
-	 << " phi2=" << phi2 << " cotgth2=" << cos(theta2)/sin(theta2) << std::endl;
-    std::cout << " P[0]="
-	 << parval[0] << " P[1]=" << parval[1] << "P[2]=" << parval[2] << " P[3]=" << parval[3] << std::endl;
-    std::cout << "  Dmdpt1= " << dmdpt1 << " dmdpt2= " << dmdpt2 << " sigma_pt1="
-	 << sigma_pt1 << " sigma_pt2=" << sigma_pt2 << std::endl;
-    std::cout << "  Dmdphi1= " << dmdphi1 << " dmdphi2= " << dmdphi2 << " sigma_phi1="
-	 << sigma_phi1 << " sigma_phi2=" << sigma_phi2 << std::endl;
-    std::cout << "  Dmdcotgth1= " << dmdcotgth1 << " dmdcotgth2= " << dmdcotgth2
-	 << " sigma_cotgth1="
-	 << sigma_cotgth1 << " sigma_cotgth2=" << sigma_cotgth2 << std::endl;
-    std::cout << "  Mass resolution (pval) for muons of Pt = " << pt1 << " " << pt2
-	 << " : " << mass << " +- " << mass_res << std::endl;
+  if (debug > 19) {
+    std::cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1) / sin(theta1) << " - Pt2=" << pt2
+              << " phi2=" << phi2 << " cotgth2=" << cos(theta2) / sin(theta2) << std::endl;
+    std::cout << " P[0]=" << parval[0] << " P[1]=" << parval[1] << "P[2]=" << parval[2] << " P[3]=" << parval[3]
+              << std::endl;
+    std::cout << "  Dmdpt1= " << dmdpt1 << " dmdpt2= " << dmdpt2 << " sigma_pt1=" << sigma_pt1
+              << " sigma_pt2=" << sigma_pt2 << std::endl;
+    std::cout << "  Dmdphi1= " << dmdphi1 << " dmdphi2= " << dmdphi2 << " sigma_phi1=" << sigma_phi1
+              << " sigma_phi2=" << sigma_phi2 << std::endl;
+    std::cout << "  Dmdcotgth1= " << dmdcotgth1 << " dmdcotgth2= " << dmdcotgth2 << " sigma_cotgth1=" << sigma_cotgth1
+              << " sigma_cotgth2=" << sigma_cotgth2 << std::endl;
+    std::cout << "  Mass resolution (pval) for muons of Pt = " << pt1 << " " << pt2 << " : " << mass << " +- "
+              << mass_res << std::endl;
   }
 
   // Debug std::cout
   // ----------
   bool didit = false;
-  for (int ires=0; ires<6; ires++) {
-    if (!didit && resfind[ires]>0 && std::abs(mass-ResMass[ires])<ResHalfWidth[ires]) {
-      if (mass_res>ResMaxSigma[ires] && counter_resprob<100) {
-	counter_resprob++;
-	LogDebug("MuScleFitUtils") << "RESOLUTION PROBLEM: ires=" << ires << std::endl;
-	didit = true;
+  for (int ires = 0; ires < 6; ires++) {
+    if (!didit && resfind[ires] > 0 && std::abs(mass - ResMass[ires]) < ResHalfWidth[ires]) {
+      if (mass_res > ResMaxSigma[ires] && counter_resprob < 100) {
+        counter_resprob++;
+        LogDebug("MuScleFitUtils") << "RESOLUTION PROBLEM: ires=" << ires << std::endl;
+        didit = true;
       }
     }
   }
@@ -654,73 +655,83 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
  * This method can be used outside MuScleFit. It gets the ResolutionFunction that must have been built with the parameters. <br>
  * TO-DO: this method duplicates the code in the previous method. It should be changed to avoid the duplication.
  */
-double MuScleFitUtils::massResolution( const lorentzVector& mu1,
-                                       const lorentzVector& mu2,
-				       const ResolutionFunction & resolFunc )
-{
-  double mass   = (mu1+mu2).mass();
-  double pt1    = mu1.Pt();
-  double phi1   = mu1.Phi();
-  double eta1   = mu1.Eta();
-  double theta1 = 2*atan(exp(-eta1));
-  double pt2    = mu2.Pt();
-  double phi2   = mu2.Phi();
-  double eta2   = mu2.Eta();
-  double theta2 = 2*atan(exp(-eta2));
+double MuScleFitUtils::massResolution(const lorentzVector &mu1,
+                                      const lorentzVector &mu2,
+                                      const ResolutionFunction &resolFunc) {
+  double mass = (mu1 + mu2).mass();
+  double pt1 = mu1.Pt();
+  double phi1 = mu1.Phi();
+  double eta1 = mu1.Eta();
+  double theta1 = 2 * atan(exp(-eta1));
+  double pt2 = mu2.Pt();
+  double phi2 = mu2.Phi();
+  double eta2 = mu2.Eta();
+  double theta2 = 2 * atan(exp(-eta2));
 
-  double dmdpt1  = (pt1/std::pow(sin(theta1),2)*sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2))-
-		    pt2*(cos(phi1-phi2)+cos(theta1)*cos(theta2)/(sin(theta1)*sin(theta2))))/mass;
-  double dmdpt2  = (pt2/std::pow(sin(theta2),2)*sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2))-
-		    pt1*(cos(phi2-phi1)+cos(theta2)*cos(theta1)/(sin(theta2)*sin(theta1))))/mass;
-  double dmdphi1 = pt1*pt2/mass*sin(phi1-phi2);
-  double dmdphi2 = pt2*pt1/mass*sin(phi2-phi1);
-  double dmdcotgth1 = (pt1*pt1*cos(theta1)/sin(theta1)*
-                       sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2)) -
-		       pt1*pt2*cos(theta2)/sin(theta2))/mass;
-  double dmdcotgth2 = (pt2*pt2*cos(theta2)/sin(theta2)*
-                       sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2)) -
-		       pt2*pt1*cos(theta1)/sin(theta1))/mass;
+  double dmdpt1 = (pt1 / std::pow(sin(theta1), 2) *
+                       sqrt((std::pow(pt2 / sin(theta2), 2) + mMu2) / (std::pow(pt1 / sin(theta1), 2) + mMu2)) -
+                   pt2 * (cos(phi1 - phi2) + cos(theta1) * cos(theta2) / (sin(theta1) * sin(theta2)))) /
+                  mass;
+  double dmdpt2 = (pt2 / std::pow(sin(theta2), 2) *
+                       sqrt((std::pow(pt1 / sin(theta1), 2) + mMu2) / (std::pow(pt2 / sin(theta2), 2) + mMu2)) -
+                   pt1 * (cos(phi2 - phi1) + cos(theta2) * cos(theta1) / (sin(theta2) * sin(theta1)))) /
+                  mass;
+  double dmdphi1 = pt1 * pt2 / mass * sin(phi1 - phi2);
+  double dmdphi2 = pt2 * pt1 / mass * sin(phi2 - phi1);
+  double dmdcotgth1 = (pt1 * pt1 * cos(theta1) / sin(theta1) *
+                           sqrt((std::pow(pt2 / sin(theta2), 2) + mMu2) / (std::pow(pt1 / sin(theta1), 2) + mMu2)) -
+                       pt1 * pt2 * cos(theta2) / sin(theta2)) /
+                      mass;
+  double dmdcotgth2 = (pt2 * pt2 * cos(theta2) / sin(theta2) *
+                           sqrt((std::pow(pt1 / sin(theta1), 2) + mMu2) / (std::pow(pt2 / sin(theta2), 2) + mMu2)) -
+                       pt2 * pt1 * cos(theta1) / sin(theta1)) /
+                      mass;
 
   // Resolution parameters:
   // ----------------------
-  double sigma_pt1 = resolFunc.sigmaPt( mu1 );
-  double sigma_pt2 = resolFunc.sigmaPt( mu2 );
-  double sigma_phi1 = resolFunc.sigmaPhi( mu1 );
-  double sigma_phi2 = resolFunc.sigmaPhi( mu2 );
-  double sigma_cotgth1 = resolFunc.sigmaCotgTh( mu1 );
-  double sigma_cotgth2 = resolFunc.sigmaCotgTh( mu2 );
+  double sigma_pt1 = resolFunc.sigmaPt(mu1);
+  double sigma_pt2 = resolFunc.sigmaPt(mu2);
+  double sigma_phi1 = resolFunc.sigmaPhi(mu1);
+  double sigma_phi2 = resolFunc.sigmaPhi(mu2);
+  double sigma_cotgth1 = resolFunc.sigmaCotgTh(mu1);
+  double sigma_cotgth2 = resolFunc.sigmaCotgTh(mu2);
 
   // Sigma_Pt is defined as a relative sigmaPt/Pt for this reason we need to
   // multiply it by pt.
-  double mass_res = sqrt(std::pow(dmdpt1*sigma_pt1*pt1,2)+std::pow(dmdpt2*sigma_pt2*pt2,2)+
-  			 std::pow(dmdphi1*sigma_phi1,2)+std::pow(dmdphi2*sigma_phi2,2)+
-  			 std::pow(dmdcotgth1*sigma_cotgth1,2)+std::pow(dmdcotgth2*sigma_cotgth2,2));
+  double mass_res = sqrt(std::pow(dmdpt1 * sigma_pt1 * pt1, 2) + std::pow(dmdpt2 * sigma_pt2 * pt2, 2) +
+                         std::pow(dmdphi1 * sigma_phi1, 2) + std::pow(dmdphi2 * sigma_phi2, 2) +
+                         std::pow(dmdcotgth1 * sigma_cotgth1, 2) + std::pow(dmdcotgth2 * sigma_cotgth2, 2));
 
   return mass_res;
 }
 
-
 // Mass probability - version with linear background included, accepts std::vector<double> parval
 // -----------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 )
-{
+double MuScleFitUtils::massProb(const double &mass,
+                                const double &resEta,
+                                const double &rapidity,
+                                const double &massResol,
+                                const std::vector<double> &parval,
+                                const bool doUseBkgrWindow,
+                                const double &eta1,
+                                const double &eta2) {
 #ifdef USE_CALLGRIND
   CALLGRIND_START_INSTRUMENTATION;
 #endif
 
-  double * p = new double[(int)(parval.size())];
+  double *p = new double[(int)(parval.size())];
   // Replaced by auto_ptr, which handles delete at the end
   // Removed auto_ptr, check massResolution for an explanation.
   // std::unique_ptr<double> p(new double[(int)(parval.size())]);
 
   std::vector<double>::const_iterator it = parval.begin();
   int id = 0;
-  for ( ; it!=parval.end(); ++it, ++id) {
+  for (; it != parval.end(); ++it, ++id) {
     // (&*p)[id] = *it;
     p[id] = *it;
   }
   // p must be passed by value as below:
-  double massProbability = massProb( mass, resEta, rapidity, massResol, p, doUseBkgrWindow, eta1, eta2 );
+  double massProbability = massProb(mass, resEta, rapidity, massResol, p, doUseBkgrWindow, eta1, eta2);
   delete[] p;
 
 #ifdef USE_CALLGRIND
@@ -736,12 +747,15 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
  * - if passing iRes == 0, iY is used to select the rapidity bin
  * - if passing iRes != 0, iY is used to select the resonance
  */
-double MuScleFitUtils::probability( const double & mass, const double & massResol,
-                                    const double GLvalue[][1001][1001], const double GLnorm[][1001],
-                                    const int iRes, const int iY )
-{
-  if( iRes == 0 && iY > 23 ) {
-    std::cout << "WARNING: rapidity bin selected = " << iY << " but there are only histograms for the first 24 bins" << std::endl;
+double MuScleFitUtils::probability(const double &mass,
+                                   const double &massResol,
+                                   const double GLvalue[][1001][1001],
+                                   const double GLnorm[][1001],
+                                   const int iRes,
+                                   const int iY) {
+  if (iRes == 0 && iY > 23) {
+    std::cout << "WARNING: rapidity bin selected = " << iY << " but there are only histograms for the first 24 bins"
+              << std::endl;
   }
 
   double PS = 0.;
@@ -752,37 +766,40 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
   // This must be done with respect to the width used in the computation of the probability distribution,
   // so that the bin 0 really matches the bin 0 of that distribution.
   //  double fracMass = (mass-(ResMass[iRes]-ResHalfWidth[iRes]))/(2*ResHalfWidth[iRes]);
-  double fracMass = (mass - ResMinMass[iRes])/(2*ResHalfWidth[iRes]);
-  if (debug>1) std::cout << std::setprecision(9)<<"mass ResMinMass[iRes] ResHalfWidth[iRes] ResHalfWidth[iRes]"
-                    << mass << " "<<ResMinMass[iRes]<<" "<<ResHalfWidth[iRes]<<" "<<ResHalfWidth[iRes]<<std::endl;
-  int iMassLeft  = (int)(fracMass*(double)nbins);
-  int iMassRight = iMassLeft+1;
-  double fracMassStep = (double)nbins*(fracMass - (double)iMassLeft/(double)nbins);
-  if (debug>1) std::cout<<"nbins iMassLeft fracMass "<<nbins<<" "<<iMassLeft<<" "<<fracMass<<std::endl;
+  double fracMass = (mass - ResMinMass[iRes]) / (2 * ResHalfWidth[iRes]);
+  if (debug > 1)
+    std::cout << std::setprecision(9) << "mass ResMinMass[iRes] ResHalfWidth[iRes] ResHalfWidth[iRes]" << mass << " "
+              << ResMinMass[iRes] << " " << ResHalfWidth[iRes] << " " << ResHalfWidth[iRes] << std::endl;
+  int iMassLeft = (int)(fracMass * (double)nbins);
+  int iMassRight = iMassLeft + 1;
+  double fracMassStep = (double)nbins * (fracMass - (double)iMassLeft / (double)nbins);
+  if (debug > 1)
+    std::cout << "nbins iMassLeft fracMass " << nbins << " " << iMassLeft << " " << fracMass << std::endl;
 
   // Simple protections for the time being: the region where we fit should not include
   // values outside the boundaries set by ResMass-ResHalfWidth : ResMass+ResHalfWidth
   // ---------------------------------------------------------------------------------
-  if (iMassLeft<0) {
-    edm::LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassLeft="
-                           << iMassLeft << "; mass = " << mass << " and bounds are " << ResMinMass[iRes]
-                           << ":" << ResMinMass[iRes]+2*ResHalfWidth[iRes] << " - iMassLeft set to 0" << std::endl;
-    iMassLeft  = 0;
+  if (iMassLeft < 0) {
+    edm::LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassLeft=" << iMassLeft
+                                << "; mass = " << mass << " and bounds are " << ResMinMass[iRes] << ":"
+                                << ResMinMass[iRes] + 2 * ResHalfWidth[iRes] << " - iMassLeft set to 0" << std::endl;
+    iMassLeft = 0;
     iMassRight = 1;
     insideProbMassWindow = false;
   }
-  if (iMassRight>nbins) {
-    edm::LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassRight="
-                           << iMassRight << "; mass = " << mass << " and bounds are " << ResMinMass[iRes]
-                           << ":" << ResMass[iRes]+2*ResHalfWidth[iRes] << " - iMassRight set to " << nbins-1 << std::endl;
-    iMassLeft  = nbins-1;
+  if (iMassRight > nbins) {
+    edm::LogInfo("probability") << "WARNING: fracMass=" << fracMass << ", iMassRight=" << iMassRight
+                                << "; mass = " << mass << " and bounds are " << ResMinMass[iRes] << ":"
+                                << ResMass[iRes] + 2 * ResHalfWidth[iRes] << " - iMassRight set to " << nbins - 1
+                                << std::endl;
+    iMassLeft = nbins - 1;
     iMassRight = nbins;
     insideProbMassWindow = false;
   }
-  double fracSigma = (massResol/ResMaxSigma[iRes]);
-  int iSigmaLeft = (int)(fracSigma*(double)nbins);
-  int iSigmaRight = iSigmaLeft+1;
-  double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft/(double)nbins);
+  double fracSigma = (massResol / ResMaxSigma[iRes]);
+  int iSigmaLeft = (int)(fracSigma * (double)nbins);
+  int iSigmaRight = iSigmaLeft + 1;
+  double fracSigmaStep = (double)nbins * (fracSigma - (double)iSigmaLeft / (double)nbins);
   // std::cout << "massResol = " << massResol << std::endl;
   // std::cout << "ResMaxSigma["<<iRes<<"] = " << ResMaxSigma[iRes] << std::endl;
   // std::cout << "fracSigma = " << fracSigma << std::endl;
@@ -795,80 +812,88 @@ double MuScleFitUtils::probability( const double & mass, const double & massReso
   // ResMaxSigma is set to very large values, and if massResol exceeds them the fit
   // should not get any prize for that (for large sigma, the prob. distr. becomes flat)
   // ----------------------------------------------------------------------------------
-  if (iSigmaLeft<0) {
-    edm::LogInfo("probability") << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft="
-                           << iSigmaLeft << ", with massResol = " << massResol << " and ResMaxSigma[iRes] = "
-                           << ResMaxSigma[iRes] << " -  iSigmaLeft set to 0" << std::endl;
-    iSigmaLeft  = 0;
+  if (iSigmaLeft < 0) {
+    edm::LogInfo("probability") << "WARNING: fracSigma = " << fracSigma << ", iSigmaLeft=" << iSigmaLeft
+                                << ", with massResol = " << massResol
+                                << " and ResMaxSigma[iRes] = " << ResMaxSigma[iRes] << " -  iSigmaLeft set to 0"
+                                << std::endl;
+    iSigmaLeft = 0;
     iSigmaRight = 1;
   }
-  if (iSigmaRight>nbins ) {
-    if (counter_resprob<100)
-      edm::LogInfo("probability") << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight="
-                             << iSigmaRight << ", with massResol = " << massResol << " and ResMaxSigma[iRes] = "
-                             << ResMaxSigma[iRes] << " -  iSigmaRight set to " << nbins-1 << std::endl;
-    iSigmaLeft  = nbins-1;
+  if (iSigmaRight > nbins) {
+    if (counter_resprob < 100)
+      edm::LogInfo("probability") << "WARNING: fracSigma = " << fracSigma << ", iSigmaRight=" << iSigmaRight
+                                  << ", with massResol = " << massResol
+                                  << " and ResMaxSigma[iRes] = " << ResMaxSigma[iRes] << " -  iSigmaRight set to "
+                                  << nbins - 1 << std::endl;
+    iSigmaLeft = nbins - 1;
     iSigmaRight = nbins;
   }
 
   // If f11,f12,f21,f22 are the values at the four corners, one finds by linear interpolation the
   // formula below for PS
   // --------------------------------------------------------------------------------------------
-  if( insideProbMassWindow ) {
+  if (insideProbMassWindow) {
     double f11 = 0.;
-    if (GLnorm[iY][iSigmaLeft]>0)
+    if (GLnorm[iY][iSigmaLeft] > 0)
       f11 = GLvalue[iY][iMassLeft][iSigmaLeft] / GLnorm[iY][iSigmaLeft];
     double f12 = 0.;
-    if (GLnorm[iY][iSigmaRight]>0)
+    if (GLnorm[iY][iSigmaRight] > 0)
       f12 = GLvalue[iY][iMassLeft][iSigmaRight] / GLnorm[iY][iSigmaRight];
     double f21 = 0.;
-    if (GLnorm[iY][iSigmaLeft]>0)
+    if (GLnorm[iY][iSigmaLeft] > 0)
       f21 = GLvalue[iY][iMassRight][iSigmaLeft] / GLnorm[iY][iSigmaLeft];
     double f22 = 0.;
-    if (GLnorm[iY][iSigmaRight]>0)
+    if (GLnorm[iY][iSigmaRight] > 0)
       f22 = GLvalue[iY][iMassRight][iSigmaRight] / GLnorm[iY][iSigmaRight];
-    PS = f11 + (f12-f11)*fracSigmaStep + (f21-f11)*fracMassStep +
-      (f22-f21-f12+f11)*fracMassStep*fracSigmaStep;
-    if (PS>0.1 || debug>1) LogDebug("MuScleFitUtils") << "iRes = " << iRes << " PS=" << PS << " f11,f12,f21,f22="
-                                                      << f11 << " " << f12 << " " << f21 << " " << f22 << " "
-                                                      << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR="
-                                                      << iSigmaLeft << " " << iSigmaRight
-                                                      << " GLvalue["<<iY<<"]["<<iMassLeft<<"] = " << GLvalue[iY][iMassLeft][iSigmaLeft]
-                                                      << " GLnorm["<<iY<<"]["<<iSigmaLeft<<"] = " << GLnorm[iY][iSigmaLeft] << std::endl;
+    PS = f11 + (f12 - f11) * fracSigmaStep + (f21 - f11) * fracMassStep +
+         (f22 - f21 - f12 + f11) * fracMassStep * fracSigmaStep;
+    if (PS > 0.1 || debug > 1)
+      LogDebug("MuScleFitUtils") << "iRes = " << iRes << " PS=" << PS << " f11,f12,f21,f22=" << f11 << " " << f12 << " "
+                                 << f21 << " " << f22 << " "
+                                 << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR=" << iSigmaLeft
+                                 << " " << iSigmaRight << " GLvalue[" << iY << "][" << iMassLeft
+                                 << "] = " << GLvalue[iY][iMassLeft][iSigmaLeft] << " GLnorm[" << iY << "]["
+                                 << iSigmaLeft << "] = " << GLnorm[iY][iSigmaLeft] << std::endl;
 
-//     if (PS>0.1) std::cout << "iRes = " << iRes << " PS=" << PS << " f11,f12,f21,f22="
-//                      << f11 << " " << f12 << " " << f21 << " " << f22 << " "
-//                      << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR="
-//                      << iSigmaLeft << " " << iSigmaRight << " GLV,GLN="
-//                      << GLvalue[iY][iMassLeft][iSigmaLeft]
-//                      << " " << GLnorm[iY][iSigmaLeft] << std::endl;
+    //     if (PS>0.1) std::cout << "iRes = " << iRes << " PS=" << PS << " f11,f12,f21,f22="
+    //                      << f11 << " " << f12 << " " << f21 << " " << f22 << " "
+    //                      << " fSS=" << fracSigmaStep << " fMS=" << fracMassStep << " iSL, iSR="
+    //                      << iSigmaLeft << " " << iSigmaRight << " GLV,GLN="
+    //                      << GLvalue[iY][iMassLeft][iSigmaLeft]
+    //                      << " " << GLnorm[iY][iSigmaLeft] << std::endl;
 
+  } else {
+    edm::LogInfo("probability") << "outside mass probability window. Setting PS[" << iRes << "] = 0" << std::endl;
   }
-  else {
-    edm::LogInfo("probability") << "outside mass probability window. Setting PS["<<iRes<<"] = 0" << std::endl;
-  }
 
-//   if( PS != PS ) {
-//     std::cout << "ERROR: PS = " << PS << " for iRes = " << iRes << std::endl;
+  //   if( PS != PS ) {
+  //     std::cout << "ERROR: PS = " << PS << " for iRes = " << iRes << std::endl;
 
-//     std::cout << "mass = " << mass << ", massResol = " << massResol << std::endl;
-//     std::cout << "fracMass = " << fracMass << ", iMassLeft = " << iMassLeft
-//          << ", iMassRight = " << iMassRight << ", fracMassStep = " << fracMassStep << std::endl;
-//     std::cout << "fracSigma = " << fracSigma << ", iSigmaLeft = " << iSigmaLeft
-//          << ", iSigmaRight = " << iSigmaRight << ", fracSigmaStep = " << fracSigmaStep << std::endl;
-//     std::cout << "ResMaxSigma["<<iRes<<"] = " << ResMaxSigma[iRes] << std::endl;
+  //     std::cout << "mass = " << mass << ", massResol = " << massResol << std::endl;
+  //     std::cout << "fracMass = " << fracMass << ", iMassLeft = " << iMassLeft
+  //          << ", iMassRight = " << iMassRight << ", fracMassStep = " << fracMassStep << std::endl;
+  //     std::cout << "fracSigma = " << fracSigma << ", iSigmaLeft = " << iSigmaLeft
+  //          << ", iSigmaRight = " << iSigmaRight << ", fracSigmaStep = " << fracSigmaStep << std::endl;
+  //     std::cout << "ResMaxSigma["<<iRes<<"] = " << ResMaxSigma[iRes] << std::endl;
 
-//     std::cout << "GLvalue["<<iY<<"]["<<iMassLeft<<"] = " << GLvalue[iY][iMassLeft][iSigmaLeft]
-//          << " GLnorm["<<iY<<"]["<<iSigmaLeft<<"] = " << GLnorm[iY][iSigmaLeft] << std::endl;
-//   }
+  //     std::cout << "GLvalue["<<iY<<"]["<<iMassLeft<<"] = " << GLvalue[iY][iMassLeft][iSigmaLeft]
+  //          << " GLnorm["<<iY<<"]["<<iSigmaLeft<<"] = " << GLnorm[iY][iSigmaLeft] << std::endl;
+  //   }
 
   return PS;
 }
 
 // Mass probability - version with linear background included
 // ----------------------------------------------------------
-double MuScleFitUtils::massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 ) {
-
+double MuScleFitUtils::massProb(const double &mass,
+                                const double &resEta,
+                                const double &rapidity,
+                                const double &massResol,
+                                double *parval,
+                                const bool doUseBkgrWindow,
+                                const double &eta1,
+                                const double &eta2) {
   // This routine computes the likelihood that a given measured mass "measMass" is
   // the result of a reference mass ResMass[] if the resolution
   // expected for the two muons is massResol.
@@ -931,7 +956,8 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
   double P = 0.;
   int crossSectionParShift = parResol.size() + parScale.size();
   // Take the relative cross sections
-  std::vector<double> relativeCrossSections = crossSectionHandler->relativeCrossSections(&(parval[crossSectionParShift]), resfind);
+  std::vector<double> relativeCrossSections =
+      crossSectionHandler->relativeCrossSections(&(parval[crossSectionParShift]), resfind);
   //   for( unsigned int i=0; i<relativeCrossSections.size(); ++i ) {
   //     std::cout << "relativeCrossSections["<<i<<"] = " << relativeCrossSections[i] << std::endl;
   //     std::cout << "parval["<<crossSectionParShift+i<<"] = " << parval[crossSectionParShift+i] << std::endl;
@@ -971,27 +997,28 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
   // -------------------------------------------------------
 
   // Do this only if we want to use the rapidity bins for the Z
-  if( MuScleFitUtils::rapidityBinsForZ_ ) {
+  if (MuScleFitUtils::rapidityBinsForZ_) {
     // ATTENTION: cut on Z rapidity at 2.4 since we only have histograms up to that value
     // std::pair<double, double> windowFactors = backgroundHandler->windowFactors( useBackgroundWindow, 0 );
-    std::pair<double, double> windowBorders = backgroundHandler->windowBorders( useBackgroundWindow, 0 );
-    if( resfind[0]>0
+    std::pair<double, double> windowBorders = backgroundHandler->windowBorders(useBackgroundWindow, 0);
+    if (resfind[0] > 0
         // && checkMassWindow( mass, 0,
         //                     backgroundHandler->resMass( useBackgroundWindow, 0 ),
         //                     windowFactors.first, windowFactors.second )
-        && checkMassWindow( mass, windowBorders.first, windowBorders.second )
+        && checkMassWindow(mass, windowBorders.first, windowBorders.second)
         // && std::abs(rapidity)<2.4
-        ) {
+    ) {
+      int iY = (int)(std::abs(rapidity) * 10.);
+      if (iY > 23)
+        iY = 23;
 
-      int iY = (int)(std::abs(rapidity)*10.);
-      if( iY > 23 ) iY = 23;
-
-      if (MuScleFitUtils::debug>1) std::cout << "massProb:resFound = 0, rapidity bin =" << iY << std::endl;
+      if (MuScleFitUtils::debug > 1)
+        std::cout << "massProb:resFound = 0, rapidity bin =" << iY << std::endl;
 
       // In this case the last value is the rapidity bin
       PS[0] = probability(mass, massResol, GLZValue, GLZNorm, 0, iY);
 
-      if( PS[0] != PS[0] ) {
+      if (PS[0] != PS[0]) {
         std::cout << "ERROR: PS[0] = nan, setting it to 0" << std::endl;
         PS[0] = 0;
       }
@@ -1000,91 +1027,123 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
       // 										   &(parval[bgrParShift]), MuScleFitUtils::totalResNum, 0,
       // 										   resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
 
-      std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
-										   &(parval[bgrParShift]), MuScleFitUtils::totalResNum, 0,
-										   resConsidered, ResMass, ResHalfWidth, MuonType, mass, eta1, eta2 );
+      std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction(doBackgroundFit[loopCounter],
+                                                                                  &(parval[bgrParShift]),
+                                                                                  MuScleFitUtils::totalResNum,
+                                                                                  0,
+                                                                                  resConsidered,
+                                                                                  ResMass,
+                                                                                  ResHalfWidth,
+                                                                                  MuonType,
+                                                                                  mass,
+                                                                                  eta1,
+                                                                                  eta2);
 
       Bgrp1 = bgrResult.first;
       // When fitting the background we have only one Bgrp1
       // When not fitting the background we have many only in a superposition region and this case is treated
       // separately after this loop
       PB = bgrResult.second;
-      if( PB != PB ) PB = 0;
-      PStot[0] = (1-Bgrp1)*PS[0] + Bgrp1*PB;
-
+      if (PB != PB)
+        PB = 0;
+      PStot[0] = (1 - Bgrp1) * PS[0] + Bgrp1 * PB;
 
       // PStot[0] *= crossSectionHandler->crossSection(0);
       // PStot[0] *= parval[crossSectionParShift];
       PStot[0] *= relativeCrossSections[0];
-      if ( MuScleFitUtils::debug > 0 ) std::cout << "PStot["<<0<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[0]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[0] << " (reletiveXS = )" << relativeCrossSections[0] << std::endl;
-    }
-    else {
-      if( debug > 0 ) {
+      if (MuScleFitUtils::debug > 0)
+        std::cout << "PStot[" << 0 << "] = "
+                  << "(1-" << Bgrp1 << ")*" << PS[0] << " + " << Bgrp1 << "*" << PB << " = " << PStot[0]
+                  << " (reletiveXS = )" << relativeCrossSections[0] << std::endl;
+    } else {
+      if (debug > 0) {
         std::cout << "Mass = " << mass << " outside range with rapidity = " << rapidity << std::endl;
-        std::cout << "with resMass = " << backgroundHandler->resMass( useBackgroundWindow, 0 ) << " and left border = " << windowBorders.first << " right border = " << windowBorders.second << std::endl;
+        std::cout << "with resMass = " << backgroundHandler->resMass(useBackgroundWindow, 0)
+                  << " and left border = " << windowBorders.first << " right border = " << windowBorders.second
+                  << std::endl;
       }
     }
   }
   // Next check the other resonances
   // -------------------------------
   int firstRes = 1;
-  if( !MuScleFitUtils::rapidityBinsForZ_ ) firstRes = 0;
-  for( int ires=firstRes; ires<6; ++ires ) {
-    if( resfind[ires] > 0 ) {
+  if (!MuScleFitUtils::rapidityBinsForZ_)
+    firstRes = 0;
+  for (int ires = firstRes; ires < 6; ++ires) {
+    if (resfind[ires] > 0) {
       // First is left, second is right (returns (1,1) in the case of resonances, it could be improved avoiding the call in this case)
       // std::pair<double, double> windowFactor = backgroundHandler->windowFactors( useBackgroundWindow, ires );
-      std::pair<double, double> windowBorder = backgroundHandler->windowBorders( useBackgroundWindow, ires );
-      if( checkMassWindow(mass, windowBorder.first, windowBorder.second) ) {
-        if (MuScleFitUtils::debug>1) std::cout << "massProb:resFound = " << ires << std::endl;
+      std::pair<double, double> windowBorder = backgroundHandler->windowBorders(useBackgroundWindow, ires);
+      if (checkMassWindow(mass, windowBorder.first, windowBorder.second)) {
+        if (MuScleFitUtils::debug > 1)
+          std::cout << "massProb:resFound = " << ires << std::endl;
 
         // In this case the rapidity value is instead the resonance index again.
         PS[ires] = probability(mass, massResol, GLValue, GLNorm, ires, ires);
 
-        std::pair<double, double> bgrResult = backgroundHandler->backgroundFunction( doBackgroundFit[loopCounter],
-										     &(parval[bgrParShift]), MuScleFitUtils::totalResNum, ires,
-										     // resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
-										     resConsidered, ResMass, ResHalfWidth, MuonType, mass, eta1, eta2 );
+        std::pair<double, double> bgrResult =
+            backgroundHandler->backgroundFunction(doBackgroundFit[loopCounter],
+                                                  &(parval[bgrParShift]),
+                                                  MuScleFitUtils::totalResNum,
+                                                  ires,
+                                                  // resConsidered, ResMass, ResHalfWidth, MuonType, mass, resEta );
+                                                  resConsidered,
+                                                  ResMass,
+                                                  ResHalfWidth,
+                                                  MuonType,
+                                                  mass,
+                                                  eta1,
+                                                  eta2);
         Bgrp1 = bgrResult.first;
         PB = bgrResult.second;
 
-        if( PB != PB ) PB = 0;
-        PStot[ires] = (1-Bgrp1)*PS[ires] + Bgrp1*PB;
-        if( MuScleFitUtils::debug>0 ) std::cout << "PStot["<<ires<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[ires]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[ires] << std::endl;
+        if (PB != PB)
+          PB = 0;
+        PStot[ires] = (1 - Bgrp1) * PS[ires] + Bgrp1 * PB;
+        if (MuScleFitUtils::debug > 0)
+          std::cout << "PStot[" << ires << "] = "
+                    << "(1-" << Bgrp1 << ")*" << PS[ires] << " + " << Bgrp1 << "*" << PB << " = " << PStot[ires]
+                    << std::endl;
 
         PStot[ires] *= relativeCrossSections[ires];
       }
     }
   }
 
-  for( int i=0; i<6; ++i ) {
+  for (int i = 0; i < 6; ++i) {
     P += PStot[i];
   }
 
-  if( MuScleFitUtils::signalProb_ != nullptr && MuScleFitUtils::backgroundProb_ != nullptr ) {
+  if (MuScleFitUtils::signalProb_ != nullptr && MuScleFitUtils::backgroundProb_ != nullptr) {
     double PStotTemp = 0.;
-    for( int i=0; i<6; ++i ) {
-      PStotTemp += PS[i]*relativeCrossSections[i];
+    for (int i = 0; i < 6; ++i) {
+      PStotTemp += PS[i] * relativeCrossSections[i];
     }
-    if( PStotTemp != PStotTemp ) {
+    if (PStotTemp != PStotTemp) {
       std::cout << "ERROR: PStotTemp = nan!!!!!!!!!" << std::endl;
-      int parnumber = (int)(parResol.size()+parScale.size()+crossSectionHandler->parNum()+parBgr.size());
-      for( int i=0; i<6; ++i ) {
+      int parnumber = (int)(parResol.size() + parScale.size() + crossSectionHandler->parNum() + parBgr.size());
+      for (int i = 0; i < 6; ++i) {
         std::cout << "PS[i] = " << PS[i] << std::endl;
-        if( PS[i] != PS[i] ) {
+        if (PS[i] != PS[i]) {
           std::cout << "mass = " << mass << std::endl;
           std::cout << "massResol = " << massResol << std::endl;
-	  for( int j=0; j<parnumber; ++j ) {
-	    std::cout << "parval["<<j<<"] = " << parval[j] << std::endl;
-	  }
+          for (int j = 0; j < parnumber; ++j) {
+            std::cout << "parval[" << j << "] = " << parval[j] << std::endl;
+          }
         }
       }
     }
-    if( PStotTemp == PStotTemp ) {
-      MuScleFitUtils::signalProb_->SetBinContent(MuScleFitUtils::minuitLoop_, MuScleFitUtils::signalProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + PStotTemp);
+    if (PStotTemp == PStotTemp) {
+      MuScleFitUtils::signalProb_->SetBinContent(
+          MuScleFitUtils::minuitLoop_,
+          MuScleFitUtils::signalProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + PStotTemp);
     }
-    if (debug>0) std::cout << "mass = " << mass << ", P = " << P << ", PStot = " << PStotTemp << ", PB = " << PB << ", bgrp1 = " << Bgrp1 << std::endl;
+    if (debug > 0)
+      std::cout << "mass = " << mass << ", P = " << P << ", PStot = " << PStotTemp << ", PB = " << PB
+                << ", bgrp1 = " << Bgrp1 << std::endl;
 
-    MuScleFitUtils::backgroundProb_->SetBinContent(MuScleFitUtils::minuitLoop_, MuScleFitUtils::backgroundProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + PB);
+    MuScleFitUtils::backgroundProb_->SetBinContent(
+        MuScleFitUtils::minuitLoop_, MuScleFitUtils::backgroundProb_->GetBinContent(MuScleFitUtils::minuitLoop_) + PB);
   }
   return P;
 }
@@ -1095,15 +1154,13 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
 //   return( mass-resMass > -leftFactor*massWindowHalfWidth[MuonTypeForCheckMassWindow][ires]
 //           && mass-resMass < rightFactor*massWindowHalfWidth[MuonTypeForCheckMassWindow][ires] );
 // }
-inline bool MuScleFitUtils::checkMassWindow( const double & mass, const double & leftBorder, const double & rightBorder )
-{
-  return( (mass > leftBorder) && (mass < rightBorder) );
+inline bool MuScleFitUtils::checkMassWindow(const double &mass, const double &leftBorder, const double &rightBorder) {
+  return ((mass > leftBorder) && (mass < rightBorder));
 }
 
 // Function that returns the weight for a muon pair
 // ------------------------------------------------
-double MuScleFitUtils::computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow )
-{
+double MuScleFitUtils::computeWeight(const double &mass, const int iev, const bool doUseBkgrWindow) {
   // Compute weight for this event
   // -----------------------------
   double weight = 0.;
@@ -1113,19 +1170,21 @@ double MuScleFitUtils::computeWeight( const double & mass, const int iev, const 
   // are made. Those are priors in the decision of which resonance to assign to an in-between event.
   // -----------------------------------------------------------------------------------------------
 
-  if( doUseBkgrWindow && (debug > 0) ) std::cout << "using backgrond window for mass = " << mass << std::endl;
+  if (doUseBkgrWindow && (debug > 0))
+    std::cout << "using backgrond window for mass = " << mass << std::endl;
   // bool useBackgroundWindow = (doBackgroundFit[loopCounter] || doUseBkgrWindow);
   bool useBackgroundWindow = (doBackgroundFit[loopCounter]);
 
-  for (int ires=0; ires<6; ires++) {
-    if (resfind[ires]>0 && weight==0.) {
+  for (int ires = 0; ires < 6; ires++) {
+    if (resfind[ires] > 0 && weight == 0.) {
       // std::pair<double, double> windowFactor = backgroundHandler->windowFactors( useBackgroundWindow, ires );
-      std::pair<double, double> windowBorder = backgroundHandler->windowBorders( useBackgroundWindow, ires );
+      std::pair<double, double> windowBorder = backgroundHandler->windowBorders(useBackgroundWindow, ires);
       // if( checkMassWindow(mass, ires, backgroundHandler->resMass( useBackgroundWindow, ires ),
       //                     windowFactor.first, windowFactor.second) ) {
-      if( checkMassWindow(mass, windowBorder.first, windowBorder.second) ) {
+      if (checkMassWindow(mass, windowBorder.first, windowBorder.second)) {
         weight = 1.0;
-        if( doUseBkgrWindow && (debug > 0) ) std::cout << "setting weight to = " << weight << std::endl;
+        if (doUseBkgrWindow && (debug > 0))
+          std::cout << "setting weight to = " << weight << std::endl;
       }
     }
   }
@@ -1135,22 +1194,16 @@ double MuScleFitUtils::computeWeight( const double & mass, const int iev, const 
 
 // Likelihood minimization routine
 // -------------------------------
-void MuScleFitUtils::minimizeLikelihood()
-{
+void MuScleFitUtils::minimizeLikelihood() {
   // Output file with fit parameters resulting from minimization
   // -----------------------------------------------------------
   std::ofstream FitParametersFile;
-  FitParametersFile.open ("FitParameters.txt", std::ios::app);
-  FitParametersFile << "Fitting with resolution, scale, bgr function # "
-		    << ResolFitType << " " << ScaleFitType << " " << BgrFitType
-		    << " - Iteration " << loopCounter << std::endl;
+  FitParametersFile.open("FitParameters.txt", std::ios::app);
+  FitParametersFile << "Fitting with resolution, scale, bgr function # " << ResolFitType << " " << ScaleFitType << " "
+                    << BgrFitType << " - Iteration " << loopCounter << std::endl;
 
   // Fill parvalue and other vectors needed for the fitting
   // ------------------------------------------------------
-
-
-
-
 
   // ----- //
   // FIXME //
@@ -1160,14 +1213,10 @@ void MuScleFitUtils::minimizeLikelihood()
   // Should be removed.
   int parForResonanceWindows = 0;
   // int parnumber = (int)(parResol.size()+parScale.size()+parCrossSection.size()+parBgr.size() - parForResonanceWindows);
-  int parnumber = (int)(parResol.size()+parScale.size()+crossSectionHandler->parNum()+parBgr.size() - parForResonanceWindows);
+  int parnumber =
+      (int)(parResol.size() + parScale.size() + crossSectionHandler->parNum() + parBgr.size() - parForResonanceWindows);
 
-
-
-
-
-
-  int parnumberAll = (int)(parResol.size()+parScale.size()+crossSectionHandler->parNum()+parBgr.size());
+  int parnumberAll = (int)(parResol.size() + parScale.size() + crossSectionHandler->parNum() + parBgr.size());
 
   // parvalue is a std::vector<std::vector<double> > storing all the parameters from all the loops
   parvalue.push_back(parResol);
@@ -1176,75 +1225,74 @@ void MuScleFitUtils::minimizeLikelihood()
   // If this is not the first loop we want to start from neutral values
   // Otherwise the scale will start with values correcting again a bias
   // that is already corrected.
-  if( scaleFitNotDone_ ) {
-    tmpVec->insert( tmpVec->end(), parScale.begin(), parScale.end() );
+  if (scaleFitNotDone_) {
+    tmpVec->insert(tmpVec->end(), parScale.begin(), parScale.end());
     std::cout << "scaleFitNotDone: tmpVec->size() = " << tmpVec->size() << std::endl;
-  }
-  else {
+  } else {
     scaleFunction->resetParameters(tmpVec);
     std::cout << "scaleFitDone: tmpVec->size() = " << tmpVec->size() << std::endl;
   }
-  tmpVec->insert( tmpVec->end(), parCrossSection.begin(), parCrossSection.end() );
-  tmpVec->insert( tmpVec->end(), parBgr.begin(), parBgr.end() );
+  tmpVec->insert(tmpVec->end(), parCrossSection.begin(), parCrossSection.end());
+  tmpVec->insert(tmpVec->end(), parBgr.begin(), parBgr.end());
   int i = 0;
   std::vector<double>::const_iterator it = tmpVec->begin();
-  for( ; it != tmpVec->end(); ++it, ++i ) {
-    std::cout << "tmpVec["<<i<<"] = " << *it << std::endl;
+  for (; it != tmpVec->end(); ++it, ++i) {
+    std::cout << "tmpVec[" << i << "] = " << *it << std::endl;
   }
 
   // Empty vector of size = number of cross section fitted parameters. Note that the cross section
   // fit works in a different way than the others and it uses ratios of the paramters passed via cfg.
   // We use this empty vector for compatibility with the rest of the structure.
-  std::vector<int> crossSectionParNumSizeVec( MuScleFitUtils::crossSectionHandler->parNum(), 0 );
+  std::vector<int> crossSectionParNumSizeVec(MuScleFitUtils::crossSectionHandler->parNum(), 0);
 
   std::vector<int> parfix(parResolFix);
-  parfix.insert( parfix.end(), parScaleFix.begin(), parScaleFix.end() );
-  parfix.insert( parfix.end(), crossSectionParNumSizeVec.begin(), crossSectionParNumSizeVec.end() );
-  parfix.insert( parfix.end(), parBgrFix.begin(), parBgrFix.end() );
+  parfix.insert(parfix.end(), parScaleFix.begin(), parScaleFix.end());
+  parfix.insert(parfix.end(), crossSectionParNumSizeVec.begin(), crossSectionParNumSizeVec.end());
+  parfix.insert(parfix.end(), parBgrFix.begin(), parBgrFix.end());
 
   std::vector<int> parorder(parResolOrder);
-  parorder.insert( parorder.end(), parScaleOrder.begin(), parScaleOrder.end() );
-  parorder.insert( parorder.end(), crossSectionParNumSizeVec.begin(), crossSectionParNumSizeVec.end() );
-  parorder.insert( parorder.end(), parBgrOrder.begin(), parBgrOrder.end() );
+  parorder.insert(parorder.end(), parScaleOrder.begin(), parScaleOrder.end());
+  parorder.insert(parorder.end(), crossSectionParNumSizeVec.begin(), crossSectionParNumSizeVec.end());
+  parorder.insert(parorder.end(), parBgrOrder.begin(), parBgrOrder.end());
 
   // This is filled later
-  std::vector<double> parerr(3*parnumberAll,0.);
+  std::vector<double> parerr(3 * parnumberAll, 0.);
 
-  if (debug>19) {
+  if (debug > 19) {
     std::cout << "[MuScleFitUtils-minimizeLikelihood]: Parameters before likelihood " << std::endl;
-    for (unsigned int i=0; i<(unsigned int)parnumberAll; i++) {
-      std::cout << "  Par # " << i << " = " << parvalue[loopCounter][i] << " : free = " << parfix[i] << "; order = "
-	   << parorder[i] << std::endl;
+    for (unsigned int i = 0; i < (unsigned int)parnumberAll; i++) {
+      std::cout << "  Par # " << i << " = " << parvalue[loopCounter][i] << " : free = " << parfix[i]
+                << "; order = " << parorder[i] << std::endl;
     }
   }
 
-//   // Background rescaling from regions to resonances
-//   // -----------------------------------------------
-//   // If we are in a loop > 0 and we are not fitting the background, but we have fitted it in the previous iteration
-//   if( loopCounter > 0 && !(doBackgroundFit[loopCounter]) && doBackgroundFit[loopCounter-1] ) {
-//     // This rescales from regions to resonances
-//     int localMuonType = MuonType;
-//     if( MuonType > 2 ) localMuonType = 2;
-//     backgroundHandler->rescale( parBgr, ResMass, massWindowHalfWidth[localMuonType],
-//                                 MuScleFitUtils::SavedPair);
-//   }
+  //   // Background rescaling from regions to resonances
+  //   // -----------------------------------------------
+  //   // If we are in a loop > 0 and we are not fitting the background, but we have fitted it in the previous iteration
+  //   if( loopCounter > 0 && !(doBackgroundFit[loopCounter]) && doBackgroundFit[loopCounter-1] ) {
+  //     // This rescales from regions to resonances
+  //     int localMuonType = MuonType;
+  //     if( MuonType > 2 ) localMuonType = 2;
+  //     backgroundHandler->rescale( parBgr, ResMass, massWindowHalfWidth[localMuonType],
+  //                                 MuScleFitUtils::SavedPair);
+  //   }
 
   // Init Minuit
   // -----------
-  TMinuit rmin (parnumber);
+  TMinuit rmin(parnumber);
   rminPtr_ = &rmin;
-  rmin.SetFCN (likelihood);     // Unbinned likelihood
+  rmin.SetFCN(likelihood);  // Unbinned likelihood
   // Standard initialization of minuit parameters:
   // sets input to be $stdin, output to be $stdout
   // and saving to a file.
-  rmin.mninit (5, 6, 7);
+  rmin.mninit(5, 6, 7);
   int ierror = 0;
   int istat;
   double arglis[4];
-  arglis[0] = FitStrategy;      // Strategy 1 or 2
+  arglis[0] = FitStrategy;  // Strategy 1 or 2
   // 1 standard
   // 2 try to improve minimum (slower)
-  rmin.mnexcm ("SET STR", arglis, 1, ierror);
+  rmin.mnexcm("SET STR", arglis, 1, ierror);
 
   arglis[0] = 10001;
   // Set the random seed for the generator used in SEEk to a fixed value for reproducibility
@@ -1252,87 +1300,109 @@ void MuScleFitUtils::minimizeLikelihood()
 
   // Set fit parameters
   // ------------------
-  double * Start = new double[parnumberAll];
-  double * Step  = new double[parnumberAll];
-  double * Mini  = new double[parnumberAll];
-  double * Maxi  = new double[parnumberAll];
-  int * ind = new int[parnumberAll]; // Order of release of parameters
-  TString * parname = new TString[parnumberAll];
+  double *Start = new double[parnumberAll];
+  double *Step = new double[parnumberAll];
+  double *Mini = new double[parnumberAll];
+  double *Maxi = new double[parnumberAll];
+  int *ind = new int[parnumberAll];  // Order of release of parameters
+  TString *parname = new TString[parnumberAll];
 
-  if( !parResolStep.empty() && !parResolMin.empty() && !parResolMax.empty() ) {
-    MuScleFitUtils::resolutionFunctionForVec->setParameters( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parResolStep, parResolMin, parResolMax, MuonType );
-  }
-  else {
-    MuScleFitUtils::resolutionFunctionForVec->setParameters( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, MuonType );
+  if (!parResolStep.empty() && !parResolMin.empty() && !parResolMax.empty()) {
+    MuScleFitUtils::resolutionFunctionForVec->setParameters(
+        Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parResolStep, parResolMin, parResolMax, MuonType);
+  } else {
+    MuScleFitUtils::resolutionFunctionForVec->setParameters(
+        Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, MuonType);
   }
 
   // Take the number of parameters in the resolutionFunction and displace the arrays passed to the scaleFunction
   int resParNum = MuScleFitUtils::resolutionFunctionForVec->parNum();
 
-  if( !parScaleStep.empty() && !parScaleMin.empty() && !parScaleMax.empty() ) {
-    MuScleFitUtils::scaleFunctionForVec->setParameters( &(Start[resParNum]), &(Step[resParNum]),
-							&(Mini[resParNum]), &(Maxi[resParNum]),
-							&(ind[resParNum]), &(parname[resParNum]),
-							parScale, parScaleOrder, parScaleStep,
-							parScaleMin, parScaleMax, MuonType );
-  }
-  else {
-    MuScleFitUtils::scaleFunctionForVec->setParameters( &(Start[resParNum]), &(Step[resParNum]),
-							&(Mini[resParNum]), &(Maxi[resParNum]),
-							&(ind[resParNum]), &(parname[resParNum]),
-							parScale, parScaleOrder, MuonType );
+  if (!parScaleStep.empty() && !parScaleMin.empty() && !parScaleMax.empty()) {
+    MuScleFitUtils::scaleFunctionForVec->setParameters(&(Start[resParNum]),
+                                                       &(Step[resParNum]),
+                                                       &(Mini[resParNum]),
+                                                       &(Maxi[resParNum]),
+                                                       &(ind[resParNum]),
+                                                       &(parname[resParNum]),
+                                                       parScale,
+                                                       parScaleOrder,
+                                                       parScaleStep,
+                                                       parScaleMin,
+                                                       parScaleMax,
+                                                       MuonType);
+  } else {
+    MuScleFitUtils::scaleFunctionForVec->setParameters(&(Start[resParNum]),
+                                                       &(Step[resParNum]),
+                                                       &(Mini[resParNum]),
+                                                       &(Maxi[resParNum]),
+                                                       &(ind[resParNum]),
+                                                       &(parname[resParNum]),
+                                                       parScale,
+                                                       parScaleOrder,
+                                                       MuonType);
   }
 
   // Initialize cross section parameters
   int crossSectionParShift = resParNum + MuScleFitUtils::scaleFunctionForVec->parNum();
-  MuScleFitUtils::crossSectionHandler->setParameters( &(Start[crossSectionParShift]), &(Step[crossSectionParShift]), &(Mini[crossSectionParShift]),
-                                                      &(Maxi[crossSectionParShift]), &(ind[crossSectionParShift]), &(parname[crossSectionParShift]),
-                                                      parCrossSection, parCrossSectionOrder, resfind );
+  MuScleFitUtils::crossSectionHandler->setParameters(&(Start[crossSectionParShift]),
+                                                     &(Step[crossSectionParShift]),
+                                                     &(Mini[crossSectionParShift]),
+                                                     &(Maxi[crossSectionParShift]),
+                                                     &(ind[crossSectionParShift]),
+                                                     &(parname[crossSectionParShift]),
+                                                     parCrossSection,
+                                                     parCrossSectionOrder,
+                                                     resfind);
 
   // Initialize background parameters
   int bgrParShift = crossSectionParShift + crossSectionHandler->parNum();
-  MuScleFitUtils::backgroundHandler->setParameters( &(Start[bgrParShift]), &(Step[bgrParShift]), &(Mini[bgrParShift]), &(Maxi[bgrParShift]),
-                                                    &(ind[bgrParShift]), &(parname[bgrParShift]), parBgr, parBgrOrder, MuonType );
+  MuScleFitUtils::backgroundHandler->setParameters(&(Start[bgrParShift]),
+                                                   &(Step[bgrParShift]),
+                                                   &(Mini[bgrParShift]),
+                                                   &(Maxi[bgrParShift]),
+                                                   &(ind[bgrParShift]),
+                                                   &(parname[bgrParShift]),
+                                                   parBgr,
+                                                   parBgrOrder,
+                                                   MuonType);
 
-  for( int ipar=0; ipar<parnumber; ++ipar ) {
-    std::cout << "parname["<<ipar<<"] = " << parname[ipar] << std::endl;
-    std::cout << "Start["<<ipar<<"] = " << Start[ipar] << std::endl;
-    std::cout << "Step["<<ipar<<"] = " << Step[ipar] << std::endl;
-    std::cout << "Mini["<<ipar<<"] = " << Mini[ipar] << std::endl;
-    std::cout << "Maxi["<<ipar<<"] = " << Maxi[ipar] << std::endl;
+  for (int ipar = 0; ipar < parnumber; ++ipar) {
+    std::cout << "parname[" << ipar << "] = " << parname[ipar] << std::endl;
+    std::cout << "Start[" << ipar << "] = " << Start[ipar] << std::endl;
+    std::cout << "Step[" << ipar << "] = " << Step[ipar] << std::endl;
+    std::cout << "Mini[" << ipar << "] = " << Mini[ipar] << std::endl;
+    std::cout << "Maxi[" << ipar << "] = " << Maxi[ipar] << std::endl;
 
-
-    rmin.mnparm( ipar, parname[ipar], Start[ipar], Step[ipar], Mini[ipar], Maxi[ipar], ierror );
-
+    rmin.mnparm(ipar, parname[ipar], Start[ipar], Step[ipar], Mini[ipar], Maxi[ipar], ierror);
 
     // Testing without limits
     // rmin.mnparm( ipar, parname[ipar], Start[ipar], Step[ipar], 0, 0, ierror );
-
-
   }
 
   // Do minimization
   // ---------------
-  if (debug>19)
+  if (debug > 19)
     std::cout << "[MuScleFitUtils-minimizeLikelihood]: Starting minimization" << std::endl;
   double fmin;
   double fdem;
   double errdef;
   int npari;
   int nparx;
-  rmin.mnexcm ("CALL FCN", arglis, 1, ierror);
+  rmin.mnexcm("CALL FCN", arglis, 1, ierror);
 
   // First, fix all parameters
   // -------------------------
-  if (debug>19)
+  if (debug > 19)
     std::cout << "[MuScleFitUtils-minimizeLikelihood]: First fix all parameters ...";
-  for (int ipar=0; ipar<parnumber; ipar++) {
-    rmin.FixParameter (ipar);
+  for (int ipar = 0; ipar < parnumber; ipar++) {
+    rmin.FixParameter(ipar);
   }
 
   // Then release them in the specified order and refit
   // --------------------------------------------------
-  if (debug>19) std::cout << " Then release them in order..." << std::endl;
+  if (debug > 19)
+    std::cout << " Then release them in order..." << std::endl;
 
   TString name;
   double pval;
@@ -1347,9 +1417,11 @@ void MuScleFitUtils::minimizeLikelihood()
   int n_times = 0;
   // n_times = number of loops required to unlock all parameters.
 
-  if (debug>19) std::cout << "Before scale parNum" << std::endl;
+  if (debug > 19)
+    std::cout << "Before scale parNum" << std::endl;
   int scaleParNum = scaleFunction->parNum();
-  if (debug>19) std::cout << "After scale parNum" << std::endl;
+  if (debug > 19)
+    std::cout << "After scale parNum" << std::endl;
   // edm::LogInfo("minimizeLikelihood") << "number of parameters for scaleFunction = " << scaleParNum << std::endl;
   // edm::LogInfo("minimizeLikelihood") << "number of parameters for resolutionFunction = " << resParNum << std::endl;
   // edm::LogInfo("minimizeLikelihood") << "number of parameters for cross section = " << crossSectionHandler->parNum() << std::endl;
@@ -1360,75 +1432,81 @@ void MuScleFitUtils::minimizeLikelihood()
   std::cout << "number of parameters for backgroundFunction = " << parBgr.size() << std::endl;
   // edm::LogInfo("minimizeLikelihood") << "number of parameters for backgroundFunction = " << backgroundFunction->parNum() << std::endl;
 
-  for (int i=0; i<parnumber; i++) {
+  for (int i = 0; i < parnumber; i++) {
     // NB ind[] has been set as parorder[] previously
-    if (n_times<ind[i]) {
-      edm::LogInfo("minimizeLikelihood") << "n_times = " << n_times << ", ind["<<i<<"] = " << ind[i] << ", scaleParNum = " << scaleParNum << ", doScaleFit["<<loopCounter<<"] = " << doScaleFit[loopCounter] << std::endl;
+    if (n_times < ind[i]) {
+      edm::LogInfo("minimizeLikelihood") << "n_times = " << n_times << ", ind[" << i << "] = " << ind[i]
+                                         << ", scaleParNum = " << scaleParNum << ", doScaleFit[" << loopCounter
+                                         << "] = " << doScaleFit[loopCounter] << std::endl;
       // Set the n_times only if we will do the fit
-      if ( i<resParNum ) {
-        if( doResolFit[loopCounter] ) n_times = ind[i];
-      }
-      else if( i<resParNum+scaleParNum ) {
-        if( doScaleFit[loopCounter] ) n_times = ind[i];
-      }
-      else if( doBackgroundFit[loopCounter] ) n_times = ind[i];
+      if (i < resParNum) {
+        if (doResolFit[loopCounter])
+          n_times = ind[i];
+      } else if (i < resParNum + scaleParNum) {
+        if (doScaleFit[loopCounter])
+          n_times = ind[i];
+      } else if (doBackgroundFit[loopCounter])
+        n_times = ind[i];
     }
   }
-  for (int iorder=0; iorder<n_times+1; iorder++) { // Repeat fit n_times times
+  for (int iorder = 0; iorder < n_times + 1; iorder++) {  // Repeat fit n_times times
     std::cout << "Starting minimization " << iorder << " of " << n_times << std::endl;
 
     bool somethingtodo = false;
 
     // Use parameters from cfg to select which fit to do
     // -------------------------------------------------
-    if( doResolFit[loopCounter] ) {
+    if (doResolFit[loopCounter]) {
       // Release resolution parameters and fit them
       // ------------------------------------------
-      for( unsigned int ipar=0; ipar<parResol.size(); ++ipar ) {
-	if( parfix[ipar]==0 && ind[ipar]==iorder ) {
-	  rmin.Release( ipar );
-	  somethingtodo = true;
-	}
+      for (unsigned int ipar = 0; ipar < parResol.size(); ++ipar) {
+        if (parfix[ipar] == 0 && ind[ipar] == iorder) {
+          rmin.Release(ipar);
+          somethingtodo = true;
+        }
       }
     }
-    if( doScaleFit[loopCounter] ) {
+    if (doScaleFit[loopCounter]) {
       // Release scale parameters and fit them
       // -------------------------------------
-      for( unsigned int ipar=parResol.size(); ipar<parResol.size()+parScale.size(); ++ipar ) {
-	if( parfix[ipar]==0 && ind[ipar]==iorder ) { // parfix=0 means parameter is free
-	  rmin.Release( ipar );
-	  somethingtodo = true;
-	}
+      for (unsigned int ipar = parResol.size(); ipar < parResol.size() + parScale.size(); ++ipar) {
+        if (parfix[ipar] == 0 && ind[ipar] == iorder) {  // parfix=0 means parameter is free
+          rmin.Release(ipar);
+          somethingtodo = true;
+        }
       }
       scaleFitNotDone_ = false;
     }
-    unsigned int crossSectionParShift = parResol.size()+parScale.size();
-    if( doCrossSectionFit[loopCounter] ) {
+    unsigned int crossSectionParShift = parResol.size() + parScale.size();
+    if (doCrossSectionFit[loopCounter]) {
       // Release cross section parameters and fit them
       // ---------------------------------------------
       // Note that only cross sections of resonances that are being fitted are released
-      bool doCrossSection = crossSectionHandler->releaseParameters( rmin, resfind, parfix, ind, iorder, crossSectionParShift );
-      if( doCrossSection ) somethingtodo = true;
+      bool doCrossSection =
+          crossSectionHandler->releaseParameters(rmin, resfind, parfix, ind, iorder, crossSectionParShift);
+      if (doCrossSection)
+        somethingtodo = true;
     }
-    if( doBackgroundFit[loopCounter] ) {
+    if (doBackgroundFit[loopCounter]) {
       // Release background parameters and fit them
       // ------------------------------------------
       // for( int ipar=parResol.size()+parScale.size(); ipar<parnumber; ++ipar ) {
       // Free only the parameters for the regions, as the resonances intervals are never used to fit the background
-      unsigned int bgrParShift = crossSectionParShift+crossSectionHandler->parNum();
-      for( unsigned int ipar = bgrParShift; ipar < bgrParShift+backgroundHandler->regionsParNum(); ++ipar ) {
+      unsigned int bgrParShift = crossSectionParShift + crossSectionHandler->parNum();
+      for (unsigned int ipar = bgrParShift; ipar < bgrParShift + backgroundHandler->regionsParNum(); ++ipar) {
         // Release only those parameters for the resonances we are fitting
-	if( parfix[ipar]==0 && ind[ipar]==iorder && backgroundHandler->unlockParameter(resfind, ipar - bgrParShift) ) {
-	  rmin.Release( ipar );
-	  somethingtodo = true;
-	}
+        if (parfix[ipar] == 0 && ind[ipar] == iorder &&
+            backgroundHandler->unlockParameter(resfind, ipar - bgrParShift)) {
+          rmin.Release(ipar);
+          somethingtodo = true;
+        }
       }
     }
 
     // OK, now do minimization if some parameter has been released
     // -----------------------------------------------------------
-    if( somethingtodo ) {
-// #ifdef DEBUG
+    if (somethingtodo) {
+      // #ifdef DEBUG
 
       std::stringstream fileNum;
       fileNum << loopCounter;
@@ -1436,19 +1514,17 @@ void MuScleFitUtils::minimizeLikelihood()
       minuitLoop_ = 0;
       char name[50];
       sprintf(name, "likelihoodInLoop_%d_%d", loopCounter, iorder);
-      TH1D * tempLikelihoodInLoop = new TH1D(name, "likelihood value in minuit loop", 10000, 0, 10000);
+      TH1D *tempLikelihoodInLoop = new TH1D(name, "likelihood value in minuit loop", 10000, 0, 10000);
       likelihoodInLoop_ = tempLikelihoodInLoop;
       char signalProbName[50];
       sprintf(signalProbName, "signalProb_%d_%d", loopCounter, iorder);
-      TH1D * tempSignalProb = new TH1D(signalProbName, "signal probability", 10000, 0, 10000);
+      TH1D *tempSignalProb = new TH1D(signalProbName, "signal probability", 10000, 0, 10000);
       signalProb_ = tempSignalProb;
       char backgroundProbName[50];
       sprintf(backgroundProbName, "backgroundProb_%d_%d", loopCounter, iorder);
-      TH1D * tempBackgroundProb = new TH1D(backgroundProbName, "background probability", 10000, 0, 10000);
+      TH1D *tempBackgroundProb = new TH1D(backgroundProbName, "background probability", 10000, 0, 10000);
       backgroundProb_ = tempBackgroundProb;
-// #endif
-
-
+      // #endif
 
       // Before we start the minimization we create a list of events with only the events inside a smaller
       // window than the one in which the probability is != 0. We will compute the probability for all those
@@ -1458,43 +1534,42 @@ void MuScleFitUtils::minimizeLikelihood()
       double protectionFactor = 0.9;
 
       MuScleFitUtils::ReducedSavedPair.clear();
-      for( unsigned int nev=0; nev<MuScleFitUtils::SavedPair.size(); ++nev ) {
-        const lorentzVector * recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
-        const lorentzVector * recMu2 = &(MuScleFitUtils::SavedPair[nev].second);
-        double mass = MuScleFitUtils::invDimuonMass( *recMu1, *recMu2 );
+      for (unsigned int nev = 0; nev < MuScleFitUtils::SavedPair.size(); ++nev) {
+        const lorentzVector *recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
+        const lorentzVector *recMu2 = &(MuScleFitUtils::SavedPair[nev].second);
+        double mass = MuScleFitUtils::invDimuonMass(*recMu1, *recMu2);
         // Test all resonances to see if the mass is inside at least one of the windows
         bool check = false;
-        for( int ires = 0; ires < 6; ++ires ) {
-	  // std::pair<double, double> windowFactor = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], ires );
-	  std::pair<double, double> windowBorder = backgroundHandler->windowBorders( doBackgroundFit[loopCounter], ires );
+        for (int ires = 0; ires < 6; ++ires) {
+          // std::pair<double, double> windowFactor = backgroundHandler->windowFactors( doBackgroundFit[loopCounter], ires );
+          std::pair<double, double> windowBorder = backgroundHandler->windowBorders(doBackgroundFit[loopCounter], ires);
           // if( resfind[ires] && checkMassWindow( mass, ires, backgroundHandler->resMass( doBackgroundFit[loopCounter], ires ),
           //                                       0.9*windowFactor.first, 0.9*windowFactor.second ) ) {
-	  // double resMassValue = backgroundHandler->resMass( doBackgroundFit[loopCounter], ires );
-	  // double windowBorderLeft = resMassValue - protectionFactor*(resMassValue - windowBorder.first);
-	  // double windowBorderRight = resMassValue + protectionFactor*(windowBorder.second - resMassValue);
-	  double windowBorderShift = (windowBorder.second - windowBorder.first)*(1-protectionFactor)/2.;
-	  double windowBorderLeft = windowBorder.first + windowBorderShift;
-	  double windowBorderRight = windowBorder.second - windowBorderShift;
-          if( resfind[ires] && checkMassWindow( mass, windowBorderLeft, windowBorderRight ) ) {
+          // double resMassValue = backgroundHandler->resMass( doBackgroundFit[loopCounter], ires );
+          // double windowBorderLeft = resMassValue - protectionFactor*(resMassValue - windowBorder.first);
+          // double windowBorderRight = resMassValue + protectionFactor*(windowBorder.second - resMassValue);
+          double windowBorderShift = (windowBorder.second - windowBorder.first) * (1 - protectionFactor) / 2.;
+          double windowBorderLeft = windowBorder.first + windowBorderShift;
+          double windowBorderRight = windowBorder.second - windowBorderShift;
+          if (resfind[ires] && checkMassWindow(mass, windowBorderLeft, windowBorderRight)) {
             check = true;
           }
         }
-        if( check ) {
+        if (check) {
           MuScleFitUtils::ReducedSavedPair.push_back(std::make_pair(*recMu1, *recMu2));
         }
       }
       std::cout << "Fitting with " << MuScleFitUtils::ReducedSavedPair.size() << " events" << std::endl;
 
-
       // rmin.SetMaxIterations(500*parnumber);
 
       //Print some informations
-      std::cout<<"MINUIT is starting the minimization for the iteration number "<<loopCounter<<std::endl;
+      std::cout << "MINUIT is starting the minimization for the iteration number " << loopCounter << std::endl;
 
       //Try to set iterations
       //      rmin.SetMaxIterations(100000);
 
-      std::cout<<"maxNumberOfIterations (just set) = "<<rmin.GetMaxIterations()<<std::endl;
+      std::cout << "maxNumberOfIterations (just set) = " << rmin.GetMaxIterations() << std::endl;
 
       MuScleFitUtils::normalizationChanged_ = 0;
 
@@ -1504,16 +1579,13 @@ void MuScleFitUtils::minimizeLikelihood()
       arglis[1] = 0.1;
 
       // Run simplex first to get an initial estimate of the minimum
-      if( startWithSimplex_ ) {
-	rmin.mnexcm( "SIMPLEX", arglis, 0, ierror );
+      if (startWithSimplex_) {
+        rmin.mnexcm("SIMPLEX", arglis, 0, ierror);
       }
 
-      rmin.mnexcm( "MIGRAD", arglis, 2, ierror );
+      rmin.mnexcm("MIGRAD", arglis, 2, ierror);
 
-
-
-
-// #ifdef DEBUG
+      // #ifdef DEBUG
       likelihoodInLoop_->Write();
       signalProb_->Write();
       backgroundProb_->Write();
@@ -1523,31 +1595,32 @@ void MuScleFitUtils::minimizeLikelihood()
       likelihoodInLoop_ = nullptr;
       signalProb_ = nullptr;
       backgroundProb_ = nullptr;
-// #endif
-
+      // #endif
 
       // Compute again the error matrix
-      rmin.mnexcm( "HESSE", arglis, 0, ierror );
+      rmin.mnexcm("HESSE", arglis, 0, ierror);
 
       // Peform minos error analysis.
-      if( computeMinosErrors_ ) {
-	duringMinos_ = true;
-	rmin.mnexcm( "MINOS", arglis, 0, ierror );
-	duringMinos_ = false;
+      if (computeMinosErrors_) {
+        duringMinos_ = true;
+        rmin.mnexcm("MINOS", arglis, 0, ierror);
+        duringMinos_ = false;
       }
 
-      if( normalizationChanged_ > 1 ) {
-        std::cout << "WARNING: normalization changed during fit meaning that events exited from the mass window. This causes a discontinuity in the likelihood function. Please check the scan of the likelihood as a function of the parameters to see if there are discontinuities around the minimum." << std::endl;
+      if (normalizationChanged_ > 1) {
+        std::cout << "WARNING: normalization changed during fit meaning that events exited from the mass window. This "
+                     "causes a discontinuity in the likelihood function. Please check the scan of the likelihood as a "
+                     "function of the parameters to see if there are discontinuities around the minimum."
+                  << std::endl;
       }
     }
 
     // bool notWritten = true;
-    for (int ipar=0; ipar<parnumber; ipar++) {
-
-      rmin.mnpout (ipar, name, pval, erro, pmin, pmax, ivar);
+    for (int ipar = 0; ipar < parnumber; ipar++) {
+      rmin.mnpout(ipar, name, pval, erro, pmin, pmax, ivar);
       // Save parameters in parvalue[] vector
       // ------------------------------------
-      if (ierror!=0 && debug>0) {
+      if (ierror != 0 && debug > 0) {
         std::cout << "[MuScleFitUtils-minimizeLikelihood]: ierror!=0, bogus pars" << std::endl;
       }
       //     for (int ipar=0; ipar<parnumber; ipar++) {
@@ -1555,144 +1628,146 @@ void MuScleFitUtils::minimizeLikelihood()
       parvalue[loopCounter][ipar] = pval;
       //     }
 
-
       // int ilax2 = 0;
       // Double_t val2pl, val2mi;
       // rmin.mnmnot (ipar+1, ilax2, val2pl, val2mi);
-      rmin.mnerrs (ipar, errh, errl, errp, cglo);
-
+      rmin.mnerrs(ipar, errh, errl, errp, cglo);
 
       // Set error on params
       // -------------------
-      if (errp!=0) {
-	parerr[3*ipar] = errp;
+      if (errp != 0) {
+        parerr[3 * ipar] = errp;
       } else {
-	parerr[3*ipar] = (((errh)>(std::abs(errl)))?(errh):(std::abs(errl)));
+        parerr[3 * ipar] = (((errh) > (std::abs(errl))) ? (errh) : (std::abs(errl)));
       }
-      parerr[3*ipar+1] = errl;
-      parerr[3*ipar+2] = errh;
+      parerr[3 * ipar + 1] = errl;
+      parerr[3 * ipar + 2] = errh;
 
-      if( ipar == 0 ) {
+      if (ipar == 0) {
         FitParametersFile << " Resolution fit parameters:" << std::endl;
       }
-      if( ipar == int(parResol.size()) ) {
+      if (ipar == int(parResol.size())) {
         FitParametersFile << " Scale fit parameters:" << std::endl;
       }
-      if( ipar == int(parResol.size()+parScale.size()) ) {
+      if (ipar == int(parResol.size() + parScale.size())) {
         FitParametersFile << " Cross section fit parameters:" << std::endl;
       }
-      if( ipar == int(parResol.size()+parScale.size()+crossSectionHandler->parNum()) ) {
+      if (ipar == int(parResol.size() + parScale.size() + crossSectionHandler->parNum())) {
         FitParametersFile << " Background fit parameters:" << std::endl;
       }
-//       if( ipar >= int(parResol.size()+parScale.size()) && ipar < int(parResol.size()+parScale.size()+crossSectionHandler->parNum()) && notWritted ) {
+      //       if( ipar >= int(parResol.size()+parScale.size()) && ipar < int(parResol.size()+parScale.size()+crossSectionHandler->parNum()) && notWritted ) {
 
-//         std::vector<double> relativeCrossSections = crossSectionHandler->relativeCrossSections(&(parvalue[loopCounter][parResol.size()+parScale.size()]));
-//         std::vector<double>::const_iterator it = relativeCrossSections.begin();
-//         for( ; it != relativeCrossSections.end(); ++it ) {
-//           FitParametersFile << "  Results of the fit: parameter " << ipar << " has value "
-//                             << *it << "+-" << 0
-//                             << " + " << 0 << " - " << 0
-//                             << " /t/t (" << 0 << ")" << std::endl;
-//         }
+      //         std::vector<double> relativeCrossSections = crossSectionHandler->relativeCrossSections(&(parvalue[loopCounter][parResol.size()+parScale.size()]));
+      //         std::vector<double>::const_iterator it = relativeCrossSections.begin();
+      //         for( ; it != relativeCrossSections.end(); ++it ) {
+      //           FitParametersFile << "  Results of the fit: parameter " << ipar << " has value "
+      //                             << *it << "+-" << 0
+      //                             << " + " << 0 << " - " << 0
+      //                             << " /t/t (" << 0 << ")" << std::endl;
+      //         }
 
-//         notWritten = false;
-//       }
-//       else {
-        FitParametersFile << "  Results of the fit: parameter " << ipar << " has value "
-                          << pval << "+-" << parerr[3*ipar]
-                          << " + " << parerr[3*ipar+1] << " - " << parerr[3*ipar+2]
-                          // << " \t\t (" << parname[ipar] << ")"
-                          << std::endl;
-
-
-
+      //         notWritten = false;
+      //       }
+      //       else {
+      FitParametersFile << "  Results of the fit: parameter " << ipar << " has value " << pval << "+-"
+                        << parerr[3 * ipar] << " + " << parerr[3 * ipar + 1] << " - "
+                        << parerr[3 * ipar + 2]
+                        // << " \t\t (" << parname[ipar] << ")"
+                        << std::endl;
     }
-    rmin.mnstat (fmin, fdem, errdef, npari, nparx, istat); // NNBB Commented for a check!
+    rmin.mnstat(fmin, fdem, errdef, npari, nparx, istat);  // NNBB Commented for a check!
     FitParametersFile << std::endl;
 
-    if( minimumShapePlots_ ) {
+    if (minimumShapePlots_) {
       // Create plots of the minimum vs parameters
       // -----------------------------------------
       // Keep this after the parameters filling because it recomputes the values and it can compromise the fit results.
-      if( somethingtodo ) {
-	std::stringstream iorderString;
-	iorderString << iorder;
-	std::stringstream iLoopString;
-	iLoopString << loopCounter;
+      if (somethingtodo) {
+        std::stringstream iorderString;
+        iorderString << iorder;
+        std::stringstream iLoopString;
+        iLoopString << loopCounter;
 
-	for (int ipar=0; ipar<parnumber; ipar++) {
-	  if( parfix[ipar] == 1 ) continue;
-	  std::cout << "plotting parameter = " << ipar+1 << std::endl;
-	  std::stringstream iparString;
-	  iparString << ipar+1;
-	  std::stringstream iparStringName;
-	  iparStringName << ipar;
-	  rmin.mncomd( ("scan "+iparString.str()).c_str(), ierror );
-	  if( ierror == 0 ) {
-	    TCanvas * canvas = new TCanvas(("likelihoodCanvas_loop_"+iLoopString.str()+"_oder_"+iorderString.str()+"_par_"+iparStringName.str()).c_str(), ("likelihood_"+iparStringName.str()).c_str(), 1000, 800);
-	    canvas->cd();
-	    // arglis[0] = ipar;
-	    // rmin.mnexcm( "SCA", arglis, 0, ierror );
-	    TGraph * graph = (TGraph*)rmin.GetPlot();
-	    graph->Draw("AP");
-	    // graph->SetTitle(("parvalue["+iparStringName.str()+"]").c_str());
-	    graph->SetTitle(parname[ipar]);
-	    // graph->Write();
+        for (int ipar = 0; ipar < parnumber; ipar++) {
+          if (parfix[ipar] == 1)
+            continue;
+          std::cout << "plotting parameter = " << ipar + 1 << std::endl;
+          std::stringstream iparString;
+          iparString << ipar + 1;
+          std::stringstream iparStringName;
+          iparStringName << ipar;
+          rmin.mncomd(("scan " + iparString.str()).c_str(), ierror);
+          if (ierror == 0) {
+            TCanvas *canvas = new TCanvas(("likelihoodCanvas_loop_" + iLoopString.str() + "_oder_" +
+                                           iorderString.str() + "_par_" + iparStringName.str())
+                                              .c_str(),
+                                          ("likelihood_" + iparStringName.str()).c_str(),
+                                          1000,
+                                          800);
+            canvas->cd();
+            // arglis[0] = ipar;
+            // rmin.mnexcm( "SCA", arglis, 0, ierror );
+            TGraph *graph = (TGraph *)rmin.GetPlot();
+            graph->Draw("AP");
+            // graph->SetTitle(("parvalue["+iparStringName.str()+"]").c_str());
+            graph->SetTitle(parname[ipar]);
+            // graph->Write();
 
-	    canvas->Write();
-	  }
-	}
+            canvas->Write();
+          }
+        }
 
-	//       // Draw contours of the fit
-	//       TCanvas * canvas = new TCanvas(("contourCanvas_oder_"+iorderString.str()).c_str(), "contour", 1000, 800);
-	//       canvas->cd();
-	//       TGraph * contourGraph = (TGraph*)rmin.Contour(4, 2, 4);
-	//       if( (rmin.GetStatus() == 0) || (rmin.GetStatus() >= 3) ) {
-	//         contourGraph->Draw("AP");
-	//       }
-	//       else {
-	//         std::cout << "Contour graph error: status = " << rmin.GetStatus() << std::endl;
-	//       }
-	//       canvas->Write();
+        //       // Draw contours of the fit
+        //       TCanvas * canvas = new TCanvas(("contourCanvas_oder_"+iorderString.str()).c_str(), "contour", 1000, 800);
+        //       canvas->cd();
+        //       TGraph * contourGraph = (TGraph*)rmin.Contour(4, 2, 4);
+        //       if( (rmin.GetStatus() == 0) || (rmin.GetStatus() >= 3) ) {
+        //         contourGraph->Draw("AP");
+        //       }
+        //       else {
+        //         std::cout << "Contour graph error: status = " << rmin.GetStatus() << std::endl;
+        //       }
+        //       canvas->Write();
       }
     }
 
-  } // end loop on iorder
+  }  // end loop on iorder
   FitParametersFile.close();
 
   std::cout << "[MuScleFitUtils-minimizeLikelihood]: Parameters after likelihood " << std::endl;
-  for (unsigned int ipar=0; ipar<(unsigned int)parnumber; ipar++) {
-    std::cout << ipar << " " << parvalue[loopCounter][ipar] << " : free = "
-	 << parfix[ipar] << "; order = " << parorder[ipar] << std::endl;
+  for (unsigned int ipar = 0; ipar < (unsigned int)parnumber; ipar++) {
+    std::cout << ipar << " " << parvalue[loopCounter][ipar] << " : free = " << parfix[ipar]
+              << "; order = " << parorder[ipar] << std::endl;
   }
 
   // Put back parvalue into parResol, parScale, parCrossSection, parBgr
   // ------------------------------------------------------------------
-  for( int i=0; i<(int)(parResol.size()); ++i ) {
+  for (int i = 0; i < (int)(parResol.size()); ++i) {
     parResol[i] = parvalue[loopCounter][i];
   }
-  for( int i=0; i<(int)(parScale.size()); ++i ) {
-    parScale[i] = parvalue[loopCounter][i+parResol.size()];
+  for (int i = 0; i < (int)(parScale.size()); ++i) {
+    parScale[i] = parvalue[loopCounter][i + parResol.size()];
   }
-  parCrossSection = crossSectionHandler->relativeCrossSections(&(parvalue[loopCounter][parResol.size()+parScale.size()]), resfind);
-  for( unsigned int i=0; i<parCrossSection.size(); ++i ) {
-  //   parCrossSection[i] = parvalue[loopCounter][i+parResol.size()+parScale.size()];
-    std::cout << "relative cross section["<<i<<"] = " << parCrossSection[i] << std::endl;
+  parCrossSection =
+      crossSectionHandler->relativeCrossSections(&(parvalue[loopCounter][parResol.size() + parScale.size()]), resfind);
+  for (unsigned int i = 0; i < parCrossSection.size(); ++i) {
+    //   parCrossSection[i] = parvalue[loopCounter][i+parResol.size()+parScale.size()];
+    std::cout << "relative cross section[" << i << "] = " << parCrossSection[i] << std::endl;
   }
   // Save only the fitted background parameters
-  for( unsigned int i = 0; i<(parBgr.size() - parForResonanceWindows); ++i ) {
-    parBgr[i] = parvalue[loopCounter][i+parResol.size()+parScale.size()+crossSectionHandler->parNum()];
+  for (unsigned int i = 0; i < (parBgr.size() - parForResonanceWindows); ++i) {
+    parBgr[i] = parvalue[loopCounter][i + parResol.size() + parScale.size() + crossSectionHandler->parNum()];
   }
 
   // Background rescaling from regions to resonances
   // -----------------------------------------------
   // Only if we fitted the background
-  if( doBackgroundFit[loopCounter] ) {
+  if (doBackgroundFit[loopCounter]) {
     // This rescales from regions to resonances
     int localMuonType = MuonType;
-    if( MuonType > 2 ) localMuonType = 2;
-    backgroundHandler->rescale( parBgr, ResMass, massWindowHalfWidth[localMuonType],
-                                MuScleFitUtils::ReducedSavedPair );
+    if (MuonType > 2)
+      localMuonType = 2;
+    backgroundHandler->rescale(parBgr, ResMass, massWindowHalfWidth[localMuonType], MuScleFitUtils::ReducedSavedPair);
   }
 
   // Delete the arrays used to set some parameters
@@ -1706,12 +1781,12 @@ void MuScleFitUtils::minimizeLikelihood()
 
 // Likelihood function
 // -------------------
-extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval, int flag ) {
+extern "C" void likelihood(int &npar, double *grad, double &fval, double *xval, int flag) {
+  if (MuScleFitUtils::debug > 19)
+    std::cout << "[MuScleFitUtils-likelihood]: In likelihood function" << std::endl;
 
-  if (MuScleFitUtils::debug>19) std::cout << "[MuScleFitUtils-likelihood]: In likelihood function" << std::endl;
-
-  const lorentzVector * recMu1;
-  const lorentzVector * recMu2;
+  const lorentzVector *recMu1;
+  const lorentzVector *recMu2;
   lorentzVector corrMu1;
   lorentzVector corrMu2;
 
@@ -1731,13 +1806,12 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
   int evtsinlik = 0;
   int evtsoutlik = 0;
   // std::cout << "SavedPair.size() = " << MuScleFitUtils::SavedPair.size() << std::endl;
-  if( MuScleFitUtils::debug>0 ) {
+  if (MuScleFitUtils::debug > 0) {
     std::cout << "SavedPair.size() = " << MuScleFitUtils::SavedPair.size() << std::endl;
     std::cout << "ReducedSavedPair.size() = " << MuScleFitUtils::ReducedSavedPair.size() << std::endl;
   }
   // for( unsigned int nev=0; nev<MuScleFitUtils::SavedPair.size(); ++nev ) {
-  for( unsigned int nev=0; nev<MuScleFitUtils::ReducedSavedPair.size(); ++nev ) {
-
+  for (unsigned int nev = 0; nev < MuScleFitUtils::ReducedSavedPair.size(); ++nev) {
     //     recMu1 = &(MuScleFitUtils::SavedPair[nev].first);
     //     recMu2 = &(MuScleFitUtils::SavedPair[nev].second);
     recMu1 = &(MuScleFitUtils::ReducedSavedPair[nev].first);
@@ -1745,148 +1819,150 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 
     // Compute original mass
     // ---------------------
-    double mass = MuScleFitUtils::invDimuonMass( *recMu1, *recMu2 );
+    double mass = MuScleFitUtils::invDimuonMass(*recMu1, *recMu2);
 
     // Compute weight and reference mass (from original mass)
     // ------------------------------------------------------
     double weight = MuScleFitUtils::computeWeight(mass, MuScleFitUtils::iev_);
-    if( weight!=0. ) {
+    if (weight != 0.) {
       // Compute corrected mass (from previous biases) only if we are currently fitting the scale
       // ----------------------------------------------------------------------------------------
-      if( MuScleFitUtils::doScaleFit[MuScleFitUtils::loopCounter] ) {
-// 	std::cout << "Original pt1 = " << corrMu1.Pt() << std::endl;
-// 	std::cout << "Original pt2 = " << corrMu2.Pt() << std::endl;
+      if (MuScleFitUtils::doScaleFit[MuScleFitUtils::loopCounter]) {
+        // 	std::cout << "Original pt1 = " << corrMu1.Pt() << std::endl;
+        // 	std::cout << "Original pt2 = " << corrMu2.Pt() << std::endl;
         corrMu1 = MuScleFitUtils::applyScale(*recMu1, xval, -1);
-        corrMu2 = MuScleFitUtils::applyScale(*recMu2, xval,  1);
+        corrMu2 = MuScleFitUtils::applyScale(*recMu2, xval, 1);
 
-//         if( (corrMu1.Pt() != corrMu1.Pt()) || (corrMu2.Pt() != corrMu2.Pt()) ) {
-//           std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
-//           std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;
-//         }
-// 	std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
-// 	std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;
-      }
-      else {
+        //         if( (corrMu1.Pt() != corrMu1.Pt()) || (corrMu2.Pt() != corrMu2.Pt()) ) {
+        //           std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
+        //           std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;
+        //         }
+        // 	std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
+        // 	std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;
+      } else {
         corrMu1 = *recMu1;
         corrMu2 = *recMu2;
 
-//         if( (corrMu1.Pt() != corrMu1.Pt()) || (corrMu2.Pt() != corrMu2.Pt()) ) {
-//           std::cout << "Not rescaled pt1 = " << corrMu1.Pt() << std::endl;
-//           std::cout << "Not rescaled pt2 = " << corrMu2.Pt() << std::endl;
-//         }
+        //         if( (corrMu1.Pt() != corrMu1.Pt()) || (corrMu2.Pt() != corrMu2.Pt()) ) {
+        //           std::cout << "Not rescaled pt1 = " << corrMu1.Pt() << std::endl;
+        //           std::cout << "Not rescaled pt2 = " << corrMu2.Pt() << std::endl;
+        //         }
       }
       double corrMass = MuScleFitUtils::invDimuonMass(corrMu1, corrMu2);
-      double Y = (corrMu1+corrMu2).Rapidity();
-      double resEta = (corrMu1+corrMu2).Eta();
-      if( MuScleFitUtils::debug>19 ) {
-	std::cout << "[MuScleFitUtils-likelihood]: Original/Corrected resonance mass = " << mass
-	     << " / " << corrMass << std::endl;
+      double Y = (corrMu1 + corrMu2).Rapidity();
+      double resEta = (corrMu1 + corrMu2).Eta();
+      if (MuScleFitUtils::debug > 19) {
+        std::cout << "[MuScleFitUtils-likelihood]: Original/Corrected resonance mass = " << mass << " / " << corrMass
+                  << std::endl;
       }
 
       // Compute mass resolution
       // -----------------------
       double massResol = MuScleFitUtils::massResolution(corrMu1, corrMu2, xval);
-      if (MuScleFitUtils::debug>19)
-	std::cout << "[MuScleFitUtils-likelihood]: Resolution is " << massResol << std::endl;
+      if (MuScleFitUtils::debug > 19)
+        std::cout << "[MuScleFitUtils-likelihood]: Resolution is " << massResol << std::endl;
 
       // Compute probability of this mass value including background modeling
       // --------------------------------------------------------------------
-      if (MuScleFitUtils::debug>1) std::cout << "calling massProb inside likelihood function" << std::endl;
+      if (MuScleFitUtils::debug > 1)
+        std::cout << "calling massProb inside likelihood function" << std::endl;
 
       // double prob = MuScleFitUtils::massProb( corrMass, resEta, Y, massResol, xval );
-      double prob = MuScleFitUtils::massProb( corrMass, resEta, Y, massResol, xval, false, corrMu1.eta(), corrMu2.eta() );
-      if (MuScleFitUtils::debug>1) std::cout << "likelihood:massProb = " << prob << std::endl;
+      double prob = MuScleFitUtils::massProb(corrMass, resEta, Y, massResol, xval, false, corrMu1.eta(), corrMu2.eta());
+      if (MuScleFitUtils::debug > 1)
+        std::cout << "likelihood:massProb = " << prob << std::endl;
 
       // Compute likelihood
       // ------------------
-      if( prob>0 ) {
-	// flike += log(prob*10000)*weight; // NNBB! x10000 to see if we can recover the problem of boundary
-	flike += log(prob)*weight;
-	evtsinlik += 1;  // NNBB test: see if likelihood per event is smarter (boundary problem)
+      if (prob > 0) {
+        // flike += log(prob*10000)*weight; // NNBB! x10000 to see if we can recover the problem of boundary
+        flike += log(prob) * weight;
+        evtsinlik += 1;  // NNBB test: see if likelihood per event is smarter (boundary problem)
       } else {
-        if( MuScleFitUtils::debug > 0 ) {
-          std::cout << "WARNING: corrMass = " << corrMass << " outside window, this will cause a discontinuity in the likelihood. Consider increasing the safety bands which are now set to 90% of the normalization window to avoid this problem" << std::endl;
+        if (MuScleFitUtils::debug > 0) {
+          std::cout << "WARNING: corrMass = " << corrMass
+                    << " outside window, this will cause a discontinuity in the likelihood. Consider increasing the "
+                       "safety bands which are now set to 90% of the normalization window to avoid this problem"
+                    << std::endl;
           std::cout << "Original mass was = " << mass << std::endl;
-	  std::cout << "WARNING: massResol = " << massResol << " outside window" << std::endl;
+          std::cout << "WARNING: massResol = " << massResol << " outside window" << std::endl;
         }
-	evtsoutlik += 1;
+        evtsoutlik += 1;
       }
-      if (MuScleFitUtils::debug>19)
-	std::cout << "[MuScleFitUtils-likelihood]: Mass probability = " << prob << std::endl;
-    } // weight!=0
+      if (MuScleFitUtils::debug > 19)
+        std::cout << "[MuScleFitUtils-likelihood]: Mass probability = " << prob << std::endl;
+    }  // weight!=0
 
-  } // End of loop on tree events
+  }  // End of loop on tree events
 
-//   // Protection for low statistic. If the likelihood manages to throw out all the signal
-//   // events and stays with ~ 10 events in the resonance window it could have a better likelihood
-//   // because of ~ uniformly distributed events (a random combination could be good and spoil the fit).
-//   // We require that the number of events included in the fit does not change more than 5% in each minuit loop.
-//   bool lowStatPenalty = false;
-//   if( MuScleFitUtils::minuitLoop_ > 0 ) {
-//     double newEventsOutInRatio = double(evtsinlik);
-//     // double newEventsOutInRatio = double(evtsoutlik)/double(evtsinlik);
-//     double ratio = newEventsOutInRatio/MuScleFitUtils::oldEventsOutInRatio_;
-//     MuScleFitUtils::oldEventsOutInRatio_ = newEventsOutInRatio;
-//     if( ratio < 0.8 || ratio > 1.2 ) {
-//       std::cout << "Warning: too much change from oldEventsInLikelihood to newEventsInLikelihood, ratio is = " << ratio << std::endl;
-//       std::cout << "oldEventsInLikelihood = " << MuScleFitUtils::oldEventsOutInRatio_ << ", newEventsInLikelihood = " << newEventsOutInRatio << std::endl;
-//       lowStatPenalty = true;
-//     }
-//   }
+  //   // Protection for low statistic. If the likelihood manages to throw out all the signal
+  //   // events and stays with ~ 10 events in the resonance window it could have a better likelihood
+  //   // because of ~ uniformly distributed events (a random combination could be good and spoil the fit).
+  //   // We require that the number of events included in the fit does not change more than 5% in each minuit loop.
+  //   bool lowStatPenalty = false;
+  //   if( MuScleFitUtils::minuitLoop_ > 0 ) {
+  //     double newEventsOutInRatio = double(evtsinlik);
+  //     // double newEventsOutInRatio = double(evtsoutlik)/double(evtsinlik);
+  //     double ratio = newEventsOutInRatio/MuScleFitUtils::oldEventsOutInRatio_;
+  //     MuScleFitUtils::oldEventsOutInRatio_ = newEventsOutInRatio;
+  //     if( ratio < 0.8 || ratio > 1.2 ) {
+  //       std::cout << "Warning: too much change from oldEventsInLikelihood to newEventsInLikelihood, ratio is = " << ratio << std::endl;
+  //       std::cout << "oldEventsInLikelihood = " << MuScleFitUtils::oldEventsOutInRatio_ << ", newEventsInLikelihood = " << newEventsOutInRatio << std::endl;
+  //       lowStatPenalty = true;
+  //     }
+  //   }
 
   // It is a product of probabilities, we compare the sqrt_N of them. Thus N becomes a denominator of the logarithm.
-  if( evtsinlik != 0 ) {
-
-    if( MuScleFitUtils::normalizeLikelihoodByEventNumber_ ) {
+  if (evtsinlik != 0) {
+    if (MuScleFitUtils::normalizeLikelihoodByEventNumber_) {
       // && !(MuScleFitUtils::duringMinos_) ) {
-      if( MuScleFitUtils::rminPtr_ == nullptr ) {
+      if (MuScleFitUtils::rminPtr_ == nullptr) {
         std::cout << "ERROR: rminPtr_ = " << MuScleFitUtils::rminPtr_ << ", code will crash" << std::endl;
       }
-      double normalizationArg[] = {1/double(evtsinlik)};
+      double normalizationArg[] = {1 / double(evtsinlik)};
       // Reset the normalizationArg only if it changed
-      if( MuScleFitUtils::oldNormalization_ != normalizationArg[0] ) {
+      if (MuScleFitUtils::oldNormalization_ != normalizationArg[0]) {
         int ierror = 0;
-//         if( MuScleFitUtils::likelihoodInLoop_ != 0 ) {
-//           // This condition is set only when minimizing. Later calls of hesse and minos will not change the value
-//           // This is done to avoid minos being confused by changing the UP parameter during its computation.
-//           MuScleFitUtils::rminPtr_->mnexcm("SET ERR", normalizationArg, 1, ierror);
-//         }
+        //         if( MuScleFitUtils::likelihoodInLoop_ != 0 ) {
+        //           // This condition is set only when minimizing. Later calls of hesse and minos will not change the value
+        //           // This is done to avoid minos being confused by changing the UP parameter during its computation.
+        //           MuScleFitUtils::rminPtr_->mnexcm("SET ERR", normalizationArg, 1, ierror);
+        //         }
         MuScleFitUtils::rminPtr_->mnexcm("SET ERR", normalizationArg, 1, ierror);
-	std::cout << "oldNormalization = " << MuScleFitUtils::oldNormalization_ << " new = " << normalizationArg[0] << std::endl;
+        std::cout << "oldNormalization = " << MuScleFitUtils::oldNormalization_ << " new = " << normalizationArg[0]
+                  << std::endl;
         MuScleFitUtils::oldNormalization_ = normalizationArg[0];
         MuScleFitUtils::normalizationChanged_ += 1;
       }
-      fval = -2.*flike/double(evtsinlik);
+      fval = -2. * flike / double(evtsinlik);
       // fval = -2.*flike;
       //     if( lowStatPenalty ) {
       //       fval *= 100;
       //     }
+    } else {
+      fval = -2. * flike;
     }
-    else {
-      fval = -2.*flike;
-    }
-  }
-  else {
+  } else {
     std::cout << "Problem: Events in likelihood = " << evtsinlik << std::endl;
     fval = 999999999.;
   }
   // fval = -2.*flike;
-  if (MuScleFitUtils::debug>19)
+  if (MuScleFitUtils::debug > 19)
     std::cout << "[MuScleFitUtils-likelihood]: End tree loop with likelihood value = " << fval << std::endl;
 
-//  #ifdef DEBUG
+  //  #ifdef DEBUG
 
-//  if( MuScleFitUtils::minuitLoop_ < 10000 ) {
-  if( MuScleFitUtils::likelihoodInLoop_ != nullptr ) {
+  //  if( MuScleFitUtils::minuitLoop_ < 10000 ) {
+  if (MuScleFitUtils::likelihoodInLoop_ != nullptr) {
     ++MuScleFitUtils::minuitLoop_;
     MuScleFitUtils::likelihoodInLoop_->SetBinContent(MuScleFitUtils::minuitLoop_, fval);
   }
   //  }
   // else std::cout << "minuitLoop over 10000. Not filling histogram" << std::endl;
 
-  std::cout<<"MINUIT loop number "<<MuScleFitUtils::minuitLoop_<<", likelihood = "<<fval<<std::endl;
+  std::cout << "MINUIT loop number " << MuScleFitUtils::minuitLoop_ << ", likelihood = " << fval << std::endl;
 
-  if( MuScleFitUtils::debug > 0 ) {
+  if (MuScleFitUtils::debug > 0) {
     //     if( MuScleFitUtils::duringMinos_ ) {
     //       int parnumber = (int)(MuScleFitUtils::parResol.size()+MuScleFitUtils::parScale.size()+
     //                             MuScleFitUtils::parCrossSection.size()+MuScleFitUtils::parBgr.size());
@@ -1901,14 +1977,14 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
     std::cout << "Events out likelihood = " << evtsoutlik << std::endl;
   }
 
-//  #endif
+  //  #endif
 }
 
 // Mass fitting routine
 // --------------------
-std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
-
-  if (MuScleFitUtils::debug>0) std::cout << "Fitting " << histo->GetName() << std::endl;
+std::vector<TGraphErrors *> MuScleFitUtils::fitMass(TH2F *histo) {
+  if (MuScleFitUtils::debug > 0)
+    std::cout << "Fitting " << histo->GetName() << std::endl;
 
   std::vector<TGraphErrors *> results;
 
@@ -1928,23 +2004,23 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
 
   // Fit with lorentzian peak
   // ------------------------
-  TF1 *fitFcn = new TF1 ("fitFcn", lorentzianPeak, 70, 110, 3);
-  fitFcn->SetParameters (100, 3, 91);
-  fitFcn->SetParNames ("Ftop", "Fwidth", "Fmass");
-  fitFcn->SetLineWidth (2);
+  TF1 *fitFcn = new TF1("fitFcn", lorentzianPeak, 70, 110, 3);
+  fitFcn->SetParameters(100, 3, 91);
+  fitFcn->SetParNames("Ftop", "Fwidth", "Fmass");
+  fitFcn->SetLineWidth(2);
 
   // Fit slices projected along Y from bins in X
   // -------------------------------------------
-  double cont_min = 20;    // Minimum number of entries
+  double cont_min = 20;  // Minimum number of entries
   Int_t binx = histo->GetXaxis()->GetNbins();
   // TFile *f= new TFile("prova.root", "recreate");
   // histo->Write();
-  for (int i=1; i<=binx; i++) {
-    TH1 * histoY = histo->ProjectionY ("", i, i);
+  for (int i = 1; i <= binx; i++) {
+    TH1 *histoY = histo->ProjectionY("", i, i);
     // histoY->Write();
     double cont = histoY->GetEntries();
-    if (cont>cont_min) {
-      histoY->Fit ("fitFcn", "0", "", 70, 110);
+    if (cont > cont_min) {
+      histoY->Fit("fitFcn", "0", "", 70, 110);
       double *par = fitFcn->GetParameters();
       const double *err = fitFcn->GetParErrors();
 
@@ -1960,7 +2036,7 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
 
       double xx = histo->GetXaxis()->GetBinCenter(i);
       Xcenter.push_back(xx);
-      double ex = 0; // FIXME: you can use the bin width
+      double ex = 0;  // FIXME: you can use the bin width
       Ex.push_back(ex);
     }
   }
@@ -1969,36 +2045,36 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
   // Put the fit results in arrays for TGraphErrors
   // ----------------------------------------------
   const int nn = Fmass.size();
-  double *x    = new double[nn];
-  double *ym   = new double[nn];
-  double *e    = new double[nn];
-  double *eym  = new double[nn];
-  double *yw   = new double[nn];
-  double *eyw  = new double[nn];
-  double *yc   = new double[nn];
+  double *x = new double[nn];
+  double *ym = new double[nn];
+  double *e = new double[nn];
+  double *eym = new double[nn];
+  double *yw = new double[nn];
+  double *eyw = new double[nn];
+  double *yc = new double[nn];
 
-  for (int j=0; j<nn; j++) {
-    x[j]   = Xcenter[j];
-    ym[j]  = Fmass[j];
+  for (int j = 0; j < nn; j++) {
+    x[j] = Xcenter[j];
+    ym[j] = Fmass[j];
     eym[j] = Emass[j];
-    yw[j]  = Fwidth[j];
+    yw[j] = Fwidth[j];
     eyw[j] = Ewidth[j];
-    yc[j]  = Fchi2[j];
-    e[j]   = Ex[j];
+    yc[j] = Fchi2[j];
+    e[j] = Ex[j];
   }
 
   // Create TGraphErrors
   // -------------------
   TString name = histo->GetName();
-  TGraphErrors *grM = new TGraphErrors (nn, x, ym, e, eym);
-  grM->SetTitle (name+"_M");
-  grM->SetName (name+"_M");
-  TGraphErrors *grW = new TGraphErrors (nn, x, yw, e, eyw);
-  grW->SetTitle (name+"_W");
-  grW->SetName (name+"_W");
-  TGraphErrors *grC = new TGraphErrors (nn, x, yc, e, e);
-  grC->SetTitle (name+"_chi2");
-  grC->SetName (name+"_chi2");
+  TGraphErrors *grM = new TGraphErrors(nn, x, ym, e, eym);
+  grM->SetTitle(name + "_M");
+  grM->SetName(name + "_M");
+  TGraphErrors *grW = new TGraphErrors(nn, x, yw, e, eyw);
+  grW->SetTitle(name + "_W");
+  grW->SetName(name + "_W");
+  TGraphErrors *grC = new TGraphErrors(nn, x, yc, e, e);
+  grC->SetTitle(name + "_chi2");
+  grC->SetName(name + "_chi2");
 
   // Cleanup
   // -------
@@ -2019,7 +2095,7 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
 
 // Resolution fitting routine
 // --------------------------
-std::vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
+std::vector<TGraphErrors *> MuScleFitUtils::fitReso(TH2F *histo) {
   std::cout << "Fitting " << histo->GetName() << std::endl;
   std::vector<TGraphErrors *> results;
 
@@ -2040,75 +2116,75 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
 
   // Fit with a gaussian
   // -------------------
-  TF1 *fitFcn = new TF1 ("fitFunc", Gaussian, -0.2, 0.2, 3);
-  fitFcn->SetParameters (100, 0, 0.02);
-  fitFcn->SetParNames ("max", "mean", "sigma");
-  fitFcn->SetLineWidth (2);
+  TF1 *fitFcn = new TF1("fitFunc", Gaussian, -0.2, 0.2, 3);
+  fitFcn->SetParameters(100, 0, 0.02);
+  fitFcn->SetParNames("max", "mean", "sigma");
+  fitFcn->SetLineWidth(2);
 
   // Fit slices projected along Y from bins in X
   // -------------------------------------------
-  double cont_min = 20;    // Minimum number of entries
+  double cont_min = 20;  // Minimum number of entries
   Int_t binx = histo->GetXaxis()->GetNbins();
-  for (int i=1; i<=binx; i++) {
-    TH1 * histoY = histo->ProjectionY ("", i, i);
+  for (int i = 1; i <= binx; i++) {
+    TH1 *histoY = histo->ProjectionY("", i, i);
     double cont = histoY->GetEntries();
-    if (cont>cont_min) {
-      histoY->Fit ("fitFunc", "0", "", -0.2, 0.2);
+    if (cont > cont_min) {
+      histoY->Fit("fitFunc", "0", "", -0.2, 0.2);
       double *par = fitFcn->GetParameters();
       const double *err = fitFcn->GetParErrors();
 
-      maxs.push_back (par[0]);
-      means.push_back (par[1]);
-      sigmas.push_back (par[2]);
-      Emaxs.push_back (err[0]);
-      Emeans.push_back (err[1]);
-      Esigmas.push_back (err[2]);
+      maxs.push_back(par[0]);
+      means.push_back(par[1]);
+      sigmas.push_back(par[2]);
+      Emaxs.push_back(err[0]);
+      Emeans.push_back(err[1]);
+      Esigmas.push_back(err[2]);
 
       double chi2 = fitFcn->GetChisquare();
-      chi2s.push_back (chi2);
+      chi2s.push_back(chi2);
 
       double xx = histo->GetXaxis()->GetBinCenter(i);
-      Xcenter.push_back (xx);
-      double ex = 0; // FIXME: you can use the bin width
-      Ex.push_back (ex);
+      Xcenter.push_back(xx);
+      double ex = 0;  // FIXME: you can use the bin width
+      Ex.push_back(ex);
     }
   }
 
   // Put the fit results in arrays for TGraphErrors
   // ----------------------------------------------
   const int nn = means.size();
-  double *x    = new double[nn];
-  double *ym   = new double[nn];
-  double *e    = new double[nn];
-  double *eym  = new double[nn];
-  double *yw   = new double[nn];
-  double *eyw  = new double[nn];
-  double *yc   = new double[nn];
+  double *x = new double[nn];
+  double *ym = new double[nn];
+  double *e = new double[nn];
+  double *eym = new double[nn];
+  double *yw = new double[nn];
+  double *eyw = new double[nn];
+  double *yc = new double[nn];
 
-  for (int j=0; j<nn; j++) {
-    x[j]   = Xcenter[j];
-    ym[j]  = means[j];
+  for (int j = 0; j < nn; j++) {
+    x[j] = Xcenter[j];
+    ym[j] = means[j];
     eym[j] = Emeans[j];
     // yw[j]  = maxs[j];
     // eyw[j] = Emaxs[j];
-    yw[j]  = sigmas[j];
+    yw[j] = sigmas[j];
     eyw[j] = Esigmas[j];
-    yc[j]  = chi2s[j];
-    e[j]   = Ex[j];
+    yc[j] = chi2s[j];
+    e[j] = Ex[j];
   }
 
   // Create TGraphErrors
   // -------------------
   TString name = histo->GetName();
-  TGraphErrors *grM = new TGraphErrors (nn, x, ym, e, eym);
-  grM->SetTitle (name+"_mean");
-  grM->SetName (name+"_mean");
-  TGraphErrors *grW = new TGraphErrors (nn, x, yw, e, eyw);
-  grW->SetTitle (name+"_sigma");
-  grW->SetName (name+"_sigma");
-  TGraphErrors *grC = new TGraphErrors (nn, x, yc, e, e);
-  grC->SetTitle (name+"_chi2");
-  grC->SetName (name+"_chi2");
+  TGraphErrors *grM = new TGraphErrors(nn, x, ym, e, eym);
+  grM->SetTitle(name + "_mean");
+  grM->SetName(name + "_mean");
+  TGraphErrors *grW = new TGraphErrors(nn, x, yw, e, eyw);
+  grW->SetTitle(name + "_sigma");
+  grW->SetName(name + "_sigma");
+  TGraphErrors *grC = new TGraphErrors(nn, x, yc, e, e);
+  grC->SetTitle(name + "_chi2");
+  grC->SetName(name + "_chi2");
 
   // Cleanup
   // -------
@@ -2121,16 +2197,15 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
   delete[] e;
   delete fitFcn;
 
-  results.push_back (grM);
-  results.push_back (grW);
-  results.push_back (grC);
+  results.push_back(grM);
+  results.push_back(grW);
+  results.push_back(grC);
   return results;
 }
 
 // Mass probability for likelihood computation - no-background version (not used anymore)
 // --------------------------------------------------------------------------------------
-double MuScleFitUtils::massProb( const double & mass, const double & rapidity, const int ires, const double & massResol )
-{
+double MuScleFitUtils::massProb(const double &mass, const double &rapidity, const int ires, const double &massResol) {
   // This routine computes the likelihood that a given measured mass "measMass" is
   // the result of resonance #ires if the resolution expected for the two muons is massResol
   // ---------------------------------------------------------------------------------------
@@ -2139,12 +2214,12 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
 
   // Return Lorentz value for zero resolution cases (like MC)
   // --------------------------------------------------------
-  if (massResol==0.) {
-    if (debug>9) std::cout <<  "Mass, gamma , mref, width, P: " << mass
-		      << " " << ResGamma[ires] << " " << ResMass[ires]<< " " << massResol
-		      << " : used Lorentz P-value" << std::endl;
-    return (0.5*ResGamma[ires]/TMath::Pi())/((mass-ResMass[ires])*(mass-ResMass[ires])+
-					     .25*ResGamma[ires]*ResGamma[ires]);
+  if (massResol == 0.) {
+    if (debug > 9)
+      std::cout << "Mass, gamma , mref, width, P: " << mass << " " << ResGamma[ires] << " " << ResMass[ires] << " "
+                << massResol << " : used Lorentz P-value" << std::endl;
+    return (0.5 * ResGamma[ires] / TMath::Pi()) /
+           ((mass - ResMass[ires]) * (mass - ResMass[ires]) + .25 * ResGamma[ires] * ResGamma[ires]);
   }
 
   // NB defined as below, P is not a "probability" but a likelihood that we observe
@@ -2163,58 +2238,61 @@ double MuScleFitUtils::massProb( const double & mass, const double & rapidity, c
   // P = GL->Integral(mass-5*massResol, mass+5*massResol);
 
   Int_t np = 100;
-  double * x = new double[np];
-  double * w = new double[np];
-  GL->SetParameters (ResGamma[ires], ResMass[ires], mass, massResol);
-  GL->CalcGaussLegendreSamplingPoints (np, x, w, 0.1e-15);
-  P = GL->IntegralFast (np, x, w, ResMass[ires]-10*ResGamma[ires], ResMass[ires]+10*ResGamma[ires]);
+  double *x = new double[np];
+  double *w = new double[np];
+  GL->SetParameters(ResGamma[ires], ResMass[ires], mass, massResol);
+  GL->CalcGaussLegendreSamplingPoints(np, x, w, 0.1e-15);
+  P = GL->IntegralFast(np, x, w, ResMass[ires] - 10 * ResGamma[ires], ResMass[ires] + 10 * ResGamma[ires]);
   delete[] x;
   delete[] w;
 
   // If we are too far away we set P to epsilon and forget about this event
   // ----------------------------------------------------------------------
-  if (P<1.0e-12) {
+  if (P < 1.0e-12) {
     P = 1.0e-12;
-    if (debug>9) std::cout << "Mass, gamma , mref, width, P: " << mass
-		      << " " << ResGamma[ires] << " " << ResMass[ires] << " " << massResol
-		      << ": used epsilon" << std::endl;
+    if (debug > 9)
+      std::cout << "Mass, gamma , mref, width, P: " << mass << " " << ResGamma[ires] << " " << ResMass[ires] << " "
+                << massResol << ": used epsilon" << std::endl;
     return P;
   }
 
-  if (debug>9) std::cout << "Mass, gamma , mref, width, P: " << mass
-		    << " " << ResGamma[ires] << " " << ResMass[ires] << " " << massResol
-		    << " " << P << std::endl;
+  if (debug > 9)
+    std::cout << "Mass, gamma , mref, width, P: " << mass << " " << ResGamma[ires] << " " << ResMass[ires] << " "
+              << massResol << " " << P << std::endl;
   return P;
 }
 
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const edm::Handle<edm::HepMCProduct> & evtMC,
-									  const edm::Handle<edm::SimTrackContainer> & simTracks )
-{
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes(
+    const edm::Handle<edm::HepMCProduct> &evtMC, const edm::Handle<edm::SimTrackContainer> &simTracks) {
   //Loop on simulated tracks
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
-  for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
+  for (edm::SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     //Chose muons
-    if (std::abs((*simTrack).type())==13) {
+    if (std::abs((*simTrack).type()) == 13) {
       //If tracks from IP than find mother
-      if ((*simTrack).genpartIndex()>0) {
-	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
-        if( gp != nullptr ) {
-
+      if ((*simTrack).genpartIndex() > 0) {
+        HepMC::GenParticle *gp = evtMC->GetEvent()->barcode_to_particle((*simTrack).genpartIndex());
+        if (gp != nullptr) {
           for (HepMC::GenVertex::particle_iterator mother = gp->production_vertex()->particles_begin(HepMC::ancestors);
-               mother!=gp->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
-
+               mother != gp->production_vertex()->particles_end(HepMC::ancestors);
+               ++mother) {
             bool fromRes = false;
             unsigned int motherPdgId = (*mother)->pdg_id();
-            for( int ires = 0; ires < 6; ++ires ) {
-              if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+            for (int ires = 0; ires < 6; ++ires) {
+              if (motherPdgId == motherPdgIdArray[ires] && resfind[ires])
+                fromRes = true;
             }
-            if( fromRes ) {
-              if(gp->pdg_id() == 13)
-                simMuFromRes.first = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-                                                   simTrack->momentum().pz(),simTrack->momentum().e());
+            if (fromRes) {
+              if (gp->pdg_id() == 13)
+                simMuFromRes.first = lorentzVector(simTrack->momentum().px(),
+                                                   simTrack->momentum().py(),
+                                                   simTrack->momentum().pz(),
+                                                   simTrack->momentum().e());
               else
-                simMuFromRes.second = lorentzVector(simTrack->momentum().px(),simTrack->momentum().py(),
-                                                    simTrack->momentum().pz(),simTrack->momentum().e());
+                simMuFromRes.second = lorentzVector(simTrack->momentum().px(),
+                                                    simTrack->momentum().py(),
+                                                    simTrack->momentum().pz(),
+                                                    simTrack->momentum().e());
             }
           }
         }
@@ -2225,73 +2303,76 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const 
   return simMuFromRes;
 }
 
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const edm::HepMCProduct* evtMC )
-{
-  const HepMC::GenEvent* Evt = evtMC->GetEvent();
-  std::pair<lorentzVector,lorentzVector> muFromRes;
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes(const edm::HepMCProduct *evtMC) {
+  const HepMC::GenEvent *Evt = evtMC->GetEvent();
+  std::pair<lorentzVector, lorentzVector> muFromRes;
   //Loop on generated particles
-  for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin();
-       part!=Evt->particles_end(); part++) {
-    if (std::abs((*part)->pdg_id())==13 && (*part)->status()==1) {
+  for (HepMC::GenEvent::particle_const_iterator part = Evt->particles_begin(); part != Evt->particles_end(); part++) {
+    if (std::abs((*part)->pdg_id()) == 13 && (*part)->status() == 1) {
       bool fromRes = false;
       for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
-	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
+           mother != (*part)->production_vertex()->particles_end(HepMC::ancestors);
+           ++mother) {
         unsigned int motherPdgId = (*mother)->pdg_id();
 
         // For sherpa the resonance is not saved. The muons from the resonance can be identified
         // by having as mother a muon of status 3.
-        if( sherpa_ ) {
-          if( motherPdgId == 13 && (*mother)->status() == 3 ) fromRes = true;
-        }
-        else {
-          for( int ires = 0; ires < 6; ++ires ) {
-	    if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+        if (sherpa_) {
+          if (motherPdgId == 13 && (*mother)->status() == 3)
+            fromRes = true;
+        } else {
+          for (int ires = 0; ires < 6; ++ires) {
+            if (motherPdgId == motherPdgIdArray[ires] && resfind[ires])
+              fromRes = true;
           }
         }
       }
-      if(fromRes){
-	if((*part)->pdg_id()==13)
-	  //   muFromRes.first = (*part)->momentum();
-	  muFromRes.first = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-					   (*part)->momentum().pz(),(*part)->momentum().e()));
-	else
-	  muFromRes.second = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
-					    (*part)->momentum().pz(),(*part)->momentum().e()));
+      if (fromRes) {
+        if ((*part)->pdg_id() == 13)
+          //   muFromRes.first = (*part)->momentum();
+          muFromRes.first = (lorentzVector(
+              (*part)->momentum().px(), (*part)->momentum().py(), (*part)->momentum().pz(), (*part)->momentum().e()));
+        else
+          muFromRes.second = (lorentzVector(
+              (*part)->momentum().px(), (*part)->momentum().py(), (*part)->momentum().pz(), (*part)->momentum().e()));
       }
     }
   }
   return muFromRes;
 }
 
-std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const reco::GenParticleCollection* genParticles)
-{
-  std::pair<lorentzVector,lorentzVector> muFromRes;
+std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes(
+    const reco::GenParticleCollection *genParticles) {
+  std::pair<lorentzVector, lorentzVector> muFromRes;
 
   //Loop on generated particles
-  if( debug>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
-  for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (std::abs(part->pdgId())==13 && part->status()==1) {
+  if (debug > 0)
+    std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
+  for (reco::GenParticleCollection::const_iterator part = genParticles->begin(); part != genParticles->end(); ++part) {
+    if (std::abs(part->pdgId()) == 13 && part->status() == 1) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
-      if( debug>0 ) {
-	std::cout << "Found a muon with mother: " << motherPdgId << std::endl;
+      if (debug > 0) {
+        std::cout << "Found a muon with mother: " << motherPdgId << std::endl;
       }
-      for( int ires = 0; ires < 6; ++ires ) {
-	if( motherPdgId == motherPdgIdArray[ires] && resfind[ires] ) fromRes = true;
+      for (int ires = 0; ires < 6; ++ires) {
+        if (motherPdgId == motherPdgIdArray[ires] && resfind[ires])
+          fromRes = true;
       }
-      if(fromRes){
-	if(part->pdgId()==13) {
-	  muFromRes.first = part->p4();
-	  if( debug>0 ) std::cout << "Found a genMuon + : " << muFromRes.first << std::endl;
-	  // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
-	  // 					   part->p4().pz(),part->p4().e()));
-	}
-	else {
-	  muFromRes.second = part->p4();
-	  if( debug>0 ) std::cout << "Found a genMuon - : " << muFromRes.second << std::endl;
-	  // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
-	  // 					    part->p4().pz(),part->p4().e()));
-	}
+      if (fromRes) {
+        if (part->pdgId() == 13) {
+          muFromRes.first = part->p4();
+          if (debug > 0)
+            std::cout << "Found a genMuon + : " << muFromRes.first << std::endl;
+          // 	  muFromRes.first = (lorentzVector(part->p4().px(),part->p4().py(),
+          // 					   part->p4().pz(),part->p4().e()));
+        } else {
+          muFromRes.second = part->p4();
+          if (debug > 0)
+            std::cout << "Found a genMuon - : " << muFromRes.second << std::endl;
+          // 	  muFromRes.second = (lorentzVector(part->p4().px(),part->p4().py(),
+          // 					    part->p4().pz(),part->p4().e()));
+        }
       }
     }
   }

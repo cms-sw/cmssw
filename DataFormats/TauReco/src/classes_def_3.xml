@@ -1,25 +1,4 @@
 <lcgdict>
-  <!-- Duplicate of CaloTauDiscriminatorByIsolationBase
-  causes duplicate definition link error in ROOT6
-  <class name="reco::CaloTauDiscriminatorAgainstElectronBase">
-    <field name="transientVector_" transient="true"/>
-  </class>
-  -->
-  <class name="reco::CaloTauDiscriminatorAgainstElectron" ClassVersion="11">
-   <version ClassVersion="10" checksum="3692008801"/>
-   <version ClassVersion="11" checksum="212621489"/>
-    <!-- <field name="transientVector_" transient="true"/> -->
-  </class>
-  <class name="reco::CaloTauDiscriminatorAgainstElectronRef"/>
-  <class name="reco::CaloTauDiscriminatorAgainstElectronRefProd"/>
-  <class name="reco::CaloTauDiscriminatorAgainstElectronRefVector"/>
-  <class name="edm::Wrapper<reco::CaloTauDiscriminatorAgainstElectron>"/>
-  
-  <class name="std::pair<reco::CaloTauRef, int>"/>
-  <class name="std::vector<std::pair<reco::CaloTauRef, int> >" />
-
-  <class name="std::pair<reco::CaloTauRef, float>"/>
-  <class name="std::vector<std::pair<reco::CaloTauRef, float> >" />
 
   <class name="reco::PFTauDiscriminatorByIsolationBase">
     <field name="transientVector_" transient="true"/>

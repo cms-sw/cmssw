@@ -6,43 +6,37 @@
 
 namespace btag {
 
-template<typename T>
-class SimpleMatrix {
-    public:
-	typedef T					value_type;
-	typedef typename std::vector<T>::size_type	size_type;
+  template <typename T>
+  class SimpleMatrix {
+  public:
+    typedef T value_type;
+    typedef typename std::vector<T>::size_type size_type;
 
-	SimpleMatrix(size_type rows, size_type cols) :
-		width(cols), height(rows), container(rows * cols) {}
+    SimpleMatrix(size_type rows, size_type cols) : width(cols), height(rows), container(rows * cols) {}
 
-	~SimpleMatrix() {}
+    ~SimpleMatrix() {}
 
-	inline size_type rows() const { return height; }
-	inline size_type cols() const { return width; }
-	inline size_type size() const { return container.size(); }
+    inline size_type rows() const { return height; }
+    inline size_type cols() const { return width; }
+    inline size_type size() const { return container.size(); }
 
-	inline double &operator () (size_type row, size_type col)
-	{ return container[index(row, col)]; }
-	inline double operator () (size_type row, size_type col) const
-	{ return container[index(row, col)]; }
+    inline double &operator()(size_type row, size_type col) { return container[index(row, col)]; }
+    inline double operator()(size_type row, size_type col) const { return container[index(row, col)]; }
 
-	inline double &operator [] (size_type index)
-	{ return container[index]; }
-	inline double operator [] (size_type index) const
-	{ return container[index]; }
+    inline double &operator[](size_type index) { return container[index]; }
+    inline double operator[](size_type index) const { return container[index]; }
 
-	inline size_type row(size_type index) const { return index / width; }
-	inline size_type col(size_type index) const { return index % width; }
+    inline size_type row(size_type index) const { return index / width; }
+    inline size_type col(size_type index) const { return index % width; }
 
-    protected:
-	size_type index(size_type row, size_type col) const
-	{ return row * width + col; }
+  protected:
+    size_type index(size_type row, size_type col) const { return row * width + col; }
 
-    private:
-	size_type	width, height;
-	std::vector<T>	container;
-};
+  private:
+    size_type width, height;
+    std::vector<T> container;
+  };
 
-} // namespace btag
+}  // namespace btag
 
-#endif // GeneratorEvent_Analysis_SimpleMatrix_h
+#endif  // GeneratorEvent_Analysis_SimpleMatrix_h

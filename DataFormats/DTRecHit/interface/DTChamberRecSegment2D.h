@@ -29,42 +29,38 @@
 /* Class DTChamberRecSegment2D Interface */
 
 class DTChamberRecSegment2D : public DTRecSegment2D {
-
- public:
-  
-  /// empty c'tor 
+public:
+  /// empty c'tor
   DTChamberRecSegment2D() {}
 
   /// c'tor from hits
-  DTChamberRecSegment2D(DTChamberId id, const std::vector<DTRecHit1D>& hits) ;
-  
+  DTChamberRecSegment2D(DTChamberId id, const std::vector<DTRecHit1D> &hits);
+
   /// complete constructor
-  DTChamberRecSegment2D(DTChamberId id, 
-			LocalPoint &position, LocalVector &direction,
-			AlgebraicSymMatrix & covMatrix, double chi2, 
-			std::vector<DTRecHit1D> &hits1D);
-  
+  DTChamberRecSegment2D(DTChamberId id,
+                        LocalPoint &position,
+                        LocalVector &direction,
+                        AlgebraicSymMatrix &covMatrix,
+                        double chi2,
+                        std::vector<DTRecHit1D> &hits1D);
+
   /// Destructor
   ~DTChamberRecSegment2D() override{};
 
-  /* Operations */ 
+  /* Operations */
 
   /// The clone method needed by the clone policy
-  DTChamberRecSegment2D* clone() const override;
-  
+  DTChamberRecSegment2D *clone() const override;
+
   /// The id of the chamber on which reside the segment
   DTChamberId chamberId() const;
 
- private:
+private:
   // in DTSegmentCand, setPosition and setDirection can be used
-  friend class DTSegmentCand; 
+  friend class DTSegmentCand;
   friend class DTSegmentUpdator;
-  void setChamberId(DTChamberId chId){ setId(chId);}
+  void setChamberId(DTChamberId chId) { setId(chId); }
 
- protected:
-
-
-
+protected:
 };
-#endif // DTRecHit_DTChamberRecSegment2D_h
-
+#endif  // DTRecHit_DTChamberRecSegment2D_h

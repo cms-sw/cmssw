@@ -1,5 +1,5 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "TNamed.h"
 #include "TH1.h"
 #include "TH1C.h"
@@ -15,11 +15,11 @@
 #include "TH2D.h"
 #include "TProfile.h"
 
-// -----------------------------------------------------------------------------  
+// -----------------------------------------------------------------------------
 //
-template<class T> 
-T* ExtractTObject<T>::extract( MonitorElement* me ) {
-    return me ? dynamic_cast<T*>(me->getRootObject()) : nullptr;
+template <class T>
+T* ExtractTObject<T>::extract(MonitorElement* me) {
+  return me ? dynamic_cast<T*>(me->getRootObject()) : nullptr;
 }
 // -----------------------------------------------------------------------------
 //
@@ -36,4 +36,3 @@ template class ExtractTObject<TH2I>;
 template class ExtractTObject<TH2F>;
 template class ExtractTObject<TH2D>;
 template class ExtractTObject<TProfile>;
-

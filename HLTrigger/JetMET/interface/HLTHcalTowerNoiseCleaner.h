@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"   
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
@@ -17,18 +17,17 @@
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTHcalTowerNoiseCleaner : public edm::stream::EDProducer<> {
-  
- public:
+public:
   explicit HLTHcalTowerNoiseCleaner(const edm::ParameterSet&);
   ~HLTHcalTowerNoiseCleaner() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::EDGetTokenT<reco::HcalNoiseRBXCollection> m_theHcalNoiseToken;
   edm::EDGetTokenT<CaloTowerCollection> m_theCaloTowerCollectionToken;
   // parameters
@@ -54,15 +53,15 @@ class HLTHcalTowerNoiseCleaner : public edm::stream::EDProducer<> {
 
   double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;
-  std::vector<std::pair<double, double> > TS4TS5LowerCut_;  
+  std::vector<std::pair<double, double> > TS4TS5LowerCut_;
 
   // helper function to compare noise data energies
   struct noisedatacomp {
-    inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const{
-      return t1.energy()>t2.energy();
+    inline bool operator()(const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) const {
+      return t1.energy() > t2.energy();
     }
   };
   typedef std::set<CommonHcalNoiseRBXData, noisedatacomp> noisedataset_t;
 };
 
-#endif //HLTHcalTowerNoiseCleaner_h
+#endif  //HLTHcalTowerNoiseCleaner_h

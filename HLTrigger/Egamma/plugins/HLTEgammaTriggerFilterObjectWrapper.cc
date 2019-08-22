@@ -22,57 +22,60 @@
 //
 // constructors and destructor
 //
-HLTEgammaTriggerFilterObjectWrapper::HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
-{
-   candIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candIsolatedTag");
-   candNonIsolatedTag_ = iConfig.getParameter< edm::InputTag > ("candNonIsolatedTag");
-   doIsolated_   = iConfig.getParameter<bool>("doIsolated");
-   candIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candIsolatedTag_);
-   if(!doIsolated_) candNonIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candNonIsolatedTag_);
+HLTEgammaTriggerFilterObjectWrapper::HLTEgammaTriggerFilterObjectWrapper(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig) {
+  candIsolatedTag_ = iConfig.getParameter<edm::InputTag>("candIsolatedTag");
+  candNonIsolatedTag_ = iConfig.getParameter<edm::InputTag>("candNonIsolatedTag");
+  doIsolated_ = iConfig.getParameter<bool>("doIsolated");
+  candIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candIsolatedTag_);
+  if (!doIsolated_)
+    candNonIsolatedToken_ = consumes<reco::RecoEcalCandidateCollection>(candNonIsolatedTag_);
 }
 
-void
-HLTEgammaTriggerFilterObjectWrapper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void HLTEgammaTriggerFilterObjectWrapper::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
-  desc.add<edm::InputTag>("candIsolatedTag",edm::InputTag("hltL1IsoRecoEcalCandidate"));
-  desc.add<edm::InputTag>("candNonIsolatedTag",edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
-  desc.add<bool>("doIsolated",false);
-  descriptions.add("hltEgammaTriggerFilterObjectWrapper",desc);
+  desc.add<edm::InputTag>("candIsolatedTag", edm::InputTag("hltL1IsoRecoEcalCandidate"));
+  desc.add<edm::InputTag>("candNonIsolatedTag", edm::InputTag("hltL1NonIsoRecoEcalCandidate"));
+  desc.add<bool>("doIsolated", false);
+  descriptions.add("hltEgammaTriggerFilterObjectWrapper", desc);
 }
 
-HLTEgammaTriggerFilterObjectWrapper::~HLTEgammaTriggerFilterObjectWrapper()= default;
-
+HLTEgammaTriggerFilterObjectWrapper::~HLTEgammaTriggerFilterObjectWrapper() = default;
 
 // ------------ method called to produce the data  ------------
-bool HLTEgammaTriggerFilterObjectWrapper::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
-{
+bool HLTEgammaTriggerFilterObjectWrapper::hltFilter(edm::Event& iEvent,
+                                                    const edm::EventSetup& iSetup,
+                                                    trigger::TriggerFilterObjectWithRefs& filterproduct) const {
   using namespace trigger;
   using namespace l1extra;
 
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoIsolecalcands;
-  iEvent.getByToken(candIsolatedToken_,recoIsolecalcands);
+  iEvent.getByToken(candIsolatedToken_, recoIsolecalcands);
 
   edm::Ref<reco::RecoEcalCandidateCollection> ref;
   // transform the L1Iso_RecoEcalCandidate into the TriggerFilterObjectWithRefs
-  for (auto recoecalcand= recoIsolecalcands->begin(); recoecalcand!=recoIsolecalcands->end(); recoecalcand++) {
-    ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand) );
+  for (auto recoecalcand = recoIsolecalcands->begin(); recoecalcand != recoIsolecalcands->end(); recoecalcand++) {
+    ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands,
+                                                      distance(recoIsolecalcands->begin(), recoecalcand));
     filterproduct.addObject(TriggerCluster, ref);
   }
 
-  if(!doIsolated_) {
+  if (!doIsolated_) {
     // transform the L1NonIso_RecoEcalCandidate into the TriggerFilterObjectWithRefs and add them to the L1Iso ones.
     edm::Handle<reco::RecoEcalCandidateCollection> recoNonIsolecalcands;
-    iEvent.getByToken(candNonIsolatedToken_,recoNonIsolecalcands);
-    for (auto recoecalcand= recoNonIsolecalcands->begin(); recoecalcand!=recoNonIsolecalcands->end(); recoecalcand++) {
-      ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand) );
+    iEvent.getByToken(candNonIsolatedToken_, recoNonIsolecalcands);
+    for (auto recoecalcand = recoNonIsolecalcands->begin(); recoecalcand != recoNonIsolecalcands->end();
+         recoecalcand++) {
+      ref = edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands,
+                                                        distance(recoNonIsolecalcands->begin(), recoecalcand));
       filterproduct.addObject(TriggerCluster, ref);
     }
   }
 
   return true;
- }
+}
 
 // declare this class as a framework plugin
 #include "FWCore/Framework/interface/MakerMacros.h"

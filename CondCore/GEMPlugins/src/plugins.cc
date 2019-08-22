@@ -15,8 +15,7 @@
 #include "CondFormats/DataRecord/interface/GEMMaskedStripsRcd.h"
 #include "CondFormats/GEMObjects/interface/GEMDeadStrips.h"
 #include "CondFormats/DataRecord/interface/GEMDeadStripsRcd.h"
-REGISTER_PLUGIN(GEMELMapRcd,GEMELMap);
-REGISTER_PLUGIN(GEMeMapRcd,GEMeMap);
+REGISTER_PLUGIN(GEMELMapRcd, GEMELMap);
+REGISTER_PLUGIN(GEMeMapRcd, GEMeMap);
 REGISTER_PLUGIN(GEMMaskedStripsRcd, GEMMaskedStrips);
 REGISTER_PLUGIN(GEMDeadStripsRcd, GEMDeadStrips);
-

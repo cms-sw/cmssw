@@ -19,33 +19,27 @@ namespace CLHEP {
 }
 
 class BTLElectronicsSim {
- public:
+public:
   BTLElectronicsSim(const edm::ParameterSet& pset);
-  
-  void getEvent(const edm::Event& evt) { }
 
-  void getEventSetup(const edm::EventSetup& evt) { }
+  void getEvent(const edm::Event& evt) {}
 
+  void getEventSetup(const edm::EventSetup& evt) {}
 
-  void run(const mtd::MTDSimHitDataAccumulator& input,
-	   BTLDigiCollection& output,
-	   CLHEP::HepRandomEngine *hre) const;
+  void run(const mtd::MTDSimHitDataAccumulator& input, BTLDigiCollection& output, CLHEP::HepRandomEngine* hre) const;
 
-  void runTrivialShaper(BTLDataFrame &dataFrame, 
-			const mtd::MTDSimHitData& chargeColl,
-			const mtd::MTDSimHitData& toa1,
-			const mtd::MTDSimHitData& toa2,
-			const uint8_t row,
-			const uint8_t col) const;
+  void runTrivialShaper(BTLDataFrame& dataFrame,
+                        const mtd::MTDSimHitData& chargeColl,
+                        const mtd::MTDSimHitData& toa1,
+                        const mtd::MTDSimHitData& toa2,
+                        const uint8_t row,
+                        const uint8_t col) const;
 
-  void updateOutput(BTLDigiCollection &coll,
-		    const BTLDataFrame& rawDataFrame) const;
+  void updateOutput(BTLDigiCollection& coll, const BTLDataFrame& rawDataFrame) const;
 
   static constexpr int dfSIZE = 2;
 
-
- private:
-
+private:
   float sigma2_pe(const float& Q, const float& R) const;
 
   const bool debug_;
@@ -71,7 +65,7 @@ class BTLElectronicsSim {
   const float Npe_to_V_;
 
   // adc/tdc bitwidths
-  const uint32_t adcNbits_, tdcNbits_; 
+  const uint32_t adcNbits_, tdcNbits_;
 
   // synthesized adc/tdc information
   const float adcSaturation_MIP_;
@@ -91,8 +85,7 @@ class BTLElectronicsSim {
   const float SigmaElectronicNoise2_;
   const float SigmaClock2_;
 
-  const BTLPulseShape btlPulseShape_; 
-
+  const BTLPulseShape btlPulseShape_;
 };
 
 #endif

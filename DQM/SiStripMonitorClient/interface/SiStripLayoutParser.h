@@ -14,23 +14,18 @@
 #include <string>
 #include <map>
 
-
 class SiStripLayoutParser : public DQMParserBase {
-
- public:
-  
-
+public:
   // Constructor
   SiStripLayoutParser();
-  
+
   // Destructor
   ~SiStripLayoutParser() override;
 
   // Get list of Layouts for ME groups
-  bool getAllLayouts(std::map< std::string, std::vector<std::string> >& me_names);
+  bool getAllLayouts(std::map<std::string, std::vector<std::string> >& me_names);
 
- private:
-  
+private:
 };
 
 #endif

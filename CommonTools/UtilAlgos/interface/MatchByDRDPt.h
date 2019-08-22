@@ -8,20 +8,18 @@
 #include "CommonTools/UtilAlgos/interface/MatchByDR.h"
 
 namespace reco {
-  template <typename T1, typename T2> class MatchByDRDPt {
+  template <typename T1, typename T2>
+  class MatchByDRDPt {
   public:
-    MatchByDRDPt (const edm::ParameterSet& cfg) :
-      deltaR_(cfg),
-      maxDPtRel_(cfg.getParameter<double>("maxDPtRel")) {}
-    bool operator() (const T1& t1, const T2& t2) const {
-      return fabs(t1.pt()-t2.pt())/t2.pt()<maxDPtRel_ &&
-	deltaR_(t1,t2);
+    MatchByDRDPt(const edm::ParameterSet& cfg) : deltaR_(cfg), maxDPtRel_(cfg.getParameter<double>("maxDPtRel")) {}
+    bool operator()(const T1& t1, const T2& t2) const {
+      return fabs(t1.pt() - t2.pt()) / t2.pt() < maxDPtRel_ && deltaR_(t1, t2);
     }
+
   private:
-    reco::MatchByDR<T1,T2> deltaR_;
+    reco::MatchByDR<T1, T2> deltaR_;
     double maxDPtRel_;
   };
-}
-
+}  // namespace reco
 
 #endif

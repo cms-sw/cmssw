@@ -69,7 +69,7 @@ void HcalRecHitsAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup
   hcons = &(*pHRNDC);
   maxDepthHB_ = hcons->getMaxDepth(0);
   maxDepthHE_ = hcons->getMaxDepth(1);
-  maxDepthHF_ = hcons->getMaxDepth(2);
+  maxDepthHF_ = std::max(hcons->getMaxDepth(2), 1);
   maxDepthHO_ = hcons->getMaxDepth(3);
 
   edm::ESHandle<CaloGeometry> geometry;
@@ -83,7 +83,7 @@ void HcalRecHitsAnalyzer::dqmBeginRun(const edm::Run &run, const edm::EventSetup
   const HcalGeometry *gHF = static_cast<const HcalGeometry *>(geo->getSubdetectorGeometry(DetId::Hcal, HcalForward));
 
   nChannels_[1] = gHB->getHxSize(1);
-  nChannels_[2] = gHE->getHxSize(2);
+  nChannels_[2] = std::max(int(gHE->getHxSize(2)), 1);
   nChannels_[3] = gHO->getHxSize(3);
   nChannels_[4] = gHF->getHxSize(4);
 

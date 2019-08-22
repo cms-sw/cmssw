@@ -8,18 +8,18 @@
 
 namespace edm {
   namespace helper {
-    template<typename C>
+    template <typename C>
     struct MapRefViewTrait {
       typedef Ref<C> ref_type;
       typedef RefProd<C> refprod_type;
-    }; 
-    
-    template<typename T>
+    };
+
+    template <typename T>
     struct MapRefViewTrait<View<T> > {
       typedef RefToBase<T> ref_type;
       typedef RefToBaseProd<T> refprod_type;
-    }; 
-  }
-}
+    };
+  }  // namespace helper
+}  // namespace edm
 
 #endif

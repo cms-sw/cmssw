@@ -32,28 +32,28 @@
 const int kMaxParticles = 1000;
 
 class DatabasePDG {
- private:
-  int fNParticles;                        // no. of particles in database
-  ParticlePDG *fParticles[kMaxParticles];   // array of particle pointers
-  bool fStatus[kMaxParticles];            // status of each particle
-  char fParticleFilename[256];            // particle list filename
-  char fDecayFilename[256];               // decay channels filename
-  bool fUseCharmParticles;                // flag for using (or not) charm particles
-  double fMinimumWidth;                   // minimum allowed width for resonances
-  double fMaximumWidth;                   // maximum allowed width for resonances
-  double fMinimumMass;                    // minimum allowed mass for resonances
-  double fMaximumMass;                    // maximum allowed mass for resonances
+private:
+  int fNParticles;                         // no. of particles in database
+  ParticlePDG *fParticles[kMaxParticles];  // array of particle pointers
+  bool fStatus[kMaxParticles];             // status of each particle
+  char fParticleFilename[256];             // particle list filename
+  char fDecayFilename[256];                // decay channels filename
+  bool fUseCharmParticles;                 // flag for using (or not) charm particles
+  double fMinimumWidth;                    // minimum allowed width for resonances
+  double fMaximumWidth;                    // maximum allowed width for resonances
+  double fMinimumMass;                     // minimum allowed mass for resonances
+  double fMaximumMass;                     // maximum allowed mass for resonances
 
   bool LoadParticles();
   bool LoadDecays();
-  void SortParticles();                     // put the good status particles at the beggining of the list
- public:
+  void SortParticles();  // put the good status particles at the beggining of the list
+public:
   DatabasePDG();
   ~DatabasePDG();
 
   // Load the particle PDG information from the particle and decay files
-  bool LoadData();                        
-  
+  bool LoadData();
+
   // Set particle and decay filenames
   void SetParticleFilename(char *filename);
   void SetDecayFilename(char *filename);
@@ -66,7 +66,7 @@ class DatabasePDG {
   void SetMaximumMass(double value);
   void SetWidthRange(double min, double max);
   void SetMassRange(double min, double max);
-  
+
   // Read a list of pdg codes from a specified file. The corresponding particles
   // will be flagged as good particles. If the exclusive flag is TRUE than
   // only this criteria will be used in selecting particles and, in consequence,
@@ -77,23 +77,23 @@ class DatabasePDG {
   // Note: In order for the exclusive=FALSE to be effective, this function must be called after
   // calling all the width, mass and charmness criteria functions.
   void UseThisListOfParticles(char *filename, bool exclusive = kTRUE);
-  
-  char* GetParticleFilename() {return fParticleFilename;}
-  char* GetDecayFilename() {return fDecayFilename;}
-  int GetNParticles(bool all = kFALSE);      // true - no. of all particles; false - no. of good status particles
-  ParticlePDG* GetPDGParticleByIndex(int index);
+
+  char *GetParticleFilename() { return fParticleFilename; }
+  char *GetDecayFilename() { return fDecayFilename; }
+  int GetNParticles(bool all = kFALSE);  // true - no. of all particles; false - no. of good status particles
+  ParticlePDG *GetPDGParticleByIndex(int index);
   bool GetPDGParticleStatusByIndex(int index);
-  ParticlePDG* GetPDGParticle(int pdg);
+  ParticlePDG *GetPDGParticle(int pdg);
   bool GetPDGParticleStatus(int pdg);
-  ParticlePDG* GetPDGParticle(char *name);
+  ParticlePDG *GetPDGParticle(char *name);
   bool GetPDGParticleStatus(char *name);
-  bool GetUseCharmParticles() {return fUseCharmParticles;};
-  double GetMinimumWidth() {return fMinimumWidth;};
-  double GetMaximumWidth() {return fMaximumWidth;};
-  double GetMinimumMass() {return fMinimumMass;};
-  double GetMaximumMass() {return fMaximumMass;};
-  void DumpData(bool dumpAll = kFALSE); // print the PDG information in the console
-  int CheckImpossibleDecays(bool dump = kFALSE);   // print all impossible decays included in the database
+  bool GetUseCharmParticles() { return fUseCharmParticles; };
+  double GetMinimumWidth() { return fMinimumWidth; };
+  double GetMaximumWidth() { return fMaximumWidth; };
+  double GetMinimumMass() { return fMinimumMass; };
+  double GetMaximumMass() { return fMaximumMass; };
+  void DumpData(bool dumpAll = kFALSE);           // print the PDG information in the console
+  int CheckImpossibleDecays(bool dump = kFALSE);  // print all impossible decays included in the database
   bool IsChannelAllowed(DecayChannel *channel, double motherMass);
   int GetNAllowedChannels(ParticlePDG *particle, double motherMass);
 };

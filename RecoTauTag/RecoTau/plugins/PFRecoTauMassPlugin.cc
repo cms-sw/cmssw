@@ -19,62 +19,59 @@
 
 #include <TMath.h>
 
-namespace reco { namespace tau {
+namespace reco {
+  namespace tau {
 
-class PFRecoTauMassPlugin : public RecoTauModifierPlugin
-{
- public:
+    class PFRecoTauMassPlugin : public RecoTauModifierPlugin {
+    public:
+      explicit PFRecoTauMassPlugin(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
+      ~PFRecoTauMassPlugin() override;
+      void operator()(PFTau&) const override;
+      void beginEvent() override;
+      void endEvent() override;
 
-  explicit PFRecoTauMassPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
-  ~PFRecoTauMassPlugin() override;
-  void operator()(PFTau&) const override;
-  void beginEvent() override;
-  void endEvent() override;
+    private:
+      int verbosity_;
+    };
 
- private:
-  
-  int verbosity_;
-};
-
-  PFRecoTauMassPlugin::PFRecoTauMassPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector &&iC)
-    : RecoTauModifierPlugin(cfg, std::move(iC))
-{
-  verbosity_ = cfg.getParameter<int>("verbosity");
-}
-
-PFRecoTauMassPlugin::~PFRecoTauMassPlugin()
-{}
-
-void PFRecoTauMassPlugin::beginEvent()
-{}
-
-void PFRecoTauMassPlugin::operator()(PFTau& tau) const
-{
-  if ( verbosity_ ) {
-    std::cout << "<PFRecoTauMassPlugin::operator()>:" << std::endl;
-    std::cout << "tau: Pt = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << ", mass = " << tau.mass() << " (decayMode = " << tau.decayMode() << ")" << std::endl;
-  }
-
-  if ( tau.decayMode() == reco::PFTau::kOneProng0PiZero ) {
-    double tauEn = tau.energy();
-    const double chargedPionMass = 0.13957; // GeV
-    if ( tauEn < chargedPionMass ) tauEn = chargedPionMass;
-    double tauP_modified = TMath::Sqrt(tauEn*tauEn - chargedPionMass*chargedPionMass);
-    double tauPx_modified = TMath::Cos(tau.phi())*TMath::Sin(tau.theta())*tauP_modified;
-    double tauPy_modified = TMath::Sin(tau.phi())*TMath::Sin(tau.theta())*tauP_modified;
-    double tauPz_modified = TMath::Cos(tau.theta())*tauP_modified;
-    reco::Candidate::LorentzVector tauP4_modified(tauPx_modified, tauPy_modified, tauPz_modified, tauEn);
-    if ( verbosity_ ) {
-      std::cout << "--> setting tauP4: Pt = " << tauP4_modified.pt() << ", eta = " << tauP4_modified.eta() << ", phi = " << tauP4_modified.phi() << ", mass = " << tauP4_modified.mass() << std::endl;
+    PFRecoTauMassPlugin::PFRecoTauMassPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+        : RecoTauModifierPlugin(cfg, std::move(iC)) {
+      verbosity_ = cfg.getParameter<int>("verbosity");
     }
-    tau.setP4(tauP4_modified);
-  }
-}
 
-void PFRecoTauMassPlugin::endEvent()
-{}
+    PFRecoTauMassPlugin::~PFRecoTauMassPlugin() {}
 
-}} // end namespace reco::tau
+    void PFRecoTauMassPlugin::beginEvent() {}
+
+    void PFRecoTauMassPlugin::operator()(PFTau& tau) const {
+      if (verbosity_) {
+        std::cout << "<PFRecoTauMassPlugin::operator()>:" << std::endl;
+        std::cout << "tau: Pt = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi()
+                  << ", mass = " << tau.mass() << " (decayMode = " << tau.decayMode() << ")" << std::endl;
+      }
+
+      if (tau.decayMode() == reco::PFTau::kOneProng0PiZero) {
+        double tauEn = tau.energy();
+        const double chargedPionMass = 0.13957;  // GeV
+        if (tauEn < chargedPionMass)
+          tauEn = chargedPionMass;
+        double tauP_modified = TMath::Sqrt(tauEn * tauEn - chargedPionMass * chargedPionMass);
+        double tauPx_modified = TMath::Cos(tau.phi()) * TMath::Sin(tau.theta()) * tauP_modified;
+        double tauPy_modified = TMath::Sin(tau.phi()) * TMath::Sin(tau.theta()) * tauP_modified;
+        double tauPz_modified = TMath::Cos(tau.theta()) * tauP_modified;
+        reco::Candidate::LorentzVector tauP4_modified(tauPx_modified, tauPy_modified, tauPz_modified, tauEn);
+        if (verbosity_) {
+          std::cout << "--> setting tauP4: Pt = " << tauP4_modified.pt() << ", eta = " << tauP4_modified.eta()
+                    << ", phi = " << tauP4_modified.phi() << ", mass = " << tauP4_modified.mass() << std::endl;
+        }
+        tau.setP4(tauP4_modified);
+      }
+    }
+
+    void PFRecoTauMassPlugin::endEvent() {}
+
+  }  // namespace tau
+}  // namespace reco
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

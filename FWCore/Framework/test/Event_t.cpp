@@ -38,7 +38,7 @@ Test program for edm::Event.
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
 

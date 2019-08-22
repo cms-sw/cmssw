@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     FFTJetCorrectorParametersRcd
-// 
+//
 /**\class FFTJetCorrectorParametersRcd FFTJetCorrectorParametersRcd.h CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcd.h
 
  Description: record for FFTJet correction data
@@ -22,6 +22,9 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 
 template <typename CT>
-struct FFTJetCorrectorParametersRcd : public edm::eventsetup::EventSetupRecordImplementation<FFTJetCorrectorParametersRcd<CT> > {typedef CT correction_type;};
+struct FFTJetCorrectorParametersRcd
+    : public edm::eventsetup::EventSetupRecordImplementation<FFTJetCorrectorParametersRcd<CT> > {
+  typedef CT correction_type;
+};
 
 #endif

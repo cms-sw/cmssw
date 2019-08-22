@@ -18,20 +18,18 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-
 // forward declarations
-template<class object>
-class TriggerCandProducer : public edm::EDProducer
-{
- public:
+template <class object>
+class TriggerCandProducer : public edm::EDProducer {
+public:
   explicit TriggerCandProducer(const edm::ParameterSet&);
   ~TriggerCandProducer() override;
 
- private:
+private:
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  void beginJob()  override;
+  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob()  override;
+  void endJob() override;
 
   // ----------member data --------------------------
 

@@ -15,13 +15,10 @@
 #include <vector>
 #include <map>
 
-
 class GeomDetType;
 
-
 class RPCGeometry : public TrackingGeometry {
-
- public:
+public:
   /// Default constructor
   RPCGeometry();
 
@@ -29,14 +26,14 @@ class RPCGeometry : public TrackingGeometry {
   ~RPCGeometry() override;
 
   // Return a vector of all det types
-  const DetTypeContainer&  detTypes() const override;
+  const DetTypeContainer& detTypes() const override;
 
   // Return a vector of all GeomDetUnit
   const DetContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
   const DetContainer& dets() const override;
-  
+
   // Return a vector of all GeomDetUnit DetIds
   const DetIdContainer& detUnitIds() const override;
 
@@ -48,7 +45,6 @@ class RPCGeometry : public TrackingGeometry {
 
   // Return the pointer to the GeomDet corresponding to a given DetId
   const GeomDet* idToDet(DetId) const override;
-
 
   //---- Extension of the interface
 
@@ -70,19 +66,18 @@ class RPCGeometry : public TrackingGeometry {
   /// Add a RPC roll to the Geometry
   void add(RPCChamber* ch);
 
- private:
+private:
   DetContainer theRolls;
   DetContainer theDets;
   DetTypeContainer theRollTypes;
   DetIdContainer theRollIds;
   DetIdContainer theDetIds;
-  
-  // Map for efficient lookup by DetId 
+
+  // Map for efficient lookup by DetId
   mapIdToDet theMap;
 
-  std::vector<const RPCRoll*> allRolls; // Are not owned by this class; are owned by their chamber.
-  std::vector<const RPCChamber*> allChambers; // Are owned by this class.
-
+  std::vector<const RPCRoll*> allRolls;        // Are not owned by this class; are owned by their chamber.
+  std::vector<const RPCChamber*> allChambers;  // Are owned by this class.
 };
 
 #endif

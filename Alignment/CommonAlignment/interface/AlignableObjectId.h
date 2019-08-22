@@ -7,13 +7,9 @@
 class TrackerGeometry;
 class DTGeometry;
 class CSCGeometry;
-class AlignableTracker;
-class AlignableMuon;
-
 
 /// Allows conversion between type and name, and vice-versa
-class AlignableObjectId
-{
+class AlignableObjectId {
 public:
   struct entry;
   enum class Geometry { RunI, PhaseI, PhaseII, General, Unspecified };
@@ -33,17 +29,17 @@ public:
   align::StructureType nameToType(const std::string& name) const;
 
   /// Convert type to name
-  std::string typeToName( align::StructureType type ) const;
-  const char *idToString(align::StructureType type) const;
+  std::string typeToName(align::StructureType type) const;
+  const char* idToString(align::StructureType type) const;
   align::StructureType stringToId(const char*) const;
-  align::StructureType stringToId(const std::string& s) const {
-    return stringToId(s.c_str()); }
+  align::StructureType stringToId(const std::string& s) const { return stringToId(s.c_str()); }
 
   static Geometry commonGeometry(Geometry, Geometry);
-  static AlignableObjectId commonObjectIdProvider(const AlignableObjectId&,
-                                                  const AlignableObjectId&);
-  static AlignableObjectId commonObjectIdProvider(const AlignableTracker*,
-                                                  const AlignableMuon*);
+  static AlignableObjectId commonObjectIdProvider(const AlignableObjectId&, const AlignableObjectId&);
+  template <typename TRACKER, typename MUON>
+  static AlignableObjectId commonObjectIdProvider(const TRACKER*, const MUON*);
+  template <typename TRACKER>
+  static AlignableObjectId commonObjectIdProvider(const TRACKER*, std::nullptr_t);
 
 private:
   static Geometry trackerGeometry(const TrackerGeometry*);
@@ -53,5 +49,17 @@ private:
   Geometry geometry_{Geometry::Unspecified};
 };
 
+template <typename TRACKER, typename MUON>
+AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const TRACKER* tracker, const MUON* muon) {
+  auto trackerGeometry = (tracker ? tracker->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
+  auto muonGeometry = (muon ? muon->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
+  return AlignableObjectId::commonGeometry(trackerGeometry, muonGeometry);
+}
+
+template <typename T>
+AlignableObjectId AlignableObjectId ::commonObjectIdProvider(const T* tracker, std::nullptr_t) {
+  auto trackerGeometry = (tracker ? tracker->objectIdProvider().geometry() : AlignableObjectId::Geometry::General);
+  return AlignableObjectId::commonGeometry(trackerGeometry, AlignableObjectId::Geometry::General);
+}
 
 #endif

@@ -7,8 +7,8 @@
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
 class ODEcalCycle : public IODConfig {
- public:
-  friend class EcalCondDBInterface ;
+public:
+  friend class EcalCondDBInterface;
 
   ODEcalCycle();
   ~ODEcalCycle() override;
@@ -65,13 +65,13 @@ class ODEcalCycle : public IODConfig {
 
   void printout();
 
- private:
-  void prepareWrite()  noexcept(false) override;
-  void writeDB()       noexcept(false);
+private:
+  void prepareWrite() noexcept(false) override;
+  void writeDB() noexcept(false);
   void clear();
-  int fetchID()        noexcept(false);
+  int fetchID() noexcept(false);
   void setByID(int id) noexcept(false);
-  void fetchData(ODEcalCycle * result)     noexcept(false);
+  void fetchData(ODEcalCycle* result) noexcept(false);
 
   // User data
   int m_ID;
@@ -96,7 +96,6 @@ class ODEcalCycle : public IODConfig {
   int m_scan;
   int m_srp;
   int m_ttcf;
-
 };
 
 #endif

@@ -13,18 +13,15 @@
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 
-
-
-class DQMTauProducer: public edm::EDProducer {
- public:
+class DQMTauProducer : public edm::EDProducer {
+public:
   explicit DQMTauProducer(const edm::ParameterSet&);
   ~DQMTauProducer() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   edm::EDGetTokenT<reco::IsolatedTauTagInfoCollection> trackIsolatedJets_;
-  double rmin_,rmax_,matchingCone_ ,ptMinLeadTk_, signalCone_, isolationCone_, ptMin_;
-
+  double rmin_, rmax_, matchingCone_, ptMinLeadTk_, signalCone_, isolationCone_, ptMin_;
 };
 
 #endif

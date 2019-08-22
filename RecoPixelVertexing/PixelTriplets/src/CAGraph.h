@@ -5,19 +5,14 @@
 #include <string>
 #include <vector>
 
-struct CALayer
-{
-  CALayer(const std::string &layerName, std::size_t numberOfHits)
-      : theName(layerName)
-  {
+struct CALayer {
+  CALayer(const std::string &layerName, std::size_t numberOfHits) : theName(layerName) {
     isOuterHitOfCell.resize(numberOfHits);
   }
 
-  bool operator==(const std::string &otherString) {
-    return otherString == theName;
-  }
+  bool operator==(const std::string &otherString) { return otherString == theName; }
 
-  const std::string& name() const { return theName; }
+  const std::string &name() const { return theName; }
 
   std::vector<int> theOuterLayerPairs;
   std::vector<int> theInnerLayerPairs;
@@ -30,8 +25,7 @@ private:
   std::string theName;
 };
 
-struct CALayerPair
-{
+struct CALayerPair {
   CALayerPair(int a, int b)
 
   {
@@ -40,19 +34,17 @@ struct CALayerPair
   }
 
   bool operator==(const CALayerPair &otherLayerPair) {
-    return (theLayers[0] == otherLayerPair.theLayers[0]) &&
-           (theLayers[1] == otherLayerPair.theLayers[1]);
+    return (theLayers[0] == otherLayerPair.theLayers[0]) && (theLayers[1] == otherLayerPair.theLayers[1]);
   }
 
   std::array<int, 2> theLayers;
   std::array<unsigned int, 2> theFoundCells = {{0, 0}};
 };
 
-struct CAGraph
-{
+struct CAGraph {
   std::vector<CALayer> theLayers;
   std::vector<CALayerPair> theLayerPairs;
   std::vector<int> theRootLayers;
 };
 
-#endif // RecoPixelVertexing_PixelTriplets_src_CAGraph_h
+#endif  // RecoPixelVertexing_PixelTriplets_src_CAGraph_h

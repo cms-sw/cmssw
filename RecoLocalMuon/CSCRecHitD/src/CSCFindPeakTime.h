@@ -9,23 +9,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
 
+class CSCFindPeakTime {
+public:
+  explicit CSCFindPeakTime(const edm::ParameterSet& ps);
 
-class CSCFindPeakTime
-{
- public:
-  
-  explicit CSCFindPeakTime( const edm::ParameterSet& ps );
-  
-  ~CSCFindPeakTime(){}; 
-  
+  ~CSCFindPeakTime(){};
+
   /// Basic result of this class
-  float peakTime( int tmax, const float* adc, float t_peak);
+  float peakTime(int tmax, const float* adc, float t_peak);
 
   /// Weighted average of time bins
-  float averageTime( int tmax, const float* adc );
+  float averageTime(int tmax, const float* adc);
 
   /// Parabolic fit to three time bins centered on maximum
-  float parabolaFitTime( int tmax, const float* adc );
+  float parabolaFitTime(int tmax, const float* adc);
 
   /**
    * Based on RecoLocalMuon/CSCStandAlone/interface/PulseTime.h  by S. Durkin,
@@ -43,20 +40,19 @@ class CSCFindPeakTime
    * Note: t0peak =4/p0 = 133 nsec, and adc[0] is arbitrarily defined a time of 0.0 nsec. 
    *
    */
-  float fivePoleFitTime( int tmax, const float* adc, float t_peak ); 
+  float fivePoleFitTime(int tmax, const float* adc, float t_peak);
 
   /**
    * Integrated charge after fivePoleFitTime
    */
   //@@ Needs work and interface fixes!!
-  void fivePoleFitCharge( int tmax, const float* adc, const float& t_zero, const float& t_peak, std::vector<float>& adcsFit );
-  
- private:
+  void fivePoleFitCharge(
+      int tmax, const float* adc, const float& t_zero, const float& t_peak, std::vector<float>& adcsFit);
 
+private:
   bool useAverageTime;
   bool useParabolaFit;
-  bool useFivePoleFit;  
-  
+  bool useFivePoleFit;
 };
 
 #endif

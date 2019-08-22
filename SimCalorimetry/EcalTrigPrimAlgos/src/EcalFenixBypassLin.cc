@@ -7,8 +7,7 @@ class EBDataFrame;
 
 EcalFenixBypassLin::EcalFenixBypassLin() {}
 EcalFenixBypassLin::~EcalFenixBypassLin() {}
-void EcalFenixBypassLin::process(std::vector<int> &stripin,
-                                 std::vector<int> &out) {
+void EcalFenixBypassLin::process(std::vector<int> &stripin, std::vector<int> &out) {
   //    return stripin;
   out = stripin;
   return;

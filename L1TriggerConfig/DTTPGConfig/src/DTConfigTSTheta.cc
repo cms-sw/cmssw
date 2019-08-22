@@ -2,8 +2,8 @@
 //
 //   Class: DTConfigTSTheta
 //
-//   Description: Configurable parameters and constants 
-//   for Level1 Mu DT Trigger - TS Theta 
+//   Description: Configurable parameters and constants
+//   for Level1 Mu DT Trigger - TS Theta
 //
 //
 //   Author List:
@@ -28,15 +28,9 @@
 //----------------
 // Constructors --
 //----------------
-DTConfigTSTheta::DTConfigTSTheta(const edm::ParameterSet& ps) { 
+DTConfigTSTheta::DTConfigTSTheta(const edm::ParameterSet& ps) { setDefaults(ps); }
 
-  setDefaults(ps);
-
-}
-
-DTConfigTSTheta::DTConfigTSTheta() : m_debug(false) {
-
-}
+DTConfigTSTheta::DTConfigTSTheta() : m_debug(false) {}
 
 //--------------
 // Destructor --
@@ -47,23 +41,16 @@ DTConfigTSTheta::~DTConfigTSTheta() {}
 // Operations --
 //--------------
 
-void
-DTConfigTSTheta::setDefaults(const edm::ParameterSet& ps) {
-
-  // Debug flag 
+void DTConfigTSTheta::setDefaults(const edm::ParameterSet& ps) {
+  // Debug flag
   m_debug = ps.getUntrackedParameter<bool>("Debug");
-
 }
 
-void 
-DTConfigTSTheta::print() const {
-
+void DTConfigTSTheta::print() const {
   std::cout << "******************************************************************************" << std::endl;
   std::cout << "*              DTTrigger configuration : TSTheta chips                       *" << std::endl;
   std::cout << "******************************************************************************" << std::endl;
   std::cout << "*                                                                            *" << std::endl;
-  std::cout << "Debug flag : " <<  debug() << std::endl;
+  std::cout << "Debug flag : " << debug() << std::endl;
   std::cout << "******************************************************************************" << std::endl;
-
 }
-

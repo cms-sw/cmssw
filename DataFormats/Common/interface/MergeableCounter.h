@@ -6,11 +6,11 @@ namespace edm {
   struct MergeableCounter {
     MergeableCounter() : value() {}
     ~MergeableCounter() {}
-    bool mergeProduct(MergeableCounter const & newThing);
+    bool mergeProduct(MergeableCounter const& newThing);
     void swap(MergeableCounter& iOther);
     int value;
   };
 
-}
+}  // namespace edm
 
 #endif

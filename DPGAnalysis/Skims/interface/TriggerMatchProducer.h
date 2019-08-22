@@ -19,21 +19,20 @@
 #include <string>
 
 // forward declarations
-template<class object>
-class TriggerMatchProducer : public edm::EDProducer 
-{
- public:
+template <class object>
+class TriggerMatchProducer : public edm::EDProducer {
+public:
   explicit TriggerMatchProducer(const edm::ParameterSet&);
   ~TriggerMatchProducer() override;
 
- private:
+private:
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
   void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
   // ----------member data --------------------------
-    
+
   edm::InputTag _inputProducer;
   edm::EDGetTokenT<edm::View<object> > _inputProducerToken;
   edm::InputTag triggerEventTag_;

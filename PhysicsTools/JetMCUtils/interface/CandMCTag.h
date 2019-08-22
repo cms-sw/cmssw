@@ -11,5 +11,5 @@ namespace CandMCTagUtils {
   bool isParton(const reco::Candidate &c);
   bool isLightParton(const reco::Candidate &c);
 
-}
-#endif // CandMCTag_h
+}  // namespace CandMCTagUtils
+#endif  // CandMCTag_h

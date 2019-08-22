@@ -26,100 +26,97 @@ Inheriting from one::DQMEDAnalyzer<one::DQMLuminosityBlockElements> give access 
 
 namespace one {
 
-struct DQMLuminosityBlockElements {};
+  struct DQMLuminosityBlockElements {};
 
-namespace dqmimplementation {
-template <typename... T>
-class DQMRunEDProducer : public edm::one::EDProducer<edm::Accumulator,
-                                                     edm::EndRunProducer,
-                                                     edm::one::WatchRuns, T...> 
-{
-public:
-  DQMRunEDProducer() :
-    runToken_{this-> template produces<DQMToken,edm::Transition::EndRun>("endRun")}
-    {}
-  ~DQMRunEDProducer() override = default;
-  DQMRunEDProducer(DQMRunEDProducer<T...> const&) = delete;
-  DQMRunEDProducer(DQMRunEDProducer<T...> &&) = delete;
+  namespace dqmimplementation {
+    template <typename... T>
+    class DQMRunEDProducer
+        : public edm::one::EDProducer<edm::Accumulator, edm::EndRunProducer, edm::one::WatchRuns, T...> {
+    public:
+      typedef dqm::reco::DQMStore DQMStore;
+      typedef dqm::reco::MonitorElement MonitorElement;
+      DQMRunEDProducer() : runToken_{this->template produces<DQMToken, edm::Transition::EndRun>("endRun")} {}
+      ~DQMRunEDProducer() override = default;
+      DQMRunEDProducer(DQMRunEDProducer<T...> const&) = delete;
+      DQMRunEDProducer(DQMRunEDProducer<T...>&&) = delete;
 
-  void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
-    dqmBeginRun(run, setup);
-    edm::Service<DQMStore>()->bookTransaction(
-    [this, &run, &setup](DQMStore::IBooker & booker)
+      void beginRun(edm::Run const& run, edm::EventSetup const& setup) final {
+        dqmBeginRun(run, setup);
+        edm::Service<DQMStore>()->bookTransaction(
+            [this, &run, &setup](DQMStore::IBooker& booker) {
+              booker.cd();
+              this->bookHistograms(booker, run, setup);
+            },
+            run.run(),
+            this->moduleDescription().id(),
+            this->getCanSaveByLumi());
+      }
+
+      void endRun(edm::Run const& run, edm::EventSetup const& setup) override {}
+      void endRunProduce(edm::Run& run, edm::EventSetup const& setup) override {
+        edm::Service<DQMStore>()->cloneRunHistograms(run.run(), this->moduleDescription().id());
+
+        run.emplace<DQMToken>(runToken_);
+      }
+
+      virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
+      virtual void bookHistograms(DQMStore::IBooker& i, edm::Run const&, edm::EventSetup const&) = 0;
+
+      virtual void analyze(edm::Event const&, edm::EventSetup const&) {}
+      void accumulate(edm::Event const& ev, edm::EventSetup const& es) final { analyze(ev, es); }
+
+      virtual bool getCanSaveByLumi() { return false; }
+
+    private:
+      edm::EDPutTokenT<DQMToken> runToken_;
+    };
+
+    class DQMLumisEDProducer : public DQMRunEDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks>
+
     {
-      booker.cd();
-      this->bookHistograms(booker, run, setup);
-    },
-    run.run(),
-    this->moduleDescription().id(),
-    this->getCanSaveByLumi());
-  }
+    public:
+      typedef dqm::reco::DQMStore DQMStore;
+      typedef dqm::reco::MonitorElement MonitorElement;
+      DQMLumisEDProducer();
+      ~DQMLumisEDProducer() override = default;
+      DQMLumisEDProducer(DQMLumisEDProducer const&) = delete;
+      DQMLumisEDProducer(DQMLumisEDProducer&&) = delete;
 
-  void endRun(edm::Run const& run, edm::EventSetup const& setup) override {}
-  void endRunProduce(edm::Run& run, edm::EventSetup const& setup) override {
-    edm::Service<DQMStore>()->cloneRunHistograms(
-        run.run(),
-        this->moduleDescription().id());
+      void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
-    run.emplace<DQMToken>(runToken_);
-  }
+      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) {}
-  virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) = 0;
+      void endLuminosityBlockProduce(edm::LuminosityBlock& lumi, edm::EventSetup const& setup) final;
 
-  virtual void analyze(edm::Event const&, edm::EventSetup const&) {}
-  void accumulate(edm::Event const& ev, edm::EventSetup const& es) final {
-    analyze(ev,es);
-  }
+      virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      //virtual void bookLumiHistograms(DQMStore::IBooker &i, edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
 
-  virtual bool getCanSaveByLumi() { return false; }
-private:
-  edm::EDPutTokenT<DQMToken> runToken_;
+    private:
+      edm::EDPutTokenT<DQMToken> lumiToken_;
+    };
 
-};
+    template <typename... T>
+    class DQMBaseClass;
 
-class DQMLumisEDProducer : public DQMRunEDProducer<edm::EndLuminosityBlockProducer,
-                                                   edm::one::WatchLuminosityBlocks>
+    template <>
+    class DQMBaseClass<> : public DQMLumisEDProducer {
+      bool getCanSaveByLumi() override { return true; }
+    };
+    template <>
+    class DQMBaseClass<DQMLuminosityBlockElements> : public DQMLumisEDProducer {};
+    template <>
+    class DQMBaseClass<edm::one::WatchLuminosityBlocks> : public DQMRunEDProducer<edm::one::WatchLuminosityBlocks> {};
+    template <typename T>
+    class DQMBaseClass<edm::LuminosityBlockCache<T>> : public DQMRunEDProducer<edm::LuminosityBlockCache<T>> {};
+  }  // namespace dqmimplementation
 
-{
-public:
-  DQMLumisEDProducer();
-  ~DQMLumisEDProducer() override = default;
-  DQMLumisEDProducer(DQMLumisEDProducer const&) = delete;
-  DQMLumisEDProducer(DQMLumisEDProducer &&) = delete;
-
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
-
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-
-  void endLuminosityBlockProduce(edm::LuminosityBlock & lumi, edm::EventSetup const& setup) final;
-
-
-  virtual void dqmBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  //virtual void bookLumiHistograms(DQMStore::IBooker &i, edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
-
- private:
-  edm::EDPutTokenT<DQMToken> lumiToken_;
-};
-
-template <typename... T> class DQMBaseClass;
-
-template<> class DQMBaseClass<> : public DQMLumisEDProducer {
-  bool getCanSaveByLumi() override { return true; }
-};
-template<> class DQMBaseClass<DQMLuminosityBlockElements> : public DQMLumisEDProducer {};
-template<> class DQMBaseClass<edm::one::WatchLuminosityBlocks> : public DQMRunEDProducer<edm::one::WatchLuminosityBlocks> {};
-template<typename T> class DQMBaseClass<edm::LuminosityBlockCache<T>> : public DQMRunEDProducer<edm::LuminosityBlockCache<T>>{};
-}
-
-template <typename... T>
-class DQMEDAnalyzer : public dqmimplementation::DQMBaseClass<T...>
-{
-public:
-  DQMEDAnalyzer() = default;
-  ~DQMEDAnalyzer() override = default;
-  DQMEDAnalyzer(DQMEDAnalyzer<T...> const&) = delete;
-  DQMEDAnalyzer(DQMEDAnalyzer<T...> &&) = delete;
-};
-}
-#endif // DQMServices_Core_DQMEDAnalyzer_h
+  template <typename... T>
+  class DQMEDAnalyzer : public dqmimplementation::DQMBaseClass<T...> {
+  public:
+    DQMEDAnalyzer() = default;
+    ~DQMEDAnalyzer() override = default;
+    DQMEDAnalyzer(DQMEDAnalyzer<T...> const&) = delete;
+    DQMEDAnalyzer(DQMEDAnalyzer<T...>&&) = delete;
+  };
+}  // namespace one
+#endif  // DQMServices_Core_DQMEDAnalyzer_h

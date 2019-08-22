@@ -15,15 +15,13 @@ class MuonBaseNumber;
 class MuonDDDConstants;
 
 class MuonNumberingScheme {
- public:
-
-  MuonNumberingScheme( ){};
+public:
+  MuonNumberingScheme(){};
   virtual ~MuonNumberingScheme(){};
-  
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
-  
- private:
 
+  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+
+private:
 };
 
 #endif

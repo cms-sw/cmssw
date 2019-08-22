@@ -18,18 +18,18 @@
 
 class CSCTFConfigProducer : public edm::ESProducer {
 private:
-	std::string         registers[12];
-	std::vector<double> alignment;
-	std::string         ptLUT_path;
+  std::string registers[12];
+  std::vector<double> alignment;
+  std::string ptLUT_path;
 
 public:
-	std::unique_ptr<L1MuCSCTFConfiguration> produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord);
-	std::unique_ptr<L1MuCSCTFAlignment>     produceL1MuCSCTFAlignmentRcd    (const L1MuCSCTFAlignmentRcd&     iRecord);
-	std::unique_ptr<L1MuCSCPtLut>           produceL1MuCSCPtLutRcd          (const L1MuCSCPtLutRcd&           iRecord);
-	void readLUT(std::string path, unsigned short* lut, unsigned long length);
+  std::unique_ptr<L1MuCSCTFConfiguration> produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord);
+  std::unique_ptr<L1MuCSCTFAlignment> produceL1MuCSCTFAlignmentRcd(const L1MuCSCTFAlignmentRcd& iRecord);
+  std::unique_ptr<L1MuCSCPtLut> produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord);
+  void readLUT(std::string path, unsigned short* lut, unsigned long length);
 
-	CSCTFConfigProducer(const edm::ParameterSet& pset);
-	~CSCTFConfigProducer(void) override{}
+  CSCTFConfigProducer(const edm::ParameterSet& pset);
+  ~CSCTFConfigProducer(void) override {}
 };
 
 #endif

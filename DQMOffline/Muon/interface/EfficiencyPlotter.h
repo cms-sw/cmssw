@@ -1,7 +1,6 @@
 #ifndef EfficiencyPlotter_H
 #define EfficiencyPlotter_H
 
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -12,7 +11,6 @@
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Run.h"
 
@@ -23,24 +21,19 @@
 #include <map>
 #include "TH1F.h"
 
-class EfficiencyPlotter: public DQMEDHarvester {
-
+class EfficiencyPlotter : public DQMEDHarvester {
 public:
-
   /// Constructor
   EfficiencyPlotter(const edm::ParameterSet& ps);
-  
+
   /// Destructor
   ~EfficiencyPlotter() override;
 
 protected:
-
   /// DQM Client Diagnostic
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
-
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;  //performed in the endJob
 
 private:
-
   // counters
   int nevents;
   unsigned int nLumiSegs;
@@ -51,7 +44,7 @@ private:
 
   edm::ParameterSet parameters;
 
-   //histo binning parameters
+  //histo binning parameters
   int etaBin;
   double etaMin;
   double etaMax;
@@ -63,11 +56,11 @@ private:
   int phiBin;
   double phiMin;
   double phiMax;
-  
+
   int vtxBin;
   double vtxMin;
   double vtxMax;
-  
+
   std::string ID_;
 
   // efficiency histograms

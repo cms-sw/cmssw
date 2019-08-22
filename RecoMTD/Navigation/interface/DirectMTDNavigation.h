@@ -17,50 +17,41 @@
 #include "RecoMTD/DetLayers/interface/MTDDetLayerGeometry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class DirectMTDNavigation{
+class DirectMTDNavigation {
+public:
+  /* Constructor */
+  DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>&);
 
-  public:
+  DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>&, const edm::ParameterSet&);
 
-    /* Constructor */ 
-    DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>&);
+  DirectMTDNavigation* clone() const { return new DirectMTDNavigation(*this); }
 
-    DirectMTDNavigation(const edm::ESHandle<MTDDetLayerGeometry>&, const edm::ParameterSet&);
+  /* Destructor */
+  ~DirectMTDNavigation() {}
 
-    DirectMTDNavigation* clone() const {
-      return new DirectMTDNavigation(*this);
-    }
+  std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
+                                                PropagationDirection timeDirection) const;
 
-    /* Destructor */ 
-    ~DirectMTDNavigation() {}
+  std::vector<const DetLayer*> compatibleEndcapLayers(const FreeTrajectoryState& fts,
+                                                      PropagationDirection timeDirection) const;
 
-    std::vector<const DetLayer*> 
-      compatibleLayers( const FreeTrajectoryState& fts, 
-                        PropagationDirection timeDirection) const;
+private:
+  void inOutBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  void outInBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
+  void inOutForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  void outInForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-    std::vector<const DetLayer*>
-      compatibleEndcapLayers( const FreeTrajectoryState& fts,
-                              PropagationDirection timeDirection) const;
+  void inOutBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
+  void outInBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
 
-  private:
+  bool checkCompatible(const FreeTrajectoryState& fts, const BarrelDetLayer*) const;
+  bool checkCompatible(const FreeTrajectoryState& fts, const ForwardDetLayer*) const;
+  bool outward(const FreeTrajectoryState& fts) const;
 
-    void inOutBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-    void outInBarrel(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-
-    void inOutForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-    void outInForward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const; 
-
-    void inOutBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-    void outInBackward(const FreeTrajectoryState&, std::vector<const DetLayer*>&) const;
-
-    bool checkCompatible(const FreeTrajectoryState& fts,const BarrelDetLayer*) const;
-    bool checkCompatible(const FreeTrajectoryState& fts,const ForwardDetLayer*) const;
-    bool outward(const FreeTrajectoryState& fts) const;
-
-    edm::ESHandle<MTDDetLayerGeometry> theMTDDetLayerGeometry;
-    float epsilon_;
-    bool theEndcapFlag;
-    bool theBarrelFlag;
-
+  edm::ESHandle<MTDDetLayerGeometry> theMTDDetLayerGeometry;
+  float epsilon_;
+  bool theEndcapFlag;
+  bool theBarrelFlag;
 };
 #endif

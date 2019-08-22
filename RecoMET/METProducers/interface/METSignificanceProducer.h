@@ -40,34 +40,29 @@
 
 #include <string>
 
+//____________________________________________________________________________||
+namespace cms {
+  class METSignificanceProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit METSignificanceProducer(const edm::ParameterSet&);
+    ~METSignificanceProducer() override;
+    void produce(edm::Event&, const edm::EventSetup&) override;
+
+  private:
+    // ----------member data ---------------------------
+
+    edm::EDGetTokenT<edm::View<reco::Jet> > pfjetsToken_;
+    edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
+    edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
+    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+    edm::EDGetTokenT<double> rhoToken_;
+    std::string jetSFType_;
+    std::string jetResPtType_;
+    std::string jetResPhiType_;
+
+    metsig::METSignificance* metSigAlgo_;
+  };
+}  // namespace cms
 
 //____________________________________________________________________________||
-namespace cms
-{
-  class METSignificanceProducer: public edm::stream::EDProducer<>
-    {
-    public:
-      explicit METSignificanceProducer(const edm::ParameterSet&);
-      ~METSignificanceProducer() override;
-      void produce(edm::Event&, const edm::EventSetup&) override;
-
-    private:
-
-      // ----------member data ---------------------------
-
-      edm::EDGetTokenT<edm::View<reco::Jet> > pfjetsToken_;
-      edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
-      edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidatesToken_;
-      std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
-      edm::EDGetTokenT<double> rhoToken_;
-      std::string jetSFType_;
-      std::string jetResPtType_;
-      std::string jetResPhiType_;
- 
-      metsig::METSignificance* metSigAlgo_;
-
-    };
-}
-
-//____________________________________________________________________________||
-#endif // METSignificanceProducer_h
+#endif  // METSignificanceProducer_h

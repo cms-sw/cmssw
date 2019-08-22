@@ -22,49 +22,44 @@
 #include <vector>
 
 #include "Rtypes.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/src/ExpressionPtr.h"
 #include "CommonTools/Utils/src/ExpressionBase.h"
 
-
-class FWItemValueGetter
-{
+class FWItemValueGetter {
 public:
-   FWItemValueGetter(const edm::TypeWithDict&, const std::string& iPurpose);
-   double valueFor(const void*, int idx) const;
-   UInt_t precision( int idx) const;
-   std::vector<std::string> getTitles() const;
-   int numValues() const; 
+  FWItemValueGetter(const edm::TypeWithDict&, const std::string& iPurpose);
+  double valueFor(const void*, int idx) const;
+  UInt_t precision(int idx) const;
+  std::vector<std::string> getTitles() const;
+  int numValues() const;
 
-   const std::string& getToolTip(const void* iObject) const;
-
+  const std::string& getToolTip(const void* iObject) const;
 
 private:
-   struct Entry {
-      reco::parser::ExpressionPtr m_expr;
-      std::string m_expression; 
-      std::string m_unit;
-      std::string m_title;
-      UInt_t     m_precision;
+  struct Entry {
+    reco::parser::ExpressionPtr m_expr;
+    std::string m_expression;
+    std::string m_unit;
+    std::string m_title;
+    UInt_t m_precision;
 
-      Entry(reco::parser::ExpressionPtr iExpr, std::string iExpression, std::string iUnit, std::string iTitle, int iPrec) :
-         m_expr(iExpr), m_expression(iExpression), m_unit(iUnit), m_title(iTitle), m_precision(iPrec) {}
-   };
+    Entry(reco::parser::ExpressionPtr iExpr, std::string iExpression, std::string iUnit, std::string iTitle, int iPrec)
+        : m_expr(iExpr), m_expression(iExpression), m_unit(iUnit), m_title(iTitle), m_precision(iPrec) {}
+  };
 
-   bool addEntry(std::string iExpression,int iPrec = 2,  std::string iTitle = "",  std::string iUnit = "");
+  bool addEntry(std::string iExpression, int iPrec = 2, std::string iTitle = "", std::string iUnit = "");
 
-   typedef std::vector<Entry > Entries_t;
-   Entries_t::const_iterator Entries_i;
+  typedef std::vector<Entry> Entries_t;
+  Entries_t::const_iterator Entries_i;
 
-   Entries_t m_entries;
-   edm::TypeWithDict m_type;
+  Entries_t m_entries;
+  edm::TypeWithDict m_type;
 
-   int m_titleWidth;
-
-   
+  int m_titleWidth;
 };
 
 #endif

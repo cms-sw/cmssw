@@ -1,4 +1,4 @@
-#ifndef TTUCONFIGURATOR_H 
+#ifndef TTUCONFIGURATOR_H
 #define TTUCONFIGURATOR_H 1
 
 // Include files
@@ -28,30 +28,27 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/TTUBoardSpecsIO.h"
 
 class TTUConfigurator {
-public: 
-  TTUConfigurator( const std::string& );
-  
-  ~TTUConfigurator( ); ///< Destructor
-  
-  RBCBoardSpecs * getRbcSpecs(){ return &m_rbcspecs; };
-  
-  TTUBoardSpecs * getTtuSpecs(){ return &m_ttuspecs; };
-  
+public:
+  TTUConfigurator(const std::string&);
+
+  ~TTUConfigurator();  ///< Destructor
+
+  RBCBoardSpecs* getRbcSpecs() { return &m_rbcspecs; };
+
+  TTUBoardSpecs* getTtuSpecs() { return &m_ttuspecs; };
+
   void process();
-  
+
   bool m_hasConfig;
-  
+
 protected:
-  
 private:
-  
-  std::ifstream  m_in;
-  
-  void addData( RBCBoardSpecs&  );
-  void addData( TTUBoardSpecs&  );
-  
-  RBCBoardSpecs  m_rbcspecs;
-  TTUBoardSpecs  m_ttuspecs;
-  
+  std::ifstream m_in;
+
+  void addData(RBCBoardSpecs&);
+  void addData(TTUBoardSpecs&);
+
+  RBCBoardSpecs m_rbcspecs;
+  TTUBoardSpecs m_ttuspecs;
 };
-#endif // TTUCONFIGURATOR_H
+#endif  // TTUCONFIGURATOR_H

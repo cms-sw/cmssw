@@ -33,15 +33,13 @@ class L1GlobalTriggerGTL;
 
 // class declaration
 class L1GtMuonCondition : public L1GtConditionEvaluation {
-
 public:
   /// constructors
   ///     default
   L1GtMuonCondition();
 
   ///     from base template condition (from event setup usually)
-  L1GtMuonCondition(const L1GtCondition *, const L1GlobalTriggerGTL *,
-                    const int nrL1Mu, const int ifMuEtaNumberBits);
+  L1GtMuonCondition(const L1GtCondition *, const L1GlobalTriggerGTL *, const int nrL1Mu, const int ifMuEtaNumberBits);
 
   // copy constructor
   L1GtMuonCondition(const L1GtMuonCondition &);
@@ -61,9 +59,7 @@ public:
 
 public:
   ///   get / set the pointer to a L1GtCondition
-  inline const L1GtMuonTemplate *gtMuonTemplate() const {
-    return m_gtMuonTemplate;
-  }
+  inline const L1GtMuonTemplate *gtMuonTemplate() const { return m_gtMuonTemplate; }
 
   void setGtMuonTemplate(const L1GtMuonTemplate *);
 
@@ -78,9 +74,7 @@ public:
   void setGtIfMuEtaNumberBits(const int &);
 
   ///   get / set maximum number of bins for the delta phi scales
-  inline const int gtCorrParDeltaPhiNrBins() const {
-    return m_corrParDeltaPhiNrBins;
-  }
+  inline const int gtCorrParDeltaPhiNrBins() const { return m_corrParDeltaPhiNrBins; }
 
   void setGtCorrParDeltaPhiNrBins(const int &);
 
@@ -92,8 +86,7 @@ private:
   const L1MuGMTCand *getCandidate(const int indexCand) const;
 
   /// function to check a single object if it matches a condition
-  const bool checkObjectParameter(const int iCondition,
-                                  const L1MuGMTCand &cand) const;
+  const bool checkObjectParameter(const int iCondition, const L1MuGMTCand &cand) const;
 
 private:
   /// pointer to a L1GtMuonTemplate

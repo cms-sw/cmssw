@@ -19,7 +19,7 @@ class FBaseSimEvent;
 namespace HepMC {
   class GenParticle;
   class GenVertex;
-}
+}  // namespace HepMC
 
 /** A class that mimics SimTrack, with enhanced features.
  *  Essentially an interface to SimTrack.
@@ -28,31 +28,36 @@ namespace HepMC {
  */
 
 class FSimTrack : public SimTrack {
-
- public:
+public:
   /// Default constructor
   FSimTrack();
-  
+
   /// Constructor from the EmmbSimTrack index in the FBaseSimEvent
-  FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom, double dt=-1.);
+  FSimTrack(const RawParticle* p, int iv, int ig, int id, FBaseSimEvent* mom, double dt = -1.);
 
   //! Hack to interface "old" calorimetry with "new" propagation in tracker (need to construct FSimTracks)
-  FSimTrack(int ipart, const math::XYZTLorentzVector& p, int iv, int ig, int id, double charge, const math::XYZTLorentzVector& tkp, const math::XYZTLorentzVector& tkm, const SimVertex& tkv);
-  
+  FSimTrack(int ipart,
+            const math::XYZTLorentzVector& p,
+            int iv,
+            int ig,
+            int id,
+            double charge,
+            const math::XYZTLorentzVector& tkp,
+            const math::XYZTLorentzVector& tkm,
+            const SimVertex& tkv);
+
   /// Destructor
   virtual ~FSimTrack();
 
   /// particle info...
-  inline const HepPDT::ParticleData* particleInfo() const {
-    return info_;
-  }
-  
+  inline const HepPDT::ParticleData* particleInfo() const { return info_; }
+
   /// charge
-  inline float charge() const { 
-    if(particleInfo() == nullptr) return charge_; 
+  inline float charge() const {
+    if (particleInfo() == nullptr)
+      return charge_;
     return particleInfo()->charge();
   }
-  
 
   /// Origin vertex
   inline const FSimVertex vertex() const;
@@ -73,20 +78,20 @@ class FSimTrack : public SimTrack {
   inline const std::vector<int>& daughters() const;
 
   /// no end vertex
-  inline bool  noEndVertex() const;
+  inline bool noEndVertex() const;
 
   /// Compare the end vertex position with another position.
   bool notYetToEndVertex(const XYZTLorentzVector& pos) const;
 
   /// no mother particle
-  inline bool  noMother() const; 
+  inline bool noMother() const;
 
   /// no daughters
-  inline bool  noDaughter() const;
+  inline bool noDaughter() const;
 
   /// The original GenParticle
   inline const HepMC::GenParticle* genParticle() const;
-   
+
   /// the index in FBaseSimEvent and other vectors
   inline int id() const { return id_; }
 
@@ -95,7 +100,7 @@ class FSimTrack : public SimTrack {
   /// 0 : not yet propagated or no pe
   inline int onLayer1() const { return layer1; }
 
-  /// The particle was propagated to the Preshower Layer2 
+  /// The particle was propagated to the Preshower Layer2
   /// 2 : on the EndCaps; (no Barrel Preshower); 3 : No propagation possible
   /// 0 : not yet propagated
   inline int onLayer2() const { return layer2; }
@@ -114,7 +119,7 @@ class FSimTrack : public SimTrack {
   /// 2 : on the EndCaps (No VFCAL Barrel); 3 : no propagation possible
   /// 0 : not yet propagated
   inline int onVFcal() const { return vfcal; }
-  
+
   /// The particle was propagated to the HCAL back face
   /// 1 : on the barrel; 2 : on the EndCaps; 3 : no propagation possible
   /// 0 : not yet propagated
@@ -156,10 +161,10 @@ class FSimTrack : public SimTrack {
   inline void setGlobal() { isGlobal_ = true; }
 
   /// Set origin vertex
-  inline void setOriginVertex(const SimVertex& v) { vertex_ = v; } 
+  inline void setOriginVertex(const SimVertex& v) { vertex_ = v; }
 
   /// Set the end vertex
-  inline void setEndVertex(int endv) { endv_ = endv; } 
+  inline void setEndVertex(int endv) { endv_ = endv; }
 
   /// The particle has been propgated through the tracker
   void setPropagate();
@@ -171,7 +176,7 @@ class FSimTrack : public SimTrack {
   void setLayer2(const RawParticle& pp, int success);
 
   /// Set the ecal variables
-  void setEcal(const RawParticle& pp,int success);
+  void setEcal(const RawParticle& pp, int success);
 
   /// Set the hcal variables
   void setHcal(const RawParticle& pp, int success);
@@ -204,7 +209,7 @@ class FSimTrack : public SimTrack {
   const XYZTLorentzVector& momentum() const { return momentum_; }
 
   /// Reset the momentum (to be used with care)
-  inline void setMomentum(const math::XYZTLorentzVector& newMomentum) {momentum_ = newMomentum; }
+  inline void setMomentum(const math::XYZTLorentzVector& newMomentum) { momentum_ = newMomentum; }
 
   /// Simply returns the SimTrack
   inline const SimTrack& simTrack() const { return *this; }
@@ -212,61 +217,50 @@ class FSimTrack : public SimTrack {
   /// Return the pre-defined decay time
   inline double decayTime() const { return properDecayTime; }
 
- private:
-
+private:
   //  HepMC::GenParticle* me_;
   SimVertex vertex_;
 
   FBaseSimEvent* mom_;
   //  int embd_;   // The index in the SimTrack vector
-  int id_; // The index in the FSimTrackVector
-  double charge_; // Charge of the particle
-  
-  int endv_; // The index of the end vertex in FSimVertex
+  int id_;         // The index in the FSimTrackVector
+  double charge_;  // Charge of the particle
 
-  int layer1;// 1 if the particle was propagated to preshower layer1
-  int layer2;// 1 if the particle was propagated to preshower layer2
-  int ecal;  // 1 if the particle was propagated to ECAL/HCAL barrel
-  int hcal;  // 2 if the particle was propagated to ECAL/HCAL endcap 
-  int vfcal; // 1 if the particle was propagated to VFCAL 
+  int endv_;  // The index of the end vertex in FSimVertex
+
+  int layer1;    // 1 if the particle was propagated to preshower layer1
+  int layer2;    // 1 if the particle was propagated to preshower layer2
+  int ecal;      // 1 if the particle was propagated to ECAL/HCAL barrel
+  int hcal;      // 2 if the particle was propagated to ECAL/HCAL endcap
+  int vfcal;     // 1 if the particle was propagated to VFCAL
   int hcalexit;  // 2 if the particle was propagated to HCAL Exit point
-  int hoentr; // 1 if the particle was propagated to HO 
+  int hoentr;    // 1 if the particle was propagated to HO
 
+  bool prop;  // true if the propagation to the calorimeters was done
 
-  bool prop;     // true if the propagation to the calorimeters was done
+  RawParticle Layer1_Entrance;  // the particle at preshower Layer1
+  RawParticle Layer2_Entrance;  // the particle at preshower Layer2
+  RawParticle ECAL_Entrance;    // the particle at ECAL entrance
+  RawParticle HCAL_Entrance;    // the particle at HCAL entrance
+  RawParticle VFCAL_Entrance;   // the particle at VFCAL entrance
+  RawParticle HCAL_Exit;        // the particle at HCAL ezit point
+  RawParticle HO_Entrance;      // the particle at HO entrance
 
-  RawParticle Layer1_Entrance; // the particle at preshower Layer1
-  RawParticle Layer2_Entrance; // the particle at preshower Layer2
-  RawParticle ECAL_Entrance;   // the particle at ECAL entrance
-  RawParticle HCAL_Entrance;   // the particle at HCAL entrance
-  RawParticle VFCAL_Entrance;  // the particle at VFCAL entrance
-  RawParticle HCAL_Exit;       // the particle at HCAL ezit point
-  RawParticle HO_Entrance;     // the particle at HO entrance
+  std::vector<int> daugh_;  // The indices of the daughters in FSimTrack
+  int closestDaughterId_;   // The index of the closest daughter id
 
-
-  std::vector<int> daugh_; // The indices of the daughters in FSimTrack
-  int closestDaughterId_; // The index of the closest daughter id
-
-  const HepPDT::ParticleData* info_; // The PDG info
+  const HepPDT::ParticleData* info_;  // The PDG info
 
   XYZTLorentzVector momentum_;
 
-  double properDecayTime; // The proper decay time  (default is -1)
+  double properDecayTime;  // The proper decay time  (default is -1)
 
-  bool isGlobal_; // needed for interfacing the new particle propagator with the old muon sim hit code
-
+  bool isGlobal_;  // needed for interfacing the new particle propagator with the old muon sim hit code
 };
 
-#include<iosfwd>
-std::ostream& operator <<(std::ostream& o , const FSimTrack& t);
+#include <iosfwd>
+std::ostream& operator<<(std::ostream& o, const FSimTrack& t);
 
 #include "FastSimulation/Event/interface/FSimTrack.icc"
 
-
-
-#endif // FSimTrack_H
-
-
-
-
-
+#endif  // FSimTrack_H

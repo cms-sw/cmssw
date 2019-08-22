@@ -59,7 +59,7 @@
 ///
 ///      TEcnaHistos* MyHistosEB = new TEcnaHistos("EB");
 ///      TEcnaHistos* MyHistosEE = new TEcnaHistos("EE");
-///      
+///
 ///   // (B) --> Specification of the file which has to be read.
 ///   //         This file is a .root result file which has previously been written by means of
 ///   //         the class TEcnaRun (see documentation of this class)
@@ -76,15 +76,15 @@
 ///
 ///   //  2) call method "FileParameters" to say that the file to be read is the file
 ///   //     which name parameters are those specified above:
-/// 
+///
 ///      MyHistosEB->FileParameters(AnalysisName, NbOfSamples, RunNumber,
-///                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, SMNumber); 
+///                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, SMNumber);
 ///
 ///   //  Now, the class TEcnaHistos knowns that it has to work
 ///   //  with the file StdPed12_S1_10_R112206_1_150_150_SM2.root
 ///
-///   // (C) -->  E X A M P L E S   O F   U S E 
-/// 
+///   // (C) -->  E X A M P L E S   O F   U S E
+///
 ///   //--> Plot correlation matrices between samples
 ///   //    for channel 21 (electronic channel number in Tower)
 ///   //    and for the two towers 10 and 33
@@ -107,7 +107,7 @@
 ///
 ///   // (D) -->  O T H E R   E X A M P L E S
 ///
-///    //--> Plot Pedestals as a function of SC number for Dee 4 
+///    //--> Plot Pedestals as a function of SC number for Dee 4
 ///
 ///      TString AnalysisName      = "StdPed12"; (AnalysisName -> explanation in TEcnaRun documentation)
 ///      Int_t   NbOfSamples       = 10;
@@ -118,7 +118,7 @@
 ///
 ///      Int_t   DeeNumber = 4;
 ///      MyHistosEE->FileParameters(AnalysisName, NbOfSamples, RunNumber,
-///                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, DeeNumber); 
+///                                 FirstReqEvtNumber, LastReqEvtNumber, ReqNbOfEvts, DeeNumber);
 ///
 ///      MyHistoEE->PlotDetector("Ped", "Dee");          // 2D Histo: Z = pedestal, detector = Dee
 ///      MyHistoEE->Plot1DHisto("Tow", "TNo", "EE");     // 1D Histo: X = tower#, Y = Total noise, detector = EE
@@ -132,7 +132,7 @@
 ///      Int_t TowEcha = 12;
 ///      TString list_of_run_file_name = "HistoryRunList_132440_132665.ascii";
 ///      MyHistoEB->PlotHistory("Time", "MeanCorss", list_of_run_file_name, SMTower, TowEcha);
-///      
+///
 ///    // the .ascii file "HistoryRunList_132440_132665.ascii" must contain a list of
 ///    // the run numbers according to the following syntax:
 ///
@@ -167,7 +167,7 @@
 ///  //   RunNumber = 0 => history plots, SM or Dee number = 0 => Plots for EB or EE
 ///  //==================================================================================================
 ///
-///  void FileParameters(const TString& Analysis,         
+///  void FileParameters(const TString& Analysis,
 ///                      const Int_t&  NbOfSamples,
 ///                      const Int_t&  Run#,               // RunNumber = 0 => history plots
 ///		         const Int_t&  FirstRequestedEvt#,
@@ -185,7 +185,7 @@
 ///  //==================================================================================================
 ///  //                  methods for displaying the correlations and covariances matrices
 ///  //                  PlotOption = ROOT DrawOption ("SAME", "LEGO", "COLZ", etc...)
-///  //                               + option "ASCII": write histo in ASCII file 
+///  //                               + option "ASCII": write histo in ASCII file
 ///  //==================================================================================================
 ///  //..................... Corcc[for 1 Stex] (big matrix)
 ///    void PlotMatrix
@@ -194,7 +194,7 @@
 ///
 ///    void PlotMatrix   (const TString&, const TString&,   [const TString&]);
 ///                       UserCorOrCov,  UserBetweenWhat, [PlotOption]
-///  
+///
 ///    //..................... Corcc[for 1 Stin], Corss[for 1 Echa], Covss[for 1 Echa]
 ///    void PlotMatrix
 ///    (const TMatrixD&, const TString&, const TString&,   const Int_t&, const Int_t&, [const TString&]);
@@ -202,7 +202,7 @@
 ///
 ///    void PlotMatrix  (const TString&, const TString&,   const Int_t&, const Int_t&, [const TString&]);
 ///                      UserCorOrCov,  UserBetweenWhat, arg_n1,       arg_n2,       [PlotOption]
-///  
+///
 ///  //==================================================================================================
 ///  //                  methods for displaying the 2D views of the detector
 ///  //
@@ -214,12 +214,12 @@
 ///
 ///    void PlotDetector(const TString&, const TString&);
 ///                      UserHistoCode, Detector
-///  
+///
 ///  //==================================================================================================
 ///  //                             methods for displaying 1D histos
 ///  //
 ///  //     PlotOption: optional argument ("ONLYONE", "SAME","SAME n"  or "ASCII")
-///  //      
+///  //
 ///  //  "ONLYONE" :  display only one histo (default; same as without argument)
 ///  //  "SAME"    :  Same as Draw Option "SAME" in ROOT: superimpose on previous picture in the same pad
 ///  //               1D histos of only one quantity
@@ -259,7 +259,7 @@
 ///  //==================================================================================================
 ///  //                     method for displaying 1D history plots
 ///  //==================================================================================================
-/// 
+///
 ///  void PlotHistory
 ///       (const TString&,   const TString&,   const TString&,         const Int_t&, const Int_t&, [const TString&]);
 ///        User_X_Quantity, User_Y_Quantity, list_of_run_file_name, StexStin_A,   i0StinEcha,   [PlotOption]
@@ -280,7 +280,7 @@
 ///  void GeneralTitle(const TString& Title);
 ///
 ///  //==================================================================================================
-///  //                        Lin:Log scale (SCALE = "LIN" or "LOG") 
+///  //                        Lin:Log scale (SCALE = "LIN" or "LOG")
 ///  //==================================================================================================
 ///  void SetHistoScaleX(const TString& SCALE);
 ///  void SetHistoScaleY(const TString& SCALE);
@@ -314,7 +314,7 @@
 ///     http://cms-fabbro.web.cern.ch/cms-fabbro/
 ///     cna_new/Correlated_Noise_Analysis/ECNA_main_page.htm
 ///
-///   For questions or comments, please send e-mail to: bernard.fabbro@cea.fr 
+///   For questions or comments, please send e-mail to: bernard.fabbro@cea.fr
 ///
 
 // ------- methods called by ReadAnd[Plot1DHisto]
@@ -341,21 +341,18 @@
 //
 
 class TEcnaHistos : public TObject {
-
   RQ_OBJECT("TEcnaHistos")
 
- private:
-
+private:
   //..... Attributes
 
   constexpr static int charArrLen = 512;  // Max nb of caracters for char*
   Int_t fZerv;                            // = 0 , for ViewHisto non used arguments
   Int_t fUnev;                            // = 1 , for ViewHisto non used arguments
 
-
   Int_t fCnaCommand, fCnaError;
-  Int_t fCnew,       fCdelete;
-  Int_t fCnewRoot,   fCdeleteRoot;
+  Int_t fCnew, fCdelete;
+  Int_t fCnewRoot, fCdeleteRoot;
 
   TString fTTBELL;
 
@@ -366,53 +363,53 @@ class TEcnaHistos : public TObject {
 
   //...........................................
   TEcnaParHistos* fCnaParHistos;
-  TEcnaParPaths*  fCnaParPaths;
-  TEcnaParCout*   fCnaParCout;
-  TEcnaWrite*     fCnaWrite;
-  TEcnaParEcal*   fEcal;
+  TEcnaParPaths* fCnaParPaths;
+  TEcnaParCout* fCnaParCout;
+  TEcnaWrite* fCnaWrite;
+  TEcnaParEcal* fEcal;
   TEcnaNumbering* fEcalNumbering;
-  TEcnaHeader*    fFileHeader;
+  TEcnaHeader* fFileHeader;
 
-  TEcnaRead*      fMyRootFile;
-  Int_t           fAlreadyRead;
-  Int_t           fMemoAlreadyRead;
-  Int_t           fTobeRead;
-  TVectorD        fReadHistoDummy;
-  TMatrixD        fReadMatrixDummy;
+  TEcnaRead* fMyRootFile;
+  Int_t fAlreadyRead;
+  Int_t fMemoAlreadyRead;
+  Int_t fTobeRead;
+  TVectorD fReadHistoDummy;
+  TMatrixD fReadMatrixDummy;
 
   std::ifstream fFcin_f;
 
-  TString fFapAnaType;             // Type of analysis
-  Int_t   fFapNbOfSamples;         // Nb of required samples
-  Int_t   fFapRunNumber;           // Run number
-  Int_t   fFapFirstReqEvtNumber;   // First requested event number
-  Int_t   fFapLastReqEvtNumber;    // Last requested event number
-  Int_t   fFapReqNbOfEvts;         // Requested number of events
-  Int_t   fFapStexNumber;          // Stex number
+  TString fFapAnaType;          // Type of analysis
+  Int_t fFapNbOfSamples;        // Nb of required samples
+  Int_t fFapRunNumber;          // Run number
+  Int_t fFapFirstReqEvtNumber;  // First requested event number
+  Int_t fFapLastReqEvtNumber;   // Last requested event number
+  Int_t fFapReqNbOfEvts;        // Requested number of events
+  Int_t fFapStexNumber;         // Stex number
 
-  Int_t   fFapNbOfEvts;            // Number of found events
+  Int_t fFapNbOfEvts;  // Number of found events
 
-  Int_t   fFapMaxNbOfRuns;         // Maximum Number of runs
-  Int_t   fFapNbOfRuns;            // Number of runs
-  TString fFapFileRuns;            // name of the file containing the list of run parameters
+  Int_t fFapMaxNbOfRuns;  // Maximum Number of runs
+  Int_t fFapNbOfRuns;     // Number of runs
+  TString fFapFileRuns;   // name of the file containing the list of run parameters
 
   Int_t fStartEvolRun, fStopEvolRun;
   Int_t fNbOfExistingRuns;
 
-  time_t  fStartEvolTime, fStopEvolTime;
+  time_t fStartEvolTime, fStopEvolTime;
   TString fStartEvolDate, fStopEvolDate;
 
-  TString fFapStexBarrel;          // Barrel type of the Stex (barrel+ OR barrel-)   (EB only)
-  TString fFapStexType;            // type of the Dee (EE+F, EE+N, EE-F, EE-N)       (EE only)
-  TString fFapStexDir;             // direction of the Dee (right, left)             (EE only)
-  TString fFapStinQuadType;        // quadrant type of the SC (top, bottom)          (EE only)
- 
-  TString fFapStexName;            // Stex name:               "SM"      (for EB) or "Dee"     (for EE)
-  TString fFapStinName;            // Stin name:               "tower"   (for EB) or "SC"      (for EE)
-  TString fFapXtalName;            // Xtal name:               "xtal"    (for EB) or "Xtal"    (for EE)
-  TString fFapEchaName;            // Electronic channel name: "Chan"    (for EB) or "Chan"    (for EE)
+  TString fFapStexBarrel;    // Barrel type of the Stex (barrel+ OR barrel-)   (EB only)
+  TString fFapStexType;      // type of the Dee (EE+F, EE+N, EE-F, EE-N)       (EE only)
+  TString fFapStexDir;       // direction of the Dee (right, left)             (EE only)
+  TString fFapStinQuadType;  // quadrant type of the SC (top, bottom)          (EE only)
 
-  TString fMyRootFileName;  // memo Root file name used in SetFile() for obtaining the number of found events 
+  TString fFapStexName;  // Stex name:               "SM"      (for EB) or "Dee"     (for EE)
+  TString fFapStinName;  // Stin name:               "tower"   (for EB) or "SC"      (for EE)
+  TString fFapXtalName;  // Xtal name:               "xtal"    (for EB) or "Xtal"    (for EE)
+  TString fFapEchaName;  // Electronic channel name: "Chan"    (for EB) or "Chan"    (for EE)
+
+  TString fMyRootFileName;  // memo Root file name used in SetFile() for obtaining the number of found events
 
   TString fCfgResultsRootFilePath;     // absolute path for the results .root files (/afs/etc...)
   TString fCfgHistoryRunListFilePath;  // absolute path for the list-of-runs .ascii files (/afs/etc...)
@@ -422,28 +419,28 @@ class TEcnaHistos : public TObject {
   Bool_t fStatusFileFound;
   Bool_t fStatusDataExist;
 
-  time_t  fStartTime, fStopTime;
+  time_t fStartTime, fStopTime;
   TString fStartDate, fStopDate;
   TString fRunType;
 
-  TString* fT1DAnaType;             // Type of analysis
-  Int_t*   fT1DRunNumber;           // Run number
+  TString* fT1DAnaType;  // Type of analysis
+  Int_t* fT1DRunNumber;  // Run number
 
-  TString* fT1DResultsRootFilePath; // absolute path for the ROOT files (/afs/etc... )
-  TString* fT1DHistoryRunListFilePath;   // absolute path for the list-of-runs .ascii files (/afs/etc...)
+  TString* fT1DResultsRootFilePath;     // absolute path for the ROOT files (/afs/etc... )
+  TString* fT1DHistoryRunListFilePath;  // absolute path for the list-of-runs .ascii files (/afs/etc...)
 
-  Int_t fStinSizeInCrystals;   // Size of one Stin in term of crystals
-                               // (a Stin contains fStinSizeInCrystals*fStinSizeInCrystals crystals)
+  Int_t fStinSizeInCrystals;  // Size of one Stin in term of crystals
+                              // (a Stin contains fStinSizeInCrystals*fStinSizeInCrystals crystals)
   TString fFlagScaleX;
   TString fFlagScaleY;
   TString fFlagColPal;
   TString fFlagGeneralTitle;
 
-  Double_t fUserHistoMin,     fUserHistoMax;
-  TString  fFlagUserHistoMin, fFlagUserHistoMax;
+  Double_t fUserHistoMin, fUserHistoMax;
+  TString fFlagUserHistoMin, fFlagUserHistoMax;
 
-  Int_t fOptVisLego,   fOptVisColz,   fOptVisSurf1,  fOptVisSurf4;
-  Int_t fOptVisLine,   fOptVisPolm;
+  Int_t fOptVisLego, fOptVisColz, fOptVisSurf1, fOptVisSurf4;
+  Int_t fOptVisLine, fOptVisPolm;
 
   Int_t fOptScaleLinx, fOptScaleLogx, fOptScaleLiny, fOptScaleLogy;
 
@@ -453,10 +450,10 @@ class TEcnaHistos : public TObject {
   TString fLFBetweenChannels, fHFBetweenChannels;
   TString fLFBetweenStins, fHFBetweenStins;
 
-  Int_t   fTextPaveAlign;
-  Int_t   fTextPaveFont;
+  Int_t fTextPaveAlign;
+  Int_t fTextPaveFont;
   Float_t fTextPaveSize;
-  Int_t   fTextBorderSize;
+  Int_t fTextBorderSize;
 
   Double_t fXinf, fXsup, fYinf, fYsup;
 
@@ -535,7 +532,7 @@ class TEcnaHistos : public TObject {
 
   //.................................... Ymin, Ymax
 
-  TString  fHistoCodeFirst;  // HistoCode of the first histo in option SAME n
+  TString fHistoCodeFirst;  // HistoCode of the first histo in option SAME n
   Double_t fD_NOE_ChNbYmin;
   Double_t fD_NOE_ChNbYmax;
   Double_t fD_NOE_ChDsYmin;
@@ -619,8 +616,8 @@ class TEcnaHistos : public TObject {
   TPaveText* fPavComAnaRun;
   TPaveText* fPavComNbOfEvts;
   TPaveText* fPavComSeveralChanging;
-  TPaveText* fPavComLVRB;                 // specific EB
-  TPaveText* fPavComCxyz;                 // specific EE
+  TPaveText* fPavComLVRB;  // specific EB
+  TPaveText* fPavComCxyz;  // specific EE
   TPaveText* fPavComEvolRuns;
   TPaveText* fPavComEvolNbOfEvtsAna;
 
@@ -628,353 +625,352 @@ class TEcnaHistos : public TObject {
   TString fSeveralPlot;
   TString fSameOnePlot;
   TString fAllXtalsInStinPlot;
-  Int_t   fPlotAllXtalsInStin;
+  Int_t fPlotAllXtalsInStin;
 
-  Int_t  fMemoPlotH1SamePlus;
-  Int_t  fMemoPlotD_NOE_ChNb, fMemoPlotD_NOE_ChDs;
-  Int_t  fMemoPlotD_Ped_ChNb, fMemoPlotD_Ped_ChDs;
-  Int_t  fMemoPlotD_TNo_ChNb, fMemoPlotD_TNo_ChDs; 
-  Int_t  fMemoPlotD_MCs_ChNb, fMemoPlotD_MCs_ChDs;
-  Int_t  fMemoPlotD_LFN_ChNb, fMemoPlotD_LFN_ChDs; 
-  Int_t  fMemoPlotD_HFN_ChNb, fMemoPlotD_HFN_ChDs; 
-  Int_t  fMemoPlotD_SCs_ChNb, fMemoPlotD_SCs_ChDs; 
-  Int_t  fMemoPlotD_MSp_SpNb, fMemoPlotD_SSp_SpNb; 
-  Int_t  fMemoPlotD_MSp_SpDs, fMemoPlotD_SSp_SpDs;
-  Int_t  fMemoPlotD_Adc_EvNb, fMemoPlotD_Adc_EvDs;
-  Int_t  fMemoPlotH_Ped_Date, fMemoPlotH_Ped_RuDs;
-  Int_t  fMemoPlotH_TNo_Date, fMemoPlotH_TNo_RuDs;
-  Int_t  fMemoPlotH_LFN_Date, fMemoPlotH_LFN_RuDs;
-  Int_t  fMemoPlotH_HFN_Date, fMemoPlotH_HFN_RuDs;
-  Int_t  fMemoPlotH_MCs_Date, fMemoPlotH_MCs_RuDs;
-  Int_t  fMemoPlotH_SCs_Date, fMemoPlotH_SCs_RuDs;
+  Int_t fMemoPlotH1SamePlus;
+  Int_t fMemoPlotD_NOE_ChNb, fMemoPlotD_NOE_ChDs;
+  Int_t fMemoPlotD_Ped_ChNb, fMemoPlotD_Ped_ChDs;
+  Int_t fMemoPlotD_TNo_ChNb, fMemoPlotD_TNo_ChDs;
+  Int_t fMemoPlotD_MCs_ChNb, fMemoPlotD_MCs_ChDs;
+  Int_t fMemoPlotD_LFN_ChNb, fMemoPlotD_LFN_ChDs;
+  Int_t fMemoPlotD_HFN_ChNb, fMemoPlotD_HFN_ChDs;
+  Int_t fMemoPlotD_SCs_ChNb, fMemoPlotD_SCs_ChDs;
+  Int_t fMemoPlotD_MSp_SpNb, fMemoPlotD_SSp_SpNb;
+  Int_t fMemoPlotD_MSp_SpDs, fMemoPlotD_SSp_SpDs;
+  Int_t fMemoPlotD_Adc_EvNb, fMemoPlotD_Adc_EvDs;
+  Int_t fMemoPlotH_Ped_Date, fMemoPlotH_Ped_RuDs;
+  Int_t fMemoPlotH_TNo_Date, fMemoPlotH_TNo_RuDs;
+  Int_t fMemoPlotH_LFN_Date, fMemoPlotH_LFN_RuDs;
+  Int_t fMemoPlotH_HFN_Date, fMemoPlotH_HFN_RuDs;
+  Int_t fMemoPlotH_MCs_Date, fMemoPlotH_MCs_RuDs;
+  Int_t fMemoPlotH_SCs_Date, fMemoPlotH_SCs_RuDs;
 
-  Int_t  fMemoColorH1SamePlus;
-  Int_t  fMemoColorD_NOE_ChNb, fMemoColorD_NOE_ChDs;
-  Int_t  fMemoColorD_Ped_ChNb, fMemoColorD_Ped_ChDs;
-  Int_t  fMemoColorD_TNo_ChNb, fMemoColorD_TNo_ChDs; 
-  Int_t  fMemoColorD_MCs_ChNb, fMemoColorD_MCs_ChDs;
-  Int_t  fMemoColorD_LFN_ChNb, fMemoColorD_LFN_ChDs; 
-  Int_t  fMemoColorD_HFN_ChNb, fMemoColorD_HFN_ChDs; 
-  Int_t  fMemoColorD_SCs_ChNb, fMemoColorD_SCs_ChDs; 
-  Int_t  fMemoColorD_MSp_SpNb, fMemoColorD_SSp_SpNb;
-  Int_t  fMemoColorD_MSp_SpDs, fMemoColorD_SSp_SpDs;
-  Int_t  fMemoColorD_Adc_EvNb, fMemoColorD_Adc_EvDs;
-  Int_t  fMemoColorH_Ped_Date, fMemoColorH_Ped_RuDs;
-  Int_t  fMemoColorH_TNo_Date, fMemoColorH_TNo_RuDs;
-  Int_t  fMemoColorH_LFN_Date, fMemoColorH_LFN_RuDs;
-  Int_t  fMemoColorH_HFN_Date, fMemoColorH_HFN_RuDs;
-  Int_t  fMemoColorH_MCs_Date, fMemoColorH_MCs_RuDs; 
-  Int_t  fMemoColorH_SCs_Date, fMemoColorH_SCs_RuDs;
+  Int_t fMemoColorH1SamePlus;
+  Int_t fMemoColorD_NOE_ChNb, fMemoColorD_NOE_ChDs;
+  Int_t fMemoColorD_Ped_ChNb, fMemoColorD_Ped_ChDs;
+  Int_t fMemoColorD_TNo_ChNb, fMemoColorD_TNo_ChDs;
+  Int_t fMemoColorD_MCs_ChNb, fMemoColorD_MCs_ChDs;
+  Int_t fMemoColorD_LFN_ChNb, fMemoColorD_LFN_ChDs;
+  Int_t fMemoColorD_HFN_ChNb, fMemoColorD_HFN_ChDs;
+  Int_t fMemoColorD_SCs_ChNb, fMemoColorD_SCs_ChDs;
+  Int_t fMemoColorD_MSp_SpNb, fMemoColorD_SSp_SpNb;
+  Int_t fMemoColorD_MSp_SpDs, fMemoColorD_SSp_SpDs;
+  Int_t fMemoColorD_Adc_EvNb, fMemoColorD_Adc_EvDs;
+  Int_t fMemoColorH_Ped_Date, fMemoColorH_Ped_RuDs;
+  Int_t fMemoColorH_TNo_Date, fMemoColorH_TNo_RuDs;
+  Int_t fMemoColorH_LFN_Date, fMemoColorH_LFN_RuDs;
+  Int_t fMemoColorH_HFN_Date, fMemoColorH_HFN_RuDs;
+  Int_t fMemoColorH_MCs_Date, fMemoColorH_MCs_RuDs;
+  Int_t fMemoColorH_SCs_Date, fMemoColorH_SCs_RuDs;
 
-  Int_t  fNbBinsProj;
+  Int_t fNbBinsProj;
 
-  TString  fXMemoH1SamePlus;
-  TString  fXMemoD_NOE_ChNb;
-  TString  fXMemoD_NOE_ChDs;
-  TString  fXMemoD_Ped_ChNb;
-  TString  fXMemoD_Ped_ChDs;
-  TString  fXMemoD_TNo_ChNb;
-  TString  fXMemoD_TNo_ChDs; 
-  TString  fXMemoD_MCs_ChNb; 
-  TString  fXMemoD_MCs_ChDs;
-  TString  fXMemoD_LFN_ChNb;
-  TString  fXMemoD_LFN_ChDs; 
-  TString  fXMemoD_HFN_ChNb;   
-  TString  fXMemoD_HFN_ChDs; 
-  TString  fXMemoD_SCs_ChNb; 
-  TString  fXMemoD_SCs_ChDs; 
-  TString  fXMemoD_MSp_SpNb; 
-  TString  fXMemoD_MSp_SpDs;
-  TString  fXMemoD_SSp_SpNb; 
-  TString  fXMemoD_SSp_SpDs;
-  TString  fXMemoD_Adc_EvDs;     
-  TString  fXMemoD_Adc_EvNb;
-  TString  fXMemoH_Ped_Date;
-  TString  fXMemoH_TNo_Date;
-  TString  fXMemoH_MCs_Date;
-  TString  fXMemoH_LFN_Date;
-  TString  fXMemoH_HFN_Date;
-  TString  fXMemoH_SCs_Date;
-  TString  fXMemoH_Ped_RuDs;
-  TString  fXMemoH_TNo_RuDs;
-  TString  fXMemoH_MCs_RuDs;
-  TString  fXMemoH_LFN_RuDs;
-  TString  fXMemoH_HFN_RuDs;
-  TString  fXMemoH_SCs_RuDs;
+  TString fXMemoH1SamePlus;
+  TString fXMemoD_NOE_ChNb;
+  TString fXMemoD_NOE_ChDs;
+  TString fXMemoD_Ped_ChNb;
+  TString fXMemoD_Ped_ChDs;
+  TString fXMemoD_TNo_ChNb;
+  TString fXMemoD_TNo_ChDs;
+  TString fXMemoD_MCs_ChNb;
+  TString fXMemoD_MCs_ChDs;
+  TString fXMemoD_LFN_ChNb;
+  TString fXMemoD_LFN_ChDs;
+  TString fXMemoD_HFN_ChNb;
+  TString fXMemoD_HFN_ChDs;
+  TString fXMemoD_SCs_ChNb;
+  TString fXMemoD_SCs_ChDs;
+  TString fXMemoD_MSp_SpNb;
+  TString fXMemoD_MSp_SpDs;
+  TString fXMemoD_SSp_SpNb;
+  TString fXMemoD_SSp_SpDs;
+  TString fXMemoD_Adc_EvDs;
+  TString fXMemoD_Adc_EvNb;
+  TString fXMemoH_Ped_Date;
+  TString fXMemoH_TNo_Date;
+  TString fXMemoH_MCs_Date;
+  TString fXMemoH_LFN_Date;
+  TString fXMemoH_HFN_Date;
+  TString fXMemoH_SCs_Date;
+  TString fXMemoH_Ped_RuDs;
+  TString fXMemoH_TNo_RuDs;
+  TString fXMemoH_MCs_RuDs;
+  TString fXMemoH_LFN_RuDs;
+  TString fXMemoH_HFN_RuDs;
+  TString fXMemoH_SCs_RuDs;
 
-  TString  fYMemoH1SamePlus;
-  TString  fYMemoD_NOE_ChNb;
-  TString  fYMemoD_NOE_ChDs;
-  TString  fYMemoD_Ped_ChNb;
-  TString  fYMemoD_Ped_ChDs;
-  TString  fYMemoD_TNo_ChNb;   
-  TString  fYMemoD_TNo_ChDs; 
-  TString  fYMemoD_MCs_ChNb; 
-  TString  fYMemoD_MCs_ChDs;
-  TString  fYMemoD_LFN_ChNb;
-  TString  fYMemoD_LFN_ChDs; 
-  TString  fYMemoD_HFN_ChNb;   
-  TString  fYMemoD_HFN_ChDs; 
-  TString  fYMemoD_SCs_ChNb; 
-  TString  fYMemoD_SCs_ChDs; 
-  TString  fYMemoD_MSp_SpNb; 
-  TString  fYMemoD_MSp_SpDs;
-  TString  fYMemoD_SSp_SpNb;
-  TString  fYMemoD_SSp_SpDs;  
-  TString  fYMemoD_Adc_EvDs;     
-  TString  fYMemoD_Adc_EvNb;
-  TString  fYMemoH_Ped_Date;
-  TString  fYMemoH_TNo_Date;
-  TString  fYMemoH_MCs_Date;
-  TString  fYMemoH_LFN_Date;
-  TString  fYMemoH_HFN_Date;
-  TString  fYMemoH_SCs_Date;
-  TString  fYMemoH_Ped_RuDs;
-  TString  fYMemoH_TNo_RuDs;
-  TString  fYMemoH_MCs_RuDs;
-  TString  fYMemoH_LFN_RuDs;
-  TString  fYMemoH_HFN_RuDs;
-  TString  fYMemoH_SCs_RuDs;
+  TString fYMemoH1SamePlus;
+  TString fYMemoD_NOE_ChNb;
+  TString fYMemoD_NOE_ChDs;
+  TString fYMemoD_Ped_ChNb;
+  TString fYMemoD_Ped_ChDs;
+  TString fYMemoD_TNo_ChNb;
+  TString fYMemoD_TNo_ChDs;
+  TString fYMemoD_MCs_ChNb;
+  TString fYMemoD_MCs_ChDs;
+  TString fYMemoD_LFN_ChNb;
+  TString fYMemoD_LFN_ChDs;
+  TString fYMemoD_HFN_ChNb;
+  TString fYMemoD_HFN_ChDs;
+  TString fYMemoD_SCs_ChNb;
+  TString fYMemoD_SCs_ChDs;
+  TString fYMemoD_MSp_SpNb;
+  TString fYMemoD_MSp_SpDs;
+  TString fYMemoD_SSp_SpNb;
+  TString fYMemoD_SSp_SpDs;
+  TString fYMemoD_Adc_EvDs;
+  TString fYMemoD_Adc_EvNb;
+  TString fYMemoH_Ped_Date;
+  TString fYMemoH_TNo_Date;
+  TString fYMemoH_MCs_Date;
+  TString fYMemoH_LFN_Date;
+  TString fYMemoH_HFN_Date;
+  TString fYMemoH_SCs_Date;
+  TString fYMemoH_Ped_RuDs;
+  TString fYMemoH_TNo_RuDs;
+  TString fYMemoH_MCs_RuDs;
+  TString fYMemoH_LFN_RuDs;
+  TString fYMemoH_HFN_RuDs;
+  TString fYMemoH_SCs_RuDs;
 
-  Int_t  fNbBinsMemoH1SamePlus;
-  Int_t  fNbBinsMemoD_NOE_ChNb;
-  Int_t  fNbBinsMemoD_NOE_ChDs;
-  Int_t  fNbBinsMemoD_Ped_ChNb;
-  Int_t  fNbBinsMemoD_Ped_ChDs;
-  Int_t  fNbBinsMemoD_TNo_ChNb;   
-  Int_t  fNbBinsMemoD_TNo_ChDs; 
-  Int_t  fNbBinsMemoD_MCs_ChNb; 
-  Int_t  fNbBinsMemoD_MCs_ChDs;
-  Int_t  fNbBinsMemoD_LFN_ChNb;
-  Int_t  fNbBinsMemoD_LFN_ChDs;
-  Int_t  fNbBinsMemoD_HFN_ChNb; 
-  Int_t  fNbBinsMemoD_HFN_ChDs;
-  Int_t  fNbBinsMemoD_SCs_ChNb;
-  Int_t  fNbBinsMemoD_SCs_ChDs;
-  Int_t  fNbBinsMemoD_MSp_SpNb;
-  Int_t  fNbBinsMemoD_MSp_SpDs;
-  Int_t  fNbBinsMemoD_SSp_SpNb;
-  Int_t  fNbBinsMemoD_SSp_SpDs;
-  Int_t  fNbBinsMemoD_Adc_EvDs;     
-  Int_t  fNbBinsMemoD_Adc_EvNb;
-  Int_t  fNbBinsMemoH_Ped_Date;
-  Int_t  fNbBinsMemoH_TNo_Date;
-  Int_t  fNbBinsMemoH_MCs_Date;
-  Int_t  fNbBinsMemoH_LFN_Date;
-  Int_t  fNbBinsMemoH_HFN_Date;
-  Int_t  fNbBinsMemoH_SCs_Date;
-  Int_t  fNbBinsMemoH_Ped_RuDs;
-  Int_t  fNbBinsMemoH_TNo_RuDs;
-  Int_t  fNbBinsMemoH_MCs_RuDs;
-  Int_t  fNbBinsMemoH_LFN_RuDs;
-  Int_t  fNbBinsMemoH_HFN_RuDs;
-  Int_t  fNbBinsMemoH_SCs_RuDs;
+  Int_t fNbBinsMemoH1SamePlus;
+  Int_t fNbBinsMemoD_NOE_ChNb;
+  Int_t fNbBinsMemoD_NOE_ChDs;
+  Int_t fNbBinsMemoD_Ped_ChNb;
+  Int_t fNbBinsMemoD_Ped_ChDs;
+  Int_t fNbBinsMemoD_TNo_ChNb;
+  Int_t fNbBinsMemoD_TNo_ChDs;
+  Int_t fNbBinsMemoD_MCs_ChNb;
+  Int_t fNbBinsMemoD_MCs_ChDs;
+  Int_t fNbBinsMemoD_LFN_ChNb;
+  Int_t fNbBinsMemoD_LFN_ChDs;
+  Int_t fNbBinsMemoD_HFN_ChNb;
+  Int_t fNbBinsMemoD_HFN_ChDs;
+  Int_t fNbBinsMemoD_SCs_ChNb;
+  Int_t fNbBinsMemoD_SCs_ChDs;
+  Int_t fNbBinsMemoD_MSp_SpNb;
+  Int_t fNbBinsMemoD_MSp_SpDs;
+  Int_t fNbBinsMemoD_SSp_SpNb;
+  Int_t fNbBinsMemoD_SSp_SpDs;
+  Int_t fNbBinsMemoD_Adc_EvDs;
+  Int_t fNbBinsMemoD_Adc_EvNb;
+  Int_t fNbBinsMemoH_Ped_Date;
+  Int_t fNbBinsMemoH_TNo_Date;
+  Int_t fNbBinsMemoH_MCs_Date;
+  Int_t fNbBinsMemoH_LFN_Date;
+  Int_t fNbBinsMemoH_HFN_Date;
+  Int_t fNbBinsMemoH_SCs_Date;
+  Int_t fNbBinsMemoH_Ped_RuDs;
+  Int_t fNbBinsMemoH_TNo_RuDs;
+  Int_t fNbBinsMemoH_MCs_RuDs;
+  Int_t fNbBinsMemoH_LFN_RuDs;
+  Int_t fNbBinsMemoH_HFN_RuDs;
+  Int_t fNbBinsMemoH_SCs_RuDs;
   //.......................................................
-  TString   fCurrentCanvasName;
-  TCanvas*  fCurrentCanvas;
+  TString fCurrentCanvasName;
+  TCanvas* fCurrentCanvas;
 
-  TCanvas*  fCanvH1SamePlus;
-  TCanvas*  fCanvD_NOE_ChNb;
-  TCanvas*  fCanvD_NOE_ChDs;
-  TCanvas*  fCanvD_Ped_ChNb;
-  TCanvas*  fCanvD_Ped_ChDs;
-  TCanvas*  fCanvD_TNo_ChNb;
-  TCanvas*  fCanvD_TNo_ChDs;
-  TCanvas*  fCanvD_MCs_ChNb;
-  TCanvas*  fCanvD_MCs_ChDs;
-  TCanvas*  fCanvD_LFN_ChNb;
-  TCanvas*  fCanvD_LFN_ChDs;
-  TCanvas*  fCanvD_HFN_ChNb; 
-  TCanvas*  fCanvD_HFN_ChDs;
-  TCanvas*  fCanvD_SCs_ChNb;
-  TCanvas*  fCanvD_SCs_ChDs;
-  TCanvas*  fCanvD_MSp_SpNb;
-  TCanvas*  fCanvD_MSp_SpDs;
-  TCanvas*  fCanvD_SSp_SpNb;
-  TCanvas*  fCanvD_SSp_SpDs;  
-  TCanvas*  fCanvD_Adc_EvDs;     
-  TCanvas*  fCanvD_Adc_EvNb;
-  TCanvas*  fCanvH_Ped_Date;
-  TCanvas*  fCanvH_TNo_Date;
-  TCanvas*  fCanvH_MCs_Date;
-  TCanvas*  fCanvH_LFN_Date;
-  TCanvas*  fCanvH_HFN_Date;
-  TCanvas*  fCanvH_SCs_Date;
-  TCanvas*  fCanvH_Ped_RuDs;
-  TCanvas*  fCanvH_TNo_RuDs;
-  TCanvas*  fCanvH_MCs_RuDs;
-  TCanvas*  fCanvH_LFN_RuDs;
-  TCanvas*  fCanvH_HFN_RuDs;
-  TCanvas*  fCanvH_SCs_RuDs;
+  TCanvas* fCanvH1SamePlus;
+  TCanvas* fCanvD_NOE_ChNb;
+  TCanvas* fCanvD_NOE_ChDs;
+  TCanvas* fCanvD_Ped_ChNb;
+  TCanvas* fCanvD_Ped_ChDs;
+  TCanvas* fCanvD_TNo_ChNb;
+  TCanvas* fCanvD_TNo_ChDs;
+  TCanvas* fCanvD_MCs_ChNb;
+  TCanvas* fCanvD_MCs_ChDs;
+  TCanvas* fCanvD_LFN_ChNb;
+  TCanvas* fCanvD_LFN_ChDs;
+  TCanvas* fCanvD_HFN_ChNb;
+  TCanvas* fCanvD_HFN_ChDs;
+  TCanvas* fCanvD_SCs_ChNb;
+  TCanvas* fCanvD_SCs_ChDs;
+  TCanvas* fCanvD_MSp_SpNb;
+  TCanvas* fCanvD_MSp_SpDs;
+  TCanvas* fCanvD_SSp_SpNb;
+  TCanvas* fCanvD_SSp_SpDs;
+  TCanvas* fCanvD_Adc_EvDs;
+  TCanvas* fCanvD_Adc_EvNb;
+  TCanvas* fCanvH_Ped_Date;
+  TCanvas* fCanvH_TNo_Date;
+  TCanvas* fCanvH_MCs_Date;
+  TCanvas* fCanvH_LFN_Date;
+  TCanvas* fCanvH_HFN_Date;
+  TCanvas* fCanvH_SCs_Date;
+  TCanvas* fCanvH_Ped_RuDs;
+  TCanvas* fCanvH_TNo_RuDs;
+  TCanvas* fCanvH_MCs_RuDs;
+  TCanvas* fCanvH_LFN_RuDs;
+  TCanvas* fCanvH_HFN_RuDs;
+  TCanvas* fCanvH_SCs_RuDs;
 
-  Bool_t  fClosedH1SamePlus;
-  Bool_t  fClosedD_NOE_ChNb;
-  Bool_t  fClosedD_NOE_ChDs;
-  Bool_t  fClosedD_Ped_ChNb;
-  Bool_t  fClosedD_Ped_ChDs;
-  Bool_t  fClosedD_TNo_ChNb;
-  Bool_t  fClosedD_TNo_ChDs;
-  Bool_t  fClosedD_MCs_ChNb;
-  Bool_t  fClosedD_MCs_ChDs;
-  Bool_t  fClosedD_LFN_ChNb;
-  Bool_t  fClosedD_LFN_ChDs;
-  Bool_t  fClosedD_HFN_ChNb; 
-  Bool_t  fClosedD_HFN_ChDs;
-  Bool_t  fClosedD_SCs_ChNb;
-  Bool_t  fClosedD_SCs_ChDs;
-  Bool_t  fClosedD_MSp_SpNb;
-  Bool_t  fClosedD_MSp_SpDs;
-  Bool_t  fClosedD_SSp_SpNb;
-  Bool_t  fClosedD_SSp_SpDs;    
-  Bool_t  fClosedD_Adc_EvNb; 
-  Bool_t  fClosedD_Adc_EvDs;  
-  Bool_t  fClosedH_Ped_Date;
-  Bool_t  fClosedH_TNo_Date;
-  Bool_t  fClosedH_MCs_Date;
-  Bool_t  fClosedH_LFN_Date;
-  Bool_t  fClosedH_HFN_Date;
-  Bool_t  fClosedH_SCs_Date;
-  Bool_t  fClosedH_Ped_RuDs;
-  Bool_t  fClosedH_TNo_RuDs;
-  Bool_t  fClosedH_MCs_RuDs;
-  Bool_t  fClosedH_LFN_RuDs;
-  Bool_t  fClosedH_HFN_RuDs;
-  Bool_t  fClosedH_SCs_RuDs;
+  Bool_t fClosedH1SamePlus;
+  Bool_t fClosedD_NOE_ChNb;
+  Bool_t fClosedD_NOE_ChDs;
+  Bool_t fClosedD_Ped_ChNb;
+  Bool_t fClosedD_Ped_ChDs;
+  Bool_t fClosedD_TNo_ChNb;
+  Bool_t fClosedD_TNo_ChDs;
+  Bool_t fClosedD_MCs_ChNb;
+  Bool_t fClosedD_MCs_ChDs;
+  Bool_t fClosedD_LFN_ChNb;
+  Bool_t fClosedD_LFN_ChDs;
+  Bool_t fClosedD_HFN_ChNb;
+  Bool_t fClosedD_HFN_ChDs;
+  Bool_t fClosedD_SCs_ChNb;
+  Bool_t fClosedD_SCs_ChDs;
+  Bool_t fClosedD_MSp_SpNb;
+  Bool_t fClosedD_MSp_SpDs;
+  Bool_t fClosedD_SSp_SpNb;
+  Bool_t fClosedD_SSp_SpDs;
+  Bool_t fClosedD_Adc_EvNb;
+  Bool_t fClosedD_Adc_EvDs;
+  Bool_t fClosedH_Ped_Date;
+  Bool_t fClosedH_TNo_Date;
+  Bool_t fClosedH_MCs_Date;
+  Bool_t fClosedH_LFN_Date;
+  Bool_t fClosedH_HFN_Date;
+  Bool_t fClosedH_SCs_Date;
+  Bool_t fClosedH_Ped_RuDs;
+  Bool_t fClosedH_TNo_RuDs;
+  Bool_t fClosedH_MCs_RuDs;
+  Bool_t fClosedH_LFN_RuDs;
+  Bool_t fClosedH_HFN_RuDs;
+  Bool_t fClosedH_SCs_RuDs;
 
   TString fCurrentHistoCode;
   TString fCurrentOptPlot;
 
-  TVirtualPad*  fCurrentPad;
+  TVirtualPad* fCurrentPad;
 
-  TVirtualPad*  fPadH1SamePlus;
-  TVirtualPad*  fPadD_NOE_ChNb;
-  TVirtualPad*  fPadD_NOE_ChDs;
-  TVirtualPad*  fPadD_Ped_ChNb;
-  TVirtualPad*  fPadD_Ped_ChDs;
-  TVirtualPad*  fPadD_TNo_ChNb;  
-  TVirtualPad*  fPadD_TNo_ChDs; 
-  TVirtualPad*  fPadD_MCs_ChNb;
-  TVirtualPad*  fPadD_MCs_ChDs;
-  TVirtualPad*  fPadD_LFN_ChNb;
-  TVirtualPad*  fPadD_LFN_ChDs;
-  TVirtualPad*  fPadD_HFN_ChNb;   
-  TVirtualPad*  fPadD_HFN_ChDs;
-  TVirtualPad*  fPadD_SCs_ChNb;
-  TVirtualPad*  fPadD_SCs_ChDs; 
-  TVirtualPad*  fPadD_MSp_SpNb; 
-  TVirtualPad*  fPadD_MSp_SpDs;
-  TVirtualPad*  fPadD_SSp_SpNb;
-  TVirtualPad*  fPadD_SSp_SpDs;
-  TVirtualPad*  fPadD_Adc_EvDs;     
-  TVirtualPad*  fPadD_Adc_EvNb;
-  TVirtualPad*  fPadH_Ped_Date;
-  TVirtualPad*  fPadH_TNo_Date;
-  TVirtualPad*  fPadH_MCs_Date;
-  TVirtualPad*  fPadH_LFN_Date;
-  TVirtualPad*  fPadH_HFN_Date;
-  TVirtualPad*  fPadH_SCs_Date;
-  TVirtualPad*  fPadH_Ped_RuDs;
-  TVirtualPad*  fPadH_TNo_RuDs;
-  TVirtualPad*  fPadH_MCs_RuDs;
-  TVirtualPad*  fPadH_LFN_RuDs;
-  TVirtualPad*  fPadH_HFN_RuDs;
-  TVirtualPad*  fPadH_SCs_RuDs;
+  TVirtualPad* fPadH1SamePlus;
+  TVirtualPad* fPadD_NOE_ChNb;
+  TVirtualPad* fPadD_NOE_ChDs;
+  TVirtualPad* fPadD_Ped_ChNb;
+  TVirtualPad* fPadD_Ped_ChDs;
+  TVirtualPad* fPadD_TNo_ChNb;
+  TVirtualPad* fPadD_TNo_ChDs;
+  TVirtualPad* fPadD_MCs_ChNb;
+  TVirtualPad* fPadD_MCs_ChDs;
+  TVirtualPad* fPadD_LFN_ChNb;
+  TVirtualPad* fPadD_LFN_ChDs;
+  TVirtualPad* fPadD_HFN_ChNb;
+  TVirtualPad* fPadD_HFN_ChDs;
+  TVirtualPad* fPadD_SCs_ChNb;
+  TVirtualPad* fPadD_SCs_ChDs;
+  TVirtualPad* fPadD_MSp_SpNb;
+  TVirtualPad* fPadD_MSp_SpDs;
+  TVirtualPad* fPadD_SSp_SpNb;
+  TVirtualPad* fPadD_SSp_SpDs;
+  TVirtualPad* fPadD_Adc_EvDs;
+  TVirtualPad* fPadD_Adc_EvNb;
+  TVirtualPad* fPadH_Ped_Date;
+  TVirtualPad* fPadH_TNo_Date;
+  TVirtualPad* fPadH_MCs_Date;
+  TVirtualPad* fPadH_LFN_Date;
+  TVirtualPad* fPadH_HFN_Date;
+  TVirtualPad* fPadH_SCs_Date;
+  TVirtualPad* fPadH_Ped_RuDs;
+  TVirtualPad* fPadH_TNo_RuDs;
+  TVirtualPad* fPadH_MCs_RuDs;
+  TVirtualPad* fPadH_LFN_RuDs;
+  TVirtualPad* fPadH_HFN_RuDs;
+  TVirtualPad* fPadH_SCs_RuDs;
 
-  TPaveText*  fPavTxtH1SamePlus;
-  TPaveText*  fPavTxtD_NOE_ChNb;
-  TPaveText*  fPavTxtD_NOE_ChDs;
-  TPaveText*  fPavTxtD_Ped_ChNb;
-  TPaveText*  fPavTxtD_Ped_ChDs;
-  TPaveText*  fPavTxtD_TNo_ChNb;   
-  TPaveText*  fPavTxtD_TNo_ChDs; 
-  TPaveText*  fPavTxtD_MCs_ChNb; 
-  TPaveText*  fPavTxtD_MCs_ChDs;
-  TPaveText*  fPavTxtD_LFN_ChNb;
-  TPaveText*  fPavTxtD_LFN_ChDs; 
-  TPaveText*  fPavTxtD_HFN_ChNb;   
-  TPaveText*  fPavTxtD_HFN_ChDs; 
-  TPaveText*  fPavTxtD_SCs_ChNb; 
-  TPaveText*  fPavTxtD_SCs_ChDs; 
-  TPaveText*  fPavTxtD_MSp_SpNb; 
-  TPaveText*  fPavTxtD_MSp_SpDs;
-  TPaveText*  fPavTxtD_SSp_SpNb; 
-  TPaveText*  fPavTxtD_SSp_SpDs;  
-  TPaveText*  fPavTxtD_Adc_EvDs;     
-  TPaveText*  fPavTxtD_Adc_EvNb;
-  TPaveText*  fPavTxtH_Ped_Date;
-  TPaveText*  fPavTxtH_TNo_Date;
-  TPaveText*  fPavTxtH_MCs_Date;
-  TPaveText*  fPavTxtH_LFN_Date;
-  TPaveText*  fPavTxtH_HFN_Date;
-  TPaveText*  fPavTxtH_SCs_Date;
-  TPaveText*  fPavTxtH_Ped_RuDs;
-  TPaveText*  fPavTxtH_TNo_RuDs;
-  TPaveText*  fPavTxtH_MCs_RuDs;
-  TPaveText*  fPavTxtH_LFN_RuDs;
-  TPaveText*  fPavTxtH_HFN_RuDs;
-  TPaveText*  fPavTxtH_SCs_RuDs;
+  TPaveText* fPavTxtH1SamePlus;
+  TPaveText* fPavTxtD_NOE_ChNb;
+  TPaveText* fPavTxtD_NOE_ChDs;
+  TPaveText* fPavTxtD_Ped_ChNb;
+  TPaveText* fPavTxtD_Ped_ChDs;
+  TPaveText* fPavTxtD_TNo_ChNb;
+  TPaveText* fPavTxtD_TNo_ChDs;
+  TPaveText* fPavTxtD_MCs_ChNb;
+  TPaveText* fPavTxtD_MCs_ChDs;
+  TPaveText* fPavTxtD_LFN_ChNb;
+  TPaveText* fPavTxtD_LFN_ChDs;
+  TPaveText* fPavTxtD_HFN_ChNb;
+  TPaveText* fPavTxtD_HFN_ChDs;
+  TPaveText* fPavTxtD_SCs_ChNb;
+  TPaveText* fPavTxtD_SCs_ChDs;
+  TPaveText* fPavTxtD_MSp_SpNb;
+  TPaveText* fPavTxtD_MSp_SpDs;
+  TPaveText* fPavTxtD_SSp_SpNb;
+  TPaveText* fPavTxtD_SSp_SpDs;
+  TPaveText* fPavTxtD_Adc_EvDs;
+  TPaveText* fPavTxtD_Adc_EvNb;
+  TPaveText* fPavTxtH_Ped_Date;
+  TPaveText* fPavTxtH_TNo_Date;
+  TPaveText* fPavTxtH_MCs_Date;
+  TPaveText* fPavTxtH_LFN_Date;
+  TPaveText* fPavTxtH_HFN_Date;
+  TPaveText* fPavTxtH_SCs_Date;
+  TPaveText* fPavTxtH_Ped_RuDs;
+  TPaveText* fPavTxtH_TNo_RuDs;
+  TPaveText* fPavTxtH_MCs_RuDs;
+  TPaveText* fPavTxtH_LFN_RuDs;
+  TPaveText* fPavTxtH_HFN_RuDs;
+  TPaveText* fPavTxtH_SCs_RuDs;
 
-  TCanvasImp*  fImpH1SamePlus;
-  TCanvasImp*  fImpD_NOE_ChNb;
-  TCanvasImp*  fImpD_NOE_ChDs;
-  TCanvasImp*  fImpD_Ped_ChNb;
-  TCanvasImp*  fImpD_Ped_ChDs;
-  TCanvasImp*  fImpD_TNo_ChNb;
-  TCanvasImp*  fImpD_TNo_ChDs;
-  TCanvasImp*  fImpD_MCs_ChNb;
-  TCanvasImp*  fImpD_MCs_ChDs;
-  TCanvasImp*  fImpD_LFN_ChNb;
-  TCanvasImp*  fImpD_LFN_ChDs;
-  TCanvasImp*  fImpD_HFN_ChNb;
-  TCanvasImp*  fImpD_HFN_ChDs;
-  TCanvasImp*  fImpD_SCs_ChNb;
-  TCanvasImp*  fImpD_SCs_ChDs; 
-  TCanvasImp*  fImpD_MSp_SpNb;
-  TCanvasImp*  fImpD_MSp_SpDs;
-  TCanvasImp*  fImpD_SSp_SpNb; 
-  TCanvasImp*  fImpD_SSp_SpDs;  
-  TCanvasImp*  fImpD_Adc_EvDs; 
-  TCanvasImp*  fImpD_Adc_EvNb;
-  TCanvasImp*  fImpH_Ped_Date;
-  TCanvasImp*  fImpH_TNo_Date;
-  TCanvasImp*  fImpH_MCs_Date;
-  TCanvasImp*  fImpH_LFN_Date;
-  TCanvasImp*  fImpH_HFN_Date;
-  TCanvasImp*  fImpH_SCs_Date;
-  TCanvasImp*  fImpH_Ped_RuDs;
-  TCanvasImp*  fImpH_TNo_RuDs;
-  TCanvasImp*  fImpH_MCs_RuDs;
-  TCanvasImp*  fImpH_LFN_RuDs;
-  TCanvasImp*  fImpH_HFN_RuDs;
-  TCanvasImp*  fImpH_SCs_RuDs;
+  TCanvasImp* fImpH1SamePlus;
+  TCanvasImp* fImpD_NOE_ChNb;
+  TCanvasImp* fImpD_NOE_ChDs;
+  TCanvasImp* fImpD_Ped_ChNb;
+  TCanvasImp* fImpD_Ped_ChDs;
+  TCanvasImp* fImpD_TNo_ChNb;
+  TCanvasImp* fImpD_TNo_ChDs;
+  TCanvasImp* fImpD_MCs_ChNb;
+  TCanvasImp* fImpD_MCs_ChDs;
+  TCanvasImp* fImpD_LFN_ChNb;
+  TCanvasImp* fImpD_LFN_ChDs;
+  TCanvasImp* fImpD_HFN_ChNb;
+  TCanvasImp* fImpD_HFN_ChDs;
+  TCanvasImp* fImpD_SCs_ChNb;
+  TCanvasImp* fImpD_SCs_ChDs;
+  TCanvasImp* fImpD_MSp_SpNb;
+  TCanvasImp* fImpD_MSp_SpDs;
+  TCanvasImp* fImpD_SSp_SpNb;
+  TCanvasImp* fImpD_SSp_SpDs;
+  TCanvasImp* fImpD_Adc_EvDs;
+  TCanvasImp* fImpD_Adc_EvNb;
+  TCanvasImp* fImpH_Ped_Date;
+  TCanvasImp* fImpH_TNo_Date;
+  TCanvasImp* fImpH_MCs_Date;
+  TCanvasImp* fImpH_LFN_Date;
+  TCanvasImp* fImpH_HFN_Date;
+  TCanvasImp* fImpH_SCs_Date;
+  TCanvasImp* fImpH_Ped_RuDs;
+  TCanvasImp* fImpH_TNo_RuDs;
+  TCanvasImp* fImpH_MCs_RuDs;
+  TCanvasImp* fImpH_LFN_RuDs;
+  TCanvasImp* fImpH_HFN_RuDs;
+  TCanvasImp* fImpH_SCs_RuDs;
 
-  Int_t  fCanvSameH1SamePlus;
-  Int_t  fCanvSameD_NOE_ChNb, fCanvSameD_NOE_ChDs;
-  Int_t  fCanvSameD_Ped_ChNb, fCanvSameD_Ped_ChDs;
-  Int_t  fCanvSameD_TNo_ChNb, fCanvSameD_TNo_ChDs; 
-  Int_t  fCanvSameD_MCs_ChNb, fCanvSameD_MCs_ChDs;
-  Int_t  fCanvSameD_LFN_ChNb, fCanvSameD_LFN_ChDs; 
-  Int_t  fCanvSameD_HFN_ChNb, fCanvSameD_HFN_ChDs; 
-  Int_t  fCanvSameD_SCs_ChNb, fCanvSameD_SCs_ChDs; 
-  Int_t  fCanvSameD_MSp_SpNb, fCanvSameD_SSp_SpNb; 
-  Int_t  fCanvSameD_MSp_SpDs, fCanvSameD_SSp_SpDs;
-  Int_t  fCanvSameD_Adc_EvDs, fCanvSameD_Adc_EvNb;
-  Int_t  fCanvSameH_Ped_Date, fCanvSameH_Ped_RuDs;
-  Int_t  fCanvSameH_TNo_Date, fCanvSameH_TNo_RuDs;
-  Int_t  fCanvSameH_LFN_Date, fCanvSameH_LFN_RuDs;
-  Int_t  fCanvSameH_HFN_Date, fCanvSameH_HFN_RuDs;
-  Int_t  fCanvSameH_MCs_Date, fCanvSameH_MCs_RuDs;      
-  Int_t  fCanvSameH_SCs_Date, fCanvSameH_SCs_RuDs;
+  Int_t fCanvSameH1SamePlus;
+  Int_t fCanvSameD_NOE_ChNb, fCanvSameD_NOE_ChDs;
+  Int_t fCanvSameD_Ped_ChNb, fCanvSameD_Ped_ChDs;
+  Int_t fCanvSameD_TNo_ChNb, fCanvSameD_TNo_ChDs;
+  Int_t fCanvSameD_MCs_ChNb, fCanvSameD_MCs_ChDs;
+  Int_t fCanvSameD_LFN_ChNb, fCanvSameD_LFN_ChDs;
+  Int_t fCanvSameD_HFN_ChNb, fCanvSameD_HFN_ChDs;
+  Int_t fCanvSameD_SCs_ChNb, fCanvSameD_SCs_ChDs;
+  Int_t fCanvSameD_MSp_SpNb, fCanvSameD_SSp_SpNb;
+  Int_t fCanvSameD_MSp_SpDs, fCanvSameD_SSp_SpDs;
+  Int_t fCanvSameD_Adc_EvDs, fCanvSameD_Adc_EvNb;
+  Int_t fCanvSameH_Ped_Date, fCanvSameH_Ped_RuDs;
+  Int_t fCanvSameH_TNo_Date, fCanvSameH_TNo_RuDs;
+  Int_t fCanvSameH_LFN_Date, fCanvSameH_LFN_RuDs;
+  Int_t fCanvSameH_HFN_Date, fCanvSameH_HFN_RuDs;
+  Int_t fCanvSameH_MCs_Date, fCanvSameH_MCs_RuDs;
+  Int_t fCanvSameH_SCs_Date, fCanvSameH_SCs_RuDs;
 
-  Int_t  fNbOfListFileH_Ped_Date, fNbOfListFileH_TNo_Date, fNbOfListFileH_MCs_Date; // List file numbers
-  Int_t  fNbOfListFileH_LFN_Date, fNbOfListFileH_HFN_Date, fNbOfListFileH_SCs_Date; // List file numbers
-  Int_t  fNbOfListFileH_Ped_RuDs, fNbOfListFileH_TNo_RuDs, fNbOfListFileH_MCs_RuDs; // List file numbers
-  Int_t  fNbOfListFileH_LFN_RuDs, fNbOfListFileH_HFN_RuDs, fNbOfListFileH_SCs_RuDs; // List file numbers
+  Int_t fNbOfListFileH_Ped_Date, fNbOfListFileH_TNo_Date, fNbOfListFileH_MCs_Date;  // List file numbers
+  Int_t fNbOfListFileH_LFN_Date, fNbOfListFileH_HFN_Date, fNbOfListFileH_SCs_Date;  // List file numbers
+  Int_t fNbOfListFileH_Ped_RuDs, fNbOfListFileH_TNo_RuDs, fNbOfListFileH_MCs_RuDs;  // List file numbers
+  Int_t fNbOfListFileH_LFN_RuDs, fNbOfListFileH_HFN_RuDs, fNbOfListFileH_SCs_RuDs;  // List file numbers
 
   //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
- public:
-
+public:
   //...................................... methods
   TEcnaHistos();
   TEcnaHistos(TEcnaObject*, const TString&);
@@ -982,22 +978,22 @@ class TEcnaHistos : public TObject {
   //TEcnaHistos(const TString&);
   //TEcnaHistos(const TString&, const TEcnaParPaths*);
   //TEcnaHistos(const TString&,
-//	      const TEcnaParPaths*,
-//	      const TEcnaParCout*,
-//	      const TEcnaParEcal*, 
-//	      const TEcnaParHistos*,
-//	      const TEcnaNumbering*,
-//	      const TEcnaWrite*);
-  
-   ~TEcnaHistos() override;
-  
+  //	      const TEcnaParPaths*,
+  //	      const TEcnaParCout*,
+  //	      const TEcnaParEcal*,
+  //	      const TEcnaParHistos*,
+  //	      const TEcnaNumbering*,
+  //	      const TEcnaWrite*);
+
+  ~TEcnaHistos() override;
+
   void Init();
   void SetEcalSubDetector(const TString&);
-//  void SetEcalSubDetector(const TString&,
-//  			  const TEcnaParEcal*, 
-//  			  const TEcnaParHistos*,
-//  			  const TEcnaNumbering*,
-//  			  const TEcnaWrite*);
+  //  void SetEcalSubDetector(const TString&,
+  //  			  const TEcnaParEcal*,
+  //  			  const TEcnaParHistos*,
+  //  			  const TEcnaNumbering*,
+  //  			  const TEcnaWrite*);
 
   //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   //
@@ -1009,29 +1005,25 @@ class TEcnaHistos : public TObject {
   //............ FileParameters(AnaType, [RunNumber], FirstEvent, NbOfEvts, [SM or Dee number])
   //             RunNumber = 0 => history plots , SM or Dee number = 0 => EB or EE Plots
 
-  void FileParameters(const TString&, const Int_t&, const Int_t&,
-		      const Int_t&,  const Int_t&, const Int_t&, const Int_t&);
+  void FileParameters(
+      const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
   void FileParameters(TEcnaRead*);
 
   //================================================================================================
   //                    methods for displaying matrices (correlations, covariances)
   //  The last argument is optional: option plot ("COLZ", "LEGO" etc..., or "ASCII") default = COLZ
-  //================================================================================================ 
+  //================================================================================================
   //..................... Corcc[for 1 Stex] (big matrix)
-  void PlotMatrix(const TMatrixD&,
-		  const TString&, const TString&);
-  void PlotMatrix(const TMatrixD&,
-		  const TString&, const TString&, const TString&);
+  void PlotMatrix(const TMatrixD&, const TString&, const TString&);
+  void PlotMatrix(const TMatrixD&, const TString&, const TString&, const TString&);
 
   void PlotMatrix(const TString&, const TString&);
   void PlotMatrix(const TString&, const TString&, const TString&);
 
   //..................... Corcc[for 1 Stin], Corss[for 1 Echa], Covss[for 1 Echa]
-  void PlotMatrix(const TMatrixD&,
-		  const TString&, const TString&, const Int_t&, const Int_t&);
-  void PlotMatrix(const TMatrixD&,
-		  const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
+  void PlotMatrix(const TMatrixD&, const TString&, const TString&, const Int_t&, const Int_t&);
+  void PlotMatrix(const TMatrixD&, const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
   void PlotMatrix(const TString&, const TString&, const Int_t&, const Int_t&);
   void PlotMatrix(const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
@@ -1039,19 +1031,16 @@ class TEcnaHistos : public TObject {
   //================================================================================================
   //                    methods for displaying 2D views of the detector
   //                    detector = SM, Dee, EB, EE
-  //================================================================================================ 
-  void PlotDetector(const TVectorD&,
-		    const TString&, const TString&);
+  //================================================================================================
+  void PlotDetector(const TVectorD&, const TString&, const TString&);
   void PlotDetector(const TString&, const TString&);
 
   //================================================================================================
   //                    methods for displaying 1D histos OR history histos
   //  The last argument is optional: option plot ("COLZ", "LEGO" etc..., or "ASCII") default = COLZ
   //================================================================================================
-  void Plot1DHisto(const TVectorD&,
-		   const TString&, const TString&, const TString&);
-  void Plot1DHisto(const TVectorD&,
-		   const TString&, const TString&, const TString&, const TString&);
+  void Plot1DHisto(const TVectorD&, const TString&, const TString&, const TString&);
+  void Plot1DHisto(const TVectorD&, const TString&, const TString&, const TString&, const TString&);
 
   void Plot1DHisto(const TString&, const TString&, const TString&);
   void Plot1DHisto(const TString&, const TString&, const TString&, const TString&);
@@ -1061,31 +1050,28 @@ class TEcnaHistos : public TObject {
   void Plot1DHisto(const TVectorD&, const TString&, const TString&, const Int_t&);
   void Plot1DHisto(const TVectorD&, const TString&, const TString&, const Int_t&, const TString&);
 
-  void Plot1DHisto(const TVectorD&,
-		   const TString&, const TString&, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TVectorD&,
-		   const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
+  void Plot1DHisto(const TVectorD&, const TString&, const TString&, const Int_t&, const Int_t&);
+  void Plot1DHisto(const TVectorD&, const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
   void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&);
   void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
- //.......................................................
-  void Plot1DHisto(const TVectorD&,
-		   const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&);
-  void Plot1DHisto(const TVectorD&,
-		   const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  //.......................................................
+  void Plot1DHisto(const TVectorD&, const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&);
+  void Plot1DHisto(
+      const TVectorD&, const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&);
 
   void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&);
   void Plot1DHisto(const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&);
 
- //.......................................................
+  //.......................................................
   void PlotHistory(const TString&, const TString&, const TString&, const Int_t&, const Int_t&);
   void PlotHistory(const TString&, const TString&, const TString&, const Int_t&, const Int_t&, const TString&);
 
   //====================================================================================
   //
   //                   methods for displaying Tower, SC, crystal numbering
-  // 
+  //
   //====================================================================================
   void SMTowerNumbering(const Int_t&);  // USER: specific EB
   void DeeSCNumbering(const Int_t&);    // USER: specific EE
@@ -1142,60 +1128,63 @@ class TEcnaHistos : public TObject {
   void CorrelationsBetweenSamples(const Int_t&);
   void CovariancesBetweenSamples(const Int_t&);
 
-  //.................        
+  //.................
   void StexHocoVecoLHFCorcc(const TString&);
 
-  void StexStinNumbering(const Int_t&);                    
-  void StinCrystalNumbering(const Int_t&, const Int_t&);   
+  void StexStinNumbering(const Int_t&);
+  void StinCrystalNumbering(const Int_t&, const Int_t&);
 
   void ViewStas(const TVectorD&, const Int_t&, const TString&);
   void ViewStex(const TVectorD&, const Int_t&, const TString&);
   void ViewStin(const Int_t&, const TString&);
-  void ViewMatrix(const TMatrixD&, const Int_t&, const Int_t&,  const Int_t&,  const Int_t&,
-		  const TString&, const TString&, const TString&);
-  void ViewHisto(const TVectorD&, const Int_t&, const Int_t&,  const Int_t&, const Int_t&,
-		 const TString&,   const TString&);
+  void ViewMatrix(const TMatrixD&,
+                  const Int_t&,
+                  const Int_t&,
+                  const Int_t&,
+                  const Int_t&,
+                  const TString&,
+                  const TString&,
+                  const TString&);
+  void ViewHisto(
+      const TVectorD&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const TString&, const TString&);
 
   Int_t GetDSOffset(const Int_t&, const Int_t&);
   Int_t GetSCOffset(const Int_t&, const Int_t&, const Int_t&);
 
-  void ViewHistime(const TString&, const Int_t&, const Int_t&,
-		   const TString&, const TString&);
+  void ViewHistime(const TString&, const Int_t&, const Int_t&, const TString&, const TString&);
 
   Int_t GetHistoryRunListParameters(const TString&, const TString&);
 
-  void TopAxisForHistos(TH1D*,
-			const TString&, const Int_t&, const Int_t&, const Int_t&,
-			const Int_t&,  const Int_t& );
+  void TopAxisForHistos(TH1D*, const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
   //--------------------------------------------------------------- xinf, xsup management
-  void     SetXinfMemoFromValue(const TString&, const Double_t&);
-  void     SetXsupMemoFromValue(const TString&, const Double_t&);
-  void     SetXinfMemoFromValue(const Double_t&);
-  void     SetXsupMemoFromValue(const Double_t&);
+  void SetXinfMemoFromValue(const TString&, const Double_t&);
+  void SetXsupMemoFromValue(const TString&, const Double_t&);
+  void SetXinfMemoFromValue(const Double_t&);
+  void SetXsupMemoFromValue(const Double_t&);
 
   Double_t GetXinfValueFromMemo(const TString&);
   Double_t GetXsupValueFromMemo(const TString&);
   Double_t GetXinfValueFromMemo();
   Double_t GetXsupValueFromMemo();
 
-  Axis_t   GetHistoXinf(const TString&, const Int_t&, const TString&);
-  Axis_t   GetHistoXsup(const TString&, const Int_t&, const TString&);
+  Axis_t GetHistoXinf(const TString&, const Int_t&, const TString&);
+  Axis_t GetHistoXsup(const TString&, const Int_t&, const TString&);
 
-  Int_t    GetHistoNumberOfBins(const TString&,  const Int_t&); 
+  Int_t GetHistoNumberOfBins(const TString&, const Int_t&);
 
   //--------------------------------------------------------------- ymin, ymax management
-  void     SetYminMemoFromValue(const TString&, const Double_t&);
-  void     SetYmaxMemoFromValue(const TString&, const Double_t&);
+  void SetYminMemoFromValue(const TString&, const Double_t&);
+  void SetYmaxMemoFromValue(const TString&, const Double_t&);
 
   Double_t GetYminValueFromMemo(const TString&);
   Double_t GetYmaxValueFromMemo(const TString&);
 
-  void     SetYminMemoFromPreviousMemo(const TString&);
-  void     SetYmaxMemoFromPreviousMemo(const TString&);
+  void SetYminMemoFromPreviousMemo(const TString&);
+  void SetYmaxMemoFromPreviousMemo(const TString&);
 
-  Int_t    SetHistoFrameYminYmaxFromMemo(TH1D*,   const TString&);
-  Int_t    SetGraphFrameYminYmaxFromMemo(TGraph*, const TString&);
+  Int_t SetHistoFrameYminYmaxFromMemo(TH1D*, const TString&);
+  Int_t SetGraphFrameYminYmaxFromMemo(TGraph*, const TString&);
 
   Double_t GetYminFromHistoFrameAndMarginValue(TH1D*, const Double_t);
   Double_t GetYmaxFromHistoFrameAndMarginValue(TH1D*, const Double_t);
@@ -1207,59 +1196,76 @@ class TEcnaHistos : public TObject {
   void SetAllYminYmaxMemoFromDefaultValues();
 
   //------------------------------------------------- Memo Same, Same n management
-  void    SetXVarMemo(const TString&, const TString&, const TString&);
+  void SetXVarMemo(const TString&, const TString&, const TString&);
   TString GetXVarFromMemo(const TString&, const TString&);
 
-  void    SetYVarMemo(const TString&, const TString&, const TString&);
+  void SetYVarMemo(const TString&, const TString&, const TString&);
   TString GetYVarFromMemo(const TString&, const TString&);
 
-  void    SetNbBinsMemo(const TString&, const TString&, const Int_t&);
-  Int_t   GetNbBinsFromMemo(const TString&, const TString&);
+  void SetNbBinsMemo(const TString&, const TString&, const Int_t&);
+  Int_t GetNbBinsFromMemo(const TString&, const TString&);
 
   //--------------------------------------------------------------------------------
   void ViewStexStinNumberingPad(const Int_t&);
-  void ViewSMTowerNumberingPad(const Int_t&);   // specific EB
-  void ViewDeeSCNumberingPad(const Int_t&);     // specific EE
+  void ViewSMTowerNumberingPad(const Int_t&);  // specific EB
+  void ViewDeeSCNumberingPad(const Int_t&);    // specific EE
 
-  void ViewStinGrid(const Int_t&, const Int_t&, const Int_t&,
-		    const Int_t&, const Int_t&, const TString&);
-  void ViewTowerGrid(const Int_t&, const Int_t&, const Int_t&,
-		     const Int_t&, const Int_t&, const TString&);  // specific EB
-  void ViewSCGrid(const Int_t&, const Int_t&, const Int_t&,
-		  const Int_t&, const Int_t&, const TString&);     // specific EE
+  void ViewStinGrid(const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  void ViewTowerGrid(
+      const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const TString&);              // specific EB
+  void ViewSCGrid(const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&, const TString&);  // specific EE
 
   void ViewStexGrid(const Int_t&, const TString&);
-  void ViewSMGrid(const Int_t&, const TString&);    // specific EB
-  void ViewDeeGrid(const Int_t&, const TString&);   // specific EE
+  void ViewSMGrid(const Int_t&, const TString&);   // specific EB
+  void ViewDeeGrid(const Int_t&, const TString&);  // specific EE
 
   void ViewStasGrid(const Int_t&);
-  void ViewEBGrid();               // specific EB
-  void ViewEEGrid(const Int_t&);   // specific EE
+  void ViewEBGrid();              // specific EB
+  void ViewEEGrid(const Int_t&);  // specific EE
 
-  void EEDataSectors(const Float_t&,  const Float_t&, const Int_t&, const TString&);                // specific EE
-  void EEGridAxis(const Int_t&, const TString&, const TString&);   // specific EE
+  void EEDataSectors(const Float_t&, const Float_t&, const Int_t&, const TString&);  // specific EE
+  void EEGridAxis(const Int_t&, const TString&, const TString&);                     // specific EE
 
   void SqrtContourLevels(const Int_t&, Double_t*);
 
   TString StexNumberToString(const Int_t&);
 
   void HistoPlot(TH1D*,
-		 const Int_t&,  const Axis_t&,  const Axis_t&,  const TString&, const TString&,
-		 const Int_t&,  const Int_t&,   const Int_t&,   const Int_t&,
-		 const Int_t&,  const TString&,  const Int_t&,   const Int_t&);
+                 const Int_t&,
+                 const Axis_t&,
+                 const Axis_t&,
+                 const TString&,
+                 const TString&,
+                 const Int_t&,
+                 const Int_t&,
+                 const Int_t&,
+                 const Int_t&,
+                 const Int_t&,
+                 const TString&,
+                 const Int_t&,
+                 const Int_t&);
 
   Double_t NotConnectedSCH1DBin(const Int_t&);
-  Int_t    GetNotConnectedDSSCFromIndex(const Int_t&);
-  Int_t    GetNotConnectedSCForConsFromIndex(const Int_t&);
-  Int_t    ModifiedSCEchaForNotConnectedSCs(const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+  Int_t GetNotConnectedDSSCFromIndex(const Int_t&);
+  Int_t GetNotConnectedSCForConsFromIndex(const Int_t&);
+  Int_t ModifiedSCEchaForNotConnectedSCs(const Int_t&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
   Double_t NotCompleteSCH1DBin(const Int_t&);
-  Int_t    GetNotCompleteDSSCFromIndex(const Int_t&);
-  Int_t    GetNotCompleteSCForConsFromIndex(const Int_t&);
+  Int_t GetNotCompleteDSSCFromIndex(const Int_t&);
+  Int_t GetNotCompleteSCForConsFromIndex(const Int_t&);
 
-  void HistimePlot(TGraph*,       Axis_t,        Axis_t,
-		   const TString&, const TString&, const Int_t&, const Int_t&,
-		   const Int_t&,  const Int_t&,  const Int_t&, const TString&, const Int_t&);
+  void HistimePlot(TGraph*,
+                   Axis_t,
+                   Axis_t,
+                   const TString&,
+                   const TString&,
+                   const Int_t&,
+                   const Int_t&,
+                   const Int_t&,
+                   const Int_t&,
+                   const Int_t&,
+                   const TString&,
+                   const Int_t&);
 
   void SetAllPavesViewMatrix(const TString&, const Int_t&, const Int_t&, const Int_t&);
   void SetAllPavesViewStin(const Int_t&);
@@ -1270,10 +1276,8 @@ class TEcnaHistos : public TObject {
   void SetAllPavesViewHisto(const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&);
   void SetAllPavesViewHisto(const TString&, const Int_t&, const Int_t&, const Int_t&, const TString&, const Int_t&);
 
-  Int_t GetXSampInStin(const Int_t&, const Int_t&,
-		       const Int_t&,  const Int_t&);
-  Int_t GetYSampInStin(const Int_t&, const Int_t&,
-		       const Int_t&,  const Int_t&);
+  Int_t GetXSampInStin(const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+  Int_t GetYSampInStin(const Int_t&, const Int_t&, const Int_t&, const Int_t&);
 
   Int_t GetXCrysInStex(const Int_t&, const Int_t&, const Int_t&);
   Int_t GetYCrysInStex(const Int_t&, const Int_t&, const Int_t&);
@@ -1281,16 +1285,22 @@ class TEcnaHistos : public TObject {
   Int_t GetXStinInStas(const Int_t&, const Int_t&, const Int_t&);
   Int_t GetYStinInStas(const Int_t&, const Int_t&);
 
-
   TString GetHocoVecoAxisTitle(const TString&);
-  TString GetEtaPhiAxisTitle(const TString&);        // specific EB
-  TString GetIXIYAxisTitle(const TString&);          // specific EE
+  TString GetEtaPhiAxisTitle(const TString&);  // specific EB
+  TString GetIXIYAxisTitle(const TString&);    // specific EE
 
-  Bool_t   GetOkViewHisto(TEcnaRead*, const Int_t&, const Int_t&, const Int_t&, const TString&);
-  Int_t    GetHistoSize(const TString&, const TString&);
-  TVectorD GetHistoValues(const TVectorD&, const Int_t&, TEcnaRead*,  const TString&,
-			  const Int_t&,    const Int_t&,
-			  const Int_t&,    const Int_t&,  const Int_t&, Int_t&);
+  Bool_t GetOkViewHisto(TEcnaRead*, const Int_t&, const Int_t&, const Int_t&, const TString&);
+  Int_t GetHistoSize(const TString&, const TString&);
+  TVectorD GetHistoValues(const TVectorD&,
+                          const Int_t&,
+                          TEcnaRead*,
+                          const TString&,
+                          const Int_t&,
+                          const Int_t&,
+                          const Int_t&,
+                          const Int_t&,
+                          const Int_t&,
+                          Int_t&);
 
   TString SetHistoXAxisTitle(const TString&);
   TString SetHistoYAxisTitle(const TString&);
@@ -1300,46 +1310,51 @@ class TEcnaHistos : public TObject {
   TString GetMemoFlag(const TString&);
   TString GetMemoFlag(const TString&, const TString&);
 
-  TCanvas* CreateCanvas(const TString&, const TString&, const TString&, UInt_t,  UInt_t);
+  TCanvas* CreateCanvas(const TString&, const TString&, const TString&, UInt_t, UInt_t);
   TCanvas* GetCurrentCanvas(const TString&, const TString&);
   TCanvas* GetCurrentCanvas();
-  TString  GetCurrentCanvasName();
-  void     PlotCloneOfCurrentCanvas();
+  TString GetCurrentCanvasName();
+  void PlotCloneOfCurrentCanvas();
 
   void SetParametersCanvas(const TString&, const TString&);
   void SetParametersPavTxt(const TString&, const TString&);
 
   TVirtualPad* ActivePad(const TString&, const TString&);
-  TPaveText*   ActivePavTxt(const TString&, const TString&);
-  void         DoCanvasClosed();
+  TPaveText* ActivePavTxt(const TString&, const TString&);
+  void DoCanvasClosed();
 
-  void SetHistoPresentation(TH1D*,   const TString&);
-  void SetHistoPresentation(TH1D*,   const TString&, const TString&);
+  void SetHistoPresentation(TH1D*, const TString&);
+  void SetHistoPresentation(TH1D*, const TString&, const TString&);
   void SetGraphPresentation(TGraph*, const TString&, const TString&);
 
-  void SetViewHistoColors(TH1D*,   const TString&, const TString&, const Int_t&);
+  void SetViewHistoColors(TH1D*, const TString&, const TString&, const Int_t&);
   void SetViewGraphColors(TGraph*, const TString&, const TString&);
 
   Color_t GetViewHistoColor(const TString&, const TString&);
 
   Int_t GetListFileNumber(const TString&);
-  void  ReInitCanvas(const TString&, const TString&);
-  void  NewCanvas(const TString&);
+  void ReInitCanvas(const TString&, const TString&);
+  void NewCanvas(const TString&);
 
-  TString SetCanvasName(const TString&, const Int_t&, const Int_t&, 
-			const TString&, const Int_t&, const Int_t&, const Int_t&, const Int_t&);
+  TString SetCanvasName(const TString&,
+                        const Int_t&,
+                        const Int_t&,
+                        const TString&,
+                        const Int_t&,
+                        const Int_t&,
+                        const Int_t&,
+                        const Int_t&);
 
-  Color_t GetSCColor(const TString&, const TString&, const TString&);     // specific EE
+  Color_t GetSCColor(const TString&, const TString&, const TString&);  // specific EE
 
   void WriteMatrixAscii(const TString&, const TString&, const Int_t&, const Int_t&, const Int_t&, const TMatrixD&);
   void WriteHistoAscii(const TString&, const Int_t&, const TVectorD&);
 
-  TString  AsciiFileName();
+  TString AsciiFileName();
   Bool_t StatusFileFound();
   Bool_t StatusDataExist();
 
-ClassDefOverride(TEcnaHistos,1)// methods for plots from ECNA (Ecal Correlated Noises Analysis)
-
+  ClassDefOverride(TEcnaHistos, 1)  // methods for plots from ECNA (Ecal Correlated Noises Analysis)
 };
 
-#endif   //    ZTR_TEcnaHistos
+#endif  //    ZTR_TEcnaHistos

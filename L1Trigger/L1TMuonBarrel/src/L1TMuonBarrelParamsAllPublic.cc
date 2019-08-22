@@ -8,10 +8,9 @@
 	return *py;
 }
 */
-const L1TMuonBarrelParams& cast_to_L1TMuonBarrelParams(const L1TMuonBarrelParamsAllPublic& a)
-{
-	assert(sizeof(L1TMuonBarrelParamsAllPublic) == sizeof(L1TMuonBarrelParams));
-	const void * pa = &a;
-	const L1TMuonBarrelParams * py = static_cast<const L1TMuonBarrelParams *>(pa);
-	return *py;
+const L1TMuonBarrelParams& cast_to_L1TMuonBarrelParams(const L1TMuonBarrelParamsAllPublic& a) {
+  assert(sizeof(L1TMuonBarrelParamsAllPublic) == sizeof(L1TMuonBarrelParams));
+  const void* pa = &a;
+  const L1TMuonBarrelParams* py = static_cast<const L1TMuonBarrelParams*>(pa);
+  return *py;
 }

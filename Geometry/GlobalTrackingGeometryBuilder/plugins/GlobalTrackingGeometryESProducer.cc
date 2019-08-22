@@ -19,7 +19,7 @@
 
 using namespace edm;
 
-GlobalTrackingGeometryESProducer::GlobalTrackingGeometryESProducer(const edm::ParameterSet & p){
+GlobalTrackingGeometryESProducer::GlobalTrackingGeometryESProducer(const edm::ParameterSet& p) {
   auto cc = setWhatProduced(this);
   trackerToken_ = cc.consumesFrom<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag{});
   mtdToken_ = cc.consumesFrom<MTDGeometry, MTDDigiGeometryRecord>(edm::ESInputTag{});
@@ -30,11 +30,10 @@ GlobalTrackingGeometryESProducer::GlobalTrackingGeometryESProducer(const edm::Pa
   me0Token_ = cc.consumesFrom<ME0Geometry, MuonGeometryRecord>(edm::ESInputTag{});
 }
 
-GlobalTrackingGeometryESProducer::~GlobalTrackingGeometryESProducer(){}
+GlobalTrackingGeometryESProducer::~GlobalTrackingGeometryESProducer() {}
 
-std::unique_ptr<GlobalTrackingGeometry>
-GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& record) {
-
+std::unique_ptr<GlobalTrackingGeometry> GlobalTrackingGeometryESProducer::produce(
+    const GlobalTrackingGeometryRecord& record) {
   TrackerGeometry const* tk = nullptr;
   MTDGeometry const* mtd = nullptr;
   DTGeometry const* dt = nullptr;
@@ -43,59 +42,59 @@ GlobalTrackingGeometryESProducer::produce(const GlobalTrackingGeometryRecord& re
   GEMGeometry const* gem = nullptr;
   ME0Geometry const* me0 = nullptr;
 
-  if( auto tkRecord = record.tryToGetRecord<TrackerDigiGeometryRecord>() ) {
-    if(auto tkH = tkRecord->getHandle(trackerToken_)) {
+  if (auto tkRecord = record.tryToGetRecord<TrackerDigiGeometryRecord>()) {
+    if (auto tkH = tkRecord->getHandle(trackerToken_)) {
       tk = tkH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No Tracker geometry is available.";
     }
   } else {
-    LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No TrackerDigiGeometryRecord is available.";    
+    LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No TrackerDigiGeometryRecord is available.";
   }
 
-  if( auto mtdRecord = record.tryToGetRecord<MTDDigiGeometryRecord>() ) {
-    if(auto mtdH = mtdRecord->getHandle(mtdToken_)) {
+  if (auto mtdRecord = record.tryToGetRecord<MTDDigiGeometryRecord>()) {
+    if (auto mtdH = mtdRecord->getHandle(mtdToken_)) {
       mtd = mtdH.product();
     } else {
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MTD geometry is available.";
     }
   } else {
-     LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
+    LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No MTDDigiGeometryRecord is available.";
   }
-  
-  if( auto muonRecord = record.tryToGetRecord<MuonGeometryRecord>() ) {
-    if(auto dtH = muonRecord->getHandle(dtToken_)) {
+
+  if (auto muonRecord = record.tryToGetRecord<MuonGeometryRecord>()) {
+    if (auto dtH = muonRecord->getHandle(dtToken_)) {
       dt = dtH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No DT geometry is available.";
     }
-    
-    if(auto cscH = muonRecord->getHandle(cscToken_)) {
+
+    if (auto cscH = muonRecord->getHandle(cscToken_)) {
       csc = cscH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No CSC geometry is available.";
-    }    
-    
-    if(auto rpcH = muonRecord->getHandle(rpcToken_)) {
+    }
+
+    if (auto rpcH = muonRecord->getHandle(rpcToken_)) {
       rpc = rpcH.product();
     } else {
       LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No RPC geometry is available.";
     }
-    
-    if(auto gemH = muonRecord->getHandle(gemToken_)) {
+
+    if (auto gemH = muonRecord->getHandle(gemToken_)) {
       gem = gemH.product();
     } else {
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No GEM geometry is available.";
     }
-    
-    if(auto me0H = muonRecord->getHandle(me0Token_)) {
+
+    if (auto me0H = muonRecord->getHandle(me0Token_)) {
       me0 = me0H.product();
     } else {
       LogInfo("GeometryGlobalTrackingGeometryBuilder") << "No ME0 geometry is available.";
     }
 
   } else {
-    LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MuonGeometryRecord is available.";    
+    LogWarning("GeometryGlobalTrackingGeometryBuilder") << "No MuonGeometryRecord is available.";
   }
 
   GlobalTrackingGeometryBuilder builder;

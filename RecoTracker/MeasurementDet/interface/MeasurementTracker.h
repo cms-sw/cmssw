@@ -20,35 +20,34 @@ class Phase2OTMeasurementConditionSet;
 
 class MeasurementTracker : public MeasurementDetSystem {
 public:
-   enum QualityFlags { BadModules=1, // for everybody
-                       /* Strips: */ BadAPVFibers=2, BadStrips=4, MaskBad128StripBlocks=8, 
-                       /* Pixels: */ BadROCs=2 }; 
+  enum QualityFlags {
+    BadModules = 1,  // for everybody
+    /* Strips: */ BadAPVFibers = 2,
+    BadStrips = 4,
+    MaskBad128StripBlocks = 8,
+    /* Pixels: */ BadROCs = 2
+  };
 
-  MeasurementTracker(TrackerGeometry const *  trackerGeom,
-		     GeometricSearchTracker const * geometricSearchTracker) : 
-    theTrackerGeom(trackerGeom), theGeometricSearchTracker(geometricSearchTracker) {}
-
-
+  MeasurementTracker(TrackerGeometry const* trackerGeom, GeometricSearchTracker const* geometricSearchTracker)
+      : theTrackerGeom(trackerGeom), theGeometricSearchTracker(geometricSearchTracker) {}
 
   ~MeasurementTracker() override;
 
-  const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
+  const TrackingGeometry* geomTracker() const { return theTrackerGeom; }
 
-  const GeometricSearchTracker* geometricSearchTracker() const {return theGeometricSearchTracker;}
+  const GeometricSearchTracker* geometricSearchTracker() const { return theGeometricSearchTracker; }
 
   /// MeasurementDetSystem interface
-  MeasurementDetWithData idToDet(const DetId& id, const MeasurementTrackerEvent &data) const override = 0;
+  MeasurementDetWithData idToDet(const DetId& id, const MeasurementTrackerEvent& data) const override = 0;
 
   /// Provide templates to be filled in
-  virtual const StMeasurementConditionSet & stripDetConditions() const = 0;
-  virtual const PxMeasurementConditionSet & pixelDetConditions() const = 0;
-  virtual const Phase2OTMeasurementConditionSet & phase2DetConditions() const = 0;
+  virtual const StMeasurementConditionSet& stripDetConditions() const = 0;
+  virtual const PxMeasurementConditionSet& pixelDetConditions() const = 0;
+  virtual const Phase2OTMeasurementConditionSet& phase2DetConditions() const = 0;
 
 protected:
-  const TrackerGeometry*                theTrackerGeom;
-  const GeometricSearchTracker*         theGeometricSearchTracker;
-
-
+  const TrackerGeometry* theTrackerGeom;
+  const GeometricSearchTracker* theGeometricSearchTracker;
 };
 
-#endif // MeasurementTracker_H
+#endif  // MeasurementTracker_H

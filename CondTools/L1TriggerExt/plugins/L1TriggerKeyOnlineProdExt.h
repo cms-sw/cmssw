@@ -13,16 +13,17 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 
 class L1TriggerKeyOnlineProdExt : public edm::ESProducer {
-   public:
-      L1TriggerKeyOnlineProdExt(const edm::ParameterSet&);
-      ~L1TriggerKeyOnlineProdExt() override;
+public:
+  L1TriggerKeyOnlineProdExt(const edm::ParameterSet&);
+  ~L1TriggerKeyOnlineProdExt() override;
 
-      using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
+  using ReturnType = std::unique_ptr<L1TriggerKeyExt>;
 
-      ReturnType produce(const L1TriggerKeyExtRcd&);
-   private:
-      // ----------member data ---------------------------
-      std::vector< std::string > m_subsystemLabels ;
+  ReturnType produce(const L1TriggerKeyExtRcd&);
+
+private:
+  // ----------member data ---------------------------
+  std::vector<std::string> m_subsystemLabels;
 };
 
 #endif

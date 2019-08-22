@@ -2,7 +2,7 @@
 //
 // Package:     FastSimulation/Particle
 // Class  :     makeParticle
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -16,37 +16,37 @@
 #include "FastSimulation/Particle/interface/makeParticle.h"
 #include "CommonTools/BaseParticlePropagator/interface/RawParticle.h"
 
-
 inline RawParticle unchecked_makeParticle(int id, const math::XYZTLorentzVector& p, double mass, double charge) {
-  return RawParticle(id,p,mass, charge);  
+  return RawParticle(id, p, mass, charge);
 }
 
-inline RawParticle unchecked_makeParticle(int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart, double mass, double charge) {
-  return RawParticle(id,p, xStart, mass, charge);
+inline RawParticle unchecked_makeParticle(
+    int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart, double mass, double charge) {
+  return RawParticle(id, p, xStart, mass, charge);
 }
-
 
 RawParticle makeParticle(HepPDT::ParticleDataTable const* table, int id, const math::XYZTLorentzVector& p) {
-  double charge =0.;
+  double charge = 0.;
   double mass = 0.;
   auto info = table->particle(HepPDT::ParticleID(id));
-  if ( info ) { 
+  if (info) {
     charge = info->charge();
-    mass   = info->mass().value();
+    mass = info->mass().value();
   }
 
-  return unchecked_makeParticle(id,p,mass, charge);
+  return unchecked_makeParticle(id, p, mass, charge);
 }
 
-RawParticle makeParticle(HepPDT::ParticleDataTable const* table, int id, const math::XYZTLorentzVector& p, const math::XYZTLorentzVector& xStart) {
-  double charge =0.;
+RawParticle makeParticle(HepPDT::ParticleDataTable const* table,
+                         int id,
+                         const math::XYZTLorentzVector& p,
+                         const math::XYZTLorentzVector& xStart) {
+  double charge = 0.;
   double mass = 0.;
   auto info = table->particle(HepPDT::ParticleID(id));
-  if ( info ) { 
+  if (info) {
     charge = info->charge();
-    mass   = info->mass().value();
+    mass = info->mass().value();
   }
   return unchecked_makeParticle(id, p, xStart, mass, charge);
 }
-
-

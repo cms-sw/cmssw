@@ -10,36 +10,33 @@
 using namespace std;
 using namespace edm;
 
-uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch, 
-   const FebLocationSpec & feb)
-{
+uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec& ch, const FebLocationSpec& feb) {
   // REGION
   int region = -2;
-  bool barrel = (ch.barrelOrEndcap==1);
-  if (barrel) region = 0;
-  else if (ch.diskOrWheel<0) region = -1;
-  else if (ch.diskOrWheel>0) region = 1;
+  bool barrel = (ch.barrelOrEndcap == 1);
+  if (barrel)
+    region = 0;
+  else if (ch.diskOrWheel < 0)
+    region = -1;
+  else if (ch.diskOrWheel > 0)
+    region = 1;
 
   //ROLL
-  string localEtaPartVal[6]={"Forward","Central","Backward","A","B","C"};
-  string nroll = localEtaPartVal[feb.localEtaPartition-1];
+  string localEtaPartVal[6] = {"Forward", "Central", "Backward", "A", "B", "C"};
+  string nroll = localEtaPartVal[feb.localEtaPartition - 1];
 
   //SUBSECTOR
-  string subsecVal[5]={"--","-","0","+","++"};
-  string subsec=subsecVal[ch.subsector+2];
+  string subsecVal[5] = {"--", "-", "0", "+", "++"};
+  string subsec = subsecVal[ch.subsector + 2];
 
   // build RPCdetId
   try {
     RPCDetId dn;
-    dn.buildfromDB(region, ch.diskOrWheel, ch.layer, ch.sector, 
-		   subsec, nroll, " ");
+    dn.buildfromDB(region, ch.diskOrWheel, ch.layer, ch.sector, subsec, nroll, " ");
     return dn.rawId();
-  } 
-  catch(cms::Exception & e) {
-    LogDebug ("CondFormas/DBSpecToDetInit") 
-      <<" Problem with RPCDetId, got exception!! " 
-      <<"DB Chamber "<<ch.chamberLocationName()<<" roll "<<nroll
-      <<e;
+  } catch (cms::Exception& e) {
+    LogDebug("CondFormas/DBSpecToDetInit") << " Problem with RPCDetId, got exception!! "
+                                           << "DB Chamber " << ch.chamberLocationName() << " roll " << nroll << e;
     return 0;
   }
 }

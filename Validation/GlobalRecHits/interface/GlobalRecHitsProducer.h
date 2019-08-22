@@ -22,11 +22,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-
 //#include "DataFormats/Common/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "FWCore/Framework/interface/MakerMacros.h" 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -63,7 +61,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
@@ -73,11 +71,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h" 
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
-#include "DataFormats/Common/interface/OwnVector.h" 
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/Common/interface/OwnVector.h"
 
 // silicon pixel info
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
@@ -124,12 +122,12 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h" 
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-// general info 
+// general info
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
@@ -147,24 +145,20 @@
 
 class PGlobalRecHit;
 
-class GlobalRecHitsProducer : public edm::EDProducer
-{
-
- public:
-
+class GlobalRecHitsProducer : public edm::EDProducer {
+public:
   typedef std::vector<float> FloatVector;
   typedef std::vector<double> DoubleVector;
   typedef std::vector<int> IntVector;
-  typedef std::map<uint32_t,float,std::less<uint32_t> > MapType;
+  typedef std::map<uint32_t, float, std::less<uint32_t>> MapType;
 
   explicit GlobalRecHitsProducer(const edm::ParameterSet&);
   ~GlobalRecHitsProducer() override;
   void beginJob() override;
-  void endJob() override;  
+  void endJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  
- private:
 
+private:
   // production related methods
   void fillECal(edm::Event&, const edm::EventSetup&);
   void storeECal(PGlobalRecHit&);
@@ -173,12 +167,11 @@ class GlobalRecHitsProducer : public edm::EDProducer
   void fillTrk(edm::Event&, const edm::EventSetup&);
   void storeTrk(PGlobalRecHit&);
   void fillMuon(edm::Event&, const edm::EventSetup&);
-  void storeMuon(PGlobalRecHit&);  
+  void storeMuon(PGlobalRecHit&);
 
   void clear();
 
- private:
-
+private:
   //  parameter information
   std::string fName;
   int verbosity;
@@ -189,14 +182,14 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   // Electromagnetic info
   // ECal info
- 
-  FloatVector EBRE; 
+
+  FloatVector EBRE;
   FloatVector EBSHE;
 
-  FloatVector EERE; 
+  FloatVector EERE;
   FloatVector EESHE;
 
-  FloatVector ESRE; 
+  FloatVector ESRE;
   FloatVector ESSHE;
 
   edm::InputTag ECalEBSrc_;
@@ -236,7 +229,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   // Tracker info
   // SiStrip
-  
+
   FloatVector TIBL1RX, TIBL2RX, TIBL3RX, TIBL4RX;
   FloatVector TIBL1RY, TIBL2RY, TIBL3RY, TIBL4RY;
   FloatVector TIBL1SX, TIBL2SX, TIBL3SX, TIBL4SX;
@@ -252,23 +245,18 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector TIDW1SX, TIDW2SX, TIDW3SX;
   FloatVector TIDW1SY, TIDW2SY, TIDW3SY;
 
-  FloatVector TECW1RX, TECW2RX, TECW3RX, TECW4RX, TECW5RX, TECW6RX, TECW7RX,
-    TECW8RX;
-  FloatVector TECW1RY, TECW2RY, TECW3RY, TECW4RY, TECW5RY, TECW6RY, TECW7RY,
-    TECW8RY;
-  FloatVector TECW1SX, TECW2SX, TECW3SX, TECW4SX, TECW5SX, TECW6SX, TECW7SX,
-    TECW8SX;
-  FloatVector TECW1SY, TECW2SY, TECW3SY, TECW4SY, TECW5SY, TECW6SY, TECW7SY,
-    TECW8SY;
+  FloatVector TECW1RX, TECW2RX, TECW3RX, TECW4RX, TECW5RX, TECW6RX, TECW7RX, TECW8RX;
+  FloatVector TECW1RY, TECW2RY, TECW3RY, TECW4RY, TECW5RY, TECW6RY, TECW7RY, TECW8RY;
+  FloatVector TECW1SX, TECW2SX, TECW3SX, TECW4SX, TECW5SX, TECW6SX, TECW7SX, TECW8SX;
+  FloatVector TECW1SY, TECW2SY, TECW3SY, TECW4SY, TECW5SY, TECW6SY, TECW7SY, TECW8SY;
 
   edm::InputTag SiStripSrc_;
   edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> SiStripSrc_Token_;
 
   std::vector<PSimHit> matched;
-  std::pair<LocalPoint,LocalVector> 
-    projectHit( const PSimHit& hit,
-		const StripGeomDetUnit* stripDet,
-		const BoundPlane& plane);
+  std::pair<LocalPoint, LocalVector> projectHit(const PSimHit& hit,
+                                                const StripGeomDetUnit* stripDet,
+                                                const BoundPlane& plane);
   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   // SiPxl
@@ -298,34 +286,29 @@ class GlobalRecHitsProducer : public edm::EDProducer
   edm::EDGetTokenT<edm::PSimHitContainer> MuDTSimSrc_Token_;
 
   // Return a map between DTRecHit1DPair and wireId
-  std::map<DTWireId, std::vector<DTRecHit1DPair> >
-    map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
-  
+  std::map<DTWireId, std::vector<DTRecHit1DPair>> map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs);
+
   // Compute SimHit distance from wire (cm)
-  float simHitDistFromWire(const DTLayer* layer,
-			   DTWireId wireId,
-			   const PSimHit& hit);
-  
+  float simHitDistFromWire(const DTLayer* layer, DTWireId wireId, const PSimHit& hit);
+
   // Find the RecHit closest to the muon SimHit
-  template  <typename type>
-    const type* 
-    findBestRecHit(const DTLayer* layer,
-		   DTWireId wireId,
-		   const std::vector<type>& recHits,
-		   const float simHitDist);
-  
+  template <typename type>
+  const type* findBestRecHit(const DTLayer* layer,
+                             DTWireId wireId,
+                             const std::vector<type>& recHits,
+                             const float simHitDist);
+
   // Compute the distance from wire (cm) of a hits in a DTRecHit1DPair
-  float recHitDistFromWire(const DTRecHit1DPair& hitPair, 
-			   const DTLayer* layer);
+  float recHitDistFromWire(const DTRecHit1DPair& hitPair, const DTLayer* layer);
   // Compute the distance from wire (cm) of a hits in a DTRecHit1D
   float recHitDistFromWire(const DTRecHit1D& recHit, const DTLayer* layer);
-    
+
   // Does the real job
-  template  <typename type>
-    int compute(const DTGeometry *dtGeom,
-		 const std::map<DTWireId, std::vector<PSimHit> >& simHitsPerWire,
-		 const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
-		 int step);
+  template <typename type>
+  int compute(const DTGeometry* dtGeom,
+              const std::map<DTWireId, std::vector<PSimHit>>& simHitsPerWire,
+              const std::map<DTWireId, std::vector<type>>& recHitsPerWire,
+              int step);
 
   // CSC
 
@@ -338,8 +321,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
   edm::EDGetTokenT<CrossingFrame<PSimHit>> MuCSCHits_Token_;
 
   std::map<int, edm::PSimHitContainer> theMap;
-  void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit,
-		      const CSCLayer *layer, int chamberType);
+  void plotResolution(const PSimHit& simHit, const CSCRecHit2D& recHit, const CSCLayer* layer, int chamberType);
 
   // RPC
 
@@ -354,7 +336,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
   // private statistics information
   unsigned int count;
 
-}; // end class declaration
+};  // end class declaration
 
 #endif
 
@@ -362,37 +344,37 @@ class GlobalRecHitsProducer : public edm::EDProducer
 #define GlobalHitMap
 
 // geometry mapping
-static const int dTrk             = 1;
-static const int sdPxlBrl         = 1;
-static const int sdPxlFwd         = 2;
-static const int sdSiTIB          = 3;
-static const int sdSiTID          = 4;
-static const int sdSiTOB          = 5;
-static const int sdSiTEC          = 6;
+static const int dTrk = 1;
+static const int sdPxlBrl = 1;
+static const int sdPxlFwd = 2;
+static const int sdSiTIB = 3;
+static const int sdSiTID = 4;
+static const int sdSiTOB = 5;
+static const int sdSiTEC = 6;
 
-static const int dMuon            = 2;
-static const int sdMuonDT         = 1;
-static const int sdMuonCSC        = 2;
-static const int sdMuonRPC        = 3;
-static const int sdMuonRPCRgnBrl  = 0;
+static const int dMuon = 2;
+static const int sdMuonDT = 1;
+static const int sdMuonCSC = 2;
+static const int sdMuonRPC = 3;
+static const int sdMuonRPCRgnBrl = 0;
 static const int sdMuonRPCRgnFwdp = 1;
 static const int sdMuonRPCRgnFwdn = -1;
 
-static const int dEcal            = 3;
-static const int sdEcalBrl        = 1;
-static const int sdEcalFwd        = 2;
-static const int sdEcalPS         = 3;
-static const int sdEcalTT         = 4;
-static const int sdEcalLPnD       = 5;
+static const int dEcal = 3;
+static const int sdEcalBrl = 1;
+static const int sdEcalFwd = 2;
+static const int sdEcalPS = 3;
+static const int sdEcalTT = 4;
+static const int sdEcalLPnD = 5;
 
-static const int dHcal            = 4;
-static const int sdHcalEmpty      = 0;
-static const int sdHcalBrl        = 1;
-static const int sdHcalEC         = 2;
-static const int sdHcalOut        = 3;
-static const int sdHcalFwd        = 4;
-static const int sdHcalTT         = 5;
-static const int sdHcalCalib      = 6;
-static const int sdHcalCompst     = 7;
+static const int dHcal = 4;
+static const int sdHcalEmpty = 0;
+static const int sdHcalBrl = 1;
+static const int sdHcalEC = 2;
+static const int sdHcalOut = 3;
+static const int sdHcalFwd = 4;
+static const int sdHcalTT = 5;
+static const int sdHcalCalib = 6;
+static const int sdHcalCompst = 7;
 
-#endif //PGlobalRecHitsProducer_h
+#endif  //PGlobalRecHitsProducer_h

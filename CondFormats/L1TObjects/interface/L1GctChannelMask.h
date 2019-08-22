@@ -6,8 +6,7 @@
 #include <ostream>
 
 class L1GctChannelMask {
- public:
-  
+public:
   /// default constructor sets all masks to false
   L1GctChannelMask();
   ~L1GctChannelMask() {}
@@ -48,7 +47,7 @@ class L1GctChannelMask {
   // get missing Ht masks
   bool missingHtMask(unsigned ieta) const;
 
- private:
+private:
   bool emCrateMask_[18];     // mask EM from RCT crate[n]
   bool regionMask_[22][18];  // mask region[ieta][iphi]
   bool tetMask_[22];
@@ -56,12 +55,9 @@ class L1GctChannelMask {
   bool htMask_[22];
   bool mhtMask_[22];
 
-
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
-std::ostream& operator << (std::ostream& os, const L1GctChannelMask obj);
+std::ostream& operator<<(std::ostream& os, const L1GctChannelMask obj);
 
 #endif
-
-

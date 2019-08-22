@@ -4,22 +4,29 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 
-void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection, 
-    const TrackingRegion & region, const edm::Event& ev, const edm::EventSetup& es)
-{
-  if (theComparitor) theComparitor->init(ev, es);
-  theSeedCreator->init(region, es, theComparitor.get());
-  const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
+SeedGeneratorFromRegionHits::SeedGeneratorFromRegionHits(std::unique_ptr<OrderedHitsGenerator> ohg,
+                                                         std::unique_ptr<SeedComparitor> asc,
+                                                         std::unique_ptr<SeedCreator> asp)
+    : theHitsGenerator{std::move(ohg)}, theComparitor{std::move(asc)}, theSeedCreator{std::move(asp)} {}
 
-  unsigned int nHitss =  hitss.size();
+void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection& seedCollection,
+                                      const TrackingRegion& region,
+                                      const edm::Event& ev,
+                                      const edm::EventSetup& es) {
+  if (theComparitor)
+    theComparitor->init(ev, es);
+  theSeedCreator->init(region, es, theComparitor.get());
+  const OrderedSeedingHits& hitss = theHitsGenerator->run(region, ev, es);
+
+  unsigned int nHitss = hitss.size();
   // Modified 10/Jun/2014 Mark Grimes - At 140 pileup this reserve massively overestimates
   // the amount of memory required. Removing it doesn't appear to slow down the algorithm
   // noticeably.
   //if (seedCollection.empty()) seedCollection.reserve(nHitss); // don't do multiple reserves in the case of multiple regions: it would make things even worse
   //                                                            // as it will cause N re-allocations instead of the normal log(N)/log(2)
-  for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
-    const SeedingHitSet & hits =  hitss[iHits];
-    if (!theComparitor || theComparitor->compatible(hits) ) {
+  for (unsigned int iHits = 0; iHits < nHitss; ++iHits) {
+    const SeedingHitSet& hits = hitss[iHits];
+    if (!theComparitor || theComparitor->compatible(hits)) {
       theSeedCreator->makeSeed(seedCollection, hits);
     }
   }

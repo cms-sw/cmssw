@@ -43,7 +43,7 @@ public:
   explicit TextToRaw(const edm::ParameterSet &);
   ~TextToRaw() override;
 
-private: // methods
+private:  // methods
   void beginJob() override;
   void produce(edm::Event &, const edm::EventSetup &) override;
   void endJob() override;

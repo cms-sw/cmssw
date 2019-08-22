@@ -12,36 +12,27 @@
 
 class DDCompactView;
 
-DDLRotationSequence::DDLRotationSequence( DDLElementRegistry* myreg )
-  : DDLRotationByAxis( myreg ) 
-{}
+DDLRotationSequence::DDLRotationSequence(DDLElementRegistry* myreg) : DDLRotationByAxis(myreg) {}
 
-void
-DDLRotationSequence::preProcessElement( const std::string& name, const std::string& nmspace,
-					DDCompactView& cpv )
-{
+void DDLRotationSequence::preProcessElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) {
   myRegistry_->getElement("RotationByAxis")->clear();
 }
 
-void
-DDLRotationSequence::processElement( const std::string& name, const std::string& nmspace,
-				     DDCompactView& cpv )
-{
+void DDLRotationSequence::processElement(const std::string& name, const std::string& nmspace, DDCompactView& cpv) {
   /** Get the name, axis and angle of each Rotate child and make this the rotation. 
    */
 
   std::shared_ptr<DDLRotationByAxis> myRotations =
-    std::static_pointer_cast<DDLRotationByAxis>(myRegistry_->getElement("RotationByAxis"));
+      std::static_pointer_cast<DDLRotationByAxis>(myRegistry_->getElement("RotationByAxis"));
   DDXMLAttribute atts;
 
   DDRotationMatrix R;
-  for (size_t i = 0; i < myRotations->size(); ++i)
-  {
+  for (size_t i = 0; i < myRotations->size(); ++i) {
     atts = myRotations->getAttributeSet(i);
     R = myRotations->processOne(R, atts.find("axis")->second, atts.find("angle")->second);
   }
-  
-  DDRotation rot = DDrot(getDDName(nmspace), std::make_unique<DDRotationMatrix>( R ));
+
+  DDRotation rot = DDrot(getDDName(nmspace), std::make_unique<DDRotationMatrix>(R));
 
   myRotations->clear();
   clear();

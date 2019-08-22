@@ -12,24 +12,24 @@
  */
 
 class VertexRecoManager {
-
 public:
-  static VertexRecoManager & Instance();
-  void registerReconstructor ( const std::string & name, std::function<AbstractConfReconstructor *()> o,
-                  const std::string & description );
-  std::string describe ( const std::string & ) const;
+  static VertexRecoManager &Instance();
+  void registerReconstructor(const std::string &name,
+                             std::function<AbstractConfReconstructor *()> o,
+                             const std::string &description);
+  std::string describe(const std::string &) const;
 
-  std::unique_ptr<AbstractConfReconstructor>  get ( const std::string & ) const;
+  std::unique_ptr<AbstractConfReconstructor> get(const std::string &) const;
   std::vector<std::string> getNames() const;
 
   ~VertexRecoManager();
-  VertexRecoManager * clone() const;
+  VertexRecoManager *clone() const;
 
 private:
-  VertexRecoManager ( const VertexRecoManager & );
-  VertexRecoManager ();
-  std::map < std::string, std::function<AbstractConfReconstructor*()> > theAbstractConfReconstructors;
-  std::map < std::string, std::string > theDescription;
+  VertexRecoManager(const VertexRecoManager &);
+  VertexRecoManager();
+  std::map<std::string, std::function<AbstractConfReconstructor *()> > theAbstractConfReconstructors;
+  std::map<std::string, std::string> theDescription;
 };
 
-#endif // _VertexRecoManager_H_
+#endif  // _VertexRecoManager_H_

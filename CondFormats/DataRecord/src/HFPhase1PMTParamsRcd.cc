@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     HFPhase1PMTParamsRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

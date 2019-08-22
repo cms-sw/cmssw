@@ -23,6 +23,8 @@ public:
   void setOrigDataSize(uint32);
   uint8* startAddress() const { return buf_; }
   void setEventLength(uint32 len);
+  void setBufAddr(uint8* buf_addr) { buf_ = buf_addr; }
+  void setEventAddr(uint8* event_addr) { event_addr_ = event_addr; }
   uint8* eventAddr() const { return event_addr_; }
   uint32 headerSize() const { return event_addr_ - buf_; }
   uint32 size() const;

@@ -20,21 +20,21 @@ class MTDNavigationSchool;
 #include <string>
 
 class MTDNavigationPrinter {
-  public:
+public:
+  MTDNavigationPrinter(const MTDDetLayerGeometry *,
+                       MTDNavigationSchool const &,
+                       bool enableBTL = true,
+                       bool enableETL = true);
+  MTDNavigationPrinter(const MTDDetLayerGeometry *, MTDNavigationSchool const &, const GeometricSearchTracker *);
 
-  MTDNavigationPrinter(const MTDDetLayerGeometry *, MTDNavigationSchool const &, bool enableBTL = true, bool enableETL = true );
-  MTDNavigationPrinter(const MTDDetLayerGeometry *,MTDNavigationSchool const &, const GeometricSearchTracker *);
+private:
+  void printLayer(const DetLayer *) const;
+  void printLayers(const std::vector<const DetLayer *> &) const;
+  /// return detector part (barrel, forward, backward)
+  //    std::string layerPart(const DetLayer*) const;
+  /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
+  //    std::string layerModule(const DetLayer*) const;
 
-  private:
-    void printLayer(const DetLayer*) const;
-    void printLayers(const std::vector<const DetLayer*>&) const;
-    /// return detector part (barrel, forward, backward)
-//    std::string layerPart(const DetLayer*) const;
-    /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
-//    std::string layerModule(const DetLayer*) const;
-
-
-  MTDNavigationSchool const * school=nullptr;
-
+  MTDNavigationSchool const *school = nullptr;
 };
 #endif

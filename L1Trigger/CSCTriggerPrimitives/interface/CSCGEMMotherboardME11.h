@@ -13,14 +13,15 @@
 
 #include "L1Trigger/CSCTriggerPrimitives/interface/CSCGEMMotherboard.h"
 
-class CSCGEMMotherboardME11 : public CSCGEMMotherboard
-{
- public:
-
+class CSCGEMMotherboardME11 : public CSCGEMMotherboard {
+public:
   /** Normal constructor. */
-  CSCGEMMotherboardME11(unsigned endcap, unsigned station, unsigned sector,
-			unsigned subsector, unsigned chamber,
-			const edm::ParameterSet& conf);
+  CSCGEMMotherboardME11(unsigned endcap,
+                        unsigned station,
+                        unsigned sector,
+                        unsigned subsector,
+                        unsigned chamber,
+                        const edm::ParameterSet& conf);
 
   /** Constructor for use during testing. */
   CSCGEMMotherboardME11();
@@ -31,17 +32,16 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
   void run(const CSCWireDigiCollection* wiredc,
-	   const CSCComparatorDigiCollection* compdc,
-	   const GEMPadDigiCollection* gemPads) override;
+           const CSCComparatorDigiCollection* compdc,
+           const GEMPadDigiCollection* gemPads) override;
 
   /* readout the LCTs in ME1a or ME1b */
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a() const;
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b() const;
 
- private:
-
+private:
   /* access to the LUTs needed for matching */
-  const CSCGEMMotherboardLUTME11* getLUT() const override {return tmbLUT_.get();}
+  const CSCGEMMotherboardLUTME11* getLUT() const override { return tmbLUT_.get(); }
   std::unique_ptr<CSCGEMMotherboardLUTME11> tmbLUT_;
   std::unique_ptr<CSCMotherboardLUTME11> cscTmbLUT_;
 
@@ -49,13 +49,14 @@ class CSCGEMMotherboardME11 : public CSCGEMMotherboard
   std::vector<CSCCorrelatedLCTDigi> readoutLCTsME11(enum CSCPart me1ab) const;
 
   /** Methods to sort the LCTs */
-  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, int bx,
+  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&,
+                int bx,
                 bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const;
   void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&,
                 bool (*sorter)(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&)) const;
 
   /* check if an ALCT cross a CLCT in an ME11 sector */
-  bool doesALCTCrossCLCT(const CSCALCTDigi &a, const CSCCLCTDigi &c) const;
+  bool doesALCTCrossCLCT(const CSCALCTDigi& a, const CSCCLCTDigi& c) const;
 
   /* does wiregroup cross halfstrip or not */
   bool doesWiregroupCrossStrip(int key_wg, int key_hs) const override;

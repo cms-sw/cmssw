@@ -15,7 +15,6 @@
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 /// muon CSC, DT and RPC geometry info
@@ -43,28 +42,27 @@ class TH1F;
 class TFile;
 
 namespace edm {
-  class ParameterSet; class Event; class EventSetup;}
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}  // namespace edm
 
-class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer
-{
-
- public:
-
+class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer {
+public:
   typedef std::vector<float> FloatVector;
-  typedef std::vector<int>   IntegerVector;
-  typedef std::vector<long int>   LongIntegerVector;
-  typedef std::vector<unsigned int>   UnsigIntegerVector;
+  typedef std::vector<int> IntegerVector;
+  typedef std::vector<long int> LongIntegerVector;
+  typedef std::vector<unsigned int> UnsigIntegerVector;
 
   explicit MuonSimHitsValidAnalyzer(const edm::ParameterSet&);
   ~MuonSimHitsValidAnalyzer() override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
- private:
+private:
   void fillDT(const edm::Event&, const edm::EventSetup&);
 
- private:
-
+private:
   ///  parameter information
   std::string fName;
   int verbosity;
@@ -83,7 +81,7 @@ class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer
   Int_t touche1, touche4;
   Float_t pow6;
   Float_t mom1, mom4, mome1, mome4;
-  Float_t costeta, radius,sinteta;
+  Float_t costeta, radius, sinteta;
   Float_t globposx, globposy, globposz;
   Float_t globposphi, globposeta;
 
@@ -129,14 +127,14 @@ class MuonSimHitsValidAnalyzer : public DQMEDAnalyzer
   /// private statistics information
   unsigned int count;
 
-}; /// end class declaration
+};  /// end class declaration
 
 /// geometry mapping
 
-static const int dMuon            = 2;
+static const int dMuon = 2;
 
-static const int sdMuonDT         = 1;
-static const int sdMuonCSC        = 2;
-static const int sdMuonRPC        = 3;
+static const int sdMuonDT = 1;
+static const int sdMuonCSC = 2;
+static const int sdMuonRPC = 3;
 
 #endif

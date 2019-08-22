@@ -18,9 +18,8 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 template <class TYPE>
-class CSCLayerInfo
-{
- public:
+class CSCLayerInfo {
+public:
   /** default constructor */
   CSCLayerInfo();
 
@@ -31,43 +30,45 @@ class CSCLayerInfo
   void clear();
 
   /** sets detId of this layer */
-  void setId(const CSCDetId id)           {theLayerId = id;}
+  void setId(const CSCDetId id) { theLayerId = id; }
 
   /** fills RecDigi */
-  void addComponent(const TYPE digi)      {RecDigis.push_back(digi);}
+  void addComponent(const TYPE digi) { RecDigis.push_back(digi); }
 
   /** fills SimHit */
-  void addComponent(const PSimHit simHit) {SimHits.push_back(simHit);}
+  void addComponent(const PSimHit simHit) { SimHits.push_back(simHit); }
 
   /** returns the layer */
-  CSCDetId getId() const                  {return theLayerId;}
+  CSCDetId getId() const { return theLayerId; }
 
   /** returns the vector of RecDigis (comparator or wire) */
-  std::vector<TYPE> getRecDigis() const   {return RecDigis;}
+  std::vector<TYPE> getRecDigis() const { return RecDigis; }
 
   /** returns the vector of SimHits */
-  std::vector<PSimHit> getSimHits() const {return SimHits;}
+  std::vector<PSimHit> getSimHits() const { return SimHits; }
 
- private:
+private:
   CSCDetId theLayerId;
   std::vector<TYPE> RecDigis;
   std::vector<PSimHit> SimHits;
 };
 
-
-template<class TYPE> CSCLayerInfo<TYPE>::CSCLayerInfo() {
-  CSCDetId tmp;        // nullify theLayerId.
+template <class TYPE>
+CSCLayerInfo<TYPE>::CSCLayerInfo() {
+  CSCDetId tmp;  // nullify theLayerId.
   theLayerId = tmp;
-  RecDigis.reserve(3); // we may have up to three RecDigis per layer.
+  RecDigis.reserve(3);  // we may have up to three RecDigis per layer.
   SimHits.reserve(3);
 }
 
-template<class TYPE> CSCLayerInfo<TYPE>::~CSCLayerInfo() {
+template <class TYPE>
+CSCLayerInfo<TYPE>::~CSCLayerInfo() {
   clear();
 }
 
-template<class TYPE> void CSCLayerInfo<TYPE>::clear() {
-  CSCDetId tmp;        // nullify theLayerId.
+template <class TYPE>
+void CSCLayerInfo<TYPE>::clear() {
+  CSCDetId tmp;  // nullify theLayerId.
   theLayerId = tmp;
   // Use the trick from ORCA-days "CommonDet/DetUtilities/interface/reset.h"
   // to delete the capacity of the vectors.
@@ -78,25 +79,24 @@ template<class TYPE> void CSCLayerInfo<TYPE>::clear() {
 }
 
 // overloaded << operator
-template<class TYPE>
-std::ostream& operator<< (std::ostream& output,
-			  const CSCLayerInfo<TYPE>& info) {
+template <class TYPE>
+std::ostream& operator<<(std::ostream& output, const CSCLayerInfo<TYPE>& info) {
   std::vector<TYPE> thisLayerDigis = info.getRecDigis();
   // vector<TYPE>::iterator prd; /* upsets pedantic compillation on LINUX */
   if (thisLayerDigis.size() > 0) {
     output << "Layer: " << std::setw(1) << info.getId().layer();
     for (unsigned int i = 0; i < thisLayerDigis.size(); i++) {
-      output << " RecDigi # " << i+1 << ": " << thisLayerDigis[i] << '\t';
+      output << " RecDigi # " << i + 1 << ": " << thisLayerDigis[i] << '\t';
     }
   }
   std::vector<PSimHit> thisLayerHits = info.getSimHits();
-  if (thisLayerHits.size() > 0) {
+  if (!thisLayerHits.empty()) {
     output << "Layer: " << std::setw(1) << info.getId().layer();
     for (unsigned int i = 0; i < thisLayerHits.size(); i++) {
-      output << " SimHit # " << i+1 << ": " << thisLayerHits[i] << '\t';
+      output << " SimHit # " << i + 1 << ": " << thisLayerHits[i] << '\t';
     }
     output << std::endl;
   }
   return output;
 }
-#endif // CSCTriggerPrimitives_CSCLayerInfo_H
+#endif  // CSCTriggerPrimitives_CSCLayerInfo_H

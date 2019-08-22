@@ -8,4 +8,4 @@ namespace RecoPixelVertexing_PixelTriplets {
     IntermediateHitTriplets iht;
     edm::Wrapper<IntermediateHitTriplets> wiht;
   };
-}
+}  // namespace RecoPixelVertexing_PixelTriplets

@@ -10,31 +10,25 @@
  *
  * \author Patrick Janot
  * \date: 25-Jan-2004
- */ 
+ */
 
 #include <cmath>
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
 }
 
-class HCALBarrelProperties : public HCALProperties 
-{
+class HCALBarrelProperties : public HCALProperties {
+public:
+  HCALBarrelProperties(const edm::ParameterSet& fastDet) : HCALProperties(fastDet) { ; }
 
- public:
-
-  HCALBarrelProperties(const edm::ParameterSet& fastDet):HCALProperties(fastDet) {; } 
-
-  ~HCALBarrelProperties() override { }
+  ~HCALBarrelProperties() override {}
 
   double getHcalDepth(double);
 
-  double thickness(const double eta) const override { 
-    return HCALProperties::getHcalDepth(eta) * interactionLength();
-  }
+  double thickness(const double eta) const override { return HCALProperties::getHcalDepth(eta) * interactionLength(); }
 
- private:
-
+private:
 };
 
 #endif

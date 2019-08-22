@@ -35,7 +35,6 @@
 typedef unsigned char myint8;
 
 class DTTracoTrigData : public DTTrigData {
-
 public:
   // public methods
 
@@ -215,7 +214,7 @@ public:
 
 private:
   // parent TRACO
-  DTTracoId _tracoid; // this is 4 bytes
+  DTTracoId _tracoid;  // this is 4 bytes
 
   // step number
   myint8 _step;

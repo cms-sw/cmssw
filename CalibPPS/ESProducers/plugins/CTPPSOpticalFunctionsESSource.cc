@@ -15,65 +15,58 @@
 /**
  * \brief Loads optical functions from ROOT files.
  **/
-class CTPPSOpticalFunctionsESSource: public edm::ESProducer, public edm::EventSetupRecordIntervalFinder
-{
-  public:
-    CTPPSOpticalFunctionsESSource(const edm::ParameterSet &);
-    ~CTPPSOpticalFunctionsESSource() override = default;
+class CTPPSOpticalFunctionsESSource : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
+public:
+  CTPPSOpticalFunctionsESSource(const edm::ParameterSet &);
+  ~CTPPSOpticalFunctionsESSource() override = default;
 
-    std::unique_ptr<LHCOpticalFunctionsSetCollection> produce(const CTPPSOpticsRcd &);
-    static void fillDescriptions(edm::ConfigurationDescriptions&);
+  std::unique_ptr<LHCOpticalFunctionsSetCollection> produce(const CTPPSOpticsRcd &);
+  static void fillDescriptions(edm::ConfigurationDescriptions &);
 
-  private:
-    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
+private:
+  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
+                      const edm::IOVSyncValue &,
+                      edm::ValidityInterval &) override;
 
-    struct FileInfo
-    {
-      double m_xangle;
-      std::string m_fileName;
-    };
+  struct FileInfo {
+    double m_xangle;
+    std::string m_fileName;
+  };
 
-    struct RPInfo
-    {
-      std::string m_dirName;
-      double m_scoringPlaneZ;
-    };
+  struct RPInfo {
+    std::string m_dirName;
+    double m_scoringPlaneZ;
+  };
 
-    struct Entry
-    {
-      edm::EventRange m_validityRange;
-      std::vector<FileInfo> m_fileInfo;
-      std::unordered_map<unsigned int, RPInfo> m_rpInfo;
-    };
+  struct Entry {
+    edm::EventRange m_validityRange;
+    std::vector<FileInfo> m_fileInfo;
+    std::unordered_map<unsigned int, RPInfo> m_rpInfo;
+  };
 
-    std::vector<Entry> m_entries;
+  std::vector<Entry> m_entries;
 
-    bool m_currentEntryValid;
-    unsigned int m_currentEntry;
+  bool m_currentEntryValid;
+  unsigned int m_currentEntry;
 };
 
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet& conf) :
-  m_currentEntryValid(false),
-  m_currentEntry(0)
-{
-  for (const auto &entry_pset : conf.getParameter<std::vector<edm::ParameterSet>>("configuration"))
-  {
+CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::ParameterSet &conf)
+    : m_currentEntryValid(false), m_currentEntry(0) {
+  for (const auto &entry_pset : conf.getParameter<std::vector<edm::ParameterSet>>("configuration")) {
     edm::EventRange validityRange = entry_pset.getParameter<edm::EventRange>("validityRange");
 
     std::vector<FileInfo> fileInfo;
-    for (const auto &pset : entry_pset.getParameter<std::vector<edm::ParameterSet>>("opticalFunctions"))
-    {
+    for (const auto &pset : entry_pset.getParameter<std::vector<edm::ParameterSet>>("opticalFunctions")) {
       const double &xangle = pset.getParameter<double>("xangle");
       const std::string &fileName = pset.getParameter<edm::FileInPath>("fileName").fullPath();
       fileInfo.push_back({xangle, fileName});
     }
 
     std::unordered_map<unsigned int, RPInfo> rpInfo;
-    for (const auto &pset : entry_pset.getParameter<std::vector<edm::ParameterSet>>("scoringPlanes"))
-    {
+    for (const auto &pset : entry_pset.getParameter<std::vector<edm::ParameterSet>>("scoringPlanes")) {
       const unsigned int rpId = pset.getParameter<unsigned int>("rpId");
       const std::string dirName = pset.getParameter<std::string>("dirName");
       const double z = pset.getParameter<double>("z");
@@ -91,18 +84,17 @@ CTPPSOpticalFunctionsESSource::CTPPSOpticalFunctionsESSource(const edm::Paramete
 //----------------------------------------------------------------------------------------------------
 
 void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &key,
-  const edm::IOVSyncValue& iosv, edm::ValidityInterval& oValidity)
-{
-  for (unsigned int idx = 0; idx < m_entries.size(); ++idx)
-  {
+                                                   const edm::IOVSyncValue &iosv,
+                                                   edm::ValidityInterval &oValidity) {
+  for (unsigned int idx = 0; idx < m_entries.size(); ++idx) {
     const auto &entry = m_entries[idx];
 
     // is within an entry ?
-    if (edm::contains(entry.m_validityRange, iosv.eventID()))
-    {
+    if (edm::contains(entry.m_validityRange, iosv.eventID())) {
       m_currentEntryValid = true;
       m_currentEntry = idx;
-      oValidity = edm::ValidityInterval(edm::IOVSyncValue(entry.m_validityRange.startEventID()), edm::IOVSyncValue(entry.m_validityRange.endEventID()));
+      oValidity = edm::ValidityInterval(edm::IOVSyncValue(entry.m_validityRange.startEventID()),
+                                        edm::IOVSyncValue(entry.m_validityRange.endEventID()));
       return;
     }
   }
@@ -111,7 +103,8 @@ void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventS
   m_currentEntryValid = false;
   m_currentEntry = 0;
 
-  edm::LogInfo("") << "No configuration entry found for event " << iosv.eventID() << ", no optical functions will be available.";
+  edm::LogInfo("") << "No configuration entry found for event " << iosv.eventID()
+                   << ", no optical functions will be available.";
 
   const edm::EventID start(iosv.eventID().run(), iosv.eventID().luminosityBlock(), iosv.eventID().event());
   const edm::EventID end(iosv.eventID().run(), iosv.eventID().luminosityBlock(), iosv.eventID().event());
@@ -120,23 +113,18 @@ void CTPPSOpticalFunctionsESSource::setIntervalFor(const edm::eventsetup::EventS
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<LHCOpticalFunctionsSetCollection>
-CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &)
-{
+std::unique_ptr<LHCOpticalFunctionsSetCollection> CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &) {
   // prepare output, empty by default
   auto output = std::make_unique<LHCOpticalFunctionsSetCollection>();
 
   // fill the output
-  if (m_currentEntryValid)
-  {
+  if (m_currentEntryValid) {
     const auto &entry = m_entries[m_currentEntry];
 
-    for (const auto &fi : entry.m_fileInfo)
-    {
+    for (const auto &fi : entry.m_fileInfo) {
       std::unordered_map<unsigned int, LHCOpticalFunctionsSet> xa_data;
 
-      for (const auto &rpi : entry.m_rpInfo)
-      {
+      for (const auto &rpi : entry.m_rpInfo) {
         LHCOpticalFunctionsSet fcn(fi.m_fileName, rpi.second.m_dirName, rpi.second.m_scoringPlaneZ);
         xa_data.emplace(rpi.first, std::move(fcn));
       }
@@ -151,9 +139,7 @@ CTPPSOpticalFunctionsESSource::produce(const CTPPSOpticsRcd &)
 
 //----------------------------------------------------------------------------------------------------
 
-void
-CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
+void CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   edm::ParameterSetDescription config_desc;
@@ -164,7 +150,8 @@ CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions& 
   of_desc.add<double>("xangle")->setComment("half crossing angle value in urad");
   of_desc.add<edm::FileInPath>("fileName")->setComment("ROOT file with optical functions");
   std::vector<edm::ParameterSet> of;
-  config_desc.addVPSet("opticalFunctions", of_desc, of)->setComment("list of optical functions at different crossing angles");
+  config_desc.addVPSet("opticalFunctions", of_desc, of)
+      ->setComment("list of optical functions at different crossing angles");
 
   edm::ParameterSetDescription sp_desc;
   sp_desc.add<unsigned int>("rpId")->setComment("associated detector DetId");
@@ -182,4 +169,3 @@ CTPPSOpticalFunctionsESSource::fillDescriptions(edm::ConfigurationDescriptions& 
 //----------------------------------------------------------------------------------------------------
 
 DEFINE_FWK_EVENTSETUP_SOURCE(CTPPSOpticalFunctionsESSource);
-

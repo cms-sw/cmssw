@@ -7,7 +7,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // DQM
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 // stage2 collection
@@ -18,21 +18,17 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
 class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
-  
- public:
-  
-  L1TStage2CaloLayer2(const edm::ParameterSet & ps);
+public:
+  L1TStage2CaloLayer2(const edm::ParameterSet& ps);
 
   ~L1TStage2CaloLayer2() override;
 
- protected:
-
+protected:
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override ;
+  void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
 
- private:
-
+private:
   std::string monitorDir_;
 
   edm::EDGetTokenT<l1t::JetBxCollection> stage2CaloLayer2JetToken_;
@@ -131,4 +127,4 @@ class L1TStage2CaloLayer2 : public DQMEDAnalyzer {
   MonitorElement* timingStage2CaloLayer2EtSumBxOcc_;
 };
 
-#endif 
+#endif

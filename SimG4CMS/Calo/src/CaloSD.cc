@@ -25,13 +25,13 @@
 //#define EDM_ML_DEBUG
 
 CaloSD::CaloSD(const std::string& name,
-               const DDCompactView& cpv,
+               const edm::EventSetup& es,
                const SensitiveDetectorCatalog& clg,
                edm::ParameterSet const& p,
                const SimTrackManager* manager,
                float timeSliceUnit,
                bool ignoreTkID)
-    : SensitiveCaloDetector(name, cpv, clg, p),
+    : SensitiveCaloDetector(name, es, clg, p),
       G4VGFlashSensitiveDetector(),
       eminHit(0.),
       currentHit(nullptr),
@@ -45,11 +45,11 @@ CaloSD::CaloSD(const std::string& name,
   edm::ParameterSet m_CaloSD = p.getParameter<edm::ParameterSet>("CaloSD");
   energyCut = m_CaloSD.getParameter<double>("EminTrack") * GeV;
   tmaxHit = m_CaloSD.getParameter<double>("TmaxHit") * ns;
-  std::vector<double> eminHits = m_CaloSD.getParameter<std::vector<double> >("EminHits");
-  std::vector<double> tmaxHits = m_CaloSD.getParameter<std::vector<double> >("TmaxHits");
-  std::vector<std::string> hcn = m_CaloSD.getParameter<std::vector<std::string> >("HCNames");
-  std::vector<int> useResMap = m_CaloSD.getParameter<std::vector<int> >("UseResponseTables");
-  std::vector<double> eminHitX = m_CaloSD.getParameter<std::vector<double> >("EminHitsDepth");
+  std::vector<double> eminHits = m_CaloSD.getParameter<std::vector<double>>("EminHits");
+  std::vector<double> tmaxHits = m_CaloSD.getParameter<std::vector<double>>("TmaxHits");
+  std::vector<std::string> hcn = m_CaloSD.getParameter<std::vector<std::string>>("HCNames");
+  std::vector<int> useResMap = m_CaloSD.getParameter<std::vector<int>>("UseResponseTables");
+  std::vector<double> eminHitX = m_CaloSD.getParameter<std::vector<double>>("EminHitsDepth");
   suppressHeavy = m_CaloSD.getParameter<bool>("SuppressHeavy");
   kmaxIon = m_CaloSD.getParameter<double>("IonThreshold") * MeV;
   kmaxProton = m_CaloSD.getParameter<double>("ProtonThreshold") * MeV;
@@ -102,7 +102,7 @@ CaloSD::CaloSD(const std::string& name,
                               << "        Time Slice Unit " << timeSlice << " Ignore TrackID Flag " << ignoreTrackID;
 }
 
-CaloSD::~CaloSD() { }
+CaloSD::~CaloSD() {}
 
 G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   NaNTrap(aStep);
@@ -153,9 +153,6 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   }
 
   if (aStep->GetTotalEnergyDeposit() == 0.0) {
-    //---VI: This line is for backward compatibility and should be removed
-    hitExists(aStep);
-    //---
     return false;
   }
 
@@ -545,11 +542,12 @@ void CaloSD::update(const ::EndOfEvent*) {
 
   tkMap.erase(tkMap.begin(), tkMap.end());
   std::vector<std::unique_ptr<CaloG4Hit>>().swap(reusehit);
-  if (useMap) hitMap.erase (hitMap.begin(), hitMap.end());
+  if (useMap)
+    hitMap.erase(hitMap.begin(), hitMap.end());
 }
 
 void CaloSD::clearHits() {
-  cleanIndex  = 0;
+  cleanIndex = 0;
   previousID.reset();
   primIDSaved = -99;
 #ifdef EDM_ML_DEBUG
@@ -560,7 +558,7 @@ void CaloSD::clearHits() {
 }
 
 void CaloSD::reset() {
-  if(fpCaloG4HitAllocator) {
+  if (fpCaloG4HitAllocator) {
     fpCaloG4HitAllocator->ResetStorage();
   }
 }
@@ -702,11 +700,11 @@ void CaloSD::cleanHitCollection() {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: collection before merging, size = " << theHC->entries();
 #endif
-  if (reusehit.empty()) 
-    reusehit.reserve(theHC->entries() - cleanIndex); 
+  if (reusehit.empty())
+    reusehit.reserve(theHC->entries() - cleanIndex);
 
   // if no map used, merge before hits to have the save situation as a map
-  if ( !useMap ) {
+  if (!useMap) {
     std::vector<CaloG4Hit*> hitvec;
 
     hitvec.swap(*theCollection);
@@ -718,7 +716,7 @@ void CaloSD::cleanHitCollection() {
       edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
 #endif
     CaloG4HitEqual equal;
-    for (unsigned int i= cleanIndex; i < hitvec.size(); ++i) {
+    for (unsigned int i = cleanIndex; i < hitvec.size(); ++i) {
       int jump = 0;
       for (unsigned int j = i + 1; j < hitvec.size() && equal(hitvec[i], hitvec[j]); ++j) {
         ++jump;
@@ -737,13 +735,13 @@ void CaloSD::cleanHitCollection() {
       edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
 #endif
     //move all nullptr to end of list and then remove them
-    hitvec.erase(std::stable_partition(hitvec.begin()+cleanIndex, 
-                                       hitvec.end(), [](CaloG4Hit* p) { return p!= nullptr;}),
-                 hitvec.end());
+    hitvec.erase(
+        std::stable_partition(hitvec.begin() + cleanIndex, hitvec.end(), [](CaloG4Hit* p) { return p != nullptr; }),
+        hitvec.end());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("CaloSim") << "CaloSD::cleanHitCollection: remove the merged hits in buffer,"
                                 << " new size = " << hitvec.size();
-    for (unsigned int i = 0; i < hitvec.size(); ++i) 
+    for (unsigned int i = 0; i < hitvec.size(); ++i)
       edm::LogVerbatim("CaloSim") << i << " " << *hitvec[i];
 #endif
     hitvec.swap(*theCollection);
@@ -757,7 +755,7 @@ void CaloSD::cleanHitCollection() {
 #endif
 
   int addhit = 0;
-  for (unsigned int i = cleanIndex; i < theCollection->size(); ++i) {   
+  for (unsigned int i = cleanIndex; i < theCollection->size(); ++i) {
     CaloG4Hit* aHit((*theCollection)[i]);
 
     // selection
@@ -772,7 +770,7 @@ void CaloSD::cleanHitCollection() {
 #endif
 
       // create the list of hits to be reused
-      
+
       reusehit.emplace_back((*theCollection)[i]);
       (*theCollection)[i] = nullptr;
       ++addhit;
@@ -794,9 +792,10 @@ void CaloSD::cleanHitCollection() {
   }
 
   //move all nullptr to end of list and then remove them
-  theCollection->erase(std::stable_partition(theCollection->begin()+cleanIndex,
-                                             theCollection->end(), [](CaloG4Hit* p) { return p!= nullptr;}),
-                       theCollection->end());
+  theCollection->erase(
+      std::stable_partition(
+          theCollection->begin() + cleanIndex, theCollection->end(), [](CaloG4Hit* p) { return p != nullptr; }),
+      theCollection->end());
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloSD: hit collection after selection, size = " << theHC->entries();
   theHC->PrintAllHits();

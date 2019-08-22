@@ -2,7 +2,7 @@
 //
 // Package:    CSCOverlapsBeamSplashCut
 // Class:      CSCOverlapsBeamSplashCut
-// 
+//
 /**\class CSCOverlapsBeamSplashCut CSCOverlapsBeamSplashCut.cc Alignment/CSCOverlapsBeamSplashCut/src/CSCOverlapsBeamSplashCut.cc
 
  Description: <one line class summary>
@@ -38,19 +38,19 @@
 //
 
 class CSCOverlapsBeamSplashCut : public edm::EDFilter {
-   public:
-      explicit CSCOverlapsBeamSplashCut(const edm::ParameterSet&);
-      ~CSCOverlapsBeamSplashCut() override;
+public:
+  explicit CSCOverlapsBeamSplashCut(const edm::ParameterSet&);
+  ~CSCOverlapsBeamSplashCut() override;
 
-   private:
-      void beginJob() override ;
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
-      
-      // ----------member data ---------------------------
-      edm::InputTag m_src;
-      int m_maxSegments;
-      TH1F *m_numSegments;
+private:
+  void beginJob() override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+
+  // ----------member data ---------------------------
+  edm::InputTag m_src;
+  int m_maxSegments;
+  TH1F* m_numSegments;
 };
 
 //
@@ -65,38 +65,35 @@ class CSCOverlapsBeamSplashCut : public edm::EDFilter {
 // constructors and destructor
 //
 CSCOverlapsBeamSplashCut::CSCOverlapsBeamSplashCut(const edm::ParameterSet& iConfig)
-   : m_src(iConfig.getParameter<edm::InputTag>("src"))
-   , m_maxSegments(iConfig.getParameter<int>("maxSegments"))
-{
-   edm::Service<TFileService> tFileService;
-   m_numSegments = tFileService->make<TH1F>("numSegments", "", 201, -0.5, 200.5);
+    : m_src(iConfig.getParameter<edm::InputTag>("src")), m_maxSegments(iConfig.getParameter<int>("maxSegments")) {
+  edm::Service<TFileService> tFileService;
+  m_numSegments = tFileService->make<TH1F>("numSegments", "", 201, -0.5, 200.5);
 }
 
-
-CSCOverlapsBeamSplashCut::~CSCOverlapsBeamSplashCut()
-{
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+CSCOverlapsBeamSplashCut::~CSCOverlapsBeamSplashCut() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-bool
-CSCOverlapsBeamSplashCut::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-   edm::Handle<CSCSegmentCollection> cscSegments;
-   iEvent.getByLabel(m_src, cscSegments);
+bool CSCOverlapsBeamSplashCut::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::Handle<CSCSegmentCollection> cscSegments;
+  iEvent.getByLabel(m_src, cscSegments);
 
-   m_numSegments->Fill(cscSegments->size());
+  m_numSegments->Fill(cscSegments->size());
 
-   if (m_maxSegments < 0) return true;
+  if (m_maxSegments < 0)
+    return true;
 
-   else if (int(cscSegments->size()) <= m_maxSegments) return true;
+  else if (int(cscSegments->size()) <= m_maxSegments)
+    return true;
 
-   else return false;
+  else
+    return false;
 }
 
 // ------------ method called once each job just before starting event loop  ------------

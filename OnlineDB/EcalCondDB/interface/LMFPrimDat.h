@@ -17,52 +17,45 @@
  *        \---------- system
  */
 class LMFPrimDat : public LMFColoredTable {
- public:
+public:
   LMFPrimDat();
-  LMFPrimDat(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn);
+  LMFPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn);
   LMFPrimDat(EcalDBConnection *c);
   LMFPrimDat(std::string color, std::string system);
   LMFPrimDat(int color, std::string system);
-  LMFPrimDat(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn, std::string color,
-	      std::string system);
+  LMFPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, std::string color, std::string system);
   LMFPrimDat(EcalDBConnection *c, std::string color, std::string system);
-  LMFPrimDat(oracle::occi::Environment* env,
-	      oracle::occi::Connection* conn, int color,
-	      std::string system);
+  LMFPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, int color, std::string system);
   LMFPrimDat(EcalDBConnection *c, int color, std::string system);
   ~LMFPrimDat() override {}
 
-  std::string getTableName() const override {
-    return "LMF_" + getSystem() + "_" + getColor() + "_PRIM_DAT";
-  }
+  std::string getTableName() const override { return "LMF_" + getSystem() + "_" + getColor() + "_PRIM_DAT"; }
 
-  LMFPrimDat& setFlag(EcalLogicID &id, int v);
-  LMFPrimDat& setMean(EcalLogicID &id, float v);
-  LMFPrimDat& setRMS(EcalLogicID &id, float v);
-  LMFPrimDat& setM3(EcalLogicID &id, float v);
-  LMFPrimDat& setPN(EcalLogicID &id, float mean, float rms, float m3);
-  LMFPrimDat& setAPDoverAMean(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverARMS(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverAM3(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverA(EcalLogicID &id, float mean, float rms, float m3);
-  LMFPrimDat& setAPDoverBMean(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverBRMS(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverBM3(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverB(EcalLogicID &id, float mean, float rms, float m3);
-  LMFPrimDat& setAPDoverPnMean(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverPnRMS(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverPnM3(EcalLogicID &id, float v);
-  LMFPrimDat& setAPDoverPn(EcalLogicID &id, float mean, float rms, float m3);
-  LMFPrimDat& setAlpha(EcalLogicID &id, float v);
-  LMFPrimDat& setBeta(EcalLogicID &id, float v);
-  LMFPrimDat& setShapeCorr(EcalLogicID &id, float v);
+  LMFPrimDat &setFlag(EcalLogicID &id, int v);
+  LMFPrimDat &setMean(EcalLogicID &id, float v);
+  LMFPrimDat &setRMS(EcalLogicID &id, float v);
+  LMFPrimDat &setM3(EcalLogicID &id, float v);
+  LMFPrimDat &setPN(EcalLogicID &id, float mean, float rms, float m3);
+  LMFPrimDat &setAPDoverAMean(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverARMS(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverAM3(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverA(EcalLogicID &id, float mean, float rms, float m3);
+  LMFPrimDat &setAPDoverBMean(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverBRMS(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverBM3(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverB(EcalLogicID &id, float mean, float rms, float m3);
+  LMFPrimDat &setAPDoverPnMean(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverPnRMS(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverPnM3(EcalLogicID &id, float v);
+  LMFPrimDat &setAPDoverPn(EcalLogicID &id, float mean, float rms, float m3);
+  LMFPrimDat &setAlpha(EcalLogicID &id, float v);
+  LMFPrimDat &setBeta(EcalLogicID &id, float v);
+  LMFPrimDat &setShapeCorr(EcalLogicID &id, float v);
 
   float getMean(EcalLogicID &id);
   float getRMS(EcalLogicID &id);
   float getM3(EcalLogicID &id);
-  int   getFlag(EcalLogicID &id);
+  int getFlag(EcalLogicID &id);
   float getAPDoverAMean(EcalLogicID &id);
   float getAPDoverARMS(EcalLogicID &id);
   float getAPDoverAM3(EcalLogicID &id);
@@ -79,7 +72,7 @@ class LMFPrimDat : public LMFColoredTable {
   float getMean(int id);
   float getRMS(int id);
   float getM3(int id);
-  int   getFlag(int id);
+  int getFlag(int id);
   float getAPDoverAMean(int id);
   float getAPDoverARMS(int id);
   float getAPDoverAM3(int id);
@@ -96,7 +89,7 @@ class LMFPrimDat : public LMFColoredTable {
   bool isValid() override;
   // to do: complete list of set/get methods
 
- private:
+private:
   void init();
 };
 

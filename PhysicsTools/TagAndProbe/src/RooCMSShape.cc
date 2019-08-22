@@ -22,44 +22,42 @@
 
 #include "PhysicsTools/TagAndProbe/interface/RooCMSShape.h"
 
-ClassImp(RooCMSShape); 
+ClassImp(RooCMSShape);
 
- RooCMSShape::RooCMSShape(const char *name, const char *title, 
-                        RooAbsReal& _x,
-                        RooAbsReal& _alpha,
-                        RooAbsReal& _beta,
-                        RooAbsReal& _gamma,
-                        RooAbsReal& _peak) :
-   RooAbsPdf(name,title), 
-   x("x","x",this,_x),
-   alpha("alpha","alpha",this,_alpha),
-   beta("beta","beta",this,_beta),
-   gamma("gamma","gamma",this,_gamma),
-   peak("peak","peak",this,_peak)
- { } 
+RooCMSShape::RooCMSShape(const char* name,
+                         const char* title,
+                         RooAbsReal& _x,
+                         RooAbsReal& _alpha,
+                         RooAbsReal& _beta,
+                         RooAbsReal& _gamma,
+                         RooAbsReal& _peak)
+    : RooAbsPdf(name, title),
+      x("x", "x", this, _x),
+      alpha("alpha", "alpha", this, _alpha),
+      beta("beta", "beta", this, _beta),
+      gamma("gamma", "gamma", this, _gamma),
+      peak("peak", "peak", this, _peak) {}
 
+RooCMSShape::RooCMSShape(const RooCMSShape& other, const char* name)
+    : RooAbsPdf(other, name),
+      x("x", this, other.x),
+      alpha("alpha", this, other.alpha),
+      beta("beta", this, other.beta),
+      gamma("gamma", this, other.gamma),
+      peak("peak", this, other.peak) {}
 
- RooCMSShape::RooCMSShape(const RooCMSShape& other, const char* name):
-   RooAbsPdf(other,name), 
-   x("x",this,other.x),
-   alpha("alpha",this,other.alpha),
-   beta("beta",this,other.beta),
-   gamma("gamma",this,other.gamma),
-   peak("peak",this,other.peak)
- { } 
-
-
-
- Double_t RooCMSShape::evaluate() const 
- { 
-  // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
+Double_t RooCMSShape::evaluate() const {
+  // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE
 
   //Double_t erf = TMath::Erfc((alpha - x) * beta);
   Double_t erf = RooMath::erfc((alpha - x) * beta);
-  Double_t u = (x - peak)*gamma;
+  Double_t u = (x - peak) * gamma;
 
-  if(u < -70) u = 1e20;
-  else if( u>70 ) u = 0;
-  else u = exp(-u);   //exponential decay
-  return erf*u;
- } 
+  if (u < -70)
+    u = 1e20;
+  else if (u > 70)
+    u = 0;
+  else
+    u = exp(-u);  //exponential decay
+  return erf * u;
+}

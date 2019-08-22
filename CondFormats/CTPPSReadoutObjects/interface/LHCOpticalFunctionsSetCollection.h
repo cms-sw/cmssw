@@ -13,10 +13,10 @@
  \brief Collection of optical functions for two crossing angle values and various scoring planes.
  * map: crossing angle --> (map: RP id --> optical functions)
 **/
-class LHCOpticalFunctionsSetCollection : public std::map<double, std::unordered_map<unsigned int, LHCOpticalFunctionsSet>>
-{
-  private:
-    COND_SERIALIZABLE;
+class LHCOpticalFunctionsSetCollection
+    : public std::map<double, std::unordered_map<unsigned int, LHCOpticalFunctionsSet>> {
+private:
+  COND_SERIALIZABLE;
 };
 
 #endif

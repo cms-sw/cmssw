@@ -33,27 +33,21 @@
 class L1GtPrescaleFactorsTechTrigRcd;
 
 // class declaration
-class L1GtPrescaleFactorsTechTrigTrivialProducer : public edm::ESProducer
-{
-
+class L1GtPrescaleFactorsTechTrigTrivialProducer : public edm::ESProducer {
 public:
+  /// constructor
+  L1GtPrescaleFactorsTechTrigTrivialProducer(const edm::ParameterSet&);
 
-    /// constructor
-    L1GtPrescaleFactorsTechTrigTrivialProducer(const edm::ParameterSet&);
+  /// destructor
+  ~L1GtPrescaleFactorsTechTrigTrivialProducer() override;
 
-    /// destructor
-    ~L1GtPrescaleFactorsTechTrigTrivialProducer() override;
+  /// public methods
 
-    /// public methods
-
-    std::unique_ptr<L1GtPrescaleFactors> producePrescaleFactors(
-            const L1GtPrescaleFactorsTechTrigRcd&);
+  std::unique_ptr<L1GtPrescaleFactors> producePrescaleFactors(const L1GtPrescaleFactorsTechTrigRcd&);
 
 private:
-
-    /// prescale factors
-    std::vector<std::vector<int> > m_prescaleFactors;
-
+  /// prescale factors
+  std::vector<std::vector<int> > m_prescaleFactors;
 };
 
 #endif

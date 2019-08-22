@@ -23,85 +23,75 @@ using namespace std;
 //namespace cms
 //{
 
-CaloMCTruthTreeProducer::CaloMCTruthTreeProducer(edm::ParameterSet const& cfg)
-{
-  jets_          = consumes<CaloJetCollection>(edm::InputTag(cfg.getParameter<std::string> ("jets")));
-  genjets_       = consumes<GenJetCollection>(edm::InputTag(cfg.getParameter<std::string> ("genjets")));
-  gen_       = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-  histogramFile_ = cfg.getParameter<std::string> ("histogramFile");
+CaloMCTruthTreeProducer::CaloMCTruthTreeProducer(edm::ParameterSet const& cfg) {
+  jets_ = consumes<CaloJetCollection>(edm::InputTag(cfg.getParameter<std::string>("jets")));
+  genjets_ = consumes<GenJetCollection>(edm::InputTag(cfg.getParameter<std::string>("genjets")));
+  gen_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
+  histogramFile_ = cfg.getParameter<std::string>("histogramFile");
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void CaloMCTruthTreeProducer::beginJob()
-{
-  file_          = new TFile(histogramFile_.c_str(),"RECREATE");
-  mcTruthTree_   = new TTree("mcTruthTree","mcTruthTree");
+void CaloMCTruthTreeProducer::beginJob() {
+  file_ = new TFile(histogramFile_.c_str(), "RECREATE");
+  mcTruthTree_ = new TTree("mcTruthTree", "mcTruthTree");
 
-  mcTruthTree_->Branch("ptJet",      &ptJet_,      "ptJet_/F");
-  mcTruthTree_->Branch("ptGen",      &ptGen_,      "ptGen_/F");
-  mcTruthTree_->Branch("ptHat",      &ptHat_,      "ptHat_/F");
-  mcTruthTree_->Branch("emfJet",     &emfJet_,     "emfJet_/F");
-  mcTruthTree_->Branch("etaJet",     &etaJet_,     "etaJet_/F");
-  mcTruthTree_->Branch("etaGen",     &etaGen_,     "etaGen_/F");
-  mcTruthTree_->Branch("phiJet",     &phiJet_,     "phiJet_/F");
-  mcTruthTree_->Branch("phiGen",     &phiGen_,     "phiGen_/F");
-  mcTruthTree_->Branch("dR",         &dR_,         "dR_/F");
-  mcTruthTree_->Branch("rank",       &rank_,       "rank_/I");
+  mcTruthTree_->Branch("ptJet", &ptJet_, "ptJet_/F");
+  mcTruthTree_->Branch("ptGen", &ptGen_, "ptGen_/F");
+  mcTruthTree_->Branch("ptHat", &ptHat_, "ptHat_/F");
+  mcTruthTree_->Branch("emfJet", &emfJet_, "emfJet_/F");
+  mcTruthTree_->Branch("etaJet", &etaJet_, "etaJet_/F");
+  mcTruthTree_->Branch("etaGen", &etaGen_, "etaGen_/F");
+  mcTruthTree_->Branch("phiJet", &phiJet_, "phiJet_/F");
+  mcTruthTree_->Branch("phiGen", &phiGen_, "phiGen_/F");
+  mcTruthTree_->Branch("dR", &dR_, "dR_/F");
+  mcTruthTree_->Branch("rank", &rank_, "rank_/I");
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void CaloMCTruthTreeProducer::endJob()
-{
-  if (file_ !=nullptr)
-    {
-      file_->cd();
-      mcTruthTree_->Write();
-    }
+void CaloMCTruthTreeProducer::endJob() {
+  if (file_ != nullptr) {
+    file_->cd();
+    mcTruthTree_->Write();
+  }
   file_ = nullptr;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup)
-{
+void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup) {
   edm::Handle<GenJetCollection> genjets;
   edm::Handle<CaloJetCollection> jets;
   edm::Handle<GenEventInfoProduct> hEventInfo;
-  CaloJetCollection::const_iterator i_jet,i_matched;
+  CaloJetCollection::const_iterator i_jet, i_matched;
   GenJetCollection::const_iterator i_genjet;
-  event.getByToken (genjets_,genjets);
-  event.getByToken (jets_,jets);
-  event.getByToken(gen_,hEventInfo);
+  event.getByToken(genjets_, genjets);
+  event.getByToken(jets_, jets);
+  event.getByToken(gen_, hEventInfo);
   ptHat_ = hEventInfo->binningValues()[0];
   float rr;
   int njet(0);
-  if (!jets->empty() && !genjets->empty())
-    {
-      for (i_genjet = genjets->begin(); i_genjet != genjets->end(); i_genjet++)
-       {
-         float rmin(99);
-         for(i_jet = jets->begin();i_jet != jets->end(); i_jet++)
-           {
-	     rr=radius(i_genjet,i_jet);
-	     if (rr<rmin)
-               {
-                 rmin = rr;
-                 i_matched = i_jet;
-               }
-	   }
-         ptGen_   = i_genjet->pt();
-         etaGen_  = i_genjet->eta();
-         phiGen_  = i_genjet->phi();
-         ptJet_   = i_matched->pt();
-         etaJet_  = i_matched->eta();
-         phiJet_  = i_matched->phi();
-         emfJet_  = i_matched->emEnergyFraction();
-         dR_      = rmin;
-         rank_    = njet;
-         mcTruthTree_->Fill();
-         njet++;
-       }
+  if (!jets->empty() && !genjets->empty()) {
+    for (i_genjet = genjets->begin(); i_genjet != genjets->end(); i_genjet++) {
+      float rmin(99);
+      for (i_jet = jets->begin(); i_jet != jets->end(); i_jet++) {
+        rr = radius(i_genjet, i_jet);
+        if (rr < rmin) {
+          rmin = rr;
+          i_matched = i_jet;
+        }
+      }
+      ptGen_ = i_genjet->pt();
+      etaGen_ = i_genjet->eta();
+      phiGen_ = i_genjet->phi();
+      ptJet_ = i_matched->pt();
+      etaJet_ = i_matched->eta();
+      phiJet_ = i_matched->phi();
+      emfJet_ = i_matched->emEnergyFraction();
+      dR_ = rmin;
+      rank_ = njet;
+      mcTruthTree_->Fill();
+      njet++;
     }
+  }
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-CaloMCTruthTreeProducer::~CaloMCTruthTreeProducer()
-{
+CaloMCTruthTreeProducer::~CaloMCTruthTreeProducer() {
   delete file_;
   delete mcTruthTree_;
 }

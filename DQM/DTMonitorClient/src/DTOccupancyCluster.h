@@ -31,7 +31,7 @@ public:
   virtual ~DTOccupancyCluster();
 
   // Operations
-  
+
   /// Check if the cluster candidate satisfies the quality requirements
   bool isValid() const;
 
@@ -51,13 +51,19 @@ public:
 
   /// max average cell occupancy of the layers in the cluster
   double maxMean() const;
-  
+
   /// max RMS of the cell occpuancy distributions of the layers in the cluster
   double maxRMS() const;
 
   /// get a TH2F displaying the cluster
-  TH2F * getHisto(std::string histoName, int nBinsX, double minX, double maxX,
-		  int nBinsY, double minY, double maxY, int fillColor) const;
+  TH2F* getHisto(std::string histoName,
+                 int nBinsX,
+                 double minX,
+                 double maxX,
+                 int nBinsY,
+                 double minY,
+                 double maxY,
+                 int fillColor) const;
 
   /// # of layers belonging to the cluster
   int nPoints() const;
@@ -65,12 +71,10 @@ public:
   std::set<DTLayerId> getLayerIDs() const;
 
 protected:
-
 private:
-  
   bool qualityCriterion(const DTOccupancyPoint& firstPoint, const DTOccupancyPoint& secondPoint);
-  
-  bool  qualityCriterion(const DTOccupancyPoint& anotherPoint);
+
+  bool qualityCriterion(const DTOccupancyPoint& anotherPoint);
 
   void computeRadius();
 
@@ -82,11 +86,9 @@ private:
   double theMaxRMS;
   double theMeanSum;
   double theRMSSum;
-
 };
 
 /// for DTOccupancyCluster sorting
 bool clusterIsLessThan(const DTOccupancyCluster& clusterOne, const DTOccupancyCluster& clusterTwo);
 
 #endif
-

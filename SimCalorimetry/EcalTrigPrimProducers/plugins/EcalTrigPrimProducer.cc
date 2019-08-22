@@ -67,11 +67,9 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
       debug_(iConfig.getParameter<bool>("Debug")),
       famos_(iConfig.getParameter<bool>("Famos")),
       tokenEB_(consumes<EBDigiCollection>(
-          edm::InputTag(iConfig.getParameter<std::string>("Label"),
-                        iConfig.getParameter<std::string>("InstanceEB")))),
+          edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEB")))),
       tokenEE_(consumes<EEDigiCollection>(
-          edm::InputTag(iConfig.getParameter<std::string>("Label"),
-                        iConfig.getParameter<std::string>("InstanceEE")))),
+          edm::InputTag(iConfig.getParameter<std::string>("Label"), iConfig.getParameter<std::string>("InstanceEE")))),
       binOfMaximum_(iConfig.getParameter<int>("binOfMaximum")),
       fillBinOfMaximumFromHistory_(-1 == binOfMaximum_) {
   // register your products
@@ -80,35 +78,28 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet &iConfig)
     produces<EcalTrigPrimDigiCollection>("formatTCP");
 }
 
-static int findBinOfMaximum(bool iFillFromHistory, int iPSetValue,
-                            edm::ProcessHistory const &iHistory) {
+static int findBinOfMaximum(bool iFillFromHistory, int iPSetValue, edm::ProcessHistory const &iHistory) {
   //  get  binOfMax
   //  try first in cfg, then in ProcessHistory
   //  =6 is default (1-10 possible values)
-  int binOfMaximum = 0; // starts at 1!
+  int binOfMaximum = 0;  // starts at 1!
   if (not iFillFromHistory) {
     binOfMaximum = iPSetValue;
-    edm::LogInfo("EcalTPG")
-        << "EcalTrigPrimProducer is using binOfMaximum found in cfg file :  "
-        << binOfMaximum;
+    edm::LogInfo("EcalTPG") << "EcalTrigPrimProducer is using binOfMaximum found in cfg file :  " << binOfMaximum;
   }
 
   // search backwards in history looking for the particular module
   const std::string kModuleName{"ecalUnsuppressedDigis"};
-  for (auto it = iHistory.rbegin(), itEnd = iHistory.rend(); it != itEnd;
-       ++it) {
+  for (auto it = iHistory.rbegin(), itEnd = iHistory.rend(); it != itEnd; ++it) {
     auto const &topLevelPSet = getParameterSet(it->parameterSetID());
     if (topLevelPSet.exists(kModuleName)) {
-      int psetBinOfMax =
-          topLevelPSet.getParameter<edm::ParameterSet>(kModuleName)
-              .getParameter<int>("binOfMaximum");
+      int psetBinOfMax = topLevelPSet.getParameter<edm::ParameterSet>(kModuleName).getParameter<int>("binOfMaximum");
 
       if (not iFillFromHistory) {
         if (psetBinOfMax != binOfMaximum)
-          edm::LogWarning("EcalTPG")
-              << "binofMaximum given in configuration (=" << binOfMaximum
-              << ") is different from the one found in ProductRegistration(="
-              << psetBinOfMax << ")!!!";
+          edm::LogWarning("EcalTPG") << "binofMaximum given in configuration (=" << binOfMaximum
+                                     << ") is different from the one found in ProductRegistration(=" << psetBinOfMax
+                                     << ")!!!";
       } else {
         binOfMaximum = psetBinOfMax;
         edm::LogInfo("EcalTPG") << "EcalTrigPrimProducer is using binOfMaximum "
@@ -120,85 +111,72 @@ static int findBinOfMaximum(bool iFillFromHistory, int iPSetValue,
   }
   if (binOfMaximum == 0) {
     binOfMaximum = 6;
-    edm::LogWarning("EcalTPG")
-        << "Could not find product registry of EBDigiCollection (label "
-           "ecalUnsuppressedDigis), had to set the following parameters by "
-           "Hand:  binOfMaximum="
-        << binOfMaximum;
+    edm::LogWarning("EcalTPG") << "Could not find product registry of EBDigiCollection (label "
+                                  "ecalUnsuppressedDigis), had to set the following parameters by "
+                                  "Hand:  binOfMaximum="
+                               << binOfMaximum;
   }
   return binOfMaximum;
 }
 
-void EcalTrigPrimProducer::beginRun(edm::Run const &run,
-                                    edm::EventSetup const &setup) {
+void EcalTrigPrimProducer::beginRun(edm::Run const &run, edm::EventSetup const &setup) {
   // ProcessHistory is guaranteed to be constant for an entire Run
-  binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_, binOfMaximum_,
-                                   run.processHistory());
+  binOfMaximum_ = findBinOfMaximum(fillBinOfMaximumFromHistory_, binOfMaximum_, run.processHistory());
 
-  algo_.reset(new EcalTrigPrimFunctionalAlgo(setup, binOfMaximum_, tcpFormat_,
-                                             barrelOnly_, debug_, famos_));
+  algo_.reset(new EcalTrigPrimFunctionalAlgo(setup, binOfMaximum_, tcpFormat_, barrelOnly_, debug_, famos_));
 
   // get a first version of the records
   cacheID_ = this->getRecords(setup);
 }
 
-void EcalTrigPrimProducer::endRun(edm::Run const &run,
-                                  edm::EventSetup const &setup) {
-  algo_.reset();
-}
+void EcalTrigPrimProducer::endRun(edm::Run const &run, edm::EventSetup const &setup) { algo_.reset(); }
 
-unsigned long long
-EcalTrigPrimProducer::getRecords(edm::EventSetup const &setup) {
+unsigned long long EcalTrigPrimProducer::getRecords(edm::EventSetup const &setup) {
   // get Eventsetup records
 
   // for EcalFenixStrip...
   // get parameter records for xtals
   edm::ESHandle<EcalTPGLinearizationConst> theEcalTPGLinearization_handle;
   setup.get<EcalTPGLinearizationConstRcd>().get(theEcalTPGLinearization_handle);
-  const EcalTPGLinearizationConst *ecaltpLin =
-      theEcalTPGLinearization_handle.product();
+  const EcalTPGLinearizationConst *ecaltpLin = theEcalTPGLinearization_handle.product();
   edm::ESHandle<EcalTPGPedestals> theEcalTPGPedestals_handle;
   setup.get<EcalTPGPedestalsRcd>().get(theEcalTPGPedestals_handle);
   const EcalTPGPedestals *ecaltpPed = theEcalTPGPedestals_handle.product();
   edm::ESHandle<EcalTPGCrystalStatus> theEcalTPGCrystalStatus_handle;
   setup.get<EcalTPGCrystalStatusRcd>().get(theEcalTPGCrystalStatus_handle);
-  const EcalTPGCrystalStatus *ecaltpgBadX =
-      theEcalTPGCrystalStatus_handle.product();
+  const EcalTPGCrystalStatus *ecaltpgBadX = theEcalTPGCrystalStatus_handle.product();
 
   // for strips
   edm::ESHandle<EcalTPGSlidingWindow> theEcalTPGSlidingWindow_handle;
   setup.get<EcalTPGSlidingWindowRcd>().get(theEcalTPGSlidingWindow_handle);
-  const EcalTPGSlidingWindow *ecaltpgSlidW =
-      theEcalTPGSlidingWindow_handle.product();
+  const EcalTPGSlidingWindow *ecaltpgSlidW = theEcalTPGSlidingWindow_handle.product();
   edm::ESHandle<EcalTPGWeightIdMap> theEcalTPGWEightIdMap_handle;
   setup.get<EcalTPGWeightIdMapRcd>().get(theEcalTPGWEightIdMap_handle);
-  const EcalTPGWeightIdMap *ecaltpgWeightMap =
-      theEcalTPGWEightIdMap_handle.product();
+  const EcalTPGWeightIdMap *ecaltpgWeightMap = theEcalTPGWEightIdMap_handle.product();
   edm::ESHandle<EcalTPGWeightGroup> theEcalTPGWEightGroup_handle;
   setup.get<EcalTPGWeightGroupRcd>().get(theEcalTPGWEightGroup_handle);
-  const EcalTPGWeightGroup *ecaltpgWeightGroup =
-      theEcalTPGWEightGroup_handle.product();
+  const EcalTPGWeightGroup *ecaltpgWeightGroup = theEcalTPGWEightGroup_handle.product();
   edm::ESHandle<EcalTPGFineGrainStripEE> theEcalTPGFineGrainStripEE_handle;
-  setup.get<EcalTPGFineGrainStripEERcd>().get(
-      theEcalTPGFineGrainStripEE_handle);
-  const EcalTPGFineGrainStripEE *ecaltpgFgStripEE =
-      theEcalTPGFineGrainStripEE_handle.product();
+  setup.get<EcalTPGFineGrainStripEERcd>().get(theEcalTPGFineGrainStripEE_handle);
+  const EcalTPGFineGrainStripEE *ecaltpgFgStripEE = theEcalTPGFineGrainStripEE_handle.product();
   edm::ESHandle<EcalTPGStripStatus> theEcalTPGStripStatus_handle;
   setup.get<EcalTPGStripStatusRcd>().get(theEcalTPGStripStatus_handle);
-  const EcalTPGStripStatus *ecaltpgStripStatus =
-      theEcalTPGStripStatus_handle.product();
+  const EcalTPGStripStatus *ecaltpgStripStatus = theEcalTPGStripStatus_handle.product();
 
-  algo_->setPointers(ecaltpLin, ecaltpPed, ecaltpgSlidW, ecaltpgWeightMap,
-                     ecaltpgWeightGroup, ecaltpgFgStripEE, ecaltpgBadX,
+  algo_->setPointers(ecaltpLin,
+                     ecaltpPed,
+                     ecaltpgSlidW,
+                     ecaltpgWeightMap,
+                     ecaltpgWeightGroup,
+                     ecaltpgFgStripEE,
+                     ecaltpgBadX,
                      ecaltpgStripStatus);
 
   // .. and for EcalFenixTcp
   // get parameter records for towers
   edm::ESHandle<EcalTPGFineGrainEBGroup> theEcalTPGFineGrainEBGroup_handle;
-  setup.get<EcalTPGFineGrainEBGroupRcd>().get(
-      theEcalTPGFineGrainEBGroup_handle);
-  const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup =
-      theEcalTPGFineGrainEBGroup_handle.product();
+  setup.get<EcalTPGFineGrainEBGroupRcd>().get(theEcalTPGFineGrainEBGroup_handle);
+  const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup = theEcalTPGFineGrainEBGroup_handle.product();
 
   edm::ESHandle<EcalTPGLutGroup> theEcalTPGLutGroup_handle;
   setup.get<EcalTPGLutGroupRcd>().get(theEcalTPGLutGroup_handle);
@@ -209,28 +187,27 @@ EcalTrigPrimProducer::getRecords(edm::EventSetup const &setup) {
   const EcalTPGLutIdMap *ecaltpgLut = theEcalTPGLutIdMap_handle.product();
 
   edm::ESHandle<EcalTPGFineGrainEBIdMap> theEcalTPGFineGrainEBIdMap_handle;
-  setup.get<EcalTPGFineGrainEBIdMapRcd>().get(
-      theEcalTPGFineGrainEBIdMap_handle);
-  const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB =
-      theEcalTPGFineGrainEBIdMap_handle.product();
+  setup.get<EcalTPGFineGrainEBIdMapRcd>().get(theEcalTPGFineGrainEBIdMap_handle);
+  const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB = theEcalTPGFineGrainEBIdMap_handle.product();
 
   edm::ESHandle<EcalTPGFineGrainTowerEE> theEcalTPGFineGrainTowerEE_handle;
-  setup.get<EcalTPGFineGrainTowerEERcd>().get(
-      theEcalTPGFineGrainTowerEE_handle);
-  const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE =
-      theEcalTPGFineGrainTowerEE_handle.product();
+  setup.get<EcalTPGFineGrainTowerEERcd>().get(theEcalTPGFineGrainTowerEE_handle);
+  const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE = theEcalTPGFineGrainTowerEE_handle.product();
 
   edm::ESHandle<EcalTPGTowerStatus> theEcalTPGTowerStatus_handle;
   setup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
-  const EcalTPGTowerStatus *ecaltpgBadTT =
-      theEcalTPGTowerStatus_handle.product();
+  const EcalTPGTowerStatus *ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
 
   edm::ESHandle<EcalTPGSpike> theEcalTPGSpike_handle;
   setup.get<EcalTPGSpikeRcd>().get(theEcalTPGSpike_handle);
   const EcalTPGSpike *ecaltpgSpike = theEcalTPGSpike_handle.product();
 
-  algo_->setPointers2(ecaltpgFgEBGroup, ecaltpgLutGroup, ecaltpgLut,
-                      ecaltpgFineGrainEB, ecaltpgFineGrainTowerEE, ecaltpgBadTT,
+  algo_->setPointers2(ecaltpgFgEBGroup,
+                      ecaltpgLutGroup,
+                      ecaltpgLut,
+                      ecaltpgFineGrainEB,
+                      ecaltpgFineGrainTowerEE,
+                      ecaltpgBadTT,
                       ecaltpgSpike);
 
   // we will suppose that everything is to be updated if the
@@ -241,9 +218,7 @@ EcalTrigPrimProducer::getRecords(edm::EventSetup const &setup) {
 EcalTrigPrimProducer::~EcalTrigPrimProducer() {}
 
 // ------------ method called to produce the data  ------------
-void EcalTrigPrimProducer::produce(edm::Event &e,
-                                   const edm::EventSetup &iSetup) {
-
+void EcalTrigPrimProducer::produce(edm::Event &e, const edm::EventSetup &iSetup) {
   // update constants if necessary
   if (iSetup.get<EcalTPGLinearizationConstRcd>().cacheIdentifier() != cacheID_)
     cacheID_ = this->getRecords(iSetup);
@@ -261,37 +236,30 @@ void EcalTrigPrimProducer::produce(edm::Event &e,
     barrel = false;
     edm::EDConsumerBase::Labels labels;
     labelsForToken(tokenEB_, labels);
-    edm::LogWarning("EcalTPG")
-        << " Couldnt find Barrel dataframes with producer " << labels.module
-        << " and label " << labels.productInstance << "!!!";
+    edm::LogWarning("EcalTPG") << " Couldnt find Barrel dataframes with producer " << labels.module << " and label "
+                               << labels.productInstance << "!!!";
   }
   if (!barrelOnly_) {
     if (!e.getByToken(tokenEE_, eeDigis)) {
       endcap = false;
       edm::EDConsumerBase::Labels labels;
       labelsForToken(tokenEE_, labels);
-      edm::LogWarning("EcalTPG")
-          << " Couldnt find Endcap dataframes with producer " << labels.module
-          << " and label " << labels.productInstance << "!!!";
+      edm::LogWarning("EcalTPG") << " Couldnt find Endcap dataframes with producer " << labels.module << " and label "
+                                 << labels.productInstance << "!!!";
     }
   }
   if (!barrel && !endcap) {
     edm::EDConsumerBase::Labels labels;
     labelsForToken(tokenEB_, labels);
-    throw cms::Exception(" ProductNotFound")
-        << "No EBDataFrames(EEDataFrames) with producer " << labels.module
-        << " and label " << labels.productInstance << " found in input!!\n";
+    throw cms::Exception(" ProductNotFound") << "No EBDataFrames(EEDataFrames) with producer " << labels.module
+                                             << " and label " << labels.productInstance << " found in input!!\n";
   }
 
   if (!barrelOnly_)
-    LogDebug("EcalTPG") << " =================> Treating event  " << e.id()
-                        << ", Number of EBDataFrames "
-                        << ebDigis.product()->size()
-                        << ", Number of EEDataFrames "
-                        << eeDigis.product()->size();
+    LogDebug("EcalTPG") << " =================> Treating event  " << e.id() << ", Number of EBDataFrames "
+                        << ebDigis.product()->size() << ", Number of EEDataFrames " << eeDigis.product()->size();
   else
-    LogDebug("EcalTPG") << " =================> Treating event  " << e.id()
-                        << ", Number of EBDataFrames "
+    LogDebug("EcalTPG") << " =================> Treating event  " << e.id() << ", Number of EBDataFrames "
                         << ebDigis.product()->size();
 
   auto pOut = std::make_unique<EcalTrigPrimDigiCollection>();
@@ -311,8 +279,7 @@ void EcalTrigPrimProducer::produce(edm::Event &e,
     algo_->run(iSetup, eedc, *pOut, *pOutTcp);
   }
 
-  edm::LogInfo("produce") << "For Barrel + Endcap, " << pOut->size()
-                          << " TP  Digis were produced";
+  edm::LogInfo("produce") << "For Barrel + Endcap, " << pOut->size() << " TP  Digis were produced";
 
   //  debug prints if TP >0
 
@@ -323,15 +290,13 @@ void EcalTrigPrimProducer::produce(edm::Event &e,
         print = true;
     }
     if (print)
-      LogDebug("EcalTPG") << " For tower  " << (((*pOut)[i])).id() << ", TP is "
-                          << (*pOut)[i];
+      LogDebug("EcalTPG") << " For tower  " << (((*pOut)[i])).id() << ", TP is " << (*pOut)[i];
   }
   if (barrelOnly_)
     LogDebug("EcalTPG") << "\n =================> For Barrel , " << pOut->size()
                         << " TP  Digis were produced (including zero ones)";
   else
-    LogDebug("EcalTPG") << "\n =================> For Barrel + Endcap, "
-                        << pOut->size()
+    LogDebug("EcalTPG") << "\n =================> For Barrel + Endcap, " << pOut->size()
                         << " TP  Digis were produced (including zero ones)";
 
   // put result into the Event
@@ -341,9 +306,7 @@ void EcalTrigPrimProducer::produce(edm::Event &e,
     e.put(std::move(pOutTcp), "formatTCP");
 }
 
-void EcalTrigPrimProducer::fillDescriptions(
-    edm::ConfigurationDescriptions &descriptions) {
-
+void EcalTrigPrimProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("BarrelOnly", false);
   desc.add<bool>("TcpOutput", false);

@@ -21,14 +21,9 @@
 using namespace std;
 using namespace edm;
 
-CSCDcsInfo::CSCDcsInfo(const edm::ParameterSet& ps) {
-   
-}
+CSCDcsInfo::CSCDcsInfo(const edm::ParameterSet& ps) {}
 
-void CSCDcsInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
-{
-
-  
+void CSCDcsInfo::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   ibooker.cd();
   ibooker.setCurrentFolder("CSC/EventInfo/DCSContents");
 
@@ -60,9 +55,7 @@ void CSCDcsInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & iget
   ibooker.setCurrentFolder("CSC/EventInfo");
   mos.insert(std::make_pair("DCSSummary", ibooker.bookFloat("DCSSummary")));
 
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
+  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) {
     it->second->Fill(-1);
   }
-
 }
-

@@ -9,16 +9,14 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
-
 class RPCEventDump : public edm::EDProducer {
- public:
+public:
   RPCEventDump(const edm::ParameterSet& config);
-  ~RPCEventDump() override{}
+  ~RPCEventDump() override {}
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
- private:
+private:
   std::vector<std::string> filesed;
   bool rpcdigiprint;
-
 };
 #endif

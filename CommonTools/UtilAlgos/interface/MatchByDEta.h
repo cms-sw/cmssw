@@ -7,17 +7,15 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace reco {
-  template <typename T1, typename T2> class MatchByDEta {
+  template <typename T1, typename T2>
+  class MatchByDEta {
   public:
-    MatchByDEta (const edm::ParameterSet& cfg) :
-      maxDEta_(cfg.getParameter<double>("maxDeltaEta")) {}
-    bool operator() (const T1& t1, const T2& t2) const {
-      return fabs(t1.eta()-t2.eta()) < maxDEta_;
-    }
+    MatchByDEta(const edm::ParameterSet& cfg) : maxDEta_(cfg.getParameter<double>("maxDeltaEta")) {}
+    bool operator()(const T1& t1, const T2& t2) const { return fabs(t1.eta() - t2.eta()) < maxDEta_; }
+
   private:
     double maxDEta_;
   };
-}
-
+}  // namespace reco
 
 #endif

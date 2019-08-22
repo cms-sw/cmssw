@@ -29,39 +29,30 @@
 // forward declarations
 
 // class declaration
-class L1GtPsbSetup
-{
+class L1GtPsbSetup {
+public:
+  // constructor
+  L1GtPsbSetup();
+
+  // destructor
+  virtual ~L1GtPsbSetup();
 
 public:
+  /// get / set / print the setup for L1 GT PSB boards
+  const std::vector<L1GtPsbConfig>& gtPsbSetup() const { return m_gtPsbSetup; }
 
-    // constructor
-    L1GtPsbSetup();
+  void setGtPsbSetup(const std::vector<L1GtPsbConfig>&);
 
-    // destructor
-    virtual ~L1GtPsbSetup();
+  void print(std::ostream&) const;
 
-public:
-
-    /// get / set / print the setup for L1 GT PSB boards
-    const std::vector<L1GtPsbConfig>& gtPsbSetup() const
-    {
-        return m_gtPsbSetup;
-    }
-
-    void setGtPsbSetup(const std::vector<L1GtPsbConfig>&);
-
-    void print(std::ostream&) const;
-
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1GtPsbSetup&);
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1GtPsbSetup&);
 
 private:
+  /// L1 GT PSB boards and their setup
+  std::vector<L1GtPsbConfig> m_gtPsbSetup;
 
-    /// L1 GT PSB boards and their setup
-    std::vector<L1GtPsbConfig> m_gtPsbSetup;
-
-
-    COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtPsbSetup_h*/

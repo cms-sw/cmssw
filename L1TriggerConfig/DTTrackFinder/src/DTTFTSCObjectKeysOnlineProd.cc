@@ -2,7 +2,7 @@
 //
 // Package:    L1TriggerConfig
 // Class:      DTTFTSCObjectKeysOnlineProd
-// 
+//
 /**\class DTTFTSCObjectKeysOnlineProd DTTFTSCObjectKeysOnlineProd.h L1TriggerConfig/DTTFConfigProducers/src/DTTFTSCObjectKeysOnlineProd.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 
 // user include files
@@ -29,13 +28,14 @@
 //
 
 class DTTFTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
-   public:
-      DTTFTSCObjectKeysOnlineProd(const edm::ParameterSet&);
-      ~DTTFTSCObjectKeysOnlineProd() override;
+public:
+  DTTFTSCObjectKeysOnlineProd(const edm::ParameterSet&);
+  ~DTTFTSCObjectKeysOnlineProd() override;
 
-      void fillObjectKeys( FillType ) override ;
-   private:
-      // ----------member data ---------------------------
+  void fillObjectKeys(FillType) override;
+
+private:
+  // ----------member data ---------------------------
 };
 
 //
@@ -50,74 +50,47 @@ class DTTFTSCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 // constructors and destructor
 //
 DTTFTSCObjectKeysOnlineProd::DTTFTSCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
-  : L1ObjectKeysOnlineProdBase( iConfig )
-{}
+    : L1ObjectKeysOnlineProdBase(iConfig) {}
 
-
-DTTFTSCObjectKeysOnlineProd::~DTTFTSCObjectKeysOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+DTTFTSCObjectKeysOnlineProd::~DTTFTSCObjectKeysOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-DTTFTSCObjectKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
-{
-  std::string dttfKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kDTTF ) ;
+void DTTFTSCObjectKeysOnlineProd::fillObjectKeys(FillType pL1TriggerKey) {
+  std::string dttfKey = pL1TriggerKey->subsystemKey(L1TriggerKey::kDTTF);
 
-  if( !dttfKey.empty() )
+  if (!dttfKey.empty()) {
+    // SELECT LUT_KEY FROM CMS_DT_TF.DTTF_CONF WHERE DTTF_CONF.ID = dttfKey
+    l1t::OMDSReader::QueryResults lutKeyResults = m_omdsReader.basicQuery(
+        "LUT_KEY", "CMS_DT_TF", "DTTF_CONF", "DTTF_CONF.ID", m_omdsReader.singleAttribute(dttfKey));
+
+    if (lutKeyResults.queryFailed() || lutKeyResults.numberRows() != 1)  // check query successful
     {
-      // SELECT LUT_KEY FROM CMS_DT_TF.DTTF_CONF WHERE DTTF_CONF.ID = dttfKey
-      l1t::OMDSReader::QueryResults lutKeyResults =
-	m_omdsReader.basicQuery( "LUT_KEY",
-				 "CMS_DT_TF",
-				 "DTTF_CONF",
-				 "DTTF_CONF.ID",
-				 m_omdsReader.singleAttribute( dttfKey  ) );
-
-
-      if( lutKeyResults.queryFailed() ||
-	  lutKeyResults.numberRows() != 1 ) // check query successful
-	{
-	  edm::LogError( "L1-O2O" ) << "Problem with DTTF key." ;
-	  return ;
-	}
-
-      std::string lutKey ;
-      lutKeyResults.fillVariable( lutKey ) ;
-
-      pL1TriggerKey->add( "L1MuDTEtaPatternLutRcd",
-			  "L1MuDTEtaPatternLut",
-			  lutKey ) ;
-
-      pL1TriggerKey->add( "L1MuDTExtLutRcd",
-			  "L1MuDTExtLut",
-			  lutKey ) ;
-
-      pL1TriggerKey->add( "L1MuDTPhiLutRcd",
-			  "L1MuDTPhiLut",
-			  lutKey ) ;
-
-      pL1TriggerKey->add( "L1MuDTPtaLutRcd",
-			  "L1MuDTPtaLut",
-			  lutKey ) ;
-
-      pL1TriggerKey->add( "L1MuDTQualPatternLutRcd",
-			  "L1MuDTQualPatternLut",
-			  lutKey ) ;
-
-      pL1TriggerKey->add( "L1MuDTTFParametersRcd",
-			  "L1MuDTTFParameters",
-			  dttfKey ) ;
+      edm::LogError("L1-O2O") << "Problem with DTTF key.";
+      return;
     }
+
+    std::string lutKey;
+    lutKeyResults.fillVariable(lutKey);
+
+    pL1TriggerKey->add("L1MuDTEtaPatternLutRcd", "L1MuDTEtaPatternLut", lutKey);
+
+    pL1TriggerKey->add("L1MuDTExtLutRcd", "L1MuDTExtLut", lutKey);
+
+    pL1TriggerKey->add("L1MuDTPhiLutRcd", "L1MuDTPhiLut", lutKey);
+
+    pL1TriggerKey->add("L1MuDTPtaLutRcd", "L1MuDTPtaLut", lutKey);
+
+    pL1TriggerKey->add("L1MuDTQualPatternLutRcd", "L1MuDTQualPatternLut", lutKey);
+
+    pL1TriggerKey->add("L1MuDTTFParametersRcd", "L1MuDTTFParameters", dttfKey);
+  }
 }
 
 //define this as a plug-in

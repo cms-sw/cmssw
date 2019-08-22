@@ -4,8 +4,10 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
-namespace edm {class ParameterSet;}
+namespace edm {
+  class ParameterSet;
+}
 
-typedef edmplugin::PluginFactory<SeedCreator *(const edm::ParameterSet&)> SeedCreatorFactory;
+typedef edmplugin::PluginFactory<SeedCreator *(const edm::ParameterSet &)> SeedCreatorFactory;
 
 #endif

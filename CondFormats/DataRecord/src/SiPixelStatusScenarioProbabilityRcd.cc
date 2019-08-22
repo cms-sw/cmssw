@@ -2,7 +2,7 @@
 //
 // Package:     CondFormats/DataRecord
 // Class  :     SiPixelStatusScenarioProbabilityRcd
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //

@@ -13,20 +13,15 @@
 #include <string>
 
 class EcalPulseSymmCovariancesXMLTranslator {
-
 public:
+  static int readXML(const std::string& filename, EcalCondHeader& header, EcalPulseSymmCovariances& record);
 
-  static int readXML (const std::string& filename, 
-	              EcalCondHeader& header,
-	              EcalPulseSymmCovariances& record);
+  static int writeXML(const std::string& filename,
+                      const EcalCondHeader& header,
+                      const EcalPulseSymmCovariances& record);
 
-  static  int writeXML(const std::string& filename, 
-		       const EcalCondHeader& header,
-		       const EcalPulseSymmCovariances& record);
- private:
-  
-  static std::string dumpXML(const EcalCondHeader& header,
-			     const EcalPulseSymmCovariances& record);
+private:
+  static std::string dumpXML(const EcalCondHeader& header, const EcalPulseSymmCovariances& record);
 };
 
-#endif // __EcalPulseSymmCovariancesXMLTranslator_h_
+#endif  // __EcalPulseSymmCovariancesXMLTranslator_h_

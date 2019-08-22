@@ -13,104 +13,93 @@
 
 namespace triggerExpression {
 
-namespace qi = boost::spirit::qi;
-namespace ascii = boost::spirit::ascii;
+  namespace qi = boost::spirit::qi;
+  namespace ascii = boost::spirit::ascii;
 
-using boost::phoenix::new_;
-using boost::spirit::unused_type;
+  using boost::phoenix::new_;
+  using boost::spirit::unused_type;
 
-template <typename Iterator>
-class Parser : public qi::grammar<Iterator, Evaluator*(), ascii::space_type>
-{
-public:
-  Parser() :
-    Parser::base_type(expression)
-  {
-    token_l1algo    %= qi::raw[qi::lexeme["L1_"     >> +(qi::char_("a-zA-Z0-9_*?"))]];
-    token_path      %= qi::raw[qi::lexeme[             +(qi::char_("a-zA-Z0-9_*?"))]];
+  template <typename Iterator>
+  class Parser : public qi::grammar<Iterator, Evaluator *(), ascii::space_type> {
+  public:
+    Parser() : Parser::base_type(expression) {
+      token_l1algo %= qi::raw[qi::lexeme["L1_" >> +(qi::char_("a-zA-Z0-9_*?"))]];
+      token_path %= qi::raw[qi::lexeme[+(qi::char_("a-zA-Z0-9_*?"))]];
 
-    token            = ( qi::lit("TRUE")                [qi::_val = new_<Constant>(true)]
-                       | qi::lit("FALSE")               [qi::_val = new_<Constant>(false)]
-                       | token_l1algo                   [qi::_val = new_<L1uGTReader>(qi::_1)]
-                       | token_path                     [qi::_val = new_<PathReader>(qi::_1)]
-                       );
+      token = (qi::lit("TRUE")[qi::_val = new_<Constant>(true)] | qi::lit("FALSE")[qi::_val = new_<Constant>(false)] |
+               token_l1algo[qi::_val = new_<L1uGTReader>(qi::_1)] | token_path[qi::_val = new_<PathReader>(qi::_1)]);
 
-    parenthesis     %= ('(' >> expression >> ')');
+      parenthesis %= ('(' >> expression >> ')');
 
-    element         %= (token | parenthesis);
+      element %= (token | parenthesis);
 
-    prescale         = (element >> '/' >> qi::uint_)    [qi::_val = new_<Prescaler> (qi::_1, qi::_2)];
+      prescale = (element >> '/' >> qi::uint_)[qi::_val = new_<Prescaler>(qi::_1, qi::_2)];
 
-    operand         %= (prescale | element);
+      operand %= (prescale | element);
 
-    unary            = ( operand                        [qi::_val = qi::_1]
-                       | (qi::lit("NOT") >> operand)    [qi::_val = new_<OperatorNot> (qi::_1)]
-                       );
+      unary = (operand[qi::_val = qi::_1] | (qi::lit("NOT") >> operand)[qi::_val = new_<OperatorNot>(qi::_1)]);
 
-    expression       = unary                            [qi::_val = qi::_1]
-                       >> *(
-                              (qi::lit("AND") >> unary) [qi::_val = new_<OperatorAnd> (qi::_val, qi::_1)]
-                            | (qi::lit("OR")  >> unary) [qi::_val = new_<OperatorOr>  (qi::_val, qi::_1)]
-                       );
+      expression =
+          unary[qi::_val = qi::_1] >> *((qi::lit("AND") >> unary)[qi::_val = new_<OperatorAnd>(qi::_val, qi::_1)] |
+                                        (qi::lit("OR") >> unary)[qi::_val = new_<OperatorOr>(qi::_val, qi::_1)]);
+    }
+
+  private:
+    typedef qi::rule<Iterator, std::string(), ascii::space_type> name_rule;
+    typedef qi::rule<Iterator, Evaluator *(), ascii::space_type> rule;
+
+    name_rule token_l1algo;
+    name_rule token_path;
+
+    rule token;
+    rule parenthesis;
+    rule element;
+    rule prescale;
+    rule operand;
+    rule unary;
+    rule expression;
+  };
+
+  // generic interface for string-like objects
+  template <class T>
+  Evaluator *parse(const T &text) {
+    typedef typename T::const_iterator Iterator;
+    Parser<Iterator> parser;
+    Evaluator *evaluator = nullptr;
+
+    Iterator begin = text.begin();
+    Iterator end = text.end();
+
+    // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
+    bool result = qi::phrase_parse(begin, end, parser, ascii::space, evaluator);
+
+    if (not result or begin != end) {
+      delete evaluator;
+      return nullptr;
+    }
+
+    return evaluator;
   }
 
-private:
-  typedef qi::rule<Iterator, std::string(), ascii::space_type> name_rule;
-  typedef qi::rule<Iterator, Evaluator*(),  ascii::space_type> rule;
+  // overloaded interface for null-terminated strings
+  inline Evaluator *parse(const char *text) {
+    Parser<const char *> parser;
+    Evaluator *evaluator = nullptr;
 
-  name_rule token_l1algo;
-  name_rule token_path;
+    const char *begin = text;
+    const char *end = text + strlen(text);
 
-  rule token;
-  rule parenthesis;
-  rule element;
-  rule prescale;
-  rule operand;
-  rule unary;
-  rule expression;
-};
+    // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
+    bool result = qi::phrase_parse(begin, end, parser, ascii::space, evaluator);
 
+    if (not result or begin != end) {
+      delete evaluator;
+      return nullptr;
+    }
 
-// generic interface for string-like objects
-template <class T>
-Evaluator * parse(const T & text) {
-  typedef typename T::const_iterator Iterator;
-  Parser<Iterator> parser;
-  Evaluator * evaluator = nullptr;
-
-  Iterator begin = text.begin();
-  Iterator end   = text.end();
-
-  // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
-  bool result = qi::phrase_parse( begin, end, parser, ascii::space, evaluator );
-
-  if (not result or begin != end) {
-    delete evaluator;
-    return nullptr;
+    return evaluator;
   }
 
-  return evaluator;
-}
+}  // namespace triggerExpression
 
-// overloaded interface for null-terminated strings
-inline Evaluator * parse(const char * text) {
-  Parser<const char *> parser;
-  Evaluator * evaluator = nullptr;
-
-  const char * begin = text;
-  const char * end   = text + strlen(text);
-
-  // the interface of qi::phrase_parse has changed between Boost 1.40 (Spirit 2.0) and Boost 1.41 (Spirit 2.1)
-  bool result = qi::phrase_parse( begin, end, parser, ascii::space, evaluator );
-
-  if (not result or begin != end) {
-    delete evaluator;
-    return nullptr;
-  }
-
-  return evaluator;
-}
-
-} // namespace triggerExpression
-
-#endif // HLTrigger_HLTfilters_TriggerExpressionParser_h
+#endif  // HLTrigger_HLTfilters_TriggerExpressionParser_h

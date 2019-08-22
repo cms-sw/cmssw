@@ -34,12 +34,11 @@ struct GzInputStream {
     }
   }
   ~GzInputStream() { gzclose(gzf); }
-  explicit operator bool() const {
-    return ((eof == true) ? false : !iss.fail());
-  }
+  explicit operator bool() const { return ((eof == true) ? false : !iss.fail()); }
 };
 
-template <typename T> GzInputStream &operator>>(GzInputStream &gis, T &var) {
+template <typename T>
+GzInputStream &operator>>(GzInputStream &gis, T &var) {
   while ((bool)gis && !(gis.iss >> var)) {
     gis.readLine();
   }
@@ -51,8 +50,7 @@ template <typename T> GzInputStream &operator>>(GzInputStream &gis, T &var) {
 //
 
 EcalTrigPrimESProducer::EcalTrigPrimESProducer(const edm::ParameterSet &iConfig)
-    : dbFilename_(
-          iConfig.getUntrackedParameter<std::string>("DatabaseFile", "")),
+    : dbFilename_(iConfig.getUntrackedParameter<std::string>("DatabaseFile", "")),
       flagPrint_(iConfig.getParameter<bool>("WriteInFile")) {
   // the following line is needed to tell the framework what
   // data is being produced
@@ -83,8 +81,7 @@ EcalTrigPrimESProducer::~EcalTrigPrimESProducer() {}
 
 // ------------ method called to produce the data  ------------
 
-std::unique_ptr<EcalTPGPedestals>
-EcalTrigPrimESProducer::producePedestals(const EcalTPGPedestalsRcd &iRecord) {
+std::unique_ptr<EcalTPGPedestals> EcalTrigPrimESProducer::producePedestals(const EcalTPGPedestalsRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGPedestals>();
   parseTextFile();
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
@@ -98,8 +95,7 @@ EcalTrigPrimESProducer::producePedestals(const EcalTPGPedestalsRcd &iRecord) {
   return prod;
 }
 
-std::unique_ptr<EcalTPGLinearizationConst>
-EcalTrigPrimESProducer::produceLinearizationConst(
+std::unique_ptr<EcalTPGLinearizationConst> EcalTrigPrimESProducer::produceLinearizationConst(
     const EcalTPGLinearizationConstRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGLinearizationConst>();
   parseTextFile();
@@ -117,8 +113,7 @@ EcalTrigPrimESProducer::produceLinearizationConst(
   return prod;
 }
 
-std::unique_ptr<EcalTPGSlidingWindow>
-EcalTrigPrimESProducer::produceSlidingWindow(
+std::unique_ptr<EcalTPGSlidingWindow> EcalTrigPrimESProducer::produceSlidingWindow(
     const EcalTPGSlidingWindowRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGSlidingWindow>();
   parseTextFile();
@@ -131,23 +126,20 @@ EcalTrigPrimESProducer::produceSlidingWindow(
   return prod;
 }
 
-std::unique_ptr<EcalTPGFineGrainEBIdMap>
-EcalTrigPrimESProducer::produceFineGrainEB(
+std::unique_ptr<EcalTPGFineGrainEBIdMap> EcalTrigPrimESProducer::produceFineGrainEB(
     const EcalTPGFineGrainEBIdMapRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGFineGrainEBIdMap>();
   parseTextFile();
   EcalTPGFineGrainConstEB fg;
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapFg_.begin(); it != mapFg_.end(); it++) {
-    fg.setValues((it->second)[0], (it->second)[1], (it->second)[2],
-                 (it->second)[3], (it->second)[4]);
+    fg.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4]);
     prod->setValue(it->first, fg);
   }
   return prod;
 }
 
-std::unique_ptr<EcalTPGFineGrainStripEE>
-EcalTrigPrimESProducer::produceFineGrainEEstrip(
+std::unique_ptr<EcalTPGFineGrainStripEE> EcalTrigPrimESProducer::produceFineGrainEEstrip(
     const EcalTPGFineGrainStripEERcd &iRecord) {
   auto prod = std::make_unique<EcalTPGFineGrainStripEE>();
   parseTextFile();
@@ -169,8 +161,7 @@ EcalTrigPrimESProducer::produceFineGrainEEstrip(
   return prod;
 }
 
-std::unique_ptr<EcalTPGFineGrainTowerEE>
-EcalTrigPrimESProducer::produceFineGrainEEtower(
+std::unique_ptr<EcalTPGFineGrainTowerEE> EcalTrigPrimESProducer::produceFineGrainEEtower(
     const EcalTPGFineGrainTowerEERcd &iRecord) {
   auto prod = std::make_unique<EcalTPGFineGrainTowerEE>();
   parseTextFile();
@@ -181,8 +172,7 @@ EcalTrigPrimESProducer::produceFineGrainEEtower(
   return prod;
 }
 
-std::unique_ptr<EcalTPGLutIdMap>
-EcalTrigPrimESProducer::produceLUT(const EcalTPGLutIdMapRcd &iRecord) {
+std::unique_ptr<EcalTPGLutIdMap> EcalTrigPrimESProducer::produceLUT(const EcalTPGLutIdMapRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGLutIdMap>();
   parseTextFile();
   EcalTPGLut lut;
@@ -197,22 +187,19 @@ EcalTrigPrimESProducer::produceLUT(const EcalTPGLutIdMapRcd &iRecord) {
   return prod;
 }
 
-std::unique_ptr<EcalTPGWeightIdMap>
-EcalTrigPrimESProducer::produceWeight(const EcalTPGWeightIdMapRcd &iRecord) {
+std::unique_ptr<EcalTPGWeightIdMap> EcalTrigPrimESProducer::produceWeight(const EcalTPGWeightIdMapRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGWeightIdMap>();
   parseTextFile();
   EcalTPGWeights weights;
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapWeight_.begin(); it != mapWeight_.end(); it++) {
-    weights.setValues((it->second)[0], (it->second)[1], (it->second)[2],
-                      (it->second)[3], (it->second)[4]);
+    weights.setValues((it->second)[0], (it->second)[1], (it->second)[2], (it->second)[3], (it->second)[4]);
     prod->setValue(it->first, weights);
   }
   return prod;
 }
 
-std::unique_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(
-    const EcalTPGWeightGroupRcd &iRecord) {
+std::unique_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(const EcalTPGWeightGroupRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGWeightGroup>();
   parseTextFile();
   for (int subdet = 0; subdet < 2; subdet++) {
@@ -224,8 +211,7 @@ std::unique_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(
   return prod;
 }
 
-std::unique_ptr<EcalTPGLutGroup>
-EcalTrigPrimESProducer::produceLutGroup(const EcalTPGLutGroupRcd &iRecord) {
+std::unique_ptr<EcalTPGLutGroup> EcalTrigPrimESProducer::produceLutGroup(const EcalTPGLutGroupRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGLutGroup>();
   parseTextFile();
   for (int subdet = 0; subdet < 2; subdet++) {
@@ -237,8 +223,7 @@ EcalTrigPrimESProducer::produceLutGroup(const EcalTPGLutGroupRcd &iRecord) {
   return prod;
 }
 
-std::unique_ptr<EcalTPGFineGrainEBGroup>
-EcalTrigPrimESProducer::produceFineGrainEBGroup(
+std::unique_ptr<EcalTPGFineGrainEBGroup> EcalTrigPrimESProducer::produceFineGrainEBGroup(
     const EcalTPGFineGrainEBGroupRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGFineGrainEBGroup>();
   parseTextFile();
@@ -249,9 +234,7 @@ EcalTrigPrimESProducer::produceFineGrainEBGroup(
   return prod;
 }
 
-std::unique_ptr<EcalTPGPhysicsConst>
-EcalTrigPrimESProducer::producePhysicsConst(
-    const EcalTPGPhysicsConstRcd &iRecord) {
+std::unique_ptr<EcalTPGPhysicsConst> EcalTrigPrimESProducer::producePhysicsConst(const EcalTPGPhysicsConstRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGPhysicsConst>();
   parseTextFile();
   std::map<uint32_t, std::vector<float>>::const_iterator it;
@@ -269,13 +252,11 @@ EcalTrigPrimESProducer::producePhysicsConst(
   return prod;
 }
 
-std::unique_ptr<EcalTPGCrystalStatus>
-EcalTrigPrimESProducer::produceBadX(const EcalTPGCrystalStatusRcd &iRecord) {
+std::unique_ptr<EcalTPGCrystalStatus> EcalTrigPrimESProducer::produceBadX(const EcalTPGCrystalStatusRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGCrystalStatus>();
   parseTextFile();
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
   for (it = mapXtal_.begin(); it != mapXtal_.end(); it++) {
-
     EcalTPGCrystalStatusCode badXValue;
     badXValue.setStatusCode(0);
     prod->setValue(it->first, badXValue);
@@ -283,15 +264,13 @@ EcalTrigPrimESProducer::produceBadX(const EcalTPGCrystalStatusRcd &iRecord) {
   return prod;
 }
 
-std::unique_ptr<EcalTPGStripStatus>
-EcalTrigPrimESProducer::produceBadStrip(const EcalTPGStripStatusRcd &iRecord) {
+std::unique_ptr<EcalTPGStripStatus> EcalTrigPrimESProducer::produceBadStrip(const EcalTPGStripStatusRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGStripStatus>();
   // returns an empty map
   return prod;
 }
 
-std::unique_ptr<EcalTPGTowerStatus>
-EcalTrigPrimESProducer::produceBadTT(const EcalTPGTowerStatusRcd &iRecord) {
+std::unique_ptr<EcalTPGTowerStatus> EcalTrigPrimESProducer::produceBadTT(const EcalTPGTowerStatusRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGTowerStatus>();
   parseTextFile();
   std::map<uint32_t, std::vector<uint32_t>>::const_iterator it;
@@ -309,8 +288,7 @@ EcalTrigPrimESProducer::produceBadTT(const EcalTPGTowerStatusRcd &iRecord) {
   return prod;
 }
 
-std::unique_ptr<EcalTPGSpike>
-EcalTrigPrimESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord) {
+std::unique_ptr<EcalTPGSpike> EcalTrigPrimESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord) {
   auto prod = std::make_unique<EcalTPGSpike>();
   parseTextFile();
   // Only need to do barrel
@@ -323,7 +301,7 @@ EcalTrigPrimESProducer::produceSpike(const EcalTPGSpikeRcd &iRecord) {
 
 void EcalTrigPrimESProducer::parseTextFile() {
   if (!mapXtal_.empty())
-    return; // just parse the file once!
+    return;  // just parse the file once!
 
   uint32_t id;
   std::string dataCard;
@@ -338,8 +316,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
   std::string bufString;
   std::string iString;
   std::string fString;
-  std::string filename =
-      "SimCalorimetry/EcalTrigPrimProducers/data/" + dbFilename_;
+  std::string filename = "SimCalorimetry/EcalTrigPrimProducers/data/" + dbFilename_;
   std::string finalFileName;
   size_t slash = dbFilename_.find("/");
   if (slash != 0) {
@@ -355,7 +332,6 @@ void EcalTrigPrimESProducer::parseTextFile() {
 
   GzInputStream gis(finalFileName.c_str());
   while (gis >> dataCard) {
-
     if (dataCard == "PHYSICS_EB" || dataCard == "PHYSICS_EE") {
       gis >> std::dec >> id;
 
@@ -409,7 +385,6 @@ void EcalTrigPrimESProducer::parseTextFile() {
     }
 
     if (dataCard == "CRYSTAL") {
-
       gis >> std::dec >> id;
       // std::cout<<dataCard<<" "<<std::dec<<id;
       std::string st3;
@@ -467,7 +442,7 @@ void EcalTrigPrimESProducer::parseTextFile() {
           }
         }
 
-      } // end for
+      }  // end for
 
       if (flagPrint_) {
         std::cout << " " << st3 << std::endl;
@@ -607,7 +582,6 @@ void EcalTrigPrimESProducer::parseTextFile() {
     }
 
     if (dataCard == "WEIGHT") {
-
       if (flagPrint_)
         std::cout << std::endl;
 
@@ -644,7 +618,6 @@ void EcalTrigPrimESProducer::parseTextFile() {
     }
 
     if (dataCard == "FG") {
-
       if (flagPrint_)
         std::cout << std::endl;
 
@@ -705,36 +678,34 @@ void EcalTrigPrimESProducer::parseTextFile() {
   }
 }
 
-std::vector<int> EcalTrigPrimESProducer::getRange(int subdet, int tccNb,
-                                                  int towerNbInTcc,
-                                                  int stripNbInTower,
-                                                  int xtalNbInStrip) {
+std::vector<int> EcalTrigPrimESProducer::getRange(
+    int subdet, int tccNb, int towerNbInTcc, int stripNbInTower, int xtalNbInStrip) {
   std::vector<int> range;
   if (subdet == 0) {
     // Barrel
-    range.push_back(37); // stccNbMin
-    range.push_back(73); // tccNbMax
-    range.push_back(1);  // towerNbMin
-    range.push_back(69); // towerNbMax
-    range.push_back(1);  // stripNbMin
-    range.push_back(6);  // stripNbMax
-    range.push_back(1);  // xtalNbMin
-    range.push_back(6);  // xtalNbMax
+    range.push_back(37);  // stccNbMin
+    range.push_back(73);  // tccNbMax
+    range.push_back(1);   // towerNbMin
+    range.push_back(69);  // towerNbMax
+    range.push_back(1);   // stripNbMin
+    range.push_back(6);   // stripNbMax
+    range.push_back(1);   // xtalNbMin
+    range.push_back(6);   // xtalNbMax
   } else {
     // Endcap eta >0
     if (subdet > 0) {
-      range.push_back(73);  // tccNbMin
-      range.push_back(109); // tccNbMax
-    } else {                // endcap eta <0
-      range.push_back(1);   // tccNbMin
-      range.push_back(37);  // tccNbMax
+      range.push_back(73);   // tccNbMin
+      range.push_back(109);  // tccNbMax
+    } else {                 // endcap eta <0
+      range.push_back(1);    // tccNbMin
+      range.push_back(37);   // tccNbMax
     }
-    range.push_back(1);  // towerNbMin
-    range.push_back(29); // towerNbMax
-    range.push_back(1);  // stripNbMin
-    range.push_back(6);  // stripNbMax
-    range.push_back(1);  // xtalNbMin
-    range.push_back(6);  // xtalNbMax
+    range.push_back(1);   // towerNbMin
+    range.push_back(29);  // towerNbMax
+    range.push_back(1);   // stripNbMin
+    range.push_back(6);   // stripNbMax
+    range.push_back(1);   // xtalNbMin
+    range.push_back(6);   // xtalNbMax
   }
 
   if (tccNb > 0) {

@@ -14,6 +14,21 @@ trkselcfg="$curdir/$6"
 lstfile="$curdir/$7"
 iovfile="$curdir/$8"
 
+kinitial=$KRB5CCNAME
+kcachein=${kinitial#FILE:}
+#kticket="`pwd`/screen_kerberost_cache"
+kticket="${kcachein}_copy"
+
+echo "Copy Kerberos ticket for screen session to $kticket"
+cp $kcachein $kticket
+export KRB5CCNAME=$kticket
+
+#kinit #-l 25h -r 5d  # Ticket for 25 hours renewable for 5 days 
+#echo "Obtaining AFS token"
+#aklog
+
+krenew -b -t -K 60
+
 extraopts=""
 if [[ "$9" != "" ]];then
   extraopts="$9"
@@ -61,7 +76,8 @@ if [ $proceed -eq 1 ];then
   (
     cd $pkgdir
     eval `scramv1 runtime -sh`
-    batchHippy.py --niter=$niter --outdir=$outdir --lstfile=$lstfile --iovfile=$iovfile --trkselcfg=$trkselcfg --commoncfg=$commoncfg --aligncfg=$aligncfg --sendto="$emailList" $extraopts
+    krenew -t -K 10 -- batchHippy.py --niter=$niter --outdir=$outdir --lstfile=$lstfile --iovfile=$iovfile --trkselcfg=$trkselcfg --commoncfg=$commoncfg --aligncfg=$aligncfg --sendto="$emailList" $extraopts
+    krenew -t -H 60
   )
 fi
 
@@ -94,3 +110,5 @@ else
 
   fi
 fi
+
+kdestroy -c $kticket

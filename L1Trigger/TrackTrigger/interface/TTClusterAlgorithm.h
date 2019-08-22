@@ -22,57 +22,45 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
-template< typename T >
-class TTClusterAlgorithm
-{
-  protected:
-    /// Data members
-    std::string                  className_;
+template <typename T>
+class TTClusterAlgorithm {
+protected:
+  /// Data members
+  std::string className_;
 
-  public:
-    /// Constructors
+public:
+  /// Constructors
 
-    TTClusterAlgorithm( std::string fName )
-    {
-      className_=classNameFinder<T>(fName);
-    }
+  TTClusterAlgorithm(std::string fName) { className_ = classNameFinder<T>(fName); }
 
-    /// Destructor
-    virtual ~TTClusterAlgorithm(){}
+  /// Destructor
+  virtual ~TTClusterAlgorithm() {}
 
-    /// Clustering operations
-    /// Overloaded method (***) to preserve the interface of all the algorithms but official
-    virtual void Cluster( std::vector< std::vector< T > > &output,
-                          const std::vector< T > &input,
-                          bool module ) const
-    {
-      Cluster( output, input );
-    }
+  /// Clustering operations
+  /// Overloaded method (***) to preserve the interface of all the algorithms but official
+  virtual void Cluster(std::vector<std::vector<T> > &output, const std::vector<T> &input, bool module) const {
+    Cluster(output, input);
+  }
 
-    /// Basic version common to all the algorithms but official
-    virtual void Cluster( std::vector< std::vector< T > > &output,
-                          const std::vector< T > &input ) const
-    {
-      output.clear();
-    }
+  /// Basic version common to all the algorithms but official
+  virtual void Cluster(std::vector<std::vector<T> > &output, const std::vector<T> &input) const { output.clear(); }
 
-    /// NOTE
-    /// When calling TTClusterAlgoHandle->Cluster( output, input, module )
-    /// in L1TkClusterBuilder, this will go in the following way
-    /// * case official
-    /// it will go with the overloaded method (***) which has its
-    /// specific implementation in TTClusterAlgorithm_official.h
-    /// * case "everything else"
-    /// the overloaded method will call the basic one
-    /// it is the basic one which has its specific implementation
-    /// in the various TTClusterAlgorithm_*.h
-    /// This way, all the existing interfaces will be
-    /// unchanged, but the new algorithm will use the new interface
+  /// NOTE
+  /// When calling TTClusterAlgoHandle->Cluster( output, input, module )
+  /// in L1TkClusterBuilder, this will go in the following way
+  /// * case official
+  /// it will go with the overloaded method (***) which has its
+  /// specific implementation in TTClusterAlgorithm_official.h
+  /// * case "everything else"
+  /// the overloaded method will call the basic one
+  /// it is the basic one which has its specific implementation
+  /// in the various TTClusterAlgorithm_*.h
+  /// This way, all the existing interfaces will be
+  /// unchanged, but the new algorithm will use the new interface
 
-    /// Algorithm name
-    virtual std::string AlgorithmName() const { return className_; }
+  /// Algorithm name
+  virtual std::string AlgorithmName() const { return className_; }
 
-}; /// Close class
+};  /// Close class
 
 #endif
-

@@ -9,16 +9,14 @@
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/EcalAlgo/interface/WriteESAlignments.h"
 
-typedef WriteESAlignments WEA ;
+typedef WriteESAlignments WEA;
 
-class TestWriteESAlignments : public edm::one::EDAnalyzer<>
-{
+class TestWriteESAlignments : public edm::one::EDAnalyzer<> {
 public:
-
   explicit TestWriteESAlignments(const edm::ParameterSet& /*iConfig*/)
-    : writer_{consumesCollector()}, nEventCalls_{0} {}
+      : writer_{consumesCollector()}, nEventCalls_{0} {}
   ~TestWriteESAlignments() override {}
-  
+
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
@@ -27,38 +25,30 @@ private:
   WriteESAlignments writer_;
   unsigned int nEventCalls_;
 };
-  
-void TestWriteESAlignments::analyze(const edm::Event& /*evt*/, const edm::EventSetup& evtSetup)
-{
-   if (nEventCalls_ > 0) {
-     edm::LogInfo("TestWriteESAlignments") << "Writing to DB to be done only once, "
-	       << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'."
-	       << "(Your writing should be fine.)";
-     return;
-   }
 
+void TestWriteESAlignments::analyze(const edm::Event& /*evt*/, const edm::EventSetup& evtSetup) {
+  if (nEventCalls_ > 0) {
+    edm::LogInfo("TestWriteESAlignments") << "Writing to DB to be done only once, "
+                                          << "set 'untracked PSet maxEvents = {untracked int32 input = 1}'."
+                                          << "(Your writing should be fine.)";
+    return;
+  }
 
-   static const unsigned int nA ( EcalPreshowerGeometry::numberOfAlignments() ) ;
+  static const unsigned int nA(EcalPreshowerGeometry::numberOfAlignments());
 
-   typedef std::vector<double> DVec ;
+  typedef std::vector<double> DVec;
 
-   DVec alphaVec   ( nA, 0 ) ;
-   DVec betaVec    ( nA, 0 ) ;
-   DVec gammaVec   ( nA, 0 ) ;
-   DVec xtranslVec ( nA, 0 ) ;
-   DVec ytranslVec ( nA, 0 ) ;
-   DVec ztranslVec ( nA, 0 ) ;
+  DVec alphaVec(nA, 0);
+  DVec betaVec(nA, 0);
+  DVec gammaVec(nA, 0);
+  DVec xtranslVec(nA, 0);
+  DVec ytranslVec(nA, 0);
+  DVec ztranslVec(nA, 0);
 
-   writer_.writeAlignments( evtSetup   ,
-                            alphaVec   ,
-                            betaVec    ,
-                            gammaVec   ,
-                            xtranslVec ,
-                            ytranslVec ,
-                            ztranslVec  ) ;
+  writer_.writeAlignments(evtSetup, alphaVec, betaVec, gammaVec, xtranslVec, ytranslVec, ztranslVec);
 
-   edm::LogInfo("TestWriteESAlignments") << "Done!";
-   nEventCalls_++;
+  edm::LogInfo("TestWriteESAlignments") << "Done!";
+  nEventCalls_++;
 }
 
 DEFINE_FWK_MODULE(TestWriteESAlignments);

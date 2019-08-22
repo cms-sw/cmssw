@@ -1,8 +1,7 @@
 #include "CondFormats/Serialization/interface/Test.h"
 #include "CondFormats/GEMObjects/src/headers.h"
 
-int main()
-{
+int main() {
   testSerialization<GEMELMap>();
   testSerialization<GEMELMap::GEMVFatMap>();
   testSerialization<std::vector<GEMELMap::GEMVFatMap>>();
@@ -15,7 +14,7 @@ int main()
   testSerialization<GEMeMap::GEMVFatMap>();
   testSerialization<std::vector<GEMeMap::GEMVFatMap>>();
   testSerialization<GEMeMap::GEMStripMap>();
-  testSerialization<std::vector<GEMeMap::GEMStripMap>>();  
+  testSerialization<std::vector<GEMeMap::GEMStripMap>>();
 
   testSerialization<GEMDeadStrips>();
   testSerialization<GEMDeadStrips::DeadItem>();

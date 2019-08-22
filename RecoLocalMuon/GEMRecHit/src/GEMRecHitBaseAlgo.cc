@@ -13,33 +13,32 @@
 
 GEMRecHitBaseAlgo::GEMRecHitBaseAlgo(const edm::ParameterSet& config) {}
 
-GEMRecHitBaseAlgo::~GEMRecHitBaseAlgo(){}
+GEMRecHitBaseAlgo::~GEMRecHitBaseAlgo() {}
 
 // Build all hits in the range associated to the layerId, at the 1st step.
 edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& roll,
-							 const GEMDetId& gemId,
-							 const GEMDigiCollection::Range& digiRange,
+                                                         const GEMDetId& gemId,
+                                                         const GEMDigiCollection::Range& digiRange,
                                                          const EtaPartitionMask& mask) {
-  edm::OwnVector<GEMRecHit> result; 
+  edm::OwnVector<GEMRecHit> result;
 
   GEMClusterizer clizer;
   GEMClusterContainer tcls = clizer.doAction(digiRange);
   GEMMaskReClusterizer mrclizer;
-  GEMClusterContainer cls = mrclizer.doAction(gemId,tcls,mask);
+  GEMClusterContainer cls = mrclizer.doAction(gemId, tcls, mask);
 
-  for (GEMClusterContainer::const_iterator cl = cls.begin();
-       cl != cls.end(); cl++) {
-    
+  for (GEMClusterContainer::const_iterator cl = cls.begin(); cl != cls.end(); cl++) {
     LocalError tmpErr;
     LocalPoint point;
     // Call the compute method
     bool OK = this->compute(roll, *cl, point, tmpErr);
-    if (!OK) continue;
+    if (!OK)
+      continue;
 
-    // Build a new pair of 1D rechit 
-    int firstClustStrip= cl->firstStrip();
-    int clusterSize=cl->clusterSize(); 
-    GEMRecHit*  recHit = new GEMRecHit(gemId,cl->bx(),firstClustStrip,clusterSize,point,tmpErr);
+    // Build a new pair of 1D rechit
+    int firstClustStrip = cl->firstStrip();
+    int clusterSize = cl->clusterSize();
+    GEMRecHit* recHit = new GEMRecHit(gemId, cl->bx(), firstClustStrip, clusterSize, point, tmpErr);
 
     result.push_back(recHit);
   }

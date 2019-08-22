@@ -20,24 +20,21 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
 class L2MuonIsolationProducer : public edm::stream::EDProducer<> {
-
- public:
-
+public:
   /// constructor with config
   L2MuonIsolationProducer(const edm::ParameterSet&);
-  
+
   /// destructor
-  ~L2MuonIsolationProducer() override; 
+  ~L2MuonIsolationProducer() override;
 
   /// ParameterSet descriptions
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// Produce isolation maps
   void produce(edm::Event&, const edm::EventSetup&) override;
   // ex virtual void reconstruct();
 
- private:
-  
+private:
   // Muon track Collection Label
   edm::InputTag theSACollectionLabel;
   edm::EDGetTokenT<reco::RecoChargedCandidateCollection> theSACollectionToken;
@@ -51,9 +48,8 @@ class L2MuonIsolationProducer : public edm::stream::EDProducer<> {
   // MuIsoExtractor
   std::unique_ptr<reco::isodeposit::IsoDepositExtractor> theExtractor;
 
-  // muon isolator 
+  // muon isolator
   std::unique_ptr<muonisolation::MuIsoBaseIsolator> theDepositIsolator;
-
 };
 
 #endif

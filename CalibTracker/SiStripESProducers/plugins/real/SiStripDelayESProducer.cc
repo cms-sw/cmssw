@@ -2,7 +2,7 @@
 //
 // Package:    SiStripDelayESProducer
 // Class:      SiStripDelayESProducer
-// 
+//
 /**\class SiStripDelayESProducer SiStripDelayESProducer.h CalibTracker/SiStripESProducers/plugins/real/SiStripDelayESProducer.cc
 
  Description: <one line class summary>
@@ -16,53 +16,79 @@
 //
 //
 
+// system include files
+#include <memory>
 
+// user include files
+#include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripDelayESProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripDelay.h"
+#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 
+class SiStripDelayESProducer : public edm::ESProducer {
+public:
+  SiStripDelayESProducer(const edm::ParameterSet&);
+  ~SiStripDelayESProducer() override{};
 
-SiStripDelayESProducer::SiStripDelayESProducer(const edm::ParameterSet& iConfig):
-  pset_(iConfig),
-  toGet(iConfig.getParameter<Parameters>("ListOfRecordToMerge"))
-{  
-  setWhatProduced(this);
-  
+  std::unique_ptr<SiStripDelay> produce(const SiStripDelayRcd&);
+
+private:
+  struct TokenSign {
+    TokenSign(edm::ESConsumesCollector& cc, const std::string& recordName, const std::string& label, int sumSign)
+        : token_{cc.consumesFrom<SiStripBaseDelay, SiStripBaseDelayRcd>(edm::ESInputTag{"", label})},
+          recordName_{recordName},
+          label_{label},
+          sumSign_{sumSign} {}
+    edm::ESGetToken<SiStripBaseDelay, SiStripBaseDelayRcd> token_;
+    std::string recordName_;
+    std::string label_;
+    int sumSign_;
+  };
+  std::vector<TokenSign> tokens_;
+};
+
+SiStripDelayESProducer::SiStripDelayESProducer(const edm::ParameterSet& iConfig) {
+  auto cc = setWhatProduced(this);
+
   edm::LogInfo("SiStripDelayESProducer") << "ctor" << std::endl;
 
+  for (const auto& pset : iConfig.getParameter<std::vector<edm::ParameterSet>>("ListOfRecordToMerge")) {
+    auto recordName = pset.getParameter<std::string>("Record");
+    auto label = pset.getParameter<std::string>("Label");
+
+    edm::LogInfo("SiStripDelayESProducer")
+        << "[SiStripDelayESProducer::ctor] Going to get data from record " << recordName << " with label " << label;
+
+    // Is the "recordName" parameter really useful?
+    if (recordName == "SiStripBaseDelayRcd") {
+      tokens_.emplace_back(cc, recordName, label, pset.getParameter<int>("SumSign"));
+    } else {
+      // Would an exception make sense?
+      edm::LogError("SiStripDelayESProducer")
+          << "[SiStripDelayESProducer::ctor] Skipping the requested data for unexisting record " << recordName
+          << " with tag " << label << std::endl;
+    }
+  }
 }
 
-
-std::unique_ptr<SiStripDelay> SiStripDelayESProducer::produce(const SiStripDelayRcd& iRecord)
-{
+std::unique_ptr<SiStripDelay> SiStripDelayESProducer::produce(const SiStripDelayRcd& iRecord) {
   edm::LogInfo("SiStripDelayESProducer") << "produce called" << std::endl;
   auto delay = std::make_unique<SiStripDelay>();
-  delay->clear();
 
-  edm::ESHandle<SiStripBaseDelay> baseDelay;
-
-  std::string label;  
-  std::string recordName;
-  int sumSign = 0;
-
-  for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
-    recordName = itToGet->getParameter<std::string>("Record");
-    label = itToGet->getParameter<std::string>("Label");
-    sumSign = itToGet->getParameter<int>("SumSign");
-    
-    edm::LogInfo("SiStripDelayESProducer") << "[SiStripDelayESProducer::produce] Getting data from record " << recordName << " with label " << label << std::endl;
-
-    if( recordName=="SiStripBaseDelayRcd" ) {
-      iRecord.getRecord<SiStripBaseDelayRcd>().get(label, baseDelay);
-      delay->fillNewDelay( *(baseDelay.product()), sumSign, std::make_pair(recordName, label) );
-    } else {
-      edm::LogError("SiStripDelayESProducer") << "[SiStripDelayESProducer::produce] Skipping the requested data for unexisting record " << recordName << " with tag " << label << std::endl;
-      continue;
-    }
+  for (const auto& tokenSign : tokens_) {
+    const auto& baseDelay = iRecord.get(tokenSign.token_);
+    delay->fillNewDelay(baseDelay, tokenSign.sumSign_, std::make_pair(tokenSign.recordName_, tokenSign.label_));
   }
 
   delay->makeDelay();
-  
+
   return delay;
 }
 
+DEFINE_FWK_EVENTSETUP_MODULE(SiStripDelayESProducer);

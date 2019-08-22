@@ -3,6 +3,4 @@
 
 #include "RecoTBCalo/HcalTBTools/src/HcalTBTriggerFilter.h"
 
-
 DEFINE_FWK_MODULE(HcalTBTriggerFilter);
-

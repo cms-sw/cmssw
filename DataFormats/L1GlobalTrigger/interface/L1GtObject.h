@@ -25,37 +25,35 @@
 
 /// L1 GT objects
 ///    ObjNull catch all errors
-enum L1GtObject
-{
-    Mu,
-    NoIsoEG,
-    IsoEG,
-    CenJet,
-    ForJet,
-    TauJet,
-    ETM,
-    ETT,
-    HTT,
-    HTM,
-    JetCounts,
-    HfBitCounts,
-    HfRingEtSums,
-    TechTrig,
-    Castor,
-    BPTX,
-    GtExternal,
-    ObjNull
+enum L1GtObject {
+  Mu,
+  NoIsoEG,
+  IsoEG,
+  CenJet,
+  ForJet,
+  TauJet,
+  ETM,
+  ETT,
+  HTT,
+  HTM,
+  JetCounts,
+  HfBitCounts,
+  HfRingEtSums,
+  TechTrig,
+  Castor,
+  BPTX,
+  GtExternal,
+  ObjNull
 };
 
 /// the string to enum and enum to string conversions for L1GtObject
 
 struct L1GtObjectStringToEnum {
-    const char* label;
-    L1GtObject value;
+  const char* label;
+  L1GtObject value;
 };
 
 L1GtObject l1GtObjectStringToEnum(const std::string&);
 std::string l1GtObjectEnumToString(const L1GtObject&);
-
 
 #endif /*L1GlobalTrigger_L1GtObject_h*/

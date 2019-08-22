@@ -18,45 +18,39 @@
 #include "boost/shared_ptr.hpp"
 
 namespace edm {
-  
-class FlatBaseThetaGunProducer : public one::EDProducer<one::WatchRuns,
-                                                        EndRunProducer> {
-  
+
+  class FlatBaseThetaGunProducer : public one::EDProducer<one::WatchRuns, EndRunProducer> {
   public:
-    
-    FlatBaseThetaGunProducer(const ParameterSet &);
+    FlatBaseThetaGunProducer(const ParameterSet&);
     ~FlatBaseThetaGunProducer() override;
     void beginRun(const edm::Run&, const edm::EventSetup&) override;
     void endRun(const edm::Run& r, const edm::EventSetup&) override;
     void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
 
   private:
-    
-  protected :
-  
+  protected:
     // non-virtuals ! this and only way !
     //
     // data members
-    
+
     // gun particle(s) characteristics
-    std::vector<int> fPartIDs ;
-    double           fMinTheta ;
-    double           fMaxTheta ;
-    double           fMinPhi ;
-    double           fMaxPhi ;
+    std::vector<int> fPartIDs;
+    double fMinTheta;
+    double fMaxTheta;
+    double fMinPhi;
+    double fMaxPhi;
 
     // the event format itself
     HepMC::GenEvent* fEvt;
 
-    // HepMC/HepPDT related things 
+    // HepMC/HepPDT related things
     // (for particle/event construction)
-    ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
-            	    	
-    int                     fVerbosity ;
+    ESHandle<HepPDT::ParticleDataTable> fPDGTable;
 
-    bool                    fAddAntiParticle;
-    
+    int fVerbosity;
+
+    bool fAddAntiParticle;
   };
-} 
+}  // namespace edm
 
 #endif

@@ -10,27 +10,23 @@
 
 #include "DataFormats/Math/interface/Point3D.h"
 
-
-
 //
 // class decleration
 //
 
-class CastorFastClusterProducer : public edm::stream::EDProducer <>{
-   public:
-      explicit CastorFastClusterProducer(const edm::ParameterSet&);
-      ~CastorFastClusterProducer() override;
+class CastorFastClusterProducer : public edm::stream::EDProducer<> {
+public:
+  explicit CastorFastClusterProducer(const edm::ParameterSet&);
+  ~CastorFastClusterProducer() override;
 
-   private:
-      void produce(edm::Event&, const edm::EventSetup&) override;
-      double make_noise();
-      
-      // ----------member data ---------------------------
-      typedef math::XYZPointD Point;
-      typedef ROOT::Math::RhoEtaPhiPoint ClusterPoint;
-      typedef std::vector<reco::CastorCluster> CastorClusterCollection;
+private:
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  double make_noise();
+
+  // ----------member data ---------------------------
+  typedef math::XYZPointD Point;
+  typedef ROOT::Math::RhoEtaPhiPoint ClusterPoint;
+  typedef std::vector<reco::CastorCluster> CastorClusterCollection;
 };
 
 #endif
-
-

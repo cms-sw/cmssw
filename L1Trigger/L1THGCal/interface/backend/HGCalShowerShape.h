@@ -13,7 +13,8 @@ class HGCalShowerShape {
 public:
   typedef math::XYZTLorentzVector LorentzVector;
 
-  HGCalShowerShape() {}
+  HGCalShowerShape() : threshold_(0.) {}
+  HGCalShowerShape(const edm::ParameterSet& conf);
 
   ~HGCalShowerShape() {}
 
@@ -74,8 +75,13 @@ private:
   float sigmaPhiPhi(const std::vector<pair<float, float>>& energy_phi_tc, const float phi_cluster) const {
     return sigmaXX<DeltaPhi<float>>(energy_phi_tc, phi_cluster);
   }
+  template <typename T>
+  bool pass(const T& obj) const {
+    return obj.mipPt() > threshold_;
+  }
 
   HGCalTriggerTools triggerTools_;
+  double threshold_ = 0.;
 };
 
 #endif

@@ -2,10 +2,10 @@
 #define RecoEgamma_EgammaTools_EgammaRegressionContainer_h
 
 //author: Sam Harper (RAL)
-//description: 
+//description:
 //  egamma energy regressions are binned in barrel/endcap and pt
 //  this simply contains the regression for each of (currently) 4 bins
-//  as well as the parameters to convert the raw BDT output back to 
+//  as well as the parameters to convert the raw BDT output back to
 //  the physical real value
 //  currently e/gamma also can optionally force saturated electrons
 //  to always be in the high et training
@@ -14,30 +14,30 @@
 
 #include <string>
 
-namespace edm{
+namespace edm {
   class ParameterSet;
   class ParameterSetDescription;
   class EventSetup;
-}
+}  // namespace edm
 class GBRForestD;
 
 class EgammaRegressionContainer {
 public:
-  
   EgammaRegressionContainer(const edm::ParameterSet& iConfig);
-  ~EgammaRegressionContainer(){}
+  ~EgammaRegressionContainer() {}
 
   static edm::ParameterSetDescription makePSetDescription();
 
-  void setEventContent(const edm::EventSetup& iSetup);  
+  void setEventContent(const edm::EventSetup& iSetup);
 
-  float operator()(const float et,const bool isEB,const bool isSaturated,const float* data)const;
+  float operator()(const float et, const bool isEB, const bool isSaturated, const float* data) const;
+
+  bool useLowEtBin(const float et, const bool isSaturated) const;
 
 private:
-  bool useLowEtBin(const float et,const bool isSaturated)const;
+  const EgammaBDTOutputTransformer outputTransformerLowEt_;
+  const EgammaBDTOutputTransformer outputTransformerHighEt_;
 
-  const EgammaBDTOutputTransformer outputTransformer_;
-  
   bool forceHighEnergyTrainingIfSaturated_;
   const float lowEtHighEtBoundary_;
   const std::string ebLowEtForestName_;
@@ -45,12 +45,10 @@ private:
   const std::string eeLowEtForestName_;
   const std::string eeHighEtForestName_;
 
-  const GBRForestD* ebLowEtForest_; //not owned
-  const GBRForestD* ebHighEtForest_; //not owned
-  const GBRForestD* eeLowEtForest_; //not owned
-  const GBRForestD* eeHighEtForest_; //not owned
-
+  const GBRForestD* ebLowEtForest_;   //not owned
+  const GBRForestD* ebHighEtForest_;  //not owned
+  const GBRForestD* eeLowEtForest_;   //not owned
+  const GBRForestD* eeHighEtForest_;  //not owned
 };
-
 
 #endif

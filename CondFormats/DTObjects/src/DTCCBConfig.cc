@@ -23,141 +23,90 @@
 // Initializations --
 //-------------------
 
-
 //----------------
 // Constructors --
 //----------------
-DTCCBConfig::DTCCBConfig():
-  timeStamp(0),
-  dataVersion( " " ),
-  dBuf(new DTBufferTreeUniquePtr) {
-  dataList.reserve( 1000 );
+DTCCBConfig::DTCCBConfig() : timeStamp(0), dataVersion(" "), dBuf(new DTBufferTreeUniquePtr) { dataList.reserve(1000); }
+
+DTCCBConfig::DTCCBConfig(const std::string& version)
+    : timeStamp(0), dataVersion(version), dBuf(new DTBufferTreeUniquePtr) {
+  dataList.reserve(1000);
 }
 
+DTCCBId::DTCCBId() : wheelId(0), stationId(0), sectorId(0) {}
 
-DTCCBConfig::DTCCBConfig( const std::string& version ):
-  timeStamp(0),
-  dataVersion( version ),
-  dBuf(new DTBufferTreeUniquePtr) {
-  dataList.reserve( 1000 );
-}
-
-
-DTCCBId::DTCCBId() :
-    wheelId( 0 ),
-  stationId( 0 ),
-   sectorId( 0 ) {
-}
-
-
-DTConfigKey::DTConfigKey() :
-  confType( 0 ),
-  confKey ( 0 ) {
-}
-
+DTConfigKey::DTConfigKey() : confType(0), confKey(0) {}
 
 //--------------
 // Destructor --
 //--------------
-DTCCBConfig::~DTCCBConfig() {
-}
+DTCCBConfig::~DTCCBConfig() {}
 
+DTCCBId::~DTCCBId() {}
 
-DTCCBId::~DTCCBId() {
-}
-
-
-DTConfigKey::~DTConfigKey() {
-}
-
+DTConfigKey::~DTConfigKey() {}
 
 //--------------
 // Operations --
 //--------------
-std::vector<DTConfigKey> DTCCBConfig::fullKey() const {
-  return fullConfigKey;
-}
+std::vector<DTConfigKey> DTCCBConfig::fullKey() const { return fullConfigKey; }
 
+int DTCCBConfig::stamp() const { return timeStamp; }
 
-int DTCCBConfig::stamp() const {
-  return timeStamp;
-}
-
-
-int DTCCBConfig::configKey( int   wheelId,
-                            int stationId,
-                            int  sectorId,
-                            std::vector<int>& confKey ) const {
-
+int DTCCBConfig::configKey(int wheelId, int stationId, int sectorId, std::vector<int>& confKey) const {
   confKey.clear();
 
-  std::vector<int> chanKey { wheelId, stationId, sectorId };
+  std::vector<int> chanKey{wheelId, stationId, sectorId};
   std::vector<int> const* confPtr;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), confPtr );
-  if ( !searchStatus ) confKey = *confPtr;
+  int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), confPtr);
+  if (!searchStatus)
+    confKey = *confPtr;
 
   return searchStatus;
 }
 
-
-int DTCCBConfig::configKey( const DTChamberId& id,
-                            std::vector<int>& confKey ) const {
-  return configKey( id.wheel(),
-                    id.station(),
-                    id.sector(),
-                    confKey );
+int DTCCBConfig::configKey(const DTChamberId& id, std::vector<int>& confKey) const {
+  return configKey(id.wheel(), id.station(), id.sector(), confKey);
 }
 
-
-DTCCBConfig::ccb_config_map
-DTCCBConfig::configKeyMap() const {
-
+DTCCBConfig::ccb_config_map DTCCBConfig::configKeyMap() const {
   ccb_config_map keyList;
-  std::vector< std::pair<DTCCBId,int>* > tempList;
+  std::vector<std::pair<DTCCBId, int>*> tempList;
   const_iterator d_iter = begin();
   const_iterator d_iend = end();
-  while ( d_iter != d_iend ) tempList.push_back(
-                             new std::pair<DTCCBId,int>( *d_iter++ ) );
-  std::vector< std::pair<DTCCBId,int>* >::iterator t_iter = tempList.begin();
-  std::vector< std::pair<DTCCBId,int>* >::iterator t_iend = tempList.end();
-  while ( t_iter != t_iend ) {
-    std::pair<DTCCBId,int>* ptr = *t_iter++;
-    if ( ptr == nullptr ) continue;
+  while (d_iter != d_iend)
+    tempList.push_back(new std::pair<DTCCBId, int>(*d_iter++));
+  std::vector<std::pair<DTCCBId, int>*>::iterator t_iter = tempList.begin();
+  std::vector<std::pair<DTCCBId, int>*>::iterator t_iend = tempList.end();
+  while (t_iter != t_iend) {
+    std::pair<DTCCBId, int>* ptr = *t_iter++;
+    if (ptr == nullptr)
+      continue;
     DTCCBId& ccbId = ptr->first;
     std::vector<int> cfgKeys;
-    cfgKeys.push_back( ptr->second );
-    std::vector< std::pair<DTCCBId,int>* >::iterator n_iter( t_iter );
-    while( n_iter != t_iend ) {
-      std::pair<DTCCBId,int>*& pck = *n_iter++;
-      if ( pck == nullptr ) continue; 
+    cfgKeys.push_back(ptr->second);
+    std::vector<std::pair<DTCCBId, int>*>::iterator n_iter(t_iter);
+    while (n_iter != t_iend) {
+      std::pair<DTCCBId, int>*& pck = *n_iter++;
+      if (pck == nullptr)
+        continue;
       DTCCBId& chkId = pck->first;
-      if ( ( chkId.  wheelId == ccbId.  wheelId ) && 
-           ( chkId.stationId == ccbId.stationId ) && 
-           ( chkId. sectorId == ccbId. sectorId ) ) {
-        cfgKeys.push_back( pck->second );
+      if ((chkId.wheelId == ccbId.wheelId) && (chkId.stationId == ccbId.stationId) &&
+          (chkId.sectorId == ccbId.sectorId)) {
+        cfgKeys.push_back(pck->second);
         delete pck;
         pck = nullptr;
       }
     }
-    keyList.push_back( std::pair< DTCCBId,std::vector<int> >( ccbId,
-                                                              cfgKeys ) );
+    keyList.push_back(std::pair<DTCCBId, std::vector<int> >(ccbId, cfgKeys));
     delete ptr;
   }
   return keyList;
-
 }
 
+const std::string& DTCCBConfig::version() const { return dataVersion; }
 
-const
-std::string& DTCCBConfig::version() const {
-  return dataVersion;
-}
-
-
-std::string& DTCCBConfig::version() {
-  return dataVersion;
-}
-
+std::string& DTCCBConfig::version() { return dataVersion; }
 
 void DTCCBConfig::clear() {
   dataList.clear();
@@ -165,161 +114,120 @@ void DTCCBConfig::clear() {
   return;
 }
 
+void DTCCBConfig::setFullKey(const std::vector<DTConfigKey>& key) { fullConfigKey = key; }
 
-void DTCCBConfig::setFullKey( const std::vector<DTConfigKey>& key ) {
-  fullConfigKey = key;
-}
+void DTCCBConfig::setStamp(int s) { timeStamp = s; }
 
-
-void DTCCBConfig::setStamp( int s ) {
-  timeStamp = s;
-}
-
-
-int DTCCBConfig::setConfigKey( int   wheelId,
-                               int stationId,
-                               int  sectorId,
-                               const std::vector<int>& confKey ) {
-
-  std::vector<int> chanKey { wheelId, stationId, sectorId };
+int DTCCBConfig::setConfigKey(int wheelId, int stationId, int sectorId, const std::vector<int>& confKey) {
+  std::vector<int> chanKey{wheelId, stationId, sectorId};
 
   std::vector<int>* confPtr;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), confPtr );
+  int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), confPtr);
 
-  if ( !searchStatus ) {
-    std::vector< std::pair<DTCCBId,int> > tempList;
+  if (!searchStatus) {
+    std::vector<std::pair<DTCCBId, int> > tempList;
     const_iterator iter = dataList.begin();
     const_iterator iend = dataList.end();
-    while ( iter != iend ) {
-      const DTCCBId& ccbId( iter->first );
-      if ( ( ccbId.  wheelId !=   wheelId ) ||
-           ( ccbId.stationId != stationId ) ||
-           ( ccbId. sectorId !=  sectorId ) ) tempList.push_back( *iter );
+    while (iter != iend) {
+      const DTCCBId& ccbId(iter->first);
+      if ((ccbId.wheelId != wheelId) || (ccbId.stationId != stationId) || (ccbId.sectorId != sectorId))
+        tempList.push_back(*iter);
       ++iter;
     }
     dataList = tempList;
     DTCCBId ccbId;
-    ccbId.  wheelId =   wheelId;
+    ccbId.wheelId = wheelId;
     ccbId.stationId = stationId;
-    ccbId. sectorId =  sectorId;
+    ccbId.sectorId = sectorId;
     std::vector<int>::const_iterator cfgIter = confKey.begin();
     std::vector<int>::const_iterator cfgIend = confKey.end();
-    while ( cfgIter != cfgIend ) dataList.push_back( std::pair<DTCCBId,int>(
-                                                     ccbId, *cfgIter++ ) );
+    while (cfgIter != cfgIend)
+      dataList.push_back(std::pair<DTCCBId, int>(ccbId, *cfgIter++));
     *confPtr = confKey;
     return -1;
-  }
-  else {
-    dBuf->insert( chanKey.begin(),
-                  chanKey.end(), std::unique_ptr<std::vector<int> >(new std::vector<int>( confKey ) ) );
+  } else {
+    dBuf->insert(chanKey.begin(), chanKey.end(), std::unique_ptr<std::vector<int> >(new std::vector<int>(confKey)));
     DTCCBId ccbId;
-    ccbId.  wheelId =   wheelId;
+    ccbId.wheelId = wheelId;
     ccbId.stationId = stationId;
-    ccbId. sectorId =  sectorId;
+    ccbId.sectorId = sectorId;
     std::vector<int>::const_iterator cfgIter = confKey.begin();
     std::vector<int>::const_iterator cfgIend = confKey.end();
-    while ( cfgIter != cfgIend ) dataList.push_back( std::pair<DTCCBId,int>(
-                                                     ccbId, *cfgIter++ ) );
+    while (cfgIter != cfgIend)
+      dataList.push_back(std::pair<DTCCBId, int>(ccbId, *cfgIter++));
     return 0;
   }
-
 }
 
-
-int DTCCBConfig::setConfigKey( const DTChamberId& id,
-                               const std::vector<int>& confKey ) {
-  return setConfigKey( id.wheel(),
-                       id.station(),
-                       id.sector(),
-                       confKey );
+int DTCCBConfig::setConfigKey(const DTChamberId& id, const std::vector<int>& confKey) {
+  return setConfigKey(id.wheel(), id.station(), id.sector(), confKey);
 }
 
-
-int DTCCBConfig::appendConfigKey( int   wheelId,
-                                  int stationId,
-                                  int  sectorId,
-                                  const std::vector<int>& confKey ) {
-
-  std::vector<int> chanKey { wheelId, stationId, sectorId };
+int DTCCBConfig::appendConfigKey(int wheelId, int stationId, int sectorId, const std::vector<int>& confKey) {
+  std::vector<int> chanKey{wheelId, stationId, sectorId};
 
   DTCCBId ccbId;
-  ccbId.  wheelId =   wheelId;
+  ccbId.wheelId = wheelId;
   ccbId.stationId = stationId;
-  ccbId. sectorId =  sectorId;
+  ccbId.sectorId = sectorId;
   std::vector<int>::const_iterator iter = confKey.begin();
   std::vector<int>::const_iterator iend = confKey.end();
   int key;
 
   std::vector<int>* confPtr;
-  int searchStatus = dBuf->find( chanKey.begin(), chanKey.end(), confPtr );
+  int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), confPtr);
 
-  if ( searchStatus ) {
+  if (searchStatus) {
     std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
     confPtr = newVector.get();
-    dBuf->insert( chanKey.begin(),
-                  chanKey.end(), std::move(newVector) );
+    dBuf->insert(chanKey.begin(), chanKey.end(), std::move(newVector));
   }
 
-  while ( iter != iend ) {
+  while (iter != iend) {
     key = *iter++;
-    dataList.push_back( std::pair<DTCCBId,int>( ccbId, key ) );
-    confPtr->push_back( key );
+    dataList.push_back(std::pair<DTCCBId, int>(ccbId, key));
+    confPtr->push_back(key);
   }
 
-  if ( !searchStatus ) {
+  if (!searchStatus) {
     return -1;
-  }
-  else {
+  } else {
     return 0;
   }
-
 }
 
-int DTCCBConfig::appendConfigKey( const DTChamberId& id,
-                                  const std::vector<int>& confKey ) {
-  return appendConfigKey( id.wheel(),
-                          id.station(),
-                          id.sector(),
-                          confKey );
+int DTCCBConfig::appendConfigKey(const DTChamberId& id, const std::vector<int>& confKey) {
+  return appendConfigKey(id.wheel(), id.station(), id.sector(), confKey);
 }
 
-DTCCBConfig::const_iterator DTCCBConfig::begin() const {
-  return dataList.begin();
-}
+DTCCBConfig::const_iterator DTCCBConfig::begin() const { return dataList.begin(); }
 
-
-DTCCBConfig::const_iterator DTCCBConfig::end() const {
-  return dataList.end();
-}
+DTCCBConfig::const_iterator DTCCBConfig::end() const { return dataList.end(); }
 
 void DTCCBConfig::initialize() {
-
   dBuf->clear();
 
   const_iterator iter = dataList.begin();
   const_iterator iend = dataList.end();
   std::vector<int> chanKey;
   chanKey.reserve(3);
-  while ( iter != iend ) {
-
+  while (iter != iend) {
     const DTCCBId& chan = iter->first;
 
     chanKey.clear();
-    chanKey.push_back( chan.  wheelId );
-    chanKey.push_back( chan.stationId );
-    chanKey.push_back( chan. sectorId );
+    chanKey.push_back(chan.wheelId);
+    chanKey.push_back(chan.stationId);
+    chanKey.push_back(chan.sectorId);
     std::vector<int>* ccbConfPtr;
-    int searchStatus = dBuf->find( chanKey.begin(),
-                                   chanKey.end(), ccbConfPtr );
+    int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), ccbConfPtr);
 
-    if ( searchStatus ) {
+    if (searchStatus) {
       std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
       ccbConfPtr = newVector.get();
-      dBuf->insert( chanKey.begin(), chanKey.end(), std::move(newVector) );
+      dBuf->insert(chanKey.begin(), chanKey.end(), std::move(newVector));
     }
-    ccbConfPtr->push_back( iter->second );
+    ccbConfPtr->push_back(iter->second);
 
     iter++;
-
   }
 }

@@ -16,9 +16,6 @@
 #include "CommonTools/UtilAlgos/interface/StatusSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef SingleObjectSelector<
-          reco::CandidateCollection,
-          StatusSelector
-        > StatusCandSelector;
+typedef SingleObjectSelector<reco::CandidateCollection, StatusSelector> StatusCandSelector;
 
-DEFINE_FWK_MODULE( StatusCandSelector );
+DEFINE_FWK_MODULE(StatusCandSelector);

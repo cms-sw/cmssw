@@ -5,9 +5,10 @@
 
 #include "Alignment/Geners/interface/AbsRecord.hh"
 #include "Alignment/Geners/interface/AbsReference.hh"
-#include "Alignment/Geners/interface/CPP11_shared_ptr.hh"
 #include "Alignment/Geners/interface/CatalogEntry.hh"
 #include "Alignment/Geners/interface/SearchSpecifier.hh"
+
+#include <memory>
 
 namespace gs {
   class AbsArchive;
@@ -66,8 +67,8 @@ namespace gs {
 
     // Fetch metadata for the item with given id. NULL pointer is
     // returned if there is no item in the archive with the given id
-    // (and there is an automatic cast from CPP11_shared_ptr to bool).
-    virtual CPP11_shared_ptr<const CatalogEntry> catalogEntry(unsigned long long id) = 0;
+    // (and there is an automatic cast from std::shared_ptr to bool).
+    virtual std::shared_ptr<const CatalogEntry> catalogEntry(unsigned long long id) = 0;
 
     // Dump everything to storage (if the archive is open for writing
     // and if this makes sense for the archive)

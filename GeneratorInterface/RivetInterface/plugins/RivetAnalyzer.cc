@@ -2,12 +2,16 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "Rivet/Run.hh"
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
+
+#include <regex>
 
 using namespace Rivet;
 using namespace edm;
@@ -16,47 +20,32 @@ RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset)
     : _analysisHandler(),
       _isFirstEvent(true),
       _outFileName(pset.getParameter<std::string>("OutputFile")),
-      //decide whether to finlaize tthe plots or not.
+      //decide whether to finalize the plots or not.
       //deciding not to finalize them can be useful for further harvesting of many jobs
       _doFinalize(pset.getParameter<bool>("DoFinalize")),
       _produceDQM(pset.getParameter<bool>("ProduceDQMOutput")),
+      _lheLabel(pset.getParameter<edm::InputTag>("LHECollection")),
       _xsection(-1.) {
   usesResource("Rivet");
 
-  //retrive the analysis name from paarmeter set
+  //retrive the analysis name from parameter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
 
   _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
+  _genLumiInfoToken = consumes<GenLumiInfoHeader, edm::InLumi>(pset.getParameter<edm::InputTag>("genLumiInfo"));
 
-  _useExternalWeight = pset.getParameter<bool>("UseExternalWeight");
-  if (_useExternalWeight) {
-    if (!pset.exists("GenEventInfoCollection")) {
-      throw cms::Exception("RivetAnalyzer") << "when using an external event weight you have to specify the "
-                                               "GenEventInfoProduct collection from which the weight has to be taken ";
-    }
-
-    _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
-    _useGENweights = pset.getParameter<bool>("useGENweights");
-    _GENweightNumber = pset.getParameter<int>("GENweightNumber");
-    _LHECollection = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
-    _useLHEweights = pset.getParameter<bool>("useLHEweights");
-    _LHEweightNumber = pset.getParameter<int>("LHEweightNumber");
+  _useLHEweights = pset.getParameter<bool>("useLHEweights");
+  if (_useLHEweights) {
+    _lheRunInfoToken = consumes<LHERunInfoProduct, edm::InRun>(_lheLabel);
+    _LHECollection = consumes<LHEEventProduct>(_lheLabel);
   }
 
   //get the analyses
   _analysisHandler.addAnalyses(analysisNames);
 
-  //go through the analyses and check those that need the cross section
-  const std::set<AnaHandle, CmpAnaHandle>& analyses = _analysisHandler.analyses();
-
-  std::set<AnaHandle, CmpAnaHandle>::const_iterator ibeg = analyses.begin();
-  std::set<AnaHandle, CmpAnaHandle>::const_iterator iend = analyses.end();
-  std::set<AnaHandle, CmpAnaHandle>::const_iterator iana;
+  //set user cross section if needed
   _xsection = pset.getParameter<double>("CrossSection");
-  for (iana = ibeg; iana != iend; ++iana) {
-    if ((*iana)->needsCrossSection())
-      (*iana)->setCrossSection(_xsection);
-  }
+
   if (_produceDQM) {
     // book stuff needed for DQM
     dbe = nullptr;
@@ -89,7 +78,40 @@ void RivetAnalyzer::beginJob() {
   }
 }
 
-void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) { return; }
+void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
+  if (_useLHEweights) {
+    edm::Handle<LHERunInfoProduct> lheRunInfoHandle;
+    iRun.getByLabel(_lheLabel, lheRunInfoHandle);
+    typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
+
+    std::regex reg("<weight.*> ?(.*?) ?<\\/weight>");
+    for (headers_const_iterator iter = lheRunInfoHandle->headers_begin(); iter != lheRunInfoHandle->headers_end();
+         iter++) {
+      std::vector<std::string> lines = iter->lines();
+      for (unsigned int iLine = 0; iLine < lines.size(); iLine++) {
+        std::smatch match;
+        std::regex_search(lines.at(iLine), match, reg);
+        if (!match.empty()) {
+          _lheWeightNames.push_back(match[1]);
+        }
+      }
+    }
+  }
+}
+
+void RivetAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) {
+  edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
+  iLumi.getByToken(_genLumiInfoToken, genLumiInfoHandle);
+
+  _weightNames = genLumiInfoHandle->weightNames();
+
+  // need to reset the default weight name (or plotting will fail)
+  if (!_weightNames.empty()) {
+    _weightNames[0] = "";
+  }
+}
+
+void RivetAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) { return; }
 
 void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //get the hepmc product from the event
@@ -100,7 +122,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
   std::unique_ptr<HepMC::GenEvent> tmpGenEvtPtr;
   //if you want to use an external weight or set the cross section we have to clone the GenEvent and change the weight
-  if (_useExternalWeight || _xsection > 0) {
+  if (_useLHEweights || _xsection > 0) {
     tmpGenEvtPtr = std::make_unique<HepMC::GenEvent>(*(evt->GetEvent()));
 
     if (_xsection > 0) {
@@ -109,36 +131,38 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       tmpGenEvtPtr->set_cross_section(xsec);
     }
 
-    if (_useExternalWeight) {
-      if (tmpGenEvtPtr->weights().empty()) {
-        throw cms::Exception("RivetAnalyzer") << "Original weight container has 0 size ";
-      }
-      if (tmpGenEvtPtr->weights().size() > 1) {
-        edm::LogWarning("RivetAnalyzer") << "Original event weight size is " << tmpGenEvtPtr->weights().size()
-                                         << ". Will change only the first one ";
+    if (_useLHEweights) {
+      std::vector<double> mergedWeights;
+      for (unsigned int i = 0; i < tmpGenEvtPtr->weights().size(); i++) {
+        mergedWeights.push_back(tmpGenEvtPtr->weights()[i]);
       }
 
-      edm::Handle<GenEventInfoProduct> genEventInfoProduct;
-      iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
-      double weightForRivet = genEventInfoProduct->weight();
-
-      if (_useGENweights) {
-        weightForRivet = genEventInfoProduct->weights().at(_GENweightNumber);
-      }
-      if (_useLHEweights) {
-        edm::Handle<LHEEventProduct> lheEventHandle;
-        iEvent.getByToken(_LHECollection, lheEventHandle);
-        weightForRivet *= lheEventHandle->weights().at(_LHEweightNumber).wgt / lheEventHandle->originalXWGTUP();
+      edm::Handle<LHEEventProduct> lheEventHandle;
+      iEvent.getByToken(_LHECollection, lheEventHandle);
+      for (unsigned int i = 0; i < _lheWeightNames.size(); i++) {
+        mergedWeights.push_back(tmpGenEvtPtr->weights()[0] * lheEventHandle->weights().at(i).wgt /
+                                lheEventHandle->originalXWGTUP());
       }
 
-      tmpGenEvtPtr->weights()[0] = weightForRivet;
+      tmpGenEvtPtr->weights() = mergedWeights;
     }
     myGenEvent = tmpGenEvtPtr.get();
   }
 
-  //aaply the beams initialization on the first event
+  //apply the beams initialization on the first event
   if (_isFirstEvent) {
-    _analysisHandler.init(*myGenEvent);
+    if (_useLHEweights) {
+      _weightNames.insert(_weightNames.end(), _lheWeightNames.begin(), _lheWeightNames.end());
+    }
+    // clean weight names to be accepted by Rivet plotting
+    std::vector<std::string> cleanedWeightNames;
+    for (std::string wn : _weightNames) {
+      cleanedWeightNames.push_back(std::regex_replace(wn, std::regex("[^A-Za-z\\d\\._=]"), "_"));
+    }
+    _analysisHandler.init(*myGenEvent, cleanedWeightNames);
+    const HepMC::GenCrossSection* xs = myGenEvent->cross_section();
+    _analysisHandler.setCrossSection(make_pair(xs->cross_section(), xs->cross_section_error()));
+
     _isFirstEvent = false;
   }
 
@@ -174,13 +198,13 @@ void RivetAnalyzer::normalizeTree() {
   //tree.ls(".", true);
   const string tmpdir = "/RivetNormalizeTmp";
   //tree.mkdir(tmpdir);
-  foreach (const string& analysis, analyses) {
+  for (const string& analysis : analyses) {
     if (_produceDQM) {
       dbe->setCurrentFolder("Rivet/" + analysis);
       //global variables that are always present
       //sumOfWeights
       TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);
-      nevent.SetBinContent(1, _analysisHandler.sumOfWeights());
+      nevent.SetBinContent(1, _analysisHandler.sumW());
       _mes.push_back(dbe->book1D("nEvt", &nevent));
     }
     //cross section

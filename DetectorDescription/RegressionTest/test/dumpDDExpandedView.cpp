@@ -20,14 +20,12 @@
 
 using namespace xercesc;
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
   // Copied from example stand-alone program in Message Logger July 18, 2007
   std::string const kProgramName = argv[0];
   int rc = 0;
 
   try {
-
     // A.  Instantiate a plug-in manager first.
     edm::AssertHandler ah;
 
@@ -36,28 +34,28 @@ int main(int argc, char *argv[])
     //     That's because, without the message service, there is no mechanism for
     //     emptying the buffers.
     std::shared_ptr<edm::Presence> theMessageServicePresence;
-    theMessageServicePresence = std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
-							       makePresence("MessageServicePresence").release());
+    theMessageServicePresence =
+        std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->makePresence("MessageServicePresence").release());
 
     // C.  Manufacture a configuration and establish it.
     std::string config =
-      "import FWCore.ParameterSet.Config as cms\n"
-      "process = cms.Process('TEST')\n"
-      "process.maxEvents = cms.untracked.PSet(\n"
-      "    input = cms.untracked.int32(5)\n"
-      ")\n"
-      "process.source = cms.Source('EmptySource')\n"
-      "process.JobReportService = cms.Service('JobReportService')\n"
-      "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
-      // "process.MessageLogger = cms.Service('MessageLogger')\n"
-      "process.m1 = cms.EDProducer('IntProducer',\n"
-      "    ivalue = cms.int32(11)\n"
-      ")\n"
-      "process.out = cms.OutputModule('PoolOutputModule',\n"
-      "    fileName = cms.untracked.string('testStandalone.root')\n"
-      ")\n"
-      "process.p = cms.Path(process.m1)\n"
-      "process.e = cms.EndPath(process.out)\n";
+        "import FWCore.ParameterSet.Config as cms\n"
+        "process = cms.Process('TEST')\n"
+        "process.maxEvents = cms.untracked.PSet(\n"
+        "    input = cms.untracked.int32(5)\n"
+        ")\n"
+        "process.source = cms.Source('EmptySource')\n"
+        "process.JobReportService = cms.Service('JobReportService')\n"
+        "process.InitRootHandlers = cms.Service('InitRootHandlers')\n"
+        // "process.MessageLogger = cms.Service('MessageLogger')\n"
+        "process.m1 = cms.EDProducer('IntProducer',\n"
+        "    ivalue = cms.int32(11)\n"
+        ")\n"
+        "process.out = cms.OutputModule('PoolOutputModule',\n"
+        "    fileName = cms.untracked.string('testStandalone.root')\n"
+        ")\n"
+        "process.p = cms.Path(process.m1)\n"
+        "process.e = cms.EndPath(process.out)\n";
 
     // D.  Create the services.
     std::unique_ptr<edm::ParameterSet> params;
@@ -78,7 +76,7 @@ int main(int argc, char *argv[])
     FIPConfiguration dp(cpv);
     dp.readConfig("DetectorDescription/Parser/test/cmsIdealGeometryXML.xml");
     myP.parse(dp);
-  
+
     std::cout << "main::completed Parser" << std::endl;
 
     std::cout << std::endl << std::endl << "main::Start checking!" << std::endl << std::endl;
@@ -90,32 +88,24 @@ int main(int argc, char *argv[])
     std::cout << "== got the epv ==" << std::endl;
     // for now just count!
     std::ofstream plist("plist.out");
-    int numPhysParts(0);    
-    while ( ev.next() ) {
+    int numPhysParts(0);
+    while (ev.next()) {
       ++numPhysParts;
       plist << ev.geoHistory() << std::endl;
     }
     plist.close();
-    std::cout << "Traversing the tree went to " << numPhysParts << " nodes, or \"PhysicalParts\" in online db terms." << std::endl;
+    std::cout << "Traversing the tree went to " << numPhysParts << " nodes, or \"PhysicalParts\" in online db terms."
+              << std::endl;
   }
   //  Deal with any exceptions that may have been thrown.
   catch (cms::Exception& e) {
-    std::cout << "cms::Exception caught in "
-	      << kProgramName
-	      << "\n"
-	      << e.explainSelf();
+    std::cout << "cms::Exception caught in " << kProgramName << "\n" << e.explainSelf();
     rc = 1;
-  }
-  catch (std::exception& e) {
-    std::cout << "Standard library exception caught in "
-	      << kProgramName
-	      << "\n"
-	      << e.what();
+  } catch (std::exception& e) {
+    std::cout << "Standard library exception caught in " << kProgramName << "\n" << e.what();
     rc = 1;
-  }
-  catch (...) {
-    std::cout << "Unknown exception caught in "
-	      << kProgramName;
+  } catch (...) {
+    std::cout << "Unknown exception caught in " << kProgramName;
     rc = 2;
   }
 

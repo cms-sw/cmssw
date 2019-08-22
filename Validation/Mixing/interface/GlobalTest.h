@@ -32,11 +32,9 @@
 // DQM services for histogram
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 class TFile;
-class MonitorElement;
 
 //
 // class declaration

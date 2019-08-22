@@ -47,12 +47,12 @@ public:
   bool hasReportInfo(const std::string& name) const;
   std::string getReportInfo(const std::string& name) const;
   std::vector<std::string> getReportKeys() const;
-  
+
   // setters
   void addUnpacked(int fed);
   void addError(int fed);
   void countDigi();
-  void countTPDigi(bool ho=false);
+  void countTPDigi(bool ho = false);
   void countUnmappedDigi();
   void countUnmappedTPDigi();
   void countSpigotFormatError();
@@ -65,6 +65,7 @@ public:
   void countBadQualityDigi(const DetId& did);
   void setUnsuppressed(bool isSup);
   void setReportInfo(const std::string& name, const std::string& value);
+
 private:
   std::vector<int> FEDsUnpacked_;
   std::vector<int> FEDsError_;
@@ -76,9 +77,9 @@ private:
   bool unsuppressed_;
 
   std::vector<std::string> reportInfo_;
-  std::vector<uint16_t> fedInfo_; // first is fed, second is type
+  std::vector<uint16_t> fedInfo_;  // first is fed, second is type
 
-  int emptyEventSpigots_,ofwSpigots_,busySpigots_;
+  int emptyEventSpigots_, ofwSpigots_, busySpigots_;
 };
 
 #endif

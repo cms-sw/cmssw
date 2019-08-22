@@ -9,7 +9,6 @@
    \version  $Id: MuonIDPFCandidateSelectorDefinition.h,v 1.1 2011/01/28 20:56:44 srappocc Exp $
 */
 
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -23,41 +22,35 @@
 namespace pf2pat {
 
   struct MuonIDPFCandidateSelectorDefinition : public PFCandidateSelectorDefinition {
+    MuonIDPFCandidateSelectorDefinition(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+        : muonCut_(cfg.getParameter<std::string>("cut")) {}
 
-    MuonIDPFCandidateSelectorDefinition ( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
-      muonCut_( cfg.getParameter< std::string >( "cut" ) )
-    {
-    }
-
-    void select( const HandleToCollection & hc,
-		 const edm::Event & e,
-		 const edm::EventSetup& s) {
+    void select(const HandleToCollection& hc, const edm::Event& e, const edm::EventSetup& s) {
       selected_.clear();
 
-      unsigned key=0;
-      for( collection::const_iterator pfc = hc->begin();
-	   pfc != hc->end(); ++pfc, ++key) {
-
+      unsigned key = 0;
+      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         reco::MuonRef muR = pfc->muonRef();
 
         // skip ones without a ref to a reco::Muon: they won't be matched anyway
-        if (muR.isNull()) continue;
+        if (muR.isNull())
+          continue;
 
         // convert into a pat::Muon, so that the 'muonID' method is available
         pat::Muon patMu(*muR);
 
         // apply muon id
         if (muonCut_(patMu)) {
-            selected_.push_back( reco::PFCandidate(*pfc) );
-            reco::PFCandidatePtr ptrToMother( hc, key );
-            selected_.back().setSourceCandidatePtr( ptrToMother );
+          selected_.push_back(reco::PFCandidate(*pfc));
+          reco::PFCandidatePtr ptrToMother(hc, key);
+          selected_.back().setSourceCandidatePtr(ptrToMother);
         }
       }
     }
 
-    private:
-        StringCutObjectSelector<pat::Muon> muonCut_;
+  private:
+    StringCutObjectSelector<pat::Muon> muonCut_;
   };
-}
+}  // namespace pf2pat
 
 #endif

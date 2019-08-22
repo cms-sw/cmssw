@@ -11,7 +11,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 
 class HGCalParameters {
- public:
+public:
   typedef std::vector<std::unordered_map<int32_t, int32_t> > layer_map;
   typedef std::unordered_map<int32_t, int32_t> wafer_map;
   typedef std::unordered_map<int32_t, std::pair<int32_t, int32_t> > waferT_map;
@@ -40,12 +40,8 @@ class HGCalParameters {
   void addTrForm(const CLHEP::Hep3Vector& h3v);
   void scaleTrForm(double);
   int scintCells(const int layer) const { return nPhiBinBH_[scintType(layer)]; }
-  double scintCellSize(const int layer) const {
-    return cellSize_[scintType(layer)];
-  }
-  int scintType(const int layer) const {
-    return ((layer < layerFrontBH_[1]) ? 0 : 1);
-  }
+  double scintCellSize(const int layer) const { return cellSize_[scintType(layer)]; }
+  int scintType(const int layer) const { return ((layer < layerFrontBH_[1]) ? 0 : 1); }
   std::array<int, 4> getID(unsigned int k) const;
 
   std::string name_;
@@ -87,6 +83,8 @@ class HGCalParameters {
   std::vector<int> depth_;
   std::vector<int> depthIndex_;
   std::vector<int> depthLayerF_;
+  std::vector<double> xLayerHex_;
+  std::vector<double> yLayerHex_;
   std::vector<double> zLayerHex_;
   std::vector<double> rMinLayHex_;
   std::vector<double> rMaxLayHex_;
@@ -149,13 +147,15 @@ class HGCalParameters {
   std::vector<double> zRanges_;
   int firstLayer_;
   int firstMixedLayer_;
+  int layerOffset_;
+  std::vector<int> layerCenter_;
   wafer_map wafersInLayers_;
   wafer_map typesInLayers_;
   waferT_map waferTypes_;
 
   COND_SERIALIZABLE;
 
- private:
+private:
   const int kMaskZside = 0x1;
   const int kMaskLayer = 0x7F;
   const int kMaskSector = 0x3FF;

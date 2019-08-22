@@ -6,10 +6,10 @@
 
 namespace reco {
 
-typedef  FeaturesTagInfo<btagbtvdeep::DeepBoostedJetFeatures> DeepBoostedJetTagInfo;
+  typedef FeaturesTagInfo<btagbtvdeep::DeepBoostedJetFeatures> DeepBoostedJetTagInfo;
 
-DECLARE_EDM_REFS( DeepBoostedJetTagInfo )
+  DECLARE_EDM_REFS(DeepBoostedJetTagInfo)
 
-}
+}  // namespace reco
 
-#endif // DataFormats_BTauReco_DeepBoostedJetTagInfo_h
+#endif  // DataFormats_BTauReco_DeepBoostedJetTagInfo_h

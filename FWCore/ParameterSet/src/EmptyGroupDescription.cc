@@ -16,10 +16,9 @@ namespace edm {
                                         std::set<std::string>& /*validatedLabels*/,
                                         bool /*optional*/) const {}
 
-  void EmptyGroupDescription::writeCfi_(std::ostream&,
-                                        bool& /*startWithComma*/,
-                                        int /*indentation*/,
-                                        bool& /*wroteSomething*/) const {}
+  void EmptyGroupDescription::writeCfi_(
+      std::ostream&, bool /*optional*/, bool& /*startWithComma*/, int /*indentation*/, bool& /*wroteSomething*/) const {
+  }
 
   void EmptyGroupDescription::print_(std::ostream& os,
                                      bool /*optional*/,

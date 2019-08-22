@@ -2,8 +2,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-class MuonMomQualityCut : public CutApplicatorBase
-{
+class MuonMomQualityCut : public CutApplicatorBase {
 public:
   MuonMomQualityCut(const edm::ParameterSet& c);
 
@@ -17,26 +16,22 @@ private:
 DEFINE_EDM_PLUGIN(CutApplicatorFactory, MuonMomQualityCut, "MuonMomQualityCut");
 
 // Define constructors and initialization routines
-MuonMomQualityCut::MuonMomQualityCut(const edm::ParameterSet& c):
-  CutApplicatorBase(c),
-  maxRelPtErr_(c.getParameter<double>("maxRelPtErr"))
-{
-}
+MuonMomQualityCut::MuonMomQualityCut(const edm::ParameterSet& c)
+    : CutApplicatorBase(c), maxRelPtErr_(c.getParameter<double>("maxRelPtErr")) {}
 
 // Functors for evaluation
-CutApplicatorBase::result_type MuonMomQualityCut::operator()(const reco::MuonPtr& cand) const
-{
+CutApplicatorBase::result_type MuonMomQualityCut::operator()(const reco::MuonPtr& cand) const {
   const auto trackRef = cand->muonBestTrack();
-  return trackRef.isNonnull() and trackRef->ptError() <= maxRelPtErr_*trackRef->pt();
+  return trackRef.isNonnull() and trackRef->ptError() <= maxRelPtErr_ * trackRef->pt();
 
   return true;
 }
 
-double MuonMomQualityCut::value(const reco::CandidatePtr& cand) const
-{
+double MuonMomQualityCut::value(const reco::CandidatePtr& cand) const {
   const reco::MuonPtr muon(cand);
   const auto trackRef = muon->muonBestTrack();
-  if ( trackRef.isNull() or trackRef->pt() <= 0 ) return -1;
+  if (trackRef.isNull() or trackRef->pt() <= 0)
+    return -1;
 
-  return trackRef->ptError()/trackRef->pt();
+  return trackRef->ptError() / trackRef->pt();
 }

@@ -18,47 +18,39 @@
 
 class Disk final : public Plane {
 public:
-
   /*
   template<typename... Args>
     Disk(Args&& ... args) :
     Plane(std::forward<Args>(args)...){}
   */
 
-  Disk(const PositionType& pos, const RotationType& rot, SimpleDiskBounds * bounds) :
-    Plane(pos,rot, bounds){}
+  Disk(const PositionType& pos, const RotationType& rot, SimpleDiskBounds* bounds) : Plane(pos, rot, bounds) {}
 
-  Disk(const PositionType& pos, const RotationType& rot, SimpleDiskBounds const & bounds) :
-    Plane(pos,rot, bounds.clone()){}
+  Disk(const PositionType& pos, const RotationType& rot, SimpleDiskBounds const& bounds)
+      : Plane(pos, rot, bounds.clone()) {}
 
   typedef ReferenceCountingPointer<Disk> DiskPointer;
   typedef ConstReferenceCountingPointer<Disk> ConstDiskPointer;
   typedef ReferenceCountingPointer<Disk> BoundDiskPointer;
   typedef ConstReferenceCountingPointer<Disk> ConstBoundDiskPointer;
 
- template<typename... Args>
-  static DiskPointer build(Args&& ... args) {
+  template <typename... Args>
+  static DiskPointer build(Args&&... args) {
     return DiskPointer(new Disk(std::forward<Args>(args)...));
   }
 
-
   ~Disk() override {}
 
-
   // -- DEPRECATED CONSTRUCTORS
-
-
 
   // -- Extension of the Surface interface for disk
 
   /// The inner radius of the disk
-  float innerRadius() const { return static_cast<const SimpleDiskBounds&>(bounds()).innerRadius();}
+  float innerRadius() const { return static_cast<const SimpleDiskBounds&>(bounds()).innerRadius(); }
 
   /// The outer radius of the disk
-  float outerRadius() const  { return static_cast<const SimpleDiskBounds&>(bounds()).outerRadius();}
-
-
+  float outerRadius() const { return static_cast<const SimpleDiskBounds&>(bounds()).outerRadius(); }
 };
-using BoundDisk=Disk;
+using BoundDisk = Disk;
 
-#endif // Geom_BoundDisk_H
+#endif  // Geom_BoundDisk_H

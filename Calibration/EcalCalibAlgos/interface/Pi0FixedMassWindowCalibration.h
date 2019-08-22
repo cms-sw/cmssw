@@ -39,7 +39,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaClusterAlgos/interface/IslandClusterAlgo.h"
@@ -48,7 +47,6 @@
 
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
-
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1F.h"
@@ -56,21 +54,18 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 
-class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
-{
-
- public:
-
+class Pi0FixedMassWindowCalibration : public edm::ESProducerLooper {
+public:
   /// Constructor
-  Pi0FixedMassWindowCalibration( const edm::ParameterSet& iConfig );
-  
+  Pi0FixedMassWindowCalibration(const edm::ParameterSet& iConfig);
+
   /// Destructor
   ~Pi0FixedMassWindowCalibration() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   /// Dummy implementation (job done in duringLoop)
-  virtual void produce(edm::Event&, const edm::EventSetup&) {};
+  virtual void produce(edm::Event&, const edm::EventSetup&){};
 
   /// Called at beginning of job
   void beginOfJob() override;
@@ -79,24 +74,22 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
   void endOfJob() override;
 
   /// Called at beginning of loop
-  void startingNewLoop( unsigned int iLoop ) override;
+  void startingNewLoop(unsigned int iLoop) override;
 
   /// Called at end of loop
-  Status endOfLoop( const edm::EventSetup&, unsigned int iLoop ) override;
+  Status endOfLoop(const edm::EventSetup&, unsigned int iLoop) override;
 
-  /// Called at each event 
-  Status duringLoop( const edm::Event&, const edm::EventSetup& ) override;
+  /// Called at each event
+  Status duringLoop(const edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   //  static const double PDGPi0Mass;
 
   int nevent;
 
-  unsigned int theMaxLoops;   
+  unsigned int theMaxLoops;
   std::string ecalHitsProducer_;
   std::string barrelHits_;
-
 
   IslandClusterAlgo::VerbosityLevel verbosity;
 
@@ -106,9 +99,9 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
   std::string clustershapecollectionEB_;
   std::string barrelClusterShapeAssociation_;
 
-  PositionCalc posCalculator_; // position calculation algorithm
-  ClusterShapeAlgo shapeAlgo_; // cluster shape algorithm
-  IslandClusterAlgo * island_p;
+  PositionCalc posCalculator_;  // position calculation algorithm
+  ClusterShapeAlgo shapeAlgo_;  // cluster shape algorithm
+  IslandClusterAlgo* island_p;
 
   // Selection algorithm parameters
   double selePi0PtGammaOneMin_;
@@ -125,11 +118,9 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
   double selePi0S9S25GammaTwoMin_;
 
   double selePi0EtBeltIsoRatioMax_;
- 
+
   double selePi0MinvMeanFixed_;
   double selePi0MinvSigmaFixed_;
-
-
 
   std::vector<DetId> barrelCells;
 
@@ -143,21 +134,16 @@ class Pi0FixedMassWindowCalibration :  public edm::ESProducerLooper
 
   edm::ParameterSet theParameterSet;
 
-
-  
-
   // map for all RecHits from ECal:
-  std::map<DetId, EcalRecHit> *recHitsEB_map;
+  std::map<DetId, EcalRecHit>* recHitsEB_map;
 
   const EcalRecHitCollection* ecalRecHitBarrelCollection;
   const EcalRecHitCollection* recalibEcalRecHitCollection;
-
 
   // root tree
   TFile* theFile;
 
   bool isfirstcall_;
-
 };
 
 #endif

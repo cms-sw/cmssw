@@ -3,9 +3,15 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/Common/interface/AssociationMap.h"
+#include "DataFormats/Common/interface/OneToMany.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticleFwd.h"
+#include "SimDataFormats/CaloAnalysis/interface/CaloParticle.h"
+#include "DataFormats/ForwardDetId/interface/HGCalTriggerDetId.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCalUtilities/interface/HGCalTriggerNtupleBase.h"
@@ -30,7 +36,9 @@ private:
 
   edm::EDGetToken trigger_cells_token_, multiclusters_token_;
   edm::EDGetToken simhits_ee_token_, simhits_fh_token_, simhits_bh_token_;
+  edm::EDGetToken caloparticles_map_token_;
   bool fill_simenergy_;
+  bool fill_truthmap_;
   bool filter_cells_in_multiclusters_;
   double keV2fC_;
   std::vector<double> fcPerMip_;
@@ -38,14 +46,25 @@ private:
   std::vector<double> thicknessCorrections_;
   edm::ESHandle<HGCalTriggerGeometryBase> geometry_;
 
+  static const unsigned kPanelOffset_ = 0;
+  static const unsigned kPanelMask_ = 0x1F;
+  static const unsigned kSectorOffset_ = 5;
+  static const unsigned kSectorMask_ = 0x7;
+
   int tc_n_;
   std::vector<uint32_t> tc_id_;
   std::vector<int> tc_subdet_;
   std::vector<int> tc_side_;
   std::vector<int> tc_layer_;
+  std::vector<int> tc_panel_number_;
+  std::vector<int> tc_panel_sector_;
   std::vector<int> tc_wafer_;
+  std::vector<int> tc_waferu_;
+  std::vector<int> tc_waferv_;
   std::vector<int> tc_wafertype_;
   std::vector<int> tc_cell_;
+  std::vector<int> tc_cellu_;
+  std::vector<int> tc_cellv_;
   std::vector<uint32_t> tc_data_;
   std::vector<uint32_t> tc_uncompressedCharge_;
   std::vector<uint32_t> tc_compressedCharge_;
@@ -61,6 +80,9 @@ private:
   std::vector<uint32_t> tc_cluster_id_;
   std::vector<uint32_t> tc_multicluster_id_;
   std::vector<float> tc_multicluster_pt_;
+  std::vector<int> tc_genparticle_index_;
+
+  typedef edm::AssociationMap<edm::OneToMany<CaloParticleCollection, l1t::HGCalTriggerCellBxCollection>> CaloToCellsMap;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTriggerCells, "HGCalTriggerNtupleHGCTriggerCells");
@@ -68,14 +90,12 @@ DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, HGCalTriggerNtupleHGCTriggerCells, 
 HGCalTriggerNtupleHGCTriggerCells::HGCalTriggerNtupleHGCTriggerCells(const edm::ParameterSet& conf)
     : HGCalTriggerNtupleBase(conf),
       fill_simenergy_(conf.getParameter<bool>("FillSimEnergy")),
-      filter_cells_in_multiclusters_(conf.getParameter<bool>("FilterCellsInMulticlusters")) {
-  fill_simenergy_ = conf.getParameter<bool>("FillSimEnergy");
-  filter_cells_in_multiclusters_ = conf.getParameter<bool>("FilterCellsInMulticlusters");
-  keV2fC_ = conf.getParameter<double>("keV2fC");
-  fcPerMip_ = conf.getParameter<std::vector<double>>("fcPerMip");
-  layerWeights_ = conf.getParameter<std::vector<double>>("layerWeights");
-  thicknessCorrections_ = conf.getParameter<std::vector<double>>("thicknessCorrections");
-}
+      fill_truthmap_(conf.getParameter<bool>("FillTruthMap")),
+      filter_cells_in_multiclusters_(conf.getParameter<bool>("FilterCellsInMulticlusters")),
+      keV2fC_(conf.getParameter<double>("keV2fC")),
+      fcPerMip_(conf.getParameter<std::vector<double>>("fcPerMip")),
+      layerWeights_(conf.getParameter<std::vector<double>>("layerWeights")),
+      thicknessCorrections_(conf.getParameter<std::vector<double>>("thicknessCorrections")) {}
 
 void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
                                                    const edm::ParameterSet& conf,
@@ -91,30 +111,50 @@ void HGCalTriggerNtupleHGCTriggerCells::initialize(TTree& tree,
     simhits_bh_token_ = collector.consumes<edm::PCaloHitContainer>(conf.getParameter<edm::InputTag>("bhSimHits"));
   }
 
-  tree.Branch("tc_n", &tc_n_, "tc_n/I");
-  tree.Branch("tc_id", &tc_id_);
-  tree.Branch("tc_subdet", &tc_subdet_);
-  tree.Branch("tc_zside", &tc_side_);
-  tree.Branch("tc_layer", &tc_layer_);
-  tree.Branch("tc_wafer", &tc_wafer_);
-  tree.Branch("tc_wafertype", &tc_wafertype_);
-  tree.Branch("tc_cell", &tc_cell_);
-  tree.Branch("tc_data", &tc_data_);
-  tree.Branch("tc_uncompressedCharge", &tc_uncompressedCharge_);
-  tree.Branch("tc_compressedCharge", &tc_compressedCharge_);
-  tree.Branch("tc_pt", &tc_pt_);
-  tree.Branch("tc_mipPt", &tc_mipPt_);
-  tree.Branch("tc_energy", &tc_energy_);
+  if (fill_truthmap_)
+    caloparticles_map_token_ =
+        collector.consumes<CaloToCellsMap>(conf.getParameter<edm::InputTag>("caloParticlesToCells"));
+
+  std::string prefix(conf.getUntrackedParameter<std::string>("Prefix", "tc"));
+
+  std::string bname;
+  auto withPrefix([&prefix, &bname](char const* vname) -> char const* {
+    bname = prefix + "_" + vname;
+    return bname.c_str();
+  });
+
+  tree.Branch(withPrefix("n"), &tc_n_, (prefix + "_n/I").c_str());
+  tree.Branch(withPrefix("id"), &tc_id_);
+  tree.Branch(withPrefix("subdet"), &tc_subdet_);
+  tree.Branch(withPrefix("zside"), &tc_side_);
+  tree.Branch(withPrefix("layer"), &tc_layer_);
+  tree.Branch(withPrefix("wafer"), &tc_wafer_);
+  tree.Branch(withPrefix("waferu"), &tc_waferu_);
+  tree.Branch(withPrefix("waferv"), &tc_waferv_);
+  tree.Branch(withPrefix("wafertype"), &tc_wafertype_);
+  tree.Branch(withPrefix("panel_number"), &tc_panel_number_);
+  tree.Branch(withPrefix("panel_sector"), &tc_panel_sector_);
+  tree.Branch(withPrefix("cell"), &tc_cell_);
+  tree.Branch(withPrefix("cellu"), &tc_cellu_);
+  tree.Branch(withPrefix("cellv"), &tc_cellv_);
+  tree.Branch(withPrefix("data"), &tc_data_);
+  tree.Branch(withPrefix("uncompressedCharge"), &tc_uncompressedCharge_);
+  tree.Branch(withPrefix("compressedCharge"), &tc_compressedCharge_);
+  tree.Branch(withPrefix("pt"), &tc_pt_);
+  tree.Branch(withPrefix("mipPt"), &tc_mipPt_);
+  tree.Branch(withPrefix("energy"), &tc_energy_);
   if (fill_simenergy_)
-    tree.Branch("tc_simenergy", &tc_simenergy_);
-  tree.Branch("tc_eta", &tc_eta_);
-  tree.Branch("tc_phi", &tc_phi_);
-  tree.Branch("tc_x", &tc_x_);
-  tree.Branch("tc_y", &tc_y_);
-  tree.Branch("tc_z", &tc_z_);
-  tree.Branch("tc_cluster_id", &tc_cluster_id_);
-  tree.Branch("tc_multicluster_id", &tc_multicluster_id_);
-  tree.Branch("tc_multicluster_pt", &tc_multicluster_pt_);
+    tree.Branch(withPrefix("simenergy"), &tc_simenergy_);
+  tree.Branch(withPrefix("eta"), &tc_eta_);
+  tree.Branch(withPrefix("phi"), &tc_phi_);
+  tree.Branch(withPrefix("x"), &tc_x_);
+  tree.Branch(withPrefix("y"), &tc_y_);
+  tree.Branch(withPrefix("z"), &tc_z_);
+  tree.Branch(withPrefix("cluster_id"), &tc_cluster_id_);
+  tree.Branch(withPrefix("multicluster_id"), &tc_multicluster_id_);
+  tree.Branch(withPrefix("multicluster_pt"), &tc_multicluster_pt_);
+  if (fill_truthmap_)
+    tree.Branch(withPrefix("genparticle_index"), &tc_genparticle_index_);
 }
 
 void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::EventSetup& es) {
@@ -137,6 +177,16 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
   std::unordered_map<uint32_t, double> simhits_bh;
   if (fill_simenergy_)
     simhits(e, simhits_ee, simhits_fh, simhits_bh);
+
+  edm::Handle<CaloToCellsMap> caloparticles_map_h;
+  std::unordered_map<uint32_t, unsigned> cell_to_genparticle;
+  if (fill_truthmap_) {
+    e.getByToken(caloparticles_map_token_, caloparticles_map_h);
+    for (auto& keyval : *caloparticles_map_h) {
+      for (auto& tcref : keyval.val)
+        cell_to_genparticle.emplace(tcref->detId(), keyval.key->g4Tracks().at(0).genpartIndex() - 1);
+    }
+  }
 
   // Associate cells to clusters
   std::unordered_map<uint32_t, uint32_t> cell2cluster;
@@ -167,14 +217,54 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
         continue;
       tc_n_++;
       // hardware data
-      HGCalDetId id(tc_itr->detId());
+      DetId id(tc_itr->detId());
+      DetId panelId(geometry_->getModuleFromTriggerCell(id));
+      int panel_sector = -999;
+      int panel_number = -999;
+      if (panelId.det() == DetId::Forward) {
+        HGCalDetId panelIdHGCal(panelId);
+        if (panelId.subdetId() == ForwardSubdetector::HGCHEB) {
+          panel_number = panelIdHGCal.wafer();
+        } else {
+          panel_sector = (panelIdHGCal.wafer() >> kSectorOffset_) & kSectorMask_;
+          panel_number = (panelIdHGCal.wafer() >> kPanelOffset_) & kPanelMask_;
+        }
+      } else if (id.det() == DetId::HGCalHSc) {
+        HGCScintillatorDetId panelIdSci(panelId);
+        panel_sector = panelIdSci.iphi();
+        panel_number = panelIdSci.ietaAbs();
+      }
+      tc_panel_number_.emplace_back(panel_number);
+      tc_panel_sector_.emplace_back(panel_sector);
       tc_id_.emplace_back(tc_itr->detId());
-      tc_subdet_.emplace_back(id.subdetId());
-      tc_side_.emplace_back(id.zside());
+      tc_side_.emplace_back(triggerTools_.zside(id));
       tc_layer_.emplace_back(triggerTools_.layerWithOffset(id));
-      tc_wafer_.emplace_back(id.wafer());
-      tc_wafertype_.emplace_back(id.waferType());
-      tc_cell_.emplace_back(id.cell());
+      // V9 detids
+      if (id.det() == DetId::HGCalTrigger) {
+        HGCalTriggerDetId idv9(id);
+        tc_subdet_.emplace_back(idv9.subdet());
+        tc_waferu_.emplace_back(idv9.waferU());
+        tc_waferv_.emplace_back(idv9.waferV());
+        tc_wafertype_.emplace_back(idv9.type());
+        tc_cellu_.emplace_back(idv9.triggerCellU());
+        tc_cellv_.emplace_back(idv9.triggerCellV());
+      } else if (id.det() == DetId::HGCalHSc) {
+        HGCScintillatorDetId idv9(id);
+        tc_subdet_.emplace_back(idv9.subdet());
+        tc_waferu_.emplace_back(-999);
+        tc_waferv_.emplace_back(-999);
+        tc_wafertype_.emplace_back(idv9.type());
+        tc_cellu_.emplace_back(idv9.ietaAbs());
+        tc_cellv_.emplace_back(idv9.iphi());
+      }
+      // V8 detids
+      else {
+        HGCalDetId idv8(id);
+        tc_subdet_.emplace_back(id.subdetId());
+        tc_wafer_.emplace_back(idv8.wafer());
+        tc_wafertype_.emplace_back(idv8.waferType());
+        tc_cell_.emplace_back(idv8.cell());
+      }
       tc_data_.emplace_back(tc_itr->hwPt());
       tc_uncompressedCharge_.emplace_back(tc_itr->uncompressedCharge());
       tc_compressedCharge_.emplace_back(tc_itr->compressedCharge());
@@ -194,36 +284,34 @@ void HGCalTriggerNtupleHGCTriggerCells::fill(const edm::Event& e, const edm::Eve
 
       if (fill_simenergy_) {
         double energy = 0;
-        int subdet = id.subdetId();
         unsigned layer = triggerTools_.layerWithOffset(id);
         // search for simhit for all the cells inside the trigger cell
         for (uint32_t c_id : geometry_->getCellsFromTriggerCell(id)) {
           int thickness = triggerTools_.thicknessIndex(c_id);
-          switch (subdet) {
-            case ForwardSubdetector::HGCEE: {
-              auto itr = simhits_ee.find(c_id);
-              if (itr != simhits_ee.end())
-                energy += calibrate(itr->second, thickness, layer);
-              break;
-            }
-            case ForwardSubdetector::HGCHEF: {
-              auto itr = simhits_fh.find(c_id);
-              if (itr != simhits_fh.end())
-                energy += calibrate(itr->second, thickness, layer);
-              break;
-            }
-            case ForwardSubdetector::HGCHEB: {
-              auto itr = simhits_bh.find(c_id);
-              if (itr != simhits_bh.end())
-                energy += itr->second;
-              break;
-            }
-            default:
-              break;
+          if (triggerTools_.isEm(id)) {
+            auto itr = simhits_ee.find(c_id);
+            if (itr != simhits_ee.end())
+              energy += calibrate(itr->second, thickness, layer);
+          } else if (triggerTools_.isSilicon(id)) {
+            auto itr = simhits_fh.find(c_id);
+            if (itr != simhits_fh.end())
+              energy += calibrate(itr->second, thickness, layer);
+          } else {
+            auto itr = simhits_bh.find(c_id);
+            if (itr != simhits_bh.end())
+              energy += itr->second;
           }
         }
         tc_simenergy_.emplace_back(energy);
       }
+    }
+
+    if (fill_truthmap_) {
+      auto itr(cell_to_genparticle.find(tc_itr->detId()));
+      if (itr == cell_to_genparticle.end())
+        tc_genparticle_index_.push_back(-1);
+      else
+        tc_genparticle_index_.push_back(itr->second);
     }
   }
 }
@@ -284,8 +372,14 @@ void HGCalTriggerNtupleHGCTriggerCells::clear() {
   tc_side_.clear();
   tc_layer_.clear();
   tc_wafer_.clear();
+  tc_waferu_.clear();
+  tc_waferv_.clear();
   tc_wafertype_.clear();
+  tc_panel_number_.clear();
+  tc_panel_sector_.clear();
   tc_cell_.clear();
+  tc_cellu_.clear();
+  tc_cellv_.clear();
   tc_data_.clear();
   tc_uncompressedCharge_.clear();
   tc_compressedCharge_.clear();
@@ -301,4 +395,5 @@ void HGCalTriggerNtupleHGCTriggerCells::clear() {
   tc_cluster_id_.clear();
   tc_multicluster_id_.clear();
   tc_multicluster_pt_.clear();
+  tc_genparticle_index_.clear();
 }

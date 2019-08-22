@@ -15,7 +15,6 @@
 #include <stdexcept>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
-
 #include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
@@ -36,8 +35,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 class EcalCondDBInterface : public EcalDBConnection {
- public:
-
+public:
   /******************\
   -  public methods  -
   \******************/
@@ -51,20 +49,13 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  pass:    Password for user
    *  port:    port number to connect, default 1521
    */
-  EcalCondDBInterface( std::string host,
-		       std::string sid,
-		       std::string user,
-		       std::string pass,
-		       int port=1521 )
-    : EcalDBConnection( host, sid, user, pass, port )
-    {
-      // call the parent constructor
+  EcalCondDBInterface(std::string host, std::string sid, std::string user, std::string pass, int port = 1521)
+      : EcalDBConnection(host, sid, user, pass, port) {
+    // call the parent constructor
 
-      // create a DateHandler
-      dh = new DateHandler(env, conn);
-    }
-
-
+    // create a DateHandler
+    dh = new DateHandler(env, conn);
+  }
 
   /**
    *  Constructor, makes connection to DB with TNS_ADMIN
@@ -73,40 +64,28 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  user:    User to connect
    *  pass:    Password for user
    */
-  EcalCondDBInterface( std::string sid,
-		       std::string user,
-		       std::string pass )
-    : EcalDBConnection( sid, user, pass )
-    {
-      // call the parent constructor
+  EcalCondDBInterface(std::string sid, std::string user, std::string pass) : EcalDBConnection(sid, user, pass) {
+    // call the parent constructor
 
-      // create a DateHandler
-      dh = new DateHandler(env, conn);
-    }
-
+    // create a DateHandler
+    dh = new DateHandler(env, conn);
+  }
 
   /**
    * Destructor
    */
-  ~EcalCondDBInterface()
-    noexcept(false) override
-    {
-      // call the parent destructor
-      
-      // destroy the DateHandler
-      delete(dh);
-    }
+  ~EcalCondDBInterface() noexcept(false) override {
+    // call the parent destructor
 
+    // destroy the DateHandler
+    delete (dh);
+  }
 
   /**
    *  Return a date handler associated with this connection
    */
-  inline DateHandler* getDateHandler()
-    {
-      return dh;
-    }
+  inline DateHandler* getDateHandler() { return dh; }
 
-  
   /**
    *  Look up the "human readable" ids and return an EcalLogicID object which contains
    *  the "database readable" logic_id
@@ -115,12 +94,11 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  id1, id2, id3:  ids of the channel type
    *  mapsTo:         name of the channel type you are mapping to
    */
-  EcalLogicID getEcalLogicID( std::string name,
-			      int id1 = EcalLogicID::NULLID,
-			      int id2 = EcalLogicID::NULLID,
-			      int id3 = EcalLogicID::NULLID,
-			      std::string mapsTo = "" )
-    noexcept(false);
+  EcalLogicID getEcalLogicID(std::string name,
+                             int id1 = EcalLogicID::NULLID,
+                             int id2 = EcalLogicID::NULLID,
+                             int id3 = EcalLogicID::NULLID,
+                             std::string mapsTo = "") noexcept(false);
 
   /**
    *  Build various reverse maps
@@ -130,10 +108,9 @@ class EcalCondDBInterface : public EcalDBConnection {
   std::vector<EcalLogicID> getEcalLogicIDMappedTo(int logic_id, std::string maps_to);
 
   std::vector<EcalLogicID> getEcalLogicIDForLMR(int lmr_logic_id);
-  std::vector<EcalLogicID> getEcalLogicIDForLMR(const EcalLogicID &lmr_logic_id);
+  std::vector<EcalLogicID> getEcalLogicIDForLMR(const EcalLogicID& lmr_logic_id);
   std::vector<EcalLogicID> getEcalLogicIDForLMPN(int lmr_logic_id);
-  std::vector<EcalLogicID> getEcalLogicIDForLMPN(const EcalLogicID &lmr_logic_id);
-
+  std::vector<EcalLogicID> getEcalLogicIDForLMPN(const EcalLogicID& lmr_logic_id);
 
   /**
    *  Look up the database logic_id and return the EcalLogicID object which contains
@@ -141,8 +118,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  === Parameters ===
    *  logicID:  DB logic_id
    */
-  EcalLogicID getEcalLogicID( int logicID )
-    noexcept(false);
+  EcalLogicID getEcalLogicID(int logicID) noexcept(false);
 
   /**
    *  Get a set of EcalLogicID in one transaction
@@ -152,147 +128,124 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  fromId2, toId2:   Range of id2 in the DB to retrieve
    *  fromId3, toId3:   Range of id3 in the DB to retrieve
    *  string mapsTo:    channel type name these ids map to
-   */  
-  std::vector<EcalLogicID> getEcalLogicIDSet( std::string name,
-					      int fromId1 = EcalLogicID::NULLID, int toId1 = EcalLogicID::NULLID,
-					      int fromId2 = EcalLogicID::NULLID, int toId2 = EcalLogicID::NULLID,
-					      int fromId3 = EcalLogicID::NULLID, int toId3 = EcalLogicID::NULLID,
-					      std::string mapsTo = "" )
-    noexcept(false);
+   */
+  std::vector<EcalLogicID> getEcalLogicIDSet(std::string name,
+                                             int fromId1 = EcalLogicID::NULLID,
+                                             int toId1 = EcalLogicID::NULLID,
+                                             int fromId2 = EcalLogicID::NULLID,
+                                             int toId2 = EcalLogicID::NULLID,
+                                             int fromId3 = EcalLogicID::NULLID,
+                                             int toId3 = EcalLogicID::NULLID,
+                                             std::string mapsTo = "") noexcept(false);
 
   std::map<int, int> getEcalLogicID2LmrMap();
-  std::vector<EcalLogicID> getEcalLogicIDSetOrdered( std::string name,
-						     int fromId1, int toId1,
-						     int fromId2 = EcalLogicID::NULLID, int toId2 = EcalLogicID::NULLID,
-						     int fromId3 = EcalLogicID::NULLID, int toId3 = EcalLogicID::NULLID,
-						     std::string mapsTo = "", int orderedBy= EcalLogicID::NULLID ) noexcept(false);
-
+  std::vector<EcalLogicID> getEcalLogicIDSetOrdered(std::string name,
+                                                    int fromId1,
+                                                    int toId1,
+                                                    int fromId2 = EcalLogicID::NULLID,
+                                                    int toId2 = EcalLogicID::NULLID,
+                                                    int fromId3 = EcalLogicID::NULLID,
+                                                    int toId3 = EcalLogicID::NULLID,
+                                                    std::string mapsTo = "",
+                                                    int orderedBy = EcalLogicID::NULLID) noexcept(false);
 
   /**
    *  Insert a run IOV object.  Nothing is committed in the event of an exception
    */
-  void insertRunIOV(RunIOV* iov)
-    noexcept(false);
+  void insertRunIOV(RunIOV* iov) noexcept(false);
   // updates the end time of an iov
-  void updateRunIOV(RunIOV* iov)
-    noexcept(false);
-  void updateRunIOVStartTime(RunIOV* iov)
-    noexcept(false);
-  void updateRunIOVEndTime(RunIOV* iov)
-    noexcept(false);
+  void updateRunIOV(RunIOV* iov) noexcept(false);
+  void updateRunIOVStartTime(RunIOV* iov) noexcept(false);
+  void updateRunIOVEndTime(RunIOV* iov) noexcept(false);
 
   void updateRunConfig(ODRunConfigInfo* od) noexcept(false);
 
-  void insertLmfIOV(LMFIOV* iov)
-    noexcept(false);
-  void insertLmfLmrSubIOV(LMFLmrSubIOV* iov)
-    noexcept(false);
-  void insertLmfSeq(LMFSeqDat* iov)
-    noexcept(false);
-  void insertLmfRunIOV(LMFRunIOV* iov)
-    noexcept(false);
-  void insertLmfDat(LMFDat* dat)
-    noexcept(false);
-  void insertLmfDat(std::list<LMFDat*> dat)
-    noexcept(false);
+  void insertLmfIOV(LMFIOV* iov) noexcept(false);
+  void insertLmfLmrSubIOV(LMFLmrSubIOV* iov) noexcept(false);
+  void insertLmfSeq(LMFSeqDat* iov) noexcept(false);
+  void insertLmfRunIOV(LMFRunIOV* iov) noexcept(false);
+  void insertLmfDat(LMFDat* dat) noexcept(false);
+  void insertLmfDat(std::list<LMFDat*> dat) noexcept(false);
 
   /**
    *  Return run Fe Config Dat objects for a given run
    */
 
-  std::list<ODDelaysDat> fetchFEDelaysForRun(RunIOV *iov)
-    noexcept(false);
+  std::list<ODDelaysDat> fetchFEDelaysForRun(RunIOV* iov) noexcept(false);
 
   /**
    *  Return a run IOV object for a given tag
    */
-  RunIOV fetchRunIOV(RunTag* tag, run_t run)
-    noexcept(false);
-
-
+  RunIOV fetchRunIOV(RunTag* tag, run_t run) noexcept(false);
 
   /**
    *  Return a run IOV object for a given location.
    *  It is not guarunteed that a run is unique for a location only,
    *  so an exception is thrown if more than one result exists.
    */
-  RunIOV fetchRunIOV(std::string location, run_t run)
-    noexcept(false);
+  RunIOV fetchRunIOV(std::string location, run_t run) noexcept(false);
 
-  RunIOV fetchRunIOV(std::string location, const Tm &t)
-    noexcept(false);
-
-
+  RunIOV fetchRunIOV(std::string location, const Tm& t) noexcept(false);
 
   /**
    *  Insert a monitoring run object.  Nothing is committed in the event of an exception
    */
-  void insertMonRunIOV(MonRunIOV* iov)
-    noexcept(false);
-
+  void insertMonRunIOV(MonRunIOV* iov) noexcept(false);
 
   /**
    *  Insert a DCU IOV object.  Nothing is committed in the event of an exception
    */
-  void insertDCUIOV(DCUIOV* iov)
-    noexcept(false);
-
+  void insertDCUIOV(DCUIOV* iov) noexcept(false);
 
   /**
    *  Return a monitoring run object
    */
-  MonRunIOV fetchMonRunIOV(RunTag* runtag, MonRunTag* montag, run_t run, subrun_t monrun)
-    noexcept(false);
-
+  MonRunIOV fetchMonRunIOV(RunTag* runtag, MonRunTag* montag, run_t run, subrun_t monrun) noexcept(false);
 
   /**
    *   Return a DCU IOV object
    */
-  DCUIOV fetchDCUIOV(DCUTag* tag, const Tm& evenTm)
-    noexcept(false);
-
-
+  DCUIOV fetchDCUIOV(DCUTag* tag, const Tm& evenTm) noexcept(false);
 
   /**
    *  Return a laser monitoring farm run object
    */
-  LMFRunIOV fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t lmfrun)
-    noexcept(false);
-  bool fetchLMFRunIOV(const LMFSeqDat&, LMFRunIOV&, int lmr, int type, 
-		      int color) const;
-  RunIOV fetchLMFLastRun() const; 
+  LMFRunIOV fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t lmfrun) noexcept(false);
+  bool fetchLMFRunIOV(const LMFSeqDat&, LMFRunIOV&, int lmr, int type, int color) const;
+  RunIOV fetchLMFLastRun() const;
 
   /**
    *   Return a Calibration IOV object
    */
-  CaliIOV fetchCaliIOV(CaliTag* tag, const Tm& evenTm)
-    noexcept(false);
+  CaliIOV fetchCaliIOV(CaliTag* tag, const Tm& evenTm) noexcept(false);
 
-
- /**
+  /**
    *   Return a Run List
    */
   RunList fetchRunList(const RunTag& tag) noexcept(false);
   RunList fetchRunList(const RunTag& tag, int min_run, int max_run) noexcept(false);
   RunList fetchNonEmptyRunList(const RunTag& tag, int min_run, int max_run) noexcept(false);
   RunList fetchNonEmptyGlobalRunList(const RunTag& tag, int min_run, int max_run) noexcept(false);
-  RunList fetchRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) noexcept(false);
-  RunList fetchGlobalRunListByLocation(const RunTag& tag, int min_run, int max_run , const LocationDef& locDef) noexcept(false);
+  RunList fetchRunListByLocation(const RunTag& tag, int min_run, int max_run, const LocationDef& locDef) noexcept(false);
+  RunList fetchGlobalRunListByLocation(const RunTag& tag,
+                                       int min_run,
+                                       int max_run,
+                                       const LocationDef& locDef) noexcept(false);
   RunList fetchRunListLastNRuns(const RunTag& tag, int max_run, int n_runs) noexcept(false);
 
- /**
+  /**
    *   Return a PTM Temp List
    */
 
-  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid)  noexcept(false);
+  DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid) noexcept(false);
   DCSPTMTempList fetchDCSPTMTempList(const EcalLogicID& ecid, const Tm& start, const Tm& end) noexcept(false);
 
   MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag) noexcept(false);
-  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag,int min_run, int max_run) noexcept(false);
-  MonRunList fetchMonRunListLastNRuns(const RunTag& tag, const MonRunTag& monruntag, int max_run, int n_runs) noexcept(false);
-
-
-
+  MonRunList fetchMonRunList(const RunTag& tag, const MonRunTag& monruntag, int min_run, int max_run) noexcept(false);
+  MonRunList fetchMonRunListLastNRuns(const RunTag& tag,
+                                      const MonRunTag& monruntag,
+                                      int max_run,
+                                      int n_runs) noexcept(false);
 
   /*
    *   Insert a set of data at the given iov.  If the iov does not yet
@@ -303,37 +256,35 @@ class EcalCondDBInterface : public EcalDBConnection {
   // XXX        Naive method causes linker errors...
   // XXX        See example FWCore/Framework/interface/eventSetupGetImplementation.h
 
-  template<class DATT, class IOVT>
-  void insertDataSet(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
-    noexcept(false)
-  {
+  template <class DATT, class IOVT>
+  void insertDataSet(const std::map<EcalLogicID, DATT>* data, IOVT* iov) noexcept(false) {
     try {
       iov->setConnection(env, conn);
-      // if it has not yet been written then write 
-      if(iov->getID()==0){
-	std::cout<<"IOV was not set we retrieve it from DB"<<std::endl;
-	iov->fetchID();
-      } 
-      if(iov->getID()==0){
-	std::cout<<"IOV was not written we write it"<<std::endl;
-	iov->writeDB();
-      } 
-      
+      // if it has not yet been written then write
+      if (iov->getID() == 0) {
+        std::cout << "IOV was not set we retrieve it from DB" << std::endl;
+        iov->fetchID();
+      }
+      if (iov->getID() == 0) {
+        std::cout << "IOV was not written we write it" << std::endl;
+        iov->writeDB();
+      }
+
       DATT dataIface;
       dataIface.setConnection(env, conn);
       dataIface.prepareWrite();
-      
+
       const EcalLogicID* channel;
       const DATT* dataitem;
-      typedef typename std::map< EcalLogicID, DATT >::const_iterator CI;
+      typedef typename std::map<EcalLogicID, DATT>::const_iterator CI;
       for (CI p = data->begin(); p != data->end(); ++p) {
-	channel = &(p->first);
-	dataitem = &(p->second);
-	dataIface.writeDB( channel, dataitem, iov);
+        channel = &(p->first);
+        dataitem = &(p->second);
+        dataIface.writeDB(channel, dataitem, iov);
       }
       conn->commit();
       dataIface.terminateWriteStatement();
-    } catch (std::runtime_error &e) {
+    } catch (std::runtime_error& e) {
       conn->rollback();
       throw(e);
     } catch (...) {
@@ -341,35 +292,33 @@ class EcalCondDBInterface : public EcalDBConnection {
       throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
     }
   }
-  
+
   //test for DB Array insertion
-  template<class DATT, class IOVT>
-  void insertDataArraySet(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
-    noexcept(false)
-  {
+  template <class DATT, class IOVT>
+  void insertDataArraySet(const std::map<EcalLogicID, DATT>* data, IOVT* iov) noexcept(false) {
     try {
       iov->setConnection(env, conn);
-      if(iov->getID()==0){
-	std::cout<<"IOV was not set we retrieve it from DB"<<std::endl;
-	iov->fetchID();
-      } 
-      if(iov->getID()==0){
-	std::cout<<"IOV was not written we write it"<<std::endl;
-	iov->writeDB();
-      } 
+      if (iov->getID() == 0) {
+        std::cout << "IOV was not set we retrieve it from DB" << std::endl;
+        iov->fetchID();
+      }
+      if (iov->getID() == 0) {
+        std::cout << "IOV was not written we write it" << std::endl;
+        iov->writeDB();
+      }
 
-      std::cout<<"id="<<iov->getID()<<std::endl;
+      std::cout << "id=" << iov->getID() << std::endl;
 
       DATT dataIface;
       dataIface.setConnection(env, conn);
       dataIface.prepareWrite();
-      
+
       dataIface.writeArrayDB(data, iov);
       conn->commit();
-      
+
       dataIface.terminateWriteStatement();
-   
-    } catch (std::runtime_error &e) {
+
+    } catch (std::runtime_error& e) {
       conn->rollback();
       throw(e);
     } catch (...) {
@@ -378,34 +327,30 @@ class EcalCondDBInterface : public EcalDBConnection {
     }
   }
 
- template<class DATT, class IOVT>
-  void insertDataSetVector( const std::vector<EcalLogicID>& ecid, const std::vector<IOVT>& run_iov, const std::vector<DATT>& data )
-    noexcept(false)
-  {
-   
-    int nruns= run_iov.size();
-   
-    if(run_iov.size()!=ecid.size() &&ecid.size()!=data.size()){
-      throw(std::runtime_error("EcalCondDBInterface::insertDataSetVector:  vector sizes are different.."));
-    } 
+  template <class DATT, class IOVT>
+  void insertDataSetVector(const std::vector<EcalLogicID>& ecid,
+                           const std::vector<IOVT>& run_iov,
+                           const std::vector<DATT>& data) noexcept(false) {
+    int nruns = run_iov.size();
 
+    if (run_iov.size() != ecid.size() && ecid.size() != data.size()) {
+      throw(std::runtime_error("EcalCondDBInterface::insertDataSetVector:  vector sizes are different.."));
+    }
 
     try {
-      
       DATT dataIface;
       dataIface.setConnection(env, conn);
       dataIface.prepareWrite();
 
-      for (int i=0; i<nruns; i++){
+      for (int i = 0; i < nruns; i++) {
+        run_iov[i].setConnection(env, conn);
+        run_iov[i].writeDB();
 
-	run_iov[i].setConnection(env, conn);
-	run_iov[i].writeDB();
-      
-	dataIface.writeDB( &ecid[i], &data[i], &run_iov[i]);
-	
-	conn->commit();
+        dataIface.writeDB(&ecid[i], &data[i], &run_iov[i]);
+
+        conn->commit();
       }
-    } catch (std::runtime_error &e) {
+    } catch (std::runtime_error& e) {
       conn->rollback();
       throw(e);
     } catch (...) {
@@ -414,99 +359,81 @@ class EcalCondDBInterface : public EcalDBConnection {
     }
   }
 
+  // CONFIG DB methods
 
-
-
-
- // CONFIG DB methods 
-
- template<class ICONF >
-   void insertConfigSet( ICONF* iconf)
-   noexcept(false)
-   {
-     try {
-       iconf->setConnection(env, conn);
-       iconf->prepareWrite();
-       // if it has not yet been written then write 
-       iconf->writeDB();
-       std::cout<< "iconf inserted with ID="<<iconf->getId()<<std::endl;
-       conn->commit();
-       iconf->terminateWriteStatement();
-     } catch (std::runtime_error &e) {
-       conn->rollback();
-       throw(e);
-     } catch (...) {
-       conn->rollback();
-       throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
-     }
-   }
+  template <class ICONF>
+  void insertConfigSet(ICONF* iconf) noexcept(false) {
+    try {
+      iconf->setConnection(env, conn);
+      iconf->prepareWrite();
+      // if it has not yet been written then write
+      iconf->writeDB();
+      std::cout << "iconf inserted with ID=" << iconf->getId() << std::endl;
+      conn->commit();
+      iconf->terminateWriteStatement();
+    } catch (std::runtime_error& e) {
+      conn->rollback();
+      throw(e);
+    } catch (...) {
+      conn->rollback();
+      throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
+    }
+  }
 
   /*
    *  Fetch a config set
    */
-  template<class ICONF>
-  void fetchConfigSet( ICONF* iconf)
-    noexcept(false)
-  {
-
+  template <class ICONF>
+  void fetchConfigSet(ICONF* iconf) noexcept(false) {
     iconf->clear();
     iconf->setConnection(env, conn);
     iconf->createReadStatement();
     iconf->fetchData(iconf);
     iconf->terminateReadStatement();
-
   }
 
   /*
    *  Fetch a config set
    */
-  template<class ICONF>
-  void fetchLastConfigSet( ICONF* iconf)
-    noexcept(false)
-  {
-
+  template <class ICONF>
+  void fetchLastConfigSet(ICONF* iconf) noexcept(false) {
     iconf->clear();
     iconf->setConnection(env, conn);
     iconf->createReadStatement();
     iconf->fetchLastData(iconf);
     iconf->terminateReadStatement();
-
   }
-
-
 
   /*
    *  Insert a config data set 
    */
-  template<class DATT, class ICONF>
-  void insertConfigDataSet(const std::vector< DATT > data, ICONF* iconf)
-    noexcept(false)
-  {
+  template <class DATT, class ICONF>
+  void insertConfigDataSet(const std::vector<DATT> data, ICONF* iconf) noexcept(false) {
     try {
       iconf->setConnection(env, conn);
-      // if it has not yet been written then write 
-      if(iconf->getId()==0){
-	std::cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<std::endl;
-	iconf->fetchID();
-      } 
-      if(iconf->getId()==0){
-	std::cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<std::endl;
-	iconf->writeDB();
-      } 
-      
+      // if it has not yet been written then write
+      if (iconf->getId() == 0) {
+        std::cout << "EcalCondDBInterface>> config_id was not set we retrieve it from DB" << std::endl;
+        iconf->fetchID();
+      }
+      if (iconf->getId() == 0) {
+        std::cout << "EcalCondDBInterface>> configuration info was not written we write it" << std::endl;
+        iconf->writeDB();
+      }
+
       DATT dataIface;
       dataIface.setConnection(env, conn);
       dataIface.prepareWrite();
-      
+
       const DATT* dataitem;
 
       for (int p = 0; p != data->size(); ++p) {
-	dataitem = data[p];
-	dataIface.writeDB( dataitem, iconf);
+        dataitem = data[p];
+        dataIface.writeDB(dataitem, iconf);
       }
       conn->commit();
       dataIface.terminateWriteStatement();
-    } catch (std::runtime_error &e) {
+    } catch (std::runtime_error& e) {
       conn->rollback();
       throw(e);
     } catch (...) {
@@ -517,32 +444,30 @@ class EcalCondDBInterface : public EcalDBConnection {
   /*
    *  insert a config data set array fast
    */
-  template<class DATT, class ICONF>
-  void insertConfigDataArraySet(const std::vector< DATT >& data, ICONF* iconf)
-    noexcept(false)
-  {
+  template <class DATT, class ICONF>
+  void insertConfigDataArraySet(const std::vector<DATT>& data, ICONF* iconf) noexcept(false) {
     try {
       iconf->setConnection(env, conn);
-      // if it has not yet been written then write 
-      if(iconf->getId()==0){
-	std::cout<<"EcalCondDBInterface>> config_id was not set we retrieve it from DB"<<std::endl;
-	iconf->fetchID();
-      } 
-      if(iconf->getId()==0){
-	std::cout<<"EcalCondDBInterface>> configuration info was not written we write it"<<std::endl;
-	iconf->writeDB();
-      } 
-      
+      // if it has not yet been written then write
+      if (iconf->getId() == 0) {
+        std::cout << "EcalCondDBInterface>> config_id was not set we retrieve it from DB" << std::endl;
+        iconf->fetchID();
+      }
+      if (iconf->getId() == 0) {
+        std::cout << "EcalCondDBInterface>> configuration info was not written we write it" << std::endl;
+        iconf->writeDB();
+      }
+
       DATT dataIface;
       dataIface.setConnection(env, conn);
       dataIface.prepareWrite();
-      
+
       dataIface.writeArrayDB(data, iconf);
       conn->commit();
-      
+
       dataIface.terminateWriteStatement();
-   
-    } catch (std::runtime_error &e) {
+
+    } catch (std::runtime_error& e) {
       conn->rollback();
       throw(e);
     } catch (...) {
@@ -553,86 +478,60 @@ class EcalCondDBInterface : public EcalDBConnection {
   /*
    *  Fetch a set of data based on an EXACT match of an iov
    */
-  template<class DATT, class ICONF>
-  void fetchConfigDataSet(std::vector< DATT >* fillMap, ICONF* iconf)
-    noexcept(false)
-  {
-
+  template <class DATT, class ICONF>
+  void fetchConfigDataSet(std::vector<DATT>* fillMap, ICONF* iconf) noexcept(false) {
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1024);
-    datiface.fetchData( fillMap, iconf );
+    datiface.fetchData(fillMap, iconf);
     datiface.terminateReadStatement();
-
   }
-
-
-
-
-
-
 
   /*
    *  Fetch a set of data based on an EXACT match of an iov
    */
-  template<class DATT, class IOVT>
-  void fetchDataSet(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov)
-    noexcept(false)
-  {
+  template <class DATT, class IOVT>
+  void fetchDataSet(std::map<EcalLogicID, DATT>* fillMap, IOVT* iov) noexcept(false) {
     fillMap->clear();
 
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1024);
-    datiface.fetchData( fillMap, iov );
+    datiface.fetchData(fillMap, iov);
     datiface.terminateReadStatement();
-
   }
-
-
-
 
   /*                               
    *  Fetch a set of DCS data based on time stamp
    */
-  template<class DATT>
-  void fetchDCSDataSet(std::list< std::pair< Tm, std::map<  EcalLogicID, DATT > > >* fillMap, const Tm& t)
-    noexcept(false)
-  {
+  template <class DATT>
+  void fetchDCSDataSet(std::list<std::pair<Tm, std::map<EcalLogicID, DATT> > >* fillMap, const Tm& t) noexcept(false) {
     fillMap->clear();
-    
+
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1024);
-    datiface.fetchHistoricalData( fillMap, t );
+    datiface.fetchHistoricalData(fillMap, t);
     datiface.terminateReadStatement();
-    
   }
-  
-  
-
-
 
   /*
    *  Fetch a set of data based on an EXACT match of an iov
    * with a specific mapping name 
    */
-  template<class DATT, class IOVT>
-  void fetchDataSetWithMap(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov, std::string mapping_name )
-    noexcept(false)
-  {
+  template <class DATT, class IOVT>
+  void fetchDataSetWithMap(std::map<EcalLogicID, DATT>* fillMap, IOVT* iov, std::string mapping_name) noexcept(false) {
     fillMap->clear();
 
     DATT datiface;
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1024);
-    datiface.fetchData( fillMap, iov , mapping_name);
+    datiface.fetchData(fillMap, iov, mapping_name);
     datiface.terminateReadStatement();
-
   }
 
   /*
@@ -642,12 +541,11 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Note:  ONLY works for Run*Dat objects
    *  TODO:  Make this function (or similar) work for all *Dat objects
    */
-  template<class DATT, class IOVT>
-  void fetchValidDataSet(std::map< EcalLogicID, DATT >* fillMap, 
-			 IOVT* fillIOV, 
-			 RunTag* tag, run_t run = (unsigned int)-1)
-  noexcept(false)
-  {
+  template <class DATT, class IOVT>
+  void fetchValidDataSet(std::map<EcalLogicID, DATT>* fillMap,
+                         IOVT* fillIOV,
+                         RunTag* tag,
+                         run_t run = (unsigned int)-1) noexcept(false) {
     fillMap->clear();
     DATT datiface;
     fillIOV->setConnection(env, conn);
@@ -655,7 +553,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1024);
-    datiface.fetchData( fillMap, fillIOV );
+    datiface.fetchData(fillMap, fillIOV);
     datiface.terminateReadStatement();
   }
 
@@ -666,12 +564,11 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Note:  ONLY works for Run*Dat objects
    *  TODO:  Make this function (or similar) work for all *Dat objects
    */
-  template<class DATT, class IOVT>
-  void fetchValidDataSet(std::map< EcalLogicID, DATT >* fillMap,
+  template <class DATT, class IOVT>
+  void fetchValidDataSet(std::map<EcalLogicID, DATT>* fillMap,
                          IOVT* fillIOV,
-                         std::string location, run_t run = (unsigned int)-1)
-  noexcept(false)
-  {
+                         std::string location,
+                         run_t run = (unsigned int)-1) noexcept(false) {
     fillMap->clear();
     DATT datiface;
     fillIOV->setConnection(env, conn);
@@ -679,7 +576,7 @@ class EcalCondDBInterface : public EcalDBConnection {
     datiface.setConnection(env, conn);
     datiface.createReadStatement();
     datiface.setPrefetchRowCount(1024);
-    datiface.fetchData( fillMap, fillIOV );
+    datiface.fetchData(fillMap, fillIOV);
     datiface.terminateReadStatement();
   }
 
@@ -721,13 +618,11 @@ class EcalCondDBInterface : public EcalDBConnection {
 
   void dummy();
 
- private:
-
+private:
   /**
    *  Private method: fill a private map used to associate logicIds to DetIds
    */
   void fillLogicId2DetIdMaps();
-
 
   /*********************\
   -  private variables  -
@@ -738,7 +633,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   EcalCondDBInterface() = delete;
   EcalCondDBInterface(const EcalCondDBInterface& copy) = delete;
 
-  std::map<int, int> _logicId2DetId; 
+  std::map<int, int> _logicId2DetId;
   std::map<int, int> _detId2LogicId;
 };
 

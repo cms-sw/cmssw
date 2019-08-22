@@ -15,18 +15,31 @@ class HcalTopology;
 class HcalGeometry;
 
 class HcalHardcodeGeometryLoader {
-
 public:
   HcalHardcodeGeometryLoader();
 
   CaloSubdetectorGeometry* load(const HcalTopology& fTopology);
 
 private:
-
   struct HBHOCellParameters {
-    HBHOCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_rMin, float f_rMax, float f_etaMin, float f_etaMax)
-      : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), rMin(f_rMin), rMax(f_rMax), etaMin(f_etaMin), etaMax(f_etaMax)
-    {}
+    HBHOCellParameters(int f_eta,
+                       int f_depth,
+                       int f_phiFirst,
+                       int f_phiStep,
+                       int f_dPhi,
+                       float f_rMin,
+                       float f_rMax,
+                       float f_etaMin,
+                       float f_etaMax)
+        : eta(f_eta),
+          depth(f_depth),
+          phiFirst(f_phiFirst),
+          phiStep(f_phiStep),
+          dphi(f_dPhi),
+          rMin(f_rMin),
+          rMax(f_rMax),
+          etaMin(f_etaMin),
+          etaMax(f_etaMax) {}
 
     int eta;
     int depth;
@@ -40,9 +53,24 @@ private:
   };
 
   struct HECellParameters {
-    HECellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_zMin, float f_zMax, float f_etaMin, float f_etaMax)
-      : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), etaMin(f_etaMin), etaMax(f_etaMax)
-    {}
+    HECellParameters(int f_eta,
+                     int f_depth,
+                     int f_phiFirst,
+                     int f_phiStep,
+                     int f_dPhi,
+                     float f_zMin,
+                     float f_zMax,
+                     float f_etaMin,
+                     float f_etaMax)
+        : eta(f_eta),
+          depth(f_depth),
+          phiFirst(f_phiFirst),
+          phiStep(f_phiStep),
+          dphi(f_dPhi),
+          zMin(f_zMin),
+          zMax(f_zMax),
+          etaMin(f_etaMin),
+          etaMax(f_etaMax) {}
 
     int eta;
     int depth;
@@ -56,9 +84,24 @@ private:
   };
 
   struct HFCellParameters {
-    HFCellParameters (int f_eta, int f_depth, int f_phiFirst, int f_phiStep, int f_dPhi, float f_zMin, float f_zMax, float f_rMin, float f_rMax)
-      : eta(f_eta), depth(f_depth), phiFirst(f_phiFirst), phiStep(f_phiStep), dphi(f_dPhi), zMin(f_zMin), zMax(f_zMax), rMin(f_rMin), rMax(f_rMax)
-    {}
+    HFCellParameters(int f_eta,
+                     int f_depth,
+                     int f_phiFirst,
+                     int f_phiStep,
+                     int f_dPhi,
+                     float f_zMin,
+                     float f_zMax,
+                     float f_rMin,
+                     float f_rMax)
+        : eta(f_eta),
+          depth(f_depth),
+          phiFirst(f_phiFirst),
+          phiStep(f_phiStep),
+          dphi(f_dPhi),
+          zMin(f_zMin),
+          zMax(f_zMax),
+          rMin(f_rMin),
+          rMax(f_rMax) {}
 
     int eta;
     int depth;
@@ -71,21 +114,20 @@ private:
     float rMax;
   };
 
-  std::vector <HBHOCellParameters> makeHBCells (const HcalTopology & topology);
-  std::vector <HBHOCellParameters> makeHOCells ();
-  std::vector <HECellParameters> makeHECells (const HcalTopology & topology);
-  std::vector <HECellParameters> makeHECells_H2 ();
-  std::vector <HFCellParameters> makeHFCells ();
+  std::vector<HBHOCellParameters> makeHBCells(const HcalTopology& topology);
+  std::vector<HBHOCellParameters> makeHOCells();
+  std::vector<HECellParameters> makeHECells(const HcalTopology& topology);
+  std::vector<HECellParameters> makeHECells_H2();
+  std::vector<HFCellParameters> makeHFCells();
 
-  void fillHBHO (HcalGeometry* fGeometry, const std::vector <HBHOCellParameters>& fCells, bool fHB);
-  void fillHE (HcalGeometry* fGeometry, const std::vector <HECellParameters>& fCells);
-  void fillHF (HcalGeometry* fGeometry, const std::vector <HFCellParameters>& fCells);
+  void fillHBHO(HcalGeometry* fGeometry, const std::vector<HBHOCellParameters>& fCells, bool fHB);
+  void fillHE(HcalGeometry* fGeometry, const std::vector<HECellParameters>& fCells);
+  void fillHF(HcalGeometry* fGeometry, const std::vector<HFCellParameters>& fCells);
 
-  int    MAX_HCAL_PHI;
+  int MAX_HCAL_PHI;
   double DEGREE2RAD;
 
   std::vector<std::vector<int> > m_segmentation;
-
 };
 
 #endif

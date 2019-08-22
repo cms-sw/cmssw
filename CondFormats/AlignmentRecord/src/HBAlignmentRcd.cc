@@ -2,7 +2,7 @@
 //
 // Package:     HBGeometry
 // Class  :     HBAlignmentRecord
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //

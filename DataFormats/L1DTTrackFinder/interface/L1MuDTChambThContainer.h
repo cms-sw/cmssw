@@ -26,17 +26,14 @@
 // C++ Headers --
 //---------------
 
-
 //              ---------------------
 //              -- Class Interface --
 //              ---------------------
 
 class L1MuDTChambThContainer {
-
- public:
-
-  typedef std::vector<L1MuDTChambThDigi>  The_Container;
-  typedef The_Container::const_iterator   The_iterator;
+public:
+  typedef std::vector<L1MuDTChambThDigi> The_Container;
+  typedef The_Container::const_iterator The_iterator;
 
   //  Constructors
   L1MuDTChambThContainer() = default;
@@ -55,10 +52,8 @@ class L1MuDTChambThContainer {
 
   L1MuDTChambThDigi const* chThetaSegm(int wheel, int stat, int sect, int bx) const;
 
- private:
-
-  The_Container theSegments; 
-
+private:
+  The_Container theSegments;
 };
 
 #endif

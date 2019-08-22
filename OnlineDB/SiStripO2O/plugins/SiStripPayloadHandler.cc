@@ -28,9 +28,9 @@
 template <typename SiStripPayload>
 class SiStripPayloadHandler : public edm::EDAnalyzer {
 public:
-  explicit SiStripPayloadHandler(const edm::ParameterSet& iConfig );
+  explicit SiStripPayloadHandler(const edm::ParameterSet& iConfig);
   ~SiStripPayloadHandler() override;
-  void analyze( const edm::Event& evt, const edm::EventSetup& evtSetup) override;
+  void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   void endJob() override;
 
 private:
@@ -54,39 +54,35 @@ private:
   edm::Service<SiStripCondObjBuilderFromDb> condObjBuilder;
 };
 
-
-template<typename SiStripPayload>
-SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::ParameterSet& iConfig):
-  m_connectionPool(),
-  m_cfgMapSchemaName( iConfig.getUntrackedParameter< std::string >("cfgMapSchemaName", "CMS_COND_O2O") ),
-  m_cfgMapTableName( iConfig.getUntrackedParameter< std::string >("cfgMapTableName", "STRIP_CONFIG_TO_PAYLOAD_MAP") ),
-  m_condDb( iConfig.getParameter< std::string >("conditionDatabase") ),
-  m_localCondDbFile( iConfig.getParameter< std::string >("condDbFile") ),
-  m_targetTag( iConfig.getParameter< std::string >("targetTag") ),
-  m_since( iConfig.getParameter< uint32_t >("since") ),
-  p_type( cond::demangledName(typeid(SiStripPayload)) ),
-  p_cfgstr( condObjBuilder->getConfigString(typeid(SiStripPayload)) )
-{
+template <typename SiStripPayload>
+SiStripPayloadHandler<SiStripPayload>::SiStripPayloadHandler(const edm::ParameterSet& iConfig)
+    : m_connectionPool(),
+      m_cfgMapSchemaName(iConfig.getUntrackedParameter<std::string>("cfgMapSchemaName", "CMS_COND_O2O")),
+      m_cfgMapTableName(iConfig.getUntrackedParameter<std::string>("cfgMapTableName", "STRIP_CONFIG_TO_PAYLOAD_MAP")),
+      m_condDb(iConfig.getParameter<std::string>("conditionDatabase")),
+      m_localCondDbFile(iConfig.getParameter<std::string>("condDbFile")),
+      m_targetTag(iConfig.getParameter<std::string>("targetTag")),
+      m_since(iConfig.getParameter<uint32_t>("since")),
+      p_type(cond::demangledName(typeid(SiStripPayload))),
+      p_cfgstr(condObjBuilder->getConfigString(typeid(SiStripPayload))) {
   if (iConfig.exists("configMapDatabase"))
-    m_configMapDb = iConfig.getParameter< std::string >("configMapDatabase");
+    m_configMapDb = iConfig.getParameter<std::string>("configMapDatabase");
   if (iConfig.exists("cfgMapDbFile"))
-    m_cfgMapDbFile = iConfig.getParameter< std::string >("cfgMapDbFile");
-  m_connectionPool.setParameters( iConfig.getParameter<edm::ParameterSet>("DBParameters")  );
+    m_cfgMapDbFile = iConfig.getParameter<std::string>("cfgMapDbFile");
+  m_connectionPool.setParameters(iConfig.getParameter<edm::ParameterSet>("DBParameters"));
   m_connectionPool.configure();
 }
 
-template<typename SiStripPayload>
-SiStripPayloadHandler<SiStripPayload>::~SiStripPayloadHandler() {
-}
+template <typename SiStripPayload>
+SiStripPayloadHandler<SiStripPayload>::~SiStripPayloadHandler() {}
 
-template<typename SiStripPayload>
-void SiStripPayloadHandler<SiStripPayload>::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup ) {
-
+template <typename SiStripPayload>
+void SiStripPayloadHandler<SiStripPayload>::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   // some extra work: Getting the payload hash of the last IOV from condDb
   // Will be compared with the new payload and reported
-  cond::persistency::Session condDbSession = m_connectionPool.createSession( m_condDb );
-  condDbSession.transaction().start( true );
-  cond::persistency::IOVProxy iovProxy = condDbSession.readIov( m_targetTag );
+  cond::persistency::Session condDbSession = m_connectionPool.createSession(m_condDb);
+  condDbSession.transaction().start(true);
+  cond::persistency::IOVProxy iovProxy = condDbSession.readIov(m_targetTag);
   cond::Hash last_hash = iovProxy.getLast().payloadId;
 
   // that's the final goal: obtain the payload to store into the sqlite file for the upload into the DB
@@ -97,136 +93,136 @@ void SiStripPayloadHandler<SiStripPayload>::analyze( const edm::Event& evt, cons
   std::string mappedPayloadHash = queryConfigMap(configHash);
   bool mapUpToDate = false;
 
-  if ( !mappedPayloadHash.empty() ){
+  if (!mappedPayloadHash.empty()) {
     // the payload has been found ( fast O2O case )
     // copy the payload from condtition database
     mapUpToDate = true;
     edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-        << "Try retrieving payload from " << m_condDb;
-    payloadToUpload = condDbSession.fetchPayload<SiStripPayload>( mappedPayloadHash );
+                                          << "Try retrieving payload from " << m_condDb;
+    payloadToUpload = condDbSession.fetchPayload<SiStripPayload>(mappedPayloadHash);
     std::cout << "@@@[FastO2O:true]@@@" << std::endl;
     edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-        << " ... Payload is copied from offline condition database.";
-  }else {
+                                          << " ... Payload is copied from offline condition database.";
+  } else {
     // start the long O2O...
     edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-        << "NO mapping payload hash found. Will run the long O2O. ";
-    SiStripPayload *obj = nullptr;
-    if (typeid(SiStripPayload) == typeid(SiStripApvGain)){
+                                          << "NO mapping payload hash found. Will run the long O2O. ";
+    SiStripPayload* obj = nullptr;
+    if (typeid(SiStripPayload) == typeid(SiStripApvGain)) {
       // special treatment for ApvGain : provide last payload in DB
-      condObjBuilder->setLastIovGain(condDbSession.fetchPayload<SiStripApvGain>( last_hash ));
+      condObjBuilder->setLastIovGain(condDbSession.fetchPayload<SiStripApvGain>(last_hash));
     }
     condObjBuilder->getValue(obj);
     payloadToUpload = std::shared_ptr<SiStripPayload>(obj);
     std::cout << "@@@[FastO2O:false]@@@" << std::endl;
     edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-        << " ... New payload has been created.";
+                                          << " ... New payload has been created.";
   }
   condDbSession.transaction().commit();
 
   // write payload and iov in the local file
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      << "Write payload to local sqlite file: " << m_localCondDbFile;
-  cond::persistency::Session localFileSession = m_connectionPool.createSession( m_localCondDbFile, true );
-  localFileSession.transaction().start( false );
+                                        << "Write payload to local sqlite file: " << m_localCondDbFile;
+  cond::persistency::Session localFileSession = m_connectionPool.createSession(m_localCondDbFile, true);
+  localFileSession.transaction().start(false);
   // write the payload
-  cond::Hash thePayloadHash = localFileSession.storePayload<SiStripPayload>( *payloadToUpload );
-  cond::persistency::IOVEditor iovEditor = localFileSession.createIov<SiStripPayload>( m_targetTag, cond::runnumber );
-  iovEditor.setDescription( "New IOV" );
+  cond::Hash thePayloadHash = localFileSession.storePayload<SiStripPayload>(*payloadToUpload);
+  cond::persistency::IOVEditor iovEditor = localFileSession.createIov<SiStripPayload>(m_targetTag, cond::runnumber);
+  iovEditor.setDescription("New IOV");
   // inserting the iov
-  iovEditor.insert( m_since, thePayloadHash );
+  iovEditor.insert(m_since, thePayloadHash);
   iovEditor.flush();
   localFileSession.transaction().commit();
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      << "Payload " << thePayloadHash << " inserted to sqlite with IOV " << m_since;
+                                        << "Payload " << thePayloadHash << " inserted to sqlite with IOV " << m_since;
 
   // last step, update the configMap if required
-  if( !mapUpToDate ){
+  if (!mapUpToDate) {
     updateConfigMap(configHash, thePayloadHash);
   }
 
   // finish the extra work: Compare the new payload with last IOV
-  if (last_hash == thePayloadHash){
+  if (last_hash == thePayloadHash) {
     std::cout << "@@@[PayloadChange:false]@@@" << last_hash << std::endl;
-  }else {
-    std::cout << "@@@[PayloadChange:true]@@@"  << last_hash << " -> " << thePayloadHash << std::endl;
+  } else {
+    std::cout << "@@@[PayloadChange:true]@@@" << last_hash << " -> " << thePayloadHash << std::endl;
   }
-
 }
 
-template<typename SiStripPayload>
-void SiStripPayloadHandler<SiStripPayload>::endJob() {
-}
+template <typename SiStripPayload>
+void SiStripPayloadHandler<SiStripPayload>::endJob() {}
 
-template<typename SiStripPayload>
+template <typename SiStripPayload>
 std::string SiStripPayloadHandler<SiStripPayload>::makeConfigHash() {
-
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      << "Convert config string to SHA-1 hash for " << p_type
-      << "\n... config: " << p_cfgstr;
+                                        << "Convert config string to SHA-1 hash for " << p_type
+                                        << "\n... config: " << p_cfgstr;
 
   // calcuate SHA-1 hash using openssl
   // adapted from cond::persistency::makeHash() in CondCore/CondDB/src/IOVSchema.cc
   SHA_CTX ctx;
-  if( !SHA1_Init( &ctx ) ){
+  if (!SHA1_Init(&ctx)) {
     throw cms::Exception("SHA1 initialization error.");
   }
-  if( !SHA1_Update( &ctx, p_type.c_str(), p_type.size() ) ){
+  if (!SHA1_Update(&ctx, p_type.c_str(), p_type.size())) {
     throw cms::Exception("SHA1 processing error (1).");
   }
-  if( !SHA1_Update( &ctx, p_cfgstr.c_str(), p_cfgstr.size() ) ){
+  if (!SHA1_Update(&ctx, p_cfgstr.c_str(), p_cfgstr.size())) {
     throw cms::Exception("SHA1 processing error (2).");
   }
   unsigned char hash[SHA_DIGEST_LENGTH];
-  if( !SHA1_Final(hash, &ctx) ){
+  if (!SHA1_Final(hash, &ctx)) {
     throw cms::Exception("SHA1 finalization error.");
   }
 
-  char tmp[SHA_DIGEST_LENGTH*2+1];
+  char tmp[SHA_DIGEST_LENGTH * 2 + 1];
   // re-write bytes in hex
   for (unsigned int i = 0; i < SHA_DIGEST_LENGTH; i++) {
     ::sprintf(&tmp[i * 2], "%02x", hash[i]);
   }
-  tmp[SHA_DIGEST_LENGTH*2] = 0;
+  tmp[SHA_DIGEST_LENGTH * 2] = 0;
 
-  edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      "... hash: " << tmp;
+  edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__
+                                        << "] "
+                                           "... hash: "
+                                        << tmp;
   return tmp;
-
 }
 
-template<typename SiStripPayload>
+template <typename SiStripPayload>
 std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string configHash) {
-  if (m_configMapDb.empty()) return ""; // return empty string if m_configMapDb is not specified
+  if (m_configMapDb.empty())
+    return "";  // return empty string if m_configMapDb is not specified
 
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      << "Query " << m_configMapDb << " to see if the payload is already in DB.";
+                                        << "Query " << m_configMapDb << " to see if the payload is already in DB.";
 
-  auto cmDbSession = m_connectionPool.createCoralSession( m_configMapDb );
+  auto cmDbSession = m_connectionPool.createCoralSession(m_configMapDb);
   // query the STRIP_CONFIG_TO_PAYLOAD_MAP table
-  cmDbSession->transaction().start( true );
-  coral::ITable& cmTable = cmDbSession->schema( m_cfgMapSchemaName ).tableHandle( m_cfgMapTableName );
-  std::unique_ptr<coral::IQuery> query( cmTable.newQuery() );
-  query->addToOutputList( "PAYLOAD_HASH" );
-  query->defineOutputType( "PAYLOAD_HASH", coral::AttributeSpecification::typeNameForType<std::string>() );
+  cmDbSession->transaction().start(true);
+  coral::ITable& cmTable = cmDbSession->schema(m_cfgMapSchemaName).tableHandle(m_cfgMapTableName);
+  std::unique_ptr<coral::IQuery> query(cmTable.newQuery());
+  query->addToOutputList("PAYLOAD_HASH");
+  query->defineOutputType("PAYLOAD_HASH", coral::AttributeSpecification::typeNameForType<std::string>());
   // also print these for debugging
-  query->addToOutputList( "PAYLOAD_TYPE" );
-  query->addToOutputList( "CONFIG_STRING" );
-  query->addToOutputList( "INSERTION_TIME" );
-  std::string whereClause( "CONFIG_HASH = :CONFIG_HASH" );
+  query->addToOutputList("PAYLOAD_TYPE");
+  query->addToOutputList("CONFIG_STRING");
+  query->addToOutputList("INSERTION_TIME");
+  std::string whereClause("CONFIG_HASH = :CONFIG_HASH");
   coral::AttributeList whereData;
-  whereData.extend<std::string>( "CONFIG_HASH" );
-  whereData.begin()->data< std::string >() =  configHash;
-  query->setCondition( whereClause, whereData );
+  whereData.extend<std::string>("CONFIG_HASH");
+  whereData.begin()->data<std::string>() = configHash;
+  query->setCondition(whereClause, whereData);
   coral::ICursor& cursor = query->execute();
   std::string p_hash;
-  if( cursor.next() ){
+  if (cursor.next()) {
     // the payload has been found ( fast O2O case )
     p_hash = cursor.currentRow()["PAYLOAD_HASH"].data<std::string>();
-    edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
+    edm::LogInfo("SiStripPayloadHandler")
+        << "[SiStripPayloadHandler::" << __func__ << "] "
         << "Found associated payload hash " << p_hash
         << "\n...  type=" << cursor.currentRow()["PAYLOAD_TYPE"].data<std::string>()
-        << "\n...  config="  << cursor.currentRow()["CONFIG_STRING"].data<std::string>()
+        << "\n...  config=" << cursor.currentRow()["CONFIG_STRING"].data<std::string>()
         << "\n...  insertion_time=" << cursor.currentRow()["INSERTION_TIME"].data<coral::TimeStamp>().toString();
   }
   cmDbSession->transaction().commit();
@@ -234,18 +230,19 @@ std::string SiStripPayloadHandler<SiStripPayload>::queryConfigMap(std::string co
   return p_hash;
 }
 
-template<typename SiStripPayload>
+template <typename SiStripPayload>
 void SiStripPayloadHandler<SiStripPayload>::updateConfigMap(std::string configHash, std::string payloadHash) {
-  if (m_cfgMapDbFile.empty()) return; // skip this if m_cfgMapDbFile is not set
+  if (m_cfgMapDbFile.empty())
+    return;  // skip this if m_cfgMapDbFile is not set
 
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      << "Updating the config to payload hash map to " << m_cfgMapDbFile;
+                                        << "Updating the config to payload hash map to " << m_cfgMapDbFile;
 
   // create a writable transaction
-  auto cmSQLiteSession = m_connectionPool.createCoralSession( m_cfgMapDbFile, true );
-  cmSQLiteSession->transaction().start( false );
+  auto cmSQLiteSession = m_connectionPool.createCoralSession(m_cfgMapDbFile, true);
+  cmSQLiteSession->transaction().start(false);
 
-  if (!cmSQLiteSession->nominalSchema().existsTable( m_cfgMapTableName )){
+  if (!cmSQLiteSession->nominalSchema().existsTable(m_cfgMapTableName)) {
     // create the table if it does not exist
     coral::TableDescription mapTable;
     mapTable.setName(m_cfgMapTableName);
@@ -263,23 +260,24 @@ void SiStripPayloadHandler<SiStripPayload>::updateConfigMap(std::string configHa
     cmSQLiteSession->nominalSchema().createTable(mapTable);
   }
 
-  coral::ITable& cmTable = cmSQLiteSession->nominalSchema().tableHandle( m_cfgMapTableName );
+  coral::ITable& cmTable = cmSQLiteSession->nominalSchema().tableHandle(m_cfgMapTableName);
   coral::AttributeList insertData;
-  insertData.extend<std::string>( "CONFIG_HASH" );
-  insertData.extend<std::string>( "PAYLOAD_HASH" );
+  insertData.extend<std::string>("CONFIG_HASH");
+  insertData.extend<std::string>("PAYLOAD_HASH");
   // also insert these for bookkeeping
-  insertData.extend<std::string>( "PAYLOAD_TYPE" );
-  insertData.extend<std::string>( "CONFIG_STRING" );
-  insertData.extend<coral::TimeStamp>( "INSERTION_TIME" );
+  insertData.extend<std::string>("PAYLOAD_TYPE");
+  insertData.extend<std::string>("CONFIG_STRING");
+  insertData.extend<coral::TimeStamp>("INSERTION_TIME");
   insertData["CONFIG_HASH"].data<std::string>() = configHash;
   insertData["PAYLOAD_HASH"].data<std::string>() = payloadHash;
   insertData["PAYLOAD_TYPE"].data<std::string>() = p_type;
   insertData["CONFIG_STRING"].data<std::string>() = p_cfgstr;
-  insertData["INSERTION_TIME"].data<coral::TimeStamp>() = coral::TimeStamp::now(); // UTC time
-  cmTable.dataEditor().insertRow( insertData );
+  insertData["INSERTION_TIME"].data<coral::TimeStamp>() = coral::TimeStamp::now();  // UTC time
+  cmTable.dataEditor().insertRow(insertData);
   cmSQLiteSession->transaction().commit();
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__ << "] "
-      << "Updated with mapping (configHash : payloadHash)" << configHash << " : " << payloadHash;
+                                        << "Updated with mapping (configHash : payloadHash)" << configHash << " : "
+                                        << payloadHash;
 }
 
 // -------------------------------------------------------

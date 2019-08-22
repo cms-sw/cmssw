@@ -4,7 +4,6 @@ process = cms.Process("APVGAIN")
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 #this block is there to solve issue related to SiStripQualityRcd
 process.load("CalibTracker.SiStripESProducers.SiStripQualityESProducer_cfi")

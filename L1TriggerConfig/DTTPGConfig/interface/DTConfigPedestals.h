@@ -33,48 +33,41 @@
 //              -- Class Interface --
 //              ---------------------
 
-
 class DTConfigPedestals : DTConfig {
-
-  public:
- 
+public:
   //! Default Constructor
   DTConfigPedestals();
 
-  //! Destructor 
+  //! Destructor
   ~DTConfigPedestals() override;
 
   //! Get wire by wire delay
-  float getOffset(const DTWireId& wire) const;
+  float getOffset(const DTWireId &wire) const;
 
   //! Set parameters from ES
-  void setES(DTTPGParameters const *tpgParams,
-	     DTT0 const *t0Params = nullptr);
+  void setES(DTTPGParameters const *tpgParams, DTT0 const *t0Params = nullptr);
 
   //! Set t0i subtraction
-  void setUseT0 (bool useT0) { my_useT0 = useT0; }
- 
+  void setUseT0(bool useT0) { my_useT0 = useT0; }
+
   //! Set debug flag
-  void setDebug (bool debug) { my_debug = debug; }
+  void setDebug(bool debug) { my_debug = debug; }
 
   //! Print the setup
-  void print() const ;
+  void print() const;
 
- private :
-
+private:
   //! Debug flag
   inline int debug() const { return my_debug; }
 
   //! Use t0i
   inline bool useT0() const { return my_useT0; }
 
- private :
-
+private:
   bool my_debug;
   bool my_useT0;
-  DTTPGParameters const * my_tpgParams;  
-  DTT0 const *my_t0i;              // pointed object not owned by this class
-
+  DTTPGParameters const *my_tpgParams;
+  DTT0 const *my_t0i;  // pointed object not owned by this class
 };
 
 #endif

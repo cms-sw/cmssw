@@ -29,19 +29,14 @@
 //
 // constructors and destructor
 //
-FWConfigurableParameterizable::FWConfigurableParameterizable(unsigned int iVersion) :
-   m_version(iVersion)
-{
-}
+FWConfigurableParameterizable::FWConfigurableParameterizable(unsigned int iVersion) : m_version(iVersion) {}
 
 // FWConfigurableParameterizable::FWConfigurableParameterizable(const FWConfigurableParameterizable& rhs)
 // {
 //    // do actual copying here;
 // }
 
-FWConfigurableParameterizable::~FWConfigurableParameterizable()
-{
-}
+FWConfigurableParameterizable::~FWConfigurableParameterizable() {}
 
 //
 // assignment operators
@@ -58,29 +53,21 @@ FWConfigurableParameterizable::~FWConfigurableParameterizable()
 //
 // member functions
 //
-void
-FWConfigurableParameterizable::setFrom(const FWConfiguration& iFrom)
-{
-   //need a way to handle versioning
-   assert(iFrom.version() == m_version);
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->setFrom(iFrom);
-   }
+void FWConfigurableParameterizable::setFrom(const FWConfiguration& iFrom) {
+  //need a way to handle versioning
+  assert(iFrom.version() == m_version);
+  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
+    (*it)->setFrom(iFrom);
+  }
 }
 
 //
 // const member functions
 //
-void
-FWConfigurableParameterizable::addTo(FWConfiguration& oTo) const
-{
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->addTo(oTo);
-   }
+void FWConfigurableParameterizable::addTo(FWConfiguration& oTo) const {
+  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
+    (*it)->addTo(oTo);
+  }
 }
 
 //

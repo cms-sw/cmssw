@@ -2,6 +2,7 @@
 <use   name="Alignment/CommonAlignment"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/SiStripDetId"/>
+<use   name="Geometry/DTGeometry"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>

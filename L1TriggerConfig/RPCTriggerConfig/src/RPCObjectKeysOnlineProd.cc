@@ -2,7 +2,7 @@
 //
 // Package:    L1TriggerConfig
 // Class:      RPCObjectKeysOnlineProd
-// 
+//
 /**\class RPCObjectKeysOnlineProd RPCObjectKeysOnlineProd.h L1TriggerConfig/RPCConfigProducers/src/RPCObjectKeysOnlineProd.cc
 
  Description: <one line class summary>
@@ -16,7 +16,6 @@
 //
 //
 
-
 // system include files
 
 // user include files
@@ -29,17 +28,18 @@
 //
 
 class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
-   public:
-      RPCObjectKeysOnlineProd(const edm::ParameterSet&);
-      ~RPCObjectKeysOnlineProd() override;
+public:
+  RPCObjectKeysOnlineProd(const edm::ParameterSet&);
+  ~RPCObjectKeysOnlineProd() override;
 
-      void fillObjectKeys( FillType pL1TriggerKey ) override ;
-   private:
-      // ----------member data ---------------------------
-  bool m_enableL1RPCConfig ;
-  bool m_enableL1RPCConeDefinition ;
-  bool m_enableL1RPCHsbConfig ;
-  bool m_enableL1RPCBxOrConfig ;
+  void fillObjectKeys(FillType pL1TriggerKey) override;
+
+private:
+  // ----------member data ---------------------------
+  bool m_enableL1RPCConfig;
+  bool m_enableL1RPCConeDefinition;
+  bool m_enableL1RPCHsbConfig;
+  bool m_enableL1RPCBxOrConfig;
 };
 
 //
@@ -54,61 +54,39 @@ class RPCObjectKeysOnlineProd : public L1ObjectKeysOnlineProdBase {
 // constructors and destructor
 //
 RPCObjectKeysOnlineProd::RPCObjectKeysOnlineProd(const edm::ParameterSet& iConfig)
-  : L1ObjectKeysOnlineProdBase( iConfig ),
-    m_enableL1RPCConfig( iConfig.getParameter< bool >( "enableL1RPCConfig" ) ),
-    m_enableL1RPCConeDefinition( iConfig.getParameter< bool >( "enableL1RPCConeDefinition" ) ),
-    m_enableL1RPCHsbConfig( iConfig.getParameter< bool >( "enableL1RPCHsbConfig" ) ),
-    m_enableL1RPCBxOrConfig( iConfig.getParameter< bool >( "enableL1RPCBxOrConfig" ) )
-{}
+    : L1ObjectKeysOnlineProdBase(iConfig),
+      m_enableL1RPCConfig(iConfig.getParameter<bool>("enableL1RPCConfig")),
+      m_enableL1RPCConeDefinition(iConfig.getParameter<bool>("enableL1RPCConeDefinition")),
+      m_enableL1RPCHsbConfig(iConfig.getParameter<bool>("enableL1RPCHsbConfig")),
+      m_enableL1RPCBxOrConfig(iConfig.getParameter<bool>("enableL1RPCBxOrConfig")) {}
 
-
-RPCObjectKeysOnlineProd::~RPCObjectKeysOnlineProd()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+RPCObjectKeysOnlineProd::~RPCObjectKeysOnlineProd() {
+  // do anything here that needs to be done at desctruction time
+  // (e.g. close files, deallocate resources etc.)
 }
-
 
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void
-RPCObjectKeysOnlineProd::fillObjectKeys( FillType pL1TriggerKey )
-{
-  std::string rpcKey = pL1TriggerKey->subsystemKey( L1TriggerKey::kRPC ) ;
+void RPCObjectKeysOnlineProd::fillObjectKeys(FillType pL1TriggerKey) {
+  std::string rpcKey = pL1TriggerKey->subsystemKey(L1TriggerKey::kRPC);
 
-  if( !rpcKey.empty() )
-    {
-      if( m_enableL1RPCConfig )
-	{
-	  pL1TriggerKey->add( "L1RPCConfigRcd",
-			      "L1RPCConfig",
-			      rpcKey ) ;
-	}
-      if( m_enableL1RPCConeDefinition )
-	{
-	  pL1TriggerKey->add( "L1RPCConeDefinitionRcd",
-			      "L1RPCConeDefinition",
-			      rpcKey ) ;
-	}
-      if( m_enableL1RPCHsbConfig )
-        {
-          pL1TriggerKey->add( "L1RPCHsbConfigRcd",
-                              "L1RPCHsbConfig",
-                              rpcKey ) ;
-        }
-      if( m_enableL1RPCBxOrConfig )
-        {
-          pL1TriggerKey->add( "L1RPCBxOrConfigRcd",
-                              "L1RPCBxOrConfig",
-                              rpcKey ) ;
-        }
-
+  if (!rpcKey.empty()) {
+    if (m_enableL1RPCConfig) {
+      pL1TriggerKey->add("L1RPCConfigRcd", "L1RPCConfig", rpcKey);
     }
+    if (m_enableL1RPCConeDefinition) {
+      pL1TriggerKey->add("L1RPCConeDefinitionRcd", "L1RPCConeDefinition", rpcKey);
+    }
+    if (m_enableL1RPCHsbConfig) {
+      pL1TriggerKey->add("L1RPCHsbConfigRcd", "L1RPCHsbConfig", rpcKey);
+    }
+    if (m_enableL1RPCBxOrConfig) {
+      pL1TriggerKey->add("L1RPCBxOrConfigRcd", "L1RPCBxOrConfig", rpcKey);
+    }
+  }
 }
 
 //define this as a plug-in

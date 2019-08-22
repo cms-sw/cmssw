@@ -31,7 +31,7 @@ Test of the EventPrincipal class.
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include "cppunit/extensions/HelperMacros.h"

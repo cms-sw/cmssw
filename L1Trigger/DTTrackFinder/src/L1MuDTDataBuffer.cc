@@ -2,12 +2,12 @@
 //
 //   Class: L1MuDTDataBuffer
 //
-//   Description: Data Buffer 
+//   Description: Data Buffer
 //
 //
 //
 //   Author :
-//   N. Neumeister            CERN EP 
+//   N. Neumeister            CERN EP
 //
 //--------------------------------------------------
 
@@ -43,25 +43,15 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-L1MuDTDataBuffer::L1MuDTDataBuffer(const L1MuDTSectorProcessor& sp) : 
-        m_sp(sp), m_tsphi(nullptr) {
-
-
+L1MuDTDataBuffer::L1MuDTDataBuffer(const L1MuDTSectorProcessor& sp) : m_sp(sp), m_tsphi(nullptr) {
   m_tsphi = new TSPhivector(38);
   m_tsphi->reserve(38);
-
 }
-
 
 //--------------
 // Destructor --
 //--------------
-L1MuDTDataBuffer::~L1MuDTDataBuffer() { 
-
-  delete m_tsphi;
-  
-}
-
+L1MuDTDataBuffer::~L1MuDTDataBuffer() { delete m_tsphi; }
 
 //--------------
 // Operations --
@@ -71,66 +61,54 @@ L1MuDTDataBuffer::~L1MuDTDataBuffer() {
 // clear buffer
 //
 void L1MuDTDataBuffer::reset() {
-
   TSPhivector::iterator iter = m_tsphi->begin();
-  while ( iter != m_tsphi->end() ) {
-    if ( *iter) {
-      delete *iter; 
+  while (iter != m_tsphi->end()) {
+    if (*iter) {
+      delete *iter;
       *iter = nullptr;
     }
     iter++;
   }
-
 }
 
-
 //
-// get phi track segment of a given station 
+// get phi track segment of a given station
 //
 const L1MuDTTrackSegPhi* L1MuDTDataBuffer::getTSphi(int station, int reladr) const {
-
-  int address = (station == 1) ? reladr : reladr + (station-2)*12 + 2;
+  int address = (station == 1) ? reladr : reladr + (station - 2) * 12 + 2;
   return (*m_tsphi)[address];
-  
 }
-
 
 //
 // add new phi track segment to the buffer
 //
 void L1MuDTDataBuffer::addTSphi(int adr, const L1MuDTTrackSegPhi& ts) {
-
   L1MuDTTrackSegPhi* tmpts = new L1MuDTTrackSegPhi(ts);
   (*m_tsphi)[adr] = tmpts;
-  
 }
 
-
 //
-// print all phi track segments in the buffer 
+// print all phi track segments in the buffer
 //
 void L1MuDTDataBuffer::printTSphi() const {
-
   TSPhivector::const_iterator iter = m_tsphi->begin();
-  while ( iter != m_tsphi->end() ) {
-    if ( *iter ) cout << *(*iter) << endl;
+  while (iter != m_tsphi->end()) {
+    if (*iter)
+      cout << *(*iter) << endl;
     iter++;
   }
-  
 }
-
 
 //
 // count number of non empty phi track segments
 //
 int L1MuDTDataBuffer::numberTSphi() const {
-
   int count = 0;
   TSPhivector::iterator iter = m_tsphi->begin();
-  while ( iter != m_tsphi->end() ) {
-    if ( *iter && !(*iter)->empty() ) count++;
+  while (iter != m_tsphi->end()) {
+    if (*iter && !(*iter)->empty())
+      count++;
     iter++;
   }
   return count;
-
 }

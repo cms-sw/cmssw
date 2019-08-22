@@ -2,7 +2,7 @@
 //
 // Package:    RandomEngine
 // Class:      RandomEngineStateProducer
-// 
+//
 /** \class RandomEngineStateProducer
 
  Description: Gets the state of the random number engines from
@@ -26,12 +26,12 @@ namespace edm {
 }
 
 class RandomEngineStateProducer : public edm::global::EDProducer<edm::BeginLuminosityBlockProducer> {
-  public:
-    explicit RandomEngineStateProducer(edm::ParameterSet const& pset);
-    ~RandomEngineStateProducer() override;
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+public:
+  explicit RandomEngineStateProducer(edm::ParameterSet const& pset);
+  ~RandomEngineStateProducer() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-  private:
-    void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override;
-    void produce(edm::StreamID iID, edm::Event& ev, edm::EventSetup const& es) const override;
+private:
+  void globalBeginLuminosityBlockProduce(edm::LuminosityBlock&, edm::EventSetup const&) const override;
+  void produce(edm::StreamID iID, edm::Event& ev, edm::EventSetup const& es) const override;
 };

@@ -22,6 +22,6 @@ namespace reco {
 
   /// iterator over a vector of reference to Electron objects
   typedef ElectronRefVector::iterator electron_iterator;
-}
+}  // namespace reco
 
 #endif

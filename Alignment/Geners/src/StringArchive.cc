@@ -11,7 +11,7 @@ namespace gs {
     catalog_.search(reference.namePattern(), reference.categoryPattern(), &idlist);
     const unsigned long nfound = idlist.size();
     for (unsigned long i = 0; i < nfound; ++i) {
-      CPP11_shared_ptr<const CatalogEntry> pentry = catalog_.retrieveEntry(idlist[i]);
+      std::shared_ptr<const CatalogEntry> pentry = catalog_.retrieveEntry(idlist[i]);
       if (reference.isIOCompatible(*pentry))
         addItemToReference(reference, idlist[i]);
     }

@@ -12,7 +12,7 @@
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
 class GEMSimHitMatcher : public MuonSimHitMatcher {
- public:
+public:
   // constructor
   GEMSimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
@@ -29,8 +29,7 @@ class GEMSimHitMatcher : public MuonSimHitMatcher {
   std::set<unsigned int> detIds(int gem_type = MuonHitHelper::GEM_ALL) const;
 
   // chamber detIds with SimHits
-  std::set<unsigned int> chamberIds(
-      int gem_type = MuonHitHelper::GEM_ALL) const;
+  std::set<unsigned int> chamberIds(int gem_type = MuonHitHelper::GEM_ALL) const;
 
   // GEM detid's with hits in 2 layers of coincidence pads
   // those are layer==1 only detid's
@@ -73,7 +72,7 @@ class GEMSimHitMatcher : public MuonSimHitMatcher {
   // what unique partitions numbers were hit by this simtrack?
   std::set<int> hitPartitions() const;
 
- private:
+private:
   void matchSimHitsToSimTrack();
 
   edm::ESHandle<GEMGeometry> gem_geom_;

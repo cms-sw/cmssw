@@ -16,7 +16,7 @@
 
 // DQM include files
 
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 // work on collections
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -25,7 +25,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 
 #include "DQMOffline/CalibCalo/interface/DQMSourceEleCalib.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 
 using namespace std;
 using namespace edm;

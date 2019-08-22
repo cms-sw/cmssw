@@ -50,56 +50,52 @@ class L1MuDTTFParameters;
 //              ---------------------
 
 class L1MuDTExtrapolationUnit : public L1AbstractProcessor {
+public:
+  typedef std::pair<Extrapolation, unsigned int> SEUId;
+  typedef std::map<SEUId, L1MuDTSEU*, std::less<SEUId> > SEUmap;
 
-  public:
+  /// constructor
+  L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor&);
 
-    typedef std::pair<Extrapolation, unsigned int> SEUId;
-    typedef std::map<SEUId, L1MuDTSEU*, std::less<SEUId> > SEUmap;
+  /// destructor
+  ~L1MuDTExtrapolationUnit() override;
 
-    /// constructor
-    L1MuDTExtrapolationUnit(const L1MuDTSectorProcessor& );
+  /// run Extrapolation Unit
+  void run(const edm::EventSetup& c) override;
 
-    /// destructor
-    ~L1MuDTExtrapolationUnit() override;
+  /// reset Extrapolation Unit
+  void reset() override;
 
-    /// run Extrapolation Unit
-    void run(const edm::EventSetup& c) override;
-    
-    /// reset Extrapolation Unit
-    void reset() override;
+  /// reset a single extrapolation
+  void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr);
 
-     /// reset a single extrapolation
-    void reset(Extrapolation ext, unsigned int startAdr, unsigned int relAdr );
- 
-    /// get extrapolation address from a given ERS
-    unsigned short int getAddress(Extrapolation ext, unsigned int startAdr, int id) const;
-    
-    /// get extrapolation quality from a given ERS
-    unsigned short int getQuality(Extrapolation ext, unsigned int startAdr, int id) const;
+  /// get extrapolation address from a given ERS
+  unsigned short int getAddress(Extrapolation ext, unsigned int startAdr, int id) const;
 
-    /// get Extrapolator table for a given SEU
-    const std::bitset<12>& getEXTable(Extrapolation ext, unsigned int startAdr) const;
+  /// get extrapolation quality from a given ERS
+  unsigned short int getQuality(Extrapolation ext, unsigned int startAdr, int id) const;
 
-    /// get Quality Sorter table for a given SEU
-    const std::bitset<12>& getQSTable(Extrapolation ext, unsigned int startAdr) const;
-        
-    /// return number of successful extrapolations
-    int numberOfExt() const;
-    
-    /// print all successful extrapolations
-    void print(int level=0) const;
-    
-    /// return station of start and target track segment for a given extrapolation
-    static std::pair<int,int> which_ext(Extrapolation ext);
+  /// get Extrapolator table for a given SEU
+  const std::bitset<12>& getEXTable(Extrapolation ext, unsigned int startAdr) const;
 
-  private:
+  /// get Quality Sorter table for a given SEU
+  const std::bitset<12>& getQSTable(Extrapolation ext, unsigned int startAdr) const;
 
-    const L1MuDTSectorProcessor& m_sp;   // reference to Sector Processor
+  /// return number of successful extrapolations
+  int numberOfExt() const;
 
-    mutable SEUmap m_SEUs;               // Single Extrapolation Units
+  /// print all successful extrapolations
+  void print(int level = 0) const;
 
-    edm::ESHandle< L1MuDTTFParameters > pars;
- 
+  /// return station of start and target track segment for a given extrapolation
+  static std::pair<int, int> which_ext(Extrapolation ext);
+
+private:
+  const L1MuDTSectorProcessor& m_sp;  // reference to Sector Processor
+
+  mutable SEUmap m_SEUs;  // Single Extrapolation Units
+
+  edm::ESHandle<L1MuDTTFParameters> pars;
 };
 
 #endif

@@ -19,38 +19,35 @@
 
 #include "DataFormats/TCDS/interface/TCDSRaw.h"
 
-
-class BSTRecord
-{
+class BSTRecord {
 public:
-
   enum BeamMode {
-    NOMODE   =  0,
-    SETUP    =  1,
-    INJPILOR =  3,
-    INJINTR  =  4,
-    INJNOMN  =  5,
-    PRERAMP  =  6,
-    RAMP     =  7,
-    FLATTOP  =  8,
-    SQUEEZE  =  9,
-    ADJUST   = 10,
-    STABLE   = 11,
+    NOMODE = 0,
+    SETUP = 1,
+    INJPILOR = 3,
+    INJINTR = 4,
+    INJNOMN = 5,
+    PRERAMP = 6,
+    RAMP = 7,
+    FLATTOP = 8,
+    SQUEEZE = 9,
+    ADJUST = 10,
+    STABLE = 11,
     UNSTABLE = 12,
     BEAMDUMP = 13,
     RAMPDOWN = 14,
     RECOVERY = 15,
-    INJDUMP  = 16,
+    INJDUMP = 16,
     CIRCDUMP = 17,
-    ABORT    = 18,
-    CYCLING  = 19,
-    WBDUMP   = 20,
-    NOBEAM   = 21,
+    ABORT = 18,
+    CYCLING = 19,
+    WBDUMP = 20,
+    NOBEAM = 21,
   };
 
   enum Particle {
     PROTON = 0,
-    LEAD   = 1,
+    LEAD = 1,
   };
 
   BSTRecord();
@@ -58,7 +55,7 @@ public:
   BSTRecord(const tcds::BST_v1&);
 
   // Microseconds since Epoch
-  uint64_t const getGpsTime() const  { return m_gpstime; }
+  uint64_t const getGpsTime() const { return m_gpstime; }
 
   // BST beam master
   uint8_t const getBstMaster() const { return m_bstMaster; }
@@ -87,9 +84,7 @@ public:
   // Intensity of Beam 2 (10E10 charges)
   uint32_t const getIntensityBeam2() const { return m_intensityBeam2; }
 
-
- private:
-
+private:
   uint64_t m_gpstime;
   uint32_t m_turnCount;
   uint32_t m_lhcFill;
@@ -100,11 +95,9 @@ public:
   uint8_t m_particleBeam1;
   uint8_t m_particleBeam2;
   uint8_t m_bstMaster;
-
 };
-
 
 /// Pretty-print operator for BSTRecord
 std::ostream& operator<<(std::ostream&, const BSTRecord&);
 
-#endif // DATAFORMATS_TCDS_BSTRECORD_H
+#endif  // DATAFORMATS_TCDS_BSTRECORD_H

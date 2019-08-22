@@ -28,60 +28,47 @@
 
 // forward declarations
 
-class FWConfiguration
-{
-
+class FWConfiguration {
 public:
-   FWConfiguration(unsigned int iVersion=1) : m_version(iVersion) {
-   }
-   FWConfiguration(const std::string& iValue) : m_stringValues(new std::vector<std::string>( 1, iValue) ), m_version(0) {
-   }
-   virtual ~FWConfiguration();
+  FWConfiguration(unsigned int iVersion = 1) : m_version(iVersion) {}
+  FWConfiguration(const std::string& iValue) : m_stringValues(new std::vector<std::string>(1, iValue)), m_version(0) {}
+  virtual ~FWConfiguration();
 
-   FWConfiguration(const FWConfiguration&);    // stop default
+  FWConfiguration(const FWConfiguration&);  // stop default
 
+  FWConfiguration& operator=(const FWConfiguration&);  // stop default
+  typedef std::vector<std::pair<std::string, FWConfiguration> > KeyValues;
+  typedef KeyValues::const_iterator KeyValuesIt;
 
-   FWConfiguration& operator=(const FWConfiguration&);    // stop default
-   typedef std::vector<std::pair< std::string, FWConfiguration> > KeyValues;
-   typedef KeyValues::const_iterator KeyValuesIt;
+  typedef std::vector<std::string> StringValues;
+  typedef StringValues::const_iterator StringValuesIt;
 
-   typedef std::vector<std::string> StringValues;
-   typedef StringValues::const_iterator StringValuesIt;
+  // ---------- const member functions ---------------------
+  const std::string& value(unsigned int iIndex = 0) const;
+  const FWConfiguration* valueForKey(const std::string& iKey) const;
+  unsigned int version() const { return m_version; }
 
-   // ---------- const member functions ---------------------
-   const std::string& value(unsigned int iIndex=0) const;
-   const FWConfiguration* valueForKey(const std::string& iKey) const;
-   unsigned int version() const {
-      return m_version;
-   }
+  const KeyValues* keyValues() const { return m_keyValues.get(); }
+  const StringValues* stringValues() const { return m_stringValues.get(); }
 
-   const KeyValues* keyValues() const {
-      return m_keyValues.get();
-   }
-   const StringValues* stringValues() const {
-      return m_stringValues.get();
-   }
+  // ---------- static member functions --------------------
 
-   // ---------- static member functions --------------------
+  // ---------- member functions ---------------------------
+  FWConfiguration& addKeyValue(const std::string&, const FWConfiguration&);
+  FWConfiguration& addKeyValue(const std::string&, FWConfiguration&, bool iDoSwap = false);
+  FWConfiguration& addValue(const std::string&);
+  void swap(FWConfiguration&);
 
-   // ---------- member functions ---------------------------
-   FWConfiguration& addKeyValue(const std::string&, const FWConfiguration&);
-   FWConfiguration& addKeyValue(const std::string&, FWConfiguration&, bool iDoSwap=false);
-   FWConfiguration& addValue(const std::string&);
-   void swap(FWConfiguration& );
-
-   static void streamTo(std::ostream& oTo, const FWConfiguration& iConfig, const std::string &name);
+  static void streamTo(std::ostream& oTo, const FWConfiguration& iConfig, const std::string& name);
 
 private:
+  // ---------- member data --------------------------------
 
-   // ---------- member data --------------------------------
-
-   boost::scoped_ptr<std::vector<std::string> > m_stringValues;
-   boost::scoped_ptr<std::vector<std::pair< std::string, FWConfiguration> > > m_keyValues;
-   unsigned int m_version;
-
+  boost::scoped_ptr<std::vector<std::string> > m_stringValues;
+  boost::scoped_ptr<std::vector<std::pair<std::string, FWConfiguration> > > m_keyValues;
+  unsigned int m_version;
 };
 
-void streamTo(std::ostream&, const FWConfiguration&, const std::string &name);
+void streamTo(std::ostream&, const FWConfiguration&, const std::string& name);
 
 #endif

@@ -14,38 +14,31 @@ class TH1;
    @brief Histogram-based analysis for connection loop.
 */
 class FastFedCablingAlgorithm : public CommissioningAlgorithm {
-  
- public:
+public:
+  FastFedCablingAlgorithm(const edm::ParameterSet& pset, FastFedCablingAnalysis* const);
 
-  FastFedCablingAlgorithm( const edm::ParameterSet & pset, FastFedCablingAnalysis* const );
-  
-  ~FastFedCablingAlgorithm() override {;}
-  
+  ~FastFedCablingAlgorithm() override { ; }
+
   /** Container of histogram pointer and title. */
   inline const Histo& histo() const;
-  
- private:
-  
+
+private:
   /** Private constructor. */
-  FastFedCablingAlgorithm() {;}
-  
+  FastFedCablingAlgorithm() { ; }
+
   /** Extracts and organises histograms. */
-  void extract( const std::vector<TH1*>& ) override;
+  void extract(const std::vector<TH1*>&) override;
 
   /** Performs histogram anaysis. */
   void analyse() override;
 
- private:
-  
+private:
   /** Histo */
   Histo histo_;
-
 };
 
 // ---------- Inline methods ----------
-  
+
 const FastFedCablingAlgorithm::Histo& FastFedCablingAlgorithm::histo() const { return histo_; }
 
-#endif // DQM_SiStripCommissioningAnalysis_FastFedCablingAlgorithm_H
-
-
+#endif  // DQM_SiStripCommissioningAnalysis_FastFedCablingAlgorithm_H

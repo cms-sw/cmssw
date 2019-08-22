@@ -14,11 +14,12 @@ class testAssociationNew : public CppUnit::TestFixture {
   typedef std::vector<double> CVal;
   typedef std::vector<int> CKey1;
   typedef std::vector<float> CKey2;
+
 public:
   testAssociationNew();
   void setUp() {}
   void tearDown() {}
-  void checkAll(); 
+  void checkAll();
   void test(const edm::Association<CVal> &);
   CVal k;
   CKey1 v1;
@@ -53,12 +54,12 @@ testAssociationNew::testAssociationNew() {
   ProductID const pidK2(1, 3);
   handleK2 = edm::TestHandle<CKey2>(&v2, pidK2);
 
-  const int ww1[4] = { 2, 1, 0, 2 };
+  const int ww1[4] = {2, 1, 0, 2};
   w1.resize(4);
-  std::copy( ww1, ww1 + 4, w1.begin() );
-  const int ww2[5] = { 1, 0, 2, 1, -1 };
+  std::copy(ww1, ww1 + 4, w1.begin());
+  const int ww2[5] = {1, 0, 2, 1, -1};
   w2.resize(5);
-  std::copy( ww2, ww2 + 5, w2.begin() );
+  std::copy(ww2, ww2 + 5, w2.begin());
 }
 
 void testAssociationNew::checkAll() {
@@ -69,7 +70,8 @@ void testAssociationNew::checkAll() {
     filler.insert(handleK2, w2.begin(), w2.end());
     filler.fill();
     test(assoc);
-  } {
+  }
+  {
     edm::Association<CVal> assoc(handleV);
     edm::Association<CVal>::Filler filler1(assoc);
     filler1.insert(handleK1, w1.begin(), w1.end());
@@ -78,7 +80,8 @@ void testAssociationNew::checkAll() {
     filler2.insert(handleK2, w2.begin(), w2.end());
     filler2.fill();
     test(assoc);
-  } {
+  }
+  {
     edm::Association<CVal> assoc1(handleV);
     edm::Association<CVal>::Filler filler1(assoc1);
     filler1.insert(handleK1, w1.begin(), w1.end());
@@ -92,7 +95,7 @@ void testAssociationNew::checkAll() {
   }
 }
 
-void testAssociationNew::test(const edm::Association<CVal> & assoc) {
+void testAssociationNew::test(const edm::Association<CVal> &assoc) {
   CPPUNIT_ASSERT(!assoc.contains(ProductID(1, 1)));
   CPPUNIT_ASSERT(assoc.contains(ProductID(1, 2)));
   CPPUNIT_ASSERT(assoc.contains(ProductID(1, 3)));
@@ -105,10 +108,10 @@ void testAssociationNew::test(const edm::Association<CVal> & assoc) {
   CPPUNIT_ASSERT(r2.isNonnull());
   CPPUNIT_ASSERT(r3.isNonnull());
   CPPUNIT_ASSERT(r4.isNonnull());
-  CPPUNIT_ASSERT( *r1 == k[w1[0]] );
-  CPPUNIT_ASSERT( *r2 == k[w1[1]] );
-  CPPUNIT_ASSERT( *r3 == k[w1[2]] );
-  CPPUNIT_ASSERT( *r4 == k[w1[3]] );
+  CPPUNIT_ASSERT(*r1 == k[w1[0]]);
+  CPPUNIT_ASSERT(*r2 == k[w1[1]]);
+  CPPUNIT_ASSERT(*r3 == k[w1[2]]);
+  CPPUNIT_ASSERT(*r4 == k[w1[3]]);
   edm::Ref<CVal> s1 = assoc[edm::Ref<CKey2>(handleK2, 0)];
   edm::Ref<CVal> s2 = assoc[edm::Ref<CKey2>(handleK2, 1)];
   edm::Ref<CVal> s3 = assoc[edm::Ref<CKey2>(handleK2, 2)];
@@ -119,10 +122,9 @@ void testAssociationNew::test(const edm::Association<CVal> & assoc) {
   CPPUNIT_ASSERT(s3.isNonnull());
   CPPUNIT_ASSERT(s4.isNonnull());
   CPPUNIT_ASSERT(s5.isNull());
-  CPPUNIT_ASSERT( *s1 == k[w2[0]] );
-  CPPUNIT_ASSERT( *s2 == k[w2[1]] );
-  CPPUNIT_ASSERT( *s3 == k[w2[2]] );
-  CPPUNIT_ASSERT( *s4 == k[w2[3]] );
-  CPPUNIT_ASSERT( assoc.size() == w1.size()+w2.size() );
+  CPPUNIT_ASSERT(*s1 == k[w2[0]]);
+  CPPUNIT_ASSERT(*s2 == k[w2[1]]);
+  CPPUNIT_ASSERT(*s3 == k[w2[2]]);
+  CPPUNIT_ASSERT(*s4 == k[w2[3]]);
+  CPPUNIT_ASSERT(assoc.size() == w1.size() + w2.size());
 }
-

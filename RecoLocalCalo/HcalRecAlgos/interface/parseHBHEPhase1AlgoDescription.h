@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
-    class ParameterSet;
+  class ParameterSet;
 }
 
 //
@@ -16,8 +16,7 @@ namespace edm {
 // Update the implementation of this function if you need
 // to add a new algorithm to HBHEPhase1Reconstructor.
 //
-std::unique_ptr<AbsHBHEPhase1Algo>
-parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps);
+std::unique_ptr<AbsHBHEPhase1Algo> parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps);
 
 //
 // Parameter descriptions for "parseHBHEPhase1AlgoDescription".
@@ -26,4 +25,4 @@ parseHBHEPhase1AlgoDescription(const edm::ParameterSet& ps);
 //
 edm::ParameterSetDescription fillDescriptionForParseHBHEPhase1Algo();
 
-#endif // RecoLocalCalo_HcalRecAlgos_parseHBHEPhase1AlgoDescription_h
+#endif  // RecoLocalCalo_HcalRecAlgos_parseHBHEPhase1AlgoDescription_h

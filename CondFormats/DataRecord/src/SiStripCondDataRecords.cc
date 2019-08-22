@@ -19,7 +19,6 @@ EVENTSETUP_RECORD_REG(SiStripLorentzAngleSimRcd);
 
 EVENTSETUP_RECORD_REG(SiStripBackPlaneCorrectionRcd);
 
-
 EVENTSETUP_RECORD_REG(SiStripDetVOffRcd);
 
 EVENTSETUP_RECORD_REG(SiStripLatencyRcd);
@@ -40,4 +39,3 @@ EVENTSETUP_RECORD_REG(SiStripClusterThresholdRcd);
 EVENTSETUP_RECORD_REG(SiStripConfObjectRcd);
 
 EVENTSETUP_RECORD_REG(Phase2TrackerCablingRcd);
-

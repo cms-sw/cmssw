@@ -19,19 +19,20 @@
 namespace HcalFrontEndMapAddons {
   class Helper;
 }
- 
+
 class HcalFrontEndMap {
 public:
-
-  class PrecisionItem { 
-   public:
-    PrecisionItem () {mId = mRM = 0; mRBX = "";}
-    PrecisionItem (uint32_t fId, int fRM, std::string fRBX) 
-      : mId (fId), mRM (fRM), mRBX (fRBX) {}
-    uint32_t    mId;
-    int         mRM;
+  class PrecisionItem {
+  public:
+    PrecisionItem() {
+      mId = mRM = 0;
+      mRBX = "";
+    }
+    PrecisionItem(uint32_t fId, int fRM, std::string fRBX) : mId(fId), mRM(fRM), mRBX(fRBX) {}
+    uint32_t mId;
+    int mRM;
     std::string mRBX;
-    
+
     COND_SERIALIZABLE;
   };
 
@@ -54,25 +55,24 @@ public:
   //return Null item if no such mapping
   const int lookupRM(DetId fId) const;
   const int lookupRMIndex(DetId fId) const;
-  const int maxRMIndex() const {return HcalFrontEndId::maxRmIndex;}
+  const int maxRMIndex() const { return HcalFrontEndId::maxRmIndex; }
 
   /// brief lookup the RBX associated with the given logical id
   //return Null item if no such mapping
   const std::string lookupRBX(DetId fId) const;
-  const int         lookupRBXIndex(DetId fId) const;
-  
-  std::vector <DetId>       allDetIds() const;
-  std::vector <int>         allRMs() const;
-  std::vector <std::string> allRBXs() const;
+  const int lookupRBXIndex(DetId fId) const;
 
-  const PrecisionItem* findById (uint32_t fId) const;
+  std::vector<DetId> allDetIds() const;
+  std::vector<int> allRMs() const;
+  std::vector<std::string> allRBXs() const;
+
+  const PrecisionItem* findById(uint32_t fId) const;
 
   // sorting
-  void sortById ();
+  void sortById();
   void initialize();
-  
+
 protected:
-  
   std::vector<PrecisionItem> mPItems;
   std::vector<const PrecisionItem*> mPItemsById COND_TRANSIENT;
 
@@ -81,20 +81,26 @@ protected:
 
 namespace HcalFrontEndMapAddons {
   class LessById {
-   public: 
-    bool operator () (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) const {return a->mId < b->mId;}
-    bool operator () (const HcalFrontEndMap::PrecisionItem& a, const HcalFrontEndMap::PrecisionItem& b) const {return a.mId < b.mId;}
-    bool equal (const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) const {return a->mId == b->mId;}
-    bool good (const HcalFrontEndMap::PrecisionItem& a) const {return a.mId;}
+  public:
+    bool operator()(const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) const {
+      return a->mId < b->mId;
+    }
+    bool operator()(const HcalFrontEndMap::PrecisionItem& a, const HcalFrontEndMap::PrecisionItem& b) const {
+      return a.mId < b.mId;
+    }
+    bool equal(const HcalFrontEndMap::PrecisionItem* a, const HcalFrontEndMap::PrecisionItem* b) const {
+      return a->mId == b->mId;
+    }
+    bool good(const HcalFrontEndMap::PrecisionItem& a) const { return a.mId; }
   };
   class Helper {
-   public:
+  public:
     Helper();
     /// load a new entry
     bool loadObject(DetId fId, int rm, std::string rbx);
-    
-    std::set<HcalFrontEndMap::PrecisionItem,LessById> mPItems;
+
+    std::set<HcalFrontEndMap::PrecisionItem, LessById> mPItems;
   };
-}
+}  // namespace HcalFrontEndMapAddons
 
 #endif

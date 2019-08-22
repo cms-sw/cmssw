@@ -22,27 +22,25 @@
 
 class FebConnectorSpec {
 public:
-  FebConnectorSpec(int num =-1) : theLinkBoardInputNum(num), theRawId(0) { }
-  FebConnectorSpec(int num, const ChamberLocationSpec & chamber, const FebLocationSpec & feb); 
+  FebConnectorSpec(int num = -1) : theLinkBoardInputNum(num), theRawId(0) {}
+  FebConnectorSpec(int num, const ChamberLocationSpec& chamber, const FebLocationSpec& feb);
 
   /// this FEB channel in LinkBoard
   int linkBoardInputNum() const { return theLinkBoardInputNum; }
 
   /// add strip info
-  void addStrips(int algo) {
-    theAlgo = algo;
-  }
+  void addStrips(int algo) { theAlgo = algo; }
 
   /// strip info for input pin
   const ChamberStripSpec strip(int pinNumber) const;
 
   /// DetUnit to which data belongs
-  const uint32_t & rawId() const;
+  const uint32_t& rawId() const;
 
-  const ChamberLocationSpec & chamber() const { return theChamber; }
-  const FebLocationSpec     & feb()  const { return theFeb; }
+  const ChamberLocationSpec& chamber() const { return theChamber; }
+  const FebLocationSpec& feb() const { return theFeb; }
 
-  const int nstrips() const { return theAlgo/10000; }
+  const int nstrips() const { return theAlgo / 10000; }
 
   const int chamberStripNum(int istrip) const;
 
@@ -51,13 +49,13 @@ public:
   const int cablePinNum(int istrip) const;
 
   /// debug
-  std::string print(int depth=0) const;
+  std::string print(int depth = 0) const;
 
 private:
   int theLinkBoardInputNum;
 
-  ChamberLocationSpec theChamber; 
-  FebLocationSpec     theFeb; 
+  ChamberLocationSpec theChamber;
+  FebLocationSpec theFeb;
 
   int theAlgo;
   mutable uint32_t theRawId COND_TRANSIENT;

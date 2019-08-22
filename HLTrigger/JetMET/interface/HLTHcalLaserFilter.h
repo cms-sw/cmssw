@@ -16,18 +16,17 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 namespace edm {
-   class ConfigurationDescriptions;
+  class ConfigurationDescriptions;
 }
 
 class HLTHcalLaserFilter : public edm::EDFilter {
-  
- public:
+public:
   explicit HLTHcalLaserFilter(const edm::ParameterSet&);
   ~HLTHcalLaserFilter() override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   bool filter(edm::Event&, const edm::EventSetup&) override;
-  
- private:
+
+private:
   edm::EDGetTokenT<HcalCalibDigiCollection> m_theCalibToken;
   // parameters
   edm::InputTag hcalDigiCollection_;
@@ -36,7 +35,7 @@ class HLTHcalLaserFilter : public edm::EDFilter {
   std::vector<int> CalibCountFilterValues_;
   std::vector<double> CalibChargeFilterValues_;
   double maxTotalCalibCharge_;
-  int  maxAllowedHFcalib_;
+  int maxAllowedHFcalib_;
 };
 
-#endif //HLTHcalLaserFilter_h
+#endif  //HLTHcalLaserFilter_h

@@ -17,7 +17,6 @@ public:
   EcalFenixTcpsFgvbEB();
   virtual ~EcalFenixTcpsFgvbEB();
 
-  void process(std::vector<std::vector<int>> &bypasslin_out, int nStr,
-               int bitMask, std::vector<int> &output);
+  void process(std::vector<std::vector<int>> &bypasslin_out, int nStr, int bitMask, std::vector<int> &output);
 };
 #endif

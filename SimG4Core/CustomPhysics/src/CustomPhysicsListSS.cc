@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "G4Decay.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
 #include "G4CoulombScattering.hh"
@@ -20,7 +19,6 @@
 
 using namespace CLHEP;
 
-G4ThreadLocal std::unique_ptr<G4Decay> CustomPhysicsListSS::fDecayProcess;
 G4ThreadLocal std::unique_ptr<G4ProcessHelper> CustomPhysicsListSS::myHelper;
 
 CustomPhysicsListSS::CustomPhysicsListSS(const std::string& name, const edm::ParameterSet& p, bool apinew)
@@ -37,7 +35,6 @@ CustomPhysicsListSS::CustomPhysicsListSS(const std::string& name, const edm::Par
   edm::FileInPath fp = p.getParameter<edm::FileInPath>("particlesDef");
   particleDefFilePath = fp.fullPath();
   fParticleFactory.reset(new CustomParticleFactory());
-  fDecayProcess.reset(nullptr);
   myHelper.reset(nullptr);
 
   edm::LogVerbatim("SimG4CoreCustomPhysics") << "CustomPhysicsListSS: Path for custom particle definition file: \n"
@@ -54,7 +51,6 @@ void CustomPhysicsListSS::ConstructParticle() {
 void CustomPhysicsListSS::ConstructProcess() {
   edm::LogVerbatim("SimG4CoreCustomPhysicsSS") << "CustomPhysicsListSS: adding CustomPhysics processes";
 
-  fDecayProcess.reset(new G4Decay());
   G4PhysicsListHelper* ph = G4PhysicsListHelper::GetPhysicsListHelper();
 
   for (auto particle : fParticleFactory.get()->GetCustomParticles()) {
@@ -66,11 +62,8 @@ void CustomPhysicsListSS::ConstructProcess() {
           << " Mass= " << particle->GetPDGMass() / GeV << " GeV.";
       if (pmanager) {
         if (particle->GetPDGCharge() != 0.0) {
-          ph->RegisterProcess(new G4hMultipleScattering, particle);
+          ph->RegisterProcess(new G4CoulombScattering, particle);
           ph->RegisterProcess(new G4hIonisation, particle);
-        }
-        if (fDecayProcess.get()->IsApplicable(*particle)) {
-          ph->RegisterProcess(fDecayProcess.get(), particle);
         }
         if (cp->GetCloud() && fHadronicInteraction && CustomPDGParser::s_isRHadron(particle->GetPDGEncoding())) {
           edm::LogVerbatim("SimG4CoreCustomPhysics")

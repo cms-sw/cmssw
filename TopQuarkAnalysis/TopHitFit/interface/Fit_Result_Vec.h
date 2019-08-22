@@ -44,19 +44,15 @@
 #ifndef HITFIT_FIT_RESULT_VEC_H
 #define HITFIT_FIT_RESULT_VEC_H
 
-
 #include <vector>
 #include <iosfwd>
 #include <memory>
 
-
 namespace hitfit {
 
+  class Fit_Result;
 
-class Fit_Result;
-
-
-/**
+  /**
     @class Fit_Result_Vec
 
     @brief Holds pointers to a set of Fit_Result objects, resulting from
@@ -68,83 +64,80 @@ class Fit_Result;
     The Fit_Result object are reference counted, in order to allow then
     to be entered in multiple vectors.
  */
-class Fit_Result_Vec
-//
-// Purpose: Hold a set of Fit_Result structures.
-//
-{
-public:
-  // Constructor, destructor.  The maximum length of the vector
-  // is specified here.
+  class Fit_Result_Vec
+  //
+  // Purpose: Hold a set of Fit_Result structures.
+  //
+  {
+  public:
+    // Constructor, destructor.  The maximum length of the vector
+    // is specified here.
 
-  /**
+    /**
      @brief Constructor.
      @param max_len The maximum length of the list.  Must be a positive
      integer.
    */
-  Fit_Result_Vec (std::vector<std::shared_ptr<Fit_Result>>::size_type max_len);
+    Fit_Result_Vec(std::vector<std::shared_ptr<Fit_Result>>::size_type max_len);
 
-  /**
+    /**
      @brief Destructor.
    */
-  ~Fit_Result_Vec ();
+    ~Fit_Result_Vec();
 
-  // Copy constructor.
-  /**
+    // Copy constructor.
+    /**
      @brief Copy constructor.
      @param vec The list to copy.
    */
-  Fit_Result_Vec (const Fit_Result_Vec& vec);
+    Fit_Result_Vec(const Fit_Result_Vec& vec);
 
-  // Assignment.
-  /**
+    // Assignment.
+    /**
      @brief Assignment operator.
      @param vec The list to copy.
    */
-  Fit_Result_Vec& operator= (const Fit_Result_Vec& vec);
+    Fit_Result_Vec& operator=(const Fit_Result_Vec& vec);
 
-  // Get back the number of results in the vector.
-  /**
+    // Get back the number of results in the vector.
+    /**
      @brief Return the number of Fit_Result objects in the list.
    */
-  std::vector<std::shared_ptr<Fit_Result>>::size_type size () const;
+    std::vector<std::shared_ptr<Fit_Result>>::size_type size() const;
 
-  // Get back the Ith result in the vector.
-  /**
+    // Get back the Ith result in the vector.
+    /**
      @brief Return the <i>i-</i>th element of the Fit_Result
      objects in the vector.
      @param i The index of the desired Fit_Result object.
    */
-  const Fit_Result& operator[] (std::vector<std::shared_ptr<Fit_Result>>::size_type i) const;
+    const Fit_Result& operator[](std::vector<std::shared_ptr<Fit_Result>>::size_type i) const;
 
-  // Add a new result to the list.
-  /**
+    // Add a new result to the list.
+    /**
      @brief Add a new Fit_Result to the list.
      @param res The new Fit_Result object to be added into the list of
      Fit_Result object.
    */
-  void push (std::shared_ptr<Fit_Result> res);
+    void push(std::shared_ptr<Fit_Result> res);
 
-  // Dump out the vector.
-  friend std::ostream& operator<< (std::ostream& s,
-                                   const Fit_Result_Vec& resvec);
+    // Dump out the vector.
+    friend std::ostream& operator<<(std::ostream& s, const Fit_Result_Vec& resvec);
 
-private:
-  // The object state.
+  private:
+    // The object state.
 
-  /**
+    /**
      The list of Fit_Result pointers.
    */
-  std::vector<std::shared_ptr<Fit_Result>> _v;
+    std::vector<std::shared_ptr<Fit_Result>> _v;
 
-  /**
+    /**
      Maximum number of Fit_Result pointers in the list.
    */
-  std::vector<std::shared_ptr<Fit_Result>>::size_type _max_len;
-};
+    std::vector<std::shared_ptr<Fit_Result>>::size_type _max_len;
+  };
 
+}  // namespace hitfit
 
-} // namespace hitfit
-
-
-#endif // not HITFIT_FIT_RESULT_H
+#endif  // not HITFIT_FIT_RESULT_H

@@ -12,7 +12,6 @@
 //
 //
 
-
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -33,29 +32,26 @@ class TH1I;
 class TProfile;
 class TTree;
 
-class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
-{
- public:
-
-  explicit GsfElectronDataAnalyzer(const edm::ParameterSet& conf);
+class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit GsfElectronDataAnalyzer(const edm::ParameterSet &conf);
 
   ~GsfElectronDataAnalyzer() override;
 
   void beginJob() override;
   void endJob() override;
-  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void analyze(const edm::Event &e, const edm::EventSetup &c) override;
 
- private:
+private:
+  bool trigger(const edm::Event &e);
 
-  bool trigger(const edm::Event & e);
-  
   unsigned int nEvents_;
   unsigned int nAfterTrigger_;
 
   edm::InputTag triggerResults_;
   edm::InputTag beamSpot_;
 
-  std::vector<std::string > HLTPathsByName_;
+  std::vector<std::string> HLTPathsByName_;
   std::vector<unsigned int> HLTPathsByIndex_;
 
   std::string outputFile_;
@@ -64,7 +60,7 @@ class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
   std::string matchingCondition_;
   std::string type_;
   bool readAOD_;
-  // matching 
+  // matching
   double maxPtMatchingObject_;
   double maxAbsEtaMatchingObject_;
   double deltaR_;
@@ -105,7 +101,7 @@ class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
 
   TH2F *h_ele_E2mnE1vsMee_all;
   TH2F *h_ele_E2mnE1vsMee_egeg_all;
-  
+
   TH1F *h_ele_charge;
   TH2F *h_ele_chargeVsEta;
   TH2F *h_ele_chargeVsPhi;
@@ -130,32 +126,32 @@ class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
 
   TH1F *histNum_;
 
-  TH1F *histSclEn_ ;
+  TH1F *histSclEn_;
   TH1F *histSclEoEmatchingObject_barrel_matched;
   TH1F *histSclEoEmatchingObject_endcaps_matched;
   TH1F *histSclEoEmatchingObject_barrel_new_matched;
   TH1F *histSclEoEmatchingObject_endcaps_new_matched;
-  TH1F *histSclEt_ ;
-  TH2F *histSclEtVsEta_ ;
-  TH2F *histSclEtVsPhi_ ;
-  TH2F *histSclEtaVsPhi_ ;
-  TH1F *histSclEta_ ;
-  TH1F *histSclPhi_ ;
-  TH1F *histSclSigEtaEta_ ;
-  TH1F *histSclSigEtaEta_barrel_ ;
-  TH1F *histSclSigEtaEta_endcaps_ ;
-  TH1F *histSclSigIEtaIEta_ ;
-  TH1F *histSclSigIEtaIEta_barrel_ ;
-  TH1F *histSclSigIEtaIEta_endcaps_ ;
-  TH1F *histSclE1x5_ ;
-  TH1F *histSclE1x5_barrel_ ;
-  TH1F *histSclE1x5_endcaps_ ;
-  TH1F *histSclE2x5max_ ;
-  TH1F *histSclE2x5max_barrel_ ;
-  TH1F *histSclE2x5max_endcaps_ ;
-  TH1F *histSclE5x5_ ;
-  TH1F *histSclE5x5_barrel_ ;
-  TH1F *histSclE5x5_endcaps_ ;
+  TH1F *histSclEt_;
+  TH2F *histSclEtVsEta_;
+  TH2F *histSclEtVsPhi_;
+  TH2F *histSclEtaVsPhi_;
+  TH1F *histSclEta_;
+  TH1F *histSclPhi_;
+  TH1F *histSclSigEtaEta_;
+  TH1F *histSclSigEtaEta_barrel_;
+  TH1F *histSclSigEtaEta_endcaps_;
+  TH1F *histSclSigIEtaIEta_;
+  TH1F *histSclSigIEtaIEta_barrel_;
+  TH1F *histSclSigIEtaIEta_endcaps_;
+  TH1F *histSclE1x5_;
+  TH1F *histSclE1x5_barrel_;
+  TH1F *histSclE1x5_endcaps_;
+  TH1F *histSclE2x5max_;
+  TH1F *histSclE2x5max_barrel_;
+  TH1F *histSclE2x5max_endcaps_;
+  TH1F *histSclE5x5_;
+  TH1F *histSclE5x5_barrel_;
+  TH1F *histSclE5x5_endcaps_;
 
   TH1F *h_ele_ambiguousTracks;
   TH2F *h_ele_ambiguousTracksVsEta;
@@ -278,7 +274,7 @@ class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
 
   TH1F *h_ele_seed_dphi2_;
   TH2F *h_ele_seed_dphi2VsEta_;
-  TH2F *h_ele_seed_dphi2VsPt_ ;
+  TH2F *h_ele_seed_dphi2VsPt_;
   TH1F *h_ele_seed_drz2_;
   TH2F *h_ele_seed_drz2VsEta_;
   TH2F *h_ele_seed_drz2VsPt_;
@@ -315,15 +311,15 @@ class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
   TH1F *histSclEoEmatchingObjectGolden_endcaps;
   TH1F *histSclEoEmatchingObjectShowering_barrel;
   TH1F *histSclEoEmatchingObjectShowering_endcaps;
-  
-  TH1F *h_ele_mva; 
-  TH1F *h_ele_provenance; 
 
-  TH1F *h_ele_tkSumPt_dr03; 
+  TH1F *h_ele_mva;
+  TH1F *h_ele_provenance;
+
+  TH1F *h_ele_tkSumPt_dr03;
   TH1F *h_ele_ecalRecHitSumEt_dr03;
   TH1F *h_ele_hcalDepth1TowerSumEt_dr03;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr03;
-  TH1F *h_ele_tkSumPt_dr04; 
+  TH1F *h_ele_tkSumPt_dr04;
   TH1F *h_ele_ecalRecHitSumEt_dr04;
   TH1F *h_ele_hcalDepth1TowerSumEt_dr04;
   TH1F *h_ele_hcalDepth2TowerSumEt_dr04;
@@ -364,8 +360,8 @@ class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
   double hcalIso03Depth2MaxEndcaps_;
   double ecalIso03MaxBarrel_;
   double ecalIso03MaxEndcaps_;
-  
-   // histos limits and binning
+
+  // histos limits and binning
   double etamin;
   double etamax;
   double phimin;
@@ -413,10 +409,6 @@ class GsfElectronDataAnalyzer : public edm::one::EDAnalyzer<>
   int nbinpoptrue;
   int nbinmee;
   int nbinhoe;
-
- };
+};
 
 #endif
-
-
-

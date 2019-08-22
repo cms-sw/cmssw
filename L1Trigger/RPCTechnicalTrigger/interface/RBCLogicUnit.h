@@ -1,4 +1,4 @@
-#ifndef RBCLOGICUNIT_H 
+#ifndef RBCLOGICUNIT_H
 #define RBCLOGICUNIT_H 1
 
 // Include files
@@ -17,40 +17,34 @@
  */
 
 class RBCLogicUnit : public RPCLogicUnit {
-public: 
+public:
   /// Standard constructor
-  RBCLogicUnit( );
-  
-  RBCLogicUnit( const char * );
-  
-  ~RBCLogicUnit( ) override; ///< Destructor
-  
+  RBCLogicUnit();
+
+  RBCLogicUnit(const char*);
+
+  ~RBCLogicUnit() override;  ///< Destructor
+
   bool initialise();
-  
-  void setlogic( const char * );
 
-  void setBoardSpecs( const RBCBoardSpecs::RBCBoardConfig & );
-  
-  void run( const RBCInput & , std::bitset<2> & );
-  
-  std::bitset<6> * getlayersignal(int _idx) { return m_layersignal[_idx]; };
+  void setlogic(const char*);
 
-  bool isTriggered() {
-    return m_logic->m_triggersignal;
-  };
+  void setBoardSpecs(const RBCBoardSpecs::RBCBoardConfig&);
+
+  void run(const RBCInput&, std::bitset<2>&);
+
+  std::bitset<6>* getlayersignal(int _idx) { return m_layersignal[_idx]; };
+
+  bool isTriggered() { return m_logic->m_triggersignal; };
 
 protected:
-  
 private:
-
   std::string m_logtype;
-  
-  std::bitset<6> * m_layersignal[2];
+
+  std::bitset<6>* m_layersignal[2];
 
   std::unique_ptr<RBCLogic> m_logic;
-  
 
   bool m_debug;
-    
 };
-#endif // RBCLOGICUNIT_H
+#endif  // RBCLOGICUNIT_H

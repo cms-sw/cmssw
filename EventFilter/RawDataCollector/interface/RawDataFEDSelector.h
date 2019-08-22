@@ -14,30 +14,26 @@
 
 class FEDRawDataCollection;
 
-
 class RawDataFEDSelector {
-
 public:
-  
   /// Constructor
-  RawDataFEDSelector() {};
+  RawDataFEDSelector(){};
 
   /// Destructor
-  virtual ~RawDataFEDSelector() {};
+  virtual ~RawDataFEDSelector(){};
 
-  inline void setRange(const std::pair<int,int> & range) {fedRange = range;};
-  inline void setRange(const std::vector<int> & list) {fedList = list;};
+  inline void setRange(const std::pair<int, int>& range) { fedRange = range; };
+  inline void setRange(const std::vector<int>& list) { fedList = list; };
 
-  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData);
-  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData, const std::pair<int,int> & range);
-  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection> & rawData, const std::vector<int> & list);
-
+  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection>& rawData);
+  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection>& rawData,
+                                               const std::pair<int, int>& range);
+  std::unique_ptr<FEDRawDataCollection> select(const edm::Handle<FEDRawDataCollection>& rawData,
+                                               const std::vector<int>& list);
 
 private:
-
-  std::pair<int,int> fedRange; 
+  std::pair<int, int> fedRange;
   std::vector<int> fedList;
-
 };
 
 #endif

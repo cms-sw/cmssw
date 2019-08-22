@@ -25,7 +25,6 @@
 #include "CondFormats/L1TObjects/interface/L1MuTriggerPtScale.h"
 #include "CondFormats/DataRecord/interface/L1MuTriggerPtScaleRcd.h"
 
-
 //
 // class declaration
 //
@@ -34,16 +33,15 @@ class L1MuTriggerPtScaleOnlineProducer : public L1ConfigOnlineProdBase<L1MuTrigg
 public:
   L1MuTriggerPtScaleOnlineProducer(const edm::ParameterSet&);
   ~L1MuTriggerPtScaleOnlineProducer() override;
-  
+
   std::unique_ptr<L1MuTriggerPtScale> newObject(const std::string& objectKey) override;
 
 private:
   // ----------member data ---------------------------
-  
-  bool m_signedPacking; 
+
+  bool m_signedPacking;
   unsigned int m_nbitsPacking;
   unsigned int m_nBins;
-
 };
 
 #endif

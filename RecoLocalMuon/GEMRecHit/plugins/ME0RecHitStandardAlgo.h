@@ -11,7 +11,7 @@
 #include "RecoLocalMuon/GEMRecHit/interface/ME0RecHitBaseAlgo.h"
 
 class ME0RecHitStandardAlgo : public ME0RecHitBaseAlgo {
- public:
+public:
   /// Constructor
   ME0RecHitStandardAlgo(const edm::ParameterSet& config);
 
@@ -23,13 +23,6 @@ class ME0RecHitStandardAlgo : public ME0RecHitBaseAlgo {
   /// Pass the Event Setup to the algo at each event
   void setES(const edm::EventSetup& setup) override;
 
-
-  bool compute(const ME0DigiPreReco& digi,
-                       LocalPoint& point,
-                       LocalError& error) const override;
-
-
+  bool compute(const ME0DigiPreReco& digi, LocalPoint& point, LocalError& error) const override;
 };
 #endif
-
-

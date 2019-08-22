@@ -17,33 +17,31 @@
 namespace edm {
   class Event;
   class EventSetup;
-}
+}  // namespace edm
 
 class FTLUncalibratedRecHitAlgoBase {
- public:
+public:
   /// Constructor
-  FTLUncalibratedRecHitAlgoBase(const edm::ParameterSet& conf,
-                                edm::ConsumesCollector& sumes) { }
+  FTLUncalibratedRecHitAlgoBase(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes) {}
 
   /// Destructor
-  virtual ~FTLUncalibratedRecHitAlgoBase() { }
+  virtual ~FTLUncalibratedRecHitAlgoBase() {}
 
   /// get event and eventsetup information
   virtual void getEvent(const edm::Event&) = 0;
   virtual void getEventSetup(const edm::EventSetup&) = 0;
 
   /// make the rec hit
-  virtual FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame ) const = 0;
+  virtual FTLUncalibratedRecHit makeRecHit(const FTLDataFrame& dataFrame) const = 0;
 
   const std::string& name() const { return name_; }
 
- private:
+private:
   std::string name_;
-
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-typedef edmplugin::PluginFactory< FTLUncalibratedRecHitAlgoBase* (const edm::ParameterSet&, edm::ConsumesCollector&) > FTLUncalibratedRecHitAlgoFactory;
-
+typedef edmplugin::PluginFactory<FTLUncalibratedRecHitAlgoBase*(const edm::ParameterSet&, edm::ConsumesCollector&)>
+    FTLUncalibratedRecHitAlgoFactory;
 
 #endif

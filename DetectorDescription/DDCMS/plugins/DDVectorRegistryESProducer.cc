@@ -2,7 +2,7 @@
 //
 // Package:    DetectorDescription/DDCMS
 // Class:      DDVectorRegistryESProducer
-// 
+//
 /**\class DDVectorRegistryESProducer
 
  Description: Produce Vector registry
@@ -37,40 +37,32 @@ using namespace edm;
 
 class DDVectorRegistryESProducer : public edm::ESProducer {
 public:
-
   DDVectorRegistryESProducer(const edm::ParameterSet&);
   ~DDVectorRegistryESProducer() override;
-  
+
   using ReturnType = unique_ptr<DDVectorRegistry>;
 
   static void fillDescriptions(edm::ConfigurationDescriptions&);
-  
+
   ReturnType produce(const DDVectorRegistryRcd&);
-  
+
 private:
   const string m_label;
 };
 
 DDVectorRegistryESProducer::DDVectorRegistryESProducer(const edm::ParameterSet& iConfig)
-  : m_label(iConfig.getParameter<string>("appendToDataLabel"))
-{
+    : m_label(iConfig.getParameter<string>("appendToDataLabel")) {
   setWhatProduced(this);
 }
 
-DDVectorRegistryESProducer::~DDVectorRegistryESProducer()
-{
-}
+DDVectorRegistryESProducer::~DDVectorRegistryESProducer() {}
 
-void
-DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void DDVectorRegistryESProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   descriptions.addDefault(desc);
 }
 
-DDVectorRegistryESProducer::ReturnType
-DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord)
-{
+DDVectorRegistryESProducer::ReturnType DDVectorRegistryESProducer::produce(const DDVectorRegistryRcd& iRecord) {
   LogDebug("Geometry") << "DDVectorRegistryESProducer::produce\n";
   edm::ESHandle<DDDetector> det;
   iRecord.getRecord<GeometryFileRcd>().get(m_label, det);

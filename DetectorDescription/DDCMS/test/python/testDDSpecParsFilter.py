@@ -47,7 +47,7 @@ process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProduce
                                                      )
 
 process.test = cms.EDAnalyzer("DDTestSpecParsFilter",
-                              DDDetector = cms.ESInputTag('MUON'),
+                              DDDetector = cms.ESInputTag('','MUON'),
                               attribute = cms.untracked.string('MuStructure'),
                               value = cms.untracked.string('MuonBarrelDT')
                               )

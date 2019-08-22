@@ -1,4 +1,4 @@
-// L1TUtmAlgorithmRcd                                                                                            
+// L1TUtmAlgorithmRcd
 // Description: Record for L1TUtmAlgorithm
 //
 // automatically generate by make_records.pl

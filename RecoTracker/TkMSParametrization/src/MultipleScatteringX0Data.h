@@ -11,13 +11,13 @@ class TH2F;
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-class dso_hidden SumX0AtEtaDataProvider{ 
-public: virtual float sumX0atEta(float eta, float r) const = 0; 
-        virtual ~SumX0AtEtaDataProvider() {}
-}; 
+class dso_hidden SumX0AtEtaDataProvider {
+public:
+  virtual float sumX0atEta(float eta, float r) const = 0;
+  virtual ~SumX0AtEtaDataProvider() {}
+};
 
 class dso_hidden MultipleScatteringX0Data : public SumX0AtEtaDataProvider {
-
 public:
   MultipleScatteringX0Data();
   ~MultipleScatteringX0Data() override;

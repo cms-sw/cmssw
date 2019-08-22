@@ -3,52 +3,58 @@
 
 #include "L1Trigger/L1TMuonEndCap/interface/Common.h"
 
-
 class SectorProcessorLUT;
 
 class PrimitiveConversion {
 public:
-  void configure(
-      const GeometryTranslator* tp_geom,
-      const SectorProcessorLUT* lut,
-      int verbose, int endcap, int sector, int bx,
-      int bxShiftCSC, int bxShiftRPC, int bxShiftGEM,
-      const std::vector<int>& zoneBoundaries, int zoneOverlap,
-      bool duplicateTheta, bool fixZonePhi, bool useNewZones, bool fixME11Edges,
-      bool bugME11Dupes
-  );
+  void configure(const GeometryTranslator* tp_geom,
+                 const SectorProcessorLUT* lut,
+                 int verbose,
+                 int endcap,
+                 int sector,
+                 int bx,
+                 int bxShiftCSC,
+                 int bxShiftRPC,
+                 int bxShiftGEM,
+                 const std::vector<int>& zoneBoundaries,
+                 int zoneOverlap,
+                 bool duplicateTheta,
+                 bool fixZonePhi,
+                 bool useNewZones,
+                 bool fixME11Edges,
+                 bool bugME11Dupes);
 
-  void process(
-      const std::map<int, TriggerPrimitiveCollection>& selected_prim_map,
-      EMTFHitCollection& conv_hits
-  ) const;
+  void process(const std::map<int, TriggerPrimitiveCollection>& selected_prim_map, EMTFHitCollection& conv_hits) const;
 
   const SectorProcessorLUT& lut() const { return *lut_; }
 
   // CSC functions
-  void convert_csc(
-      int pc_sector, int pc_station, int pc_chamber, int pc_segment,
-      const TriggerPrimitive& muon_primitive,
-      EMTFHit& conv_hit
-  ) const;
+  void convert_csc(int pc_sector,
+                   int pc_station,
+                   int pc_chamber,
+                   int pc_segment,
+                   const TriggerPrimitive& muon_primitive,
+                   EMTFHit& conv_hit) const;
 
   void convert_csc_details(EMTFHit& conv_hit) const;
 
   // RPC functions
-  void convert_rpc(
-      int pc_sector, int pc_station, int pc_chamber, int pc_segment,
-      const TriggerPrimitive& muon_primitive,
-      EMTFHit& conv_hit
-  ) const;
+  void convert_rpc(int pc_sector,
+                   int pc_station,
+                   int pc_chamber,
+                   int pc_segment,
+                   const TriggerPrimitive& muon_primitive,
+                   EMTFHit& conv_hit) const;
 
   void convert_rpc_details(EMTFHit& conv_hit, const bool use_cppf_lut) const;
 
   // GEM functions
-  void convert_gem(
-      int pc_sector, int pc_station, int pc_chamber, int pc_segment,
-      const TriggerPrimitive& muon_primitive,
-      EMTFHit& conv_hit
-  ) const;
+  void convert_gem(int pc_sector,
+                   int pc_station,
+                   int pc_chamber,
+                   int pc_segment,
+                   const TriggerPrimitive& muon_primitive,
+                   EMTFHit& conv_hit) const;
 
   void convert_gem_details(EMTFHit& conv_hit) const;
 
@@ -67,7 +73,6 @@ public:
 
   bool is_valid_for_run2(const EMTFHit& conv_hit) const;
 
-
 private:
   const GeometryTranslator* tp_geom_;
 
@@ -84,4 +89,3 @@ private:
 };
 
 #endif
-

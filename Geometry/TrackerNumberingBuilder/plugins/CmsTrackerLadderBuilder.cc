@@ -7,29 +7,23 @@
 #include "Geometry/TrackerNumberingBuilder/plugins/CmsDetConstruction.h"
 #include <vector>
 
-void CmsTrackerLadderBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
-
+void CmsTrackerLadderBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s) {
   CmsDetConstruction theCmsDetConstruction;
-  theCmsDetConstruction.buildComponent(fv,g,s);  
+  theCmsDetConstruction.buildComponent(fv, g, s);
 }
 
-void CmsTrackerLadderBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::ConstGeometricDetContainer & comp = det->components();
+void CmsTrackerLadderBuilder::sortNS(DDFilteredView& fv, GeometricDet* det) {
+  GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   //sorting for PhaseI & PhaseII pixel ladder modules
   //sorting also for PhaseII outer tracker rod modules
-  std::sort(comp.begin(),comp.end(),isLessZ);
- 
-  for(uint32_t i=0; i<comp.size();i++){
-    det->component(i)->setGeographicalID(i+1);
+  std::sort(comp.begin(), comp.end(), isLessZ);
+
+  for (uint32_t i = 0; i < comp.size(); i++) {
+    det->component(i)->setGeographicalID(i + 1);
   }
 
-  if (comp.empty() ){
-   edm::LogError("CmsTrackerLadderBuilder") << "Where are the OT Phase2/ pixel barrel modules modules?";
-  } 
-
+  if (comp.empty()) {
+    edm::LogError("CmsTrackerLadderBuilder") << "Where are the OT Phase2/ pixel barrel modules modules?";
+  }
 }
-
-
-
-

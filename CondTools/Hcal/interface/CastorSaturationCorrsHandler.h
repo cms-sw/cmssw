@@ -1,8 +1,6 @@
 #ifndef CastorSaturationCorrsHandler_h
 #define CastorSaturationCorrsHandler_h
 
-
-
 #include <string>
 #include <iostream>
 #include <typeinfo>
@@ -10,7 +8,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondCore/PopCon/interface/PopConSourceHandler.h"
- 
+
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -20,22 +18,19 @@
 #include "CondFormats/DataRecord/interface/CastorSaturationCorrsRcd.h"
 #include "CalibCalorimetry/CastorCalib/interface/CastorDbASCIIIO.h"
 
-
-class CastorSaturationCorrsHandler : public popcon::PopConSourceHandler<CastorSaturationCorrs>
-{
- public:
+class CastorSaturationCorrsHandler : public popcon::PopConSourceHandler<CastorSaturationCorrs> {
+public:
   void getNewObjects() override;
-  std::string id() const override { return m_name;}
+  std::string id() const override { return m_name; }
   ~CastorSaturationCorrsHandler() override;
-  CastorSaturationCorrsHandler(edm::ParameterSet const &);
+  CastorSaturationCorrsHandler(edm::ParameterSet const&);
 
   void initObject(CastorSaturationCorrs*);
 
- private:
+private:
   unsigned int sinceTime;
   edm::FileInPath fFile;
   CastorSaturationCorrs* myDBObject;
   std::string m_name;
-
 };
 #endif

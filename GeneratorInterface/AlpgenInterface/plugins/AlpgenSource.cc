@@ -29,137 +29,126 @@
 class AlpgenSource : public edm::ProducerSourceFromFiles {
 public:
   /// Constructor
-  AlpgenSource(const edm::ParameterSet &params,
-	       const edm::InputSourceDescription &desc);
+  AlpgenSource(const edm::ParameterSet &params, const edm::InputSourceDescription &desc);
 
   /// Destructor
   ~AlpgenSource() override;
 
 private:
-  bool setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&) override;
+  bool setRunAndEventInfo(edm::EventID &, edm::TimeValue_t &, edm::EventAuxiliary::ExperimentType &) override;
   void produce(edm::Event &event) override;
   void beginRun(edm::Run &run) override;
 
   /// Function to get parameter by name from AlpgenHeader.
-  template<typename T>
+  template <typename T>
   T getParameter(AlpgenHeader::Parameter index) const;
   /// Function to get parameter by name from AlpgenHeader, w/ default.
-  template<typename T>
+  template <typename T>
   T getParameter(AlpgenHeader::Parameter index, const T &defValue) const;
 
   /// Converts the AlpgenHeader::Masses to a std::string
   /// formatted as a slhaMassLine to facilitate passing them to Alpgen.
-  std::string slhaMassLine(int pdgId, AlpgenHeader::Masses mass,
-			   const std::string &comment) const;
+  std::string slhaMassLine(int pdgId, AlpgenHeader::Masses mass, const std::string &comment) const;
 
   /// The Alpgen process ID. This is defined as
-  /// processID() = 100*X + 10*Y + Z, 
+  /// processID() = 100*X + 10*Y + Z,
   /// where = ihrd, Y = ihvy, Z = njets
   unsigned int processID() const;
 
-  /// Read an event and put it into the HEPEUP. 
+  /// Read an event and put it into the HEPEUP.
   bool readAlpgenEvent(lhef::HEPEUP &hepeup);
 
   /// Name of the input file
-  std::string			fileName_;
+  std::string fileName_;
 
   /// Pointer to the input file
   std::unique_ptr<std::ifstream> inputFile_;
 
   /// Number of events to skip
-  unsigned long			skipEvents_;
+  unsigned long skipEvents_;
 
   /// Number of events
-  unsigned long			nEvent_;
+  unsigned long nEvent_;
 
   /// Alpgen _unw.par file as a LHE header
-  LHERunInfoProduct::Header	lheAlpgenUnwParHeader;
+  LHERunInfoProduct::Header lheAlpgenUnwParHeader;
   /// Alpgen _unw.par file as an AlpgenHeader
-  AlpgenHeader			header;
+  AlpgenHeader header;
 
   std::unique_ptr<lhef::HEPEUP> hepeup_;
 
   /// Name of the extra header file
-  std::string			extraHeaderFileName_;
+  std::string extraHeaderFileName_;
 
   /// Name given to the extra header
-  std::string			extraHeaderName_;
+  std::string extraHeaderName_;
 
   /// configuration flags
-  bool				writeAlpgenWgtFile;
-  bool				writeAlpgenParFile;
-  bool				writeExtraHeader;
+  bool writeAlpgenWgtFile;
+  bool writeAlpgenParFile;
+  bool writeExtraHeader;
 };
 
-AlpgenSource::AlpgenSource(const edm::ParameterSet &params,
-			   const edm::InputSourceDescription &desc) :
-  edm::ProducerSourceFromFiles(params, desc, false), 
-  skipEvents_(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
-  nEvent_(0), lheAlpgenUnwParHeader("AlpgenUnwParFile"),
-  extraHeaderFileName_(params.getUntrackedParameter<std::string>("extraHeaderFileName","")),
-  extraHeaderName_(params.getUntrackedParameter<std::string>("extraHeaderName","")),
-  writeAlpgenWgtFile(params.getUntrackedParameter<bool>("writeAlpgenWgtFile", true)),
-  writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true)),
-  writeExtraHeader(params.getUntrackedParameter<bool>("writeExtraHeader", false))
-{
+AlpgenSource::AlpgenSource(const edm::ParameterSet &params, const edm::InputSourceDescription &desc)
+    : edm::ProducerSourceFromFiles(params, desc, false),
+      skipEvents_(params.getUntrackedParameter<unsigned int>("skipEvents", 0)),
+      nEvent_(0),
+      lheAlpgenUnwParHeader("AlpgenUnwParFile"),
+      extraHeaderFileName_(params.getUntrackedParameter<std::string>("extraHeaderFileName", "")),
+      extraHeaderName_(params.getUntrackedParameter<std::string>("extraHeaderName", "")),
+      writeAlpgenWgtFile(params.getUntrackedParameter<bool>("writeAlpgenWgtFile", true)),
+      writeAlpgenParFile(params.getUntrackedParameter<bool>("writeAlpgenParFile", true)),
+      writeExtraHeader(params.getUntrackedParameter<bool>("writeExtraHeader", false)) {
   std::vector<std::string> allFileNames = fileNames();
 
   // Only one filename
   if (allFileNames.size() != 1)
-    throw cms::Exception("Generator|AlpgenInterface")
-      << "AlpgenSource needs exactly one file specified "
-      "for now." << std::endl;
+    throw cms::Exception("Generator|AlpgenInterface") << "AlpgenSource needs exactly one file specified "
+                                                         "for now."
+                                                      << std::endl;
 
   fileName_ = allFileNames[0];
 
-  // Strip the "file:" prefix 
+  // Strip the "file:" prefix
   if (fileName_.find("file:") != 0)
     throw cms::Exception("Generator|AlpgenInterface") << "AlpgenSource only supports the file: scheme "
-      "for now." << std::endl;
+                                                         "for now."
+                                                      << std::endl;
   fileName_.erase(0, 5);
 
-  // Open the _unw.par file to store additional 
+  // Open the _unw.par file to store additional
   // informations in the LHERunInfoProduct
   std::ifstream reader((fileName_ + "_unw.par").c_str());
   if (!reader.good())
     throw cms::Exception("Generator|AlpgenInterface")
-      << "AlpgenSource was unable to open the file \""
-      << fileName_ << "_unw.par\"." << std::endl;
+        << "AlpgenSource was unable to open the file \"" << fileName_ << "_unw.par\"." << std::endl;
 
   // A full copy of the _unw.par file in the LHE header.
   char buffer[256];
-  while(reader.getline(buffer, sizeof buffer))
+  while (reader.getline(buffer, sizeof buffer))
     lheAlpgenUnwParHeader.addLine(std::string(buffer) + "\n");
 
   // Parse that header to setup an Alpgen header,
   // which will be used in the production itself.
-   if (!header.parse(lheAlpgenUnwParHeader.begin(),
-		    lheAlpgenUnwParHeader.end()))
-    throw cms::Exception("Generator|AlpgenInterface")
-      << "AlpgenSource was unable to parse the Alpgen "
-      << "unweighted parameter file." << std::endl;
+  if (!header.parse(lheAlpgenUnwParHeader.begin(), lheAlpgenUnwParHeader.end()))
+    throw cms::Exception("Generator|AlpgenInterface") << "AlpgenSource was unable to parse the Alpgen "
+                                                      << "unweighted parameter file." << std::endl;
 
   // Declare the products.
-   produces<LHERunInfoProduct, edm::Transition::BeginRun>();
+  produces<LHERunInfoProduct, edm::Transition::BeginRun>();
   produces<LHEEventProduct>();
 }
 
-AlpgenSource::~AlpgenSource()
-{
-}
+AlpgenSource::~AlpgenSource() {}
 
-std::string AlpgenSource::slhaMassLine(int pdgId, AlpgenHeader::Masses mass,
-                                       const std::string &comment) const
-{
+std::string AlpgenSource::slhaMassLine(int pdgId, AlpgenHeader::Masses mass, const std::string &comment) const {
   std::ostringstream ss;
-  ss << std::setw(9) << pdgId << "     " << std::scientific
-     << std::setprecision(9) << header.masses[mass] << "   # "
+  ss << std::setw(9) << pdgId << "     " << std::scientific << std::setprecision(9) << header.masses[mass] << "   # "
      << comment << std::endl;
   return ss.str();
 }
 
-void AlpgenSource::beginRun(edm::Run &run)
-{
+void AlpgenSource::beginRun(edm::Run &run) {
   // At this point, the lheUnwParHeader has the full contents of the _unw.par
   // file. So we can get the HEPRUP information from the LHE header itself.
   lhef::HEPRUP heprup;
@@ -167,22 +156,20 @@ void AlpgenSource::beginRun(edm::Run &run)
   // Get basic run information.
   // Beam identity.
   heprup.IDBMUP.first = 2212;
-  switch(getParameter<int>(AlpgenHeader::ih2)) {
-  case 1:
-    heprup.IDBMUP.second = 2212;
-    break;
-  case -1:
-    heprup.IDBMUP.second = -2212;
-    break;
-  default:
-    throw cms::Exception("Generator|AlpgenInterface")
-      << "AlpgenSource was unable to understand the ih2 "
-      << "parameter." << std::endl;
+  switch (getParameter<int>(AlpgenHeader::ih2)) {
+    case 1:
+      heprup.IDBMUP.second = 2212;
+      break;
+    case -1:
+      heprup.IDBMUP.second = -2212;
+      break;
+    default:
+      throw cms::Exception("Generator|AlpgenInterface") << "AlpgenSource was unable to understand the ih2 "
+                                                        << "parameter." << std::endl;
   }
 
   // Beam energy.
-  heprup.EBMUP.second = heprup.EBMUP.first =
-    getParameter<double>(AlpgenHeader::ebeam);
+  heprup.EBMUP.second = heprup.EBMUP.first = getParameter<double>(AlpgenHeader::ebeam);
 
   // PDF info. Initially, Alpgen doesn't fill it.
   heprup.PDFGUP.first = -1;
@@ -229,16 +216,16 @@ void AlpgenSource::beginRun(edm::Run &run)
   // We also add the information on weighted events.
   LHERunInfoProduct::Header lheAlpgenWgtHeader("AlpgenWgtFile");
   if (writeAlpgenWgtFile) {
-    std::ifstream wgtascii((fileName_+".wgt").c_str());
-    while(wgtascii.getline(buffer,512)) {
+    std::ifstream wgtascii((fileName_ + ".wgt").c_str());
+    while (wgtascii.getline(buffer, 512)) {
       lheAlpgenWgtHeader.addLine(std::string(buffer) + "\n");
     }
   }
 
   LHERunInfoProduct::Header lheAlpgenParHeader("AlpgenParFile");
   if (writeAlpgenParFile) {
-    std::ifstream parascii((fileName_+".par").c_str());
-    while(parascii.getline(buffer,512)) {
+    std::ifstream parascii((fileName_ + ".par").c_str());
+    while (parascii.getline(buffer, 512)) {
       lheAlpgenParHeader.addLine(std::string(buffer) + "\n");
     }
   }
@@ -247,9 +234,9 @@ void AlpgenSource::beginRun(edm::Run &run)
   // Nota bene: the header is put in the LHERunInfoProduct AS IT WAS GIVEN.
   // That means NO CROSS-CHECKS WHATSOEVER. Use with care.
   LHERunInfoProduct::Header extraHeader(extraHeaderName_);
-  if(writeExtraHeader) {
+  if (writeExtraHeader) {
     std::ifstream extraascii(extraHeaderFileName_.c_str());
-    while(extraascii.getline(buffer,512)) {
+    while (extraascii.getline(buffer, 512)) {
       extraHeader.addLine(std::string(buffer) + "\n");
     }
   }
@@ -263,7 +250,7 @@ void AlpgenSource::beginRun(edm::Run &run)
   if (writeAlpgenParFile)
     runInfo->addHeader(lheAlpgenParHeader);
   runInfo->addHeader(slha);
-  if(writeExtraHeader)
+  if (writeExtraHeader)
     runInfo->addHeader(extraHeader);
   run.put(std::move(runInfo));
 
@@ -271,48 +258,39 @@ void AlpgenSource::beginRun(edm::Run &run)
   inputFile_.reset(new std::ifstream((fileName_ + ".unw").c_str()));
   if (!inputFile_->good())
     throw cms::Exception("Generator|AlpgenInterface")
-      << "AlpgenSource was unable to open the file \""
-      << fileName_ << ".unw\"." << std::endl;
-
+        << "AlpgenSource was unable to open the file \"" << fileName_ << ".unw\"." << std::endl;
 }
 
-template<typename T>
-T AlpgenSource::getParameter(AlpgenHeader::Parameter index) const
-{
-  std::map<AlpgenHeader::Parameter, double>::const_iterator pos =
-    header.params.find(index);
+template <typename T>
+T AlpgenSource::getParameter(AlpgenHeader::Parameter index) const {
+  std::map<AlpgenHeader::Parameter, double>::const_iterator pos = header.params.find(index);
   if (pos == header.params.end())
     throw cms::Exception("Generator|AlpgenInterface")
-      << "Requested Alpgen parameter \""
-      << AlpgenHeader::parameterName(index) << "\" "
-      "not found in Alpgen parameter file." << std::endl;
+        << "Requested Alpgen parameter \"" << AlpgenHeader::parameterName(index)
+        << "\" "
+           "not found in Alpgen parameter file."
+        << std::endl;
 
   return T(pos->second);
 }
 
-template<typename T>
-T AlpgenSource::getParameter(AlpgenHeader::Parameter index,
-                             const T &defValue) const
-{
-  std::map<AlpgenHeader::Parameter, double>::const_iterator pos =
-    header.params.find(index);
+template <typename T>
+T AlpgenSource::getParameter(AlpgenHeader::Parameter index, const T &defValue) const {
+  std::map<AlpgenHeader::Parameter, double>::const_iterator pos = header.params.find(index);
   if (pos == header.params.end())
     return defValue;
   else
     return T(pos->second);
 }
 
-unsigned int AlpgenSource::processID() const
-{
+unsigned int AlpgenSource::processID() const {
   // return 661; // The original, old thing.
   // digits #XYZ: X = ihrd, Y = ihvy, Z = njets
-  return header.ihrd * 100 +
-    getParameter<unsigned int>(AlpgenHeader::ihvy, 0) * 10 +
-    getParameter<unsigned int>(AlpgenHeader::njets, 0);
+  return header.ihrd * 100 + getParameter<unsigned int>(AlpgenHeader::ihvy, 0) * 10 +
+         getParameter<unsigned int>(AlpgenHeader::njets, 0);
 }
 
-bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
-{
+bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup) {
   char buffer[512];
   double dummy;
   int nPart;
@@ -343,13 +321,17 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
   hepeup.IDPRUP = processID();
 
   // Incoming lines
-  for(int i = 0; i != 2; ++i) {
+  for (int i = 0; i != 2; ++i) {
     inputFile_->getline(buffer, sizeof buffer);
     std::istringstream ls(buffer);
-    int flavour; ls >> flavour;
-    int colour1; ls >> colour1;
-    int colour2; ls >> colour2;
-    double zMomentum; ls >> zMomentum;
+    int flavour;
+    ls >> flavour;
+    int colour1;
+    ls >> colour1;
+    int colour2;
+    ls >> colour2;
+    double zMomentum;
+    ls >> zMomentum;
 
     if (inputFile_->bad())
       return false;
@@ -364,22 +346,27 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
     hepeup.PUP[i][2] = zMomentum;
     hepeup.PUP[i][3] = std::fabs(zMomentum);
     hepeup.PUP[i][4] = 0.;
-    if (colour1) colour1 += 500;
-    if (colour2) colour2 += 500;
+    if (colour1)
+      colour1 += 500;
+    if (colour2)
+      colour2 += 500;
     hepeup.ICOLUP[i].first = colour1;
     hepeup.ICOLUP[i].second = colour2;
   }
 
   // Outgoing lines
-  for(int i = 2; i != nPart; ++i) {
+  for (int i = 2; i != nPart; ++i) {
     inputFile_->getline(buffer, sizeof buffer);
     std::istringstream ls(buffer);
-    int flavour; ls >> flavour;
-    int colour1; ls >> colour1;
-    int colour2; ls >> colour2;
-    double px, py, pz, mass; 
+    int flavour;
+    ls >> flavour;
+    int colour1;
+    ls >> colour1;
+    int colour2;
+    ls >> colour2;
+    double px, py, pz, mass;
     ls >> px >> py >> pz >> mass;
-    double energy = std::sqrt(px*px + py*py + pz*pz + mass*mass);
+    double energy = std::sqrt(px * px + py * py + pz * pz + mass * mass);
 
     if (inputFile_->bad())
       return false;
@@ -394,8 +381,10 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
     hepeup.PUP[i][2] = pz;
     hepeup.PUP[i][3] = energy;
     hepeup.PUP[i][4] = mass;
-    if (colour1) colour1 += 500;
-    if (colour2) colour2 += 500;
+    if (colour1)
+      colour1 += 500;
+    if (colour2)
+      colour2 += 500;
     hepeup.ICOLUP[i].first = colour1;
     hepeup.ICOLUP[i].second = colour2;
   }
@@ -403,22 +392,20 @@ bool AlpgenSource::readAlpgenEvent(lhef::HEPEUP &hepeup)
   return true;
 }
 
-bool AlpgenSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::EventAuxiliary::ExperimentType&)
-{
+bool AlpgenSource::setRunAndEventInfo(edm::EventID &, edm::TimeValue_t &, edm::EventAuxiliary::ExperimentType &) {
   // The LHE Event Record
   hepeup_.reset(new lhef::HEPEUP);
 
-  lhef::HEPEUP& hepeup = *hepeup_;
+  lhef::HEPEUP &hepeup = *hepeup_;
 
   // Read the .unw file until it is over.
-  for(;;) {
+  for (;;) {
     if (!readAlpgenEvent(hepeup)) {
       if (inputFile_->eof())
-	return false;
+        return false;
 
       throw cms::Exception("Generator|AlpgenInterface")
-	<< "AlpgenSource is not able read event no. "
-	<< nEvent_ << std::endl;
+          << "AlpgenSource is not able read event no. " << nEvent_ << std::endl;
     }
 
     nEvent_++;
@@ -430,49 +417,45 @@ bool AlpgenSource::setRunAndEventInfo(edm::EventID&, edm::TimeValue_t&, edm::Eve
   return true;
 }
 
-void AlpgenSource::produce(edm::Event &event)
-{
-
+void AlpgenSource::produce(edm::Event &event) {
   // Here are the Alpgen routines for filling up the rest
   // of the LHE Event Record. The .unw file has the information
-  // in a compressed way, e.g. it doesn't list the W boson - 
+  // in a compressed way, e.g. it doesn't list the W boson -
   // one has to reconstruct it from the e nu pair.
-  lhef::HEPEUP& hepeup = *hepeup_;
+  lhef::HEPEUP &hepeup = *hepeup_;
 
-  switch(header.ihrd) {
-  case 1:
-  case 2:
-  case 3:
-  case 4:
-  case 10:
-  case 14:
-  case 15:
-    alpgen::fixEventWZ(hepeup);
-    break;
-  case 5:
-    alpgen::fixEventMultiBoson(hepeup);
-    break;
-  case 6:
-    alpgen::fixEventTTbar(hepeup);
-    break;
-  case 8:
-    alpgen::fixEventHiggsTTbar(hepeup);
-    break;
-  case 13:
-    alpgen::fixEventSingleTop(hepeup, header.masses[AlpgenHeader::mb],
-			      int(header.params[AlpgenHeader::itopprc]));
-    break;    
-  case 7:
-  case 9:
-  case 11:
-  case 12:
-  case 16:
-    // No fixes needed.
-    break;
+  switch (header.ihrd) {
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 10:
+    case 14:
+    case 15:
+      alpgen::fixEventWZ(hepeup);
+      break;
+    case 5:
+      alpgen::fixEventMultiBoson(hepeup);
+      break;
+    case 6:
+      alpgen::fixEventTTbar(hepeup);
+      break;
+    case 8:
+      alpgen::fixEventHiggsTTbar(hepeup);
+      break;
+    case 13:
+      alpgen::fixEventSingleTop(hepeup, header.masses[AlpgenHeader::mb], int(header.params[AlpgenHeader::itopprc]));
+      break;
+    case 7:
+    case 9:
+    case 11:
+    case 12:
+    case 16:
+      // No fixes needed.
+      break;
 
-  default: 
-    throw cms::Exception("Generator|AlpgenInterface") 
-      << "Unrecognized IHRD process code" << std::endl;
+    default:
+      throw cms::Exception("Generator|AlpgenInterface") << "Unrecognized IHRD process code" << std::endl;
   }
 
   // Create the LHEEventProduct and put it into the Event.

@@ -6,4 +6,4 @@ typedef ShallowCloneProducer<reco::ElectronCollection> ElectronShallowCloneProdu
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-DEFINE_FWK_MODULE( ElectronShallowCloneProducer );
+DEFINE_FWK_MODULE(ElectronShallowCloneProducer);

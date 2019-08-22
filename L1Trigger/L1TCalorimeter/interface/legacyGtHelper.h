@@ -18,39 +18,38 @@
 namespace l1t {
 
   void calibrateAndRankJets(CaloParamsHelper const *params,
-			    const std::vector<l1t::Jet> * input,
-			    std::vector<l1t::Jet> *output);
+                            const std::vector<l1t::Jet> *input,
+                            std::vector<l1t::Jet> *output);
 
   void calibrateAndRankTaus(CaloParamsHelper const *params,
-			    const std::vector<l1t::Tau> * input,
-			    std::vector<l1t::Tau> *output);
+                            const std::vector<l1t::Tau> *input,
+                            std::vector<l1t::Tau> *output);
 
   void JetToGtEtaScales(CaloParamsHelper const *params,
-			const std::vector<l1t::Jet> * input,
-			std::vector<l1t::Jet> *output);
+                        const std::vector<l1t::Jet> *input,
+                        std::vector<l1t::Jet> *output);
 
   void JetToGtPtScales(CaloParamsHelper const *params,
-		       const std::vector<l1t::Jet> * input,
-		       std::vector<l1t::Jet> *output);
-
+                       const std::vector<l1t::Jet> *input,
+                       std::vector<l1t::Jet> *output);
 
   void EGammaToGtScales(CaloParamsHelper const *params,
-			const std::vector<l1t::EGamma> * input,
-			std::vector<l1t::EGamma> *output);
+                        const std::vector<l1t::EGamma> *input,
+                        std::vector<l1t::EGamma> *output);
 
   void TauToGtEtaScales(CaloParamsHelper const *params,
-			const std::vector<l1t::Tau> * input,
-			std::vector<l1t::Tau> *output);
+                        const std::vector<l1t::Tau> *input,
+                        std::vector<l1t::Tau> *output);
 
   void TauToGtPtScales(CaloParamsHelper const *params,
-		       const std::vector<l1t::Tau> * input,
-		       std::vector<l1t::Tau> *output);
+                       const std::vector<l1t::Tau> *input,
+                       std::vector<l1t::Tau> *output);
 
   void EtSumToGtScales(CaloParamsHelper const *params,
-		       const std::vector<l1t::EtSum> * input,
-		       std::vector<l1t::EtSum> *output);
+                       const std::vector<l1t::EtSum> *input,
+                       std::vector<l1t::EtSum> *output);
 
   const unsigned int gtEta(const unsigned int iEta);
-}
+}  // namespace l1t
 
 #endif

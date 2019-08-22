@@ -44,105 +44,102 @@
 //              ---------------------
 
 class L1MuGMTExtendedCand : public L1MuGMTCand {
+public:
+  /// constructor
+  L1MuGMTExtendedCand();
 
-  public:
-    /// constructor   
-    L1MuGMTExtendedCand();
-   
-    /// constructor   
-    L1MuGMTExtendedCand(unsigned data, unsigned rank, int bx=0);
-   
-    /// copy constructor
-    L1MuGMTExtendedCand(const L1MuGMTExtendedCand&);
+  /// constructor
+  L1MuGMTExtendedCand(unsigned data, unsigned rank, int bx = 0);
 
-    /// destructor
-     ~L1MuGMTExtendedCand() override;
+  /// copy constructor
+  L1MuGMTExtendedCand(const L1MuGMTExtendedCand&);
 
-    /// reset muon candidate
-    void reset();
+  /// destructor
+  ~L1MuGMTExtendedCand() override;
 
-    //
-    // Getters
-    //
-    
-    /// get rank
-    unsigned int rank() const { return m_rank; }
-    
-    /// get index of contributing DT/CSC muon
-    unsigned getDTCSCIndex() const { 
-      return readDataField( IDXDTCSC_START, IDXDTCSC_LENGTH); 
-    }
+  /// reset muon candidate
+  void reset();
 
-    /// get index of contributing RPC muon
-    unsigned getRPCIndex() const { 
-      return readDataField( IDXRPC_START, IDXRPC_LENGTH); 
-    }
+  //
+  // Getters
+  //
 
-    /// get forward bit (true=forward, false=barrel)
-    bool isFwd() const { return readDataField( FWDBIT_START, FWDBIT_LENGTH) == 1; }
+  /// get rank
+  unsigned int rank() const { return m_rank; }
 
-    /// get RPC bit (true=RPC, false = DT/CSC or matched)
-    bool isRPC() const { return readDataField( ISRPCBIT_START, ISRPCBIT_LENGTH) == 1; }
+  /// get index of contributing DT/CSC muon
+  unsigned getDTCSCIndex() const { return readDataField(IDXDTCSC_START, IDXDTCSC_LENGTH); }
 
-      /// set rank
-    void setRank(unsigned int rank) { m_rank = rank; }
+  /// get index of contributing RPC muon
+  unsigned getRPCIndex() const { return readDataField(IDXRPC_START, IDXRPC_LENGTH); }
 
-    /// get detector bits
-    /// 1=rpc, 2=dtbx, 4=csc, 3=rpc+dtbx, 5=rpc+csc
-    /// supported for backward compatibility only
-    unsigned int detector() const ;
+  /// get forward bit (true=forward, false=barrel)
+  bool isFwd() const { return readDataField(FWDBIT_START, FWDBIT_LENGTH) == 1; }
 
-    //
-    // Setters
-    // 
+  /// get RPC bit (true=RPC, false = DT/CSC or matched)
+  bool isRPC() const { return readDataField(ISRPCBIT_START, ISRPCBIT_LENGTH) == 1; }
 
-    /// set index of contributing DT/CSC muon
-    void setDTCSCIndex(unsigned int idxdtcsc) { 
-      writeDataField( IDXDTCSC_START, IDXDTCSC_LENGTH, idxdtcsc); 
-    }
+  /// set rank
+  void setRank(unsigned int rank) { m_rank = rank; }
 
-    /// set index of contributing RPC muon
-    void setRPCIndex(unsigned int idxrpc) { writeDataField( IDXRPC_START, IDXRPC_LENGTH, idxrpc); }
+  /// get detector bits
+  /// 1=rpc, 2=dtbx, 4=csc, 3=rpc+dtbx, 5=rpc+csc
+  /// supported for backward compatibility only
+  unsigned int detector() const;
 
-    /// set forward bit (1=forward, 0=barrel)
-    void setFwdBit(unsigned int fwdbit) { writeDataField( FWDBIT_START, FWDBIT_LENGTH, fwdbit); }
+  //
+  // Setters
+  //
 
-    /// set RPC bit (1=RPC, 0=DT/CSC or matched)
-    void setRPCBit(unsigned int rpcbit) { writeDataField( ISRPCBIT_START, ISRPCBIT_LENGTH, rpcbit); }
+  /// set index of contributing DT/CSC muon
+  void setDTCSCIndex(unsigned int idxdtcsc) { writeDataField(IDXDTCSC_START, IDXDTCSC_LENGTH, idxdtcsc); }
 
-    /// equal operator
-    bool operator==(const L1MuGMTExtendedCand&) const;
-    
-    /// unequal operator
-    bool operator!=(const L1MuGMTExtendedCand&) const;
+  /// set index of contributing RPC muon
+  void setRPCIndex(unsigned int idxrpc) { writeDataField(IDXRPC_START, IDXRPC_LENGTH, idxrpc); }
 
-    /// print parameters of muon candidate
-    void print() const;
-  
-    /// output stream operator
-    friend std::ostream& operator<<(std::ostream&, const L1MuGMTExtendedCand&);
+  /// set forward bit (1=forward, 0=barrel)
+  void setFwdBit(unsigned int fwdbit) { writeDataField(FWDBIT_START, FWDBIT_LENGTH, fwdbit); }
 
-    /// define a rank for muon candidates
-    static bool compareRank( const L1MuGMTExtendedCand* first, const L1MuGMTExtendedCand* second ) {
-      unsigned int rank_f = (first) ? first->rank(): 0;
-      unsigned int rank_s = (second) ? second->rank() : 0;
-      return rank_f > rank_s;
-    }
+  /// set RPC bit (1=RPC, 0=DT/CSC or matched)
+  void setRPCBit(unsigned int rpcbit) { writeDataField(ISRPCBIT_START, ISRPCBIT_LENGTH, rpcbit); }
 
-    /// define a rank for muon candidates
-    static bool rankRef( const L1MuGMTExtendedCand& first, const L1MuGMTExtendedCand& second ) {
-      unsigned int rank_f = first.rank();
-      unsigned int rank_s = second.rank();
-      return rank_f > rank_s;
-    }
+  /// equal operator
+  bool operator==(const L1MuGMTExtendedCand&) const;
 
-  private:
-    unsigned int m_rank;
-    
-    enum { IDXDTCSC_START=26}; enum { IDXDTCSC_LENGTH = 2}; // Bit  26:27 DT/CSC muon index
-    enum { IDXRPC_START=28};   enum { IDXRPC_LENGTH = 2};   // Bit  28:29 RPC muon index
-    enum { FWDBIT_START=30};   enum { FWDBIT_LENGTH = 1};   // Bit  30    fwd bit
-    enum { ISRPCBIT_START=31}; enum { ISRPCBIT_LENGTH = 1}; // Bit  31    isRPC bit
+  /// unequal operator
+  bool operator!=(const L1MuGMTExtendedCand&) const;
+
+  /// print parameters of muon candidate
+  void print() const;
+
+  /// output stream operator
+  friend std::ostream& operator<<(std::ostream&, const L1MuGMTExtendedCand&);
+
+  /// define a rank for muon candidates
+  static bool compareRank(const L1MuGMTExtendedCand* first, const L1MuGMTExtendedCand* second) {
+    unsigned int rank_f = (first) ? first->rank() : 0;
+    unsigned int rank_s = (second) ? second->rank() : 0;
+    return rank_f > rank_s;
+  }
+
+  /// define a rank for muon candidates
+  static bool rankRef(const L1MuGMTExtendedCand& first, const L1MuGMTExtendedCand& second) {
+    unsigned int rank_f = first.rank();
+    unsigned int rank_s = second.rank();
+    return rank_f > rank_s;
+  }
+
+private:
+  unsigned int m_rank;
+
+  enum { IDXDTCSC_START = 26 };
+  enum { IDXDTCSC_LENGTH = 2 };  // Bit  26:27 DT/CSC muon index
+  enum { IDXRPC_START = 28 };
+  enum { IDXRPC_LENGTH = 2 };  // Bit  28:29 RPC muon index
+  enum { FWDBIT_START = 30 };
+  enum { FWDBIT_LENGTH = 1 };  // Bit  30    fwd bit
+  enum { ISRPCBIT_START = 31 };
+  enum { ISRPCBIT_LENGTH = 1 };  // Bit  31    isRPC bit
 };
-  
+
 #endif

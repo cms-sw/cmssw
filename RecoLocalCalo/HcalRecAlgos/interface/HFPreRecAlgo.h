@@ -7,19 +7,19 @@ class QIE10DataFrame;
 class HcalCoder;
 class HcalCalibrations;
 
-class HFPreRecAlgo
-{
+class HFPreRecAlgo {
 public:
-    inline explicit HFPreRecAlgo(const bool sumAllTS) : sumAllTS_(sumAllTS) {}
+  inline explicit HFPreRecAlgo(const bool sumAllTS) : sumAllTS_(sumAllTS) {}
 
-    inline ~HFPreRecAlgo() {}
+  inline ~HFPreRecAlgo() {}
 
-    HFQIE10Info reconstruct(const QIE10DataFrame& digi,
-                            int tsToUse,
-                            const HcalCoder& coder,
-                            const HcalCalibrations& calibs) const;
+  HFQIE10Info reconstruct(const QIE10DataFrame& digi,
+                          int tsToUse,
+                          const HcalCoder& coder,
+                          const HcalCalibrations& calibs) const;
+
 private:
-    bool sumAllTS_;
+  bool sumAllTS_;
 };
 
-#endif // RecoLocalCalo_HcalRecAlgos_HFPreRecAlgo_h_
+#endif  // RecoLocalCalo_HcalRecAlgos_HFPreRecAlgo_h_

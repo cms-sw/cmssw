@@ -10,4 +10,3 @@
 DEFINE_EDM_PLUGIN(GEMSegmentBuilderPluginFactory, GEMSegmentAlgorithm, "GEMSegmentAlgorithm");
 DEFINE_EDM_PLUGIN(ME0SegmentBuilderPluginFactory, ME0SegmentAlgorithm, "ME0SegmentAlgorithm");
 DEFINE_EDM_PLUGIN(ME0SegmentBuilderPluginFactory, ME0SegAlgoRU, "ME0SegAlgoRU");
-

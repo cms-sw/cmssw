@@ -11,41 +11,38 @@
  *
  */
 
-#include<string>
-#include<vector>
-#include<iostream>
+#include <string>
+#include <vector>
+#include <iostream>
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "Geometry/HcalCommonData/interface/HcalCellType.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-class DDCompactView;    
+class DDCompactView;
 class DDFilteredView;
 class HcalParameters;
 
 class HcalGeomParameters {
-
 public:
-
   HcalGeomParameters();
   ~HcalGeomParameters();
 
-  double              getConstDzHF()   const {return dzVcal;}
-  void                getConstRHO( std::vector<double> & ) const;
-  std::vector<int>    getModHalfHBHE(const int type) const;
-  void                loadGeometry(const DDFilteredView& _fv, 
-				   HcalParameters& php);
+  double getConstDzHF() const { return dzVcal; }
+  void getConstRHO(std::vector<double>&) const;
+  std::vector<int> getModHalfHBHE(const int type) const;
+  void loadGeometry(const DDFilteredView& _fv, HcalParameters& php);
 
 private:
-  unsigned            find (int element, std::vector<int>& array) const;
-  double              getEta (double r, double z) const;
+  unsigned find(int element, std::vector<int>& array) const;
+  double getEta(double r, double z) const;
 
-  int                 nzHB, nmodHB;     // Number of halves and modules in HB
-  int                 nzHE, nmodHE;     // Number of halves and modules in HE
-  double              etaHO[4], rminHO; // eta in HO ring boundaries
-  double              zVcal;    // Z-position  of the front of HF
-  double              dzVcal;   // Half length of the HF
-  double              dlShort;  // Diference of length between long and short
+  int nzHB, nmodHB;         // Number of halves and modules in HB
+  int nzHE, nmodHE;         // Number of halves and modules in HE
+  double etaHO[4], rminHO;  // eta in HO ring boundaries
+  double zVcal;             // Z-position  of the front of HF
+  double dzVcal;            // Half length of the HF
+  double dlShort;           // Diference of length between long and short
 };
 
 #endif

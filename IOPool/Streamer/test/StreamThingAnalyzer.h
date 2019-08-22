@@ -22,9 +22,9 @@ namespace edmtest_thing {
   public:
     explicit StreamThingAnalyzer(edm::ParameterSet const&);
 
-    virtual ~StreamThingAnalyzer();
+    ~StreamThingAnalyzer() override;
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
 
   private:
     std::string name_;

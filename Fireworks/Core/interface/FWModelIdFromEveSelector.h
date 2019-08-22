@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWModelIdFromEveSelector
-// 
+//
 /**\class FWModelIdFromEveSelector FWModelIdFromEveSelector.h Fireworks/Core/interface/FWModelIdFromEveSelector.h
 
  Description: [one line class summary]
@@ -26,32 +26,28 @@
 
 // forward declarations
 
-class FWModelIdFromEveSelector : public FWFromEveSelectorBase
-{
-
+class FWModelIdFromEveSelector : public FWFromEveSelectorBase {
 public:
-   FWModelIdFromEveSelector(const FWModelId& iId = FWModelId()):
-   m_id(iId) {}
-   //virtual ~FWModelIdFromEveSelector();
-   
-   operator FWModelId() const { return m_id;} 
-   // ---------- const member functions ---------------------
-   const FWModelId& id() const {return m_id;}
-   
-   // ---------- static member functions --------------------
-   
-   // ---------- member functions ---------------------------
-   void doSelect() override;
-   void doUnselect() override;
+  FWModelIdFromEveSelector(const FWModelId& iId = FWModelId()) : m_id(iId) {}
+  //virtual ~FWModelIdFromEveSelector();
+
+  operator FWModelId() const { return m_id; }
+  // ---------- const member functions ---------------------
+  const FWModelId& id() const { return m_id; }
+
+  // ---------- static member functions --------------------
+
+  // ---------- member functions ---------------------------
+  void doSelect() override;
+  void doUnselect() override;
 
 private:
-   //FWModelIdFromEveSelector(const FWModelIdFromEveSelector&); // stop default
-   
-   //const FWModelIdFromEveSelector& operator=(const FWModelIdFromEveSelector&); // stop default
-   
-   // ---------- member data --------------------------------
-   FWModelId m_id;
-};
+  //FWModelIdFromEveSelector(const FWModelIdFromEveSelector&); // stop default
 
+  //const FWModelIdFromEveSelector& operator=(const FWModelIdFromEveSelector&); // stop default
+
+  // ---------- member data --------------------------------
+  FWModelId m_id;
+};
 
 #endif

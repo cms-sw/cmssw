@@ -3,7 +3,7 @@
 
 //-------------------------------------------------------------------------------
 // Created 05/03/2010 - A.C. Le Bihan
-// 
+//
 //
 // Original code : L1Trigger/L1TNtuples/L1RecoJetNtupleProducer - Jim Brooke
 //-------------------------------------------------------------------------------
@@ -16,29 +16,24 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
-namespace L1Analysis
-{
-  class L1AnalysisRecoJet
-  {
+namespace L1Analysis {
+  class L1AnalysisRecoJet {
   public:
     L1AnalysisRecoJet();
     ~L1AnalysisRecoJet();
-    
+
     //void Print(std::ostream &os = std::cout) const;
     void SetCaloJet(const edm::Event& event,
-		    const edm::EventSetup& setup,
-		    const edm::Handle<reco::CaloJetCollection> caloJets, 
-		    //edm::Handle<edm::ValueMap<reco::JetID> > jetsID,
-		    //edm::Handle<reco::JetCorrector> jetCorrector,
-		    unsigned maxJet);
-    L1AnalysisRecoJetDataFormat * getData() {return &recoJet_;}
-    void Reset() {recoJet_.Reset();}
+                    const edm::EventSetup& setup,
+                    const edm::Handle<reco::CaloJetCollection> caloJets,
+                    //edm::Handle<edm::ValueMap<reco::JetID> > jetsID,
+                    //edm::Handle<reco::JetCorrector> jetCorrector,
+                    unsigned maxJet);
+    L1AnalysisRecoJetDataFormat* getData() { return &recoJet_; }
+    void Reset() { recoJet_.Reset(); }
 
-  private :
+  private:
     L1AnalysisRecoJetDataFormat recoJet_;
-  }; 
-}
+  };
+}  // namespace L1Analysis
 #endif
-
-

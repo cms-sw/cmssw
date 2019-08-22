@@ -4,7 +4,7 @@
 //
 // Package:     CommonAlignmentMonitor
 // Class  :     AlignmentMonitorBase
-// 
+//
 /**\class AlignmentMonitorBase AlignmentMonitorBase.h Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h
 
  Description: <one line class summary>
@@ -39,75 +39,95 @@
 
 // forward declarations
 
-class AlignmentMonitorBase
-{
-   public:
-      typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
-      typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
+class AlignmentMonitorBase {
+public:
+  typedef std::pair<const Trajectory *, const reco::Track *> ConstTrajTrackPair;
+  typedef std::vector<ConstTrajTrackPair> ConstTrajTrackPairCollection;
 
-      /// Constructor
-      AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name);
-      
-      /// Destructor
-      virtual ~AlignmentMonitorBase() {}
+  /// Constructor
+  AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name);
 
-      /// Called at beginning of job: don't reimplement
-      void beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon, AlignmentParameterStore *pStore);
+  /// Destructor
+  virtual ~AlignmentMonitorBase() {}
 
-      /// Called at beginning of loop: don't reimplement
-      void startingNewLoop();
+  /// Called at beginning of job: don't reimplement
+  void beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon, AlignmentParameterStore *pStore);
 
-      /// Called for each event: don't reimplement
-      void duringLoop(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks);
+  /// Called at beginning of loop: don't reimplement
+  void startingNewLoop();
 
-      /// Called at end of loop: don't reimplement
-      void endOfLoop();
+  /// Called for each event: don't reimplement
+  void duringLoop(const edm::Event &iEvent,
+                  const edm::EventSetup &iSetup,
+                  const ConstTrajTrackPairCollection &iTrajTracks);
 
-      /// Called at end of processing: don't implement
-      void endOfJob() {}
+  /// Called at end of loop: don't reimplement
+  void endOfLoop();
 
-      /////////////////////////////////////////////////////
+  /// Called at end of processing: don't implement
+  void endOfJob() {}
 
-      /// Book or retrieve histograms; MUST be reimplemented
-      virtual void book() = 0;
+  /////////////////////////////////////////////////////
 
-      /// Called for each event (by "run()"): may be reimplemented
-      virtual void event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection &iTrajTracks) { }
+  /// Book or retrieve histograms; MUST be reimplemented
+  virtual void book() = 0;
 
-      /// Called after updating AlignableTracker and AlignableMuon (by
-      /// "endOfLoop()"): may be reimplemented
-      virtual void afterAlignment() { }
+  /// Called for each event (by "run()"): may be reimplemented
+  virtual void event(const edm::Event &iEvent,
+                     const edm::EventSetup &iSetup,
+                     const ConstTrajTrackPairCollection &iTrajTracks) {}
 
-   protected:
-      /// Use this every time you book a histogram (so that
-      /// AlignmentMonitorBase can find your histograms in a
-      /// collector (parallel-processing) job)
-      TH1F *book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX);
-      TProfile *bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., const char *option="s");
-      TH2F *book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
-      TFileDirectory *directory(std::string dir);
-      
-      int                     iteration()    { return m_iteration; }
-      AlignableTracker        *pTracker()    { return mp_tracker; }
-      AlignableMuon           *pMuon()       { return mp_muon; }
-      AlignmentParameterStore *pStore()      { return mp_store; }
-      AlignableNavigator      *pNavigator()  { return mp_navigator; }
+  /// Called after updating AlignableTracker and AlignableMuon (by
+  /// "endOfLoop()"): may be reimplemented
+  virtual void afterAlignment() {}
 
-      const edm::InputTag m_beamSpotTag;
+protected:
+  /// Use this every time you book a histogram (so that
+  /// AlignmentMonitorBase can find your histograms in a
+  /// collector (parallel-processing) job)
+  TH1F *book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX);
+  TProfile *bookProfile(std::string dir,
+                        std::string name,
+                        std::string title,
+                        int nchX,
+                        double lowX,
+                        double highX,
+                        int nchY = 1,
+                        double lowY = 0.,
+                        double highY = 0.,
+                        const char *option = "s");
+  TH2F *book2D(std::string dir,
+               std::string name,
+               std::string title,
+               int nchX,
+               double lowX,
+               double highX,
+               int nchY,
+               double lowY,
+               double highY);
+  TFileDirectory *directory(std::string dir);
 
-   private:
-      AlignmentMonitorBase(const AlignmentMonitorBase&) = delete; // stop default
-      const AlignmentMonitorBase& operator=(const AlignmentMonitorBase&) = delete; // stop default
+  int iteration() { return m_iteration; }
+  AlignableTracker *pTracker() { return mp_tracker; }
+  AlignableMuon *pMuon() { return mp_muon; }
+  AlignmentParameterStore *pStore() { return mp_store; }
+  AlignableNavigator *pNavigator() { return mp_navigator; }
 
-      // ---------- member data --------------------------------
+  const edm::InputTag m_beamSpotTag;
 
-      int m_iteration;
-      AlignableTracker         *mp_tracker;
-      AlignableMuon            *mp_muon;
-      AlignmentParameterStore  *mp_store;
-      AlignableNavigator       *mp_navigator;
+private:
+  AlignmentMonitorBase(const AlignmentMonitorBase &) = delete;                   // stop default
+  const AlignmentMonitorBase &operator=(const AlignmentMonitorBase &) = delete;  // stop default
 
-      std::map<std::vector<std::string>, TFileDirectory*> m_baseDirMap, m_iterDirMap;
+  // ---------- member data --------------------------------
+
+  int m_iteration;
+  AlignableTracker *mp_tracker;
+  AlignableMuon *mp_muon;
+  AlignmentParameterStore *mp_store;
+  AlignableNavigator *mp_navigator;
+
+  std::map<std::vector<std::string>, TFileDirectory *> m_baseDirMap, m_iterDirMap;
 };
 
 /*** Global typedefs ***/

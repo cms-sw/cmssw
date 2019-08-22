@@ -34,26 +34,53 @@
 #define SiPixelTemplateClusMatrix2D 1
 
 namespace SiPixelTemplateReco2D {
-   
-   struct ClusMatrix {
-      float & operator()(int x, int y) { return matrix[mcol*x+y];}
-      float operator()(int x, int y) const { return matrix[mcol*x+y];}
-      float * matrix;
-      bool * xdouble;
-      bool * ydouble;
-      int mrow, mcol;
-   };
+
+  struct ClusMatrix {
+    float& operator()(int x, int y) { return matrix[mcol * x + y]; }
+    float operator()(int x, int y) const { return matrix[mcol * x + y]; }
+    float* matrix;
+    bool* xdouble;
+    bool* ydouble;
+    int mrow, mcol;
+  };
 #endif
-   
-   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
-                       ClusMatrix & cluster, SiPixelTemplate2D& templ,
-                       float& yrec, float& sigmay, float& xrec, float& sigmax, float& probxy, float& probQ, int& qbin, float& deltay, int& npixel);
-   
-   int PixelTempReco2D(int id, float cotalpha, float cotbeta, float locBz, float locBx, int edgeflagy, int edgeflagx,
-                       ClusMatrix & cluster, SiPixelTemplate2D& templ,
-                       float& yrec, float& sigmay, float& xrec, float& sigmax, float& probxy, float& probQ, int& qbin, float& deltay);
-   
-   
+
+  int PixelTempReco2D(int id,
+                      float cotalpha,
+                      float cotbeta,
+                      float locBz,
+                      float locBx,
+                      int edgeflagy,
+                      int edgeflagx,
+                      ClusMatrix& cluster,
+                      SiPixelTemplate2D& templ,
+                      float& yrec,
+                      float& sigmay,
+                      float& xrec,
+                      float& sigmax,
+                      float& probxy,
+                      float& probQ,
+                      int& qbin,
+                      float& deltay,
+                      int& npixel);
+
+  int PixelTempReco2D(int id,
+                      float cotalpha,
+                      float cotbeta,
+                      float locBz,
+                      float locBx,
+                      int edgeflagy,
+                      int edgeflagx,
+                      ClusMatrix& cluster,
+                      SiPixelTemplate2D& templ,
+                      float& yrec,
+                      float& sigmay,
+                      float& xrec,
+                      float& sigmax,
+                      float& probxy,
+                      float& probQ,
+                      int& qbin,
+                      float& deltay);
 }
 
 #endif

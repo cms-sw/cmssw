@@ -21,7 +21,7 @@
  * acts as a pointers to an empty collection.
  * <P>The templace parameter T specifies the type of the data collection.
  */
-template<class T>
+template <class T>
 class CollHandle {
   //constructor(s) and destructor(s)
 public:
@@ -30,15 +30,14 @@ public:
    * @param failIfNotFound pass true if the absence of the collection
    * in the event must be considered as an error. See read() method.
    */
-  CollHandle(const edm::InputTag& tag,
-	     bool failIfNotFound = true,
-	     bool notFoundWarn = true): tag_(tag),
-                                        token_(),
-					currentColl_(&emptyColl_),
-					notFoundAlreadyWarned_(false),
-					failIfNotFound_(failIfNotFound),
-					notFoundWarn_(notFoundWarn){}
-  
+  CollHandle(const edm::InputTag& tag, bool failIfNotFound = true, bool notFoundWarn = true)
+      : tag_(tag),
+        token_(),
+        currentColl_(&emptyColl_),
+        notFoundAlreadyWarned_(false),
+        failIfNotFound_(failIfNotFound),
+        notFoundWarn_(notFoundWarn) {}
+
   //method(s)
 public:
   /*
@@ -46,10 +45,7 @@ public:
      of the collection, as well as storing the token for it.
   */
 
-  void setToken(edm::ConsumesCollector& collector)
-  {
-    token_ = collector.consumes<T>(tag_);
-  }
+  void setToken(edm::ConsumesCollector& collector) { token_ = collector.consumes<T>(tag_); }
 
   /** Retrieves the collection from the event. If failIfNotFound is true and
    * the collection is not found, then an edm::Exception is thrown. For other
@@ -59,22 +55,22 @@ public:
    * the collection is not found.
    * @param event the EDM event the collection must be retrieved from.
    */
-  void read(const edm::Event& event){
+  void read(const edm::Event& event) {
     //    try{
     edm::Handle<T> hColl;
     event.getByToken(token_, hColl);
-  
+
     //If we must be tolerant to product absence, then
     //we must check validaty before calling Handle::operator*
     //to prevent exception throw:
-    if(!failIfNotFound_     // product-not-found tolerant mode
-       && !hColl.isValid()){// and the product was not found
-      if(notFoundWarn_
-	 && !notFoundAlreadyWarned_){//warning logged only once
-	edm::LogWarning("ProductNotFound") << tag_
-					   << " product "
-          "of type '" << typeid(T).name() << "' was not found!";
-	notFoundAlreadyWarned_ = true;
+    if (!failIfNotFound_                               // product-not-found tolerant mode
+        && !hColl.isValid()) {                         // and the product was not found
+      if (notFoundWarn_ && !notFoundAlreadyWarned_) {  //warning logged only once
+        edm::LogWarning("ProductNotFound") << tag_
+                                           << " product "
+                                              "of type '"
+                                           << typeid(T).name() << "' was not found!";
+        notFoundAlreadyWarned_ = true;
       }
       currentColl_ = &emptyColl_;
     } else {
@@ -82,21 +78,19 @@ public:
     }
   }
 
-  
   /** Accessor to a member of the collection retrieved by read method().
    * Considering h a CollHandle instance, h->f() is equivalent to (*h).f().
    */
-  const T* operator->() const{ return currentColl_;}
+  const T* operator->() const { return currentColl_; }
 
   /** Gets the collection retrieved by read() method. If the collection was
    * absent from the event an empty collection is returned.
    */
-  const T& operator*() const { return *currentColl_;}
+  const T& operator*() const { return *currentColl_; }
 
   edm::InputTag tag() const { return tag_; }
-  
-private:
 
+private:
   //attribute(s)
 protected:
 private:

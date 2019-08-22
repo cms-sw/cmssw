@@ -11,21 +11,21 @@
 #include <iostream>
 
 class EcalTimeOffsetConstant {
-  public:
-    EcalTimeOffsetConstant();
-    EcalTimeOffsetConstant(const float& EBvalue, const float& EEvalue);
-    ~EcalTimeOffsetConstant();
-    void  setEBValue(const float& value) { EBvalue_ = value; }
-    void  setEEValue(const float& value) { EEvalue_ = value; }
-    float getEBValue() const { return EBvalue_; }
-    float getEEValue() const { return EEvalue_; }
-    void print(std::ostream& s) const {
-      s << "EcalTimeOffsetConstant: EB " << EBvalue_ << "; EE " << EEvalue_ << " [ns]";
-    }
+public:
+  EcalTimeOffsetConstant();
+  EcalTimeOffsetConstant(const float& EBvalue, const float& EEvalue);
+  ~EcalTimeOffsetConstant();
+  void setEBValue(const float& value) { EBvalue_ = value; }
+  void setEEValue(const float& value) { EEvalue_ = value; }
+  float getEBValue() const { return EBvalue_; }
+  float getEEValue() const { return EEvalue_; }
+  void print(std::ostream& s) const {
+    s << "EcalTimeOffsetConstant: EB " << EBvalue_ << "; EE " << EEvalue_ << " [ns]";
+  }
 
-  private:
-    float EBvalue_;
-    float EEvalue_;
+private:
+  float EBvalue_;
+  float EEvalue_;
 
   COND_SERIALIZABLE;
 };

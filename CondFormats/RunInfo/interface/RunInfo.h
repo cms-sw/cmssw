@@ -4,7 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <iostream>
-#include<vector>
+#include <vector>
 
 /*
  *  \class RunInfo
@@ -17,7 +17,6 @@
 
 class RunInfo {
 public:
-  
   int m_run;
   long long m_start_time_ll;
   std::string m_start_time_str;
@@ -32,17 +31,14 @@ public:
   float m_run_intervall_micros;
   std::vector<float> m_current;
   std::vector<float> m_times_of_currents;
-    
+
   RunInfo();
   virtual ~RunInfo(){};
   static RunInfo* Fake_RunInfo();
-    
-  void printAllValues() const;
 
-  
+  void printAllValues() const;
 
   COND_SERIALIZABLE;
 };
-
 
 #endif

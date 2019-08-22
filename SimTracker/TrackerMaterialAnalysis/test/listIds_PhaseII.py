@@ -7,13 +7,13 @@ process = cms.Process("MaterialAnalyser")
 readGeometryFromDB = False
 
 if not readGeometryFromDB:
-  process.load('Configuration.Geometry.GeometryExtended2023D4Reco_cff')
+  process.load('Configuration.Geometry.GeometryExtended2026D41Reco_cff')
 else:
 # GlobalTag and geometry via GT
   process.load('Configuration.Geometry.GeometrySimDB_cff')
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
   from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+  process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

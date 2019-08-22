@@ -10,7 +10,7 @@
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
 
 class DCULVRVoltagesDat : public IDataItem {
- public:
+public:
   friend class EcalCondDBInterface;
   DCULVRVoltagesDat();
   ~DCULVRVoltagesDat() override;
@@ -35,7 +35,7 @@ class DCULVRVoltagesDat : public IDataItem {
 
   inline void setVCC(float v) { m_VCC = v; }
   inline float getVCC() const { return m_VCC; }
-  
+
   inline void setVFE4_5_D(float v) { m_vfe4_5_D = v; }
   inline float getVFE4_5_D() const { return m_vfe4_5_D; }
 
@@ -63,19 +63,14 @@ class DCULVRVoltagesDat : public IDataItem {
   inline void setV43_D(float v) { m_V43_D = v; }
   inline float getV43_D() const { return m_V43_D; }
 
+private:
+  void prepareWrite() noexcept(false) override;
 
- private:
-  void prepareWrite() 
-    noexcept(false) override;
+  void writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat* item, DCUIOV* iov) noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat* item, DCUIOV* iov)
-    noexcept(false);
+  void writeArrayDB(const std::map<EcalLogicID, DCULVRVoltagesDat>* data, DCUIOV* iov) noexcept(false);
 
-  void writeArrayDB(const std::map< EcalLogicID, DCULVRVoltagesDat>* data, DCUIOV* iov)
-    noexcept(false);
-
-  void fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fillVec, DCUIOV* iov)
-     noexcept(false);
+  void fetchData(std::map<EcalLogicID, DCULVRVoltagesDat>* fillVec, DCUIOV* iov) noexcept(false);
 
   // User data
   float m_vfe1_A;

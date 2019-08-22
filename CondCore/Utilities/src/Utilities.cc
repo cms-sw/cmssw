@@ -8,7 +8,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/PluginManager/interface/SharedLibrary.h"
-#include <boost/foreach.hpp>                   
+#include <boost/foreach.hpp>
 #include <fstream>
 #include <iostream>
 
@@ -23,104 +23,98 @@ namespace cond {
   int getch() {
     int ch;
     struct termios t_old, t_new;
-    
+
     tcgetattr(STDIN_FILENO, &t_old);
     t_new = t_old;
     t_new.c_lflag &= ~(ICANON | ECHO);
     tcsetattr(STDIN_FILENO, TCSANOW, &t_new);
-    
+
     ch = getchar();
-    
+
     tcsetattr(STDIN_FILENO, TCSANOW, &t_old);
     return ch;
   }
 
-  std::string getpass(const std::string& prompt, bool show_asterisk){
-    const char BACKSPACE=127;
-    const char RETURN=10;
-    
-    std::string password;
-    unsigned char ch=0;
+  std::string getpass(const std::string& prompt, bool show_asterisk) {
+    const char BACKSPACE = 127;
+    const char RETURN = 10;
 
-    std::cout <<prompt;
-    
-    while((ch=getch())!=RETURN){
-      if(ch==BACKSPACE){
-	if(password.length()!=0){
-	  if(show_asterisk) std::cout <<"\b \b";
-	  password.resize(password.length()-1);
-	}
+    std::string password;
+    unsigned char ch = 0;
+
+    std::cout << prompt;
+
+    while ((ch = getch()) != RETURN) {
+      if (ch == BACKSPACE) {
+        if (password.length() != 0) {
+          if (show_asterisk)
+            std::cout << "\b \b";
+          password.resize(password.length() - 1);
+        }
       } else {
-	password+=ch;
-	if(show_asterisk) std::cout <<'*';
+        password += ch;
+        if (show_asterisk)
+          std::cout << '*';
       }
     }
-    std::cout <<std::endl;
+    std::cout << std::endl;
     return password;
   }
 
-  std::string getpassForUser( const std::string& userName ){
+  std::string getpassForUser(const std::string& userName) {
     std::string prompt("Enter password for user ");
     prompt += userName;
     prompt += ": ";
-    return getpass(prompt,true );
+    return getpass(prompt, true);
   }
 
-}
+}  // namespace cond
 
-cond::UtilitiesError::UtilitiesError(const std::string& message ):Exception(message){
-}
-cond::UtilitiesError::~UtilitiesError() throw(){}
+cond::UtilitiesError::UtilitiesError(const std::string& message) : Exception(message) {}
+cond::UtilitiesError::~UtilitiesError() throw() {}
 
-cond::Utilities::Utilities( const std::string& commandName,
-                            std::string positionalParameter):m_name(commandName),
-							     m_options(std::string("Usage: ")+m_name+
-								       std::string(" [options] ")+positionalParameter
-								       +std::string(" \n")),
-							     m_positionalOptions(),
-							     m_values(){
-  m_options.add_options()
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
-    ;
-  if(!positionalParameter.empty()) {
-    m_positionalOptions.add( positionalParameter.c_str(), -1);
-    addOption<std::string>(positionalParameter,"",positionalParameter);
+cond::Utilities::Utilities(const std::string& commandName, std::string positionalParameter)
+    : m_name(commandName),
+      m_options(std::string("Usage: ") + m_name + std::string(" [options] ") + positionalParameter +
+                std::string(" \n")),
+      m_positionalOptions(),
+      m_values() {
+  m_options.add_options()("debug", "switch on debug mode")("help,h", "help message");
+  if (!positionalParameter.empty()) {
+    m_positionalOptions.add(positionalParameter.c_str(), -1);
+    addOption<std::string>(positionalParameter, "", positionalParameter);
   }
 }
 
+cond::Utilities::~Utilities() {}
 
-cond::Utilities::~Utilities(){
-}
+int cond::Utilities::execute() { return 0; }
 
-int cond::Utilities::execute(){
-  return 0;
-}
-
-int cond::Utilities::run( int argc, char** argv ){
+int cond::Utilities::run(int argc, char** argv) {
   edmplugin::PluginManager::Config config;
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
   std::vector<edm::ParameterSet> psets;
   edm::ParameterSet pSet;
-  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+  pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
   psets.push_back(pSet);
   edm::ServiceToken servToken(edm::ServiceRegistry::createSet(psets));
   m_currentToken = &servToken;
   edm::ServiceRegistry::Operate operate(servToken);
 
   int ret = 0;
-  try{
-    parseCommand( argc, argv );
+  try {
+    parseCommand(argc, argv);
     if (m_values.count("help")) {
-      std::cout << m_options <<std::endl;;
+      std::cout << m_options << std::endl;
+      ;
       return 0;
     }
     ret = execute();
-  }catch( cond::Exception& err ){
+  } catch (cond::Exception& err) {
     std::cout << err.what() << std::endl;
     ret = 1;
-  }catch( const std::exception& exc ){
+  } catch (const std::exception& exc) {
     std::cout << exc.what() << std::endl;
     ret = 1;
   }
@@ -128,71 +122,55 @@ int cond::Utilities::run( int argc, char** argv ){
   return ret;
 }
 
-void
-cond::Utilities::addConnectOption(const std::string& connectionOptionName,
-                                  const std::string& shortName,
-                                  const std::string& helpEntry ){
-  addOption<std::string>(connectionOptionName,shortName,helpEntry);
+void cond::Utilities::addConnectOption(const std::string& connectionOptionName,
+                                       const std::string& shortName,
+                                       const std::string& helpEntry) {
+  addOption<std::string>(connectionOptionName, shortName, helpEntry);
 }
 
-void 
-cond::Utilities::addAuthenticationOptions(){
-  addOption<std::string>("authPath","P","path to the authentication key");
-  addOption<std::string>("user","u","user name");
-  addOption<std::string>("pass","p","password");
+void cond::Utilities::addAuthenticationOptions() {
+  addOption<std::string>("authPath", "P", "path to the authentication key");
+  addOption<std::string>("user", "u", "user name");
+  addOption<std::string>("pass", "p", "password");
 }
 
-void 
-cond::Utilities::addConfigFileOption(){
-  addOption<std::string>("configFile","f","configuration file(optional)");
+void cond::Utilities::addConfigFileOption() {
+  addOption<std::string>("configFile", "f", "configuration file(optional)");
 }
 
-void cond::Utilities::parseCommand( int argc, char** argv ){
-  boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(m_options).positional(m_positionalOptions).run(), m_values);
-  if(m_options.find_nothrow("configFile",false)){
+void cond::Utilities::parseCommand(int argc, char** argv) {
+  boost::program_options::store(
+      boost::program_options::command_line_parser(argc, argv).options(m_options).positional(m_positionalOptions).run(),
+      m_values);
+  if (m_options.find_nothrow("configFile", false)) {
     std::string configFileName = getValueIfExists("configFile");
-    if (! configFileName.empty()){
+    if (!configFileName.empty()) {
       std::fstream configFile;
       configFile.open(configFileName.c_str(), std::fstream::in);
-      boost::program_options::store(boost::program_options::parse_config_file(configFile,m_options), m_values);
+      boost::program_options::store(boost::program_options::parse_config_file(configFile, m_options), m_values);
       configFile.close();
     }
   }
   boost::program_options::notify(m_values);
 }
 
-std::string cond::Utilities::getAuthenticationPathValue(){
-  return getOptionValue<std::string>("authPath");
-}
+std::string cond::Utilities::getAuthenticationPathValue() { return getOptionValue<std::string>("authPath"); }
 
-std::string cond::Utilities::getUserValue(){
-  return getOptionValue<std::string>("user");  
-}
+std::string cond::Utilities::getUserValue() { return getOptionValue<std::string>("user"); }
 
-std::string cond::Utilities::getPasswordValue(){
-  return getOptionValue<std::string>("pass");  
-}
+std::string cond::Utilities::getPasswordValue() { return getOptionValue<std::string>("pass"); }
 
-std::string cond::Utilities::getConnectValue(){
-  return getOptionValue<std::string>("connect");  
-}
+std::string cond::Utilities::getConnectValue() { return getOptionValue<std::string>("connect"); }
 
-std::string cond::Utilities::getLogDBValue(){
-  return getOptionValue<std::string>("logDB");  
-}
+std::string cond::Utilities::getLogDBValue() { return getOptionValue<std::string>("logDB"); }
 
-std::string cond::Utilities::getDictionaryValue(){
-  return getOptionValue<std::string>("dictionary");
-}
+std::string cond::Utilities::getDictionaryValue() { return getOptionValue<std::string>("dictionary"); }
 
-std::string cond::Utilities::getConfigFileValue(){
-  return getOptionValue<std::string>("configFile");
-}
+std::string cond::Utilities::getConfigFileValue() { return getOptionValue<std::string>("configFile"); }
 
-
-bool cond::Utilities::hasOptionValue(const std::string& fullName){
+bool cond::Utilities::hasOptionValue(const std::string& fullName) {
   const void* found = m_options.find_nothrow(fullName, false);
-  if(!found){
+  if (!found) {
     std::stringstream message;
     message << "Utilities::hasOptionValue: option \"" << fullName << "\" is not known by the command.";
     sendException(message.str());
@@ -200,27 +178,20 @@ bool cond::Utilities::hasOptionValue(const std::string& fullName){
   return m_values.count(fullName);
 }
 
-bool cond::Utilities::hasDebug(){
-  return m_values.count("debug");  
-}
+bool cond::Utilities::hasDebug() { return m_values.count("debug"); }
 
-void cond::Utilities::initializePluginManager(){
+void cond::Utilities::initializePluginManager() {
   // dummy, to avoid to adapt non-CondCore clients
 }
 
-std::string cond::Utilities::getValueIfExists(const std::string& fullName){
+std::string cond::Utilities::getValueIfExists(const std::string& fullName) {
   std::string val("");
-  if(m_values.count(fullName)){
+  if (m_values.count(fullName)) {
     val = m_values[fullName].as<std::string>();
   }
   return val;
 }
 
-void cond::Utilities::sendError( const std::string& message ){
-  throw cond::UtilitiesError(message);
-}
+void cond::Utilities::sendError(const std::string& message) { throw cond::UtilitiesError(message); }
 
-void cond::Utilities::sendException( const std::string& message ){
-  throw cond::Exception(message);
-}
-
+void cond::Utilities::sendException(const std::string& message) { throw cond::Exception(message); }

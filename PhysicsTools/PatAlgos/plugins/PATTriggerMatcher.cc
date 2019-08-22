@@ -11,76 +11,60 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
-
 /// Match by deltaR (default), ranking by deltaR (default)
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  pat::TriggerObjectStandAloneCollection,
-  pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
-                                pat::TriggerObjectStandAloneCollection::value_type >
-> PATTriggerMatcherDRLessByR;
+    reco::CandidateView,
+    pat::TriggerObjectStandAloneCollection,
+    pat::PATTriggerMatchSelector<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type> >
+    PATTriggerMatcherDRLessByR;
 
 /// Match by deltaR and deltaPt, ranking by deltaR (default)
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  pat::TriggerObjectStandAloneCollection,
-  pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
-                                pat::TriggerObjectStandAloneCollection::value_type>,
-  reco::MatchByDRDPt< reco::CandidateView::value_type,
-                      pat::TriggerObjectStandAloneCollection::value_type >
-> PATTriggerMatcherDRDPtLessByR;
+    reco::CandidateView,
+    pat::TriggerObjectStandAloneCollection,
+    pat::PATTriggerMatchSelector<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchByDRDPt<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type> >
+    PATTriggerMatcherDRDPtLessByR;
 
 /// Match by deltaR (default), ranking by deltaPt
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  pat::TriggerObjectStandAloneCollection,
-  pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
-                                pat::TriggerObjectStandAloneCollection::value_type >,
-  reco::MatchByDR< reco::CandidateView::value_type,
-                   pat::TriggerObjectStandAloneCollection::value_type >,
-  reco::MatchLessByDPt< reco::CandidateView,
-                        pat::TriggerObjectStandAloneCollection >
-> PATTriggerMatcherDRLessByPt;
+    reco::CandidateView,
+    pat::TriggerObjectStandAloneCollection,
+    pat::PATTriggerMatchSelector<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchByDR<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchLessByDPt<reco::CandidateView, pat::TriggerObjectStandAloneCollection> >
+    PATTriggerMatcherDRLessByPt;
 
 /// Match by deltaR and deltaPt, ranking by deltaPt
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  pat::TriggerObjectStandAloneCollection,
-  pat::PATTriggerMatchSelector<reco::CandidateView::value_type,
-                               pat::TriggerObjectStandAloneCollection::value_type >,
-  reco::MatchByDRDPt< reco::CandidateView::value_type,
-                      pat::TriggerObjectStandAloneCollection::value_type >,
-  reco::MatchLessByDPt< reco::CandidateView,
-                        pat::TriggerObjectStandAloneCollection >
-> PATTriggerMatcherDRDPtLessByPt;
+    reco::CandidateView,
+    pat::TriggerObjectStandAloneCollection,
+    pat::PATTriggerMatchSelector<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchByDRDPt<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchLessByDPt<reco::CandidateView, pat::TriggerObjectStandAloneCollection> >
+    PATTriggerMatcherDRDPtLessByPt;
 
 /// Match by deltaEta, ranking by deltaR
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  pat::TriggerObjectStandAloneCollection,
-  pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
-                                pat::TriggerObjectStandAloneCollection::value_type >,
-  reco::MatchByDEta< reco::CandidateView::value_type,
-                     pat::TriggerObjectStandAloneCollection::value_type >
-> PATTriggerMatcherDEtaLessByDR;
+    reco::CandidateView,
+    pat::TriggerObjectStandAloneCollection,
+    pat::PATTriggerMatchSelector<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchByDEta<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type> >
+    PATTriggerMatcherDEtaLessByDR;
 
 /// Match by deltaEta, ranking by deltaEta
 typedef reco::PhysObjectMatcher<
-  reco::CandidateView,
-  pat::TriggerObjectStandAloneCollection,
-  pat::PATTriggerMatchSelector< reco::CandidateView::value_type,
-                                pat::TriggerObjectStandAloneCollection::value_type >,
-  reco::MatchByDEta< reco::CandidateView::value_type,
-                     pat::TriggerObjectStandAloneCollection::value_type >,
-  reco::MatchLessByDEta< reco::CandidateView,
-                         pat::TriggerObjectStandAloneCollection >
-> PATTriggerMatcherDEtaLessByDEta;
-
+    reco::CandidateView,
+    pat::TriggerObjectStandAloneCollection,
+    pat::PATTriggerMatchSelector<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchByDEta<reco::CandidateView::value_type, pat::TriggerObjectStandAloneCollection::value_type>,
+    reco::MatchLessByDEta<reco::CandidateView, pat::TriggerObjectStandAloneCollection> >
+    PATTriggerMatcherDEtaLessByDEta;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE( PATTriggerMatcherDRLessByR );
-DEFINE_FWK_MODULE( PATTriggerMatcherDRDPtLessByR );
-DEFINE_FWK_MODULE( PATTriggerMatcherDRLessByPt );
-DEFINE_FWK_MODULE( PATTriggerMatcherDRDPtLessByPt );
-DEFINE_FWK_MODULE( PATTriggerMatcherDEtaLessByDR );
-DEFINE_FWK_MODULE( PATTriggerMatcherDEtaLessByDEta );
+DEFINE_FWK_MODULE(PATTriggerMatcherDRLessByR);
+DEFINE_FWK_MODULE(PATTriggerMatcherDRDPtLessByR);
+DEFINE_FWK_MODULE(PATTriggerMatcherDRLessByPt);
+DEFINE_FWK_MODULE(PATTriggerMatcherDRDPtLessByPt);
+DEFINE_FWK_MODULE(PATTriggerMatcherDEtaLessByDR);
+DEFINE_FWK_MODULE(PATTriggerMatcherDEtaLessByDEta);

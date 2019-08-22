@@ -19,16 +19,15 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 namespace reco {
-class Jet;
-class MET;
-}
-class DQMStore;
-class MonitorElement;
+  class Jet;
+  class MET;
+}  // namespace reco
 
 class EwkDQM : public DQMEDAnalyzer {
- public:
+public:
   /// Constructor
   EwkDQM(const edm::ParameterSet&);
 
@@ -37,8 +36,7 @@ class EwkDQM : public DQMEDAnalyzer {
 
   ///
   //Book histograms
-  void bookHistograms(DQMStore::IBooker &,
-    edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
   /// Get the analysis
@@ -46,7 +44,7 @@ class EwkDQM : public DQMEDAnalyzer {
 
   double calcDeltaPhi(double phi1, double phi2);
 
- private:
+private:
   // ----------member data ---------------------------
 
   // Switch for verbosity

@@ -1,5 +1,5 @@
 <use   name="CondCore/Utilities"/>
-<use   name="FWCore/Concurrency"/>
+<use   name="Utilities/Xerces"/>
 <flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600"/>
 
 <bin   file="cmscond_key_mgr.cpp" name="cmscond_key_mgr">

@@ -10,14 +10,14 @@
 // A non-templated base class which can often be used to provide
 // the mapping from jet quantities into lookup table variables
 //
-struct AbsFFTSpecificScaleCalculator
-{
-    inline virtual ~AbsFFTSpecificScaleCalculator() {}
+struct AbsFFTSpecificScaleCalculator {
+  inline virtual ~AbsFFTSpecificScaleCalculator() {}
 
-    virtual void mapFFTJet(const reco::Jet& jet,
-                           const reco::FFTJet<float>& fftJet,
-                           const math::XYZTLorentzVector& current,
-                           double* buf, unsigned dim) const = 0;
+  virtual void mapFFTJet(const reco::Jet& jet,
+                         const reco::FFTJet<float>& fftJet,
+                         const math::XYZTLorentzVector& current,
+                         double* buf,
+                         unsigned dim) const = 0;
 };
 
 //
@@ -25,18 +25,15 @@ struct AbsFFTSpecificScaleCalculator
 // Note that there are no public constructors of this factory. All API
 // is via the static wrapper.
 //
-class FFTSpecificScaleCalculatorFactory :
-    public DefaultFFTJetObjectFactory<AbsFFTSpecificScaleCalculator>
-{
-    typedef DefaultFFTJetObjectFactory<AbsFFTSpecificScaleCalculator> Base;
-    friend class StaticFFTJetObjectFactory<FFTSpecificScaleCalculatorFactory>;
-    FFTSpecificScaleCalculatorFactory();
+class FFTSpecificScaleCalculatorFactory : public DefaultFFTJetObjectFactory<AbsFFTSpecificScaleCalculator> {
+  typedef DefaultFFTJetObjectFactory<AbsFFTSpecificScaleCalculator> Base;
+  friend class StaticFFTJetObjectFactory<FFTSpecificScaleCalculatorFactory>;
+  FFTSpecificScaleCalculatorFactory();  //NOLINT
 };
 
-typedef StaticFFTJetObjectFactory<FFTSpecificScaleCalculatorFactory>
-StaticFFTSpecificScaleCalculatorFactory;
+typedef StaticFFTJetObjectFactory<FFTSpecificScaleCalculatorFactory> StaticFFTSpecificScaleCalculatorFactory;
 
-AbsFFTSpecificScaleCalculator* parseFFTSpecificScaleCalculator(
-    const edm::ParameterSet& ps, const std::string& tableDescription);
+AbsFFTSpecificScaleCalculator* parseFFTSpecificScaleCalculator(const edm::ParameterSet& ps,
+                                                               const std::string& tableDescription);
 
-#endif // JetMETCorrections_FFTJetObjects_AbsFFTSpecificScaleCalculator_h
+#endif  // JetMETCorrections_FFTJetObjects_AbsFFTSpecificScaleCalculator_h

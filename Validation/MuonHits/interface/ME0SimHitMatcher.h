@@ -12,7 +12,7 @@
 #include "Validation/MuonHits/interface/MuonSimHitMatcher.h"
 
 class ME0SimHitMatcher : public MuonSimHitMatcher {
- public:
+public:
   // constructor
   ME0SimHitMatcher(const edm::ParameterSet& iPS, edm::ConsumesCollector&& iC);
 
@@ -41,8 +41,7 @@ class ME0SimHitMatcher : public MuonSimHitMatcher {
   int nLayersWithHitsInSuperChamber(unsigned int) const;
 
   // ME0 superchamber detIds with SimHits >=4 layers of coincidence pads
-  std::set<unsigned int> superChamberIdsCoincidences(
-      int min_n_layers = 4) const;
+  std::set<unsigned int> superChamberIdsCoincidences(int min_n_layers = 4) const;
 
   // How many ME0 chambers with minimum number of layer with simhits did this
   // simtrack get?
@@ -60,7 +59,7 @@ class ME0SimHitMatcher : public MuonSimHitMatcher {
   // How many pads with simhits in ME0 did this simtrack get?
   int nPadsWithHits() const;
 
- private:
+private:
   void matchSimHitsToSimTrack();
 
   edm::ESHandle<ME0Geometry> me0_geom_;

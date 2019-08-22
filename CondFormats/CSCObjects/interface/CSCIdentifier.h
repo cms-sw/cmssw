@@ -5,21 +5,20 @@
 
 #include <vector>
 
-class CSCIdentifier{
- public:
+class CSCIdentifier {
+public:
   CSCIdentifier();
   ~CSCIdentifier();
-  
- struct Item{
-   int CSCid;
- 
- COND_SERIALIZABLE;
-};
+
+  struct Item {
+    int CSCid;
+
+    COND_SERIALIZABLE;
+  };
 
   std::vector<Item> identifier;
 
- COND_SERIALIZABLE;
+  COND_SERIALIZABLE;
 };
 
 #endif
-

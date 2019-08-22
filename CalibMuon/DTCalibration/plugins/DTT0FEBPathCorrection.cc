@@ -24,71 +24,69 @@ using namespace edm;
 
 namespace dtCalibration {
 
-DTT0FEBPathCorrection::DTT0FEBPathCorrection(const ParameterSet& pset):
-   calibChamber_( pset.getParameter<string>("calibChamber") ) {
-
-   //DTChamberId chosenChamberId;
-   if( calibChamber_ != "" && calibChamber_ != "None" && calibChamber_ != "All" ){
+  DTT0FEBPathCorrection::DTT0FEBPathCorrection(const ParameterSet& pset)
+      : calibChamber_(pset.getParameter<string>("calibChamber")) {
+    //DTChamberId chosenChamberId;
+    if (!calibChamber_.empty() && calibChamber_ != "None" && calibChamber_ != "All") {
       stringstream linestr;
       int selWheel, selStation, selSector;
       linestr << calibChamber_;
       linestr >> selWheel >> selStation >> selSector;
       chosenChamberId_ = DTChamberId(selWheel, selStation, selSector);
       LogVerbatim("Calibration") << "[DTT0FEBPathCorrection] Chosen chamber: " << chosenChamberId_ << endl;
-   }
-   //FIXME: Check if chosen chamber is valid.
-}
+    }
+    //FIXME: Check if chosen chamber is valid.
+  }
 
-DTT0FEBPathCorrection::~DTT0FEBPathCorrection() {
-}
+  DTT0FEBPathCorrection::~DTT0FEBPathCorrection() {}
 
-void DTT0FEBPathCorrection::setES(const EventSetup& setup) {
-   // Get t0 record from DB
-   ESHandle<DTT0> t0H;
-   setup.get<DTT0Rcd>().get(t0H);
-   t0Map_ = &*t0H;
-   LogVerbatim("Calibration") << "[DTT0FEBPathCorrection] T0 version: " << t0H->version();
-}
+  void DTT0FEBPathCorrection::setES(const EventSetup& setup) {
+    // Get t0 record from DB
+    ESHandle<DTT0> t0H;
+    setup.get<DTT0Rcd>().get(t0H);
+    t0Map_ = &*t0H;
+    LogVerbatim("Calibration") << "[DTT0FEBPathCorrection] T0 version: " << t0H->version();
+  }
 
-DTT0Data DTT0FEBPathCorrection::correction(const DTWireId& wireId) {
-   // Compute for selected chamber (or All) correction using as reference chamber mean
+  DTT0Data DTT0FEBPathCorrection::correction(const DTWireId& wireId) {
+    // Compute for selected chamber (or All) correction using as reference chamber mean
 
-   DTChamberId chamberId = wireId.layerId().superlayerId().chamberId();
+    DTChamberId chamberId = wireId.layerId().superlayerId().chamberId();
 
-   if( calibChamber_ == "" || calibChamber_ == "None" )          return defaultT0(wireId);
-   if( calibChamber_ != "All" && chamberId != chosenChamberId_ ) return defaultT0(wireId);
+    if (calibChamber_.empty() || calibChamber_ == "None")
+      return defaultT0(wireId);
+    if (calibChamber_ != "All" && chamberId != chosenChamberId_)
+      return defaultT0(wireId);
 
-   // Access DB
-   float t0Mean,t0RMS;
-   int status = t0Map_->get(wireId,t0Mean,t0RMS,DTTimeUnits::counts);
-   if(status != 0) 
-      throw cms::Exception("[DTT0FEBPathCorrection]") << "Could not find t0 entry in DB for" 
-                                                                << wireId << endl;
-   int wheel = chamberId.wheel();
-   int station = chamberId.station();
-   int sector = chamberId.sector();
-   int sl = wireId.layerId().superlayerId().superlayer();
-   int l = wireId.layerId().layer();
-   int wire = wireId.wire();
-   float t0MeanNew = t0Mean - t0FEBPathCorrection(wheel, station, sector, sl, l, wire);
-   float t0RMSNew = t0RMS;
-   return DTT0Data(t0MeanNew,t0RMSNew);
-}
+    // Access DB
+    float t0Mean, t0RMS;
+    int status = t0Map_->get(wireId, t0Mean, t0RMS, DTTimeUnits::counts);
+    if (status != 0)
+      throw cms::Exception("[DTT0FEBPathCorrection]") << "Could not find t0 entry in DB for" << wireId << endl;
+    int wheel = chamberId.wheel();
+    int station = chamberId.station();
+    int sector = chamberId.sector();
+    int sl = wireId.layerId().superlayerId().superlayer();
+    int l = wireId.layerId().layer();
+    int wire = wireId.wire();
+    float t0MeanNew = t0Mean - t0FEBPathCorrection(wheel, station, sector, sl, l, wire);
+    float t0RMSNew = t0RMS;
+    return DTT0Data(t0MeanNew, t0RMSNew);
+  }
 
-DTT0Data DTT0FEBPathCorrection::defaultT0(const DTWireId& wireId) {
-   // Access default DB
-   float t0Mean,t0RMS;
-   int status = t0Map_->get(wireId,t0Mean,t0RMS,DTTimeUnits::counts);
-   if(!status){
-      return DTT0Data(t0Mean,t0RMS);
-   } else{
-      //... 
-      throw cms::Exception("[DTT0FEBPathCorrection]") << "Could not find t0 entry in DB for"
-	 << wireId << endl;
-   }
-}
+  DTT0Data DTT0FEBPathCorrection::defaultT0(const DTWireId& wireId) {
+    // Access default DB
+    float t0Mean, t0RMS;
+    int status = t0Map_->get(wireId, t0Mean, t0RMS, DTTimeUnits::counts);
+    if (!status) {
+      return DTT0Data(t0Mean, t0RMS);
+    } else {
+      //...
+      throw cms::Exception("[DTT0FEBPathCorrection]") << "Could not find t0 entry in DB for" << wireId << endl;
+    }
+  }
 
-/**
+  /**
 
   Return the value to be subtracted to t0s to correct for the difference of 
   path lenght for TP signals within the FEB, from the TP input connector 
@@ -136,65 +134,55 @@ DTT0Data DTT0FEBPathCorrection::defaultT0(const DTWireId& wireId) {
 
 */
 
-float DTT0FEBPathCorrection::t0FEBPathCorrection(int wheel, int st, int sec, int sl, int l, int w) {
+  float DTT0FEBPathCorrection::t0FEBPathCorrection(int wheel, int st, int sec, int sl, int l, int w) {
+    // Skip correction for the last row of cells of FEB20 (see above)
+    if ((st == 1 && ((sl != 2 && w == 49) || (sl == 2 && w == 57))) || ((st == 2 || st == 3) && (sl == 2 && w == 57)))
+      return 0.;
 
-  // Skip correction for the last row of cells of FEB20 (see above)
-  if( (st==1 && ((sl!=2 && w ==49) || (sl==2 && w ==57))) || 
-      ((st==2||st==3)&& (sl==2 && w ==57)) ) return 0.;
+    float dist[8] = {};
 
-  
-  float dist[8]={};
+    // Path lenght differences for L1 and L3 (cm)
+    if (l == 1 || l == 3) {
+      dist[0] = +4.45;
+      dist[1] = +2.45;
+      dist[2] = -3.45;
+      dist[3] = -5.45;
+      dist[4] = -4.45;
+      dist[5] = -2.45;
+      dist[6] = +3.45;
+      dist[7] = +5.45;
+    }
 
-  // Path lenght differences for L1 and L3 (cm)
-  if(l==1 || l ==3){
-   
-    dist[0] = +4.45;
-    dist[1] = +2.45;
-    dist[2] = -3.45;
-    dist[3] = -5.45;
-    dist[4] = -4.45;
-    dist[5] = -2.45;
-    dist[6] = +3.45;
-    dist[7] = +5.45;
+    // Path lenght differences for L2 and L4 (cm)
+    else {
+      dist[0] = +5.45;
+      dist[1] = +3.45;
+      dist[2] = -2.45;
+      dist[3] = -4.45;
+      dist[4] = -5.45;
+      dist[5] = -3.45;
+      dist[6] = +2.45;
+      dist[7] = +4.45;
+    }
+
+    // Wire position within the 8-cell period (2 FEBs).
+    // Note that wire numbers start from 1.
+    int pos = (w - 1) % 8;
+
+    // Special case: in MB2 phi and MB4-10, the periodicity is broken at cell 49, as there is
+    // an odd number of FEDs (15): the 13th FEB is connected on the left,
+    // and not on the right; i.e. one FEB (4 colums of cells) is skipped from what would
+    // be the regular structure.
+    // The same happens in MB4-8/12 at cell 81.
+    if ((st == 2 && sl != 2 && w >= 49) || (st == 4 && sec == 10 && w >= 49) ||
+        (st == 4 && (sec == 8 || sec == 12) && w >= 81))
+      pos = (w - 1 + 4) % 8;
+
+    // Inverse of the signal propagation speed, determined from the
+    // observed amplitude of the modulation. This matches what is found
+    // with CAD simulation using reasonable assumptions on the PCB specs.
+
+    return dist[pos] * 0.075;
   }
 
-  // Path lenght differences for L2 and L4 (cm)
-  else {
-    
-    dist[0] = +5.45;
-    dist[1] = +3.45;
-    dist[2] = -2.45;
-    dist[3] = -4.45;
-    dist[4] = -5.45;
-    dist[5] = -3.45;
-    dist[6] = +2.45;
-    dist[7] = +4.45;
-  }
-  
-  
-  // Wire position within the 8-cell period (2 FEBs). 
-  // Note that wire numbers start from 1.
-  int pos = (w-1)%8;
-
-  // Special case: in MB2 phi and MB4-10, the periodicity is broken at cell 49, as there is 
-  // an odd number of FEDs (15): the 13th FEB is connected on the left, 
-  // and not on the right; i.e. one FEB (4 colums of cells) is skipped from what would 
-  // be the regular structure.
-  // The same happens in MB4-8/12 at cell 81.
-  if ((st==2 && sl!=2 && w>=49) || 
-      (st==4 && sec==10 && w>=49) || 
-      (st==4 && (sec==8||sec==12) && w>=81) ) pos =(w-1+4)%8;
-
-  // Inverse of the signal propagation speed, determined from the 
-  // observed amplitude of the modulation. This matches what is found 
-  // with CAD simulation using reasonable assumptions on the PCB specs.
-
-  return dist[pos]*0.075;
-  
-}
-
-
-
-
-
-} // namespace
+}  // namespace dtCalibration

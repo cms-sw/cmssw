@@ -46,8 +46,7 @@ public:
   explicit L1RCTProducer(const edm::ParameterSet &ps);
   ~L1RCTProducer() override;
   void beginRun(edm::Run const &r, const edm::EventSetup &c) final;
-  void beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg,
-                            const edm::EventSetup &context) final;
+  void beginLuminosityBlock(edm::LuminosityBlock const &lumiSeg, const edm::EventSetup &context) final;
   void produce(edm::Event &e, const edm::EventSetup &c) final;
 
   void updateConfiguration(const edm::EventSetup &);
@@ -76,16 +75,7 @@ private:
   // Create a channel mask object to be updated at every Run....
   L1RCTChannelMask *fedUpdatedMask;
 
-  enum crateSection {
-    c_min,
-    ebOddFed = c_min,
-    ebEvenFed,
-    eeFed,
-    hbheFed,
-    hfFed,
-    hfFedUp,
-    c_max = hfFedUp
-  };
+  enum crateSection { c_min, ebOddFed = c_min, ebEvenFed, eeFed, hbheFed, hfFed, hfFedUp, c_max = hfFedUp };
 
   static const int crateFED[18][6];
 

@@ -15,7 +15,6 @@
   \version  $Id: PATPFParticleProducer.h,v 1.8 2012/05/26 10:42:53 gpetrucc Exp $
 */
 
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,44 +34,37 @@
 
 #include <string>
 
-
 namespace pat {
 
   class LeptonLRCalc;
 
   class PATPFParticleProducer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATPFParticleProducer(const edm::ParameterSet& iConfig);
+    ~PATPFParticleProducer() override;
 
-    public:
+    void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
-      explicit PATPFParticleProducer(const edm::ParameterSet & iConfig);
-      ~PATPFParticleProducer() override;
+  private:
+    // configurables
+    edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfCandidateToken_;
+    bool embedPFCandidate_;
+    bool addGenMatch_;
+    bool embedGenMatch_;
+    std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
+    // tools
+    GreaterByPt<PFParticle> pTComparator_;
 
-      void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+    bool addEfficiencies_;
+    pat::helper::EfficiencyLoader efficiencyLoader_;
 
-    private:
+    bool addResolutions_;
+    pat::helper::KinResolutionsLoader resolutionLoader_;
 
-      // configurables
-      edm::EDGetTokenT<edm::View<reco::PFCandidate> > pfCandidateToken_;
-      bool          embedPFCandidate_;
-      bool          addGenMatch_;
-      bool          embedGenMatch_;
-      std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
-      // tools
-      GreaterByPt<PFParticle>      pTComparator_;
-
-      bool addEfficiencies_;
-      pat::helper::EfficiencyLoader efficiencyLoader_;
-
-      bool addResolutions_;
-      pat::helper::KinResolutionsLoader resolutionLoader_;
-
-      bool useUserData_;
-      pat::PATUserDataHelper<pat::PFParticle> userDataHelper_;
-
-
+    bool useUserData_;
+    pat::PATUserDataHelper<pat::PFParticle> userDataHelper_;
   };
 
-
-}
+}  // namespace pat
 
 #endif

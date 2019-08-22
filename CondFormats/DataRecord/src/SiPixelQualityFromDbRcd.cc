@@ -2,11 +2,11 @@
 //
 // Package:     DataRecord
 // Class  :     SiPixelQualityFromDbRcd
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
-// Author:      
+// Author:
 // Created:     Fri Oct 17 11:53:51 CEST 2008
 // $Id: SiPixelQualityFromDbRcd.cc,v 1.1 2008/10/17 09:55:15 fblekman Exp $
 

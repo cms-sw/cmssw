@@ -13,24 +13,22 @@
  */
 
 class VertexFitterManager {
-
 public:
-  static VertexFitterManager & Instance();
-  void registerFitter ( const std::string & name, std::function<AbstractConfFitter* ()> o,
-                          const std::string & description );
-  std::string describe ( const std::string & ) const;
+  static VertexFitterManager& Instance();
+  void registerFitter(const std::string& name, std::function<AbstractConfFitter*()> o, const std::string& description);
+  std::string describe(const std::string&) const;
 
-  std::unique_ptr<AbstractConfFitter> get ( const std::string & ) const;
+  std::unique_ptr<AbstractConfFitter> get(const std::string&) const;
   std::vector<std::string> getNames() const;
 
   ~VertexFitterManager();
-  VertexFitterManager * clone() const;
+  VertexFitterManager* clone() const;
 
 private:
-  VertexFitterManager ( const VertexFitterManager & );
-  VertexFitterManager ();
-  std::map < std::string, std::function<AbstractConfFitter*()> > theAbstractConfFitters;
-  std::map < std::string, std::string > theDescription;
+  VertexFitterManager(const VertexFitterManager&);
+  VertexFitterManager();
+  std::map<std::string, std::function<AbstractConfFitter*()> > theAbstractConfFitters;
+  std::map<std::string, std::string> theDescription;
 };
 
-#endif // _VertexFitterManager_H_
+#endif  // _VertexFitterManager_H_

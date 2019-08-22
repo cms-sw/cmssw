@@ -12,10 +12,10 @@ from array import array
 from Validation.Geometry.plot_utils import Plot_params
 
 plots = {}
-plots.setdefault('x_vs_eta', Plot_params(10, '#eta', 'x/X_{0}', 0.0, 2.575, -4.0, 4.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('x_vs_eta', Plot_params(10, '#eta', 'x/X_{0}', 0.0, 145., -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_phi', Plot_params(20, '#varphi [rad]', 'x/X_{0}', 0.0, 6.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_R',   Plot_params(40, 'R [cm]', 'x/X_{0}', 0.0, 70.0, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
-plots.setdefault('l_vs_eta', Plot_params(10010, '#eta', 'x/#lambda_{I}', 0.0, 0.73, -4.0, 4.0, '', 0, 0., 0., 0, 1))
+plots.setdefault('l_vs_eta', Plot_params(10010, '#eta', 'x/#lambda_{I}', 0.0, 22.8, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('l_vs_phi', Plot_params(10020, '#varphi [rad]', 'x/#lambda_{I}', 0.0, 1.2, -4.0, 4.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('l_vs_R',   Plot_params(10040, 'R [cm]', 'x/#lambda_{I}', 0.0, 7.5, 0.0, 1200.0, '', 0, 0., 0., 0, 1))
 plots.setdefault('x_vs_eta_vs_phi', Plot_params(30, '#eta', '#varphi', 0., 0., 0., 0., 'x/X_{0}', 0, -1., -1., 0, 1))
@@ -34,7 +34,17 @@ plots.setdefault('x_over_l_vs_eta', Plot_params(10, '#eta', '(x/X_{0})/(x/#lambd
 plots.setdefault('x_over_l_vs_phi', Plot_params(20, '#varphi [rad]', '(x/X_{0})/(x/#lambda_{I})', 0., 0., 0., 0., '', 0, -1, -1, 0, 0))
 
 # Conversion name from the label (key) to the components in CMSSW/Geometry
-_LABELS2COMPS = {'HGCal': 'HGCal',
+_LABELS2COMPS = {'BeamPipe': 'BEAM',
+                 'Tracker': 'Tracker', 
+                 'EndcapTimingLayer + Thermal Screen': 'CALOECTSFront',
+                 'Neutron Moderator + Thermal Screen' : 'CALOECTSMiddle',
+                 'HGCal + HGCal Service + Thermal Screen' : 'CALOECTSRear',
+                 'Solenoid Magnet' : 'MGNT',
+                 'Muon Wheels and Cables' : 'MB',
+                 'ECAL': 'ECAL',
+                 'HCal': 'HCal',
+                 'FromVertexToBackOfHGCal' : ['BEAM','Tracker','ECAL','HCal','CALOECTSFront','CALOECTSMiddle','CALOECTSRear','MGNT','MB'],
+                 'HGCal': 'HGCal',
                  'HGCalEE': 'HGCalEE',
                  'HGCalHE': ['HGCalHEsil', 'HGCalHEmix']
                  }
@@ -50,14 +60,29 @@ COMPOUNDS = OrderedDict()
 COMPOUNDS["HGCal"] = ["HGCal"]
 COMPOUNDS["HGCalEE"] = ["HGCalEE"]
 COMPOUNDS["HGCalHE"] = ["HGCalHEsil", "HGCalHEmix"]
-
+COMPOUNDS["FromVertexToBackOfHGCal"] = ["BeamPipe","Tracker","ECAL","HCal","EndcapTimingLayer + Thermal Screen","Neutron Moderator + Thermal Screen","HGCal + HGCal Service + Thermal Screen","Solenoid Magnet","Muon Wheels and Cables"]
 
 # The DETECTORS must be the single component of the HGCal for which
 # the user can ask for the corresponding material description.
+# BE CAREFUL: When running on a single detector and not through all 
+# only uncomment that one below. e.g. when running on HGCal only you should 
+# have only: 
+# DETECTORS["HGCal"] = kAzure-5
+# and others should be commented out.
 DETECTORS = OrderedDict()
-DETECTORS["HGCal"] = kAzure-5
-DETECTORS["HGCalEE"] = kAzure-9
-DETECTORS["HGCalHE"] = kOrange-2
+DETECTORS["BeamPipe"] = kGray+2
+DETECTORS["Tracker"]  = 9 #kAzure-5
+DETECTORS["ECAL"] = 2 #kOrange+10
+DETECTORS["HCal"] = 6  #kMagenta-2
+DETECTORS["EndcapTimingLayer + Thermal Screen"] = 7#kAzure-9 
+DETECTORS["Neutron Moderator + Thermal Screen"] = 46#kOrange+5
+DETECTORS["HGCal + HGCal Service + Thermal Screen"] = 5#kOrange-2
+DETECTORS["Solenoid Magnet"] = 4#kGray+5
+DETECTORS["Muon Wheels and Cables"] = 28
+#When running to get the R vs z sum of all subdetectors comment out above and 
+#uncomment the next line
+#DETECTORS["FromVertexToBackOfHGCal"] = 30
+
 
 # sDETS are the label of the HGCal elements in the Reconstruction
 # geometry. They are all used to derive the reconstruction material
@@ -68,9 +93,11 @@ DETECTORS["HGCalHE"] = kOrange-2
 # made as inclusive as possible with respect to the many
 # reconstruction geometries in CMSSW.
 sDETS = OrderedDict()
-sDETS["HGCalEE"] = kRed
-sDETS["HGCalHEsil"] = kBlue
-sDETS["HGCalHEmix"] = kGreen
+#sDETS["HGCalEE"] = kRed
+#sDETS["HGCalHEsil"] = kBlue
+#sDETS["HGCalHEmix"] = kGreen
+sDETS["ECAL"] = kBlue
+sDETS["HCal"] = kOrange
 #sDETS[""] = kYellow
 #sDETS[""] = kOrange
 #sDETS[""] = kPink
@@ -234,3 +261,62 @@ MatXo['Lead'] = 5.6118
 MatXo['Epoxy'] = 315.901
 MatXo['Kapton'] = 365.309
 
+def drawHalfEtaValues():
+    """Function to draw the eta.
+    Function to draw the eta references on top of an already existing
+    TCanvas. The lines and labels drawn are collected inside a list and
+    the list is returned to the user to extend the live of the objects
+    contained, otherwise no lines and labels will be drawn, since they
+    will be garbage-collected as soon as this function returns.
+    """
+
+    # Add eta labels
+    keep_alive = []
+    etas = [ 0.2*i for i in range(0,18) ]
+
+    etax = 2850.#6850.
+    etay = 1240.#5200.
+    lineL = 110#8600.
+    offT = 10.
+
+    for ieta in etas:
+        th = 2*atan(exp(-ieta))
+        talign = 21
+
+        #IP
+        lineh = TLine(-20.,0.,20.,0.)
+        lineh.Draw()
+        linev = TLine(0.,-10.,0.,10.)
+        linev.Draw()
+        keep_alive.append(lineh)
+        keep_alive.append(linev)
+
+        x1 = 0
+        y1 = 0
+        if ieta>-1.6 and ieta<1.6:
+            x1 = etay/tan(th)
+            y1 = etay
+        elif ieta <=-1.6:
+            x1 = -etax
+            y1 = -etax*tan(th)
+            talign = 11
+        elif ieta>=1.6:
+            x1 = etax
+            y1 = etax*tan(th)
+            talign = 31
+        x2 = x1+lineL*cos(th)
+        y2 = y1+lineL*sin(th)
+        xt = x2
+        yt = y2+offT
+
+        line1 = TLine(x1,y1,x2,y2)
+        line1.Draw()
+        keep_alive.append(line1)
+
+        text = "%3.1f" % ieta
+        t1 = TLatex(xt, yt, '%s' % ('#eta = 0' if ieta == 0 else text))
+        t1.SetTextSize(0.03)
+        t1.SetTextAlign(talign)
+        t1.Draw()
+        keep_alive.append(t1)
+    return keep_alive

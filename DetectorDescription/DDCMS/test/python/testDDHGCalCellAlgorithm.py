@@ -18,7 +18,7 @@ process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
                                             )
 
 process.testDump = cms.EDAnalyzer("DDTestDumpFile",
-                                  DDDetector = cms.ESInputTag('TestDDHGCalCell')
+                                  DDDetector = cms.ESInputTag('','TestDDHGCalCell')
                                   )
 
 process.p = cms.Path(process.testDump)

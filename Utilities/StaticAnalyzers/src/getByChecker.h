@@ -20,22 +20,20 @@
 
 namespace clangcms {
 
-class getByChecker : public clang::ento::Checker< clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
-						clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > 
-{
+  class getByChecker : public clang::ento::Checker<clang::ento::check::ASTDecl<clang::CXXMethodDecl>,
+                                                   clang::ento::check::ASTDecl<clang::FunctionTemplateDecl> > {
+  public:
+    void checkASTDecl(const clang::CXXMethodDecl *CMD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
 
-public:
+    void checkASTDecl(const clang::FunctionTemplateDecl *TD,
+                      clang::ento::AnalysisManager &mgr,
+                      clang::ento::BugReporter &BR) const;
 
-  void checkASTDecl(const clang::CXXMethodDecl *CMD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR) const ;
+  private:
+    CmsException m_exception;
+  };
 
-  void checkASTDecl(const clang::FunctionTemplateDecl *TD, clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR) const ;
-
-
-private:
-  CmsException m_exception;
-};
-
-}
+}  // namespace clangcms
 #endif

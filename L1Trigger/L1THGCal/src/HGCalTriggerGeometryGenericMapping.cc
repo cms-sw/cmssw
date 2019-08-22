@@ -91,6 +91,10 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryGenericMapping::getNeighb
   return geom_set();
 }
 
+unsigned HGCalTriggerGeometryGenericMapping::getLinksInModule(const unsigned module_id) const { return 1; }
+
+unsigned HGCalTriggerGeometryGenericMapping::getModuleSize(const unsigned module_id) const { return 1; }
+
 GlobalPoint HGCalTriggerGeometryGenericMapping::getTriggerCellPosition(const unsigned trigger_cell_det_id) const {
   return trigger_cells_.find(trigger_cell_det_id)->second->position();
 }
@@ -104,5 +108,9 @@ bool HGCalTriggerGeometryGenericMapping::validTriggerCell(const unsigned trigger
 }
 
 bool HGCalTriggerGeometryGenericMapping::disconnectedModule(const unsigned module_id) const { return false; }
+
+unsigned HGCalTriggerGeometryGenericMapping::lastTriggerLayer() const {
+  return eeTopology().dddConstants().layers(true);
+}
 
 unsigned HGCalTriggerGeometryGenericMapping::triggerLayer(const unsigned id) const { return HGCalDetId(id).layer(); }

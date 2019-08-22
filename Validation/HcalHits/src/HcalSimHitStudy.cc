@@ -48,7 +48,7 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run,
   iphi_bins = (int)(iphi_max - iphi_min);
 
   int iEtaHBMax = hcons->getEtaRange(0).second;
-  int iEtaHEMax = hcons->getEtaRange(1).second;
+  int iEtaHEMax = std::max(hcons->getEtaRange(1).second, 1);
   int iEtaHFMax = hcons->getEtaRange(2).second;
   int iEtaHOMax = hcons->getEtaRange(3).second;
 

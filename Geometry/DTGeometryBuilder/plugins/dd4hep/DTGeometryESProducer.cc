@@ -2,7 +2,7 @@
 //
 // Package:    DetectorDescription/DTGeometryESProducer
 // Class:      DTGeometryESProducer
-// 
+//
 /**\class DTGeometryESProducer
 
  Description: DT Geometry ES producer
@@ -64,14 +64,11 @@ public:
 
   using ReturnType = shared_ptr<DTGeometry>;
   using Detector = dd4hep::Detector;
-  
+
   ReturnType produce(const MuonGeometryRecord& record);
 
 private:
-
-  using HostType = ESProductHost<DTGeometry,
-				 MuonNumberingRecord,
-				 DTRecoGeometryRcd>;
+  using HostType = ESProductHost<DTGeometry, MuonNumberingRecord, DTRecoGeometryRcd>;
 
   void setupGeometry(MuonNumberingRecord const&, shared_ptr<HostType>&);
   void setupDBGeometry(DTRecoGeometryRcd const&, shared_ptr<HostType>&);
@@ -93,65 +90,54 @@ private:
   bool m_fromDDD;
 };
 
-DTGeometryESProducer::DTGeometryESProducer(const ParameterSet & iConfig)
-  : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")),
-    m_alignmentsLabel(iConfig.getParameter<string>("alignmentsLabel")),
-    m_myLabel(iConfig.getParameter<string>("appendToDataLabel")),
-    m_attribute(iConfig.getParameter<string>("attribute")),
-    m_value(iConfig.getParameter<string>("value")),
-    m_fromDDD(iConfig.getParameter<bool>("fromDDD"))
-{
+DTGeometryESProducer::DTGeometryESProducer(const ParameterSet& iConfig)
+    : m_tag(iConfig.getParameter<ESInputTag>("DDDetector")),
+      m_alignmentsLabel(iConfig.getParameter<string>("alignmentsLabel")),
+      m_myLabel(iConfig.getParameter<string>("appendToDataLabel")),
+      m_attribute(iConfig.getParameter<string>("attribute")),
+      m_value(iConfig.getParameter<string>("value")),
+      m_fromDDD(iConfig.getParameter<bool>("fromDDD")) {
   m_applyAlignment = iConfig.getParameter<bool>("applyAlignment");
 
   auto cc = setWhatProduced(this);
 
-  if(m_applyAlignment) {
+  if (m_applyAlignment) {
     m_globalPositionToken = cc.consumesFrom<Alignments, GlobalPositionRcd>(edm::ESInputTag{"", m_alignmentsLabel});
     m_alignmentsToken = cc.consumesFrom<Alignments, DTAlignmentRcd>(edm::ESInputTag{"", m_alignmentsLabel});
-    m_alignmentErrorsToken = cc.consumesFrom<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd>(edm::ESInputTag{"", m_alignmentsLabel});
+    m_alignmentErrorsToken =
+        cc.consumesFrom<AlignmentErrorsExtended, DTAlignmentErrorExtendedRcd>(edm::ESInputTag{"", m_alignmentsLabel});
   }
 
-  if(m_fromDDD) {
+  if (m_fromDDD) {
     m_mdcToken = cc.consumesFrom<MuonNumbering, MuonNumberingRecord>(edm::ESInputTag{});
     m_cpvToken = cc.consumesFrom<DDDetector, GeometryFileRcd>(m_tag);
     m_registryToken = cc.consumesFrom<DDSpecParRegistry, DDSpecParRegistryRcd>(m_tag);
   }
 
   edm::LogInfo("Geometry") << "@SUB=DTGeometryESProducer"
-    << "Label '" << m_myLabel << "' "
-    << (m_applyAlignment ? "looking for" : "IGNORING")
-    << " alignment labels '" << m_alignmentsLabel << "'.";
+                           << "Label '" << m_myLabel << "' " << (m_applyAlignment ? "looking for" : "IGNORING")
+                           << " alignment labels '" << m_alignmentsLabel << "'.";
 }
 
-DTGeometryESProducer::~DTGeometryESProducer(){}
+DTGeometryESProducer::~DTGeometryESProducer() {}
 
-std::shared_ptr<DTGeometry> 
-DTGeometryESProducer::produce(const MuonGeometryRecord & record) {
-  
-  auto host = m_holder.makeOrGet([]() {
-    return new HostType;
-  });
+std::shared_ptr<DTGeometry> DTGeometryESProducer::produce(const MuonGeometryRecord& record) {
+  auto host = m_holder.makeOrGet([]() { return new HostType; });
 
   {
     BenchmarkGrd counter("DTGeometryESProducer");
 
-    if(m_fromDDD) {
-      host->ifRecordChanges<MuonNumberingRecord>(record,
-					      [this, &host](auto const& rec) {
-						setupGeometry(rec, host);
-					      });
+    if (m_fromDDD) {
+      host->ifRecordChanges<MuonNumberingRecord>(record, [this, &host](auto const& rec) { setupGeometry(rec, host); });
     } else {
-      host->ifRecordChanges<DTRecoGeometryRcd>(record,
-					       [this, &host](auto const& rec) {
-						 setupDBGeometry(rec, host);
-					       });
+      host->ifRecordChanges<DTRecoGeometryRcd>(record, [this, &host](auto const& rec) { setupDBGeometry(rec, host); });
     }
   }
   //
   // Called whenever the alignments or alignment errors change
-  //  
-  if(m_applyAlignment) {
-    // m_applyAlignment is scheduled for removal. 
+  //
+  if (m_applyAlignment) {
+    // m_applyAlignment is scheduled for removal.
     // Ideal geometry obtained by using 'fake alignment' (with m_applyAlignment = true)
     edm::ESHandle<Alignments> globalPosition;
     record.getRecord<GlobalPositionRcd>().get(m_alignmentsLabel, globalPosition);
@@ -162,49 +148,46 @@ DTGeometryESProducer::produce(const MuonGeometryRecord & record) {
     // Only apply alignment if values exist
     if (alignments->empty() && alignmentErrors->empty() && globalPosition->empty()) {
       edm::LogInfo("Config") << "@SUB=DTGeometryRecord::produce"
-        << "Alignment(Error)s and global position (label '"
-        << m_alignmentsLabel << "') empty: Geometry producer (label "
-        << "'" << m_myLabel << "') assumes fake and does not apply.";
+                             << "Alignment(Error)s and global position (label '" << m_alignmentsLabel
+                             << "') empty: Geometry producer (label "
+                             << "'" << m_myLabel << "') assumes fake and does not apply.";
     } else {
       GeometryAligner aligner;
-      aligner.applyAlignments<DTGeometry>( &(*host),
-                                           &(*alignments), &(*alignmentErrors),
-                                           align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
+      aligner.applyAlignments<DTGeometry>(&(*host),
+                                          &(*alignments),
+                                          &(*alignmentErrors),
+                                          align::DetectorGlobalPosition(*globalPosition, DetId(DetId::Muon)));
     }
   }
 
-  return host; // automatically converts to std::shared_ptr<DTGeometry>
+  return host;  // automatically converts to std::shared_ptr<DTGeometry>
 }
 
-void
-DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record,
-				    shared_ptr<HostType>& host) {
+void DTGeometryESProducer::setupGeometry(const MuonNumberingRecord& record, shared_ptr<HostType>& host) {
   host->clear();
-  
+
   const auto& mdc = record.get(m_mdcToken);
-  
+
   edm::ESTransientHandle<DDDetector> cpv = record.getTransientHandle(m_cpvToken);
-  
+
   ESTransientHandle<DDSpecParRegistry> registry = record.getTransientHandle(m_registryToken);
-  
+
   DDSpecParRefs myReg;
   {
     BenchmarkGrd b1("DTGeometryESProducer Filter Registry");
     registry->filter(myReg, m_attribute, m_value);
   }
-  
+
   DTGeometryBuilder builder;
   builder.build(*host, cpv.product(), mdc, myReg);
 }
 
-void
-DTGeometryESProducer::setupDBGeometry( const DTRecoGeometryRcd& record,
-				       std::shared_ptr<HostType>& host ) {
+void DTGeometryESProducer::setupDBGeometry(const DTRecoGeometryRcd& record, std::shared_ptr<HostType>& host) {
   // host->clear();
-  
+
   // edm::ESHandle<RecoIdealGeometry> rig;
   // record.get(rig);
-  
+
   // DTGeometryBuilderFromCondDB builder;
   // builder.build(host, *rig);
 }

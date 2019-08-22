@@ -11,27 +11,23 @@
 #include <memory>
 #include <vector>
 
-class EcalSelectiveReadoutProducer : public edm::one::EDProducer<>
-{
+class EcalSelectiveReadoutProducer : public edm::one::EDProducer<> {
 public:
-
   /** Constructor
    * @param params seletive readout parameters
    */
-  explicit
-  EcalSelectiveReadoutProducer(const edm::ParameterSet& params);
+  explicit EcalSelectiveReadoutProducer(const edm::ParameterSet& params);
 
   /** Destructor
    */
-  
+
   ~EcalSelectiveReadoutProducer() override;
 
   /** Produces the EDM products
    * @param CMS event
    * @param eventSetup event conditions
    */
-  void
-  produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
+  void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   /** Help function to print SR flags.
    * @param ebSrFlags the action flags of EB
@@ -39,51 +35,39 @@ public:
    * @param iEvent event number. Ignored if <0.
    * @param withHeader, if true an output description is written out as header.
    */
-  static void
-  printSrFlags(std::ostream& os,
-	       const EBSrFlagCollection& ebSrFlags,
-	       const EESrFlagCollection& eeSrFlags,
-	       int iEvent = -1,
-	       bool withHeader = true);
-
+  static void printSrFlags(std::ostream& os,
+                           const EBSrFlagCollection& ebSrFlags,
+                           const EESrFlagCollection& eeSrFlags,
+                           int iEvent = -1,
+                           bool withHeader = true);
 
 private:
-
   /** Sanity check on the DCC FIR filter weights. Log warning or
    * error message if an unexpected weight set is found. In principle
    * it is checked that the maximum weight is applied to the expected
    * maximum sample.
    */
-  void
-  checkWeights(const edm::Event& evt, const edm::ProductID& noZSDigiId) const;
+  void checkWeights(const edm::Event& evt, const edm::ProductID& noZSDigiId) const;
 
   /** Gets the value of the digitizer binOfMaximum parameter.
    * @param noZsDigiId product ID of the non-suppressed digis
    * @param binOfMax [out] set the parameter value if found
    * @return true on success, false otherwise
    */
-  bool
-  getBinOfMax(const edm::Event& evt, const edm::ProductID& noZsDigiId,
-	      int& binOfMax) const;
+  bool getBinOfMax(const edm::Event& evt, const edm::ProductID& noZsDigiId, int& binOfMax) const;
 
-  const EBDigiCollection*
-  getEBDigis(edm::Event& event);
+  const EBDigiCollection* getEBDigis(edm::Event& event);
 
-  const EEDigiCollection*
-  getEEDigis(edm::Event& event);
+  const EEDigiCollection* getEEDigis(edm::Event& event);
 
-  const EcalTrigPrimDigiCollection*
-  getTrigPrims(edm::Event& event) const;
+  const EcalTrigPrimDigiCollection* getTrigPrims(edm::Event& event) const;
 
   ///@{
   /// call these once an event, to make sure everything
   /// is up-to-date
-  void
-  checkGeometry(const edm::EventSetup & eventSetup);
-  void
-  checkTriggerMap(const edm::EventSetup & eventSetup);
-  void
-  checkElecMap(const edm::EventSetup & eventSetup);
+  void checkGeometry(const edm::EventSetup& eventSetup);
+  void checkTriggerMap(const edm::EventSetup& eventSetup);
+  void checkElecMap(const edm::EventSetup& eventSetup);
 
   ///@}
 
@@ -93,26 +77,25 @@ private:
   ///EcalSelectiveReadoutProducer
   ///@throw cms::Exception if the setting is not valid.
   static void checkValidity(const EcalSRSettings& settings);
-  
-  void
-  printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
+
+  void printTTFlags(const EcalTrigPrimDigiCollection& tp, std::ostream& os) const;
 
 private:
   std::unique_ptr<EcalSelectiveReadoutSuppressor> suppressor_;
-  std::string digiProducer_; // name of module/plugin/producer making digis
-  std::string ebdigiCollection_; // secondary name given to collection of input digis
-  std::string eedigiCollection_; // secondary name given to collection of input digis
-  std::string ebSRPdigiCollection_; // secondary name given to collection of suppressed digis
-  std::string eeSRPdigiCollection_; // secondary name given to collection of suppressed digis
-  std::string ebSrFlagCollection_; // secondary name given to collection of SR flag digis
-  std::string eeSrFlagCollection_; // secondary name given to collection of SR flag digis
-  std::string trigPrimProducer_; // name of module/plugin/producer making triggere primitives
-  std::string trigPrimCollection_; // name of module/plugin/producer making triggere primitives
+  std::string digiProducer_;         // name of module/plugin/producer making digis
+  std::string ebdigiCollection_;     // secondary name given to collection of input digis
+  std::string eedigiCollection_;     // secondary name given to collection of input digis
+  std::string ebSRPdigiCollection_;  // secondary name given to collection of suppressed digis
+  std::string eeSRPdigiCollection_;  // secondary name given to collection of suppressed digis
+  std::string ebSrFlagCollection_;   // secondary name given to collection of SR flag digis
+  std::string eeSrFlagCollection_;   // secondary name given to collection of SR flag digis
+  std::string trigPrimProducer_;     // name of module/plugin/producer making triggere primitives
+  std::string trigPrimCollection_;   // name of module/plugin/producer making triggere primitives
 
   // store the pointer, so we don't have to update it every event
-  const CaloGeometry * theGeometry;
-  const EcalTrigTowerConstituentsMap * theTriggerTowerMap;
-  const EcalElectronicsMapping * theElecMap;
+  const CaloGeometry* theGeometry;
+  const EcalTrigTowerConstituentsMap* theTriggerTowerMap;
+  const EcalElectronicsMapping* theElecMap;
   edm::ParameterSet params_;
 
   bool trigPrimBypass_;
@@ -150,7 +133,7 @@ private:
    */
   bool firstCallEB_;
   bool firstCallEE_;
-  int  iEvent_;
+  int iEvent_;
 
   /** Used when settings_ is imported from configuration file. Just used
    * for memory management. Used settings_ to access to the object
@@ -162,7 +145,6 @@ private:
   edm::EDGetTokenT<EBDigiCollection> EB_token;
   edm::EDGetTokenT<EEDigiCollection> EE_token;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcTP_token;
-
 };
 
 #endif

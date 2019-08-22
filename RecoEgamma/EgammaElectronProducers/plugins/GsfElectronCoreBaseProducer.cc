@@ -11,46 +11,41 @@
 
 #include "GsfElectronCoreBaseProducer.h"
 
-using namespace reco ;
+using namespace reco;
 
-void GsfElectronCoreBaseProducer::fillDescription( edm::ParameterSetDescription & desc )
- {
-  desc.add<edm::InputTag>("gsfPfRecTracks",edm::InputTag("pfTrackElec")) ;
-  desc.add<edm::InputTag>("gsfTracks",edm::InputTag("electronGsfTracks")) ;
-  desc.add<edm::InputTag>("ctfTracks",edm::InputTag("generalTracks")) ;
-  desc.add<bool>("useGsfPfRecTracks",true) ;
- }
+void GsfElectronCoreBaseProducer::fillDescription(edm::ParameterSetDescription& desc,
+                                                  std::string const& gsfPfRecTracks,
+                                                  std::string const& gsfTracks) {
+  desc.add<edm::InputTag>("gsfPfRecTracks", edm::InputTag(gsfPfRecTracks));
+  desc.add<edm::InputTag>("gsfTracks", edm::InputTag(gsfTracks));
+  desc.add<edm::InputTag>("ctfTracks", edm::InputTag("generalTracks"));
+  desc.add<bool>("useGsfPfRecTracks", true);
+}
 
-GsfElectronCoreBaseProducer::GsfElectronCoreBaseProducer( const edm::ParameterSet & config )
- {
-  produces<GsfElectronCoreCollection>() ;
-  gsfPfRecTracksTag_ = mayConsume<reco::GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks")) ;
+GsfElectronCoreBaseProducer::GsfElectronCoreBaseProducer(const edm::ParameterSet& config) {
+  produces<GsfElectronCoreCollection>();
+  gsfPfRecTracksTag_ = mayConsume<reco::GsfPFRecTrackCollection>(config.getParameter<edm::InputTag>("gsfPfRecTracks"));
   gsfTracksTag_ = consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("gsfTracks"));
   ctfTracksTag_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("ctfTracks"));
-  useGsfPfRecTracks_ = config.getParameter<bool>("useGsfPfRecTracks") ;
- }
-
-GsfElectronCoreBaseProducer::~GsfElectronCoreBaseProducer()
- {}
-
+  useGsfPfRecTracks_ = config.getParameter<bool>("useGsfPfRecTracks");
+}
 
 //=======================================================================================
 // For derived producers
 //=======================================================================================
 
 // to be called at the beginning of each new event
-void GsfElectronCoreBaseProducer::initEvent( edm::Event & event, const edm::EventSetup & setup )
- {
-  if (useGsfPfRecTracks_)
-   { event.getByToken(gsfPfRecTracksTag_,gsfPfRecTracksH_) ; }
-  event.getByToken(gsfTracksTag_,gsfTracksH_) ;
-  event.getByToken(ctfTracksTag_,ctfTracksH_) ;
- }
+void GsfElectronCoreBaseProducer::initEvent(edm::Event& event, const edm::EventSetup& setup) {
+  if (useGsfPfRecTracks_) {
+    event.getByToken(gsfPfRecTracksTag_, gsfPfRecTracksH_);
+  }
+  event.getByToken(gsfTracksTag_, gsfTracksH_);
+  event.getByToken(ctfTracksTag_, ctfTracksH_);
+}
 
-void GsfElectronCoreBaseProducer::fillElectronCore( reco::GsfElectronCore * eleCore )
- {
-  const GsfTrackRef & gsfTrackRef = eleCore->gsfTrack() ;
+void GsfElectronCoreBaseProducer::fillElectronCore(reco::GsfElectronCore* eleCore) {
+  const GsfTrackRef& gsfTrackRef = eleCore->gsfTrack();
 
-  std::pair<TrackRef,float> ctfpair = gsfElectronTools::getClosestCtfToGsf(gsfTrackRef,ctfTracksH_) ;
-  eleCore->setCtfTrack(ctfpair.first,ctfpair.second) ;
- }
+  std::pair<TrackRef, float> ctfpair = gsfElectronTools::getClosestCtfToGsf(gsfTrackRef, ctfTracksH_);
+  eleCore->setCtfTrack(ctfpair.first, ctfpair.second);
+}

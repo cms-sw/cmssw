@@ -26,21 +26,18 @@ namespace sistrip {
      Event and creates an EDProduct comprising a FEDRawDataCollection.
   */
   class dso_hidden DigiToRawModule final : public edm::stream::EDProducer<> {
-  
   public:
-  
-    DigiToRawModule( const edm::ParameterSet& );
+    DigiToRawModule(const edm::ParameterSet&);
     ~DigiToRawModule() override;
-  
+
     virtual void beginJob() {}
     virtual void endJob() {}
-  
-    void produce( edm::Event&, const edm::EventSetup& ) override;
-    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-    void endStream() override;
-  
-  private:
 
+    void produce(edm::Event&, const edm::EventSetup&) override;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+    void endStream() override;
+
+  private:
     //CAMM can we do without this bool based on the mode ?
     bool copyBufferHeader_;
     FEDReadoutMode mode_;
@@ -49,14 +46,12 @@ namespace sistrip {
     DigiToRaw* digiToRaw_;
     uint32_t eventCounter_;
     edm::InputTag inputDigiTag_;
-    edm::EDGetTokenT< edm::DetSetVector<SiStripRawDigi> > tokenRawDigi;
-    edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > tokenDigi;
+    edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > tokenRawDigi;
+    edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > tokenDigi;
     edm::InputTag rawDataTag_;
     edm::EDGetTokenT<FEDRawDataCollection> tokenRawBuffer;
-
   };
 
-}
+}  // namespace sistrip
 
-#endif // EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H
-
+#endif  // EventFilter_SiStripRawToDigi_SiStripDigiToRawModule_H

@@ -18,101 +18,96 @@
 #include <memory>
 
 //__________________________________________________________________
-TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet & p) 
-  : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
-    myLabel_(p.getParameter<std::string>("appendToDataLabel")),
-    applyAlignment_(p.getParameter<bool>("applyAlignment"))
-{
+TrackerDigiGeometryESModule::TrackerDigiGeometryESModule(const edm::ParameterSet& p)
+    : alignmentsLabel_(p.getParameter<std::string>("alignmentsLabel")),
+      myLabel_(p.getParameter<std::string>("appendToDataLabel")),
+      applyAlignment_(p.getParameter<bool>("applyAlignment")) {
   {
     auto cc = setWhatProduced(this);
     const edm::ESInputTag kEmptyTag;
-    geometricDetToken_ = cc.consumesFrom<GeometricDet,IdealGeometryRecord>(kEmptyTag);
-    trackerTopoToken_ = cc.consumesFrom<TrackerTopology,TrackerTopologyRcd>(kEmptyTag);
-    trackerParamsToken_ = cc.consumesFrom<PTrackerParameters,PTrackerParametersRcd>(kEmptyTag);
+    geometricDetToken_ = cc.consumesFrom<GeometricDet, IdealGeometryRecord>(kEmptyTag);
+    trackerTopoToken_ = cc.consumesFrom<TrackerTopology, TrackerTopologyRcd>(kEmptyTag);
+    trackerParamsToken_ = cc.consumesFrom<PTrackerParameters, PTrackerParametersRcd>(kEmptyTag);
 
-    if(applyAlignment_) {
-      const edm::ESInputTag kAlignTag{"",alignmentsLabel_};
-      globalAlignmentToken_ = cc.consumesFrom<Alignments,GlobalPositionRcd>(kAlignTag);
-      trackerAlignmentToken_ = cc.consumesFrom<Alignments,TrackerAlignmentRcd>(kAlignTag);
+    if (applyAlignment_) {
+      const edm::ESInputTag kAlignTag{"", alignmentsLabel_};
+      globalAlignmentToken_ = cc.consumesFrom<Alignments, GlobalPositionRcd>(kAlignTag);
+      trackerAlignmentToken_ = cc.consumesFrom<Alignments, TrackerAlignmentRcd>(kAlignTag);
       alignmentErrorsToken_ = cc.consumesFrom<AlignmentErrorsExtended, TrackerAlignmentErrorExtendedRcd>(kAlignTag);
       deformationsToken_ = cc.consumesFrom<AlignmentSurfaceDeformations, TrackerSurfaceDeformationRcd>(kAlignTag);
     }
   }
 
   edm::LogInfo("Geometry") << "@SUB=TrackerDigiGeometryESModule"
-                           << "Label '" << myLabel_ << "' "
-                           << (applyAlignment_ ? "looking for" : "IGNORING")
+                           << "Label '" << myLabel_ << "' " << (applyAlignment_ ? "looking for" : "IGNORING")
                            << " alignment labels '" << alignmentsLabel_ << "'.";
 }
 
 //__________________________________________________________________
 TrackerDigiGeometryESModule::~TrackerDigiGeometryESModule() {}
 
-void
-TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
-{
+void TrackerDigiGeometryESModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription descDB;
-  descDB.add<std::string>( "appendToDataLabel", "" );
-  descDB.add<bool>( "fromDDD", false );
-  descDB.add<bool>( "applyAlignment", true );
-  descDB.add<std::string>( "alignmentsLabel", "" );
-  descriptions.add( "trackerGeometryDB", descDB );
+  descDB.add<std::string>("appendToDataLabel", "");
+  descDB.add<bool>("fromDDD", false);
+  descDB.add<bool>("applyAlignment", true);
+  descDB.add<std::string>("alignmentsLabel", "");
+  descriptions.add("trackerGeometryDB", descDB);
 
   edm::ParameterSetDescription desc;
-  desc.add<std::string>( "appendToDataLabel", "" );
-  desc.add<bool>( "fromDDD", true );
-  desc.add<bool>( "applyAlignment", true );
-  desc.add<std::string>( "alignmentsLabel", "" );
-  descriptions.add( "trackerGeometry", desc );
+  desc.add<std::string>("appendToDataLabel", "");
+  desc.add<bool>("fromDDD", true);
+  desc.add<bool>("applyAlignment", true);
+  desc.add<std::string>("alignmentsLabel", "");
+  descriptions.add("trackerGeometry", desc);
 }
 
 //__________________________________________________________________
-std::unique_ptr<TrackerGeometry> 
-TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord & iRecord)
-{ 
+std::unique_ptr<TrackerGeometry> TrackerDigiGeometryESModule::produce(const TrackerDigiGeometryRecord& iRecord) {
   //
   // Called whenever the alignments, alignment errors or global positions change
   //
-  auto const& gD = iRecord.get( geometricDetToken_ );
+  auto const& gD = iRecord.get(geometricDetToken_);
 
   auto const& tTopo = iRecord.get(trackerTopoToken_);
 
-  auto const& ptp = iRecord.get( trackerParamsToken_ );
-  
+  auto const& ptp = iRecord.get(trackerParamsToken_);
+
   TrackerGeomBuilderFromGeometricDet builder;
   std::unique_ptr<TrackerGeometry> tracker(builder.build(&gD, ptp, &tTopo));
 
   if (applyAlignment_) {
     // Since fake is fully working when checking for 'empty', we should get rid of applyAlignment_!
-    auto const& globalPosition = iRecord.get( globalAlignmentToken_ );
-    auto const& alignments = iRecord.get( trackerAlignmentToken_ );
-    auto const& alignmentErrors = iRecord.get( alignmentErrorsToken_ );
+    auto const& globalPosition = iRecord.get(globalAlignmentToken_);
+    auto const& alignments = iRecord.get(trackerAlignmentToken_);
+    auto const& alignmentErrors = iRecord.get(alignmentErrorsToken_);
     // apply if not empty:
     if (alignments.empty() && alignmentErrors.empty() && globalPosition.empty()) {
       edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"
-			     << "Alignment(Error)s and global position (label '"
-	 		     << alignmentsLabel_ << "') empty: Geometry producer (label "
-			     << "'" << myLabel_ << "') assumes fake and does not apply.";
+                             << "Alignment(Error)s and global position (label '" << alignmentsLabel_
+                             << "') empty: Geometry producer (label "
+                             << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner ali;
-      ali.applyAlignments<TrackerGeometry>(tracker.get(), &(alignments), &(alignmentErrors),
-                                           align::DetectorGlobalPosition(globalPosition,
-                                                                         DetId(DetId::Tracker)));
+      ali.applyAlignments<TrackerGeometry>(tracker.get(),
+                                           &(alignments),
+                                           &(alignmentErrors),
+                                           align::DetectorGlobalPosition(globalPosition, DetId(DetId::Tracker)));
     }
 
-    auto const& surfaceDeformations = iRecord.get( deformationsToken_ );
+    auto const& surfaceDeformations = iRecord.get(deformationsToken_);
     // apply if not empty:
     if (surfaceDeformations.empty()) {
       edm::LogInfo("Config") << "@SUB=TrackerDigiGeometryRecord::produce"
-			     << "AlignmentSurfaceDeformations (label '"
-			     << alignmentsLabel_ << "') empty: Geometry producer (label "
-			     << "'" << myLabel_ << "') assumes fake and does not apply.";
+                             << "AlignmentSurfaceDeformations (label '" << alignmentsLabel_
+                             << "') empty: Geometry producer (label "
+                             << "'" << myLabel_ << "') assumes fake and does not apply.";
     } else {
       GeometryAligner ali;
       ali.attachSurfaceDeformations<TrackerGeometry>(tracker.get(), &(surfaceDeformations));
     }
   }
-  
+
   return tracker;
 }
 

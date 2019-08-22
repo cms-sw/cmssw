@@ -4,7 +4,7 @@
 //
 // Package:     DataRecord
 // Class  :     FillInfoRcd
-// 
+//
 /**\class FillInfoRcd FillInfoRcd.h CondFormats/DataRecord/interface/FillInfoRcd.h
 
  Description: [one line class summary]
@@ -14,7 +14,7 @@
 
 */
 //
-// Author:      
+// Author:
 // Created:     Tue Apr 10 19:38:43 CEST 2012
 // $Id$
 //

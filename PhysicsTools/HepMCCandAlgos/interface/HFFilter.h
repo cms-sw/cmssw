@@ -21,7 +21,6 @@
 //
 //
 
-
 // system include files
 #include <memory>
 #include <string>
@@ -37,24 +36,23 @@
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 
-
 //
 // class declaration
 //
 
 class HFFilter : public edm::EDFilter {
-   public:
-      explicit HFFilter(const edm::ParameterSet&);
-      ~HFFilter() override;
+public:
+  explicit HFFilter(const edm::ParameterSet&);
+  ~HFFilter() override;
 
-      bool filter(edm::Event&, const edm::EventSetup&) override;
-      void endJob() override ;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
-   private:
-      // ----------member data ---------------------------
-      edm::EDGetTokenT<std::vector<reco::GenJet> >    genJetsCollToken_;        // Input GenJetsCollection
-      double           ptMin_;                  // Min pt
-      double           etaMax_;                 // Max abs(eta)
+private:
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<std::vector<reco::GenJet> > genJetsCollToken_;  // Input GenJetsCollection
+  double ptMin_;                                                   // Min pt
+  double etaMax_;                                                  // Max abs(eta)
 };
 
 #endif

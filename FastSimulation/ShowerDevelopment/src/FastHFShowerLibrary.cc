@@ -31,7 +31,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ParticleTypes.hh"
 
-// STL headers 
+// STL headers
 #include <vector>
 #include <iostream>
 #include <mutex>
@@ -40,113 +40,106 @@
 
 static std::once_flag initializeOnce;
 
-FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) 
-  : fast(p) {
-  edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
-  applyFidCut              = m_HS.getParameter<bool>("ApplyFiducialCut");
+FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const& p) : fast(p) {
+  edm::ParameterSet m_HS = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
+  applyFidCut = m_HS.getParameter<bool>("ApplyFiducialCut");
 }
 
 void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetup) {
-
-  edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization"; 
+  edm::LogInfo("FastCalorimetry") << "initHFShowerLibrary::initialization";
 
   edm::ESTransientHandle<DDCompactView> cpv;
   iSetup.get<IdealGeometryRecord>().get(cpv);
 
-  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  edm::ESHandle<HcalDDDSimConstants> hdc;
   iSetup.get<HcalSimNumberingRecord>().get(hdc);
   hcalConstants = hdc.product();
 
   std::string name = "HcalHits";
-  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));  
-  hfshower.reset(new HFShowerLibrary(name,*cpv,fast));
-  
+  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
+  hfshower.reset(new HFShowerLibrary(name, *cpv, fast));
+
   //only one thread can be allowed to setup the G4 physics table.
-  std::call_once(initializeOnce,[]() {
-      // Geant4 particles
-      G4DecayPhysics decays;
-      decays.ConstructParticle();  
-      G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-      partTable->SetReadiness();
-    });
+  std::call_once(initializeOnce, []() {
+    // Geant4 particles
+    G4DecayPhysics decays;
+    decays.ConstructParticle();
+    G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
+    partTable->SetReadiness();
+  });
   G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
-  hfshower->initRun(partTable, hcalConstants); // init particle code
+  hfshower->initRun(partTable, hcalConstants);  // init particle code
 }
 
-void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution * rnd)
-{
+void FastHFShowerLibrary::SetRandom(const RandomEngineAndDistribution* rnd) {
   // define Geant4 engine per thread
   G4Random::setTheEngine(&(rnd->theEngine()));
-  LogDebug("FastHFShowerLibrary::recoHFShowerLibrary") 
-    << "Begin of event " << G4UniformRand() << "  " 
-    << rnd->theEngine().name() << "  " << rnd->theEngine();
+  LogDebug("FastHFShowerLibrary::recoHFShowerLibrary")
+      << "Begin of event " << G4UniformRand() << "  " << rnd->theEngine().name() << "  " << rnd->theEngine();
 }
 
 void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {
-
 #ifdef DebugLog
   edm::LogInfo("FastCalorimetry") << "FastHFShowerLibrary: recoHFShowerLibrary ";
-#endif 
+#endif
 
-  if(!myTrack.onVFcal()) {
+  if (!myTrack.onVFcal()) {
 #ifdef DebugLog
     edm::LogInfo("FastCalorimetry") << "FastHFShowerLibrary: we should not be here ";
 #endif
   }
 
   hitMap.clear();
-  double eGen  = 1000.*myTrack.vfcalEntrance().e();                // energy in [MeV]
-  double delZv = (myTrack.vfcalEntrance().vertex().Z()>0.0) ? 50.0 : -50.0;
-  G4ThreeVector vertex( 10.*myTrack.vfcalEntrance().vertex().X(),
-                        10.*myTrack.vfcalEntrance().vertex().Y(),
-                        10.*myTrack.vfcalEntrance().vertex().Z()+delZv); // in [mm]
+  double eGen = 1000. * myTrack.vfcalEntrance().e();  // energy in [MeV]
+  double delZv = (myTrack.vfcalEntrance().vertex().Z() > 0.0) ? 50.0 : -50.0;
+  G4ThreeVector vertex(10. * myTrack.vfcalEntrance().vertex().X(),
+                       10. * myTrack.vfcalEntrance().vertex().Y(),
+                       10. * myTrack.vfcalEntrance().vertex().Z() + delZv);  // in [mm]
 
-  G4ThreeVector direction(myTrack.vfcalEntrance().Vect().X(),
-                          myTrack.vfcalEntrance().Vect().Y(),
-                          myTrack.vfcalEntrance().Vect().Z());
+  G4ThreeVector direction(
+      myTrack.vfcalEntrance().Vect().X(), myTrack.vfcalEntrance().Vect().Y(), myTrack.vfcalEntrance().Vect().Z());
 
   bool ok;
-  double weight = 1.0;                     // rad. damage 
-  int parCode   = myTrack.type();
-  double tSlice = 0.1*vertex.mag()/29.98;
+  double weight = 1.0;  // rad. damage
+  int parCode = myTrack.type();
+  double tSlice = 0.1 * vertex.mag() / 29.98;
 
   std::vector<HFShowerLibrary::Hit> hits =
-    hfshower->fillHits(vertex,direction,parCode,eGen,ok,weight,tSlice,false);
+      hfshower->fillHits(vertex, direction, parCode, eGen, ok, weight, tSlice, false);
 
-  for (unsigned int i=0; i<hits.size(); ++i) {
+  for (unsigned int i = 0; i < hits.size(); ++i) {
     G4ThreeVector pos = hits[i].position;
-    int depth         = hits[i].depth;
-    double time       = hits[i].time;
-    if (!applyFidCut || (HFFibreFiducial::PMTNumber(pos)>0) ) {     
-//    if (!applyFidCut || (applyFidCut && HFFibreFiducial::PMTNumber(pos)>0)) {     
+    int depth = hits[i].depth;
+    double time = hits[i].time;
+    if (!applyFidCut || (HFFibreFiducial::PMTNumber(pos) > 0)) {
+      //    if (!applyFidCut || (applyFidCut && HFFibreFiducial::PMTNumber(pos)>0)) {
       int det = 5;
       int lay = 1;
       uint32_t id = 0;
-      HcalNumberingFromDDD::HcalID tmp = 
-	numberingFromDDD->unitID(det, math::XYZVectorD(pos.x(),pos.y(),
-						       pos.z()), depth, lay);
+      HcalNumberingFromDDD::HcalID tmp =
+          numberingFromDDD->unitID(det, math::XYZVectorD(pos.x(), pos.y(), pos.z()), depth, lay);
       modifyDepth(tmp);
       id = numberingScheme.getUnitID(tmp);
 
-      CaloHitID current_id(id,time,myTrack.id());
-      std::map<CaloHitID,float>::iterator cellitr;
+      CaloHitID current_id(id, time, myTrack.id());
+      std::map<CaloHitID, float>::iterator cellitr;
       cellitr = hitMap.find(current_id);
-      if(cellitr==hitMap.end()) {
-         hitMap.insert(std::pair<CaloHitID,float>(current_id,1.0));
+      if (cellitr == hitMap.end()) {
+        hitMap.insert(std::pair<CaloHitID, float>(current_id, 1.0));
       } else {
-         cellitr->second += 1.0;
+        cellitr->second += 1.0;
       }
-    }  // end of isItinFidVolume check 
-  } // end loop over hits
-
+    }  // end of isItinFidVolume check
+  }    // end loop over hits
 }
 
 void FastHFShowerLibrary::modifyDepth(HcalNumberingFromDDD::HcalID& id) {
   if (id.subdet == HcalForward) {
     int ieta = (id.zside == 0) ? -id.etaR : id.etaR;
-    if (hcalConstants->maxHFDepth(ieta,id.phis) > 2) {
+    if (hcalConstants->maxHFDepth(ieta, id.phis) > 2) {
       if (id.depth <= 2) {
-        if (G4UniformRand() > 0.5) id.depth += 2;
+        if (G4UniformRand() > 0.5)
+          id.depth += 2;
       }
     }
   }

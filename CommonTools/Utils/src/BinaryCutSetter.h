@@ -14,21 +14,20 @@
 #include "CommonTools/Utils/src/LogicalBinaryOperator.h"
 
 namespace reco {
-  namespace parser {    
-    template<typename Op>
+  namespace parser {
+    template <typename Op>
     struct BinaryCutSetter {
-      BinaryCutSetter(SelectorStack & selStack) :
-	selStack_(selStack) { }
+      BinaryCutSetter(SelectorStack& selStack) : selStack_(selStack) {}
       void operator()(const char*, const char*) const {
-	selStack_.push_back(SelectorPtr(new LogicalBinaryOperator<Op>(selStack_)));
-      }     
+        selStack_.push_back(SelectorPtr(new LogicalBinaryOperator<Op>(selStack_)));
+      }
       void operator()(const char&) const {
-	const char * c;
-	operator()(c, c);
-      }  
-      SelectorStack & selStack_;
+        const char* c;
+        operator()(c, c);
+      }
+      SelectorStack& selStack_;
     };
-  }
- }
+  }  // namespace parser
+}  // namespace reco
 
 #endif

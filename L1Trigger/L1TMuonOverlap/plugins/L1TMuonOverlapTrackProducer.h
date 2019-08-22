@@ -21,25 +21,20 @@
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFinputMaker.h"
 #include "L1Trigger/L1TMuonOverlap/interface/OMTFSorter.h"
 
-
-
 class L1TMuonOverlapParams;
 class OMTFProcessor;
 class OMTFConfiguration;
 class OMTFConfigMaker;
 class XMLConfigWriter;
 
-
-
-namespace XERCES_CPP_NAMESPACE{
+namespace XERCES_CPP_NAMESPACE {
   class DOMElement;
   class DOMDocument;
   class DOMImplementation;
-}
-
+}  // namespace XERCES_CPP_NAMESPACE
 
 class L1TMuonOverlapTrackProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
- public:
+public:
   L1TMuonOverlapTrackProducer(const edm::ParameterSet&);
 
   ~L1TMuonOverlapTrackProducer() override;
@@ -53,10 +48,9 @@ class L1TMuonOverlapTrackProducer : public edm::one::EDProducer<edm::one::WatchR
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
- private:
-
+private:
   edm::ParameterSet theConfig;
-  
+
   edm::EDGetTokenT<L1MuDTChambPhContainer> inputTokenDTPh;
   edm::EDGetTokenT<L1MuDTChambThContainer> inputTokenDTTh;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> inputTokenCSC;
@@ -65,7 +59,6 @@ class L1TMuonOverlapTrackProducer : public edm::one::EDProducer<edm::one::WatchR
   bool dumpResultToXML, dumpDetailedResultToXML;
 
   OMTFReconstruction m_Reconstruction;
-
 };
 
 #endif

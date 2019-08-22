@@ -4,7 +4,7 @@
 //
 // Package:     Core
 // Class  :     FWColorManager
-// 
+//
 /**\class FWColorManager FWColorManager.h Fireworks/Core/interface/FWColorManager.h
 
  Description: <one line class summary>
@@ -29,110 +29,106 @@
 class FWModelChangeManager;
 class TGLViewer;
 
-enum FWGeomColorIndex
-{
-   kFWPixelBarrelColorIndex,
-   kFWPixelEndcapColorIndex,
-   kFWTrackerBarrelColorIndex,
-   kFWTrackerEndcapColorIndex,
-   kFWMuonBarrelLineColorIndex,
-   kFWMuonEndcapLineColorIndex,
-   kFwHGCalEEColorIndex,
-   kFwHGCalHSiColorIndex,
-   kFwHGCalHScColorIndex,
-   kFWGeomColorSize
+enum FWGeomColorIndex {
+  kFWPixelBarrelColorIndex,
+  kFWPixelEndcapColorIndex,
+  kFWTrackerBarrelColorIndex,
+  kFWTrackerEndcapColorIndex,
+  kFWMuonBarrelLineColorIndex,
+  kFWMuonEndcapLineColorIndex,
+  kFwHGCalEEColorIndex,
+  kFwHGCalHSiColorIndex,
+  kFwHGCalHScColorIndex,
+  kFWGeomColorSize
 };
 
-
-class FWColorManager
-{
+class FWColorManager {
 public:
-   enum EPalette { kPaletteFirst = 0, kClassic = 0, kPurple, kFall, kSpring, kArctic, kPaletteLast };
+  enum EPalette { kPaletteFirst = 0, kClassic = 0, kPurple, kFall, kSpring, kArctic, kPaletteLast };
 
-   FWColorManager(FWModelChangeManager*);
-   virtual ~FWColorManager();
-   
-   void initialize();
+  FWColorManager(FWModelChangeManager*);
+  virtual ~FWColorManager();
 
-   // ---------- const member functions ---------------------
-   Color_t background() const {return m_background;}
-   Color_t foreground() const {return m_foreground;}
-   Bool_t  isColorSetDark() const {return m_background == kBlackIndex;}
-   Bool_t  isColorSetLight() const {return m_background == kWhiteIndex;}
- 
-   int numberOfLimitedColors() const {return m_numColorIndices;}
-   int offsetOfLimitedColors() const {return m_startColorIndex;}
-   int borderOfLimitedColors() const {return m_startColorIndex + m_numColorIndices;}
+  void initialize();
 
-   void fillLimitedColors(std::vector<Color_t>& cv) const;
+  // ---------- const member functions ---------------------
+  Color_t background() const { return m_background; }
+  Color_t foreground() const { return m_foreground; }
+  Bool_t isColorSetDark() const { return m_background == kBlackIndex; }
+  Bool_t isColorSetLight() const { return m_background == kWhiteIndex; }
 
-   //help with backward compatibility with old config files
-   Color_t oldColorToIndex(Color_t, int version) const;
-   
-   bool colorHasIndex(Color_t) const;
-   
-   Color_t geomColor(FWGeomColorIndex) const;
-   
-   enum BackgroundColorIndex { kWhiteIndex = kWhite, kBlackIndex = kBlack };
+  int numberOfLimitedColors() const { return m_numColorIndices; }
+  int offsetOfLimitedColors() const { return m_startColorIndex; }
+  int borderOfLimitedColors() const { return m_startColorIndex + m_numColorIndices; }
 
-   BackgroundColorIndex backgroundColorIndex() const;
-   EPalette getPalette() const { return m_paletteId; }
+  void fillLimitedColors(std::vector<Color_t>& cv) const;
 
-   // ---------- static member functions --------------------
-   
-   static Bool_t setColorSetViewer(TGLViewer*, Color_t);
+  //help with backward compatibility with old config files
+  Color_t oldColorToIndex(Color_t, int version) const;
 
-   static Color_t getDefaultStartColorIndex();
+  bool colorHasIndex(Color_t) const;
 
-   // ---------- member functions ---------------------------
+  Color_t geomColor(FWGeomColorIndex) const;
 
-   void defaultBrightness();
-   void setBrightness(int);
-   int  brightness ();
-   void setBackgroundColorIndex(BackgroundColorIndex);
-   void setBackgroundAndBrightness(BackgroundColorIndex, int);
-   void switchBackground();
-   
-   void setPalette(long long);
+  enum BackgroundColorIndex { kWhiteIndex = kWhite, kBlackIndex = kBlack };
 
-   void setGeomColor(FWGeomColorIndex, Color_t);
-   void setGeomTransparency(Color_t idx, bool projectedType);
-   Color_t geomTransparency(bool projected) const { return projected ? m_geomTransparency2D : m_geomTransparency3D; } 
+  BackgroundColorIndex backgroundColorIndex() const;
+  EPalette getPalette() const { return m_paletteId; }
 
-   void setDefaultGeomColors();
-   void propagatePaletteChanges() const;
-   mutable sigc::signal<void> colorsHaveChanged_;
-   mutable sigc::signal<void> geomColorsHaveChanged_;
-   mutable sigc::signal<void, bool> geomTransparencyHaveChanged_;
+  // ---------- static member functions --------------------
 
-   //called after all the slots attached to colorsHaveChanged_ are done
-   mutable sigc::signal<void> colorsHaveChangedFinished_;
+  static Bool_t setColorSetViewer(TGLViewer*, Color_t);
+
+  static Color_t getDefaultStartColorIndex();
+
+  // ---------- member functions ---------------------------
+
+  void defaultBrightness();
+  void setBrightness(int);
+  int brightness();
+  void setBackgroundColorIndex(BackgroundColorIndex);
+  void setBackgroundAndBrightness(BackgroundColorIndex, int);
+  void switchBackground();
+
+  void setPalette(long long);
+
+  void setGeomColor(FWGeomColorIndex, Color_t);
+  void setGeomTransparency(Color_t idx, bool projectedType);
+  Color_t geomTransparency(bool projected) const { return projected ? m_geomTransparency2D : m_geomTransparency3D; }
+
+  void setDefaultGeomColors();
+  void propagatePaletteChanges() const;
+  mutable sigc::signal<void> colorsHaveChanged_;
+  mutable sigc::signal<void> geomColorsHaveChanged_;
+  mutable sigc::signal<void, bool> geomTransparencyHaveChanged_;
+
+  //called after all the slots attached to colorsHaveChanged_ are done
+  mutable sigc::signal<void> colorsHaveChangedFinished_;
 
 private:
-   FWColorManager(const FWColorManager&) = delete; // stop default
-   
-   const FWColorManager& operator=(const FWColorManager&) = delete; // stop default
-   void updateColors();
-   void initColorTable();
+  FWColorManager(const FWColorManager&) = delete;  // stop default
 
-   // ---------- member data --------------------------------
-   EPalette m_paletteId;
+  const FWColorManager& operator=(const FWColorManager&) = delete;  // stop default
+  void updateColors();
+  void initColorTable();
 
-   Float_t m_gammaOff;
+  // ---------- member data --------------------------------
+  EPalette m_paletteId;
 
-   Color_t m_background;
-   Color_t m_foreground;
-   FWModelChangeManager* m_changeManager;
-   
-   Color_t m_startColorIndex;
-   Color_t m_numColorIndices;
+  Float_t m_gammaOff;
 
-   Color_t m_geomColor[kFWGeomColorSize];
-   Char_t  m_geomTransparency2D;
-   Char_t  m_geomTransparency3D;
+  Color_t m_background;
+  Color_t m_foreground;
+  FWModelChangeManager* m_changeManager;
 
-   static const Color_t s_defaultStartColorIndex;
+  Color_t m_startColorIndex;
+  Color_t m_numColorIndices;
+
+  Color_t m_geomColor[kFWGeomColorSize];
+  Char_t m_geomTransparency2D;
+  Char_t m_geomTransparency3D;
+
+  static const Color_t s_defaultStartColorIndex;
 };
-
 
 #endif

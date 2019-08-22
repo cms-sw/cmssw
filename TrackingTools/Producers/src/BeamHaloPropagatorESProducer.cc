@@ -4,7 +4,10 @@
  *  \author Jean-Roch VLIMANT UCSB
  */
 
-#include "TrackingTools/Producers/interface/BeamHaloPropagatorESProducer.h"
+#include "FWCore/Framework/interface/ESProducer.h"
+
+#include "TrackingTools/GeomPropagators/interface/BeamHaloPropagator.h"
+#include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,48 +22,66 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-    
+
+#include <memory>
+
+class BeamHaloPropagatorESProducer : public edm::ESProducer {
+public:
+  /// Constructor
+  BeamHaloPropagatorESProducer(const edm::ParameterSet&);
+
+  /// Destructor
+  ~BeamHaloPropagatorESProducer() override;
+
+  // Operations
+  std::unique_ptr<Propagator> produce(const TrackingComponentsRecord&);
+
+private:
+  PropagationDirection thePropagationDirection;
+  std::string myname;
+  std::string theEndCapTrackerPropagatorName;
+  std::string theCrossingTrackerPropagatorName;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> endcapToken_;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> crossToken_;
+};
+
 using namespace edm;
 using namespace std;
-    
-BeamHaloPropagatorESProducer::BeamHaloPropagatorESProducer(const ParameterSet& parameterSet) 
-{
+
+BeamHaloPropagatorESProducer::BeamHaloPropagatorESProducer(const ParameterSet& parameterSet) {
   myname = parameterSet.getParameter<string>("ComponentName");
 
   string propDir = parameterSet.getParameter<string>("PropagationDirection");
-  
-  if (propDir == "oppositeToMomentum") thePropagationDirection = oppositeToMomentum;
-  else if (propDir == "alongMomentum") thePropagationDirection = alongMomentum;
-  else if (propDir == "anyDirection") thePropagationDirection = anyDirection;
+
+  if (propDir == "oppositeToMomentum")
+    thePropagationDirection = oppositeToMomentum;
+  else if (propDir == "alongMomentum")
+    thePropagationDirection = alongMomentum;
+  else if (propDir == "anyDirection")
+    thePropagationDirection = anyDirection;
   else
-    throw cms::Exception("BeamHaloPropagatorESProducer") 
-      << "Wrong fit direction ("<< propDir <<")chosen in BeamHaloPropagatorESProducer";
+    throw cms::Exception("BeamHaloPropagatorESProducer")
+        << "Wrong fit direction (" << propDir << ")chosen in BeamHaloPropagatorESProducer";
 
   theEndCapTrackerPropagatorName = parameterSet.getParameter<string>("EndCapTrackerPropagator");
   theCrossingTrackerPropagatorName = parameterSet.getParameter<string>("CrossingTrackerPropagator");
 
-  setWhatProduced(this,myname);
+  setWhatProduced(this, myname)
+      .setConsumes(magToken_)
+      .setConsumes(endcapToken_, edm::ESInputTag(""s, theEndCapTrackerPropagatorName))
+      .setConsumes(crossToken_, edm::ESInputTag(""s, theCrossingTrackerPropagatorName));
 }
 
 BeamHaloPropagatorESProducer::~BeamHaloPropagatorESProducer() {}
 
-std::unique_ptr<Propagator> 
-BeamHaloPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord){ 
+std::unique_ptr<Propagator> BeamHaloPropagatorESProducer::produce(const TrackingComponentsRecord& iRecord) {
+  LogDebug("BeamHaloPropagator") << "Creating a BeamHaloPropagator: " << myname
+                                 << "\n with EndCap Propagator: " << theEndCapTrackerPropagatorName
+                                 << "\n with Crossing Propagator: " << theCrossingTrackerPropagatorName;
 
-  ESHandle<MagneticField> magField;
-  iRecord.getRecord<IdealMagneticFieldRecord>().get(magField);
-  
-  ESHandle<Propagator> endcapPropagator;
-  iRecord.get(theEndCapTrackerPropagatorName,endcapPropagator);
-
-  ESHandle<Propagator> crossPropagator;
-  iRecord.get(theCrossingTrackerPropagatorName,crossPropagator);
-  
-  LogDebug("BeamHaloPropagator")<<"Creating a BeamHaloPropagator: "<<myname
-				<<"\n with EndCap Propagator: "<<theEndCapTrackerPropagatorName
-				<<"\n with Crossing Propagator: "<<theCrossingTrackerPropagatorName;
-
-  return            std::make_unique<BeamHaloPropagator>(*endcapPropagator,*crossPropagator,
-							&*magField,
-							thePropagationDirection);
+  return std::make_unique<BeamHaloPropagator>(
+      iRecord.get(endcapToken_), iRecord.get(crossToken_), &iRecord.get(magToken_), thePropagationDirection);
 }
+
+DEFINE_FWK_EVENTSETUP_MODULE(BeamHaloPropagatorESProducer);

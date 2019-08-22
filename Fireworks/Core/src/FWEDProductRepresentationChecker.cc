@@ -32,11 +32,9 @@ FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::st
                                                                    const std::string& iPurpose,
                                                                    unsigned int iBitPackedViews,
                                                                    bool iRepresentsSubPart,
-                                                                   bool iRequiresFF) :
-   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart, iRequiresFF),
-   m_typeidName(iTypeidName)
-{
-}
+                                                                   bool iRequiresFF)
+    : FWRepresentationCheckerBase(iPurpose, iBitPackedViews, iRepresentsSubPart, iRequiresFF),
+      m_typeidName(iTypeidName) {}
 
 // FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker& rhs)
 // {
@@ -66,17 +64,15 @@ FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::st
 //
 // const member functions
 //
-FWRepresentationInfo
-FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
-{
-   TClass* clss = TClass::GetClass(iTypeName.c_str());
-   if(nullptr==clss || clss->GetTypeInfo()==nullptr) {
-      return FWRepresentationInfo();
-   }
-   if(clss->GetTypeInfo()->name() == m_typeidName) {
-      return FWRepresentationInfo(purpose(),0,bitPackedViews(), representsSubPart(), requiresFF());
-   }
-   return FWRepresentationInfo();
+FWRepresentationInfo FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const {
+  TClass* clss = TClass::GetClass(iTypeName.c_str());
+  if (nullptr == clss || clss->GetTypeInfo() == nullptr) {
+    return FWRepresentationInfo();
+  }
+  if (clss->GetTypeInfo()->name() == m_typeidName) {
+    return FWRepresentationInfo(purpose(), 0, bitPackedViews(), representsSubPart(), requiresFF());
+  }
+  return FWRepresentationInfo();
 }
 
 //
