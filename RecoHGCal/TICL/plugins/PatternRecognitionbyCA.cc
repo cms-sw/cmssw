@@ -21,8 +21,8 @@ PatternRecognitionbyCA::PatternRecognitionbyCA(const edm::ParameterSet &conf) : 
 
 PatternRecognitionbyCA::~PatternRecognitionbyCA(){};
 
-const void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
-                                                  std::vector<Trackster> &result) {
+void PatternRecognitionbyCA::makeTracksters(const PatternRecognitionAlgoBase::Inputs &input,
+                                            std::vector<Trackster> &result) {
   rhtools_.getEventSetup(input.es);
 
   theGraph_->setVerbosity(algo_verbosity_);
